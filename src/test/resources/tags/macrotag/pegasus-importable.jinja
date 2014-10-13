@@ -1,0 +1,13 @@
+{% set wrap_padding =   "padding-left:" ~ padding ~ "px;padding-right:" ~ padding ~ "px" %}
+
+{% macro spacer(orientation = "h", size = padding) %}
+    {% if orientation == "v" or orientation == "vertical" %}
+        <td width="{{ size }}"></td>
+    {% elif orientation == "h" or orientation == "horizontal" %}
+        <tr><td height="{{ size }}"></td></tr>
+    {% endif %}
+{% endmacro %}
+
+{% macro _private() %}
+    foovar
+{% endmacro %}

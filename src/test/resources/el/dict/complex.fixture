@@ -1,0 +1,135 @@
+{
+    "": {
+        "address": "",
+        "cAbbrv": "",
+        "link" : ""
+    },
+    "Boston": {
+        "id":1,
+        "cAbbrv":"BOS",
+        "city":"Boston",
+        "address":"4 Avery Street at Tremont - Boston, MA 02111",
+        "brand":"Sports Club/LA",
+        "phone":"617.375.8200",
+        "link":"boston.sportsclubla",
+        "sfdc_name":"Boston",
+        "fb":"https://www.facebook.com/thesportsclubla",
+        "twitter":"SportsClub_LA",
+        "timezone":"America/New_York"
+    },
+    "Miami": {
+        "id":2,
+        "cAbbrv":"MIA",
+        "city":"Miami",
+        "address":"Four Seasons Tower
+        1441 Brickell Avenue - Miami, FL 33131",
+        "brand":"Sports Club/LA",
+        "phone":"305.533.1199",
+        "link":"miami.sportsclubla",
+        "sfdc_name":"Miami",
+        "fb":"https://www.facebook.com/thesportsclubla",
+        "twitter":"SportsClub_LA",
+        "timezone":"America/New_York"
+    },
+    "Upper East Side": {
+        "id":3,
+        "cAbbrv":"UES",
+        "city":"Upper East Side",
+        "address":"330 East 61st Street - New York, NY 10065",
+        "brand":"Sports Club/LA",
+        "phone":"212.355.5100",
+        "link":"nycues.sportsclubla",
+        "sfdc_name":"Upper East Side",
+        "fb":"https://www.facebook.com/thesportsclubla",
+        "twitter":"SportsClub_LA",
+        "timezone":"America/New_York"
+    },
+    "Reebok": {
+        "id":4,
+        "cAbbrv":"REE",
+        "city":"New York",
+        "address":"160 Columbus Avenue - New York, NY 10023",
+        "brand":"Reebok Sports Club/NY",
+        "phone":"212.362.6800",
+        "link":"reeboksportsclubny",
+        "sfdc_name":"Reebok",
+        "fb":"https://www.facebook.com/reeboksportsclubny",
+        "twitter":"RbkSportsClubNY",
+        "timezone":"America/New_York"
+    },
+    "San Francisco": {
+        "id":5,
+        "cAbbrv":"SF",
+        "city":"San Francisco",
+        "address":"747 Market Street - San Francisco, CA 94103",
+        "brand":"Sports Club/LA",
+        "phone":"415.633.3900",
+        "link":"sf.sportsclubla",
+        "sfdc_name":"San Francisco",
+        "fb":"https://www.facebook.com/thesportsclubla",
+        "twitter":"SportsClub_LA",
+        "timezone":"America/Los_Angeles"
+    },
+    "DC": {
+        "id":6,
+        "cAbbrv":"DC",
+        "city":"Washington, DC",
+        "address":"1170 22nd at “M” Street, NW - Washington, DC 20037",
+        "brand":"Sports Club/LA",
+        "phone":"202.974.6600",
+        "link":"dc.sportsclubla",
+        "sfdc_name":"DC",
+        "fb":"https://www.facebook.com/thesportsclubla",
+        "twitter":"SportsClub_LA",
+        "timezone":"America/New_York"
+    },
+    "Chestnut Hill": {
+        "id":7,
+        "cAbbrv":"CNH",
+        "city":"Chestnut Hill",
+        "address":"55 Boylston St - Chestnut Hill, MA 02467",
+        "brand":"Sports Club/LA",
+        "phone":"617.244.5010",
+        "link":"chestnuthill.sportsclubla",
+        "sfdc_name":"Chestnut Hill",
+        "fb":"http://www.facebook.com/thesportsclubla",
+        "twitter":"SportsClub_LA",
+        "timezone":"America/New_York"
+    },
+    "ALL": {
+        "id":8,
+        "cAbbrv":"ALL",
+        "address":"Boston, MA • 617.375.8200    -   Chestnut Hill, MA • 617.975.2020    -   Miami, FL • 305.533.1199    -   New York, NY • 212.355.5100   -   San Francisco, CA • 415.633.3900    -   Washington, DC • 202.974.6600   -   REEBOK SPORTS CLUB/NY • 212.362.6800",
+        "brand":"Sports Club/LA",
+    },
+    "NY": {
+        "id":9,
+        "cAbbrv":"NY",
+        "city":"New York",
+        "address":"Reebok Sports Club/NY - 160 Columbus Avenue - New York, NY 10023
+        Upper East Side - 330 East 61st Street - New York, NY 10065",
+        "brand":"Reebok Sports Club/NY",
+        "phone":"212.362.6800",
+        "link":"reeboksportsclubny",
+        "sfdc_name":"Reebok",
+        "fb":"https://www.facebook.com/reeboksportsclubny",
+        "twitter":"RbkSportsClubNY",
+        "timezone":"America/New_York"
+    },
+    "MA": {
+        "id":10,
+        "cAbbrv":"MA",
+        "city":"Boston",
+        "address":"Boston - 4 Avery Street at Tremont - Boston, MA 02111
+        Chestnut Hill - 55 Boylston St - Chestnut Hill, MA 02467",
+        "brand":"Reebok Sports Club/NY",
+        "phone":"212.362.6800",
+        "link":"reeboksportsclubny",
+        "sfdc_name":"Reebok",
+        "fb":"https://www.facebook.com/reeboksportsclubny",
+        "twitter":"RbkSportsClubNY",
+        "timezone":"America/New_York"
+    }
+
+    
+}

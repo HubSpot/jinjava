@@ -1,0 +1,36 @@
+{% macro tools_tab(tool, first = false) %}
+    <div class="tools__tab tools__tab--{{ tool.slug }} {% if first %}tools__tab--active{% endif %} }}">
+        <div class="tools__description">
+            {{ tool.body }}
+        </div>
+    </div>
+{% endmacro %}
+{% set tools = [
+    {
+        'slug':     "background-screening",
+        'body':     widget_data.tools_body_1.html
+    },
+    {
+        'slug':     "drug-testing",
+        'body':     widget_data.tools_body_2.html
+    },
+    {
+        'slug':     "occupational-health-screening",
+        'body':     widget_data.tools_body_3.html
+    },
+    {
+        'slug':     "e-verify",
+        'body':     widget_data.tools_body_4.html
+    }
+] %}
+
+<div class="tools tabbed-section container">
+    {% if widget_data.tools_image.src %}
+        <img src="{{ widget_data.tools_image.src }}" alt="{{ widget_data.tools_image.alt }}" class="tools__thumb">
+    {% endif %}
+    <div class="tools__nav tabs">
+        {% for tool in tools %}
+            {{ tools_tab(tool, loop.first) }}
+        {% endfor %}
+    </div>
+</div>

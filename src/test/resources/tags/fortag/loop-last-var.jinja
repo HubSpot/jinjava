@@ -1,0 +1,7 @@
+{% for number in the_list %}
+    {% if loop.last %}
+    This is the last number, it should be seven: {{ number }} 
+    {% else %}
+    <h3>The Number: {{ number }}</h3>
+    {% endif %}
+{% endfor %}

@@ -1,0 +1,9 @@
+<div class="columwrapper">
+  {%- for column in items|slice(3) %}
+    <ul class="column-{{ loop.index }}">
+    {%- for item in column %}
+      <li>{{ item }}</li>
+    {%- endfor %}
+    </ul>
+  {%- endfor %}
+</div>

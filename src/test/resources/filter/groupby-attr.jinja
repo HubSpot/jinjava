@@ -1,0 +1,8 @@
+<ul class="root">
+{% for group in persons|groupby('gender') %}
+    <li class="{{group.grouper}}">{{ group.grouper }}<ul>
+    {% for person in group.list %}
+        <li>{{ person.first_name }} {{ person.last_name }}</li>
+    {% endfor %}</ul></li>
+{% endfor %}
+</ul>

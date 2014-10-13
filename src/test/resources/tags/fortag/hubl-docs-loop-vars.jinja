@@ -1,0 +1,18 @@
+{% for number in [0,1,2,3] %}
+  <div class="item item-{{number}}">
+    <div class="index">{{ loop.index }}</div>
+    <div class="index0">{{ loop.index0 }}</div>
+    <div class="revindex">{{ loop.revindex }}</div>
+    <div class="revindex0">{{ loop.revindex0 }}</div>
+    <div class="first">{{ loop.first }}</div>
+    <div class="last">{{ loop.last }}</div>
+    <div class="length">{{ loop.length }}</div>
+    <div class="depth">{{ loop.depth }}</div>
+    <div class="depth0">{{ loop.depth0 }}</div>
+    
+    {% for subnum in [6] %}
+    	<div class="subnum">{{subnum}} {{ loop.depth0 }}</div>
+    {% endfor %}
+    
+  </div>
+{% endfor %}

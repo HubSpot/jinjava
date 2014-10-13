@@ -1,0 +1,5 @@
+{% macro article(title, thumb, link, summary, last = false) %}
+    {% if title %}
+      title: {{ title }}, thumb: {{ thumb }}, link: {{ link }}, summary: {{ summary }}, last: {{ last }}
+    {% endif %}
+{% endmacro %}

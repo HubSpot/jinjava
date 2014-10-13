@@ -1,0 +1,123 @@
+package com.hubspot.jinjava.lib.tag;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.parse.TokenParser;
+import com.hubspot.jinjava.tree.Node;
+import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.TreeParser;
+
+
+public class MacroTagTest {
+
+  Context context;
+  JinjavaInterpreter interpreter;
+  
+  @Before
+  public void setup() {
+    Jinjava jinjava = new Jinjava();
+    context = new Context();
+    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+    JinjavaInterpreter.pushCurrent(interpreter);
+  }
+  
+  @After
+  public void cleanup() {
+    JinjavaInterpreter.popCurrent();
+  }
+  
+  @Test
+  public void testSimpleFn() {
+    TagNode t = fixture("simple");
+    assertThat(t.render(interpreter)).isEmpty();
+    
+    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.getPath", -1);
+    assertThat(fn.getName()).isEqualTo("getPath");
+    assertThat(fn.getArguments()).isEmpty();
+    assertThat(fn.isCaller()).isFalse();
+    assertThat(fn.isCatchKwargs()).isFalse();
+    assertThat(fn.isCatchVarargs()).isFalse();
+    
+    context.put("myname", "jared");
+    assertThat(snippet("{{ getPath() }}").render(interpreter).trim()).isEqualTo("Hello jared");
+  }
+  
+  @Test
+  public void testFnWithArgs() {
+    TagNode t = fixture("with-args");
+    assertThat(t.render(interpreter)).isEmpty();
+    
+    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.section_link", -1);
+    assertThat(fn.getName()).isEqualTo("section_link");
+    assertThat(fn.getArguments()).containsExactly("link", "text");
+    
+    assertThat(snippet("{{section_link('mylink', 'mytext')}}").render(interpreter).trim()).isEqualTo("link: mylink, text: mytext");
+  }
+  
+  @Test
+  public void testFnWithArgsWithDefVals() {
+    TagNode t = fixture("def-vals");
+    assertThat(t.render(interpreter)).isEmpty();
+    
+    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.article", -1);
+    assertThat(fn.getArguments()).containsExactly("title", "thumb", "link", "summary", "last");
+    assertThat(fn.getDefaults()).contains(entry("last", "false"));
+    
+    assertThat(snippet("{{ article('mytitle','mythumb','mylink','mysummary') }}").render(interpreter).trim())
+    .isEqualTo("title: mytitle, thumb: mythumb, link: mylink, summary: mysummary, last: false");
+    assertThat(snippet("{{ article('mytitle','mythumb','mylink','mysummary', last=true) }}").render(interpreter).trim())
+    .isEqualTo("title: mytitle, thumb: mythumb, link: mylink, summary: mysummary, last: true");
+  }
+  
+  @Test
+  public void testMacroUsedInForLoop() throws Exception {
+    Map<String, Object> bindings = new HashMap<>();
+    bindings.put("widget_data", ImmutableMap.of(
+        "tools_body_1", ImmutableMap.of("html", "body1"),
+        "tools_body_2", ImmutableMap.of("html", "body2"),
+        "tools_body_3", ImmutableMap.of("html", "body3"),
+        "tools_body_4", ImmutableMap.of("html", "body4")
+        ));
+    
+    Document dom = Jsoup.parseBodyFragment(new Jinjava().render(Resources.toString(Resources.getResource(String.format("tags/macrotag/%s.jinja", "macro-used-in-forloop")), Charsets.UTF_8), bindings));
+    Element tabs = dom.select(".tabs").get(0);
+    assertThat(tabs.select(".tools__description")).hasSize(4);
+    assertThat(tabs.select(".tools__description").get(0).text()).isEqualTo("body1");
+    assertThat(tabs.select(".tools__description").get(1).text()).isEqualTo("body2");
+    assertThat(tabs.select(".tools__description").get(2).text()).isEqualTo("body3");
+    assertThat(tabs.select(".tools__description").get(3).text()).isEqualTo("body4");
+  }
+  
+  private Node snippet(String jinja) {
+    return TreeParser.parseTree(new TokenParser(interpreter, jinja)).getChildren().getFirst();
+  }
+  
+  private TagNode fixture(String name) {
+    try {
+      return (TagNode) snippet(Resources.toString(Resources.getResource(String.format("tags/macrotag/%s.jinja", name)), Charsets.UTF_8));
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
+  }
+  
+}
