@@ -1,4 +1,4 @@
-jinjava 
+jinjava [![Build Status](https://travis-ci.org/HubSpot/jinjava.svg?branch=master)](https://travis-ci.org/HubSpot/jinjava)
 =======
 
 <img src="https://github.com/HubSpot/jinjava/raw/master/jinjava.png" width="250" height="250" alt="jinjava">
