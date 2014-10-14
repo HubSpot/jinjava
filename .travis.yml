@@ -3,4 +3,5 @@ jdk:
   - oraclejdk7
   - openjdk7
   - oraclejdk8
+install: mvn install -DskipTests=false -Dgpg.skip=true
 
