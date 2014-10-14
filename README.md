@@ -4,7 +4,7 @@ jinjava [![Build Status](https://travis-ci.org/HubSpot/jinjava.svg?branch=master
 <img src="https://github.com/HubSpot/jinjava/raw/master/jinjava.png" width="250" height="250" alt="jinjava">
 
 Java-based template engine based on django template syntax, adapted to render jinja templates 
-(at least the subset of jinja in use in HubSpot content). *Note*: Requires Java >= 7.
+(at least the subset of jinja in use in HubSpot content). *Note*: Requires Java >= 7. Originally forked from [jangod](https://code.google.com/p/jangod/).
 
 Get it:
 -------
