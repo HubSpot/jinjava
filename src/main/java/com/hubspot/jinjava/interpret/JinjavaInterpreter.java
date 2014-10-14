@@ -193,9 +193,9 @@ public class JinjavaInterpreter {
    * Resolve a variable from the interpreter context, returning null if not found. This method 
    * updates the template error accumulators when a variable is not found.
    * 
-   * @param variable
-   * @param lineNumber
-   * @return
+   * @param variable name of variable in context
+   * @param lineNumber current line number, for error reporting
+   * @return resolved value for variable
    */
   public Object retraceVariable(String variable, int lineNumber) {
     if(StringUtils.isBlank(variable)) {
@@ -220,9 +220,9 @@ public class JinjavaInterpreter {
    * this method returns the literal unquoted. If the variable is undefined in the context,
    * this method returns the given variable string.
    * 
-   * @param variable
-   * @param lineNumber
-   * @return
+   * @param variable name of variable in context
+   * @param lineNumber current line number, for error reporting
+   * @return resolved value for variable
    */
   public Object resolveObject(String variable, int lineNumber) {
     if(StringUtils.isBlank(variable)) {
@@ -244,9 +244,9 @@ public class JinjavaInterpreter {
    * this method returns the literal unquoted. If the variable is undefined in the context,
    * this method returns the given variable string.
    * 
-   * @param variable
-   * @param lineNumber
-   * @return
+   * @param variable name of variable in context
+   * @param lineNumber current line number, for error reporting
+   * @return resolved value for variable
    */
   public String resolveString(String variable, int lineNumber) {
     return java.util.Objects.toString(resolveObject(variable, lineNumber), "");

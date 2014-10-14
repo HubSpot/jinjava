@@ -19,14 +19,16 @@ import com.hubspot.jinjava.tree.TagNode;
  * 
  * Here a small example of a macro that renders a form element:
  * 
+ * <pre>
  * {% macro input(name, value='', type='text', size=20) -%}
- *   <input type="{{ type }}" name="{{ name }}" value="{{ value|e }}" size="{{ size }}">
+ *   &lt;input type="{{ type }}" name="{{ name }}" value="{{ value|e }}" size="{{ size }}"&gt;
  * {%- endmacro %}
+ * </pre>
  * 
  * The macro can then be called like a function in the namespace:
  * 
- * <p>{{ input('username') }}</p>
- * <p>{{ input('password', type='password') }}</p>
+ * <pre>{{ input('username') }}</pre>
+ * <pre>{{ input('password', type='password') }}</pre>
  * 
  * If the macro was defined in a different template you have to import it first.
  * 

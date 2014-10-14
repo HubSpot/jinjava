@@ -43,12 +43,14 @@ import de.odysseus.el.tree.TreeBuilder;
  * 
  * Example use:
  * 
+ * <pre>
  *     Jinjava jinjava = new Jinjava();
- *     Map<String, Object> context = new HashMap<>();
+ *     Map&lt;String, Object&gt; context = new HashMap&lt;&gt;();
  *     context.put("name", "Jared");
  *     
  *     String template = "Hello, {{ name }}";
  *     String renderedTemplate = jinjava.render(template, context);
+ * </pre>
  * 
  * @author jstehler
  *
@@ -89,21 +91,21 @@ public class Jinjava {
 
   /**
    * Set the object responsible for locating templates referenced in other templates
-   * @param resourceLocator
+   * @param resourceLocator the locator to use for loading all templates
    */
   public void setResourceLocator(ResourceLocator resourceLocator) {
     this.resourceLocator = resourceLocator;
   }
 
   /**
-   * The EL factory used to process expressions in templates by this instance.
+   * @return The EL factory used to process expressions in templates by this instance.
    */
   public ExpressionFactory getExpressionFactory() {
     return expressionFactory;
   }
   
   /**
-   * The global config used as a base for all render operations performed by this instance.
+   * @return The global config used as a base for all render operations performed by this instance.
    */
   public JinjavaConfig getGlobalConfig() {
     return globalConfig;
@@ -112,6 +114,8 @@ public class Jinjava {
   /**
    * The global render context includes such things as the base set of tags, filters, exp tests and functions,
    * used as a base by all render operations performed by this instance
+   * 
+   * @return the global render context
    */
   public Context getGlobalContext() {
     return globalContext;

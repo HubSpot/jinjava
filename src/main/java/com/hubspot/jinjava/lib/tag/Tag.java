@@ -24,9 +24,7 @@ public interface Tag extends Importable {
   String interpret(TagNode tagNode, JinjavaInterpreter interpreter);
 
   /**
-   * Get name of end tag lowerCase Null if it's a single tag without content.
-   * 
-   * @return
+   * @return Get name of end tag lowerCase Null if it's a single tag without content.
    */
   String getEndTagName();
 

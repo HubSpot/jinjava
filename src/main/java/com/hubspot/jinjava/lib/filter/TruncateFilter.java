@@ -25,10 +25,12 @@ import com.hubspot.jinjava.lib.fn.Functions;
  *   If the text was in fact truncated it will append an ellipsis sign ("..."). If you want a different ellipsis sign 
  *   than "..." you can specify it using the third parameter.
  *   
+ *   <pre>
  *   {{ "foo bar"|truncate(5) }}
- *       -> "foo ..."
+ *       -&gt; "foo ..."
  *   {{ "foo bar"|truncate(5, True) }}
- *       -> "foo b..."
+ *       -&gt; "foo b..."
+ *   </pre>
  */
 public class TruncateFilter implements Filter {
 

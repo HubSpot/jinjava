@@ -15,15 +15,17 @@ import com.hubspot.jinjava.util.ObjectIterator;
  * It returns a list of lists with the given number of items. If you provide a second parameter 
  * this is used to fill up missing items. See this example:
  * 
- * <table>
+ * <pre>
+ * &lt;table&gt;
  * {%- for row in items|batch(3, '&nbsp;') %}
- *   <tr>
+ *   &lt;tr&gt;
  *   {%- for column in row %}
- *     <td>{{ column }}</td>
+ *     &lt;td&gt;{{ column }}&lt;/td&gt;
  *   {%- endfor %}
- *   </tr>
+ *   &lt;/tr&gt;
  * {%- endfor %}
- * </table>
+ * &lt;/table&gt;
+ * </pre>
  * 
  * @author jstehler
  */

@@ -50,7 +50,8 @@ public class HelperStringTokenizer implements Iterator<String> {
   /**
    * use Comma as token split or not true use it; false don't use it.
    * 
-   * @param onOrOff
+   * @param onOrOff flag to indicate whether or not to split on commas
+   * @return this instance for method chaining
    */
   public HelperStringTokenizer splitComma(boolean onOrOff) {
     useComma = onOrOff;

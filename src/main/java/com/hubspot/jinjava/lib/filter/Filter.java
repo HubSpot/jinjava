@@ -15,7 +15,6 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.Importable;
 
@@ -29,7 +28,6 @@ public interface Filter extends Importable {
    * @param interpreter current interpreter context
    * @param args any arguments passed to this filter invocation
    * @return the filtered form of the given variable
-   * @throws InterpretException
    */
   Object filter(Object var, JinjavaInterpreter interpreter, String... args);
 

@@ -17,11 +17,11 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface ELFunction {
   /**
-   * The namespace to define the function in (e.g. 'fn' would expose 'foo' as: 'fn:foo()')
+   * @return The namespace to define the function in (e.g. 'fn' would expose 'foo' as: 'fn:foo()')
    */
   String namespace() default "";
   /**
-   * The local name to expose this function as
+   * @return The local name to expose this function as
    */
   String value();
 }
