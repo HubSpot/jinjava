@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
@@ -81,12 +82,22 @@ public class MacroTagTest {
     
     MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.article", -1);
     assertThat(fn.getArguments()).containsExactly("title", "thumb", "link", "summary", "last");
-    assertThat(fn.getDefaults()).contains(entry("last", "false"));
+    assertThat(fn.getDefaults()).contains(entry("last", false));
     
     assertThat(snippet("{{ article('mytitle','mythumb','mylink','mysummary') }}").render(interpreter).trim())
     .isEqualTo("title: mytitle, thumb: mythumb, link: mylink, summary: mysummary, last: false");
     assertThat(snippet("{{ article('mytitle','mythumb','mylink','mysummary', last=true) }}").render(interpreter).trim())
     .isEqualTo("title: mytitle, thumb: mythumb, link: mylink, summary: mysummary, last: true");
+  }
+  
+  @Test
+  public void testFnWithArrayDefVal() {
+    TagNode t = fixture("array-def-val");
+    assertThat(t.render(interpreter)).isEmpty();
+    
+    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.prefix", -1);
+    assertThat(fn.getArguments()).containsExactly("property", "value", "prefixes", "prefixval");
+    assertThat(fn.getDefaults()).contains(entry("prefixes", Lists.newArrayList("webkit", "moz")));
   }
   
   @Test

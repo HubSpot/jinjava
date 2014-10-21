@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
@@ -90,10 +92,22 @@ public class MacroTag implements Tag {
     
     LinkedHashMap<String, Object> argNamesWithDefaults = new LinkedHashMap<>();
 
-    for(String arg : ARGS_SPLITTER.split(args)) {
+    List<String> argList = Lists.newArrayList(ARGS_SPLITTER.split(args));
+    for(int i = 0; i < argList.size(); i++) {
+      String arg = argList.get(i);
+      
       if(arg.contains("=")) {
         String argName = StringUtils.substringBefore(arg, "=").trim();
-        Object argVal = interpreter.resolveObject(StringUtils.substringAfter(arg, "=").trim(), tagNode.getLineNumber());
+        String argValStr = StringUtils.substringAfter(arg, "=").trim();
+        
+        if(argValStr.startsWith("[") && !argValStr.endsWith("]")) {
+          while(i + 1 < argList.size() && !argValStr.endsWith("]")) {
+            argValStr += ", " + argList.get(i + 1);
+            i++;
+          }
+        }
+        
+        Object argVal = interpreter.resolveELExpression(argValStr, tagNode.getLineNumber());
         argNamesWithDefaults.put(argName, argVal);
       }
       else {
