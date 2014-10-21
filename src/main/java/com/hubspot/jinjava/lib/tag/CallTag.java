@@ -1,12 +1,12 @@
 package com.hubspot.jinjava.lib.tag;
 
-import com.hubspot.jinjava.interpret.InterpretException;
+import java.util.LinkedHashMap;
+
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.TagNode;
 
 /**
- * TODO Note: this tag is not currently implemented!
- * 
  * In some cases it can be useful to pass a macro to another macro. For this purpose you can use the 
  * special call block. The following example shows a macro that takes advantage of the call 
  * functionality and how it can be used:
@@ -68,7 +68,19 @@ public class CallTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-	  throw new InterpretException("Tag " + getName() + " is not implemented.", interpreter.getLineNumber());
+    String macroExpr = "{{" + tagNode.getHelpers().trim() + "}}";
+    
+    interpreter.enterScope();
+    try {
+      LinkedHashMap<String, Object> args = new LinkedHashMap<>();
+      MacroFunction caller = new MacroFunction(tagNode.getChildren(), "caller", args, false, false, true);
+      interpreter.getContext().addGlobalMacro(caller);
+
+      return interpreter.render(macroExpr);
+    }
+    finally {
+      interpreter.leaveScope();
+    }
   }
 
 }
