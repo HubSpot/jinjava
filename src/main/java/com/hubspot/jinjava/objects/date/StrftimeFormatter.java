@@ -48,7 +48,7 @@ public class StrftimeFormatter {
    * Parses a string in python strftime format, returning the equivalent string in java date time format.
    * 
    * @param strftime
-   * @return
+   * @return date formatted as string
    */
   private static String toJavaDateTimeFormat(String strftime) {
     if(!StringUtils.contains(strftime, '%')) {
