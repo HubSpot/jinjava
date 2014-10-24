@@ -50,6 +50,7 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
           SelectAttrFilter.class,
           SliceFilter.class,
           SortFilter.class,
+          SplitFilter.class,
           
           DatetimeFilter.class,
           DateTimeFormatFilter.class,
