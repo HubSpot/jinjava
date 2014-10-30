@@ -120,7 +120,7 @@ public class MacroTag implements Tag {
     boolean caller = false;
 
     MacroFunction macro = new MacroFunction(tagNode.getChildren(), name, argNamesWithDefaults, 
-        catchKwargs, catchVarargs, caller);
+        catchKwargs, catchVarargs, caller, interpreter.getContext());
     interpreter.getContext().addGlobalMacro(macro);
     
     return "";

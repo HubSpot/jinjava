@@ -73,7 +73,7 @@ public class CallTag implements Tag {
     interpreter.enterScope();
     try {
       LinkedHashMap<String, Object> args = new LinkedHashMap<>();
-      MacroFunction caller = new MacroFunction(tagNode.getChildren(), "caller", args, false, false, true);
+      MacroFunction caller = new MacroFunction(tagNode.getChildren(), "caller", args, false, false, true, interpreter.getContext());
       interpreter.getContext().addGlobalMacro(caller);
 
       return interpreter.render(macroExpr);

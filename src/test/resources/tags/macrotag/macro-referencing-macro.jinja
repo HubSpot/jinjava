@@ -1,0 +1,17 @@
+{% set scoped_var = "myscopedvar" %}
+
+{%- macro uses_scoped_var() %}
+    using scoped var: {{ scoped_var }}
+{% endmacro -%}
+
+{%- macro uses_public_fn(val) %}
+    using public fn: {{ public(val) }}
+{% endmacro -%}
+
+{%- macro uses_private_fn(val) %}
+    using private fn: {{ _private(val) }}
+{% endmacro -%}
+
+{%- macro public(val) %}public fn: {{ val }}{% endmacro -%}
+
+{%- macro _private(val) %}private fn: {{ val }}{% endmacro -%}

@@ -1,0 +1,5 @@
+{% import "macro-referencing-macro.jinja" as m %}
+
+{{ m.uses_public_fn('foo') }}
+{{ m.uses_private_fn('bar') }}
+{{ m.uses_scoped_var() }}

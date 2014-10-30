@@ -10,8 +10,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Throwables;
 import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
@@ -67,6 +67,17 @@ public class ImportTagTest {
   public void importedContextDoesntExposePrivateMacros() {
     fixture("import");
     assertThat(context.get("_private")).isNull();
+  }
+  
+  @Test
+  public void importedContextFnsProperlyResolveScopedVars() {
+    String result = fixture("imports-macro-referencing-macro");
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result)
+      .contains("using public fn: public fn: foo")
+      .contains("using private fn: private fn: bar")
+      .contains("using scoped var: myscopedvar");
   }
   
   private String fixture(String name) {
