@@ -87,4 +87,8 @@ public class PyMap implements Map<String, Object>, PyWrapper {
     return entrySet();
   }
   
+  public void update(Map<? extends String, ? extends Object> m) {
+    putAll(m);
+  }
+  
 }

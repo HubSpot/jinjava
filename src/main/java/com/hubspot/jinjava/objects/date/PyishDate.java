@@ -39,6 +39,9 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
     this(NumberUtils.toLong(Objects.requireNonNull(publishDateStr), 0L));
   }
   
+  public String isoformat() {
+    return strftime("YYYY-MM-DD");
+  }
 
   public String strftime(String fmt) {
     return StrftimeFormatter.format(date, fmt);
