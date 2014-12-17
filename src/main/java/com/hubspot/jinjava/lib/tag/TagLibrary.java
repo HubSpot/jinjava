@@ -34,6 +34,7 @@ public class TagLibrary extends SimpleLibrary<Tag> {
         ElseIfTag.class,
         ExtendsTag.class,
         ForTag.class,
+        FromTag.class,
         IfTag.class,
         IfchangedTag.class,
         ImportTag.class,

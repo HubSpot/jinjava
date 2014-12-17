@@ -24,6 +24,7 @@ public class StrftimeFormatter {
     CONVERSIONS.put('e', "dd"); // The day of the month like with %d, but padded with blank (range 1 through 31).
     CONVERSIONS.put('f', "SSSSSS");
     CONVERSIONS.put('H', "HH");
+    CONVERSIONS.put('h', "hh");
     CONVERSIONS.put('I', "hh");
     CONVERSIONS.put('j', "DDD");
     CONVERSIONS.put('k', "HH"); // The hour as a decimal number, using a 24-hour clock like %H, but padded with blank (range 0 through 23).
