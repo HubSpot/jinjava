@@ -4,6 +4,7 @@
 
 * Fix issue where HelperStringTokenizer could return a null last value
 * Added ```unless``` tag, for inverse-if functionality
+* Implemented ```from``` tag for importing specific named variables from another context
 
 ### Version 1.0.3 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%221.0.3%22)) ###
 
