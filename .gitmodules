@@ -1,0 +1,3 @@
+[submodule "benchmark/liquid"]
+	path = benchmark/liquid
+	url = https://github.com/Shopify/liquid.git
