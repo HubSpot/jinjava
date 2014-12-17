@@ -60,6 +60,8 @@ public class Jinja2Benchmark {
     simpleBindings = ImmutableMap.of("page_title", "my page title", "table", table);
     
     complexTemplate = FileUtils.readFileToString(new File("jinja2/examples/rwbench/jinja/index.html"), Charsets.UTF_8);
+    // for tag doesn't support postfix conditional filtering
+    complexTemplate = complexTemplate.replaceAll(" if article.published", "");
     
     List<User> users = Lists.newArrayList(new User("John Doe"), new User("Jane Doe"), new User("Peter Somewhat"));
     SecureRandom rnd = SecureRandom.getInstanceStrong();
