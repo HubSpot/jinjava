@@ -20,9 +20,9 @@ import static com.hubspot.jinjava.parse.ParserConstants.DQ;
 import static com.hubspot.jinjava.parse.ParserConstants.SP;
 import static com.hubspot.jinjava.parse.ParserConstants.SQ;
 
-import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Lists;
 
 /**
@@ -31,7 +31,7 @@ import com.google.common.collect.Lists;
  * @author fangchq
  * 
  */
-public class HelperStringTokenizer implements Iterator<String> {
+public class HelperStringTokenizer extends AbstractIterator<String> {
 
   private char[] helpers;
   private int currPost = 0;
@@ -59,12 +59,7 @@ public class HelperStringTokenizer implements Iterator<String> {
   }
 
   @Override
-  public boolean hasNext() {
-    return length > currPost;
-  }
-
-  @Override
-  public String next() {
+  protected String computeNext() {
     String token;
     while (currPost < length) {
       token = makeToken();
@@ -73,6 +68,8 @@ public class HelperStringTokenizer implements Iterator<String> {
         return token;
       }
     }
+    
+    endOfData();
     return null;
   }
 
@@ -109,11 +106,6 @@ public class HelperStringTokenizer implements Iterator<String> {
     }
     // startChar = -1;//change to save quote in helper
     return String.copyValueOf(helpers, lastStart, currPost - lastStart - 1);
-  }
-
-  @Override
-  public void remove() {
-    throw new UnsupportedOperationException();
   }
 
   public List<String> allTokens() {
