@@ -15,6 +15,7 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -97,4 +98,12 @@ public class HelperStringTokenizerTest {
     tk.next();
     assertEquals("post.id|add:'444',\"555\",666", tk.next());
   }
+  
+  @Test
+  public void itDoesntReturnTrailingNull() {
+    assertThat(new HelperStringTokenizer("product in collections.frontpage.products   ").splitComma(true).allTokens())
+      .containsExactly("product", "in", "collections.frontpage.products")
+      .doesNotContainNull();
+  }
+  
 }
