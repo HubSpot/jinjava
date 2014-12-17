@@ -1,9 +1,8 @@
 package com.hubspot.jinjava.benchmarks.jinja2;
 
-import static org.apache.commons.io.FileUtils.readFileToString;
-
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -22,7 +21,9 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.loader.FileLocator;
+import com.hubspot.jinjava.loader.ResourceLocator;
 
 
 @State(Scope.Benchmark)
@@ -40,9 +41,29 @@ public class Jinja2Benchmark {
     logger.setLevel(Level.WARN);
     
     jinjava = new Jinjava();
-    jinjava.setResourceLocator(new FileLocator(new File("jinja2/examples/rwbench/jinja")));
+    JinjavaInterpreter interpreter = new JinjavaInterpreter(jinjava, jinjava.getGlobalContext(), jinjava.getGlobalConfig());
     
-    complexTemplate = readFileToString(new File("jinja2/examples/rwbench/jinja/index.html"), Charsets.UTF_8);
+    FileLocator locator = new FileLocator(new File("jinja2/examples/rwbench/jinja"));
+    final String helpersTemplate = locator.getString("helpers.html", Charsets.UTF_8, interpreter);
+    final String indexTemplate = locator.getString("index.html", Charsets.UTF_8, interpreter);
+    final String layoutTemplate = locator.getString("layout.html", Charsets.UTF_8, interpreter);
+    
+    jinjava.setResourceLocator(new ResourceLocator() {
+      @Override
+      public String getString(String fullName, Charset encoding, JinjavaInterpreter interpreter) throws IOException {
+        switch(fullName) {
+        case "helpers.html":
+          return helpersTemplate;
+        case "layout.html":
+          return layoutTemplate;
+        case "index.html":
+          return indexTemplate;
+        }
+        return null;
+      }
+    });
+    
+    complexTemplate = indexTemplate;
     // for tag doesn't support postfix conditional filtering
     complexTemplate = complexTemplate.replaceAll(" if article.published", "");
     
