@@ -1,5 +1,10 @@
 # Jinjava Releases #
 
+### Version 1.0.4 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%221.0.4%22)) ###
+
+* Fix issue where HelperStringTokenizer could return a null last value
+* Added ```unless``` tag, for inverse-if functionality
+
 ### Version 1.0.3 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%221.0.3%22)) ###
 
 * Adding python methods dict.update() and date.isoformat() to analogous types
