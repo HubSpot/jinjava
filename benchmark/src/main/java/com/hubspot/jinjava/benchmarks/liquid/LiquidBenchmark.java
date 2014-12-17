@@ -115,7 +115,7 @@ public class LiquidBenchmark {
       template = template.replaceAll(" reversed", "");
       
       System.out.println("Adding template: " + tmpl.getAbsolutePath());
-      System.out.println(template);
+      // System.out.println(template);
 
       templates.add(template);
     }
