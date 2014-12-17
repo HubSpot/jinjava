@@ -46,7 +46,10 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.infra.Blackhole;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
+
+import ch.qos.logback.classic.Level;
 
 import com.google.common.base.Charsets;
 import com.hubspot.jinjava.Jinjava;
@@ -55,7 +58,7 @@ import com.hubspot.jinjava.tree.Node;
 
 @State(Scope.Benchmark)
 public class LiquidBenchmark {
-
+  
   public List<String> templates;
   public Map<String, ?> bindings;
   
@@ -64,6 +67,9 @@ public class LiquidBenchmark {
   @SuppressWarnings("unchecked")
   @Setup
   public void setup() throws IOException {
+    ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+    logger.setLevel(Level.WARN);
+    
     jinjava = new Jinjava();
 
     jinjava.getGlobalContext().registerClasses(
@@ -114,7 +120,7 @@ public class LiquidBenchmark {
       // no support for for reversal
       template = template.replaceAll(" reversed", "");
       
-      System.out.println("Adding template: " + tmpl.getAbsolutePath());
+      // System.out.println("Adding template: " + tmpl.getAbsolutePath());
       // System.out.println(template);
 
       templates.add(template);

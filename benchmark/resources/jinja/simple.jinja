@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <title>{{page_title|e}}</title>
+  </head>
+  <body>
+    <div class="header">
+      <h1>{{page_title|e}}</h1>
+    </div>
+    <ul class="navigation">
+    {% for href, caption in [('index.html', 'Index'), ('downloads.html', 'Downloads'), ('products.html', 'Products')] %}
+      <li><a href="{{href|e}}">{{caption|e}}</a></li>
+    {% endfor %}
+    </ul>
+    <div class="table">
+      <table>
+      {% for row in table %}
+        <tr>
+        {% for cell in row %}
+          <td>{{cell}}</td>
+        {% endfor %}
+        </tr>
+      {% endfor %}
+      </table>
+    </div>
+  </body>
+</html>
