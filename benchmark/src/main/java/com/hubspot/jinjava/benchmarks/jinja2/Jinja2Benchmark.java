@@ -1,16 +1,15 @@
 package com.hubspot.jinjava.benchmarks.jinja2;
 
+import static org.apache.commons.io.FileUtils.readFileToString;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
@@ -29,9 +28,6 @@ import com.hubspot.jinjava.loader.FileLocator;
 @State(Scope.Benchmark)
 public class Jinja2Benchmark {
   
-  public String simpleTemplate;
-  public Map<String, ?> simpleBindings;
-  
   public String complexTemplate;
   public Map<String, ?> complexBindings;
   
@@ -46,20 +42,7 @@ public class Jinja2Benchmark {
     jinjava = new Jinjava();
     jinjava.setResourceLocator(new FileLocator(new File("jinja2/examples/rwbench/jinja")));
     
-    simpleTemplate = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("jinja/simple.jinja"));
-    
-    List<Map<String, Integer>> table = new ArrayList<>();
-    for(int i = 0; i < 1000; i++) {
-      Map<String, Integer> row = new LinkedHashMap<>();
-      for(int j = 0; j < 10; j++) {
-        row.put(String.valueOf('a' + j), j + 1);
-      }
-      table.add(row);
-    }
-    
-    simpleBindings = ImmutableMap.of("page_title", "my page title", "table", table);
-    
-    complexTemplate = FileUtils.readFileToString(new File("jinja2/examples/rwbench/jinja/index.html"), Charsets.UTF_8);
+    complexTemplate = readFileToString(new File("jinja2/examples/rwbench/jinja/index.html"), Charsets.UTF_8);
     // for tag doesn't support postfix conditional filtering
     complexTemplate = complexTemplate.replaceAll(" if article.published", "");
     
@@ -82,20 +65,14 @@ public class Jinja2Benchmark {
   }
 
   @Benchmark
-  public String semiRealWorldBenchmark() {
-    return jinjava.render(simpleTemplate, simpleBindings);
-  }
-  
-  @Benchmark
-  public String moreRealWorldBenchmark() {
+  public String realWorldishBenchmark() {
     return jinjava.render(complexTemplate, complexBindings);
   }
 
   public static void main(String[] args) throws Exception {
     Jinja2Benchmark b = new Jinja2Benchmark();
     b.setup();
-    System.out.println(b.semiRealWorldBenchmark());
-    System.out.println(b.moreRealWorldBenchmark());
+    System.out.println(b.realWorldishBenchmark());
   }
   
 }
