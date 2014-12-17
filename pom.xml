@@ -17,7 +17,7 @@
 
 	<groupId>com.hubspot.jinjava</groupId>
 	<artifactId>jinjava</artifactId>
-	<version>1.0.4-SNAPSHOT</version>
+	<version>1.0.4</version>
 	<name>jinjava</name>
 	<description>Jinja templating engine implemented in Java</description>
 	<url>https://github.com/HubSpot/jinjava</url>
