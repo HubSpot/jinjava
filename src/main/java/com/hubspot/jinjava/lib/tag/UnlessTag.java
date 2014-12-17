@@ -7,7 +7,7 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
 /**
  * Unless is a conditional just like 'if' but works on the inverse logic.
  * 
- *    {% unless x < 0 %} x is greater than zero {% endunless %}
+ * {% unless x &lt; 0 %} x is greater than zero {% endunless %}
  *
  *
  * @author jstehler
