@@ -41,7 +41,8 @@ public class TagLibrary extends SimpleLibrary<Tag> {
         MacroTag.class,
         PrintTag.class,
         RawTag.class,
-        SetTag.class);
+        SetTag.class,
+        UnlessTag.class);
   }
 
   public Tag getTag(String tagName) {

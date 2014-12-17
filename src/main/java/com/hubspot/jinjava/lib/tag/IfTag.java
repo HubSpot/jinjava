@@ -81,7 +81,7 @@ public class IfTag implements Tag {
     return null;
   }
 
-  private boolean evaluateIfElseTagNode(TagNode tagNode, JinjavaInterpreter interpreter) {
+  protected boolean evaluateIfElseTagNode(TagNode tagNode, JinjavaInterpreter interpreter) {
     if(tagNode.getName().equals(ElseTag.ELSE)) {
       return true;
     }
