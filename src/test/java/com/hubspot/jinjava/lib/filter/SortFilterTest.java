@@ -46,6 +46,12 @@ public class SortFilterTest {
     assertThat(render("(false, false, 'date')", new MyFoo(new Date(250L)), new MyFoo(new Date(0L)), new MyFoo(new Date(100000000L)))).isEqualTo("0250100000000");
   }
   
+  @Test
+  public void sortWithNestedAttr() {
+    assertThat(render("(false, false, 'foo.date')", 
+        new MyBar(new MyFoo(new Date(250L))), new MyBar(new MyFoo(new Date(0L))), new MyBar(new MyFoo(new Date(100000000L))))).isEqualTo("0250100000000");
+  }
+  
   String render(Object...items) {
     return render("", items);
   }
@@ -68,6 +74,20 @@ public class SortFilterTest {
     @Override
     public String toString() {
       return "" + date.getTime();
+    }
+  }
+  
+  public static class MyBar {
+    private MyFoo foo;
+    public MyBar(MyFoo foo) {
+      this.foo = foo;
+    }
+    public MyFoo getFoo() {
+      return foo;
+    }
+    @Override
+    public String toString() {
+      return foo.toString();
     }
   }
 }

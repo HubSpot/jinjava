@@ -9,7 +9,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ObjectIterator;
-import com.hubspot.jinjava.util.VariableChain;
+import com.hubspot.jinjava.util.Variable;
 
 public class SortFilter implements Filter {
 
@@ -23,7 +23,7 @@ public class SortFilter implements Filter {
     if(var == null) {
       return var;
     }
-    
+  
     boolean reverse = false;
     if(args.length > 0) {
       reverse = BooleanUtils.toBoolean(args[0]);
@@ -40,20 +40,26 @@ public class SortFilter implements Filter {
     }
     
     List<?> result = Lists.newArrayList(ObjectIterator.getLoop(var));
-    Collections.sort(result, new ObjectComparator(reverse, caseSensitive, attr));
+    Collections.sort(result, new ObjectComparator(interpreter, reverse, caseSensitive, attr));
     
     return result;
   }
   
   private static class ObjectComparator implements Comparator<Object> {
-    private boolean reverse;
-    private boolean caseSensitive;
-    private String attr;
+    private final boolean reverse;
+    private final boolean caseSensitive;
+    private final Variable variable;
     
-    public ObjectComparator(boolean reverse, boolean caseSensitive, String attr) {
+    public ObjectComparator(JinjavaInterpreter interpreter, boolean reverse, boolean caseSensitive, String attr) {
       this.reverse = reverse;
       this.caseSensitive = caseSensitive;
-      this.attr = attr;
+
+      if(attr != null) {
+        this.variable = new Variable(interpreter, "o." + attr);
+      }
+      else {
+        this.variable = null;
+      }
     }
 
     @SuppressWarnings("unchecked")
@@ -61,9 +67,9 @@ public class SortFilter implements Filter {
     public int compare(Object o1, Object o2) {
       int result = 0;
       
-      if(attr != null) {
-        o1 = new VariableChain(Lists.newArrayList(attr), o1).resolve();
-        o2 = new VariableChain(Lists.newArrayList(attr), o2).resolve();
+      if(variable != null) {
+        o1 = variable.resolve(o1);
+        o2 = variable.resolve(o2);
       }
       
       if(o1 instanceof String && !caseSensitive) {
