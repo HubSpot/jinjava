@@ -17,6 +17,11 @@ public class StrftimeFormatterTest {
   }
   
   @Test
+  public void testUtf8Chars() {
+    assertThat(StrftimeFormatter.format(d, "%Y年%m月%d日")).isEqualTo("2013年11月06日");
+  }
+  
+  @Test
   public void testDefaultFormat() {
     assertThat(StrftimeFormatter.format(d)).isEqualTo("14:22 / 06-11-2013");
   }

@@ -80,7 +80,12 @@ public class StrftimeFormatter {
         result.append("'");
         while(Character.isLetter(c)) {
           result.append(c);
-          c = strftime.charAt(++i);
+          if(++i < strftime.length()) {
+            c = strftime.charAt(i);
+          }
+          else {
+            c = 0;
+          }
         }
         result.append("'");
         --i;  // re-consume last char
