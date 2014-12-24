@@ -8,6 +8,12 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+/**
+ * Datetime format string formatter, supporting both python and java compatible format strings by 
+ * converting any percent-tokens from python into their java equivalents.
+ * 
+ * @author jstehler
+ */
 public class StrftimeFormatter {
 
   /*
