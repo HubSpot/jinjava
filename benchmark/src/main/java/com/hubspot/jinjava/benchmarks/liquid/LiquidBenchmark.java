@@ -5,6 +5,7 @@ import static org.apache.commons.io.FileUtils.readFileToString;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,11 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import ch.qos.logback.classic.Level;
-
-import com.google.common.base.Charsets;
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.tree.Node;
 
 @State(Scope.Benchmark)
 public class LiquidBenchmark {
@@ -69,13 +65,13 @@ public class LiquidBenchmark {
     
     templates = new ArrayList<>();
     
-    Map<String, ?> db = (Map<String, ?>) new Yaml().load(readFileToString(new File("liquid/performance/shopify/vision.database.yml"), Charsets.UTF_8));
+    Map<String, ?> db = (Map<String, ?>) new Yaml().load(readFileToString(new File("liquid/performance/shopify/vision.database.yml"), StandardCharsets.UTF_8));
     bindings = new HashMap<>(db);
     
     File baseDir = new File("liquid/performance/tests");
     for(File tmpl : listFiles(baseDir, new String[]{"liquid"}, true)){
       
-      String template = readFileToString(tmpl, Charsets.UTF_8);
+      String template = readFileToString(tmpl, StandardCharsets.UTF_8);
       // convert filter syntax from ':' to '()'
       template = template.replaceAll("\\| ([\\w_]+): (.*?)(\\||})", "| $1($2)$3");
       // jinjava doesn't have the '?' postfix binary operator

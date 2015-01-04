@@ -6,9 +6,6 @@ import java.lang.reflect.Method;
 
 import org.junit.Test;
 
-import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
-import com.hubspot.jinjava.lib.fn.InjectedContextFunctionProxy;
-
 
 public class InjectedContextFunctionProxyTest {
 

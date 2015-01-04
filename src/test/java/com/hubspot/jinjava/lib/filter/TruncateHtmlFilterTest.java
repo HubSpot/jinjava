@@ -4,11 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -33,7 +33,7 @@ public class TruncateHtmlFilterTest {
   
   private static String fixture(String name) {
     try {
-      return Resources.toString(Resources.getResource(name), Charsets.UTF_8);
+      return Resources.toString(Resources.getResource(name), StandardCharsets.UTF_8);
     }
     catch(IOException e) {
       throw Throwables.propagate(e);

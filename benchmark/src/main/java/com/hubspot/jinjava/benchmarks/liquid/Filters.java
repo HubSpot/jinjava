@@ -1,20 +1,10 @@
 package com.hubspot.jinjava.benchmarks.liquid;
 
-import static org.apache.commons.lang3.math.NumberUtils.toDouble;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
-
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.filter.DatetimeFilter;
-import com.hubspot.jinjava.lib.filter.Filter;
-import com.hubspot.jinjava.lib.fn.Functions;
 
 /**
  * Liquid::Template.register_filter JsonFilter

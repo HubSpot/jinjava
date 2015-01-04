@@ -4,8 +4,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
 
-import org.joda.time.DateTime;
-
 import de.svenjacobs.loremipsum.LoremIpsum;
 
 public class Article {

@@ -3,11 +3,11 @@ package com.hubspot.jinjava.lib.tag;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
@@ -53,7 +53,7 @@ public class UnlessTagTest {
     try {
       return (TagNode) TreeParser.parseTree(
           new TokenParser(interpreter, Resources.toString(
-              Resources.getResource(String.format("tags/iftag/%s.jinja", name)), Charsets.UTF_8)))
+              Resources.getResource(String.format("tags/iftag/%s.jinja", name)), StandardCharsets.UTF_8)))
               .getChildren().getFirst();
     } catch (IOException e) {
       throw Throwables.propagate(e);

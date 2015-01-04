@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.tag;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +13,6 @@ import org.jsoup.select.Elements;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -120,7 +120,7 @@ public class ForTagTest {
     try {
       return TreeParser.parseTree(
           new TokenParser(interpreter, Resources.toString(
-              Resources.getResource(String.format("tags/fortag/%s.jinja", name)), Charsets.UTF_8)))
+              Resources.getResource(String.format("tags/fortag/%s.jinja", name)), StandardCharsets.UTF_8)))
               .getChildren().getFirst();
     } catch (IOException e) {
       throw Throwables.propagate(e);

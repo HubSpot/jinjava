@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 import org.jsoup.Jsoup;
@@ -11,7 +12,6 @@ import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -70,7 +70,7 @@ public class ExtendsTagTest {
       return fixture(fullName);
     }
     public String fixture(String name) throws IOException {
-      return Resources.toString(Resources.getResource(String.format("tags/extendstag/%s", name)), Charsets.UTF_8);
+      return Resources.toString(Resources.getResource(String.format("tags/extendstag/%s", name)), StandardCharsets.UTF_8);
     }
   }
 }

@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.jsoup.Jsoup;
@@ -10,7 +11,6 @@ import org.jsoup.select.Elements;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -67,7 +67,7 @@ public class BatchFilterTest {
   
   private String render(String template, Map<String, Object> context) {
     try {
-      return jinjava.render(Resources.toString(Resources.getResource(String.format("filter/%s.jinja", template)), Charsets.UTF_8), context);
+      return jinjava.render(Resources.toString(Resources.getResource(String.format("filter/%s.jinja", template)), StandardCharsets.UTF_8), context);
     }
     catch(Exception e) {
       throw Throwables.propagate(e);

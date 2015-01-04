@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.tag;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -10,7 +11,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
@@ -45,7 +45,7 @@ public class CallTagTest {
   
   private String fixture(String name) {
     try {
-      return Resources.toString(Resources.getResource(String.format("tags/calltag/%s.jinja", name)), Charsets.UTF_8);
+      return Resources.toString(Resources.getResource(String.format("tags/calltag/%s.jinja", name)), StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
@@ -188,7 +188,7 @@ public class ExtendedSyntaxBuilderTest {
   private String fixture(String name) {
     try {
       return Resources.toString(
-          Resources.getResource(String.format("el/dict/%s.fixture", name)), Charsets.UTF_8);
+          Resources.getResource(String.format("el/dict/%s.fixture", name)), StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

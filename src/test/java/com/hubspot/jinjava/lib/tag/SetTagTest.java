@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
@@ -146,7 +146,7 @@ public class SetTagTest {
     try {
       return TreeParser.parseTree(
           new TokenParser(interpreter, Resources.toString(
-              Resources.getResource(String.format("tags/settag/%s.jinja", name)), Charsets.UTF_8)))
+              Resources.getResource(String.format("tags/settag/%s.jinja", name)), StandardCharsets.UTF_8)))
               .getChildren().getFirst();
     } catch (IOException e) {
       throw Throwables.propagate(e);

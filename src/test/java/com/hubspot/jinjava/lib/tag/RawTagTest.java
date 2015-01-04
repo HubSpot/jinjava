@@ -3,13 +3,13 @@ package com.hubspot.jinjava.lib.tag;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.base.Throwables;
-import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
@@ -109,7 +109,7 @@ public class RawTagTest {
     try {
       return TreeParser.parseTree(
           new TokenParser(interpreter, Resources.toString(
-              Resources.getResource(String.format("tags/rawtag/%s.jinja", name)), Charsets.UTF_8)))
+              Resources.getResource(String.format("tags/rawtag/%s.jinja", name)), StandardCharsets.UTF_8)))
               .getChildren();
     } catch (IOException e) {
       throw Throwables.propagate(e);

@@ -2,15 +2,16 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.charset.StandardCharsets;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Resources;
 import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 
 
@@ -27,7 +28,7 @@ public class SliceFilterTest {
   public void testSimpleSlice() throws Exception {
     Document dom = Jsoup.parseBodyFragment(
         jinjava.render(
-            Resources.toString(Resources.getResource("filter/slice-filter.jinja"), Charsets.UTF_8),
+            Resources.toString(Resources.getResource("filter/slice-filter.jinja"), StandardCharsets.UTF_8),
             ImmutableMap.of("items", (Object) Lists.newArrayList("a", "b", "c", "d", "e", "f", "g"))));
     
     assertThat(dom.select(".columwrapper ul")).hasSize(3);

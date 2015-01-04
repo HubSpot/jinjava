@@ -16,11 +16,10 @@ limitations under the License.
 package com.hubspot.jinjava;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 import org.joda.time.DateTimeZone;
-
-import com.google.common.base.Charsets;
 
 public class JinjavaConfig {
 
@@ -30,7 +29,7 @@ public class JinjavaConfig {
   private final int maxRenderDepth;
   
   public JinjavaConfig() {
-    charset = Charsets.UTF_8;
+    charset = StandardCharsets.UTF_8;
     locale = Locale.ENGLISH;
     timeZone = DateTimeZone.UTC;
     maxRenderDepth = 10;

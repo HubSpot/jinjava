@@ -2,10 +2,11 @@ package com.hubspot.jinjava.tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.charset.StandardCharsets;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
@@ -66,7 +67,7 @@ public class VariableNodeTest {
   
   private VariableNode fixture(String name) {
     try {
-      return parse(Resources.toString(Resources.getResource(String.format("varblocks/%s.html", name)), Charsets.UTF_8));
+      return parse(Resources.toString(Resources.getResource(String.format("varblocks/%s.html", name)), StandardCharsets.UTF_8));
     }
     catch(Exception e) {
       throw Throwables.propagate(e);

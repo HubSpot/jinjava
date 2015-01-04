@@ -4,12 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
@@ -31,7 +31,7 @@ public class FromTagTest {
       public String getString(String fullName, Charset encoding,
           JinjavaInterpreter interpreter) throws IOException {
         return Resources.toString(
-            Resources.getResource(String.format("tags/macrotag/%s", fullName)), Charsets.UTF_8);
+            Resources.getResource(String.format("tags/macrotag/%s", fullName)), StandardCharsets.UTF_8);
       }
     });
     
@@ -58,7 +58,7 @@ public class FromTagTest {
   private String fixture(String name) {
     try {
       return interpreter.renderString(Resources.toString(
-              Resources.getResource(String.format("tags/macrotag/%s.jinja", name)), Charsets.UTF_8));
+              Resources.getResource(String.format("tags/macrotag/%s.jinja", name)), StandardCharsets.UTF_8));
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

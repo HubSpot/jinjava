@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +18,6 @@ import org.junit.Test;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
@@ -110,7 +110,7 @@ public class MacroTagTest {
         "tools_body_4", ImmutableMap.of("html", "body4")
         ));
     
-    Document dom = Jsoup.parseBodyFragment(new Jinjava().render(Resources.toString(Resources.getResource(String.format("tags/macrotag/%s.jinja", "macro-used-in-forloop")), Charsets.UTF_8), bindings));
+    Document dom = Jsoup.parseBodyFragment(new Jinjava().render(Resources.toString(Resources.getResource(String.format("tags/macrotag/%s.jinja", "macro-used-in-forloop")), StandardCharsets.UTF_8), bindings));
     Element tabs = dom.select(".tabs").get(0);
     assertThat(tabs.select(".tools__description")).hasSize(4);
     assertThat(tabs.select(".tools__description").get(0).text()).isEqualTo("body1");
@@ -125,7 +125,7 @@ public class MacroTagTest {
   
   private TagNode fixture(String name) {
     try {
-      return (TagNode) snippet(Resources.toString(Resources.getResource(String.format("tags/macrotag/%s.jinja", name)), Charsets.UTF_8));
+      return (TagNode) snippet(Resources.toString(Resources.getResource(String.format("tags/macrotag/%s.jinja", name)), StandardCharsets.UTF_8));
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

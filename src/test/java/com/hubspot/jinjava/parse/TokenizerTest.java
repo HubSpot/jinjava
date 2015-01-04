@@ -2,14 +2,14 @@ package com.hubspot.jinjava.parse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
 import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
 
 
 public class TokenizerTest {
@@ -90,7 +90,7 @@ public class TokenizerTest {
   private Tokenizer fixture(String fixture) {
     try {
       Tokenizer t = new Tokenizer();
-      t.init(Resources.toString(Resources.getResource(String.format("parse/tokenizer/%s.jinja", fixture)), Charsets.UTF_8));
+      t.init(Resources.toString(Resources.getResource(String.format("parse/tokenizer/%s.jinja", fixture)), StandardCharsets.UTF_8));
       return t;
     }
     catch(Exception e) {

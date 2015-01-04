@@ -1,11 +1,11 @@
 package com.hubspot.jinjava.objects.date;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Date;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class PyishDateTest {
