@@ -3,6 +3,7 @@
 ### Version 1.0.6 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%221.0.6%22)) ###
 
 * fixed issue in strftimeformatter with format strings ending in literals
+* updated expression resolver to return blank strings rather than false for exception cases
 
 ### Version 1.0.5 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%221.0.5%22)) ###
 
