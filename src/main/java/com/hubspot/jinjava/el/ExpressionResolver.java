@@ -50,7 +50,7 @@ public class ExpressionResolver {
           String.format("Error resolving expression: [%s]", expr), e, lineNumber)));
     }
 
-    return Boolean.FALSE;
+    return "";
   }
 
 }
