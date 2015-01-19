@@ -50,6 +50,25 @@ public class ImportTagTest {
   }
   
   @Test
+  public void itAvoidsSimpleImportCycle() throws IOException {
+    Jinjava jinjava = new Jinjava();
+    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+
+    interpreter.render(Resources.toString(Resources.getResource("tags/importtag/imports-self.jinja"), StandardCharsets.UTF_8));
+    assertThat(context.get("c")).isEqualTo("hello");
+  }
+  
+  @Test
+  public void itAvoidsNestedImportCycle() throws IOException {
+    Jinjava jinjava = new Jinjava();
+    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+
+    interpreter.render(Resources.toString(Resources.getResource("tags/importtag/a-imports-b.jinja"), StandardCharsets.UTF_8));
+    assertThat(context.get("a")).isEqualTo("foo");
+    assertThat(context.get("b")).isEqualTo("bar");
+  }
+  
+  @Test
   public void importedContextExposesVars() {
     assertThat(fixture("import")).contains("wrap-padding: padding-left:42px;padding-right:42px");
   }

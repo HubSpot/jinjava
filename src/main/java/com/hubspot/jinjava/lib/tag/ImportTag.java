@@ -1,8 +1,12 @@
 package com.hubspot.jinjava.lib.tag;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -22,8 +26,10 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
  * 
  * @author jstehler
  */
+@SuppressWarnings("unchecked")
 public class ImportTag implements Tag {
-
+  private static final String IMPORT_PATH_PROPERTY = "__importP@th__";
+  
   @Override
   public String getName() {
     return "import";
@@ -42,7 +48,20 @@ public class ImportTag implements Tag {
       contextVar = helper.get(2);
     }
     
-    String templateFile = interpreter.resolveString(helper.get(0), tagNode.getLineNumber());
+    String path = StringUtils.trimToEmpty(helper.get(0));
+    if(isPathInRenderStack(interpreter.getContext(), path)) {
+      ENGINE_LOG.debug("Path {} is already in include stack", path);
+      return "";
+    }
+    
+    Set<String> importedPaths = (Set<String>) interpreter.getContext().get(IMPORT_PATH_PROPERTY);
+    if(importedPaths == null) {
+      importedPaths = new HashSet<String>();
+      interpreter.getContext().put(IMPORT_PATH_PROPERTY, importedPaths);
+    }
+    importedPaths.add(path);
+
+    String templateFile = interpreter.resolveString(path, tagNode.getLineNumber());
     try {
       String template = interpreter.getResource(templateFile);
       Node node = interpreter.parse(template);
@@ -67,6 +86,22 @@ public class ImportTag implements Tag {
     } catch (IOException e) {
       throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber());
     }
+  }
+
+  private boolean isPathInRenderStack(Context context, String path) {
+    Context current = context;
+    do {
+      Set<String> importedPaths = (Set<String>) current.get(IMPORT_PATH_PROPERTY, new HashSet<String>());
+
+      if(importedPaths.contains(path)) {
+        return true;
+      }
+      
+      current = current.getParent();
+      
+    } while(current != null);
+    
+    return false;
   }
 
   @Override
