@@ -51,13 +51,12 @@ public class IncludeTag implements Tag {
       return "";
     }
     
-    interpreter.getContext().put(INCLUDE_PATH_PROPERTY, path);
-    
     String templateFile = interpreter.resolveString(path, tagNode.getLineNumber());
     try {
       String template = interpreter.getResource(templateFile);
       Node node = interpreter.parse(template);
       JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
+      child.getContext().put(INCLUDE_PATH_PROPERTY, path);
       interpreter.getContext().put(JinjavaInterpreter.INSERT_FLAG, true);
       return child.render(node);
     } catch (IOException e) {
