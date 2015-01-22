@@ -108,7 +108,7 @@ public class JinjavaInterpreter {
 
     try {
       if (depth > config.getMaxRenderDepth()) {
-        ENGINE_LOG.error("Max render depth exceeded");
+        ENGINE_LOG.warn("Max render depth exceeded: {}", depth);
         return template;
       } else {
         context.put("hs_render_depth", depth + 1);
