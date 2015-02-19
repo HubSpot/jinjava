@@ -13,6 +13,9 @@ import org.apache.commons.lang3.StringUtils;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.util.JinjavaPropertyNotResolvedException;
 
 public class ExpressionResolver {
 
@@ -40,11 +43,17 @@ public class ExpressionResolver {
               .toString(), Object.class);
       return valueExp.getValue(elContext);
     } catch (PropertyNotFoundException e) {
-      interpreter.addError(TemplateError.fromUnknownProperty(e.getMessage(), lineNumber));
+      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, e.getMessage(), "", lineNumber, e));
+    } catch (JinjavaPropertyNotResolvedException e) {
+      interpreter.addError(TemplateError.fromUnknownProperty(e.getBase(), e.getProperty(), lineNumber));
     } catch (ELException e) {
-      interpreter.addError(TemplateError
-          .fromSyntaxError(new InterpretException(String.format(
-              "Syntax error in [%s]", expr), e, lineNumber)));
+      if(e.getCause() instanceof JinjavaPropertyNotResolvedException) {
+        JinjavaPropertyNotResolvedException jpe = (JinjavaPropertyNotResolvedException) e.getCause();
+        interpreter.addError(TemplateError.fromUnknownProperty(jpe.getBase(), jpe.getProperty(), lineNumber));
+      }
+      else {
+        interpreter.addError(TemplateError.fromSyntaxError(new InterpretException(String.format("Syntax error in [%s]", expr), e, lineNumber)));
+      }
     } catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(
           String.format("Error resolving expression: [%s]", expr), e, lineNumber)));

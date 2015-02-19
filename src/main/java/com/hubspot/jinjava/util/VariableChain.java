@@ -89,7 +89,7 @@ public class VariableChain {
       }
     } catch (Exception e) { /* no-op */ }
 
-    return null;
+    throw new JinjavaPropertyNotResolvedException(value, name);
   }
 
   private Method findGetterMethodCached(Class<?> clazz, String name) {

@@ -28,6 +28,7 @@ import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import com.hubspot.jinjava.util.VariableChain;
+import com.hubspot.jinjava.util.JinjavaPropertyNotResolvedException;
 
 import de.odysseus.el.util.SimpleResolver;
 
@@ -43,7 +44,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
   public Object invoke(ELContext context, Object base, Object method,
       Class<?>[] paramTypes, Object[] params) {
 
-    Object methodProperty = getValue(context, base, method);
+    Object methodProperty = getValue(context, base, method, false);
     if(methodProperty != null && methodProperty instanceof AbstractCallableMethod) {
       context.setPropertyResolved(true);
       return ((AbstractCallableMethod) methodProperty).evaluate(params);
@@ -55,6 +56,10 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
   
   @Override
   public Object getValue(ELContext context, Object base, Object prop) {
+    return getValue(context, base, prop, true);
+  }
+  
+  private Object getValue(ELContext context, Object base, Object prop, boolean errOnUnknownProp) {
     String property = Objects.toString(prop, "");
     Object value = null;
     
@@ -72,7 +77,14 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
         value = interpreter.retraceVariable((String) prop, interpreter.getLineNumber());
       }
       else {
-        value = new VariableChain(Lists.newArrayList(property), base).resolve();
+        try {
+          value = new VariableChain(Lists.newArrayList(property), base).resolve();
+        }
+        catch(JinjavaPropertyNotResolvedException e) {
+          if(errOnUnknownProp) {
+            interpreter.addError(TemplateError.fromUnknownProperty(base, property, interpreter.getLineNumber()));
+          }
+        }
       }
     }
     

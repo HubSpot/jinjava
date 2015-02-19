@@ -139,13 +139,18 @@ public class ExpressionResolverTest {
   @Test
   public void unknownProperty() throws Exception {
     interpreter.resolveELExpression("foo", 23);
+    assertThat(interpreter.getErrors()).isEmpty();
+    
+    context.put("foo", new Object());
+    interpreter.resolveELExpression("foo.bar", 23);
+    
     assertThat(interpreter.getErrors()).hasSize(1);
     
     TemplateError e = interpreter.getErrors().get(0);
     assertThat(e.getReason()).isEqualTo(ErrorReason.UNKNOWN);
     assertThat(e.getLineno()).isEqualTo(23);
-    assertThat(e.getFieldName()).isEqualTo("foo");
-    assertThat(e.getMessage()).contains("foo");
+    assertThat(e.getFieldName()).isEqualTo("bar");
+    assertThat(e.getMessage()).contains("Cannot resolve property 'bar'");
   }
   
   @Test

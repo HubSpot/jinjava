@@ -42,6 +42,7 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.NodeList;
 import com.hubspot.jinjava.tree.TreeParser;
 import com.hubspot.jinjava.util.Variable;
+import com.hubspot.jinjava.util.JinjavaPropertyNotResolvedException;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 
 import de.odysseus.el.util.SimpleContext;
@@ -205,12 +206,12 @@ public class JinjavaInterpreter {
     String varName = var.getName();
     Object obj = context.get(varName);
     if (obj != null) {
+      try {
       obj = var.resolve(obj);
-      if (obj == null) {
-        addError(TemplateError.fromUnknownProperty(variable, lineNumber));
       }
-    } else {
-      addError(TemplateError.fromUnknownProperty(variable, lineNumber));
+      catch(JinjavaPropertyNotResolvedException e) {
+        addError(TemplateError.fromUnknownProperty(obj, variable, lineNumber));
+      }
     }
     return obj;
   }
