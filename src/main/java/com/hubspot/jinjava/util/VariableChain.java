@@ -68,9 +68,7 @@ public class VariableChain {
     // map
     if (value instanceof Map) {
       Map<?, ?> map = (Map<?, ?>) value;
-      if (map.containsKey(name)) {
-        return map.get(name);
-      }
+      return map.get(name);
     }
 
     try {

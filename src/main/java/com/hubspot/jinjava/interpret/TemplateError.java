@@ -51,7 +51,7 @@ public class TemplateError {
   }
   
   // java.lang.Object@7852e922
-  private static final Pattern GENERIC_TOSTRING_PATTERN = Pattern.compile("@[0-9a-z]{8}$");
+  private static final Pattern GENERIC_TOSTRING_PATTERN = Pattern.compile("@[0-9a-z]{4,}$");
   
   public TemplateError(ErrorType severity, ErrorReason reason, String message,
       String fieldName, Integer lineno, Exception exception) {
