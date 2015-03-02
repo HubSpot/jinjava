@@ -65,6 +65,13 @@ public class ExtendedParser extends Parser {
     
     putExtensionHandler(CollectionMembershipOperator.TOKEN, CollectionMembershipOperator.HANDLER);
     
+    putExtensionHandler(PIPE, new ExtensionHandler(ExtensionPoint.AND) {
+      @Override
+      public AstNode createAstNode(AstNode... children) {
+        throw new IllegalStateException("Pipe operator reached from AST parse");
+      }
+    });
+    
     putExtensionHandler(LITERAL_DICT_START, NULL_EXT_HANDLER);
     putExtensionHandler(LITERAL_DICT_END, NULL_EXT_HANDLER);
   }
