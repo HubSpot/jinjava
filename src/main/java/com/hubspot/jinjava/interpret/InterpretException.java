@@ -43,9 +43,4 @@ public class InterpretException extends RuntimeException {
     return lineNumber;
   }
 
-  @Override
-  public String getMessage() {
-    return String.format("[Line: %d] %s", lineNumber, super.getMessage());
-  }
-
 }

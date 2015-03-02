@@ -50,7 +50,8 @@ public class ExpressionResolver {
     } catch (JinjavaPropertyNotResolvedException e) {
       interpreter.addError(TemplateError.fromUnknownProperty(e.getBase(), e.getProperty(), lineNumber));
     } catch (TreeBuilderException e) {
-      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expr, e.getMessage(), lineNumber, e)));
+      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expr,
+          "Error parsing '" + expr + "': " + StringUtils.substringAfter(e.getMessage(), "': "), lineNumber, e)));
     } catch (ELException e) {
       if(e.getCause() instanceof JinjavaPropertyNotResolvedException) {
         JinjavaPropertyNotResolvedException jpe = (JinjavaPropertyNotResolvedException) e.getCause();
