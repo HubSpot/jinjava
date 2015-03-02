@@ -43,7 +43,7 @@ public class ParserTest {
   }
 
   @Test @Ignore("most likely unsupported behavior, not needed in jinja")
-  public void test1() throws ParseException {
+  public void test1() {
     script = "{{abc.b}}{% if x %}{\\{abc}}{%endif%}";
     parser = new TokenParser(interpreter, script);
     assertEquals("{{abc.b}}", parser.next().image);
@@ -53,7 +53,7 @@ public class ParserTest {
   }
 
   @Test
-  public void test2() throws ParseException {
+  public void test2() {
     script = "{{abc.b}}{% if x %}{{abc{%endif";
     parser = new TokenParser(interpreter, script);
     assertEquals("{{abc.b}}", parser.next().image);
@@ -62,7 +62,7 @@ public class ParserTest {
   }
 
   @Test
-  public void test3() throws ParseException {
+  public void test3() {
     script = "{{abc.b}}{% if x %}{{{abc}}{%endif%}";
     parser = new TokenParser(interpreter, script);
     assertEquals("{{abc.b}}", parser.next().image);
@@ -74,7 +74,7 @@ public class ParserTest {
   }
 
   @Test
-  public void test4() throws ParseException {
+  public void test4() {
     script = "{{abc.b}}{% if x %}{{!abc}}{%endif%}";
     parser = new TokenParser(interpreter, script);
     assertEquals("{{abc.b}}", parser.next().image);
@@ -86,7 +86,7 @@ public class ParserTest {
   }
 
   @Test
-  public void test5() throws ParseException {
+  public void test5() {
     script = "{{abc.b}}{% if x %}a{{abc}\\}{%endif%}";
     parser = new TokenParser(interpreter, script);
     assertEquals("{{abc.b}}", parser.next().image);
@@ -96,7 +96,7 @@ public class ParserTest {
   }
 
   @Test @Ignore("most likely unsupported behavior unnecessary in jinja")
-  public void test6() throws ParseException {
+  public void test6() {
     script = "a{{abc.b}}{% if x 	%}a{\\{abc}}{%endif%}";
     parser = new TokenParser(interpreter, script);
     assertEquals("a", parser.next().image);
@@ -107,7 +107,7 @@ public class ParserTest {
   }
 
   @Test
-  public void test7() throws ParseException {
+  public void test7() {
     script = "a{{abc.b}}{% if x 	%}a{{abc!}#}%}}}{%endif";
     parser = new TokenParser(interpreter, script);
     assertEquals("a", parser.next().image);
@@ -120,7 +120,7 @@ public class ParserTest {
   }
 
   @Test
-  public void test8() throws ParseException {
+  public void test8() {
     script = "a{{abc.b}}{% if x 	%}a{{abc}}{%endif{{";
     parser = new TokenParser(interpreter, script);
     assertEquals("a", parser.next().image);
@@ -132,7 +132,7 @@ public class ParserTest {
   }
 
   @Test
-  public void test9() throws ParseException {
+  public void test9() {
     script = "a{{abc.b}}{% if x 	%}a{{abc}\\}{%endif{";
     parser = new TokenParser(interpreter, script);
     assertEquals("a", parser.next().image);
@@ -143,7 +143,7 @@ public class ParserTest {
   }
 
   @Test
-  public void test10() throws ParseException {
+  public void test10() {
     script = "a{{abc.b}}{% if x %}a{{abc}\\}{{#%endif{";
     parser = new TokenParser(interpreter, script);
     assertEquals("a", parser.next().image);
@@ -155,7 +155,7 @@ public class ParserTest {
   }
 
   @Test
-  public void test11() throws ParseException {
+  public void test11() {
     script = "a{#abc.b#}{% if x %}a{{abc}\\}{{{{#endif{";
     parser = new TokenParser(interpreter, script);
     assertEquals("a", parser.next().image);
@@ -167,7 +167,7 @@ public class ParserTest {
   }
 
   @Test
-  public void test12() throws ParseException {
+  public void test12() {
     script = "{#abc.b#}{% if x %}a{{abc}\\}{{{{#endif{";
     parser = new TokenParser(interpreter, script);
     assertEquals("{#abc.b#}", parser.next().image);
@@ -178,14 +178,14 @@ public class ParserTest {
   }
 
   @Test
-  public void test13() throws ParseException {
+  public void test13() {
     script = "{#abc{#.b#}{#xy{!ad!}{%dbc%}{{dff}}d{#bc#}d#}#}{% if x %}a{{abc}\\}{{{{#endif{";
     parser = new TokenParser(interpreter, script);
     assertEquals("{#abc{#.b#}", parser.next().image);
   }
 
   @Test
-  public void test14() throws ParseException {
+  public void test14() {
     script = "abc{#.b#}{#xy{!ad!}{%dbc%}{{dff}}d{#bc#}d#}#}{% if x %}a{{abc}\\}{{{{#endif{";
     parser = new TokenParser(interpreter, script);
     assertEquals("abc", parser.next().image);
@@ -194,7 +194,7 @@ public class ParserTest {
   }
 
   @Test
-  public void test15() throws ParseException {
+  public void test15() {
     script = "abc{#.b#}{#xy{!ad!}{#DD#}{%dbc%}{{dff}}d{#bc#}d#}#}{% if x %}a{{abc}\\}{{{{#endif{";
     parser = new TokenParser(interpreter, script);
     assertEquals("abc", parser.next().image);
@@ -203,14 +203,14 @@ public class ParserTest {
   }
 
   @Test
-  public void test16() throws ParseException {
+  public void test16() {
     script = "{#{#abc{#.b#}{#xy{!ad!}{%dbc%}{{dff}}d{#bc#}d#}#}{% if x %}a{{abc}\\}{{{{#endif{";
     parser = new TokenParser(interpreter, script);
     assertEquals("{#{#abc{#.b#}", parser.next().image);
   }
 
   @Test
-  public void test17() throws ParseException {
+  public void test17() {
     script = "{#abc{#.b#}{#xy{!ad!}{%dbc%}{{dff}}d{#bc#}d#}#}{% if x %}#}a#}{{abc}\\}#}{{{{#endif{";
     parser = new TokenParser(interpreter, script);
     assertEquals("{#abc{#.b#}", parser.next().image);

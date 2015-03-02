@@ -72,19 +72,15 @@ public class TokenizerTest {
   }
   
   private List<Token> tokens(String fixture) {
-    try {
-      Tokenizer t = fixture(fixture);
-      
-      List<Token> tokens = Lists.newArrayList();
-      Token token;
-      while((token = t.getNextToken()) != null) {
-        tokens.add(token);
-      }
-      
-      return tokens;
-    } catch (ParseException e) {
-      throw new RuntimeException(e);
+    Tokenizer t = fixture(fixture);
+    
+    List<Token> tokens = Lists.newArrayList();
+    Token token;
+    while((token = t.getNextToken()) != null) {
+      tokens.add(token);
     }
+    
+    return tokens;
   }
   
   private Tokenizer fixture(String fixture) {

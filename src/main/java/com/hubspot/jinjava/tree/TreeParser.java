@@ -20,11 +20,12 @@ import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_FIXED;
 import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_NOTE;
 import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_TAG;
 
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.MissingEndTagException;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.UnexpectedTokenException;
+import com.hubspot.jinjava.interpret.UnknownTagException;
 import com.hubspot.jinjava.parse.EchoToken;
 import com.hubspot.jinjava.parse.FixedToken;
-import com.hubspot.jinjava.parse.ParseException;
 import com.hubspot.jinjava.parse.TagToken;
 import com.hubspot.jinjava.parse.Token;
 import com.hubspot.jinjava.parse.TokenParser;
@@ -67,19 +68,18 @@ public final class TreeParser {
           if (tg.getEndName() != null) {
             tree(tg, parser, tg.getEndName());
           }
-        } catch (ParseException e) {
-          parser.getInterpreter().addError(TemplateError.fromSyntaxError(new InterpretException("Can't create node with token " + token, e, node.getLineNumber())));
+        } catch (UnknownTagException e) {
+          parser.getInterpreter().addError(TemplateError.fromException(e));
         }
         break;
       default:
-        parser.getInterpreter().addError(TemplateError.fromSyntaxError(new InterpretException("Unknown type token: " + token, node.getLineNumber())));
+        parser.getInterpreter().addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(), node.getLineNumber())));
       }
     }
     // can't reach end tag
     if (endName != null && !endName.equals(RootNode.TREE_ROOT_END)) {
-      parser.getInterpreter().addError(TemplateError.fromSyntaxError(
-          new InterpretException(String.format("Couldn't find end tag '%s' for tag defined on line %s as: %s", 
-              endName, node.getLineNumber(), node.toString()), node.getLineNumber())));
+      parser.getInterpreter().addError(TemplateError.fromException(
+          new MissingEndTagException(endName, node.toString(), node.getLineNumber())));
     }
   }
 }

@@ -22,6 +22,8 @@ import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_TAG;
 
 import java.io.Serializable;
 
+import com.hubspot.jinjava.interpret.UnexpectedTokenException;
+
 public abstract class Token implements Serializable {
 
   private static final long serialVersionUID = -7513379852268838992L;
@@ -35,7 +37,7 @@ public abstract class Token implements Serializable {
   private boolean leftTrim;
   private boolean rightTrim;
 
-  public Token(String image, int lineNumber) throws ParseException {
+  public Token(String image, int lineNumber) {
     this.image = image;
     this.lineNumber = lineNumber;
     parse();
@@ -70,11 +72,11 @@ public abstract class Token implements Serializable {
     return image;
   }
 
-  protected abstract void parse() throws ParseException;
+  protected abstract void parse();
 
   public abstract int getType();
 
-  static Token newToken(int tokenKind, String image, int lineNumber) throws ParseException {
+  static Token newToken(int tokenKind, String image, int lineNumber) {
     switch (tokenKind) {
     case TOKEN_FIXED:
       return new FixedToken(image, lineNumber);
@@ -85,7 +87,7 @@ public abstract class Token implements Serializable {
     case TOKEN_TAG:
       return new TagToken(image, lineNumber);
     default:
-      throw new ParseException("Creating a token with unknown type >>> " + (char) tokenKind);
+      throw new UnexpectedTokenException(String.valueOf((char) tokenKind), lineNumber);
     }
   }
 

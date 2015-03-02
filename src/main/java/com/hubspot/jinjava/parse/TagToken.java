@@ -26,7 +26,7 @@ public class TagToken extends Token {
   private String tagName;
   private String helpers;
   
-  public TagToken(String image, int lineNumber) throws ParseException {
+  public TagToken(String image, int lineNumber) {
     super(image, lineNumber);
   }
 

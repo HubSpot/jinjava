@@ -17,8 +17,8 @@ package com.hubspot.jinjava.tree;
 
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.UnknownTagException;
 import com.hubspot.jinjava.lib.tag.Tag;
-import com.hubspot.jinjava.parse.ParseException;
 import com.hubspot.jinjava.parse.TagToken;
 
 public class TagNode extends Node {
@@ -28,12 +28,12 @@ public class TagNode extends Node {
   private TagToken master;
   private String endName = null;
 
-  public TagNode(TagToken token, JinjavaInterpreter interpreter) throws ParseException {
+  public TagNode(TagToken token, JinjavaInterpreter interpreter) {
     super(token, token.getLineNumber());
     master = token;
     Tag tag = interpreter.getContext().getTag(master.getTagName());
     if (tag == null) {
-      throw new ParseException("Can't find tag >>> " + master.getTagName());
+      throw new UnknownTagException(master.getTagName(), master.getImage(), token.getLineNumber());
     }
     endName = tag.getEndTagName();
   }

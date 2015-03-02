@@ -23,7 +23,7 @@ public class FixedToken extends Token {
 
   private static final long serialVersionUID = -5015884072204770458L;
 
-  public FixedToken(String image, int lineNumber) throws ParseException {
+  public FixedToken(String image, int lineNumber) {
     super(image, lineNumber);
   }
 

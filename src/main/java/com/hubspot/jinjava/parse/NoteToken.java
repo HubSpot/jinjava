@@ -21,7 +21,7 @@ public class NoteToken extends Token {
 
   private static final long serialVersionUID = 6112027107603795408L;
 
-  public NoteToken(String image, int lineNumber) throws ParseException {
+  public NoteToken(String image, int lineNumber) {
     super(image, lineNumber);
   }
 

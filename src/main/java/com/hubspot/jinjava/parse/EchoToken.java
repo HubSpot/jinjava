@@ -26,7 +26,7 @@ public class EchoToken extends Token {
 
   private String expr;
   
-  public EchoToken(String image, int lineNumber) throws ParseException {
+  public EchoToken(String image, int lineNumber) {
     super(image, lineNumber);
   }
 
@@ -42,7 +42,7 @@ public class EchoToken extends Token {
   }
 
   @Override
-  protected void parse() throws ParseException {
+  protected void parse() {
     this.expr = WhitespaceUtils.unwrap(image, "{{", "}}");
 
     if(WhitespaceUtils.startsWith(expr, "-")) {

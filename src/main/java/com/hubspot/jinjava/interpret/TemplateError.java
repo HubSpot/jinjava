@@ -22,6 +22,10 @@ public class TemplateError {
     return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ExceptionUtils.getMessage(ex), null, ex.getLineNumber(), ex);
   }
 
+  public static TemplateError fromException(TemplateSyntaxException ex) {
+    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ExceptionUtils.getMessage(ex), null, ex.getLineNumber(), ex);
+  }
+  
   public static TemplateError fromException(Exception ex) {
     int lineNumber = -1;
     

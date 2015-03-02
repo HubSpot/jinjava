@@ -20,6 +20,7 @@ import java.util.NoSuchElementException;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 public class TokenParser implements Iterator<Token> {
 
@@ -44,7 +45,7 @@ public class TokenParser implements Iterator<Token> {
           proceeding = false;
           return false;
         }
-      } catch (ParseException e) {
+      } catch (TemplateSyntaxException e) {
         interpreter.addError(TemplateError.fromException(e));
         token = null;
       }
@@ -63,7 +64,7 @@ public class TokenParser implements Iterator<Token> {
             throw new NoSuchElementException();
           }
           return tk;
-        } catch (ParseException e) {
+        } catch (TemplateSyntaxException e) {
           interpreter.addError(TemplateError.fromException(e));
           throw new NoSuchElementException();
         }

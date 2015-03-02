@@ -53,7 +53,7 @@ public class Tokenizer {
     currLine = 1;
   }
 
-  public Token getNextToken() throws ParseException {
+  public Token getNextToken() {
     char c = 0;
     while (currPost < length) {
       c = is[currPost++];
@@ -221,7 +221,7 @@ public class Tokenizer {
     return "endraw".equals(String.valueOf(is, pos - 1, 6));
   }
   
-  private Token getEndToken() throws ParseException {
+  private Token getEndToken() {
     tokenLength = currPost - tokenStart;
     int type = TOKEN_FIXED;
     if (inComment > 0) {
@@ -230,7 +230,7 @@ public class Tokenizer {
     return Token.newToken(type, String.valueOf(is, tokenStart, tokenLength), currLine);
   }
 
-  private Token newToken(int kind) throws ParseException {
+  private Token newToken(int kind) {
     Token t = Token.newToken(kind, String.copyValueOf(is, lastStart, tokenLength), currLine);
     
     if(t instanceof TagToken) {

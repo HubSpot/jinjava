@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.util.JinjavaPropertyNotResolvedException;
@@ -52,7 +53,7 @@ public class ExpressionResolver {
         interpreter.addError(TemplateError.fromUnknownProperty(jpe.getBase(), jpe.getProperty(), lineNumber));
       }
       else {
-        interpreter.addError(TemplateError.fromSyntaxError(new InterpretException(String.format("Syntax error in [%s]", expr), e, lineNumber)));
+        interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expr, e.getMessage(), lineNumber, e)));
       }
     } catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(
