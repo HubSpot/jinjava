@@ -19,15 +19,21 @@ public class TemplateError {
   private final Exception exception;
   
   public static TemplateError fromSyntaxError(InterpretException ex) {
-    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ExceptionUtils.getRootCauseMessage(ex), null, ex.getLineNumber(), ex);
+    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ExceptionUtils.getMessage(ex), null, ex.getLineNumber(), ex);
   }
 
   public static TemplateError fromException(Exception ex) {
-    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ExceptionUtils.getRootCauseMessage(ex), null, null, ex);
+    int lineNumber = -1;
+    
+    if(ex instanceof InterpretException) {
+      lineNumber = ((InterpretException) ex).getLineNumber();
+    }
+    
+    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ExceptionUtils.getMessage(ex), null, lineNumber, ex);
   }
   
   public static TemplateError fromException(Exception ex, int lineNumber) {
-    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ExceptionUtils.getRootCauseMessage(ex), null, lineNumber, ex);
+    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ExceptionUtils.getMessage(ex), null, lineNumber, ex);
   }
   
   public static TemplateError fromUnknownProperty(Object base, String variable, int lineNumber) {

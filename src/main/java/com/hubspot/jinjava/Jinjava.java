@@ -15,19 +15,23 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.el.ExpressionFactory;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.hubspot.jinjava.el.ExtendedSyntaxBuilder;
 import com.hubspot.jinjava.el.TruthyTypeConverter;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.loader.CascadingResourceLocator;
 import com.hubspot.jinjava.loader.ClasspathResourceLocator;
 import com.hubspot.jinjava.loader.FileLocator;
@@ -136,12 +140,15 @@ public class Jinjava {
   public String render(String template, Map<String, ?> bindings) {
     RenderResult result = renderForResult(template, bindings);
 
-    if(!result.getErrors().isEmpty()) {
-      for(TemplateError err : result.getErrors()) {
-        if(err.getReason() == ErrorReason.SYNTAX_ERROR) {
-          throw new InterpretException(err.getMessage(), err.getException(), err.getLineno());
-        }
+    Collection<TemplateError> fatalErrors = Collections2.filter(result.getErrors(), new Predicate<TemplateError>() {
+      @Override
+      public boolean apply(TemplateError input) {
+        return input.getSeverity() == ErrorType.FATAL;
       }
+    });
+    
+    if(!fatalErrors.isEmpty()) {
+      throw new FatalTemplateErrorsException(template, fatalErrors);
     }
     
     return result.getOutput();
