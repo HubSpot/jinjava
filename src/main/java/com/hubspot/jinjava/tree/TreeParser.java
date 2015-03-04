@@ -20,6 +20,7 @@ import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_FIXED;
 import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_NOTE;
 import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_TAG;
 
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MissingEndTagException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
@@ -30,18 +31,21 @@ import com.hubspot.jinjava.parse.TagToken;
 import com.hubspot.jinjava.parse.Token;
 import com.hubspot.jinjava.parse.TokenParser;
 
-public final class TreeParser {
+public class TreeParser {
 
-  private TreeParser() {
+  private final TokenParser parser;
+  
+  public TreeParser(JinjavaInterpreter interpreter, String input){
+    this.parser = new TokenParser(interpreter, input);
   }
 
-  public static Node parseTree(TokenParser parser) {
+  public Node parseTree() {
     Node root = new RootNode();
-    tree(root, parser, RootNode.TREE_ROOT_END);
+    tree(root, RootNode.TREE_ROOT_END);
     return root;
   }
 
-  private static void tree(Node node, TokenParser parser, String endName) {
+  private void tree(Node node, String endName) {
     Token token;
     TagToken tag;
     while (parser.hasNext()) {
@@ -66,7 +70,7 @@ public final class TreeParser {
           TagNode tg = new TagNode((TagToken) token, parser.getInterpreter());
           node.add(tg);
           if (tg.getEndName() != null) {
-            tree(tg, parser, tg.getEndName());
+            tree(tg, tg.getEndName());
           }
         } catch (UnknownTagException e) {
           parser.getInterpreter().addError(TemplateError.fromException(e));

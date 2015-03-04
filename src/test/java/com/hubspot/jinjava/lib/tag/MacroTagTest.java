@@ -23,7 +23,6 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
-import com.hubspot.jinjava.parse.TokenParser;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
@@ -120,7 +119,7 @@ public class MacroTagTest {
   }
   
   private Node snippet(String jinja) {
-    return TreeParser.parseTree(new TokenParser(interpreter, jinja)).getChildren().getFirst();
+    return new TreeParser(interpreter, jinja).parseTree().getChildren().getFirst();
   }
   
   private TagNode fixture(String name) {

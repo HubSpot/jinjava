@@ -13,7 +13,6 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.parse.TokenParser;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
 
@@ -51,10 +50,9 @@ public class UnlessTagTest {
 
   private TagNode fixture(String name) {
     try {
-      return (TagNode) TreeParser.parseTree(
-          new TokenParser(interpreter, Resources.toString(
-              Resources.getResource(String.format("tags/iftag/%s.jinja", name)), StandardCharsets.UTF_8)))
-              .getChildren().getFirst();
+      return (TagNode) new TreeParser(interpreter, Resources.toString(
+              Resources.getResource(String.format("tags/iftag/%s.jinja", name)), StandardCharsets.UTF_8))
+              .parseTree().getChildren().getFirst();
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

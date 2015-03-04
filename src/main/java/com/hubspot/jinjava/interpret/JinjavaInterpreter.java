@@ -37,12 +37,11 @@ import com.hubspot.jinjava.el.ExpressionResolver;
 import com.hubspot.jinjava.el.JinjavaELContext;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
-import com.hubspot.jinjava.parse.TokenParser;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.NodeList;
 import com.hubspot.jinjava.tree.TreeParser;
-import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.JinjavaPropertyNotResolvedException;
+import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 
 import de.odysseus.el.util.SimpleContext;
@@ -98,7 +97,7 @@ public class JinjavaInterpreter {
   }
   
   public Node parse(String template) {
-    return TreeParser.parseTree(new TokenParser(this, template));
+    return new TreeParser(this, template).parseTree();
   }
   
   public String renderString(String template) {

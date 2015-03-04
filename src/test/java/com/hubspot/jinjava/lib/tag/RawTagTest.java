@@ -14,7 +14,6 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.parse.TokenParser;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.NodeList;
 import com.hubspot.jinjava.tree.TagNode;
@@ -107,10 +106,9 @@ public class RawTagTest {
 
   private NodeList fixtures(String name) {
     try {
-      return TreeParser.parseTree(
-          new TokenParser(interpreter, Resources.toString(
-              Resources.getResource(String.format("tags/rawtag/%s.jinja", name)), StandardCharsets.UTF_8)))
-              .getChildren();
+      return new TreeParser(interpreter, Resources.toString(
+              Resources.getResource(String.format("tags/rawtag/%s.jinja", name)), StandardCharsets.UTF_8))
+              .parseTree().getChildren();
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

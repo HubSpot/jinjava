@@ -12,7 +12,6 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.parse.TokenParser;
 
 
 public class VariableNodeTest {
@@ -62,7 +61,7 @@ public class VariableNodeTest {
   }
   
   private VariableNode parse(String jinja) {
-    return (VariableNode) TreeParser.parseTree(new TokenParser(interpreter, jinja)).getChildren().getFirst();
+    return (VariableNode) new TreeParser(interpreter, jinja).parseTree().getChildren().getFirst();
   }
   
   private VariableNode fixture(String name) {
