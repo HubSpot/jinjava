@@ -85,8 +85,8 @@ public class TokenizerTest {
   
   private Tokenizer fixture(String fixture) {
     try {
-      Tokenizer t = new Tokenizer();
-      t.init(Resources.toString(Resources.getResource(String.format("parse/tokenizer/%s.jinja", fixture)), StandardCharsets.UTF_8));
+      Tokenizer t = new Tokenizer(Resources.toString(Resources.getResource(String.format("parse/tokenizer/%s.jinja", fixture)), 
+          StandardCharsets.UTF_8));
       return t;
     }
     catch(Exception e) {

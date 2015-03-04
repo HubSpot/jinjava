@@ -26,7 +26,7 @@ import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_TAG;
 
 public class Tokenizer {
 
-  private char[] is;
+  private final char[] is;
   private int currPost = 0;
   private int tokenStart = 0;
   private int tokenLength = 0;
@@ -39,7 +39,7 @@ public class Tokenizer {
   private char inQuote = 0;
   private int currLine = 1;
 
-  public void init(String inputstream) {
+  public Tokenizer(String inputstream) {
     is = inputstream.toCharArray();
     length = inputstream.length();
     currPost = 0;

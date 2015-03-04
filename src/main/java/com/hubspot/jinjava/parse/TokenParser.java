@@ -24,14 +24,15 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 public class TokenParser implements Iterator<Token> {
 
-  private JinjavaInterpreter interpreter;
-  private Tokenizer tm = new Tokenizer();
+  private final JinjavaInterpreter interpreter;
+  private final Tokenizer tm;
+
   private Token token;
   private boolean proceeding = true;
 
   public TokenParser(JinjavaInterpreter interpreter, String text) {
     this.interpreter = interpreter;
-    tm.init(text);
+    tm = new Tokenizer(text);
   }
 
   @Override
