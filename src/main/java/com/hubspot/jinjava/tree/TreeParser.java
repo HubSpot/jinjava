@@ -15,44 +15,45 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_EXPR_START;
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_FIXED;
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_NOTE;
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_TAG;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_EXPR_START;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_FIXED;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_NOTE;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_TAG;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MissingEndTagException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
 import com.hubspot.jinjava.interpret.UnknownTagException;
-import com.hubspot.jinjava.parse.ExpressionToken;
-import com.hubspot.jinjava.parse.FixedToken;
-import com.hubspot.jinjava.parse.TagToken;
-import com.hubspot.jinjava.parse.Token;
-import com.hubspot.jinjava.parse.TokenParser;
+import com.hubspot.jinjava.lib.tag.Tag;
+import com.hubspot.jinjava.tree.parse.ExpressionToken;
+import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.tree.parse.TextToken;
+import com.hubspot.jinjava.tree.parse.Token;
+import com.hubspot.jinjava.tree.parse.TokenScanner;
 
 public class TreeParser {
 
-  private final TokenParser parser;
+  private final TokenScanner scanner;
+  private final JinjavaInterpreter interpreter;
   
   public TreeParser(JinjavaInterpreter interpreter, String input){
-    this.parser = new TokenParser(interpreter, input);
+    this.scanner = new TokenScanner(input);
+    this.interpreter = interpreter;
   }
 
   public Node parseTree() {
     Node root = new RootNode();
-    tree(root, RootNode.TREE_ROOT_END);
+    parseNodeChildren(root, RootNode.TREE_ROOT_END);
     return root;
   }
 
-  private void tree(Node node, String endName) {
-    Token token;
-    TagToken tag;
-    while (parser.hasNext()) {
-      token = parser.next();
+  private void parseNodeChildren(Node node, String endName) {
+    while(scanner.hasNext()) {
+      Token token = scanner.next();
       switch (token.getType()) {
       case TOKEN_FIXED:
-        TextNode tn = new TextNode((FixedToken) token);
+        TextNode tn = new TextNode((TextToken) token);
         node.add(tn);
         break;
       case TOKEN_NOTE:
@@ -62,27 +63,30 @@ public class TreeParser {
         node.add(vn);
         break;
       case TOKEN_TAG:
-        tag = (TagToken) token;
-        if (tag.getTagName().equalsIgnoreCase(endName)) {
+        TagToken tagToken = (TagToken) token;
+        if (tagToken.getTagName().equalsIgnoreCase(endName)) {
           return;
         }
-        try {
-          TagNode tg = new TagNode((TagToken) token, parser.getInterpreter());
-          node.add(tg);
-          if (tg.getEndName() != null) {
-            tree(tg, tg.getEndName());
-          }
-        } catch (UnknownTagException e) {
-          parser.getInterpreter().addError(TemplateError.fromException(e));
+        
+        Tag tag = interpreter.getContext().getTag(tagToken.getTagName());
+        if (tag == null) {
+          interpreter.addError(TemplateError.fromException(new UnknownTagException(tagToken)));
+        }
+
+        TagNode tg = new TagNode(tag, tagToken);
+        node.add(tg);
+
+        if (tg.getEndName() != null) {
+          parseNodeChildren(tg, tg.getEndName());
         }
         break;
       default:
-        parser.getInterpreter().addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(), node.getLineNumber())));
+        interpreter.addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(), node.getLineNumber())));
       }
     }
     // can't reach end tag
     if (endName != null && !endName.equals(RootNode.TREE_ROOT_END)) {
-      parser.getInterpreter().addError(TemplateError.fromException(
+     interpreter.addError(TemplateError.fromException(
           new MissingEndTagException(endName, node.toString(), node.getLineNumber())));
     }
   }

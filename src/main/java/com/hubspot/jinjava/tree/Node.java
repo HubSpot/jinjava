@@ -18,7 +18,7 @@ package com.hubspot.jinjava.tree;
 import java.io.Serializable;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.parse.Token;
+import com.hubspot.jinjava.tree.parse.Token;
 
 public abstract class Node implements Serializable, Cloneable {
 

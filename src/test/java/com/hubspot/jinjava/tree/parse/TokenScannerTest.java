@@ -1,4 +1,4 @@
-package com.hubspot.jinjava.parse;
+package com.hubspot.jinjava.tree.parse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -10,9 +10,14 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.tree.parse.TextToken;
+import com.hubspot.jinjava.tree.parse.ParserConstants;
+import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.tree.parse.Token;
+import com.hubspot.jinjava.tree.parse.TokenScanner;
 
 
-public class TokenizerTest {
+public class TokenScannerTest {
 
   @Test
   public void itProperlyTokenizesCommentBlocksContainingTags() {
@@ -26,7 +31,7 @@ public class TokenizerTest {
   public void itProperlyTokenizesCommentWithTrailingTokens() {
     List<Token> tokens = tokens("comment-plus");
     assertThat(tokens).hasSize(2);
-    assertThat(tokens.get(tokens.size() - 1)).isInstanceOf(FixedToken.class);
+    assertThat(tokens.get(tokens.size() - 1)).isInstanceOf(TextToken.class);
     assertThat(StringUtils.substringBetween(tokens.get(tokens.size() - 1).toString(), "{~", "~}").trim()).isEqualTo("and here's some extra.");
   }
   
@@ -34,7 +39,7 @@ public class TokenizerTest {
   public void itProperlyTokenizesMultilineCommentTokens() {
     List<Token> tokens = tokens("multiline-comment");
     assertThat(tokens).hasSize(3);
-    assertThat(tokens.get(2)).isInstanceOf(FixedToken.class);
+    assertThat(tokens.get(2)).isInstanceOf(TextToken.class);
     assertThat(StringUtils.substringBetween(tokens.get(2).toString(), "{~", "~}").trim()).isEqualTo("goodbye.");
   }
   
@@ -72,7 +77,7 @@ public class TokenizerTest {
   }
   
   private List<Token> tokens(String fixture) {
-    Tokenizer t = fixture(fixture);
+    TokenScanner t = fixture(fixture);
     
     List<Token> tokens = Lists.newArrayList();
     Token token;
@@ -83,9 +88,9 @@ public class TokenizerTest {
     return tokens;
   }
   
-  private Tokenizer fixture(String fixture) {
+  private TokenScanner fixture(String fixture) {
     try {
-      Tokenizer t = new Tokenizer(Resources.toString(Resources.getResource(String.format("parse/tokenizer/%s.jinja", fixture)), 
+      TokenScanner t = new TokenScanner(Resources.toString(Resources.getResource(String.format("parse/tokenizer/%s.jinja", fixture)), 
           StandardCharsets.UTF_8));
       return t;
     }

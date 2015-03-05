@@ -13,47 +13,34 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  **********************************************************************/
-package com.hubspot.jinjava.parse;
+package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_FIXED;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_NOTE;
 
-import org.apache.commons.lang3.StringUtils;
+public class NoteToken extends Token {
 
-public class FixedToken extends Token {
+  private static final long serialVersionUID = 6112027107603795408L;
 
-  private static final long serialVersionUID = -5015884072204770458L;
-
-  public FixedToken(String image, int lineNumber) {
+  public NoteToken(String image, int lineNumber) {
     super(image, lineNumber);
   }
 
   @Override
   public int getType() {
-    return TOKEN_FIXED;
+    return TOKEN_NOTE;
   }
 
+  /**
+   * remove all content, we don't need it.
+   */
   @Override
   protected void parse() {
-    content = image;
-  }
-
-  public boolean isBlank() {
-    return StringUtils.isBlank(content);
-  }
-
-  public String trim() {
-    return content.trim();
-  }
-
-  public String output() {
-    return content;
+    content = "";
   }
 
   @Override
   public String toString() {
-    if (isBlank()) {
-      return "{~ ~}";
-    }
-    return "{~ " + content + " ~}";
+    return "{# ----comment---- #}";
   }
+
 }

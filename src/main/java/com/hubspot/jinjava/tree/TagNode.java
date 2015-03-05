@@ -17,36 +17,35 @@ package com.hubspot.jinjava.tree;
 
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.UnknownTagException;
 import com.hubspot.jinjava.lib.tag.Tag;
-import com.hubspot.jinjava.parse.TagToken;
+import com.hubspot.jinjava.tree.parse.TagToken;
 
 public class TagNode extends Node {
 
   private static final long serialVersionUID = 2405693063353887509L;
 
-  private TagToken master;
-  private String endName = null;
+  private final Tag tag;
+  private final TagToken master;
+  private final String endName;
 
-  public TagNode(TagToken token, JinjavaInterpreter interpreter) {
+  public TagNode(Tag tag, TagToken token) {
     super(token, token.getLineNumber());
-    master = token;
-    Tag tag = interpreter.getContext().getTag(master.getTagName());
-    if (tag == null) {
-      throw new UnknownTagException(master.getTagName(), master.getImage(), token.getLineNumber());
-    }
-    endName = tag.getEndTagName();
+    
+    this.master = token;
+    this.tag = tag;
+    this.endName = tag.getEndTagName();
   }
   
   private TagNode(TagNode n) {
     super(n.master, n.getLineNumber());
+
+    tag = n.tag;
     master = n.master;
     endName = n.endName;
   }
 
   @Override
   public String render(JinjavaInterpreter interpreter) {
-    Tag tag = interpreter.getContext().getTag(master.getTagName());
     try {
       return tag.interpret(this, interpreter);
     } catch (Exception e) {

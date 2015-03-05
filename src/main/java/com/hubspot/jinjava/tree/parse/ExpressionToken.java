@@ -13,9 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  **********************************************************************/
-package com.hubspot.jinjava.parse;
+package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_EXPR_START;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_EXPR_START;
 
 import org.apache.commons.lang3.StringUtils;
 

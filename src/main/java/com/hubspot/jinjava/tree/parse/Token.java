@@ -13,12 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  **********************************************************************/
-package com.hubspot.jinjava.parse;
+package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_EXPR_START;
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_FIXED;
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_NOTE;
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_TAG;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_EXPR_START;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_FIXED;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_NOTE;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_TAG;
 
 import java.io.Serializable;
 
@@ -79,7 +79,7 @@ public abstract class Token implements Serializable {
   static Token newToken(int tokenKind, String image, int lineNumber) {
     switch (tokenKind) {
     case TOKEN_FIXED:
-      return new FixedToken(image, lineNumber);
+      return new TextToken(image, lineNumber);
     case TOKEN_NOTE:
       return new NoteToken(image, lineNumber);
     case TOKEN_EXPR_START:

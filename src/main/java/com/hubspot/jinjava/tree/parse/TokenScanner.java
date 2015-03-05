@@ -13,18 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  **********************************************************************/
-package com.hubspot.jinjava.parse;
+package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_EXPR_START;
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_EXPR_END;
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_FIXED;
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_NEWLINE;
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_NOTE;
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_POSTFIX;
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_PREFIX;
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_TAG;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_EXPR_END;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_EXPR_START;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_FIXED;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_NEWLINE;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_NOTE;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_POSTFIX;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_PREFIX;
+import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_TAG;
 
-public class Tokenizer {
+import com.google.common.collect.AbstractIterator;
+
+public class TokenScanner extends AbstractIterator<Token> {
 
   private final char[] is;
   private int currPost = 0;
@@ -39,9 +41,9 @@ public class Tokenizer {
   private char inQuote = 0;
   private int currLine = 1;
 
-  public Tokenizer(String inputstream) {
-    is = inputstream.toCharArray();
-    length = inputstream.length();
+  public TokenScanner(String input) {
+    is = input.toCharArray();
+    length = input.length();
     currPost = 0;
     tokenStart = 0;
     tokenKind = -1;
@@ -260,6 +262,17 @@ public class Tokenizer {
     } else {
       return kind == tokenKind;
     }
+  }
+
+  @Override
+  protected Token computeNext() {
+    Token t = getNextToken();
+
+    if(t == null) {
+      return endOfData();
+    }
+    
+    return t;
   }
 
 }

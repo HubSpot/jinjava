@@ -1,8 +1,10 @@
-package com.hubspot.jinjava.parse;
+package com.hubspot.jinjava.tree.parse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
+
+import com.hubspot.jinjava.tree.parse.TagToken;
 
 
 public class TagTokenTest {

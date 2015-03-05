@@ -18,7 +18,7 @@ package com.hubspot.jinjava.tree;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.parse.ExpressionToken;
+import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.util.Logging;
 import com.hubspot.jinjava.util.ObjectValue;
 
