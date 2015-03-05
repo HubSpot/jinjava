@@ -16,6 +16,7 @@ limitations under the License.
 package com.hubspot.jinjava.tree;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -31,7 +32,7 @@ public abstract class Node implements Serializable, Cloneable {
   private Node parent = null;
   private Node predecessor = null;
   private Node successor = null;
-  private NodeList children = new NodeList();
+  private LinkedList<Node> children = new LinkedList<Node>();
   private Token master;
 
   public Node(Token master, int lineNumber) {
@@ -75,11 +76,11 @@ public abstract class Node implements Serializable, Cloneable {
     return lineNumber;
   }
 
-  public NodeList getChildren() {
+  public LinkedList<Node> getChildren() {
     return children;
   }
   
-  public void setChildren(NodeList children) {
+  public void setChildren(LinkedList<Node> children) {
     this.children = children;
   }
 
@@ -95,26 +96,6 @@ public abstract class Node implements Serializable, Cloneable {
     node.level = level + 1;
     node.parent = this;
     children.add(node);
-  }
-
-  Node treeNext() {
-    if (children.size > 0) {
-      return children.head;
-    } else {
-      return recursiveNext();
-    }
-  }
-
-  Node recursiveNext() {
-    if (successor != null) {
-      return successor;
-    } else {
-      if (parent != null) {
-        return parent.recursiveNext();
-      } else {
-        return null;
-      }
-    }
   }
 
   void computeLevel(int baseLevel) {

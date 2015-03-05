@@ -15,6 +15,8 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
+import java.util.LinkedList;
+
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 public class RootNode extends Node {
@@ -37,7 +39,7 @@ public class RootNode extends Node {
   @Override
   public Node clone() {
     Node clone = new RootNode();
-    clone.setChildren(this.getChildren().clone(clone));
+    clone.setChildren(new LinkedList<>(this.getChildren()));
     return clone;
   }
 }

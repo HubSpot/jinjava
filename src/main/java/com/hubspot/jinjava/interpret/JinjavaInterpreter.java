@@ -38,7 +38,6 @@ import com.hubspot.jinjava.el.JinjavaELContext;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.tree.Node;
-import com.hubspot.jinjava.tree.NodeList;
 import com.hubspot.jinjava.tree.TreeParser;
 import com.hubspot.jinjava.util.JinjavaPropertyNotResolvedException;
 import com.hubspot.jinjava.util.Variable;
@@ -48,7 +47,7 @@ import de.odysseus.el.util.SimpleContext;
 
 public class JinjavaInterpreter {
 
-  private final Multimap<String, NodeList> blocks = ArrayListMultimap.create();
+  private final Multimap<String, List<? extends Node>> blocks = ArrayListMultimap.create();
   private final LinkedList<Node> extendParentRoots = new LinkedList<Node>();
   
   private Context context;
@@ -81,7 +80,7 @@ public class JinjavaInterpreter {
     extendParentRoots.add(root);
   }
 
-  public void addBlock(String name, NodeList value) {
+  public void addBlock(String name, LinkedList<? extends Node> value) {
     blocks.put(name, value);
   }
   
@@ -161,11 +160,11 @@ public class JinjavaInterpreter {
       
       String blockValue = "";
       
-      Collection<NodeList> blockChain = blocks.get(blockName);
-      NodeList block = Iterables.getFirst(blockChain, null);
+      Collection<List<? extends Node>> blockChain = blocks.get(blockName);
+      List<? extends Node> block = Iterables.getFirst(blockChain, null);
       
       if(block != null) {
-        NodeList superBlock = Iterables.get(blockChain, 1, null);
+        List<? extends Node> superBlock = Iterables.get(blockChain, 1, null);
         context.put("__superbl0ck__", superBlock);
         
         StringBuilder blockValueBuilder = new StringBuilder();

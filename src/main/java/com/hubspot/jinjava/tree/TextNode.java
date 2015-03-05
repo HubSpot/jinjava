@@ -15,6 +15,8 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
+import java.util.LinkedList;
+
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.parse.TextToken;
 
@@ -46,7 +48,7 @@ public class TextNode extends Node {
   @Override
   public Node clone() {
     Node clone = new TextNode(master);
-    clone.setChildren(this.getChildren().clone(clone));
+    clone.setChildren(new LinkedList<>(this.getChildren()));
     return clone;
   }
 }

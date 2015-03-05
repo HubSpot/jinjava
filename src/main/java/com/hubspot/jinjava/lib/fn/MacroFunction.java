@@ -8,7 +8,6 @@ import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.Node;
-import com.hubspot.jinjava.tree.NodeList;
 
 /**
  * Function definition parsed from a jinjava template, stored in global macros registry in interpreter context.
@@ -18,7 +17,7 @@ import com.hubspot.jinjava.tree.NodeList;
  */
 public class MacroFunction extends AbstractCallableMethod {
   
-  private final NodeList content;
+  private final List<Node> content;
   
   private final boolean catchKwargs;
   private final boolean catchVarargs;
@@ -26,7 +25,7 @@ public class MacroFunction extends AbstractCallableMethod {
 
   private final Context localContextScope;
   
-  public MacroFunction(NodeList content, String name, LinkedHashMap<String, Object> argNamesWithDefaults,
+  public MacroFunction(List<Node> content, String name, LinkedHashMap<String, Object> argNamesWithDefaults,
       boolean catchKwargs, boolean catchVarargs, boolean caller, Context localContextScope) {
     super(name, argNamesWithDefaults);
     this.content = content;

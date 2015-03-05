@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
@@ -15,7 +17,6 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.Node;
-import com.hubspot.jinjava.tree.NodeList;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
 
@@ -45,7 +46,7 @@ public class RawTagTest {
 
   @Test
   public void renderTags() {
-    NodeList tags = fixtures("tags");
+    List<Node> tags = fixtures("tags");
     String result = "";
     
     for(Node n : tags) {
@@ -104,7 +105,7 @@ public class RawTagTest {
     return (TagNode) fixtures(name).getFirst();
   }
 
-  private NodeList fixtures(String name) {
+  private LinkedList<Node> fixtures(String name) {
     try {
       return new TreeParser(interpreter, Resources.toString(
               Resources.getResource(String.format("tags/rawtag/%s.jinja", name)), StandardCharsets.UTF_8))

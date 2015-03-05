@@ -16,7 +16,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import com.hubspot.jinjava.tree.Node;
-import com.hubspot.jinjava.tree.NodeList;
 
 public class Functions {
 
@@ -24,7 +23,8 @@ public class Functions {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     StringBuilder result = new StringBuilder();
     
-    NodeList superBlock = (NodeList) interpreter.getContext().get("__superbl0ck__");
+    @SuppressWarnings("unchecked")
+    List<Node> superBlock = (List<Node>) interpreter.getContext().get("__superbl0ck__");
     if(superBlock != null) {
       for(Node n : superBlock) {
         result.append(n.render(interpreter));
