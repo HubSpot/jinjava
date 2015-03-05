@@ -29,10 +29,10 @@ public abstract class Node implements Serializable, Cloneable {
 
   private int level;
   private int lineNumber;
+  
   private Node parent = null;
-  private Node predecessor = null;
-  private Node successor = null;
   private LinkedList<Node> children = new LinkedList<Node>();
+
   private Token master;
 
   public Node(Token master, int lineNumber) {
@@ -51,23 +51,7 @@ public abstract class Node implements Serializable, Cloneable {
   public void setParent(Node parent) {
     this.parent = parent;
   }
-  
-  public Node getPredecessor() {
-    return predecessor;
-  }
 
-  public void setPredecessor(Node predecessor) {
-    this.predecessor = predecessor;
-  }
-  
-  public Node getSuccessor() {
-    return successor;
-  }
-
-  public void setSuccessor(Node successor) {
-    this.successor = successor;
-  }
-  
   public Token getMaster() {
     return master;
   }
