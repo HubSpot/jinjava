@@ -15,10 +15,10 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_EXPR_START;
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_FIXED;
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_NOTE;
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_TAG;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_EXPR_START;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_FIXED;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MissingEndTagException;

@@ -15,14 +15,14 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_EXPR_END;
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_EXPR_START;
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_FIXED;
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_NEWLINE;
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_NOTE;
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_POSTFIX;
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_PREFIX;
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_TAG;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_EXPR_END;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_EXPR_START;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_FIXED;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NEWLINE;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_POSTFIX;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_PREFIX;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
 
 import com.google.common.collect.AbstractIterator;
 

@@ -15,9 +15,9 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_EXPR_START;
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_FIXED;
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_NOTE;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_EXPR_START;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_FIXED;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;

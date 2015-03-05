@@ -15,7 +15,7 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-public interface ParserConstants {
+public interface TokenScannerSymbols {
 
   int TOKEN_PREFIX = '{';
   int TOKEN_POSTFIX = '}';

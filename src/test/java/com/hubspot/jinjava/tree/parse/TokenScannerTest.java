@@ -11,7 +11,7 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.tree.parse.TextToken;
-import com.hubspot.jinjava.tree.parse.ParserConstants;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.tree.parse.TokenScanner;
@@ -55,7 +55,7 @@ public class TokenScannerTest {
   public void itProperlyTokenizesTagTokenWithTagTokenCharsWithinString() {
     List<Token> tokens = tokens("tag-with-tag-tokens-within-string");
     assertThat(tokens).hasSize(1);
-    assertThat(tokens.get(0).getType()).isEqualTo(ParserConstants.TOKEN_TAG);
+    assertThat(tokens.get(0).getType()).isEqualTo(TokenScannerSymbols.TOKEN_TAG);
     assertThat(tokens.get(0).content).contains("label='Blog Comments'");
   }
   
@@ -63,16 +63,16 @@ public class TokenScannerTest {
   public void testQuotedTag() {
     List<Token> tokens = tokens("html-with-tag-in-attr");
     assertThat(tokens).hasSize(3);
-    assertThat(tokens.get(0).getType()).isEqualTo(ParserConstants.TOKEN_FIXED);
-    assertThat(tokens.get(1).getType()).isEqualTo(ParserConstants.TOKEN_TAG);
-    assertThat(tokens.get(2).getType()).isEqualTo(ParserConstants.TOKEN_FIXED);
+    assertThat(tokens.get(0).getType()).isEqualTo(TokenScannerSymbols.TOKEN_FIXED);
+    assertThat(tokens.get(1).getType()).isEqualTo(TokenScannerSymbols.TOKEN_TAG);
+    assertThat(tokens.get(2).getType()).isEqualTo(TokenScannerSymbols.TOKEN_FIXED);
   }
   
   @Test
   public void testEscapedQuoteWithinAttrValue() {
     List<Token> tokens = tokens("tag-with-quot-in-attr");
     assertThat(tokens).hasSize(1);
-    assertThat(tokens.get(0).getType()).isEqualTo(ParserConstants.TOKEN_TAG);
+    assertThat(tokens.get(0).getType()).isEqualTo(TokenScannerSymbols.TOKEN_TAG);
     assertThat(tokens.get(0).content.trim()).isEqualTo("widget_block rich_text \"module\" overrideable=True, label='<p>We\\'ve included a great symbol</p>'");
   }
   

@@ -15,7 +15,7 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_EXPR_START;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_EXPR_START;
 
 import org.apache.commons.lang3.StringUtils;
 

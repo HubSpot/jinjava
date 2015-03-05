@@ -15,7 +15,7 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_NOTE;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
 
 public class NoteToken extends Token {
 

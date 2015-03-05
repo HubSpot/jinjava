@@ -15,7 +15,7 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_TAG;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
 
 import com.hubspot.jinjava.util.WhitespaceUtils;
 

@@ -15,10 +15,10 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_EXPR_START;
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_FIXED;
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_NOTE;
-import static com.hubspot.jinjava.tree.parse.ParserConstants.TOKEN_TAG;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_EXPR_START;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_FIXED;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
+import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
 
 import java.io.Serializable;
 
@@ -28,11 +28,11 @@ public abstract class Token implements Serializable {
 
   private static final long serialVersionUID = -7513379852268838992L;
 
-  protected String image;
+  protected final String image;
   // useful for some token type
   protected String content;
 
-  protected int lineNumber;
+  protected final int lineNumber;
 
   private boolean leftTrim;
   private boolean rightTrim;
