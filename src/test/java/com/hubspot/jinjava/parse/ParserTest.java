@@ -15,7 +15,7 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.parse;
 
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_ECHO;
+import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_EXPR_START;
 import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_FIXED;
 import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_NOTE;
 import static org.junit.Assert.assertEquals;
@@ -69,7 +69,7 @@ public class ParserTest {
     assertEquals("if x", parser.next().content.trim());
     Token tk = parser.next();
     assertEquals("{{{abc}}", tk.image);
-    assertEquals(TOKEN_ECHO, tk.getType());
+    assertEquals(TOKEN_EXPR_START, tk.getType());
     assertEquals("{%endif%}", parser.next().image);
   }
 
@@ -81,7 +81,7 @@ public class ParserTest {
     assertEquals("if x", parser.next().content.trim());
     Token tk = parser.next();
     assertEquals("{{!abc}}", tk.image);
-    assertEquals(TOKEN_ECHO, tk.getType());
+    assertEquals(TOKEN_EXPR_START, tk.getType());
     assertEquals("{%endif%}", parser.next().image);
   }
 
@@ -127,7 +127,7 @@ public class ParserTest {
     assertEquals("{{abc.b}}", parser.next().image);
     assertEquals("if x", parser.next().content.trim());
     assertEquals("a", parser.next().content.trim());
-    assertEquals(TOKEN_ECHO, parser.next().getType());
+    assertEquals(TOKEN_EXPR_START, parser.next().getType());
     assertEquals("{%endif{{", parser.next().content.trim());
   }
 

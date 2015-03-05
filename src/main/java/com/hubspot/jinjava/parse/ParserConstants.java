@@ -22,17 +22,8 @@ public interface ParserConstants {
   int TOKEN_FIXED = 0;
   int TOKEN_NOTE = '#';
   int TOKEN_TAG = '%';
-  int TOKEN_ECHO = '{';
-  int TOKEN_ECHO2 = '}';
+  int TOKEN_EXPR_START = '{';
+  int TOKEN_EXPR_END = '}';
   int TOKEN_NEWLINE = '\n';
-  int TOKEN_SQUOT = '\'';
-  int TOKEN_DQUOT = '"';
-
-  char VL = '|';
-  char CL = ':';
-  char CM = ',';
-  char SQ = '\'';
-  char DQ = '"';
-  char SP = ' ';
 
 }

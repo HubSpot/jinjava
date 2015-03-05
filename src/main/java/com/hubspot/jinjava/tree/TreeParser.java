@@ -15,7 +15,7 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_ECHO;
+import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_EXPR_START;
 import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_FIXED;
 import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_NOTE;
 import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_TAG;
@@ -25,7 +25,7 @@ import com.hubspot.jinjava.interpret.MissingEndTagException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
 import com.hubspot.jinjava.interpret.UnknownTagException;
-import com.hubspot.jinjava.parse.EchoToken;
+import com.hubspot.jinjava.parse.ExpressionToken;
 import com.hubspot.jinjava.parse.FixedToken;
 import com.hubspot.jinjava.parse.TagToken;
 import com.hubspot.jinjava.parse.Token;
@@ -57,8 +57,8 @@ public class TreeParser {
         break;
       case TOKEN_NOTE:
         break;
-      case TOKEN_ECHO:
-        VariableNode vn = new VariableNode((EchoToken) token);
+      case TOKEN_EXPR_START:
+        VariableNode vn = new VariableNode((ExpressionToken) token);
         node.add(vn);
         break;
       case TOKEN_TAG:

@@ -15,18 +15,18 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.parse;
 
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_ECHO;
+import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_EXPR_START;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.util.WhitespaceUtils;
 
-public class EchoToken extends Token {
+public class ExpressionToken extends Token {
   private static final long serialVersionUID = 8307037212944170832L;
 
   private String expr;
   
-  public EchoToken(String image, int lineNumber) {
+  public ExpressionToken(String image, int lineNumber) {
     super(image, lineNumber);
   }
 
@@ -38,7 +38,7 @@ public class EchoToken extends Token {
 
   @Override
   public int getType() {
-    return TOKEN_ECHO;
+    return TOKEN_EXPR_START;
   }
 
   @Override

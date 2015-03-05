@@ -15,8 +15,8 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.parse;
 
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_ECHO;
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_ECHO2;
+import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_EXPR_START;
+import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_EXPR_END;
 import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_FIXED;
 import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_NEWLINE;
 import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_NOTE;
@@ -104,11 +104,11 @@ public class Tokenizer {
             }
             break;
           case TOKEN_TAG:
-          case TOKEN_ECHO:
+          case TOKEN_EXPR_START:
             if (inComment > 0) {
               continue;
             }
-            if (inRaw > 0 && (c == TOKEN_ECHO || !isEndRaw())) {
+            if (inRaw > 0 && (c == TOKEN_EXPR_START || !isEndRaw())) {
               continue;
             }
             // match token two ends
@@ -140,7 +140,7 @@ public class Tokenizer {
         
       // maybe current token is closing
       case TOKEN_TAG:
-      case TOKEN_ECHO2:
+      case TOKEN_EXPR_END:
         if (inComment > 0) {
           continue;
         }
@@ -253,10 +253,10 @@ public class Tokenizer {
   }
 
   private boolean matchToken(char kind) {
-    if (kind == TOKEN_ECHO) {
-      return tokenKind == TOKEN_ECHO2;
-    } else if (kind == TOKEN_ECHO2) {
-      return tokenKind == TOKEN_ECHO;
+    if (kind == TOKEN_EXPR_START) {
+      return tokenKind == TOKEN_EXPR_END;
+    } else if (kind == TOKEN_EXPR_END) {
+      return tokenKind == TOKEN_EXPR_START;
     } else {
       return kind == tokenKind;
     }

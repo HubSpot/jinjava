@@ -15,7 +15,7 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.parse;
 
-import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_ECHO;
+import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_EXPR_START;
 import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_FIXED;
 import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_NOTE;
 import static com.hubspot.jinjava.parse.ParserConstants.TOKEN_TAG;
@@ -82,8 +82,8 @@ public abstract class Token implements Serializable {
       return new FixedToken(image, lineNumber);
     case TOKEN_NOTE:
       return new NoteToken(image, lineNumber);
-    case TOKEN_ECHO:
-      return new EchoToken(image, lineNumber);
+    case TOKEN_EXPR_START:
+      return new ExpressionToken(image, lineNumber);
     case TOKEN_TAG:
       return new TagToken(image, lineNumber);
     default:

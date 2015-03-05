@@ -18,7 +18,7 @@ package com.hubspot.jinjava.tree;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.parse.EchoToken;
+import com.hubspot.jinjava.parse.ExpressionToken;
 import com.hubspot.jinjava.util.Logging;
 import com.hubspot.jinjava.util.ObjectValue;
 
@@ -27,9 +27,9 @@ public class VariableNode extends Node {
   private static final String NAME = "Variable_Node";
 
   private static final long serialVersionUID = 341642231109911346L;
-  private EchoToken master;
+  private ExpressionToken master;
 
-  public VariableNode(EchoToken token) {
+  public VariableNode(ExpressionToken token) {
     super(token, token.getLineNumber());
     master = token;
   }
