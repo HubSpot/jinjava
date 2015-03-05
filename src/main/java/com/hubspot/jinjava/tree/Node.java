@@ -17,6 +17,8 @@ package com.hubspot.jinjava.tree;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.parse.Token;
 
@@ -126,4 +128,23 @@ public abstract class Node implements Serializable, Cloneable {
 
   public abstract String getName();
 
+  public String toTreeString() {
+    return toTreeString(0);
+  }
+  
+  public String toTreeString(int level) {
+    String prefix = StringUtils.repeat(" ", level * 4) + " ";
+    StringBuilder t = new StringBuilder(prefix).append(toString()).append('\n');
+
+    for(Node n : getChildren()) {
+      t.append(n.toTreeString(level + 1));
+    }
+    
+    if(getChildren().size() > 0) {
+      t.append(prefix).append("end :: " + toString()).append('\n');
+    }
+    
+    return t.toString();
+  }
+  
 }
