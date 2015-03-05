@@ -18,9 +18,7 @@ package com.hubspot.jinjava.tree;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 public class RootNode extends Node {
-
   private static final long serialVersionUID = 97675838726004658L;
-  public static final String TREE_ROOT_END = "anysome";
 
   RootNode() {
     super(null, 0);
@@ -33,7 +31,7 @@ public class RootNode extends Node {
 
   @Override
   public String getName() {
-    return TREE_ROOT_END;
+    return getClass().getSimpleName();
   }
 
   @Override

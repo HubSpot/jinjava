@@ -22,14 +22,12 @@ import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.util.Logging;
 import com.hubspot.jinjava.util.ObjectValue;
 
-public class VariableNode extends Node {
-
-  private static final String NAME = "Variable_Node";
-
+public class ExpressionNode extends Node {
   private static final long serialVersionUID = 341642231109911346L;
-  private ExpressionToken master;
 
-  public VariableNode(ExpressionToken token) {
+  private final ExpressionToken master;
+
+  public ExpressionNode(ExpressionToken token) {
     super(token, token.getLineNumber());
     master = token;
   }
@@ -58,12 +56,12 @@ public class VariableNode extends Node {
 
   @Override
   public String getName() {
-    return NAME;
+    return getClass().getSimpleName();
   }
 
   @Override
   public Node clone() {
-    Node clone = new VariableNode(master);
+    Node clone = new ExpressionNode(master);
     clone.setChildren(this.getChildren().clone(clone));
     return clone;
   }

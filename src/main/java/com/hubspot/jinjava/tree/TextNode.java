@@ -19,10 +19,9 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.parse.TextToken;
 
 public class TextNode extends Node {
-  private static final String NAME = "Text_Node";
   private static final long serialVersionUID = 8488738480534354216L;
 
-  private TextToken master;
+  private final TextToken master;
 
   public TextNode(TextToken token) {
     super(token, token.getLineNumber());
@@ -41,7 +40,7 @@ public class TextNode extends Node {
 
   @Override
   public String getName() {
-    return NAME;
+    return getClass().getSimpleName();
   }
 
   @Override

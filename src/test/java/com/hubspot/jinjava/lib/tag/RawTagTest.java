@@ -108,7 +108,7 @@ public class RawTagTest {
     try {
       return new TreeParser(interpreter, Resources.toString(
               Resources.getResource(String.format("tags/rawtag/%s.jinja", name)), StandardCharsets.UTF_8))
-              .parseTree().getChildren();
+              .buildTree().getChildren();
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

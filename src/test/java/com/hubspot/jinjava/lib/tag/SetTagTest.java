@@ -145,7 +145,7 @@ public class SetTagTest {
     try {
       return new TreeParser(interpreter, Resources.toString(
               Resources.getResource(String.format("tags/settag/%s.jinja", name)), StandardCharsets.UTF_8))
-              .parseTree().getChildren().getFirst();
+              .buildTree().getChildren().getFirst();
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

@@ -24,8 +24,8 @@ public abstract class Node implements Serializable, Cloneable {
 
   private static final long serialVersionUID = 7323842986596895498L;
 
-  private int level = 0;
-  private int lineNumber = 0;
+  private int level;
+  private int lineNumber;
   private Node parent = null;
   private Node predecessor = null;
   private Node successor = null;

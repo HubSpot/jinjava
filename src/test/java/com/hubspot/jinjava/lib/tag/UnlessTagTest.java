@@ -52,7 +52,7 @@ public class UnlessTagTest {
     try {
       return (TagNode) new TreeParser(interpreter, Resources.toString(
               Resources.getResource(String.format("tags/iftag/%s.jinja", name)), StandardCharsets.UTF_8))
-              .parseTree().getChildren().getFirst();
+              .buildTree().getChildren().getFirst();
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

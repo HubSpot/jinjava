@@ -15,6 +15,8 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
+import java.util.List;
+
 import com.hubspot.jinjava.lib.SimpleLibrary;
 
 public class TagLibrary extends SimpleLibrary<Tag> {
@@ -25,7 +27,7 @@ public class TagLibrary extends SimpleLibrary<Tag> {
 
   @Override
   protected void registerDefaults() {
-    registerClasses(
+    List<Tag> tags = registerClasses(
         AutoEscapeTag.class,
         BlockTag.class,
         CallTag.class,
@@ -44,6 +46,12 @@ public class TagLibrary extends SimpleLibrary<Tag> {
         RawTag.class,
         SetTag.class,
         UnlessTag.class);
+    
+    for(Tag t : tags) {
+      if(t.getEndTagName() != null) {
+        register(t.getEndTagName(), new EndTag(t));
+      }
+    }
   }
 
   public Tag getTag(String tagName) {
@@ -52,6 +60,10 @@ public class TagLibrary extends SimpleLibrary<Tag> {
 
   public void addTag(Tag t) {
     register(t);
+    
+    if(t.getEndTagName() != null) {
+      register(t.getEndTagName(), new EndTag(t));
+    }
   }
 
 }

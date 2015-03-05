@@ -23,8 +23,10 @@ import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MissingEndTagException;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
 import com.hubspot.jinjava.interpret.UnknownTagException;
+import com.hubspot.jinjava.lib.tag.EndTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -37,57 +39,106 @@ public class TreeParser {
   private final TokenScanner scanner;
   private final JinjavaInterpreter interpreter;
   
+  private Node parent;
+  
   public TreeParser(JinjavaInterpreter interpreter, String input){
     this.scanner = new TokenScanner(input);
     this.interpreter = interpreter;
   }
 
-  public Node parseTree() {
+  public Node buildTree() {
     Node root = new RootNode();
-    parseNodeChildren(root, RootNode.TREE_ROOT_END);
-    return root;
-  }
-
-  private void parseNodeChildren(Node node, String endName) {
+    
+    parent = root;
+    
     while(scanner.hasNext()) {
-      Token token = scanner.next();
-      switch (token.getType()) {
-      case TOKEN_FIXED:
-        TextNode tn = new TextNode((TextToken) token);
-        node.add(tn);
-        break;
-      case TOKEN_NOTE:
-        break;
-      case TOKEN_EXPR_START:
-        VariableNode vn = new VariableNode((ExpressionToken) token);
-        node.add(vn);
-        break;
-      case TOKEN_TAG:
-        TagToken tagToken = (TagToken) token;
-        if (tagToken.getTagName().equalsIgnoreCase(endName)) {
-          return;
-        }
-        
-        Tag tag = interpreter.getContext().getTag(tagToken.getTagName());
-        if (tag == null) {
-          interpreter.addError(TemplateError.fromException(new UnknownTagException(tagToken)));
-        }
-
-        TagNode tg = new TagNode(tag, tagToken);
-        node.add(tg);
-
-        if (tg.getEndName() != null) {
-          parseNodeChildren(tg, tg.getEndName());
-        }
-        break;
-      default:
-        interpreter.addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(), node.getLineNumber())));
+      Node node = nextNode();
+      if(node != null) {
+        parent.getChildren().add(node);
       }
     }
-    // can't reach end tag
-    if (endName != null && !endName.equals(RootNode.TREE_ROOT_END)) {
-     interpreter.addError(TemplateError.fromException(
-          new MissingEndTagException(endName, node.toString(), node.getLineNumber())));
+
+    if(parent != root) {
+      interpreter.addError(TemplateError.fromException(
+          new MissingEndTagException(((TagNode) parent).getEndName(), parent.getMaster().getImage(), parent.getLineNumber())));
+    }
+
+    return root;
+  }
+  
+  /**
+   * @return null if EOF or error
+   */
+  private Node nextNode() {
+    Token token = scanner.next();
+      
+    switch(token.getType()) {
+    case TOKEN_FIXED:
+      return text((TextToken) token);
+      
+    case TOKEN_EXPR_START:
+      return expression((ExpressionToken) token);
+      
+    case TOKEN_TAG:
+      return tag((TagToken) token);
+
+    case TOKEN_NOTE:
+    default:
+      interpreter.addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(), token.getLineNumber())));
+    }
+    
+    return null;
+  }
+  
+  private Node text(TextToken textToken) {
+    TextNode n = new TextNode(textToken);
+    n.setParent(parent);
+    return n;
+  }
+  
+  private Node expression(ExpressionToken expressionToken) {
+    ExpressionNode n = new ExpressionNode(expressionToken);
+    n.setParent(parent);
+    return n;
+  }
+  
+  private Node tag(TagToken tagToken) {
+    Tag tag = interpreter.getContext().getTag(tagToken.getTagName());
+    if (tag == null) {
+      interpreter.addError(TemplateError.fromException(new UnknownTagException(tagToken)));
+      return null;
+    }
+
+    if(tag instanceof EndTag) {
+      endTag(tag, tagToken);
+      return null;
+    }
+    
+    TagNode node = new TagNode(tag, tagToken);
+    node.setParent(parent);
+
+    if(node.getEndName() != null) {
+      parent.getChildren().add(node);
+      parent = node;
+      return null;
+    }
+    
+    return node;
+  }
+  
+  private void endTag(Tag tag, TagToken tagToken) {
+    while(!(parent instanceof RootNode)) {
+      TagNode parentTag = (TagNode) parent;
+      parent = parent.getParent();
+      
+      if(parentTag.getEndName().equals(tag.getEndTagName())) {
+        break;
+      }
+      else {
+        interpreter.addError(TemplateError.fromException(
+            new TemplateSyntaxException(tagToken.getImage(), "Mismatched end tag, expected: " + parentTag.getEndName(), tagToken.getLineNumber())));
+      }
     }
   }
+
 }

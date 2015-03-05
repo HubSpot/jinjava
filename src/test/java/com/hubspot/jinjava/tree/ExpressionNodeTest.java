@@ -14,7 +14,7 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
-public class VariableNodeTest {
+public class ExpressionNodeTest {
 
   private Context context;
   private JinjavaInterpreter interpreter;
@@ -31,7 +31,7 @@ public class VariableNodeTest {
     context.put("myvar", "hello {{ place }}");
     context.put("place", "world");
     
-    VariableNode node = fixture("simplevar");
+    ExpressionNode node = fixture("simplevar");
     assertThat(node.render(interpreter)).isEqualTo("hello world");
   }
   
@@ -40,7 +40,7 @@ public class VariableNodeTest {
     context.put("myvar", "hello {{ place }}");
     context.put("place", "{{ place }}");
     
-    VariableNode node = fixture("simplevar");
+    ExpressionNode node = fixture("simplevar");
     assertThat(node.render(interpreter)).isEqualTo("hello {{ place }}");
   }
   
@@ -60,11 +60,11 @@ public class VariableNodeTest {
     return parse(jinja).render(interpreter);
   }
   
-  private VariableNode parse(String jinja) {
-    return (VariableNode) new TreeParser(interpreter, jinja).parseTree().getChildren().getFirst();
+  private ExpressionNode parse(String jinja) {
+    return (ExpressionNode) new TreeParser(interpreter, jinja).buildTree().getChildren().getFirst();
   }
   
-  private VariableNode fixture(String name) {
+  private ExpressionNode fixture(String name) {
     try {
       return parse(Resources.toString(Resources.getResource(String.format("varblocks/%s.html", name)), StandardCharsets.UTF_8));
     }

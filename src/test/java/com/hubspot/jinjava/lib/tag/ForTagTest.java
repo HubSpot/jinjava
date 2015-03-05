@@ -119,7 +119,7 @@ public class ForTagTest {
     try {
       return new TreeParser(interpreter, Resources.toString(
               Resources.getResource(String.format("tags/fortag/%s.jinja", name)), StandardCharsets.UTF_8))
-              .parseTree().getChildren().getFirst();
+              .buildTree().getChildren().getFirst();
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

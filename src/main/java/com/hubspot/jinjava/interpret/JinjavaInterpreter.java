@@ -97,7 +97,7 @@ public class JinjavaInterpreter {
   }
   
   public Node parse(String template) {
-    return new TreeParser(this, template).parseTree();
+    return new TreeParser(this, template).buildTree();
   }
   
   public String renderString(String template) {

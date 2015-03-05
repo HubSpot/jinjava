@@ -119,7 +119,7 @@ public class MacroTagTest {
   }
   
   private Node snippet(String jinja) {
-    return new TreeParser(interpreter, jinja).parseTree().getChildren().getFirst();
+    return new TreeParser(interpreter, jinja).buildTree().getChildren().getFirst();
   }
   
   private TagNode fixture(String name) {
