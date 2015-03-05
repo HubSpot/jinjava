@@ -83,6 +83,8 @@ public class TreeParser {
       return tag((TagToken) token);
 
     case TOKEN_NOTE:
+      break;
+      
     default:
       interpreter.addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(), token.getLineNumber())));
     }
