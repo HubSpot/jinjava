@@ -29,12 +29,12 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
   }
   
   public PyishDate(ZonedDateTime dt) {
-    super(Instant.from(Objects.requireNonNull(dt)).toEpochMilli());
+    super(Objects.requireNonNull(dt).toInstant().toEpochMilli());
     this.date = dt;
   }
   
-  public PyishDate(Long publishDate) {
-    this(ZonedDateTime.ofInstant(Instant.ofEpochMilli(Optional.fromNullable(publishDate).or(System.currentTimeMillis())), ZoneOffset.UTC));
+  public PyishDate(Long epochMillis) {
+    this(ZonedDateTime.ofInstant(Instant.ofEpochMilli(Optional.fromNullable(epochMillis).or(System.currentTimeMillis())), ZoneOffset.UTC));
   }
 
   public PyishDate(String publishDateStr) {
