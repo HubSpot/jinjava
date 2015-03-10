@@ -78,7 +78,7 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
   }
   
   public Date toDate() {
-    return new Date(Instant.from(date).toEpochMilli());
+    return Date.from(date.toInstant());
   }
 
   public ZonedDateTime toDateTime() {
