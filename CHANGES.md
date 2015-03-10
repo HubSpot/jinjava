@@ -1,8 +1,10 @@
 # Jinjava Releases #
 
-### Version 1.1.0 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%221.1.0%22)) ###
+### Version 2.0.0 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.0%22)) ###
 
-* The 1.1.x release has some significant refactorings in the parsing code:
+* 2.0.x requires JDK 8, as it contains some critical fixes to date formatting for certain languages (i.e. Finnish months)
+
+* The 2.0.x release has some significant refactorings in the parsing code:
 ** nests the .parse package under the existing .tree package
 ** consolidating the token scanner logic, updating the node tree parser
 

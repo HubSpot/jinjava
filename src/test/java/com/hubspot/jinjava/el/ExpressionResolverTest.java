@@ -6,8 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -166,7 +164,7 @@ public class ExpressionResolverTest {
   
   @Test
   public void itWrapsDates() throws Exception {
-    context.put("myobj", new MyClass(new DateTime(0, DateTimeZone.UTC).toDate()));
+    context.put("myobj", new MyClass(new Date(0)));
     Object result = interpreter.resolveELExpression("myobj.date", -1);
     assertThat(result).isInstanceOf(PyishDate.class);
     assertThat(result.toString()).isEqualTo("1970-01-01 00:00:00");

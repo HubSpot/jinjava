@@ -2,7 +2,8 @@ package com.hubspot.jinjava.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
+
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -51,7 +52,7 @@ public class VariableChainTest {
   
   @Test
   public void triesBeanMethodFirst() {
-    assertThat(new VariableChain(Lists.newArrayList("year"), DateTime.parse("2013-09-19T12:12:12")).resolve().toString()).isEqualTo("2013");
+    assertThat(new VariableChain(Lists.newArrayList("year"), ZonedDateTime.parse("2013-09-19T12:12:12+00:00")).resolve().toString()).isEqualTo("2013");
   }
 
 }

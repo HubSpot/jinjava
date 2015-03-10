@@ -2,13 +2,14 @@ package com.hubspot.jinjava.lib.fn;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.interpret.InterpretException;
@@ -39,21 +40,21 @@ public class Functions {
   }
   
   public static String dateTimeFormat(Object var, String... format) {
-    DateTime d = null;
+    ZonedDateTime d = null;
     
     if(var == null) {
-      d = DateTime.now(DateTimeZone.UTC);
+      d = ZonedDateTime.now(ZoneOffset.UTC);
     }
     else if(var instanceof Long) {
-      d = new DateTime((Long) var, DateTimeZone.UTC);
+      d = ZonedDateTime.ofInstant(Instant.ofEpochMilli((long) var), ZoneOffset.UTC);
     }
     else if(var instanceof PyishDate) {
       d = ((PyishDate) var).toDateTime();
     }
-    else if(var instanceof DateTime) {
-      d = (DateTime) var;
+    else if(var instanceof ZonedDateTime) {
+      d = (ZonedDateTime) var;
     }
-    else if(!DateTime.class.isAssignableFrom(var.getClass())) {
+    else if(!ZonedDateTime.class.isAssignableFrom(var.getClass())) {
       throw new InterpretException("Input to datetimeformat function must be a date object, was: " + var.getClass());
     }
     

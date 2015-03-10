@@ -2,6 +2,11 @@ package com.hubspot.jinjava.el;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -12,9 +17,6 @@ import javax.el.ELContext;
 
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
@@ -27,8 +29,8 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
-import com.hubspot.jinjava.util.VariableChain;
 import com.hubspot.jinjava.util.JinjavaPropertyNotResolvedException;
+import com.hubspot.jinjava.util.VariableChain;
 
 import de.odysseus.el.util.SimpleResolver;
 
@@ -110,10 +112,10 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     }
     
     if(Date.class.isAssignableFrom(value.getClass())) {
-      return new PyishDate(localizeDateTime(interpreter, new DateTime((Date) value)));
+      return new PyishDate(localizeDateTime(interpreter, ZonedDateTime.ofInstant(Instant.ofEpochMilli(((Date) value).getTime()), ZoneOffset.UTC)));
     }
-    if(DateTime.class.isAssignableFrom(value.getClass())) {
-      return new PyishDate(localizeDateTime(interpreter, (DateTime) value));
+    if(ZonedDateTime.class.isAssignableFrom(value.getClass())) {
+      return new PyishDate(localizeDateTime(interpreter, (ZonedDateTime) value));
     }
     
     if(FormattedDate.class.isAssignableFrom(value.getClass())) {
@@ -123,14 +125,14 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     return value;
   }
   
-  private static DateTime localizeDateTime(JinjavaInterpreter interpreter, DateTime dt) {
+  private static ZonedDateTime localizeDateTime(JinjavaInterpreter interpreter, ZonedDateTime dt) {
     ENGINE_LOG.debug("Using timezone: {} to localize datetime: {}", interpreter.getConfig().getTimeZone(), dt);
-    return dt.toDateTime(interpreter.getConfig().getTimeZone());
+    return dt.withZoneSameInstant(interpreter.getConfig().getTimeZone());
   }
   
   private static String formattedDateToString(JinjavaInterpreter interpreter, FormattedDate d) {
     DateTimeFormatter formatter = getFormatter(interpreter, d).withLocale(getLocale(interpreter, d));
-    return formatter.print(localizeDateTime(interpreter, d.getDate()));
+    return formatter.format(localizeDateTime(interpreter, d.getDate()));
   }
 
   private static DateTimeFormatter getFormatter(JinjavaInterpreter interpreter, FormattedDate d) {
@@ -142,7 +144,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       }
     }
 
-    return DateTimeFormat.mediumDateTime();
+    return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
   }
 
   private static Locale getLocale(JinjavaInterpreter interpreter, FormattedDate d) {

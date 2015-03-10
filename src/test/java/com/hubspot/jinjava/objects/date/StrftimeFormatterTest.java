@@ -2,18 +2,20 @@ package com.hubspot.jinjava.objects.date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
+import java.util.Locale;
+
 import org.junit.Before;
 import org.junit.Test;
 
 
 public class StrftimeFormatterTest {
 
-  DateTime d;
+  ZonedDateTime d;
   
   @Before
   public void setup() {
-    d = DateTime.parse("2013-11-06T14:22:00.000");
+    d = ZonedDateTime.parse("2013-11-06T14:22:00.000+00:00");
   }
   
   @Test
@@ -61,4 +63,11 @@ public class StrftimeFormatterTest {
   public void testWithLL() {
     assertThat(StrftimeFormatter.format(d, "yyyy/LL/dd HH:mm")).isEqualTo("2013/11/06 14:22");
   }
+  
+  @Test
+  public void testFinnishMonths() {
+    assertThat(StrftimeFormatter.formatter("long").withLocale(Locale.forLanguageTag("fi")).format(d))
+      .isEqualTo("6. marraskuuta 2013 klo 14.22.00");
+  }
+  
 }

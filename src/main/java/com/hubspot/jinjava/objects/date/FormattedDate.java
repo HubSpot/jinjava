@@ -1,14 +1,14 @@
 package com.hubspot.jinjava.objects.date;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 public class FormattedDate {
 
   private final String format;
   private final String language;
-  private final DateTime date;
+  private final ZonedDateTime date;
   
-  public FormattedDate(String format, String language, DateTime date) {
+  public FormattedDate(String format, String language, ZonedDateTime date) {
     this.format = format;
     this.language = language;
     this.date = date;
@@ -17,7 +17,7 @@ public class FormattedDate {
   public String getFormat() {
     return format;
   }
-  public DateTime getDate() {
+  public ZonedDateTime getDate() {
     return date;
   }
   public String getLanguage() {

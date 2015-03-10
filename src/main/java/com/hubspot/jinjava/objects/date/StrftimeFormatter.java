@@ -1,12 +1,12 @@
 package com.hubspot.jinjava.objects.date;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 /**
  * Datetime format string formatter, supporting both python and java compatible format strings by 
@@ -22,13 +22,13 @@ public class StrftimeFormatter {
   private static final Map<Character, String> CONVERSIONS = new HashMap<Character, String>();
   static {
     CONVERSIONS.put('a', "EEE");
-    CONVERSIONS.put('A', "EEEEEE");
+    CONVERSIONS.put('A', "EEEE");
     CONVERSIONS.put('b', "MMM");
-    CONVERSIONS.put('B', "MMMMMM");
+    CONVERSIONS.put('B', "MMMM");
     CONVERSIONS.put('c', "EEE MMM dd HH:mm:ss yyyy");
     CONVERSIONS.put('d', "dd");
     CONVERSIONS.put('e', "dd"); // The day of the month like with %d, but padded with blank (range 1 through 31).
-    CONVERSIONS.put('f', "SSSSSS");
+    CONVERSIONS.put('f', "SSSS");
     CONVERSIONS.put('H', "HH");
     CONVERSIONS.put('h', "hh");
     CONVERSIONS.put('I', "hh");
@@ -37,7 +37,7 @@ public class StrftimeFormatter {
     CONVERSIONS.put('l', "hh"); // The hour as a decimal number, using a 12-hour clock like %I, but padded with blank (range 1 through 12).
     CONVERSIONS.put('m', "MM");
     CONVERSIONS.put('M', "mm");
-    CONVERSIONS.put('p', "aa");
+    CONVERSIONS.put('p', "a");
     CONVERSIONS.put('S', "ss");
     CONVERSIONS.put('U', "ww");
     CONVERSIONS.put('w', "uu");
@@ -111,24 +111,24 @@ public class StrftimeFormatter {
   public static DateTimeFormatter formatter(String strftime) {
     switch (strftime.toLowerCase()) {
       case "short":
-        return DateTimeFormat.shortDateTime();
+        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
       case "medium":
-        return DateTimeFormat.mediumDateTime();
+        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
       case "long":
-        return DateTimeFormat.longDateTime();
+        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);
       case "full":
-        return DateTimeFormat.fullDateTime();
+        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL);
       default:
-        return DateTimeFormat.forPattern(toJavaDateTimeFormat(strftime));
+        return DateTimeFormatter.ofPattern(toJavaDateTimeFormat(strftime));
     }
   }
 
-  public static String format(DateTime d) {
+  public static String format(ZonedDateTime d) {
     return format(d, "%H:%M / %d-%m-%Y");
   }
   
-  public static String format(DateTime d, String strftime) {
-    return formatter(strftime).print(d);
+  public static String format(ZonedDateTime d, String strftime) {
+    return formatter(strftime).format(d);
   }
   
 }
