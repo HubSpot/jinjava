@@ -24,21 +24,21 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
 
   private final ZonedDateTime date;
 
-  public PyishDate(Date d) {
-    this(ZonedDateTime.ofInstant(Instant.ofEpochMilli(d.getTime()), ZoneOffset.UTC));
-  }
-  
   public PyishDate(ZonedDateTime dt) {
     super(Objects.requireNonNull(dt).toInstant().toEpochMilli());
     this.date = dt;
   }
   
-  public PyishDate(Long epochMillis) {
-    this(ZonedDateTime.ofInstant(Instant.ofEpochMilli(Optional.fromNullable(epochMillis).or(System.currentTimeMillis())), ZoneOffset.UTC));
+  public PyishDate(Date d) {
+    this(ZonedDateTime.ofInstant(Objects.requireNonNull(d).toInstant(), ZoneOffset.UTC));
   }
-
+  
   public PyishDate(String publishDateStr) {
     this(NumberUtils.toLong(Objects.requireNonNull(publishDateStr), 0L));
+  }
+  
+  public PyishDate(Long epochMillis) {
+    this(ZonedDateTime.ofInstant(Instant.ofEpochMilli(Optional.fromNullable(epochMillis).or(System.currentTimeMillis())), ZoneOffset.UTC));
   }
   
   public String isoformat() {
