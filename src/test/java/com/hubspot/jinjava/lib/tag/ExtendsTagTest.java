@@ -23,34 +23,34 @@ import com.hubspot.jinjava.loader.ResourceLocator;
 public class ExtendsTagTest {
 
   private ExtendsTagTestResourceLocator locator;
-  private Jinjava application;
+  private Jinjava jinjava;
 
   @Before
   public void setup() {
     locator = new ExtendsTagTestResourceLocator();
     
     JinjavaConfig conf = new JinjavaConfig();
-    application = new Jinjava(conf);
-    application.setResourceLocator(locator);
+    jinjava = new Jinjava(conf);
+    jinjava.setResourceLocator(locator);
   }
   
   @Test
   public void singleExtendsTag() throws Exception {
-    String result = application.render(locator.fixture("extends-base1.jinja"), new HashMap<String, Object>());
+    String result = jinjava.render(locator.fixture("extends-base1.jinja"), new HashMap<String, Object>());
     Document dom = Jsoup.parse(result);
     assertThat(dom.select(".important").get(0).text()).isEqualTo("Welcome on my awesome homepage.");
   }
   
   @Test
   public void nestedExtendsHierarchy() throws Exception {
-    String result = application.render(locator.fixture("extends-base2.jinja"), new HashMap<String, Object>());
+    String result = jinjava.render(locator.fixture("extends-base2.jinja"), new HashMap<String, Object>());
     Document dom = Jsoup.parse(result);
     assertThat(dom.select(".important").get(0).text()).isEqualTo("foobar");
   }
   
   @Test
   public void parentTemplateImportsVarsUsedInChild() throws Exception {
-    Document dom = Jsoup.parse(application.render(locator.fixture("parentvars-child.html"), new HashMap<String, Object>()));
+    Document dom = Jsoup.parse(jinjava.render(locator.fixture("parentvars-child.html"), new HashMap<String, Object>()));
 
     assertThat(dom.select("body").attr("bgcolor")).isEqualTo("#f5f5f5");
     assertThat(dom.select("p.foo").text()).isEqualTo("bar");
@@ -58,7 +58,7 @@ public class ExtendsTagTest {
   
   @Test
   public void extendsWithSuperCall() throws Exception {
-    Document dom = Jsoup.parse(application.render(locator.fixture("super-child.html"), new HashMap<String, Object>()));
+    Document dom = Jsoup.parse(jinjava.render(locator.fixture("super-child.html"), new HashMap<String, Object>()));
 
     assertThat(dom.select(".sidebar p").text()).isEqualTo("this is a sidebar.");
     assertThat(dom.select(".sidebar h3").text()).isEqualTo("Table Of Contents");
