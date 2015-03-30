@@ -20,8 +20,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+@JinjavaDoc(value="Return the number of items of a sequence or mapping.", params=@JinjavaParam("object"))
 public class LengthFilter implements Filter {
 
   @Override

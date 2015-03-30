@@ -17,6 +17,8 @@ package com.hubspot.jinjava.lib.tag;
 
 import java.util.List;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.TagNode;
@@ -27,7 +29,10 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
  * {% block name %}
  * 
  */
-
+@JinjavaDoc(value="Blocks are regions in a template which can be overridden by child templates",
+    params={
+        @JinjavaParam("block_name")
+    })
 public class BlockTag implements Tag {
 
   private static final String TAGNAME = "block";

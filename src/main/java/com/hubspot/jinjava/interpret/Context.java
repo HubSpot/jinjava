@@ -116,6 +116,16 @@ public class Context extends ScopeMap<String, Object> {
     }
   }
   
+  public Collection<ExpTest> getAllExpTests() {
+    List<ExpTest> expTests = new ArrayList<>(expTestLibrary.entries());
+    
+    if(parent != null) {
+      expTests.addAll(parent.getAllExpTests());
+    }
+    
+    return expTests;
+  }
+  
   public ExpTest getExpTest(String name) {
     ExpTest t = expTestLibrary.getExpTest(name);
     if(t != null) {
@@ -129,6 +139,16 @@ public class Context extends ScopeMap<String, Object> {
 
   public void registerExpTest(ExpTest t) {
     expTestLibrary.addExpTest(t);
+  }
+  
+  public Collection<Filter> getAllFilters() {
+    List<Filter> filters = new ArrayList<>(filterLibrary.entries());
+    
+    if(parent != null) {
+      filters.addAll(parent.getAllFilters());
+    }
+    
+    return filters;
   }
 
   public Filter getFilter(String name) {
@@ -169,6 +189,16 @@ public class Context extends ScopeMap<String, Object> {
   
   public void registerFunction(ELFunctionDefinition f) {
     functionLibrary.addFunction(f);
+  }
+  
+  public Collection<Tag> getAllTags() {
+    List<Tag> tags = new ArrayList<>(tagLibrary.entries());
+    
+    if(parent != null) {
+      tags.addAll(parent.getAllTags());
+    }
+    
+    return tags;
   }
   
   public Tag getTag(String name) {

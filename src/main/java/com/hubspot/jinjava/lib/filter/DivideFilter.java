@@ -18,9 +18,17 @@ package com.hubspot.jinjava.lib.filter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+@JinjavaDoc(
+    value="divide the current value by a divisor",
+    params={
+        @JinjavaParam(value="value", type="number"),
+        @JinjavaParam(value="divisor", type="number")
+    })
 public class DivideFilter implements Filter {
 
   @Override

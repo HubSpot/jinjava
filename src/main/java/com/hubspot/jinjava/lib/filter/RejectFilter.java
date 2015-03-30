@@ -3,12 +3,23 @@ package com.hubspot.jinjava.lib.filter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
+
+@JinjavaDoc(
+    value="Filters a sequence of objects by applying a test to the object and rejecting the ones with the test succeeding.\n" +
+          "Example usage:\n\n" +
+          "{{ numbers|reject(\"odd\") }}",
+    params={
+        @JinjavaParam(value="seq", type="sequence"),
+        @JinjavaParam(value="exp_test", type="expression test name")
+    })
 public class RejectFilter implements Filter {
 
   @Override

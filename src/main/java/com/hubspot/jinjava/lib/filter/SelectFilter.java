@@ -3,12 +3,26 @@ package com.hubspot.jinjava.lib.filter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
+
+@JinjavaDoc(
+    value="Filters a sequence of objects by applying a test to the object and only selecting the ones with the test succeeding.\n\n" +
+          
+          "Example usage:\n\n" +
+          
+          "{{ numbers|select(\"odd\") }}\n" +
+          "{{ numbers|select(\"odd\") }}",
+    params={
+        @JinjavaParam(value="value", type="sequence"),
+        @JinjavaParam(value="exp_test", type="name of expression test")
+    })
 public class SelectFilter implements Filter {
 
   @Override

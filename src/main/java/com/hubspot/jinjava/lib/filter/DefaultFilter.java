@@ -17,10 +17,22 @@ package com.hubspot.jinjava.lib.filter;
 
 import org.apache.commons.lang3.BooleanUtils;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ObjectTruthValue;
 
+@JinjavaDoc(
+    value="If the value is undefined it will return the passed default value, otherwise the value of the variable:\n\n" +
+        "{{ my_variable|default('my_variable is not defined') }}\n\n" +
+        "This will output the value of my_variable if the variable was defined, otherwise 'my_variable is not defined'. If you want to use default with variables that evaluate to false you have to set the second parameter to true:\n\n" +
+        "{{ ''|default('the string was empty', true) }}",
+    params={
+        @JinjavaParam("value"),
+        @JinjavaParam("default_value"),
+        @JinjavaParam(value="boolean", type="boolean", defaultValue="False", desc="set to True to use with variables which evaluate to false")
+    })
 public class DefaultFilter implements Filter {
 
   @Override

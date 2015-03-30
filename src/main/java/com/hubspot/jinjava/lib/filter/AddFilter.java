@@ -18,9 +18,18 @@ package com.hubspot.jinjava.lib.filter;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+@JinjavaDoc(
+    value="adds a number to the existing value",
+    params={
+        @JinjavaParam(value="number", type="number"),
+        @JinjavaParam(value="addend", type="number")
+    }
+)
 public class AddFilter implements Filter {
 
   @Override

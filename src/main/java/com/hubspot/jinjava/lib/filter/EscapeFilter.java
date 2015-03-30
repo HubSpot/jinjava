@@ -17,8 +17,15 @@ package com.hubspot.jinjava.lib.filter;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+@JinjavaDoc(
+    value="Convert the characters &, <, >, ‘, and ” in string s to HTML-safe sequences. Use this if you need to display text that might contain such characters in HTML. Marks return value as markup string.",
+    params={
+        @JinjavaParam("s")
+    })
 public class EscapeFilter implements Filter {
 
   private static final String SAMP = "&";

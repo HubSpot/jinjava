@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
@@ -11,6 +13,16 @@ import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 import com.hubspot.jinjava.util.VariableChain;
 
+
+@JinjavaDoc(
+    value="Filters a sequence of objects by applying a test to an attribute of an object or the attribute and rejecting the ones with the test succeeding.\n\n" +
+          
+          "{{ users|rejectattr(\"is_active\") }}\n" +
+          "{{ users|rejectattr(\"email\", \"none\") }}",
+    params={
+        @JinjavaParam(value="seq", type="sequence"),
+        @JinjavaParam(value="attribute")
+    })
 public class RejectAttrFilter implements Filter {
 
   @Override

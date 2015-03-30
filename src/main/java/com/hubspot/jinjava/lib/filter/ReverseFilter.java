@@ -20,8 +20,14 @@ import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 import java.lang.reflect.Array;
 import java.util.Collection;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+
+@JinjavaDoc(
+    value="Reverse the object or return an iterator the iterates over it the other way round.",
+    params=@JinjavaParam(value="value", type="object"))
 public class ReverseFilter implements Filter {
 
   @Override

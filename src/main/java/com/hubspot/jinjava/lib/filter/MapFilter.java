@@ -4,12 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 import com.hubspot.jinjava.util.VariableChain;
 
+
+@JinjavaDoc(
+    value="Applies a filter on a sequence of objects or looks up an attribute. This is useful when dealing with lists of objects but you are really only interested in a certain value of it.\n\n" +
+          
+          "The basic usage is mapping on an attribute. Imagine you have a list of users but you are only interested in a list of usernames:\n\n" +
+          
+          "Users on this page: {{ users|map(attribute='username')|join(', ') }}\n" +
+          "Alternatively you can let it invoke a filter by passing the name of the filter and the arguments afterwards. A good example would be applying a text conversion filter on a sequence:\n\n" +
+          
+          "Users on this page: {{ titles|map('lower')|join(', ') }}",
+    params={
+        @JinjavaParam(value="value", type="object"),
+        @JinjavaParam("attribute")
+    })
 public class MapFilter implements Filter {
 
   @Override

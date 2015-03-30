@@ -17,10 +17,18 @@ package com.hubspot.jinjava.lib.filter;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ObjectValue;
 
+@JinjavaDoc(
+    value="removes a string from the value",
+    params={
+        @JinjavaParam("value"),
+        @JinjavaParam(value="to_remove")
+    })
 public class CutFilter implements Filter {
 
   @Override

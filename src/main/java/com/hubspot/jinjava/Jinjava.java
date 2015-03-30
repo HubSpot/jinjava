@@ -23,6 +23,8 @@ import javax.el.ExpressionFactory;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.hubspot.jinjava.doc.JinjavaDoc;
+import com.hubspot.jinjava.doc.JinjavaDocFactory;
 import com.hubspot.jinjava.el.ExtendedSyntaxBuilder;
 import com.hubspot.jinjava.el.TruthyTypeConverter;
 import com.hubspot.jinjava.interpret.Context;
@@ -127,6 +129,13 @@ public class Jinjava {
   
   public ResourceLocator getResourceLocator() {
     return resourceLocator;
+  }
+
+  /**
+   * @return a comprehensive descriptor of all available filters, functions, and tags registered on this jinjava instance.
+   */
+  public JinjavaDoc getJinjavaDoc() {
+    return new JinjavaDocFactory(this).get();
   }
   
   /**

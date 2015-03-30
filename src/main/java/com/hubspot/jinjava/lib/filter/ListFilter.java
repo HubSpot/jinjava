@@ -4,8 +4,13 @@ import java.util.Collection;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+@JinjavaDoc(
+    value="Convert the value into a list. If it was a string the returned list will be a list of characters.",
+    params=@JinjavaParam("value"))
 public class ListFilter implements Filter {
 
   @Override

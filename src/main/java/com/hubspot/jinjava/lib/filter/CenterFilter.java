@@ -5,8 +5,16 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+@JinjavaDoc(
+    value="Centers the value in a field of a given width.",
+    params={
+        @JinjavaParam("value"),
+        @JinjavaParam(value="width", type="number", defaultValue="80")
+    })
 public class CenterFilter implements Filter {
 
   @Override

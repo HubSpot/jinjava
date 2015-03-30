@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class StrftimeFormatter {
 
+  public static final String DEFAULT_DATE_FORMAT = "%H:%M / %d-%m-%Y";
   /*
    * Mapped from http://strftime.org/, http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
    */
@@ -124,7 +125,7 @@ public class StrftimeFormatter {
   }
 
   public static String format(ZonedDateTime d) {
-    return format(d, "%H:%M / %d-%m-%Y");
+    return format(d, DEFAULT_DATE_FORMAT);
   }
   
   public static String format(ZonedDateTime d, String strftime) {

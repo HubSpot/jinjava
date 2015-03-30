@@ -9,8 +9,23 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.BooleanUtils;
 
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+@JinjavaDoc(
+    value="Sort a dict and yield (key, value) pairs. Because python dicts are unsorted you may want to use this function to order them by either key or value:\n\n" +
+          "{% for item in mydict|dictsort %}\n" +
+          "    sort the dict by key, case insensitive\n\n" +
+          "{% for item in mydict|dictsort(true) %}\n" +
+          "    sort the dict by key, case sensitive\n\n" +
+          "{% for item in mydict|dictsort(false, 'value') %}\n" +
+          "    sort the dict by value, case insensitive",
+    params={
+        @JinjavaParam("value"),
+        @JinjavaParam(value="case_sensitive", type="boolean", defaultValue="False"),
+        @JinjavaParam(value="by", type="enum key|value", defaultValue="key")
+    })
 public class DictSortFilter implements Filter {
 
   @Override

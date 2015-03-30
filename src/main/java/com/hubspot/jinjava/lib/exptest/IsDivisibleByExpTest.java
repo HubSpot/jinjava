@@ -1,8 +1,15 @@
 package com.hubspot.jinjava.lib.exptest;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+
+@JinjavaDoc(value="Check if a variable is divisible by a number",
+    params={
+        @JinjavaParam(value="num", type="number")
+    })
 public class IsDivisibleByExpTest implements ExpTest {
 
   @Override

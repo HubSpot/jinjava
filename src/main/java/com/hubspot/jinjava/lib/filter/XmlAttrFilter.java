@@ -9,8 +9,28 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+
+@JinjavaDoc(
+    value="Create an SGML/XML attribute string based on the items in a dict. All values that are neither none nor undefined are automatically escaped:\n\n" +
+          
+          "<ul{{ {'class': 'my_list', 'missing': none,\n" +
+          "        'id': 'list-%d'|format(variable)}|xmlattr }}>\n" +
+          "...\n" +
+          "</ul>\n" +
+          "Results in something like this:\n\n" +
+          
+          "<ul class=\"my_list\" id=\"list-42\">\n" +
+          "...\n" +
+          "</ul>\n" +
+          "As you can see it automatically prepends a space in front of the item if the filter returned something unless the second parameter is false.",
+    params={
+        @JinjavaParam(value="d", type="dict"),
+        @JinjavaParam(value="autospace", type="boolean", defaultValue="True", desc="automatically prepend a space in front of the item")
+    })
 public class XmlAttrFilter implements Filter {
 
   @Override

@@ -7,6 +7,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 /**
@@ -19,6 +21,13 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  * 
  * @author jstehler
  */
+@JinjavaDoc(
+    value="Splits the input string into a list on the given separator",
+    params={
+        @JinjavaParam("s"),
+        @JinjavaParam(value="separator", defaultValue=" "),
+        @JinjavaParam(value="limit", type="number", defaultValue="0", desc="limits resulting list by putting remainder of string into last list item")
+    })
 public class SplitFilter implements Filter {
 
   @Override

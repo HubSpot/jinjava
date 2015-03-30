@@ -1,7 +1,10 @@
 package com.hubspot.jinjava.lib.exptest;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+
+@JinjavaDoc("Return true if the object is iterable (sequence, dict, etc)")
 public class IsIterableExpTest implements ExpTest {
 
   @Override

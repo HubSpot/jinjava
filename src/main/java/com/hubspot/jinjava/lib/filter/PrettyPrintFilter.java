@@ -15,9 +15,12 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
+@JinjavaDoc(value="Pretty print a variable. Useful for debugging.", params=@JinjavaParam(value="value", type="object"))
 public class PrettyPrintFilter implements Filter {
 
   @Override

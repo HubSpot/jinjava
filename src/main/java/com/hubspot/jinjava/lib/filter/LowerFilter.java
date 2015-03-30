@@ -15,8 +15,11 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+@JinjavaDoc(value="Convert a value to lowercase", params=@JinjavaParam("s"))
 public class LowerFilter implements Filter {
 
   @Override

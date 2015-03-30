@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -26,6 +27,12 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
  * 
  * @author jstehler
  */
+
+@JinjavaDoc("Jinja2 supports putting often used code into macros. These macros can go into "
+    + "different templates and get imported from there. This works similar to the import "
+    + "statements in Python. It’s important to know that imports are cached and imported "
+    + "templates don’t have access to the current template variables, just the globals by default.")
+
 @SuppressWarnings("unchecked")
 public class ImportTag implements Tag {
   private static final String IMPORT_PATH_PROPERTY = "__importP@th__";

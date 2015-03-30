@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.Node;
@@ -40,6 +41,7 @@ import com.hubspot.jinjava.util.ObjectIterator;
  * @author anysome
  * 
  */
+@JinjavaDoc(value="outputs the inner content for each item in the given iterable")
 public class ForTag implements Tag {
 
   private static final String LOOP = "loop";

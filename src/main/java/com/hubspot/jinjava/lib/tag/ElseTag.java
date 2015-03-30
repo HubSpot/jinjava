@@ -15,15 +15,11 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.TagNode;
 
-/**
- * {% else %}
- * 
- * @author anysome
- * 
- */
+@JinjavaDoc(value="", hidden=true)
 public class ElseTag implements Tag {
 
   static final String ELSE = "else";

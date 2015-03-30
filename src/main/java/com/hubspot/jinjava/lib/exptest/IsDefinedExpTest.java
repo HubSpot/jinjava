@@ -1,7 +1,9 @@
 package com.hubspot.jinjava.lib.exptest;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+@JinjavaDoc("Return true if the variable is defined")
 public class IsDefinedExpTest implements ExpTest {
 
   @Override

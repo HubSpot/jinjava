@@ -4,8 +4,11 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+
+@JinjavaDoc("Counts the words in the given string")
 public class WordCountFilter implements Filter {
 
   @Override

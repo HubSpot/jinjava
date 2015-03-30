@@ -22,8 +22,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+@JinjavaDoc(value="Return a random item from the sequence.", params=@JinjavaParam(value="seq", type="sequence"))
 public class RandomFilter implements Filter {
 
   @Override

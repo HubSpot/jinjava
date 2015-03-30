@@ -4,8 +4,13 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+@JinjavaDoc(
+    value="Enforce HTML escaping. This will probably double escape variables.",
+    params=@JinjavaParam("value"))
 public class ForceEscapeFilter implements Filter {
 
   @Override

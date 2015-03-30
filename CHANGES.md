@@ -1,5 +1,9 @@
 # Jinjava Releases #
 
+### Version 2.0.1 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.1%22)) ###
+
+* Adding self-documenting feature to jinjava core
+
 ### Version 2.0.0 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.0%22)) ###
 
 * 2.0.x requires JDK 8, as it contains some critical fixes to date formatting for certain languages (i.e. Finnish months)

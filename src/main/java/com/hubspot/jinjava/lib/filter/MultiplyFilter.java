@@ -18,9 +18,17 @@ package com.hubspot.jinjava.lib.filter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+@JinjavaDoc(
+    value="multiplies the current object with the given multiplier",
+    params={
+        @JinjavaParam(value="value", type="number"),
+        @JinjavaParam(value="multiplier", type="number")
+    })
 public class MultiplyFilter implements Filter {
 
   @Override

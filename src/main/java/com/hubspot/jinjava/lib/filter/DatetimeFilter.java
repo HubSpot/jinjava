@@ -19,10 +19,18 @@ import java.text.Format;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 
+@JinjavaDoc(
+    value="formats a date object",
+    params={
+        @JinjavaParam(value="value", type="date"),
+        @JinjavaParam(value="format")
+    })
 public class DatetimeFilter implements Filter {
 
   @Override

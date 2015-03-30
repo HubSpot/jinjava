@@ -15,9 +15,17 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+@JinjavaDoc(
+    value="evaluates to true if the value is divisible by the given number",
+    params={
+        @JinjavaParam(value="value", type="number"),
+        @JinjavaParam(value="divisor", type="number")
+    })
 public class DivisibleFilter implements Filter {
 
   @Override

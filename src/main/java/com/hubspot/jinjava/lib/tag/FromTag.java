@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
@@ -30,6 +31,18 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
  * 
  * @author jstehler
  */
+@JinjavaDoc(
+    value="Alternatively you can import names from the template into the current namespace:\n\n" +
+          "{% from 'forms.html' import input as input_field, textarea %}\n" +
+          "<dl>\n" +
+          "<dt>Username</dt>\n" +
+          "<dd>{{ input_field('username') }}</dd>\n" +
+          "<dt>Password</dt>\n" +
+          "<dd>{{ input_field('password', type='password') }}</dd>\n" +
+          "</dl>\n" +
+          "<p>\n" +
+          "{{ textarea('comment') }}\n" +
+          "</p>")
 public class FromTag implements Tag {
 
   @Override

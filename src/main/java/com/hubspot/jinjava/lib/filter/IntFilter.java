@@ -2,6 +2,8 @@ package com.hubspot.jinjava.lib.filter;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 /**
@@ -9,6 +11,12 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  *   Convert the value into an integer. If the conversion doesn’t work it will return 0. 
  *   You can override this default using the first parameter.
  */
+@JinjavaDoc(
+    value="Convert the value into an integer. If the conversion doesn’t work it will return 0. You can override this default using the first parameter.",
+    params={
+        @JinjavaParam("value"),
+        @JinjavaParam(value="default", type="number", defaultValue="0")
+    })
 public class IntFilter implements Filter {
 
   @Override

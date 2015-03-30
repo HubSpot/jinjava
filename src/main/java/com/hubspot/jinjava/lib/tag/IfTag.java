@@ -19,22 +19,15 @@ import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.ObjectTruthValue;
 
-/**
- * {% if expr %}
- * {% else %}
- * {% endif %}
- * 
- * {% if expr %}
- * {% endif %}
- * 
- * @author anysome
- */
+
+@JinjavaDoc("Outputs inner content if expression evaluates to true, otherwise evaluates any elif blocks, finally outputting content of any else block present")
 public class IfTag implements Tag {
 
   private static final String TAGNAME = "if";

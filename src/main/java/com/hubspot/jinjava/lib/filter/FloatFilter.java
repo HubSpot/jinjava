@@ -2,8 +2,16 @@ package com.hubspot.jinjava.lib.filter;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+@JinjavaDoc(
+    value="Convert the value into a floating point number. If the conversion doesn’t work it will return 0.0. You can override this default using the first parameter.",
+    params={
+        @JinjavaParam("value"),
+        @JinjavaParam(value="default", type="float", defaultValue="0.0")
+    })
 public class FloatFilter implements Filter {
 
   @Override

@@ -8,8 +8,27 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+
+@JinjavaDoc(
+    value="Converts URLs in plain text into clickable links.\n" +
+          
+          "If you pass the filter an additional integer it will shorten the urls to that number. Also a third argument exists that makes the urls “nofollow”:\n" +
+          
+          "{{ mytext|urlize(40, true) }}\n" +
+          "    links are shortened to 40 chars and defined with rel=\"nofollow\"\n" +
+          "If target is specified, the target attribute will be added to the <a> tag:\n" +
+          
+          "{{ mytext|urlize(40, target='_blank') }}",
+    params={
+        @JinjavaParam("value"),
+        @JinjavaParam(value="trim_url_limit", type="number"),
+        @JinjavaParam(value="nofollow", type="boolean", defaultValue="False", desc="adds nofollow to generated link tag"),
+        @JinjavaParam(value="target", desc="adds target attr to generated link tag")
+    })
 public class UrlizeFilter implements Filter {
 
   @Override
