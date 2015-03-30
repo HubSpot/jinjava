@@ -1,16 +1,20 @@
 package com.hubspot.jinjava.doc;
 
 
+import java.lang.reflect.Method;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Throwables;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.doc.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.lib.filter.Filter;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
+import com.hubspot.jinjava.lib.fn.InjectedContextFunctionProxy;
 import com.hubspot.jinjava.lib.tag.Tag;
 
 public class JinjavaDocFactory {
@@ -64,7 +68,16 @@ public class JinjavaDocFactory {
   private void addFnDocs(JinjavaDoc doc) {
     for(ELFunctionDefinition fn : jinjava.getGlobalContext().getAllFunctions()) {
       if(StringUtils.isBlank(fn.getNamespace())) {
-        com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = fn.getMethod().getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
+        Method realMethod = fn.getMethod();
+        if(realMethod.getDeclaringClass().getName().contains(InjectedContextFunctionProxy.class.getSimpleName())) {
+          try {
+            realMethod = (Method) realMethod.getDeclaringClass().getField("delegate").get(null);
+          } catch (Exception e) {
+            throw Throwables.propagate(e);
+          }
+        }
+        
+        com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = realMethod.getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
         
         if(docAnnotation == null) {
           LOG.warn("Function {} doesn't have a @{} annotation", fn.getName(), com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
