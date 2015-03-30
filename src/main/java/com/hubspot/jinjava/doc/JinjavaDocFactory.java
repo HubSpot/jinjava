@@ -9,12 +9,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Throwables;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.doc.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.lib.filter.Filter;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.lib.fn.InjectedContextFunctionProxy;
+import com.hubspot.jinjava.lib.tag.EndTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 
 public class JinjavaDocFactory {
@@ -92,14 +92,17 @@ public class JinjavaDocFactory {
   
   private void addTagDocs(JinjavaDoc doc) {
     for(Tag t : jinjava.getGlobalContext().getAllTags()) {
+      if(t instanceof EndTag) {
+        continue;
+      }
       com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = t.getClass().getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
       
       if(docAnnotation == null) {
         LOG.warn("Tag {} doesn't have a @{} annotation", t.getName(), com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
-        doc.addTag(new JinjavaDocTag(t.getName(), StringUtils.isNotBlank(t.getEndTagName()), "", ""));
+        doc.addTag(new JinjavaDocTag(t.getName(), StringUtils.isBlank(t.getEndTagName()), "", ""));
       }
       else {
-        doc.addTag(new JinjavaDocTag(t.getName(), StringUtils.isNotBlank(t.getEndTagName()), docAnnotation.value(), docAnnotation.aliasOf(), extractParams(docAnnotation.params())));
+        doc.addTag(new JinjavaDocTag(t.getName(), StringUtils.isBlank(t.getEndTagName()), docAnnotation.value(), docAnnotation.aliasOf(), extractParams(docAnnotation.params())));
       }
     }
   }
