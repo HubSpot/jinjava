@@ -3,6 +3,7 @@
 ### Version 2.0.1 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.1%22)) ###
 
 * Adding self-documenting feature to jinjava core
+* Updating addition expression operator ('+') to work with lists and dicts
 
 ### Version 2.0.0 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.0%22)) ###
 
