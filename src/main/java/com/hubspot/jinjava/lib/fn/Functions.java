@@ -14,6 +14,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
@@ -23,12 +24,15 @@ import com.hubspot.jinjava.tree.Node;
 public class Functions {
 
   @JinjavaDoc(
-      value="Only usable within blocks, will render the contents of the parent block by calling super. This gives back the results of the parent block:\n\n" +
-            "{% block sidebar %}\n" +
-            "    <h3>Table Of Contents</h3>\n\n" +
-            "    ...\n" +
-            "    {{ super() }}\n" +
-            "{% endblock %}")
+      value="Only usable within blocks, will render the contents of the parent block by calling super.",
+      snippets={
+          @JinjavaSnippet(desc="This gives back the results of the parent block",
+              code="{% block sidebar %}\n" +
+                  "    <h3>Table Of Contents</h3>\n\n" +
+                  "    ...\n" +
+                  "    {{ super() }}\n" +
+                  "{% endblock %}")
+      })
   public static String renderSuperBlock() {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     StringBuilder result = new StringBuilder();

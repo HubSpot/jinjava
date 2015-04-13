@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
@@ -13,15 +14,14 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 
 @JinjavaDoc(
-    value="Filters a sequence of objects by applying a test to the object and only selecting the ones with the test succeeding.\n\n" +
-          
-          "Example usage:\n\n" +
-          
-          "{{ numbers|select(\"odd\") }}\n" +
-          "{{ numbers|select(\"odd\") }}",
+    value="Filters a sequence of objects by applying a test to the object and only selecting the ones with the test succeeding.",
     params={
         @JinjavaParam(value="value", type="sequence"),
         @JinjavaParam(value="exp_test", type="name of expression test")
+    },
+    snippets={
+        @JinjavaSnippet(code="{{ numbers|select(\"odd\") }}"),
+        @JinjavaSnippet(code="{{ numbers|select(\"odd\") }}")
     })
 public class SelectFilter implements Filter {
 

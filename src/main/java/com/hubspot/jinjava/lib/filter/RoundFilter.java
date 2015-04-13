@@ -8,31 +8,26 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
 @JinjavaDoc(
     value="Round the number to a given precision. The first parameter specifies the precision (default is 0), the second the rounding method:\n\n" +
-          
           "<ul>\n" +
           "<li>'common' rounds either up or down</li>\n" +
           "<li>'ceil' always rounds up</li>\n" +
           "<li>'floor' always rounds down</li>\n" +
-          "<ul>\n\n" +
-          "If you don’t specify a method 'common' is used.\n\n" +
-          
-          "{{ 42.55|round }}\n" +
-          "    -> 43.0\n" +
-          "{{ 42.55|round(1, 'floor') }}\n" +
-          "    -> 42.5\n" +
-          "Note that even if rounded to 0 precision, a float is returned. If you need a real integer, pipe it through int:\n\n" +
-          
-          "{{ 42.55|round|int }}\n" +
-          "    -> 43",
+          "<ul>\n\n",
     params={
         @JinjavaParam(value="value", type="number"),
         @JinjavaParam(value="precision", type="number", defaultValue="0"),
         @JinjavaParam(value="method", type="enum common|ceil|floor", defaultValue="common")
+    },
+    snippets={
+        @JinjavaSnippet(code="{{ 42.55|round }}", output="43.0", desc="Note that even if rounded to 0 precision, a float is returned."),
+        @JinjavaSnippet(code="{{ 42.55|round(1, 'floor') }}", output="42.5"),
+        @JinjavaSnippet(code="{{ 42.55|round|int }}", output="43", desc="If you need a real integer, pipe it through int"),
     }
 )
 public class RoundFilter implements Filter {

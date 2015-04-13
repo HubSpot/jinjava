@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
@@ -13,15 +14,16 @@ import com.hubspot.jinjava.util.VariableChain;
 
 
 @JinjavaDoc(
-    value="Returns the sum of a sequence of numbers plus the value of parameter ‘start’ (which defaults to 0). When the sequence is empty it returns start.\n\n" +
-          
-          "It is also possible to sum up only certain attributes:\n\n" +
-          
-          "Total: {{ items|sum(attribute='price') }}",
+    value="Returns the sum of a sequence of numbers plus the value of parameter ‘start’ (which defaults to 0). When the sequence is empty it returns start.",
     params={
         @JinjavaParam(value="value", type="iterable"),
         @JinjavaParam("attribute"),
         @JinjavaParam(value="start", type="number", defaultValue="0")
+    },
+    snippets={
+        @JinjavaSnippet(
+            desc="sum up only certain attributes",
+            code="Total: {{ items|sum(attribute='price') }}")
     })
 public class SumFilter implements Filter {
 

@@ -9,29 +9,31 @@ import org.apache.commons.lang3.BooleanUtils;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ObjectIterator;
 import com.hubspot.jinjava.util.Variable;
 
 
 @JinjavaDoc(
-    value="Sort an iterable. Per default it sorts ascending, if you pass it true as first argument it will reverse the sorting.\n\n" +
-          
-          "If the iterable is made of strings the third parameter can be used to control the case sensitiveness of the comparison which is disabled by default.\n\n" +
-          
-          "{% for item in iterable|sort %}\n" +
-          "    ...\n" +
-          "{% endfor %}\n" +
-          "It is also possible to sort by an attribute (for example to sort by the date of an object) by specifying the attribute parameter:\n\n" +
-          
-          "{% for item in iterable|sort(attribute='date') %}\n" +
-          "    ...\n" +
-          "{% endfor %}",
+    value="Sort an iterable. Per default it sorts ascending, if you pass it true as first argument it will reverse the sorting. " +
+          "If the iterable is made of strings the third parameter can be used to control the case sensitiveness of the comparison which is disabled by default.",
     params={
         @JinjavaParam(value="value", type="iterable"),
         @JinjavaParam(value="reverse", type="boolean", defaultValue="False"),
         @JinjavaParam(value="case_sensitive", type="boolean", defaultValue="False"),
         @JinjavaParam("attribute")
+    },
+    snippets={
+        @JinjavaSnippet(
+            code="{% for item in iterable|sort %}\n" +
+                "    ...\n" +
+                "{% endfor %}"),
+        @JinjavaSnippet(
+            desc="It is also possible to sort by an attribute (for example to sort by the date of an object) by specifying the attribute parameter",
+            code="{% for item in iterable|sort(attribute='date') %}\n" +
+                "    ...\n" +
+                "{% endfor %}")
     })
 public class SortFilter implements Filter {
 

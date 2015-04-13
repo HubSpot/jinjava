@@ -8,14 +8,9 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface JinjavaDoc {
+public @interface JinjavaSnippet {
+  String desc() default "";
 
-  String value() default "";
-  JinjavaParam[] params() default {};
-  
-  JinjavaSnippet[] snippets() default {};
-  
-  String aliasOf() default "";
-  boolean hidden() default false;
-  
+  String code();
+  String output() default "";
 }

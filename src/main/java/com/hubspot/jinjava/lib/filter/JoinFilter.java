@@ -8,6 +8,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
@@ -15,17 +16,24 @@ import com.hubspot.jinjava.util.VariableChain;
 
 
 @JinjavaDoc(
-    value="Return a string which is the concatenation of the strings in the sequence. The separator between elements is an empty string per default, you can define it with the optional parameter:\n\n" +
-          "{{ [1, 2, 3]|join('|') }}\n" +
-          "    -> 1|2|3\n\n" +
-          "{{ [1, 2, 3]|join }}\n" +
-          "    -> 123\n" +
-          "It is also possible to join certain attributes of an object:\n\n" +
-          "{{ users|join(', ', attribute='username') }}",
+    value="Return a string which is the concatenation of the strings in the sequence. "
+        + "The separator between elements is an empty string per default, you can define "
+        + "it with the optional parameter",
     params={
         @JinjavaParam("value"),
         @JinjavaParam(value="d", desc="separator string"),
         @JinjavaParam(value="attr", desc="object attribute to use in joining")
+    },
+    snippets={
+        @JinjavaSnippet(
+            code="{{ [1, 2, 3]|join('|') }}",
+            output="1|2|3"),
+        @JinjavaSnippet(
+            code="{{ [1, 2, 3]|join }}",
+            output="123"),
+        @JinjavaSnippet(
+            desc="It is also possible to join certain attributes of an object",
+            code="{{ users|join(', ', attribute='username') }}")
     })
 public class JoinFilter implements Filter {
 

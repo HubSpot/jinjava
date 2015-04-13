@@ -11,20 +11,27 @@ import org.apache.commons.lang3.BooleanUtils;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Sort a dict and yield (key, value) pairs. Because python dicts are unsorted you may want to use this function to order them by either key or value:\n\n" +
-          "{% for item in mydict|dictsort %}\n" +
-          "    sort the dict by key, case insensitive\n\n" +
-          "{% for item in mydict|dictsort(true) %}\n" +
-          "    sort the dict by key, case sensitive\n\n" +
-          "{% for item in mydict|dictsort(false, 'value') %}\n" +
-          "    sort the dict by value, case insensitive",
+    value="Sort a dict and yield (key, value) pairs. Because dicts are unsorted you may want to use this "
+        + "function to order them by either key or value",
     params={
         @JinjavaParam("value"),
         @JinjavaParam(value="case_sensitive", type="boolean", defaultValue="False"),
         @JinjavaParam(value="by", type="enum key|value", defaultValue="key")
+    },
+    snippets={
+        @JinjavaSnippet(
+            desc="sort the dict by key, case insensitive",
+            code="{% for item in mydict|dictsort %}"),
+        @JinjavaSnippet(
+            desc="sort the dict by key, case sensitive",
+            code="{% for item in mydict|dictsort(true) %}"),
+        @JinjavaSnippet(
+            desc="sort the dict by value, case insensitive",
+            code="{% for item in mydict|dictsort(false, 'value') %}")
     })
 public class DictSortFilter implements Filter {
 

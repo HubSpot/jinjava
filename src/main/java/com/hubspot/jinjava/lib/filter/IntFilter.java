@@ -12,7 +12,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  *   You can override this default using the first parameter.
  */
 @JinjavaDoc(
-    value="Convert the value into an integer. If the conversion doesn’t work it will return 0. You can override this default using the first parameter.",
+    value="Convert the value into an integer. If the conversion doesn’t work it will return 0. "
+        + "You can override this default using the first parameter.",
     params={
         @JinjavaParam("value"),
         @JinjavaParam(value="default", type="number", defaultValue="0")

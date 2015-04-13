@@ -4,21 +4,23 @@ import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 @JinjavaDoc(
-    value="Check if an object has the same value as another object:\n\n" +
-          
-          "{% if foo.expression is equalto 42 %}\n" +
-          "    the foo attribute evaluates to the constant 42\n" +
-          "{% endif %}\n" +
-          "This appears to be a useless test as it does exactly the same as the == operator, but it can be useful when used together with the selectattr function:\n" +
-          
-          "{{ users|selectattr(\"email\", \"equalto\", \"foo@bar.invalid\") }}",
+    value="Check if an object has the same value as another object",
     params={
         @JinjavaParam(value="other", type="object")
+    },
+    snippets={
+        @JinjavaSnippet(
+            code="{% if foo.expression is equalto 42 %}\n" +
+                "    the foo attribute evaluates to the constant 42\n" +
+                "{% endif %}\n"),
+        @JinjavaSnippet(
+            desc="Usage with the selectattr filter",
+            code="{{ users|selectattr(\"email\", \"equalto\", \"foo@bar.invalid\") }}"),
     })
 public class IsEqualToExpTest implements ExpTest {
 

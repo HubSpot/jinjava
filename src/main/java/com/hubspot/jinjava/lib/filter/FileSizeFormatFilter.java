@@ -10,7 +10,9 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Format the value like a ‘human-readable’ file size (i.e. 13 kB, 4.1 MB, 102 Bytes, etc). Per default decimal prefixes are used (Mega, Giga, etc.), if the second parameter is set to True the binary prefixes are used (Mebi, Gibi).",
+    value="Format the value like a ‘human-readable’ file size (i.e. 13 kB, 4.1 MB, 102 Bytes, etc). "
+        + "Per default decimal prefixes are used (Mega, Giga, etc.), if the second parameter is set "
+        + "to True the binary prefixes are used (Mebi, Gibi).",
     params={
         @JinjavaParam("value"),
         @JinjavaParam(value="binary", type="boolean", defaultValue="False")

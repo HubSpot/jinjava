@@ -12,16 +12,21 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Return a copy of the passed string, each line indented by 4 spaces. The first line is not indented. If you want to change the number of spaces or indent the first line too you can pass additional parameters to the filter:\n\n" +
-          "{{ mytext|indent(2, true) }}\n" +
-          "    indent by two spaces and indent the first line too.",
+    value="Return a copy of the passed string, each line indented by 4 spaces. The first line is not indented." 
+        + "If you want to change the number of spaces or indent the first line too you can pass additional "
+        + "parameters to the filter",
     params={
         @JinjavaParam("s"),
         @JinjavaParam(value="width", type="number", defaultValue="4"),
         @JinjavaParam(value="indentfirst", type="boolean", defaultValue="False")
+    },
+    snippets={
+        @JinjavaSnippet(desc="indent by two spaces and indent the first line too",
+            code="{{ mytext|indent(2, true) }}")
     })
 public class IndentFilter implements Filter {
 
