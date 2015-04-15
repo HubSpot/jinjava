@@ -17,6 +17,7 @@ package com.hubspot.jinjava.lib.tag;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.Node;
@@ -28,6 +29,7 @@ import com.hubspot.jinjava.tree.TagNode;
  * @author anysome
  * 
  */
+@JinjavaDoc(value="outputs the tag contents if the given variable has changed since a prior invocation of this tag")
 public class IfchangedTag implements Tag {
 
   private static final String LASTKEY = "'IF\"CHG";

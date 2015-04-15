@@ -10,64 +10,58 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.TagNode;
 
-/**
- * Macros are comparable with functions in regular programming languages. They are 
- * useful to put often used idioms into reusable functions to not repeat yourself.
- * 
- * Here a small example of a macro that renders a form element:
- * 
- * <pre>
- * {% macro input(name, value='', type='text', size=20) -%}
- *   &lt;input type="{{ type }}" name="{{ name }}" value="{{ value|e }}" size="{{ size }}"&gt;
- * {%- endmacro %}
- * </pre>
- * 
- * The macro can then be called like a function in the namespace:
- * 
- * <pre>{{ input('username') }}</pre>
- * <pre>{{ input('password', type='password') }}</pre>
- * 
- * If the macro was defined in a different template you have to import it first.
- * 
- * Inside macros you have access to three special variables:
- * 
- * varargs
- *   If more positional arguments are passed to the macro than accepted by 
- *   the macro they end up in the special varargs variable as list of values.
- * kwargs
- *   Like varargs but for keyword arguments. All unconsumed keyword arguments 
- *   are stored in this special variable.
- * caller
- *   If the macro was called from a call tag the caller is stored in this 
- *   variable as macro which can be called.
- * 
- * Macros also expose some of their internal details. The following attributes 
- * are available on a macro object:
- * 
- * name
- *   The name of the macro. {{ input.name }} will print input.
- * arguments
- *   A tuple of the names of arguments the macro accepts.
- * defaults
- *   A tuple of default values.
- * catch_kwargs
- *   This is true if the macro accepts extra keyword arguments (ie: accesses the 
- *   special kwargs variable).
- * catch_varargs
- *   This is true if the macro accepts extra positional arguments (ie: accesses 
- *   the special varargs variable).
- * caller
- *   This is true if the macro accesses the special caller variable and may be 
- *   called from a call tag.
- * 
- * If a macro name starts with an underscore it’s not exported and can’t be imported.
- *
- */
+
+@JinjavaDoc(value="Macros are comparable with functions in regular programming languages. They are "
+    + "useful to put often used idioms into reusable functions to not repeat yourself.\n\n"
+    + "If the macro was defined in a different template you have to import it first.\n\n" +
+
+"Inside macros you have access to three special variables:\n\n" +
+
+"varargs\n" +
+"  If more positional arguments are passed to the macro than accepted by \n" +
+"  the macro they end up in the special varargs variable as list of values.\n" +
+"kwargs\n" +
+"  Like varargs but for keyword arguments. All unconsumed keyword arguments \n" +
+"  are stored in this special variable.\n" +
+"caller\n" +
+"  If the macro was called from a call tag the caller is stored in this \n" +
+"  variable as macro which can be called.\n\n" +
+
+"Macros also expose some of their internal details. The following attributes \n" +
+"are available on a macro object:\n\n" +
+
+"name\n" +
+"  The name of the macro. {{ input.name }} will print input.\n" +
+"arguments\n" +
+"  A tuple of the names of arguments the macro accepts.\n" +
+"defaults\n" +
+"  A tuple of default values.\n" +
+"catch_kwargs\n" +
+"  This is true if the macro accepts extra keyword arguments (ie: accesses the \n" +
+"  special kwargs variable).\n" +
+"catch_varargs\n" +
+"  This is true if the macro accepts extra positional arguments (ie: accesses \n" +
+"  the special varargs variable).\n" +
+"caller\n" +
+"  This is true if the macro accesses the special caller variable and may be \n" +
+"  called from a call tag.\n\n" +
+
+"If a macro name starts with an underscore it’s not exported and can’t be imported.",
+    snippets={
+      @JinjavaSnippet(desc="Here a small example of a macro that renders a form element",
+          code="{% macro input(name, value='', type='text', size=20) -%}\n" +
+                "  <input type=\"{{ type }}\" name=\"{{ name }}\" value=\"{{ value|e }}\" size=\"{{ size }}\">\n" +
+                "{%- endmacro %}"),
+      @JinjavaSnippet(desc="The macro can then be called like a function in the namespace",
+          code="{{ input('username') }}\n{{ input('password', type='password') }}")
+    })
 public class MacroTag implements Tag {
 
   @Override

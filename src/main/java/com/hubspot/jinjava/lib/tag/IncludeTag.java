@@ -21,6 +21,9 @@ import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -28,12 +31,15 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 
-/**
- * {% include 'sidebar.html' %} {% include var_fileName %}
- * 
- * @author anysome
- * 
- */
+
+@JinjavaDoc(value="includes the template at the specified path at this position",
+    params={
+      @JinjavaParam("path")
+    },
+    snippets={
+      @JinjavaSnippet(code="{% include 'sidebar.html'%}"),
+      @JinjavaSnippet(code="{% include var_fileName %}")
+    })
 public class IncludeTag implements Tag {
   private static final String INCLUDE_PATH_PROPERTY = "__includeP@th__";
 
