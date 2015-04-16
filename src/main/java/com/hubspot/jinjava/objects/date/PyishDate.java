@@ -7,10 +7,10 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
-import com.google.common.base.Optional;
 import com.hubspot.jinjava.objects.PyWrapper;
 
 /**
@@ -25,12 +25,12 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
   private final ZonedDateTime date;
 
   public PyishDate(ZonedDateTime dt) {
-    super(Objects.requireNonNull(dt).toInstant().toEpochMilli());
+    super(dt.toInstant().toEpochMilli());
     this.date = dt;
   }
   
   public PyishDate(Date d) {
-    this(ZonedDateTime.ofInstant(Objects.requireNonNull(d).toInstant(), ZoneOffset.UTC));
+    this(ZonedDateTime.ofInstant(d.toInstant(), ZoneOffset.UTC));
   }
   
   public PyishDate(String publishDateStr) {
@@ -38,7 +38,8 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
   }
   
   public PyishDate(Long epochMillis) {
-    this(ZonedDateTime.ofInstant(Instant.ofEpochMilli(Optional.fromNullable(epochMillis).or(System.currentTimeMillis())), ZoneOffset.UTC));
+    this(ZonedDateTime.ofInstant(Instant.ofEpochMilli(
+        Optional.ofNullable(epochMillis).orElseGet(System::currentTimeMillis)), ZoneOffset.UTC));
   }
   
   public String isoformat() {
