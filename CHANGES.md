@@ -1,5 +1,10 @@
 # Jinjava Releases #
 
+### Version 2.0.2 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.2%22)) ###
+
+* Adding code snippets to jinjavadoc
+* Adding shuffle filter for collections
+
 ### Version 2.0.1 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.1%22)) ###
 
 * Adding self-documenting feature to jinjava core
