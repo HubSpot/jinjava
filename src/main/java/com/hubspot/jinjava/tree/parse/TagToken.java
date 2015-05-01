@@ -17,6 +17,7 @@ package com.hubspot.jinjava.tree.parse;
 
 import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
 
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 
 public class TagToken extends Token {
@@ -40,6 +41,10 @@ public class TagToken extends Token {
    */
   @Override
   protected void parse() {
+    if(image.length() < 4) {
+      throw new TemplateSyntaxException(image, "Malformed tag token", getLineNumber());
+    }
+    
     content = image.substring(2, image.length() - 2);
     
     if(WhitespaceUtils.startsWith(content, "-")) {

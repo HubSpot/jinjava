@@ -233,7 +233,7 @@ public class TokenScanner extends AbstractIterator<Token> {
   }
 
   private Token newToken(int kind) {
-    Token t = Token.newToken(kind, String.copyValueOf(is, lastStart, tokenLength), currLine);
+    Token t = Token.newToken(kind, String.valueOf(is, lastStart, tokenLength), currLine);
     
     if(t instanceof TagToken) {
       TagToken tt = (TagToken) t;

@@ -1,9 +1,11 @@
 package com.hubspot.jinjava.tree.parse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 import org.junit.Test;
 
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.parse.TagToken;
 
 
@@ -27,6 +29,17 @@ public class TagTokenTest {
     TagToken t = new TagToken("{%rich_text\"top_left\"%}", 1);
     assertThat(t.getTagName()).isEqualTo("rich_text");
     assertThat(t.getHelpers()).isEqualTo("\"top_left\"");
+  }
+  
+  @Test
+  public void itThrowsParseErrorWhenMalformed() {
+    try {
+      new TagToken("{% ", 1);
+      failBecauseExceptionWasNotThrown(TemplateSyntaxException.class);
+    }
+    catch(TemplateSyntaxException e) {
+      assertThat(e).hasMessageContaining("Malformed");
+    }
   }
   
 }
