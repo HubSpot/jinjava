@@ -62,7 +62,7 @@ public class ExpressionResolver {
       }
     } catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(
-          String.format("Error resolving expression: [%s]", expr), e, lineNumber)));
+          String.format("Error resolving expression [%s]: " + e.getMessage(), expr), e, lineNumber)));
     }
 
     return "";
