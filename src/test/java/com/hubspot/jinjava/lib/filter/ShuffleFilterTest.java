@@ -1,11 +1,11 @@
 package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,17 +27,14 @@ public class ShuffleFilterTest {
 
     assertThat(before).isSorted();
     assertThat(after).containsAll(before);
-    assertThat(after).isNot(new Condition<List<String>>() {
-      @Override
-      public boolean matches(List<String> value) {
-        try {
-          assertThat(value).isSorted();
-          return true;
-        }
-        catch(Throwable e) {}
-        return false;
-      }
-    });
+
+    try {
+      assertThat(after).isSorted();
+      failBecauseExceptionWasNotThrown(AssertionError.class);
+    }
+    catch(AssertionError e) {
+      assertThat(e).hasMessageContaining("is not sorted");
+    }
   }
   
 }

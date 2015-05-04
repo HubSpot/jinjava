@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -19,11 +18,6 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.tree.parse.TextToken;
-import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
-import com.hubspot.jinjava.tree.parse.TagToken;
-import com.hubspot.jinjava.tree.parse.Token;
-import com.hubspot.jinjava.tree.parse.TokenScanner;
 
 
 public class TokenScannerTest {
@@ -36,16 +30,6 @@ public class TokenScannerTest {
     Jinjava jinjava = new Jinjava();
     Context context = new Context();
     interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
-  }
-
-  @Test @Ignore("most likely unsupported behavior, not needed in jinja")
-  public void test1() {
-    script = "{{abc.b}}{% if x %}{\\{abc}}{%endif%}";
-    scanner = new TokenScanner(script);
-    assertEquals("{{abc.b}}", scanner.next().image);
-    assertEquals("if x", scanner.next().content.trim());
-    assertEquals("{{abc}}", scanner.next().content.trim());
-    assertEquals("{%endif%}", scanner.next().image);
   }
 
   @Test
@@ -89,17 +73,6 @@ public class TokenScannerTest {
     assertEquals("if x", scanner.next().content.trim());
     assertEquals("a", scanner.next().content.trim());
     assertEquals("{{abc}\\}{%endif%}", scanner.next().content.trim());
-  }
-
-  @Test @Ignore("most likely unsupported behavior unnecessary in jinja")
-  public void test6() {
-    script = "a{{abc.b}}{% if x   %}a{\\{abc}}{%endif%}";
-    scanner = new TokenScanner(script);
-    assertEquals("a", scanner.next().image);
-    assertEquals("{{abc.b}}", scanner.next().image);
-    assertEquals("if x", scanner.next().content.trim());
-    assertEquals("a{{abc}}", scanner.next().content.trim());
-    assertEquals("{%endif%}", scanner.next().image);
   }
 
   @Test
