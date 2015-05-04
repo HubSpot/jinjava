@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.el;
 
+import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
+
 import java.util.Objects;
 
 import javax.el.ELContext;
@@ -13,9 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
-import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.JinjavaPropertyNotResolvedException;
 
 import de.odysseus.el.tree.TreeBuilderException;
@@ -62,7 +64,7 @@ public class ExpressionResolver {
       }
     } catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(
-          String.format("Error resolving expression [%s]: " + e.getMessage(), expr), e, lineNumber)));
+          String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expr), e, lineNumber)));
     }
 
     return "";
