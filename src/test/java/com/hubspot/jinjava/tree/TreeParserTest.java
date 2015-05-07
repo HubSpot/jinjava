@@ -19,8 +19,7 @@ public class TreeParserTest {
   
   @Before
   public void setup() {
-    Jinjava jinjava = new Jinjava();
-    interpreter = new JinjavaInterpreter(jinjava, jinjava.getGlobalContext(), jinjava.getGlobalConfig());
+    interpreter = new Jinjava().newInterpreter();
   }
   
   @Test

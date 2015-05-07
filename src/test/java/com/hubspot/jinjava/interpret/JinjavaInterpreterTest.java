@@ -19,7 +19,7 @@ public class JinjavaInterpreterTest {
   @Before
   public void setup() {
     jinjava = new Jinjava();
-    interpreter = new JinjavaInterpreter(jinjava, jinjava.getGlobalContext(), jinjava.getGlobalConfig());
+    interpreter = jinjava.newInterpreter();
   }
   
   @Test

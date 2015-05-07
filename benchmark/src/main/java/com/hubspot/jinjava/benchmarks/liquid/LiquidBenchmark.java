@@ -98,7 +98,7 @@ public class LiquidBenchmark {
   
   @Benchmark
   public void parse(Blackhole blackhole) {
-    JinjavaInterpreter interpreter = new JinjavaInterpreter(jinjava, jinjava.getGlobalContext(), jinjava.getGlobalConfig());
+    JinjavaInterpreter interpreter = jinjava.newInterpreter();
 
     for(String template : templates) {
       Node parsed = interpreter.parse(template);
