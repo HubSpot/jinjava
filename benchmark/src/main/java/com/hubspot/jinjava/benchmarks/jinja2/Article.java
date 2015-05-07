@@ -2,6 +2,8 @@ package com.hubspot.jinjava.benchmarks.jinja2;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 
 import de.svenjacobs.loremipsum.LoremIpsum;
@@ -26,7 +28,7 @@ public class Article {
     this.title = ipsum.getWords(10);
     this.user = user;
     this.body = ipsum.getParagraphs();
-    this.pubDate = DateTime.now().minusHours(rnd.nextInt(128)).toDate(); // TODO randomize
+    this.pubDate = Date.from(LocalDateTime.now().minusHours(rnd.nextInt(128)).toInstant(ZoneOffset.UTC)); // TODO randomize
     this.published = true;
   }
 

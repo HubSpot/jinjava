@@ -18,6 +18,14 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.loader.FileLocator;
+import com.hubspot.jinjava.loader.ResourceLocator;
+import com.hubspot.jinjava.tree.Node;
+
 
 @State(Scope.Benchmark)
 public class Jinja2Benchmark {
@@ -27,6 +35,9 @@ public class Jinja2Benchmark {
   
   public Jinjava jinjava;
   
+  public JinjavaInterpreter interpreter;
+  public Node precompiledTemplate;
+  
   @SuppressWarnings("unchecked")
   @Setup
   public void setup() throws IOException, NoSuchAlgorithmException {
@@ -34,7 +45,7 @@ public class Jinja2Benchmark {
     logger.setLevel(Level.WARN);
     
     jinjava = new Jinjava();
-    JinjavaInterpreter interpreter = new JinjavaInterpreter(jinjava, jinjava.getGlobalContext(), jinjava.getGlobalConfig());
+    interpreter = jinjava.newInterpreter();
     
     FileLocator locator = new FileLocator(new File("jinja2/examples/rwbench/jinja"));
     final String helpersTemplate = locator.getString("helpers.html", StandardCharsets.UTF_8, interpreter);
@@ -76,6 +87,8 @@ public class Jinja2Benchmark {
     );
     
     complexBindings = ImmutableMap.of("users", users, "articles", articles, "navigation", navigation);
+    
+    precompiledTemplate = interpreter.parse(complexTemplate);
   }
 
   @Benchmark
@@ -83,10 +96,16 @@ public class Jinja2Benchmark {
     return jinjava.render(complexTemplate, complexBindings);
   }
 
+  @Benchmark
+  public String precompiledBenchmark() {
+    return interpreter.render(precompiledTemplate, true);
+  }
+  
   public static void main(String[] args) throws Exception {
     Jinja2Benchmark b = new Jinja2Benchmark();
     b.setup();
     System.out.println(b.realWorldishBenchmark());
+    System.out.println(b.precompiledBenchmark());
   }
   
 }

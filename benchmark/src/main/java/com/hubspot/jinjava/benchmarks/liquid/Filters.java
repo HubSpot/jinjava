@@ -1,10 +1,20 @@
 package com.hubspot.jinjava.benchmarks.liquid;
 
+import static org.apache.commons.lang3.math.NumberUtils.toDouble;
+
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.filter.DatetimeFilter;
+import com.hubspot.jinjava.lib.filter.Filter;
+import com.hubspot.jinjava.lib.fn.Functions;
 
 /**
  * Liquid::Template.register_filter JsonFilter
@@ -24,7 +34,7 @@ public class Filters {
   public static class OverrideDateFilter extends DatetimeFilter {
     @Override
     public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-      return Functions.dateTimeFormat(DateTime.now(), arg);
+      return Functions.dateTimeFormat(ZonedDateTime.now(), arg);
     }
   }
   

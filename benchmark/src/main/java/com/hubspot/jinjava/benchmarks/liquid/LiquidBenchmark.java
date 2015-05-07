@@ -21,6 +21,10 @@ import org.yaml.snakeyaml.Yaml;
 
 import ch.qos.logback.classic.Level;
 
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.tree.Node;
+
 @State(Scope.Benchmark)
 public class LiquidBenchmark {
   
