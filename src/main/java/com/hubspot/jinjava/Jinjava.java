@@ -217,5 +217,14 @@ public class Jinjava {
       JinjavaInterpreter.popCurrent();
     }
   }
+  
+  /**
+   * Creates a new interpreter instance using the global context and global config
+   * 
+   * @return a new interpreter instance
+   */
+  public JinjavaInterpreter newInterpreter() {
+    return new JinjavaInterpreter(this, this.getGlobalContext(), this.getGlobalConfig());
+  }
 
 }

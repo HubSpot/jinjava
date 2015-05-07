@@ -3,6 +3,7 @@
 ### Version 2.0.3 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.3%22)) ###
 
 * Upgrading javassist, commons-lang3 library dependencies
+* Adding new factory method to Jinjava for creating a new JinjavaInterpreter instance
 
 ### Version 2.0.2 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.2%22)) ###
 
