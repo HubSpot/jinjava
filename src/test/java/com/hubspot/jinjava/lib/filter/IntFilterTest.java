@@ -6,7 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
@@ -17,9 +16,7 @@ public class IntFilterTest {
   
   @Before
   public void setup() {
-    Jinjava jinjava = new Jinjava();
-    Context context = new Context();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+    interpreter = new Jinjava().newInterpreter();
     filter = new IntFilter();
   }
   

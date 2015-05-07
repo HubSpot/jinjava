@@ -35,10 +35,10 @@ public class FromTagTest {
       }
     });
     
-    context = new Context();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+    interpreter = jinjava.newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
     
+    context = interpreter.getContext();
     context.put("padding", 42);
   }
   

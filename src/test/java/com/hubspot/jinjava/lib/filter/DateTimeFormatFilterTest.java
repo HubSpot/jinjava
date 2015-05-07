@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 
@@ -23,9 +22,7 @@ public class DateTimeFormatFilterTest {
   
   @Before
   public void setup() {
-    Jinjava jinjava = new Jinjava();
-    Context context = new Context();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+    interpreter = new Jinjava().newInterpreter();
     filter = new  DateTimeFormatFilter();
     d = ZonedDateTime.parse("2013-11-06T14:22:00.000+00:00[UTC]");
   }

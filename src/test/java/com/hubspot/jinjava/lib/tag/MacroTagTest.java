@@ -35,10 +35,10 @@ public class MacroTagTest {
   
   @Before
   public void setup() {
-    Jinjava jinjava = new Jinjava();
-    context = new Context();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+    interpreter = new Jinjava().newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
+
+    context = interpreter.getContext();
   }
   
   @After

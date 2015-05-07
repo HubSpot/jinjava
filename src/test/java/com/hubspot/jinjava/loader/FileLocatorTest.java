@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import com.google.common.io.Files;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 public class FileLocatorTest {
@@ -26,9 +25,7 @@ public class FileLocatorTest {
   
   @Before
   public void setUp() throws Exception {
-    Jinjava jinjava = new Jinjava();
-    Context context = new Context();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+    interpreter = new Jinjava().newInterpreter();
     
     locatorWorkingDir = new FileLocator();
     

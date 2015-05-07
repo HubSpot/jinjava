@@ -22,14 +22,12 @@ public class UnlessTagTest {
   JinjavaInterpreter interpreter;
   UnlessTag tag;
 
-  Jinjava jinjava;
   Context context;
 
   @Before
   public void setup() {
-    Jinjava jinjava = new Jinjava();
-    context = new Context();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+    interpreter = new Jinjava().newInterpreter();
+    context = interpreter.getContext();
     
     tag = new UnlessTag();
   }

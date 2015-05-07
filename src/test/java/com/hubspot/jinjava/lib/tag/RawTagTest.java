@@ -14,7 +14,6 @@ import org.junit.Test;
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -26,15 +25,9 @@ public class RawTagTest {
   JinjavaInterpreter interpreter;
   RawTag tag;
   
-  Jinjava jinjava;
-  Context context;
-  
   @Before
   public void setup() {
-    Jinjava jinjava = new Jinjava();
-    context = new Context();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
-    
+    interpreter = new Jinjava().newInterpreter();
     tag = new RawTag();
   }
 

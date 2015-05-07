@@ -27,9 +27,8 @@ public class ExpressionResolverTest {
   
   @Before
   public void setup() {
-    Jinjava jinjava = new Jinjava();
-    context = new Context();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+    interpreter = new Jinjava().newInterpreter();
+    context = interpreter.getContext();
   }
   
   @Test
