@@ -24,6 +24,12 @@ public class PyishDateTest {
   }
 
   @Test
+  public void testIsoformat() {
+    PyishDate d = new PyishDate(ZonedDateTime.parse("2015-05-13T12:00:00+00:00"));
+    assertThat(d.isoformat()).isEqualTo("2015-05-13");
+  }
+  
+  @Test
   public void testEquals() {
     PyishDate d1 = new PyishDate(ZonedDateTime.parse("2013-11-12T14:15:00+00:00"));
     PyishDate d2 = new PyishDate(ZonedDateTime.parse("2013-11-12T14:15:00+00:00"));

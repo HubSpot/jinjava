@@ -43,7 +43,7 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
   }
   
   public String isoformat() {
-    return strftime("YYYY-MM-DD");
+    return strftime("yyyy-MM-dd");
   }
 
   public String strftime(String fmt) {
