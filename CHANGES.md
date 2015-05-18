@@ -1,5 +1,9 @@
 # Jinjava Releases #
 
+### Version 2.0.5 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.5%22)) ###
+
+* Changed behavior of date filter to be same as datetimeformat filter
+
 ### Version 2.0.4 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.4%22)) ###
 
 * Fix issue with PyishDate.isoformat()
