@@ -28,14 +28,14 @@ public class StrftimeFormatter {
     CONVERSIONS.put('B', "MMMM");
     CONVERSIONS.put('c', "EEE MMM dd HH:mm:ss yyyy");
     CONVERSIONS.put('d', "dd");
-    CONVERSIONS.put('e', "dd"); // The day of the month like with %d, but padded with blank (range 1 through 31).
+    CONVERSIONS.put('e', "d"); // The day of the month like with %d, but padded with blank (range 1 through 31).
     CONVERSIONS.put('f', "SSSS");
     CONVERSIONS.put('H', "HH");
     CONVERSIONS.put('h', "hh");
     CONVERSIONS.put('I', "hh");
     CONVERSIONS.put('j', "DDD");
-    CONVERSIONS.put('k', "HH"); // The hour as a decimal number, using a 24-hour clock like %H, but padded with blank (range 0 through 23).
-    CONVERSIONS.put('l', "hh"); // The hour as a decimal number, using a 12-hour clock like %I, but padded with blank (range 1 through 12).
+    CONVERSIONS.put('k', "H"); // The hour as a decimal number, using a 24-hour clock like %H, but padded with blank (range 0 through 23).
+    CONVERSIONS.put('l', "h"); // The hour as a decimal number, using a 12-hour clock like %I, but padded with blank (range 1 through 12).
     CONVERSIONS.put('m', "MM");
     CONVERSIONS.put('M', "mm");
     CONVERSIONS.put('p', "a");

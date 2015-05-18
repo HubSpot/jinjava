@@ -65,6 +65,14 @@ public class StrftimeFormatterTest {
   }
   
   @Test
+  public void testPaddedMinFmt() {
+    ZonedDateTime dateTime = ZonedDateTime.parse("2013-11-06T04:02:00.000+00:00");
+    
+    assertThat(StrftimeFormatter.format(dateTime, "%I")).isEqualTo("04");
+    assertThat(StrftimeFormatter.format(dateTime, "%l")).isEqualTo("4");
+  }
+  
+  @Test
   public void testFinnishMonths() {
     assertThat(StrftimeFormatter.formatter("long").withLocale(Locale.forLanguageTag("fi")).format(d))
       .isEqualTo("6. marraskuuta 2013 klo 14.22.00");
