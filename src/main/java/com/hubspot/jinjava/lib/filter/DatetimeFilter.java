@@ -15,43 +15,15 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
-import java.text.Format;
-
-import org.apache.commons.lang3.time.FastDateFormat;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
-import com.hubspot.jinjava.doc.annotations.JinjavaParam;
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.TemplateError;
 
-@JinjavaDoc(
-    value="formats a date object",
-    params={
-        @JinjavaParam(value="value", type="date"),
-        @JinjavaParam(value="format")
-    })
-public class DatetimeFilter implements Filter {
+@JinjavaDoc(value="", aliasOf="datetimeformat")
+public class DatetimeFilter extends DateTimeFormatFilter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-    if (object == null) {
-      return object;
-    }
-    Format sdf;
-    if (arg.length == 1) {
-      sdf = FastDateFormat.getInstance(arg[0]);
-    } else if (arg.length == 2) {
-      sdf = FastDateFormat.getInstance(arg[0]);
-    } else {
-      throw new InterpretException("filter date expects 1 or 2 args >>> " + arg.length);
-    }
-    try {
-      return sdf.format(object);
-    } catch (Exception e) {
-      interpreter.addError(TemplateError.fromSyntaxError(new InterpretException("datetime filter error formatting a datetime: " + object, e, interpreter.getLineNumber())));
-    }
-    return object;
+    return super.filter(object, interpreter, arg);
   }
 
   @Override
