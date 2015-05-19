@@ -1,15 +1,14 @@
 package com.hubspot.jinjava.objects.date;
 
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.ChronoField;
 
 import com.hubspot.jinjava.objects.PyWrapper;
 
@@ -30,7 +29,7 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
   }
   
   public PyishDate(Date d) {
-    this(ZonedDateTime.ofInstant(d.toInstant(), ZoneOffset.UTC));
+    this(ZonedDateTime.ofInstant(Instant.ofEpochMilli(d.getTime()), ZoneOffset.UTC));
   }
   
   public PyishDate(String publishDateStr) {
@@ -38,8 +37,8 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
   }
   
   public PyishDate(Long epochMillis) {
-    this(ZonedDateTime.ofInstant(Instant.ofEpochMilli(
-        Optional.ofNullable(epochMillis).orElseGet(System::currentTimeMillis)), ZoneOffset.UTC));
+    this(ZonedDateTime.ofInstant(
+            Instant.ofEpochMilli(epochMillis == null ? System.currentTimeMillis() : epochMillis), ZoneOffset.UTC));
   }
   
   public String isoformat() {
@@ -79,7 +78,7 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
   }
   
   public Date toDate() {
-    return Date.from(date.toInstant());
+    return new Date(date.toInstant().toEpochMilli());
   }
 
   public ZonedDateTime toDateTime() {

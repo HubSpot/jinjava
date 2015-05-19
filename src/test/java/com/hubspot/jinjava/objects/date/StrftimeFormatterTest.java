@@ -2,12 +2,11 @@ package com.hubspot.jinjava.objects.date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.ZonedDateTime;
 import java.util.Locale;
 
 import org.junit.Before;
 import org.junit.Test;
-
+import org.threeten.bp.ZonedDateTime;
 
 public class StrftimeFormatterTest {
 
