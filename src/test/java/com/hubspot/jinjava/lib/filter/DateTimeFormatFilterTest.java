@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
+import java.util.Locale;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,6 +24,7 @@ public class DateTimeFormatFilterTest {
   
   @Before
   public void setup() {
+    Locale.setDefault(Locale.ENGLISH);
     interpreter = new Jinjava().newInterpreter();
     filter = new  DateTimeFormatFilter();
     d = ZonedDateTime.parse("2013-11-06T14:22:00.000+00:00[UTC]");
