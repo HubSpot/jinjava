@@ -4,6 +4,7 @@
 
 * Changed behavior of date filter to be same as datetimeformat filter
 * Fixed date format conversion for single-digit values, for %e, %k, %l
+* Updated Jinjavadoc to support isDeprecated flag, as well as arbitrary key-value metadata
 
 ### Version 2.0.4 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.4%22)) ###
 

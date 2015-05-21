@@ -2,6 +2,9 @@ package com.hubspot.jinjava.doc;
 
 
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -9,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Throwables;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.doc.annotations.JinjavaMetaValue;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
@@ -44,11 +48,11 @@ public class JinjavaDocFactory {
       
       if(docAnnotation == null) {
         LOG.warn("Expression Test {} doesn't have a @{} annotation", t.getName(), com.hubspot.jinjava.doc.annotations.JinjavaDoc.class.getName());
-        doc.addExpTest(new JinjavaDocExpTest(t.getName(), "", "", new JinjavaDocParam[]{}, new JinjavaDocSnippet[]{}));
+        doc.addExpTest(new JinjavaDocExpTest(t.getName(), "", "", false, new JinjavaDocParam[]{}, new JinjavaDocSnippet[]{}, Collections.emptyMap()));
       }
       else if(!docAnnotation.hidden()) {
-        doc.addExpTest(new JinjavaDocExpTest(t.getName(), docAnnotation.value(), docAnnotation.aliasOf(), 
-            extractParams(docAnnotation.params()), extractSnippets(docAnnotation.snippets())));
+        doc.addExpTest(new JinjavaDocExpTest(t.getName(), docAnnotation.value(), docAnnotation.aliasOf(), docAnnotation.deprecated(),
+            extractParams(docAnnotation.params()), extractSnippets(docAnnotation.snippets()), extractMeta(docAnnotation.meta())));
       }
     }
   }
@@ -59,11 +63,11 @@ public class JinjavaDocFactory {
       
       if(docAnnotation == null) {
         LOG.warn("Filter {} doesn't have a @{} annotation", f.getClass(), com.hubspot.jinjava.doc.annotations.JinjavaDoc.class.getName());
-        doc.addFilter(new JinjavaDocFilter(f.getName(), "", "", new JinjavaDocParam[]{}, new JinjavaDocSnippet[]{}));
+        doc.addFilter(new JinjavaDocFilter(f.getName(), "", "", false, new JinjavaDocParam[]{}, new JinjavaDocSnippet[]{}, Collections.emptyMap()));
       }
       else if(!docAnnotation.hidden()) {
-        doc.addFilter(new JinjavaDocFilter(f.getName(), docAnnotation.value(), docAnnotation.aliasOf(), 
-            extractParams(docAnnotation.params()), extractSnippets(docAnnotation.snippets())));
+        doc.addFilter(new JinjavaDocFilter(f.getName(), docAnnotation.value(), docAnnotation.aliasOf(), docAnnotation.deprecated(),
+            extractParams(docAnnotation.params()), extractSnippets(docAnnotation.snippets()), extractMeta(docAnnotation.meta())));
       }
     }
   }
@@ -84,11 +88,11 @@ public class JinjavaDocFactory {
         
         if(docAnnotation == null) {
           LOG.warn("Function {} doesn't have a @{} annotation", fn.getName(), com.hubspot.jinjava.doc.annotations.JinjavaDoc.class.getName());
-          doc.addFunction(new JinjavaDocFunction(fn.getLocalName(), "", "", new JinjavaDocParam[]{}, new JinjavaDocSnippet[]{}));
+          doc.addFunction(new JinjavaDocFunction(fn.getLocalName(), "", "", false, new JinjavaDocParam[]{}, new JinjavaDocSnippet[]{}, Collections.emptyMap()));
         }
         else if(!docAnnotation.hidden()) {
-          doc.addFunction(new JinjavaDocFunction(fn.getLocalName(), docAnnotation.value(), docAnnotation.aliasOf(), 
-              extractParams(docAnnotation.params()), extractSnippets(docAnnotation.snippets())));
+          doc.addFunction(new JinjavaDocFunction(fn.getLocalName(), docAnnotation.value(), docAnnotation.aliasOf(), docAnnotation.deprecated(),
+              extractParams(docAnnotation.params()), extractSnippets(docAnnotation.snippets()), extractMeta(docAnnotation.meta())));
         }
       }
     }
@@ -103,11 +107,11 @@ public class JinjavaDocFactory {
       
       if(docAnnotation == null) {
         LOG.warn("Tag {} doesn't have a @{} annotation", t.getName(), com.hubspot.jinjava.doc.annotations.JinjavaDoc.class.getName());
-        doc.addTag(new JinjavaDocTag(t.getName(), StringUtils.isBlank(t.getEndTagName()), "", "", new JinjavaDocParam[]{}, new JinjavaDocSnippet[]{}));
+        doc.addTag(new JinjavaDocTag(t.getName(), StringUtils.isBlank(t.getEndTagName()), "", "", false, new JinjavaDocParam[]{}, new JinjavaDocSnippet[]{}, Collections.emptyMap()));
       }
       else if(!docAnnotation.hidden()) {
-        doc.addTag(new JinjavaDocTag(t.getName(), StringUtils.isBlank(t.getEndTagName()), docAnnotation.value(), docAnnotation.aliasOf(), 
-            extractParams(docAnnotation.params()), extractSnippets(docAnnotation.snippets())));
+        doc.addTag(new JinjavaDocTag(t.getName(), StringUtils.isBlank(t.getEndTagName()), docAnnotation.value(), docAnnotation.aliasOf(), docAnnotation.deprecated(),
+            extractParams(docAnnotation.params()), extractSnippets(docAnnotation.snippets()), extractMeta(docAnnotation.meta())));
       }
     }
   }
@@ -132,6 +136,16 @@ public class JinjavaDocFactory {
     }
     
     return result;
+  }
+  
+  private Map<String, String> extractMeta(JinjavaMetaValue[] metaValues) {
+    Map<String, String> meta = new LinkedHashMap<>();
+    
+    for(JinjavaMetaValue metaValue : metaValues) {
+      meta.put(metaValue.name(), metaValue.value());
+    }
+    
+    return meta;
   }
   
 }

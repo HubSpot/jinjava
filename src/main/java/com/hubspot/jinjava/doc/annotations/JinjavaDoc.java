@@ -15,7 +15,10 @@ public @interface JinjavaDoc {
   
   JinjavaSnippet[] snippets() default {};
   
+  JinjavaMetaValue[] meta() default {};
+  
   String aliasOf() default "";
+  boolean deprecated() default false;
   boolean hidden() default false;
   
 }
