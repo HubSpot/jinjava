@@ -16,8 +16,6 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Level;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
@@ -25,6 +23,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.loader.FileLocator;
 import com.hubspot.jinjava.loader.ResourceLocator;
 import com.hubspot.jinjava.tree.Node;
+
+import ch.qos.logback.classic.Level;
 
 
 @State(Scope.Benchmark)
@@ -72,7 +72,7 @@ public class Jinja2Benchmark {
     complexTemplate = complexTemplate.replaceAll(" if article.published", "");
     
     List<User> users = Lists.newArrayList(new User("John Doe"), new User("Jane Doe"), new User("Peter Somewhat"));
-    SecureRandom rnd = SecureRandom.getInstanceStrong();
+    SecureRandom rnd = SecureRandom.getInstance("SHA1PRNG");
     List<Article> articles = new ArrayList<>();
     for(int i = 0; i < 20; i++) {
       articles.add(new Article(i, users.get(rnd.nextInt(users.size()))));

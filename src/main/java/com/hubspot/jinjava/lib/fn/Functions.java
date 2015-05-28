@@ -2,14 +2,14 @@ package com.hubspot.jinjava.lib.fn;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;

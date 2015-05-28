@@ -17,9 +17,10 @@ package com.hubspot.jinjava;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Locale;
+
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 
 public class JinjavaConfig {
 
