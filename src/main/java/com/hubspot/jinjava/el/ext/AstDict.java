@@ -17,7 +17,7 @@ import de.odysseus.el.tree.impl.ast.AstString;
 public class AstDict extends AstLiteral {
 
   private Map<AstNode, AstNode> dict;
-  
+
   public AstDict(Map<AstNode, AstNode> dict) {
     this.dict = dict;
   }
@@ -25,10 +25,10 @@ public class AstDict extends AstLiteral {
   @Override
   public Object eval(Bindings bindings, ELContext context) {
     Map<String, Object> resolved = new HashMap<>();
-    
+
     for(Map.Entry<AstNode, AstNode> entry : dict.entrySet()) {
       String key;
-      
+
       if(entry.getKey() instanceof AstString) {
         key = Objects.toString(entry.getKey().eval(bindings, context));
       }
@@ -38,10 +38,10 @@ public class AstDict extends AstLiteral {
       else {
         throw new IllegalArgumentException("Dict key must be a string or identifier, was: " + entry.getKey());
       }
-      
+
       resolved.put(key, entry.getValue().eval(bindings, context));
     }
-    
+
     return new PyMap(resolved);
   }
 
@@ -49,16 +49,16 @@ public class AstDict extends AstLiteral {
   public void appendStructure(StringBuilder builder, Bindings bindings) {
     throw new UnsupportedOperationException("TODO");
   }
-  
+
   @Override
   public String toString() {
     StringBuilder s = new StringBuilder("{");
-    
+
     for(Map.Entry<AstNode, AstNode> entry : dict.entrySet()) {
       s.append(Objects.toString(entry.getKey())).append(":").append(Objects.toString(entry.getValue()));
     }
-    
+
     return s.append("}").toString();
   }
-  
+
 }

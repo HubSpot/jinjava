@@ -35,10 +35,10 @@ public class SumFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     ForLoop loop = ObjectIterator.getLoop(var);
-    
+
     BigDecimal sum = BigDecimal.ZERO;
     String attr = null;
-    
+
     if(args.length > 0) {
       attr = args[0];
     }
@@ -48,19 +48,19 @@ public class SumFilter implements Filter {
       }
       catch(NumberFormatException e) {}
     }
-    
+
     while(loop.hasNext()) {
       Object val = loop.next();
       if(val == null) {
         continue;
       }
-      
+
       BigDecimal addend = BigDecimal.ZERO;
-      
+
       if(attr != null) {
         val = new VariableChain(Arrays.asList(attr), val).resolve();
       }
-      
+
       try {
         if(Number.class.isAssignableFrom(val.getClass())) {
           addend = new BigDecimal(((Number) val).doubleValue());
@@ -70,10 +70,10 @@ public class SumFilter implements Filter {
         }
       }
       catch(NumberFormatException e) {}
-      
+
       sum = sum.add(addend);
     }
-    
+
     return sum;
   }
 

@@ -20,7 +20,7 @@ public class RawTag implements Tag {
   public String getEndTagName() {
     return "endraw";
   }
-  
+
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     StringBuilder result = new StringBuilder();
@@ -28,7 +28,7 @@ public class RawTag implements Tag {
     for(Node n : tagNode.getChildren())  {
       result.append(renderNodeRaw(n));
     }
-    
+
     return result.toString();
   }
 
@@ -38,15 +38,15 @@ public class RawTag implements Tag {
     for(Node child : n.getChildren()) {
       result.append(renderNodeRaw(child));
     }
-    
+
     if(TagNode.class.isAssignableFrom(n.getClass())) {
       TagNode t = (TagNode) n;
       if(StringUtils.isNotBlank(t.getEndName())) {
         result.append("{% ").append(t.getEndName()).append(" %}");
       }
     }
-    
+
     return result.toString();
   }
-  
+
 }

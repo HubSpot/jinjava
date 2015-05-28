@@ -48,9 +48,9 @@ public class FromTag implements Tag {
 
     String templateFile = interpreter.resolveString(helper.get(0), tagNode.getLineNumber());
     Map<String, String> imports = new LinkedHashMap<>();
-    
+
     PeekingIterator<String> args = Iterators.peekingIterator(helper.subList(2, helper.size()).iterator());
-    
+
     while(args.hasNext()) {
       String fromName = args.next();
       String importName = fromName;
@@ -59,10 +59,10 @@ public class FromTag implements Tag {
         args.next();
         importName = args.next();
       }
-      
+
       imports.put(fromName, importName);
     }
-    
+
     try {
       String template = interpreter.getResource(templateFile);
       Node node = interpreter.parse(template);
@@ -72,13 +72,13 @@ public class FromTag implements Tag {
 
       for(Map.Entry<String, String> importMapping : imports.entrySet()) {
         Object val = child.getContext().getGlobalMacro(importMapping.getKey());
-        
+
         if(val != null) {
           interpreter.getContext().addGlobalMacro((MacroFunction) val);
         }
         else {
           val = child.getContext().get(importMapping.getKey());
-          
+
           if(val != null) {
             interpreter.getContext().put(importMapping.getValue(), val);
           }

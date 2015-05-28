@@ -15,7 +15,7 @@ import com.hubspot.jinjava.objects.PyWrapper;
 
 /**
  * an object which quacks like a python date
- * 
+ *
  * @author jstehler
  *
  */
@@ -28,20 +28,20 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
     super(dt.toInstant().toEpochMilli());
     this.date = dt;
   }
-  
+
   public PyishDate(Date d) {
     this(ZonedDateTime.ofInstant(d.toInstant(), ZoneOffset.UTC));
   }
-  
+
   public PyishDate(String publishDateStr) {
     this(NumberUtils.toLong(Objects.requireNonNull(publishDateStr), 0L));
   }
-  
+
   public PyishDate(Long epochMillis) {
     this(ZonedDateTime.ofInstant(Instant.ofEpochMilli(
         Optional.ofNullable(epochMillis).orElseGet(System::currentTimeMillis)), ZoneOffset.UTC));
   }
-  
+
   public String isoformat() {
     return strftime("yyyy-MM-dd");
   }
@@ -49,35 +49,35 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
   public String strftime(String fmt) {
     return StrftimeFormatter.format(date, fmt);
   }
-  
+
   public int getYear() {
     return date.getYear();
   }
-  
+
   public int getMonth() {
     return date.getMonthValue();
   }
-  
+
   public int getDay() {
     return date.getDayOfMonth();
   }
-  
+
   public int getHour() {
     return date.getHour();
   }
-  
+
   public int getMinute() {
     return date.getMinute();
   }
-  
+
   public int getSecond() {
     return date.getSecond();
   }
-  
+
   public int getMicrosecond() {
     return date.get(ChronoField.MILLI_OF_SECOND);
   }
-  
+
   public Date toDate() {
     return Date.from(date.toInstant());
   }
@@ -85,7 +85,7 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
   public ZonedDateTime toDateTime() {
     return date;
   }
-  
+
   @Override
   public String toString() {
     return strftime("yyyy-MM-dd HH:mm:ss");
@@ -98,8 +98,12 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null || getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
     PyishDate that = (PyishDate) obj;
     return Objects.equals(toDateTime(), that.toDateTime());
   }

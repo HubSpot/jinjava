@@ -26,7 +26,7 @@ public class TagToken extends Token {
 
   private String tagName;
   private String helpers;
-  
+
   public TagToken(String image, int lineNumber) {
     super(image, lineNumber);
   }
@@ -35,7 +35,7 @@ public class TagToken extends Token {
   public int getType() {
     return TOKEN_TAG;
   }
-  
+
   /**
    * Get tag name
    */
@@ -44,9 +44,9 @@ public class TagToken extends Token {
     if(image.length() < 4) {
       throw new TemplateSyntaxException(image, "Malformed tag token", getLineNumber());
     }
-    
+
     content = image.substring(2, image.length() - 2);
-    
+
     if(WhitespaceUtils.startsWith(content, "-")) {
       setLeftTrim(true);
       content = WhitespaceUtils.unwrap(content, "-", "");
@@ -55,7 +55,7 @@ public class TagToken extends Token {
       setRightTrim(true);
       content = WhitespaceUtils.unwrap(content, "", "-");
     }
-    
+
     int nameStart = -1, pos = 0, len = content.length();
 
     for(; pos < len; pos++) {
@@ -67,7 +67,7 @@ public class TagToken extends Token {
         break;
       }
     }
-    
+
     if(pos < content.length()) {
       tagName = content.substring(nameStart, pos).toLowerCase();
       helpers = content.substring(pos);

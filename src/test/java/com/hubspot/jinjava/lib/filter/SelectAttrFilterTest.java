@@ -14,14 +14,14 @@ import com.hubspot.jinjava.Jinjava;
 public class SelectAttrFilterTest {
 
   Jinjava jinjava;
-  
+
   @Before
   public void setup() {
     jinjava = new Jinjava();
     jinjava.getGlobalContext().put("users", Lists.newArrayList(
         new User(0, false, "foo@bar.com"), new User(1, true, "bar@bar.com"), new User(2, false, null)));
   }
-  
+
   @Test
   public void selectAttrWithNoExp() {
     assertThat(jinjava.render("{{ users|selectattr('is_active') }}", new HashMap<String, Object>()))
@@ -33,7 +33,7 @@ public class SelectAttrFilterTest {
     assertThat(jinjava.render("{{ users|selectattr('email', 'none') }}", new HashMap<String, Object>()))
       .isEqualTo("[2]");
   }
-  
+
   public static class User {
     private int num;
     private boolean isActive;
@@ -57,5 +57,5 @@ public class SelectAttrFilterTest {
       return num + "";
     }
   }
-  
+
 }

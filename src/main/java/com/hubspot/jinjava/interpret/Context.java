@@ -40,23 +40,23 @@ public class Context extends ScopeMap<String, Object> {
   private final FilterLibrary filterLibrary;
   private final FunctionLibrary functionLibrary;
   private final TagLibrary tagLibrary;
-  
+
   private final Context parent;
-  
+
   public Context() {
     this(null);
   }
 
   public Context(Context parent) {
     super(parent);
-    
+
     this.parent = parent;
     this.expTestLibrary = new ExpTestLibrary(parent == null);
     this.filterLibrary = new FilterLibrary(parent == null);
     this.functionLibrary = new FunctionLibrary(parent == null);
     this.tagLibrary = new TagLibrary(parent == null);
   }
-  
+
   public Context(Context parent, Map<String, ?> bindings) {
     this(parent);
     this.putAll(bindings);
@@ -65,11 +65,11 @@ public class Context extends ScopeMap<String, Object> {
   public Context getParent() {
     return parent;
   }
-  
+
   public Map<String, Object> getSessionBindings() {
     return this.getScope();
   }
-  
+
   @SuppressWarnings("unchecked")
   public Map<String, MacroFunction> getGlobalMacros() {
     Map<String, MacroFunction> macros = (Map<String, MacroFunction>) getScope().get(GLOBAL_MACROS_SCOPE_KEY);
@@ -78,28 +78,28 @@ public class Context extends ScopeMap<String, Object> {
       macros = new HashMap<>();
       getScope().put(GLOBAL_MACROS_SCOPE_KEY, macros);
     }
-    
+
     return macros;
   }
-  
+
   public void addGlobalMacro(MacroFunction macro) {
     getGlobalMacros().put(macro.getName(), macro);
   }
-  
+
   public MacroFunction getGlobalMacro(String identifier) {
     MacroFunction fn = getGlobalMacros().get(identifier);
-    
+
     if(fn == null && parent != null) {
       fn = parent.getGlobalMacro(identifier);
     }
-    
+
     return fn;
   }
-  
+
   public boolean isGlobalMacro(String identifier) {
     return getGlobalMacro(identifier) != null;
   }
-  
+
   @SafeVarargs
   @SuppressWarnings("unchecked")
   public final void registerClasses(Class<? extends Importable>... classes) {
@@ -115,17 +115,17 @@ public class Context extends ScopeMap<String, Object> {
       }
     }
   }
-  
+
   public Collection<ExpTest> getAllExpTests() {
     List<ExpTest> expTests = new ArrayList<>(expTestLibrary.entries());
-    
+
     if(parent != null) {
       expTests.addAll(parent.getAllExpTests());
     }
-    
+
     return expTests;
   }
-  
+
   public ExpTest getExpTest(String name) {
     ExpTest t = expTestLibrary.getExpTest(name);
     if(t != null) {
@@ -140,14 +140,14 @@ public class Context extends ScopeMap<String, Object> {
   public void registerExpTest(ExpTest t) {
     expTestLibrary.addExpTest(t);
   }
-  
+
   public Collection<Filter> getAllFilters() {
     List<Filter> filters = new ArrayList<>(filterLibrary.entries());
-    
+
     if(parent != null) {
       filters.addAll(parent.getAllFilters());
     }
-    
+
     return filters;
   }
 
@@ -161,11 +161,11 @@ public class Context extends ScopeMap<String, Object> {
     }
     return null;
   }
-  
+
   public void registerFilter(Filter f) {
     filterLibrary.addFilter(f);
   }
-  
+
   public ELFunctionDefinition getFunction(String name) {
     ELFunctionDefinition f = functionLibrary.getFunction(name);
     if(f != null) {
@@ -176,31 +176,31 @@ public class Context extends ScopeMap<String, Object> {
     }
     return null;
   }
-  
+
   public Collection<ELFunctionDefinition> getAllFunctions() {
     List<ELFunctionDefinition> fns = new ArrayList<>(functionLibrary.entries());
-    
+
     if(parent != null) {
       fns.addAll(parent.getAllFunctions());
     }
 
     return fns;
   }
-  
+
   public void registerFunction(ELFunctionDefinition f) {
     functionLibrary.addFunction(f);
   }
-  
+
   public Collection<Tag> getAllTags() {
     List<Tag> tags = new ArrayList<>(tagLibrary.entries());
-    
+
     if(parent != null) {
       tags.addAll(parent.getAllTags());
     }
-    
+
     return tags;
   }
-  
+
   public Tag getTag(String name) {
     Tag t = tagLibrary.getTag(name);
     if(t != null) {
@@ -211,9 +211,9 @@ public class Context extends ScopeMap<String, Object> {
     }
     return null;
   }
-  
+
   public void registerTag(Tag t) {
     tagLibrary.addTag(t);
   }
-  
+
 }

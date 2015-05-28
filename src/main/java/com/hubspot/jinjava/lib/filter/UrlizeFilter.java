@@ -45,19 +45,19 @@ public class UrlizeFilter implements Filter {
     if(args.length > 0) {
       trimUrlLimit = NumberUtils.toInt(args[0], Integer.MAX_VALUE);
     }
-    
+
     String fmt = "<a href=\"%s\"";
-    
+
     boolean nofollow = false;
     if(args.length > 1) {
       nofollow = BooleanUtils.toBoolean(args[1]);
     }
-    
+
     String target = "";
     if(args.length > 2) {
       target = args[2];
     }
-    
+
     if(nofollow) {
       fmt += " rel=\"nofollow\"";
     }
@@ -65,22 +65,22 @@ public class UrlizeFilter implements Filter {
     if(StringUtils.isNotBlank(target)) {
       fmt += " target=\"" + target + "\"";
     }
-    
+
     fmt += ">%s</a>";
-    
+
     while(m.find()) {
       String url = m.group();
       String urlShort = StringUtils.abbreviate(url, trimUrlLimit);
-      
+
       m.appendReplacement(result, String.format(fmt, url, urlShort));
     }
-    
+
     m.appendTail(result);
     return result.toString();
   }
 
   private static final Pattern URL_RE = Pattern.compile(
-      "(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]", 
+      "(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]",
       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
 }

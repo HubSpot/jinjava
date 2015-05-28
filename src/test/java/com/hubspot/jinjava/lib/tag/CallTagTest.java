@@ -20,13 +20,13 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 public class CallTagTest {
 
   JinjavaInterpreter interpreter;
-  
+
   @Before
   public void setup() {
     interpreter = new Jinjava().newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
   }
-  
+
   @After
   public void cleanup() {
     JinjavaInterpreter.popCurrent();
@@ -38,7 +38,7 @@ public class CallTagTest {
     assertThat(dom.select("div h2").text().trim()).isEqualTo("Hello World");
     assertThat(dom.select("div.contents").text().trim()).isEqualTo("This is a simple dialog rendered by using a macro and a call block.");
   }
-  
+
   private String fixture(String name) {
     try {
       return Resources.toString(Resources.getResource(String.format("tags/calltag/%s.jinja", name)), StandardCharsets.UTF_8);
@@ -46,5 +46,5 @@ public class CallTagTest {
       throw Throwables.propagate(e);
     }
   }
-  
+
 }

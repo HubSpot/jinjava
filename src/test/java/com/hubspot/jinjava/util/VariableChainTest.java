@@ -24,7 +24,7 @@ public class VariableChainTest {
     public String getBarFoo() {
       return bar;
     }
-    
+
     public String getBarFoo1() {
       return bar;
     }
@@ -49,7 +49,7 @@ public class VariableChainTest {
   public void multiWordNumberSnakeCase() {
     assertThat(new VariableChain(Lists.newArrayList("bar_foo_1"), new Foo("a")).resolve()).isEqualTo("a");
   }
-  
+
   @Test
   public void triesBeanMethodFirst() {
     assertThat(new VariableChain(Lists.newArrayList("year"), ZonedDateTime.parse("2013-09-19T12:12:12+00:00")).resolve().toString()).isEqualTo("2013");

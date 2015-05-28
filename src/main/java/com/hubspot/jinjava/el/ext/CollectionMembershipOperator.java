@@ -20,7 +20,7 @@ public class CollectionMembershipOperator extends SimpleOperator {
     if(o2 == null) {
       return false;
     }
-    
+
     if(CharSequence.class.isAssignableFrom(o2.getClass())) {
       return StringUtils.contains((CharSequence) o2, Objects.toString(o1, ""));
     }
@@ -28,7 +28,7 @@ public class CollectionMembershipOperator extends SimpleOperator {
     if(Collection.class.isAssignableFrom(o2.getClass())) {
       return ((Collection<?>) o2).contains(o1);
     }
-    
+
     return false;
   }
 
@@ -40,5 +40,5 @@ public class CollectionMembershipOperator extends SimpleOperator {
       return new AstBinary(children[0], children[1], OP);
     }
   };
- 
+
 }

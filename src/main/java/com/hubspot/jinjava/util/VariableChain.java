@@ -52,11 +52,11 @@ public class VariableChain {
   }
 
   private static final ConcurrentMap<String, Method> METHOD_CACHE = Maps.newConcurrentMap();
-  
+
   private Object resolveInternal(String name) {
     Class<?> clazz = value.getClass();
     Method getter = findGetterMethodCached(clazz, name);
-    
+
     if(getter != null && getter != NULL_METHOD) {
       try {
         return getter.invoke(value);
@@ -64,7 +64,7 @@ public class VariableChain {
         ENGINE_LOG.error("resolve variable trigger error.", e);
       }
     }
-    
+
     // map
     if (value instanceof Map) {
       Map<?, ?> map = (Map<?, ?>) value;
@@ -92,10 +92,10 @@ public class VariableChain {
 
   private Method findGetterMethodCached(Class<?> clazz, String name) {
     Method m = METHOD_CACHE.get(clazz.getName() + ":" + name);
-    
+
     if(m == null) {
       m = findGetterMethod(clazz, name);
-      
+
       if(m != null) {
         METHOD_CACHE.put(clazz.getName() + ":" + name, m);
       }
@@ -114,7 +114,7 @@ public class VariableChain {
       throw Throwables.propagate(e);
     }
   }
-  
+
   private Method findGetterMethod(Class<?> clazz, String name) {
     String transformedName = transformName(name);
 
@@ -123,7 +123,7 @@ public class VariableChain {
         Method m = clazz.getMethod(prefix + transformedName);
         m.setAccessible(true);
         return m;
-      } catch (NoSuchMethodException | SecurityException e) { 
+      } catch (NoSuchMethodException | SecurityException e) {
         /* no-op */
       }
     }

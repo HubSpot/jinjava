@@ -14,13 +14,13 @@ public class ReplaceFilterTest {
 
   JinjavaInterpreter interpreter;
   ReplaceFilter filter;
-  
+
   @Before
   public void setup() {
     interpreter = new Jinjava().newInterpreter();
     filter = new ReplaceFilter();
   }
-  
+
   @Test(expected=InterpretException.class)
   public void expectsAtLeast2Args() {
     filter.filter("foo", interpreter);
@@ -30,15 +30,15 @@ public class ReplaceFilterTest {
   public void expectsFilterVar() {
     filter.filter(null, interpreter, "foo", "bar");
   }
-  
+
   @Test
   public void replaceString() {
     assertThat(filter.filter("hello world", interpreter, "hello", "goodbye")).isEqualTo("goodbye world");
   }
-  
+
   @Test
   public void replaceWithCount() {
     assertThat(filter.filter("aaaaargh", interpreter, "a", "d'oh, ", "2")).isEqualTo("d'oh, d'oh, aaargh");
   }
-  
+
 }

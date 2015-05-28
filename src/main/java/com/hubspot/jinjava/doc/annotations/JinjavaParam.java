@@ -14,5 +14,5 @@ public @interface JinjavaParam {
   String type() default "String";
   String desc() default "";
   String defaultValue() default "";
-  
+
 }

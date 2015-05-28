@@ -25,13 +25,13 @@ import com.hubspot.jinjava.tree.TagNode;
 
 /**
  * {% set primary_line_height = primary_font_size_num*1.5 %}
- * 
+ *
  * {% set lw_font_size = "font-size: " ~ lw_font_size_base ~ "px; " %}
  * {% set lw_secondary_font_size = "font-size: " ~ (lw_font_size_base - 2) ~ "px; " %}
  * {% set lw_line_height = "line-height: " ~ lw_font_size_base*1.5 ~ "px; " %}
- * 
+ *
  * @author anysome
- * 
+ *
  */
 @JinjavaDoc(value="Assigns the result of an expression to a variable",
     params={
@@ -63,7 +63,7 @@ public class SetTag implements Tag {
     if(StringUtils.isBlank(expr)) {
       throw new InterpretException("Tag 'set' requires an expression to assign to a var", tagNode.getLineNumber());
     }
-    
+
     Object val = interpreter.resolveELExpression(expr, tagNode.getLineNumber());
     interpreter.getContext().put(var, val);
 

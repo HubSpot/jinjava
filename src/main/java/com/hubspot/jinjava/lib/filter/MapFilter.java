@@ -39,16 +39,16 @@ public class MapFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     ForLoop loop = ObjectIterator.getLoop(var);
-    
+
     if(args.length == 0) {
       throw new InterpretException(getName() + " filter requires name of filter or attribute to apply to given sequence");
     }
-    
+
     String attr = args[0];
     Filter apply = interpreter.getContext().getFilter(attr);
-    
+
     List<Object> result = new ArrayList<>();
-    
+
     while(loop.hasNext()) {
       Object val = loop.next();
       if(apply != null) {
@@ -57,10 +57,10 @@ public class MapFilter implements Filter {
       else {
         val = new VariableChain(Lists.newArrayList(attr), val).resolve();
       }
-      
+
       result.add(val);
     }
-    
+
     return result;
   }
 

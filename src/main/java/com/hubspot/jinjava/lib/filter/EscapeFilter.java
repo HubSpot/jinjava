@@ -41,7 +41,7 @@ public class EscapeFilter implements Filter {
 
   private static final String[] TO_REPLACE = new String[]{SAMP, SGT, SLT, "'", "\""};
   private static final String[] REPLACE_WITH = new String[]{BAMP, BGT, BLT, BSQ, BDQ};
-  
+
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
     if (object instanceof String) {

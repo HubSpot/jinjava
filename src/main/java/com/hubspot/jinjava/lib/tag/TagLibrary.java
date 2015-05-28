@@ -45,7 +45,7 @@ public class TagLibrary extends SimpleLibrary<Tag> {
         SetTag.class,
         UnlessTag.class);
   }
-  
+
   public Tag getTag(String tagName) {
     return fetch(tagName);
   }
@@ -57,10 +57,10 @@ public class TagLibrary extends SimpleLibrary<Tag> {
   @Override
   public void register(Tag t) {
     super.register(t);
-    
+
     if(t.getEndTagName() != null) {
       register(t.getEndTagName(), new EndTag(t));
     }
   }
-  
+
 }

@@ -21,7 +21,7 @@ import java.util.Objects;
 public final class ObjectValue {
 
   private ObjectValue(){}
-  
+
   public static String printable(Object variable) {
     return Objects.toString(variable, "");
   }

@@ -34,7 +34,7 @@ public class SetTagTest {
 
   Context context;
   JinjavaInterpreter interpreter;
-  
+
   @Before
   public void setup() {
     interpreter = new Jinjava().newInterpreter();
@@ -46,7 +46,7 @@ public class SetTagTest {
     TagNode tagNode = (TagNode) fixture("set-val");
     assertThat(tag.interpret(tagNode, interpreter)).isEqualTo("");
   }
-  
+
   @Test
   public void itAssignsValToVar() throws Exception {
     TagNode tagNode = (TagNode) fixture("set-val");
@@ -70,20 +70,20 @@ public class SetTagTest {
     Map<String, Object> fonts = new HashMap<>();
     fonts.put("size", 42);
     fonts.put("family", "fontfam");
-    
+
     context.put("colors", colors);
     context.put("fonts", fonts);
     context.put("padding", 123);
-    
+
     TagNode tagNode = (TagNode) fixture("set-complex-dict");
     tag.interpret(tagNode, interpreter);
-    
+
     Map<String, Object> dict = (Map<String, Object>) interpreter.resolveObject("styles", -1);
     assertThat(dict).contains(
-        entry("heading", "color:bluecolor;text-shadow:2px 2px 1px rgba(0,0,0,.1);font-family:fontfam"), 
+        entry("heading", "color:bluecolor;text-shadow:2px 2px 1px rgba(0,0,0,.1);font-family:fontfam"),
         entry("module", "background:#ffffff;padding:123px;border:1px solid 10"));
   }
-  
+
   @Test
   public void itConcatsStringsInExprs() throws Exception {
     context.put("lw_font_size_base", 42);
@@ -91,7 +91,7 @@ public class SetTagTest {
     tag.interpret(tagNode, interpreter);
     assertThat(interpreter.resolveObject("lw_font_size", -1)).isEqualTo("font-size: 42px; ");
   }
-  
+
   @Test
   public void itConcatsStringsWithNestedExprs() throws Exception {
     context.put("lw_font_size_base", 10);
@@ -99,7 +99,7 @@ public class SetTagTest {
     tag.interpret(tagNode, interpreter);
     assertThat(interpreter.resolveObject("lw_secondary_font_size", -1)).isEqualTo("font-size: 8px; ");
   }
-  
+
   @Test
   public void itSupportsExpressionsWithFilters() throws Exception {
     context.put("max_size", "470");
@@ -107,39 +107,39 @@ public class SetTagTest {
     tag.interpret(tagNode, interpreter);
     assertThat(interpreter.resolveObject("ie_max_size", -1)).isEqualTo(440L);
   }
-  
+
   @Test
   public void itSupportsArraySyntax() throws Exception {
     context.put("i_am_seven", 7L);
     TagNode tagNode = (TagNode) fixture("set-array");
     tag.interpret(tagNode, interpreter);
-    
+
     List<Object> result = (List<Object>) interpreter.resolveObject("the_list", -1);
     assertThat(result).containsExactly(1L, 2L, 3L, 7L);
   }
-  
+
   @Test
   public void itSupportsDictionarySyntax() throws Exception {
     context.put("i_am_seven", 7L);
     context.put("the_list", Lists.newArrayList(1L, 2L, 3L));
     TagNode tagNode = (TagNode) fixture("set-dictionary");
     tag.interpret(tagNode, interpreter);
-    
+
     Map<String, Object> result = (Map<String, Object>) interpreter.resolveObject("the_dictionary", -1);
     assertThat(result).contains(entry("seven", 7L));
   }
-  
+
   @Test
   public void itSupportsListAppendFunc() throws Exception {
     context.put("show_count", Lists.newArrayList("foo"));
     context.put("show", "bar");
     TagNode tagNode = (TagNode) fixture("set-list-append");
     tag.interpret(tagNode, interpreter);
-    
+
     List<String> thelist = (List<String>) context.get("show_count");
     assertThat(thelist).containsExactly("foo", "bar");
   }
-  
+
   private Node fixture(String name) {
     try {
       return new TreeParser(interpreter, Resources.toString(

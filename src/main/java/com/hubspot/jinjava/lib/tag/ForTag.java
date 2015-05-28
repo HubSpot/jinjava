@@ -35,11 +35,11 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 /**
  * {% for a in b|f1:d,c %}
- * 
+ *
  * {% for key, value in my_dict %}
- * 
+ *
  * @author anysome
- * 
+ *
  */
 @JinjavaDoc(value="outputs the inner content for each item in the given iterable")
 public class ForTag implements Tag {
@@ -52,12 +52,12 @@ public class ForTag implements Tag {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     List<String> helper = new HelperStringTokenizer(tagNode.getHelpers()).splitComma(true).allTokens();
-    
+
     List<String> loopVars = Lists.newArrayList();
     int inPos = 0;
     while(inPos < helper.size()) {
       String val = helper.get(inPos);
-      
+
       if("in".equals(val)) {
         break;
       }
@@ -66,11 +66,11 @@ public class ForTag implements Tag {
         inPos++;
       }
     }
-    
+
     if(inPos >= helper.size()) {
       throw new InterpretException("Tag 'for' expects valid 'in' clause, got: " + tagNode.getHelpers(), tagNode.getLineNumber());
     }
-    
+
     String loopExpr = StringUtils.join(helper.subList(inPos + 1, helper.size()), ",");
     Object collection = interpreter.resolveELExpression(loopExpr, tagNode.getLineNumber());
     ForLoop loop = ObjectIterator.getLoop(collection);
@@ -78,11 +78,11 @@ public class ForTag implements Tag {
     interpreter.enterScope();
     try {
       interpreter.getContext().put(LOOP, loop);
-  
+
       StringBuilder buff = new StringBuilder();
       while (loop.hasNext()) {
         Object val = loop.next();
-        
+
         // set item variables
         if(loopVars.size() == 1) {
           interpreter.getContext().put(loopVars.get(0), val);
@@ -92,14 +92,14 @@ public class ForTag implements Tag {
             if(Map.Entry.class.isAssignableFrom(val.getClass())) {
               Map.Entry<String, Object> entry = (Entry<String, Object>) val;
               Object entryVal = null;
-              
+
               if("key".equals(loopVar)) {
                 entryVal = entry.getKey();
               }
               else if("value".equals(loopVar)) {
                 entryVal = entry.getValue();
               }
-              
+
               interpreter.getContext().put(loopVar, entryVal);
             }
             else {
@@ -117,7 +117,7 @@ public class ForTag implements Tag {
             }
           }
         }
-  
+
         for (Node node : tagNode.getChildren()) {
           buff.append(node.render(interpreter));
         }

@@ -9,7 +9,7 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
 
 /**
  * Unless is a conditional just like 'if' but works on the inverse logic.
- * 
+ *
  * {% unless x &lt; 0 %} x is greater than zero {% endunless %}
  *
  *
@@ -26,12 +26,12 @@ public class UnlessTag extends IfTag {
   public String getName() {
     return "unless";
   }
-  
+
   @Override
   public String getEndTagName() {
     return "endunless";
   }
-  
+
   @Override
   protected boolean evaluateIfElseTagNode(TagNode tagNode, JinjavaInterpreter interpreter) {
     if(tagNode.getName().equals("unless")) {
@@ -40,5 +40,5 @@ public class UnlessTag extends IfTag {
 
     return super.evaluateIfElseTagNode(tagNode, interpreter);
   }
-  
+
 }

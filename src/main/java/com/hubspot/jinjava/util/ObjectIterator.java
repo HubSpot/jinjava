@@ -25,7 +25,7 @@ import com.google.common.collect.Iterators;
 public final class ObjectIterator {
 
   private ObjectIterator() {}
-  
+
   @SuppressWarnings("unchecked")
   public static ForLoop getLoop(Object obj) {
     if (obj == null) {

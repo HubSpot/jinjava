@@ -26,7 +26,7 @@ public class Variable {
   private static final Splitter DOT_SPLITTER = Splitter.on('.');
 
   private JinjavaInterpreter interpreter;
-  
+
   private String name;
   private List<String> chainList;
 

@@ -33,31 +33,31 @@ public class PrettyPrintFilter implements Filter {
     if(var == null) {
       return "null";
     }
-    
+
     String varStr = null;
-    
+
     if(var instanceof String || var instanceof Number || var instanceof PyishDate || var instanceof Iterable || var instanceof Map) {
       varStr = Objects.toString(var);
     }
     else {
       varStr = objPropsToString(var);
     }
-    
+
     return StringEscapeUtils.escapeHtml4("{% raw %}(" + var.getClass().getSimpleName() + ": " + varStr + "){% endraw %}");
   }
-  
+
   private String objPropsToString(Object var) {
     List<String> props = new LinkedList<>();
-    
+
     try {
       BeanInfo beanInfo = Introspector.getBeanInfo(var.getClass());
-      
+
       for(PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
         try {
           if(pd.getPropertyType().equals(Class.class)) {
             continue;
           }
-          
+
           Method readMethod = pd.getReadMethod();
           if(readMethod != null && !readMethod.getDeclaringClass().equals(Object.class)) {
             props.add(pd.getName() + "=" + readMethod.invoke(var));
@@ -67,11 +67,11 @@ public class PrettyPrintFilter implements Filter {
           ENGINE_LOG.error("Error reading bean value", e);
         }
       }
-      
+
     } catch (IntrospectionException e) {
       ENGINE_LOG.error("Error inspecting bean", e);
     }
-    
+
     return '{' + StringUtils.join(props, ", ") + '}';
   }
 

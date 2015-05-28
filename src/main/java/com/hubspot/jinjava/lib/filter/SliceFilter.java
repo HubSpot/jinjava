@@ -43,11 +43,11 @@ public class SliceFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     ForLoop loop = ObjectIterator.getLoop(var);
-    
+
     if(args.length == 0) {
       throw new InterpretException(getName() + " requires number of slices argument", interpreter.getLineNumber());
     }
-    
+
     int slices = NumberUtils.toInt(args[0], 3);
     return Iterators.paddedPartition(loop, slices);
   }

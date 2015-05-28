@@ -7,7 +7,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 /**
  * Return a titlecased version of the value. I.e. words will start with uppercase letters, all remaining characters are lowercase.
- * 
+ *
  * @author jstehler
  */
 @JinjavaDoc("Return a titlecased version of the value. I.e. words will start with uppercase letters, all remaining characters are lowercase.")

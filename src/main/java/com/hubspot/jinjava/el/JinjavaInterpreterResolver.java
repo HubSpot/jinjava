@@ -35,13 +35,13 @@ import com.hubspot.jinjava.util.VariableChain;
 import de.odysseus.el.util.SimpleResolver;
 
 public class JinjavaInterpreterResolver extends SimpleResolver {
-  
+
   private JinjavaInterpreter interpreter;
-  
+
   public JinjavaInterpreterResolver(JinjavaInterpreter interpreter) {
     this.interpreter = interpreter;
   }
-  
+
   @Override
   public Object invoke(ELContext context, Object base, Object method,
       Class<?>[] paramTypes, Object[] params) {
@@ -51,20 +51,20 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       context.setPropertyResolved(true);
       return ((AbstractCallableMethod) methodProperty).evaluate(params);
     }
-    
+
     // TODO map named params to special arg in fn to invoke
     return super.invoke(context, base, method, paramTypes, params);
   }
-  
+
   @Override
   public Object getValue(ELContext context, Object base, Object prop) {
     return getValue(context, base, prop, true);
   }
-  
+
   private Object getValue(ELContext context, Object base, Object prop, boolean errOnUnknownProp) {
     String property = Objects.toString(prop, "");
     Object value = null;
-    
+
     if(ExtendedParser.INTERPRETER.equals(prop)) {
       value = interpreter;
     }
@@ -89,47 +89,47 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
         }
       }
     }
-    
+
     context.setPropertyResolved(true);
     return wrap(interpreter, value);
   }
-  
+
   @SuppressWarnings("unchecked")
   public static Object wrap(JinjavaInterpreter interpreter, Object value) {
     if(value == null) {
       return null;
     }
-    
+
     if(value instanceof PyWrapper) {
       return value;
     }
-    
+
     if(List.class.isAssignableFrom(value.getClass())) {
       return new PyList((List<Object>) value);
     }
     if(Map.class.isAssignableFrom(value.getClass())) {
       return new PyMap((Map<String, Object>) value);
     }
-    
+
     if(Date.class.isAssignableFrom(value.getClass())) {
       return new PyishDate(localizeDateTime(interpreter, ZonedDateTime.ofInstant(Instant.ofEpochMilli(((Date) value).getTime()), ZoneOffset.UTC)));
     }
     if(ZonedDateTime.class.isAssignableFrom(value.getClass())) {
       return new PyishDate(localizeDateTime(interpreter, (ZonedDateTime) value));
     }
-    
+
     if(FormattedDate.class.isAssignableFrom(value.getClass())) {
       return formattedDateToString(interpreter, (FormattedDate) value);
     }
-    
+
     return value;
   }
-  
+
   private static ZonedDateTime localizeDateTime(JinjavaInterpreter interpreter, ZonedDateTime dt) {
     ENGINE_LOG.debug("Using timezone: {} to localize datetime: {}", interpreter.getConfig().getTimeZone(), dt);
     return dt.withZoneSameInstant(interpreter.getConfig().getTimeZone());
   }
-  
+
   private static String formattedDateToString(JinjavaInterpreter interpreter, FormattedDate d) {
     DateTimeFormatter formatter = getFormatter(interpreter, d).withLocale(getLocale(interpreter, d));
     return formatter.format(localizeDateTime(interpreter, d.getDate()));
@@ -158,5 +158,5 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
     return Locale.US;
   }
-  
+
 }

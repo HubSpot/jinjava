@@ -12,13 +12,13 @@ public @interface JinjavaDoc {
 
   String value() default "";
   JinjavaParam[] params() default {};
-  
+
   JinjavaSnippet[] snippets() default {};
-  
+
   JinjavaMetaValue[] meta() default {};
-  
+
   String aliasOf() default "";
   boolean deprecated() default false;
   boolean hidden() default false;
-  
+
 }

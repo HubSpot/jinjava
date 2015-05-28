@@ -10,7 +10,7 @@ import de.odysseus.el.util.SimpleContext;
 public class JinjavaELContext extends SimpleContext {
 
   private MacroFunctionMapper functionMapper;
-  
+
   public JinjavaELContext() {
     super();
   }
@@ -26,7 +26,7 @@ public class JinjavaELContext extends SimpleContext {
     }
     return functionMapper;
   }
-  
+
   @Override
   public void setFunction(String prefix, String localName, Method method) {
     if(functionMapper == null) {
@@ -34,5 +34,5 @@ public class JinjavaELContext extends SimpleContext {
     }
     functionMapper.setFunction(prefix, localName, method);
   }
-  
+
 }

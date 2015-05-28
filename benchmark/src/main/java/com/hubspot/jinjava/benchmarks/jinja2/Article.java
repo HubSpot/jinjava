@@ -17,14 +17,14 @@ public class Article {
   private String body;
   private Date pubDate;
   private boolean published;
-  
+
   public Article(int id, User user) throws NoSuchAlgorithmException {
     this.id = id;
     this.href = "/article/" + id;
-    
+
     LoremIpsum ipsum = new LoremIpsum();
     SecureRandom rnd = SecureRandom.getInstanceStrong();
-    
+
     this.title = ipsum.getWords(10);
     this.user = user;
     this.body = ipsum.getParagraphs();
@@ -59,5 +59,5 @@ public class Article {
   public boolean isPublished() {
     return published;
   }
-  
+
 }

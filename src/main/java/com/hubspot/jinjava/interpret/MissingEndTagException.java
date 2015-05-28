@@ -7,7 +7,7 @@ public class MissingEndTagException extends TemplateSyntaxException {
 
   private final String endTag;
   private final String startDefinition;
-  
+
   public MissingEndTagException(String endTag, String startDefintion, int lineNumber) {
     super(startDefintion, "Missing end tag: " + endTag + " for tag defined as: " + StringUtils.abbreviate(startDefintion, 255), lineNumber);
     this.endTag = endTag;
@@ -17,7 +17,7 @@ public class MissingEndTagException extends TemplateSyntaxException {
   public String getEndTag() {
     return endTag;
   }
-  
+
   public String getStartDefinition() {
     return startDefinition;
   }

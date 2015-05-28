@@ -16,7 +16,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Return a copy of the passed string, each line indented by 4 spaces. The first line is not indented." 
+    value="Return a copy of the passed string, each line indented by 4 spaces. The first line is not indented."
         + "If you want to change the number of spaces or indent the first line too you can pass additional "
         + "parameters to the filter",
     params={
@@ -41,12 +41,12 @@ public class IndentFilter implements Filter {
     if(args.length > 0) {
       width = NumberUtils.toInt(args[0], 4);
     }
-    
+
     boolean indentFirst = false;
     if(args.length > 1) {
       indentFirst = BooleanUtils.toBoolean(args[1]);
     }
-    
+
     List<String> indentedLines = new ArrayList<>();
     for(String line : NEWLINE_SPLITTER.split(Objects.toString(var, ""))) {
       int thisWidth = indentedLines.size() == 0 && !indentFirst ? 0 : width;
@@ -58,5 +58,5 @@ public class IndentFilter implements Filter {
 
   private static final Splitter NEWLINE_SPLITTER = Splitter.on('\n');
   private static final Joiner NEWLINE_JOINER = Joiner.on('\n');
-  
+
 }

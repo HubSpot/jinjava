@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.hubspot</groupId>
     <artifactId>basepom</artifactId>
-    <version>10.2</version>
+    <version>10.3</version>
   </parent>
 
   <groupId>com.hubspot.jinjava</groupId>
@@ -29,6 +29,7 @@
 
   <properties>
     <project.build.targetJdk>1.8</project.build.targetJdk>
+    <basepom.check.skip-findbugs>true</basepom.check.skip-findbugs>
   </properties>
 
   <dependencies>

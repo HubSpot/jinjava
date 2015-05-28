@@ -24,7 +24,7 @@ public class RawTagTest {
 
   JinjavaInterpreter interpreter;
   RawTag tag;
-  
+
   @Before
   public void setup() {
     interpreter = new Jinjava().newInterpreter();
@@ -41,29 +41,29 @@ public class RawTagTest {
   public void renderTags() {
     List<Node> tags = fixtures("tags");
     String result = "";
-    
+
     for(Node n : tags) {
       TagNode tn = (TagNode) n;
       result += tag.interpret(tn, interpreter);
     }
-    
+
     assertThat(result).isEqualTo("{{ if list.123 }}foo");
   }
-  
+
   @Test
   public void renderHublSnippet() {
     TagNode tagNode = fixture("hubl");
     assertThat(StringUtils.normalizeSpace(tag.interpret(tagNode, interpreter)))
       .isEqualTo("<h1>Blog Posts</h1> <ul> {% for content in contents %} <li>{{ content.name|title }}</li> {% endfor %} </ul>");
   }
-  
+
   @Test
   public void itDoesntProcessUnknownTagsWithinARawBlock() {
     TagNode tagNode = fixture("unknowntags");
     assertThat(StringUtils.normalizeSpace(tag.interpret(tagNode, interpreter)))
       .isEqualTo("{% footag %}{% bartag %}");
   }
-  
+
   @Test
   public void itWorksWithInvalidSyntaxWithinRawBlock() {
     TagNode tagNode = fixture("invalidsyntax");
@@ -86,14 +86,14 @@ public class RawTagTest {
     assertThat(StringUtils.normalizeSpace(tag.interpret(tagNode, interpreter)))
       .isEqualTo("this is {% invalid and wrong");
   }
-  
+
   @Test
   public void itDoesntProcessJinjaCommentsWithinARawBlock() {
     TagNode tagNode = fixture("comment");
     assertThat(StringUtils.normalizeSpace(tag.interpret(tagNode, interpreter)))
       .contains("{{#each people}}");
   }
-  
+
   private TagNode fixture(String name) {
     return (TagNode) fixtures(name).getFirst();
   }
@@ -107,5 +107,5 @@ public class RawTagTest {
       throw Throwables.propagate(e);
     }
   }
-  
+
 }

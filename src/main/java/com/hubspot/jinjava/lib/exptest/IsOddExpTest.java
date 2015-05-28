@@ -18,7 +18,7 @@ public class IsOddExpTest implements ExpTest {
     if(var == null || !Number.class.isAssignableFrom(var.getClass())) {
       return false;
     }
-    
+
     return ((Number) var).intValue() % 2 != 0;
   }
 

@@ -5,13 +5,13 @@ public class JinjavaDocSnippet {
   private final String desc;
   private final String code;
   private final String output;
-  
+
   public JinjavaDocSnippet(String desc, String code, String output) {
     this.desc = desc;
     this.code = code;
     this.output = output;
   }
-  
+
   public String getDesc() {
     return desc;
   }
@@ -21,5 +21,5 @@ public class JinjavaDocSnippet {
   public String getOutput() {
     return output;
   }
-  
+
 }

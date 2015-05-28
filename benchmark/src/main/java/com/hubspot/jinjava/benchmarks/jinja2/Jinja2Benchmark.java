@@ -29,29 +29,29 @@ import com.hubspot.jinjava.tree.Node;
 
 @State(Scope.Benchmark)
 public class Jinja2Benchmark {
-  
+
   public String complexTemplate;
   public Map<String, ?> complexBindings;
-  
+
   public Jinjava jinjava;
-  
+
   public JinjavaInterpreter interpreter;
   public Node precompiledTemplate;
-  
+
   @SuppressWarnings("unchecked")
   @Setup
   public void setup() throws IOException, NoSuchAlgorithmException {
     ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
     logger.setLevel(Level.WARN);
-    
+
     jinjava = new Jinjava();
     interpreter = jinjava.newInterpreter();
-    
+
     FileLocator locator = new FileLocator(new File("jinja2/examples/rwbench/jinja"));
     final String helpersTemplate = locator.getString("helpers.html", StandardCharsets.UTF_8, interpreter);
     final String indexTemplate = locator.getString("index.html", StandardCharsets.UTF_8, interpreter);
     final String layoutTemplate = locator.getString("layout.html", StandardCharsets.UTF_8, interpreter);
-    
+
     jinjava.setResourceLocator(new ResourceLocator() {
       @Override
       public String getString(String fullName, Charset encoding, JinjavaInterpreter interpreter) throws IOException {
@@ -66,11 +66,11 @@ public class Jinja2Benchmark {
         return null;
       }
     });
-    
+
     complexTemplate = indexTemplate;
     // for tag doesn't support postfix conditional filtering
     complexTemplate = complexTemplate.replaceAll(" if article.published", "");
-    
+
     List<User> users = Lists.newArrayList(new User("John Doe"), new User("Jane Doe"), new User("Peter Somewhat"));
     SecureRandom rnd = SecureRandom.getInstanceStrong();
     List<Article> articles = new ArrayList<>();
@@ -78,16 +78,16 @@ public class Jinja2Benchmark {
       articles.add(new Article(i, users.get(rnd.nextInt(users.size()))));
     }
     List<ArrayList<String>> navigation = Lists.newArrayList(
-        Lists.newArrayList("index", "Index"), 
+        Lists.newArrayList("index", "Index"),
         Lists.newArrayList("about", "About"),
         Lists.newArrayList("foo?bar=1", "Foo with Bar"),
         Lists.newArrayList("foo?bar=2&s=x", "Foo with X"),
         Lists.newArrayList("blah", "Blub Blah"),
         Lists.newArrayList("hehe", "Haha")
     );
-    
+
     complexBindings = ImmutableMap.of("users", users, "articles", articles, "navigation", navigation);
-    
+
     precompiledTemplate = interpreter.parse(complexTemplate);
   }
 
@@ -100,12 +100,12 @@ public class Jinja2Benchmark {
   public String precompiledBenchmark() {
     return interpreter.render(precompiledTemplate, true);
   }
-  
+
   public static void main(String[] args) throws Exception {
     Jinja2Benchmark b = new Jinja2Benchmark();
     b.setup();
     System.out.println(b.realWorldishBenchmark());
     System.out.println(b.precompiledBenchmark());
   }
-  
+
 }

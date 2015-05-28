@@ -22,9 +22,9 @@ import com.google.common.collect.Lists;
 
 /**
  * Whitespace and comma as separator quote to accept them as normal char
- * 
+ *
  * @author fangchq
- * 
+ *
  */
 public class HelperStringTokenizer extends AbstractIterator<String> {
 
@@ -44,7 +44,7 @@ public class HelperStringTokenizer extends AbstractIterator<String> {
 
   /**
    * use Comma as token split or not true use it; false don't use it.
-   * 
+   *
    * @param onOrOff flag to indicate whether or not to split on commas
    * @return this instance for method chaining
    */
@@ -63,7 +63,7 @@ public class HelperStringTokenizer extends AbstractIterator<String> {
         return token;
       }
     }
-    
+
     endOfData();
     return null;
   }

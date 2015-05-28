@@ -18,19 +18,19 @@ public class TruncateHtmlFilterTest {
 
   TruncateHtmlFilter filter;
   JinjavaInterpreter interpreter;
-  
+
   @Before
   public void setup() {
     filter = new TruncateHtmlFilter();
     interpreter = mock(JinjavaInterpreter.class);
   }
-  
+
   @Test
   public void itPreservesEndTagsWhenTruncatingWithinTagContent() {
     String result = (String) filter.filter(fixture("filter/truncatehtml/long-content-with-tags.html"), interpreter, "32");
     assertThat(result).isEqualTo("<h1>HTML Ipsum Presents</h1> \n<p><strong>Pellentesque...</strong></p>");
   }
-  
+
   private static String fixture(String name) {
     try {
       return Resources.toString(Resources.getResource(name), StandardCharsets.UTF_8);

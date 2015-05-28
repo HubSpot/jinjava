@@ -22,25 +22,25 @@ public class CascadingResourceLocatorTest {
   @Mock JinjavaInterpreter interpreter;
 
   CascadingResourceLocator locator;
-  
+
   @Before
   public void setup() {
     locator = new CascadingResourceLocator(first, second);
   }
-  
+
   @Test
   public void itUsesResponseFromFirstIfPresent() throws Exception {
     when(first.getString("foo", StandardCharsets.UTF_8, interpreter)).thenReturn("bar");
     assertThat(locator.getString("foo", StandardCharsets.UTF_8, interpreter)).isEqualTo("bar");
   }
-  
+
   @Test
   public void itUsesResponseFromSecondWhenNotFoundOnFirst() throws Exception {
     when(first.getString("foo", StandardCharsets.UTF_8, interpreter)).thenThrow(ResourceNotFoundException.class);
     when(second.getString("foo", StandardCharsets.UTF_8, interpreter)).thenReturn("bar");
     assertThat(locator.getString("foo", StandardCharsets.UTF_8, interpreter)).isEqualTo("bar");
   }
-  
+
   @Test(expected=ResourceNotFoundException.class)
   public void notFoundWhenAllLocatorsReturnNotFound() throws Exception {
     when(first.getString("foo", StandardCharsets.UTF_8, interpreter)).thenThrow(ResourceNotFoundException.class);

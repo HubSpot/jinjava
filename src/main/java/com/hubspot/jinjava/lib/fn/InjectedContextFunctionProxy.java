@@ -15,15 +15,15 @@ import javassist.bytecode.AccessFlag;
 import com.google.common.base.Throwables;
 
 public class InjectedContextFunctionProxy {
-  
-  public static ELFunctionDefinition defineProxy(String namespace, String name, Method m, Object injectedInstance) 
+
+  public static ELFunctionDefinition defineProxy(String namespace, String name, Method m, Object injectedInstance)
   {
     try {
       ClassPool pool = ClassPool.getDefault();
-      
+
       String ccName = InjectedContextFunctionProxy.class.getSimpleName() + "$$" + namespace + "$$" + name;
       Class<?> injectedClass = null;
-      
+
       try {
         injectedClass = InjectedContextFunctionProxy.class.getClassLoader().loadClass(ccName);
       }
@@ -33,13 +33,13 @@ public class InjectedContextFunctionProxy {
 
         CtField injectedField = CtField.make(String.format("public static %s injectedField;",  m.getDeclaringClass().getName()), cc);
         cc.addField(injectedField);
-        
+
         CtField injectedMethod = CtField.make(String.format("public static %s delegate;", Method.class.getName()), cc);
         cc.addField(injectedMethod);
-        
+
         CtMethod ctMethod = mc.getDeclaredMethod(m.getName());
-        
-        CtMethod invokeMethod = CtNewMethod.make(Modifier.PUBLIC | Modifier.STATIC, ctMethod.getReturnType(), "invoke", 
+
+        CtMethod invokeMethod = CtNewMethod.make(Modifier.PUBLIC | Modifier.STATIC, ctMethod.getReturnType(), "invoke",
             ctMethod.getParameterTypes(), ctMethod.getExceptionTypes(), null, cc);
         invokeMethod.setBody("{ return $proceed($$); }", "injectedField", m.getName());
 
@@ -49,16 +49,16 @@ public class InjectedContextFunctionProxy {
             break;
           }
         }
-        
+
         cc.addMethod(invokeMethod);
 
         injectedClass = cc.toClass();
         cc.detach();
       }
-  
+
       injectedClass.getField("injectedField").set(null, injectedInstance);
       injectedClass.getField("delegate").set(null, m);
-      
+
       Method staticMethod = null;
       for(Method m1 : injectedClass.getMethods()) {
         if(m1.getName().equals("invoke")) {
@@ -66,7 +66,7 @@ public class InjectedContextFunctionProxy {
           break;
         }
       }
-      
+
       return new ELFunctionDefinition(namespace, name, staticMethod);
     }
     catch(Exception e) {
@@ -74,5 +74,5 @@ public class InjectedContextFunctionProxy {
       throw Throwables.propagate(e);
     }
   }
-  
+
 }

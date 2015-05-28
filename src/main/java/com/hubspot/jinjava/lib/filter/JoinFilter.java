@@ -45,28 +45,28 @@ public class JoinFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     List<String> vals = new ArrayList<>();
-    
+
     String separator = "";
     if(args.length > 0) {
       separator = args[0];
     }
-    
+
     String attr = null;
     if(args.length > 1) {
       attr = args[1];
     }
-    
+
     ForLoop loop = ObjectIterator.getLoop(var);
     while(loop.hasNext()) {
       Object val = loop.next();
-      
+
       if(attr != null) {
         val = new VariableChain(Lists.newArrayList(attr), val).resolve();
       }
-      
+
       vals.add(Objects.toString(val, ""));
     }
-    
+
     return Joiner.on(separator).join(vals);
   }
 

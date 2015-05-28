@@ -28,7 +28,7 @@ public class UnlessTagTest {
   public void setup() {
     interpreter = new Jinjava().newInterpreter();
     context = interpreter.getContext();
-    
+
     tag = new UnlessTag();
   }
 

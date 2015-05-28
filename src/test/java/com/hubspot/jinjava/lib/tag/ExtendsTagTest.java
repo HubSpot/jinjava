@@ -28,26 +28,26 @@ public class ExtendsTagTest {
   @Before
   public void setup() {
     locator = new ExtendsTagTestResourceLocator();
-    
+
     JinjavaConfig conf = new JinjavaConfig();
     jinjava = new Jinjava(conf);
     jinjava.setResourceLocator(locator);
   }
-  
+
   @Test
   public void singleExtendsTag() throws Exception {
     String result = jinjava.render(locator.fixture("extends-base1.jinja"), new HashMap<String, Object>());
     Document dom = Jsoup.parse(result);
     assertThat(dom.select(".important").get(0).text()).isEqualTo("Welcome on my awesome homepage.");
   }
-  
+
   @Test
   public void nestedExtendsHierarchy() throws Exception {
     String result = jinjava.render(locator.fixture("extends-base2.jinja"), new HashMap<String, Object>());
     Document dom = Jsoup.parse(result);
     assertThat(dom.select(".important").get(0).text()).isEqualTo("foobar");
   }
-  
+
   @Test
   public void parentTemplateImportsVarsUsedInChild() throws Exception {
     Document dom = Jsoup.parse(jinjava.render(locator.fixture("parentvars-child.html"), new HashMap<String, Object>()));
@@ -55,7 +55,7 @@ public class ExtendsTagTest {
     assertThat(dom.select("body").attr("bgcolor")).isEqualTo("#f5f5f5");
     assertThat(dom.select("p.foo").text()).isEqualTo("bar");
   }
-  
+
   @Test
   public void extendsWithSuperCall() throws Exception {
     Document dom = Jsoup.parse(jinjava.render(locator.fixture("super-child.html"), new HashMap<String, Object>()));
@@ -63,7 +63,7 @@ public class ExtendsTagTest {
     assertThat(dom.select(".sidebar p").text()).isEqualTo("this is a sidebar.");
     assertThat(dom.select(".sidebar h3").text()).isEqualTo("Table Of Contents");
   }
-  
+
   private static class ExtendsTagTestResourceLocator implements ResourceLocator {
     @Override
     public String getString(String fullName, Charset encoding, JinjavaInterpreter interpreter) throws IOException {

@@ -24,9 +24,9 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
 
 /**
  * {% cycle a,b,c %} {% cycle a,'b',c as d %} {% cycle d %}
- * 
+ *
  * @author anysome
- * 
+ *
  */
 public class CycleTag implements Tag {
 

@@ -25,9 +25,9 @@ import com.hubspot.jinjava.tree.TagNode;
 
 /**
  * {% ifchange var %}
- * 
+ *
  * @author anysome
- * 
+ *
  */
 @JinjavaDoc(value="outputs the tag contents if the given variable has changed since a prior invocation of this tag")
 public class IfchangedTag implements Tag {

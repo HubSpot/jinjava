@@ -29,7 +29,7 @@ public abstract class Node implements Serializable, Cloneable {
 
   private int level;
   private int lineNumber;
-  
+
   private Node parent = null;
   private LinkedList<Node> children = new LinkedList<Node>();
 
@@ -43,7 +43,7 @@ public abstract class Node implements Serializable, Cloneable {
   public int getLevel() {
     return level;
   }
-  
+
   public Node getParent() {
     return parent;
   }
@@ -55,7 +55,7 @@ public abstract class Node implements Serializable, Cloneable {
   public Token getMaster() {
     return master;
   }
-  
+
   public int getLineNumber() {
     return lineNumber;
   }
@@ -63,7 +63,7 @@ public abstract class Node implements Serializable, Cloneable {
   public LinkedList<Node> getChildren() {
     return children;
   }
-  
+
   public void setChildren(LinkedList<Node> children) {
     this.children = children;
   }
@@ -73,7 +73,7 @@ public abstract class Node implements Serializable, Cloneable {
 
   /**
    * trusty call by TreeParser
-   * 
+   *
    * @param node
    */
   void add(Node node) {
@@ -96,7 +96,7 @@ public abstract class Node implements Serializable, Cloneable {
   public String toTreeString() {
     return toTreeString(0);
   }
-  
+
   public String toTreeString(int level) {
     String prefix = StringUtils.repeat(" ", level * 4) + " ";
     StringBuilder t = new StringBuilder(prefix).append(toString()).append('\n');
@@ -104,12 +104,12 @@ public abstract class Node implements Serializable, Cloneable {
     for(Node n : getChildren()) {
       t.append(n.toTreeString(level + 1));
     }
-    
+
     if(getChildren().size() > 0) {
       t.append(prefix).append("end :: " + toString()).append('\n');
     }
-    
+
     return t.toString();
   }
-  
+
 }

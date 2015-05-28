@@ -44,19 +44,19 @@ public class RoundFilter implements Filter {
       result = new BigDecimal(Objects.toString(var));
     }
     catch(NumberFormatException e) {}
-    
+
     int precision = 0;
     if(args.length > 0) {
       precision = NumberUtils.toInt(args[0]);
     }
-    
+
     String method = "common";
     if(args.length > 1) {
       method = args[1];
     }
 
     RoundingMode roundingMode;
-    
+
     switch(method) {
     case "ceil":
       roundingMode = RoundingMode.CEILING;
@@ -68,7 +68,7 @@ public class RoundFilter implements Filter {
     default:
       roundingMode = RoundingMode.HALF_UP;
     }
-    
+
     return result.setScale(precision, roundingMode);
   }
 

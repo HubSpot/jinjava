@@ -26,12 +26,12 @@ public class UrlEncodeFilter implements Filter {
     if(var == null && args.length == 0) {
       return "";
     }
-    
+
     if(var != null) {
       if(Map.class.isAssignableFrom(var.getClass())) {
         @SuppressWarnings("unchecked")
         Map<Object, Object> dict = (Map<Object, Object>) var;
-        
+
         List<String> paramPairs = new ArrayList<>();
 
         for(Map.Entry<Object, Object> param : dict.entrySet()) {
@@ -39,13 +39,13 @@ public class UrlEncodeFilter implements Filter {
           paramPair.append(urlEncode(Objects.toString(param.getKey())));
           paramPair.append("=");
           paramPair.append(urlEncode(Objects.toString(param.getValue())));
-          
+
           paramPairs.add(paramPair.toString());
         }
-        
+
         return StringUtils.join(paramPairs, "&");
       }
-      
+
       return urlEncode(var.toString());
     }
 
@@ -60,5 +60,5 @@ public class UrlEncodeFilter implements Filter {
       throw Throwables.propagate(e);
     }
   }
-  
+
 }

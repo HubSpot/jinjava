@@ -7,7 +7,7 @@ public class JinjavaPropertyNotResolvedException extends InterpretException {
 
   private final Object base;
   private final String property;
-  
+
   public JinjavaPropertyNotResolvedException(Object base, String property) {
     super("Unable to resolve property: '" + property + "' in " + base);
     this.base = base;
@@ -17,9 +17,9 @@ public class JinjavaPropertyNotResolvedException extends InterpretException {
   public Object getBase() {
     return base;
   }
-  
+
   public String getProperty() {
     return property;
   }
-  
+
 }

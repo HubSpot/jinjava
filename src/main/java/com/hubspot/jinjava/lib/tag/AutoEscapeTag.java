@@ -29,11 +29,11 @@ public class AutoEscapeTag implements Tag {
       interpreter.getContext().put("autoescape", !oldEscapeFlag);
 
       StringBuilder result = new StringBuilder();
-      
+
       for(Node child : tagNode.getChildren()) {
         result.append(child.render(interpreter));
       }
-      
+
       return result.toString();
     }
     finally {

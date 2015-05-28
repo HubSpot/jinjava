@@ -14,7 +14,7 @@ public class OrOperator implements Operator {
     if(bindings.convert(leftResult, Boolean.class)) {
       return leftResult;
     }
-    
+
     return right.eval(bindings, context);
   }
 

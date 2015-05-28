@@ -17,13 +17,13 @@ import com.hubspot.jinjava.Jinjava;
 public class UrlizeFilterTest {
 
   Jinjava jinjava;
-  
+
   @Before
   public void setup() throws Exception {
     jinjava = new Jinjava();
     jinjava.getGlobalContext().put("txt", Resources.toString(Resources.getResource("filter/urlize.txt"), StandardCharsets.UTF_8));
   }
-  
+
   @Test
   public void urlizeText() {
     Document dom = Jsoup.parseBodyFragment(jinjava.render("{{ txt|urlize }}", new HashMap<String, Object>()));
@@ -32,5 +32,5 @@ public class UrlizeFilterTest {
     assertThat(dom.select("a").get(1).attr("href")).isEqualTo("http://yahoo.com");
     assertThat(dom.select("a").get(2).attr("href")).isEqualTo("https://hubspot.com");
   }
-  
+
 }

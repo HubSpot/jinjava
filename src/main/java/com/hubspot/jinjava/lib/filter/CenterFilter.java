@@ -25,12 +25,12 @@ public class CenterFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     String str = Objects.toString(var, "");
-    
+
     int size = 80;
     if(args.length > 0) {
       size = NumberUtils.toInt(args[0], 80);
     }
-    
+
     return StringUtils.center(str, size);
   }
 

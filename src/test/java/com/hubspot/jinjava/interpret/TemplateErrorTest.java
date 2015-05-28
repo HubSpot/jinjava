@@ -20,5 +20,5 @@ public class TemplateErrorTest {
     TemplateError e = TemplateError.fromUnknownProperty(ImmutableMap.of("foo", "bar"), "other", 123);
     assertThat(e.getMessage()).isEqualTo("Cannot resolve property 'other' in '{foo=bar}'");
   }
-  
+
 }

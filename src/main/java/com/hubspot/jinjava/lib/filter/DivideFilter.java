@@ -36,12 +36,10 @@ public class DivideFilter implements Filter {
     if (arg.length != 1) {
       throw new InterpretException("filter multiply expects 1 arg >>> " + arg.length);
     }
-    Object toMul = arg[0];
+    String toMul = arg[0];
     Number num;
-    if (toMul instanceof String) {
-      num = new BigDecimal((String) toMul);
-    } else if (toMul instanceof Number) {
-      num = (Number) toMul;
+    if (toMul != null) {
+      num = new BigDecimal(toMul);
     } else {
       return object;
     }

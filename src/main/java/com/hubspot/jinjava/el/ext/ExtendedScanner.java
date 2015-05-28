@@ -13,15 +13,15 @@ public class ExtendedScanner extends Scanner {
   protected ExtendedScanner(String input) {
     super(input);
   }
-  
+
   @Override
   public Token next() throws ScanException {
     if (getToken() != null) {
       incrPosition(getToken().getSize());
     }
-  
+
     int length = getInput().length();
-        
+
     if (isEval()) {
       while (getPosition() < length && isWhitespace(getInput().charAt(getPosition()))) {
         incrPosition(1);
@@ -29,14 +29,14 @@ public class ExtendedScanner extends Scanner {
     }
 
     Token token = null;
-    
+
     if (getPosition() == length) {
       token = fixed(Symbol.EOF);
     }
     else {
       token = nextToken();
     }
-    
+
     setToken(token);
     return token;
   }
@@ -44,7 +44,7 @@ public class ExtendedScanner extends Scanner {
   protected boolean isWhitespace(char c) {
     return Character.isWhitespace(c) || Character.isSpaceChar(c);
   }
-  
+
   private static final Method ADD_KEY_TOKEN_METHOD;
   private static final Field TOKEN_FIELD;
   private static final Field POSITION_FIELD;
@@ -60,7 +60,7 @@ public class ExtendedScanner extends Scanner {
       throw Throwables.propagate(e);
     }
   }
-  
+
   protected static void addKeyToken(Token token) {
     try {
       ADD_KEY_TOKEN_METHOD.invoke(null, token);
@@ -68,7 +68,7 @@ public class ExtendedScanner extends Scanner {
       throw Throwables.propagate(e);
     }
   }
-  
+
   protected void setToken(Token token) {
     try {
       TOKEN_FIELD.set(this, token);
@@ -84,7 +84,7 @@ public class ExtendedScanner extends Scanner {
       throw Throwables.propagate(e);
     }
   }
-  
+
   @Override
   protected Token nextToken() throws ScanException {
     if (isEval()) {
@@ -109,12 +109,12 @@ public class ExtendedScanner extends Scanner {
       return nextText();
     }
   }
-  
+
   @Override
   protected Token nextEval() throws ScanException {
     char c1 = getInput().charAt(getPosition());
     char c2 = getPosition() < getInput().length()-1 ? getInput().charAt(getPosition()+1) : (char)0;
-    
+
     if(c1 == '|' && c2 != '|') {
       return ExtendedParser.PIPE;
     }
@@ -133,10 +133,10 @@ public class ExtendedScanner extends Scanner {
     if(c1 == '~') {
       return StringConcatOperator.TOKEN;
     }
-    
+
     return super.nextEval();
   }
-  
+
   @Override
   protected Token nextString() throws ScanException {
     builder.setLength(0);
@@ -156,7 +156,7 @@ public class ExtendedScanner extends Scanner {
           case '"':
             builder.append(c);
             break;
-            
+
           case 'n':
             builder.append('\n');
             break;

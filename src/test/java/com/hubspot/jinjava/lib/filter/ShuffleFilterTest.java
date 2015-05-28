@@ -13,12 +13,12 @@ import org.junit.Test;
 public class ShuffleFilterTest {
 
   ShuffleFilter filter;
-  
+
   @Before
   public void setup() {
     this.filter = new ShuffleFilter();
   }
-  
+
   @SuppressWarnings("unchecked")
   @Test
   public void shuffleItems() {
@@ -36,5 +36,5 @@ public class ShuffleFilterTest {
       assertThat(e).hasMessageContaining("is not sorted");
     }
   }
-  
+
 }

@@ -18,14 +18,14 @@ public class AdditionOperator extends AstBinary.SimpleOperator {
   protected Object apply(TypeConverter converter, Object o1, Object o2) {
     if(o1 instanceof Collection) {
       List<Object> result = new ArrayList<>((Collection<Object>) o1);
-      
+
       if(o2 instanceof Collection) {
         result.addAll((Collection<Object>) o2);
       }
       else {
         result.add(o2);
       }
-      
+
       return result;
     }
     else if(o1 instanceof Map && o2 instanceof Map) {
@@ -34,11 +34,11 @@ public class AdditionOperator extends AstBinary.SimpleOperator {
 
       return result;
     }
-    
+
     if(o1 instanceof String || o2 instanceof String) {
       return Objects.toString(o1).concat(Objects.toString(o2));
     }
-    
+
     return NumberOperations.add(converter, o1, o2);
   }
 
