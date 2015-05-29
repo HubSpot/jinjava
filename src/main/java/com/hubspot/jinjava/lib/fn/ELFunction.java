@@ -7,9 +7,9 @@ import java.lang.annotation.Target;
 
 /**
  * Defines that this public static method should be exposed to the expression resolver, with the given name and optional namespace.
- * 
+ *
  * Note that you can specify a JinjavaInterpreter or Context parameter in your method as the first argument, and it will be passed in.
- * 
+ *
  * @author jstehler
  *
  */

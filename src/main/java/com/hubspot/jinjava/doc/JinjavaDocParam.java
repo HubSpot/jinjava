@@ -26,5 +26,5 @@ public class JinjavaDocParam {
   public String getDefaultValue() {
     return defaultValue;
   }
-  
+
 }

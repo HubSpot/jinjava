@@ -20,11 +20,11 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 
 /**
- * Jinja2 supports putting often used code into macros. These macros can go into different 
- * templates and get imported from there. This works similar to the import statements in 
- * Python. It’s important to know that imports are cached and imported templates don’t have 
+ * Jinja2 supports putting often used code into macros. These macros can go into different
+ * templates and get imported from there. This works similar to the import statements in
+ * Python. It’s important to know that imports are cached and imported templates don’t have
  * access to the current template variables, just the globals by default.
- * 
+ *
  * @author jstehler
  */
 
@@ -36,7 +36,7 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
 @SuppressWarnings("unchecked")
 public class ImportTag implements Tag {
   private static final String IMPORT_PATH_PROPERTY = "__importP@th__";
-  
+
   @Override
   public String getName() {
     return "import";
@@ -48,19 +48,19 @@ public class ImportTag implements Tag {
     if (helper.isEmpty()) {
       throw new InterpretException("Tag 'import' expects 1 helper >>> " + helper.size(), tagNode.getLineNumber());
     }
-    
+
     String contextVar = "";
-    
+
     if(helper.size() > 2 && "as".equals(helper.get(1))) {
       contextVar = helper.get(2);
     }
-    
+
     String path = StringUtils.trimToEmpty(helper.get(0));
     if(isPathInRenderStack(interpreter.getContext(), path)) {
       ENGINE_LOG.debug("Path {} is already in include stack", path);
       return "";
     }
-    
+
     Set<String> importedPaths = (Set<String>) interpreter.getContext().get(IMPORT_PATH_PROPERTY);
     if(importedPaths == null) {
       importedPaths = new HashSet<String>();
@@ -72,20 +72,20 @@ public class ImportTag implements Tag {
     try {
       String template = interpreter.getResource(templateFile);
       Node node = interpreter.parse(template);
-      
+
       if(StringUtils.isBlank(contextVar)) {
         interpreter.render(node);
       }
       else {
         JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
         child.render(node);
-        
+
         Map<String, Object> childBindings = child.getContext().getSessionBindings();
         for(Map.Entry<String, MacroFunction> macro : child.getContext().getGlobalMacros().entrySet()) {
           childBindings.put(macro.getKey(), macro.getValue());
         }
         childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-        
+
         interpreter.getContext().put(contextVar, childBindings);
       }
 
@@ -103,11 +103,11 @@ public class ImportTag implements Tag {
       if(importedPaths.contains(path)) {
         return true;
       }
-      
+
       current = current.getParent();
-      
+
     } while(current != null);
-    
+
     return false;
   }
 

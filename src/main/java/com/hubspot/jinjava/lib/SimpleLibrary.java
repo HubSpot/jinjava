@@ -47,20 +47,20 @@ public abstract class SimpleLibrary<T extends Importable> {
   public final List<T> registerClasses(Class<? extends T>... itemClass) {
     try {
       List<T> instances = new ArrayList<>();
-      
+
       for(Class<? extends T> c : itemClass) {
         T instance = c.newInstance();
         register(instance);
         instances.add(instance);
       }
-      
+
       return instances;
     }
     catch(Exception e) {
       throw Throwables.propagate(e);
     }
   }
-  
+
   public void register(T obj) {
     register(obj.getName(), obj);
   }
@@ -69,7 +69,7 @@ public abstract class SimpleLibrary<T extends Importable> {
     lib.put(name, obj);
     ENGINE_LOG.debug(getClass().getSimpleName() + ": Registered " + obj.getName());
   }
-  
+
   public Collection<T> entries() {
     return lib.values();
   }

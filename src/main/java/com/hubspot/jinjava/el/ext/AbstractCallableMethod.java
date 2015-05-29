@@ -11,7 +11,7 @@ import com.google.common.base.Throwables;
 /**
  * Defines a function which will be called in the context of an interpreter instance.
  * Supports named params with default values, as well as var args.
- * 
+ *
  * @author jstehler
  *
  */
@@ -25,7 +25,7 @@ public abstract class AbstractCallableMethod {
       throw Throwables.propagate(e);
     }
   }
-  
+
   private String name;
   private LinkedHashMap<String, Object> argNamesWithDefaults;
 
@@ -33,12 +33,12 @@ public abstract class AbstractCallableMethod {
     this.name = name;
     this.argNamesWithDefaults = argNamesWithDefaults;
   }
-  
+
   public Object evaluate(Object... args) {
     Map<String, Object> argMap = new LinkedHashMap<>(argNamesWithDefaults);
     Map<String, Object> kwargMap = new LinkedHashMap<>();
     List<Object> varArgs = new ArrayList<>();
-    
+
     int argPos = 0;
     for(Map.Entry<String, Object> argEntry : argMap.entrySet()) {
       if(argPos < args.length) {
@@ -54,7 +54,7 @@ public abstract class AbstractCallableMethod {
         break;
       }
     }
-    
+
     // consumeth thyne named params
     for(int i = argPos; i < args.length; i++) {
       Object arg = args[i];
@@ -71,16 +71,16 @@ public abstract class AbstractCallableMethod {
         varArgs.add(arg);
       }
     }
-    
+
     return doEvaluate(argMap, kwargMap, varArgs);
   }
-  
+
   public abstract Object doEvaluate(Map<String, Object> argMap, Map<String, Object> kwargMap, List<Object> varArgs);
 
   public String getName() {
     return name;
   }
-  
+
   public List<String> getArguments() {
     return new ArrayList<>(argNamesWithDefaults.keySet());
   }

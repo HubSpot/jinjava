@@ -37,7 +37,7 @@ public class ExpressionNode extends Node {
   @Override
   public String render(JinjavaInterpreter interpreter) {
     Object var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
-    
+
     String result = ObjectValue.printable(var);
     if(!StringUtils.equals(result, master.getImage()) && StringUtils.contains(result, "{{")) {
       try {

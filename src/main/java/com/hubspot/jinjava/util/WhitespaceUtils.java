@@ -9,7 +9,7 @@ public final class WhitespaceUtils {
     if(s == null) {
       return false;
     }
-    
+
     for(int i = 0; i < s.length(); i++) {
       if(Character.isWhitespace(s.charAt(i))) {
         continue;
@@ -18,15 +18,15 @@ public final class WhitespaceUtils {
         return s.regionMatches(i, prefix, 0, prefix.length());
       }
     }
-    
+
     return false;
   }
-  
+
   public static boolean endsWith(String s, String suffix) {
     if(s == null) {
       return false;
     }
-  
+
     for(int i = s.length() - 1; i >= 0; i--) {
       if(Character.isWhitespace(s.charAt(i))) {
         continue;
@@ -38,11 +38,11 @@ public final class WhitespaceUtils {
 
     return false;
   }
-  
+
   public static boolean isWrappedWith(String s, String prefix, String suffix) {
     return startsWith(s, prefix) && endsWith(s, suffix);
   }
-  
+
   public static boolean isQuoted(String s) {
     if(startsWith(s, "'")) {
       if(!endsWith(s, "'")) {
@@ -58,7 +58,7 @@ public final class WhitespaceUtils {
     }
     return false;
   }
-  
+
   public static String unquote(String s) {
     if(s == null) {
       return "";
@@ -71,26 +71,26 @@ public final class WhitespaceUtils {
     }
     return s.trim();
   }
-  
+
   public static String unwrap(String s, String prefix, String suffix) {
     int start = 0, end = s.length() - 1;
-    
+
     while(start < s.length()) {
       if(!Character.isWhitespace(s.charAt(start))) {
         break;
       }
       ++start;
     }
-    
+
     while(end >= 0) {
       if(!Character.isWhitespace(s.charAt(end))) {
         break;
       }
       -- end;
     }
-    
+
     return s.substring(start + prefix.length(), end - suffix.length() + 1);
   }
-  
+
   private WhitespaceUtils(){}
 }

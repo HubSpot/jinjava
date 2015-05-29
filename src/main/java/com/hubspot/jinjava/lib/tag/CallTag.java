@@ -22,7 +22,7 @@ import com.hubspot.jinjava.tree.TagNode;
                   "      </div>\n" +
                   "  </div>\n" +
                   " {%- endmacro %}\n\n" +
-                   
+
                   " {% call render_dialog('Hello World') %}\n" +
                   "     This is a simple dialog rendered by using a macro and\n" +
                   "     a call block.\n" +
@@ -38,7 +38,7 @@ import com.hubspot.jinjava.tree.TagNode;
                   "     {%- endfor %}\n" +
                   "   </ul>\n" +
                   " {%- endmacro %}\n\n" +
-                   
+
                   " {% call(user) dump_users(list_of_user) %}\n" +
                   "  <dl>\n" +
                   "       <dl>Realname</dl>\n" +
@@ -54,7 +54,7 @@ public class CallTag implements Tag {
   public String getName() {
     return "call";
   }
-  
+
   @Override
   public String getEndTagName() {
     return "endcall";
@@ -63,7 +63,7 @@ public class CallTag implements Tag {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     String macroExpr = "{{" + tagNode.getHelpers().trim() + "}}";
-    
+
     interpreter.enterScope();
     try {
       LinkedHashMap<String, Object> args = new LinkedHashMap<>();

@@ -9,7 +9,7 @@ import com.hubspot.jinjava.tree.TagNode;
 /**
  * Liquid::Template.register_tag 'paginate', Paginate
  * Liquid::Template.register_tag 'form', CommentForm
- * 
+ *
  * @author jstehler
  *
  */
@@ -31,14 +31,14 @@ public class Tags {
       return "endpaginate";
     }
   }
-  
+
   public static class CommentFormTag implements Tag {
     @Override
     public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-      
+
       return null;
     }
-    
+
     @Override
     public String getName() {
       return "form";
@@ -49,14 +49,14 @@ public class Tags {
       return "endform";
     }
   }
-  
+
   public static class AssignTag extends SetTag {
     @Override
     public String getName() {
       return "assign";
     }
   }
-  
+
   public static class TableRowTag implements Tag {
     @Override
     public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
@@ -72,5 +72,5 @@ public class Tags {
       return "endtablerow";
     }
   }
-  
+
 }

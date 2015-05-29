@@ -26,14 +26,14 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 public class FileLocator implements ResourceLocator {
 
   private File baseDir;
-  
+
   /**
    * initializes the locator with the base dir for relative paths set to the current working dir
    */
   public FileLocator() {
     this.baseDir = new File(".");
   }
-  
+
   public FileLocator(File baseDir) throws FileNotFoundException {
     if(!baseDir.exists()){
       throw new FileNotFoundException(String.format("Specified baseDir [%s] does not exist", baseDir.getAbsolutePath()));
@@ -47,10 +47,10 @@ public class FileLocator implements ResourceLocator {
     if(f.isAbsolute()) {
       return f;
     }
-    
+
     return new File(baseDir, name);
   }
-  
+
   @Override
   public String getString(String name, Charset encoding, JinjavaInterpreter interpreter) throws IOException {
     File file = resolveFileName(name);
@@ -58,7 +58,7 @@ public class FileLocator implements ResourceLocator {
     if (!file.exists() || !file.isFile()) {
       throw new ResourceNotFoundException("Couldn't find resource: " + file);
     }
-    
+
     return Files.toString(file, encoding);
   }
 

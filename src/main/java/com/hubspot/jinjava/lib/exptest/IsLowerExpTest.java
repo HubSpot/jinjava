@@ -20,7 +20,7 @@ public class IsLowerExpTest implements ExpTest {
     if(var == null || !(var instanceof String)) {
       return false;
     }
-    
+
     return StringUtils.isAllLowerCase((String) var);
   }
 

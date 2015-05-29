@@ -31,30 +31,30 @@ public class FileSizeFormatFilter implements Filter {
     if(bytes == 1) {
       return "1 Byte";
     }
-    
+
     boolean binary = false;
     if(args.length > 0) {
       binary = BooleanUtils.toBoolean(args[0]);
     }
-    
+
     int base = binary ? 1024 : 1000;
     if(bytes < base) {
       return (int) bytes + " Bytes";
     }
-    
+
     String[] sizes = binary ? BINARY_SIZES : DECIMAL_SIZES;
     int unit = 1;
     String prefix = "";
-    
+
     for(int i = 0; i < sizes.length; i++) {
       unit = (int) Math.pow(base, i + 2);
       prefix = sizes[i];
-      
+
       if(bytes < unit) {
         return String.format("%.1f %s", (base * bytes / unit), prefix);
       }
     }
-    
+
     return String.format("%.1f %s", (base * bytes / unit), prefix);
   }
 

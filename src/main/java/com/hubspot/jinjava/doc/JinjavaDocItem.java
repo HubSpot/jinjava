@@ -11,7 +11,7 @@ public abstract class JinjavaDocItem {
   private final JinjavaDocParam[] params;
   private final JinjavaDocSnippet[] snippets;
   private final Map<String, String> meta;
-  
+
   public JinjavaDocItem(String name, String desc, String aliasOf, boolean deprecated, JinjavaDocParam[] params, JinjavaDocSnippet[] snippets, Map<String, String> meta) {
     this.name = name;
     this.desc = desc;
@@ -33,21 +33,21 @@ public abstract class JinjavaDocItem {
   public String getAliasOf() {
     return aliasOf;
   }
-  
+
   public boolean isDeprecated() {
     return deprecated;
   }
-  
+
   public JinjavaDocParam[] getParams() {
     return params;
   }
-  
+
   public JinjavaDocSnippet[] getSnippets() {
     return snippets;
   }
-  
+
   public Map<String, String> getMeta() {
     return meta;
   }
-  
+
 }

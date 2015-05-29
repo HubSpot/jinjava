@@ -21,11 +21,11 @@ public class ListFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     List<?> result;
-    
+
     if(var instanceof String) {
       result = Lists.newArrayList(((String) var).toCharArray());
     }
-    
+
     else if(Collection.class.isAssignableFrom(var.getClass())) {
       result = Lists.newArrayList((Collection<?>) var);
     }
@@ -33,7 +33,7 @@ public class ListFilter implements Filter {
     else {
       result = Lists.newArrayList(var);
     }
-    
+
     return result;
   }
 

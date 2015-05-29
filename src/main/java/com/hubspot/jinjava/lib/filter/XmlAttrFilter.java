@@ -45,7 +45,7 @@ public class XmlAttrFilter implements Filter {
     if(var == null || !Map.class.isAssignableFrom(var.getClass())) {
       return var;
     }
-    
+
     @SuppressWarnings("unchecked")
     Map<String, Object> dict = (Map<String, Object>) var;
     List<String> attrs = new ArrayList<>();
@@ -57,12 +57,12 @@ public class XmlAttrFilter implements Filter {
         .append("\"")
         .toString());
     }
-    
+
     String space = " ";
     if(args.length > 0 && !BooleanUtils.toBoolean(args[0])) {
       space = "";
     }
-    
+
     return space + StringUtils.join(attrs, "\n");
   }
 

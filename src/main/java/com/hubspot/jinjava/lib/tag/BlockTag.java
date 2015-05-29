@@ -27,7 +27,7 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
 
 /**
  * {% block name %}
- * 
+ *
  */
 @JinjavaDoc(value="Blocks are regions in a template which can be overridden by child templates",
     params={
@@ -44,9 +44,9 @@ public class BlockTag implements Tag {
     if (helper.isEmpty()) {
       throw new InterpretException("Tag 'block' expects an identifier", tagNode.getLineNumber());
     }
-    
+
     String blockName = WhitespaceUtils.unquote(helper.get(0));
-    
+
     interpreter.addBlock(blockName, tagNode.getChildren());
     return JinjavaInterpreter.BLOCK_STUB_START + blockName + JinjavaInterpreter.BLOCK_STUB_END;
   }

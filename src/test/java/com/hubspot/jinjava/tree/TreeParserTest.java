@@ -16,18 +16,18 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 public class TreeParserTest {
 
   JinjavaInterpreter interpreter;
-  
+
   @Before
   public void setup() {
     interpreter = new Jinjava().newInterpreter();
   }
-  
+
   @Test
   public void parseHtmlWithCommentLines() {
     parse("parse/tokenizer/comment-plus.jinja");
     assertThat(interpreter.getErrors()).isEmpty();
   }
-  
+
   Node parse(String fixture) {
     try {
       return new TreeParser(interpreter, Resources.toString(
@@ -37,5 +37,5 @@ public class TreeParserTest {
       throw Throwables.propagate(e);
     }
   }
-  
+
 }

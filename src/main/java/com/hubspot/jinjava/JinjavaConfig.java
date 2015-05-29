@@ -27,7 +27,7 @@ public class JinjavaConfig {
   private final Locale locale;
   private final ZoneId timeZone;
   private final int maxRenderDepth;
-  
+
   public JinjavaConfig() {
     charset = StandardCharsets.UTF_8;
     locale = Locale.ENGLISH;
@@ -41,7 +41,7 @@ public class JinjavaConfig {
     this.timeZone = timeZone;
     this.maxRenderDepth = maxRenderDepth;
   }
-  
+
   public Charset getCharset() {
     return charset;
   }

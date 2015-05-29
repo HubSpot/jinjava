@@ -24,7 +24,7 @@ public class ImportTagTest {
 
   private Context context;
   private JinjavaInterpreter interpreter;
-  
+
   @Before
   public void setup() {
     Jinjava jinjava = new Jinjava();
@@ -36,19 +36,19 @@ public class ImportTagTest {
             Resources.getResource(String.format("tags/macrotag/%s", fullName)), StandardCharsets.UTF_8);
       }
     });
-    
+
     context = new Context();
     interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
     JinjavaInterpreter.pushCurrent(interpreter);
-    
+
     context.put("padding", 42);
   }
-  
+
   @After
   public void cleanup() {
     JinjavaInterpreter.popCurrent();
   }
-  
+
   @Test
   public void itAvoidsSimpleImportCycle() throws IOException {
     Jinjava jinjava = new Jinjava();
@@ -57,7 +57,7 @@ public class ImportTagTest {
     interpreter.render(Resources.toString(Resources.getResource("tags/importtag/imports-self.jinja"), StandardCharsets.UTF_8));
     assertThat(context.get("c")).isEqualTo("hello");
   }
-  
+
   @Test
   public void itAvoidsNestedImportCycle() throws IOException {
     Jinjava jinjava = new Jinjava();
@@ -67,12 +67,12 @@ public class ImportTagTest {
     assertThat(context.get("a")).isEqualTo("foo");
     assertThat(context.get("b")).isEqualTo("bar");
   }
-  
+
   @Test
   public void importedContextExposesVars() {
     assertThat(fixture("import")).contains("wrap-padding: padding-left:42px;padding-right:42px");
   }
-  
+
   @Test
   public void importedContextExposesMacros() {
     assertThat(fixture("import")).contains("<td height=\"42\">");
@@ -81,13 +81,13 @@ public class ImportTagTest {
     assertThat(fn.getArguments()).containsExactly("orientation", "size");
     assertThat(fn.getDefaults()).contains(entry("orientation", "h"), entry("size", 42));
   }
-  
+
   @Test
   public void importedContextDoesntExposePrivateMacros() {
     fixture("import");
     assertThat(context.get("_private")).isNull();
   }
-  
+
   @Test
   public void importedContextFnsProperlyResolveScopedVars() {
     String result = fixture("imports-macro-referencing-macro");
@@ -98,7 +98,7 @@ public class ImportTagTest {
       .contains("using private fn: private fn: bar")
       .contains("using scoped var: myscopedvar");
   }
-  
+
   private String fixture(String name) {
     try {
       return interpreter.renderString(Resources.toString(

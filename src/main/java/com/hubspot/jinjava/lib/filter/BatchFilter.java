@@ -61,40 +61,40 @@ public class BatchFilter implements Filter {
     if(var == null || args.length == 0) {
       return Collections.emptyList();
     }
-    
+
     int lineCount = NumberUtils.toInt(args[0], 0);
     if(lineCount == 0) {
       return Collections.emptyList();
     }
-    
+
     Object fillWith = args.length > 1 ? args[1] : null;
-    
+
     ForLoop loop = ObjectIterator.getLoop(var);
     List<List<Object>> result = new ArrayList<>();
     List<Object> currentRow = null;
-    
+
     while(loop.hasNext()) {
       Object item = loop.next();
-      
+
       if(currentRow == null) {
         currentRow = new ArrayList<>();
         result.add(currentRow);
       }
-      
+
       currentRow.add(item);
-      
+
       if(currentRow.size() == lineCount) {
         currentRow = null;
       }
     }
-    
+
     if(currentRow != null) {
       while(currentRow.size() < lineCount) {
         currentRow.add(fillWith);
       }
     }
-    
+
     return result;
   }
-  
+
 }

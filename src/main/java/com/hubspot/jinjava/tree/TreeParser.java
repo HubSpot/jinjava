@@ -38,9 +38,9 @@ public class TreeParser {
 
   private final TokenScanner scanner;
   private final JinjavaInterpreter interpreter;
-  
+
   private Node parent;
-  
+
   public TreeParser(JinjavaInterpreter interpreter, String input){
     this.scanner = new TokenScanner(input);
     this.interpreter = interpreter;
@@ -48,9 +48,9 @@ public class TreeParser {
 
   public Node buildTree() {
     Node root = new RootNode();
-    
+
     parent = root;
-    
+
     while(scanner.hasNext()) {
       Node node = nextNode();
       if(node != null) {
@@ -65,45 +65,45 @@ public class TreeParser {
 
     return root;
   }
-  
+
   /**
    * @return null if EOF or error
    */
   private Node nextNode() {
     Token token = scanner.next();
-      
+
     switch(token.getType()) {
     case TOKEN_FIXED:
       return text((TextToken) token);
-      
+
     case TOKEN_EXPR_START:
       return expression((ExpressionToken) token);
-      
+
     case TOKEN_TAG:
       return tag((TagToken) token);
 
     case TOKEN_NOTE:
       break;
-      
+
     default:
       interpreter.addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(), token.getLineNumber())));
     }
-    
+
     return null;
   }
-  
+
   private Node text(TextToken textToken) {
     TextNode n = new TextNode(textToken);
     n.setParent(parent);
     return n;
   }
-  
+
   private Node expression(ExpressionToken expressionToken) {
     ExpressionNode n = new ExpressionNode(expressionToken);
     n.setParent(parent);
     return n;
   }
-  
+
   private Node tag(TagToken tagToken) {
     Tag tag = interpreter.getContext().getTag(tagToken.getTagName());
     if (tag == null) {
@@ -115,7 +115,7 @@ public class TreeParser {
       endTag(tag, tagToken);
       return null;
     }
-    
+
     TagNode node = new TagNode(tag, tagToken);
     node.setParent(parent);
 
@@ -124,15 +124,15 @@ public class TreeParser {
       parent = node;
       return null;
     }
-    
+
     return node;
   }
-  
+
   private void endTag(Tag tag, TagToken tagToken) {
     while(!(parent instanceof RootNode)) {
       TagNode parentTag = (TagNode) parent;
       parent = parent.getParent();
-      
+
       if(parentTag.getEndName().equals(tag.getEndTagName())) {
         break;
       }

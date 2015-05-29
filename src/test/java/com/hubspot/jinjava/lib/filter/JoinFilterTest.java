@@ -14,14 +14,14 @@ import com.hubspot.jinjava.Jinjava;
 public class JoinFilterTest {
 
   Jinjava jinjava;
-  
+
   @Before
   public void setup() {
     jinjava = new Jinjava();
     jinjava.getGlobalContext().put("users", Lists.newArrayList(
         new User("foo"), new User("bar")));
   }
-  
+
   @Test
   public void testJoinVals() {
     assertThat(jinjava.render("{{ [1, 2, 3]|join('|') }}", new HashMap<String, Object>())).isEqualTo("1|2|3");
@@ -32,7 +32,7 @@ public class JoinFilterTest {
     assertThat(jinjava.render("{{ users|join(', ', attribute='username') }}", new HashMap<String, Object>()))
       .isEqualTo("foo, bar");
   }
-  
+
   public static class User {
     private String username;
     public User(String username) {

@@ -4,7 +4,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 /**
- * Mark the value as safe which means that in an environment with automatic 
+ * Mark the value as safe which means that in an environment with automatic
  * escaping enabled this variable will not be escaped.
  *
  * This is currently implemented as a pass-through for the given variable.

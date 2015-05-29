@@ -18,11 +18,11 @@ public class MacroFunctionMapper extends FunctionMapper {
   @Override
   public Method resolveFunction(String prefix, String localName) {
     MacroFunction macroFunction = JinjavaInterpreter.getCurrent().getContext().getGlobalMacro(localName);
-    
+
     if(macroFunction != null) {
       return MacroFunction.EVAL_METHOD;
     }
-    
+
     return map.get(prefix + ":" + localName);
   }
 

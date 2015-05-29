@@ -11,20 +11,20 @@ import com.hubspot.jinjava.tree.Node;
 
 /**
  * Function definition parsed from a jinjava template, stored in global macros registry in interpreter context.
- * 
+ *
  * @author jstehler
  *
  */
 public class MacroFunction extends AbstractCallableMethod {
-  
+
   private final List<Node> content;
-  
+
   private final boolean catchKwargs;
   private final boolean catchVarargs;
   private final boolean caller;
 
   private final Context localContextScope;
-  
+
   public MacroFunction(List<Node> content, String name, LinkedHashMap<String, Object> argNamesWithDefaults,
       boolean catchKwargs, boolean catchVarargs, boolean caller, Context localContextScope) {
     super(name, argNamesWithDefaults);
@@ -50,7 +50,7 @@ public class MacroFunction extends AbstractCallableMethod {
           interpreter.getContext().put(scopeEntry.getKey(), scopeEntry.getValue());
         }
       }
-      
+
       // named parameters
       for(Map.Entry<String, Object> argEntry : argMap.entrySet()) {
         interpreter.getContext().put(argEntry.getKey(), argEntry.getValue());
@@ -59,20 +59,20 @@ public class MacroFunction extends AbstractCallableMethod {
       interpreter.getContext().put("kwargs", argMap);
       // varargs list
       interpreter.getContext().put("varargs", varArgs);
-      
+
       StringBuilder result = new StringBuilder();
-      
+
       for(Node node : content) {
         result.append(node.render(interpreter));
       }
-      
+
       return result.toString();
     }
     finally {
       interpreter.leaveScope();
     }
   }
-  
+
   public boolean isCatchKwargs() {
     return catchKwargs;
   }
@@ -80,9 +80,9 @@ public class MacroFunction extends AbstractCallableMethod {
   public boolean isCatchVarargs() {
     return catchVarargs;
   }
-  
+
   public boolean isCaller() {
     return caller;
   }
-  
+
 }

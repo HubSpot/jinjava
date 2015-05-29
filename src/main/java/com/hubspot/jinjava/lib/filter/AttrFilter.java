@@ -27,7 +27,7 @@ public class AttrFilter implements Filter {
     if(args.length == 0) {
       throw new InterpretException(getName() + " requires an attr name to use", interpreter.getLineNumber());
     }
-    
+
     return new VariableChain(Arrays.asList(args[0]), var).resolve();
   }
 

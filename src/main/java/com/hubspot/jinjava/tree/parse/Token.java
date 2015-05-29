@@ -54,19 +54,19 @@ public abstract class Token implements Serializable {
   public boolean isLeftTrim() {
     return leftTrim;
   }
-  
+
   public boolean isRightTrim() {
     return rightTrim;
   }
-  
+
   public void setLeftTrim(boolean leftTrim) {
     this.leftTrim = leftTrim;
   }
-  
+
   public void setRightTrim(boolean rightTrim) {
     this.rightTrim = rightTrim;
   }
-  
+
   @Override
   public String toString() {
     return image;

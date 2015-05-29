@@ -49,14 +49,14 @@ public class IncludeTag implements Tag {
     if (!helper.hasNext()) {
       throw new InterpretException("Tag 'include' expects template path", tagNode.getLineNumber());
     }
-    
+
     String path = StringUtils.trimToEmpty(helper.next());
 
     if(isPathInRenderStack(interpreter.getContext(), path)) {
       ENGINE_LOG.debug("Path {} is already in include stack", path);
       return "";
     }
-    
+
     String templateFile = interpreter.resolveString(path, tagNode.getLineNumber());
     try {
       String template = interpreter.getResource(templateFile);
@@ -78,14 +78,14 @@ public class IncludeTag implements Tag {
       if(StringUtils.equals(path, includePath)) {
         return true;
       }
-      
+
       current = current.getParent();
-      
+
     } while(current != null);
-    
+
     return false;
   }
-  
+
   @Override
   public String getEndTagName() {
     return null;

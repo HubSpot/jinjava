@@ -8,11 +8,11 @@ import com.hubspot.jinjava.tree.TagNode;
 public final class EndTag implements Tag {
 
   private final String endTagName;
-  
+
   public EndTag(Tag tag) {
     this.endTagName = tag.getEndTagName();
   }
-  
+
   @Override
   public String getName() {
     return endTagName;

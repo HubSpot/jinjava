@@ -44,15 +44,15 @@ public class DefaultFilter implements Filter {
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
     boolean truthy = false;
-    
+
     if(arg.length == 0) {
       throw new InterpretException("default filter requires 1 or 2 args");
     }
-    
+
     if(arg.length == 2) {
       truthy = BooleanUtils.toBoolean(arg[1]);
     }
-    
+
     if(truthy) {
       if(ObjectTruthValue.evaluate(object)) {
         return object;

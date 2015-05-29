@@ -33,8 +33,8 @@ public class AstMacroFunction extends AstFunction {
         throw new ELException(LocalMessages.get("error.function.invocation", getName()), e.getCause());
       }
     }
-    
+
     return super.eval(bindings, context);
   }
-  
+
 }

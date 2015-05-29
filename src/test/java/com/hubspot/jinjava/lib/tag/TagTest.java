@@ -32,29 +32,29 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 public class TagTest {
 
   Jinjava jinjava;
-  
+
   String script;
   Map<String, Object> bindings;
   Object res;
-  
+
   @Before
   public void setup() {
     jinjava = new Jinjava();
-    
+
     bindings = new HashMap<>();
     bindings.put("var1", new Integer[]{23, 45, 45, 689});
     bindings.put("var2", "45");
     bindings.put("var3", 12);
     bindings.put("var5", "");
   }
-  
+
   @Test
   public void forTag()  {
     script = "{% for item in var1 %}{{item}}{% endfor%}";
     res = jinjava.render(script, bindings);
     assertEquals("234545689", res);
   }
-  
+
   @Test
   public void forTag1()  {
     script = "{% for  %}{{item}}{% endfor%}";

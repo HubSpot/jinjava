@@ -32,12 +32,12 @@ public class TagNode extends Node {
 
   public TagNode(Tag tag, TagToken token) {
     super(token, token.getLineNumber());
-    
+
     this.master = token;
     this.tag = tag;
     this.endName = tag.getEndTagName();
   }
-  
+
   private TagNode(TagNode n) {
     super(n.master, n.getLineNumber());
 
@@ -64,7 +64,7 @@ public class TagNode extends Node {
   public String getName() {
     return master.getTagName();
   }
-  
+
   public String getEndName() {
     return endName;
   }
@@ -72,7 +72,7 @@ public class TagNode extends Node {
   public String getHelpers() {
     return master.getHelpers();
   }
-  
+
   @Override
   public Node clone() {
     Node clone = new TagNode(this);

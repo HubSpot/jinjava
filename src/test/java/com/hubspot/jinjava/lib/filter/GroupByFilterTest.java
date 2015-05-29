@@ -18,12 +18,12 @@ import com.hubspot.jinjava.Jinjava;
 public class GroupByFilterTest {
 
   Jinjava jinjava;
-  
+
   @Before
   public void setup() {
     jinjava = new Jinjava();
   }
-  
+
   @Test
   public void testGroupByAttr() throws Exception {
     Document dom = Jsoup.parseBodyFragment(
@@ -36,17 +36,17 @@ public class GroupByFilterTest {
                 new Person("male", "jim", "jones"),
                 new Person("female", "barb", "smith")
             ))));
-    
+
     assertThat(dom.select("ul.root > li")).hasSize(2);
     assertThat(dom.select("ul.root > li.male > ul > li")).hasSize(3);
     assertThat(dom.select("ul.root > li.female > ul > li")).hasSize(2);
   }
-  
+
   public static class Person {
     private String gender;
     private String firstName;
     private String lastName;
-    
+
     public Person(String gender, String firstName, String lastName) {
       this.gender = gender;
       this.firstName = firstName;
@@ -62,5 +62,5 @@ public class GroupByFilterTest {
       return lastName;
     }
   }
-  
+
 }

@@ -35,7 +35,7 @@ public class IsEqualToExpTest implements ExpTest {
     if(args.length == 0) {
       throw new InterpretException(getName() + " test requires 1 argument");
     }
-    
+
     return Objects.equals(var, args[0]);
   }
 

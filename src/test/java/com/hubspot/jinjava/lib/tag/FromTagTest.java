@@ -22,7 +22,7 @@ public class FromTagTest {
 
   private Context context;
   private JinjavaInterpreter interpreter;
-  
+
   @Before
   public void setup() {
     Jinjava jinjava = new Jinjava();
@@ -34,19 +34,19 @@ public class FromTagTest {
             Resources.getResource(String.format("tags/macrotag/%s", fullName)), StandardCharsets.UTF_8);
       }
     });
-    
+
     interpreter = jinjava.newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
-    
+
     context = interpreter.getContext();
     context.put("padding", 42);
   }
-  
+
   @After
   public void cleanup() {
     JinjavaInterpreter.popCurrent();
   }
-  
+
   @Test
   public void importedContextExposesVars() {
     assertThat(fixture("from"))
@@ -54,7 +54,7 @@ public class FromTagTest {
       .contains("<td height=\"42\">")
       .contains("wrap-padding: padding-left:42px;padding-right:42px");
   }
-  
+
   private String fixture(String name) {
     try {
       return interpreter.renderString(Resources.toString(
@@ -63,5 +63,5 @@ public class FromTagTest {
       throw Throwables.propagate(e);
     }
   }
-  
+
 }

@@ -24,28 +24,28 @@ import com.hubspot.jinjava.lib.tag.Tag;
 
 public class JinjavaDocFactory {
   private static final Logger LOG = LoggerFactory.getLogger(JinjavaDocFactory.class);
-  
+
   private final Jinjava jinjava;
-  
+
   public JinjavaDocFactory(Jinjava jinjava) {
     this.jinjava = jinjava;
   }
-  
+
   public JinjavaDoc get() {
     JinjavaDoc doc = new JinjavaDoc();
-    
+
     addExpTests(doc);
     addFilterDocs(doc);
     addFnDocs(doc);
     addTagDocs(doc);
-    
+
     return doc;
   }
 
   private void addExpTests(JinjavaDoc doc) {
     for(ExpTest t : jinjava.getGlobalContext().getAllExpTests()) {
       com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = t.getClass().getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
-      
+
       if(docAnnotation == null) {
         LOG.warn("Expression Test {} doesn't have a @{} annotation", t.getName(), com.hubspot.jinjava.doc.annotations.JinjavaDoc.class.getName());
         doc.addExpTest(new JinjavaDocExpTest(t.getName(), "", "", false, new JinjavaDocParam[]{}, new JinjavaDocSnippet[]{}, Collections.emptyMap()));
@@ -60,7 +60,7 @@ public class JinjavaDocFactory {
   private void addFilterDocs(JinjavaDoc doc) {
     for(Filter f : jinjava.getGlobalContext().getAllFilters()) {
       com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = f.getClass().getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
-      
+
       if(docAnnotation == null) {
         LOG.warn("Filter {} doesn't have a @{} annotation", f.getClass(), com.hubspot.jinjava.doc.annotations.JinjavaDoc.class.getName());
         doc.addFilter(new JinjavaDocFilter(f.getName(), "", "", false, new JinjavaDocParam[]{}, new JinjavaDocSnippet[]{}, Collections.emptyMap()));
@@ -83,9 +83,9 @@ public class JinjavaDocFactory {
             throw Throwables.propagate(e);
           }
         }
-        
+
         com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = realMethod.getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
-        
+
         if(docAnnotation == null) {
           LOG.warn("Function {} doesn't have a @{} annotation", fn.getName(), com.hubspot.jinjava.doc.annotations.JinjavaDoc.class.getName());
           doc.addFunction(new JinjavaDocFunction(fn.getLocalName(), "", "", false, new JinjavaDocParam[]{}, new JinjavaDocSnippet[]{}, Collections.emptyMap()));
@@ -97,14 +97,14 @@ public class JinjavaDocFactory {
       }
     }
   }
-  
+
   private void addTagDocs(JinjavaDoc doc) {
     for(Tag t : jinjava.getGlobalContext().getAllTags()) {
       if(t instanceof EndTag) {
         continue;
       }
       com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = t.getClass().getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
-      
+
       if(docAnnotation == null) {
         LOG.warn("Tag {} doesn't have a @{} annotation", t.getName(), com.hubspot.jinjava.doc.annotations.JinjavaDoc.class.getName());
         doc.addTag(new JinjavaDocTag(t.getName(), StringUtils.isBlank(t.getEndTagName()), "", "", false, new JinjavaDocParam[]{}, new JinjavaDocSnippet[]{}, Collections.emptyMap()));
@@ -115,7 +115,7 @@ public class JinjavaDocFactory {
       }
     }
   }
-  
+
   private JinjavaDocParam[] extractParams(JinjavaParam[] params) {
     JinjavaDocParam[] result = new JinjavaDocParam[params.length];
 
@@ -126,26 +126,26 @@ public class JinjavaDocFactory {
 
     return result;
   }
-  
+
   private JinjavaDocSnippet[] extractSnippets(JinjavaSnippet[] snippets) {
     JinjavaDocSnippet[] result = new JinjavaDocSnippet[snippets.length];
-    
+
     for(int i = 0; i < snippets.length; i++) {
       JinjavaSnippet s = snippets[i];
       result[i] = new JinjavaDocSnippet(s.desc(), s.code(), s.output());
     }
-    
+
     return result;
   }
-  
+
   private Map<String, String> extractMeta(JinjavaMetaValue[] metaValues) {
     Map<String, String> meta = new LinkedHashMap<>();
-    
+
     for(JinjavaMetaValue metaValue : metaValues) {
       meta.put(metaValue.name(), metaValue.value());
     }
-    
+
     return meta;
   }
-  
+
 }

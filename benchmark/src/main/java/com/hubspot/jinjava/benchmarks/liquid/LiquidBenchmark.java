@@ -27,23 +27,23 @@ import com.hubspot.jinjava.tree.Node;
 
 @State(Scope.Benchmark)
 public class LiquidBenchmark {
-  
+
   public List<String> templates;
   public Map<String, ?> bindings;
-  
+
   public Jinjava jinjava;
-  
+
   @SuppressWarnings("unchecked")
   @Setup
   public void setup() throws IOException {
     ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
     logger.setLevel(Level.WARN);
-    
+
     jinjava = new Jinjava();
 
     jinjava.getGlobalContext().registerClasses(
         Filters.OverrideDateFilter.class,
-        
+
         Filters.JsonFilter.class,
         Filters.LinkToAddTagFilter.class,
         Filters.LinkToRemoveTagFilter.class,
@@ -60,21 +60,21 @@ public class LiquidBenchmark {
         Filters.ShopStylesheetTag.class,
         Filters.WeightFilter.class,
         Filters.WeightWithUnitFilter.class,
-        
+
         Tags.AssignTag.class,
         Tags.CommentFormTag.class,
         Tags.PaginateTag.class,
         Tags.TableRowTag.class
     );
-    
+
     templates = new ArrayList<>();
-    
+
     Map<String, ?> db = (Map<String, ?>) new Yaml().load(readFileToString(new File("liquid/performance/shopify/vision.database.yml"), StandardCharsets.UTF_8));
     bindings = new HashMap<>(db);
-    
+
     File baseDir = new File("liquid/performance/tests");
     for(File tmpl : listFiles(baseDir, new String[]{"liquid"}, true)){
-      
+
       String template = readFileToString(tmpl, StandardCharsets.UTF_8);
       // convert filter syntax from ':' to '()'
       template = template.replaceAll("\\| ([\\w_]+): (.*?)(\\||})", "| $1($2)$3");
@@ -88,14 +88,14 @@ public class LiquidBenchmark {
       template = template.replaceAll("cols:\\s*\\d*", "");
       // no support for for reversal
       template = template.replaceAll(" reversed", "");
-      
+
       // System.out.println("Adding template: " + tmpl.getAbsolutePath());
       // System.out.println(template);
 
       templates.add(template);
     }
   }
-  
+
   @Benchmark
   public void parse(Blackhole blackhole) {
     JinjavaInterpreter interpreter = jinjava.newInterpreter();
@@ -107,7 +107,7 @@ public class LiquidBenchmark {
       }
     }
   }
-  
+
   @Benchmark
   public void parseAndRender(Blackhole blackhole) {
     for(String template : templates) {
@@ -117,7 +117,7 @@ public class LiquidBenchmark {
       }
     }
   }
-  
+
   public static void main(String[] args) throws Exception {
     LiquidBenchmark b = new LiquidBenchmark();
     b.setup();

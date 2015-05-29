@@ -2,33 +2,16 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>7</version>
+    <groupId>com.hubspot</groupId>
+    <artifactId>basepom</artifactId>
+    <version>10.4</version>
   </parent>
-
-  <repositories>
-    <repository>
-      <id>sonatype-nexus-snapshots</id>
-      <name>Sonatype Nexus Snapshots</name>
-      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
-    </repository>
-  </repositories>
 
   <groupId>com.hubspot.jinjava</groupId>
   <artifactId>jinjava</artifactId>
   <version>2.0.6-SNAPSHOT</version>
-  <name>jinjava</name>
   <description>Jinja templating engine implemented in Java</description>
   <url>https://github.com/HubSpot/jinjava</url>
-
-  <licenses>
-    <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
 
   <scm>
     <connection>scm:git:git@github.com:HubSpot/jinjava.git</connection>
@@ -44,17 +27,19 @@
     </developer>
   </developers>
 
+  <properties>
+    <project.build.targetJdk>1.8</project.build.targetJdk>
+    <basepom.check.skip-findbugs>true</basepom.check.skip-findbugs>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.2</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>17.0</version>
     </dependency>
     <dependency>
       <groupId>org.javassist</groupId>
@@ -80,111 +65,39 @@
       <groupId>de.odysseus.juel</groupId>
       <artifactId>juel-spi</artifactId>
       <version>2.2.7</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>3.4</version>
     </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-      <version>2.3.1</version>
-    </dependency>
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-core</artifactId>
-      <version>1.0.7</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.0.7</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.8.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.0.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.9.5</version>
+      <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.2</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-          <encoding>UTF-8</encoding>
-          <showDeprecation>true</showDeprecation>
-          <showWarnings>true</showWarnings>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>1.4</version>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>2.2.1</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9</version>
-        <configuration>
-          <quiet>true</quiet>
-        </configuration>
-        <executions>
-          <execution>
-            <id>generate-javadoc-jar</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 </project>
 

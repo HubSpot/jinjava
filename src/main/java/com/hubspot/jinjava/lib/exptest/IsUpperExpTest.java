@@ -20,7 +20,7 @@ public class IsUpperExpTest implements ExpTest {
     if(var == null || !(var instanceof String)) {
       return false;
     }
-    
+
     return StringUtils.isAllUpperCase((String) var);
   }
 

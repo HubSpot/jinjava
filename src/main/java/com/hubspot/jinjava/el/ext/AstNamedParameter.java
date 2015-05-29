@@ -11,12 +11,12 @@ public class AstNamedParameter extends AstLiteral {
 
   private AstIdentifier name;
   private AstNode value;
-  
+
   public AstNamedParameter(AstIdentifier name, AstNode value) {
     this.name = name;
     this.value = value;
   }
-  
+
   @Override
   public Object eval(Bindings bindings, ELContext context) {
     return new NamedParameter(name.getName(), value.eval(bindings, context));

@@ -42,7 +42,7 @@ public class RejectAttrFilter implements Filter {
     if(args.length == 0) {
       throw new InterpretException(getName() + " filter requires an attr to filter on", interpreter.getLineNumber());
     }
-    
+
     String attr = args[0];
 
     ExpTest expTest = interpreter.getContext().getExpTest("truthy");
@@ -52,17 +52,17 @@ public class RejectAttrFilter implements Filter {
         throw new InterpretException("No expression test defined with name '" + args[1] + "'", interpreter.getLineNumber());
       }
     }
-    
+
     ForLoop loop = ObjectIterator.getLoop(var);
     while(loop.hasNext()) {
       Object val = loop.next();
       Object attrVal = new VariableChain(Lists.newArrayList(attr), val).resolve();
-      
+
       if(!expTest.evaluate(attrVal, interpreter)) {
         result.add(val);
       }
     }
-    
+
     return result;
   }
 

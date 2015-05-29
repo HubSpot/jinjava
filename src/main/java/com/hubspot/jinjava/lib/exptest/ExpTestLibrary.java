@@ -29,11 +29,11 @@ public class ExpTestLibrary extends SimpleLibrary<ExpTest> {
           IsUpperExpTest.class
     );
   }
-  
+
   public ExpTest getExpTest(String name) {
     return fetch(name);
   }
-  
+
   public void addExpTest(ExpTest expTest) {
     register(expTest);
   }

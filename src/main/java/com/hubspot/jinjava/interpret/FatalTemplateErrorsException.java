@@ -2,7 +2,7 @@ package com.hubspot.jinjava.interpret;
 
 /**
  * Container exception thrown when fatal errors are encountered while rendering a template.
- * 
+ *
  * @author jstehler
  */
 public class FatalTemplateErrorsException extends InterpretException {
@@ -19,20 +19,20 @@ public class FatalTemplateErrorsException extends InterpretException {
 
   private static String generateMessage(Iterable<TemplateError> errors) {
     StringBuilder msg = new StringBuilder();
-    
+
     for(TemplateError error : errors) {
       msg.append(error.toString()).append('\n');
     }
-    
+
     return msg.toString();
   }
 
   public String getTemplate() {
     return template;
   }
-  
+
   public Iterable<TemplateError> getErrors() {
     return errors;
   }
-  
+
 }

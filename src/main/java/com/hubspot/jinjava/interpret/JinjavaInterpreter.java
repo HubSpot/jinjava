@@ -49,29 +49,29 @@ public class JinjavaInterpreter {
 
   private final Multimap<String, List<? extends Node>> blocks = ArrayListMultimap.create();
   private final LinkedList<Node> extendParentRoots = new LinkedList<Node>();
-  
+
   private Context context;
   private final JinjavaConfig config;
 
   private final ExpressionResolver expressionResolver;
   private final Jinjava application;
-  
+
   private int lineNumber = -1;
   private final List<TemplateError> errors = new LinkedList<>();
-  
-  
+
+
   public JinjavaInterpreter(Jinjava application, Context context, JinjavaConfig renderConfig) {
     this.context = context;
     this.config = renderConfig;
     this.application = application;
-    
+
     this.expressionResolver = new ExpressionResolver(this, createELContext());
   }
 
   public JinjavaInterpreter(JinjavaInterpreter orig) {
     this(orig.application, new Context(orig.context), orig.config);
   }
-  
+
   public JinjavaConfig getConfiguration() {
     return config;
   }
@@ -83,22 +83,22 @@ public class JinjavaInterpreter {
   public void addBlock(String name, LinkedList<? extends Node> value) {
     blocks.put(name, value);
   }
-  
+
   public void enterScope() {
-    context = new Context(context); 
+    context = new Context(context);
   }
-  
+
   public void leaveScope() {
     Context parent = context.getParent();
     if(parent != null) {
       context = parent;
     }
   }
-  
+
   public Node parse(String template) {
     return new TreeParser(this, template).buildTree();
   }
-  
+
   public String renderString(String template) {
     Integer depth = (Integer) context.get("hs_render_depth", 0);
     if (depth == null) {
@@ -117,81 +117,81 @@ public class JinjavaInterpreter {
       context.put("hs_render_depth", depth);
     }
   }
-  
+
   public String render(Node root) {
     return render(root, true);
   }
-  
+
   public String render(String template) {
     ENGINE_LOG.debug(template);
     return render(parse(template), true);
   }
-  
+
   public String render(Node root, boolean processExtendRoots) {
     StringBuilder buff = new StringBuilder();
 
     for (Node node : root.getChildren()) {
       buff.append(node.render(this));
-    } 
+    }
 
     // render all extend parents, keeping the last as the root output
     if(processExtendRoots) {
       while(!extendParentRoots.isEmpty()) {
         Node parentRoot = extendParentRoots.removeFirst();
         buff = new StringBuilder();
-        
+
         for(Node node : parentRoot.getChildren()) {
           buff.append(node.render(this));
         }
       }
     }
-    
+
     return resolveBlockStubs(buff);
   }
-  
+
   String resolveBlockStubs(CharSequence content) {
     StringBuilder result = new StringBuilder(content.length() + 256);
     int pos = 0, start, end, stubStartLen = BLOCK_STUB_START.length();
-    
+
     while((start = StringUtils.indexOf(content, BLOCK_STUB_START, pos)) != -1) {
       end = StringUtils.indexOf(content, BLOCK_STUB_END, start + stubStartLen);
 
       String blockName = content.subSequence(start + stubStartLen, end).toString();
-      
+
       String blockValue = "";
-      
+
       Collection<List<? extends Node>> blockChain = blocks.get(blockName);
       List<? extends Node> block = Iterables.getFirst(blockChain, null);
-      
+
       if(block != null) {
         List<? extends Node> superBlock = Iterables.get(blockChain, 1, null);
         context.put("__superbl0ck__", superBlock);
-        
+
         StringBuilder blockValueBuilder = new StringBuilder();
-        
+
         for(Node child : block) {
           blockValueBuilder.append(child.render(this));
         }
-        
+
         blockValue = resolveBlockStubs(blockValueBuilder);
-        
+
         context.remove("__superbl0ck__");
       }
-      
+
       result.append(content.subSequence(pos, start));
       result.append(blockValue);
       pos = end + 1;
     }
-    
+
     result.append(content.subSequence(pos, content.length()));
-    
+
     return result.toString();
   }
-  
+
   /**
-   * Resolve a variable from the interpreter context, returning null if not found. This method 
+   * Resolve a variable from the interpreter context, returning null if not found. This method
    * updates the template error accumulators when a variable is not found.
-   * 
+   *
    * @param variable name of variable in context
    * @param lineNumber current line number, for error reporting
    * @return resolved value for variable
@@ -215,10 +215,10 @@ public class JinjavaInterpreter {
   }
 
   /**
-   * Resolve a variable into an object value. If given a string literal (e.g. 'foo' or "foo"), 
+   * Resolve a variable into an object value. If given a string literal (e.g. 'foo' or "foo"),
    * this method returns the literal unquoted. If the variable is undefined in the context,
    * this method returns the given variable string.
-   * 
+   *
    * @param variable name of variable in context
    * @param lineNumber current line number, for error reporting
    * @return resolved value for variable
@@ -239,10 +239,10 @@ public class JinjavaInterpreter {
   }
 
   /**
-   * Resolve a variable into a string value. If given a string literal (e.g. 'foo' or "foo"), 
+   * Resolve a variable into a string value. If given a string literal (e.g. 'foo' or "foo"),
    * this method returns the literal unquoted. If the variable is undefined in the context,
    * this method returns the given variable string.
-   * 
+   *
    * @param variable name of variable in context
    * @param lineNumber current line number, for error reporting
    * @return resolved value for variable
@@ -258,15 +258,15 @@ public class JinjavaInterpreter {
   public String getResource(String resource) throws IOException {
     return application.getResourceLocator().getString(resource, config.getCharset(), this);
   }
-  
+
   public JinjavaConfig getConfig() {
     return config;
   }
-  
+
   public ExpressionFactory getExpressionFactory() {
     return application.getExpressionFactory();
   }
-  
+
   public Object resolveELExpression(String expr, int lineNumber) {
     return expressionResolver.resolve(expr, lineNumber);
   }
@@ -277,26 +277,26 @@ public class JinjavaInterpreter {
     for(ELFunctionDefinition fn : context.getAllFunctions()) {
       expContext.setFunction(fn.getNamespace(), fn.getLocalName(), fn.getMethod());
     }
-    
+
     return expContext;
   }
-  
+
   public void addError(TemplateError templateError) {
     this.errors.add(templateError);
   }
-  
+
   public List<TemplateError> getErrors() {
     return errors;
   }
-  
+
   public int getLineNumber() {
     return lineNumber;
   }
   public void setLineNumber(int lineNumber) {
     this.lineNumber = lineNumber;
   }
-  
-  
+
+
   private static final ThreadLocal<Stack<JinjavaInterpreter>> CURRENT_INTERPRETER = new ThreadLocal<Stack<JinjavaInterpreter>>() {
     protected java.util.Stack<JinjavaInterpreter> initialValue() {
       return new Stack<>();
@@ -307,24 +307,24 @@ public class JinjavaInterpreter {
     if(CURRENT_INTERPRETER.get().isEmpty()) {
       return null;
     }
-    
+
     return CURRENT_INTERPRETER.get().peek();
   }
-  
+
   public static void pushCurrent(JinjavaInterpreter interpreter) {
     CURRENT_INTERPRETER.get().push(interpreter);
   }
-  
+
   public static void popCurrent() {
     if(!CURRENT_INTERPRETER.get().isEmpty()) {
       CURRENT_INTERPRETER.get().pop();
     }
   }
-  
+
 
   public static final String INSERT_FLAG = "'IS\"INSERT";
-  
+
   public static final String BLOCK_STUB_START = "___bl0ck___~";
   public static final String BLOCK_STUB_END = "~";
-  
+
 }

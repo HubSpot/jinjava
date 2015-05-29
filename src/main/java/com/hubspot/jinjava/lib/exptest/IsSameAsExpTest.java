@@ -21,7 +21,7 @@ public class IsSameAsExpTest implements ExpTest {
     if(args.length == 0) {
       throw new InterpretException(getName() + " test requires 1 argument");
     }
-    
+
     return var == args[0];
   }
 

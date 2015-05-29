@@ -24,7 +24,7 @@ public class ShuffleFilter implements Filter {
       Collections.shuffle(list);
       return list;
     }
-    
+
     return var;
   }
 

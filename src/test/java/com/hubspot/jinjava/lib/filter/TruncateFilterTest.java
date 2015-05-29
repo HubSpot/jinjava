@@ -22,18 +22,18 @@ public class TruncateFilterTest {
 
   @Mock JinjavaInterpreter interpreter;
   @InjectMocks TruncateFilter filter;
-  
+
   @Before
   public void setup() {
     when(interpreter.resolveString(anyString(), anyInt())).thenAnswer(new ReturnsArgumentAt(0));
   }
-  
+
   @Test
   public void itPassesThroughSmallEnoughText() throws Exception {
     String s = StringUtils.rightPad("", 255, 'x');
     assertThat(filter.filter(s, interpreter)).isEqualTo(s);
   }
-  
+
   @Test
   public void itTruncatesText() throws Exception {
     assertThat(filter.filter(StringUtils.rightPad("", 256, 'x') + "y", interpreter, "255", "True").toString()).hasSize(258).endsWith("x...");
@@ -43,7 +43,7 @@ public class TruncateFilterTest {
   public void itTruncatesToSpecifiedLength() throws Exception {
     assertThat(filter.filter("foo bar", interpreter, "5", "True")).isEqualTo("foo b...");
   }
-  
+
   @Test
   public void itDiscardsLastWordWhenKillwordsFalse() throws Exception {
     assertThat(filter.filter("foo bar", interpreter, "5")).isEqualTo("foo ...");
@@ -53,5 +53,5 @@ public class TruncateFilterTest {
   public void itTruncatesWithDifferentEndingIfSpecified() throws Exception {
     assertThat(filter.filter("foo bar", interpreter, "5", "True", "!")).isEqualTo("foo b!");
   }
-  
+
 }

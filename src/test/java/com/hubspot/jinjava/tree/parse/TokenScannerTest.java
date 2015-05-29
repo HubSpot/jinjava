@@ -23,7 +23,7 @@ public class TokenScannerTest {
   JinjavaInterpreter interpreter;
   TokenScanner scanner;
   String script;
-  
+
   @Before
   public void setup() {
     interpreter = new Jinjava().newInterpreter();
@@ -181,7 +181,7 @@ public class TokenScannerTest {
     scanner = new TokenScanner(script);
     assertEquals("{#abc{#.b#}", scanner.next().image);
   }
-  
+
   @Test
   public void itProperlyTokenizesCommentBlocksContainingTags() {
     List<Token> tokens = tokens("comment-with-tags");
@@ -197,7 +197,7 @@ public class TokenScannerTest {
     assertThat(tokens.get(tokens.size() - 1)).isInstanceOf(TextToken.class);
     assertThat(StringUtils.substringBetween(tokens.get(tokens.size() - 1).toString(), "{~", "~}").trim()).isEqualTo("and here's some extra.");
   }
-  
+
   @Test
   public void itProperlyTokenizesMultilineCommentTokens() {
     List<Token> tokens = tokens("multiline-comment");
@@ -205,7 +205,7 @@ public class TokenScannerTest {
     assertThat(tokens.get(2)).isInstanceOf(TextToken.class);
     assertThat(StringUtils.substringBetween(tokens.get(2).toString(), "{~", "~}").trim()).isEqualTo("goodbye.");
   }
-  
+
   @Test
   public void itProperlyTokenizesCommentWithStartCommentTokenWithin() {
     List<Token> tokens = tokens("comment-with-start-comment-within");
@@ -213,7 +213,7 @@ public class TokenScannerTest {
     assertThat(tokens.get(1)).isInstanceOf(TagToken.class);
     assertThat(tokens.get(1).getImage()).contains("color");
   }
-  
+
   @Test
   public void itProperlyTokenizesTagTokenWithTagTokenCharsWithinString() {
     List<Token> tokens = tokens("tag-with-tag-tokens-within-string");
@@ -221,7 +221,7 @@ public class TokenScannerTest {
     assertThat(tokens.get(0).getType()).isEqualTo(TokenScannerSymbols.TOKEN_TAG);
     assertThat(tokens.get(0).content).contains("label='Blog Comments'");
   }
-  
+
   @Test
   public void testQuotedTag() {
     List<Token> tokens = tokens("html-with-tag-in-attr");
@@ -230,7 +230,7 @@ public class TokenScannerTest {
     assertThat(tokens.get(1).getType()).isEqualTo(TokenScannerSymbols.TOKEN_TAG);
     assertThat(tokens.get(2).getType()).isEqualTo(TokenScannerSymbols.TOKEN_FIXED);
   }
-  
+
   @Test
   public void testEscapedQuoteWithinAttrValue() {
     List<Token> tokens = tokens("tag-with-quot-in-attr");
@@ -238,22 +238,22 @@ public class TokenScannerTest {
     assertThat(tokens.get(0).getType()).isEqualTo(TokenScannerSymbols.TOKEN_TAG);
     assertThat(tokens.get(0).content.trim()).isEqualTo("widget_block rich_text \"module\" overrideable=True, label='<p>We\\'ve included a great symbol</p>'");
   }
-  
+
   private List<Token> tokens(String fixture) {
     TokenScanner t = fixture(fixture);
-    
+
     List<Token> tokens = Lists.newArrayList();
     Token token;
     while((token = t.getNextToken()) != null) {
       tokens.add(token);
     }
-    
+
     return tokens;
   }
-  
+
   private TokenScanner fixture(String fixture) {
     try {
-      TokenScanner t = new TokenScanner(Resources.toString(Resources.getResource(String.format("parse/tokenizer/%s.jinja", fixture)), 
+      TokenScanner t = new TokenScanner(Resources.toString(Resources.getResource(String.format("parse/tokenizer/%s.jinja", fixture)),
           StandardCharsets.UTF_8));
       return t;
     }
@@ -261,5 +261,5 @@ public class TokenScannerTest {
       throw new RuntimeException(e);
     }
   }
-  
+
 }

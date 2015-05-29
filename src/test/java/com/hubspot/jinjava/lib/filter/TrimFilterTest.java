@@ -13,16 +13,16 @@ public class TrimFilterTest {
 
   JinjavaInterpreter interpreter;
   TrimFilter filter;
-  
+
   @Before
   public void setup() {
     interpreter = new Jinjava().newInterpreter();
     filter = new TrimFilter();
   }
-  
+
   @Test
   public void testTrim() {
     assertThat(filter.filter(" foo  ", interpreter)).isEqualTo("foo");
   }
-  
+
 }

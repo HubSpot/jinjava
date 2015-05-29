@@ -27,7 +27,7 @@ public class ExpressionResolver {
   private JinjavaInterpreter interpreter;
   private ExpressionFactory expressionFactory;
   private ELContext elContext;
-  
+
   public ExpressionResolver(JinjavaInterpreter interpreter, ELContext elContext) {
     this.interpreter = interpreter;
     this.expressionFactory = interpreter.getExpressionFactory();

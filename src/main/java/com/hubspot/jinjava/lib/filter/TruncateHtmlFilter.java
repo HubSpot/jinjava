@@ -27,7 +27,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 public class TruncateHtmlFilter implements Filter {
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
   private static final String DEFAULT_END = "...";
-  
+
   @Override
   public String getName() {
     return "truncatehtml";
@@ -38,7 +38,7 @@ public class TruncateHtmlFilter implements Filter {
     if(var instanceof String) {
       int length = DEFAULT_TRUNCATE_LENGTH;
       String ends = DEFAULT_END;
-      
+
       if (args.length > 0) {
         try {
           length = Integer.valueOf(Objects.toString(args[0]));
@@ -58,7 +58,7 @@ public class TruncateHtmlFilter implements Filter {
 
       return dom.select("body").html();
     }
-    
+
     return var;
   }
 
@@ -66,12 +66,12 @@ public class TruncateHtmlFilter implements Filter {
     private int maxTextLen;
     private int textLen;
     private String ending;
-    
+
     public ContentTruncatingNodeVisitor(int maxTextLen, String ending) {
       this.maxTextLen = maxTextLen;
       this.ending = ending;
     }
-    
+
     @Override
     public void head(Node node, int depth) {
       if(node instanceof TextNode) {

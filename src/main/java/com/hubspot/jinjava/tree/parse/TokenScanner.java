@@ -62,7 +62,7 @@ public class TokenScanner extends AbstractIterator<Token> {
       if (currPost == length) {
         return getEndToken();
       }
-      
+
       if(inBlock > 0) {
         if(inQuote != 0) {
           if(inQuote != c) {
@@ -81,7 +81,7 @@ public class TokenScanner extends AbstractIterator<Token> {
           continue;
         }
       }
-      
+
       switch (c) {
       case TOKEN_PREFIX:
         if (currPost < length) {
@@ -139,7 +139,7 @@ public class TokenScanner extends AbstractIterator<Token> {
           return getEndToken();
         }
         break;
-        
+
       // maybe current token is closing
       case TOKEN_TAG:
       case TOKEN_EXPR_END:
@@ -215,14 +215,14 @@ public class TokenScanner extends AbstractIterator<Token> {
         break;
       }
     }
-    
+
     if(pos + 5 >= length) {
       return false;
     }
-    
+
     return "endraw".equals(String.valueOf(is, pos - 1, 6));
   }
-  
+
   private Token getEndToken() {
     tokenLength = currPost - tokenStart;
     int type = TOKEN_FIXED;
@@ -234,7 +234,7 @@ public class TokenScanner extends AbstractIterator<Token> {
 
   private Token newToken(int kind) {
     Token t = Token.newToken(kind, String.valueOf(is, lastStart, tokenLength), currLine);
-    
+
     if(t instanceof TagToken) {
       TagToken tt = (TagToken) t;
       if("raw".equals(tt.getTagName())) {
@@ -250,7 +250,7 @@ public class TokenScanner extends AbstractIterator<Token> {
     if(inRaw > 0 && t.getType() != TOKEN_FIXED) {
       return Token.newToken(TOKEN_FIXED, t.image, currLine);
     }
-    
+
     return t;
   }
 
@@ -271,7 +271,7 @@ public class TokenScanner extends AbstractIterator<Token> {
     if(t == null) {
       return endOfData();
     }
-    
+
     return t;
   }
 

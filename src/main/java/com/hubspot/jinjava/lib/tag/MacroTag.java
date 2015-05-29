@@ -80,27 +80,27 @@ public class MacroTag implements Tag {
     if(!matcher.find()) {
       throw new InterpretException("Unable to parse macro definition: " + tagNode.getHelpers());
     }
-    
+
     String name = matcher.group(1);
     String args = Objects.firstNonNull(matcher.group(2), "");
-    
+
     LinkedHashMap<String, Object> argNamesWithDefaults = new LinkedHashMap<>();
 
     List<String> argList = Lists.newArrayList(ARGS_SPLITTER.split(args));
     for(int i = 0; i < argList.size(); i++) {
       String arg = argList.get(i);
-      
+
       if(arg.contains("=")) {
         String argName = StringUtils.substringBefore(arg, "=").trim();
         String argValStr = StringUtils.substringAfter(arg, "=").trim();
-        
+
         if(argValStr.startsWith("[") && !argValStr.endsWith("]")) {
           while(i + 1 < argList.size() && !argValStr.endsWith("]")) {
             argValStr += ", " + argList.get(i + 1);
             i++;
           }
         }
-        
+
         Object argVal = interpreter.resolveELExpression(argValStr, tagNode.getLineNumber());
         argNamesWithDefaults.put(argName, argVal);
       }
@@ -108,19 +108,19 @@ public class MacroTag implements Tag {
         argNamesWithDefaults.put(arg, null);
       }
     }
-    
+
     boolean catchKwargs = false;
     boolean catchVarargs = false;
     boolean caller = false;
 
-    MacroFunction macro = new MacroFunction(tagNode.getChildren(), name, argNamesWithDefaults, 
+    MacroFunction macro = new MacroFunction(tagNode.getChildren(), name, argNamesWithDefaults,
         catchKwargs, catchVarargs, caller, interpreter.getContext());
     interpreter.getContext().addGlobalMacro(macro);
-    
+
     return "";
   }
 
   private static final Pattern MACRO_PATTERN = Pattern.compile("([a-zA-Z_][\\w_]*)[^\\(]*\\(([^\\)]*)\\)");
   private static final Splitter ARGS_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
-  
+
 }

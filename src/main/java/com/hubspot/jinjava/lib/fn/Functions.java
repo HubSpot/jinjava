@@ -36,7 +36,7 @@ public class Functions {
   public static String renderSuperBlock() {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     StringBuilder result = new StringBuilder();
-    
+
     @SuppressWarnings("unchecked")
     List<Node> superBlock = (List<Node>) interpreter.getContext().get("__superbl0ck__");
     if(superBlock != null) {
@@ -44,21 +44,21 @@ public class Functions {
         result.append(n.render(interpreter));
       }
     }
-    
+
     return result.toString();
   }
-  
+
   public static List<Object> immutableListOf(Object... items) {
     return Collections.unmodifiableList(Lists.newArrayList(items));
   }
-  
+
   @JinjavaDoc(value="formats a date to a string", params={
       @JinjavaParam(value="var", type="date", defaultValue="current time"),
       @JinjavaParam(value="format", defaultValue=StrftimeFormatter.DEFAULT_DATE_FORMAT)
   })
   public static String dateTimeFormat(Object var, String... format) {
     ZonedDateTime d = null;
-    
+
     if(var == null) {
       d = ZonedDateTime.now(ZoneOffset.UTC);
     }
@@ -74,11 +74,11 @@ public class Functions {
     else if(!ZonedDateTime.class.isAssignableFrom(var.getClass())) {
       throw new InterpretException("Input to datetimeformat function must be a date object, was: " + var.getClass());
     }
-    
+
     if(d == null) {
       return "";
     }
-    
+
     if(format.length > 0) {
       return StrftimeFormatter.format(d, format[0]);
     }
@@ -86,7 +86,7 @@ public class Functions {
       return StrftimeFormatter.format(d);
     }
   }
-  
+
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
   private static final String DEFAULT_END = "...";
 
@@ -101,10 +101,10 @@ public class Functions {
       int length = DEFAULT_TRUNCATE_LENGTH;
       boolean killwords = false;
       String ends = DEFAULT_END;
-      
+
       if (arg.length > 0) {
         try {
-          length = Integer.valueOf(Objects.toString(arg[0]));
+          length = Integer.parseInt(Objects.toString(arg[0]));
         } catch (Exception e) {
           ENGINE_LOG.warn("truncate(): error setting length for {}, using default {}", arg[0], DEFAULT_TRUNCATE_LENGTH);
         }
@@ -118,18 +118,18 @@ public class Functions {
           ENGINE_LOG.warn("truncate(); error setting killwords for {}", arg[1]);
         }
       }
-      
+
       if (arg.length > 2) {
         ends = Objects.toString(arg[2]);
       }
-      
+
       String string = (String) var;
 
       if (string.length() > length) {
         if(!killwords) {
           length = movePointerToJustBeforeLastWord(length, string);
         }
-        
+
         return string.substring(0, length) + ends;
       } else {
         return string;
@@ -145,7 +145,7 @@ public class Functions {
         break;
       }
     }
-    
+
     return pointer + 1;
   }
 

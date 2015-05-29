@@ -26,15 +26,15 @@ public class FloatFilter implements Filter {
     if(args.length > 0) {
       defaultVal = NumberUtils.toFloat(args[0], 0.0f);
     }
-    
+
     if(var == null) {
       return defaultVal;
     }
-    
+
     if(Number.class.isAssignableFrom(var.getClass())) {
       return ((Number) var).floatValue();
     }
-    
+
     return NumberUtils.toFloat(var.toString(), defaultVal);
   }
 

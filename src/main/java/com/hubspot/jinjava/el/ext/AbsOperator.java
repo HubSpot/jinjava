@@ -11,7 +11,7 @@ import de.odysseus.el.tree.impl.ast.AstUnary;
 public class AbsOperator {
 
   public static final ExtensionToken TOKEN = new Scanner.ExtensionToken("+");
-  
+
   public static final ExtensionHandler HANDLER = new ExtensionHandler(ExtensionPoint.UNARY) {
     @Override
     public AstNode createAstNode(AstNode... children) {
@@ -21,7 +21,7 @@ public class AbsOperator {
           if(o == null) {
             return null;
           }
-          
+
           if(o instanceof Float) {
             return Math.abs((Float)o);
           }
@@ -34,11 +34,11 @@ public class AbsOperator {
           if(o instanceof Long) {
             return Math.abs((Long)o);
           }
-          
+
           throw new IllegalArgumentException("Unable to apply abs operator on object of type: " + o.getClass());
         }
       });
     }
   };
-  
+
 }

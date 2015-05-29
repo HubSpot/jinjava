@@ -22,7 +22,7 @@ import com.hubspot.jinjava.lib.fn.Functions;
  * Liquid::Template.register_filter WeightFilter
  * Liquid::Template.register_filter ShopFilter
  * Liquid::Template.register_filter TagFilter
- * 
+ *
  * @author jstehler
  *
  */
@@ -37,7 +37,7 @@ public class Filters {
       return Functions.dateTimeFormat(ZonedDateTime.now(), arg);
     }
   }
-  
+
   public static class JsonFilter implements Filter {
     @Override
     public String getName() {
@@ -81,7 +81,7 @@ public class Filters {
       return val + " USD";
     }
   }
-  
+
   public static class WeightFilter implements Filter {
     @Override
     public String getName() {
@@ -130,7 +130,7 @@ public class Filters {
       return "/global/" + var;
     }
   }
-  
+
   public static class ShopShopifyAssetUrl implements Filter {
     @Override
     public String getName() {
@@ -142,7 +142,7 @@ public class Filters {
       return "/shopify/" + var;
     }
   }
-  
+
   public static class ShopScriptTag implements Filter {
     @Override
     public String getName() {
@@ -154,7 +154,7 @@ public class Filters {
       return String.format("<script src=\"%s\" type=\"text/javascript\"></script>", var);
     }
   }
-  
+
   public static class ShopStylesheetTag implements Filter {
     @Override
     public String getName() {
@@ -170,7 +170,7 @@ public class Filters {
       return String.format("<link href=\"%s\" rel=\"stylesheet\" type=\"text/css\"  media=\"%s\"  />", var, media);
     }
   }
-  
+
   public static class ShopLinkTo implements Filter {
     @Override
     public String getName() {
@@ -187,7 +187,7 @@ public class Filters {
       return String.format("<a href=\"%s\" title=\"%s\">%s</a>", url, title, var);
     }
   }
-  
+
   public static class ShopImgTagFilter implements Filter {
     @Override
     public String getName() {
@@ -200,7 +200,7 @@ public class Filters {
       if(args.length > 0) {
         alt = args[0];
       }
-      
+
       return String.format("<img src=\"%s\" alt=\"%s\" />", var, alt);
     }
   }
@@ -215,7 +215,7 @@ public class Filters {
     public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
       String label = Objects.toString(var);
       String tag = args[0];
-      
+
       return String.format("<a title=\"Show tag %s\" href=\"/collections/%s/%s\">%s</a>", tag, interpreter.getContext().get("handle"), tag, label);
     }
   }
@@ -233,7 +233,7 @@ public class Filters {
       if(args.length > 0) {
         cssClass = args[0];
       }
-      
+
       Collection<String> currentTags = getCurrentTags(interpreter);
       if(currentTags.contains(tag)) {
         return String.format("<span class=\"%s\">%s</span>", cssClass, tag);
@@ -254,10 +254,10 @@ public class Filters {
     public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
       String label = Objects.toString(var);
       String tag = args[0];
-      
+
       Set<String> tags = new TreeSet<String>(getCurrentTags(interpreter));
       tags.add(tag);
-      
+
       return String.format("<a title=\"Show tag %s\" href=\"/collections/%s/%s\">%s</a>",
           tag, interpreter.getContext().get("handle"), StringUtils.join(tags, '+'), label);
     }
@@ -276,7 +276,7 @@ public class Filters {
 
       Set<String> tags = new TreeSet<String>(getCurrentTags(interpreter));
       tags.remove(tag);
-      
+
       return String.format("<a title=\"Show tag %s\" href=\"/collections/%s/%s\">%s</a>",
           tag, interpreter.getContext().get("handle"), StringUtils.join(tags, '+'), label);
     }

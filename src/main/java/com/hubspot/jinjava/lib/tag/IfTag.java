@@ -38,14 +38,14 @@ public class IfTag implements Tag {
     if(StringUtils.isBlank(tagNode.getHelpers())) {
       throw new InterpretException("Tag 'if' expects expression", tagNode.getLineNumber());
     }
-    
+
     Iterator<Node> nodeIterator = tagNode.getChildren().iterator();
     TagNode nextIfElseTagNode = (TagNode) tagNode;
-    
+
     while(nextIfElseTagNode != null && !evaluateIfElseTagNode(nextIfElseTagNode, interpreter)) {
       nextIfElseTagNode = findNextIfElseTagNode(nodeIterator);
     }
-    
+
     StringBuilder sb = new StringBuilder();
     if(nextIfElseTagNode != null) {
       while(nodeIterator.hasNext()) {
@@ -56,7 +56,7 @@ public class IfTag implements Tag {
         sb.append(n.render(interpreter));
       }
     }
-    
+
     return sb.toString();
   }
 
@@ -81,7 +81,7 @@ public class IfTag implements Tag {
 
     return ObjectTruthValue.evaluate(interpreter.resolveELExpression(tagNode.getHelpers(), tagNode.getLineNumber()));
   }
-  
+
   @Override
   public String getEndTagName() {
     return ENDTAGNAME;

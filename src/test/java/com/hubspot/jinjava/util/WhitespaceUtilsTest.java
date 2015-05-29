@@ -18,7 +18,7 @@ public class WhitespaceUtilsTest {
     assertThat(startsWith("foo}", "{")).isFalse();
     assertThat(startsWith(" foo}", "{")).isFalse();
   }
-  
+
   @Test
   public void testEndsWith() {
     assertThat(endsWith("foo}", "}")).isTrue();
@@ -27,7 +27,7 @@ public class WhitespaceUtilsTest {
     assertThat(endsWith("foo", "}")).isFalse();
     assertThat(endsWith("foo ", "}")).isFalse();
   }
-  
+
   @Test
   public void testUnwrap() {
     assertThat(unwrap("'foobar'", "'", "'")).isEqualTo("foobar");
@@ -35,5 +35,5 @@ public class WhitespaceUtilsTest {
     assertThat(unwrap("  'foobar' ", "'", "'")).isEqualTo("foobar");
     assertThat(unwrap("\t  <b>foobar</b>\n", "<b>", "</b>")).isEqualTo("foobar");
   }
-  
+
 }

@@ -44,20 +44,20 @@ import de.odysseus.el.misc.TypeConverter;
 import de.odysseus.el.tree.TreeBuilder;
 
 /**
- * The main client API for the Jinjava library, instances of this class can be used to render 
+ * The main client API for the Jinjava library, instances of this class can be used to render
  * jinja templates with a given map of context values.
- * 
+ *
  * Example use:
- * 
+ *
  * <pre>
  *     Jinjava jinjava = new Jinjava();
  *     Map&lt;String, Object&gt; context = new HashMap&lt;&gt;();
  *     context.put("name", "Jared");
- *     
+ *
  *     String template = "Hello, {{ name }}";
  *     String renderedTemplate = jinjava.render(template, context);
  * </pre>
- * 
+ *
  * @author jstehler
  *
  */
@@ -65,11 +65,11 @@ public class Jinjava {
 
   private ExpressionFactory expressionFactory;
   private ResourceLocator resourceLocator;
-  
+
   private Context globalContext;
   private JinjavaConfig globalConfig;
-  
-  
+
+
   /**
    * Create a new Jinjava processor instance with the default global config
    */
@@ -79,19 +79,19 @@ public class Jinjava {
 
   /**
    * Create a new jinjava processor instance with the specified global config
-   * 
+   *
    * @param globalConfig used for all render operations performed by this processor instance
    */
   public Jinjava(JinjavaConfig globalConfig) {
     this.globalConfig = globalConfig;
     this.globalContext = new Context();
-    
+
     Properties expConfig = new Properties();
     expConfig.setProperty(TreeBuilder.class.getName(), ExtendedSyntaxBuilder.class.getName());
 
     TypeConverter converter = new TruthyTypeConverter();
     this.expressionFactory = new ExpressionFactoryImpl(expConfig, converter);
-    
+
     this.resourceLocator = new CascadingResourceLocator(new ClasspathResourceLocator(), new FileLocator());
   }
 
@@ -109,7 +109,7 @@ public class Jinjava {
   public ExpressionFactory getExpressionFactory() {
     return expressionFactory;
   }
-  
+
   /**
    * @return The global config used as a base for all render operations performed by this instance.
    */
@@ -120,13 +120,13 @@ public class Jinjava {
   /**
    * The global render context includes such things as the base set of tags, filters, exp tests and functions,
    * used as a base by all render operations performed by this instance
-   * 
+   *
    * @return the global render context
    */
   public Context getGlobalContext() {
     return globalContext;
   }
-  
+
   public ResourceLocator getResourceLocator() {
     return resourceLocator;
   }
@@ -137,10 +137,10 @@ public class Jinjava {
   public JinjavaDoc getJinjavaDoc() {
     return new JinjavaDocFactory(this).get();
   }
-  
+
   /**
    * Render the given template using the given context bindings.
-   * 
+   *
    * @param template jinja source template
    * @param bindings map of objects to put into scope for this rendering action
    * @return the rendered template
@@ -155,22 +155,22 @@ public class Jinjava {
         return input.getSeverity() == ErrorType.FATAL;
       }
     });
-    
+
     if(!fatalErrors.isEmpty()) {
       throw new FatalTemplateErrorsException(template, fatalErrors);
     }
-    
+
     return result.getOutput();
   }
-  
+
   /**
-   * Render the given template using the given context bindings. This method returns some 
+   * Render the given template using the given context bindings. This method returns some
    * metadata about the render process, including any errors which may have been encountered
    * such as unknown variables or syntax errors.
-   * 
-   * This method will not throw any exceptions; it is up to the caller to inspect the renderResult.errors 
+   *
+   * This method will not throw any exceptions; it is up to the caller to inspect the renderResult.errors
    * collection if necessary / desired.
-   * 
+   *
    * @param template jinja source template
    * @param bindings map of objects to put into scope for this rendering action
    * @return result object containing rendered output, render context, and any encountered errors
@@ -178,15 +178,15 @@ public class Jinjava {
   public RenderResult renderForResult(String template, Map<String, ?> bindings) {
     return renderForResult(template, bindings, globalConfig);
   }
-  
+
   /**
-   * Render the given template using the given context bindings. This method returns some 
+   * Render the given template using the given context bindings. This method returns some
    * metadata about the render process, including any errors which may have been encountered
    * such as unknown variables or syntax errors.
-   * 
-   * This method will not throw any exceptions; it is up to the caller to inspect the renderResult.errors 
+   *
+   * This method will not throw any exceptions; it is up to the caller to inspect the renderResult.errors
    * collection if necessary / desired.
-   * 
+   *
    * @param template jinja source template
    * @param bindings map of objects to put into scope for this rendering action
    * @param renderConfig used to override specific config values for this render operation
@@ -199,10 +199,10 @@ public class Jinjava {
     if(parentInterpreter != null) {
       renderConfig = parentInterpreter.getConfig();
     }
-    
+
     JinjavaInterpreter interpreter = new JinjavaInterpreter(this, context, renderConfig);
     JinjavaInterpreter.pushCurrent(interpreter);
-    
+
     try {
       String result = interpreter.render(template);
       return new RenderResult(result, interpreter.getContext(), interpreter.getErrors());
@@ -217,10 +217,10 @@ public class Jinjava {
       JinjavaInterpreter.popCurrent();
     }
   }
-  
+
   /**
    * Creates a new interpreter instance using the global context and global config
-   * 
+   *
    * @return a new interpreter instance
    */
   public JinjavaInterpreter newInterpreter() {

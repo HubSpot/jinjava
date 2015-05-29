@@ -11,8 +11,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
 @JinjavaDoc(
-    value="Return a copy of the value with all occurrences of a substring replaced with a new one. " + 
-          "The first argument is the substring that should be replaced, the second is the replacement " + 
+    value="Return a copy of the value with all occurrences of a substring replaced with a new one. " +
+          "The first argument is the substring that should be replaced, the second is the replacement " +
           "string. If the optional third argument count is given, only the first count occurrences are replaced",
     params={
         @JinjavaParam("s"),
@@ -38,23 +38,23 @@ public class ReplaceFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter,
       String... args) {
-    
+
     if(var == null) {
       throw new InterpretException("filter " + getName() + " requires a var to operate on");
     }
     if(args.length < 2) {
       throw new InterpretException("filter " + getName() + " requires two string args");
     }
-    
+
     String s = (String) var;
     String toReplace = args[0];
     String replaceWith = args[1];
     Integer count = null;
-    
+
     if(args.length > 2) {
       count = NumberUtils.createInteger(args[2]);
     }
-    
+
     if(count == null) {
       return StringUtils.replace(s, toReplace, replaceWith);
     }

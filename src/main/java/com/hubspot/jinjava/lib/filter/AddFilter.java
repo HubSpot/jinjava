@@ -41,7 +41,7 @@ public class AddFilter implements Filter {
     try {
       BigDecimal base = new BigDecimal(Objects.toString(object));
       BigDecimal addend = new BigDecimal(Objects.toString(arg[0]));
-  
+
       return base.add(addend);
     }
     catch(Exception e) {

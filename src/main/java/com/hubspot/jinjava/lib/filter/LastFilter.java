@@ -22,11 +22,11 @@ public class LastFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     ForLoop loop = ObjectIterator.getLoop(var);
     Object last = null;
-    
+
     while(loop.hasNext()) {
       last = loop.next();
     }
-    
+
     return last;
   }
 

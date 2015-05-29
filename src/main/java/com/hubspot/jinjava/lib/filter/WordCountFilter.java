@@ -21,11 +21,11 @@ public class WordCountFilter implements Filter {
     Matcher matcher = WORD_RE.matcher(Objects.toString(var, ""));
 
     int count = 0;
-    
+
     while(matcher.find()) {
       count++;
     }
-    
+
     return count;
   }
 

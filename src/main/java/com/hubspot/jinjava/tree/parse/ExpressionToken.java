@@ -25,7 +25,7 @@ public class ExpressionToken extends Token {
   private static final long serialVersionUID = 8307037212944170832L;
 
   private String expr;
-  
+
   public ExpressionToken(String image, int lineNumber) {
     super(image, lineNumber);
   }
@@ -53,7 +53,7 @@ public class ExpressionToken extends Token {
       setRightTrim(true);
       this.expr = WhitespaceUtils.unwrap(expr, "", "-");
     }
-    
+
     this.expr = StringUtils.trimToEmpty(this.expr);
   }
 

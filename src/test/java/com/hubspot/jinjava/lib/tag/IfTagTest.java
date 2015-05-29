@@ -23,33 +23,33 @@ import com.hubspot.jinjava.tree.TreeParser;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IfTagTest {
-  
+
   JinjavaInterpreter interpreter;
   @InjectMocks IfTag tag;
-  
+
   Jinjava jinjava;
   Context context;
-  
+
   @Before
   public void setup() {
     interpreter = new Jinjava().newInterpreter();
     context = interpreter.getContext();
   }
-  
+
   @Test
   public void itEvaluatesChildrenWhenExpressionIsTrue() throws Exception {
     context.put("foo", "bar");
     TagNode n = fixture("if");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("ifblock");
   }
-  
+
   @Test
   public void itDoesntEvalChildrenWhenExprIsFalse() throws Exception {
     context.put("foo", null);
     TagNode n = fixture("if");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("");
   }
-  
+
   @Test
   public void itTreatsNotFoundPropsAsNull() throws Exception {
     context.put("settings", new Object());
@@ -63,21 +63,21 @@ public class IfTagTest {
     TagNode n = fixture("if-else");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("ifblock");
   }
-  
+
   @Test
   public void itEvalsElseNotIfWhenExpIsFalse() throws Exception {
     context.put("foo", "");
     TagNode n = fixture("if-else");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("elseblock");
   }
-  
+
   @Test
   public void itEvalsOnlyIfInElifTreeWhenExpIsTrue() throws Exception {
     context.put("foo", "bar");
     TagNode n = fixture("if-elif-else");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("ifblock");
   }
-  
+
   @Test
   public void itEvalsOnlyElifInTreeWhenExp2IsTrue() throws Exception {
     context.put("foo", "");
@@ -102,14 +102,14 @@ public class IfTagTest {
     TagNode n = fixture("if-elif-elif-else");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("elif2block");
   }
-  
+
   @Test
   public void itEvalsExprWithFilter() throws Exception {
     context.put("items", Lists.newArrayList("foo", "bar"));
     TagNode n = fixture("if-expr-filter");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("ifblock");
   }
-  
+
   private TagNode fixture(String name) {
     try {
       return (TagNode) new TreeParser(interpreter, Resources.toString(
@@ -119,5 +119,5 @@ public class IfTagTest {
       throw Throwables.propagate(e);
     }
   }
-  
+
 }

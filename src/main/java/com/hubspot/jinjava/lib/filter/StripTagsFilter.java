@@ -15,17 +15,17 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 public class StripTagsFilter implements Filter {
 
   private static final Pattern WHITESPACE = Pattern.compile("\\s{2,}");
-  
+
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
     if(!(object instanceof String)) {
       return object;
     }
-    
+
     String val = interpreter.renderString((String) object);
     String strippedVal = Jsoup.parseBodyFragment(val).text();
     String normalizedVal = WHITESPACE.matcher(strippedVal).replaceAll(" ");
-    
+
     return normalizedVal;
   }
 
@@ -33,5 +33,5 @@ public class StripTagsFilter implements Filter {
   public String getName() {
     return "striptags";
   }
-  
+
 }
