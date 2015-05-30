@@ -3,6 +3,7 @@
 .project
 .settings/
 .factorypath
+.checkstyle
 
 # Intellij
 .idea/
