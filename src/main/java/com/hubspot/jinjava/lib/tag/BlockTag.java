@@ -39,7 +39,7 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
       @JinjavaSnippet(
       code="{% extends \"custom/page/web_page_basic/my_template.html\" %}\n" +
       "{% block my_sidebar %}\n" +
-      "<!-- Content that will render within a block of the same name in the parent template -->\n" + 
+      "Content that will render within a block of the same name in the parent template\n" + 
       "{% endblock %}"),
     })
 public class BlockTag implements Tag {
