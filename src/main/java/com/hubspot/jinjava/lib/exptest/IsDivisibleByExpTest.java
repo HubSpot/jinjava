@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.exptest;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
@@ -13,9 +14,9 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
   snippets={
     @JinjavaSnippet(
       code="{% if variable isdivisbleby 5 %}\n" +
-      "<!--code to render if variable can be divided by 5 -->\n" +
+      "<!-- code to render if variable can be divided by 5 -->\n" +
       "{% else %}\n" +
-      "<!--code to render if variable cannot be divided by 5 -->\n" +
+      "<!-- code to render if variable cannot be divided by 5 -->\n" +
       "{% endif %}"),
   })
 public class IsDivisibleByExpTest implements ExpTest {
