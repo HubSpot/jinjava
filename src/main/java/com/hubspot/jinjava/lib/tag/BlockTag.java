@@ -33,7 +33,7 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
 @JinjavaDoc(
     value="Blocks are regions in a template which can be overridden by child templates",
     params={
-        @JinjavaParam("block_name", desc="A unique name for the block that should be used in both the parent and child template")
+        @JinjavaParam(value="block_name", desc="A unique name for the block that should be used in both the parent and child template")
     },
     snippets={
       @JinjavaSnippet(

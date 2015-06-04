@@ -30,7 +30,7 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
 @JinjavaDoc(value="Template inheritance allows you to build a base “skeleton” template that contains all the "
     + "common elements of your site and defines blocks that child templates can override.",
     params={
-      @JinjavaParam("path", desc="Design Manager file path to parent template")
+      @JinjavaParam(value="path", desc="Design Manager file path to parent template")
     },
     snippets={
       @JinjavaSnippet(
