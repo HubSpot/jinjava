@@ -30,7 +30,7 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
 @JinjavaDoc(value="Template inheritance allows you to build a base “skeleton” template that contains all the "
     + "common elements of your site and defines blocks that child templates can override.",
     params={
-      @JinjavaParam("path")
+      @JinjavaParam("path", desc="Design Manager file path to parent template")
     },
     snippets={
       @JinjavaSnippet(
@@ -59,7 +59,7 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
           desc="The {% extends %} tag is the key here. It tells the template engine that this template “extends” another template. "
               + "When the template system evaluates this template, it first locates the parent. The extends tag should be the first "
               + "tag in the template. Everything before it is printed out normally and may cause confusion.",
-          code="{% extends \"base.html\" %}\n" +
+          code="{% extends \"custom/page/web_page_basic/my_template.html\" %}\n" +
                 "{% block title %}Index{% endblock %}\n" +
                 "{% block head %}\n" +
                 "    {{ super() }}\n" +

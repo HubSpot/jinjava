@@ -29,9 +29,17 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
  * {% block name %}
  *
  */
-@JinjavaDoc(value="Blocks are regions in a template which can be overridden by child templates",
+@JinjavaDoc(
+    value="Blocks are regions in a template which can be overridden by child templates",
     params={
-        @JinjavaParam("block_name")
+        @JinjavaParam("block_name", desc="A unique name for the block that should be used in both the parent and child template")
+    },
+    snippets={
+      @JinjavaSnippet(
+      code="{% extends \"custom/page/web_page_basic/my_template.html\" %}\n" +
+      "{% block my_sidebar %}\n" +
+      "<!-- Content that will render within a block of the same name in the parent template -->\n" + 
+      "{% endblock %}"),
     })
 public class BlockTag implements Tag {
 
