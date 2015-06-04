@@ -7,13 +7,13 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
 @JinjavaDoc(
-	value="Return true if the object is iterable (sequence, dict, etc)",
-	snippets={
-		@JinjavaSnippet(
-			code="{% if variable is iterable %}\n" +
-			"<!-- code to render if items in a variable can be iterated through -->\n" +
-			"{% endif %}"),
-	})
+    value="Return true if the object is iterable (sequence, dict, etc)",
+    snippets={
+        @JinjavaSnippet(
+            code="{% if variable is iterable %}\n" +
+            "<!--code to render if items in a variable can be iterated through-->\n" +
+            "{% endif %}"),
+    })
 public class IsIterableExpTest implements ExpTest {
 
   @Override

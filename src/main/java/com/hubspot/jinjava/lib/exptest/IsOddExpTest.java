@@ -11,9 +11,9 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
   snippets={
   @JinjavaSnippet(
       code="{% if variable is odd %}\n" +
-      "<!-- code to render if variable is an odd number -->\n" +
+      "<!--code to render if variable is an odd number-->\n" +
       "{% else %}\n" +
-      "<!-- code to render if variable is an even number -->\n" + 
+      "<!--code to render if variable is an even number-->\n" +
       "{% endif %}"),
   })
 public class IsOddExpTest implements ExpTest {
