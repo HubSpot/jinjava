@@ -7,7 +7,14 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
 @JinjavaDoc(value="Return true if variable is pointing at same object as other variable",
-    params=@JinjavaParam(value="other", type="object") )
+    params=@JinjavaParam(value="other", type="object", desc="A second object to check the variables value against"), 
+    snippets={
+  @JinjavaSnippet(
+      code="{% if var_one is sameas var_two %}\n" +
+      "<!-- code to render if variables have the same value -->\n" +
+      "{% endif %}"),
+  }
+    )
 public class IsSameAsExpTest implements ExpTest {
 
   @Override

@@ -4,7 +4,14 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
-@JinjavaDoc("return true if object is undefined")
+@JinjavaDoc(
+	value="Return true if object is undefined",
+	snippets={
+		@JinjavaSnippet(
+			code="{% if variable is undefined %}\n" +
+			"<!-- code to render if variable is undefined -->\n" +
+			"{% endif %}"),
+	})
 public class IsUndefinedExpTest implements ExpTest {
 
   @Override
