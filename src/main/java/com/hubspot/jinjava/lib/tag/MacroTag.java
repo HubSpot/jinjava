@@ -19,49 +19,30 @@ import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.TagNode;
 
 
-@JinjavaDoc(value="Macros are comparable with functions in regular programming languages. They are "
-    + "useful to put often used idioms into reusable functions to not repeat yourself.\n\n"
-    + "If the macro was defined in a different template you have to import it first.\n\n" +
-
-"Inside macros you have access to three special variables:\n\n" +
-
-"varargs\n" +
-"  If more positional arguments are passed to the macro than accepted by \n" +
-"  the macro they end up in the special varargs variable as list of values.\n" +
-"kwargs\n" +
-"  Like varargs but for keyword arguments. All unconsumed keyword arguments \n" +
-"  are stored in this special variable.\n" +
-"caller\n" +
-"  If the macro was called from a call tag the caller is stored in this \n" +
-"  variable as macro which can be called.\n\n" +
-
-"Macros also expose some of their internal details. The following attributes \n" +
-"are available on a macro object:\n\n" +
-
-"name\n" +
-"  The name of the macro. {{ input.name }} will print input.\n" +
-"arguments\n" +
-"  A tuple of the names of arguments the macro accepts.\n" +
-"defaults\n" +
-"  A tuple of default values.\n" +
-"catch_kwargs\n" +
-"  This is true if the macro accepts extra keyword arguments (ie: accesses the \n" +
-"  special kwargs variable).\n" +
-"catch_varargs\n" +
-"  This is true if the macro accepts extra positional arguments (ie: accesses \n" +
-"  the special varargs variable).\n" +
-"caller\n" +
-"  This is true if the macro accesses the special caller variable and may be \n" +
-"  called from a call tag.\n\n" +
-
-"If a macro name starts with an underscore it’s not exported and can’t be imported.",
+@JinjavaDoc(value="HubL macros allow you to print multiple statements with a dynamic value or values",
+    params={
+      @JinjavaParam(value="macro_name", desc="The name given to a macro"),
+      @JinjavaParam(value="argument_names", desc="Named arguments that are dynamically, when the macro is run")
+    },
     snippets={
-      @JinjavaSnippet(desc="Here a small example of a macro that renders a form element",
-          code="{% macro input(name, value='', type='text', size=20) -%}\n" +
-                "  <input type=\"{{ type }}\" name=\"{{ name }}\" value=\"{{ value|e }}\" size=\"{{ size }}\">\n" +
-                "{%- endmacro %}"),
-      @JinjavaSnippet(desc="The macro can then be called like a function in the namespace",
-          code="{{ input('username') }}\n{{ input('password', type='password') }}")
+       @JinjavaSnippet(desc="Basic macro syntax",
+        code="{% macro name_of_macro(argument_name, argument_name2) %}\n" +
+             "{{ argument_name }}\n" +
+             "{{ argument_name2 }}\n" +
+             "{% endmacro %}\n" +
+             "{{ name_of_macro(\'value to pass to argument 1\', \'value to pass to argument 2\') }}"
+             ),
+      @JinjavaSnippet(desc="Example of a macro used to print CSS3 properties with the various vendor prefixes",
+          code="{% macro trans(value) %}\n" +
+                "-webkit-transition: {{value}};\n" +
+                "-moz-transition: {{value}};\n" +
+                "-o-transition: {{value}};\n" +
+                "-ms-transition: {{value}};\n" +
+                "transition: {{value}};\n" +
+                "{% endmacro %}\n" +
+                ),
+      @JinjavaSnippet(desc="The macro can then be called like a function. The macro is printed for anchor tags in CSS.",
+          code="a { {{ trans('all .2s ease-in-out') }} }"),
     })
 public class MacroTag implements Tag {
 

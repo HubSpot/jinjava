@@ -50,7 +50,7 @@ import com.hubspot.jinjava.tree.TagNode;
         code="{% set var_one = \"String 1\" %}\n" +
               "{% set var_two = \"String 2\" %}\n" +
               "{% set sequence = [var_one,  var_two] %}"
-      ), 
+      ),
     })
 public class SetTag implements Tag {
 
