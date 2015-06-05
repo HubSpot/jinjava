@@ -32,15 +32,17 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 
 
-@JinjavaDoc(value="includes multiple files in one template or stylesheet",
+@JinjavaDoc(
+    value="includes multiple files in one template or stylesheet",
     params={
-      @JinjavaParam("path", desc="Design Manager path to the file that you would like to include")
+      @JinjavaParam(value="path", desc="Design Manager path to the file that you would like to include")
     },
     snippets={
       @JinjavaSnippet(code="{% include \"custom/page/web_page_basic/my_footer.html\" %}"),
       @JinjavaSnippet(code="{% include \"generated_global_groups/2781996615.html\" %}"),
       @JinjavaSnippet(code="{% include \"hubspot/styles/patches/recommended.css\" %}"),
     })
+
 public class IncludeTag implements Tag {
   private static final String INCLUDE_PATH_PROPERTY = "__includeP@th__";
 
