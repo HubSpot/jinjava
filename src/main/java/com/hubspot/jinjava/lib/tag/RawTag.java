@@ -10,7 +10,15 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 
 
-@JinjavaDoc("process all inner content as plain text, including any template tokens")
+@JinjavaDoc(
+  value="Process all inner HubL as plain text",
+  snippets={
+    @JinjavaSnippet(
+      code="{% raw %}\n" +
+      "The personalization token for a contact's first name is {{ contact.firstname }}\n" +
+      "{% endraw %}"
+      ),
+  })
 public class RawTag implements Tag {
 
   @Override

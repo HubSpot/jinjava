@@ -41,12 +41,12 @@ import com.hubspot.jinjava.tree.TagNode;
     },
     snippets={
      @JinjavaSnippet(
-        desc="Set a variable in with a set statement and print the variable in a expression", 
+        desc="Set a variable in with a set statement and print the variable in a expression",
         code="{% set primaryColor = \"#F7761F\" %}\n" +
-             "{{ primaryColor }}\n" 
-      ), 
+             "{{ primaryColor }}\n"
+      ),
      @JinjavaSnippet(
-        desc="You can combine multiple values or variables into a sequence variable", 
+        desc="You can combine multiple values or variables into a sequence variable",
         code="{% set var_one = \"String 1\" %}\n" +
               "{% set var_two = \"String 2\" %}\n" +
               "{% set sequence = [var_one,  var_two] %}"
