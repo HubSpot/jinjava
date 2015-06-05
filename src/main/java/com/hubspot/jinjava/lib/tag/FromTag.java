@@ -19,19 +19,26 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
 
 
 @JinjavaDoc(
-    value="Alternatively you can import names from the template into the current namespace",
+    value="Alternative to the import tag that lets you import and use specific macros from one template to another",
+    params={
+        @JinjavaParam(value="path", desc="Design Manager path to file to import from"),
+        @JinjavaParam(value="macro_name", desc="Name of macro or comma separated macros to import (import macro_name)")
+    },
     snippets={
         @JinjavaSnippet(
-            code="{% from 'forms.html' import input as input_field, textarea %}\n" +
-                  "<dl>\n" +
-                  "<dt>Username</dt>\n" +
-                  "<dd>{{ input_field('username') }}</dd>\n" +
-                  "<dt>Password</dt>\n" +
-                  "<dd>{{ input_field('password', type='password') }}</dd>\n" +
-                  "</dl>\n" +
-                  "<p>\n" +
-                  "{{ textarea('comment') }}\n" +
-                  "</p>")
+            desc="This example uses an html file containing two macros.",
+            code="{% macro header(tag, title_text) %}\n" +
+                 "<header> <{{ tag }}>{{ title_text }} </{{tag}}> </header>\n" +
+                 "{% endmacro %}\n" +
+                 "{% macro footer(tag, footer_text) %}\n" +
+                 "<footer> <{{ tag }}>{{ footer_text }} </{{tag}}> </footer>\n" +
+                 "{% endmacro %}"
+        ),
+        @JinjavaSnippet(
+            desc="The macro html file is accessed from a different template, but only the footer macro is imported and executed",
+            code="{% from 'custom/page/web_page_basic/my_macros.html' import footer %}\n" +
+                 "{{ footer('h2', 'My footer info') }}"
+        ),
     })
 public class FromTag implements Tag {
 
