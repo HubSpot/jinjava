@@ -34,10 +34,23 @@ import com.hubspot.jinjava.tree.TagNode;
  * @author anysome
  *
  */
-@JinjavaDoc(value="Assigns the result of an expression to a variable",
+@JinjavaDoc(value="Assigns the value or result of a statement to a variable",
     params={
-        @JinjavaParam(value="var", type="variable identifier"),
-        @JinjavaParam(value="expr", type="expression")
+        @JinjavaParam(value="var", type="variable identifier", desc="The name of the variable"),
+        @JinjavaParam(value="expr", type="expression", desc="The value stored in the variable (string, number, boolean, or sequence")
+    },
+    snippets={
+     @JinjavaSnippet(
+        desc="Set a variable in with a set statement and print the variable in a expression", 
+        code="{% set primaryColor = \"#F7761F\" %}\n" +
+             "{{ primaryColor }}\n" 
+      ), 
+     @JinjavaSnippet(
+        desc="You can combine multiple values or variables into a sequence variable", 
+        code="{% set var_one = \"String 1\" %}\n" +
+              "{% set var_two = \"String 2\" %}\n" +
+              "{% set sequence = [var_one,  var_two] %}"
+      ), 
     })
 public class SetTag implements Tag {
 
