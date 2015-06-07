@@ -13,8 +13,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     snippets={
       @JinjavaSnippet(
       code="{% if variable is mapping %}\n" +
-      "<!--code to render when object is a dict-->\n" +
-      "{% endif %}"),
+      "     <!--code to render when object is a dict-->\n" +
+      "{% endif %}")
   })
 
 public class IsMappingExpTest implements ExpTest {

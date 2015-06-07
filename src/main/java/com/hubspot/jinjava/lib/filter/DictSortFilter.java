@@ -15,23 +15,18 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Sort a dict and yield (key, value) pairs. Because dicts are unsorted you may want to use this "
-        + "function to order them by either key or value",
+    value="Sort a dict and yield (key, value) pairs.",
     params={
-        @JinjavaParam("value"),
-        @JinjavaParam(value="case_sensitive", type="boolean", defaultValue="False"),
-        @JinjavaParam(value="by", type="enum key|value", defaultValue="key")
+        @JinjavaParam(value="value", desc="Dict to sort"),
+        @JinjavaParam(value="case_sensitive", type="boolean", defaultValue="False", desc="Determines whether or not the sorting is case sensitive"),
+        @JinjavaParam(value="by", type="enum key|value", defaultValue="key", desc="Sort by dict key or value")
     },
     snippets={
         @JinjavaSnippet(
-            desc="sort the dict by key, case insensitive",
-            code="{% for item in mydict|dictsort %}"),
-        @JinjavaSnippet(
-            desc="sort the dict by key, case sensitive",
-            code="{% for item in mydict|dictsort(true) %}"),
-        @JinjavaSnippet(
-            desc="sort the dict by value, case insensitive",
-            code="{% for item in mydict|dictsort(false, 'value') %}")
+            desc="Sort the dict by value, case insensitive",
+            code="{% for item in contact|dictsort(false, 'value') %}\n" +
+                 "    {{item}}\n" +
+                 "{% endfor %}")
     })
 public class DictSortFilter implements Filter {
 

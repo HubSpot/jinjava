@@ -15,8 +15,8 @@ import com.hubspot.jinjava.tree.TagNode;
   snippets={
     @JinjavaSnippet(
       code="{% raw %}\n" +
-      "The personalization token for a contact's first name is {{ contact.firstname }}\n" +
-      "{% endraw %}"
+           "    The personalization token for a contact's first name is {{ contact.firstname }}\n" +
+           "{% endraw %}"
       ),
   })
 public class RawTag implements Tag {

@@ -34,9 +34,9 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
         code="{% set string_to_split = \"Stephen; David; Cait; Nancy; Mike; Joe; Niall; Tim; Amanda\" %}\n" +
         "{% set names = string_to_split|split(';', 4) %}\n" +
         "<ul>\n" +
-        "{% for name in names %}\n" +
-        "<li>{{ name }}</li>\n" +
-        "{% endfor %}\n" +
+        "   {% for name in names %}\n" +
+        "       <li>{{ name }}</li>\n" +
+        "   {% endfor %}\n" +
         "</ul>")
     })
 

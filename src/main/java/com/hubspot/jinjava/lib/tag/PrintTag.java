@@ -9,7 +9,15 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.TagNode;
 
 
-@JinjavaDoc(value="Echos the result of the expression", params=@JinjavaParam(value="expr", type="expression"))
+@JinjavaDoc(
+  value="Echos the result of the expression",
+  params=@JinjavaParam(value="expr", type="expression", desc="Expression to print"),
+  snippets={
+      @JinjavaSnippet(
+        code="{% set string_to_echo = \"Print me\" %}\n" +
+             "{% print string_to_echo %}")
+  })
+
 public class PrintTag implements Tag {
 
   @Override

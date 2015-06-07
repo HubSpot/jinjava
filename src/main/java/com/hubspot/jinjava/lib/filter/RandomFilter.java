@@ -34,7 +34,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     @JinjavaSnippet(
       desc="The example below is a standard blog loop that returns a single random post.",
       code="{% for content in contents|random %}\n" +
-           "<div class=\"post-item\">Post item markup</div>" +
+           "    <div class=\"post-item\">Post item markup</div>" +
            "{% endfor %}")
   })
 

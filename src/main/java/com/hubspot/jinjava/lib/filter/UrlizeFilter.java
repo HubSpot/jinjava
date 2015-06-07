@@ -23,9 +23,11 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
         @JinjavaParam(value="target", desc="Adds target attr to generated link tag")
     },
     snippets={
-        @JinjavaSnippet(desc="links are shortened to 40 chars and defined with rel=\"nofollow\"",
+        @JinjavaSnippet(
+            desc="links are shortened to 40 chars and defined with rel=\"nofollow\"",
             code="{{ \"http://www.hubspot.com\"|urlize(40) }}"),
-        @JinjavaSnippet(desc="If target is specified, the target attribute will be added to the <a> tag",
+        @JinjavaSnippet(
+            desc="If target is specified, the target attribute will be added to the <a> tag",
             code="{{ \"http://www.hubspot.com\"|urlize(10, true, target='_blank') }}"),
     })
 public class UrlizeFilter implements Filter {

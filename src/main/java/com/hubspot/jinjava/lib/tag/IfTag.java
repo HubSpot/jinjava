@@ -46,7 +46,7 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
             "Varible named number is less than or equal to 6.\n" +
             "{% else %}\n" +
             "Varible named number is greater than 6.\n" +
-            "{% endif %}"),
+            "{% endif %}")
     })
 public class IfTag implements Tag {
 

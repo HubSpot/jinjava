@@ -10,7 +10,16 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 
-@JinjavaDoc("Autoescape the tag's contents")
+@JinjavaDoc(
+  value="Autoescape the tag's contents",
+  hidden=true,
+  snippets={
+    @JinjavaSnippet(
+      code="{% autoescape %}\n" +
+      "<div>Code to escape</div>\n"
+      "{% endautoescape %}"
+      ),
+  })
 public class AutoEscapeTag implements Tag {
 
   @Override

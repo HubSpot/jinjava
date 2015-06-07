@@ -33,7 +33,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
       @JinjavaSnippet(
         code="{% set nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] %}\n" +
              "{% for num in nums|reverse %}\n" +
-             "{{ num }}\n" +
+             "    {{ num }}\n" +
              "{% endfor %}")
     })
 

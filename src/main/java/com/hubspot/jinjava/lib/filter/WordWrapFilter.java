@@ -23,7 +23,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
         @JinjavaParam(
           desc="Since HubSpot's compiler automatically strips whitespace, this filter will only work in tags where whitespace is retained, such as a <pre>",
           code="<pre>\n" +
-               "{{ \"Lorem ipsum dolor sit amet, consectetur adipiscing elit\"|wordwrap(10) }}\n" +
+               "    {{ \"Lorem ipsum dolor sit amet, consectetur adipiscing elit\"|wordwrap(10) }}\n" +
                "</pre>")
     })
 

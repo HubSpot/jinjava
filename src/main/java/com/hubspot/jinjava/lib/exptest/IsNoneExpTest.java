@@ -11,8 +11,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     snippets={
       @JinjavaSnippet(
       code="{% unless variable is none %}\n" +
-      "<!--code to render unless the variable is null-->\n" +
-      "{% endunless %}"),
+      "     <!--code to render unless the variable is null-->\n" +
+      "{% endunless %}")
   })
 public class IsNoneExpTest implements ExpTest {
 

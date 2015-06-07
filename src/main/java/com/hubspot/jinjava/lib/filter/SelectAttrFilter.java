@@ -20,13 +20,13 @@ import com.hubspot.jinjava.util.VariableChain;
     params={
         @JinjavaParam(value="sequence", type="sequence", desc="Sequence to test"),
         @JinjavaParam(value="attr", desc="attribute to filter on", desc="Attribute to test for and select items that contain it"),
-        @JinjavaParam(value="exp_test", type="name of expression test", defaultValue="truthy", desc="Specify which expression test to run for making selection")
+        @JinjavaParam(value="exp_test", type="name of expression test", defaultValue="truthy", desc="Specify which expression test to run for making the selection")
     },
     snippets={
         @JinjavaSnippet(
             desc="This loop would select any post containing content.post_list_summary_featured_image",
             code="{% for content in contents|selectattr('post_list_summary_featured_image') %}\n" +
-                 "<div class=\"post-item\">Post in listing markup</div>\n" +
+                 "    <div class=\"post-item\">Post in listing markup</div>\n" +
                  "{% endfor %}")
     })
 

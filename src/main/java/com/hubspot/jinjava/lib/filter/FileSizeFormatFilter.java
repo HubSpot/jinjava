@@ -19,7 +19,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     snippets={
       @JinjavaSnippet(
         code="{% set bytes = 100000 %}\n" +
-        "{{ bytes|filesizeformat }}")
+             "{{ bytes|filesizeformat }}")
     })
 
 public class FileSizeFormatFilter implements Filter {

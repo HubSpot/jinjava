@@ -42,8 +42,8 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
         @JinjavaSnippet(
           desc="In the example below, a class of \"odd\" and \"even\" and even are applied to posts in a listing",
           code="{% for content in contents %}\n" +
-          "<div class=\"post-item {% cycle \'odd\',\'even\' %}\">Blog post content</div>\n" +
-          "{% endfor %}"),
+               "    <div class=\"post-item {% cycle \'odd\',\'even\' %}\">Blog post content</div>\n" +
+               "{% endfor %}"),
     })
 
 

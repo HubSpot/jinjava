@@ -13,11 +13,11 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     },
   snippets={
     @JinjavaSnippet(
-      code="{% if variable isdivisbleby 5 %}\n" +
-      "<!--code to render if variable can be divided by 5-->\n" +
+      code="{% if variable is divisbleby 5 %}\n" +
+      "   <!--code to render if variable can be divided by 5-->\n" +
       "{% else %}\n" +
-      "<!--code to render if variable cannot be divided by 5-->\n" +
-      "{% endif %}"),
+      "   <!--code to render if variable cannot be divided by 5-->\n" +
+      "{% endif %}")
   })
 public class IsDivisibleByExpTest implements ExpTest {
 

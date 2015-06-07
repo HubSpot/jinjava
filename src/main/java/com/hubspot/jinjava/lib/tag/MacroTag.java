@@ -26,23 +26,26 @@ import com.hubspot.jinjava.tree.TagNode;
       @JinjavaParam(value="argument_names", desc="Named arguments that are dynamically, when the macro is run")
     },
     snippets={
-       @JinjavaSnippet(desc="Basic macro syntax",
+       @JinjavaSnippet(
+        desc="Basic macro syntax",
         code="{% macro name_of_macro(argument_name, argument_name2) %}\n" +
-             "{{ argument_name }}\n" +
-             "{{ argument_name2 }}\n" +
+             "    {{ argument_name }}\n" +
+             "    {{ argument_name2 }}\n" +
              "{% endmacro %}\n" +
              "{{ name_of_macro(\"value to pass to argument 1\", \"value to pass to argument 2\") }}"
              ),
-      @JinjavaSnippet(desc="Example of a macro used to print CSS3 properties with the various vendor prefixes",
+      @JinjavaSnippet(
+          desc="Example of a macro used to print CSS3 properties with the various vendor prefixes",
           code="{% macro trans(value) %}\n" +
-                "-webkit-transition: {{value}};\n" +
-                "-moz-transition: {{value}};\n" +
-                "-o-transition: {{value}};\n" +
-                "-ms-transition: {{value}};\n" +
-                "transition: {{value}};\n" +
+                "   -webkit-transition: {{value}};\n" +
+                "   -moz-transition: {{value}};\n" +
+                "   -o-transition: {{value}};\n" +
+                "   -ms-transition: {{value}};\n" +
+                "   transition: {{value}};\n" +
                 "{% endmacro %}"
                 ),
-      @JinjavaSnippet(desc="The macro can then be called like a function. The macro is printed for anchor tags in CSS.",
+      @JinjavaSnippet(
+          desc="The macro can then be called like a function. The macro is printed for anchor tags in CSS.",
           code="a { {{ trans(\"all .2s ease-in-out\") }} }"),
     })
 

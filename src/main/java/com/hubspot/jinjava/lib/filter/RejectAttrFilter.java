@@ -27,7 +27,7 @@ import com.hubspot.jinjava.util.VariableChain;
         @JinjavaSnippet(
             desc="This loop would reject any post containing content.post_list_summary_featured_image",
             code="{% for content in contents|rejectattr('post_list_summary_featured_image') %}\n" +
-                 "<div class=\"post-item\">Post in listing markup</div>\n" +
+                 "    <div class=\"post-item\">Post in listing markup</div>\n" +
                  "{% endfor %}")
     })
 public class RejectAttrFilter implements Filter {

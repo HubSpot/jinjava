@@ -16,7 +16,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     @JinjavaSnippet(
       desc="The example below is a standard blog loop that's order is randomized on page load",
       code="{% for content in contents|shuffle %}\n" +
-           "<div class=\"post-item\">Markup of each post</div>\n" +
+           "    <div class=\"post-item\">Markup of each post</div>\n" +
            "{% endfor %}")
   })
 public class ShuffleFilter implements Filter {

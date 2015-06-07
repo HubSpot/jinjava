@@ -43,20 +43,21 @@ import com.hubspot.jinjava.util.ObjectIterator;
  * @author anysome
  *
  */
-@JinjavaDoc(value="Outputs the inner content for each item in the given iterable",
+@JinjavaDoc(
+  value="Outputs the inner content for each item in the given iterable",
   params={
         @JinjavaParam(value="items_to_iterate", desc="Specifies the name of a single item in the sequence or dict."),
     },
   snippets={
     @JinjavaSnippet(
       code="{% for item in items %}\n" +
-      "{{ item }}\n" +
-      "{% endfor %}"),
+           "    {{ item }}\n" +
+           "{% endfor %}"),
     @JinjavaSnippet(
       desc="Standard blog listing loop",
       code="{% for content in contents %}\n" +
-      "Post content variables\n" +
-      "{% endfor %}"),
+           "    Post content variables\n" +
+           "{% endfor %}")
   })
 
 public class ForTag implements Tag {

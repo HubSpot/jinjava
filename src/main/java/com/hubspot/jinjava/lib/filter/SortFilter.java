@@ -32,7 +32,7 @@ import com.hubspot.jinjava.util.Variable;
             desc="This filter requires all parameters to sort by an attribute in HubSpot. Below is a set of posts that are retrieved and alphabetized by 'name'.",
             code="{% set my_posts = blog_recent_posts('default', limit=5) %}\n" +
                  "{% for item in my_posts|sort(False, False,'name') %}\n" +
-                 "{{ item.name }}<br>\n" +
+                 "    {{ item.name }}<br>\n" +
                  "{% endfor %}")
     })
 public class SortFilter implements Filter {

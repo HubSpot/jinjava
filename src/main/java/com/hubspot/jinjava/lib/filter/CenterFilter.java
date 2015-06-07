@@ -20,8 +20,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
         @JinjavaSnippet(
             desc="Since HubSpot's compiler automatically strips whitespace, this filter will only work in tags where whitespace is retained, such as a <pre>",
             code="<pre>\n" +
-                 "{% set var = \"string to center\" %}\n" +
-                 "{{ var|center(80) }}\n" +
+                 "    {% set var = \"string to center\" %}\n" +
+                 "    {{ var|center(80) }}\n" +
                  "</pre>")
     })
 public class CenterFilter implements Filter {

@@ -18,7 +18,7 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
 
 @JinjavaDoc(
     value="Unless is a conditional just like 'if' but works on the inverse logic.",
-    params=@JinjavaParam(value="expr", type="expression"),
+    params=@JinjavaParam(value="expr", type="expression", desc="Condition to evaluate"),
     snippets=@JinjavaSnippet(code="{% unless x < 0 %} x is greater than zero {% endunless %}"))
 public class UnlessTag extends IfTag {
 

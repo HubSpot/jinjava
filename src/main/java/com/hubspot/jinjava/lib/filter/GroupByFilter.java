@@ -20,28 +20,20 @@ import com.hubspot.jinjava.util.VariableChain;
 @JinjavaDoc(
     value="Group a sequence of objects by a common attribute.",
     params={
-        @JinjavaParam("value"),
-        @JinjavaParam("attribute")
+        @JinjavaParam("value", desc="The dict to iterate through and group by a common attribute"),
+        @JinjavaParam("attribute", desc="The common attribute to group by")
     },
     snippets={
         @JinjavaSnippet(
             desc="If you have a list of dicts or objects that represent persons with gender, first_name and last_name attributes and you want to group all users by genders you can do something like this",
-            code="<ul>\n" +
-                "{% for group in persons|groupby('gender') %}\n" +
-                "    <li>{{ group.grouper }}<ul>\n" +
-                "    {% for person in group.list %}\n" +
-                "        <li>{{ person.first_name }} {{ person.last_name }}</li>\n" +
-                "    {% endfor %}</ul></li>\n" +
-                "{% endfor %}\n" +
-                "</ul>"),
-        @JinjavaSnippet(
-            desc="Additionally it’s possible to use tuple unpacking for the grouper and list. As you can see the item we’re grouping by is stored in the grouper attribute and the list contains all the objects that have this grouper in common. " +
-                 "It’s possible to use dotted notation to group by the child attribute of another attribute.",
-            code="<ul>\n" +
-                "{% for grouper, list in persons|groupby('gender') %}\n" +
-                "    ...\n" +
-                "{% endfor %}\n" +
-                "</ul>")
+            code="<ul>\n"
+                 "    {% for group in contents|groupby('blog_post_author') %}\n"
+                 "        <li>{{ group.grouper }}<ul>\n"
+                 "            {% for content in group.list %}\n"
+                 "                <li>{{ content.name }}</li>\n"
+                 "            {% endfor %}</ul></li>\n"
+                 "     {% endfor %}\n"
+                 "</ul>\n")
     })
 public class GroupByFilter implements Filter {
 

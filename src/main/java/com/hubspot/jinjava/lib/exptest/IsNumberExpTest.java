@@ -11,10 +11,10 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     snippets={
       @JinjavaSnippet(
         code="{% if variable is number %}\n" +
-        "{{ my_var * 1000000 }}\n" +
-        "{% else %}\n" +
-        "The variable is not a number.\n" +
-        "{% endif %}"),
+             "       {{ my_var * 1000000 }}\n" +
+             "{% else %}\n" +
+             "       The variable is not a number.\n" +
+             "{% endif %}")
   })
 
 public class IsNumberExpTest implements ExpTest {

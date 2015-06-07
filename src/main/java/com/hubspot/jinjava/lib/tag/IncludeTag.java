@@ -40,7 +40,7 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
     snippets={
       @JinjavaSnippet(code="{% include \"custom/page/web_page_basic/my_footer.html\" %}"),
       @JinjavaSnippet(code="{% include \"generated_global_groups/2781996615.html\" %}"),
-      @JinjavaSnippet(code="{% include \"hubspot/styles/patches/recommended.css\" %}"),
+      @JinjavaSnippet(code="{% include \"hubspot/styles/patches/recommended.css\" %}")
     })
 
 public class IncludeTag implements Tag {

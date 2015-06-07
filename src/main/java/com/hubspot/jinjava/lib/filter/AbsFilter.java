@@ -32,7 +32,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     snippets={
       @JinjavaSnippet(
         code="{% set my_number = -53 %}\n" +
-        "{{ my_number|abs }}")
+             "{{ my_number|abs }}")
     })
 public class AbsFilter implements Filter {
 

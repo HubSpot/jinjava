@@ -29,10 +29,10 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     },
     snippets={
         @JinjavaSnippet(
-            desc="This example is an alternative to using the isdivisibleby expression test",
+            desc="This example is an alternative to using the is divisibleby expression test",
             code="{% set num = 10 %}\n" +
                  "{% if num|divisible(2) %}\n" +
-                 "The number is divisble by 2\n" +
+                 "    The number is divisble by 2\n" +
                  "{% endif %}")
     })
 

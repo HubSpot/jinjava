@@ -28,10 +28,10 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
         @JinjavaSnippet(
             desc="This example uses an html file containing two macros.",
             code="{% macro header(tag, title_text) %}\n" +
-                 "<header> <{{ tag }}>{{ title_text }} </{{tag}}> </header>\n" +
+                 "    <header> <{{ tag }}>{{ title_text }} </{{tag}}> </header>\n" +
                  "{% endmacro %}\n" +
                  "{% macro footer(tag, footer_text) %}\n" +
-                 "<footer> <{{ tag }}>{{ footer_text }} </{{tag}}> </footer>\n" +
+                 "    <footer> <{{ tag }}>{{ footer_text }} </{{tag}}> </footer>\n" +
                  "{% endmacro %}"
         ),
         @JinjavaSnippet(

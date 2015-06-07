@@ -51,7 +51,7 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
             code="{% import 'custom/page/web_page_basic/my_macros.html' as header_footer %}\n" +
                  "{{ header_footer.header('h1', 'My page title') }}\n" +
                  "{{ header_footer.footer('h3', 'Company footer info') }}"
-        ),
+        )
   })
 
 @SuppressWarnings("unchecked")

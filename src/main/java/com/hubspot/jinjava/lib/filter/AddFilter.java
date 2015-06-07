@@ -33,7 +33,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     snippets={
       @JinjavaSnippet(
         code="{% set my_num = 40 %} \n" +
-        "{{ my_num|add(13) }}")
+             "{{ my_num|add(13) }}")
     })
 public class AddFilter implements Filter {
 

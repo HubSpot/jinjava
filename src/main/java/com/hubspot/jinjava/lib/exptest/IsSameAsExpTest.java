@@ -12,8 +12,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     snippets={
   @JinjavaSnippet(
       code="{% if var_one is sameas var_two %}\n" +
-      "<!--code to render if variables have the same value as one another-->\n" +
-      "{% endif %}"),
+           "    <!--code to render if variables have the same value as one another-->\n" +
+           "{% endif %}")
   }
     )
 public class IsSameAsExpTest implements ExpTest {
