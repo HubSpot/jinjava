@@ -38,8 +38,7 @@ import com.hubspot.jinjava.tree.TagNode;
     @JinjavaSnippet(
       code="{% ifchanged %}\n" +
            "Variable to test if changed\n" +
-           "{% endifchanged %}" +
-      )
+           "{% endifchanged %}")
   })
 public class IfchangedTag implements Tag {
 
