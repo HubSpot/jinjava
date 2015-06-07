@@ -16,10 +16,11 @@ import com.hubspot.jinjava.tree.TagNode;
   snippets={
     @JinjavaSnippet(
       code="{% autoescape %}\n" +
-      "<div>Code to escape</div>\n"
+      "<div>Code to escape</div>\n" +
       "{% endautoescape %}"
-      ),
+      )
   })
+
 public class AutoEscapeTag implements Tag {
 
   @Override

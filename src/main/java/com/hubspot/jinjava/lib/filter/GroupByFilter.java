@@ -20,21 +20,22 @@ import com.hubspot.jinjava.util.VariableChain;
 @JinjavaDoc(
     value="Group a sequence of objects by a common attribute.",
     params={
-        @JinjavaParam("value", desc="The dict to iterate through and group by a common attribute"),
-        @JinjavaParam("attribute", desc="The common attribute to group by")
+        @JinjavaParam(value="value", desc="The dict to iterate through and group by a common attribute"),
+        @JinjavaParam(value="attribute", desc="The common attribute to group by")
     },
     snippets={
         @JinjavaSnippet(
             desc="If you have a list of dicts or objects that represent persons with gender, first_name and last_name attributes and you want to group all users by genders you can do something like this",
-            code="<ul>\n"
-                 "    {% for group in contents|groupby('blog_post_author') %}\n"
-                 "        <li>{{ group.grouper }}<ul>\n"
-                 "            {% for content in group.list %}\n"
-                 "                <li>{{ content.name }}</li>\n"
-                 "            {% endfor %}</ul></li>\n"
-                 "     {% endfor %}\n"
-                 "</ul>\n")
+            code="<ul>\n" +
+                 "    {% for group in contents|groupby('blog_post_author') %}\n" +
+                 "        <li>{{ group.grouper }}<ul>\n" +
+                 "            {% for content in group.list %}\n" +
+                 "                <li>{{ content.name }}</li>\n" +
+                 "            {% endfor %}</ul></li>\n" +
+                 "     {% endfor %}\n" +
+                 "</ul>")
     })
+
 public class GroupByFilter implements Filter {
 
   @Override
