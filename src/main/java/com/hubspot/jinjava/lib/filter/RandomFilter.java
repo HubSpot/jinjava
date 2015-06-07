@@ -24,9 +24,20 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-@JinjavaDoc(value="Return a random item from the sequence.", params=@JinjavaParam(value="seq", type="sequence"))
+@JinjavaDoc(
+  value="Return a random item from the sequence.",
+  params=@JinjavaParam(value="seq", type="sequence", desc="Sequence to return a random item from"),
+  snippets={
+    @JinjavaSnippet(
+      desc="The example below is a standard blog loop that returns a single random post.",
+      code="{% for content in contents|random %}\n" +
+           "<div class=\"post-item\">Post item markup</div>" +
+           "{% endfor %}")
+  })
+
 public class RandomFilter implements Filter {
 
   @Override

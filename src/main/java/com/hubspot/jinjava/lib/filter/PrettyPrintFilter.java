@@ -17,10 +17,19 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
-@JinjavaDoc(value="Pretty print a variable. Useful for debugging.", params=@JinjavaParam(value="value", type="object"))
+@JinjavaDoc(
+  value="Pretty print a variable. Useful for debugging.", 
+  params=@JinjavaParam(value="value", type="object", desc="Object to Pretty Print"),
+  snippets={
+    @JinjavaSnippet(
+      code="{% set this_var =\"Variable that I want to debug\" %}\n" +
+           "{{ this_var|pprint }}")
+  })
+
 public class PrettyPrintFilter implements Filter {
 
   @Override

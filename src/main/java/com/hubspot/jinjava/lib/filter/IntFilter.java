@@ -4,6 +4,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 /**
@@ -12,11 +13,16 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  *   You can override this default using the first parameter.
  */
 @JinjavaDoc(
-    value="Convert the value into an integer. If the conversion doesn’t work it will return 0. "
-        + "You can override this default using the first parameter.",
+    value="Convert the value into an integer."
     params={
-        @JinjavaParam("value"),
-        @JinjavaParam(value="default", type="number", defaultValue="0")
+        @JinjavaParam(value="value", desc="The value to convert to an integer"),
+        @JinjavaParam(value="default", type="number", defaultValue="0", desc="Value to return if the conversion fails")
+    },
+    snippets={
+        @JinjavaSnippet(
+            desc="This example converts a text field string value to a integer",
+            code="{% text \"my_text\" value='25', export_to_template_context=True %}\n" +
+                 "{% widget_data.my_text.value|int + 28 %}")
     })
 public class IntFilter implements Filter {
 

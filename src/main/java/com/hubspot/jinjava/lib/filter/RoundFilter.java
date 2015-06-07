@@ -13,16 +13,11 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
 @JinjavaDoc(
-    value="Round the number to a given precision. The first parameter specifies the precision (default is 0), the second the rounding method:\n\n" +
-          "<ul>\n" +
-          "<li>'common' rounds either up or down</li>\n" +
-          "<li>'ceil' always rounds up</li>\n" +
-          "<li>'floor' always rounds down</li>\n" +
-          "<ul>\n\n",
+    value="Round the number to a given precision.", 
     params={
-        @JinjavaParam(value="value", type="number"),
-        @JinjavaParam(value="precision", type="number", defaultValue="0"),
-        @JinjavaParam(value="method", type="enum common|ceil|floor", defaultValue="common")
+        @JinjavaParam(value="value", type="number", desc="The number to round"),
+        @JinjavaParam(value="precision", type="number", defaultValue="0", desc="Specifies the precision of rounding"),
+        @JinjavaParam(value="method", type="enum common|ceil|floor", defaultValue="common", desc="Method of rounding: 'common' rounds either up or down, 'ceil' always rounds up, and 'floor' always rounds down.")
     },
     snippets={
         @JinjavaSnippet(code="{{ 42.55|round }}", output="43.0", desc="Note that even if rounded to 0 precision, a float is returned."),

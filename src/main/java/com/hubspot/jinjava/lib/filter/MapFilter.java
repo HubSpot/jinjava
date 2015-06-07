@@ -15,11 +15,10 @@ import com.hubspot.jinjava.util.VariableChain;
 
 
 @JinjavaDoc(
-    value="Applies a filter on a sequence of objects or looks up an attribute. This is useful when "
-        + "dealing with lists of objects but you are really only interested in a certain value of it.",
+    value="Applies a filter on a sequence of objects or looks up an attribute.",
     params={
-        @JinjavaParam(value="value", type="object"),
-        @JinjavaParam("attribute")
+        @JinjavaParam(value="value", type="object", desc="Sequence to apply filter or dict to lookup attribute"),
+        @JinjavaParam("attribute", desc="Filter to apply to an object or dict attribute to lookup")
     },
     snippets={
         @JinjavaSnippet(
@@ -27,7 +26,8 @@ import com.hubspot.jinjava.util.VariableChain;
             code="Users on this page: {{ users|map(attribute='username')|join(', ') }}"),
         @JinjavaSnippet(
             desc="Alternatively you can let it invoke a filter by passing the name of the filter and the arguments afterwards. A good example would be applying a text conversion filter on a sequence",
-            code="Users on this page: {{ titles|map('lower')|join(', ') }}")
+            code="{% set seq = ['item1', 'item2', 'item3'] %}\n" +
+                 "{{ seq|map('upper') }}")
     })
 public class MapFilter implements Filter {
 

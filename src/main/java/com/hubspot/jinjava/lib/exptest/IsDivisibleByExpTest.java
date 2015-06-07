@@ -9,14 +9,14 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(value="Check if a variable is divisible by a number",
     params={
-        @JinjavaParam(value="num", type="number", desc="The number to check whether a numeric variable is divisble by")
+        @JinjavaParam(value="num", type="number", desc="The number to check whether a number is divisble by")
     },
   snippets={
     @JinjavaSnippet(
       code="{% if variable isdivisbleby 5 %}\n" +
-      "<!-- code to render if variable can be divided by 5 -->\n" +
+      "<!--code to render if variable can be divided by 5-->\n" +
       "{% else %}\n" +
-      "<!-- code to render if variable cannot be divided by 5 -->\n" +
+      "<!--code to render if variable cannot be divided by 5-->\n" +
       "{% endif %}"),
   })
 public class IsDivisibleByExpTest implements ExpTest {

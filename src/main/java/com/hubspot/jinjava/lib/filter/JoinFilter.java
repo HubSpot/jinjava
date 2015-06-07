@@ -16,13 +16,11 @@ import com.hubspot.jinjava.util.VariableChain;
 
 
 @JinjavaDoc(
-    value="Return a string which is the concatenation of the strings in the sequence. "
-        + "The separator between elements is an empty string per default, you can define "
-        + "it with the optional parameter",
+    value="Return a string which is the concatenation of the strings in the sequence."
     params={
-        @JinjavaParam("value"),
-        @JinjavaParam(value="d", desc="separator string"),
-        @JinjavaParam(value="attr", desc="object attribute to use in joining")
+        @JinjavaParam(value="value", desc="The "),
+        @JinjavaParam(value="d", desc="The separator string used to join the items"),
+        @JinjavaParam(value="attr", desc="Optional dict object attribute to use in joining")
     },
     snippets={
         @JinjavaSnippet(

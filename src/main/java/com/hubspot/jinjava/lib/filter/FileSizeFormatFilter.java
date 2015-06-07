@@ -7,16 +7,21 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Format the value like a ‘human-readable’ file size (i.e. 13 kB, 4.1 MB, 102 Bytes, etc). "
-        + "Per default decimal prefixes are used (Mega, Giga, etc.), if the second parameter is set "
-        + "to True the binary prefixes are used (Mebi, Gibi).",
+    value="Format the value like a ‘human-readable’ file size (i.e. 13 kB, 4.1 MB, 102 Bytes, etc).",
     params={
-        @JinjavaParam("value"),
-        @JinjavaParam(value="binary", type="boolean", defaultValue="False")
+        @JinjavaParam(value="value", desc="The value to convert to filesize format"),
+        @JinjavaParam(value="binary", type="boolean", defaultValue="False", desc="Use binary prefixes (Mebi, Gibi)")
+    },
+    snippets={
+      @JinjavaSnippet(
+        code="{% set bytes = 100000 %}\n" +
+        "{{ bytes|filesizeformat }}")
     })
+
 public class FileSizeFormatFilter implements Filter {
 
   @Override

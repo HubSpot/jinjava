@@ -9,6 +9,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 /**
@@ -24,10 +25,21 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 @JinjavaDoc(
     value="Splits the input string into a list on the given separator",
     params={
-        @JinjavaParam("s"),
-        @JinjavaParam(value="separator", defaultValue=" "),
-        @JinjavaParam(value="limit", type="number", defaultValue="0", desc="limits resulting list by putting remainder of string into last list item")
+        @JinjavaParam(value="s", desc="The string to split"),
+        @JinjavaParam(value="separator", defaultValue=" ", desc="Specifies the separator to split the variable by"),
+        @JinjavaParam(value="limit", type="number", defaultValue="0", desc="Limits resulting list by putting remainder of string into last list item", desc="")
+    },
+    snippets={
+      @JinjavaSnippet(
+        code="{% set string_to_split = \"Stephen; David; Cait; Nancy; Mike; Joe; Niall; Tim; Amanda\" %}\n" +
+        "{% set names = string_to_split|split(';', 4) %}\n" +
+        "<ul>\n" +
+        "{% for name in names %}\n" +
+        "<li>{{ name }}</li>\n" +
+        "{% endfor %}\n" +
+        "</ul>")
     })
+
 public class SplitFilter implements Filter {
 
   @Override

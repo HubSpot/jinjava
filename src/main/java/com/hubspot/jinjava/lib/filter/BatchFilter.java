@@ -15,25 +15,23 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 
 @JinjavaDoc(
-    value="A filter that batches items. It works pretty much like slice just the other way round. "
-        + "It returns a list of lists with the given number of items. If you provide a second parameter "
-        + "this is used to fill up missing items.",
+    value="A filter that groups up items within a sequence",
     params={
-        @JinjavaParam("value"),
-        @JinjavaParam(value="linecount", type="number", desc="lines to break into", defaultValue="0"),
-        @JinjavaParam(value="fill_with", desc="used to fill up missing items")
+        @JinjavaParam(value="value", desc="The sequence or dict that the filter is applied to",
+        @JinjavaParam(value="linecount", type="number", desc="Number of items to include in the batch", defaultValue="0"),
+        @JinjavaParam(value="fill_with", desc="Value used to fill up missing items")
     },
     snippets={
         @JinjavaSnippet(
             code="{% set items=[1, 2, 3, 4, 5] %}\n\n" +
                 "<table>\n" +
-                "{%- for row in items|batch(3, '&nbsp;') %}\n" +
+                "{% for row in items|batch(3, '&nbsp;') %}\n" +
                 "  <tr>\n" +
                 "  {%- for column in row %}\n" +
                 "    <td>{{ column }}</td>\n" +
                 "  {%- endfor %}\n" +
                 "  </tr>\n" +
-                "{%- endfor %}\n" +
+                "{% endfor %}\n" +
                 "</table>",
             output="<table>\n" +
                 "  <tr>\n" +
@@ -47,8 +45,8 @@ import com.hubspot.jinjava.util.ObjectIterator;
                 "    <td>&nbsp;</td>\n" +
                 "  </tr>\n" +
                 "</table>")
-    }
-)
+    })
+
 public class BatchFilter implements Filter {
 
   @Override

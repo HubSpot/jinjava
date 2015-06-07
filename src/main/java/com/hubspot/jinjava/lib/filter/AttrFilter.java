@@ -4,17 +4,22 @@ import java.util.Arrays;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.VariableChain;
 
 @JinjavaDoc(
-    value="Get an attribute of an object. foo|attr(\"bar\") works like foo.bar just that always an attribute is returned and items are not looked up.",
+    value="Renders the attribute of a dictionary",
     params={
-        @JinjavaParam("obj"),
-        @JinjavaParam(value="name", desc="attribute name")
-    }
-)
+        @JinjavaParam(value="obj", desc="The dictionary containing the attribute"),
+        @JinjavaParam(value="name", desc="attribute name", desc="The dictionary attribute name to access")
+    },
+    snippets={
+      @JinjavaSnippet(
+        desc="The filter example below is equivalent to rendering a variable that exists within a dictionary, such as content.absolute_url.",
+        code="{{ content|attr('absolute_url') }}")
+     })
 public class AttrFilter implements Filter {
 
   @Override

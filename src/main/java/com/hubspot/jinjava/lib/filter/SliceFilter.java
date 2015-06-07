@@ -13,24 +13,24 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 
 @JinjavaDoc(
-    value="Slice an iterator and return a list of lists containing those items. "
-        + "If you pass it a second argument it’s used to fill missing values on the last iteration.",
+    value="Slice an iterator and return a list of lists containing those items.",
     params={
-        @JinjavaParam(value="value", type="sequence"),
-        @JinjavaParam(value="slices", type="number"),
-        @JinjavaParam(value="fill_with", desc="used to fill missing values on the last iteration")
+        @JinjavaParam(value="value", type="sequence", desc="The sequence or dict that the filter is applied to"),
+        @JinjavaParam(value="slices", type="number", desc="Specifies how many items will be sliced"),
+        @JinjavaParam(value="fill_with", desc="Used to fill missing values on the last iteration")
     },
     snippets={
         @JinjavaSnippet(
             desc="create a div containing three ul tags that represent columns",
-            code="<div class=\"columwrapper\">\n" +
-                "  {%- for column in items|slice(3) %}\n" +
+            code="{% set items = ['laptops', 'tablets', 'smartphones', 'smart watches', 'TVs'] %}\n" +
+                "<div class=\"columwrapper\">\n" +
+                "  {% for column in items|slice(3) %}\n" +
                 "    <ul class=\"column-{{ loop.index }}\">\n" +
-                "    {%- for item in column %}\n" +
+                "    {% for item in column %}\n" +
                 "      <li>{{ item }}</li>\n" +
-                "    {%- endfor %}\n" +
+                "    {% endfor %}\n" +
                 "    </ul>\n" +
-                "  {%- endfor %}\n" +
+                "  {% endfor %}\n" +
                 "</div>\n")
     })
 public class SliceFilter implements Filter {

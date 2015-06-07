@@ -16,18 +16,20 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Return a copy of the passed string, each line indented by 4 spaces. The first line is not indented."
-        + "If you want to change the number of spaces or indent the first line too you can pass additional "
-        + "parameters to the filter",
+    value="Uses whitespace to indent a string.",
     params={
-        @JinjavaParam("s"),
-        @JinjavaParam(value="width", type="number", defaultValue="4"),
-        @JinjavaParam(value="indentfirst", type="boolean", defaultValue="False")
+        @JinjavaParam(value="s", desc="The string to indent"),
+        @JinjavaParam(value="width", type="number", defaultValue="4", desc="Amount of whitespace to indent"),
+        @JinjavaParam(value="indentfirst", type="boolean", defaultValue="False", desc="If True, first line will be indented")
     },
     snippets={
-        @JinjavaSnippet(desc="indent by two spaces and indent the first line too",
-            code="{{ mytext|indent(2, true) }}")
+        @JinjavaSnippet(desc="Since HubSpot's compiler automatically strips whitespace, this filter will only work in tags where whitespace is retained, such as a <pre>",
+            code="<pre>\n" +
+                 "{% set var = \"string to indent\" %}\n" +
+                 "{{ var|indent(2, true) }}\n" +
+                 "</pre>")
     })
+
 public class IndentFilter implements Filter {
 
   @Override
