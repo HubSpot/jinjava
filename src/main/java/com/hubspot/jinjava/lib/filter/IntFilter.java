@@ -13,7 +13,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  *   You can override this default using the first parameter.
  */
 @JinjavaDoc(
-    value="Convert the value into an integer."
+    value="Convert the value into an integer.",
     params={
         @JinjavaParam(value="value", desc="The value to convert to an integer"),
         @JinjavaParam(value="default", type="number", defaultValue="0", desc="Value to return if the conversion fails")

@@ -20,8 +20,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
         + "nor undefined are automatically escaped. It automatically prepends a space in front of the item if "
         + "the filter returned something unless the second parameter is false.",
     params={
-        @JinjavaParam(value="d", type="dict"),
-        @JinjavaParam(value="autospace", type="boolean", defaultValue="True", desc="automatically prepend a space in front of the item")
+        @JinjavaParam(value="d", type="dict", desc="Dict to filter"),
+        @JinjavaParam(value="autospace", type="boolean", defaultValue="True", desc="Automatically prepend a space in front of the item")
     },
     snippets={
         @JinjavaSnippet(
