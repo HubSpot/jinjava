@@ -27,7 +27,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     params={
         @JinjavaParam(value="s", desc="The string to split"),
         @JinjavaParam(value="separator", defaultValue=" ", desc="Specifies the separator to split the variable by"),
-        @JinjavaParam(value="limit", type="number", defaultValue="0", desc="Limits resulting list by putting remainder of string into last list item", desc="")
+        @JinjavaParam(value="limit", type="number", defaultValue="0", desc="Limits resulting list by putting remainder of string into last list item")
     },
     snippets={
       @JinjavaSnippet(

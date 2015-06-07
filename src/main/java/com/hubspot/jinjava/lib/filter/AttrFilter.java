@@ -13,7 +13,7 @@ import com.hubspot.jinjava.util.VariableChain;
     value="Renders the attribute of a dictionary",
     params={
         @JinjavaParam(value="obj", desc="The dictionary containing the attribute"),
-        @JinjavaParam(value="name", desc="attribute name", desc="The dictionary attribute name to access")
+        @JinjavaParam(value="name", desc="The dictionary attribute name to access")
     },
     snippets={
       @JinjavaSnippet(

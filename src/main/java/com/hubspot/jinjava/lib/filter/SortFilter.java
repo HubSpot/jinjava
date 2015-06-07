@@ -21,7 +21,7 @@ import com.hubspot.jinjava.util.Variable;
         @JinjavaParam(value="value", type="iterable", desc="The sequence or dict to sort through iteration"),
         @JinjavaParam(value="reverse", type="boolean", defaultValue="False", desc="Boolean to reverse the sort order"),
         @JinjavaParam(value="case_sensitive", type="boolean", defaultValue="False", desc="Determines whether or not the sorting is case sensitive"),
-        @JinjavaParam("attribute", desc="Specifies an attribute to sort by")
+        @JinjavaParam(value="attribute", desc="Specifies an attribute to sort by")
     },
     snippets={
         @JinjavaSnippet(
