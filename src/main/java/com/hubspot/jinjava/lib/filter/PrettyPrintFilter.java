@@ -22,7 +22,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
 @JinjavaDoc(
-  value="Pretty print a variable. Useful for debugging.", 
+  value="Pretty print a variable. Useful for debugging.",
   params=@JinjavaParam(value="value", type="object", desc="Object to Pretty Print"),
   snippets={
     @JinjavaSnippet(

@@ -13,7 +13,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
 @JinjavaDoc(
-    value="Round the number to a given precision.", 
+    value="Round the number to a given precision.",
     params={
         @JinjavaParam(value="value", type="number", desc="The number to round"),
         @JinjavaParam(value="precision", type="number", defaultValue="0", desc="Specifies the precision of rounding"),
@@ -22,7 +22,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     snippets={
         @JinjavaSnippet(code="{{ 42.55|round }}", output="43.0", desc="Note that even if rounded to 0 precision, a float is returned."),
         @JinjavaSnippet(code="{{ 42.55|round(1, 'floor') }}", output="42.5"),
-        @JinjavaSnippet(code="{{ 42.55|round|int }}", output="43", desc="If you need a real integer, pipe it through int"),
+        @JinjavaSnippet(code="{{ 42.55|round|int }}", output="43", desc="If you need a real integer, pipe it through int")
     }
 )
 public class RoundFilter implements Filter {

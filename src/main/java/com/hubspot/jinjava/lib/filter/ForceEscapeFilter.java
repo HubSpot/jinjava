@@ -14,7 +14,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     params=@JinjavaParam(value="value", desc="Value to escape"),
     snippets={
       @JinjavaSnippet(
-        code="{% set escape_string = \"<div>This markup is printed as text</div>\" %}\n" + 
+        code="{% set escape_string = \"<div>This markup is printed as text</div>\" %}\n" +
              "{{ escape_string|forceescape }}\n")
     })
 

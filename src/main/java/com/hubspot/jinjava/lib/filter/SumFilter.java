@@ -22,7 +22,7 @@ import com.hubspot.jinjava.util.VariableChain;
     },
     snippets={
       @JinjavaSnippet(
-        code="{% set sum_this = [1, 2, 3, 4, 5] %}\n" + 
+        code="{% set sum_this = [1, 2, 3, 4, 5] %}\n" +
              "{{ sum_this|sum }}\n"),
         @JinjavaSnippet(
             desc="Sum up only certain attributes",

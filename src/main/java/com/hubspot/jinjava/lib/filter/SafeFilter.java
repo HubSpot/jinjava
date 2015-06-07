@@ -13,10 +13,10 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  *
  */
 @JinjavaDoc(
-	value="Mark the value as safe, which means that in an environment with automatic escaping enabled this variable will not be escaped.",
-	snippets={
-		@JinjavaSnippet(code="{{ content.post_list_content|safe }} ")
-	})
+    value="Mark the value as safe, which means that in an environment with automatic escaping enabled this variable will not be escaped.",
+    snippets={
+        @JinjavaSnippet(code="{{ content.post_list_content|safe }}")
+    })
 
 public class SafeFilter implements Filter {
 
