@@ -19,7 +19,7 @@ import com.hubspot.jinjava.util.VariableChain;
     value="Filters a sequence of objects by applying a test to an attribute of an object and only selecting the ones with the test succeeding.",
     params={
         @JinjavaParam(value="sequence", type="sequence", desc="Sequence to test"),
-        @JinjavaParam(value="attr", desc="attribute to filter on", desc="Attribute to test for and select items that contain it"),
+        @JinjavaParam(value="attr", desc="Attribute to test for and select items that contain it"),
         @JinjavaParam(value="exp_test", type="name of expression test", defaultValue="truthy", desc="Specify which expression test to run for making the selection")
     },
     snippets={

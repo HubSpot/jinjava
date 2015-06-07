@@ -28,7 +28,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     value="adds a number to the existing value",
     params={
         @JinjavaParam(value="number", type="number", desc="Number or numeric variable to add to"),
-        @JinjavaParam(value="addend", type="number", desc="The parameter in parentheses is added to the base number")
+        @JinjavaParam(value="addend", type="number", desc="The number added to the base number")
     },
     snippets={
       @JinjavaSnippet(
