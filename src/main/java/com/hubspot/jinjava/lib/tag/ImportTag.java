@@ -11,6 +11,8 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -28,10 +30,29 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
  * @author jstehler
  */
 
-@JinjavaDoc("Jinja2 supports putting often used code into macros. These macros can go into "
-    + "different templates and get imported from there. This works similar to the import "
-    + "statements in Python. It’s important to know that imports are cached and imported "
-    + "templates don’t have access to the current template variables, just the globals by default.")
+@JinjavaDoc(
+  value="Allows you to access and use macros from a different template",
+  params={
+        @JinjavaParam(value="path", desc="Design Manager path to file to import"),
+        @JinjavaParam(value="import_name", desc="Give a name to the imported file to access macros from")
+    },
+    snippets={
+        @JinjavaSnippet(
+            desc="This example uses an html file containing two macros.",
+            code="{% macro header(tag, title_text) %}\n" +
+                 "<header> <{{ tag }}>{{ title_text }} </{{tag}}> </header>\n" +
+                 "{% endmacro %}\n" +
+                 "{% macro footer(tag, footer_text) %}\n" +
+                 "<footer> <{{ tag }}>{{ footer_text }} </{{tag}}> </footer>\n" +
+                 "{% endmacro %}"
+        ),
+        @JinjavaSnippet(
+            desc="The macro html file is imported from a different template. Macros are then accessed from the name given to the import.",
+            code="{% import 'custom/page/web_page_basic/my_macros.html' as header_footer %}\n" +
+                 "{{ header_footer.header('h1', 'My page title') }}\n" +
+                 "{{ header_footer.footer('h3', 'Company footer info') }}"
+        )
+  })
 
 @SuppressWarnings("unchecked")
 public class ImportTag implements Tag {

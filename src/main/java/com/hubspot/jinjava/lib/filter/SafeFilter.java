@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 /**
@@ -10,7 +11,12 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  * This is currently implemented as a pass-through for the given variable.
  *
  */
-@JinjavaDoc("Mark the value as safe which means that in an environment with automatic escaping enabled this variable will not be escaped.")
+@JinjavaDoc(
+    value="Mark the value as safe, which means that in an environment with automatic escaping enabled this variable will not be escaped.",
+    snippets={
+        @JinjavaSnippet(code="{{ content.post_list_content|safe }}")
+    })
+
 public class SafeFilter implements Filter {
 
   @Override

@@ -4,14 +4,20 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Convert the value into a floating point number. If the conversion doesn’t work it will return 0.0. "
-        + "You can override this default using the first parameter.",
+    value="Convert the value into a floating point number.",
     params={
-        @JinjavaParam("value"),
-        @JinjavaParam(value="default", type="float", defaultValue="0.0")
+        @JinjavaParam(value="value", desc="Value to convert to a float"),
+        @JinjavaParam(value="default", type="float", defaultValue="0.0", desc="Value to return if conversion fails")
+    },
+    snippets={
+        @JinjavaSnippet(
+            desc="This example converts a text field string value to a float",
+            code="{% text \"my_text\" value='25', export_to_template_context=True %}\n" +
+                 "{% widget_data.my_text.value|float + 28 %}")
     })
 public class FloatFilter implements Filter {
 

@@ -15,19 +15,20 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
 @JinjavaDoc(
-    value="Converts URLs in plain text into clickable links. If you pass the filter an additional integer "
-        + "it will shorten the urls to that number. Also a third argument exists that makes the urls “nofollow”",
+    value="Converts URLs in plain text into clickable links.",
     params={
-        @JinjavaParam("value"),
-        @JinjavaParam(value="trim_url_limit", type="number"),
-        @JinjavaParam(value="nofollow", type="boolean", defaultValue="False", desc="adds nofollow to generated link tag"),
-        @JinjavaParam(value="target", desc="adds target attr to generated link tag")
+        @JinjavaParam(value="value", desc="string URL to convert to an anchor"),
+        @JinjavaParam(value="trim_url_limit", type="number", desc="Sets a character limit"),
+        @JinjavaParam(value="nofollow", type="boolean", defaultValue="False", desc="Adds nofollow to generated link tag"),
+        @JinjavaParam(value="target", desc="Adds target attr to generated link tag")
     },
     snippets={
-        @JinjavaSnippet(desc="links are shortened to 40 chars and defined with rel=\"nofollow\"",
-            code="{{ mytext|urlize(40, true) }}"),
-        @JinjavaSnippet(desc="If target is specified, the target attribute will be added to the <a> tag",
-            code="{{ mytext|urlize(40, target='_blank') }}"),
+        @JinjavaSnippet(
+            desc="links are shortened to 40 chars and defined with rel=\"nofollow\"",
+            code="{{ \"http://www.hubspot.com\"|urlize(40) }}"),
+        @JinjavaSnippet(
+            desc="If target is specified, the target attribute will be added to the <a> tag",
+            code="{{ \"http://www.hubspot.com\"|urlize(10, true, target='_blank') }}"),
     })
 public class UrlizeFilter implements Filter {
 

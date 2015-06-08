@@ -11,7 +11,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 @JinjavaDoc(
     value="Check if an object has the same value as another object",
     params={
-        @JinjavaParam(value="other", type="object")
+        @JinjavaParam(value="other", type="object", desc="Another object to check equality against")
     },
     snippets={
         @JinjavaSnippet(

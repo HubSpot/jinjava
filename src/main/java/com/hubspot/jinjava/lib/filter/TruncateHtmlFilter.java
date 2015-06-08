@@ -14,16 +14,23 @@ import org.jsoup.select.NodeVisitor;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
 @JinjavaDoc(
     value="Truncates a given string, respecting html markup (i.e. will properly close all nested tags)",
     params={
-        @JinjavaParam("html"),
-        @JinjavaParam(value="length", type="number", defaultValue="255"),
-        @JinjavaParam(value="end", defaultValue="...")
-    })
+        @JinjavaParam(value="html", desc="HTML to truncate" ),
+        @JinjavaParam(value="length", type="number", defaultValue="255", desc="Length at which to truncate text (HTML characters not included)"),
+        @JinjavaParam(value="end", defaultValue="...", desc="The characters that will be added to indicate where the text was truncated")
+    },
+    snippets={
+        @JinjavaSnippet(
+            code="{% set html_text = \"<p>I want to truncate this text without breaking my HTML<p>\" %}",
+            output="<p>I want to truncate this text without breaking my HTML</p>")
+      })
+
 public class TruncateHtmlFilter implements Filter {
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
   private static final String DEFAULT_END = "...";

@@ -20,16 +20,21 @@ import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value="adds a number to the existing value",
     params={
-        @JinjavaParam(value="number", type="number"),
-        @JinjavaParam(value="addend", type="number")
-    }
-)
+        @JinjavaParam(value="number", type="number", desc="Number or numeric variable to add to"),
+        @JinjavaParam(value="addend", type="number", desc="The number added to the base number")
+    },
+    snippets={
+      @JinjavaSnippet(
+        code="{% set my_num = 40 %} \n" +
+             "{{ my_num|add(13) }}")
+    })
 public class AddFilter implements Filter {
 
   @Override

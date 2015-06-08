@@ -19,16 +19,23 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ObjectValue;
 
 @JinjavaDoc(
-    value="removes a string from the value",
+    value="Removes a string from the value from another string",
     params={
-        @JinjavaParam("value"),
-        @JinjavaParam(value="to_remove")
+        @JinjavaParam(value="value", desc="The original string"),
+        @JinjavaParam(value="to_remove", desc="String to remove from the original string")
+    },
+    snippets={
+      @JinjavaSnippet(
+            code="{% set my_string = \"Hello world.\" %}\n" +
+                 "{{ my_string|cut(' world') }}")
     })
+
 public class CutFilter implements Filter {
 
   @Override

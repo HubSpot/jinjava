@@ -11,9 +11,15 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Throwables;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-@JinjavaDoc("Escape strings for use in URLs (uses UTF-8 encoding). It accepts both dictionaries and regular strings as well as pairwise iterables.")
+@JinjavaDoc(
+  value="Escape strings for use in URLs (uses UTF-8 encoding). It accepts both dictionaries and regular strings as well as pairwise iterables.",
+  snippets={
+    @JinjavaSnippet(code="{{ \"Escape & URL encode this string\"|urlencode }}")
+  })
+
 public class UrlEncodeFilter implements Filter {
 
   @Override

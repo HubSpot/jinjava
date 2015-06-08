@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.Node;
@@ -41,7 +43,23 @@ import com.hubspot.jinjava.util.ObjectIterator;
  * @author anysome
  *
  */
-@JinjavaDoc(value="outputs the inner content for each item in the given iterable")
+@JinjavaDoc(
+  value="Outputs the inner content for each item in the given iterable",
+  params={
+        @JinjavaParam(value="items_to_iterate", desc="Specifies the name of a single item in the sequence or dict."),
+    },
+  snippets={
+    @JinjavaSnippet(
+      code="{% for item in items %}\n" +
+           "    {{ item }}\n" +
+           "{% endfor %}"),
+    @JinjavaSnippet(
+      desc="Standard blog listing loop",
+      code="{% for content in contents %}\n" +
+           "    Post content variables\n" +
+           "{% endfor %}")
+  })
+
 public class ForTag implements Tag {
 
   private static final String LOOP = "loop";

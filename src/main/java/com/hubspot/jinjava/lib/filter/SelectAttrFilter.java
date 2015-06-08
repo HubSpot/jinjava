@@ -18,14 +18,18 @@ import com.hubspot.jinjava.util.VariableChain;
 @JinjavaDoc(
     value="Filters a sequence of objects by applying a test to an attribute of an object and only selecting the ones with the test succeeding.",
     params={
-        @JinjavaParam(value="sequence", type="sequence"),
-        @JinjavaParam(value="attr", desc="attribute to filter on"),
-        @JinjavaParam(value="exp_test", type="name of expression test", defaultValue="truthy")
+        @JinjavaParam(value="sequence", type="sequence", desc="Sequence to test"),
+        @JinjavaParam(value="attr", desc="Attribute to test for and select items that contain it"),
+        @JinjavaParam(value="exp_test", type="name of expression test", defaultValue="truthy", desc="Specify which expression test to run for making the selection")
     },
     snippets={
-        @JinjavaSnippet(code="{{ users|selectattr(\"is_active\") }}"),
-        @JinjavaSnippet(code="{{ users|selectattr(\"email\", \"none\") }}")
+        @JinjavaSnippet(
+            desc="This loop would select any post containing content.post_list_summary_featured_image",
+            code="{% for content in contents|selectattr('post_list_summary_featured_image') %}\n" +
+                 "    <div class=\"post-item\">Post in listing markup</div>\n" +
+                 "{% endfor %}")
     })
+
 public class SelectAttrFilter implements Filter {
 
   @Override

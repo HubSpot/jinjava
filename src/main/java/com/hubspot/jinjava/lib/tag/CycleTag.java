@@ -17,6 +17,9 @@ package com.hubspot.jinjava.lib.tag;
 
 import java.util.List;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.TagNode;
@@ -28,6 +31,21 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
  * @author anysome
  *
  */
+
+@JinjavaDoc(
+  value="The cycle tag can be used within a for loop to cycle through a series of string values and print them with each iteration",
+  params={
+        @JinjavaParam(value="string_to_print", desc="A comma separated list of strings to print with each interation. The list will repeat if there are more iterations than string parameter values.")
+    },
+    snippets={
+        @JinjavaSnippet(
+          desc="In the example below, a class of \"odd\" and \"even\" and even are applied to posts in a listing",
+          code="{% for content in contents %}\n" +
+               "    <div class=\"post-item {% cycle \'odd\',\'even\' %}\">Blog post content</div>\n" +
+               "{% endfor %}"),
+    })
+
+
 public class CycleTag implements Tag {
 
   private static final String LOOP_INDEX = "loop.index0";

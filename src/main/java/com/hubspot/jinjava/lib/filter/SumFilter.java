@@ -16,13 +16,16 @@ import com.hubspot.jinjava.util.VariableChain;
 @JinjavaDoc(
     value="Returns the sum of a sequence of numbers plus the value of parameter ‘start’ (which defaults to 0). When the sequence is empty it returns start.",
     params={
-        @JinjavaParam(value="value", type="iterable"),
-        @JinjavaParam("attribute"),
-        @JinjavaParam(value="start", type="number", defaultValue="0")
+        @JinjavaParam(value="value", type="iterable", desc="Selects the sequence or dict to sum values from"),
+        @JinjavaParam(value="attribute", desc="Specify an optional attribute of dict to sum"),
+        @JinjavaParam(value="start", type="number", defaultValue="0", desc="Sets a value to return, if there is nothing in the variable to sum")
     },
     snippets={
+      @JinjavaSnippet(
+        code="{% set sum_this = [1, 2, 3, 4, 5] %}\n" +
+             "{{ sum_this|sum }}\n"),
         @JinjavaSnippet(
-            desc="sum up only certain attributes",
+            desc="Sum up only certain attributes",
             code="Total: {{ items|sum(attribute='price') }}")
     })
 public class SumFilter implements Filter {

@@ -5,10 +5,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
-@JinjavaDoc("Counts the words in the given string")
+@JinjavaDoc(
+  value="Counts the words in the given string",
+  snippets={
+    @JinjavaSnippet(
+      code="{%  set count_words = \"Count the number of words in this variable\" %}\n" +
+           "{{ count_words|wordcount }}"
+      )
+
+  })
 public class WordCountFilter implements Filter {
 
   @Override

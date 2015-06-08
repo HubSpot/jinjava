@@ -27,18 +27,18 @@ import com.hubspot.jinjava.lib.fn.Functions;
           "If the text was in fact truncated it will append an ellipsis sign (\"...\"). If you want a different ellipsis sign " +
           "than \"...\" you can specify it using the third parameter.",
     params={
-        @JinjavaParam("s"),
-        @JinjavaParam(value="length", type="number", defaultValue="255"),
-        @JinjavaParam(value="killwords", type="boolean", defaultValue="False", desc="if true, will cut text at length"),
-        @JinjavaParam(value="end", defaultValue="...")
+        @JinjavaParam(value="s", desc="The string to truncate"),
+        @JinjavaParam(value="length", type="number", defaultValue="255", desc="Specifies the length at which to truncate the text (includes HTML characters)"),
+        @JinjavaParam(value="killwords", type="boolean", defaultValue="False", desc="If true, the string will cut text at length"),
+        @JinjavaParam(value="end", defaultValue="...", desc="The characters that will be added to indicate where the text was truncated")
     },
     snippets={
         @JinjavaSnippet(
-            code="{{ \"foo bar baz\"|truncate(9) }}",
-            output="\"foo ...\""),
+            code="{{ \"I only want to show the first sentence. Not the second.\"|truncate(40) }} ",
+            output="I only want to show the first sentence."),
         @JinjavaSnippet(
-            code="{{ \"foo bar baz\"|truncate(9, True) }}",
-            output="\"foo ba...\""),
+            code="{{ \"I only want to show the first sentence. Not the second.\"|truncate(35, True, '..') }}",
+            output="I only want to show the first sente.."),
     })
 public class TruncateFilter implements Filter {
 

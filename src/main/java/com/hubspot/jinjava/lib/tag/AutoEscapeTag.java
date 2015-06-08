@@ -4,11 +4,22 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 
-@JinjavaDoc("Autoescape the tag's contents")
+@JinjavaDoc(
+  value="Autoescape the tag's contents",
+  hidden=true,
+  snippets={
+    @JinjavaSnippet(
+      code="{% autoescape %}\n" +
+      "<div>Code to escape</div>\n" +
+      "{% endautoescape %}"
+      )
+  })
+
 public class AutoEscapeTag implements Tag {
 
   @Override

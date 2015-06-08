@@ -20,6 +20,7 @@ import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.Node;
@@ -27,7 +28,25 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.ObjectTruthValue;
 
 
-@JinjavaDoc("Outputs inner content if expression evaluates to true, otherwise evaluates any elif blocks, finally outputting content of any else block present")
+@JinjavaDoc(
+  value="Outputs inner content if expression evaluates to true, otherwise evaluates any elif blocks, finally outputting content of any else block present",
+  snippets={
+    @JinjavaSnippet(
+      code="{% if condition %}\n" +
+            "If the condition is true print this to template.\n" +
+            "{% endif %}"
+      ),
+    @JinjavaSnippet(
+      code="{% if number <= 2 %}\n" +
+            "Varible named number is less than or equal to 2.\n" +
+            "{% elif number <= 4 %}\n" +
+            "Varible named number is less than or equal to 4.\n" +
+            "{% elif number <= 6 %}\n" +
+            "Varible named number is less than or equal to 6.\n" +
+            "{% else %}\n" +
+            "Varible named number is greater than 6.\n" +
+            "{% endif %}")
+    })
 public class IfTag implements Tag {
 
   private static final String TAGNAME = "if";

@@ -3,10 +3,19 @@ package com.hubspot.jinjava.lib.exptest;
 import java.util.Map;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
-@JinjavaDoc("Return true if the given object is a dict")
+@JinjavaDoc(
+    value="Return true if the given object is a dict",
+    snippets={
+      @JinjavaSnippet(
+      code="{% if variable is mapping %}\n" +
+      "     <!--code to render when object is a dict-->\n" +
+      "{% endif %}")
+  })
+
 public class IsMappingExpTest implements ExpTest {
 
   @Override

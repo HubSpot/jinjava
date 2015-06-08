@@ -15,10 +15,10 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
           "The first argument is the substring that should be replaced, the second is the replacement " +
           "string. If the optional third argument count is given, only the first count occurrences are replaced",
     params={
-        @JinjavaParam("s"),
-        @JinjavaParam("old"),
-        @JinjavaParam("new"),
-        @JinjavaParam(value="count", type="number", desc="replace only the first N occurrences")
+        @JinjavaParam(value="s", desc="Base string to find and replace within"),
+        @JinjavaParam(value="old", desc="The old substring that you want to match and replace"),
+        @JinjavaParam(value="new", desc="The new string that you replace the matched substring"),
+        @JinjavaParam(value="count", type="number", desc="Replace only the first N occurrences")
     },
     snippets={
         @JinjavaSnippet(

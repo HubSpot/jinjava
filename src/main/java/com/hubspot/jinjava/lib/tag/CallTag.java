@@ -14,14 +14,14 @@ import com.hubspot.jinjava.tree.TagNode;
     snippets={
         @JinjavaSnippet(
             desc="This is a simple dialog rendered by using a macro and a call block",
-            code=" {% macro render_dialog(title, class='dialog') -%}\n" +
+            code=" {% macro render_dialog(title, class='dialog') %}\n" +
                   "  <div class=\"{{ class }}\">\n" +
                   "      <h2>{{ title }}</h2>\n" +
                   "      <div class=\"contents\">\n" +
                   "          {{ caller() }}\n" +
                   "      </div>\n" +
                   "  </div>\n" +
-                  " {%- endmacro %}\n\n" +
+                  " {% endmacro %}\n\n" +
 
                   " {% call render_dialog('Hello World') %}\n" +
                   "     This is a simple dialog rendered by using a macro and\n" +
@@ -31,13 +31,13 @@ import com.hubspot.jinjava.tree.TagNode;
             desc="It’s also possible to pass arguments back to the call block. This makes it useful as replacement for loops. "
                 + "Generally speaking a call block works exactly like an macro, just that it doesn’t have a name. Here an example "
                 + "of how a call block can be used with arguments",
-            code=" {% macro dump_users(users) -%}\n" +
+            code=" {% macro dump_users(users) %}\n" +
                   "   <ul>\n" +
-                  "     {%- for user in users %}\n" +
+                  "     {% for user in users %}\n" +
                   "       <li><p>{{ user.username|e }}</p>{{ caller(user) }}</li>\n" +
                   "     {%- endfor %}\n" +
                   "   </ul>\n" +
-                  " {%- endmacro %}\n\n" +
+                  " {% endmacro %}\n\n" +
 
                   " {% call(user) dump_users(list_of_user) %}\n" +
                   "  <dl>\n" +

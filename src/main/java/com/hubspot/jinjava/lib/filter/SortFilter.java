@@ -16,13 +16,12 @@ import com.hubspot.jinjava.util.Variable;
 
 
 @JinjavaDoc(
-    value="Sort an iterable. Per default it sorts ascending, if you pass it true as first argument it will reverse the sorting. " +
-          "If the iterable is made of strings the third parameter can be used to control the case sensitiveness of the comparison which is disabled by default.",
+    value="Sort an iterable.",
     params={
-        @JinjavaParam(value="value", type="iterable"),
-        @JinjavaParam(value="reverse", type="boolean", defaultValue="False"),
-        @JinjavaParam(value="case_sensitive", type="boolean", defaultValue="False"),
-        @JinjavaParam("attribute")
+        @JinjavaParam(value="value", type="iterable", desc="The sequence or dict to sort through iteration"),
+        @JinjavaParam(value="reverse", type="boolean", defaultValue="False", desc="Boolean to reverse the sort order"),
+        @JinjavaParam(value="case_sensitive", type="boolean", defaultValue="False", desc="Determines whether or not the sorting is case sensitive"),
+        @JinjavaParam(value="attribute", desc="Specifies an attribute to sort by")
     },
     snippets={
         @JinjavaSnippet(
@@ -30,10 +29,11 @@ import com.hubspot.jinjava.util.Variable;
                 "    ...\n" +
                 "{% endfor %}"),
         @JinjavaSnippet(
-            desc="It is also possible to sort by an attribute (for example to sort by the date of an object) by specifying the attribute parameter",
-            code="{% for item in iterable|sort(attribute='date') %}\n" +
-                "    ...\n" +
-                "{% endfor %}")
+            desc="This filter requires all parameters to sort by an attribute in HubSpot. Below is a set of posts that are retrieved and alphabetized by 'name'.",
+            code="{% set my_posts = blog_recent_posts('default', limit=5) %}\n" +
+                 "{% for item in my_posts|sort(False, False,'name') %}\n" +
+                 "    {{ item.name }}<br>\n" +
+                 "{% endfor %}")
     })
 public class SortFilter implements Filter {
 

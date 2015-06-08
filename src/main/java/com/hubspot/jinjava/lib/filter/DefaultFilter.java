@@ -27,9 +27,9 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
 @JinjavaDoc(
     value="If the value is undefined it will return the passed default value, otherwise the value of the variable",
     params={
-        @JinjavaParam("value"),
-        @JinjavaParam("default_value"),
-        @JinjavaParam(value="boolean", type="boolean", defaultValue="False", desc="set to True to use with variables which evaluate to false")
+        @JinjavaParam(value="value", desc="The variable or value to test"),
+        @JinjavaParam(value="default_value", desc="Value to print when variable is not defined"),
+        @JinjavaParam(value="boolean", type="boolean", defaultValue="False", desc="Set to True to use with variables which evaluate to false")
     },
     snippets={
         @JinjavaSnippet(

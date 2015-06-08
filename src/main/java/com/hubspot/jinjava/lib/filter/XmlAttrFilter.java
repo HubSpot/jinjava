@@ -16,22 +16,15 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
 @JinjavaDoc(
-    value="Create an SGML/XML attribute string based on the items in a dict. All values that are neither none "
-        + "nor undefined are automatically escaped. It automatically prepends a space in front of the item if "
-        + "the filter returned something unless the second parameter is false.",
+    value="Create an HTML/XML attribute string based on the items in a dict.",
     params={
-        @JinjavaParam(value="d", type="dict"),
-        @JinjavaParam(value="autospace", type="boolean", defaultValue="True", desc="automatically prepend a space in front of the item")
+        @JinjavaParam(value="d", type="dict", desc="Dict to filter"),
+        @JinjavaParam(value="autospace", type="boolean", defaultValue="True", desc="Automatically prepend a space in front of the item")
     },
     snippets={
         @JinjavaSnippet(
-            code="<ul{{ {'class': 'my_list', 'missing': none,\n" +
-                "        'id': 'list-%d'|format(variable)}|xmlattr }}>\n" +
-                "...\n" +
-                "</ul>",
-            output="<ul class=\"my_list\" id=\"list-42\">\n" +
-                "...\n" +
-                "</ul>")
+            code="{% set html_attributes = {'class': 'bold', 'id': 'sidebar'} %}\n" +
+                 "<div {{ html_attributes|xmlattr }}></div>")
     })
 public class XmlAttrFilter implements Filter {
 

@@ -17,11 +17,12 @@ import com.hubspot.jinjava.util.ObjectIterator;
     value="Filters a sequence of objects by applying a test to the object and only selecting the ones with the test succeeding.",
     params={
         @JinjavaParam(value="value", type="sequence"),
-        @JinjavaParam(value="exp_test", type="name of expression test")
+        @JinjavaParam(value="exp_test", type="name of expression test", defaultValue="truthy", desc="Specify which expression test to run for making the selection")
     },
     snippets={
-        @JinjavaSnippet(code="{{ numbers|select(\"odd\") }}"),
-        @JinjavaSnippet(code="{{ numbers|select(\"odd\") }}")
+        @JinjavaSnippet(
+          code="{% set some_numbers = [10, 12, 13, 3, 5, 17, 22] %}\n" +
+               "{% some_numbers|select('even') %}")
     })
 public class SelectFilter implements Filter {
 
