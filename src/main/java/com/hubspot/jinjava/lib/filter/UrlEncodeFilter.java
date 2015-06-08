@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Throwables;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
-import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
