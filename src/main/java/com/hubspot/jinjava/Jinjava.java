@@ -96,7 +96,7 @@ public class Jinjava {
 
   /**
    * Set the object responsible for locating templates referenced in other templates
-   * 
+   *
    * @param resourceLocator
    *          the locator to use for loading all templates
    */
