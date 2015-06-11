@@ -44,21 +44,18 @@ import de.odysseus.el.misc.TypeConverter;
 import de.odysseus.el.tree.TreeBuilder;
 
 /**
- * The main client API for the Jinjava library, instances of this class can be used to render jinja templates with a given map of context values.
- *
- * Example use:
+ * The main client API for the Jinjava library, instances of this class can be used to render jinja templates with a given map of context values. Example use:
  *
  * <pre>
  * Jinjava jinjava = new Jinjava();
  * Map&lt;String, Object&gt; context = new HashMap&lt;&gt;();
  * context.put(&quot;name&quot;, &quot;Jared&quot;);
- * 
+ * // ...
  * String template = &quot;Hello, {{ name }}&quot;;
  * String renderedTemplate = jinjava.render(template, context);
  * </pre>
  *
  * @author jstehler
- *
  */
 public class Jinjava {
 
@@ -167,9 +164,8 @@ public class Jinjava {
   }
 
   /**
-   * Render the given template using the given context bindings. This method returns some metadata about the render process, including any errors which may have been encountered such as unknown variables or syntax errors.
-   *
-   * This method will not throw any exceptions; it is up to the caller to inspect the renderResult.errors collection if necessary / desired.
+   * Render the given template using the given context bindings. This method returns some metadata about the render process, including any errors which may have been encountered such as unknown variables or syntax errors. This method will
+   * not throw any exceptions; it is up to the caller to inspect the renderResult.errors collection if necessary / desired.
    *
    * @param template
    *          jinja source template
@@ -182,9 +178,8 @@ public class Jinjava {
   }
 
   /**
-   * Render the given template using the given context bindings. This method returns some metadata about the render process, including any errors which may have been encountered such as unknown variables or syntax errors.
-   *
-   * This method will not throw any exceptions; it is up to the caller to inspect the renderResult.errors collection if necessary / desired.
+   * Render the given template using the given context bindings. This method returns some metadata about the render process, including any errors which may have been encountered such as unknown variables or syntax errors. This method will
+   * not throw any exceptions; it is up to the caller to inspect the renderResult.errors collection if necessary / desired.
    *
    * @param template
    *          jinja source template
