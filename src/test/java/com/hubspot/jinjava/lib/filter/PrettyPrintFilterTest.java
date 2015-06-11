@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
-
 public class PrettyPrintFilterTest {
 
   PrettyPrintFilter f;
@@ -40,7 +39,7 @@ public class PrettyPrintFilterTest {
   @Test
   public void ppMap() {
     assertThat(f.filter(ImmutableMap.of("a", "foo", "b", "bar"), null))
-      .isEqualTo("{% raw %}(RegularImmutableMap: {a=foo, b=bar}){% endraw %}");
+        .isEqualTo("{% raw %}(RegularImmutableMap: {a=foo, b=bar}){% endraw %}");
   }
 
   @Test
@@ -52,7 +51,6 @@ public class PrettyPrintFilterTest {
   public void ppObject() {
     assertThat(f.filter(new MyClass(), null)).isEqualTo("{% raw %}(MyClass: {bar=123, foo=foofoo}){% endraw %}");
   }
-
 
   public static class MyClass {
     public String getFoo() {

@@ -11,7 +11,6 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 
-
 @SuppressWarnings("unchecked")
 public class SumFilterTest {
 
@@ -48,9 +47,11 @@ public class SumFilterTest {
 
   public static class Item {
     private Number price;
+
     public Item(Number price) {
       this.price = price;
     }
+
     public Number getPrice() {
       return price;
     }

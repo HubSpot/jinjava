@@ -12,7 +12,6 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 public class TreeParserTest {
 
   JinjavaInterpreter interpreter;
@@ -32,8 +31,7 @@ public class TreeParserTest {
     try {
       return new TreeParser(interpreter, Resources.toString(
           Resources.getResource(fixture), StandardCharsets.UTF_8)).buildTree();
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       throw Throwables.propagate(e);
     }
   }

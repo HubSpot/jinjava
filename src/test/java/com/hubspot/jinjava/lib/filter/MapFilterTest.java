@@ -10,7 +10,6 @@ import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.lib.filter.JoinFilterTest.User;
 
-
 public class MapFilterTest {
 
   Jinjava jinjava;

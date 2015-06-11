@@ -8,7 +8,6 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 
-
 public class LastFilterTest {
 
   LastFilter filter;
@@ -25,7 +24,7 @@ public class LastFilterTest {
 
   @Test
   public void lastForSingleItemList() {
-    assertThat(filter.filter(new Object[]{1}, null)).isEqualTo(1);
+    assertThat(filter.filter(new Object[] { 1 }, null)).isEqualTo(1);
   }
 
   @Test

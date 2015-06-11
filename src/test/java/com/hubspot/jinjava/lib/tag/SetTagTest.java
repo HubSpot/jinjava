@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.tag;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
@@ -30,7 +29,8 @@ import com.hubspot.jinjava.tree.TreeParser;
 @RunWith(MockitoJUnitRunner.class)
 public class SetTagTest {
 
-  @InjectMocks SetTag tag;
+  @InjectMocks
+  SetTag tag;
 
   Context context;
   JinjavaInterpreter interpreter;
@@ -143,8 +143,8 @@ public class SetTagTest {
   private Node fixture(String name) {
     try {
       return new TreeParser(interpreter, Resources.toString(
-              Resources.getResource(String.format("tags/settag/%s.jinja", name)), StandardCharsets.UTF_8))
-              .buildTree().getChildren().getFirst();
+          Resources.getResource(String.format("tags/settag/%s.jinja", name)), StandardCharsets.UTF_8))
+          .buildTree().getChildren().getFirst();
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

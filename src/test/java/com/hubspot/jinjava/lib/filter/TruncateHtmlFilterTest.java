@@ -13,7 +13,6 @@ import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 public class TruncateHtmlFilterTest {
 
   TruncateHtmlFilter filter;
@@ -34,8 +33,7 @@ public class TruncateHtmlFilterTest {
   private static String fixture(String name) {
     try {
       return Resources.toString(Resources.getResource(name), StandardCharsets.UTF_8);
-    }
-    catch(IOException e) {
+    } catch (IOException e) {
       throw Throwables.propagate(e);
     }
   }

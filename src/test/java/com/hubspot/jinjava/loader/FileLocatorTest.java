@@ -33,7 +33,7 @@ public class FileLocatorTest {
     locatorTmpDir = new FileLocator(tmpDir);
 
     first = new File(tmpDir, "foo/first.jinja");
-    second =  new File("target/loader-test-data/second.jinja");
+    second = new File("target/loader-test-data/second.jinja");
 
     first.getParentFile().mkdirs();
     second.getParentFile().mkdirs();
@@ -62,22 +62,22 @@ public class FileLocatorTest {
     assertThat(locatorTmpDir.getString(first.getAbsolutePath(), StandardCharsets.UTF_8, interpreter)).isEqualTo("first");
   }
 
-  @Test(expected=FileNotFoundException.class)
+  @Test(expected = FileNotFoundException.class)
   public void testInvalidBaseDir() throws Exception {
     new FileLocator(new File("/blarghhh"));
   }
 
-  @Test(expected=ResourceNotFoundException.class)
+  @Test(expected = ResourceNotFoundException.class)
   public void testNotFoundCauseItsADir() throws Exception {
     locatorTmpDir.getString("foo", StandardCharsets.UTF_8, interpreter);
   }
 
-  @Test(expected=ResourceNotFoundException.class)
+  @Test(expected = ResourceNotFoundException.class)
   public void testNotFoundRel() throws Exception {
     locatorWorkingDir.getString("blargh", StandardCharsets.UTF_8, interpreter);
   }
 
-  @Test(expected=ResourceNotFoundException.class)
+  @Test(expected = ResourceNotFoundException.class)
   public void testNotFoundAbs() throws Exception {
     locatorWorkingDir.getString("/blargh", StandardCharsets.UTF_8, interpreter);
   }

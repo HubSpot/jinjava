@@ -7,7 +7,6 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 
-
 public class FirstFilterTest {
 
   FirstFilter filter;
@@ -19,7 +18,7 @@ public class FirstFilterTest {
 
   @Test
   public void firstReturnsNullForEmptyList() {
-    assertThat(filter.filter(new Object[]{}, null)).isNull();
+    assertThat(filter.filter(new Object[] {}, null)).isNull();
   }
 
   @Test

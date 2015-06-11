@@ -16,7 +16,6 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 public class CallTagTest {
 
   JinjavaInterpreter interpreter;

@@ -16,12 +16,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 @RunWith(MockitoJUnitRunner.class)
 public class TruncateFilterTest {
 
-  @Mock JinjavaInterpreter interpreter;
-  @InjectMocks TruncateFilter filter;
+  @Mock
+  JinjavaInterpreter interpreter;
+  @InjectMocks
+  TruncateFilter filter;
 
   @Before
   public void setup() {

@@ -27,7 +27,6 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
 
-
 public class MacroTagTest {
 
   Context context;
@@ -84,9 +83,9 @@ public class MacroTagTest {
     assertThat(fn.getDefaults()).contains(entry("last", false));
 
     assertThat(snippet("{{ article('mytitle','mythumb','mylink','mysummary') }}").render(interpreter).trim())
-    .isEqualTo("title: mytitle, thumb: mythumb, link: mylink, summary: mysummary, last: false");
+        .isEqualTo("title: mytitle, thumb: mythumb, link: mylink, summary: mysummary, last: false");
     assertThat(snippet("{{ article('mytitle','mythumb','mylink','mysummary', last=true) }}").render(interpreter).trim())
-    .isEqualTo("title: mytitle, thumb: mythumb, link: mylink, summary: mysummary, last: true");
+        .isEqualTo("title: mytitle, thumb: mythumb, link: mylink, summary: mysummary, last: true");
   }
 
   @Test

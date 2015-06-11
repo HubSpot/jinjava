@@ -8,7 +8,6 @@ import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
 
-
 public class StrftimeFormatterTest {
 
   ZonedDateTime d;
@@ -32,7 +31,7 @@ public class StrftimeFormatterTest {
   @Test
   public void testCommentsFormat() {
     assertThat(StrftimeFormatter.format(d, "%B %d, %Y, at %I:%M %p"))
-      .isEqualTo("November 06, 2013, at 02:22 PM");
+        .isEqualTo("November 06, 2013, at 02:22 PM");
   }
 
   @Test
@@ -76,7 +75,7 @@ public class StrftimeFormatterTest {
   @Test
   public void testFinnishMonths() {
     assertThat(StrftimeFormatter.formatter("long").withLocale(Locale.forLanguageTag("fi")).format(d))
-      .isEqualTo("6. marraskuuta 2013 klo 14.22.00");
+        .isEqualTo("6. marraskuuta 2013 klo 14.22.00");
   }
 
 }

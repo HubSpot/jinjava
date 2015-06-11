@@ -4,9 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-
-
 public class TitleFilterTest {
 
   @Test

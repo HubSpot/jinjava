@@ -14,13 +14,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 @RunWith(MockitoJUnitRunner.class)
 public class StripTagsFilterTest {
 
-  @Mock JinjavaInterpreter interpreter;
+  @Mock
+  JinjavaInterpreter interpreter;
 
-  @InjectMocks StripTagsFilter filter;
+  @InjectMocks
+  StripTagsFilter filter;
 
   @Before
   public void setup() {

@@ -14,7 +14,6 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 
-
 public class GroupByFilterTest {
 
   Jinjava jinjava;
@@ -35,7 +34,7 @@ public class GroupByFilterTest {
                 new Person("female", "sarah", "jones"),
                 new Person("male", "jim", "jones"),
                 new Person("female", "barb", "smith")
-            ))));
+                ))));
 
     assertThat(dom.select("ul.root > li")).hasSize(2);
     assertThat(dom.select("ul.root > li.male > ul > li")).hasSize(3);
@@ -52,12 +51,15 @@ public class GroupByFilterTest {
       this.firstName = firstName;
       this.lastName = lastName;
     }
+
     public String getFirstName() {
       return firstName;
     }
+
     public String getGender() {
       return gender;
     }
+
     public String getLastName() {
       return lastName;
     }

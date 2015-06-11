@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 
-
 public class ScopeMapTest {
 
   Map<String, String> a, b, c;

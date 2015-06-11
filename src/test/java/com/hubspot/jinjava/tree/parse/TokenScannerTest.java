@@ -18,7 +18,6 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 public class TokenScannerTest {
   JinjavaInterpreter interpreter;
   TokenScanner scanner;
@@ -244,7 +243,7 @@ public class TokenScannerTest {
 
     List<Token> tokens = Lists.newArrayList();
     Token token;
-    while((token = t.getNextToken()) != null) {
+    while ((token = t.getNextToken()) != null) {
       tokens.add(token);
     }
 
@@ -256,8 +255,7 @@ public class TokenScannerTest {
       TokenScanner t = new TokenScanner(Resources.toString(Resources.getResource(String.format("parse/tokenizer/%s.jinja", fixture)),
           StandardCharsets.UTF_8));
       return t;
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }

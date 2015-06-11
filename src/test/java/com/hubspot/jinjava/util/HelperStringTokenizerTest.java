@@ -102,8 +102,8 @@ public class HelperStringTokenizerTest {
   @Test
   public void itDoesntReturnTrailingNull() {
     assertThat(new HelperStringTokenizer("product in collections.frontpage.products   ").splitComma(true).allTokens())
-      .containsExactly("product", "in", "collections.frontpage.products")
-      .doesNotContainNull();
+        .containsExactly("product", "in", "collections.frontpage.products")
+        .doesNotContainNull();
   }
 
 }

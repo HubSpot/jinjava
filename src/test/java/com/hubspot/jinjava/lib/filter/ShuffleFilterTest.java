@@ -9,7 +9,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-
 public class ShuffleFilterTest {
 
   ShuffleFilter filter;
@@ -31,8 +30,7 @@ public class ShuffleFilterTest {
     try {
       assertThat(after).isSorted();
       failBecauseExceptionWasNotThrown(AssertionError.class);
-    }
-    catch(AssertionError e) {
+    } catch (AssertionError e) {
       assertThat(e).hasMessageContaining("is not sorted");
     }
   }

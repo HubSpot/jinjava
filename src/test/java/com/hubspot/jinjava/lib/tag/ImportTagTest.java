@@ -19,7 +19,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.loader.ResourceLocator;
 
-
 public class ImportTagTest {
 
   private Context context;
@@ -94,15 +93,15 @@ public class ImportTagTest {
 
     assertThat(interpreter.getErrors()).isEmpty();
     assertThat(result)
-      .contains("using public fn: public fn: foo")
-      .contains("using private fn: private fn: bar")
-      .contains("using scoped var: myscopedvar");
+        .contains("using public fn: public fn: foo")
+        .contains("using private fn: private fn: bar")
+        .contains("using scoped var: myscopedvar");
   }
 
   private String fixture(String name) {
     try {
       return interpreter.renderString(Resources.toString(
-              Resources.getResource(String.format("tags/macrotag/%s.jinja", name)), StandardCharsets.UTF_8));
+          Resources.getResource(String.format("tags/macrotag/%s.jinja", name)), StandardCharsets.UTF_8));
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

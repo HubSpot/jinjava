@@ -17,7 +17,6 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 
-
 public class BatchFilterTest {
 
   Jinjava jinjava;
@@ -68,8 +67,7 @@ public class BatchFilterTest {
   private String render(String template, Map<String, Object> context) {
     try {
       return jinjava.render(Resources.toString(Resources.getResource(String.format("filter/%s.jinja", template)), StandardCharsets.UTF_8), context);
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       throw Throwables.propagate(e);
     }
   }

@@ -18,7 +18,6 @@ import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
-
 @SuppressWarnings("unchecked")
 public class ExpressionResolverTest {
 
@@ -45,7 +44,7 @@ public class ExpressionResolverTest {
     assertThat(list).containsExactly("0.5", "50");
   }
 
-  @Test(expected=UnsupportedOperationException.class)
+  @Test(expected = UnsupportedOperationException.class)
   public void testTuplesAreImmutable() throws Exception {
     Object val = interpreter.resolveELExpression("('0.5','50')", -1);
     List<Object> list = (List<Object>) val;

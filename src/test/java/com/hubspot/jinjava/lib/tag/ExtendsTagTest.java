@@ -18,8 +18,6 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.loader.ResourceLocator;
 
-
-
 public class ExtendsTagTest {
 
   private ExtendsTagTestResourceLocator locator;
@@ -69,6 +67,7 @@ public class ExtendsTagTest {
     public String getString(String fullName, Charset encoding, JinjavaInterpreter interpreter) throws IOException {
       return fixture(fullName);
     }
+
     public String fixture(String name) throws IOException {
       return Resources.toString(Resources.getResource(String.format("tags/extendstag/%s", name)), StandardCharsets.UTF_8);
     }

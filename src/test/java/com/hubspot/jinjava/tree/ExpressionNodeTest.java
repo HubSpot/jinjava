@@ -13,7 +13,6 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 public class ExpressionNodeTest {
 
   private Context context;
@@ -66,8 +65,7 @@ public class ExpressionNodeTest {
   private ExpressionNode fixture(String name) {
     try {
       return parse(Resources.toString(Resources.getResource(String.format("varblocks/%s.html", name)), StandardCharsets.UTF_8));
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       throw Throwables.propagate(e);
     }
   }

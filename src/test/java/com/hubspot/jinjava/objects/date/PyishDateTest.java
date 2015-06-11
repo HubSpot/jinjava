@@ -8,7 +8,6 @@ import java.util.Date;
 
 import org.junit.Test;
 
-
 public class PyishDateTest {
 
   @Test
@@ -43,18 +42,18 @@ public class PyishDateTest {
     assertThat(d1).isNotEqualTo(d2);
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullDateNotAllowed() {
-    new PyishDate((Date)null);
+    new PyishDate((Date) null);
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullDateTimeNotAllowed() {
-    new PyishDate((ZonedDateTime)null);
+    new PyishDate((ZonedDateTime) null);
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullStringNotAllowed() {
-    new PyishDate((String)null);
+    new PyishDate((String) null);
   }
 }

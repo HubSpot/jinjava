@@ -9,7 +9,6 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 public class ReplaceFilterTest {
 
   JinjavaInterpreter interpreter;
@@ -21,12 +20,12 @@ public class ReplaceFilterTest {
     filter = new ReplaceFilter();
   }
 
-  @Test(expected=InterpretException.class)
+  @Test(expected = InterpretException.class)
   public void expectsAtLeast2Args() {
     filter.filter("foo", interpreter);
   }
 
-  @Test(expected=InterpretException.class)
+  @Test(expected = InterpretException.class)
   public void expectsFilterVar() {
     filter.filter(null, interpreter, "foo", "bar");
   }

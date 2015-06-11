@@ -12,12 +12,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 @RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings("unchecked")
 public class SplitFilterTest {
 
-  @Mock JinjavaInterpreter interpreter;
+  @Mock
+  JinjavaInterpreter interpreter;
   SplitFilter filter;
 
   @Before

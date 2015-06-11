@@ -12,7 +12,6 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 
-
 public class AttrFilterTest {
 
   Jinjava jinjava;
@@ -54,6 +53,7 @@ public class AttrFilterTest {
     public String getBar() {
       return "mybar";
     }
+
     public String getNullVal() {
       return null;
     }

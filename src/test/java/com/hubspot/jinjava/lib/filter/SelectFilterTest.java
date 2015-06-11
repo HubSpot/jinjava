@@ -10,7 +10,6 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 
-
 public class SelectFilterTest {
 
   Jinjava jinjava;

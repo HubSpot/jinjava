@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
 
-
 public class FileSizeFormatFilterTest {
 
   Jinjava jinjava;

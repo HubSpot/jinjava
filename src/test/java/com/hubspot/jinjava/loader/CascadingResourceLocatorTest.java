@@ -17,9 +17,12 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 @SuppressWarnings("unchecked")
 public class CascadingResourceLocatorTest {
 
-  @Mock ResourceLocator first;
-  @Mock ResourceLocator second;
-  @Mock JinjavaInterpreter interpreter;
+  @Mock
+  ResourceLocator first;
+  @Mock
+  ResourceLocator second;
+  @Mock
+  JinjavaInterpreter interpreter;
 
   CascadingResourceLocator locator;
 
@@ -41,7 +44,7 @@ public class CascadingResourceLocatorTest {
     assertThat(locator.getString("foo", StandardCharsets.UTF_8, interpreter)).isEqualTo("bar");
   }
 
-  @Test(expected=ResourceNotFoundException.class)
+  @Test(expected = ResourceNotFoundException.class)
   public void notFoundWhenAllLocatorsReturnNotFound() throws Exception {
     when(first.getString("foo", StandardCharsets.UTF_8, interpreter)).thenThrow(ResourceNotFoundException.class);
     when(second.getString("foo", StandardCharsets.UTF_8, interpreter)).thenThrow(ResourceNotFoundException.class);

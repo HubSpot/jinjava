@@ -13,7 +13,6 @@ import com.google.common.base.Splitter;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 
-
 public class IncludeTagTest {
 
   Jinjava jinjava;

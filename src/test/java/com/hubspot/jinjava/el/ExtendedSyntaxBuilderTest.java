@@ -126,7 +126,7 @@ public class ExtendedSyntaxBuilderTest {
     assertThat((List<Object>) val("[1, foo, 'foo']")).containsExactly(1L, "bar", "foo");
   }
 
-  @Test(expected=UnsupportedOperationException.class)
+  @Test(expected = UnsupportedOperationException.class)
   public void literalTuple() {
     context.put("foo", "bar");
     List<Object> list = (List<Object>) val("(1, foo, 'foo')");
@@ -143,7 +143,7 @@ public class ExtendedSyntaxBuilderTest {
         entry("foo4", "string"), entry("foo6", Arrays.asList(1L, 2L)));
 
     assertThat((Map<String, Object>) val("{\"address\":\"123 Main - Boston, MA 02111\"}"))
-      .contains(entry("address", "123 Main - Boston, MA 02111"));
+        .contains(entry("address", "123 Main - Boston, MA 02111"));
   }
 
   @Test
@@ -193,7 +193,6 @@ public class ExtendedSyntaxBuilderTest {
       throw Throwables.propagate(e);
     }
   }
-
 
   @Test
   public void testParseExp() throws Exception {

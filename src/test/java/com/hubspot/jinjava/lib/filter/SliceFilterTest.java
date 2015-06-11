@@ -14,7 +14,6 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 
-
 public class SliceFilterTest {
 
   Jinjava jinjava;

@@ -10,7 +10,6 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 
-
 public class JoinFilterTest {
 
   Jinjava jinjava;
@@ -30,14 +29,16 @@ public class JoinFilterTest {
   @Test
   public void testJoinAttrs() {
     assertThat(jinjava.render("{{ users|join(', ', attribute='username') }}", new HashMap<String, Object>()))
-      .isEqualTo("foo, bar");
+        .isEqualTo("foo, bar");
   }
 
   public static class User {
     private String username;
+
     public User(String username) {
       this.username = username;
     }
+
     public String getUsername() {
       return username;
     }

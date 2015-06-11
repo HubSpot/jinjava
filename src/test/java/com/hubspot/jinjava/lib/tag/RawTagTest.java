@@ -19,7 +19,6 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
 
-
 public class RawTagTest {
 
   JinjavaInterpreter interpreter;
@@ -42,7 +41,7 @@ public class RawTagTest {
     List<Node> tags = fixtures("tags");
     String result = "";
 
-    for(Node n : tags) {
+    for (Node n : tags) {
       TagNode tn = (TagNode) n;
       result += tag.interpret(tn, interpreter);
     }
@@ -54,44 +53,44 @@ public class RawTagTest {
   public void renderHublSnippet() {
     TagNode tagNode = fixture("hubl");
     assertThat(StringUtils.normalizeSpace(tag.interpret(tagNode, interpreter)))
-      .isEqualTo("<h1>Blog Posts</h1> <ul> {% for content in contents %} <li>{{ content.name|title }}</li> {% endfor %} </ul>");
+        .isEqualTo("<h1>Blog Posts</h1> <ul> {% for content in contents %} <li>{{ content.name|title }}</li> {% endfor %} </ul>");
   }
 
   @Test
   public void itDoesntProcessUnknownTagsWithinARawBlock() {
     TagNode tagNode = fixture("unknowntags");
     assertThat(StringUtils.normalizeSpace(tag.interpret(tagNode, interpreter)))
-      .isEqualTo("{% footag %}{% bartag %}");
+        .isEqualTo("{% footag %}{% bartag %}");
   }
 
   @Test
   public void itWorksWithInvalidSyntaxWithinRawBlock() {
     TagNode tagNode = fixture("invalidsyntax");
     assertThat(StringUtils.normalizeSpace(tag.interpret(tagNode, interpreter)))
-      .isEqualTo("this is {invalid and wrong");
+        .isEqualTo("this is {invalid and wrong");
 
     tagNode = fixture("invalidsyntax2");
     assertThat(StringUtils.normalizeSpace(tag.interpret(tagNode, interpreter)))
-      .isEqualTo("this is {{ invalid and wrong");
+        .isEqualTo("this is {{ invalid and wrong");
 
     tagNode = fixture("invalidsyntax3");
     assertThat(StringUtils.normalizeSpace(tag.interpret(tagNode, interpreter)))
-      .isEqualTo("this is }invalid and wrong");
+        .isEqualTo("this is }invalid and wrong");
 
     tagNode = fixture("invalidsyntax4");
     assertThat(StringUtils.normalizeSpace(tag.interpret(tagNode, interpreter)))
-      .isEqualTo("this is }} invalid and wrong");
+        .isEqualTo("this is }} invalid and wrong");
 
     tagNode = fixture("invalidsyntax5");
     assertThat(StringUtils.normalizeSpace(tag.interpret(tagNode, interpreter)))
-      .isEqualTo("this is {% invalid and wrong");
+        .isEqualTo("this is {% invalid and wrong");
   }
 
   @Test
   public void itDoesntProcessJinjaCommentsWithinARawBlock() {
     TagNode tagNode = fixture("comment");
     assertThat(StringUtils.normalizeSpace(tag.interpret(tagNode, interpreter)))
-      .contains("{{#each people}}");
+        .contains("{{#each people}}");
   }
 
   private TagNode fixture(String name) {
@@ -101,8 +100,8 @@ public class RawTagTest {
   private LinkedList<Node> fixtures(String name) {
     try {
       return new TreeParser(interpreter, Resources.toString(
-              Resources.getResource(String.format("tags/rawtag/%s.jinja", name)), StandardCharsets.UTF_8))
-              .buildTree().getChildren();
+          Resources.getResource(String.format("tags/rawtag/%s.jinja", name)), StandardCharsets.UTF_8))
+          .buildTree().getChildren();
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

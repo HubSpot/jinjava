@@ -12,10 +12,8 @@ import org.junit.Test;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 @SuppressWarnings("unchecked")
 public class AdditionOperatorTest {
-
 
   private JinjavaInterpreter interpreter;
 
@@ -43,7 +41,7 @@ public class AdditionOperatorTest {
   @Test
   public void itCombinesTwoLists() {
     assertThat((Collection<Object>) interpreter.resolveELExpression("['foo', 'bar'] + ['other', 'one']", -1))
-      .containsExactly("foo", "bar", "other", "one");
+        .containsExactly("foo", "bar", "other", "one");
   }
 
   @Test
@@ -54,7 +52,7 @@ public class AdditionOperatorTest {
   @Test
   public void itCombinesTwoDicts() {
     assertThat((Map<Object, Object>) interpreter.resolveELExpression("{'k1':'v1'} + {'k2':'v2'}", -1))
-      .containsOnly(entry("k1", "v1"), entry("k2", "v2"));
+        .containsOnly(entry("k1", "v1"), entry("k2", "v2"));
   }
 
 }

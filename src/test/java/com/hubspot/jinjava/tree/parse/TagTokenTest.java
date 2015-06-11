@@ -6,8 +6,6 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import org.junit.Test;
 
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
-import com.hubspot.jinjava.tree.parse.TagToken;
-
 
 public class TagTokenTest {
 
@@ -36,8 +34,7 @@ public class TagTokenTest {
     try {
       new TagToken("{% ", 1);
       failBecauseExceptionWasNotThrown(TemplateSyntaxException.class);
-    }
-    catch(TemplateSyntaxException e) {
+    } catch (TemplateSyntaxException e) {
       assertThat(e).hasMessageContaining("Malformed");
     }
   }

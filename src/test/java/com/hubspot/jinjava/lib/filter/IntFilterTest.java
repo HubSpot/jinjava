@@ -8,7 +8,6 @@ import org.junit.Test;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 public class IntFilterTest {
 
   IntFilter filter;

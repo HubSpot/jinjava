@@ -25,7 +25,6 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
 
-
 public class ForTagTest {
 
   ForTag tag;
@@ -118,8 +117,8 @@ public class ForTagTest {
   private Node fixture(String name) {
     try {
       return new TreeParser(interpreter, Resources.toString(
-              Resources.getResource(String.format("tags/fortag/%s.jinja", name)), StandardCharsets.UTF_8))
-              .buildTree().getChildren().getFirst();
+          Resources.getResource(String.format("tags/fortag/%s.jinja", name)), StandardCharsets.UTF_8))
+          .buildTree().getChildren().getFirst();
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

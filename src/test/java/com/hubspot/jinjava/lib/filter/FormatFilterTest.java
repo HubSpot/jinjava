@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
 
-
 public class FormatFilterTest {
 
   Jinjava jinjava;

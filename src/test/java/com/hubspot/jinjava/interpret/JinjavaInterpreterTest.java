@@ -10,7 +10,6 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.parse.TextToken;
 
-
 public class JinjavaInterpreterTest {
 
   Jinjava jinjava;

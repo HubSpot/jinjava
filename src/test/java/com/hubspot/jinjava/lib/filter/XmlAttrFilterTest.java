@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
 
-
 public class XmlAttrFilterTest {
 
   Jinjava jinjava;

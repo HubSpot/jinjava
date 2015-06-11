@@ -13,7 +13,6 @@ import org.junit.Test;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 
-
 public class UrlizeFilterTest {
 
   Jinjava jinjava;

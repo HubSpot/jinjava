@@ -10,7 +10,6 @@ import org.junit.Test;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 public class ClasspathResourceLocatorTest {
 
   JinjavaInterpreter interpreter;
@@ -25,7 +24,7 @@ public class ClasspathResourceLocatorTest {
     assertThat(new ClasspathResourceLocator().getString("loader/cp/foo/bar.jinja", StandardCharsets.UTF_8, interpreter)).isEqualTo("hello world.");
   }
 
-  @Test(expected=ResourceNotFoundException.class)
+  @Test(expected = ResourceNotFoundException.class)
   public void itThrowsNotFoundWhenNotFound() throws Exception {
     new ClasspathResourceLocator().getString("foo", StandardCharsets.UTF_8, interpreter);
   }

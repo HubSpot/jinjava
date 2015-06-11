@@ -17,7 +17,6 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.loader.ResourceLocator;
 
-
 public class FromTagTest {
 
   private Context context;
@@ -50,15 +49,15 @@ public class FromTagTest {
   @Test
   public void importedContextExposesVars() {
     assertThat(fixture("from"))
-      .contains("wrap-spacer:")
-      .contains("<td height=\"42\">")
-      .contains("wrap-padding: padding-left:42px;padding-right:42px");
+        .contains("wrap-spacer:")
+        .contains("<td height=\"42\">")
+        .contains("wrap-padding: padding-left:42px;padding-right:42px");
   }
 
   private String fixture(String name) {
     try {
       return interpreter.renderString(Resources.toString(
-              Resources.getResource(String.format("tags/macrotag/%s.jinja", name)), StandardCharsets.UTF_8));
+          Resources.getResource(String.format("tags/macrotag/%s.jinja", name)), StandardCharsets.UTF_8));
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

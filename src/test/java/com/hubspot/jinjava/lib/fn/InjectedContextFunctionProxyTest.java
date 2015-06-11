@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 
 import org.junit.Test;
 
-
 public class InjectedContextFunctionProxyTest {
 
   public static class MyClass {
