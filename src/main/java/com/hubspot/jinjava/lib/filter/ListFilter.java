@@ -10,15 +10,15 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Convert the value into a list. If it was a string the returned list will be a list of characters.",
-    params=@JinjavaParam(value="value", desc="Value to add to a sequence"),
-    snippets={
+    value = "Convert the value into a list. If it was a string the returned list will be a list of characters.",
+    params = @JinjavaParam(value = "value", desc = "Value to add to a sequence"),
+    snippets = {
         @JinjavaSnippet(
-            code="{% set one = 1 %}\n" +
-                 "{% set two = 2 %}\n" +
-                 "{% set three = 3 %}\n" +
-                 "{% set list_num = one|list + two|list + three|list %}\n" +
-                 "{{ list_num|list }}")
+            code = "{% set one = 1 %}\n" +
+                "{% set two = 2 %}\n" +
+                "{% set three = 3 %}\n" +
+                "{% set list_num = one|list + two|list + three|list %}\n" +
+                "{{ list_num|list }}")
     })
 public class ListFilter implements Filter {
 
@@ -31,11 +31,11 @@ public class ListFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     List<?> result;
 
-    if(var instanceof String) {
+    if (var instanceof String) {
       result = Lists.newArrayList(((String) var).toCharArray());
     }
 
-    else if(Collection.class.isAssignableFrom(var.getClass())) {
+    else if (Collection.class.isAssignableFrom(var.getClass())) {
       result = Lists.newArrayList((Collection<?>) var);
     }
 

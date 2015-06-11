@@ -14,12 +14,13 @@ import java.lang.annotation.Target;
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
+@Target({ ElementType.METHOD })
 public @interface ELFunction {
   /**
    * @return The namespace to define the function in (e.g. 'fn' would expose 'foo' as: 'fn:foo()')
    */
   String namespace() default "";
+
   /**
    * @return The local name to expose this function as
    */

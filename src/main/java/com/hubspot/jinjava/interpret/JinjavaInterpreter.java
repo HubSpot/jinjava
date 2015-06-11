@@ -59,7 +59,6 @@ public class JinjavaInterpreter {
   private int lineNumber = -1;
   private final List<TemplateError> errors = new LinkedList<>();
 
-
   public JinjavaInterpreter(Jinjava application, Context context, JinjavaConfig renderConfig) {
     this.context = context;
     this.config = renderConfig;
@@ -90,7 +89,7 @@ public class JinjavaInterpreter {
 
   public void leaveScope() {
     Context parent = context.getParent();
-    if(parent != null) {
+    if (parent != null) {
       context = parent;
     }
   }
@@ -135,12 +134,12 @@ public class JinjavaInterpreter {
     }
 
     // render all extend parents, keeping the last as the root output
-    if(processExtendRoots) {
-      while(!extendParentRoots.isEmpty()) {
+    if (processExtendRoots) {
+      while (!extendParentRoots.isEmpty()) {
         Node parentRoot = extendParentRoots.removeFirst();
         buff = new StringBuilder();
 
-        for(Node node : parentRoot.getChildren()) {
+        for (Node node : parentRoot.getChildren()) {
           buff.append(node.render(this));
         }
       }
@@ -153,7 +152,7 @@ public class JinjavaInterpreter {
     StringBuilder result = new StringBuilder(content.length() + 256);
     int pos = 0, start, end, stubStartLen = BLOCK_STUB_START.length();
 
-    while((start = StringUtils.indexOf(content, BLOCK_STUB_START, pos)) != -1) {
+    while ((start = StringUtils.indexOf(content, BLOCK_STUB_START, pos)) != -1) {
       end = StringUtils.indexOf(content, BLOCK_STUB_END, start + stubStartLen);
 
       String blockName = content.subSequence(start + stubStartLen, end).toString();
@@ -163,13 +162,13 @@ public class JinjavaInterpreter {
       Collection<List<? extends Node>> blockChain = blocks.get(blockName);
       List<? extends Node> block = Iterables.getFirst(blockChain, null);
 
-      if(block != null) {
+      if (block != null) {
         List<? extends Node> superBlock = Iterables.get(blockChain, 1, null);
         context.put("__superbl0ck__", superBlock);
 
         StringBuilder blockValueBuilder = new StringBuilder();
 
-        for(Node child : block) {
+        for (Node child : block) {
           blockValueBuilder.append(child.render(this));
         }
 
@@ -189,15 +188,16 @@ public class JinjavaInterpreter {
   }
 
   /**
-   * Resolve a variable from the interpreter context, returning null if not found. This method
-   * updates the template error accumulators when a variable is not found.
+   * Resolve a variable from the interpreter context, returning null if not found. This method updates the template error accumulators when a variable is not found.
    *
-   * @param variable name of variable in context
-   * @param lineNumber current line number, for error reporting
+   * @param variable
+   *          name of variable in context
+   * @param lineNumber
+   *          current line number, for error reporting
    * @return resolved value for variable
    */
   public Object retraceVariable(String variable, int lineNumber) {
-    if(StringUtils.isBlank(variable)) {
+    if (StringUtils.isBlank(variable)) {
       return "";
     }
     Variable var = new Variable(this, variable);
@@ -205,9 +205,8 @@ public class JinjavaInterpreter {
     Object obj = context.get(varName);
     if (obj != null) {
       try {
-      obj = var.resolve(obj);
-      }
-      catch(JinjavaPropertyNotResolvedException e) {
+        obj = var.resolve(obj);
+      } catch (JinjavaPropertyNotResolvedException e) {
         addError(TemplateError.fromUnknownProperty(obj, variable, lineNumber));
       }
     }
@@ -215,23 +214,23 @@ public class JinjavaInterpreter {
   }
 
   /**
-   * Resolve a variable into an object value. If given a string literal (e.g. 'foo' or "foo"),
-   * this method returns the literal unquoted. If the variable is undefined in the context,
-   * this method returns the given variable string.
+   * Resolve a variable into an object value. If given a string literal (e.g. 'foo' or "foo"), this method returns the literal unquoted. If the variable is undefined in the context, this method returns the given variable string.
    *
-   * @param variable name of variable in context
-   * @param lineNumber current line number, for error reporting
+   * @param variable
+   *          name of variable in context
+   * @param lineNumber
+   *          current line number, for error reporting
    * @return resolved value for variable
    */
   public Object resolveObject(String variable, int lineNumber) {
-    if(StringUtils.isBlank(variable)) {
+    if (StringUtils.isBlank(variable)) {
       return "";
     }
-    if(WhitespaceUtils.isQuoted(variable)) {
+    if (WhitespaceUtils.isQuoted(variable)) {
       return WhitespaceUtils.unquote(variable);
     } else {
       Object val = retraceVariable(variable, lineNumber);
-      if (val == null){
+      if (val == null) {
         return variable;
       }
       return val;
@@ -239,12 +238,12 @@ public class JinjavaInterpreter {
   }
 
   /**
-   * Resolve a variable into a string value. If given a string literal (e.g. 'foo' or "foo"),
-   * this method returns the literal unquoted. If the variable is undefined in the context,
-   * this method returns the given variable string.
+   * Resolve a variable into a string value. If given a string literal (e.g. 'foo' or "foo"), this method returns the literal unquoted. If the variable is undefined in the context, this method returns the given variable string.
    *
-   * @param variable name of variable in context
-   * @param lineNumber current line number, for error reporting
+   * @param variable
+   *          name of variable in context
+   * @param lineNumber
+   *          current line number, for error reporting
    * @return resolved value for variable
    */
   public String resolveString(String variable, int lineNumber) {
@@ -274,7 +273,7 @@ public class JinjavaInterpreter {
   private ELContext createELContext() {
     SimpleContext expContext = new JinjavaELContext(new JinjavaInterpreterResolver(this));
 
-    for(ELFunctionDefinition fn : context.getAllFunctions()) {
+    for (ELFunctionDefinition fn : context.getAllFunctions()) {
       expContext.setFunction(fn.getNamespace(), fn.getLocalName(), fn.getMethod());
     }
 
@@ -292,19 +291,20 @@ public class JinjavaInterpreter {
   public int getLineNumber() {
     return lineNumber;
   }
+
   public void setLineNumber(int lineNumber) {
     this.lineNumber = lineNumber;
   }
 
-
   private static final ThreadLocal<Stack<JinjavaInterpreter>> CURRENT_INTERPRETER = new ThreadLocal<Stack<JinjavaInterpreter>>() {
+    @Override
     protected java.util.Stack<JinjavaInterpreter> initialValue() {
       return new Stack<>();
     }
   };
 
   public static JinjavaInterpreter getCurrent() {
-    if(CURRENT_INTERPRETER.get().isEmpty()) {
+    if (CURRENT_INTERPRETER.get().isEmpty()) {
       return null;
     }
 
@@ -316,11 +316,10 @@ public class JinjavaInterpreter {
   }
 
   public static void popCurrent() {
-    if(!CURRENT_INTERPRETER.get().isEmpty()) {
+    if (!CURRENT_INTERPRETER.get().isEmpty()) {
       CURRENT_INTERPRETER.get().pop();
     }
   }
-
 
   public static final String INSERT_FLAG = "'IS\"INSERT";
 

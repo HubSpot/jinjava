@@ -41,34 +41,34 @@ public class TagToken extends Token {
    */
   @Override
   protected void parse() {
-    if(image.length() < 4) {
+    if (image.length() < 4) {
       throw new TemplateSyntaxException(image, "Malformed tag token", getLineNumber());
     }
 
     content = image.substring(2, image.length() - 2);
 
-    if(WhitespaceUtils.startsWith(content, "-")) {
+    if (WhitespaceUtils.startsWith(content, "-")) {
       setLeftTrim(true);
       content = WhitespaceUtils.unwrap(content, "-", "");
     }
-    if(WhitespaceUtils.endsWith(content, "-")) {
+    if (WhitespaceUtils.endsWith(content, "-")) {
       setRightTrim(true);
       content = WhitespaceUtils.unwrap(content, "", "-");
     }
 
     int nameStart = -1, pos = 0, len = content.length();
 
-    for(; pos < len; pos++) {
+    for (; pos < len; pos++) {
       char c = content.charAt(pos);
-      if(nameStart == -1 && Character.isJavaIdentifierStart(c)) {
+      if (nameStart == -1 && Character.isJavaIdentifierStart(c)) {
         nameStart = pos;
       }
-      else if(nameStart != -1 && !Character.isJavaIdentifierPart(c)) {
+      else if (nameStart != -1 && !Character.isJavaIdentifierPart(c)) {
         break;
       }
     }
 
-    if(pos < content.length()) {
+    if (pos < content.length()) {
       tagName = content.substring(nameStart, pos).toLowerCase();
       helpers = content.substring(pos);
     } else {

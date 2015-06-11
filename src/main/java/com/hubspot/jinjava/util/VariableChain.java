@@ -57,7 +57,7 @@ public class VariableChain {
     Class<?> clazz = value.getClass();
     Method getter = findGetterMethodCached(clazz, name);
 
-    if(getter != null && getter != NULL_METHOD) {
+    if (getter != null && getter != NULL_METHOD) {
       try {
         return getter.invoke(value);
       } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
@@ -85,7 +85,8 @@ public class VariableChain {
       if (value instanceof Collection) {
         return ((Collection<?>) value).toArray()[index];
       }
-    } catch (Throwable e) { /* no-op */ }
+    } catch (Throwable e) { /* no-op */
+    }
 
     throw new JinjavaPropertyNotResolvedException(value, name);
   }
@@ -93,10 +94,10 @@ public class VariableChain {
   private Method findGetterMethodCached(Class<?> clazz, String name) {
     Method m = METHOD_CACHE.get(clazz.getName() + ":" + name);
 
-    if(m == null) {
+    if (m == null) {
       m = findGetterMethod(clazz, name);
 
-      if(m != null) {
+      if (m != null) {
         METHOD_CACHE.put(clazz.getName() + ":" + name, m);
       }
     }
@@ -109,8 +110,7 @@ public class VariableChain {
   static {
     try {
       NULL_METHOD = VariableChain.class.getDeclaredMethod("resolve");
-    }
-    catch(NoSuchMethodException e){
+    } catch (NoSuchMethodException e) {
       throw Throwables.propagate(e);
     }
   }

@@ -26,12 +26,11 @@ public class InjectedContextFunctionProxy {
 
       try {
         injectedClass = InjectedContextFunctionProxy.class.getClassLoader().loadClass(ccName);
-      }
-      catch(ClassNotFoundException e) {
+      } catch (ClassNotFoundException e) {
         CtClass cc = pool.makeClass(ccName);
         CtClass mc = pool.get(m.getDeclaringClass().getName());
 
-        CtField injectedField = CtField.make(String.format("public static %s injectedField;",  m.getDeclaringClass().getName()), cc);
+        CtField injectedField = CtField.make(String.format("public static %s injectedField;", m.getDeclaringClass().getName()), cc);
         cc.addField(injectedField);
 
         CtField injectedMethod = CtField.make(String.format("public static %s delegate;", Method.class.getName()), cc);
@@ -43,8 +42,8 @@ public class InjectedContextFunctionProxy {
             ctMethod.getParameterTypes(), ctMethod.getExceptionTypes(), null, cc);
         invokeMethod.setBody("{ return $proceed($$); }", "injectedField", m.getName());
 
-        for(CtClass param : ctMethod.getParameterTypes()) {
-          if(param.isArray()) {
+        for (CtClass param : ctMethod.getParameterTypes()) {
+          if (param.isArray()) {
             invokeMethod.setModifiers(invokeMethod.getModifiers() | AccessFlag.VARARGS);
             break;
           }
@@ -60,16 +59,15 @@ public class InjectedContextFunctionProxy {
       injectedClass.getField("delegate").set(null, m);
 
       Method staticMethod = null;
-      for(Method m1 : injectedClass.getMethods()) {
-        if(m1.getName().equals("invoke")) {
+      for (Method m1 : injectedClass.getMethods()) {
+        if (m1.getName().equals("invoke")) {
           staticMethod = m1;
           break;
         }
       }
 
       return new ELFunctionDefinition(namespace, name, staticMethod);
-    }
-    catch(Throwable e) {
+    } catch (Throwable e) {
       ENGINE_LOG.error("Error creating injected context function", e);
       throw Throwables.propagate(e);
     }

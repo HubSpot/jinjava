@@ -18,21 +18,21 @@ public class AbsOperator {
       return new AstUnary(children[0], new AstUnary.SimpleOperator() {
         @Override
         protected Object apply(TypeConverter converter, Object o) {
-          if(o == null) {
+          if (o == null) {
             return null;
           }
 
-          if(o instanceof Float) {
-            return Math.abs((Float)o);
+          if (o instanceof Float) {
+            return Math.abs((Float) o);
           }
-          if(o instanceof Double) {
-            return Math.abs((Double)o);
+          if (o instanceof Double) {
+            return Math.abs((Double) o);
           }
-          if(o instanceof Integer) {
-            return Math.abs((Integer)o);
+          if (o instanceof Integer) {
+            return Math.abs((Integer) o);
           }
-          if(o instanceof Long) {
-            return Math.abs((Long)o);
+          if (o instanceof Long) {
+            return Math.abs((Long) o);
           }
 
           throw new IllegalArgumentException("Unable to apply abs operator on object of type: " + o.getClass());

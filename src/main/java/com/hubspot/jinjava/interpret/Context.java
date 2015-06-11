@@ -62,6 +62,7 @@ public class Context extends ScopeMap<String, Object> {
     this.putAll(bindings);
   }
 
+  @Override
   public Context getParent() {
     return parent;
   }
@@ -74,7 +75,7 @@ public class Context extends ScopeMap<String, Object> {
   public Map<String, MacroFunction> getGlobalMacros() {
     Map<String, MacroFunction> macros = (Map<String, MacroFunction>) getScope().get(GLOBAL_MACROS_SCOPE_KEY);
 
-    if(macros == null) {
+    if (macros == null) {
       macros = new HashMap<>();
       getScope().put(GLOBAL_MACROS_SCOPE_KEY, macros);
     }
@@ -89,7 +90,7 @@ public class Context extends ScopeMap<String, Object> {
   public MacroFunction getGlobalMacro(String identifier) {
     MacroFunction fn = getGlobalMacros().get(identifier);
 
-    if(fn == null && parent != null) {
+    if (fn == null && parent != null) {
       fn = parent.getGlobalMacro(identifier);
     }
 
@@ -103,14 +104,14 @@ public class Context extends ScopeMap<String, Object> {
   @SafeVarargs
   @SuppressWarnings("unchecked")
   public final void registerClasses(Class<? extends Importable>... classes) {
-    for(Class<? extends Importable> c : classes) {
-      if(ExpTest.class.isAssignableFrom(c)) {
+    for (Class<? extends Importable> c : classes) {
+      if (ExpTest.class.isAssignableFrom(c)) {
         expTestLibrary.registerClasses((Class<? extends ExpTest>) c);
       }
-      else if(Filter.class.isAssignableFrom(c)) {
+      else if (Filter.class.isAssignableFrom(c)) {
         filterLibrary.registerClasses((Class<? extends Filter>) c);
       }
-      else if(Tag.class.isAssignableFrom(c)) {
+      else if (Tag.class.isAssignableFrom(c)) {
         tagLibrary.registerClasses((Class<? extends Tag>) c);
       }
     }
@@ -119,7 +120,7 @@ public class Context extends ScopeMap<String, Object> {
   public Collection<ExpTest> getAllExpTests() {
     List<ExpTest> expTests = new ArrayList<>(expTestLibrary.entries());
 
-    if(parent != null) {
+    if (parent != null) {
       expTests.addAll(parent.getAllExpTests());
     }
 
@@ -128,10 +129,10 @@ public class Context extends ScopeMap<String, Object> {
 
   public ExpTest getExpTest(String name) {
     ExpTest t = expTestLibrary.getExpTest(name);
-    if(t != null) {
+    if (t != null) {
       return t;
     }
-    if(parent != null) {
+    if (parent != null) {
       return parent.getExpTest(name);
     }
     return null;
@@ -144,7 +145,7 @@ public class Context extends ScopeMap<String, Object> {
   public Collection<Filter> getAllFilters() {
     List<Filter> filters = new ArrayList<>(filterLibrary.entries());
 
-    if(parent != null) {
+    if (parent != null) {
       filters.addAll(parent.getAllFilters());
     }
 
@@ -153,10 +154,10 @@ public class Context extends ScopeMap<String, Object> {
 
   public Filter getFilter(String name) {
     Filter f = filterLibrary.getFilter(name);
-    if(f != null) {
+    if (f != null) {
       return f;
     }
-    if(parent != null) {
+    if (parent != null) {
       return parent.getFilter(name);
     }
     return null;
@@ -168,10 +169,10 @@ public class Context extends ScopeMap<String, Object> {
 
   public ELFunctionDefinition getFunction(String name) {
     ELFunctionDefinition f = functionLibrary.getFunction(name);
-    if(f != null) {
+    if (f != null) {
       return f;
     }
-    if(parent != null) {
+    if (parent != null) {
       return parent.getFunction(name);
     }
     return null;
@@ -180,7 +181,7 @@ public class Context extends ScopeMap<String, Object> {
   public Collection<ELFunctionDefinition> getAllFunctions() {
     List<ELFunctionDefinition> fns = new ArrayList<>(functionLibrary.entries());
 
-    if(parent != null) {
+    if (parent != null) {
       fns.addAll(parent.getAllFunctions());
     }
 
@@ -194,7 +195,7 @@ public class Context extends ScopeMap<String, Object> {
   public Collection<Tag> getAllTags() {
     List<Tag> tags = new ArrayList<>(tagLibrary.entries());
 
-    if(parent != null) {
+    if (parent != null) {
       tags.addAll(parent.getAllTags());
     }
 
@@ -203,10 +204,10 @@ public class Context extends ScopeMap<String, Object> {
 
   public Tag getTag(String name) {
     Tag t = tagLibrary.getTag(name);
-    if(t != null) {
+    if (t != null) {
       return t;
     }
-    if(parent != null) {
+    if (parent != null) {
       return parent.getTag(name);
     }
     return null;

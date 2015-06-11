@@ -25,7 +25,7 @@ public class AstList extends AstLiteral {
   public Object eval(Bindings bindings, ELContext context) {
     List<Object> list = new ArrayList<>();
 
-    for(int i = 0; i < elements.getCardinality(); i++) {
+    for (int i = 0; i < elements.getCardinality(); i++) {
       list.add(elements.getChild(i).eval(bindings, context));
     }
 
@@ -40,7 +40,7 @@ public class AstList extends AstLiteral {
   protected String elementsToString() {
     List<String> els = new ArrayList<>(elements.getCardinality());
 
-    for(int i = 0; i < elements.getCardinality(); i++) {
+    for (int i = 0; i < elements.getCardinality(); i++) {
       els.add(elements.getChild(i).toString());
     }
 

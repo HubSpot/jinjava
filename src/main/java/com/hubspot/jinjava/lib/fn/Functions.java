@@ -24,10 +24,10 @@ import com.hubspot.jinjava.tree.Node;
 public class Functions {
 
   @JinjavaDoc(
-      value="Only usable within blocks, will render the contents of the parent block by calling super.",
-      snippets={
-          @JinjavaSnippet(desc="This gives back the results of the parent block",
-              code="{% block sidebar %}\n" +
+      value = "Only usable within blocks, will render the contents of the parent block by calling super.",
+      snippets = {
+          @JinjavaSnippet(desc = "This gives back the results of the parent block",
+              code = "{% block sidebar %}\n" +
                   "    <h3>Table Of Contents</h3>\n\n" +
                   "    ...\n" +
                   "    {{ super() }}\n" +
@@ -39,8 +39,8 @@ public class Functions {
 
     @SuppressWarnings("unchecked")
     List<Node> superBlock = (List<Node>) interpreter.getContext().get("__superbl0ck__");
-    if(superBlock != null) {
-      for(Node n : superBlock) {
+    if (superBlock != null) {
+      for (Node n : superBlock) {
         result.append(n.render(interpreter));
       }
     }
@@ -52,34 +52,34 @@ public class Functions {
     return Collections.unmodifiableList(Lists.newArrayList(items));
   }
 
-  @JinjavaDoc(value="formats a date to a string", params={
-      @JinjavaParam(value="var", type="date", defaultValue="current time"),
-      @JinjavaParam(value="format", defaultValue=StrftimeFormatter.DEFAULT_DATE_FORMAT)
+  @JinjavaDoc(value = "formats a date to a string", params = {
+      @JinjavaParam(value = "var", type = "date", defaultValue = "current time"),
+      @JinjavaParam(value = "format", defaultValue = StrftimeFormatter.DEFAULT_DATE_FORMAT)
   })
   public static String dateTimeFormat(Object var, String... format) {
     ZonedDateTime d = null;
 
-    if(var == null) {
+    if (var == null) {
       d = ZonedDateTime.now(ZoneOffset.UTC);
     }
-    else if(var instanceof Long) {
+    else if (var instanceof Long) {
       d = ZonedDateTime.ofInstant(Instant.ofEpochMilli((long) var), ZoneOffset.UTC);
     }
-    else if(var instanceof PyishDate) {
+    else if (var instanceof PyishDate) {
       d = ((PyishDate) var).toDateTime();
     }
-    else if(var instanceof ZonedDateTime) {
+    else if (var instanceof ZonedDateTime) {
       d = (ZonedDateTime) var;
     }
-    else if(!ZonedDateTime.class.isAssignableFrom(var.getClass())) {
+    else if (!ZonedDateTime.class.isAssignableFrom(var.getClass())) {
       throw new InterpretException("Input to datetimeformat function must be a date object, was: " + var.getClass());
     }
 
-    if(d == null) {
+    if (d == null) {
       return "";
     }
 
-    if(format.length > 0) {
+    if (format.length > 0) {
       return StrftimeFormatter.format(d, format[0]);
     }
     else {
@@ -90,11 +90,11 @@ public class Functions {
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
   private static final String DEFAULT_END = "...";
 
-  @JinjavaDoc(value="truncates a given string to a specified length",
-      params={
-        @JinjavaParam("s"),
-        @JinjavaParam(value="length", type="number", defaultValue="255"),
-        @JinjavaParam(value="end", defaultValue="...")
+  @JinjavaDoc(value = "truncates a given string to a specified length",
+      params = {
+          @JinjavaParam("s"),
+          @JinjavaParam(value = "length", type = "number", defaultValue = "255"),
+          @JinjavaParam(value = "end", defaultValue = "...")
       })
   public static Object truncate(Object var, Object... arg) {
     if (var instanceof String) {
@@ -113,8 +113,7 @@ public class Functions {
       if (arg.length > 1) {
         try {
           killwords = BooleanUtils.toBoolean(Objects.toString(arg[1]));
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
           ENGINE_LOG.warn("truncate(); error setting killwords for {}", arg[1]);
         }
       }
@@ -126,7 +125,7 @@ public class Functions {
       String string = (String) var;
 
       if (string.length() > length) {
-        if(!killwords) {
+        if (!killwords) {
           length = movePointerToJustBeforeLastWord(length, string);
         }
 
@@ -140,8 +139,8 @@ public class Functions {
   }
 
   private static int movePointerToJustBeforeLastWord(int pointer, String s) {
-    while(pointer > 0 && pointer < s.length()) {
-      if(Character.isWhitespace(s.charAt(--pointer))) {
+    while (pointer > 0 && pointer < s.length()) {
+      if (Character.isWhitespace(s.charAt(--pointer))) {
         break;
       }
     }

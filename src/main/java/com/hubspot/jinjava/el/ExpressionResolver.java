@@ -55,7 +55,7 @@ public class ExpressionResolver {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expr,
           "Error parsing '" + expr + "': " + StringUtils.substringAfter(e.getMessage(), "': "), lineNumber, e)));
     } catch (ELException e) {
-      if(e.getCause() instanceof JinjavaPropertyNotResolvedException) {
+      if (e.getCause() instanceof JinjavaPropertyNotResolvedException) {
         JinjavaPropertyNotResolvedException jpe = (JinjavaPropertyNotResolvedException) e.getCause();
         interpreter.addError(TemplateError.fromUnknownProperty(jpe.getBase(), jpe.getProperty(), lineNumber));
       }

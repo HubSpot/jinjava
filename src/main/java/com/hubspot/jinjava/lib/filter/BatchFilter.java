@@ -13,17 +13,16 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
-
 @JinjavaDoc(
-    value="A filter that groups up items within a sequence",
-    params={
-        @JinjavaParam(value="value", desc="The sequence or dict that the filter is applied to"),
-        @JinjavaParam(value="linecount", type="number", desc="Number of items to include in the batch", defaultValue="0"),
-        @JinjavaParam(value="fill_with", desc="Value used to fill up missing items")
+    value = "A filter that groups up items within a sequence",
+    params = {
+        @JinjavaParam(value = "value", desc = "The sequence or dict that the filter is applied to"),
+        @JinjavaParam(value = "linecount", type = "number", desc = "Number of items to include in the batch", defaultValue = "0"),
+        @JinjavaParam(value = "fill_with", desc = "Value used to fill up missing items")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-            code="{% set items=[1, 2, 3, 4, 5] %}\n\n" +
+            code = "{% set items=[1, 2, 3, 4, 5] %}\n\n" +
                 "<table>\n" +
                 "{% for row in items|batch(3, '&nbsp;') %}\n" +
                 "  <tr>\n" +
@@ -33,7 +32,7 @@ import com.hubspot.jinjava.util.ObjectIterator;
                 "  </tr>\n" +
                 "{% endfor %}\n" +
                 "</table>",
-            output="<table>\n" +
+            output = "<table>\n" +
                 "  <tr>\n" +
                 "    <td>1</td>\n" +
                 "    <td>2</td>\n" +
@@ -46,7 +45,6 @@ import com.hubspot.jinjava.util.ObjectIterator;
                 "  </tr>\n" +
                 "</table>")
     })
-
 public class BatchFilter implements Filter {
 
   @Override
@@ -56,12 +54,12 @@ public class BatchFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if(var == null || args.length == 0) {
+    if (var == null || args.length == 0) {
       return Collections.emptyList();
     }
 
     int lineCount = NumberUtils.toInt(args[0], 0);
-    if(lineCount == 0) {
+    if (lineCount == 0) {
       return Collections.emptyList();
     }
 
@@ -71,23 +69,23 @@ public class BatchFilter implements Filter {
     List<List<Object>> result = new ArrayList<>();
     List<Object> currentRow = null;
 
-    while(loop.hasNext()) {
+    while (loop.hasNext()) {
       Object item = loop.next();
 
-      if(currentRow == null) {
+      if (currentRow == null) {
         currentRow = new ArrayList<>();
         result.add(currentRow);
       }
 
       currentRow.add(item);
 
-      if(currentRow.size() == lineCount) {
+      if (currentRow.size() == lineCount) {
         currentRow = null;
       }
     }
 
-    if(currentRow != null) {
-      while(currentRow.size() < lineCount) {
+    if (currentRow != null) {
+      while (currentRow.size() < lineCount) {
         currentRow.add(fillWith);
       }
     }

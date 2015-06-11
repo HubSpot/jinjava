@@ -27,12 +27,11 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Calculates the md5 hash of the given object",
-    params=@JinjavaParam(value="value", desc="Value to get MD5 hash of"),
-    snippets={
-      @JinjavaSnippet(code="{{ content.absolute_url|md5 }}")
+    value = "Calculates the md5 hash of the given object",
+    params = @JinjavaParam(value = "value", desc = "Value to get MD5 hash of"),
+    snippets = {
+        @JinjavaSnippet(code = "{{ content.absolute_url|md5 }}")
     })
-
 public class Md5Filter implements Filter {
 
   private static final String[] NOSTR = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f" };

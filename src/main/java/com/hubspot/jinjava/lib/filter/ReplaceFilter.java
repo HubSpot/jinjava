@@ -9,24 +9,23 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 @JinjavaDoc(
-    value="Return a copy of the value with all occurrences of a substring replaced with a new one. " +
-          "The first argument is the substring that should be replaced, the second is the replacement " +
-          "string. If the optional third argument count is given, only the first count occurrences are replaced",
-    params={
-        @JinjavaParam(value="s", desc="Base string to find and replace within"),
-        @JinjavaParam(value="old", desc="The old substring that you want to match and replace"),
-        @JinjavaParam(value="new", desc="The new string that you replace the matched substring"),
-        @JinjavaParam(value="count", type="number", desc="Replace only the first N occurrences")
+    value = "Return a copy of the value with all occurrences of a substring replaced with a new one. " +
+        "The first argument is the substring that should be replaced, the second is the replacement " +
+        "string. If the optional third argument count is given, only the first count occurrences are replaced",
+    params = {
+        @JinjavaParam(value = "s", desc = "Base string to find and replace within"),
+        @JinjavaParam(value = "old", desc = "The old substring that you want to match and replace"),
+        @JinjavaParam(value = "new", desc = "The new string that you replace the matched substring"),
+        @JinjavaParam(value = "count", type = "number", desc = "Replace only the first N occurrences")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-            code="{{ \"Hello World\"|replace(\"Hello\", \"Goodbye\") }}",
-            output="Goodbye World"),
+            code = "{{ \"Hello World\"|replace(\"Hello\", \"Goodbye\") }}",
+            output = "Goodbye World"),
         @JinjavaSnippet(
-            code="{{ \"aaaaargh\"|replace(\"a\", \"d'oh, \", 2) }}",
-            output="d'oh, d'oh, aaargh")
+            code = "{{ \"aaaaargh\"|replace(\"a\", \"d'oh, \", 2) }}",
+            output = "d'oh, d'oh, aaargh")
     })
 public class ReplaceFilter implements Filter {
 
@@ -39,10 +38,10 @@ public class ReplaceFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter,
       String... args) {
 
-    if(var == null) {
+    if (var == null) {
       throw new InterpretException("filter " + getName() + " requires a var to operate on");
     }
-    if(args.length < 2) {
+    if (args.length < 2) {
       throw new InterpretException("filter " + getName() + " requires two string args");
     }
 
@@ -51,11 +50,11 @@ public class ReplaceFilter implements Filter {
     String replaceWith = args[1];
     Integer count = null;
 
-    if(args.length > 2) {
+    if (args.length > 2) {
       count = NumberUtils.createInteger(args[2]);
     }
 
-    if(count == null) {
+    if (count == null) {
       return StringUtils.replace(s, toReplace, replaceWith);
     }
     else {

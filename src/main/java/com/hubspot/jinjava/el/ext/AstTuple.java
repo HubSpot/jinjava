@@ -21,7 +21,6 @@ public class AstTuple extends AstList {
     return new PyList(Collections.unmodifiableList(list.toList()));
   }
 
-
   @Override
   public String toString() {
     return String.format("(%s)", elementsToString());

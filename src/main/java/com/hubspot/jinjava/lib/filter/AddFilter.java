@@ -25,15 +25,15 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="adds a number to the existing value",
-    params={
-        @JinjavaParam(value="number", type="number", desc="Number or numeric variable to add to"),
-        @JinjavaParam(value="addend", type="number", desc="The number added to the base number")
+    value = "adds a number to the existing value",
+    params = {
+        @JinjavaParam(value = "number", type = "number", desc = "Number or numeric variable to add to"),
+        @JinjavaParam(value = "addend", type = "number", desc = "The number added to the base number")
     },
-    snippets={
-      @JinjavaSnippet(
-        code="{% set my_num = 40 %} \n" +
-             "{{ my_num|add(13) }}")
+    snippets = {
+        @JinjavaSnippet(
+            code = "{% set my_num = 40 %} \n" +
+                "{{ my_num|add(13) }}")
     })
 public class AddFilter implements Filter {
 
@@ -48,8 +48,7 @@ public class AddFilter implements Filter {
       BigDecimal addend = new BigDecimal(Objects.toString(arg[0]));
 
       return base.add(addend);
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       throw new InterpretException("filter add error", e);
     }
   }

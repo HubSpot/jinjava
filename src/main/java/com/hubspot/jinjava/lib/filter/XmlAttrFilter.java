@@ -14,17 +14,16 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 @JinjavaDoc(
-    value="Create an HTML/XML attribute string based on the items in a dict.",
-    params={
-        @JinjavaParam(value="d", type="dict", desc="Dict to filter"),
-        @JinjavaParam(value="autospace", type="boolean", defaultValue="True", desc="Automatically prepend a space in front of the item")
+    value = "Create an HTML/XML attribute string based on the items in a dict.",
+    params = {
+        @JinjavaParam(value = "d", type = "dict", desc = "Dict to filter"),
+        @JinjavaParam(value = "autospace", type = "boolean", defaultValue = "True", desc = "Automatically prepend a space in front of the item")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-            code="{% set html_attributes = {'class': 'bold', 'id': 'sidebar'} %}\n" +
-                 "<div {{ html_attributes|xmlattr }}></div>")
+            code = "{% set html_attributes = {'class': 'bold', 'id': 'sidebar'} %}\n" +
+                "<div {{ html_attributes|xmlattr }}></div>")
     })
 public class XmlAttrFilter implements Filter {
 
@@ -35,7 +34,7 @@ public class XmlAttrFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if(var == null || !Map.class.isAssignableFrom(var.getClass())) {
+    if (var == null || !Map.class.isAssignableFrom(var.getClass())) {
       return var;
     }
 
@@ -43,16 +42,16 @@ public class XmlAttrFilter implements Filter {
     Map<String, Object> dict = (Map<String, Object>) var;
     List<String> attrs = new ArrayList<>();
 
-    for(Map.Entry<String, Object> entry : dict.entrySet()) {
+    for (Map.Entry<String, Object> entry : dict.entrySet()) {
       attrs.add(new StringBuilder(entry.getKey())
-        .append("=\"")
-        .append(StringEscapeUtils.escapeXml10(Objects.toString(entry.getValue(), "")))
-        .append("\"")
-        .toString());
+          .append("=\"")
+          .append(StringEscapeUtils.escapeXml10(Objects.toString(entry.getValue(), "")))
+          .append("\"")
+          .toString());
     }
 
     String space = " ";
-    if(args.length > 0 && !BooleanUtils.toBoolean(args[0])) {
+    if (args.length > 0 && !BooleanUtils.toBoolean(args[0])) {
       space = "";
     }
 

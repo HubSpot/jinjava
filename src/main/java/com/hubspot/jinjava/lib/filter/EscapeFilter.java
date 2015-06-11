@@ -23,18 +23,17 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Converts the characters &, <, >, ‘, and ” in string s to HTML-safe sequences. "
+    value = "Converts the characters &, <, >, ‘, and ” in string s to HTML-safe sequences. "
         + "Use this filter if you need to display text that might contain such characters in HTML. "
         + "Marks return value as markup string.",
-    params={
-        @JinjavaParam(value="s", desc="String to escape")
+    params = {
+        @JinjavaParam(value = "s", desc = "String to escape")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-            code="{% set escape_string = \"<div>This markup is printed as text</div>\" %}\n" +
-                 "{{ escape_string|escape }}")
+            code = "{% set escape_string = \"<div>This markup is printed as text</div>\" %}\n" +
+                "{{ escape_string|escape }}")
     })
-
 public class EscapeFilter implements Filter {
 
   private static final String SAMP = "&";
@@ -46,8 +45,8 @@ public class EscapeFilter implements Filter {
   private static final String BSQ = "&#39;";
   private static final String BDQ = "&quot;";
 
-  private static final String[] TO_REPLACE = new String[]{SAMP, SGT, SLT, "'", "\""};
-  private static final String[] REPLACE_WITH = new String[]{BAMP, BGT, BLT, BSQ, BDQ};
+  private static final String[] TO_REPLACE = new String[] { SAMP, SGT, SLT, "'", "\"" };
+  private static final String[] REPLACE_WITH = new String[] { BAMP, BGT, BLT, BSQ, BDQ };
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {

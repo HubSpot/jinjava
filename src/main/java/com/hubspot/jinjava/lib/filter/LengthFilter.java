@@ -26,14 +26,13 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-  value="Return the number of items of a sequence or mapping",
-  params=@JinjavaParam(value="object", desc="The sequence to count"),
-  snippets={
+    value = "Return the number of items of a sequence or mapping",
+    params = @JinjavaParam(value = "object", desc = "The sequence to count"),
+    snippets = {
         @JinjavaSnippet(
-            code="{% set services = ['Web design', 'SEO', 'Inbound Marketing', 'PPC'] %}\n" +
-                 "{{ services|length }}")
+            code = "{% set services = ['Web design', 'SEO', 'Inbound Marketing', 'PPC'] %}\n" +
+                "{{ services|length }}")
     })
-
 public class LengthFilter implements Filter {
 
   @Override

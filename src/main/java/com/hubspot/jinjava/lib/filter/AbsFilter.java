@@ -25,14 +25,14 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Return the absolute value of the argument.",
-    params={
-        @JinjavaParam(value="number", type="number", desc="The number that you want to get the absolute value of")
+    value = "Return the absolute value of the argument.",
+    params = {
+        @JinjavaParam(value = "number", type = "number", desc = "The number that you want to get the absolute value of")
     },
-    snippets={
-      @JinjavaSnippet(
-        code="{% set my_number = -53 %}\n" +
-             "{{ my_number|abs }}")
+    snippets = {
+        @JinjavaSnippet(
+            code = "{% set my_number = -53 %}\n" +
+                "{{ my_number|abs }}")
     })
 public class AbsFilter implements Filter {
 

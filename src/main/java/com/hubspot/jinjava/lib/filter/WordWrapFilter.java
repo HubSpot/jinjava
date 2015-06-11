@@ -11,22 +11,20 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 @JinjavaDoc(
-    value="Return a copy of the string passed to the filter wrapped after 79 characters.",
-    params={
-        @JinjavaParam(value="s", desc="String to wrap after a certain number of chracters"),
-        @JinjavaParam(value="width", type="number", defaultValue="79", desc="Sets the width of spaces at which to wrap the text"),
-        @JinjavaParam(value="break_long_words", type="boolean", defaultValue="True", desc="If true, long words will be broken when wrapped")
+    value = "Return a copy of the string passed to the filter wrapped after 79 characters.",
+    params = {
+        @JinjavaParam(value = "s", desc = "String to wrap after a certain number of chracters"),
+        @JinjavaParam(value = "width", type = "number", defaultValue = "79", desc = "Sets the width of spaces at which to wrap the text"),
+        @JinjavaParam(value = "break_long_words", type = "boolean", defaultValue = "True", desc = "If true, long words will be broken when wrapped")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-          desc="Since HubSpot's compiler automatically strips whitespace, this filter will only work in tags where whitespace is retained, such as a <pre>",
-          code="<pre>\n" +
-               "    {{ \"Lorem ipsum dolor sit amet, consectetur adipiscing elit\"|wordwrap(10) }}\n" +
-               "</pre>")
+            desc = "Since HubSpot's compiler automatically strips whitespace, this filter will only work in tags where whitespace is retained, such as a <pre>",
+            code = "<pre>\n" +
+                "    {{ \"Lorem ipsum dolor sit amet, consectetur adipiscing elit\"|wordwrap(10) }}\n" +
+                "</pre>")
     })
-
 public class WordWrapFilter implements Filter {
 
   @Override
@@ -39,12 +37,12 @@ public class WordWrapFilter implements Filter {
     String str = Objects.toString(var, "");
 
     int wrapLength = 79;
-    if(args.length > 0) {
+    if (args.length > 0) {
       wrapLength = NumberUtils.toInt(args[0], 79);
     }
 
     boolean wrapLongWords = true;
-    if(args.length > 1) {
+    if (args.length > 1) {
       wrapLongWords = BooleanUtils.toBoolean(args[1]);
     }
 

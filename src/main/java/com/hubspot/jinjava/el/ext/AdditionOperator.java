@@ -16,10 +16,10 @@ public class AdditionOperator extends AstBinary.SimpleOperator {
   @SuppressWarnings("unchecked")
   @Override
   protected Object apply(TypeConverter converter, Object o1, Object o2) {
-    if(o1 instanceof Collection) {
+    if (o1 instanceof Collection) {
       List<Object> result = new ArrayList<>((Collection<Object>) o1);
 
-      if(o2 instanceof Collection) {
+      if (o2 instanceof Collection) {
         result.addAll((Collection<Object>) o2);
       }
       else {
@@ -28,14 +28,14 @@ public class AdditionOperator extends AstBinary.SimpleOperator {
 
       return result;
     }
-    else if(o1 instanceof Map && o2 instanceof Map) {
+    else if (o1 instanceof Map && o2 instanceof Map) {
       Map<Object, Object> result = new HashMap<>((Map<Object, Object>) o1);
       result.putAll((Map<Object, Object>) o2);
 
       return result;
     }
 
-    if(o1 instanceof String || o2 instanceof String) {
+    if (o1 instanceof String || o2 instanceof String) {
       return Objects.toString(o1).concat(Objects.toString(o2));
     }
 

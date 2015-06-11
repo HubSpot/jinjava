@@ -10,10 +10,10 @@ public class JinjavaDoc {
   private final Map<String, JinjavaDocFunction> functions = new TreeMap<>();
   private final Map<String, JinjavaDocTag> tags = new TreeMap<>();
 
-
   public Map<String, JinjavaDocExpTest> getExpTests() {
     return expTests;
   }
+
   public void addExpTest(JinjavaDocExpTest expTest) {
     expTests.put(expTest.getName(), expTest);
   }
@@ -21,6 +21,7 @@ public class JinjavaDoc {
   public Map<String, JinjavaDocFilter> getFilters() {
     return filters;
   }
+
   public void addFilter(JinjavaDocFilter filter) {
     filters.put(filter.getName(), filter);
   }
@@ -28,6 +29,7 @@ public class JinjavaDoc {
   public Map<String, JinjavaDocFunction> getFunctions() {
     return functions;
   }
+
   public void addFunction(JinjavaDocFunction function) {
     functions.put(function.getName(), function);
   }
@@ -35,6 +37,7 @@ public class JinjavaDoc {
   public Map<String, JinjavaDocTag> getTags() {
     return tags;
   }
+
   public void addTag(JinjavaDocTag tag) {
     tags.put(tag.getName(), tag);
   }

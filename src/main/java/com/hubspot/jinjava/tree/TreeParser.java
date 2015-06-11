@@ -41,7 +41,7 @@ public class TreeParser {
 
   private Node parent;
 
-  public TreeParser(JinjavaInterpreter interpreter, String input){
+  public TreeParser(JinjavaInterpreter interpreter, String input) {
     this.scanner = new TokenScanner(input);
     this.interpreter = interpreter;
   }
@@ -51,14 +51,14 @@ public class TreeParser {
 
     parent = root;
 
-    while(scanner.hasNext()) {
+    while (scanner.hasNext()) {
       Node node = nextNode();
-      if(node != null) {
+      if (node != null) {
         parent.getChildren().add(node);
       }
     }
 
-    if(parent != root) {
+    if (parent != root) {
       interpreter.addError(TemplateError.fromException(
           new MissingEndTagException(((TagNode) parent).getEndName(), parent.getMaster().getImage(), parent.getLineNumber())));
     }
@@ -72,7 +72,7 @@ public class TreeParser {
   private Node nextNode() {
     Token token = scanner.next();
 
-    switch(token.getType()) {
+    switch (token.getType()) {
     case TOKEN_FIXED:
       return text((TextToken) token);
 
@@ -111,7 +111,7 @@ public class TreeParser {
       return null;
     }
 
-    if(tag instanceof EndTag) {
+    if (tag instanceof EndTag) {
       endTag(tag, tagToken);
       return null;
     }
@@ -119,7 +119,7 @@ public class TreeParser {
     TagNode node = new TagNode(tag, tagToken);
     node.setParent(parent);
 
-    if(node.getEndName() != null) {
+    if (node.getEndName() != null) {
       parent.getChildren().add(node);
       parent = node;
       return null;
@@ -129,11 +129,11 @@ public class TreeParser {
   }
 
   private void endTag(Tag tag, TagToken tagToken) {
-    while(!(parent instanceof RootNode)) {
+    while (!(parent instanceof RootNode)) {
       TagNode parentTag = (TagNode) parent;
       parent = parent.getParent();
 
-      if(parentTag.getEndName().equals(tag.getEndTagName())) {
+      if (parentTag.getEndName().equals(tag.getEndTagName())) {
         break;
       }
       else {

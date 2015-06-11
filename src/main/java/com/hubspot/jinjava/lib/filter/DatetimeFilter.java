@@ -18,7 +18,7 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-@JinjavaDoc(value="", aliasOf="datetimeformat")
+@JinjavaDoc(value = "", aliasOf = "datetimeformat")
 public class DatetimeFilter extends DateTimeFormatFilter {
 
   @Override

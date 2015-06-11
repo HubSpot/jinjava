@@ -16,18 +16,18 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Sort a dict and yield (key, value) pairs.",
-    params={
-        @JinjavaParam(value="value", desc="Dict to sort"),
-        @JinjavaParam(value="case_sensitive", type="boolean", defaultValue="False", desc="Determines whether or not the sorting is case sensitive"),
-        @JinjavaParam(value="by", type="enum key|value", defaultValue="key", desc="Sort by dict key or value")
+    value = "Sort a dict and yield (key, value) pairs.",
+    params = {
+        @JinjavaParam(value = "value", desc = "Dict to sort"),
+        @JinjavaParam(value = "case_sensitive", type = "boolean", defaultValue = "False", desc = "Determines whether or not the sorting is case sensitive"),
+        @JinjavaParam(value = "by", type = "enum key|value", defaultValue = "key", desc = "Sort by dict key or value")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-            desc="Sort the dict by value, case insensitive",
-            code="{% for item in contact|dictsort(false, 'value') %}\n" +
-                 "    {{item}}\n" +
-                 "{% endfor %}")
+            desc = "Sort the dict by value, case insensitive",
+            code = "{% for item in contact|dictsort(false, 'value') %}\n" +
+                "    {{item}}\n" +
+                "{% endfor %}")
     })
 public class DictSortFilter implements Filter {
 
@@ -38,17 +38,17 @@ public class DictSortFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if(var == null || !Map.class.isAssignableFrom(var.getClass())) {
+    if (var == null || !Map.class.isAssignableFrom(var.getClass())) {
       return var;
     }
 
     boolean caseSensitive = false;
-    if(args.length > 0) {
+    if (args.length > 0) {
       caseSensitive = BooleanUtils.toBoolean(args[0]);
     }
 
     boolean sortByKey = true;
-    if(args.length > 1) {
+    if (args.length > 1) {
       sortByKey = "value".equalsIgnoreCase(args[1]);
     }
 
@@ -80,10 +80,10 @@ public class DictSortFilter implements Filter {
 
       int result = 0;
 
-      if(!caseSensitive && sVal1 instanceof String && sVal2 instanceof String) {
+      if (!caseSensitive && sVal1 instanceof String && sVal2 instanceof String) {
         result = ((String) sVal1).compareToIgnoreCase((String) sVal2);
       }
-      else if(Comparable.class.isAssignableFrom(sVal1.getClass()) && Comparable.class.isAssignableFrom(sVal2.getClass())) {
+      else if (Comparable.class.isAssignableFrom(sVal1.getClass()) && Comparable.class.isAssignableFrom(sVal2.getClass())) {
         result = ((Comparable<Object>) sVal1).compareTo(sVal2);
       }
 

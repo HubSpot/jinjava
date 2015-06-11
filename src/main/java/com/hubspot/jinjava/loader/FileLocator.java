@@ -35,7 +35,7 @@ public class FileLocator implements ResourceLocator {
   }
 
   public FileLocator(File baseDir) throws FileNotFoundException {
-    if(!baseDir.exists()){
+    if (!baseDir.exists()) {
       throw new FileNotFoundException(String.format("Specified baseDir [%s] does not exist", baseDir.getAbsolutePath()));
     }
     this.baseDir = baseDir;
@@ -44,7 +44,7 @@ public class FileLocator implements ResourceLocator {
   private File resolveFileName(String name) {
     File f = new File(name);
 
-    if(f.isAbsolute()) {
+    if (f.isAbsolute()) {
       return f;
     }
 

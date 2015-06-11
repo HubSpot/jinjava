@@ -28,32 +28,32 @@ public class AstRangeBracket extends AstBracket {
   @Override
   public Object eval(Bindings bindings, ELContext context) {
     Object base = prefix.eval(bindings, context);
-    if(base == null) {
+    if (base == null) {
       throw new PropertyNotFoundException(LocalMessages.get("error.property.base.null", prefix));
     }
-    if(!Iterable.class.isAssignableFrom(base.getClass()) && !base.getClass().isArray()) {
+    if (!Iterable.class.isAssignableFrom(base.getClass()) && !base.getClass().isArray()) {
       throw new ELException("Property " + prefix + " is not a sequence.");
     }
 
     Object start = property.eval(bindings, context);
-    if(start == null && strict) {
+    if (start == null && strict) {
       return Collections.emptyList();
     }
-    if(!(start instanceof Number)) {
+    if (!(start instanceof Number)) {
       throw new ELException("Range start is not a number");
     }
 
     Object end = rangeMax.eval(bindings, context);
-    if(end == null && strict) {
+    if (end == null && strict) {
       return Collections.emptyList();
     }
-    if(!(end instanceof Number)) {
+    if (!(end instanceof Number)) {
       throw new ELException("Range end is not a number");
     }
 
     Iterable<?> baseItr;
 
-    if(base.getClass().isArray()) {
+    if (base.getClass().isArray()) {
       baseItr = Arrays.asList((Object[]) base);
     }
     else {
@@ -66,11 +66,11 @@ public class AstRangeBracket extends AstBracket {
     int index = 0;
 
     Iterator<?> baseIterator = baseItr.iterator();
-    while(baseIterator.hasNext()) {
+    while (baseIterator.hasNext()) {
       Object next = baseIterator.next();
 
-      if(index >= startNum) {
-        if(index >= endNum) {
+      if (index >= startNum) {
+        if (index >= endNum) {
           break;
         }
         result.add(next);

@@ -7,8 +7,13 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import com.google.common.base.Objects;
 
 public class TemplateError {
-  public enum ErrorType { FATAL, WARNING }
-  public enum ErrorReason { SYNTAX_ERROR, UNKNOWN, BAD_URL, EXCEPTION, MISSING, OTHER }
+  public enum ErrorType {
+    FATAL, WARNING
+  }
+
+  public enum ErrorReason {
+    SYNTAX_ERROR, UNKNOWN, BAD_URL, EXCEPTION, MISSING, OTHER
+  }
 
   private final ErrorType severity;
   private final ErrorReason reason;
@@ -29,7 +34,7 @@ public class TemplateError {
   public static TemplateError fromException(Exception ex) {
     int lineNumber = -1;
 
-    if(ex instanceof InterpretException) {
+    if (ex instanceof InterpretException) {
       lineNumber = ((InterpretException) ex).getLineNumber();
     }
 
@@ -46,13 +51,13 @@ public class TemplateError {
   }
 
   private static String friendlyObjectToString(Object o) {
-    if(o == null) {
+    if (o == null) {
       return "null";
     }
 
     String s = o.toString();
 
-    if(!GENERIC_TOSTRING_PATTERN.matcher(s).find()) {
+    if (!GENERIC_TOSTRING_PATTERN.matcher(s).find()) {
       return s;
     }
 
@@ -76,18 +81,23 @@ public class TemplateError {
   public ErrorType getSeverity() {
     return severity;
   }
+
   public ErrorReason getReason() {
     return reason;
   }
+
   public String getMessage() {
     return message;
   }
+
   public String getFieldName() {
     return fieldName;
   }
+
   public Integer getLineno() {
     return lineno;
   }
+
   public Exception getException() {
     return exception;
   }
@@ -96,6 +106,7 @@ public class TemplateError {
     return new TemplateError(severity, reason, message, fieldName, lineno, null);
   }
 
+  @Override
   public String toString() {
     return Objects.toStringHelper(this)
         .add("severity", severity)

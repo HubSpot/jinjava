@@ -12,12 +12,12 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  * @author jstehler
  */
 @JinjavaDoc(
-  value="Return a titlecased version of the value. I.e. words will start with uppercase letters, all remaining characters are lowercase.",
-  snippets={
-    @JinjavaSnippet(
-      code="{{ \"My title should be titlecase\"|title }} "
-      )
-  })
+    value = "Return a titlecased version of the value. I.e. words will start with uppercase letters, all remaining characters are lowercase.",
+    snippets = {
+        @JinjavaSnippet(
+            code = "{{ \"My title should be titlecase\"|title }} "
+        )
+    })
 public class TitleFilter implements Filter {
 
   @Override

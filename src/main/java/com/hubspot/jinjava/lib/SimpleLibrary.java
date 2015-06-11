@@ -32,7 +32,7 @@ public abstract class SimpleLibrary<T extends Importable> {
   private Map<String, T> lib = new HashMap<String, T>();
 
   protected SimpleLibrary(boolean registerDefaults) {
-    if(registerDefaults) {
+    if (registerDefaults) {
       registerDefaults();
     }
   }
@@ -48,15 +48,14 @@ public abstract class SimpleLibrary<T extends Importable> {
     try {
       List<T> instances = new ArrayList<>();
 
-      for(Class<? extends T> c : itemClass) {
+      for (Class<? extends T> c : itemClass) {
         T instance = c.newInstance();
         register(instance);
         instances.add(instance);
       }
 
       return instances;
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       throw Throwables.propagate(e);
     }
   }

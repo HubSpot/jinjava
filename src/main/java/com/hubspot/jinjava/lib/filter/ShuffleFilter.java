@@ -10,14 +10,14 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-  value="Randomly shuffle a given list, returning a new list with all of the items of the original list in a random order",
-  snippets={
-    @JinjavaSnippet(
-      desc="The example below is a standard blog loop that's order is randomized on page load",
-      code="{% for content in contents|shuffle %}\n" +
-           "    <div class=\"post-item\">Markup of each post</div>\n" +
-           "{% endfor %}")
-  })
+    value = "Randomly shuffle a given list, returning a new list with all of the items of the original list in a random order",
+    snippets = {
+        @JinjavaSnippet(
+            desc = "The example below is a standard blog loop that's order is randomized on page load",
+            code = "{% for content in contents|shuffle %}\n" +
+                "    <div class=\"post-item\">Markup of each post</div>\n" +
+                "{% endfor %}")
+    })
 public class ShuffleFilter implements Filter {
 
   @Override
@@ -28,7 +28,7 @@ public class ShuffleFilter implements Filter {
   @SuppressWarnings("unchecked")
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if(var instanceof Collection) {
+    if (var instanceof Collection) {
       List<?> list = new ArrayList<Object>((Collection<Object>) var);
       Collections.shuffle(list);
       return list;

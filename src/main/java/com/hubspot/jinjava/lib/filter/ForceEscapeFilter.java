@@ -10,14 +10,13 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Enforce HTML escaping. This will probably double escape variables.",
-    params=@JinjavaParam(value="value", desc="Value to escape"),
-    snippets={
-      @JinjavaSnippet(
-        code="{% set escape_string = \"<div>This markup is printed as text</div>\" %}\n" +
-             "{{ escape_string|forceescape }}\n")
+    value = "Enforce HTML escaping. This will probably double escape variables.",
+    params = @JinjavaParam(value = "value", desc = "Value to escape"),
+    snippets = {
+        @JinjavaSnippet(
+            code = "{% set escape_string = \"<div>This markup is printed as text</div>\" %}\n" +
+                "{{ escape_string|forceescape }}\n")
     })
-
 public class ForceEscapeFilter implements Filter {
 
   @Override

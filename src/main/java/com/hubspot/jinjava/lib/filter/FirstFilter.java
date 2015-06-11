@@ -8,14 +8,14 @@ import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
-    value="Return the first item of a sequence.",
-    params={
-        @JinjavaParam(value="seq", type="sequence", desc="Sequence to return first item from")
+    value = "Return the first item of a sequence.",
+    params = {
+        @JinjavaParam(value = "seq", type = "sequence", desc = "Sequence to return first item from")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-            code="{% set my_sequence = ['Item 1', 'Item 2', 'Item 3'] %}\n" +
-                 "{{ my_sequence|first }}")
+            code = "{% set my_sequence = ['Item 1', 'Item 2', 'Item 3'] %}\n" +
+                "{{ my_sequence|first }}")
     })
 public class FirstFilter implements Filter {
 

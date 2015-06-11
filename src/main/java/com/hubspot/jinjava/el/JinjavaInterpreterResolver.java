@@ -47,7 +47,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       Class<?>[] paramTypes, Object[] params) {
 
     Object methodProperty = getValue(context, base, method, false);
-    if(methodProperty != null && methodProperty instanceof AbstractCallableMethod) {
+    if (methodProperty != null && methodProperty instanceof AbstractCallableMethod) {
       context.setPropertyResolved(true);
       return ((AbstractCallableMethod) methodProperty).evaluate(params);
     }
@@ -65,25 +65,24 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     String property = Objects.toString(prop, "");
     Object value = null;
 
-    if(ExtendedParser.INTERPRETER.equals(prop)) {
+    if (ExtendedParser.INTERPRETER.equals(prop)) {
       value = interpreter;
     }
-    else if(property.startsWith(ExtendedParser.FILTER_PREFIX)) {
+    else if (property.startsWith(ExtendedParser.FILTER_PREFIX)) {
       value = interpreter.getContext().getFilter(StringUtils.substringAfter(property, ExtendedParser.FILTER_PREFIX));
     }
-    else if(property.startsWith(ExtendedParser.EXPTEST_PREFIX)) {
+    else if (property.startsWith(ExtendedParser.EXPTEST_PREFIX)) {
       value = interpreter.getContext().getExpTest(StringUtils.substringAfter(property, ExtendedParser.EXPTEST_PREFIX));
     }
     else {
-      if(base == null) {
+      if (base == null) {
         value = interpreter.retraceVariable((String) prop, interpreter.getLineNumber());
       }
       else {
         try {
           value = new VariableChain(Lists.newArrayList(property), base).resolve();
-        }
-        catch(JinjavaPropertyNotResolvedException e) {
-          if(errOnUnknownProp) {
+        } catch (JinjavaPropertyNotResolvedException e) {
+          if (errOnUnknownProp) {
             interpreter.addError(TemplateError.fromUnknownProperty(base, property, interpreter.getLineNumber()));
           }
         }
@@ -96,29 +95,29 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
   @SuppressWarnings("unchecked")
   public static Object wrap(JinjavaInterpreter interpreter, Object value) {
-    if(value == null) {
+    if (value == null) {
       return null;
     }
 
-    if(value instanceof PyWrapper) {
+    if (value instanceof PyWrapper) {
       return value;
     }
 
-    if(List.class.isAssignableFrom(value.getClass())) {
+    if (List.class.isAssignableFrom(value.getClass())) {
       return new PyList((List<Object>) value);
     }
-    if(Map.class.isAssignableFrom(value.getClass())) {
+    if (Map.class.isAssignableFrom(value.getClass())) {
       return new PyMap((Map<String, Object>) value);
     }
 
-    if(Date.class.isAssignableFrom(value.getClass())) {
+    if (Date.class.isAssignableFrom(value.getClass())) {
       return new PyishDate(localizeDateTime(interpreter, ZonedDateTime.ofInstant(Instant.ofEpochMilli(((Date) value).getTime()), ZoneOffset.UTC)));
     }
-    if(ZonedDateTime.class.isAssignableFrom(value.getClass())) {
+    if (ZonedDateTime.class.isAssignableFrom(value.getClass())) {
       return new PyishDate(localizeDateTime(interpreter, (ZonedDateTime) value));
     }
 
-    if(FormattedDate.class.isAssignableFrom(value.getClass())) {
+    if (FormattedDate.class.isAssignableFrom(value.getClass())) {
       return formattedDateToString(interpreter, (FormattedDate) value);
     }
 

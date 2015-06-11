@@ -60,6 +60,7 @@ public class ForLoop implements Iterator<Object> {
     }
   }
 
+  @Override
   public Object next() {
     Object res;
     if (it.hasNext()) {

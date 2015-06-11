@@ -6,15 +6,14 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 @JinjavaDoc(
-  value="Return true if string is all uppercased",
-  snippets={
-      @JinjavaSnippet(
-      code="{% if variable is upper %}\n" +
-           "    <!-- code to render if variable value is uppercased -->\n" +
-           "{% endif %}")
-  })
+    value = "Return true if string is all uppercased",
+    snippets = {
+        @JinjavaSnippet(
+            code = "{% if variable is upper %}\n" +
+                "    <!-- code to render if variable value is uppercased -->\n" +
+                "{% endif %}")
+    })
 public class IsUpperExpTest implements ExpTest {
 
   @Override
@@ -25,7 +24,7 @@ public class IsUpperExpTest implements ExpTest {
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter,
       Object... args) {
-    if(var == null || !(var instanceof String)) {
+    if (var == null || !(var instanceof String)) {
       return false;
     }
 

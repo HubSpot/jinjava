@@ -25,19 +25,19 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ObjectTruthValue;
 
 @JinjavaDoc(
-    value="If the value is undefined it will return the passed default value, otherwise the value of the variable",
-    params={
-        @JinjavaParam(value="value", desc="The variable or value to test"),
-        @JinjavaParam(value="default_value", desc="Value to print when variable is not defined"),
-        @JinjavaParam(value="boolean", type="boolean", defaultValue="False", desc="Set to True to use with variables which evaluate to false")
+    value = "If the value is undefined it will return the passed default value, otherwise the value of the variable",
+    params = {
+        @JinjavaParam(value = "value", desc = "The variable or value to test"),
+        @JinjavaParam(value = "default_value", desc = "Value to print when variable is not defined"),
+        @JinjavaParam(value = "boolean", type = "boolean", defaultValue = "False", desc = "Set to True to use with variables which evaluate to false")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-            desc="This will output the value of my_variable if the variable was defined, otherwise 'my_variable is not defined'",
-            code="{{ my_variable|default('my_variable is not defined') }}"),
+            desc = "This will output the value of my_variable if the variable was defined, otherwise 'my_variable is not defined'",
+            code = "{{ my_variable|default('my_variable is not defined') }}"),
         @JinjavaSnippet(
-            desc="If you want to use default with variables that evaluate to false you have to set the second parameter to true",
-            code="{{ ''|default('the string was empty', true) }}")
+            desc = "If you want to use default with variables that evaluate to false you have to set the second parameter to true",
+            code = "{{ ''|default('the string was empty', true) }}")
     })
 public class DefaultFilter implements Filter {
 
@@ -45,20 +45,20 @@ public class DefaultFilter implements Filter {
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
     boolean truthy = false;
 
-    if(arg.length == 0) {
+    if (arg.length == 0) {
       throw new InterpretException("default filter requires 1 or 2 args");
     }
 
-    if(arg.length == 2) {
+    if (arg.length == 2) {
       truthy = BooleanUtils.toBoolean(arg[1]);
     }
 
-    if(truthy) {
-      if(ObjectTruthValue.evaluate(object)) {
+    if (truthy) {
+      if (ObjectTruthValue.evaluate(object)) {
         return object;
       }
     }
-    else if(object != null) {
+    else if (object != null) {
       return object;
     }
 

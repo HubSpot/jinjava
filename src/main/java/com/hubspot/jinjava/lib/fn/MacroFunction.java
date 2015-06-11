@@ -42,8 +42,8 @@ public class MacroFunction extends AbstractCallableMethod {
     interpreter.enterScope();
 
     try {
-      for(Map.Entry<String, Object> scopeEntry : localContextScope.getScope().entrySet()){
-        if(scopeEntry.getValue() instanceof MacroFunction) {
+      for (Map.Entry<String, Object> scopeEntry : localContextScope.getScope().entrySet()) {
+        if (scopeEntry.getValue() instanceof MacroFunction) {
           interpreter.getContext().addGlobalMacro((MacroFunction) scopeEntry.getValue());
         }
         else {
@@ -52,7 +52,7 @@ public class MacroFunction extends AbstractCallableMethod {
       }
 
       // named parameters
-      for(Map.Entry<String, Object> argEntry : argMap.entrySet()) {
+      for (Map.Entry<String, Object> argEntry : argMap.entrySet()) {
         interpreter.getContext().put(argEntry.getKey(), argEntry.getValue());
       }
       // parameter map
@@ -62,13 +62,12 @@ public class MacroFunction extends AbstractCallableMethod {
 
       StringBuilder result = new StringBuilder();
 
-      for(Node node : content) {
+      for (Node node : content) {
         result.append(node.render(interpreter));
       }
 
       return result.toString();
-    }
-    finally {
+    } finally {
       interpreter.leaveScope();
     }
   }

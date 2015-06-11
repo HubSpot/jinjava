@@ -17,9 +17,11 @@ public class FormattedDate {
   public String getFormat() {
     return format;
   }
+
   public ZonedDateTime getDate() {
     return date;
   }
+
   public String getLanguage() {
     return language;
   }

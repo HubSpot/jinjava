@@ -20,7 +20,7 @@ public class FatalTemplateErrorsException extends InterpretException {
   private static String generateMessage(Iterable<TemplateError> errors) {
     StringBuilder msg = new StringBuilder();
 
-    for(TemplateError error : errors) {
+    for (TemplateError error : errors) {
       msg.append(error.toString()).append('\n');
     }
 

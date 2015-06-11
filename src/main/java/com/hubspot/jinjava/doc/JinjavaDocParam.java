@@ -17,12 +17,15 @@ public class JinjavaDocParam {
   public String getName() {
     return name;
   }
+
   public String getType() {
     return type;
   }
+
   public String getDesc() {
     return desc;
   }
+
   public String getDefaultValue() {
     return defaultValue;
   }

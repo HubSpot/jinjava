@@ -12,21 +12,20 @@ import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 import com.hubspot.jinjava.util.VariableChain;
 
-
 @JinjavaDoc(
-    value="Returns the sum of a sequence of numbers plus the value of parameter ‘start’ (which defaults to 0). When the sequence is empty it returns start.",
-    params={
-        @JinjavaParam(value="value", type="iterable", desc="Selects the sequence or dict to sum values from"),
-        @JinjavaParam(value="attribute", desc="Specify an optional attribute of dict to sum"),
-        @JinjavaParam(value="start", type="number", defaultValue="0", desc="Sets a value to return, if there is nothing in the variable to sum")
+    value = "Returns the sum of a sequence of numbers plus the value of parameter ‘start’ (which defaults to 0). When the sequence is empty it returns start.",
+    params = {
+        @JinjavaParam(value = "value", type = "iterable", desc = "Selects the sequence or dict to sum values from"),
+        @JinjavaParam(value = "attribute", desc = "Specify an optional attribute of dict to sum"),
+        @JinjavaParam(value = "start", type = "number", defaultValue = "0", desc = "Sets a value to return, if there is nothing in the variable to sum")
     },
-    snippets={
-      @JinjavaSnippet(
-        code="{% set sum_this = [1, 2, 3, 4, 5] %}\n" +
-             "{{ sum_this|sum }}\n"),
+    snippets = {
         @JinjavaSnippet(
-            desc="Sum up only certain attributes",
-            code="Total: {{ items|sum(attribute='price') }}")
+            code = "{% set sum_this = [1, 2, 3, 4, 5] %}\n" +
+                "{{ sum_this|sum }}\n"),
+        @JinjavaSnippet(
+            desc = "Sum up only certain attributes",
+            code = "Total: {{ items|sum(attribute='price') }}")
     })
 public class SumFilter implements Filter {
 
@@ -42,37 +41,37 @@ public class SumFilter implements Filter {
     BigDecimal sum = BigDecimal.ZERO;
     String attr = null;
 
-    if(args.length > 0) {
+    if (args.length > 0) {
       attr = args[0];
     }
-    if(args.length > 1) {
+    if (args.length > 1) {
       try {
         sum = sum.add(new BigDecimal(args[1]));
+      } catch (NumberFormatException e) {
       }
-      catch(NumberFormatException e) {}
     }
 
-    while(loop.hasNext()) {
+    while (loop.hasNext()) {
       Object val = loop.next();
-      if(val == null) {
+      if (val == null) {
         continue;
       }
 
       BigDecimal addend = BigDecimal.ZERO;
 
-      if(attr != null) {
+      if (attr != null) {
         val = new VariableChain(Arrays.asList(attr), val).resolve();
       }
 
       try {
-        if(Number.class.isAssignableFrom(val.getClass())) {
+        if (Number.class.isAssignableFrom(val.getClass())) {
           addend = new BigDecimal(((Number) val).doubleValue());
         }
         else {
           addend = new BigDecimal(Objects.toString(val, "0"));
         }
+      } catch (NumberFormatException e) {
       }
-      catch(NumberFormatException e) {}
 
       sum = sum.add(addend);
     }

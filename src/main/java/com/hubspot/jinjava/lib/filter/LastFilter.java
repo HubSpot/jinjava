@@ -8,14 +8,14 @@ import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
-    value="Return the last item of a sequence",
-    params={
-        @JinjavaParam(value="seq", type="sequence", desc="Sequence to return last item from")
+    value = "Return the last item of a sequence",
+    params = {
+        @JinjavaParam(value = "seq", type = "sequence", desc = "Sequence to return last item from")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-            code="{% set my_sequence = ['Item 1', 'Item 2', 'Item 3'] %}\n" +
-                 "{{ my_sequence|last }}")
+            code = "{% set my_sequence = ['Item 1', 'Item 2', 'Item 3'] %}\n" +
+                "{{ my_sequence|last }}")
     })
 public class LastFilter implements Filter {
 
@@ -29,7 +29,7 @@ public class LastFilter implements Filter {
     ForLoop loop = ObjectIterator.getLoop(var);
     Object last = null;
 
-    while(loop.hasNext()) {
+    while (loop.hasNext()) {
       last = loop.next();
     }
 

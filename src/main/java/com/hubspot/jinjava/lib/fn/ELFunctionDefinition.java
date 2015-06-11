@@ -22,8 +22,7 @@ public class ELFunctionDefinition implements Importable {
       Method m = methodClass.getDeclaredMethod(methodName, parameterTypes);
       m.setAccessible(true);
       return m;
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       throw Throwables.propagate(e);
     }
   }
@@ -33,6 +32,7 @@ public class ELFunctionDefinition implements Importable {
     this.localName = localName;
     this.method = method;
   }
+
   public String getNamespace() {
     return namespace;
   }

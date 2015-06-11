@@ -17,15 +17,15 @@ public class CollectionMembershipOperator extends SimpleOperator {
 
   @Override
   protected Object apply(TypeConverter converter, Object o1, Object o2) {
-    if(o2 == null) {
+    if (o2 == null) {
       return false;
     }
 
-    if(CharSequence.class.isAssignableFrom(o2.getClass())) {
+    if (CharSequence.class.isAssignableFrom(o2.getClass())) {
       return StringUtils.contains((CharSequence) o2, Objects.toString(o1, ""));
     }
 
-    if(Collection.class.isAssignableFrom(o2.getClass())) {
+    if (Collection.class.isAssignableFrom(o2.getClass())) {
       return ((Collection<?>) o2).contains(o1);
     }
 
@@ -36,6 +36,7 @@ public class CollectionMembershipOperator extends SimpleOperator {
   public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("in");
 
   public static final ExtensionHandler HANDLER = new ExtensionHandler(ExtensionPoint.CMP) {
+    @Override
     public AstNode createAstNode(AstNode... children) {
       return new AstBinary(children[0], children[1], OP);
     }

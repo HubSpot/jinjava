@@ -15,9 +15,11 @@ public class JinjavaDocSnippet {
   public String getDesc() {
     return desc;
   }
+
   public String getCode() {
     return code;
   }
+
   public String getOutput() {
     return output;
   }

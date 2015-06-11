@@ -20,11 +20,10 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-  value="Convert a value to uppercase",
-  snippets={
-    @JinjavaSnippet(code="{{ \"text to make uppercase\"|uppercase }}")
-  })
-
+    value = "Convert a value to uppercase",
+    snippets = {
+        @JinjavaSnippet(code = "{{ \"text to make uppercase\"|uppercase }}")
+    })
 public class UpperFilter implements Filter {
 
   @Override

@@ -17,20 +17,18 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 @JinjavaDoc(
-    value="Truncates a given string, respecting html markup (i.e. will properly close all nested tags)",
-    params={
-        @JinjavaParam(value="html", desc="HTML to truncate" ),
-        @JinjavaParam(value="length", type="number", defaultValue="255", desc="Length at which to truncate text (HTML characters not included)"),
-        @JinjavaParam(value="end", defaultValue="...", desc="The characters that will be added to indicate where the text was truncated")
+    value = "Truncates a given string, respecting html markup (i.e. will properly close all nested tags)",
+    params = {
+        @JinjavaParam(value = "html", desc = "HTML to truncate"),
+        @JinjavaParam(value = "length", type = "number", defaultValue = "255", desc = "Length at which to truncate text (HTML characters not included)"),
+        @JinjavaParam(value = "end", defaultValue = "...", desc = "The characters that will be added to indicate where the text was truncated")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-            code="{% set html_text = \"<p>I want to truncate this text without breaking my HTML<p>\" %}",
-            output="<p>I want to truncate this text without breaking my HTML</p>")
-      })
-
+            code = "{% set html_text = \"<p>I want to truncate this text without breaking my HTML<p>\" %}",
+            output = "<p>I want to truncate this text without breaking my HTML</p>")
+    })
 public class TruncateHtmlFilter implements Filter {
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
   private static final String DEFAULT_END = "...";
@@ -42,7 +40,7 @@ public class TruncateHtmlFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if(var instanceof String) {
+    if (var instanceof String) {
       int length = DEFAULT_TRUNCATE_LENGTH;
       String ends = DEFAULT_END;
 
@@ -81,14 +79,14 @@ public class TruncateHtmlFilter implements Filter {
 
     @Override
     public void head(Node node, int depth) {
-      if(node instanceof TextNode) {
+      if (node instanceof TextNode) {
         TextNode text = (TextNode) node;
         String textContent = text.text();
 
-        if(textLen >= maxTextLen){
+        if (textLen >= maxTextLen) {
           text.text("");
         }
-        else if(textLen + textContent.length() > maxTextLen) {
+        else if (textLen + textContent.length() > maxTextLen) {
           text.text(textContent.substring(0, (maxTextLen - textLen)) + ending);
           textLen = maxTextLen;
         }
@@ -100,9 +98,9 @@ public class TruncateHtmlFilter implements Filter {
 
     @Override
     public void tail(Node node, int depth) {
-      if(node instanceof Element) {
+      if (node instanceof Element) {
         Element el = (Element) node;
-        if(StringUtils.isBlank(el.text())) {
+        if (StringUtils.isBlank(el.text())) {
           el.addClass("__deleteme");
         }
       }

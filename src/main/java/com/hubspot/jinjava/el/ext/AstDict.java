@@ -26,13 +26,13 @@ public class AstDict extends AstLiteral {
   public Object eval(Bindings bindings, ELContext context) {
     Map<String, Object> resolved = new HashMap<>();
 
-    for(Map.Entry<AstNode, AstNode> entry : dict.entrySet()) {
+    for (Map.Entry<AstNode, AstNode> entry : dict.entrySet()) {
       String key;
 
-      if(entry.getKey() instanceof AstString) {
+      if (entry.getKey() instanceof AstString) {
         key = Objects.toString(entry.getKey().eval(bindings, context));
       }
-      else if(entry.getKey() instanceof AstIdentifier) {
+      else if (entry.getKey() instanceof AstIdentifier) {
         key = ((AstIdentifier) entry.getKey()).getName();
       }
       else {
@@ -54,7 +54,7 @@ public class AstDict extends AstLiteral {
   public String toString() {
     StringBuilder s = new StringBuilder("{");
 
-    for(Map.Entry<AstNode, AstNode> entry : dict.entrySet()) {
+    for (Map.Entry<AstNode, AstNode> entry : dict.entrySet()) {
       s.append(Objects.toString(entry.getKey())).append(":").append(Objects.toString(entry.getValue()));
     }
 

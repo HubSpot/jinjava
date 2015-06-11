@@ -11,23 +11,22 @@ public class ExpTestLibrary extends SimpleLibrary<ExpTest> {
   @Override
   protected void registerDefaults() {
     registerClasses(
-          IsDefinedExpTest.class,
-          IsDivisibleByExpTest.class,
-          IsEqualToExpTest.class,
-          IsEvenExpTest.class,
-          IsIterableExpTest.class,
-          IsLowerExpTest.class,
-          IsMappingExpTest.class,
-          IsNoneExpTest.class,
-          IsNumberExpTest.class,
-          IsOddExpTest.class,
-          IsSameAsExpTest.class,
-          IsSequenceExpTest.class,
-          IsStringExpTest.class,
-          IsTruthyExpTest.class,
-          IsUndefinedExpTest.class,
-          IsUpperExpTest.class
-    );
+        IsDefinedExpTest.class,
+        IsDivisibleByExpTest.class,
+        IsEqualToExpTest.class,
+        IsEvenExpTest.class,
+        IsIterableExpTest.class,
+        IsLowerExpTest.class,
+        IsMappingExpTest.class,
+        IsNoneExpTest.class,
+        IsNumberExpTest.class,
+        IsOddExpTest.class,
+        IsSameAsExpTest.class,
+        IsSequenceExpTest.class,
+        IsStringExpTest.class,
+        IsTruthyExpTest.class,
+        IsUndefinedExpTest.class,
+        IsUpperExpTest.class);
   }
 
   public ExpTest getExpTest(String name) {

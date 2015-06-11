@@ -14,24 +14,23 @@ import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 import com.hubspot.jinjava.util.VariableChain;
 
-
 @JinjavaDoc(
-    value="Return a string which is the concatenation of the strings in the sequence.",
-    params={
-        @JinjavaParam(value="value", desc="The values to join"),
-        @JinjavaParam(value="d", desc="The separator string used to join the items"),
-        @JinjavaParam(value="attr", desc="Optional dict object attribute to use in joining")
+    value = "Return a string which is the concatenation of the strings in the sequence.",
+    params = {
+        @JinjavaParam(value = "value", desc = "The values to join"),
+        @JinjavaParam(value = "d", desc = "The separator string used to join the items"),
+        @JinjavaParam(value = "attr", desc = "Optional dict object attribute to use in joining")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-            code="{{ [1, 2, 3]|join('|') }}",
-            output="1|2|3"),
+            code = "{{ [1, 2, 3]|join('|') }}",
+            output = "1|2|3"),
         @JinjavaSnippet(
-            code="{{ [1, 2, 3]|join }}",
-            output="123"),
+            code = "{{ [1, 2, 3]|join }}",
+            output = "123"),
         @JinjavaSnippet(
-            desc="It is also possible to join certain attributes of an object",
-            code="{{ users|join(', ', attribute='username') }}")
+            desc = "It is also possible to join certain attributes of an object",
+            code = "{{ users|join(', ', attribute='username') }}")
     })
 public class JoinFilter implements Filter {
 
@@ -45,20 +44,20 @@ public class JoinFilter implements Filter {
     List<String> vals = new ArrayList<>();
 
     String separator = "";
-    if(args.length > 0) {
+    if (args.length > 0) {
       separator = args[0];
     }
 
     String attr = null;
-    if(args.length > 1) {
+    if (args.length > 1) {
       attr = args[1];
     }
 
     ForLoop loop = ObjectIterator.getLoop(var);
-    while(loop.hasNext()) {
+    while (loop.hasNext()) {
       Object val = loop.next();
 
-      if(attr != null) {
+      if (attr != null) {
         val = new VariableChain(Lists.newArrayList(attr), val).resolve();
       }
 

@@ -21,7 +21,7 @@ public class JinjavaELContext extends SimpleContext {
 
   @Override
   public FunctionMapper getFunctionMapper() {
-    if(functionMapper == null) {
+    if (functionMapper == null) {
       functionMapper = new MacroFunctionMapper();
     }
     return functionMapper;
@@ -29,7 +29,7 @@ public class JinjavaELContext extends SimpleContext {
 
   @Override
   public void setFunction(String prefix, String localName, Method method) {
-    if(functionMapper == null) {
+    if (functionMapper == null) {
       functionMapper = new MacroFunctionMapper();
     }
     functionMapper.setFunction(prefix, localName, method);

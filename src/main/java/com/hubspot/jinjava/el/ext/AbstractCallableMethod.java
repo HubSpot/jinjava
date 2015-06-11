@@ -9,8 +9,7 @@ import java.util.Map;
 import com.google.common.base.Throwables;
 
 /**
- * Defines a function which will be called in the context of an interpreter instance.
- * Supports named params with default values, as well as var args.
+ * Defines a function which will be called in the context of an interpreter instance. Supports named params with default values, as well as var args.
  *
  * @author jstehler
  *
@@ -21,7 +20,7 @@ public abstract class AbstractCallableMethod {
   static {
     try {
       EVAL_METHOD = AbstractCallableMethod.class.getMethod("evaluate", Object[].class);
-    } catch(Exception e) {
+    } catch (Exception e) {
       throw Throwables.propagate(e);
     }
   }
@@ -40,11 +39,11 @@ public abstract class AbstractCallableMethod {
     List<Object> varArgs = new ArrayList<>();
 
     int argPos = 0;
-    for(Map.Entry<String, Object> argEntry : argMap.entrySet()) {
-      if(argPos < args.length) {
+    for (Map.Entry<String, Object> argEntry : argMap.entrySet()) {
+      if (argPos < args.length) {
         Object arg = args[argPos++];
         // once we hit the first named parameter, the rest must be named parameters...
-        if(arg instanceof NamedParameter) {
+        if (arg instanceof NamedParameter) {
           argPos--;
           break;
         }
@@ -56,11 +55,11 @@ public abstract class AbstractCallableMethod {
     }
 
     // consumeth thyne named params
-    for(int i = argPos; i < args.length; i++) {
+    for (int i = argPos; i < args.length; i++) {
       Object arg = args[i];
-      if(arg instanceof NamedParameter) {
+      if (arg instanceof NamedParameter) {
         NamedParameter param = (NamedParameter) arg;
-        if(argMap.containsKey(param.getName())) {
+        if (argMap.containsKey(param.getName())) {
           argMap.put(param.getName(), param.getValue());
         }
         else {

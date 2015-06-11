@@ -45,11 +45,11 @@ public class ExpressionToken extends Token {
   protected void parse() {
     this.expr = WhitespaceUtils.unwrap(image, "{{", "}}");
 
-    if(WhitespaceUtils.startsWith(expr, "-")) {
+    if (WhitespaceUtils.startsWith(expr, "-")) {
       setLeftTrim(true);
       this.expr = WhitespaceUtils.unwrap(expr, "-", "");
     }
-    if(WhitespaceUtils.endsWith(expr, "-")) {
+    if (WhitespaceUtils.endsWith(expr, "-")) {
       setRightTrim(true);
       this.expr = WhitespaceUtils.unwrap(expr, "", "-");
     }

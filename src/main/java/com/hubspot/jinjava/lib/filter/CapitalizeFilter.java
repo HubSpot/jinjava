@@ -8,14 +8,14 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Capitalize a value. The first character will be uppercase, all others lowercase.",
-    params={
-        @JinjavaParam(value="string", desc="String to capitalize the first letter of")
+    value = "Capitalize a value. The first character will be uppercase, all others lowercase.",
+    params = {
+        @JinjavaParam(value = "string", desc = "String to capitalize the first letter of")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-            code="{% set sentence = \"the first letter of a sentence should always be capitalized.\" %}\n" +
-                 "{{ sentence|capitalize }}")
+            code = "{% set sentence = \"the first letter of a sentence should always be capitalized.\" %}\n" +
+                "{{ sentence|capitalize }}")
     })
 public class CapitalizeFilter implements Filter {
 

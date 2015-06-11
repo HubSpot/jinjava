@@ -25,15 +25,15 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Divides the current value by a divisor",
-    params={
-        @JinjavaParam(value="value", type="number", desc="The numerator to be divided"),
-        @JinjavaParam(value="divisor", type="number", desc="The divisor to divide the value")
+    value = "Divides the current value by a divisor",
+    params = {
+        @JinjavaParam(value = "value", type = "number", desc = "The numerator to be divided"),
+        @JinjavaParam(value = "divisor", type = "number", desc = "The divisor to divide the value")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-            code="{% set numerator = 106 %}\n" +
-                 "{% numerator|divide(2) %}")
+            code = "{% set numerator = 106 %}\n" +
+                "{% numerator|divide(2) %}")
     })
 public class DivideFilter implements Filter {
 

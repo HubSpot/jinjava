@@ -8,21 +8,19 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 /**
- * int(value, default=0)
- *   Convert the value into an integer. If the conversion doesn’t work it will return 0.
- *   You can override this default using the first parameter.
+ * int(value, default=0) Convert the value into an integer. If the conversion doesn’t work it will return 0. You can override this default using the first parameter.
  */
 @JinjavaDoc(
-    value="Convert the value into an integer.",
-    params={
-        @JinjavaParam(value="value", desc="The value to convert to an integer"),
-        @JinjavaParam(value="default", type="number", defaultValue="0", desc="Value to return if the conversion fails")
+    value = "Convert the value into an integer.",
+    params = {
+        @JinjavaParam(value = "value", desc = "The value to convert to an integer"),
+        @JinjavaParam(value = "default", type = "number", defaultValue = "0", desc = "Value to return if the conversion fails")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-            desc="This example converts a text field string value to a integer",
-            code="{% text \"my_text\" value='25', export_to_template_context=True %}\n" +
-                 "{% widget_data.my_text.value|int + 28 %}")
+            desc = "This example converts a text field string value to a integer",
+            code = "{% text \"my_text\" value='25', export_to_template_context=True %}\n" +
+                "{% widget_data.my_text.value|int + 28 %}")
     })
 public class IntFilter implements Filter {
 
@@ -36,15 +34,15 @@ public class IntFilter implements Filter {
       String... args) {
 
     int defaultVal = 0;
-    if(args.length > 0) {
+    if (args.length > 0) {
       defaultVal = NumberUtils.toInt(args[0], 0);
     }
 
-    if(var == null) {
+    if (var == null) {
       return defaultVal;
     }
 
-    if(Number.class.isAssignableFrom(var.getClass())) {
+    if (Number.class.isAssignableFrom(var.getClass())) {
       return ((Number) var).intValue();
     }
 

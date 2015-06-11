@@ -25,17 +25,16 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value="Multiplies the current object with the given multiplier",
-    params={
-        @JinjavaParam(value="value", type="number", desc="Base number to be multiplied"),
-        @JinjavaParam(value="multiplier", type="number", desc="The multiplier")
+    value = "Multiplies the current object with the given multiplier",
+    params = {
+        @JinjavaParam(value = "value", type = "number", desc = "Base number to be multiplied"),
+        @JinjavaParam(value = "multiplier", type = "number", desc = "The multiplier")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-          code="{% set n = 20 %}\n" +
-               "{{ n|multiply(3) }}")
+            code = "{% set n = 20 %}\n" +
+                "{{ n|multiply(3) }}")
     })
-
 public class MultiplyFilter implements Filter {
 
   @Override

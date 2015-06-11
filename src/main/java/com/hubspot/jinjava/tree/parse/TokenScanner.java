@@ -63,12 +63,12 @@ public class TokenScanner extends AbstractIterator<Token> {
         return getEndToken();
       }
 
-      if(inBlock > 0) {
-        if(inQuote != 0) {
-          if(inQuote != c) {
+      if (inBlock > 0) {
+        if (inQuote != 0) {
+          if (inQuote != c) {
             continue;
           }
-          else if(is[currPost - 2] == '\\') {
+          else if (is[currPost - 2] == '\\') {
             continue;
           }
           else {
@@ -76,7 +76,7 @@ public class TokenScanner extends AbstractIterator<Token> {
             continue;
           }
         }
-        else if(inQuote == 0 && (c == '\'' || c == '"')){
+        else if (inQuote == 0 && (c == '\'' || c == '"')) {
           inQuote = c;
           continue;
         }
@@ -88,7 +88,7 @@ public class TokenScanner extends AbstractIterator<Token> {
           c = is[currPost];
           switch (c) {
           case TOKEN_NOTE:
-            if(inComment == 1 || inRaw == 1) {
+            if (inComment == 1 || inRaw == 1) {
               continue;
             }
             inComment = 1;
@@ -117,7 +117,7 @@ public class TokenScanner extends AbstractIterator<Token> {
             if (!matchToken(c) && tokenKind > 0) {
               continue;
             }
-            if(inBlock++ > 0) {
+            if (inBlock++ > 0) {
               continue;
             }
 
@@ -195,7 +195,7 @@ public class TokenScanner extends AbstractIterator<Token> {
       case TOKEN_NEWLINE:
         currLine++;
 
-        if(inComment > 0 || inBlock > 0) {
+        if (inComment > 0 || inBlock > 0) {
           continue;
         }
 
@@ -212,13 +212,13 @@ public class TokenScanner extends AbstractIterator<Token> {
 
   private boolean isEndRaw() {
     int pos = currPost + 1;
-    while(pos < length) {
-      if(!Character.isWhitespace(is[pos++])) {
+    while (pos < length) {
+      if (!Character.isWhitespace(is[pos++])) {
         break;
       }
     }
 
-    if(pos + 5 >= length) {
+    if (pos + 5 >= length) {
       return false;
     }
 
@@ -237,19 +237,19 @@ public class TokenScanner extends AbstractIterator<Token> {
   private Token newToken(int kind) {
     Token t = Token.newToken(kind, String.valueOf(is, lastStart, tokenLength), currLine);
 
-    if(t instanceof TagToken) {
+    if (t instanceof TagToken) {
       TagToken tt = (TagToken) t;
-      if("raw".equals(tt.getTagName())) {
+      if ("raw".equals(tt.getTagName())) {
         inRaw = 1;
         return tt;
       }
-      else if("endraw".equals(tt.getTagName())) {
+      else if ("endraw".equals(tt.getTagName())) {
         inRaw = 0;
         return tt;
       }
     }
 
-    if(inRaw > 0 && t.getType() != TOKEN_FIXED) {
+    if (inRaw > 0 && t.getType() != TOKEN_FIXED) {
       return Token.newToken(TOKEN_FIXED, t.image, currLine);
     }
 
@@ -270,7 +270,7 @@ public class TokenScanner extends AbstractIterator<Token> {
   protected Token computeNext() {
     Token t = getNextToken();
 
-    if(t == null) {
+    if (t == null) {
       return endOfData();
     }
 

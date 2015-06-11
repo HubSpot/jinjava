@@ -22,14 +22,13 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
 @JinjavaDoc(
-  value="Pretty print a variable. Useful for debugging.",
-  params=@JinjavaParam(value="value", type="object", desc="Object to Pretty Print"),
-  snippets={
-    @JinjavaSnippet(
-      code="{% set this_var =\"Variable that I want to debug\" %}\n" +
-           "{{ this_var|pprint }}")
-  })
-
+    value = "Pretty print a variable. Useful for debugging.",
+    params = @JinjavaParam(value = "value", type = "object", desc = "Object to Pretty Print"),
+    snippets = {
+        @JinjavaSnippet(
+            code = "{% set this_var =\"Variable that I want to debug\" %}\n" +
+                "{{ this_var|pprint }}")
+    })
 public class PrettyPrintFilter implements Filter {
 
   @Override
@@ -39,13 +38,13 @@ public class PrettyPrintFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if(var == null) {
+    if (var == null) {
       return "null";
     }
 
     String varStr = null;
 
-    if(var instanceof String || var instanceof Number || var instanceof PyishDate || var instanceof Iterable || var instanceof Map) {
+    if (var instanceof String || var instanceof Number || var instanceof PyishDate || var instanceof Iterable || var instanceof Map) {
       varStr = Objects.toString(var);
     }
     else {
@@ -61,18 +60,17 @@ public class PrettyPrintFilter implements Filter {
     try {
       BeanInfo beanInfo = Introspector.getBeanInfo(var.getClass());
 
-      for(PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+      for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
         try {
-          if(pd.getPropertyType().equals(Class.class)) {
+          if (pd.getPropertyType().equals(Class.class)) {
             continue;
           }
 
           Method readMethod = pd.getReadMethod();
-          if(readMethod != null && !readMethod.getDeclaringClass().equals(Object.class)) {
+          if (readMethod != null && !readMethod.getDeclaringClass().equals(Object.class)) {
             props.add(pd.getName() + "=" + readMethod.invoke(var));
           }
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
           ENGINE_LOG.error("Error reading bean value", e);
         }
       }

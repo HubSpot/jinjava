@@ -37,11 +37,10 @@ public class ExpressionNode extends Node {
     Object var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
 
     String result = ObjectValue.printable(var);
-    if(!StringUtils.equals(result, master.getImage()) && StringUtils.contains(result, "{{")) {
+    if (!StringUtils.equals(result, master.getImage()) && StringUtils.contains(result, "{{")) {
       try {
         return interpreter.renderString(result);
-      }
-      catch(Exception e) {
+      } catch (Exception e) {
         Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
       }
     }

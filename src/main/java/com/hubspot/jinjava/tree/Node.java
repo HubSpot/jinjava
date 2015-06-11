@@ -98,11 +98,11 @@ public abstract class Node implements Serializable {
     String prefix = StringUtils.repeat(" ", level * 4) + " ";
     StringBuilder t = new StringBuilder(prefix).append(toString()).append('\n');
 
-    for(Node n : getChildren()) {
+    for (Node n : getChildren()) {
       t.append(n.toTreeString(level + 1));
     }
 
-    if(getChildren().size() > 0) {
+    if (getChildren().size() > 0) {
       t.append(prefix).append("end :: " + toString()).append('\n');
     }
 
