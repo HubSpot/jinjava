@@ -9,11 +9,9 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 public class CapitalizeFilterTest {
 
-  JinjavaInterpreter interpreter;
-
   @Test
   public void testCapitalize() {
-    assertThat(new CapitalizeFilter().filter("foo", interpreter)).isEqualTo("Foo");
+    assertThat(new CapitalizeFilter().filter("foo", null)).isEqualTo("Foo");
   }
 
 }

@@ -31,19 +31,20 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
  *
  */
 @JinjavaDoc(
-    value="Blocks are regions in a template which can be overridden by child templates",
-    params={
-        @JinjavaParam(value="block_name", desc="A unique name for the block that should be used in both the parent and child template")
+    value = "Blocks are regions in a template which can be overridden by child templates",
+    params = {
+        @JinjavaParam(value = "block_name", desc = "A unique name for the block that should be used in both the parent and child template")
     },
-    snippets={
-      @JinjavaSnippet(
-      code="{% extends \"custom/page/web_page_basic/my_template.html\" %}\n" +
-      "{% block my_sidebar %}\n" +
-      "   <!--Content that will render within a block of the same name in the parent template-->\n" +
-      "{% endblock %}"),
+    snippets = {
+        @JinjavaSnippet(
+            code = "{% extends \"custom/page/web_page_basic/my_template.html\" %}\n" +
+                "{% block my_sidebar %}\n" +
+                "   <!--Content that will render within a block of the same name in the parent template-->\n" +
+                "{% endblock %}"),
     })
 public class BlockTag implements Tag {
 
+  private static final long serialVersionUID = -2362317415797088108L;
   private static final String TAGNAME = "block";
   private static final String ENDTAGNAME = "endblock";
 

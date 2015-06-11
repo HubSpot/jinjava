@@ -47,7 +47,7 @@ public class DivisibleFilter implements Filter {
       if (arg.length != 1) {
         throw new InterpretException("filter divisible expects 1 arg >>> " + arg.length);
       }
-      long factor = Long.valueOf(arg[0]);
+      long factor = Long.parseLong(arg[0]);
       long value = ((Number) object).longValue();
       if (value % factor == 0) {
         return true;

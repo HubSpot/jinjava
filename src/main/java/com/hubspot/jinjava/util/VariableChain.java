@@ -85,7 +85,7 @@ public class VariableChain {
       if (value instanceof Collection) {
         return ((Collection<?>) value).toArray()[index];
       }
-    } catch (Exception e) { /* no-op */ }
+    } catch (Throwable e) { /* no-op */ }
 
     throw new JinjavaPropertyNotResolvedException(value, name);
   }

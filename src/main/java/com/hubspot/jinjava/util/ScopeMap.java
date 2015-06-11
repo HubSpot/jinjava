@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class ScopeMap<K, V> implements Map<K, V> {
 
   private final Map<K, V> scope;
@@ -33,6 +35,7 @@ public class ScopeMap<K, V> implements Map<K, V> {
   public Map<K, V> getScope() {
     return scope;
   }
+
   @Override
   public int size() {
     return keySet().size();
@@ -50,11 +53,11 @@ public class ScopeMap<K, V> implements Map<K, V> {
 
   @Override
   public boolean containsValue(Object value) {
-    if(scope.containsValue(value)) {
+    if (scope.containsValue(value)) {
       return true;
     }
 
-    if(parent != null) {
+    if (parent != null) {
       return parent.containsValue(value);
     }
 
@@ -64,7 +67,7 @@ public class ScopeMap<K, V> implements Map<K, V> {
   public V get(Object key, V defVal) {
     V val = get(key);
 
-    if(val != null) {
+    if (val != null) {
       return val;
     }
 
@@ -74,11 +77,11 @@ public class ScopeMap<K, V> implements Map<K, V> {
   @Override
   public V get(Object key) {
     V val = scope.get(key);
-    if(val != null) {
+    if (val != null) {
       return val;
     }
 
-    if(parent != null) {
+    if (parent != null) {
       return parent.get(key);
     }
 
@@ -109,7 +112,7 @@ public class ScopeMap<K, V> implements Map<K, V> {
   public Set<K> keySet() {
     Set<K> keys = new HashSet<>();
 
-    if(parent != null) {
+    if (parent != null) {
       keys.addAll(parent.keySet());
     }
 
@@ -123,7 +126,7 @@ public class ScopeMap<K, V> implements Map<K, V> {
     Set<java.util.Map.Entry<K, V>> entrySet = entrySet();
     Collection<V> values = new ArrayList<>(entrySet.size());
 
-    for(Map.Entry<K, V> entry : entrySet) {
+    for (Map.Entry<K, V> entry : entrySet) {
       values.add(entry.getValue());
     }
 
@@ -131,10 +134,12 @@ public class ScopeMap<K, V> implements Map<K, V> {
   }
 
   @Override
+  @SuppressFBWarnings(justification = "using overridden get() to do scoped retrieve with parent fallback",
+      value = "WMI_WRONG_MAP_ITERATOR")
   public Set<java.util.Map.Entry<K, V>> entrySet() {
     Set<java.util.Map.Entry<K, V>> entries = new HashSet<>();
 
-    for(K key : keySet()) {
+    for (K key : keySet()) {
       entries.add(new ScopeMapEntry<K, V>(key, get(key), this));
     }
 

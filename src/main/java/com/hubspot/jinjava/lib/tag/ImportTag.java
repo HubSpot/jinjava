@@ -22,40 +22,38 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 
 /**
- * Jinja2 supports putting often used code into macros. These macros can go into different
- * templates and get imported from there. This works similar to the import statements in
- * Python. It’s important to know that imports are cached and imported templates don’t have
- * access to the current template variables, just the globals by default.
+ * Jinja2 supports putting often used code into macros. These macros can go into different templates and get imported from there. This works similar to the import statements in Python. It’s important to know that imports are cached and
+ * imported templates don’t have access to the current template variables, just the globals by default.
  *
  * @author jstehler
  */
 
 @JinjavaDoc(
-  value="Allows you to access and use macros from a different template",
-  params={
-        @JinjavaParam(value="path", desc="Design Manager path to file to import"),
-        @JinjavaParam(value="import_name", desc="Give a name to the imported file to access macros from")
+    value = "Allows you to access and use macros from a different template",
+    params = {
+        @JinjavaParam(value = "path", desc = "Design Manager path to file to import"),
+        @JinjavaParam(value = "import_name", desc = "Give a name to the imported file to access macros from")
     },
-    snippets={
+    snippets = {
         @JinjavaSnippet(
-            desc="This example uses an html file containing two macros.",
-            code="{% macro header(tag, title_text) %}\n" +
-                 "<header> <{{ tag }}>{{ title_text }} </{{tag}}> </header>\n" +
-                 "{% endmacro %}\n" +
-                 "{% macro footer(tag, footer_text) %}\n" +
-                 "<footer> <{{ tag }}>{{ footer_text }} </{{tag}}> </footer>\n" +
-                 "{% endmacro %}"
+            desc = "This example uses an html file containing two macros.",
+            code = "{% macro header(tag, title_text) %}\n" +
+                "<header> <{{ tag }}>{{ title_text }} </{{tag}}> </header>\n" +
+                "{% endmacro %}\n" +
+                "{% macro footer(tag, footer_text) %}\n" +
+                "<footer> <{{ tag }}>{{ footer_text }} </{{tag}}> </footer>\n" +
+                "{% endmacro %}"
         ),
         @JinjavaSnippet(
-            desc="The macro html file is imported from a different template. Macros are then accessed from the name given to the import.",
-            code="{% import 'custom/page/web_page_basic/my_macros.html' as header_footer %}\n" +
-                 "{{ header_footer.header('h1', 'My page title') }}\n" +
-                 "{{ header_footer.footer('h3', 'Company footer info') }}"
+            desc = "The macro html file is imported from a different template. Macros are then accessed from the name given to the import.",
+            code = "{% import 'custom/page/web_page_basic/my_macros.html' as header_footer %}\n" +
+                "{{ header_footer.header('h1', 'My page title') }}\n" +
+                "{{ header_footer.footer('h3', 'Company footer info') }}"
         )
-  })
-
+    })
 @SuppressWarnings("unchecked")
 public class ImportTag implements Tag {
+  private static final long serialVersionUID = 8433638845398005260L;
   private static final String IMPORT_PATH_PROPERTY = "__importP@th__";
 
   @Override
@@ -72,18 +70,18 @@ public class ImportTag implements Tag {
 
     String contextVar = "";
 
-    if(helper.size() > 2 && "as".equals(helper.get(1))) {
+    if (helper.size() > 2 && "as".equals(helper.get(1))) {
       contextVar = helper.get(2);
     }
 
     String path = StringUtils.trimToEmpty(helper.get(0));
-    if(isPathInRenderStack(interpreter.getContext(), path)) {
+    if (isPathInRenderStack(interpreter.getContext(), path)) {
       ENGINE_LOG.debug("Path {} is already in include stack", path);
       return "";
     }
 
     Set<String> importedPaths = (Set<String>) interpreter.getContext().get(IMPORT_PATH_PROPERTY);
-    if(importedPaths == null) {
+    if (importedPaths == null) {
       importedPaths = new HashSet<String>();
       interpreter.getContext().put(IMPORT_PATH_PROPERTY, importedPaths);
     }
@@ -94,7 +92,7 @@ public class ImportTag implements Tag {
       String template = interpreter.getResource(templateFile);
       Node node = interpreter.parse(template);
 
-      if(StringUtils.isBlank(contextVar)) {
+      if (StringUtils.isBlank(contextVar)) {
         interpreter.render(node);
       }
       else {
@@ -102,7 +100,7 @@ public class ImportTag implements Tag {
         child.render(node);
 
         Map<String, Object> childBindings = child.getContext().getSessionBindings();
-        for(Map.Entry<String, MacroFunction> macro : child.getContext().getGlobalMacros().entrySet()) {
+        for (Map.Entry<String, MacroFunction> macro : child.getContext().getGlobalMacros().entrySet()) {
           childBindings.put(macro.getKey(), macro.getValue());
         }
         childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
@@ -121,13 +119,13 @@ public class ImportTag implements Tag {
     do {
       Set<String> importedPaths = (Set<String>) current.get(IMPORT_PATH_PROPERTY, new HashSet<String>());
 
-      if(importedPaths.contains(path)) {
+      if (importedPaths.contains(path)) {
         return true;
       }
 
       current = current.getParent();
 
-    } while(current != null);
+    } while (current != null);
 
     return false;
   }

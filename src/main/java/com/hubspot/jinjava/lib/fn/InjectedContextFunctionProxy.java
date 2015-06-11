@@ -69,7 +69,7 @@ public class InjectedContextFunctionProxy {
 
       return new ELFunctionDefinition(namespace, name, staticMethod);
     }
-    catch(Exception e) {
+    catch(Throwable e) {
       ENGINE_LOG.error("Error creating injected context function", e);
       throw Throwables.propagate(e);
     }

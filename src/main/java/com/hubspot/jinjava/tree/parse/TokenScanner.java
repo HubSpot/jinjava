@@ -132,6 +132,8 @@ public class TokenScanner extends AbstractIterator<Token> {
               tokenKind = c;
             }
             break;
+          default:
+            break;
           }
         }
         // reach the stream end

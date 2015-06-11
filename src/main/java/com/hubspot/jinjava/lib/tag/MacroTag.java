@@ -18,38 +18,38 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.TagNode;
 
-
 @JinjavaDoc(
-    value="HubL macros allow you to print multiple statements with a dynamic value or values",
-    params={
-      @JinjavaParam(value="macro_name", desc="The name given to a macro"),
-      @JinjavaParam(value="argument_names", desc="Named arguments that are dynamically, when the macro is run")
+    value = "HubL macros allow you to print multiple statements with a dynamic value or values",
+    params = {
+        @JinjavaParam(value = "macro_name", desc = "The name given to a macro"),
+        @JinjavaParam(value = "argument_names", desc = "Named arguments that are dynamically, when the macro is run")
     },
-    snippets={
-       @JinjavaSnippet(
-        desc="Basic macro syntax",
-        code="{% macro name_of_macro(argument_name, argument_name2) %}\n" +
-             "    {{ argument_name }}\n" +
-             "    {{ argument_name2 }}\n" +
-             "{% endmacro %}\n" +
-             "{{ name_of_macro(\"value to pass to argument 1\", \"value to pass to argument 2\") }}"
-             ),
-      @JinjavaSnippet(
-          desc="Example of a macro used to print CSS3 properties with the various vendor prefixes",
-          code="{% macro trans(value) %}\n" +
+    snippets = {
+        @JinjavaSnippet(
+            desc = "Basic macro syntax",
+            code = "{% macro name_of_macro(argument_name, argument_name2) %}\n" +
+                "    {{ argument_name }}\n" +
+                "    {{ argument_name2 }}\n" +
+                "{% endmacro %}\n" +
+                "{{ name_of_macro(\"value to pass to argument 1\", \"value to pass to argument 2\") }}"
+        ),
+        @JinjavaSnippet(
+            desc = "Example of a macro used to print CSS3 properties with the various vendor prefixes",
+            code = "{% macro trans(value) %}\n" +
                 "   -webkit-transition: {{value}};\n" +
                 "   -moz-transition: {{value}};\n" +
                 "   -o-transition: {{value}};\n" +
                 "   -ms-transition: {{value}};\n" +
                 "   transition: {{value}};\n" +
                 "{% endmacro %}"
-                ),
-      @JinjavaSnippet(
-          desc="The macro can then be called like a function. The macro is printed for anchor tags in CSS.",
-          code="a { {{ trans(\"all .2s ease-in-out\") }} }"),
+        ),
+        @JinjavaSnippet(
+            desc = "The macro can then be called like a function. The macro is printed for anchor tags in CSS.",
+            code = "a { {{ trans(\"all .2s ease-in-out\") }} }"),
     })
-
 public class MacroTag implements Tag {
+
+  private static final long serialVersionUID = 8397609322126956077L;
 
   @Override
   public String getName() {
@@ -64,7 +64,7 @@ public class MacroTag implements Tag {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     Matcher matcher = MACRO_PATTERN.matcher(tagNode.getHelpers());
-    if(!matcher.find()) {
+    if (!matcher.find()) {
       throw new InterpretException("Unable to parse macro definition: " + tagNode.getHelpers());
     }
 
@@ -74,21 +74,21 @@ public class MacroTag implements Tag {
     LinkedHashMap<String, Object> argNamesWithDefaults = new LinkedHashMap<>();
 
     List<String> argList = Lists.newArrayList(ARGS_SPLITTER.split(args));
-    for(int i = 0; i < argList.size(); i++) {
+    for (int i = 0; i < argList.size(); i++) {
       String arg = argList.get(i);
 
-      if(arg.contains("=")) {
+      if (arg.contains("=")) {
         String argName = StringUtils.substringBefore(arg, "=").trim();
-        String argValStr = StringUtils.substringAfter(arg, "=").trim();
+        StringBuilder argValStr = new StringBuilder(StringUtils.substringAfter(arg, "=").trim());
 
-        if(argValStr.startsWith("[") && !argValStr.endsWith("]")) {
-          while(i + 1 < argList.size() && !argValStr.endsWith("]")) {
-            argValStr += ", " + argList.get(i + 1);
+        if (StringUtils.startsWith(argValStr, "[") && !StringUtils.endsWith(argValStr, "]")) {
+          while (i + 1 < argList.size() && !StringUtils.endsWith(argValStr, "]")) {
+            argValStr.append(", ").append(argList.get(i + 1));
             i++;
           }
         }
 
-        Object argVal = interpreter.resolveELExpression(argValStr, tagNode.getLineNumber());
+        Object argVal = interpreter.resolveELExpression(argValStr.toString(), tagNode.getLineNumber());
         argNamesWithDefaults.put(argName, argVal);
       }
       else {

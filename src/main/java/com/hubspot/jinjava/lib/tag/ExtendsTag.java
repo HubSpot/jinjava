@@ -26,19 +26,18 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 
-
-@JinjavaDoc(value="Template inheritance allows you to build a base “skeleton” template that contains all the "
+@JinjavaDoc(value = "Template inheritance allows you to build a base “skeleton” template that contains all the "
     + "common elements of your site and defines blocks that child templates can override.",
-    params={
-      @JinjavaParam(value="path", desc="Design Manager file path to parent template")
+    params = {
+        @JinjavaParam(value = "path", desc = "Design Manager file path to parent template")
     },
-    snippets={
-      @JinjavaSnippet(
-          desc="This template, which we’ll call base.html, defines a simple HTML skeleton document that you might "
-              + "use for a simple two-column page. It’s the job of “child” templates to fill the empty blocks with content.\n\n"
-              + "In this example, the {% block %} tags define four blocks that child templates can fill in. All the block tag "
-              + "does is tell the template engine that a child template may override those placeholders in the template.",
-          code="<!DOCTYPE html>\n" +
+    snippets = {
+        @JinjavaSnippet(
+            desc = "This template, which we’ll call base.html, defines a simple HTML skeleton document that you might "
+                + "use for a simple two-column page. It’s the job of “child” templates to fill the empty blocks with content.\n\n"
+                + "In this example, the {% block %} tags define four blocks that child templates can fill in. All the block tag "
+                + "does is tell the template engine that a child template may override those placeholders in the template.",
+            code = "<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
                 "    {% block head %}\n" +
@@ -55,11 +54,11 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
                 "    </div>\n" +
                 "</body>\n" +
                 "</html>"),
-      @JinjavaSnippet(
-          desc="The {% extends %} tag is the key here. It tells the template engine that this template “extends” another template. "
-              + "When the template system evaluates this template, it first locates the parent. The extends tag should be the first "
-              + "tag in the template. Everything before it is printed out normally and may cause confusion.",
-          code="{% extends \"custom/page/web_page_basic/my_template.html\" %}\n" +
+        @JinjavaSnippet(
+            desc = "The {% extends %} tag is the key here. It tells the template engine that this template “extends” another template. "
+                + "When the template system evaluates this template, it first locates the parent. The extends tag should be the first "
+                + "tag in the template. Everything before it is printed out normally and may cause confusion.",
+            code = "{% extends \"custom/page/web_page_basic/my_template.html\" %}\n" +
                 "{% block title %}Index{% endblock %}\n" +
                 "{% block head %}\n" +
                 "    {{ super() }}\n" +
@@ -76,6 +75,7 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
     })
 public class ExtendsTag implements Tag {
 
+  private static final long serialVersionUID = 4692863362280761393L;
   private static final String TAGNAME = "extends";
 
   @Override

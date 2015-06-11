@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.parse.Token;
 
-public abstract class Node implements Serializable, Cloneable {
+public abstract class Node implements Serializable {
 
   private static final long serialVersionUID = 7323842986596895498L;
 
@@ -67,9 +67,6 @@ public abstract class Node implements Serializable, Cloneable {
   public void setChildren(LinkedList<Node> children) {
     this.children = children;
   }
-
-  @Override
-  public abstract Node clone();
 
   /**
    * trusty call by TreeParser

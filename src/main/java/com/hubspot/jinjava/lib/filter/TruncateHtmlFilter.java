@@ -48,7 +48,7 @@ public class TruncateHtmlFilter implements Filter {
 
       if (args.length > 0) {
         try {
-          length = Integer.valueOf(Objects.toString(args[0]));
+          length = Integer.parseInt(Objects.toString(args[0]));
         } catch (Exception e) {
           ENGINE_LOG.warn("truncatehtml(): error setting length for {}, using default {}", args[0], DEFAULT_TRUNCATE_LENGTH);
         }

@@ -43,15 +43,9 @@ public class MultiplyFilter implements Filter {
     if (arg.length != 1) {
       throw new InterpretException("filter multiply expects 1 arg >>> " + arg.length);
     }
-    Object toMul = arg[0];
-    Number num;
-    if (toMul instanceof String) {
-      num = new BigDecimal((String) toMul);
-    } else if (toMul instanceof Number) {
-      num = (Number) toMul;
-    } else {
-      return object;
-    }
+    String toMul = arg[0];
+    Number num = new BigDecimal(toMul);
+
     if (object instanceof Integer) {
       return num.intValue() * (Integer) object;
     }
@@ -78,7 +72,7 @@ public class MultiplyFilter implements Filter {
     }
     if (object instanceof String) {
       try {
-        return num.doubleValue() * Double.valueOf((String) object);
+        return num.doubleValue() * Double.parseDouble((String) object);
       } catch (Exception e) {
         throw new InterpretException(object + " can't be dealed with multiply filter", e);
       }

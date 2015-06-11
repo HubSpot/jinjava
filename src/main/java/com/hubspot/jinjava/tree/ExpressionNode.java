@@ -15,8 +15,6 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
-import java.util.LinkedList;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -61,10 +59,4 @@ public class ExpressionNode extends Node {
     return getClass().getSimpleName();
   }
 
-  @Override
-  public Node clone() {
-    Node clone = new ExpressionNode(master);
-    clone.setChildren(new LinkedList<>(this.getChildren()));
-    return clone;
-  }
 }

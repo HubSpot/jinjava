@@ -15,15 +15,12 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
-import java.util.LinkedList;
-
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 
 public class TagNode extends Node {
-
   private static final long serialVersionUID = 2405693063353887509L;
 
   private final Tag tag;
@@ -73,10 +70,4 @@ public class TagNode extends Node {
     return master.getHelpers();
   }
 
-  @Override
-  public Node clone() {
-    Node clone = new TagNode(this);
-    clone.setChildren(new LinkedList<>(this.getChildren()));
-    return clone;
-  }
 }

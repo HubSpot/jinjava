@@ -31,19 +31,18 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 
-
 @JinjavaDoc(
-    value="includes multiple files in one template or stylesheet",
-    params={
-      @JinjavaParam(value="path", desc="Design Manager path to the file that you would like to include")
+    value = "includes multiple files in one template or stylesheet",
+    params = {
+        @JinjavaParam(value = "path", desc = "Design Manager path to the file that you would like to include")
     },
-    snippets={
-      @JinjavaSnippet(code="{% include \"custom/page/web_page_basic/my_footer.html\" %}"),
-      @JinjavaSnippet(code="{% include \"generated_global_groups/2781996615.html\" %}"),
-      @JinjavaSnippet(code="{% include \"hubspot/styles/patches/recommended.css\" %}")
+    snippets = {
+        @JinjavaSnippet(code = "{% include \"custom/page/web_page_basic/my_footer.html\" %}"),
+        @JinjavaSnippet(code = "{% include \"generated_global_groups/2781996615.html\" %}"),
+        @JinjavaSnippet(code = "{% include \"hubspot/styles/patches/recommended.css\" %}")
     })
-
 public class IncludeTag implements Tag {
+  private static final long serialVersionUID = -8391753639874726854L;
   private static final String INCLUDE_PATH_PROPERTY = "__includeP@th__";
 
   @Override
@@ -55,7 +54,7 @@ public class IncludeTag implements Tag {
 
     String path = StringUtils.trimToEmpty(helper.next());
 
-    if(isPathInRenderStack(interpreter.getContext(), path)) {
+    if (isPathInRenderStack(interpreter.getContext(), path)) {
       ENGINE_LOG.debug("Path {} is already in include stack", path);
       return "";
     }
@@ -78,13 +77,13 @@ public class IncludeTag implements Tag {
     do {
       String includePath = (String) current.get(INCLUDE_PATH_PROPERTY);
 
-      if(StringUtils.equals(path, includePath)) {
+      if (StringUtils.equals(path, includePath)) {
         return true;
       }
 
       current = current.getParent();
 
-    } while(current != null);
+    } while (current != null);
 
     return false;
   }

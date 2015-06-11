@@ -10,17 +10,17 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 
 @JinjavaDoc(
-  value="Autoescape the tag's contents",
-  hidden=true,
-  snippets={
-    @JinjavaSnippet(
-      code="{% autoescape %}\n" +
-      "<div>Code to escape</div>\n" +
-      "{% endautoescape %}"
-      )
-  })
-
+    value = "Autoescape the tag's contents",
+    hidden = true,
+    snippets = {
+        @JinjavaSnippet(
+            code = "{% autoescape %}\n" +
+                "<div>Code to escape</div>\n" +
+                "{% endautoescape %}"
+        )
+    })
 public class AutoEscapeTag implements Tag {
+  private static final long serialVersionUID = 786006577642541285L;
 
   @Override
   public String getName() {
@@ -41,13 +41,12 @@ public class AutoEscapeTag implements Tag {
 
       StringBuilder result = new StringBuilder();
 
-      for(Node child : tagNode.getChildren()) {
+      for (Node child : tagNode.getChildren()) {
         result.append(child.render(interpreter));
       }
 
       return result.toString();
-    }
-    finally {
+    } finally {
       interpreter.leaveScope();
     }
   }

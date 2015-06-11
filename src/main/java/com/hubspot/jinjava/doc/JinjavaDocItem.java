@@ -17,8 +17,8 @@ public abstract class JinjavaDocItem {
     this.desc = desc;
     this.aliasOf = aliasOf;
     this.deprecated = deprecated;
-    this.params = params;
-    this.snippets = snippets;
+    this.params = params.clone();
+    this.snippets = snippets.clone();
     this.meta = meta;
   }
 
@@ -39,11 +39,11 @@ public abstract class JinjavaDocItem {
   }
 
   public JinjavaDocParam[] getParams() {
-    return params;
+    return params.clone();
   }
 
   public JinjavaDocSnippet[] getSnippets() {
-    return snippets;
+    return snippets.clone();
   }
 
   public Map<String, String> getMeta() {

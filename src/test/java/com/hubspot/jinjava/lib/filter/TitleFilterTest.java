@@ -9,11 +9,9 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 public class TitleFilterTest {
 
-  JinjavaInterpreter interpreter;
-
   @Test
   public void testTitleCase() {
-    assertThat(new TitleFilter().filter("this is string", interpreter)).isEqualTo("This Is String");
+    assertThat(new TitleFilter().filter("this is string", null)).isEqualTo("This Is String");
   }
 
 }

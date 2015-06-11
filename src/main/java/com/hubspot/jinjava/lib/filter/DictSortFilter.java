@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -60,7 +61,9 @@ public class DictSortFilter implements Filter {
     return sorted;
   }
 
-  private static class MapEntryComparator implements Comparator<Map.Entry<String, Object>> {
+  private static class MapEntryComparator implements Comparator<Map.Entry<String, Object>>, Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final boolean caseSensitive;
     private final boolean sortByKey;
 

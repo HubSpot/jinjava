@@ -58,7 +58,7 @@ public class TagLibrary extends SimpleLibrary<Tag> {
   public void register(Tag t) {
     super.register(t);
 
-    if(t.getEndTagName() != null) {
+    if (t.getEndTagName() != null) {
       register(t.getEndTagName(), new EndTag(t));
     }
   }

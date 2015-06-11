@@ -29,7 +29,7 @@
 
   <properties>
     <project.build.targetJdk>1.8</project.build.targetJdk>
-    <basepom.check.skip-findbugs>true</basepom.check.skip-findbugs>
+    <basepom.check.skip-findbugs>false</basepom.check.skip-findbugs>
   </properties>
 
   <dependencies>
@@ -44,7 +44,6 @@
     <dependency>
       <groupId>org.javassist</groupId>
       <artifactId>javassist</artifactId>
-      <version>3.19.0-GA</version>
     </dependency>
     <dependency>
       <groupId>org.jsoup</groupId>
@@ -70,7 +69,10 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>3.4</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>annotations</artifactId>
     </dependency>
 
     <dependency>

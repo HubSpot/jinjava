@@ -27,33 +27,32 @@ import com.hubspot.jinjava.tree.TagNode;
 /**
  * {% set primary_line_height = primary_font_size_num*1.5 %}
  *
- * {% set lw_font_size = "font-size: " ~ lw_font_size_base ~ "px; " %}
- * {% set lw_secondary_font_size = "font-size: " ~ (lw_font_size_base - 2) ~ "px; " %}
- * {% set lw_line_height = "line-height: " ~ lw_font_size_base*1.5 ~ "px; " %}
+ * {% set lw_font_size = "font-size: " ~ lw_font_size_base ~ "px; " %} {% set lw_secondary_font_size = "font-size: " ~ (lw_font_size_base - 2) ~ "px; " %} {% set lw_line_height = "line-height: " ~ lw_font_size_base*1.5 ~ "px; " %}
  *
  * @author anysome
  *
  */
-@JinjavaDoc(value="Assigns the value or result of a statement to a variable",
-    params={
-        @JinjavaParam(value="var", type="variable identifier", desc="The name of the variable"),
-        @JinjavaParam(value="expr", type="expression", desc="The value stored in the variable (string, number, boolean, or sequence")
+@JinjavaDoc(value = "Assigns the value or result of a statement to a variable",
+    params = {
+        @JinjavaParam(value = "var", type = "variable identifier", desc = "The name of the variable"),
+        @JinjavaParam(value = "expr", type = "expression", desc = "The value stored in the variable (string, number, boolean, or sequence")
     },
-    snippets={
-     @JinjavaSnippet(
-        desc="Set a variable in with a set statement and print the variable in a expression",
-        code="{% set primaryColor = \"#F7761F\" %}\n" +
-             "{{ primaryColor }}\n"
-      ),
-     @JinjavaSnippet(
-        desc="You can combine multiple values or variables into a sequence variable",
-        code="{% set var_one = \"String 1\" %}\n" +
-             "{% set var_two = \"String 2\" %}\n" +
-             "{% set sequence = [var_one,  var_two] %}"
-      ),
+    snippets = {
+        @JinjavaSnippet(
+            desc = "Set a variable in with a set statement and print the variable in a expression",
+            code = "{% set primaryColor = \"#F7761F\" %}\n" +
+                "{{ primaryColor }}\n"
+        ),
+        @JinjavaSnippet(
+            desc = "You can combine multiple values or variables into a sequence variable",
+            code = "{% set var_one = \"String 1\" %}\n" +
+                "{% set var_two = \"String 2\" %}\n" +
+                "{% set sequence = [var_one,  var_two] %}"
+        ),
     })
 public class SetTag implements Tag {
 
+  private static final long serialVersionUID = -8558479410226781539L;
   private static final String TAGNAME = "set";
 
   @Override
@@ -63,7 +62,7 @@ public class SetTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    if(!tagNode.getHelpers().contains("=")) {
+    if (!tagNode.getHelpers().contains("=")) {
       throw new InterpretException("Tag 'set' expects an assignment expression with '=', but was: " + tagNode.getHelpers(), tagNode.getLineNumber());
     }
 
@@ -71,10 +70,10 @@ public class SetTag implements Tag {
     String var = tagNode.getHelpers().substring(0, eqPos).trim();
     String expr = tagNode.getHelpers().substring(eqPos + 1, tagNode.getHelpers().length());
 
-    if(var == null || var.length() == 0) {
+    if (var.length() == 0) {
       throw new InterpretException("Tag 'set' requires a var name to assign to", tagNode.getLineNumber());
     }
-    if(StringUtils.isBlank(expr)) {
+    if (StringUtils.isBlank(expr)) {
       throw new InterpretException("Tag 'set' requires an expression to assign to a var", tagNode.getLineNumber());
     }
 

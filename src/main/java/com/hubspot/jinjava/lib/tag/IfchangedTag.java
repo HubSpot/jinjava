@@ -31,16 +31,17 @@ import com.hubspot.jinjava.tree.TagNode;
  *
  */
 @JinjavaDoc(
-  value="Outputs the tag contents if the given variable has changed since a prior invocation of this tag",
-  hidden=true,
-  snippets={
-    @JinjavaSnippet(
-      code="{% ifchanged %}\n" +
-           "Variable to test if changed\n" +
-           "{% endifchanged %}")
-  })
+    value = "Outputs the tag contents if the given variable has changed since a prior invocation of this tag",
+    hidden = true,
+    snippets = {
+        @JinjavaSnippet(
+            code = "{% ifchanged %}\n" +
+                "Variable to test if changed\n" +
+                "{% endifchanged %}")
+    })
 public class IfchangedTag implements Tag {
 
+  private static final long serialVersionUID = 3567908136629704724L;
   private static final String LASTKEY = "'IF\"CHG";
   private static final String TAGNAME = "ifchanged";
   private static final String ENDTAGNAME = "endif";
