@@ -107,7 +107,7 @@ public class TagTest {
 
   @Test
   public void ifchangedFor() {
-    script = "{% for item in var1|reverse %}{%ifchanged item%}{{item}}{%endif%}{% endfor%}";
+    script = "{% for item in var1|reverse %}{%ifchanged item%}{{item}}{%endifchanged%}{% endfor%}";
     res = jinjava.render(script, bindings);
     assertEquals("6894523", res);
   }
