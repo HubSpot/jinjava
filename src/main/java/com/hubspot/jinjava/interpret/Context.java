@@ -18,8 +18,10 @@ package com.hubspot.jinjava.interpret;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
@@ -35,6 +37,7 @@ import com.hubspot.jinjava.util.ScopeMap;
 
 public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
+  private final Set<String> dependencies = new HashSet<>();
 
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
@@ -215,6 +218,14 @@ public class Context extends ScopeMap<String, Object> {
 
   public void registerTag(Tag t) {
     tagLibrary.addTag(t);
+  }
+
+  public void addDependencies(String path) {
+    parent.dependencies.add(path);
+  }
+
+  public Set<String> getDependencies() {
+    return this.dependencies;
   }
 
 }
