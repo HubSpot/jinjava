@@ -108,9 +108,14 @@ public class Context extends ScopeMap<String, Object> {
     return getGlobalMacro(identifier) != null;
   }
 
-  public void isGlobalContext(Boolean isGlobalContext) {
+  public void setIsGlobalContext(Boolean isGlobalContext) {
     this.isGlobalContext = isGlobalContext;
   }
+
+  public boolean getIsGlobalContext() {
+    return this.isGlobalContext;
+  }
+
 
   @SafeVarargs
   @SuppressWarnings("unchecked")
@@ -245,7 +250,7 @@ public class Context extends ScopeMap<String, Object> {
   private Context getHighestParentContext() {
     Context highestParentContext = parent;
     while (highestParentContext.getParent() != null) {
-      if (highestParentContext.getParent().isGlobalContext == true) {
+      if (highestParentContext.getParent().getIsGlobalContext()) {
         highestParentContext = highestParentContext.getParent();
       }
     }

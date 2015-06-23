@@ -81,7 +81,7 @@ public class Jinjava {
   public Jinjava(JinjavaConfig globalConfig) {
     this.globalConfig = globalConfig;
     this.globalContext = new Context();
-    this.globalContext.isGlobalContext(true);
+    this.globalContext.setIsGlobalContext(true);
 
     Properties expConfig = new Properties();
     expConfig.setProperty(TreeBuilder.class.getName(), ExtendedSyntaxBuilder.class.getName());
