@@ -47,6 +47,8 @@ public class TagNode extends Node {
   public String render(JinjavaInterpreter interpreter) {
     try {
       return tag.interpret(this, interpreter);
+    } catch (InterpretException e) {
+      throw e;
     } catch (Exception e) {
       throw new InterpretException("Error rendering tag", e, master.getLineNumber());
     }
