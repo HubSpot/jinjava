@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.lib.exptest.ExpTestLibrary;
@@ -37,6 +38,8 @@ import com.hubspot.jinjava.util.ScopeMap;
 
 public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
+  private boolean isGlobalContext;
+
   private final Map<String, Set<String>> dependencies = new HashMap();
 
   private final ExpTestLibrary expTestLibrary;
@@ -54,6 +57,7 @@ public class Context extends ScopeMap<String, Object> {
     super(parent);
 
     this.parent = parent;
+    this.isGlobalContext = false;
     this.expTestLibrary = new ExpTestLibrary(parent == null);
     this.filterLibrary = new FilterLibrary(parent == null);
     this.functionLibrary = new FunctionLibrary(parent == null);
@@ -102,6 +106,10 @@ public class Context extends ScopeMap<String, Object> {
 
   public boolean isGlobalMacro(String identifier) {
     return getGlobalMacro(identifier) != null;
+  }
+
+  public void isGlobalContext(Boolean isGlobalContext) {
+    this.isGlobalContext = isGlobalContext;
   }
 
   @SafeVarargs
@@ -221,14 +229,24 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public void addDependency(String type, String identification) {
-    if (!parent.dependencies.containsKey(type)) {
-      parent.dependencies.put(type, new HashSet<>());
+    Context highestParentContext = getHighestParentContext();
+    if (!highestParentContext.dependencies.containsKey(type)) {
+      highestParentContext.dependencies.put(type, new HashSet<>());
     }
-    parent.dependencies.get(type).add(identification);
+
+    highestParentContext.dependencies.get(type).add(identification);
   }
 
   public Map<String, Set<String>> getDependencies() {
-    return this.dependencies;
+    Context highestParentContext = getHighestParentContext();
+    return highestParentContext.dependencies;
   }
 
+  private Context getHighestParentContext() {
+    Context highestParentContext = parent;
+    while (highestParentContext.getParent() != null) {
+      highestParentContext = highestParentContext.getParent();
+    }
+    return highestParentContext;
+  }
 }
