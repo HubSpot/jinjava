@@ -37,7 +37,7 @@ import com.hubspot.jinjava.util.ScopeMap;
 
 public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
-  private final Set<String> dependencies = new HashSet<>();
+  private final Map<String, Set<String>> dependencies = new HashMap();
 
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
@@ -220,11 +220,14 @@ public class Context extends ScopeMap<String, Object> {
     tagLibrary.addTag(t);
   }
 
-  public void addDependencies(String path) {
-    parent.dependencies.add(path);
+  public void addDependency(String type, String identification) {
+    if (!parent.dependencies.containsKey(type)) {
+      parent.dependencies.put(type, new HashSet<>());
+    }
+    parent.dependencies.get(type).add(identification);
   }
 
-  public Set<String> getDependencies() {
+  public Map<String, Set<String>> getDependencies() {
     return this.dependencies;
   }
 
