@@ -3,6 +3,7 @@
 ### Version 2.0.6 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.6%22)) ###
 
 * Fix ifchanged end tag name
+* Fix propagation of InterpretExceptions from tag render
 * doc updates
 
 ### Version 2.0.5 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.5%22)) ###
