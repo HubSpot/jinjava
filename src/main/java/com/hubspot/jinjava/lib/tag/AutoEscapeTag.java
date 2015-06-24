@@ -20,6 +20,7 @@ import com.hubspot.jinjava.tree.TagNode;
         )
     })
 public class AutoEscapeTag implements Tag {
+  public static final String AUTOESCAPE_CONTEXT_VAR = "__auto3sc@pe__";
   private static final long serialVersionUID = 786006577642541285L;
 
   @Override
@@ -36,8 +37,9 @@ public class AutoEscapeTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     interpreter.enterScope();
     try {
-      boolean oldEscapeFlag = BooleanUtils.toBoolean(StringUtils.trim(tagNode.getHelpers()));
-      interpreter.getContext().put("autoescape", !oldEscapeFlag);
+      String boolFlagStr = StringUtils.trim(tagNode.getHelpers());
+      boolean escapeFlag = BooleanUtils.toBoolean(StringUtils.isNotBlank(boolFlagStr) ? boolFlagStr : "true");
+      interpreter.getContext().put(AUTOESCAPE_CONTEXT_VAR, escapeFlag);
 
       StringBuilder result = new StringBuilder();
 
