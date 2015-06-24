@@ -62,6 +62,11 @@ public class ExtendsTagTest {
     assertThat(dom.select(".sidebar h3").text()).isEqualTo("Table Of Contents");
   }
 
+  @Test
+  public void itHasExtendsReferenceInContext() throws Exception {
+    jinjava.render(locator.fixture("extends-base1.jinja"), new HashMap<String, Object>());
+  }
+
   private static class ExtendsTagTestResourceLocator implements ResourceLocator {
     @Override
     public String getString(String fullName, Charset encoding, JinjavaInterpreter interpreter) throws IOException {
