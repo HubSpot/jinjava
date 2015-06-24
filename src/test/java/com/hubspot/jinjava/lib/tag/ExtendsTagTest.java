@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.RenderResult;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

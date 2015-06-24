@@ -5,7 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
+import com.hubspot.jinjava.interpret.RenderResult;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,6 +45,21 @@ public class IncludeTagTest {
     String result = jinjava.render(Resources.toString(Resources.getResource("tags/includetag/c-includes-d-twice.jinja"), StandardCharsets.UTF_8),
         new HashMap<String, Object>());
     assertThat(Splitter.on('\n').omitEmptyStrings().trimResults().split(result)).containsExactly("hello", "hello");
+  }
+
+  @Test
+  public void itHasIncludesReferenceInContext() throws Exception {
+    RenderResult renderResult = jinjava.renderForResult(Resources.toString(Resources.getResource("tags/includetag/includes-hello.html"), StandardCharsets.UTF_8),
+        new HashMap<String, Object>());
+
+    Map<String, Set<String>> dependencies = renderResult.getContext().getDependencies();
+
+    assertThat(dependencies).hasSize(1);
+    assertThat(dependencies.get("templates")).isNotEmpty();
+
+    Set<String> expectedResult = new HashSet<String>();
+    expectedResult.add("tags/includetag/hello.html");
+    assertThat(dependencies.get("templates")).isEqualTo(expectedResult);
   }
 
 }
