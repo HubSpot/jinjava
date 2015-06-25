@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.SetMultimap;
 import com.hubspot.jinjava.interpret.RenderResult;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -69,14 +70,12 @@ public class ExtendsTagTest {
   @Test
   public void itHasExtendsReferenceInContext() throws Exception {
     RenderResult renderResult = jinjava.renderForResult(locator.fixture("super-child.html"), new HashMap<String, Object>());
-    Map<String, Set<String>> dependencies = renderResult.getContext().getDependencies();
+    SetMultimap<String, String> dependencies = renderResult.getContext().getDependencies();
 
-    assertThat(dependencies).hasSize(1);
+    assertThat(dependencies.size()).isEqualTo(1);
     assertThat(dependencies.get("templates")).isNotEmpty();
 
-    Set<String> expectedResult = new HashSet<String>();
-    expectedResult.add("super-base.html");
-    assertThat(dependencies.get("templates")).isEqualTo(expectedResult);
+    assertThat(dependencies.get("templates").contains("super-base.html"));
   }
 
   private static class ExtendsTagTestResourceLocator implements ResourceLocator {

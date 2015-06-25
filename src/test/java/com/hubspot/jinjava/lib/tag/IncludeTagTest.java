@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.SetMultimap;
 import com.hubspot.jinjava.interpret.RenderResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,17 +49,16 @@ public class IncludeTagTest {
 
   @Test
   public void itHasIncludesReferenceInContext() throws Exception {
-    RenderResult renderResult = jinjava.renderForResult(Resources.toString(Resources.getResource("tags/includetag/includes-hello.html"), StandardCharsets.UTF_8),
+    RenderResult renderResult = jinjava.renderForResult(Resources.toString(Resources.getResource("tags/includetag/include-tag-dependencies.html"), StandardCharsets.UTF_8),
         new HashMap<String, Object>());
 
-    Map<String, Set<String>> dependencies = renderResult.getContext().getDependencies();
+    SetMultimap<String, String> dependencies = renderResult.getContext().getDependencies();
 
-    assertThat(dependencies).hasSize(1);
+    assertThat(dependencies.size()).isEqualTo(2);
     assertThat(dependencies.get("templates")).isNotEmpty();
 
-    Set<String> expectedResult = new HashSet<String>();
-    expectedResult.add("tags/includetag/hello.html");
-    assertThat(dependencies.get("templates")).isEqualTo(expectedResult);
+    assertThat(dependencies.get("templates").contains("{% include \"tags/includetag/hello.html\" %}"));
+    assertThat(dependencies.get("templates").contains("{% include \"tags/includetag/cat.html\" %}"));
   }
 
 }

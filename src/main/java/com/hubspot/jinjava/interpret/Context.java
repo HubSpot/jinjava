@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.hubspot.jinjava.Jinjava;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.lib.exptest.ExpTestLibrary;
@@ -40,7 +42,7 @@ public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
   private boolean isGlobalContext;
 
-  private final Map<String, Set<String>> dependencies = new HashMap();
+  private final SetMultimap<String, String> dependencies = HashMultimap.create();
 
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
@@ -235,14 +237,10 @@ public class Context extends ScopeMap<String, Object> {
 
   public void addDependency(String type, String identification) {
     Context highestParentContext = getHighestParentContext();
-    if (!highestParentContext.dependencies.containsKey(type)) {
-      highestParentContext.dependencies.put(type, new HashSet<>());
-    }
-
     highestParentContext.dependencies.get(type).add(identification);
   }
 
-  public Map<String, Set<String>> getDependencies() {
+  public SetMultimap<String, String> getDependencies() {
     Context highestParentContext = getHighestParentContext();
     return highestParentContext.dependencies;
   }
