@@ -12,6 +12,7 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.tag.AutoEscapeTag;
 
 public class ExpressionNodeTest {
 
@@ -52,6 +53,15 @@ public class ExpressionNodeTest {
     assertThat(val("{{ a or b }}")).isEqualTo("foo");
     assertThat(val("{{ c or a }}")).isEqualTo("foo");
     assertThat(val("{{ d or b }}")).isEqualTo("bar");
+  }
+
+  @Test
+  public void itEscapesValueWhenContextSet() throws Exception {
+    context.put("a", "foo < bar");
+    assertThat(val("{{ a }}")).isEqualTo("foo < bar");
+
+    context.put(AutoEscapeTag.AUTOESCAPE_CONTEXT_VAR, Boolean.TRUE);
+    assertThat(val("{{ a }}")).isEqualTo("foo &lt; bar");
   }
 
   private String val(String jinja) {

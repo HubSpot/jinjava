@@ -29,7 +29,7 @@ import com.hubspot.jinjava.tree.TagNode;
     hidden = true,
     snippets = {
         @JinjavaSnippet(
-            code = "{% ifchanged %}\n" +
+            code = "{% ifchanged var %}\n" +
                 "Variable to test if changed\n" +
                 "{% endifchanged %}")
     })
@@ -43,7 +43,7 @@ public class IfchangedTag implements Tag {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     if (StringUtils.isBlank(tagNode.getHelpers())) {
-      throw new InterpretException("Tag 'ifchanged' expects 1 helper >>> 0", tagNode.getLineNumber());
+      throw new InterpretException("Tag 'ifchanged' expects a variable parameter", tagNode.getLineNumber());
     }
     boolean isChanged = true;
     String var = tagNode.getHelpers().trim();
