@@ -17,6 +17,7 @@
     <connection>scm:git:git@github.com:HubSpot/jinjava.git</connection>
     <developerConnection>scm:git:git@github.com:HubSpot/jinjava.git</developerConnection>
     <url>git@github.com:HubSpot/jinjava.git</url>
+    <tag>HEAD</tag>
   </scm>
 
   <developers>

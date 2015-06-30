@@ -61,7 +61,7 @@ public class VariableChain {
       try {
         return getter.invoke(value);
       } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-        ENGINE_LOG.error("resolve variable trigger error.", e);
+        ENGINE_LOG.error("Error resolving variable: '{}' on object: '{}'", name, value, e);
       }
     }
 
@@ -105,7 +105,9 @@ public class VariableChain {
     return m;
   }
 
-  private static final String[] METHOD_PREFIXES = { "get", "is", "" };
+  private static final String[] METHOD_PREFIXES = {
+      "get", "is", ""
+  };
   private static final Method NULL_METHOD;
   static {
     try {
