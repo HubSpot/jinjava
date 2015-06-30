@@ -61,7 +61,7 @@ public class VariableChain {
       try {
         return getter.invoke(value);
       } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-        ENGINE_LOG.error("Error resolving variable: '{}'", name, e);
+        ENGINE_LOG.error("Error resolving variable: '{}' on object: '{}'", name, value, e);
       }
     }
 
