@@ -79,6 +79,8 @@ public class FromTag implements Tag {
       JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
       child.render(node);
 
+      interpreter.getErrors().addAll(child.getErrors());
+
       for (Map.Entry<String, String> importMapping : imports.entrySet()) {
         Object val = child.getContext().getGlobalMacro(importMapping.getKey());
 
