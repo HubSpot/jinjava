@@ -22,7 +22,7 @@ public class NamedParameter {
 
   @Override
   public String toString() {
-    return Objects.toString(value.toString(), "");
+    return Objects.toString(value, "");
   }
 
 }
