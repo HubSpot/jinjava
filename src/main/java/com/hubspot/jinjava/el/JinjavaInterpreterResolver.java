@@ -23,6 +23,8 @@ import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
@@ -67,18 +69,14 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
     if (ExtendedParser.INTERPRETER.equals(prop)) {
       value = interpreter;
-    }
-    else if (property.startsWith(ExtendedParser.FILTER_PREFIX)) {
+    } else if (property.startsWith(ExtendedParser.FILTER_PREFIX)) {
       value = interpreter.getContext().getFilter(StringUtils.substringAfter(property, ExtendedParser.FILTER_PREFIX));
-    }
-    else if (property.startsWith(ExtendedParser.EXPTEST_PREFIX)) {
+    } else if (property.startsWith(ExtendedParser.EXPTEST_PREFIX)) {
       value = interpreter.getContext().getExpTest(StringUtils.substringAfter(property, ExtendedParser.EXPTEST_PREFIX));
-    }
-    else {
+    } else {
       if (base == null) {
         value = interpreter.retraceVariable((String) prop, interpreter.getLineNumber());
-      }
-      else {
+      } else {
         try {
           value = new VariableChain(Lists.newArrayList(property), base).resolve();
         } catch (JinjavaPropertyNotResolvedException e) {
@@ -139,7 +137,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       try {
         return StrftimeFormatter.formatter(d.getFormat());
       } catch (IllegalArgumentException e) {
-        interpreter.addError(TemplateError.fromException(e));
+        interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, e.getMessage(), null, interpreter.getLineNumber(), null));
       }
     }
 
@@ -151,7 +149,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       try {
         return LocaleUtils.toLocale(d.getLanguage());
       } catch (IllegalArgumentException e) {
-        interpreter.addError(TemplateError.fromException(e));
+        interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, e.getMessage(), null, interpreter.getLineNumber(), null));
       }
     }
 
