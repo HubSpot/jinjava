@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.el.ELContext;
 import javax.el.ELResolver;
@@ -337,11 +339,28 @@ public class JinjavaInterpreter {
       if (value == null) {
         return null;
       } else {
-        value = resolver.getValue(context, value, name);
+        value = resolver.getValue(context, value, transformName(name));
       }
     }
 
     return value;
+  }
+
+  // snake case stuff
+
+  private static final Pattern SNAKE_CASE = Pattern.compile("_([^_]?)");
+
+  private String transformName(String name) {
+    Matcher m = SNAKE_CASE.matcher(name);
+
+    StringBuffer result = new StringBuffer(name.length());
+    while (m.find()) {
+      String replacement = m.group(1).toUpperCase();
+      m.appendReplacement(result, replacement);
+    }
+    m.appendTail(result);
+
+    return result.toString();
   }
 
 }

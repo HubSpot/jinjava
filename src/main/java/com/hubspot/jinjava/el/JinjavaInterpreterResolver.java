@@ -82,7 +82,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
         value = interpreter.retraceVariable((String) prop, interpreter.getLineNumber());
       } else {
         try {
-          value = super.getValue(context, base, transformName(property));
+          value = super.getValue(context, base, property);
         } catch (PropertyNotFoundException | JinjavaPropertyNotResolvedException e) {
           if (errOnUnknownProp) {
             interpreter.addError(TemplateError.fromUnknownProperty(base, property, interpreter.getLineNumber()));
@@ -158,23 +158,6 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     }
 
     return Locale.US;
-  }
-
-  // snake case stuff
-
-  private static final Pattern SNAKE_CASE = Pattern.compile("_([^_]?)");
-
-  private String transformName(String name) {
-    Matcher m = SNAKE_CASE.matcher(name);
-
-    StringBuffer result = new StringBuffer(name.length());
-    while (m.find()) {
-      String replacement = m.group(1).toUpperCase();
-      m.appendReplacement(result, replacement);
-    }
-    m.appendTail(result);
-
-    return result.toString();
   }
 
 }
