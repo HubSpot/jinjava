@@ -15,6 +15,7 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import com.hubspot.jinjava.util.ObjectValue;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -58,10 +59,7 @@ public class EscapeFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-    if (object instanceof String) {
-      return escapeHtmlEntities((String) object);
-    }
-    return object;
+    return escapeHtmlEntities(ObjectValue.printable(object));
   }
 
   @Override
