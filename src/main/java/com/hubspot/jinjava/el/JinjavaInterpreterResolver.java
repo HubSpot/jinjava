@@ -48,10 +48,14 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
   public Object invoke(ELContext context, Object base, Object method,
       Class<?>[] paramTypes, Object[] params) {
 
-    Object methodProperty = getValue(context, base, method, false);
-    if (methodProperty != null && methodProperty instanceof AbstractCallableMethod) {
-      context.setPropertyResolved(true);
-      return ((AbstractCallableMethod) methodProperty).evaluate(params);
+    try {
+      Object methodProperty = getValue(context, base, method, false);
+      if (methodProperty != null && methodProperty instanceof AbstractCallableMethod) {
+        context.setPropertyResolved(true);
+        return ((AbstractCallableMethod) methodProperty).evaluate(params);
+      }
+    } catch (IllegalArgumentException e) {
+      // failed to access property, continue with method calls
     }
 
     // TODO map named params to special arg in fn to invoke
