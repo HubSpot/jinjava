@@ -10,7 +10,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
-import com.hubspot.jinjava.util.VariableChain;
 
 @JinjavaDoc(
     value = "Returns the sum of a sequence of numbers plus the value of parameter ‘start’ (which defaults to 0). When the sequence is empty it returns start.",
@@ -60,7 +59,7 @@ public class SumFilter implements Filter {
       BigDecimal addend = BigDecimal.ZERO;
 
       if (attr != null) {
-        val = new VariableChain(Arrays.asList(attr), val).resolve();
+        val = interpreter.resolve(val, Arrays.asList(attr));
       }
 
       try {

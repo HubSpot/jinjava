@@ -32,7 +32,6 @@ import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import com.hubspot.jinjava.util.JinjavaPropertyNotResolvedException;
-import com.hubspot.jinjava.util.VariableChain;
 
 import de.odysseus.el.util.SimpleResolver;
 
@@ -78,7 +77,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
         value = interpreter.retraceVariable((String) prop, interpreter.getLineNumber());
       } else {
         try {
-          value = new VariableChain(Lists.newArrayList(property), base).resolve();
+          value = interpreter.resolve(base, Lists.newArrayList(property));
         } catch (JinjavaPropertyNotResolvedException e) {
           if (errOnUnknownProp) {
             interpreter.addError(TemplateError.fromUnknownProperty(base, property, interpreter.getLineNumber()));

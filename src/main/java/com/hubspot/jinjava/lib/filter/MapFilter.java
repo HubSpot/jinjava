@@ -11,7 +11,6 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
-import com.hubspot.jinjava.util.VariableChain;
 
 @JinjavaDoc(
     value = "Applies a filter on a sequence of objects or looks up an attribute.",
@@ -54,7 +53,7 @@ public class MapFilter implements Filter {
         val = apply.filter(val, interpreter);
       }
       else {
-        val = new VariableChain(Lists.newArrayList(attr), val).resolve();
+        val = interpreter.resolve(val, Lists.newArrayList(attr));
       }
 
       result.add(val);

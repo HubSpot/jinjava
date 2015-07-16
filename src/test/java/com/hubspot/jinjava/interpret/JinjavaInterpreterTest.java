@@ -10,6 +10,8 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.parse.TextToken;
 
+import java.time.ZonedDateTime;
+
 public class JinjavaInterpreterTest {
 
   Jinjava jinjava;
@@ -44,6 +46,54 @@ public class JinjavaInterpreterTest {
     interpreter.addBlock("foobar", Lists.newLinkedList(Lists.newArrayList(new TextNode(new TextToken("$150.00", -1)))));
     String content = String.format("this is %sfoobar%s!", JinjavaInterpreter.BLOCK_STUB_START, JinjavaInterpreter.BLOCK_STUB_END);
     assertThat(interpreter.resolveBlockStubs(content)).isEqualTo("this is $150.00!");
+  }
+
+  // Ex VariableChain stuff
+
+  static class Foo {
+    private String bar;
+
+    public Foo(String bar) {
+      this.bar = bar;
+    }
+
+    public String getBar() {
+      return bar;
+    }
+
+    public String getBarFoo() {
+      return bar;
+    }
+
+    public String getBarFoo1() {
+      return bar;
+    }
+  }
+
+  @Test
+  public void singleWordProperty() {
+    assertThat(interpreter.resolve(new Foo("a"), Lists.newArrayList("bar"))).
+    isEqualTo("a");
+  }
+
+  @Test
+  public void multiWordCamelCase() {
+    assertThat(interpreter.resolve(new Foo("a"), Lists.newArrayList("barFoo"))).isEqualTo("a");
+  }
+
+  @Test
+  public void multiWordSnakeCase() {
+    assertThat(interpreter.resolve(new Foo("a"), Lists.newArrayList("bar_foo"))).isEqualTo("a");
+  }
+
+  @Test
+  public void multiWordNumberSnakeCase() {
+    assertThat(interpreter.resolve(new Foo("a"), Lists.newArrayList("bar_foo_1"))).isEqualTo("a");
+  }
+
+  @Test
+  public void triesBeanMethodFirst() {
+    assertThat(interpreter.resolve(ZonedDateTime.parse("2013-09-19T12:12:12+00:00"), Lists.newArrayList("year")).toString()).isEqualTo("2013");
   }
 
 }

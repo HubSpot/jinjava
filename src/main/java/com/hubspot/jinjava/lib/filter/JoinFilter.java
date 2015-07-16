@@ -12,7 +12,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
-import com.hubspot.jinjava.util.VariableChain;
 
 @JinjavaDoc(
     value = "Return a string which is the concatenation of the strings in the sequence.",
@@ -58,7 +57,7 @@ public class JoinFilter implements Filter {
       Object val = loop.next();
 
       if (attr != null) {
-        val = new VariableChain(Lists.newArrayList(attr), val).resolve();
+        val = interpreter.resolve(val, Lists.newArrayList(attr));
       }
 
       vals.add(Objects.toString(val, ""));
