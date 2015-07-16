@@ -338,9 +338,6 @@ public class JinjavaInterpreter {
         return null;
       } else {
         value = resolver.getValue(context, value, name);
-        if (value == null) {
-          throw new JinjavaPropertyNotResolvedException(value, name);
-        }
       }
     }
 
