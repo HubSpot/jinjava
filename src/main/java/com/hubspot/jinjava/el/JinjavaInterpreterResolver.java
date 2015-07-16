@@ -31,7 +31,6 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
-import com.hubspot.jinjava.util.JinjavaPropertyNotResolvedException;
 import de.odysseus.el.util.SimpleResolver;
 
 public class JinjavaInterpreterResolver extends SimpleResolver {
@@ -81,7 +80,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       } else {
         try {
           value = super.getValue(context, base, property);
-        } catch (PropertyNotFoundException | JinjavaPropertyNotResolvedException e) {
+        } catch (PropertyNotFoundException e) {
           if (errOnUnknownProp) {
             interpreter.addError(TemplateError.fromUnknownProperty(base, property, interpreter.getLineNumber()));
           }

@@ -18,7 +18,6 @@ import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
-import com.hubspot.jinjava.util.JinjavaPropertyNotResolvedException;
 
 import de.odysseus.el.tree.TreeBuilderException;
 
@@ -49,19 +48,11 @@ public class ExpressionResolver {
       return valueExp.getValue(elContext);
     } catch (PropertyNotFoundException e) {
       interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, e.getMessage(), "", lineNumber, e));
-    } catch (JinjavaPropertyNotResolvedException e) {
-      interpreter.addError(TemplateError.fromUnknownProperty(e.getBase(), e.getProperty(), lineNumber));
     } catch (TreeBuilderException e) {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expr,
           "Error parsing '" + expr + "': " + StringUtils.substringAfter(e.getMessage(), "': "), lineNumber, e)));
     } catch (ELException e) {
-      if (e.getCause() instanceof JinjavaPropertyNotResolvedException) {
-        JinjavaPropertyNotResolvedException jpe = (JinjavaPropertyNotResolvedException) e.getCause();
-        interpreter.addError(TemplateError.fromUnknownProperty(jpe.getBase(), jpe.getProperty(), lineNumber));
-      }
-      else {
-        interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expr, e.getMessage(), lineNumber, e)));
-      }
+      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expr, e.getMessage(), lineNumber, e)));
     } catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(
           String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expr), e, lineNumber)));
