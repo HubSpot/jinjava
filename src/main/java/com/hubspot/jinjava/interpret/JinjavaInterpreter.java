@@ -28,7 +28,6 @@ import java.util.regex.Pattern;
 import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.el.ExpressionFactory;
-import javax.el.PropertyNotFoundException;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -361,8 +360,6 @@ public class JinjavaInterpreter {
     // Try again with snake case
     return resolver.getValue(context, value, transformedName);
   }
-
-  // snake case stuff
 
   private static final Pattern SNAKE_CASE = Pattern.compile("_([^_]?)");
 
