@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.el.ExpressionFactory;
+import javax.el.PropertyNotFoundException;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -339,11 +340,26 @@ public class JinjavaInterpreter {
       if (value == null) {
         return null;
       } else {
-        value = resolver.getValue(context, value, transformName(name));
+        value = resolveInternal(context, resolver, value, name);
       }
     }
 
     return value;
+  }
+
+  private Object resolveInternal(ELContext context, ELResolver resolver, Object value, String name) {
+    Object result = resolver.getValue(context, value, name);
+    if (result != null) {
+      return result;
+    }
+
+    String transformedName = transformName(name);
+    if (name.equals(transformedName)) {
+      return null;
+    }
+
+    // Try again with snake case
+    return resolver.getValue(context, value, transformedName);
   }
 
   // snake case stuff
