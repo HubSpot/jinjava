@@ -18,26 +18,19 @@ package com.hubspot.jinjava.interpret;
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
-import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.el.ELContext;
+import javax.el.ELResolver;
 import javax.el.ExpressionFactory;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -336,123 +329,22 @@ public class JinjavaInterpreter {
   // Ex VariableChain code
 
   public Object resolve(Object base, List<String> chain) {
+    ELContext context = createELContext();
+    ELResolver resolver = context.getELResolver();
+
     Object value = base;
     for (String name : chain) {
       if (value == null) {
         return null;
       } else {
-        value = resolveInternal(value, name);
+        value = resolver.getValue(context, value, name);
+        if (value == null) {
+          throw new JinjavaPropertyNotResolvedException(value, name);
+        }
       }
     }
+
     return value;
-  }
-
-  private static final ConcurrentMap<String, Method> METHOD_CACHE = Maps.newConcurrentMap();
-
-  private Object resolveInternal(Object value, String name) {
-    Class<?> clazz = value.getClass();
-    Method getter = findGetterMethodCached(clazz, name);
-
-    if (getter != null && getter != NULL_METHOD) {
-      try {
-        return getter.invoke(value);
-      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-        ENGINE_LOG.error("Error resolving variable: '{}' on object: '{}'", name, value, e);
-      }
-    }
-
-    // map
-    if (value instanceof Map) {
-      Map<?, ?> map = (Map<?, ?>) value;
-      return map.get(name);
-    }
-
-    try {
-      int index = Integer.parseInt(name);
-      // array
-      if (value.getClass().isArray()) {
-        return Array.get(value, index);
-      }
-      // list
-      if (value instanceof List) {
-        return ((List<?>) value).get(index);
-      }
-      // collection
-      if (value instanceof Collection) {
-        return ((Collection<?>) value).toArray()[index];
-      }
-    } catch (Throwable e) { /* no-op */
-    }
-
-    throw new JinjavaPropertyNotResolvedException(value, name);
-  }
-
-  private Method findGetterMethodCached(Class<?> clazz, String name) {
-    Method m = METHOD_CACHE.get(clazz.getName() + ":" + name);
-
-    if (m == null) {
-      m = findGetterMethod(clazz, name);
-
-      if (m != null) {
-        METHOD_CACHE.put(clazz.getName() + ":" + name, m);
-      }
-    }
-
-    return m;
-  }
-
-  private static final String[] METHOD_PREFIXES = {
-        "get", "is", ""
-  };
-  private static final Method NULL_METHOD;
-  static {
-    // FIXME
-    NULL_METHOD = null;
-//    try {
-//      NULL_METHOD = VariableChain.class.getDeclaredMethod("resolve");
-//    } catch (NoSuchMethodException e) {
-//      throw Throwables.propagate(e);
-//    }
-  }
-
-  private Method findGetterMethod(Class<?> clazz, String name) {
-    String transformedName = transformName(name);
-
-    for (String prefix : METHOD_PREFIXES) {
-      try {
-        Method m = clazz.getMethod(prefix + transformedName);
-        m.setAccessible(true);
-        return m;
-      } catch (NoSuchMethodException | SecurityException e) {
-        /* no-op */
-      }
-    }
-
-    return NULL_METHOD;
-  }
-
-  private static final Pattern SNAKE_CASE = Pattern.compile("_([^_]?)");
-
-  private String transformName(String name) {
-    Matcher m = SNAKE_CASE.matcher(name);
-
-    StringBuffer result = new StringBuffer();
-    while (m.find()) {
-      String replacement = m.group(1).toUpperCase();
-      m.appendReplacement(result, replacement);
-    }
-    m.appendTail(result);
-
-    return upperFirst(result.toString());
-  }
-
-  private String upperFirst(String name) {
-    char c = name.charAt(0);
-    if (Character.isLowerCase(c)) {
-      return String.valueOf(c).toUpperCase().concat(name.substring(1));
-    } else {
-      return name;
-    }
   }
 
 }
