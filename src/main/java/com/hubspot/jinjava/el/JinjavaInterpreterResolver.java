@@ -13,9 +13,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.el.ArrayELResolver;
+import javax.el.BeanELResolver;
+import javax.el.CompositeELResolver;
 import javax.el.ELContext;
+import javax.el.ELResolver;
+import javax.el.ListELResolver;
+import javax.el.MapELResolver;
 import javax.el.PropertyNotFoundException;
+import javax.el.ResourceBundleELResolver;
 
+import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -35,9 +43,20 @@ import de.odysseus.el.util.SimpleResolver;
 
 public class JinjavaInterpreterResolver extends SimpleResolver {
 
+  private static final ELResolver DEFAULT_RESOLVER_READ_WRITE = new CompositeELResolver() {
+    {
+      add(new ArrayELResolver(false));
+      add(new ListELResolver(false));
+      add(new MapELResolver(false));
+      add(new ResourceBundleELResolver());
+      add(new JinjavaBeanELResolver(false));
+    }
+  };
+
   private JinjavaInterpreter interpreter;
 
   public JinjavaInterpreterResolver(JinjavaInterpreter interpreter) {
+    super(DEFAULT_RESOLVER_READ_WRITE);
     this.interpreter = interpreter;
   }
 

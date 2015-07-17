@@ -334,41 +334,11 @@ public class JinjavaInterpreter {
       if (value == null) {
         return null;
       } else {
-        value = resolveInternal(context, resolver, value, name);
+        value = resolver.getValue(context, value, name);
       }
     }
 
     return value;
-  }
-
-  private Object resolveInternal(ELContext context, ELResolver resolver, Object value, String name) {
-    Object result = resolver.getValue(context, value, name);
-    if (result != null) {
-      return result;
-    }
-
-    String transformedName = transformName(name);
-    if (name.equals(transformedName)) {
-      return null;
-    }
-
-    // Try again with snake case
-    return resolver.getValue(context, value, transformedName);
-  }
-
-  private static final Pattern SNAKE_CASE = Pattern.compile("_([^_]?)");
-
-  private String transformName(String name) {
-    Matcher m = SNAKE_CASE.matcher(name);
-
-    StringBuffer result = new StringBuffer(name.length());
-    while (m.find()) {
-      String replacement = m.group(1).toUpperCase();
-      m.appendReplacement(result, replacement);
-    }
-    m.appendTail(result);
-
-    return result.toString();
   }
 
 }
