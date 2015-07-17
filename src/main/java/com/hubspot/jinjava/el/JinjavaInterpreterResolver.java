@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import javax.el.ArrayELResolver;
-import javax.el.BeanELResolver;
 import javax.el.CompositeELResolver;
 import javax.el.ELContext;
 import javax.el.ELResolver;
@@ -23,12 +22,12 @@ import javax.el.MapELResolver;
 import javax.el.PropertyNotFoundException;
 import javax.el.ResourceBundleELResolver;
 
-import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
