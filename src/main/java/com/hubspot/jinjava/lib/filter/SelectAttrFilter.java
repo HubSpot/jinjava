@@ -55,7 +55,7 @@ public class SelectAttrFilter implements Filter {
     ForLoop loop = ObjectIterator.getLoop(var);
     while (loop.hasNext()) {
       Object val = loop.next();
-      Object attrVal = interpreter.resolve(val, Lists.newArrayList(attr));
+      Object attrVal = interpreter.resolve(val, attr);
 
       if (expTest.evaluate(attrVal, interpreter)) {
         result.add(val);

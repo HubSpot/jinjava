@@ -59,7 +59,7 @@ public class SumFilter implements Filter {
       BigDecimal addend = BigDecimal.ZERO;
 
       if (attr != null) {
-        val = interpreter.resolve(val, Arrays.asList(attr));
+        val = interpreter.resolve(val, attr);
       }
 
       try {

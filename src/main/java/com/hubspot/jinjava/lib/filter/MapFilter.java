@@ -53,7 +53,7 @@ public class MapFilter implements Filter {
         val = apply.filter(val, interpreter);
       }
       else {
-        val = interpreter.resolve(val, Lists.newArrayList(attr));
+        val = interpreter.resolve(val, attr);
       }
 
       result.add(val);

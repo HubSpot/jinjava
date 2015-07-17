@@ -19,6 +19,7 @@ import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -323,6 +324,10 @@ public class JinjavaInterpreter {
 
   // Ex VariableChain code
 
+  public Object resolve(Object base, String name) {
+    return resolve(base, Collections.singletonList(name));
+  }
+
   public Object resolve(Object base, List<String> chain) {
     ELContext context = createELContext();
     ELResolver resolver = context.getELResolver();
@@ -331,9 +336,9 @@ public class JinjavaInterpreter {
     for (String name : chain) {
       if (value == null) {
         return null;
-      } else {
-        value = resolver.getValue(context, value, name);
       }
+
+      value = resolver.getValue(context, value, name);
     }
 
     return value;

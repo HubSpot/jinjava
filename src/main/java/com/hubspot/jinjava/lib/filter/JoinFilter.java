@@ -57,7 +57,7 @@ public class JoinFilter implements Filter {
       Object val = loop.next();
 
       if (attr != null) {
-        val = interpreter.resolve(val, Lists.newArrayList(attr));
+        val = interpreter.resolve(val, attr);
       }
 
       vals.add(Objects.toString(val, ""));

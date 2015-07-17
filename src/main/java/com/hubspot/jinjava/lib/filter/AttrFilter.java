@@ -32,7 +32,7 @@ public class AttrFilter implements Filter {
       throw new InterpretException(getName() + " requires an attr name to use", interpreter.getLineNumber());
     }
 
-    return interpreter.resolve(var, Arrays.asList(args[0]));
+    return interpreter.resolve(var, args[0]);
   }
 
 }

@@ -54,7 +54,7 @@ public class GroupByFilter implements Filter {
     while (loop.hasNext()) {
       Object val = loop.next();
 
-      String grouper = Objects.toString(interpreter.resolve(val, Lists.newArrayList(attr)));
+      String grouper = Objects.toString(interpreter.resolve(val, attr));
       groupBuckets.put(grouper, val);
     }
 
