@@ -24,8 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-import javax.el.ExpressionFactory;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -58,7 +56,7 @@ public class JinjavaInterpreter {
     this.config = renderConfig;
     this.application = application;
 
-    this.expressionResolver = new ExpressionResolver(this);
+    this.expressionResolver = new ExpressionResolver(this, application.getExpressionFactory());
   }
 
   public JinjavaInterpreter(JinjavaInterpreter orig) {
@@ -250,10 +248,6 @@ public class JinjavaInterpreter {
 
   public JinjavaConfig getConfig() {
     return config;
-  }
-
-  public ExpressionFactory getExpressionFactory() {
-    return application.getExpressionFactory();
   }
 
   public Object resolveELExpression(String expr, int lineNumber) {
