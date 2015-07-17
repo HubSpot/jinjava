@@ -72,27 +72,27 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void singleWordProperty() {
-    assertThat(interpreter.resolve(new Foo("a"), "bar")).isEqualTo("a");
+    assertThat(interpreter.resolveProperty(new Foo("a"), "bar")).isEqualTo("a");
   }
 
   @Test
   public void multiWordCamelCase() {
-    assertThat(interpreter.resolve(new Foo("a"), "barFoo")).isEqualTo("a");
+    assertThat(interpreter.resolveProperty(new Foo("a"), "barFoo")).isEqualTo("a");
   }
 
   @Test
   public void multiWordSnakeCase() {
-    assertThat(interpreter.resolve(new Foo("a"), "bar_foo")).isEqualTo("a");
+    assertThat(interpreter.resolveProperty(new Foo("a"), "bar_foo")).isEqualTo("a");
   }
 
   @Test
   public void multiWordNumberSnakeCase() {
-    assertThat(interpreter.resolve(new Foo("a"), "bar_foo_1")).isEqualTo("a");
+    assertThat(interpreter.resolveProperty(new Foo("a"), "bar_foo_1")).isEqualTo("a");
   }
 
   @Test
   public void triesBeanMethodFirst() {
-    assertThat(interpreter.resolve(ZonedDateTime.parse("2013-09-19T12:12:12+00:00"), "year").toString()).isEqualTo("2013");
+    assertThat(interpreter.resolveProperty(ZonedDateTime.parse("2013-09-19T12:12:12+00:00"), "year").toString()).isEqualTo("2013");
   }
 
 }

@@ -40,7 +40,7 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
 public class JinjavaInterpreter {
 
   private final Multimap<String, List<? extends Node>> blocks = ArrayListMultimap.create();
-  private final LinkedList<Node> extendParentRoots = new LinkedList<Node>();
+  private final LinkedList<Node> extendParentRoots = new LinkedList<>();
 
   private Context context;
   private final JinjavaConfig config;
@@ -250,18 +250,39 @@ public class JinjavaInterpreter {
     return config;
   }
 
-  public Object resolveELExpression(String expr, int lineNumber) {
+  /**
+   * Resolve expression against current context.
+   *
+   * @param expression Jinja expression.
+   * @param lineNumber Line number of expression.
+   * @return Value of expression.
+   */
+  public Object resolveELExpression(String expression, int lineNumber) {
     this.lineNumber = lineNumber;
 
-    return expressionResolver.resolveExpression(expr);
+    return expressionResolver.resolveExpression(expression);
   }
 
-  public Object resolve(Object base, String name) {
-    return resolve(base, Collections.singletonList(name));
+  /**
+   * Resolve property of bean.
+   *
+   * @param object Bean.
+   * @param propertyName Name of property to resolve.
+   * @return Value of property.
+   */
+  public Object resolveProperty(Object object, String propertyName) {
+    return resolveProperty(object, Collections.singletonList(propertyName));
   }
 
-  public Object resolve(Object base, List<String> chain) {
-    return expressionResolver.resolveProperty(base, chain);
+  /**
+   * Resolve property of bean.
+   *
+   * @param object Bean.
+   * @param propertyNames Names of properties to resolve recursively.
+   * @return Value of property.
+   */
+  public Object resolveProperty(Object object, List<String> propertyNames) {
+    return expressionResolver.resolveProperty(object, propertyNames);
   }
 
   public int getLineNumber() {

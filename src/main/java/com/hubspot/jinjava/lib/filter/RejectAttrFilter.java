@@ -3,7 +3,6 @@ package com.hubspot.jinjava.lib.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -56,7 +55,7 @@ public class RejectAttrFilter implements Filter {
     ForLoop loop = ObjectIterator.getLoop(var);
     while (loop.hasNext()) {
       Object val = loop.next();
-      Object attrVal = interpreter.resolve(val, attr);
+      Object attrVal = interpreter.resolveProperty(val, attr);
 
       if (!expTest.evaluate(attrVal, interpreter)) {
         result.add(val);

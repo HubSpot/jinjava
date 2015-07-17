@@ -1,7 +1,5 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Arrays;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -32,7 +30,7 @@ public class AttrFilter implements Filter {
       throw new InterpretException(getName() + " requires an attr name to use", interpreter.getLineNumber());
     }
 
-    return interpreter.resolve(var, args[0]);
+    return interpreter.resolveProperty(var, args[0]);
   }
 
 }

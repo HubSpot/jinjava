@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -57,7 +56,7 @@ public class JoinFilter implements Filter {
       Object val = loop.next();
 
       if (attr != null) {
-        val = interpreter.resolve(val, attr);
+        val = interpreter.resolveProperty(val, attr);
       }
 
       vals.add(Objects.toString(val, ""));

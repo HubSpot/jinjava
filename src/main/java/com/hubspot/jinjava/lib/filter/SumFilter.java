@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.lib.filter;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -59,7 +58,7 @@ public class SumFilter implements Filter {
       BigDecimal addend = BigDecimal.ZERO;
 
       if (attr != null) {
-        val = interpreter.resolve(val, attr);
+        val = interpreter.resolveProperty(val, attr);
       }
 
       try {

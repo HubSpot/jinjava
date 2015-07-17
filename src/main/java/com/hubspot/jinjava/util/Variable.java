@@ -53,7 +53,7 @@ public class Variable {
 
   public Object resolve(Object value) {
     if (chainList != null) {
-      return JinjavaInterpreterResolver.wrap(interpreter, interpreter.resolve(value, chainList));
+      return JinjavaInterpreterResolver.wrap(interpreter, interpreter.resolveProperty(value, chainList));
     } else {
       return JinjavaInterpreterResolver.wrap(interpreter, value);
     }
