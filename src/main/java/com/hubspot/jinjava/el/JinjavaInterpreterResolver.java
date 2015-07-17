@@ -110,8 +110,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     return wrap(interpreter, value);
   }
 
-  @SuppressWarnings("unchecked")
-  public static Object wrap(JinjavaInterpreter interpreter, Object value) {
+  Object wrap(JinjavaInterpreter interpreter, Object value) {
     if (value == null) {
       return null;
     }

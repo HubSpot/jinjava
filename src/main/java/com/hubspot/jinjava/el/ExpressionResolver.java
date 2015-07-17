@@ -5,7 +5,6 @@ import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMess
 import java.util.List;
 
 import javax.el.ELException;
-import javax.el.ELResolver;
 import javax.el.ExpressionFactory;
 import javax.el.PropertyNotFoundException;
 import javax.el.ValueExpression;
@@ -28,13 +27,15 @@ public class ExpressionResolver {
 
   private final JinjavaInterpreter interpreter;
   private final ExpressionFactory expressionFactory;
+  private final JinjavaInterpreterResolver resolver;
   private final JinjavaELContext elContext;
 
   public ExpressionResolver(JinjavaInterpreter interpreter, ExpressionFactory expressionFactory) {
     this.interpreter = interpreter;
     this.expressionFactory = expressionFactory;
 
-    this.elContext = new JinjavaELContext(new JinjavaInterpreterResolver(interpreter));
+    this.resolver = new JinjavaInterpreterResolver(interpreter);
+    this.elContext = new JinjavaELContext(resolver);
     for (ELFunctionDefinition fn : interpreter.getContext().getAllFunctions()) {
       this.elContext.setFunction(fn.getNamespace(), fn.getLocalName(), fn.getMethod());
     }
@@ -79,7 +80,10 @@ public class ExpressionResolver {
    * @return Value of property.
    */
   public Object resolveProperty(Object object, List<String> propertyNames) {
-    ELResolver resolver = elContext.getELResolver();
+    if (propertyNames.isEmpty()) {
+      // Always wrap resolved objects
+      return resolver.wrap(interpreter, object);
+    }
 
     Object value = object;
     for (String propertyName : propertyNames) {
