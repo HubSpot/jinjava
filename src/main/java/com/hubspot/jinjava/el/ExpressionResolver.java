@@ -21,6 +21,9 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import de.odysseus.el.tree.TreeBuilderException;
 
+/**
+ * Resolves Jinja expressions.
+ */
 public class ExpressionResolver {
 
   private final JinjavaInterpreter interpreter;
@@ -37,41 +40,54 @@ public class ExpressionResolver {
     }
   }
 
-  public Object resolveExpression(String expr) {
-    if (StringUtils.isBlank(expr)) {
+  /**
+   * Resolve expression against current context.
+   *
+   * @param expression Jinja expression.
+   * @return Value of expression.
+   */
+  public Object resolveExpression(String expression) {
+    if (StringUtils.isBlank(expression)) {
       return "";
     }
 
     try {
-      String elExpression = "#{" + expr.trim() + "}";
+      String elExpression = "#{" + expression.trim() + "}";
       ValueExpression valueExp = expressionFactory.createValueExpression(elContext, elExpression, Object.class);
       return valueExp.getValue(elContext);
 
     } catch (PropertyNotFoundException e) {
       interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, e.getMessage(), "", interpreter.getLineNumber(), e));
     } catch (TreeBuilderException e) {
-      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expr,
-          "Error parsing '" + expr + "': " + StringUtils.substringAfter(e.getMessage(), "': "), interpreter.getLineNumber(), e)));
+      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression,
+          "Error parsing '" + expression + "': " + StringUtils.substringAfter(e.getMessage(), "': "), interpreter.getLineNumber(), e)));
     } catch (ELException e) {
-      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expr, e.getMessage(), interpreter.getLineNumber(), e)));
+      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
     } catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(
-          String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expr), e, interpreter.getLineNumber())));
+          String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression), e, interpreter.getLineNumber())));
     }
 
     return "";
   }
 
-  public Object resolveProperty(Object base, List<String> chain) {
+  /**
+   * Resolve property of bean.
+   *
+   * @param object Bean.
+   * @param propertyNames Names of properties to resolve recursively.
+   * @return Value of property.
+   */
+  public Object resolveProperty(Object object, List<String> propertyNames) {
     ELResolver resolver = elContext.getELResolver();
 
-    Object value = base;
-    for (String name : chain) {
+    Object value = object;
+    for (String propertyName : propertyNames) {
       if (value == null) {
         return null;
       }
 
-      value = resolver.getValue(elContext, value, name);
+      value = resolver.getValue(elContext, value, propertyName);
     }
 
     return value;
