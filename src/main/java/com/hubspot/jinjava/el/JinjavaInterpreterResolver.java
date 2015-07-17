@@ -77,40 +77,47 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     return super.invoke(context, base, method, paramTypes, params);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * If the base object is null, the property will be looked up in the context.
+   */
   @Override
-  public Object getValue(ELContext context, Object base, Object prop) {
-    return getValue(context, base, prop, true);
+  public Object getValue(ELContext context, Object base, Object property) {
+    return getValue(context, base, property, true);
   }
 
-  private Object getValue(ELContext context, Object base, Object prop, boolean errOnUnknownProp) {
-    String property = Objects.toString(prop, "");
+  private Object getValue(ELContext context, Object base, Object property, boolean errOnUnknownProp) {
+    String propertyName = Objects.toString(property, "");
     Object value = null;
 
-    if (ExtendedParser.INTERPRETER.equals(prop)) {
+    if (ExtendedParser.INTERPRETER.equals(property)) {
       value = interpreter;
-    } else if (property.startsWith(ExtendedParser.FILTER_PREFIX)) {
-      value = interpreter.getContext().getFilter(StringUtils.substringAfter(property, ExtendedParser.FILTER_PREFIX));
-    } else if (property.startsWith(ExtendedParser.EXPTEST_PREFIX)) {
-      value = interpreter.getContext().getExpTest(StringUtils.substringAfter(property, ExtendedParser.EXPTEST_PREFIX));
+    } else if (propertyName.startsWith(ExtendedParser.FILTER_PREFIX)) {
+      value = interpreter.getContext().getFilter(StringUtils.substringAfter(propertyName, ExtendedParser.FILTER_PREFIX));
+    } else if (propertyName.startsWith(ExtendedParser.EXPTEST_PREFIX)) {
+      value = interpreter.getContext().getExpTest(StringUtils.substringAfter(propertyName, ExtendedParser.EXPTEST_PREFIX));
     } else {
       if (base == null) {
-        value = interpreter.retraceVariable((String) prop, interpreter.getLineNumber());
+        // Look up property in context.
+        value = interpreter.retraceVariable((String) property, interpreter.getLineNumber());
       } else {
+        // Get property of base object.
         try {
-          value = super.getValue(context, base, property);
+          value = super.getValue(context, base, propertyName);
         } catch (PropertyNotFoundException e) {
           if (errOnUnknownProp) {
-            interpreter.addError(TemplateError.fromUnknownProperty(base, property, interpreter.getLineNumber()));
+            interpreter.addError(TemplateError.fromUnknownProperty(base, propertyName, interpreter.getLineNumber()));
           }
         }
       }
     }
 
     context.setPropertyResolved(true);
-    return wrap(interpreter, value);
+    return wrap(value);
   }
 
-  Object wrap(JinjavaInterpreter interpreter, Object value) {
+  Object wrap(Object value) {
     if (value == null) {
       return null;
     }

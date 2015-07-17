@@ -80,12 +80,9 @@ public class ExpressionResolver {
    * @return Value of property.
    */
   public Object resolveProperty(Object object, List<String> propertyNames) {
-    if (propertyNames.isEmpty()) {
-      // Always wrap resolved objects
-      return resolver.wrap(interpreter, object);
-    }
+    // Always wrap base object.
+    Object value = resolver.wrap(object);
 
-    Object value = object;
     for (String propertyName : propertyNames) {
       if (value == null) {
         return null;
