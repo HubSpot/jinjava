@@ -2,10 +2,12 @@ package com.hubspot.jinjava.el;
 
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 
+import java.util.List;
 import java.util.Objects;
 
 import javax.el.ELContext;
 import javax.el.ELException;
+import javax.el.ELResolver;
 import javax.el.ExpressionFactory;
 import javax.el.PropertyNotFoundException;
 import javax.el.ValueExpression;
@@ -33,9 +35,7 @@ public class ExpressionResolver {
     this.elContext = elContext;
   }
 
-  public Object resolve(String expr, int lineNumber) {
-    interpreter.setLineNumber(lineNumber);
-
+  public Object resolveExpression(String expr) {
     CharSequence cleanExpr = Objects.toString(expr, "").trim();
     if (StringUtils.isBlank(cleanExpr)) {
       return "";
@@ -47,18 +47,32 @@ public class ExpressionResolver {
               .toString(), Object.class);
       return valueExp.getValue(elContext);
     } catch (PropertyNotFoundException e) {
-      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, e.getMessage(), "", lineNumber, e));
+      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, e.getMessage(), "", interpreter.getLineNumber(), e));
     } catch (TreeBuilderException e) {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expr,
-          "Error parsing '" + expr + "': " + StringUtils.substringAfter(e.getMessage(), "': "), lineNumber, e)));
+          "Error parsing '" + expr + "': " + StringUtils.substringAfter(e.getMessage(), "': "), interpreter.getLineNumber(), e)));
     } catch (ELException e) {
-      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expr, e.getMessage(), lineNumber, e)));
+      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expr, e.getMessage(), interpreter.getLineNumber(), e)));
     } catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(
-          String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expr), e, lineNumber)));
+          String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expr), e, interpreter.getLineNumber())));
     }
 
     return "";
   }
 
+  public Object resolveProperty(Object base, List<String> chain) {
+    ELResolver resolver = elContext.getELResolver();
+
+    Object value = base;
+    for (String name : chain) {
+      if (value == null) {
+        return null;
+      }
+
+      value = resolver.getValue(elContext, value, name);
+    }
+
+    return value;
+  }
 }

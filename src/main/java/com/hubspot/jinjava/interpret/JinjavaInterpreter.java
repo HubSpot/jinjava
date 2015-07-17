@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Stack;
 
 import javax.el.ELContext;
-import javax.el.ELResolver;
 import javax.el.ExpressionFactory;
 
 import org.apache.commons.lang3.StringUtils;
@@ -262,10 +261,6 @@ public class JinjavaInterpreter {
     return application.getExpressionFactory();
   }
 
-  public Object resolveELExpression(String expr, int lineNumber) {
-    return expressionResolver.resolve(expr, lineNumber);
-  }
-
   private ELContext createELContext() {
     SimpleContext expContext = new JinjavaELContext(new JinjavaInterpreterResolver(this));
 
@@ -276,6 +271,24 @@ public class JinjavaInterpreter {
     return expContext;
   }
 
+  public Object resolveELExpression(String expr, int lineNumber) {
+    this.lineNumber = lineNumber;
+
+    return expressionResolver.resolveExpression(expr);
+  }
+
+  public Object resolve(Object base, String name) {
+    return resolve(base, Collections.singletonList(name));
+  }
+
+  public Object resolve(Object base, List<String> chain) {
+    return expressionResolver.resolveProperty(base, chain);
+  }
+
+  public int getLineNumber() {
+    return lineNumber;
+  }
+
   public void addError(TemplateError templateError) {
     this.errors.add(templateError);
   }
@@ -284,17 +297,9 @@ public class JinjavaInterpreter {
     return errors;
   }
 
-  public int getLineNumber() {
-    return lineNumber;
-  }
-
-  public void setLineNumber(int lineNumber) {
-    this.lineNumber = lineNumber;
-  }
-
   private static final ThreadLocal<Stack<JinjavaInterpreter>> CURRENT_INTERPRETER = new ThreadLocal<Stack<JinjavaInterpreter>>() {
     @Override
-    protected java.util.Stack<JinjavaInterpreter> initialValue() {
+    protected Stack<JinjavaInterpreter> initialValue() {
       return new Stack<>();
     }
   };
@@ -321,27 +326,5 @@ public class JinjavaInterpreter {
 
   public static final String BLOCK_STUB_START = "___bl0ck___~";
   public static final String BLOCK_STUB_END = "~";
-
-  // Ex VariableChain code
-
-  public Object resolve(Object base, String name) {
-    return resolve(base, Collections.singletonList(name));
-  }
-
-  public Object resolve(Object base, List<String> chain) {
-    ELContext context = createELContext();
-    ELResolver resolver = context.getELResolver();
-
-    Object value = base;
-    for (String name : chain) {
-      if (value == null) {
-        return null;
-      }
-
-      value = resolver.getValue(context, value, name);
-    }
-
-    return value;
-  }
 
 }
