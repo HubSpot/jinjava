@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-import javax.el.ELContext;
 import javax.el.ExpressionFactory;
 
 import org.apache.commons.lang3.StringUtils;
@@ -35,14 +34,10 @@ import com.google.common.collect.Multimap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
-import com.hubspot.jinjava.el.JinjavaELContext;
-import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
-import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TreeParser;
 import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
-import de.odysseus.el.util.SimpleContext;
 
 public class JinjavaInterpreter {
 
@@ -63,7 +58,7 @@ public class JinjavaInterpreter {
     this.config = renderConfig;
     this.application = application;
 
-    this.expressionResolver = new ExpressionResolver(this, createELContext());
+    this.expressionResolver = new ExpressionResolver(this);
   }
 
   public JinjavaInterpreter(JinjavaInterpreter orig) {
@@ -259,16 +254,6 @@ public class JinjavaInterpreter {
 
   public ExpressionFactory getExpressionFactory() {
     return application.getExpressionFactory();
-  }
-
-  private ELContext createELContext() {
-    SimpleContext expContext = new JinjavaELContext(new JinjavaInterpreterResolver(this));
-
-    for (ELFunctionDefinition fn : context.getAllFunctions()) {
-      expContext.setFunction(fn.getNamespace(), fn.getLocalName(), fn.getMethod());
-    }
-
-    return expContext;
   }
 
   public Object resolveELExpression(String expr, int lineNumber) {

@@ -3,9 +3,7 @@ package com.hubspot.jinjava.el;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 
 import java.util.List;
-import java.util.Objects;
 
-import javax.el.ELContext;
 import javax.el.ELException;
 import javax.el.ELResolver;
 import javax.el.ExpressionFactory;
@@ -20,32 +18,35 @@ import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
-
+import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import de.odysseus.el.tree.TreeBuilderException;
 
 public class ExpressionResolver {
 
-  private JinjavaInterpreter interpreter;
-  private ExpressionFactory expressionFactory;
-  private ELContext elContext;
+  private final JinjavaInterpreter interpreter;
+  private final ExpressionFactory expressionFactory;
+  private final JinjavaELContext elContext;
 
-  public ExpressionResolver(JinjavaInterpreter interpreter, ELContext elContext) {
+  public ExpressionResolver(JinjavaInterpreter interpreter) {
     this.interpreter = interpreter;
     this.expressionFactory = interpreter.getExpressionFactory();
-    this.elContext = elContext;
+
+    this.elContext = new JinjavaELContext(new JinjavaInterpreterResolver(interpreter));
+    for (ELFunctionDefinition fn : interpreter.getContext().getAllFunctions()) {
+      this.elContext.setFunction(fn.getNamespace(), fn.getLocalName(), fn.getMethod());
+    }
   }
 
   public Object resolveExpression(String expr) {
-    CharSequence cleanExpr = Objects.toString(expr, "").trim();
-    if (StringUtils.isBlank(cleanExpr)) {
+    if (StringUtils.isBlank(expr)) {
       return "";
     }
 
     try {
-      ValueExpression valueExp = expressionFactory.createValueExpression(
-          elContext, new StringBuilder("#{").append(cleanExpr).append('}')
-              .toString(), Object.class);
+      String elExpression = "#{" + expr.trim() + "}";
+      ValueExpression valueExp = expressionFactory.createValueExpression(elContext, elExpression, Object.class);
       return valueExp.getValue(elContext);
+
     } catch (PropertyNotFoundException e) {
       interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, e.getMessage(), "", interpreter.getLineNumber(), e));
     } catch (TreeBuilderException e) {
