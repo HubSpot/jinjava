@@ -3,7 +3,6 @@ package com.hubspot.jinjava.el;
 import java.lang.reflect.Method;
 
 import javax.el.ELResolver;
-import javax.el.FunctionMapper;
 
 import de.odysseus.el.util.SimpleContext;
 

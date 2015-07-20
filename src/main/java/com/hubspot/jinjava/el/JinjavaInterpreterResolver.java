@@ -38,6 +38,7 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
+
 import de.odysseus.el.util.SimpleResolver;
 
 public class JinjavaInterpreterResolver extends SimpleResolver {
@@ -117,6 +118,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     return wrap(value);
   }
 
+  @SuppressWarnings("unchecked")
   Object wrap(Object value) {
     if (value == null) {
       return null;
