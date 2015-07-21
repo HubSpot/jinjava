@@ -17,7 +17,6 @@ import javax.el.ArrayELResolver;
 import javax.el.CompositeELResolver;
 import javax.el.ELContext;
 import javax.el.ELResolver;
-import javax.el.ListELResolver;
 import javax.el.MapELResolver;
 import javax.el.PropertyNotFoundException;
 import javax.el.ResourceBundleELResolver;
@@ -28,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
+import com.hubspot.jinjava.el.ext.JinjavaListELResolver;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -46,7 +46,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
   private static final ELResolver DEFAULT_RESOLVER_READ_WRITE = new CompositeELResolver() {
     {
       add(new ArrayELResolver(false));
-      add(new ListELResolver(false));
+      add(new JinjavaListELResolver(false));
       add(new MapELResolver(false));
       add(new ResourceBundleELResolver());
       add(new JinjavaBeanELResolver(false));
