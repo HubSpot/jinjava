@@ -3,7 +3,6 @@ package com.hubspot.jinjava.lib.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -11,7 +10,6 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
-import com.hubspot.jinjava.util.VariableChain;
 
 @JinjavaDoc(
     value = "Applies a filter on a sequence of objects or looks up an attribute.",
@@ -54,7 +52,7 @@ public class MapFilter implements Filter {
         val = apply.filter(val, interpreter);
       }
       else {
-        val = new VariableChain(Lists.newArrayList(attr), val).resolve();
+        val = interpreter.resolveProperty(val, attr);
       }
 
       result.add(val);

@@ -99,6 +99,8 @@ public class ImportTag implements Tag {
         JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
         child.render(node);
 
+        interpreter.getErrors().addAll(child.getErrors());
+
         Map<String, Object> childBindings = child.getContext().getSessionBindings();
         for (Map.Entry<String, MacroFunction> macro : child.getContext().getGlobalMacros().entrySet()) {
           childBindings.put(macro.getKey(), macro.getValue());

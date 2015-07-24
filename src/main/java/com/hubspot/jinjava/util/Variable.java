@@ -15,11 +15,11 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.util;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 public class Variable {
@@ -38,7 +38,7 @@ public class Variable {
   private void split(String variable) {
     if (!variable.contains(".")) {
       name = variable;
-      chainList = null;
+      chainList = Collections.emptyList();
       return;
     }
 
@@ -52,11 +52,7 @@ public class Variable {
   }
 
   public Object resolve(Object value) {
-    if (chainList != null) {
-      return JinjavaInterpreterResolver.wrap(interpreter, new VariableChain(chainList, value).resolve());
-    } else {
-      return JinjavaInterpreterResolver.wrap(interpreter, value);
-    }
+    return interpreter.resolveProperty(value, chainList);
   }
 
   @Override

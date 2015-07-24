@@ -1,5 +1,15 @@
 # Jinjava Releases #
 
+### Version 2.0.8 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.8%22)) ###
+
+* Updated escape filter to apply to string representation of all objects, not just string instances
+* Reworked variable resolution to use juel rather than custom approach
+
+### Version 2.0.7 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.7%22)) ###
+
+* Propagate interpreter errors from child interpreters
+* Changed error level to WARN for invalid date format strings, invalid locale strings
+
 ### Version 2.0.6 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.6%22)) ###
 
 * Fix ifchanged end tag name

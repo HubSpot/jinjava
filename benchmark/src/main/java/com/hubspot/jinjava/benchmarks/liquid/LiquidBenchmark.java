@@ -19,11 +19,11 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import ch.qos.logback.classic.Level;
-
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.Node;
+
+import ch.qos.logback.classic.Level;
 
 @State(Scope.Benchmark)
 public class LiquidBenchmark {
@@ -44,7 +44,7 @@ public class LiquidBenchmark {
     jinjava.getGlobalContext().registerClasses(
         Filters.OverrideDateFilter.class,
 
-        Filters.JsonFilter.class,
+    Filters.JsonFilter.class,
         Filters.LinkToAddTagFilter.class,
         Filters.LinkToRemoveTagFilter.class,
         Filters.LinkToTagFilter.class,
@@ -61,19 +61,18 @@ public class LiquidBenchmark {
         Filters.WeightFilter.class,
         Filters.WeightWithUnitFilter.class,
 
-        Tags.AssignTag.class,
+    Tags.AssignTag.class,
         Tags.CommentFormTag.class,
         Tags.PaginateTag.class,
-        Tags.TableRowTag.class
-    );
+        Tags.TableRowTag.class);
 
     templates = new ArrayList<>();
 
-    Map<String, ?> db = (Map<String, ?>) new Yaml().load(readFileToString(new File("liquid/performance/shopify/vision.database.yml"), StandardCharsets.UTF_8));
-    bindings = new HashMap<>(db);
+    Map<String, Object> db = (Map<String, Object>) new Yaml().load(readFileToString(new File("liquid/performance/shopify/vision.database.yml"), StandardCharsets.UTF_8));
+    bindings = new HashMap<>(initDb(db));
 
     File baseDir = new File("liquid/performance/tests");
-    for(File tmpl : listFiles(baseDir, new String[]{"liquid"}, true)){
+    for (File tmpl : listFiles(baseDir, new String[] { "liquid" }, true)) {
 
       String template = readFileToString(tmpl, StandardCharsets.UTF_8);
       // convert filter syntax from ':' to '()'
@@ -96,13 +95,40 @@ public class LiquidBenchmark {
     }
   }
 
+  @SuppressWarnings("unchecked")
+  private Map<String, Object> initDb(Map<String, Object> db) {
+    for (Map.Entry<String, ?> entry : db.entrySet()) {
+      if (entry.getValue() instanceof List) {
+        List<?> values = (List<?>) entry.getValue();
+
+        if (values.size() > 0 && values.get(0) instanceof Map) {
+          Map<String, Object> byHandle = new HashMap<>();
+
+          for (Map<String, Object> val : (List<Map<String, Object>>) values) {
+            String handle = val.getOrDefault("handle", "").toString();
+
+            if (handle.trim().length() > 0) {
+              byHandle.put(handle, val);
+            }
+          }
+
+          if (byHandle.size() > 0) {
+            db.put(entry.getKey(), byHandle);
+          }
+        }
+      }
+    }
+
+    return db;
+  }
+
   @Benchmark
   public void parse(Blackhole blackhole) {
     JinjavaInterpreter interpreter = jinjava.newInterpreter();
 
-    for(String template : templates) {
+    for (String template : templates) {
       Node parsed = interpreter.parse(template);
-      if(blackhole != null) {
+      if (blackhole != null) {
         blackhole.consume(parsed);
       }
     }
@@ -110,9 +136,9 @@ public class LiquidBenchmark {
 
   @Benchmark
   public void parseAndRender(Blackhole blackhole) {
-    for(String template : templates) {
+    for (String template : templates) {
       String result = jinjava.render(template, bindings);
-      if(blackhole != null) {
+      if (blackhole != null) {
         blackhole.consume(result);
       }
     }

@@ -1,13 +1,10 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Arrays;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.util.VariableChain;
 
 @JinjavaDoc(
     value = "Renders the attribute of a dictionary",
@@ -33,7 +30,7 @@ public class AttrFilter implements Filter {
       throw new InterpretException(getName() + " requires an attr name to use", interpreter.getLineNumber());
     }
 
-    return new VariableChain(Arrays.asList(args[0]), var).resolve();
+    return interpreter.resolveProperty(var, args[0]);
   }
 
 }

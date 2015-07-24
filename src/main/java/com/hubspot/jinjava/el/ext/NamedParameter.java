@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.el.ext;
 
+import java.util.Objects;
+
 public class NamedParameter {
 
   private final String name;
@@ -20,7 +22,7 @@ public class NamedParameter {
 
   @Override
   public String toString() {
-    return value.toString();
+    return Objects.toString(value, "");
   }
 
 }
