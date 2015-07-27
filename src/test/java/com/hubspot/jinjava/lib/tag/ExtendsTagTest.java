@@ -6,7 +6,12 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
+import com.google.common.collect.SetMultimap;
+import com.hubspot.jinjava.interpret.RenderResult;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Before;
@@ -60,6 +65,17 @@ public class ExtendsTagTest {
 
     assertThat(dom.select(".sidebar p").text()).isEqualTo("this is a sidebar.");
     assertThat(dom.select(".sidebar h3").text()).isEqualTo("Table Of Contents");
+  }
+
+  @Test
+  public void itHasExtendsReferenceInContext() throws Exception {
+    RenderResult renderResult = jinjava.renderForResult(locator.fixture("super-child.html"), new HashMap<String, Object>());
+    SetMultimap<String, String> dependencies = renderResult.getContext().getDependencies();
+
+    assertThat(dependencies.size()).isEqualTo(1);
+    assertThat(dependencies.get("templates")).isNotEmpty();
+
+    assertThat(dependencies.get("templates").contains("super-base.html"));
   }
 
   private static class ExtendsTagTestResourceLocator implements ResourceLocator {
