@@ -67,7 +67,12 @@ public class IncludeTag implements Tag {
       child.getContext().addDependency("templates", templateFile);
       child.getContext().put(INCLUDE_PATH_PROPERTY, path);
       interpreter.getContext().put(JinjavaInterpreter.INSERT_FLAG, true);
-      return child.render(node);
+
+      String result = child.render(node);
+      interpreter.getErrors().addAll(child.getErrors());
+
+      return result;
+
     } catch (IOException e) {
       throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber());
     }

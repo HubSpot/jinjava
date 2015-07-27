@@ -119,7 +119,11 @@ public class StrftimeFormatter {
     case "full":
       return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL);
     default:
-      return DateTimeFormatter.ofPattern(toJavaDateTimeFormat(strftime));
+      try {
+        return DateTimeFormatter.ofPattern(toJavaDateTimeFormat(strftime));
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException("Invalid date format [" + strftime + "]: " + e.getMessage(), e);
+      }
     }
   }
 

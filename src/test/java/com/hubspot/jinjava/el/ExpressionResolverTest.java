@@ -9,6 +9,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.ForwardingList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.hubspot.jinjava.Jinjava;
@@ -16,6 +17,7 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
 @SuppressWarnings("unchecked")
@@ -120,6 +122,32 @@ public class ExpressionResolverTest {
 
     Object val = interpreter.resolveELExpression("thedict.inner[0]", -1);
     assertThat(val).isEqualTo("val");
+  }
+
+  public static class MyCustomList<T> extends ForwardingList<T>implements PyWrapper {
+    private final List<T> list;
+
+    public MyCustomList(List<T> list) {
+      this.list = list;
+    }
+
+    @Override
+    protected List<T> delegate() {
+      return list;
+    }
+
+    public int getTotalCount() {
+      return list.size();
+    }
+  }
+
+  @Test
+  public void callCustomListProperty() throws Exception {
+    List<Integer> myList = new MyCustomList<>(Lists.newArrayList(1, 2, 3, 4));
+
+    context.put("mylist", myList);
+    Object val = interpreter.resolveELExpression("mylist.total_count", -1);
+    assertThat(val).isEqualTo(4);
   }
 
   @Test

@@ -19,12 +19,10 @@ import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
-
-import javax.el.ELContext;
-import javax.el.ExpressionFactory;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -34,21 +32,15 @@ import com.google.common.collect.Multimap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
-import com.hubspot.jinjava.el.JinjavaELContext;
-import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
-import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TreeParser;
-import com.hubspot.jinjava.util.JinjavaPropertyNotResolvedException;
 import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
-
-import de.odysseus.el.util.SimpleContext;
 
 public class JinjavaInterpreter {
 
   private final Multimap<String, List<? extends Node>> blocks = ArrayListMultimap.create();
-  private final LinkedList<Node> extendParentRoots = new LinkedList<Node>();
+  private final LinkedList<Node> extendParentRoots = new LinkedList<>();
 
   private Context context;
   private final JinjavaConfig config;
@@ -64,7 +56,7 @@ public class JinjavaInterpreter {
     this.config = renderConfig;
     this.application = application;
 
-    this.expressionResolver = new ExpressionResolver(this, createELContext());
+    this.expressionResolver = new ExpressionResolver(this, application.getExpressionFactory());
   }
 
   public JinjavaInterpreter(JinjavaInterpreter orig) {
@@ -204,11 +196,7 @@ public class JinjavaInterpreter {
     String varName = var.getName();
     Object obj = context.get(varName);
     if (obj != null) {
-      try {
-        obj = var.resolve(obj);
-      } catch (JinjavaPropertyNotResolvedException e) {
-        addError(TemplateError.fromUnknownProperty(obj, variable, lineNumber));
-      }
+      obj = var.resolve(obj);
     }
     return obj;
   }
@@ -262,22 +250,43 @@ public class JinjavaInterpreter {
     return config;
   }
 
-  public ExpressionFactory getExpressionFactory() {
-    return application.getExpressionFactory();
+  /**
+   * Resolve expression against current context.
+   *
+   * @param expression Jinja expression.
+   * @param lineNumber Line number of expression.
+   * @return Value of expression.
+   */
+  public Object resolveELExpression(String expression, int lineNumber) {
+    this.lineNumber = lineNumber;
+
+    return expressionResolver.resolveExpression(expression);
   }
 
-  public Object resolveELExpression(String expr, int lineNumber) {
-    return expressionResolver.resolve(expr, lineNumber);
+  /**
+   * Resolve property of bean.
+   *
+   * @param object Bean.
+   * @param propertyName Name of property to resolve.
+   * @return Value of property.
+   */
+  public Object resolveProperty(Object object, String propertyName) {
+    return resolveProperty(object, Collections.singletonList(propertyName));
   }
 
-  private ELContext createELContext() {
-    SimpleContext expContext = new JinjavaELContext(new JinjavaInterpreterResolver(this));
+  /**
+   * Resolve property of bean.
+   *
+   * @param object Bean.
+   * @param propertyNames Names of properties to resolve recursively.
+   * @return Value of property.
+   */
+  public Object resolveProperty(Object object, List<String> propertyNames) {
+    return expressionResolver.resolveProperty(object, propertyNames);
+  }
 
-    for (ELFunctionDefinition fn : context.getAllFunctions()) {
-      expContext.setFunction(fn.getNamespace(), fn.getLocalName(), fn.getMethod());
-    }
-
-    return expContext;
+  public int getLineNumber() {
+    return lineNumber;
   }
 
   public void addError(TemplateError templateError) {
@@ -288,17 +297,9 @@ public class JinjavaInterpreter {
     return errors;
   }
 
-  public int getLineNumber() {
-    return lineNumber;
-  }
-
-  public void setLineNumber(int lineNumber) {
-    this.lineNumber = lineNumber;
-  }
-
   private static final ThreadLocal<Stack<JinjavaInterpreter>> CURRENT_INTERPRETER = new ThreadLocal<Stack<JinjavaInterpreter>>() {
     @Override
-    protected java.util.Stack<JinjavaInterpreter> initialValue() {
+    protected Stack<JinjavaInterpreter> initialValue() {
       return new Stack<>();
     }
   };

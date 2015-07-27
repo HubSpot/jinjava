@@ -14,7 +14,6 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
-import com.hubspot.jinjava.util.VariableChain;
 
 @JinjavaDoc(
     value = "Group a sequence of objects by a common attribute.",
@@ -55,7 +54,7 @@ public class GroupByFilter implements Filter {
     while (loop.hasNext()) {
       Object val = loop.next();
 
-      String grouper = Objects.toString(new VariableChain(Lists.newArrayList(attr), val).resolve());
+      String grouper = Objects.toString(interpreter.resolveProperty(val, attr));
       groupBuckets.put(grouper, val);
     }
 

@@ -24,12 +24,7 @@ public class EscapeFilterTest {
     assertThat(f.filter("", interpreter)).isEqualTo("");
     assertThat(f.filter("me & you", interpreter)).isEqualTo("me &amp; you");
     assertThat(f.filter("jared's & ted's bogus journey", interpreter)).isEqualTo("jared&#39;s &amp; ted&#39;s bogus journey");
-  }
-
-  @Test
-  public void itDoesntAffectNonStrings() {
-    Integer i = Integer.valueOf(123);
-    assertThat(f.filter(i, interpreter)).isSameAs(i);
+    assertThat(f.filter(1, interpreter)).isEqualTo("1");
   }
 
 }
