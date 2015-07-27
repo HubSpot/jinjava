@@ -6,21 +6,18 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
-import com.google.common.collect.SetMultimap;
-import com.hubspot.jinjava.interpret.RenderResult;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.SetMultimap;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.loader.ResourceLocator;
 
 public class ExtendsTagTest {
