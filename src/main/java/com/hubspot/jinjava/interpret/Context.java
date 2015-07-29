@@ -1,31 +1,28 @@
 /**********************************************************************
-Copyright (c) 2014 HubSpot Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ * Copyright (c) 2014 HubSpot Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.interpret;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
-
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.lib.exptest.ExpTestLibrary;
@@ -40,7 +37,6 @@ import com.hubspot.jinjava.util.ScopeMap;
 
 public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
-  private boolean isGlobalContext;
 
   private final SetMultimap<String, String> dependencies = HashMultimap.create();
 
@@ -59,7 +55,6 @@ public class Context extends ScopeMap<String, Object> {
     super(parent);
 
     this.parent = parent;
-    this.isGlobalContext = false;
     this.expTestLibrary = new ExpTestLibrary(parent == null);
     this.filterLibrary = new FilterLibrary(parent == null);
     this.functionLibrary = new FunctionLibrary(parent == null);
@@ -110,26 +105,15 @@ public class Context extends ScopeMap<String, Object> {
     return getGlobalMacro(identifier) != null;
   }
 
-  public void setIsGlobalContext(Boolean isGlobalContext) {
-    this.isGlobalContext = isGlobalContext;
-  }
-
-  public boolean getIsGlobalContext() {
-    return this.isGlobalContext;
-  }
-
-
   @SafeVarargs
   @SuppressWarnings("unchecked")
   public final void registerClasses(Class<? extends Importable>... classes) {
     for (Class<? extends Importable> c : classes) {
       if (ExpTest.class.isAssignableFrom(c)) {
         expTestLibrary.registerClasses((Class<? extends ExpTest>) c);
-      }
-      else if (Filter.class.isAssignableFrom(c)) {
+      } else if (Filter.class.isAssignableFrom(c)) {
         filterLibrary.registerClasses((Class<? extends Filter>) c);
-      }
-      else if (Tag.class.isAssignableFrom(c)) {
+      } else if (Tag.class.isAssignableFrom(c)) {
         tagLibrary.registerClasses((Class<? extends Tag>) c);
       }
     }

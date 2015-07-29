@@ -5,17 +5,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
-import com.google.common.collect.SetMultimap;
-import com.hubspot.jinjava.interpret.RenderResult;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.SetMultimap;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.RenderResult;
 
 public class IncludeTagTest {
 
