@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
@@ -236,6 +237,21 @@ public class TokenScannerTest {
     assertThat(tokens).hasSize(1);
     assertThat(tokens.get(0).getType()).isEqualTo(TokenScannerSymbols.TOKEN_TAG);
     assertThat(tokens.get(0).content.trim()).isEqualTo("widget_block rich_text \"module\" overrideable=True, label='<p>We\\'ve included a great symbol</p>'");
+  }
+
+  @Test
+  public void testEscapedBackslashWithinAttrValue() {
+    List<Token> tokens = tokens("escape-char-tokens");
+
+    List<String> tagHelpers = tokens.stream()
+        .filter(t -> t.getType() == TokenScannerSymbols.TOKEN_TAG)
+        .map(t -> ((TagToken) t).getHelpers().trim().substring(1, 26))
+        .collect(Collectors.toList());
+
+    assertThat(tagHelpers).containsExactly(
+        "module_143819779285827357",
+        "module_143819780991527688",
+        "module_143819781983527999");
   }
 
   private List<Token> tokens(String fixture) {
