@@ -1,5 +1,9 @@
 # Jinjava Releases #
 
+### Version 2.0.9 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.9%22)) ###
+
+* 
+
 ### Version 2.0.8 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.8%22)) ###
 
 * Updated escape filter to apply to string representation of all objects, not just string instances
