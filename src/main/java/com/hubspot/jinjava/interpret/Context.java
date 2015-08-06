@@ -230,7 +230,7 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   private Context getHighestParentContext() {
-    Context highestParentContext = parent;
+    Context highestParentContext = parent != null ? parent : this;
     Context currentParentContext = highestParentContext.getParent();
 
     while (currentParentContext != null) {

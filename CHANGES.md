@@ -1,10 +1,15 @@
 # Jinjava Releases #
 
+### Version 2.0.9 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.9%22)) ###
+
+* 
+
 ### Version 2.0.8 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.8%22)) ###
 
 * Updated escape filter to apply to string representation of all objects, not just string instances
 * Reworked variable resolution to use juel rather than custom approach
 * Adding ability to track dependencies used in rendering templates
+* fix issue with handling escape sequences in quoted strings within block tags
 
 ### Version 2.0.7 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.7%22)) ###
 
