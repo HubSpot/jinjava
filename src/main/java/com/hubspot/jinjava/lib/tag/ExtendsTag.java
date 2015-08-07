@@ -89,7 +89,7 @@ public class ExtendsTag implements Tag {
       String template = interpreter.getResource(templateFile);
       Node node = interpreter.parse(template);
       JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
-      child.getContext().addDependency("templates", templateFile);
+      child.getContext().addDependency("extension_resources", templateFile);
       interpreter.addExtendParentRoot(node);
       return "";
     } catch (IOException e) {
