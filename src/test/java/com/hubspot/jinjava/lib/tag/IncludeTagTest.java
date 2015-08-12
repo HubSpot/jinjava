@@ -53,10 +53,10 @@ public class IncludeTagTest {
     SetMultimap<String, String> dependencies = renderResult.getContext().getDependencies();
 
     assertThat(dependencies.size()).isEqualTo(2);
-    assertThat(dependencies.get("templates")).isNotEmpty();
+    assertThat(dependencies.get("coded_files")).isNotEmpty();
 
-    assertThat(dependencies.get("templates").contains("{% include \"tags/includetag/hello.html\" %}"));
-    assertThat(dependencies.get("templates").contains("{% include \"tags/includetag/cat.html\" %}"));
+    assertThat(dependencies.get("coded_files").contains("{% include \"tags/includetag/hello.html\" %}"));
+    assertThat(dependencies.get("coded_files").contains("{% include \"tags/includetag/cat.html\" %}"));
   }
 
 }

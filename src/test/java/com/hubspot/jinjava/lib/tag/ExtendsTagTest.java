@@ -70,9 +70,9 @@ public class ExtendsTagTest {
     SetMultimap<String, String> dependencies = renderResult.getContext().getDependencies();
 
     assertThat(dependencies.size()).isEqualTo(1);
-    assertThat(dependencies.get("templates")).isNotEmpty();
+    assertThat(dependencies.get("coded_files")).isNotEmpty();
 
-    assertThat(dependencies.get("templates").contains("super-base.html"));
+    assertThat(dependencies.get("coded_files").contains("super-base.html"));
   }
 
   private static class ExtendsTagTestResourceLocator implements ResourceLocator {
