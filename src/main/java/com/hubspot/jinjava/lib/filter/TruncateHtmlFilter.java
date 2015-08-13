@@ -4,6 +4,7 @@ import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
 import java.util.Objects;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -16,19 +17,15 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.fn.Functions;
 
-@JinjavaDoc(
-    value = "Truncates a given string, respecting html markup (i.e. will properly close all nested tags)",
-    params = {
-        @JinjavaParam(value = "html", desc = "HTML to truncate"),
-        @JinjavaParam(value = "length", type = "number", defaultValue = "255", desc = "Length at which to truncate text (HTML characters not included)"),
-        @JinjavaParam(value = "end", defaultValue = "...", desc = "The characters that will be added to indicate where the text was truncated")
-    },
-    snippets = {
-        @JinjavaSnippet(
-            code = "{% set html_text = \"<p>I want to truncate this text without breaking my HTML<p>\" %}",
-            output = "<p>I want to truncate this text without breaking my HTML</p>")
-    })
+@JinjavaDoc(value = "Truncates a given string, respecting html markup (i.e. will properly close all nested tags)", params = {
+    @JinjavaParam(value = "html", desc = "HTML to truncate"),
+    @JinjavaParam(value = "length", type = "number", defaultValue = "255", desc = "Length at which to truncate text (HTML characters not included)"),
+    @JinjavaParam(value = "end", defaultValue = "...", desc = "The characters that will be added to indicate where the text was truncated")
+}, snippets = {
+    @JinjavaSnippet(code = "{% set html_text = \"<p>I want to truncate this text without breaking my HTML<p>\" %}", output = "<p>I want to truncate this text without breaking my HTML</p>")
+})
 public class TruncateHtmlFilter implements Filter {
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
   private static final String DEFAULT_END = "...";
@@ -56,8 +53,13 @@ public class TruncateHtmlFilter implements Filter {
         ends = Objects.toString(args[1]);
       }
 
+      boolean killwords = false;
+      if (args.length > 2) {
+        killwords = BooleanUtils.toBoolean(args[2]);
+      }
+
       Document dom = Jsoup.parseBodyFragment((String) var);
-      ContentTruncatingNodeVisitor visitor = new ContentTruncatingNodeVisitor(length, ends);
+      ContentTruncatingNodeVisitor visitor = new ContentTruncatingNodeVisitor(length, ends, killwords);
       dom.select("body").traverse(visitor);
       dom.select(".__deleteme").remove();
 
@@ -71,10 +73,12 @@ public class TruncateHtmlFilter implements Filter {
     private int maxTextLen;
     private int textLen;
     private String ending;
+    private boolean killwords;
 
-    public ContentTruncatingNodeVisitor(int maxTextLen, String ending) {
+    public ContentTruncatingNodeVisitor(int maxTextLen, String ending, boolean killwords) {
       this.maxTextLen = maxTextLen;
       this.ending = ending;
+      this.killwords = killwords;
     }
 
     @Override
@@ -85,12 +89,15 @@ public class TruncateHtmlFilter implements Filter {
 
         if (textLen >= maxTextLen) {
           text.text("");
-        }
-        else if (textLen + textContent.length() > maxTextLen) {
-          text.text(textContent.substring(0, (maxTextLen - textLen)) + ending);
+        } else if (textLen + textContent.length() > maxTextLen) {
+          int ptr = maxTextLen - textLen;
+          if (!killwords) {
+            ptr = Functions.movePointerToJustBeforeLastWord(ptr, textContent) - 1;
+          }
+
+          text.text(textContent.substring(0, ptr) + ending);
           textLen = maxTextLen;
-        }
-        else {
+        } else {
           textLen += textContent.length();
         }
       }

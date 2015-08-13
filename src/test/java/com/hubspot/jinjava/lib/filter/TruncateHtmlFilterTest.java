@@ -26,8 +26,17 @@ public class TruncateHtmlFilterTest {
 
   @Test
   public void itPreservesEndTagsWhenTruncatingWithinTagContent() {
-    String result = (String) filter.filter(fixture("filter/truncatehtml/long-content-with-tags.html"), interpreter, "32");
+    String result = (String) filter.filter(fixture("filter/truncatehtml/long-content-with-tags.html"), interpreter, "33");
     assertThat(result).isEqualTo("<h1>HTML Ipsum Presents</h1> \n<p><strong>Pellentesque...</strong></p>");
+  }
+
+  @Test
+  public void itDoesntChopWordsWhenSpecified() {
+    String result = (String) filter.filter(fixture("filter/truncatehtml/long-content-with-tags.html"), interpreter, "35");
+    assertThat(result).isEqualTo("<h1>HTML Ipsum Presents</h1> \n<p><strong>Pellentesque...</strong></p>");
+
+    result = (String) filter.filter(fixture("filter/truncatehtml/long-content-with-tags.html"), interpreter, "35", "...", "true");
+    assertThat(result).isEqualTo("<h1>HTML Ipsum Presents</h1> \n<p><strong>Pellentesque ha...</strong></p>");
   }
 
   private static String fixture(String name) {

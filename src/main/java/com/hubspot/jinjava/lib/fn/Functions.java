@@ -23,16 +23,13 @@ import com.hubspot.jinjava.tree.Node;
 
 public class Functions {
 
-  @JinjavaDoc(
-      value = "Only usable within blocks, will render the contents of the parent block by calling super.",
-      snippets = {
-          @JinjavaSnippet(desc = "This gives back the results of the parent block",
-              code = "{% block sidebar %}\n" +
-                  "    <h3>Table Of Contents</h3>\n\n" +
-                  "    ...\n" +
-                  "    {{ super() }}\n" +
-                  "{% endblock %}")
-      })
+  @JinjavaDoc(value = "Only usable within blocks, will render the contents of the parent block by calling super.", snippets = {
+      @JinjavaSnippet(desc = "This gives back the results of the parent block", code = "{% block sidebar %}\n" +
+          "    <h3>Table Of Contents</h3>\n\n" +
+          "    ...\n" +
+          "    {{ super() }}\n" +
+          "{% endblock %}")
+  })
   public static String renderSuperBlock() {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     StringBuilder result = new StringBuilder();
@@ -61,17 +58,13 @@ public class Functions {
 
     if (var == null) {
       d = ZonedDateTime.now(ZoneOffset.UTC);
-    }
-    else if (var instanceof Long) {
+    } else if (var instanceof Long) {
       d = ZonedDateTime.ofInstant(Instant.ofEpochMilli((long) var), ZoneOffset.UTC);
-    }
-    else if (var instanceof PyishDate) {
+    } else if (var instanceof PyishDate) {
       d = ((PyishDate) var).toDateTime();
-    }
-    else if (var instanceof ZonedDateTime) {
+    } else if (var instanceof ZonedDateTime) {
       d = (ZonedDateTime) var;
-    }
-    else if (!ZonedDateTime.class.isAssignableFrom(var.getClass())) {
+    } else if (!ZonedDateTime.class.isAssignableFrom(var.getClass())) {
       throw new InterpretException("Input to datetimeformat function must be a date object, was: " + var.getClass());
     }
 
@@ -81,8 +74,7 @@ public class Functions {
 
     if (format.length > 0) {
       return StrftimeFormatter.format(d, format[0]);
-    }
-    else {
+    } else {
       return StrftimeFormatter.format(d);
     }
   }
@@ -90,12 +82,11 @@ public class Functions {
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
   private static final String DEFAULT_END = "...";
 
-  @JinjavaDoc(value = "truncates a given string to a specified length",
-      params = {
-          @JinjavaParam("s"),
-          @JinjavaParam(value = "length", type = "number", defaultValue = "255"),
-          @JinjavaParam(value = "end", defaultValue = "...")
-      })
+  @JinjavaDoc(value = "truncates a given string to a specified length", params = {
+      @JinjavaParam("s"),
+      @JinjavaParam(value = "length", type = "number", defaultValue = "255"),
+      @JinjavaParam(value = "end", defaultValue = "...")
+  })
   public static Object truncate(Object var, Object... arg) {
     if (var instanceof String) {
       int length = DEFAULT_TRUNCATE_LENGTH;
@@ -138,7 +129,7 @@ public class Functions {
     return var;
   }
 
-  private static int movePointerToJustBeforeLastWord(int pointer, String s) {
+  public static int movePointerToJustBeforeLastWord(int pointer, String s) {
     while (pointer > 0 && pointer < s.length()) {
       if (Character.isWhitespace(s.charAt(--pointer))) {
         break;
