@@ -22,9 +22,10 @@ import com.hubspot.jinjava.lib.fn.Functions;
 @JinjavaDoc(value = "Truncates a given string, respecting html markup (i.e. will properly close all nested tags)", params = {
     @JinjavaParam(value = "html", desc = "HTML to truncate"),
     @JinjavaParam(value = "length", type = "number", defaultValue = "255", desc = "Length at which to truncate text (HTML characters not included)"),
-    @JinjavaParam(value = "end", defaultValue = "...", desc = "The characters that will be added to indicate where the text was truncated")
+    @JinjavaParam(value = "end", defaultValue = "...", desc = "The characters that will be added to indicate where the text was truncated"),
+    @JinjavaParam(value = "breakword", type = "boolean", defaultValue = "false", desc = "If set to true, text will be truncated in the middle of words")
 }, snippets = {
-    @JinjavaSnippet(code = "{% set html_text = \"<p>I want to truncate this text without breaking my HTML<p>\" %}", output = "<p>I want to truncate this text without breaking my HTML</p>")
+    @JinjavaSnippet(code = "{{ \"<p>I want to truncate this text without breaking my HTML<p>\"|truncatehtml(28, '..', false) }}", output = "<p>I want to truncate this text without breaking my HTML</p>")
 })
 public class TruncateHtmlFilter implements Filter {
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
