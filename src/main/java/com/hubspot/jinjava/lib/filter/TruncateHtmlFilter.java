@@ -25,7 +25,7 @@ import com.hubspot.jinjava.lib.fn.Functions;
     @JinjavaParam(value = "end", defaultValue = "...", desc = "The characters that will be added to indicate where the text was truncated"),
     @JinjavaParam(value = "breakword", type = "boolean", defaultValue = "false", desc = "If set to true, text will be truncated in the middle of words")
 }, snippets = {
-    @JinjavaSnippet(code = "{{ \"<p>I want to truncate this text without breaking my HTML<p>\"|truncatehtml(28, '..', false) %}", output = "<p>I want to truncate this text without breaking my HTML</p>")
+    @JinjavaSnippet(code = "{{ \"<p>I want to truncate this text without breaking my HTML<p>\"|truncatehtml(28, '..', false) }}", output = "<p>I want to truncate this text without breaking my HTML</p>")
 })
 public class TruncateHtmlFilter implements Filter {
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
