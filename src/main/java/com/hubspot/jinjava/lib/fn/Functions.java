@@ -58,8 +58,8 @@ public class Functions {
 
     if (var == null) {
       d = ZonedDateTime.now(ZoneOffset.UTC);
-    } else if (var instanceof Long) {
-      d = ZonedDateTime.ofInstant(Instant.ofEpochMilli((long) var), ZoneOffset.UTC);
+    } else if (var instanceof Number) {
+      d = ZonedDateTime.ofInstant(Instant.ofEpochMilli(((Number) var).longValue()), ZoneOffset.UTC);
     } else if (var instanceof PyishDate) {
       d = ((PyishDate) var).toDateTime();
     } else if (var instanceof ZonedDateTime) {
