@@ -16,23 +16,23 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.JinjavaConfig;
 
 public class TokenScannerTest {
-  JinjavaInterpreter interpreter;
-  TokenScanner scanner;
-  String script;
+  private JinjavaConfig config;
+  private String script;
+
+  private TokenScanner scanner;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
+    config = JinjavaConfig.newBuilder().build();
   }
 
   @Test
   public void test2() {
     script = "{{abc.b}}{% if x %}{{abc{%endif";
-    scanner = new TokenScanner(script);
+    scanner = new TokenScanner(script, config);
     assertEquals("{{abc.b}}", scanner.next().image);
     assertEquals("if x", scanner.next().content.trim());
     assertEquals("{{abc{%endif", scanner.next().content.trim());
@@ -41,7 +41,7 @@ public class TokenScannerTest {
   @Test
   public void test3() {
     script = "{{abc.b}}{% if x %}{{{abc}}{%endif%}";
-    scanner = new TokenScanner(script);
+    scanner = new TokenScanner(script, config);
     assertEquals("{{abc.b}}", scanner.next().image);
     assertEquals("if x", scanner.next().content.trim());
     Token tk = scanner.next();
@@ -53,7 +53,7 @@ public class TokenScannerTest {
   @Test
   public void test4() {
     script = "{{abc.b}}{% if x %}{{!abc}}{%endif%}";
-    scanner = new TokenScanner(script);
+    scanner = new TokenScanner(script, config);
     assertEquals("{{abc.b}}", scanner.next().image);
     assertEquals("if x", scanner.next().content.trim());
     Token tk = scanner.next();
@@ -65,7 +65,7 @@ public class TokenScannerTest {
   @Test
   public void test5() {
     script = "{{abc.b}}{% if x %}a{{abc}\\}{%endif%}";
-    scanner = new TokenScanner(script);
+    scanner = new TokenScanner(script, config);
     assertEquals("{{abc.b}}", scanner.next().image);
     assertEquals("if x", scanner.next().content.trim());
     assertEquals("a", scanner.next().content.trim());
@@ -75,7 +75,7 @@ public class TokenScannerTest {
   @Test
   public void test7() {
     script = "a{{abc.b}}{% if x   %}a{{abc!}#}%}}}{%endif";
-    scanner = new TokenScanner(script);
+    scanner = new TokenScanner(script, config);
     assertEquals("a", scanner.next().image);
     assertEquals("{{abc.b}}", scanner.next().image);
     assertEquals("if x", scanner.next().content.trim());
@@ -88,7 +88,7 @@ public class TokenScannerTest {
   @Test
   public void test8() {
     script = "a{{abc.b}}{% if x   %}a{{abc}}{%endif{{";
-    scanner = new TokenScanner(script);
+    scanner = new TokenScanner(script, config);
     assertEquals("a", scanner.next().image);
     assertEquals("{{abc.b}}", scanner.next().image);
     assertEquals("if x", scanner.next().content.trim());
@@ -100,7 +100,7 @@ public class TokenScannerTest {
   @Test
   public void test9() {
     script = "a{{abc.b}}{% if x   %}a{{abc}\\}{%endif{";
-    scanner = new TokenScanner(script);
+    scanner = new TokenScanner(script, config);
     assertEquals("a", scanner.next().image);
     assertEquals("{{abc.b}}", scanner.next().image);
     assertEquals("if x", scanner.next().content.trim());
@@ -111,7 +111,7 @@ public class TokenScannerTest {
   @Test
   public void test10() {
     script = "a{{abc.b}}{% if x %}a{{abc}\\}{{#%endif{";
-    scanner = new TokenScanner(script);
+    scanner = new TokenScanner(script, config);
     assertEquals("a", scanner.next().image);
     assertEquals("{{abc.b}}", scanner.next().image);
     assertEquals("if x", scanner.next().content.trim());
@@ -123,7 +123,7 @@ public class TokenScannerTest {
   @Test
   public void test11() {
     script = "a{#abc.b#}{% if x %}a{{abc}\\}{{{{#endif{";
-    scanner = new TokenScanner(script);
+    scanner = new TokenScanner(script, config);
     assertEquals("a", scanner.next().image);
     assertEquals("{#abc.b#}", scanner.next().image);
     assertEquals("if x", scanner.next().content.trim());
@@ -135,7 +135,7 @@ public class TokenScannerTest {
   @Test
   public void test12() {
     script = "{#abc.b#}{% if x %}a{{abc}\\}{{{{#endif{";
-    scanner = new TokenScanner(script);
+    scanner = new TokenScanner(script, config);
     assertEquals("{#abc.b#}", scanner.next().image);
     assertEquals("if x", scanner.next().content.trim());
     assertEquals("a", scanner.next().content.trim());
@@ -146,14 +146,14 @@ public class TokenScannerTest {
   @Test
   public void test13() {
     script = "{#abc{#.b#}{#xy{!ad!}{%dbc%}{{dff}}d{#bc#}d#}#}{% if x %}a{{abc}\\}{{{{#endif{";
-    scanner = new TokenScanner(script);
+    scanner = new TokenScanner(script, config);
     assertEquals("{#abc{#.b#}", scanner.next().image);
   }
 
   @Test
   public void test14() {
     script = "abc{#.b#}{#xy{!ad!}{%dbc%}{{dff}}d{#bc#}d#}#}{% if x %}a{{abc}\\}{{{{#endif{";
-    scanner = new TokenScanner(script);
+    scanner = new TokenScanner(script, config);
     assertEquals("abc", scanner.next().image);
     assertEquals("{#.b#}", scanner.next().image);
     assertEquals("{#xy{!ad!}{%dbc%}{{dff}}d{#bc#}", scanner.next().image);
@@ -162,7 +162,7 @@ public class TokenScannerTest {
   @Test
   public void test15() {
     script = "abc{#.b#}{#xy{!ad!}{#DD#}{%dbc%}{{dff}}d{#bc#}d#}#}{% if x %}a{{abc}\\}{{{{#endif{";
-    scanner = new TokenScanner(script);
+    scanner = new TokenScanner(script, config);
     assertEquals("abc", scanner.next().image);
     assertEquals("{#.b#}", scanner.next().image);
     assertEquals("{#xy{!ad!}{#DD#}", scanner.next().image);
@@ -171,14 +171,14 @@ public class TokenScannerTest {
   @Test
   public void test16() {
     script = "{#{#abc{#.b#}{#xy{!ad!}{%dbc%}{{dff}}d{#bc#}d#}#}{% if x %}a{{abc}\\}{{{{#endif{";
-    scanner = new TokenScanner(script);
+    scanner = new TokenScanner(script, config);
     assertEquals("{#{#abc{#.b#}", scanner.next().image);
   }
 
   @Test
   public void test17() {
     script = "{#abc{#.b#}{#xy{!ad!}{%dbc%}{{dff}}d{#bc#}d#}#}{% if x %}#}a#}{{abc}\\}#}{{{{#endif{";
-    scanner = new TokenScanner(script);
+    scanner = new TokenScanner(script, config);
     assertEquals("{#abc{#.b#}", scanner.next().image);
   }
 
@@ -258,9 +258,8 @@ public class TokenScannerTest {
     TokenScanner t = fixture(fixture);
 
     List<Token> tokens = Lists.newArrayList();
-    Token token;
-    while ((token = t.getNextToken()) != null) {
-      tokens.add(token);
+    while (t.hasNext()) {
+      tokens.add(t.next());
     }
 
     return tokens;
@@ -268,8 +267,10 @@ public class TokenScannerTest {
 
   private TokenScanner fixture(String fixture) {
     try {
-      TokenScanner t = new TokenScanner(Resources.toString(Resources.getResource(String.format("parse/tokenizer/%s.jinja", fixture)),
-          StandardCharsets.UTF_8));
+      TokenScanner t = new TokenScanner(
+          Resources.toString(Resources.getResource(String.format("parse/tokenizer/%s.jinja", fixture)),
+              StandardCharsets.UTF_8),
+          config);
       return t;
     } catch (Exception e) {
       throw new RuntimeException(e);

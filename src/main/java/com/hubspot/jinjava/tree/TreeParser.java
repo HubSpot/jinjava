@@ -1,17 +1,17 @@
 /**********************************************************************
-Copyright (c) 2014 HubSpot Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ * Copyright (c) 2014 HubSpot Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
@@ -20,6 +20,10 @@ import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_FIXED;
 import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
 import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.collect.Iterators;
+import com.google.common.collect.PeekingIterator;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MissingEndTagException;
 import com.hubspot.jinjava.interpret.TemplateError;
@@ -36,13 +40,13 @@ import com.hubspot.jinjava.tree.parse.TokenScanner;
 
 public class TreeParser {
 
-  private final TokenScanner scanner;
+  private final PeekingIterator<Token> scanner;
   private final JinjavaInterpreter interpreter;
 
   private Node parent;
 
   public TreeParser(JinjavaInterpreter interpreter, String input) {
-    this.scanner = new TokenScanner(input);
+    this.scanner = Iterators.peekingIterator(new TokenScanner(input, interpreter.getConfig()));
     this.interpreter = interpreter;
   }
 
@@ -93,6 +97,12 @@ public class TreeParser {
   }
 
   private Node text(TextToken textToken) {
+    if (interpreter.getConfig().isLstripBlocks()) {
+      if (scanner.hasNext() && scanner.peek().getType() == TOKEN_TAG) {
+        textToken = new TextToken(StringUtils.stripEnd(textToken.getImage(), "\t "), textToken.getLineNumber());
+      }
+    }
+
     TextNode n = new TextNode(textToken);
     n.setParent(parent);
     return n;
@@ -135,8 +145,7 @@ public class TreeParser {
 
       if (parentTag.getEndName().equals(tag.getEndTagName())) {
         break;
-      }
-      else {
+      } else {
         interpreter.addError(TemplateError.fromException(
             new TemplateSyntaxException(tagToken.getImage(), "Mismatched end tag, expected: " + parentTag.getEndName(), tagToken.getLineNumber())));
       }

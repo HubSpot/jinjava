@@ -25,8 +25,11 @@ import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_PREFIX;
 import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
 
 import com.google.common.collect.AbstractIterator;
+import com.hubspot.jinjava.JinjavaConfig;
 
 public class TokenScanner extends AbstractIterator<Token> {
+
+  private final JinjavaConfig config;
 
   private final char[] is;
   private int currPost = 0;
@@ -41,7 +44,9 @@ public class TokenScanner extends AbstractIterator<Token> {
   private char inQuote = 0;
   private int currLine = 1;
 
-  public TokenScanner(String input) {
+  public TokenScanner(String input, JinjavaConfig config) {
+    this.config = config;
+
     is = input.toCharArray();
     length = input.length();
     currPost = 0;
@@ -55,7 +60,7 @@ public class TokenScanner extends AbstractIterator<Token> {
     currLine = 1;
   }
 
-  public Token getNextToken() {
+  private Token getNextToken() {
     char c = 0;
     while (currPost < length) {
       c = is[currPost++];
@@ -236,6 +241,11 @@ public class TokenScanner extends AbstractIterator<Token> {
     Token t = Token.newToken(kind, String.valueOf(is, lastStart, tokenLength), currLine);
 
     if (t instanceof TagToken) {
+      if (config.isTrimBlocks() && is[currPost] == '\n') {
+        ++currPost;
+        ++tokenStart;
+      }
+
       TagToken tt = (TagToken) t;
       if ("raw".equals(tt.getTagName())) {
         inRaw = 1;

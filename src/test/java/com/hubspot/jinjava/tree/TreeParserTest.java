@@ -10,6 +10,7 @@ import org.junit.Test;
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 public class TreeParserTest {
@@ -25,6 +26,16 @@ public class TreeParserTest {
   public void parseHtmlWithCommentLines() {
     parse("parse/tokenizer/comment-plus.jinja");
     assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void trimAndLstripBlocks() {
+    interpreter = new Jinjava(JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build()).newInterpreter();
+
+    assertThat(interpreter.render(parse("parse/tokenizer/whitespace-tags.jinja")))
+        .isEqualTo("<div>\n"
+            + "        yay\n"
+            + "</div>\n");
   }
 
   Node parse(String fixture) {
