@@ -23,6 +23,7 @@ import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
 import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_POSTFIX;
 import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_PREFIX;
 import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
+import static com.hubspot.jinjava.util.CharArrayUtils.charArrayRegionMatches;
 
 import com.google.common.collect.AbstractIterator;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -32,11 +33,12 @@ public class TokenScanner extends AbstractIterator<Token> {
   private final JinjavaConfig config;
 
   private final char[] is;
+  private final int length;
+
   private int currPost = 0;
   private int tokenStart = 0;
   private int tokenLength = 0;
   private int tokenKind = -1;
-  private int length = 0;
   private int lastStart = 0;
   private int inComment = 0;
   private int inRaw = 0;
@@ -48,7 +50,8 @@ public class TokenScanner extends AbstractIterator<Token> {
     this.config = config;
 
     is = input.toCharArray();
-    length = input.length();
+    length = is.length;
+
     currPost = 0;
     tokenStart = 0;
     tokenKind = -1;
@@ -225,7 +228,7 @@ public class TokenScanner extends AbstractIterator<Token> {
       return false;
     }
 
-    return "endraw".equals(String.valueOf(is, pos - 1, 6));
+    return charArrayRegionMatches(is, pos - 1, "endraw");
   }
 
   private Token getEndToken() {
