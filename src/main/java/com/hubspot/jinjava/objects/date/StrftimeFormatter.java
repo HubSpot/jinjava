@@ -3,8 +3,6 @@ package com.hubspot.jinjava.objects.date;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -19,36 +17,37 @@ public class StrftimeFormatter {
   /*
    * Mapped from http://strftime.org/, http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
    */
-  private static final Map<Character, String> CONVERSIONS = new HashMap<Character, String>();
+  private static final String[] CONVERSIONS = new String[255];
+
   static {
-    CONVERSIONS.put('a', "EEE");
-    CONVERSIONS.put('A', "EEEE");
-    CONVERSIONS.put('b', "MMM");
-    CONVERSIONS.put('B', "MMMM");
-    CONVERSIONS.put('c', "EEE MMM dd HH:mm:ss yyyy");
-    CONVERSIONS.put('d', "dd");
-    CONVERSIONS.put('e', "d"); // The day of the month like with %d, but padded with blank (range 1 through 31).
-    CONVERSIONS.put('f', "SSSS");
-    CONVERSIONS.put('H', "HH");
-    CONVERSIONS.put('h', "hh");
-    CONVERSIONS.put('I', "hh");
-    CONVERSIONS.put('j', "DDD");
-    CONVERSIONS.put('k', "H"); // The hour as a decimal number, using a 24-hour clock like %H, but padded with blank (range 0 through 23).
-    CONVERSIONS.put('l', "h"); // The hour as a decimal number, using a 12-hour clock like %I, but padded with blank (range 1 through 12).
-    CONVERSIONS.put('m', "MM");
-    CONVERSIONS.put('M', "mm");
-    CONVERSIONS.put('p', "a");
-    CONVERSIONS.put('S', "ss");
-    CONVERSIONS.put('U', "ww");
-    CONVERSIONS.put('w', "uu");
-    CONVERSIONS.put('W', "ww");
-    CONVERSIONS.put('x', "MM/dd/yy");
-    CONVERSIONS.put('X', "HH:mm:ss");
-    CONVERSIONS.put('y', "yy");
-    CONVERSIONS.put('Y', "yyyy");
-    CONVERSIONS.put('z', "Z");
-    CONVERSIONS.put('Z', "ZZZ");
-    CONVERSIONS.put('%', "%");
+    CONVERSIONS['a'] = "EEE";
+    CONVERSIONS['A'] = "EEEE";
+    CONVERSIONS['b'] = "MMM";
+    CONVERSIONS['B'] = "MMMM";
+    CONVERSIONS['c'] = "EEE MMM dd HH:mm:ss yyyy";
+    CONVERSIONS['d'] = "dd";
+    CONVERSIONS['e'] = "d"; // The day of the month like with %d, but padded with blank (range 1 through 31).
+    CONVERSIONS['f'] = "SSSS";
+    CONVERSIONS['H'] = "HH";
+    CONVERSIONS['h'] = "hh";
+    CONVERSIONS['I'] = "hh";
+    CONVERSIONS['j'] = "DDD";
+    CONVERSIONS['k'] = "H"; // The hour as a decimal number, using a 24-hour clock like %H, but padded with blank (range 0 through 23).
+    CONVERSIONS['l'] = "h"; // The hour as a decimal number, using a 12-hour clock like %I, but padded with blank (range 1 through 12).
+    CONVERSIONS['m'] = "MM";
+    CONVERSIONS['M'] = "mm";
+    CONVERSIONS['p'] = "a";
+    CONVERSIONS['S'] = "ss";
+    CONVERSIONS['U'] = "ww";
+    CONVERSIONS['w'] = "uu";
+    CONVERSIONS['W'] = "ww";
+    CONVERSIONS['x'] = "MM/dd/yy";
+    CONVERSIONS['X'] = "HH:mm:ss";
+    CONVERSIONS['y'] = "yy";
+    CONVERSIONS['Y'] = "yyyy";
+    CONVERSIONS['z'] = "Z";
+    CONVERSIONS['Z'] = "ZZZ";
+    CONVERSIONS['%'] = "%";
   }
 
   /**
@@ -76,27 +75,23 @@ public class StrftimeFormatter {
         }
 
         if (stripLeadingZero) {
-          result.append(CONVERSIONS.get(c).substring(1));
+          result.append(CONVERSIONS[c].substring(1));
+        } else {
+          result.append(CONVERSIONS[c]);
         }
-        else {
-          result.append(CONVERSIONS.get(c));
-        }
-      }
-      else if (Character.isLetter(c)) {
+      } else if (Character.isLetter(c)) {
         result.append("'");
         while (Character.isLetter(c)) {
           result.append(c);
           if (++i < strftime.length()) {
             c = strftime.charAt(i);
-          }
-          else {
+          } else {
             c = 0;
           }
         }
         result.append("'");
         --i; // re-consume last char
-      }
-      else {
+      } else {
         result.append(c);
       }
     }
