@@ -142,10 +142,14 @@ public class JinjavaInterpreter {
   }
 
   String resolveBlockStubs(CharSequence content) {
-    StringBuilder result = new StringBuilder(content.length() + 256);
+    StringBuilder result = null;
     int pos = 0, start, end, stubStartLen = BLOCK_STUB_START.length();
 
     while ((start = StringUtils.indexOf(content, BLOCK_STUB_START, pos)) != -1) {
+      if (result == null) {
+        result = new StringBuilder(content.length() + 256);
+      }
+
       end = StringUtils.indexOf(content, BLOCK_STUB_END, start + stubStartLen);
 
       String blockName = content.subSequence(start + stubStartLen, end).toString();
@@ -175,9 +179,11 @@ public class JinjavaInterpreter {
       pos = end + 1;
     }
 
-    result.append(content.subSequence(pos, content.length()));
+    if (result != null) {
+      return result.append(content.subSequence(pos, content.length())).toString();
+    }
 
-    return result.toString();
+    return content.toString();
   }
 
   /**
