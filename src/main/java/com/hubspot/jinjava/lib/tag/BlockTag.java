@@ -1,21 +1,19 @@
 /**********************************************************************
-Copyright (c) 2014 HubSpot Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ * Copyright (c) 2014 HubSpot Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
-
-import java.util.List;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -50,12 +48,12 @@ public class BlockTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    List<String> helper = new HelperStringTokenizer(tagNode.getHelpers()).allTokens();
-    if (helper.isEmpty()) {
+    HelperStringTokenizer tagData = new HelperStringTokenizer(tagNode.getHelpers());
+    if (!tagData.hasNext()) {
       throw new InterpretException("Tag 'block' expects an identifier", tagNode.getLineNumber());
     }
 
-    String blockName = WhitespaceUtils.unquote(helper.get(0));
+    String blockName = WhitespaceUtils.unquote(tagData.next());
 
     interpreter.addBlock(blockName, tagNode.getChildren());
     return JinjavaInterpreter.BLOCK_STUB_START + blockName + JinjavaInterpreter.BLOCK_STUB_END;

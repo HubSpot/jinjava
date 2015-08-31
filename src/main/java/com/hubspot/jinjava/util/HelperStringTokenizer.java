@@ -28,7 +28,7 @@ import com.google.common.collect.Lists;
  */
 public class HelperStringTokenizer extends AbstractIterator<String> {
 
-  private final char[] helpers;
+  private final char[] value;
   private final int length;
 
   private int currPost = 0;
@@ -39,8 +39,8 @@ public class HelperStringTokenizer extends AbstractIterator<String> {
   private boolean inQuote = false;
 
   public HelperStringTokenizer(String s) {
-    helpers = s.toCharArray();
-    length = s.length();
+    value = s.toCharArray();
+    length = value.length;
   }
 
   /**
@@ -60,7 +60,7 @@ public class HelperStringTokenizer extends AbstractIterator<String> {
     String token;
     while (currPost < length) {
       token = makeToken();
-      lastChar = helpers[currPost - 1];
+      lastChar = value[currPost - 1];
       if (token != null) {
         return token;
       }
@@ -71,7 +71,7 @@ public class HelperStringTokenizer extends AbstractIterator<String> {
   }
 
   private String makeToken() {
-    char c = helpers[currPost++];
+    char c = value[currPost++];
     if (c == '"' || c == '\'') {
       if (inQuote) {
         if (quoteChar == c) {
@@ -92,7 +92,7 @@ public class HelperStringTokenizer extends AbstractIterator<String> {
   }
 
   private String getEndToken() {
-    return String.copyValueOf(helpers, tokenStart, currPost - tokenStart);
+    return String.copyValueOf(value, tokenStart, currPost - tokenStart);
   }
 
   private String newToken() {
@@ -102,7 +102,7 @@ public class HelperStringTokenizer extends AbstractIterator<String> {
       return null;
     }
     // startChar = -1;//change to save quote in helper
-    return String.copyValueOf(helpers, lastStart, currPost - lastStart - 1);
+    return String.copyValueOf(value, lastStart, currPost - lastStart - 1);
   }
 
   public List<String> allTokens() {

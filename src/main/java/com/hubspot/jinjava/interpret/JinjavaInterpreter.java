@@ -1,17 +1,17 @@
 /**********************************************************************
-Copyright (c) 2014 HubSpot Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ * Copyright (c) 2014 HubSpot Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.interpret;
 
@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Stack;
 
 import org.apache.commons.lang3.StringUtils;
@@ -156,7 +157,7 @@ public class JinjavaInterpreter {
 
       if (block != null) {
         List<? extends Node> superBlock = Iterables.get(blockChain, 1, null);
-        context.put("__superbl0ck__", superBlock);
+        context.put(BLOCK_SUPER_REF, superBlock);
 
         StringBuilder blockValueBuilder = new StringBuilder();
 
@@ -166,7 +167,7 @@ public class JinjavaInterpreter {
 
         blockValue = resolveBlockStubs(blockValueBuilder);
 
-        context.remove("__superbl0ck__");
+        context.remove(BLOCK_SUPER_REF);
       }
 
       result.append(content.subSequence(pos, start));
@@ -235,7 +236,7 @@ public class JinjavaInterpreter {
    * @return resolved value for variable
    */
   public String resolveString(String variable, int lineNumber) {
-    return java.util.Objects.toString(resolveObject(variable, lineNumber), "");
+    return Objects.toString(resolveObject(variable, lineNumber), "");
   }
 
   public Context getContext() {
@@ -253,8 +254,10 @@ public class JinjavaInterpreter {
   /**
    * Resolve expression against current context.
    *
-   * @param expression Jinja expression.
-   * @param lineNumber Line number of expression.
+   * @param expression
+   *          Jinja expression.
+   * @param lineNumber
+   *          Line number of expression.
    * @return Value of expression.
    */
   public Object resolveELExpression(String expression, int lineNumber) {
@@ -266,8 +269,10 @@ public class JinjavaInterpreter {
   /**
    * Resolve property of bean.
    *
-   * @param object Bean.
-   * @param propertyName Name of property to resolve.
+   * @param object
+   *          Bean.
+   * @param propertyName
+   *          Name of property to resolve.
    * @return Value of property.
    */
   public Object resolveProperty(Object object, String propertyName) {
@@ -277,8 +282,10 @@ public class JinjavaInterpreter {
   /**
    * Resolve property of bean.
    *
-   * @param object Bean.
-   * @param propertyNames Names of properties to resolve recursively.
+   * @param object
+   *          Bean.
+   * @param propertyNames
+   *          Names of properties to resolve recursively.
    * @return Value of property.
    */
   public Object resolveProperty(Object object, List<String> propertyNames) {
@@ -322,9 +329,8 @@ public class JinjavaInterpreter {
     }
   }
 
-  public static final String INSERT_FLAG = "'IS\"INSERT";
-
   public static final String BLOCK_STUB_START = "___bl0ck___~";
   public static final String BLOCK_STUB_END = "~";
+  public static final String BLOCK_SUPER_REF = "__superbl0ck__";
 
 }
