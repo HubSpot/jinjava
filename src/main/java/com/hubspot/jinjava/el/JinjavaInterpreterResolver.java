@@ -66,7 +66,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
     try {
       Object methodProperty = getValue(context, base, method, false);
-      if (methodProperty != null && methodProperty instanceof AbstractCallableMethod) {
+      if (methodProperty instanceof AbstractCallableMethod) {
         context.setPropertyResolved(true);
         return ((AbstractCallableMethod) methodProperty).evaluate(params);
       }
