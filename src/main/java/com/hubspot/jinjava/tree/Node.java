@@ -29,7 +29,6 @@ public abstract class Node implements Serializable {
 
   private final Token master;
   private final int lineNumber;
-  private int level;
 
   private Node parent = null;
   private LinkedList<Node> children = new LinkedList<Node>();
@@ -37,10 +36,6 @@ public abstract class Node implements Serializable {
   public Node(Token master, int lineNumber) {
     this.master = master;
     this.lineNumber = lineNumber;
-  }
-
-  public int getLevel() {
-    return level;
   }
 
   public Node getParent() {
@@ -65,24 +60,6 @@ public abstract class Node implements Serializable {
 
   public void setChildren(LinkedList<Node> children) {
     this.children = children;
-  }
-
-  /**
-   * trusty call by TreeParser
-   *
-   * @param node
-   */
-  void add(Node node) {
-    node.level = level + 1;
-    node.parent = this;
-    children.add(node);
-  }
-
-  void computeLevel(int baseLevel) {
-    level = baseLevel;
-    for (Node child : children) {
-      child.computeLevel(level + 1);
-    }
   }
 
   public abstract String render(JinjavaInterpreter interpreter);

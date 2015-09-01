@@ -53,7 +53,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     }
   };
 
-  private JinjavaInterpreter interpreter;
+  private final JinjavaInterpreter interpreter;
 
   public JinjavaInterpreterResolver(JinjavaInterpreter interpreter) {
     super(DEFAULT_RESOLVER_READ_WRITE);

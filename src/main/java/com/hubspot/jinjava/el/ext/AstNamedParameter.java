@@ -9,8 +9,8 @@ import de.odysseus.el.tree.impl.ast.AstNode;
 
 public class AstNamedParameter extends AstLiteral {
 
-  private AstIdentifier name;
-  private AstNode value;
+  private final AstIdentifier name;
+  private final AstNode value;
 
   public AstNamedParameter(AstIdentifier name, AstNode value) {
     this.name = name;

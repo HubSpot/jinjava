@@ -16,7 +16,7 @@ import de.odysseus.el.tree.impl.ast.AstString;
 
 public class AstDict extends AstLiteral {
 
-  private Map<AstNode, AstNode> dict;
+  private final Map<AstNode, AstNode> dict;
 
   public AstDict(Map<AstNode, AstNode> dict) {
     this.dict = dict;
@@ -31,11 +31,9 @@ public class AstDict extends AstLiteral {
 
       if (entry.getKey() instanceof AstString) {
         key = Objects.toString(entry.getKey().eval(bindings, context));
-      }
-      else if (entry.getKey() instanceof AstIdentifier) {
+      } else if (entry.getKey() instanceof AstIdentifier) {
         key = ((AstIdentifier) entry.getKey()).getName();
-      }
-      else {
+      } else {
         throw new IllegalArgumentException("Dict key must be a string or identifier, was: " + entry.getKey());
       }
 

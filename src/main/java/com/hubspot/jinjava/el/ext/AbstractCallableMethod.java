@@ -17,6 +17,7 @@ import com.google.common.base.Throwables;
 public abstract class AbstractCallableMethod {
 
   public static final Method EVAL_METHOD;
+
   static {
     try {
       EVAL_METHOD = AbstractCallableMethod.class.getMethod("evaluate", Object[].class);
@@ -25,8 +26,8 @@ public abstract class AbstractCallableMethod {
     }
   }
 
-  private String name;
-  private LinkedHashMap<String, Object> argNamesWithDefaults;
+  private final String name;
+  private final LinkedHashMap<String, Object> argNamesWithDefaults;
 
   public AbstractCallableMethod(String name, LinkedHashMap<String, Object> argNamesWithDefaults) {
     this.name = name;
@@ -48,8 +49,7 @@ public abstract class AbstractCallableMethod {
           break;
         }
         argEntry.setValue(arg);
-      }
-      else {
+      } else {
         break;
       }
     }
@@ -61,12 +61,10 @@ public abstract class AbstractCallableMethod {
         NamedParameter param = (NamedParameter) arg;
         if (argMap.containsKey(param.getName())) {
           argMap.put(param.getName(), param.getValue());
-        }
-        else {
+        } else {
           kwargMap.put(param.getName(), param.getValue());
         }
-      }
-      else {
+      } else {
         varArgs.add(arg);
       }
     }

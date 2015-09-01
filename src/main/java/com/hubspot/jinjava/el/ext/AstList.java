@@ -15,7 +15,7 @@ import de.odysseus.el.tree.impl.ast.AstParameters;
 
 public class AstList extends AstLiteral {
 
-  private AstParameters elements;
+  private final AstParameters elements;
 
   public AstList(AstParameters elements) {
     this.elements = elements;
