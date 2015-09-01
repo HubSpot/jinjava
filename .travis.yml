@@ -2,5 +2,5 @@ sudo: false
 language: java
 jdk:
   - oraclejdk8
-install: mvn test -B
+install: mvn test -B -Dbasepom.git-id.skip=true
 
