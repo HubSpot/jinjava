@@ -4,6 +4,8 @@ jinjava
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.hubspot.jinjava/jinjava/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.hubspot.jinjava/jinjava)
 =======
 
+[![Join the chat at https://gitter.im/HubSpot/jinjava](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/HubSpot/jinjava?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 <img src="https://github.com/HubSpot/jinjava/raw/master/jinjava.png" width="250" height="250" alt="jinjava">
 
 Java-based template engine based on django template syntax, adapted to render jinja templates (at least the subset of jinja in use in HubSpot content). Currently used in production to render thousands of websites with hundreds of millions of page views per month on the [HubSpot COS](http://www.hubspot.com/products/sites).
