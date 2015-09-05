@@ -1,9 +1,9 @@
-jinjava 
+# jinjava 
 
 [![Build Status](https://travis-ci.org/HubSpot/jinjava.svg?branch=master)](https://travis-ci.org/HubSpot/jinjava) 
+[![Coverage status](https://img.shields.io/codecov/c/github/HubSpot/jinjava/master.svg)](https://codecov.io/github/HubSpot/jinjava)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.hubspot.jinjava/jinjava/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.hubspot.jinjava/jinjava)
 [![Join the chat at https://gitter.im/HubSpot/jinjava](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/HubSpot/jinjava?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-=======
 
 <img src="https://github.com/HubSpot/jinjava/raw/master/jinjava.png" width="250" height="250" alt="jinjava">
 
