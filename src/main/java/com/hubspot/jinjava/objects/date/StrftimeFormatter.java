@@ -1,14 +1,14 @@
 package com.hubspot.jinjava.objects.date;
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 
 import org.apache.commons.lang3.StringUtils;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.FormatStyle;
 
 /**
  * Datetime format string formatter, supporting both python and java compatible format strings by converting any percent-tokens from python into their java equivalents.
- *
+ * 
  * @author jstehler
  */
 public class StrftimeFormatter {
@@ -49,53 +49,53 @@ public class StrftimeFormatter {
     CONVERSIONS['Z'] = "ZZZ";
     CONVERSIONS['%'] = "%";
   }
-
+  
   /**
    * Parses a string in python strftime format, returning the equivalent string in java date time format.
-   *
+   * 
    * @param strftime
    * @return date formatted as string
    */
   private static String toJavaDateTimeFormat(String strftime) {
-    if (!StringUtils.contains(strftime, '%')) {
+    if(!StringUtils.contains(strftime, '%')) {
       return replaceL(strftime);
     }
-
+    
     StringBuilder result = new StringBuilder();
-
-    for (int i = 0; i < strftime.length(); i++) {
+    
+    for(int i = 0; i < strftime.length(); i++) {
       char c = strftime.charAt(i);
-      if (c == '%') {
+      if(c == '%') {
         c = strftime.charAt(++i);
         boolean stripLeadingZero = false;
-
-        if (c == '-') {
+        
+        if(c == '-') {
           stripLeadingZero = true;
           c = strftime.charAt(++i);
         }
-
-        if (stripLeadingZero) {
+        
+        if(stripLeadingZero) {
           result.append(CONVERSIONS[c].substring(1));
         } else {
           result.append(CONVERSIONS[c]);
         }
       } else if (Character.isLetter(c)) {
         result.append("'");
-        while (Character.isLetter(c)) {
+        while(Character.isLetter(c)) {
           result.append(c);
-          if (++i < strftime.length()) {
+          if(++i < strftime.length()) {
             c = strftime.charAt(i);
           } else {
             c = 0;
           }
         }
         result.append("'");
-        --i; // re-consume last char
+        --i;  // re-consume last char
       } else {
         result.append(c);
       }
     }
-
+    
     return replaceL(result.toString());
   }
 
@@ -105,15 +105,15 @@ public class StrftimeFormatter {
 
   public static DateTimeFormatter formatter(String strftime) {
     switch (strftime.toLowerCase()) {
-    case "short":
-      return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
-    case "medium":
-      return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
-    case "long":
-      return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);
-    case "full":
-      return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL);
-    default:
+      case "short":
+        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
+      case "medium":
+        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
+      case "long":
+        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);
+      case "full":
+        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL);
+      default:
       try {
         return DateTimeFormatter.ofPattern(toJavaDateTimeFormat(strftime));
       } catch (IllegalArgumentException e) {
@@ -125,9 +125,9 @@ public class StrftimeFormatter {
   public static String format(ZonedDateTime d) {
     return format(d, DEFAULT_DATE_FORMAT);
   }
-
+  
   public static String format(ZonedDateTime d, String strftime) {
     return formatter(strftime).format(d);
   }
-
+  
 }

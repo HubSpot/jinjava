@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.objects.date;
 
-import java.time.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 public class FormattedDate {
 

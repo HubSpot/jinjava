@@ -2,7 +2,6 @@ package com.hubspot.jinjava.benchmarks.liquid;
 
 import static org.apache.commons.lang3.math.NumberUtils.toDouble;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -10,6 +9,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.threeten.bp.ZonedDateTime;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.filter.DatetimeFilter;

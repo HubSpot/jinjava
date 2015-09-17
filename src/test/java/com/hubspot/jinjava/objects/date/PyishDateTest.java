@@ -2,12 +2,11 @@ package com.hubspot.jinjava.objects.date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Date;
 
 import org.junit.Test;
-
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 public class PyishDateTest {
 
   @Test
@@ -27,7 +26,7 @@ public class PyishDateTest {
     PyishDate d = new PyishDate(ZonedDateTime.parse("2015-05-13T12:00:00+00:00"));
     assertThat(d.isoformat()).isEqualTo("2015-05-13");
   }
-
+  
   @Test
   public void testEquals() {
     PyishDate d1 = new PyishDate(ZonedDateTime.parse("2013-11-12T14:15:00+00:00"));
@@ -42,18 +41,18 @@ public class PyishDateTest {
     assertThat(d1).isNotEqualTo(d2);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected=NullPointerException.class)
   public void testNullDateNotAllowed() {
-    new PyishDate((Date) null);
+    new PyishDate((Date)null);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected=NullPointerException.class)
   public void testNullDateTimeNotAllowed() {
-    new PyishDate((ZonedDateTime) null);
+    new PyishDate((ZonedDateTime)null);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected=NullPointerException.class)
   public void testNullStringNotAllowed() {
-    new PyishDate((String) null);
+    new PyishDate((String)null);
   }
 }
