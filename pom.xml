@@ -11,7 +11,6 @@
   <groupId>com.hubspot.jinjava</groupId>
   <artifactId>jinjava</artifactId>
   <version>2.0.10-SNAPSHOT</version>
-  <classifier>java7</classifier>
   <description>Jinja templating engine implemented in Java</description>
   <url>https://github.com/HubSpot/jinjava</url>
 
@@ -31,7 +30,7 @@
   </developers>
 
   <properties>
-    <project.build.targetJdk>1.8</project.build.targetJdk>
+    <project.build.targetJdk>1.7</project.build.targetJdk>
     <basepom.check.skip-findbugs>false</basepom.check.skip-findbugs>
   </properties>
 
@@ -125,25 +124,15 @@
           <showWarnings>true</showWarnings>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>1.4</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>report</id>
-            <phase>test</phase>
-            <goals>
-              <goal>report</goal>
-            </goals>
-          </execution>
-        </executions>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+        <extensions>false</extensions>
+        <inherited>true</inherited>
+        <configuration>
+          <classifier>java7</classifier>
+        </configuration>
       </plugin>
     </plugins>
   </build>
