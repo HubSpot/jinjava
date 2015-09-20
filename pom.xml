@@ -123,16 +123,6 @@
           <showWarnings>true</showWarnings>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.4</version>
-        <extensions>false</extensions>
-        <inherited>true</inherited>
-        <configuration>
-          <classifier>java7</classifier>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
 </project>
