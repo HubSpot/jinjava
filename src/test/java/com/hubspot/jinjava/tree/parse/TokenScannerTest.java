@@ -8,8 +8,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +19,8 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.JinjavaConfig;
+
+import javax.annotation.Nullable;
 
 public class TokenScannerTest {
   private JinjavaConfig config;
@@ -243,10 +247,18 @@ public class TokenScannerTest {
   public void testEscapedBackslashWithinAttrValue() {
     List<Token> tokens = tokens("escape-char-tokens");
 
-    List<String> tagHelpers = tokens.stream()
-        .filter(t -> t.getType() == TokenScannerSymbols.TOKEN_TAG)
-        .map(t -> ((TagToken) t).getHelpers().trim().substring(1, 26))
-        .collect(Collectors.toList());
+    List<String> tagHelpers = FluentIterable.from(tokens).filter(new Predicate<Token>() {
+      @Override
+      public boolean apply(Token t) {
+        return t.getType() == TokenScannerSymbols.TOKEN_TAG;
+      }
+    }).transform(new Function<Token, String>() {
+      @Nullable
+      @Override
+      public String apply(Token t) {
+        return ((TagToken) t).getHelpers().trim().substring(1, 26);
+      }
+    }).toList();
 
     assertThat(tagHelpers).containsExactly(
         "module_143819779285827357",
