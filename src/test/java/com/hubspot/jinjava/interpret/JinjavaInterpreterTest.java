@@ -10,7 +10,7 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.parse.TextToken;
 
-import java.time.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 public class JinjavaInterpreterTest {
 
