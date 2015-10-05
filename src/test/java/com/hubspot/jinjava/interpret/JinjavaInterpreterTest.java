@@ -2,15 +2,16 @@ package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.ZonedDateTime;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.parse.TextToken;
-
-import java.time.ZonedDateTime;
 
 public class JinjavaInterpreterTest {
 
@@ -93,6 +94,34 @@ public class JinjavaInterpreterTest {
   @Test
   public void triesBeanMethodFirst() {
     assertThat(interpreter.resolveProperty(ZonedDateTime.parse("2013-09-19T12:12:12+00:00"), "year").toString()).isEqualTo("2013");
+  }
+
+  @Test
+  public void enterScopeTryFinally() {
+    interpreter.getContext().put("foo", "parent");
+
+    interpreter.enterScope();
+    try {
+      interpreter.getContext().put("foo", "child");
+      assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("child");
+    } finally {
+      interpreter.leaveScope();
+    }
+
+    assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("parent");
+
+  }
+
+  @Test
+  public void enterScopeTryWithResources() {
+    interpreter.getContext().put("foo", "parent");
+
+    try (InterpreterScopeClosable c = interpreter.enterScope()) {
+      interpreter.getContext().put("foo", "child");
+      assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("child");
+    }
+
+    assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("parent");
   }
 
 }

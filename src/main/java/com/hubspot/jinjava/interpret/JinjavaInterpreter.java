@@ -76,8 +76,22 @@ public class JinjavaInterpreter {
     blocks.put(name, value);
   }
 
-  public void enterScope() {
+  /**
+   * Creates a new variable scope, extending from the current scope. Allows you to create a nested
+   * contextual scope which can override variables from higher levels.
+   *
+   * Should be used in a try/finally context, similar to lock-use patterns:
+   *
+   * <code>
+   * interpreter.enterScope();
+   * try (interpreter.enterScope()) {
+   *   // ...
+   * }
+   * </code>
+   */
+  public InterpreterScopeClosable enterScope() {
     context = new Context(context);
+    return new InterpreterScopeClosable();
   }
 
   public void leaveScope() {
@@ -87,10 +101,26 @@ public class JinjavaInterpreter {
     }
   }
 
+  class InterpreterScopeClosable implements AutoCloseable {
+
+    @Override
+    public void close() {
+      leaveScope();
+    }
+
+  }
+
   public Node parse(String template) {
     return new TreeParser(this, template).buildTree();
   }
 
+  /**
+   * Parse the given string into a root Node, and then render it without processing any extend parents.
+   *
+   * @param template
+   *          string to parse
+   * @return rendered result
+   */
   public String renderString(String template) {
     Integer depth = (Integer) context.get("hs_render_depth", 0);
     if (depth == null) {
@@ -110,15 +140,38 @@ public class JinjavaInterpreter {
     }
   }
 
-  public String render(Node root) {
-    return render(root, true);
-  }
-
+  /**
+   * Parse the given string into a root Node, and then renders it processing extend parents.
+   *
+   * @param template
+   *          string to parse
+   * @return rendered result
+   */
   public String render(String template) {
     ENGINE_LOG.debug(template);
     return render(parse(template), true);
   }
 
+  /**
+   * Render the given root node, processing extend parents. Equivalent to render(root, true)
+   * 
+   * @param root
+   *          node to render
+   * @return rendered result
+   */
+  public String render(Node root) {
+    return render(root, true);
+  }
+
+  /**
+   * Render the given root node using this interpreter's current context
+   *
+   * @param root
+   *          node to render
+   * @param processExtendRoots
+   *          if true, also render all extend parents
+   * @return rendered result
+   */
   public String render(Node root, boolean processExtendRoots) {
     StringBuilder buff = new StringBuilder();
 
