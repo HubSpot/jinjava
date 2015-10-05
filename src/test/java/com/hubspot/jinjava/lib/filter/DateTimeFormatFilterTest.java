@@ -53,8 +53,8 @@ public class DateTimeFormatFilterTest {
     interpreter.getContext().put("d", d);
     interpreter.getContext().put("foo", "%Y-%m");
 
-    assertThat(interpreter.renderString("{{ d|datetimeformat(foo) }}")).isEqualTo("2013-11");
-    assertThat(interpreter.renderString("{{ d|datetimeformat(\"%Y-%m-%d\") }}")).isEqualTo("2013-11-06");
+    assertThat(interpreter.renderFlat("{{ d|datetimeformat(foo) }}")).isEqualTo("2013-11");
+    assertThat(interpreter.renderFlat("{{ d|datetimeformat(\"%Y-%m-%d\") }}")).isEqualTo("2013-11-06");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 

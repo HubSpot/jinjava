@@ -115,13 +115,22 @@ public class JinjavaInterpreter {
   }
 
   /**
+   * @deprecated see renderFlat(String template)
+   */
+  @Deprecated
+  public String renderString(String template) {
+    return renderFlat(template);
+  }
+
+  /**
    * Parse the given string into a root Node, and then render it without processing any extend parents.
+   * This method should be used when the template is known to not have any extends or block tags.
    *
    * @param template
    *          string to parse
    * @return rendered result
    */
-  public String renderString(String template) {
+  public String renderFlat(String template) {
     Integer depth = (Integer) context.get("hs_render_depth", 0);
     if (depth == null) {
       depth = 0;

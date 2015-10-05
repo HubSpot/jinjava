@@ -100,7 +100,7 @@ public class ImportTagTest {
 
   private String fixture(String name) {
     try {
-      return interpreter.renderString(Resources.toString(
+      return interpreter.renderFlat(Resources.toString(
           Resources.getResource(String.format("tags/macrotag/%s.jinja", name)), StandardCharsets.UTF_8));
     } catch (IOException e) {
       throw Throwables.propagate(e);

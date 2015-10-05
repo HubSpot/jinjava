@@ -25,7 +25,7 @@ public class StripTagsFilterTest {
 
   @Before
   public void setup() {
-    when(interpreter.renderString(anyString())).thenAnswer(new ReturnsArgumentAt(0));
+    when(interpreter.renderFlat(anyString())).thenAnswer(new ReturnsArgumentAt(0));
   }
 
   @Test

@@ -28,7 +28,7 @@ public class StripTagsFilter implements Filter {
       return object;
     }
 
-    String val = interpreter.renderString((String) object);
+    String val = interpreter.renderFlat((String) object);
     String strippedVal = Jsoup.parseBodyFragment(val).text();
     String normalizedVal = WHITESPACE.matcher(strippedVal).replaceAll(" ");
 
