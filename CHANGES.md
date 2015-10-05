@@ -2,6 +2,7 @@
 
 ### Version 2.0.11 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.11%22)) ###
 
+* Renaming JinjavaInterpreter.renderString() to renderFlat() to better signify its purpose
 
 ### Version 2.0.10 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.10%22)) ###
 
