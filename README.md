@@ -83,12 +83,15 @@ You can provide custom jinja tags, filters, and static functions to the template
 
 ```java
 // define a custom tag implementing com.hubspot.jinjava.lib.Tag
-jinjava.getTagLibrary().addTag(new MyCustomTag());
+jinjava.getGlobalContext().registerTag(new MyCustomTag());
 // define a custom filter implementing com.hubspot.jinjava.lib.Filter
-jinjava.getFilterLibrary().addFilter(new MyAwesomeFilter());
+jinjava.getGlobalContext().registerFilter(new MyAwesomeFilter());
 // define a custom public static function (this one will bind to myfn.my_func('foo', 42))
-jinjava.getFunctionLibrary().addFunction(new ELFunctionDefinition("myfn", "my_func", 
+jinjava.getGlobalContext().registerFunction(new ELFunctionDefinition("myfn", "my_func", 
     MyFuncsClass.class, "myFunc", String.class, Integer.class);
+
+// define any number of classes which extend Importable
+jinjava.getGlobalContext().registerClasses(Class<? extends Importable>... classes);
 ```
 
 ### See also
