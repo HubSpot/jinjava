@@ -1,17 +1,17 @@
 /**********************************************************************
-Copyright (c) 2014 HubSpot Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ * Copyright (c) 2014 HubSpot Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
@@ -29,6 +29,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.ForLoop;
@@ -78,8 +79,7 @@ public class ForTag implements Tag {
 
       if ("in".equals(val)) {
         break;
-      }
-      else {
+      } else {
         loopVars.add(val);
         inPos++;
       }
@@ -93,8 +93,7 @@ public class ForTag implements Tag {
     Object collection = interpreter.resolveELExpression(loopExpr, tagNode.getLineNumber());
     ForLoop loop = ObjectIterator.getLoop(collection);
 
-    interpreter.enterScope();
-    try {
+    try (InterpreterScopeClosable c = interpreter.enterScope()) {
       interpreter.getContext().put(LOOP, loop);
 
       StringBuilder buff = new StringBuilder();
@@ -104,8 +103,7 @@ public class ForTag implements Tag {
         // set item variables
         if (loopVars.size() == 1) {
           interpreter.getContext().put(loopVars.get(0), val);
-        }
-        else {
+        } else {
           for (String loopVar : loopVars) {
             if (Map.Entry.class.isAssignableFrom(val.getClass())) {
               Map.Entry<String, Object> entry = (Entry<String, Object>) val;
@@ -113,14 +111,12 @@ public class ForTag implements Tag {
 
               if ("key".equals(loopVar)) {
                 entryVal = entry.getKey();
-              }
-              else if ("value".equals(loopVar)) {
+              } else if ("value".equals(loopVar)) {
                 entryVal = entry.getValue();
               }
 
               interpreter.getContext().put(loopVar, entryVal);
-            }
-            else {
+            } else {
               try {
                 PropertyDescriptor[] valProps = Introspector.getBeanInfo(val.getClass()).getPropertyDescriptors();
                 for (PropertyDescriptor valProp : valProps) {
@@ -142,8 +138,6 @@ public class ForTag implements Tag {
       }
 
       return buff.toString();
-    } finally {
-      interpreter.leaveScope();
     }
 
   }

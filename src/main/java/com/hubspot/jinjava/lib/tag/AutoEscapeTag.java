@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 
@@ -16,8 +17,7 @@ import com.hubspot.jinjava.tree.TagNode;
         @JinjavaSnippet(
             code = "{% autoescape %}\n" +
                 "<div>Code to escape</div>\n" +
-                "{% endautoescape %}"
-        )
+                "{% endautoescape %}")
     })
 public class AutoEscapeTag implements Tag {
   public static final String AUTOESCAPE_CONTEXT_VAR = "__auto3sc@pe__";
@@ -35,8 +35,7 @@ public class AutoEscapeTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    interpreter.enterScope();
-    try {
+    try (InterpreterScopeClosable c = interpreter.enterScope()) {
       String boolFlagStr = StringUtils.trim(tagNode.getHelpers());
       boolean escapeFlag = BooleanUtils.toBoolean(StringUtils.isNotBlank(boolFlagStr) ? boolFlagStr : "true");
       interpreter.getContext().put(AUTOESCAPE_CONTEXT_VAR, escapeFlag);
@@ -48,8 +47,6 @@ public class AutoEscapeTag implements Tag {
       }
 
       return result.toString();
-    } finally {
-      interpreter.leaveScope();
     }
   }
 

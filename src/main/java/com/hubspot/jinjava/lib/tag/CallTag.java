@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.TagNode;
 
@@ -22,7 +23,7 @@ import com.hubspot.jinjava.tree.TagNode;
                 "  </div>\n" +
                 " {% endmacro %}\n\n" +
 
-                " {% call render_dialog('Hello World') %}\n" +
+    " {% call render_dialog('Hello World') %}\n" +
                 "     This is a simple dialog rendered by using a macro and\n" +
                 "     a call block.\n" +
                 " {% endcall %}"),
@@ -38,7 +39,7 @@ import com.hubspot.jinjava.tree.TagNode;
                 "   </ul>\n" +
                 " {% endmacro %}\n\n" +
 
-                " {% call(user) dump_users(list_of_user) %}\n" +
+    " {% call(user) dump_users(list_of_user) %}\n" +
                 "  <dl>\n" +
                 "       <dl>Realname</dl>\n" +
                 "       <dd>{{ user.realname|e }}</dd>\n" +
@@ -65,15 +66,12 @@ public class CallTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     String macroExpr = "{{" + tagNode.getHelpers().trim() + "}}";
 
-    interpreter.enterScope();
-    try {
+    try (InterpreterScopeClosable c = interpreter.enterScope()) {
       LinkedHashMap<String, Object> args = new LinkedHashMap<>();
       MacroFunction caller = new MacroFunction(tagNode.getChildren(), "caller", args, false, false, true, interpreter.getContext());
       interpreter.getContext().addGlobalMacro(caller);
 
       return interpreter.render(macroExpr);
-    } finally {
-      interpreter.leaveScope();
     }
   }
 

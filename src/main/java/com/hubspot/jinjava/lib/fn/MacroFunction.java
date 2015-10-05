@@ -7,6 +7,7 @@ import java.util.Map;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.tree.Node;
 
 /**
@@ -25,8 +26,13 @@ public class MacroFunction extends AbstractCallableMethod {
 
   private final Context localContextScope;
 
-  public MacroFunction(List<Node> content, String name, LinkedHashMap<String, Object> argNamesWithDefaults,
-      boolean catchKwargs, boolean catchVarargs, boolean caller, Context localContextScope) {
+  public MacroFunction(List<Node> content,
+                       String name,
+                       LinkedHashMap<String, Object> argNamesWithDefaults,
+                       boolean catchKwargs,
+                       boolean catchVarargs,
+                       boolean caller,
+                       Context localContextScope) {
     super(name, argNamesWithDefaults);
     this.content = content;
     this.catchKwargs = catchKwargs;
@@ -39,14 +45,11 @@ public class MacroFunction extends AbstractCallableMethod {
   public Object doEvaluate(Map<String, Object> argMap, Map<String, Object> kwargMap, List<Object> varArgs) {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
 
-    interpreter.enterScope();
-
-    try {
+    try (InterpreterScopeClosable c = interpreter.enterScope()) {
       for (Map.Entry<String, Object> scopeEntry : localContextScope.getScope().entrySet()) {
         if (scopeEntry.getValue() instanceof MacroFunction) {
           interpreter.getContext().addGlobalMacro((MacroFunction) scopeEntry.getValue());
-        }
-        else {
+        } else {
           interpreter.getContext().put(scopeEntry.getKey(), scopeEntry.getValue());
         }
       }
@@ -67,8 +70,6 @@ public class MacroFunction extends AbstractCallableMethod {
       }
 
       return result.toString();
-    } finally {
-      interpreter.leaveScope();
     }
   }
 

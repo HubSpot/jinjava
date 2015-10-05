@@ -101,7 +101,7 @@ public class JinjavaInterpreter {
     }
   }
 
-  class InterpreterScopeClosable implements AutoCloseable {
+  public class InterpreterScopeClosable implements AutoCloseable {
 
     @Override
     public void close() {
