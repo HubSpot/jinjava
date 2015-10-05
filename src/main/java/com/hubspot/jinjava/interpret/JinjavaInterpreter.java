@@ -163,7 +163,7 @@ public class JinjavaInterpreter {
 
   /**
    * Render the given root node, processing extend parents. Equivalent to render(root, true)
-   * 
+   *
    * @param root
    *          node to render
    * @return rendered result
