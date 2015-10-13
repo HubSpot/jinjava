@@ -1,17 +1,17 @@
 /**********************************************************************
-Copyright (c) 2014 HubSpot Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ * Copyright (c) 2014 HubSpot Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
@@ -26,8 +26,9 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 
-@JinjavaDoc(value = "Template inheritance allows you to build a base “skeleton” template that contains all the "
-    + "common elements of your site and defines blocks that child templates can override.",
+@JinjavaDoc(
+    value = "Template inheritance allows you to build a base “skeleton” template that contains all the "
+        + "common elements of your site and defines blocks that child templates can override.",
     params = {
         @JinjavaParam(value = "path", desc = "Design Manager file path to parent template")
     },
@@ -74,9 +75,7 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
                 "{% endblock %}")
     })
 public class ExtendsTag implements Tag {
-
   private static final long serialVersionUID = 4692863362280761393L;
-  private static final String TAGNAME = "extends";
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
@@ -84,12 +83,15 @@ public class ExtendsTag implements Tag {
     if (!tokenizer.hasNext()) {
       throw new InterpretException("Tag 'extends' expects template path", tagNode.getLineNumber());
     }
-    String templateFile = interpreter.resolveString(tokenizer.next(), tagNode.getLineNumber());
+
+    String path = interpreter.resolveString(tokenizer.next(), tagNode.getLineNumber());
+    interpreter.getContext().addExtendPath(path, tagNode.getLineNumber());
+
     try {
-      String template = interpreter.getResource(templateFile);
+      String template = interpreter.getResource(path);
       Node node = interpreter.parse(template);
       JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
-      child.getContext().addDependency("coded_files", templateFile);
+      child.getContext().addDependency("coded_files", path);
       interpreter.addExtendParentRoot(node);
       return "";
     } catch (IOException e) {
@@ -104,7 +106,7 @@ public class ExtendsTag implements Tag {
 
   @Override
   public String getName() {
-    return TAGNAME;
+    return "extends";
   }
 
 }

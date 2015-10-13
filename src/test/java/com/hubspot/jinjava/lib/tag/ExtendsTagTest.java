@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -16,6 +17,8 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.ExtendsTagCycleException;
+import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.loader.ResourceLocator;
@@ -73,6 +76,30 @@ public class ExtendsTagTest {
     assertThat(dependencies.get("coded_files")).isNotEmpty();
 
     assertThat(dependencies.get("coded_files").contains("super-base.html"));
+  }
+
+  @Test
+  public void itAvoidsSimpleExtendsCycles() throws IOException {
+    try {
+      jinjava.render(locator.fixture("extends-self.jinja"),
+          new HashMap<String, Object>());
+      fail("expected extends tag cycle exception");
+    } catch (FatalTemplateErrorsException e) {
+      ExtendsTagCycleException cycleException = (ExtendsTagCycleException) e.getErrors().iterator().next().getException();
+      assertThat(cycleException.getPath()).isEqualTo("extends-self.jinja");
+    }
+  }
+
+  @Test
+  public void itAvoidsNestedExtendsCycles() throws IOException {
+    try {
+      jinjava.render(locator.fixture("a-extends-b.jinja"),
+          new HashMap<String, Object>());
+      fail("expected extends tag cycle exception");
+    } catch (FatalTemplateErrorsException e) {
+      ExtendsTagCycleException cycleException = (ExtendsTagCycleException) e.getErrors().iterator().next().getException();
+      assertThat(cycleException.getPath()).isEqualTo("b-extends-a.jinja");
+    }
   }
 
   private static class ExtendsTagTestResourceLocator implements ResourceLocator {

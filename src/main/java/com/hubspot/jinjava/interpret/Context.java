@@ -18,6 +18,7 @@ package com.hubspot.jinjava.interpret;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,7 @@ public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
 
   private final SetMultimap<String, String> dependencies = HashMultimap.create();
+  private final LinkedHashSet<String> extendPaths = new LinkedHashSet<>();
 
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
@@ -217,6 +219,26 @@ public class Context extends ScopeMap<String, Object> {
 
   public void registerTag(Tag t) {
     tagLibrary.addTag(t);
+  }
+
+  public void addExtendPath(String path, int lineNumber) {
+    if (containsExtendsPath(path)) {
+      throw new ExtendsTagCycleException(path, lineNumber);
+    }
+
+    extendPaths.add(path);
+  }
+
+  public boolean containsExtendsPath(String path) {
+    if (extendPaths.contains(path)) {
+      return true;
+    }
+
+    if (parent != null) {
+      return parent.containsExtendsPath(path);
+    }
+
+    return false;
   }
 
   public void addDependency(String type, String identification) {
