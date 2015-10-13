@@ -1,9 +1,13 @@
 # Jinjava Releases #
 
+### Version 2.0.12 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.11%22)) ###
+
+* Fix bug to properly detect cycles in extends tag
+
 ### Version 2.0.11 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.11%22)) ###
 
 * Renaming JinjavaInterpreter.renderString() to renderFlat() to better signify its purpose
-* Fix bug to properly detect cycles in extends tag
+* Released build for jdk7 as version 2.0.11-java7
 
 ### Version 2.0.10 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.10%22)) ###
 
