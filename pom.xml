@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -49,22 +50,18 @@
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.8.1</version>
     </dependency>
     <dependency>
       <groupId>de.odysseus.juel</groupId>
       <artifactId>juel-api</artifactId>
-      <version>2.2.7</version>
     </dependency>
     <dependency>
       <groupId>de.odysseus.juel</groupId>
       <artifactId>juel-impl</artifactId>
-      <version>2.2.7</version>
     </dependency>
     <dependency>
       <groupId>de.odysseus.juel</groupId>
       <artifactId>juel-spi</artifactId>
-      <version>2.2.7</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -102,6 +99,31 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.jsoup</groupId>
+        <artifactId>jsoup</artifactId>
+        <version>1.8.1</version>
+      </dependency>
+      <dependency>
+        <groupId>de.odysseus.juel</groupId>
+        <artifactId>juel-api</artifactId>
+        <version>2.2.7</version>
+      </dependency>
+      <dependency>
+        <groupId>de.odysseus.juel</groupId>
+        <artifactId>juel-impl</artifactId>
+        <version>2.2.7</version>
+      </dependency>
+      <dependency>
+        <groupId>de.odysseus.juel</groupId>
+        <artifactId>juel-spi</artifactId>
+        <version>2.2.7</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
     <plugins>
