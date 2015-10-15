@@ -49,6 +49,12 @@ public class JinjavaInterpreterTest {
     assertThat(interpreter.resolveBlockStubs(content)).isEqualTo("this is $150.00!");
   }
 
+  @Test
+  public void resolveBlockStubsWithCycle() throws Exception {
+    String content = interpreter.render("{% block foo %}{% block foo %}{% endblock %}{% endblock %}");
+    System.out.println(content);
+  }
+
   // Ex VariableChain stuff
 
   static class Foo {

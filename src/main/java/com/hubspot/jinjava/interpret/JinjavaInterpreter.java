@@ -204,6 +204,10 @@ public class JinjavaInterpreter {
   }
 
   String resolveBlockStubs(CharSequence content) {
+    return resolveBlockStubs(content, new Stack<>());
+  }
+
+  String resolveBlockStubs(CharSequence content, Stack<String> blockNames) {
     StringBuilder result = null;
     int pos = 0, start, end, stubStartLen = BLOCK_STUB_START.length();
 
@@ -218,22 +222,26 @@ public class JinjavaInterpreter {
 
       String blockValue = "";
 
-      Collection<List<? extends Node>> blockChain = blocks.get(blockName);
-      List<? extends Node> block = Iterables.getFirst(blockChain, null);
+      if (!blockNames.contains(blockName)) {
+        Collection<List<? extends Node>> blockChain = blocks.get(blockName);
+        List<? extends Node> block = Iterables.getFirst(blockChain, null);
 
-      if (block != null) {
-        List<? extends Node> superBlock = Iterables.get(blockChain, 1, null);
-        context.put(BLOCK_SUPER_REF, superBlock);
+        if (block != null) {
+          List<? extends Node> superBlock = Iterables.get(blockChain, 1, null);
+          context.put(BLOCK_SUPER_REF, superBlock);
 
-        StringBuilder blockValueBuilder = new StringBuilder();
+          StringBuilder blockValueBuilder = new StringBuilder();
 
-        for (Node child : block) {
-          blockValueBuilder.append(child.render(this));
+          for (Node child : block) {
+            blockValueBuilder.append(child.render(this));
+          }
+
+          blockNames.push(blockName);
+          blockValue = resolveBlockStubs(blockValueBuilder, blockNames);
+          blockNames.pop();
+
+          context.remove(BLOCK_SUPER_REF);
         }
-
-        blockValue = resolveBlockStubs(blockValueBuilder);
-
-        context.remove(BLOCK_SUPER_REF);
       }
 
       result.append(content.subSequence(pos, start));
