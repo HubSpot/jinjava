@@ -3,6 +3,7 @@
 ### Version 2.0.12 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.11%22)) ###
 
 * Fix bug to properly detect cycles in extends tag
+* Fix infinite recursion bug in resolveBlockStubs when block contains self-reference
 
 ### Version 2.0.11 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.11%22)) ###
 
