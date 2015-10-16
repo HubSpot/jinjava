@@ -48,7 +48,7 @@ public class MacroTagTest {
   @Test
   public void testSimpleFn() {
     TagNode t = fixture("simple");
-    assertThat(t.render(interpreter)).isEmpty();
+    assertThat(t.render(interpreter).getValue()).isEmpty();
 
     MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.getPath", -1);
     assertThat(fn.getName()).isEqualTo("getPath");
@@ -58,40 +58,40 @@ public class MacroTagTest {
     assertThat(fn.isCatchVarargs()).isFalse();
 
     context.put("myname", "jared");
-    assertThat(snippet("{{ getPath() }}").render(interpreter).trim()).isEqualTo("Hello jared");
+    assertThat(snippet("{{ getPath() }}").render(interpreter).getValue().trim()).isEqualTo("Hello jared");
   }
 
   @Test
   public void testFnWithArgs() {
     TagNode t = fixture("with-args");
-    assertThat(t.render(interpreter)).isEmpty();
+    assertThat(t.render(interpreter).getValue()).isEmpty();
 
     MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.section_link", -1);
     assertThat(fn.getName()).isEqualTo("section_link");
     assertThat(fn.getArguments()).containsExactly("link", "text");
 
-    assertThat(snippet("{{section_link('mylink', 'mytext')}}").render(interpreter).trim()).isEqualTo("link: mylink, text: mytext");
+    assertThat(snippet("{{section_link('mylink', 'mytext')}}").render(interpreter).getValue().trim()).isEqualTo("link: mylink, text: mytext");
   }
 
   @Test
   public void testFnWithArgsWithDefVals() {
     TagNode t = fixture("def-vals");
-    assertThat(t.render(interpreter)).isEmpty();
+    assertThat(t.render(interpreter).getValue()).isEmpty();
 
     MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.article", -1);
     assertThat(fn.getArguments()).containsExactly("title", "thumb", "link", "summary", "last");
     assertThat(fn.getDefaults()).contains(entry("last", false));
 
-    assertThat(snippet("{{ article('mytitle','mythumb','mylink','mysummary') }}").render(interpreter).trim())
+    assertThat(snippet("{{ article('mytitle','mythumb','mylink','mysummary') }}").render(interpreter).getValue().trim())
         .isEqualTo("title: mytitle, thumb: mythumb, link: mylink, summary: mysummary, last: false");
-    assertThat(snippet("{{ article('mytitle','mythumb','mylink','mysummary', last=true) }}").render(interpreter).trim())
+    assertThat(snippet("{{ article('mytitle','mythumb','mylink','mysummary', last=true) }}").render(interpreter).getValue().trim())
         .isEqualTo("title: mytitle, thumb: mythumb, link: mylink, summary: mysummary, last: true");
   }
 
   @Test
   public void testFnWithArrayDefVal() {
     TagNode t = fixture("array-def-val");
-    assertThat(t.render(interpreter)).isEmpty();
+    assertThat(t.render(interpreter).getValue()).isEmpty();
 
     MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.prefix", -1);
     assertThat(fn.getArguments()).containsExactly("property", "value", "prefixes", "prefixval");
@@ -105,8 +105,7 @@ public class MacroTagTest {
         "tools_body_1", ImmutableMap.of("html", "body1"),
         "tools_body_2", ImmutableMap.of("html", "body2"),
         "tools_body_3", ImmutableMap.of("html", "body3"),
-        "tools_body_4", ImmutableMap.of("html", "body4")
-        ));
+        "tools_body_4", ImmutableMap.of("html", "body4")));
 
     Document dom = Jsoup.parseBodyFragment(new Jinjava().render(Resources.toString(Resources.getResource(String.format("tags/macrotag/%s.jinja", "macro-used-in-forloop")), StandardCharsets.UTF_8), bindings));
     Element tabs = dom.select(".tabs").get(0);

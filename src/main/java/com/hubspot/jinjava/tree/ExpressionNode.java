@@ -22,6 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
 import com.hubspot.jinjava.lib.tag.AutoEscapeTag;
+import com.hubspot.jinjava.tree.output.OutputNode;
+import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.util.Logging;
 
@@ -36,7 +38,7 @@ public class ExpressionNode extends Node {
   }
 
   @Override
-  public String render(JinjavaInterpreter interpreter) {
+  public OutputNode render(JinjavaInterpreter interpreter) {
     Object var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
 
     String result = Objects.toString(var, "");
@@ -53,7 +55,7 @@ public class ExpressionNode extends Node {
       result = EscapeFilter.escapeHtmlEntities(result);
     }
 
-    return result;
+    return new RenderedOutputNode(result);
   }
 
   @Override

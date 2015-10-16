@@ -17,7 +17,7 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
-import com.hubspot.jinjava.interpret.ExtendsTagCycleException;
+import com.hubspot.jinjava.interpret.TagCycleException;
 import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
@@ -85,7 +85,7 @@ public class ExtendsTagTest {
           new HashMap<String, Object>());
       fail("expected extends tag cycle exception");
     } catch (FatalTemplateErrorsException e) {
-      ExtendsTagCycleException cycleException = (ExtendsTagCycleException) e.getErrors().iterator().next().getException();
+      TagCycleException cycleException = (TagCycleException) e.getErrors().iterator().next().getException();
       assertThat(cycleException.getPath()).isEqualTo("extends-self.jinja");
     }
   }
@@ -97,7 +97,7 @@ public class ExtendsTagTest {
           new HashMap<String, Object>());
       fail("expected extends tag cycle exception");
     } catch (FatalTemplateErrorsException e) {
-      ExtendsTagCycleException cycleException = (ExtendsTagCycleException) e.getErrors().iterator().next().getException();
+      TagCycleException cycleException = (TagCycleException) e.getErrors().iterator().next().getException();
       assertThat(cycleException.getPath()).isEqualTo("b-extends-a.jinja");
     }
   }

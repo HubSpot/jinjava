@@ -26,33 +26,33 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void resolveBlockStubsWithNoStubs() {
-    assertThat(interpreter.resolveBlockStubs("foo")).isEqualTo("foo");
+    assertThat(interpreter.render("foo")).isEqualTo("foo");
   }
 
   @Test
   public void resolveBlockStubsWithMissingNamedBlock() {
-    String content = String.format("this is %sfoobar%s!", JinjavaInterpreter.BLOCK_STUB_START, JinjavaInterpreter.BLOCK_STUB_END);
-    assertThat(interpreter.resolveBlockStubs(content)).isEqualTo("this is !");
+    String content = "this is {% block foobar %}{% endblock %}!";
+    assertThat(interpreter.render(content)).isEqualTo("this is !");
   }
 
   @Test
   public void resolveBlockStubs() throws Exception {
     interpreter.addBlock("foobar", Lists.newLinkedList(Lists.newArrayList((new TextNode(new TextToken("sparta", -1))))));
-    String content = String.format("this is %sfoobar%s!", JinjavaInterpreter.BLOCK_STUB_START, JinjavaInterpreter.BLOCK_STUB_END);
-    assertThat(interpreter.resolveBlockStubs(content)).isEqualTo("this is sparta!");
+    String content = "this is {% block foobar %}foobar{% endblock %}!";
+    assertThat(interpreter.render(content)).isEqualTo("this is sparta!");
   }
 
   @Test
   public void resolveBlockStubsWithSpecialChars() throws Exception {
     interpreter.addBlock("foobar", Lists.newLinkedList(Lists.newArrayList(new TextNode(new TextToken("$150.00", -1)))));
-    String content = String.format("this is %sfoobar%s!", JinjavaInterpreter.BLOCK_STUB_START, JinjavaInterpreter.BLOCK_STUB_END);
-    assertThat(interpreter.resolveBlockStubs(content)).isEqualTo("this is $150.00!");
+    String content = "this is {% block foobar %}foobar{% endblock %}!";
+    assertThat(interpreter.render(content)).isEqualTo("this is $150.00!");
   }
 
   @Test
   public void resolveBlockStubsWithCycle() throws Exception {
     String content = interpreter.render("{% block foo %}{% block foo %}{% endblock %}{% endblock %}");
-    System.out.println(content);
+    assertThat(content).isEmpty();
   }
 
   // Ex VariableChain stuff

@@ -1,21 +1,20 @@
 /**********************************************************************
-Copyright (c) 2014 HubSpot Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ * Copyright (c) 2014 HubSpot Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.util;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,13 +23,12 @@ import com.google.common.collect.Iterators;
 
 public final class ObjectIterator {
 
-  private ObjectIterator() {
-  }
+  private ObjectIterator() {}
 
   @SuppressWarnings("unchecked")
   public static ForLoop getLoop(Object obj) {
     if (obj == null) {
-      return new ForLoop(new ArrayList<Object>().iterator(), 0);
+      return new ForLoop(Iterators.emptyIterator(), 0);
     }
     // collection
     if (obj instanceof Collection) {
@@ -55,9 +53,7 @@ public final class ObjectIterator {
       return new ForLoop((Iterator<Object>) obj);
     }
     // others
-    ArrayList<Object> res = new ArrayList<Object>();
-    res.add(obj);
-    return new ForLoop(res.iterator(), 1);
+    return new ForLoop(Iterators.singletonIterator(obj), 1);
   }
 
 }

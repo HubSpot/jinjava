@@ -1,12 +1,8 @@
 package com.hubspot.jinjava.lib.tag;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -14,8 +10,12 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.ImportTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -42,19 +42,15 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
                 "{% endmacro %}\n" +
                 "{% macro footer(tag, footer_text) %}\n" +
                 "<footer> <{{ tag }}>{{ footer_text }} </{{tag}}> </footer>\n" +
-                "{% endmacro %}"
-        ),
+                "{% endmacro %}"),
         @JinjavaSnippet(
             desc = "The macro html file is imported from a different template. Macros are then accessed from the name given to the import.",
             code = "{% import 'custom/page/web_page_basic/my_macros.html' as header_footer %}\n" +
                 "{{ header_footer.header('h1', 'My page title') }}\n" +
-                "{{ header_footer.footer('h3', 'Company footer info') }}"
-        )
+                "{{ header_footer.footer('h3', 'Company footer info') }}")
     })
-@SuppressWarnings("unchecked")
 public class ImportTag implements Tag {
   private static final long serialVersionUID = 8433638845398005260L;
-  private static final String IMPORT_PATH_PROPERTY = "__importP@th__";
 
   @Override
   public String getName() {
@@ -75,17 +71,14 @@ public class ImportTag implements Tag {
     }
 
     String path = StringUtils.trimToEmpty(helper.get(0));
-    if (isPathInRenderStack(interpreter.getContext(), path)) {
-      ENGINE_LOG.debug("Path {} is already in include stack", path);
+
+    try {
+      interpreter.getContext().pushImportPath(path, tagNode.getLineNumber());
+    } catch (ImportTagCycleException e) {
+      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION,
+          "Import cycle detected for path: '" + path + "'", null, tagNode.getLineNumber(), e));
       return "";
     }
-
-    Set<String> importedPaths = (Set<String>) interpreter.getContext().get(IMPORT_PATH_PROPERTY);
-    if (importedPaths == null) {
-      importedPaths = new HashSet<String>();
-      interpreter.getContext().put(IMPORT_PATH_PROPERTY, importedPaths);
-    }
-    importedPaths.add(path);
 
     String templateFile = interpreter.resolveString(path, tagNode.getLineNumber());
     try {
@@ -94,8 +87,7 @@ public class ImportTag implements Tag {
 
       if (StringUtils.isBlank(contextVar)) {
         interpreter.render(node);
-      }
-      else {
+      } else {
         JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
         child.render(node);
 
@@ -114,22 +106,6 @@ public class ImportTag implements Tag {
     } catch (IOException e) {
       throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber());
     }
-  }
-
-  private boolean isPathInRenderStack(Context context, String path) {
-    Context current = context;
-    do {
-      Set<String> importedPaths = (Set<String>) current.get(IMPORT_PATH_PROPERTY, new HashSet<String>());
-
-      if (importedPaths.contains(path)) {
-        return true;
-      }
-
-      current = current.getParent();
-
-    } while (current != null);
-
-    return false;
   }
 
   @Override

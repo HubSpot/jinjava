@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.parse.Token;
 
 public abstract class Node implements Serializable {
@@ -62,7 +63,7 @@ public abstract class Node implements Serializable {
     this.children = children;
   }
 
-  public abstract String render(JinjavaInterpreter interpreter);
+  public abstract OutputNode render(JinjavaInterpreter interpreter);
 
   public abstract String getName();
 
