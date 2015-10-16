@@ -31,7 +31,7 @@ public class ExpressionNodeTest {
     context.put("place", "world");
 
     ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(interpreter)).isEqualTo("hello world");
+    assertThat(node.render(interpreter).toString()).isEqualTo("hello world");
   }
 
   @Test
@@ -40,7 +40,7 @@ public class ExpressionNodeTest {
     context.put("place", "{{ place }}");
 
     ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(interpreter)).isEqualTo("hello {{ place }}");
+    assertThat(node.render(interpreter).toString()).isEqualTo("hello {{ place }}");
   }
 
   @Test
@@ -65,7 +65,7 @@ public class ExpressionNodeTest {
   }
 
   private String val(String jinja) {
-    return parse(jinja).render(interpreter);
+    return parse(jinja).render(interpreter).getValue();
   }
 
   private ExpressionNode parse(String jinja) {

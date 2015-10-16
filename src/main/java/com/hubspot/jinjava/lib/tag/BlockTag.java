@@ -21,6 +21,8 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
+import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 
@@ -41,13 +43,10 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
                 "{% endblock %}"),
     })
 public class BlockTag implements Tag {
-
   private static final long serialVersionUID = -2362317415797088108L;
-  private static final String TAGNAME = "block";
-  private static final String ENDTAGNAME = "endblock";
 
   @Override
-  public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+  public OutputNode interpretOutput(TagNode tagNode, JinjavaInterpreter interpreter) {
     HelperStringTokenizer tagData = new HelperStringTokenizer(tagNode.getHelpers());
     if (!tagData.hasNext()) {
       throw new InterpretException("Tag 'block' expects an identifier", tagNode.getLineNumber());
@@ -56,17 +55,23 @@ public class BlockTag implements Tag {
     String blockName = WhitespaceUtils.unquote(tagData.next());
 
     interpreter.addBlock(blockName, tagNode.getChildren());
-    return JinjavaInterpreter.BLOCK_STUB_START + blockName + JinjavaInterpreter.BLOCK_STUB_END;
+
+    return new BlockPlaceholderOutputNode(blockName);
+  }
+
+  @Override
+  public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    throw new UnsupportedOperationException("BlockTag must be rendered directly via interpretOutput() method");
   }
 
   @Override
   public String getEndTagName() {
-    return ENDTAGNAME;
+    return "endblock";
   }
 
   @Override
   public String getName() {
-    return TAGNAME;
+    return "block";
   }
 
 }

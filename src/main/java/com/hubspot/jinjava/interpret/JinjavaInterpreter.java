@@ -35,6 +35,8 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TreeParser;
+import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
+import com.hubspot.jinjava.tree.output.OutputList;
 import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 
@@ -182,78 +184,64 @@ public class JinjavaInterpreter {
    * @return rendered result
    */
   public String render(Node root, boolean processExtendRoots) {
-    StringBuilder buff = new StringBuilder();
+    OutputList output = new OutputList();
 
     for (Node node : root.getChildren()) {
-      buff.append(node.render(this));
+      output.addNode(node.render(this));
     }
 
     // render all extend parents, keeping the last as the root output
     if (processExtendRoots) {
       while (!extendParentRoots.isEmpty()) {
         Node parentRoot = extendParentRoots.removeFirst();
-        buff = new StringBuilder();
+        output = new OutputList();
 
         for (Node node : parentRoot.getChildren()) {
-          buff.append(node.render(this));
+          output.addNode(node.render(this));
         }
       }
     }
 
-    return resolveBlockStubs(buff);
+    resolveBlockStubs(output);
+
+    return output.getValue();
   }
 
-  String resolveBlockStubs(CharSequence content) {
-    return resolveBlockStubs(content, new Stack<>());
+  private void resolveBlockStubs(OutputList output) {
+    resolveBlockStubs(output, new Stack<>());
   }
 
-  String resolveBlockStubs(CharSequence content, Stack<String> blockNames) {
-    StringBuilder result = null;
-    int pos = 0, start, end, stubStartLen = BLOCK_STUB_START.length();
+  private void resolveBlockStubs(OutputList output, Stack<String> blockNames) {
+    for (BlockPlaceholderOutputNode blockPlaceholder : output.getBlocks()) {
 
-    while ((start = StringUtils.indexOf(content, BLOCK_STUB_START, pos)) != -1) {
-      if (result == null) {
-        result = new StringBuilder(content.length() + 256);
-      }
-
-      end = StringUtils.indexOf(content, BLOCK_STUB_END, start + stubStartLen);
-
-      String blockName = content.subSequence(start + stubStartLen, end).toString();
-
-      String blockValue = "";
-
-      if (!blockNames.contains(blockName)) {
-        Collection<List<? extends Node>> blockChain = blocks.get(blockName);
+      if (!blockNames.contains(blockPlaceholder.getBlockName())) {
+        Collection<List<? extends Node>> blockChain = blocks.get(blockPlaceholder.getBlockName());
         List<? extends Node> block = Iterables.getFirst(blockChain, null);
 
         if (block != null) {
           List<? extends Node> superBlock = Iterables.get(blockChain, 1, null);
           context.put(BLOCK_SUPER_REF, superBlock);
 
-          StringBuilder blockValueBuilder = new StringBuilder();
+          OutputList blockValueBuilder = new OutputList();
 
           for (Node child : block) {
-            blockValueBuilder.append(child.render(this));
+            blockValueBuilder.addNode(child.render(this));
           }
 
-          blockNames.push(blockName);
-          blockValue = resolveBlockStubs(blockValueBuilder, blockNames);
+          blockNames.push(blockPlaceholder.getBlockName());
+          resolveBlockStubs(blockValueBuilder, blockNames);
           blockNames.pop();
 
           context.remove(BLOCK_SUPER_REF);
+
+          blockPlaceholder.resolve(blockValueBuilder.getValue());
         }
       }
 
-      result.append(content.subSequence(pos, start));
-      result.append(blockValue);
-      pos = end + 1;
+      if (!blockPlaceholder.isResolved()) {
+        blockPlaceholder.resolve("");
+      }
     }
-
-    if (result != null) {
-      return result.append(content.subSequence(pos, content.length())).toString();
-    }
-
-    return content.toString();
   }
 
   /**
@@ -405,8 +393,6 @@ public class JinjavaInterpreter {
     }
   }
 
-  public static final String BLOCK_STUB_START = "___bl0ck___~";
-  public static final String BLOCK_STUB_END = "~";
   public static final String BLOCK_SUPER_REF = "__superbl0ck__";
 
 }
