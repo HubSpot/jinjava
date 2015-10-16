@@ -16,8 +16,6 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Level;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
@@ -26,6 +24,7 @@ import com.hubspot.jinjava.loader.FileLocator;
 import com.hubspot.jinjava.loader.ResourceLocator;
 import com.hubspot.jinjava.tree.Node;
 
+import ch.qos.logback.classic.Level;
 
 @State(Scope.Benchmark)
 public class Jinja2Benchmark {
@@ -55,7 +54,7 @@ public class Jinja2Benchmark {
     jinjava.setResourceLocator(new ResourceLocator() {
       @Override
       public String getString(String fullName, Charset encoding, JinjavaInterpreter interpreter) throws IOException {
-        switch(fullName) {
+        switch (fullName) {
         case "helpers.html":
           return helpersTemplate;
         case "layout.html":
@@ -74,7 +73,7 @@ public class Jinja2Benchmark {
     List<User> users = Lists.newArrayList(new User("John Doe"), new User("Jane Doe"), new User("Peter Somewhat"));
     SecureRandom rnd = SecureRandom.getInstanceStrong();
     List<Article> articles = new ArrayList<>();
-    for(int i = 0; i < 20; i++) {
+    for (int i = 0; i < 20; i++) {
       articles.add(new Article(i, users.get(rnd.nextInt(users.size()))));
     }
     List<ArrayList<String>> navigation = Lists.newArrayList(
@@ -83,8 +82,7 @@ public class Jinja2Benchmark {
         Lists.newArrayList("foo?bar=1", "Foo with Bar"),
         Lists.newArrayList("foo?bar=2&s=x", "Foo with X"),
         Lists.newArrayList("blah", "Blub Blah"),
-        Lists.newArrayList("hehe", "Haha")
-    );
+        Lists.newArrayList("hehe", "Haha"));
 
     complexBindings = ImmutableMap.of("users", users, "articles", articles, "navigation", navigation);
 
@@ -105,6 +103,7 @@ public class Jinja2Benchmark {
     Jinja2Benchmark b = new Jinja2Benchmark();
     b.setup();
     System.out.println(b.realWorldishBenchmark());
+    System.out.println(b.precompiledBenchmark());
     System.out.println(b.precompiledBenchmark());
   }
 

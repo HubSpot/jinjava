@@ -15,8 +15,6 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
 import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -24,9 +22,12 @@ import org.apache.commons.lang3.StringUtils;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.IncludeTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
@@ -43,7 +44,6 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
     })
 public class IncludeTag implements Tag {
   private static final long serialVersionUID = -8391753639874726854L;
-  private static final String INCLUDE_PATH_PROPERTY = "__includeP@th__";
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
@@ -54,8 +54,11 @@ public class IncludeTag implements Tag {
 
     String path = StringUtils.trimToEmpty(helper.next());
 
-    if (isPathInRenderStack(interpreter.getContext(), path)) {
-      ENGINE_LOG.debug("Path {} is already in include stack", path);
+    try {
+      interpreter.getContext().pushIncludePath(path, tagNode.getLineNumber());
+    } catch (IncludeTagCycleException e) {
+      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION,
+          "Include cycle detected for path: '" + path + "'", null, tagNode.getLineNumber(), e));
       return "";
     }
 
@@ -65,7 +68,6 @@ public class IncludeTag implements Tag {
       Node node = interpreter.parse(template);
       JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
       child.getContext().addDependency("coded_files", templateFile);
-      child.getContext().put(INCLUDE_PATH_PROPERTY, path);
 
       String result = child.render(node);
       interpreter.getErrors().addAll(child.getErrors());
@@ -74,23 +76,9 @@ public class IncludeTag implements Tag {
 
     } catch (IOException e) {
       throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber());
+    } finally {
+      interpreter.getContext().popIncludePath();
     }
-  }
-
-  private boolean isPathInRenderStack(Context context, String path) {
-    Context current = context;
-    do {
-      String includePath = (String) current.get(INCLUDE_PATH_PROPERTY);
-
-      if (StringUtils.equals(path, includePath)) {
-        return true;
-      }
-
-      current = current.getParent();
-
-    } while (current != null);
-
-    return false;
   }
 
   @Override

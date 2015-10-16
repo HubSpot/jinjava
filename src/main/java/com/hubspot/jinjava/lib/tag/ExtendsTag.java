@@ -85,7 +85,7 @@ public class ExtendsTag implements Tag {
     }
 
     String path = interpreter.resolveString(tokenizer.next(), tagNode.getLineNumber());
-    interpreter.getContext().addExtendPath(path, tagNode.getLineNumber());
+    interpreter.getContext().pushExtendPath(path, tagNode.getLineNumber());
 
     try {
       String template = interpreter.getResource(path);

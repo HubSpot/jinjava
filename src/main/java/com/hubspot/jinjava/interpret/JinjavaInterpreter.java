@@ -117,14 +117,6 @@ public class JinjavaInterpreter {
   }
 
   /**
-   * @deprecated see renderFlat(String template)
-   */
-  @Deprecated
-  public String renderString(String template) {
-    return renderFlat(template);
-  }
-
-  /**
    * Parse the given string into a root Node, and then render it without processing any extend parents.
    * This method should be used when the template is known to not have any extends or block tags.
    *
@@ -199,6 +191,8 @@ public class JinjavaInterpreter {
         for (Node node : parentRoot.getChildren()) {
           output.addNode(node.render(this));
         }
+
+        context.popExtendPath();
       }
     }
 

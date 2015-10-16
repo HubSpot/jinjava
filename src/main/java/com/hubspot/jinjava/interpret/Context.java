@@ -18,9 +18,10 @@ package com.hubspot.jinjava.interpret;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Stack;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -40,7 +41,10 @@ public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
 
   private final SetMultimap<String, String> dependencies = HashMultimap.create();
-  private final LinkedHashSet<String> extendPaths = new LinkedHashSet<>();
+
+  private final Stack<String> extendPathStack = new Stack<>();
+  private final Stack<String> importPathStack = new Stack<>();
+  private final Stack<String> includePathStack = new Stack<>();
 
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
@@ -221,24 +225,97 @@ public class Context extends ScopeMap<String, Object> {
     tagLibrary.addTag(t);
   }
 
-  public void addExtendPath(String path, int lineNumber) {
-    if (containsExtendsPath(path)) {
+  public void pushExtendPath(String path, int lineNumber) {
+    if (extendPathStackContains(path)) {
       throw new ExtendsTagCycleException(path, lineNumber);
     }
 
-    extendPaths.add(path);
+    extendPathStack.push(path);
   }
 
-  public boolean containsExtendsPath(String path) {
-    if (extendPaths.contains(path)) {
+  public boolean extendPathStackContains(String path) {
+    if (extendPathStack.contains(path)) {
       return true;
     }
 
     if (parent != null) {
-      return parent.containsExtendsPath(path);
+      return parent.extendPathStackContains(path);
     }
 
     return false;
+  }
+
+  public Optional<String> popExtendPath() {
+    if (extendPathStack.isEmpty()) {
+      if (parent != null) {
+        return parent.popExtendPath();
+      }
+      return Optional.empty();
+    }
+
+    return Optional.of(extendPathStack.pop());
+  }
+
+  public void pushImportPath(String path, int lineNumber) {
+    if (importPathStackContains(path)) {
+      throw new ImportTagCycleException(path, lineNumber);
+    }
+
+    importPathStack.push(path);
+  }
+
+  public boolean importPathStackContains(String path) {
+    if (importPathStack.contains(path)) {
+      return true;
+    }
+
+    if (parent != null) {
+      return parent.importPathStackContains(path);
+    }
+
+    return false;
+  }
+
+  public Optional<String> popImportPath() {
+    if (importPathStack.isEmpty()) {
+      if (parent != null) {
+        return parent.popImportPath();
+      }
+      return Optional.empty();
+    }
+
+    return Optional.of(importPathStack.pop());
+  }
+
+  public void pushIncludePath(String path, int lineNumber) {
+    if (includePathStackContains(path)) {
+      throw new IncludeTagCycleException(path, lineNumber);
+    }
+
+    includePathStack.push(path);
+  }
+
+  public boolean includePathStackContains(String path) {
+    if (includePathStack.contains(path)) {
+      return true;
+    }
+
+    if (parent != null) {
+      return parent.includePathStackContains(path);
+    }
+
+    return false;
+  }
+
+  public Optional<String> popIncludePath() {
+    if (includePathStack.isEmpty()) {
+      if (parent != null) {
+        return parent.popIncludePath();
+      }
+      return Optional.empty();
+    }
+
+    return Optional.of(includePathStack.pop());
   }
 
   public void addDependency(String type, String identification) {
