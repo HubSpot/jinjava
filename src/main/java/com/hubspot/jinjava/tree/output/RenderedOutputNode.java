@@ -17,5 +17,5 @@ public class RenderedOutputNode implements OutputNode {
   public String toString() {
     return getValue();
   }
-  
+
 }
