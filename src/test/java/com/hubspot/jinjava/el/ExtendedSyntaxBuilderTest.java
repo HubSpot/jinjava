@@ -229,6 +229,13 @@ public class ExtendedSyntaxBuilderTest {
     assertThat(interpreter.getErrors().get(0).getMessage()).containsIgnoringCase("'='");
   }
 
+  @Test
+  public void invalidPipeOperatorExpr() throws Exception {
+    assertThat(val("topics|1")).isEqualTo("");
+    assertThat(interpreter.getErrors()).isNotEmpty();
+    assertThat(interpreter.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
+  }
+  
   private Object val(String expr) {
     return interpreter.resolveELExpression(expr, -1);
   }

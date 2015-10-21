@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.el.ELException;
+
 import com.google.common.collect.Lists;
 
 import de.odysseus.el.tree.impl.Builder;
@@ -68,7 +70,7 @@ public class ExtendedParser extends Parser {
     putExtensionHandler(PIPE, new ExtensionHandler(ExtensionPoint.AND) {
       @Override
       public AstNode createAstNode(AstNode... children) {
-        throw new IllegalStateException("Pipe operator reached from AST parse");
+        throw new ELException("Illegal use of '|' operator");
       }
     });
 
