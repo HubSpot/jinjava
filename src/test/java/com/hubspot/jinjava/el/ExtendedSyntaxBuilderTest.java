@@ -212,6 +212,20 @@ public class ExtendedSyntaxBuilderTest {
     assertThat(val("mylist[2]")).isEqualTo(3);
   }
 
+  @Test
+  public void invalidNestedAssignmentExpr() throws Exception {
+    assertThat(val("content.template_path = 'Custom/Email/Responsive/testing.html'")).isEqualTo("");
+    assertThat(interpreter.getErrors()).isNotEmpty();
+    assertThat(interpreter.getErrors().get(0).getMessage()).containsIgnoringCase("identifier");
+  }
+
+  @Test
+  public void invalidIdentifierAssignmentExpr() throws Exception {
+    assertThat(val("content = 'Custom/Email/Responsive/testing.html'")).isEqualTo("");
+    assertThat(interpreter.getErrors()).isNotEmpty();
+    assertThat(interpreter.getErrors().get(0).getMessage()).containsIgnoringCase("'='");
+  }
+
   private Object val(String expr) {
     return interpreter.resolveELExpression(expr, -1);
   }

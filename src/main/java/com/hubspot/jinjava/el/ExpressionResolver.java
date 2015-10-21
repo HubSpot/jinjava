@@ -11,6 +11,7 @@ import javax.el.ValueExpression;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.hubspot.jinjava.el.ext.NamedParameter;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
@@ -18,6 +19,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
+
 import de.odysseus.el.tree.TreeBuilderException;
 
 /**
@@ -44,7 +46,8 @@ public class ExpressionResolver {
   /**
    * Resolve expression against current context.
    *
-   * @param expression Jinja expression.
+   * @param expression
+   *          Jinja expression.
    * @return Value of expression.
    */
   public Object resolveExpression(String expression) {
@@ -55,7 +58,11 @@ public class ExpressionResolver {
     try {
       String elExpression = "#{" + expression.trim() + "}";
       ValueExpression valueExp = expressionFactory.createValueExpression(elContext, elExpression, Object.class);
-      return valueExp.getValue(elContext);
+      Object result = valueExp.getValue(elContext);
+
+      validateResult(result);
+
+      return result;
 
     } catch (PropertyNotFoundException e) {
       interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, e.getMessage(), "", interpreter.getLineNumber(), e));
@@ -72,11 +79,19 @@ public class ExpressionResolver {
     return "";
   }
 
+  private void validateResult(Object result) {
+    if (result instanceof NamedParameter) {
+      throw new ELException("Unexpected '=' operator (use {% set %} tag for variable assignment)");
+    }
+  }
+
   /**
    * Resolve property of bean.
    *
-   * @param object Bean.
-   * @param propertyNames Names of properties to resolve recursively.
+   * @param object
+   *          Bean.
+   * @param propertyNames
+   *          Names of properties to resolve recursively.
    * @return Value of property.
    */
   public Object resolveProperty(Object object, List<String> propertyNames) {

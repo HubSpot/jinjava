@@ -93,8 +93,7 @@ public class ExtendedParser extends Parser {
         consumeToken(COLON);
         AstNode b = expr(true);
         v = createAstChoice(v, a, b);
-      }
-      else {
+      } else {
         consumeToken();
         AstNode cond = expr(true);
         AstNode elseNode = new AstNull();
@@ -270,8 +269,7 @@ public class ExtendedParser extends Parser {
     case EXTENSION:
       if (getToken() == LITERAL_DICT_START) {
         v = dict();
-      }
-      else if (getToken() == LITERAL_DICT_END) {
+      } else if (getToken() == LITERAL_DICT_END) {
         return null;
       }
       break;
@@ -324,16 +322,14 @@ public class ExtendedParser extends Parser {
           AstNode rangeMax = expr(true);
           consumeToken(RBRACK);
           v = createAstRangeBracket(v, property, rangeMax, lvalue, strict);
-        }
-        else if (nextToken.getSymbol() == RBRACK) {
+        } else if (nextToken.getSymbol() == RBRACK) {
           AstBracket bracket = createAstBracket(v, property, lvalue, strict);
           if (getToken().getSymbol() == LPAREN && context.isEnabled(METHOD_INVOCATIONS)) {
             v = createAstMethod(bracket, params());
           } else {
             v = bracket;
           }
-        }
-        else {
+        } else {
           fail(RBRACK);
         }
 
@@ -357,8 +353,7 @@ public class ExtendedParser extends Parser {
             v = createAstMethod(filterProperty, new AstParameters(filterParams)); // function("filter:" + filterName, new AstParameters(filterParams));
 
           } while ("|".equals(getToken().getImage()));
-        }
-        else if ("is".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
+        } else if ("is".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
           consumeToken(); // 'is'
           String exptestName = consumeToken().getImage();
           List<AstNode> exptestParams = Lists.newArrayList(v, interpreter());

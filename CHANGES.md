@@ -2,7 +2,7 @@
 
 ### Version 2.1.1 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.1%22)) ###
 
-* 
+* Better error messages for invalid assignment in expression 
 
 ### Version 2.1.0 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.0%22)) ###
 
