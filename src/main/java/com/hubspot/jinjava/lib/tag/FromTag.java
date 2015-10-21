@@ -12,6 +12,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -31,13 +32,11 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
                 "{% endmacro %}\n" +
                 "{% macro footer(tag, footer_text) %}\n" +
                 "    <footer> <{{ tag }}>{{ footer_text }} </{{tag}}> </footer>\n" +
-                "{% endmacro %}"
-        ),
+                "{% endmacro %}"),
         @JinjavaSnippet(
             desc = "The macro html file is accessed from a different template, but only the footer macro is imported and executed",
             code = "{% from 'custom/page/web_page_basic/my_macros.html' import footer %}\n" +
-                "{{ footer('h2', 'My footer info') }}"
-        ),
+                "{{ footer('h2', 'My footer info') }}"),
     })
 public class FromTag implements Tag {
 
@@ -52,7 +51,7 @@ public class FromTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     List<String> helper = new HelperStringTokenizer(tagNode.getHelpers()).splitComma(true).allTokens();
     if (helper.size() < 3 || !helper.get(1).equals("import")) {
-      throw new InterpretException("Tag 'from' expects import list: " + helper, tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'from' expects import list: " + helper, tagNode.getLineNumber());
     }
 
     String templateFile = interpreter.resolveString(helper.get(0), tagNode.getLineNumber());
@@ -86,8 +85,7 @@ public class FromTag implements Tag {
 
         if (val != null) {
           interpreter.getContext().addGlobalMacro((MacroFunction) val);
-        }
-        else {
+        } else {
           val = child.getContext().get(importMapping.getKey());
 
           if (val != null) {

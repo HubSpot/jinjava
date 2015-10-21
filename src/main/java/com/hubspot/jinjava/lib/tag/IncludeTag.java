@@ -28,6 +28,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
@@ -49,7 +50,7 @@ public class IncludeTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     HelperStringTokenizer helper = new HelperStringTokenizer(tagNode.getHelpers());
     if (!helper.hasNext()) {
-      throw new InterpretException("Tag 'include' expects template path", tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'include' expects template path", tagNode.getLineNumber());
     }
 
     String path = StringUtils.trimToEmpty(helper.next());

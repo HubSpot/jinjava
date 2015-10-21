@@ -22,6 +22,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
@@ -81,7 +82,7 @@ public class ExtendsTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     HelperStringTokenizer tokenizer = new HelperStringTokenizer(tagNode.getHelpers());
     if (!tokenizer.hasNext()) {
-      throw new InterpretException("Tag 'extends' expects template path", tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'extends' expects template path", tagNode.getLineNumber());
     }
 
     String path = interpreter.resolveString(tokenizer.next(), tagNode.getLineNumber());

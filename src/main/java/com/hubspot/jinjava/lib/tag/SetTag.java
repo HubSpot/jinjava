@@ -1,17 +1,17 @@
 /**********************************************************************
-Copyright (c) 2014 HubSpot Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ * Copyright (c) 2014 HubSpot Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
@@ -22,6 +22,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.TagNode;
 
 /**
@@ -32,7 +33,8 @@ import com.hubspot.jinjava.tree.TagNode;
  * @author anysome
  *
  */
-@JinjavaDoc(value = "Assigns the value or result of a statement to a variable",
+@JinjavaDoc(
+    value = "Assigns the value or result of a statement to a variable",
     params = {
         @JinjavaParam(value = "var", type = "variable identifier", desc = "The name of the variable"),
         @JinjavaParam(value = "expr", type = "expression", desc = "The value stored in the variable (string, number, boolean, or sequence")
@@ -41,14 +43,12 @@ import com.hubspot.jinjava.tree.TagNode;
         @JinjavaSnippet(
             desc = "Set a variable in with a set statement and print the variable in a expression",
             code = "{% set primaryColor = \"#F7761F\" %}\n" +
-                "{{ primaryColor }}\n"
-        ),
+                "{{ primaryColor }}\n"),
         @JinjavaSnippet(
             desc = "You can combine multiple values or variables into a sequence variable",
             code = "{% set var_one = \"String 1\" %}\n" +
                 "{% set var_two = \"String 2\" %}\n" +
-                "{% set sequence = [var_one,  var_two] %}"
-        ),
+                "{% set sequence = [var_one,  var_two] %}"),
     })
 public class SetTag implements Tag {
 
@@ -63,7 +63,7 @@ public class SetTag implements Tag {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     if (!tagNode.getHelpers().contains("=")) {
-      throw new InterpretException("Tag 'set' expects an assignment expression with '=', but was: " + tagNode.getHelpers(), tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' expects an assignment expression with '=', but was: " + tagNode.getHelpers(), tagNode.getLineNumber());
     }
 
     int eqPos = tagNode.getHelpers().indexOf('=');

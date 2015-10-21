@@ -13,8 +13,8 @@ import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.TagNode;
 
@@ -31,8 +31,7 @@ import com.hubspot.jinjava.tree.TagNode;
                 "    {{ argument_name }}\n" +
                 "    {{ argument_name2 }}\n" +
                 "{% endmacro %}\n" +
-                "{{ name_of_macro(\"value to pass to argument 1\", \"value to pass to argument 2\") }}"
-        ),
+                "{{ name_of_macro(\"value to pass to argument 1\", \"value to pass to argument 2\") }}"),
         @JinjavaSnippet(
             desc = "Example of a macro used to print CSS3 properties with the various vendor prefixes",
             code = "{% macro trans(value) %}\n" +
@@ -41,8 +40,7 @@ import com.hubspot.jinjava.tree.TagNode;
                 "   -o-transition: {{value}};\n" +
                 "   -ms-transition: {{value}};\n" +
                 "   transition: {{value}};\n" +
-                "{% endmacro %}"
-        ),
+                "{% endmacro %}"),
         @JinjavaSnippet(
             desc = "The macro can then be called like a function. The macro is printed for anchor tags in CSS.",
             code = "a { {{ trans(\"all .2s ease-in-out\") }} }"),
@@ -65,7 +63,7 @@ public class MacroTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     Matcher matcher = MACRO_PATTERN.matcher(tagNode.getHelpers());
     if (!matcher.find()) {
-      throw new InterpretException("Unable to parse macro definition: " + tagNode.getHelpers());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Unable to parse macro definition: " + tagNode.getHelpers(), tagNode.getLineNumber());
     }
 
     String name = matcher.group(1);
@@ -90,8 +88,7 @@ public class MacroTag implements Tag {
 
         Object argVal = interpreter.resolveELExpression(argValStr.toString(), tagNode.getLineNumber());
         argNamesWithDefaults.put(argName, argVal);
-      }
-      else {
+      } else {
         argNamesWithDefaults.put(arg, null);
       }
     }

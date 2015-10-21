@@ -18,8 +18,8 @@ package com.hubspot.jinjava.lib.tag;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
 import com.hubspot.jinjava.tree.output.OutputNode;
@@ -49,7 +49,7 @@ public class BlockTag implements Tag {
   public OutputNode interpretOutput(TagNode tagNode, JinjavaInterpreter interpreter) {
     HelperStringTokenizer tagData = new HelperStringTokenizer(tagNode.getHelpers());
     if (!tagData.hasNext()) {
-      throw new InterpretException("Tag 'block' expects an identifier", tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'block' expects an identifier", tagNode.getLineNumber());
     }
 
     String blockName = WhitespaceUtils.unquote(tagData.next());

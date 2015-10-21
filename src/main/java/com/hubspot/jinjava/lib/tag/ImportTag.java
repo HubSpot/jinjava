@@ -16,6 +16,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -61,7 +62,7 @@ public class ImportTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     List<String> helper = new HelperStringTokenizer(tagNode.getHelpers()).allTokens();
     if (helper.isEmpty()) {
-      throw new InterpretException("Tag 'import' expects 1 helper >>> " + helper.size(), tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'import' expects 1 helper, was: " + helper.size(), tagNode.getLineNumber());
     }
 
     String contextVar = "";
