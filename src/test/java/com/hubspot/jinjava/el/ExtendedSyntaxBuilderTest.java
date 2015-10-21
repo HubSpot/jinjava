@@ -19,6 +19,7 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 
 @SuppressWarnings("unchecked")
 public class ExtendedSyntaxBuilderTest {
@@ -216,6 +217,7 @@ public class ExtendedSyntaxBuilderTest {
   public void invalidNestedAssignmentExpr() throws Exception {
     assertThat(val("content.template_path = 'Custom/Email/Responsive/testing.html'")).isEqualTo("");
     assertThat(interpreter.getErrors()).isNotEmpty();
+    assertThat(interpreter.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
     assertThat(interpreter.getErrors().get(0).getMessage()).containsIgnoringCase("identifier");
   }
 
@@ -223,6 +225,7 @@ public class ExtendedSyntaxBuilderTest {
   public void invalidIdentifierAssignmentExpr() throws Exception {
     assertThat(val("content = 'Custom/Email/Responsive/testing.html'")).isEqualTo("");
     assertThat(interpreter.getErrors()).isNotEmpty();
+    assertThat(interpreter.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
     assertThat(interpreter.getErrors().get(0).getMessage()).containsIgnoringCase("'='");
   }
 

@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.el.ext;
 
-import com.hubspot.jinjava.interpret.InterpretException;
+import javax.el.ELException;
 
 import de.odysseus.el.tree.impl.Parser.ExtensionHandler;
 import de.odysseus.el.tree.impl.Parser.ExtensionPoint;
@@ -16,7 +16,7 @@ public class NamedParameterOperator {
     @Override
     public AstNode createAstNode(AstNode... children) {
       if (!(children[0] instanceof AstIdentifier)) {
-        throw new InterpretException("Expected IDENTIFIER, found " + children[0].toString());
+        throw new ELException("Expected IDENTIFIER, found " + children[0].toString());
       }
       AstIdentifier name = (AstIdentifier) children[0];
       return new AstNamedParameter(name, children[1]);
