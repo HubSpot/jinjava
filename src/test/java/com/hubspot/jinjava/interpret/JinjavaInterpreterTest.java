@@ -3,6 +3,7 @@ package com.hubspot.jinjava.interpret;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -10,6 +11,7 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.parse.TextToken;
 
@@ -128,6 +130,13 @@ public class JinjavaInterpreterTest {
     }
 
     assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("parent");
+  }
+
+  @Test
+  public void parseWithSyntaxError() {
+    RenderResult result = new Jinjava().renderForResult("{%}", new HashMap<>());
+    assertThat(result.getErrors()).isNotEmpty();
+    assertThat(result.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
   }
 
 }
