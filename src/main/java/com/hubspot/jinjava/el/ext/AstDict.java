@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import javax.el.ELContext;
 
+import com.hubspot.jinjava.interpret.TemplateStateException;
 import com.hubspot.jinjava.objects.collections.PyMap;
 
 import de.odysseus.el.tree.Bindings;
@@ -34,7 +35,7 @@ public class AstDict extends AstLiteral {
       } else if (entry.getKey() instanceof AstIdentifier) {
         key = ((AstIdentifier) entry.getKey()).getName();
       } else {
-        throw new IllegalArgumentException("Dict key must be a string or identifier, was: " + entry.getKey());
+        throw new TemplateStateException("Dict key must be a string or identifier, was: " + entry.getKey());
       }
 
       resolved.put(key, entry.getValue().eval(bindings, context));
