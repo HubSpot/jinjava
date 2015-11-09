@@ -319,29 +319,11 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public void addDependency(String type, String identification) {
-    Context highestParentContext = getHighestParentContext();
-    highestParentContext.dependencies.get(type).add(identification);
+    this.dependencies.get(type).add(identification);
   }
 
   public SetMultimap<String, String> getDependencies() {
-    Context highestParentContext = getHighestParentContext();
-    return highestParentContext.dependencies;
-  }
-
-  private Context getHighestParentContext() {
-    Context highestParentContext = parent != null ? parent : this;
-    Context currentParentContext = highestParentContext.getParent();
-
-    while (currentParentContext != null) {
-      if (currentParentContext.equals(currentParentContext.getParent())) {
-        return highestParentContext;
-      }
-
-      highestParentContext = highestParentContext.getParent();
-      currentParentContext = highestParentContext.getParent();
-
-    }
-    return highestParentContext;
+    return this.dependencies;
   }
 
 }
