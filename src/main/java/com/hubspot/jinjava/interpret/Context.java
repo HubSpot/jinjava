@@ -319,10 +319,11 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public void addDependency(String type, String identification) {
-    this.getParent().dependencies.get(type).add(identification);
+    this.dependencies.get(type).add(identification);
   }
 
   public SetMultimap<String, String> getDependencies() {
     return this.dependencies;
   }
+
 }
