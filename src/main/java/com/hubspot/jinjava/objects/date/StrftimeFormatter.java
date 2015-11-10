@@ -117,7 +117,7 @@ public class StrftimeFormatter {
       try {
         return DateTimeFormatter.ofPattern(toJavaDateTimeFormat(strftime));
       } catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException("Invalid date format [" + strftime + "]: " + e.getMessage(), e);
+        throw new InvalidDateFormatException(strftime, e);
       }
     }
   }
