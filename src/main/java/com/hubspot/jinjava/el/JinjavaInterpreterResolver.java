@@ -162,7 +162,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
   private static DateTimeFormatter getFormatter(JinjavaInterpreter interpreter, FormattedDate d) {
     if (!StringUtils.isBlank(d.getFormat())) {
       try {
-        return StrftimeFormatter.formatter(d.getFormat());
+        return StrftimeFormatter.formatter(d.getFormat(), interpreter.getConfig().getLocale());
       } catch (IllegalArgumentException e) {
         interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, e.getMessage(), null, interpreter.getLineNumber(), null));
       }

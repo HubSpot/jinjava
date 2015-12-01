@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Stack;
 
 import org.apache.commons.lang3.StringUtils;
@@ -375,6 +376,10 @@ public class JinjavaInterpreter {
     }
 
     return CURRENT_INTERPRETER.get().peek();
+  }
+
+  public static Optional<JinjavaInterpreter> getCurrentMaybe() {
+    return Optional.ofNullable(getCurrent());
   }
 
   public static void pushCurrent(JinjavaInterpreter interpreter) {

@@ -3,6 +3,7 @@ package com.hubspot.jinjava.objects.date;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -104,30 +105,51 @@ public class StrftimeFormatter {
   }
 
   public static DateTimeFormatter formatter(String strftime) {
+    return formatter(strftime, Locale.ENGLISH);
+  }
+
+  public static DateTimeFormatter formatter(String strftime, Locale locale) {
+    DateTimeFormatter fmt;
+
     switch (strftime.toLowerCase()) {
     case "short":
-      return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
+      fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
+      break;
     case "medium":
-      return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
+      fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
+      break;
     case "long":
-      return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);
+      fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);
+      break;
     case "full":
-      return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL);
+      fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL);
+      break;
     default:
       try {
-        return DateTimeFormatter.ofPattern(toJavaDateTimeFormat(strftime));
+        fmt = DateTimeFormatter.ofPattern(toJavaDateTimeFormat(strftime));
+        break;
       } catch (IllegalArgumentException e) {
         throw new InvalidDateFormatException(strftime, e);
       }
     }
+
+    return fmt.withLocale(locale);
   }
 
   public static String format(ZonedDateTime d) {
     return format(d, DEFAULT_DATE_FORMAT);
   }
 
+  public static String format(ZonedDateTime d, Locale locale) {
+    return format(d, DEFAULT_DATE_FORMAT, locale);
+  }
+
   public static String format(ZonedDateTime d, String strftime) {
-    return formatter(strftime).format(d);
+    return format(d, strftime, Locale.ENGLISH);
+  }
+
+  public static String format(ZonedDateTime d, String strftime, Locale locale) {
+    return formatter(strftime, locale).format(d);
   }
 
 }

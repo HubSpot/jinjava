@@ -7,11 +7,13 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import org.apache.commons.lang3.BooleanUtils;
 
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -72,10 +74,15 @@ public class Functions {
       return "";
     }
 
+    Locale locale = JinjavaInterpreter.getCurrentMaybe()
+        .map(JinjavaInterpreter::getConfig)
+        .map(JinjavaConfig::getLocale)
+        .orElse(Locale.ENGLISH);
+
     if (format.length > 0) {
-      return StrftimeFormatter.format(d, format[0]);
+      return StrftimeFormatter.format(d, format[0], locale);
     } else {
-      return StrftimeFormatter.format(d);
+      return StrftimeFormatter.format(d, locale);
     }
   }
 
