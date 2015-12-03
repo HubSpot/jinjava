@@ -54,16 +54,16 @@ public class IncludeTag implements Tag {
     }
 
     String path = StringUtils.trimToEmpty(helper.next());
+    String templateFile = interpreter.resolveString(path, tagNode.getLineNumber());
 
     try {
-      interpreter.getContext().pushIncludePath(path, tagNode.getLineNumber());
+      interpreter.getContext().pushIncludePath(templateFile, tagNode.getLineNumber());
     } catch (IncludeTagCycleException e) {
       interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION,
-          "Include cycle detected for path: '" + path + "'", null, tagNode.getLineNumber(), e));
+          "Include cycle detected for path: '" + templateFile + "'", null, tagNode.getLineNumber(), e));
       return "";
     }
 
-    String templateFile = interpreter.resolveString(path, tagNode.getLineNumber());
     try {
       String template = interpreter.getResource(templateFile);
       Node node = interpreter.parse(template);
