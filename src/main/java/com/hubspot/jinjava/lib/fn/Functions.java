@@ -36,8 +36,7 @@ public class Functions {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     StringBuilder result = new StringBuilder();
 
-    @SuppressWarnings("unchecked")
-    List<Node> superBlock = (List<Node>) interpreter.getContext().get("__superbl0ck__");
+    List<? extends Node> superBlock = interpreter.getContext().getSuperBlock();
     if (superBlock != null) {
       for (Node n : superBlock) {
         result.append(n.render(interpreter));

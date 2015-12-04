@@ -35,6 +35,7 @@ import com.hubspot.jinjava.lib.fn.FunctionLibrary;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.TagLibrary;
+import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.ScopeMap;
 
 public class Context extends ScopeMap<String, Object> {
@@ -54,6 +55,7 @@ public class Context extends ScopeMap<String, Object> {
   private final Context parent;
 
   private Boolean autoEscape;
+  private List<? extends Node> superBlock;
 
   public Context() {
     this(null);
@@ -127,6 +129,26 @@ public class Context extends ScopeMap<String, Object> {
 
   public void setAutoEscape(Boolean autoEscape) {
     this.autoEscape = autoEscape;
+  }
+
+  public List<? extends Node> getSuperBlock() {
+    if (superBlock != null) {
+      return superBlock;
+    }
+
+    if (parent != null) {
+      return parent.getSuperBlock();
+    }
+
+    return null;
+  }
+
+  public void setSuperBlock(List<? extends Node> superBlock) {
+    this.superBlock = superBlock;
+  }
+
+  public void removeSuperBlock() {
+    this.superBlock = null;
   }
 
   @SafeVarargs

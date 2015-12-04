@@ -215,7 +215,7 @@ public class JinjavaInterpreter {
 
         if (block != null) {
           List<? extends Node> superBlock = Iterables.get(blockChain, 1, null);
-          context.put(BLOCK_SUPER_REF, superBlock);
+          context.setSuperBlock(superBlock);
 
           OutputList blockValueBuilder = new OutputList();
 
@@ -227,7 +227,7 @@ public class JinjavaInterpreter {
           resolveBlockStubs(blockValueBuilder, blockNames);
           blockNames.pop();
 
-          context.remove(BLOCK_SUPER_REF);
+          context.removeSuperBlock();
 
           blockPlaceholder.resolve(blockValueBuilder.getValue());
         }
@@ -391,7 +391,5 @@ public class JinjavaInterpreter {
       CURRENT_INTERPRETER.get().pop();
     }
   }
-
-  public static final String BLOCK_SUPER_REF = "__superbl0ck__";
 
 }
