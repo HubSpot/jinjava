@@ -53,6 +53,8 @@ public class Context extends ScopeMap<String, Object> {
 
   private final Context parent;
 
+  private Boolean autoEscape;
+
   public Context() {
     this(null);
   }
@@ -109,6 +111,22 @@ public class Context extends ScopeMap<String, Object> {
 
   public boolean isGlobalMacro(String identifier) {
     return getGlobalMacro(identifier) != null;
+  }
+
+  public boolean isAutoEscape() {
+    if (autoEscape != null) {
+      return autoEscape;
+    }
+
+    if (parent != null) {
+      return parent.isAutoEscape();
+    }
+
+    return false;
+  }
+
+  public void setAutoEscape(Boolean autoEscape) {
+    this.autoEscape = autoEscape;
   }
 
   @SafeVarargs

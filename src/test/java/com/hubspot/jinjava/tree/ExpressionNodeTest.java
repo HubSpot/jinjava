@@ -12,7 +12,6 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.tag.AutoEscapeTag;
 
 public class ExpressionNodeTest {
 
@@ -60,7 +59,7 @@ public class ExpressionNodeTest {
     context.put("a", "foo < bar");
     assertThat(val("{{ a }}")).isEqualTo("foo < bar");
 
-    context.put(AutoEscapeTag.AUTOESCAPE_CONTEXT_VAR, Boolean.TRUE);
+    context.setAutoEscape(true);
     assertThat(val("{{ a }}")).isEqualTo("foo &lt; bar");
   }
 

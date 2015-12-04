@@ -3,6 +3,7 @@
 ### Version 2.1.2 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.2%22)) ###
 
 * Use resolved path value in include tag cycle detection
+* Store autoEscape flag in context outside of user-scoped properties
 
 ### Version 2.1.1 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.1%22)) ###
 
