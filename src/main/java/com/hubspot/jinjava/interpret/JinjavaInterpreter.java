@@ -363,12 +363,7 @@ public class JinjavaInterpreter {
     return errors;
   }
 
-  private static final ThreadLocal<Stack<JinjavaInterpreter>> CURRENT_INTERPRETER = new ThreadLocal<Stack<JinjavaInterpreter>>() {
-    @Override
-    protected Stack<JinjavaInterpreter> initialValue() {
-      return new Stack<>();
-    }
-  };
+  private static final ThreadLocal<Stack<JinjavaInterpreter>> CURRENT_INTERPRETER = ThreadLocal.withInitial(Stack::new);
 
   public static JinjavaInterpreter getCurrent() {
     if (CURRENT_INTERPRETER.get().isEmpty()) {
