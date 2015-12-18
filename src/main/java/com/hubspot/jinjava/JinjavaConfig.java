@@ -31,30 +31,34 @@ public class JinjavaConfig {
   private final boolean trimBlocks;
   private final boolean lstripBlocks;
 
+  private final boolean readOnlyResolver;
+
   public static Builder newBuilder() {
     return new Builder();
   }
 
   public JinjavaConfig() {
-    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, false, false);
+    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, false, false, true);
   }
 
   public JinjavaConfig(Charset charset, Locale locale, ZoneId timeZone, int maxRenderDepth) {
-    this(charset, locale, timeZone, maxRenderDepth, false, false);
+    this(charset, locale, timeZone, maxRenderDepth, false, false, true);
   }
 
   private JinjavaConfig(Charset charset,
-      Locale locale,
-      ZoneId timeZone,
-      int maxRenderDepth,
-      boolean trimBlocks,
-      boolean lstripBlocks) {
+                        Locale locale,
+                        ZoneId timeZone,
+                        int maxRenderDepth,
+                        boolean trimBlocks,
+                        boolean lstripBlocks,
+                        boolean readOnlyResolver) {
     this.charset = charset;
     this.locale = locale;
     this.timeZone = timeZone;
     this.maxRenderDepth = maxRenderDepth;
     this.trimBlocks = trimBlocks;
     this.lstripBlocks = lstripBlocks;
+    this.readOnlyResolver = readOnlyResolver;
   }
 
   public Charset getCharset() {
@@ -81,6 +85,10 @@ public class JinjavaConfig {
     return lstripBlocks;
   }
 
+  public boolean isReadOnlyResolver() {
+    return readOnlyResolver;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -89,6 +97,8 @@ public class JinjavaConfig {
 
     private boolean trimBlocks;
     private boolean lstripBlocks;
+
+    private boolean readOnlyResolver = true;
 
     private Builder() {}
 
@@ -122,8 +132,13 @@ public class JinjavaConfig {
       return this;
     }
 
+    public Builder withReadOnlyResolver(boolean readOnlyResolver) {
+      this.readOnlyResolver = readOnlyResolver;
+      return this;
+    }
+
     public JinjavaConfig build() {
-      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, trimBlocks, lstripBlocks);
+      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, trimBlocks, lstripBlocks, readOnlyResolver);
     }
   }
 

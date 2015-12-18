@@ -43,6 +43,16 @@ import de.odysseus.el.util.SimpleResolver;
 
 public class JinjavaInterpreterResolver extends SimpleResolver {
 
+  private static final ELResolver DEFAULT_RESOLVER_READ_ONLY = new CompositeELResolver() {
+    {
+      add(new ArrayELResolver(true));
+      add(new JinjavaListELResolver(true));
+      add(new MapELResolver(true));
+      add(new ResourceBundleELResolver());
+      add(new JinjavaBeanELResolver(true));
+    }
+  };
+
   private static final ELResolver DEFAULT_RESOLVER_READ_WRITE = new CompositeELResolver() {
     {
       add(new ArrayELResolver(false));
@@ -56,7 +66,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
   private final JinjavaInterpreter interpreter;
 
   public JinjavaInterpreterResolver(JinjavaInterpreter interpreter) {
-    super(DEFAULT_RESOLVER_READ_WRITE);
+    super(interpreter.getConfig().isReadOnlyResolver() ? DEFAULT_RESOLVER_READ_ONLY : DEFAULT_RESOLVER_READ_WRITE);
     this.interpreter = interpreter;
   }
 
