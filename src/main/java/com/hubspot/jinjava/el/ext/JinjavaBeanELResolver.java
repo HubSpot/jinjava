@@ -1,14 +1,29 @@
 package com.hubspot.jinjava.el.ext;
 
+import java.util.Set;
+
 import javax.el.BeanELResolver;
 import javax.el.ELContext;
+import javax.el.MethodNotFoundException;
 
 import com.google.common.base.CaseFormat;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * {@link BeanELResolver} supporting snake case property names.
  */
 public class JinjavaBeanELResolver extends BeanELResolver {
+  private static final Set<String> RESTRICTED_PROPERTIES = ImmutableSet.<String> builder()
+      .add("class")
+      .build();
+
+  private static final Set<String> RESTRICTED_METHODS = ImmutableSet.<String> builder()
+      .add("clone")
+      .add("hashCode")
+      .add("notify")
+      .add("notifyAll")
+      .add("wait")
+      .build();
 
   /**
    * Creates a new read/write {@link JinjavaBeanELResolver}.
@@ -24,22 +39,40 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
   @Override
   public Class<?> getType(ELContext context, Object base, Object property) {
-    return super.getType(context, base, transformPropertyName(property));
+    return super.getType(context, base, validatePropertyName(property));
   }
 
   @Override
   public Object getValue(ELContext context, Object base, Object property) {
-    return super.getValue(context, base, transformPropertyName(property));
+    return super.getValue(context, base, validatePropertyName(property));
   }
 
   @Override
   public boolean isReadOnly(ELContext context, Object base, Object property) {
-    return super.isReadOnly(context, base, transformPropertyName(property));
+    return super.isReadOnly(context, base, validatePropertyName(property));
   }
 
   @Override
   public void setValue(ELContext context, Object base, Object property, Object value) {
-    super.setValue(context, base, transformPropertyName(property), value);
+    super.setValue(context, base, validatePropertyName(property), value);
+  }
+
+  @Override
+  public Object invoke(ELContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
+    if (method == null || RESTRICTED_METHODS.contains(method.toString())) {
+      throw new MethodNotFoundException("Cannot find method '" + method + "' in " + base.getClass());
+    }
+    return super.invoke(context, base, method, paramTypes, params);
+  }
+
+  private String validatePropertyName(Object property) {
+    String propertyName = transformPropertyName(property);
+
+    if (RESTRICTED_PROPERTIES.contains(propertyName)) {
+      return null;
+    }
+
+    return propertyName;
   }
 
   /**

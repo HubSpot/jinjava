@@ -124,7 +124,7 @@ public class ExpressionResolverTest {
     assertThat(val).isEqualTo("val");
   }
 
-  public static class MyCustomList<T> extends ForwardingList<T>implements PyWrapper {
+  public static class MyCustomList<T> extends ForwardingList<T> implements PyWrapper {
     private final List<T> list;
 
     public MyCustomList(List<T> list) {
@@ -194,6 +194,28 @@ public class ExpressionResolverTest {
     Object result = interpreter.resolveELExpression("myobj.date", -1);
     assertThat(result).isInstanceOf(PyishDate.class);
     assertThat(result.toString()).isEqualTo("1970-01-01 00:00:00");
+  }
+
+  @Test
+  public void blackListedProperties() throws Exception {
+    context.put("myobj", new MyClass(new Date(0)));
+    interpreter.resolveELExpression("myobj.class.methods[0]", -1);
+
+    assertThat(interpreter.getErrors()).isNotEmpty();
+    TemplateError e = interpreter.getErrors().get(0);
+    assertThat(e.getReason()).isEqualTo(ErrorReason.UNKNOWN);
+    assertThat(e.getFieldName()).isEqualTo("class");
+    assertThat(e.getMessage()).contains("Cannot resolve property 'class'");
+  }
+
+  @Test
+  public void blackListedMethods() throws Exception {
+    context.put("myobj", new MyClass(new Date(0)));
+    interpreter.resolveELExpression("myobj.wait()", -1);
+
+    assertThat(interpreter.getErrors()).isNotEmpty();
+    TemplateError e = interpreter.getErrors().get(0);
+    assertThat(e.getMessage()).contains("Cannot find method 'wait'");
   }
 
   public static final class MyClass {

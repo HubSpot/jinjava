@@ -6,6 +6,7 @@
 * Store autoEscape flag in context outside of user-editable properties
 * Store superBlock reference in context outside of user-editable properties
 * make EL resolver read-only by default, expose as config parameter
+* restrict certain methods/properties in object expressions
 
 ### Version 2.1.1 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.1%22)) ###
 
