@@ -13,7 +13,7 @@ import static de.odysseus.el.tree.impl.Scanner.Symbol.RPAREN;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -185,7 +185,7 @@ public class ExtendedParser extends Parser {
 
   protected AstDict dict() throws ScanException, ParseException {
     consumeToken();
-    Map<AstNode, AstNode> dict = new HashMap<>();
+    Map<AstNode, AstNode> dict = new LinkedHashMap<>();
 
     AstNode k = expr(false);
     if (k != null) {
