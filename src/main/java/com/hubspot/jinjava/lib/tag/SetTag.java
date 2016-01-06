@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.TagNode;
@@ -71,10 +70,10 @@ public class SetTag implements Tag {
     String expr = tagNode.getHelpers().substring(eqPos + 1, tagNode.getHelpers().length());
 
     if (var.length() == 0) {
-      throw new InterpretException("Tag 'set' requires a var name to assign to", tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' requires a var name to assign to", tagNode.getLineNumber());
     }
     if (StringUtils.isBlank(expr)) {
-      throw new InterpretException("Tag 'set' requires an expression to assign to a var", tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' requires an expression to assign to a var", tagNode.getLineNumber());
     }
 
     Object val = interpreter.resolveELExpression(expr, tagNode.getLineNumber());
