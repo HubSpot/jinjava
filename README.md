@@ -72,9 +72,9 @@ By default, it will load a ```FileLocator```; you will likely want to provide yo
 
 ```java
 JinjavaConfig config = new JinjavaConfig();
-config.setResourceLocator(new MyCustomResourceLocator());
 
 Jinjava jinjava = new Jinjava(config);
+jinjava.setResourceLocator(new MyCustomResourceLocator());
 ```
 
 ### Custom tags, filters and functions
