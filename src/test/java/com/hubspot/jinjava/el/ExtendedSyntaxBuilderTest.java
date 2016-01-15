@@ -69,6 +69,15 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
+  public void stringExpTestOps() {
+    assertThat(val("'football' is string_startingwith 'foot'")).isEqualTo(true);
+    assertThat(val("'football' is string_startingwith 'ball'")).isEqualTo(false);
+
+    assertThat(val("'football' is string_containing 'tb'")).isEqualTo(true);
+    assertThat(val("'football' is string_containing 'golf'")).isEqualTo(false);
+  }
+
+  @Test
   public void namedFnArgs() {
     context.put("path", "/page");
     assertThat(val("path=='/' or truncate(path,length=5,killwords=true,end='')=='/page'")).isEqualTo(true);
@@ -235,7 +244,7 @@ public class ExtendedSyntaxBuilderTest {
     assertThat(interpreter.getErrors()).isNotEmpty();
     assertThat(interpreter.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
   }
-  
+
   private Object val(String expr) {
     return interpreter.resolveELExpression(expr, -1);
   }
