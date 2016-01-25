@@ -18,18 +18,18 @@ public class CollectionMembershipOperator extends SimpleOperator {
   @Override
   protected Object apply(TypeConverter converter, Object o1, Object o2) {
     if (o2 == null) {
-      return false;
+      return Boolean.FALSE;
     }
 
     if (CharSequence.class.isAssignableFrom(o2.getClass())) {
-      return StringUtils.contains((CharSequence) o2, Objects.toString(o1, ""));
+      return Boolean.valueOf(StringUtils.contains((CharSequence) o2, Objects.toString(o1, "")));
     }
 
     if (Collection.class.isAssignableFrom(o2.getClass())) {
-      return ((Collection<?>) o2).contains(o1);
+      return Boolean.valueOf(((Collection<?>) o2).contains(o1));
     }
 
-    return false;
+    return Boolean.FALSE;
   }
 
   public static final CollectionMembershipOperator OP = new CollectionMembershipOperator();

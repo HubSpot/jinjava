@@ -32,8 +32,7 @@ public class ExtendedScanner extends Scanner {
 
     if (getPosition() == length) {
       token = fixed(Symbol.EOF);
-    }
-    else {
+    } else {
       token = nextToken();
     }
 
@@ -48,6 +47,7 @@ public class ExtendedScanner extends Scanner {
   private static final Method ADD_KEY_TOKEN_METHOD;
   private static final Field TOKEN_FIELD;
   private static final Field POSITION_FIELD;
+
   static {
     try {
       ADD_KEY_TOKEN_METHOD = Scanner.class.getDeclaredMethod("addKeyToken", Token.class);
@@ -77,6 +77,7 @@ public class ExtendedScanner extends Scanner {
     }
   }
 
+  @SuppressWarnings("boxing")
   protected void incrPosition(int n) {
     try {
       POSITION_FIELD.set(this, getPosition() + n);
@@ -91,8 +92,7 @@ public class ExtendedScanner extends Scanner {
       if (getInput().charAt(getPosition()) == '}') {
         if (getPosition() < getInput().length() - 1) {
           return ExtendedParser.LITERAL_DICT_END;
-        }
-        else {
+        } else {
           return fixed(Symbol.END_EVAL);
         }
       }
@@ -100,10 +100,10 @@ public class ExtendedScanner extends Scanner {
     } else {
       if (getPosition() + 1 < getInput().length() && getInput().charAt(getPosition() + 1) == '{') {
         switch (getInput().charAt(getPosition())) {
-        case '#':
-          return fixed(Symbol.START_EVAL_DEFERRED);
-        case '$':
-          return fixed(Symbol.START_EVAL_DYNAMIC);
+          case '#':
+            return fixed(Symbol.START_EVAL_DEFERRED);
+          case '$':
+            return fixed(Symbol.START_EVAL_DYNAMIC);
         }
       }
       return nextText();
@@ -151,29 +151,29 @@ public class ExtendedScanner extends Scanner {
         } else {
           c = getInput().charAt(i++);
           switch (c) {
-          case '\\':
-          case '\'':
-          case '"':
-            builder.append(c);
-            break;
+            case '\\':
+            case '\'':
+            case '"':
+              builder.append(c);
+              break;
 
-          case 'n':
-            builder.append('\n');
-            break;
-          case 't':
-            builder.append('\t');
-            break;
-          case 'b':
-            builder.append('\b');
-            break;
-          case 'f':
-            builder.append('\f');
-            break;
-          case 'r':
-            builder.append('\r');
-            break;
-          default:
-            throw new ScanException(getPosition(), "invalid escape sequence \\" + c, "\\" + quote + " or \\\\");
+            case 'n':
+              builder.append('\n');
+              break;
+            case 't':
+              builder.append('\t');
+              break;
+            case 'b':
+              builder.append('\b');
+              break;
+            case 'f':
+              builder.append('\f');
+              break;
+            case 'r':
+              builder.append('\r');
+              break;
+            default:
+              throw new ScanException(getPosition(), "invalid escape sequence \\" + c, "\\" + quote + " or \\\\");
           }
         }
       } else if (c == quote) {

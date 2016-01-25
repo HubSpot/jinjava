@@ -9,7 +9,7 @@ public class TruthyTypeConverter extends TypeConverterImpl {
 
   @Override
   protected Boolean coerceToBoolean(Object value) {
-    return ObjectTruthValue.evaluate(value);
+    return Boolean.valueOf(ObjectTruthValue.evaluate(value));
   }
 
 }

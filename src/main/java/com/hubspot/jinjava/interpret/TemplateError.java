@@ -8,18 +8,24 @@ import com.google.common.base.Objects;
 
 public class TemplateError {
   public enum ErrorType {
-    FATAL, WARNING
+    FATAL,
+    WARNING
   }
 
   public enum ErrorReason {
-    SYNTAX_ERROR, UNKNOWN, BAD_URL, EXCEPTION, MISSING, OTHER
+    SYNTAX_ERROR,
+    UNKNOWN,
+    BAD_URL,
+    EXCEPTION,
+    MISSING,
+    OTHER
   }
 
   private final ErrorType severity;
   private final ErrorReason reason;
   private final String message;
   private final String fieldName;
-  private final Integer lineno;
+  private final int lineno;
 
   private final Exception exception;
 
@@ -68,8 +74,12 @@ public class TemplateError {
   // java.lang.Object@7852e922
   private static final Pattern GENERIC_TOSTRING_PATTERN = Pattern.compile("@[0-9a-z]{4,}$");
 
-  public TemplateError(ErrorType severity, ErrorReason reason, String message,
-      String fieldName, Integer lineno, Exception exception) {
+  public TemplateError(ErrorType severity,
+                       ErrorReason reason,
+                       String message,
+                       String fieldName,
+                       int lineno,
+                       Exception exception) {
     this.severity = severity;
     this.reason = reason;
     this.message = message;
@@ -94,7 +104,7 @@ public class TemplateError {
     return fieldName;
   }
 
-  public Integer getLineno() {
+  public int getLineno() {
     return lineno;
   }
 

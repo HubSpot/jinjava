@@ -54,6 +54,7 @@ public class Context extends ScopeMap<String, Object> {
 
   private final Context parent;
 
+  private int renderDepth = -1;
   private Boolean autoEscape;
   private List<? extends Node> superBlock;
 
@@ -117,7 +118,7 @@ public class Context extends ScopeMap<String, Object> {
 
   public boolean isAutoEscape() {
     if (autoEscape != null) {
-      return autoEscape;
+      return autoEscape.booleanValue();
     }
 
     if (parent != null) {
@@ -356,6 +357,22 @@ public class Context extends ScopeMap<String, Object> {
     }
 
     return Optional.of(includePathStack.pop());
+  }
+
+  public int getRenderDepth() {
+    if (renderDepth != -1) {
+      return renderDepth;
+    }
+
+    if (parent != null) {
+      return parent.getRenderDepth();
+    }
+
+    return 0;
+  }
+
+  public void setRenderDepth(int renderDepth) {
+    this.renderDepth = renderDepth;
   }
 
   public void addDependency(String type, String identification) {

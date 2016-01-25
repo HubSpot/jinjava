@@ -13,10 +13,9 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     snippets = {
         @JinjavaSnippet(
             code = "{%  set count_words = \"Count the number of words in this variable\" %}\n" +
-                "{{ count_words|wordcount }}"
-        )
+                "{{ count_words|wordcount }}")
 
-    })
+})
 public class WordCountFilter implements Filter {
 
   @Override
@@ -34,7 +33,7 @@ public class WordCountFilter implements Filter {
       count++;
     }
 
-    return count;
+    return Integer.valueOf(count);
   }
 
   private static final Pattern WORD_RE = Pattern.compile("\\w+", Pattern.UNICODE_CHARACTER_CLASS | Pattern.MULTILINE);

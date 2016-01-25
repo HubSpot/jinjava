@@ -126,21 +126,18 @@ public class JinjavaInterpreter {
    * @return rendered result
    */
   public String renderFlat(String template) {
-    Integer depth = (Integer) context.get("hs_render_depth", 0);
-    if (depth == null) {
-      depth = 0;
-    }
+    int depth = context.getRenderDepth();
 
     try {
       if (depth > config.getMaxRenderDepth()) {
-        ENGINE_LOG.warn("Max render depth exceeded: {}", depth);
+        ENGINE_LOG.warn("Max render depth exceeded: {}", Integer.toString(depth));
         return template;
       } else {
-        context.put("hs_render_depth", depth + 1);
+        context.setRenderDepth(depth + 1);
         return render(parse(template), false);
       }
     } finally {
-      context.put("hs_render_depth", depth);
+      context.setRenderDepth(depth);
     }
   }
 
