@@ -21,6 +21,7 @@ import javax.el.MapELResolver;
 import javax.el.PropertyNotFoundException;
 import javax.el.ResourceBundleELResolver;
 
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -174,7 +175,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       try {
         return StrftimeFormatter.formatter(d.getFormat(), interpreter.getConfig().getLocale());
       } catch (IllegalArgumentException e) {
-        interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, e.getMessage(), null, interpreter.getLineNumber(), null));
+        interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, e.getMessage(), null, interpreter.getLineNumber(), null));
       }
     }
 
@@ -186,7 +187,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       try {
         return LocaleUtils.toLocale(d.getLanguage());
       } catch (IllegalArgumentException e) {
-        interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, e.getMessage(), null, interpreter.getLineNumber(), null));
+        interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, e.getMessage(), null, interpreter.getLineNumber(), null));
       }
     }
 
