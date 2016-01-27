@@ -26,7 +26,7 @@ public class TemplateError {
     TOKEN,
     TAG,
     FUNCTION,
-    OTHER;
+    OTHER
   }
 
   private final ErrorType severity;
