@@ -25,6 +25,7 @@ public class TemplateError {
   public enum ErrorItem {
     TEMPLATE,
     TOKEN,
+    TAG,
     FUNCTION,
     OTHER;
   }
