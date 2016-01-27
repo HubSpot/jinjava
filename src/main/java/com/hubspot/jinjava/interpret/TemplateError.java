@@ -18,7 +18,6 @@ public class TemplateError {
     BAD_URL,
     EXCEPTION,
     MISSING,
-    MISSING_TEMPLATE,
     OTHER
   }
 
