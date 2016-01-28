@@ -140,11 +140,25 @@ public class SetTagTest {
     assertThat(thelist).containsExactly("foo", "bar");
   }
 
+  @Test
+  public void itSupportsMultiVar() throws Exception {
+    context.put("bar", "mybar");
+
+    TagNode tagNode = (TagNode) fixture("set-multivar");
+    tag.interpret(tagNode, interpreter);
+
+    assertThat(context).contains(
+        entry("myvar1", "foo"),
+        entry("myvar2", "mybar"),
+        entry("myvar3", Lists.newArrayList(1L, 2L, 3L, 4L)),
+        entry("myvar4", "yoooooo"));
+  }
+
   private Node fixture(String name) {
     try {
       return new TreeParser(interpreter, Resources.toString(
           Resources.getResource(String.format("tags/settag/%s.jinja", name)), StandardCharsets.UTF_8))
-          .buildTree().getChildren().getFirst();
+              .buildTree().getChildren().getFirst();
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

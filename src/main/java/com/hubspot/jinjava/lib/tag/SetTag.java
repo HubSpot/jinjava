@@ -15,6 +15,8 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -23,10 +25,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.TagNode;
-
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * {% set primary_line_height = primary_font_size_num*1.5 %}
@@ -82,27 +80,23 @@ public class SetTag implements Tag {
 
     String[] varTokens = var.split(",");
 
-    if(varTokens.length > 1) {
+    if (varTokens.length > 1) {
+      // handle multi-variable assignment
+      @SuppressWarnings("unchecked")
+      List<Object> exprVals = (List<Object>) interpreter.resolveELExpression("[" + expr + "]", tagNode.getLineNumber());
 
-      //handle multi-variable assignment
-
-      List<String> exprTokens = Pattern.compile("(,)(?=(?:[^']|'[^']*')*$)").splitAsStream(expr).collect(Collectors.toList());
-
-      if (varTokens.length != exprTokens.size()) {
+      if (varTokens.length != exprVals.size()) {
         throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' declares an uneven number of variables and assigned values", tagNode.getLineNumber());
       }
 
       for (int i = 0; i < varTokens.length; i++) {
         String varItem = varTokens[i].trim();
-        String exprItem = exprTokens.get(i).trim();
-        Object val = interpreter.resolveELExpression(exprItem, tagNode.getLineNumber());
+        Object val = exprVals.get(i);
         interpreter.getContext().put(varItem, val);
       }
 
     } else {
-
-      //handle single variable assignment
-
+      // handle single variable assignment
       Object val = interpreter.resolveELExpression(expr, tagNode.getLineNumber());
       interpreter.getContext().put(var, val);
 
