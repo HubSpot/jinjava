@@ -15,6 +15,8 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -76,8 +78,29 @@ public class SetTag implements Tag {
       throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' requires an expression to assign to a var", tagNode.getLineNumber());
     }
 
-    Object val = interpreter.resolveELExpression(expr, tagNode.getLineNumber());
-    interpreter.getContext().put(var, val);
+    String[] varTokens = var.split(",");
+
+    if (varTokens.length > 1) {
+      // handle multi-variable assignment
+      @SuppressWarnings("unchecked")
+      List<Object> exprVals = (List<Object>) interpreter.resolveELExpression("[" + expr + "]", tagNode.getLineNumber());
+
+      if (varTokens.length != exprVals.size()) {
+        throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' declares an uneven number of variables and assigned values", tagNode.getLineNumber());
+      }
+
+      for (int i = 0; i < varTokens.length; i++) {
+        String varItem = varTokens[i].trim();
+        Object val = exprVals.get(i);
+        interpreter.getContext().put(varItem, val);
+      }
+
+    } else {
+      // handle single variable assignment
+      Object val = interpreter.resolveELExpression(expr, tagNode.getLineNumber());
+      interpreter.getContext().put(var, val);
+
+    }
 
     return "";
   }
