@@ -9,6 +9,7 @@ import javax.el.ExpressionFactory;
 import javax.el.PropertyNotFoundException;
 import javax.el.ValueExpression;
 
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.el.ext.NamedParameter;
@@ -65,7 +66,7 @@ public class ExpressionResolver {
       return result;
 
     } catch (PropertyNotFoundException e) {
-      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, e.getMessage(), "", interpreter.getLineNumber(), e));
+      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, e.getMessage(), "", interpreter.getLineNumber(), e));
     } catch (TreeBuilderException e) {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression,
           "Error parsing '" + expression + "': " + StringUtils.substringAfter(e.getMessage(), "': "), interpreter.getLineNumber(), e)));

@@ -17,6 +17,7 @@ package com.hubspot.jinjava.lib.tag;
 
 import java.io.IOException;
 
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -59,7 +60,7 @@ public class IncludeTag implements Tag {
     try {
       interpreter.getContext().pushIncludePath(templateFile, tagNode.getLineNumber());
     } catch (IncludeTagCycleException e) {
-      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION,
+      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
           "Include cycle detected for path: '" + templateFile + "'", null, tagNode.getLineNumber(), e));
       return "";
     }

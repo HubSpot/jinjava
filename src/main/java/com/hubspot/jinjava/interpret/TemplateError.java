@@ -21,8 +21,18 @@ public class TemplateError {
     OTHER
   }
 
+  public enum ErrorItem {
+    TEMPLATE,
+    TOKEN,
+    TAG,
+    FUNCTION,
+    PROPERTY,
+    OTHER
+  }
+
   private final ErrorType severity;
   private final ErrorReason reason;
+  private final ErrorItem item;
   private final String message;
   private final String fieldName;
   private final int lineno;
@@ -30,11 +40,11 @@ public class TemplateError {
   private final Exception exception;
 
   public static TemplateError fromSyntaxError(InterpretException ex) {
-    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ExceptionUtils.getMessage(ex), null, ex.getLineNumber(), ex);
+    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, ex.getLineNumber(), ex);
   }
 
   public static TemplateError fromException(TemplateSyntaxException ex) {
-    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ExceptionUtils.getMessage(ex), null, ex.getLineNumber(), ex);
+    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, ex.getLineNumber(), ex);
   }
 
   public static TemplateError fromException(Exception ex) {
@@ -44,15 +54,15 @@ public class TemplateError {
       lineNumber = ((InterpretException) ex).getLineNumber();
     }
 
-    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ExceptionUtils.getMessage(ex), null, lineNumber, ex);
+    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, ex);
   }
 
   public static TemplateError fromException(Exception ex, int lineNumber) {
-    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ExceptionUtils.getMessage(ex), null, lineNumber, ex);
+    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, ex);
   }
 
   public static TemplateError fromUnknownProperty(Object base, String variable, int lineNumber) {
-    return new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, String.format("Cannot resolve property '%s' in '%s'", variable, friendlyObjectToString(base)),
+    return new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, String.format("Cannot resolve property '%s' in '%s'", variable, friendlyObjectToString(base)),
         variable, lineNumber, null);
   }
 
@@ -71,17 +81,18 @@ public class TemplateError {
     return c.getSimpleName();
   }
 
-  // java.lang.Object@7852e922
   private static final Pattern GENERIC_TOSTRING_PATTERN = Pattern.compile("@[0-9a-z]{4,}$");
 
   public TemplateError(ErrorType severity,
                        ErrorReason reason,
+                       ErrorItem item,
                        String message,
                        String fieldName,
                        int lineno,
                        Exception exception) {
     this.severity = severity;
     this.reason = reason;
+    this.item = item;
     this.message = message;
     this.fieldName = fieldName;
     this.lineno = lineno;
@@ -94,6 +105,10 @@ public class TemplateError {
 
   public ErrorReason getReason() {
     return reason;
+  }
+
+  public ErrorItem getItem() {
+    return item;
   }
 
   public String getMessage() {
@@ -113,7 +128,7 @@ public class TemplateError {
   }
 
   public TemplateError serializable() {
-    return new TemplateError(severity, reason, message, fieldName, lineno, null);
+    return new TemplateError(severity, reason, item, message, fieldName, lineno, null);
   }
 
   @Override
@@ -124,6 +139,7 @@ public class TemplateError {
         .add("message", message)
         .add("fieldName", fieldName)
         .add("lineno", lineno)
+        .add("item", item)
         .toString();
   }
 
