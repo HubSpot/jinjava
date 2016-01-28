@@ -24,6 +24,14 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.TagNode;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 /**
  * {% set primary_line_height = primary_font_size_num*1.5 %}
  *
@@ -76,8 +84,33 @@ public class SetTag implements Tag {
       throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' requires an expression to assign to a var", tagNode.getLineNumber());
     }
 
-    Object val = interpreter.resolveELExpression(expr, tagNode.getLineNumber());
-    interpreter.getContext().put(var, val);
+    String[] varTokens = var.split(",");
+
+    if(varTokens.length > 1) {
+
+      //handle multi-variable assignment
+
+      List<String> exprTokens = Pattern.compile("(,)(?=(?:[^']|'[^']*')*$)").splitAsStream(expr).collect(Collectors.toList());
+
+      if (varTokens.length != exprTokens.size()) {
+        throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' declares an uneven number of variables and assigned values", tagNode.getLineNumber());
+      }
+
+      for (int i = 0; i < varTokens.length; i++) {
+        String varItem = varTokens[i].trim();
+        String exprItem = exprTokens.get(i).trim();
+        Object val = interpreter.resolveELExpression(exprItem, tagNode.getLineNumber());
+        interpreter.getContext().put(varItem, val);
+      }
+
+    } else {
+
+      //handle single variable assignment
+
+      Object val = interpreter.resolveELExpression(expr, tagNode.getLineNumber());
+      interpreter.getContext().put(var, val);
+
+    }
 
     return "";
   }
