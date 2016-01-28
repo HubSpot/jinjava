@@ -77,7 +77,7 @@ public class ImportTag implements Tag {
     try {
       interpreter.getContext().pushImportPath(path, tagNode.getLineNumber());
     } catch (ImportTagCycleException e) {
-      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TOKEN,
+      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
           "Import cycle detected for path: '" + path + "'", null, tagNode.getLineNumber(), e));
       return "";
     }
