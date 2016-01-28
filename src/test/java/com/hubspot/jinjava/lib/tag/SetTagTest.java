@@ -21,6 +21,7 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
@@ -145,6 +146,34 @@ public class SetTagTest {
     context.put("bar", "mybar");
 
     TagNode tagNode = (TagNode) fixture("set-multivar");
+    tag.interpret(tagNode, interpreter);
+
+    assertThat(context).contains(
+        entry("myvar1", "foo"),
+        entry("myvar2", "mybar"),
+        entry("myvar3", Lists.newArrayList(1L, 2L, 3L, 4L)),
+        entry("myvar4", "yoooooo"));
+  }
+
+  @Test(expected = TemplateSyntaxException.class)
+  public void itThrowsErrorWhenMultiVarIsUnbalancedForVars() throws Exception {
+    context.put("bar", "mybar");
+
+    TagNode tagNode = (TagNode) fixture("set-multivar-unbalanced-vars");
+    tag.interpret(tagNode, interpreter);
+
+    assertThat(context).contains(
+        entry("myvar1", "foo"),
+        entry("myvar2", "mybar"),
+        entry("myvar3", Lists.newArrayList(1L, 2L, 3L, 4L)),
+        entry("myvar4", "yoooooo"));
+  }
+
+  @Test(expected = TemplateSyntaxException.class)
+  public void itThrowsErrorWhenMultiVarIsUnbalancedForVals() throws Exception {
+    context.put("bar", "mybar");
+
+    TagNode tagNode = (TagNode) fixture("set-multivar-unbalanced-vals");
     tag.interpret(tagNode, interpreter);
 
     assertThat(context).contains(
