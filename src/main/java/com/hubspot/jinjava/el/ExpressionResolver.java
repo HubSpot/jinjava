@@ -66,7 +66,7 @@ public class ExpressionResolver {
       return result;
 
     } catch (PropertyNotFoundException e) {
-      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.OTHER, e.getMessage(), "", interpreter.getLineNumber(), e));
+      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, e.getMessage(), "", interpreter.getLineNumber(), e));
     } catch (TreeBuilderException e) {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression,
           "Error parsing '" + expression + "': " + StringUtils.substringAfter(e.getMessage(), "': "), interpreter.getLineNumber(), e)));

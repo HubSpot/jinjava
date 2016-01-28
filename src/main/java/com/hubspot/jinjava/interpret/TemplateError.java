@@ -26,6 +26,7 @@ public class TemplateError {
     TOKEN,
     TAG,
     FUNCTION,
+    PROPERTY,
     OTHER
   }
 
@@ -61,7 +62,7 @@ public class TemplateError {
   }
 
   public static TemplateError fromUnknownProperty(Object base, String variable, int lineNumber) {
-    return new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.OTHER, String.format("Cannot resolve property '%s' in '%s'", variable, friendlyObjectToString(base)),
+    return new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, String.format("Cannot resolve property '%s' in '%s'", variable, friendlyObjectToString(base)),
         variable, lineNumber, null);
   }
 
