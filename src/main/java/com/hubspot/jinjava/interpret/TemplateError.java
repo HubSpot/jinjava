@@ -99,6 +99,21 @@ public class TemplateError {
     this.exception = exception;
   }
 
+  public TemplateError(ErrorType severity,
+                       ErrorReason reason,
+                       String message,
+                       String fieldName,
+                       int lineno,
+                       Exception exception) {
+    this.severity = severity;
+    this.reason = reason;
+    this.item = ErrorItem.OTHER;
+    this.message = message;
+    this.fieldName = fieldName;
+    this.lineno = lineno;
+    this.exception = exception;
+  }
+
   public ErrorType getSeverity() {
     return severity;
   }
