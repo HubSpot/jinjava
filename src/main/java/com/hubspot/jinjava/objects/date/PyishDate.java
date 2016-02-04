@@ -1,5 +1,8 @@
 package com.hubspot.jinjava.objects.date;
 
+import com.hubspot.jinjava.objects.PyWrapper;
+import org.apache.commons.lang3.math.NumberUtils;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -8,10 +11,6 @@ import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
-
-import org.apache.commons.lang3.math.NumberUtils;
-
-import com.hubspot.jinjava.objects.PyWrapper;
 
 /**
  * an object which quacks like a python date
@@ -40,6 +39,10 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
   public PyishDate(Long epochMillis) {
     this(ZonedDateTime.ofInstant(Instant.ofEpochMilli(
         Optional.ofNullable(epochMillis).orElseGet(System::currentTimeMillis)), ZoneOffset.UTC));
+  }
+
+  public PyishDate(Instant instant) {
+    this(ZonedDateTime.ofInstant(instant, ZoneOffset.UTC));
   }
 
   public String isoformat() {
