@@ -177,6 +177,7 @@ public class JinjavaInterpreter {
     OutputList output = new OutputList();
 
     for (Node node : root.getChildren()) {
+      lineNumber = node.getLineNumber();
       output.addNode(node.render(this));
     }
 
