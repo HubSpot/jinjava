@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.interpret;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 /**
  * Container exception thrown when fatal errors are encountered while rendering a template.
  *
@@ -22,6 +24,10 @@ public class FatalTemplateErrorsException extends InterpretException {
 
     for (TemplateError error : errors) {
       msg.append(error.toString()).append('\n');
+
+      if (error.getException() != null) {
+        msg.append(ExceptionUtils.getStackTrace(error.getException())).append('\n');
+      }
     }
 
     return msg.toString();
