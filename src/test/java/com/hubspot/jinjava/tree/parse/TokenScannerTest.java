@@ -254,15 +254,20 @@ public class TokenScannerTest {
         "module_143819781983527999");
   }
 
+  @Test
+  public void testLstripBlocks() {
+    config = JinjavaConfig.newBuilder()
+        .withLstripBlocks(true)
+        .withTrimBlocks(true)
+        .build();
+
+    List<Token> tokens = tokens("tag-with-trim-chars");
+    assertThat(tokens).isNotEmpty();
+  }
+
   private List<Token> tokens(String fixture) {
     TokenScanner t = fixture(fixture);
-
-    List<Token> tokens = Lists.newArrayList();
-    while (t.hasNext()) {
-      tokens.add(t.next());
-    }
-
-    return tokens;
+    return Lists.newArrayList(t);
   }
 
   private TokenScanner fixture(String fixture) {

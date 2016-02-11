@@ -244,7 +244,7 @@ public class TokenScanner extends AbstractIterator<Token> {
     Token t = Token.newToken(kind, String.valueOf(is, lastStart, tokenLength), currLine);
 
     if (t instanceof TagToken) {
-      if (config.isTrimBlocks() && is[currPost] == '\n') {
+      if (config.isTrimBlocks() && currPost < length && is[currPost] == '\n') {
         ++currPost;
         ++tokenStart;
       }
