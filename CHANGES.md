@@ -1,5 +1,9 @@
 # Jinjava Releases #
 
+### Version 2.1.4 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.4%22)) ###
+
+* fixed ArrayIndexOutOfBoundsException when importing template with no trailing newline
+
 ### Version 2.1.3 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.3%22)) ###
 
 * Added two new expression tests for strings: "is string_startingwith" and "is string_containing"
