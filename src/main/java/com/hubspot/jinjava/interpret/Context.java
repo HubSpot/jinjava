@@ -74,7 +74,9 @@ public class Context extends ScopeMap<String, Object> {
 
   public Context(Context parent, Map<String, ?> bindings) {
     this(parent);
-    this.putAll(bindings);
+    if (bindings != null) {
+      this.putAll(bindings);
+    }
   }
 
   @Override
