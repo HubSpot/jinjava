@@ -15,14 +15,13 @@
  **********************************************************************/
 package com.hubspot.jinjava;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import javax.el.ExpressionFactory;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.hubspot.jinjava.doc.JinjavaDoc;
 import com.hubspot.jinjava.doc.JinjavaDocFactory;
 import com.hubspot.jinjava.el.ExtendedSyntaxBuilder;
@@ -149,12 +148,9 @@ public class Jinjava {
   public String render(String template, Map<String, ?> bindings) {
     RenderResult result = renderForResult(template, bindings);
 
-    Collection<TemplateError> fatalErrors = Collections2.filter(result.getErrors(), new Predicate<TemplateError>() {
-      @Override
-      public boolean apply(TemplateError input) {
-        return input.getSeverity() == ErrorType.FATAL;
-      }
-    });
+    List<TemplateError> fatalErrors = result.getErrors().stream()
+        .filter(error -> error.getSeverity() == ErrorType.FATAL)
+        .collect(Collectors.toList());
 
     if (!fatalErrors.isEmpty()) {
       throw new FatalTemplateErrorsException(template, fatalErrors);
