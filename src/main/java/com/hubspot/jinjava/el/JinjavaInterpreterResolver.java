@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.el.ArrayELResolver;
 import javax.el.CompositeELResolver;
@@ -21,7 +22,6 @@ import javax.el.MapELResolver;
 import javax.el.PropertyNotFoundException;
 import javax.el.ResourceBundleELResolver;
 
-import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -31,6 +31,7 @@ import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
 import com.hubspot.jinjava.el.ext.JinjavaListELResolver;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.objects.PyWrapper;
@@ -116,7 +117,25 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       } else {
         // Get property of base object.
         try {
+          if (base instanceof Optional) {
+            Optional<?> optBase = (Optional<?>) base;
+            if (!optBase.isPresent()) {
+              return null;
+            }
+
+            base = optBase.get();
+          }
+
           value = super.getValue(context, base, propertyName);
+
+          if (value instanceof Optional) {
+            Optional<?> optValue = (Optional<?>) value;
+            if (!optValue.isPresent()) {
+              return null;
+            }
+
+            value = optValue.get();
+          }
         } catch (PropertyNotFoundException e) {
           if (errOnUnknownProp) {
             interpreter.addError(TemplateError.fromUnknownProperty(base, propertyName, interpreter.getLineNumber()));

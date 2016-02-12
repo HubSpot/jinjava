@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -218,6 +220,41 @@ public class ExpressionResolverTest {
     assertThat(e.getMessage()).contains("Cannot find method 'wait'");
   }
 
+  @Test
+  public void presentOptionalProperty() {
+    context.put("myobj", new OptionalProperty(null, "foo"));
+    assertThat(interpreter.resolveELExpression("myobj.val", -1)).isEqualTo("foo");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void emptyOptionalProperty() {
+    context.put("myobj", new OptionalProperty(null, null));
+    assertThat(interpreter.resolveELExpression("myobj.val", -1)).isNull();
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void presentNestedOptionalProperty() {
+    context.put("myobj", new OptionalProperty(new MyClass(new Date(0)), "foo"));
+    assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nested.date", -1))).isEqualTo("1970-01-01 00:00:00");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void emptyNestedOptionalProperty() {
+    context.put("myobj", new OptionalProperty(null, null));
+    assertThat(interpreter.resolveELExpression("myobj.nested.date", -1)).isNull();
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void presentNestedNestedOptionalProperty() {
+    context.put("myobj", new NestedOptionalProperty(new OptionalProperty(new MyClass(new Date(0)), "foo")));
+    assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nested.nested.date", -1))).isEqualTo("1970-01-01 00:00:00");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
   public static final class MyClass {
     private Date date;
 
@@ -227,6 +264,36 @@ public class ExpressionResolverTest {
 
     public Date getDate() {
       return date;
+    }
+  }
+
+  public static final class OptionalProperty {
+    private MyClass nested;
+    private String val;
+
+    OptionalProperty(MyClass nested, String val) {
+      this.nested = nested;
+      this.val = val;
+    }
+
+    public Optional<MyClass> getNested() {
+      return Optional.ofNullable(nested);
+    }
+
+    public Optional<String> getVal() {
+      return Optional.ofNullable(val);
+    }
+  }
+
+  public static final class NestedOptionalProperty {
+    private OptionalProperty nested;
+
+    public NestedOptionalProperty(OptionalProperty nested) {
+      this.nested = nested;
+    }
+
+    public Optional<OptionalProperty> getNested() {
+      return Optional.ofNullable(nested);
     }
   }
 }
