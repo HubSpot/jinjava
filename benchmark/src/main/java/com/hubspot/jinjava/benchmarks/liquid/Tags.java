@@ -67,8 +67,7 @@ public class Tags {
 
     @Override
     public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-      // TODO Auto-generated method stub
-      return null;
+      return "";
     }
 
     @Override

@@ -28,7 +28,7 @@ public class Article {
     this.title = ipsum.getWords(10);
     this.user = user;
     this.body = ipsum.getParagraphs();
-    this.pubDate = Date.from(LocalDateTime.now().minusHours(rnd.nextInt(128)).toInstant(ZoneOffset.UTC)); // TODO randomize
+    this.pubDate = Date.from(LocalDateTime.now().minusHours(rnd.nextInt(128)).toInstant(ZoneOffset.UTC));
     this.published = true;
   }
 
