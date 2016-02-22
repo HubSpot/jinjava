@@ -87,6 +87,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     }
 
     // TODO map named params to special arg in fn to invoke
+    // https://github.com/HubSpot/jinjava/issues/11
     return super.invoke(context, base, method, paramTypes, params);
   }
 
