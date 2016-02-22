@@ -46,7 +46,7 @@ public class AstDict extends AstLiteral {
 
   @Override
   public void appendStructure(StringBuilder builder, Bindings bindings) {
-    throw new UnsupportedOperationException("TODO");
+    throw new UnsupportedOperationException("appendStructure not implemented in " + getClass().getSimpleName());
   }
 
   @Override

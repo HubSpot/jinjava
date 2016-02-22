@@ -54,7 +54,7 @@ public class ForTagTest {
     TagNode tagNode = (TagNode) fixture("nested-fors");
     assertThat(Splitter.on("\n").trimResults().omitEmptyStrings().split(
         tag.interpret(tagNode, interpreter)))
-        .contains("02", "03", "12", "13");
+            .contains("02", "03", "12", "13");
   }
 
   @Test
@@ -110,15 +110,14 @@ public class ForTagTest {
     assertThat(dom.select(".item-0 .depth").text()).isEqualTo("1");
     assertThat(dom.select(".item-0 .depth0").text()).isEqualTo("0");
 
-    // TODO for loop depth not implemented
-    // assertThat(dom.select(".item-0 .subnum").text()).isEqualTo("6 1");
+    assertThat(dom.select(".item-0 .subnum").text()).isEqualTo("6 0");
   }
 
   private Node fixture(String name) {
     try {
       return new TreeParser(interpreter, Resources.toString(
           Resources.getResource(String.format("tags/fortag/%s.jinja", name)), StandardCharsets.UTF_8))
-          .buildTree().getChildren().getFirst();
+              .buildTree().getChildren().getFirst();
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
