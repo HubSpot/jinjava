@@ -1,5 +1,9 @@
 # Jinjava Releases #
 
+### Version 2.1.6 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.6%22)) ###
+
+* Added new bool filter to return boolean value from string
+
 ### Version 2.1.5 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.5%22)) ###
 
 * Add support for java.util.Optional properties, nested properties in EL expressions
