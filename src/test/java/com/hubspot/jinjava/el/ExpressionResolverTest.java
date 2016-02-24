@@ -67,6 +67,7 @@ public class ExpressionResolverTest {
     context.put("foo", "bar");
     Object val = interpreter.resolveELExpression("  foo ", -1);
     assertThat(val).isEqualTo("bar");
+    assertThat(interpreter.getContext().wasExpressionResolved("foo")).isTrue();
   }
 
   @Test
@@ -91,6 +92,7 @@ public class ExpressionResolverTest {
 
     Object val = interpreter.resolveELExpression("thedict['foo']", -1);
     assertThat(val).isEqualTo("bar");
+    assertThat(interpreter.getContext().wasExpressionResolved("thedict['foo']")).isTrue();
   }
 
   @Test
@@ -101,6 +103,7 @@ public class ExpressionResolverTest {
 
     Object val = interpreter.resolveELExpression("thedict.foo", -1);
     assertThat(val).isEqualTo("bar");
+    assertThat(interpreter.getContext().wasExpressionResolved("thedict.foo")).isTrue();
   }
 
   @Test
