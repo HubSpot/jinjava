@@ -18,12 +18,15 @@ package com.hubspot.jinjava.interpret;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Stack;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
@@ -46,6 +49,9 @@ public class Context extends ScopeMap<String, Object> {
   private final Stack<String> extendPathStack = new Stack<>();
   private final Stack<String> importPathStack = new Stack<>();
   private final Stack<String> includePathStack = new Stack<>();
+
+  private final Set<String> resolvedExpressions = new HashSet<>();
+  private final Set<String> resolvedValues = new HashSet<>();
 
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
@@ -132,6 +138,30 @@ public class Context extends ScopeMap<String, Object> {
 
   public void setAutoEscape(Boolean autoEscape) {
     this.autoEscape = autoEscape;
+  }
+
+  public void addResolvedExpression(String expression) {
+    resolvedExpressions.add(expression);
+  }
+
+  public Set<String> getResolvedExpressions() {
+    return ImmutableSet.copyOf(resolvedExpressions);
+  }
+
+  public boolean wasExpressionResolved(String expression) {
+    return resolvedExpressions.contains(expression);
+  }
+
+  public void addResolvedValue(String value) {
+    resolvedValues.add(value);
+  }
+
+  public Set<String> getResolvedValues() {
+    return ImmutableSet.copyOf(resolvedValues);
+  }
+
+  public boolean wasValueResolved(String value) {
+    return resolvedValues.contains(value);
   }
 
   public List<? extends Node> getSuperBlock() {
