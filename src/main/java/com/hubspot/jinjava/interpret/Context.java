@@ -51,6 +51,7 @@ public class Context extends ScopeMap<String, Object> {
   private final Stack<String> includePathStack = new Stack<>();
 
   private final Set<String> resolvedExpressions = new HashSet<>();
+  private final Set<String> resolvedValues = new HashSet<>();
 
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
@@ -149,6 +150,18 @@ public class Context extends ScopeMap<String, Object> {
 
   public boolean wasExpressionResolved(String expression) {
     return resolvedExpressions.contains(expression);
+  }
+
+  public void addResolvedValue(String value) {
+    resolvedValues.add(value);
+  }
+
+  public Set<String> getResolvedValues() {
+    return ImmutableSet.copyOf(resolvedValues);
+  }
+
+  public boolean wasValueResolved(String value) {
+    return resolvedValues.contains(value);
   }
 
   public List<? extends Node> getSuperBlock() {

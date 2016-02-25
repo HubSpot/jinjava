@@ -2,6 +2,7 @@ package com.hubspot.jinjava.el;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +76,7 @@ public class ExpressionResolverTest {
     context.put("i_am_seven", 7L);
     Object val = interpreter.resolveELExpression("(i_am_seven * 2 + 1)/3", -1);
     assertThat(val).isEqualTo(5.0);
+    assertThat(interpreter.getContext().wasValueResolved("i_am_seven")).isTrue();
   }
 
   @Test
@@ -144,6 +146,13 @@ public class ExpressionResolverTest {
     public int getTotalCount() {
       return list.size();
     }
+  }
+
+  @Test
+  public void itRecordsFilterNames() throws Exception {
+    Object val = interpreter.resolveELExpression("2.3 | round", -1);
+    assertThat(val).isEqualTo(new BigDecimal(2));
+    assertThat(interpreter.getContext().wasValueResolved("filter:round")).isTrue();
   }
 
   @Test

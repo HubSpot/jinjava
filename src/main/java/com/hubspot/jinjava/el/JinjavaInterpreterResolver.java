@@ -105,6 +105,8 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     String propertyName = Objects.toString(property, "");
     Object value = null;
 
+    interpreter.getContext().addResolvedValue(propertyName);
+
     if (ExtendedParser.INTERPRETER.equals(property)) {
       value = interpreter;
     } else if (propertyName.startsWith(ExtendedParser.FILTER_PREFIX)) {
