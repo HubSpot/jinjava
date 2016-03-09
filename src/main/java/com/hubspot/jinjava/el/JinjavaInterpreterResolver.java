@@ -22,6 +22,8 @@ import javax.el.MapELResolver;
 import javax.el.PropertyNotFoundException;
 import javax.el.ResourceBundleELResolver;
 
+import com.hubspot.jinjava.lib.filter.Filter;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -84,6 +86,14 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       }
     } catch (IllegalArgumentException e) {
       // failed to access property, continue with method calls
+    }
+
+    if(base instanceof Filter && params.length < 3) {
+        // make sure we send at least 3 parameters so that the method call can be executed.
+        // parameters is only 2 long when no parameters are passed to the filter from the Hubl script
+        for(int i = params.length; i < 3; i++) {
+          params = ArrayUtils.add(params, null);
+        }
     }
 
     // TODO map named params to special arg in fn to invoke
