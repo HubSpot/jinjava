@@ -73,4 +73,6 @@ public class TagNode extends Node {
     return master.getHelpers();
   }
 
+  public Tag getTag() { return tag; }
+
 }
