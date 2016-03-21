@@ -41,7 +41,7 @@ public class RawTag implements Tag {
     return result.toString();
   }
 
-  private String renderNodeRaw(Node n) {
+  public String renderNodeRaw(Node n) {
     StringBuilder result = new StringBuilder(n.getMaster().getImage());
 
     for (Node child : n.getChildren()) {
