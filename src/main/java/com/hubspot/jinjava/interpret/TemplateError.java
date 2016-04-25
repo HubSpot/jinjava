@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.interpret;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -36,6 +38,8 @@ public class TemplateError {
   private final String message;
   private final String fieldName;
   private final int lineno;
+  private final TemplateErrorCategory category;
+  private final Map<String, String> categoryErrors;
 
   private final Exception exception;
 
@@ -97,6 +101,28 @@ public class TemplateError {
     this.fieldName = fieldName;
     this.lineno = lineno;
     this.exception = exception;
+    this.category = TemplateErrorCategory.UNKNOWN;
+    this.categoryErrors = new HashMap<>();
+  }
+
+  public TemplateError(ErrorType severity,
+                       ErrorReason reason,
+                       ErrorItem item,
+                       String message,
+                       String fieldName,
+                       int lineno,
+                       Exception exception,
+                       TemplateErrorCategory category,
+                       Map<String, String> categoryErrors) {
+    this.severity = severity;
+    this.reason = reason;
+    this.item = item;
+    this.message = message;
+    this.fieldName = fieldName;
+    this.lineno = lineno;
+    this.exception = exception;
+    this.category = category;
+    this.categoryErrors = categoryErrors;
   }
 
   public TemplateError(ErrorType severity,
@@ -112,6 +138,8 @@ public class TemplateError {
     this.fieldName = fieldName;
     this.lineno = lineno;
     this.exception = exception;
+    this.category = TemplateErrorCategory.UNKNOWN;
+    this.categoryErrors = new HashMap<>();
   }
 
   public ErrorType getSeverity() {
@@ -142,8 +170,16 @@ public class TemplateError {
     return exception;
   }
 
+  public TemplateErrorCategory getCategory() {
+    return category;
+  }
+
+  public Map<String, String> getCategoryErrors() {
+    return categoryErrors;
+  }
+
   public TemplateError serializable() {
-    return new TemplateError(severity, reason, item, message, fieldName, lineno, null);
+    return new TemplateError(severity, reason, item, message, fieldName, lineno, null, category, categoryErrors);
   }
 
   @Override
@@ -155,6 +191,8 @@ public class TemplateError {
         .add("fieldName", fieldName)
         .add("lineno", lineno)
         .add("item", item)
+        .add("category", category)
+        .add("categoryErrors", categoryErrors)
         .toString();
   }
 
