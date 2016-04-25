@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
+import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.interpret.errorcategory.TemplateErrorCategory;
 import org.apache.commons.lang3.StringUtils;
 
@@ -81,7 +82,7 @@ public class ImportTag implements Tag {
     } catch (ImportTagCycleException e) {
       interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
           "Import cycle detected for path: '" + path + "'", null, tagNode.getLineNumber(),
-          e, TemplateErrorCategory.IMPORT_CYCLE_DETECTED, ImmutableMap.of("path", path)));
+          e, BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED, ImmutableMap.of("path", path)));
       return "";
     }
 

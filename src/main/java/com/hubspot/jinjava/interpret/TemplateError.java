@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.interpret.errorcategory.TemplateErrorCategory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -60,7 +61,7 @@ public class TemplateError {
       lineNumber = ((InterpretException) ex).getLineNumber();
     }
 
-    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, ex);
+    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, ex, BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of());
   }
 
   public static TemplateError fromException(Exception ex, int lineNumber) {
