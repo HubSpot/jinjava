@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.interpret.errorcategory.TemplateErrorCategory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.google.common.base.Objects;
@@ -101,7 +103,7 @@ public class TemplateError {
     this.fieldName = fieldName;
     this.lineno = lineno;
     this.exception = exception;
-    this.category = TemplateErrorCategory.UNKNOWN;
+    this.category = BasicTemplateErrorCategory.UNKNOWN;
     this.categoryErrors = new HashMap<>();
   }
 
@@ -138,7 +140,7 @@ public class TemplateError {
     this.fieldName = fieldName;
     this.lineno = lineno;
     this.exception = exception;
-    this.category = TemplateErrorCategory.UNKNOWN;
+    this.category = BasicTemplateErrorCategory.UNKNOWN;
     this.categoryErrors = new HashMap<>();
   }
 

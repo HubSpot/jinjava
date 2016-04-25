@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
-import com.hubspot.jinjava.interpret.TemplateErrorCategory;
+import com.hubspot.jinjava.interpret.errorcategory.TemplateErrorCategory;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
