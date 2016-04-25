@@ -148,8 +148,8 @@ public class Functions {
     return pointer + 1;
   }
 
-  @JinjavaDoc(value = "<p>Return a list containing an arithmetic progression of integers. " +
-      " With one parameter, range will return a list from 0 up to or down to the value. " +
+  @JinjavaDoc(value = "<p>Return a list containing an arithmetic progression of integers.</p>" +
+      "<p>With one parameter, range will return a list from 0 up to or down to the value. " +
       " With two parameters, the range will start at the first value and end at the second value. " +
       " The third parameter specifies the step increment.</p> <p>All values can be negative.</p>" +
       "<p>Ranges can generate a maximum of " + RANGE_LIMIT + " values.</p>",
