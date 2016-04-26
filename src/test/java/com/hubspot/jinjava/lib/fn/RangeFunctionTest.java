@@ -34,7 +34,7 @@ public class RangeFunctionTest {
     assertThat(Functions.range(2, 2000, -5)).isEmpty();
   }
 
-  @Test
+  @Test(expected = NumberFormatException.class)
   public void itHandlesBadValues() {
     assertThat(Functions.range(2, "f")).isEmpty();
   }
