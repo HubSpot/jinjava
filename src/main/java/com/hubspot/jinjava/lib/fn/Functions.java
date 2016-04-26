@@ -179,7 +179,16 @@ public class Functions {
         step = Integer.parseInt(args[1].toString());
     }
 
+    if (step == 0) {
+      return result;
+    }
+
     if (start < end) {
+
+      if (step < 0) {
+        return result;
+      }
+
       for (int i = start; i < end; i += step) {
         if (result.size() >= RANGE_LIMIT) {
           break;
@@ -188,9 +197,8 @@ public class Functions {
       }
     } else {
 
-      // make sure we're decrementing
       if (step > 0) {
-        step = step * -1;
+        return result;
       }
 
       for (int i = start; i > end; i += step) {
