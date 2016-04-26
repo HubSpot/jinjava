@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.interpret;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -105,7 +104,7 @@ public class TemplateError {
     this.lineno = lineno;
     this.exception = exception;
     this.category = BasicTemplateErrorCategory.UNKNOWN;
-    this.categoryErrors = new HashMap<>();
+    this.categoryErrors = null;
   }
 
   public TemplateError(ErrorType severity,
@@ -142,7 +141,7 @@ public class TemplateError {
     this.lineno = lineno;
     this.exception = exception;
     this.category = BasicTemplateErrorCategory.UNKNOWN;
-    this.categoryErrors = new HashMap<>();
+    this.categoryErrors = null;
   }
 
   public ErrorType getSeverity() {
