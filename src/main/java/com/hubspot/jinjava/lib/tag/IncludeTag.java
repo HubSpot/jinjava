@@ -17,7 +17,6 @@ package com.hubspot.jinjava.lib.tag;
 
 import java.io.IOException;
 
-import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -27,6 +26,7 @@ import com.hubspot.jinjava.interpret.IncludeTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -58,7 +58,7 @@ public class IncludeTag implements Tag {
     String templateFile = interpreter.resolveString(path, tagNode.getLineNumber());
 
     try {
-      interpreter.getContext().pushIncludePath(templateFile, tagNode.getLineNumber());
+      interpreter.getContext().getIncludePathStack().push(templateFile, tagNode.getLineNumber());
     } catch (IncludeTagCycleException e) {
       interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
           "Include cycle detected for path: '" + templateFile + "'", null, tagNode.getLineNumber(), e));
@@ -81,7 +81,7 @@ public class IncludeTag implements Tag {
     } catch (IOException e) {
       throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber());
     } finally {
-      interpreter.getContext().popIncludePath();
+      interpreter.getContext().getIncludePathStack().pop();
     }
   }
 

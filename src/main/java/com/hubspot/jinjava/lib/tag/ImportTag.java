@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -15,6 +14,7 @@ import com.hubspot.jinjava.interpret.ImportTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -75,7 +75,7 @@ public class ImportTag implements Tag {
     String path = StringUtils.trimToEmpty(helper.get(0));
 
     try {
-      interpreter.getContext().pushImportPath(path, tagNode.getLineNumber());
+      interpreter.getContext().getImportPathStack().push(path, tagNode.getLineNumber());
     } catch (ImportTagCycleException e) {
       interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
           "Import cycle detected for path: '" + path + "'", null, tagNode.getLineNumber(), e));
