@@ -13,6 +13,7 @@ public class FunctionLibrary extends SimpleLibrary<ELFunctionDefinition> {
   protected void registerDefaults() {
     register(new ELFunctionDefinition("", "datetimeformat", Functions.class, "dateTimeFormat", Object.class, String[].class));
     register(new ELFunctionDefinition("", "truncate", Functions.class, "truncate", Object.class, Object[].class));
+    register(new ELFunctionDefinition("", "range", Functions.class, "range", Object.class, Object[].class));
 
     register(new ELFunctionDefinition("", "super", Functions.class, "renderSuperBlock"));
 

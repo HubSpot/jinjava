@@ -5,6 +5,7 @@ import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -24,6 +25,8 @@ import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import com.hubspot.jinjava.tree.Node;
 
 public class Functions {
+
+  public static final int RANGE_LIMIT = 1000;
 
   @JinjavaDoc(value = "Only usable within blocks, will render the contents of the parent block by calling super.", snippets = {
       @JinjavaSnippet(desc = "This gives back the results of the parent block", code = "{% block sidebar %}\n" +
@@ -145,4 +148,67 @@ public class Functions {
     return pointer + 1;
   }
 
+  @JinjavaDoc(value = "<p>Return a list containing an arithmetic progression of integers.</p>" +
+      "<p>With one parameter, range will return a list from 0 up to (but not including) the value. " +
+      " With two parameters, the range will start at the first value and increment by 1 up to (but not including) the second value. " +
+      " The third parameter specifies the step increment.</p> <p>All values can be negative. Impossible ranges will return an empty list.</p>" +
+      "<p>Ranges can generate a maximum of " + RANGE_LIMIT + " values.</p>",
+      params = {
+          @JinjavaParam(value = "start", type = "number", defaultValue = "0"),
+          @JinjavaParam(value = "end", type = "number"),
+          @JinjavaParam(value = "step", type = "number", defaultValue = "1")})
+  public static List<Integer> range(Object arg1, Object... args) {
+
+    List<Integer> result = new ArrayList<>();
+
+    int start = 0;
+    int end;
+    int step = 1;
+
+    switch (args.length) {
+      case 0:
+        end = Integer.parseInt(arg1.toString());
+        break;
+      case 1:
+        start = Integer.parseInt(arg1.toString());
+        end = Integer.parseInt(args[0].toString());
+        break;
+      default:
+        start = Integer.parseInt(arg1.toString());
+        end = Integer.parseInt(args[0].toString());
+        step = Integer.parseInt(args[1].toString());
+    }
+
+    if (step == 0) {
+      return result;
+    }
+
+    if (start < end) {
+
+      if (step < 0) {
+        return result;
+      }
+
+      for (int i = start; i < end; i += step) {
+        if (result.size() >= RANGE_LIMIT) {
+          break;
+        }
+        result.add(i);
+      }
+    } else {
+
+      if (step > 0) {
+        return result;
+      }
+
+      for (int i = start; i > end; i += step) {
+        if (result.size() >= RANGE_LIMIT) {
+          break;
+        }
+        result.add(i);
+      }
+    }
+
+    return result;
+  }
 }

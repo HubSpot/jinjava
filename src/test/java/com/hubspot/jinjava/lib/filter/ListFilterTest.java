@@ -40,6 +40,7 @@ public class ListFilterTest {
   public void itConvertsStringToListOfChars() {
     List o = (List)filter.filter("hello", null);
     assertThat(o).isEqualTo(Lists.newArrayList('h', 'e', 'l', 'l', 'o'));
+    assertThat(o.get(0)).isEqualTo('h');
   }
 
   @Test
