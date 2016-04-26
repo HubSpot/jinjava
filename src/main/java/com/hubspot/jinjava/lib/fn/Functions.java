@@ -149,9 +149,9 @@ public class Functions {
   }
 
   @JinjavaDoc(value = "<p>Return a list containing an arithmetic progression of integers.</p>" +
-      "<p>With one parameter, range will return a list from 0 up to or down to the value. " +
-      " With two parameters, the range will start at the first value and end at the second value. " +
-      " The third parameter specifies the step increment.</p> <p>All values can be negative.</p>" +
+      "<p>With one parameter, range will return a list from 0 up to (but not including) the value. " +
+      " With two parameters, the range will start at the first value and increment by 1 up to (but not including) the second value. " +
+      " The third parameter specifies the step increment.</p> <p>All values can be negative. Impossible ranges will return an empty list.</p>" +
       "<p>Ranges can generate a maximum of " + RANGE_LIMIT + " values.</p>",
       params = {
           @JinjavaParam(value = "start", type = "number", defaultValue = "0"),
