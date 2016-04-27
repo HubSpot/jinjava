@@ -42,7 +42,6 @@ public class AstMacroFunction extends AstFunction {
                                                e,
                                                BasicTemplateErrorCategory.CYCLE_DETECTED,
                                                ImmutableMap.of("name", getName())));
-        
         return "";
       }
 
