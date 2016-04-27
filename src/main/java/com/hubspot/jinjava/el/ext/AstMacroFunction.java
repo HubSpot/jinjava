@@ -5,9 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 import javax.el.ELContext;
 import javax.el.ELException;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MacroTagCycleException;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 
 import de.odysseus.el.misc.LocalMessages;
@@ -37,7 +39,10 @@ public class AstMacroFunction extends AstFunction {
                                                "Cycle detected for macro '" + getName() + "'",
                                                null,
                                                -1,
-                                               e));
+                                               e,
+                                               BasicTemplateErrorCategory.CYCLE_DETECTED,
+                                               ImmutableMap.of("name", getName())));
+        
         return "";
       }
 

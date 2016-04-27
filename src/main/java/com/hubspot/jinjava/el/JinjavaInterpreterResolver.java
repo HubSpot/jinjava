@@ -22,6 +22,8 @@ import javax.el.MapELResolver;
 import javax.el.PropertyNotFoundException;
 import javax.el.ResourceBundleELResolver;
 
+import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -197,7 +199,8 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       try {
         return StrftimeFormatter.formatter(d.getFormat(), interpreter.getConfig().getLocale());
       } catch (IllegalArgumentException e) {
-        interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, e.getMessage(), null, interpreter.getLineNumber(), null));
+        interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, e.getMessage(), null, interpreter.getLineNumber(), null,
+            BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of("exception", e.getMessage(), "lineNumber", String.valueOf(interpreter.getLineNumber()))));
       }
     }
 
@@ -209,7 +212,8 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       try {
         return LocaleUtils.toLocale(d.getLanguage());
       } catch (IllegalArgumentException e) {
-        interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, e.getMessage(), null, interpreter.getLineNumber(), null));
+        interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, e.getMessage(), null, interpreter.getLineNumber(), null,
+            BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of("exception", e.getMessage(), "lineNumber", String.valueOf(interpreter.getLineNumber()))));
       }
     }
 
