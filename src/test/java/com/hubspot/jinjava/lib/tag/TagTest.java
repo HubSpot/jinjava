@@ -99,6 +99,13 @@ public class TagTest {
   }
 
   @Test
+  public void forLoop5() {
+    String s = "{% for item in var2|list %}<li>{{ item }}</li>{% endfor %}";
+    res = jinjava.render(s, bindings);
+    assertEquals("<li>4</li><li>5</li>", res);
+  }
+
+  @Test
   public void reverseFor() {
     script = "{% for item in var1|reverse %}{{item}}{% endfor%}";
     res = jinjava.render(script, bindings);

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Chars;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -32,7 +33,7 @@ public class ListFilter implements Filter {
     List<?> result;
 
     if (var instanceof String) {
-      result = Lists.newArrayList(((String) var).toCharArray());
+      result = Chars.asList(((String) var).toCharArray());
     }
 
     else if (Collection.class.isAssignableFrom(var.getClass())) {
