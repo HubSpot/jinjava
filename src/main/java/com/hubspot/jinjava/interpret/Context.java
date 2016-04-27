@@ -21,9 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -46,9 +44,10 @@ public class Context extends ScopeMap<String, Object> {
 
   private final SetMultimap<String, String> dependencies = HashMultimap.create();
 
-  private final Stack<String> extendPathStack = new Stack<>();
-  private final Stack<String> importPathStack = new Stack<>();
-  private final Stack<String> includePathStack = new Stack<>();
+  private final CallStack extendPathStack;
+  private final CallStack importPathStack;
+  private final CallStack includePathStack;
+  private final CallStack macroStack;
 
   private final Set<String> resolvedExpressions = new HashSet<>();
   private final Set<String> resolvedValues = new HashSet<>();
@@ -76,6 +75,10 @@ public class Context extends ScopeMap<String, Object> {
     this.filterLibrary = new FilterLibrary(parent == null);
     this.functionLibrary = new FunctionLibrary(parent == null);
     this.tagLibrary = new TagLibrary(parent == null);
+    this.extendPathStack = new CallStack(parent == null ? null : parent.getExtendPathStack(), ExtendsTagCycleException.class);
+    this.importPathStack = new CallStack(parent == null ? null : parent.getImportPathStack(), ImportTagCycleException.class);
+    this.includePathStack = new CallStack(parent == null ? null : parent.getIncludePathStack(), IncludeTagCycleException.class);
+    this.macroStack = new CallStack(parent == null ? null : parent.getMacroStack(), MacroTagCycleException.class);
   }
 
   public Context(Context parent, Map<String, ?> bindings) {
@@ -298,97 +301,20 @@ public class Context extends ScopeMap<String, Object> {
     tagLibrary.addTag(t);
   }
 
-  public void pushExtendPath(String path, int lineNumber) {
-    if (extendPathStackContains(path)) {
-      throw new ExtendsTagCycleException(path, lineNumber);
-    }
-
-    extendPathStack.push(path);
+  public CallStack getExtendPathStack() {
+    return extendPathStack;
   }
 
-  public boolean extendPathStackContains(String path) {
-    if (extendPathStack.contains(path)) {
-      return true;
-    }
-
-    if (parent != null) {
-      return parent.extendPathStackContains(path);
-    }
-
-    return false;
+  public CallStack getImportPathStack() {
+    return importPathStack;
   }
 
-  public Optional<String> popExtendPath() {
-    if (extendPathStack.isEmpty()) {
-      if (parent != null) {
-        return parent.popExtendPath();
-      }
-      return Optional.empty();
-    }
-
-    return Optional.of(extendPathStack.pop());
+  public CallStack getIncludePathStack() {
+    return includePathStack;
   }
 
-  public void pushImportPath(String path, int lineNumber) {
-    if (importPathStackContains(path)) {
-      throw new ImportTagCycleException(path, lineNumber);
-    }
-
-    importPathStack.push(path);
-  }
-
-  public boolean importPathStackContains(String path) {
-    if (importPathStack.contains(path)) {
-      return true;
-    }
-
-    if (parent != null) {
-      return parent.importPathStackContains(path);
-    }
-
-    return false;
-  }
-
-  public Optional<String> popImportPath() {
-    if (importPathStack.isEmpty()) {
-      if (parent != null) {
-        return parent.popImportPath();
-      }
-      return Optional.empty();
-    }
-
-    return Optional.of(importPathStack.pop());
-  }
-
-  public void pushIncludePath(String path, int lineNumber) {
-    if (includePathStackContains(path)) {
-      throw new IncludeTagCycleException(path, lineNumber);
-    }
-
-    includePathStack.push(path);
-  }
-
-  public boolean includePathStackContains(String path) {
-    if (includePathStack.contains(path)) {
-      return true;
-    }
-
-    if (parent != null) {
-      return parent.includePathStackContains(path);
-    }
-
-    return false;
-  }
-
-  public Optional<String> popIncludePath() {
-    if (includePathStack.isEmpty()) {
-      if (parent != null) {
-        return parent.popIncludePath();
-      }
-      return Optional.empty();
-    }
-
-    return Optional.of(includePathStack.pop());
+  public CallStack getMacroStack() {
+    return macroStack;
   }
 
   public int getRenderDepth() {

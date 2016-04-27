@@ -116,6 +116,21 @@ public class MacroTagTest {
     assertThat(tabs.select(".tools__description").get(3).text()).isEqualTo("body4");
   }
 
+  @Test
+  public void itPreventsDirectMacroRecursion() throws IOException {
+    String template = Resources.toString(Resources.getResource("tags/macrotag/recursion.jinja"), StandardCharsets.UTF_8);
+    interpreter.render(template);
+    assertThat(interpreter.getErrors().get(0).getMessage()).contains("Cycle detected for macro 'hello'");
+  }
+
+  @Test
+  public void itPreventsIndirectMacroRecursion() throws IOException {
+    String template = Resources.toString(Resources.getResource("tags/macrotag/recursion_indirect.jinja"), StandardCharsets.UTF_8);
+    interpreter.render(template);
+    assertThat(interpreter.getErrors().get(0).getMessage()).contains("Cycle detected for macro 'goodbye'");
+  }
+
+
   private Node snippet(String jinja) {
     return new TreeParser(interpreter, jinja).buildTree().getChildren().getFirst();
   }
