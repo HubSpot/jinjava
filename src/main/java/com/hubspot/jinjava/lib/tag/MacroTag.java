@@ -49,6 +49,9 @@ public class MacroTag implements Tag {
 
   private static final long serialVersionUID = 8397609322126956077L;
 
+  private static final Pattern MACRO_PATTERN = Pattern.compile("([a-zA-Z_][\\w_]*)[^\\(]*\\(([^\\)]*)\\)");
+  private static final Splitter ARGS_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
+
   @Override
   public String getName() {
     return "macro";
@@ -103,8 +106,4 @@ public class MacroTag implements Tag {
 
     return "";
   }
-
-  private static final Pattern MACRO_PATTERN = Pattern.compile("([a-zA-Z_][\\w_]*)[^\\(]*\\(([^\\)]*)\\)");
-  private static final Splitter ARGS_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
-
 }

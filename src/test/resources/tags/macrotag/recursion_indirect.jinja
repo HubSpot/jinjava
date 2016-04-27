@@ -1,0 +1,9 @@
+{% macro hello() -%}
+  Hello, {{ goodbye() }}
+{%- endmacro %}
+
+{% macro goodbye() -%}
+  Goodbye, {{ hello() }}
+{%- endmacro %}
+
+{{ goodbye() }}

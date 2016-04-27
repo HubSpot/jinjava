@@ -191,7 +191,7 @@ public class JinjavaInterpreter {
           output.addNode(node.render(this));
         }
 
-        context.popExtendPath();
+        context.getExtendPathStack().pop();
       }
     }
 

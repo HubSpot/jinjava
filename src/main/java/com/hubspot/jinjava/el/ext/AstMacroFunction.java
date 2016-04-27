@@ -5,7 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 import javax.el.ELContext;
 import javax.el.ELException;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.MacroTagCycleException;
+import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 
 import de.odysseus.el.misc.LocalMessages;
@@ -25,12 +29,30 @@ public class AstMacroFunction extends AstFunction {
 
     MacroFunction macroFunction = interpreter.getContext().getGlobalMacro(getName());
     if (macroFunction != null) {
+
+      try {
+        interpreter.getContext().getMacroStack().push(getName(), -1);
+      } catch (MacroTagCycleException e) {
+        interpreter.addError(new TemplateError(TemplateError.ErrorType.WARNING,
+                                               TemplateError.ErrorReason.EXCEPTION,
+                                               TemplateError.ErrorItem.TAG,
+                                               "Cycle detected for macro '" + getName() + "'",
+                                               null,
+                                               -1,
+                                               e,
+                                               BasicTemplateErrorCategory.CYCLE_DETECTED,
+                                               ImmutableMap.of("name", getName())));
+        return "";
+      }
+
       try {
         return super.invoke(bindings, context, macroFunction, AbstractCallableMethod.EVAL_METHOD);
       } catch (IllegalAccessException e) {
         throw new ELException(LocalMessages.get("error.function.access", getName()), e);
       } catch (InvocationTargetException e) {
         throw new ELException(LocalMessages.get("error.function.invocation", getName()), e.getCause());
+      } finally {
+        interpreter.getContext().getMacroStack().pop();
       }
     }
 
