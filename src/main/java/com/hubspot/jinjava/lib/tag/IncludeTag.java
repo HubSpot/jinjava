@@ -17,12 +17,10 @@ package com.hubspot.jinjava.lib.tag;
 
 import java.io.IOException;
 
-<<<<<<< HEAD
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
-=======
->>>>>>> 87d9fc8e75e792bf32df219bbae5565ab3668e1e
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -32,7 +30,6 @@ import com.hubspot.jinjava.interpret.IncludeTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
