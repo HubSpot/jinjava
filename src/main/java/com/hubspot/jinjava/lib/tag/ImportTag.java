@@ -88,6 +88,7 @@ public class ImportTag implements Tag {
     }
 
     String templateFile = interpreter.resolveString(path, tagNode.getLineNumber());
+    interpreter.getContext().addDependency("coded_files", templateFile);
     try {
       String template = interpreter.getResource(templateFile);
       Node node = interpreter.parse(template);
