@@ -12,6 +12,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -167,16 +168,16 @@ public class Functions {
 
     switch (args.length) {
       case 0:
-        end = Integer.parseInt(arg1.toString());
+        end = NumberUtils.toInt(arg1.toString());
         break;
       case 1:
-        start = Integer.parseInt(arg1.toString());
-        end = Integer.parseInt(args[0].toString());
+        start = NumberUtils.toInt(arg1.toString());
+        end = NumberUtils.toInt(args[0].toString());
         break;
       default:
-        start = Integer.parseInt(arg1.toString());
-        end = Integer.parseInt(args[0].toString());
-        step = Integer.parseInt(args[1].toString());
+        start = NumberUtils.toInt(arg1.toString());
+        end = NumberUtils.toInt(args[0].toString());
+        step = NumberUtils.toInt(args[1].toString(), 1);
     }
 
     if (step == 0) {
