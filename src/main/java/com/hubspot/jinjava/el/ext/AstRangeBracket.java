@@ -1,20 +1,18 @@
 package com.hubspot.jinjava.el.ext;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-
-import javax.el.ELContext;
-import javax.el.ELException;
-import javax.el.PropertyNotFoundException;
-
 import com.hubspot.jinjava.objects.collections.PyList;
-
 import de.odysseus.el.misc.LocalMessages;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBracket;
 import de.odysseus.el.tree.impl.ast.AstNode;
+
+import javax.el.ELContext;
+import javax.el.ELException;
+import javax.el.PropertyNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 
 public class AstRangeBracket extends AstBracket {
 
@@ -31,7 +29,8 @@ public class AstRangeBracket extends AstBracket {
     if (base == null) {
       throw new PropertyNotFoundException(LocalMessages.get("error.property.base.null", prefix));
     }
-    if (!Iterable.class.isAssignableFrom(base.getClass()) && !base.getClass().isArray()) {
+    boolean baseIsString = base.getClass().equals(String.class);
+    if (!Iterable.class.isAssignableFrom(base.getClass()) && !base.getClass().isArray() && !baseIsString) {
       throw new ELException("Property " + prefix + " is not a sequence.");
     }
 
@@ -51,6 +50,14 @@ public class AstRangeBracket extends AstBracket {
       throw new ELException("Range end is not a number");
     }
 
+    int startNum = ((Number) start).intValue();
+    int endNum = ((Number) end).intValue();
+
+    // https://github.com/HubSpot/jinjava/issues/52
+    if (baseIsString) {
+      return evalString((String) base, startNum, endNum);
+    }
+
     Iterable<?> baseItr;
 
     if (base.getClass().isArray()) {
@@ -61,8 +68,6 @@ public class AstRangeBracket extends AstBracket {
     }
 
     PyList result = new PyList(new ArrayList<>());
-    int startNum = ((Number) start).intValue();
-    int endNum = ((Number) end).intValue();
     int index = 0;
 
     Iterator<?> baseIterator = baseItr.iterator();
@@ -79,6 +84,19 @@ public class AstRangeBracket extends AstBracket {
     }
 
     return result;
+  }
+
+  private String evalString(String base, int startNum, int endNum) {
+    if (startNum > endNum) {
+      return "";
+    }
+    if (startNum <= 0) {
+      startNum = 0;
+    }
+    if (endNum > base.length()) {
+      endNum = base.length();
+    }
+    return base.substring(startNum, endNum);
   }
 
   @Override
