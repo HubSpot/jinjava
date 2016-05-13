@@ -1,21 +1,6 @@
 package com.hubspot.jinjava.el.ext;
 
-import static de.odysseus.el.tree.impl.Builder.Feature.METHOD_INVOCATIONS;
-import static de.odysseus.el.tree.impl.Builder.Feature.NULL_PROPERTIES;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.COLON;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.COMMA;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.IDENTIFIER;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.LBRACK;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.LPAREN;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.QUESTION;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.RBRACK;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.RPAREN;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.el.ELException;
 
@@ -28,15 +13,11 @@ import de.odysseus.el.tree.impl.Scanner;
 import de.odysseus.el.tree.impl.Scanner.ScanException;
 import de.odysseus.el.tree.impl.Scanner.Symbol;
 import de.odysseus.el.tree.impl.Scanner.Token;
-import de.odysseus.el.tree.impl.ast.AstBinary;
-import de.odysseus.el.tree.impl.ast.AstBracket;
-import de.odysseus.el.tree.impl.ast.AstDot;
-import de.odysseus.el.tree.impl.ast.AstFunction;
-import de.odysseus.el.tree.impl.ast.AstNested;
-import de.odysseus.el.tree.impl.ast.AstNode;
-import de.odysseus.el.tree.impl.ast.AstNull;
-import de.odysseus.el.tree.impl.ast.AstParameters;
-import de.odysseus.el.tree.impl.ast.AstProperty;
+import de.odysseus.el.tree.impl.ast.*;
+
+import static de.odysseus.el.tree.impl.Builder.Feature.METHOD_INVOCATIONS;
+import static de.odysseus.el.tree.impl.Builder.Feature.NULL_PROPERTIES;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.*;
 
 public class ExtendedParser extends Parser {
 
@@ -264,6 +245,7 @@ public class ExtendedParser extends Parser {
     switch (getToken().getSymbol()) {
     case LBRACK:
       v = new AstList(params(LBRACK, RBRACK));
+
       break;
     case LPAREN:
       v = new AstTuple(params());
@@ -315,13 +297,13 @@ public class ExtendedParser extends Parser {
         break;
       case LBRACK:
         consumeToken();
-        AstNode property = expr(true);
+        AstNode property = expr(false);
         boolean strict = !context.isEnabled(NULL_PROPERTIES);
 
         Token nextToken = consumeToken();
 
         if (nextToken.getSymbol() == COLON) {
-          AstNode rangeMax = expr(true);
+          AstNode rangeMax = expr(false);
           consumeToken(RBRACK);
           v = createAstRangeBracket(v, property, rangeMax, lvalue, strict);
         } else if (nextToken.getSymbol() == RBRACK) {

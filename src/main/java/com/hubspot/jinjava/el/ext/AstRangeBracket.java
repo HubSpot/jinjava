@@ -1,18 +1,20 @@
 package com.hubspot.jinjava.el.ext;
 
-import com.hubspot.jinjava.objects.collections.PyList;
-import de.odysseus.el.misc.LocalMessages;
-import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.impl.ast.AstBracket;
-import de.odysseus.el.tree.impl.ast.AstNode;
-
-import javax.el.ELContext;
-import javax.el.ELException;
-import javax.el.PropertyNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+
+import javax.el.ELContext;
+import javax.el.ELException;
+import javax.el.PropertyNotFoundException;
+
+import com.hubspot.jinjava.objects.collections.PyList;
+
+import de.odysseus.el.misc.LocalMessages;
+import de.odysseus.el.tree.Bindings;
+import de.odysseus.el.tree.impl.ast.AstBracket;
+import de.odysseus.el.tree.impl.ast.AstNode;
 
 public class AstRangeBracket extends AstBracket {
 
@@ -34,6 +36,11 @@ public class AstRangeBracket extends AstBracket {
       throw new ELException("Property " + prefix + " is not a sequence.");
     }
 
+    // https://github.com/HubSpot/jinjava/issues/52
+    if (baseIsString) {
+      return evalString((String) base, bindings, context);
+    }
+
     Object start = property.eval(bindings, context);
     if (start == null && strict) {
       return Collections.emptyList();
@@ -52,11 +59,6 @@ public class AstRangeBracket extends AstBracket {
 
     int startNum = ((Number) start).intValue();
     int endNum = ((Number) end).intValue();
-
-    // https://github.com/HubSpot/jinjava/issues/52
-    if (baseIsString) {
-      return evalString((String) base, startNum, endNum);
-    }
 
     Iterable<?> baseItr;
 
@@ -86,17 +88,31 @@ public class AstRangeBracket extends AstBracket {
     return result;
   }
 
-  private String evalString(String base, int startNum, int endNum) {
+  private String evalString(String base, Bindings bindings, ELContext context) {
+
+    int startNum = intVal(property, 0, base.length(), bindings, context);
+    int endNum = intVal(rangeMax, base.length(), base.length(), bindings, context);
+    endNum = Math.min(endNum, base.length());
+
     if (startNum > endNum) {
       return "";
     }
-    if (startNum <= 0) {
-      startNum = 0;
-    }
-    if (endNum > base.length()) {
-      endNum = base.length();
-    }
     return base.substring(startNum, endNum);
+  }
+
+  private int intVal(AstNode node, int defVal, int baseLength, Bindings bindings, ELContext context) {
+      if (node == null) {
+          return defVal;
+      }
+      Object val = node.eval(bindings, context);
+      if (val == null) {
+          return defVal;
+      }
+      if (!(val instanceof Number)) {
+          throw new ELException("Range start/end is not a number");
+      }
+      int result = ((Number) val).intValue();
+      return result >= 0 ? result : baseLength + result;
   }
 
   @Override
