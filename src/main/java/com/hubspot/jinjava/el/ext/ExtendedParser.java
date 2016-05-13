@@ -264,6 +264,7 @@ public class ExtendedParser extends Parser {
     switch (getToken().getSymbol()) {
     case LBRACK:
       v = new AstList(params(LBRACK, RBRACK));
+
       break;
     case LPAREN:
       v = new AstTuple(params());
@@ -315,13 +316,13 @@ public class ExtendedParser extends Parser {
         break;
       case LBRACK:
         consumeToken();
-        AstNode property = expr(true);
+        AstNode property = expr(false);
         boolean strict = !context.isEnabled(NULL_PROPERTIES);
 
         Token nextToken = consumeToken();
 
         if (nextToken.getSymbol() == COLON) {
-          AstNode rangeMax = expr(true);
+          AstNode rangeMax = expr(false);
           consumeToken(RBRACK);
           v = createAstRangeBracket(v, property, rangeMax, lvalue, strict);
         } else if (nextToken.getSymbol() == RBRACK) {

@@ -31,8 +31,14 @@ public class AstRangeBracket extends AstBracket {
     if (base == null) {
       throw new PropertyNotFoundException(LocalMessages.get("error.property.base.null", prefix));
     }
-    if (!Iterable.class.isAssignableFrom(base.getClass()) && !base.getClass().isArray()) {
+    boolean baseIsString = base.getClass().equals(String.class);
+    if (!Iterable.class.isAssignableFrom(base.getClass()) && !base.getClass().isArray() && !baseIsString) {
       throw new ELException("Property " + prefix + " is not a sequence.");
+    }
+
+    // https://github.com/HubSpot/jinjava/issues/52
+    if (baseIsString) {
+      return evalString((String) base, bindings, context);
     }
 
     Object start = property.eval(bindings, context);
@@ -51,6 +57,9 @@ public class AstRangeBracket extends AstBracket {
       throw new ELException("Range end is not a number");
     }
 
+    int startNum = ((Number) start).intValue();
+    int endNum = ((Number) end).intValue();
+
     Iterable<?> baseItr;
 
     if (base.getClass().isArray()) {
@@ -61,8 +70,6 @@ public class AstRangeBracket extends AstBracket {
     }
 
     PyList result = new PyList(new ArrayList<>());
-    int startNum = ((Number) start).intValue();
-    int endNum = ((Number) end).intValue();
     int index = 0;
 
     Iterator<?> baseIterator = baseItr.iterator();
@@ -79,6 +86,33 @@ public class AstRangeBracket extends AstBracket {
     }
 
     return result;
+  }
+
+  private String evalString(String base, Bindings bindings, ELContext context) {
+
+    int startNum = intVal(property, 0, base.length(), bindings, context);
+    int endNum = intVal(rangeMax, base.length(), base.length(), bindings, context);
+    endNum = Math.min(endNum, base.length());
+
+    if (startNum > endNum) {
+      return "";
+    }
+    return base.substring(startNum, endNum);
+  }
+
+  private int intVal(AstNode node, int defVal, int baseLength, Bindings bindings, ELContext context) {
+      if (node == null) {
+          return defVal;
+      }
+      Object val = node.eval(bindings, context);
+      if (val == null) {
+          return defVal;
+      }
+      if (!(val instanceof Number)) {
+          throw new ELException("Range start/end is not a number");
+      }
+      int result = ((Number) val).intValue();
+      return result >= 0 ? result : baseLength + result;
   }
 
   @Override

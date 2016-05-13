@@ -43,6 +43,14 @@ public class ExpressionNodeTest {
   }
 
   @Test
+  public void itRendersStringRange() throws Exception {
+    context.put("theString", "1234567890");
+
+    ExpressionNode node = fixture("string-range");
+    assertThat(node.render(interpreter).toString()).isEqualTo("345");
+  }
+
+  @Test
   public void valueExprWithOr() throws Exception {
     context.put("a", "foo");
     context.put("b", "bar");
