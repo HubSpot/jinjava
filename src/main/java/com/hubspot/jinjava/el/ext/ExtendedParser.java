@@ -2,7 +2,14 @@ package com.hubspot.jinjava.el.ext;
 
 import static de.odysseus.el.tree.impl.Builder.Feature.METHOD_INVOCATIONS;
 import static de.odysseus.el.tree.impl.Builder.Feature.NULL_PROPERTIES;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.*;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.COLON;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.COMMA;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.IDENTIFIER;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.LBRACK;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.LPAREN;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.QUESTION;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.RBRACK;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.RPAREN;
 
 import java.util.ArrayList;
 import java.util.Collections;
