@@ -13,14 +13,14 @@
  */
 package com.hubspot.jinjava.el.ext;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by anev on 11/05/16.

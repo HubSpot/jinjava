@@ -1,6 +1,14 @@
 package com.hubspot.jinjava.el.ext;
 
-import java.util.*;
+import static de.odysseus.el.tree.impl.Builder.Feature.METHOD_INVOCATIONS;
+import static de.odysseus.el.tree.impl.Builder.Feature.NULL_PROPERTIES;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.el.ELException;
 
@@ -13,11 +21,15 @@ import de.odysseus.el.tree.impl.Scanner;
 import de.odysseus.el.tree.impl.Scanner.ScanException;
 import de.odysseus.el.tree.impl.Scanner.Symbol;
 import de.odysseus.el.tree.impl.Scanner.Token;
-import de.odysseus.el.tree.impl.ast.*;
-
-import static de.odysseus.el.tree.impl.Builder.Feature.METHOD_INVOCATIONS;
-import static de.odysseus.el.tree.impl.Builder.Feature.NULL_PROPERTIES;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.*;
+import de.odysseus.el.tree.impl.ast.AstBinary;
+import de.odysseus.el.tree.impl.ast.AstBracket;
+import de.odysseus.el.tree.impl.ast.AstDot;
+import de.odysseus.el.tree.impl.ast.AstFunction;
+import de.odysseus.el.tree.impl.ast.AstNested;
+import de.odysseus.el.tree.impl.ast.AstNode;
+import de.odysseus.el.tree.impl.ast.AstNull;
+import de.odysseus.el.tree.impl.ast.AstParameters;
+import de.odysseus.el.tree.impl.ast.AstProperty;
 
 public class ExtendedParser extends Parser {
 
