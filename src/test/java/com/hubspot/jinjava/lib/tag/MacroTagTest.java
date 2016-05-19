@@ -134,6 +134,7 @@ public class MacroTagTest {
   public void itAllowsMacrosCallingMacrosUsingCall() throws IOException {
     String template = Resources.toString(Resources.getResource("tags/macrotag/macros-calling-macros.jinja"), StandardCharsets.UTF_8);
     String out = interpreter.render(template);
+    assertThat(interpreter.getErrors()).isEmpty();
     assertThat(out).contains("Hello World One");
     assertThat(out).contains("Hello World Two");
   }
