@@ -30,20 +30,22 @@ public class AstMacroFunction extends AstFunction {
     MacroFunction macroFunction = interpreter.getContext().getGlobalMacro(getName());
     if (macroFunction != null) {
 
-      try {
-        interpreter.getContext().getMacroStack().push(getName(), -1);
-      } catch (MacroTagCycleException e) {
-        interpreter.addError(new TemplateError(TemplateError.ErrorType.WARNING,
-                                               TemplateError.ErrorReason.EXCEPTION,
-                                               TemplateError.ErrorItem.TAG,
-                                               "Cycle detected for macro '" + getName() + "'",
-                                               null,
-                                               -1,
-                                               e,
-                                               BasicTemplateErrorCategory.CYCLE_DETECTED,
-                                               ImmutableMap.of("name", getName())));
+      if (!macroFunction.isCaller()) {
+        try {
+          interpreter.getContext().getMacroStack().push(getName(), -1);
+        } catch (MacroTagCycleException e) {
+          interpreter.addError(new TemplateError(TemplateError.ErrorType.WARNING,
+                                                 TemplateError.ErrorReason.EXCEPTION,
+                                                 TemplateError.ErrorItem.TAG,
+                                                 "Cycle detected for macro '" + getName() + "'",
+                                                 null,
+                                                 -1,
+                                                 e,
+                                                 BasicTemplateErrorCategory.CYCLE_DETECTED,
+                                                 ImmutableMap.of("name", getName())));
 
-        return "";
+          return "";
+        }
       }
 
       try {
