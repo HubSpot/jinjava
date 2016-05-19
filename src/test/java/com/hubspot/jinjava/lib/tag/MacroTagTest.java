@@ -130,6 +130,13 @@ public class MacroTagTest {
     assertThat(interpreter.getErrors().get(0).getMessage()).contains("Cycle detected for macro 'goodbye'");
   }
 
+  @Test
+  public void itAllowsMacrosCallingMacrosUsingCall() throws IOException {
+    String template = Resources.toString(Resources.getResource("tags/macrotag/macros-calling-macros.jinja"), StandardCharsets.UTF_8);
+    String out = interpreter.render(template);
+    assertThat(out).contains("Hello World One");
+    assertThat(out).contains("Hello World Two");
+  }
 
   private Node snippet(String jinja) {
     return new TreeParser(interpreter, jinja).buildTree().getChildren().getFirst();

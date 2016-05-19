@@ -1,0 +1,26 @@
+{% macro render_dialog_one(title, class) %}
+<div class="{{ class }}">
+    <h2>{{ title }}</h2>
+    <div class="contents">
+        {{ caller() }}
+    </div>
+</div>
+{% endmacro %}
+
+{% macro render_dialog_two(title, class) %}
+<div class="{{ class }}">
+    <h2>{{ title }}</h2>
+    <div class="contents">
+        {{ caller() }}
+    </div>
+</div>
+{% endmacro %}
+
+{% call render_dialog_one('Hello World One', 'greeting 1') %}
+   <p>1) This is render_dialog_one</p>
+
+   {% call render_dialog_two('Hello World Two', 'greeting 2') %}
+       <p>2) This is render_dialog_two</p>
+   {% endcall %}
+
+{% endcall %}
