@@ -5,7 +5,7 @@
 * Add additional category information and error message tokens to TemplateError
 * Add range function
 * Update ListFilter to work with strings
-* Macros can create cycles
+* Do not allow macros to called recursively
 * Update checkstyle to 2.17
 
 ### Version 2.1.7 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.7%22)) ###
