@@ -1,11 +1,15 @@
 # Jinjava Releases #
 
+### Version 2.1.9 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.9%22)) ###
+
+* Exclude 'caller' from recursive macro check
+
 ### Version 2.1.8 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.8%22)) ###
 
 * Add additional category information and error message tokens to TemplateError
 * Add range function
 * Update ListFilter to work with strings
-* Do not allow macros to called recursively
+* Do not allow macros to be called recursively
 * Update checkstyle to 2.17
 
 ### Version 2.1.7 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.7%22)) ###
