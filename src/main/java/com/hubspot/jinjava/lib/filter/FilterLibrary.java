@@ -74,6 +74,7 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
 
     EscapeFilter.class,
         EAliasedEscapeFilter.class,
+        EscapeJsFilter.class,
         ForceEscapeFilter.class,
         StripTagsFilter.class,
         UrlEncodeFilter.class,
