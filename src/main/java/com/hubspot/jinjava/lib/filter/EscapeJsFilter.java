@@ -36,8 +36,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 public class EscapeJsFilter implements Filter {
 
   @Override
-  public Object filter(Object o, JinjavaInterpreter jinjavaInterpreter, String... strings) {
-    String input = Objects.toString(o, "");
+  public Object filter(Object objectToFilter, JinjavaInterpreter jinjavaInterpreter, String... strings) {
+    String input = Objects.toString(objectToFilter, "");
     StringBuilder builder = new StringBuilder();
 
     for (int i = 0; i < input.length(); i++) {
