@@ -102,8 +102,8 @@ public class MacroTag implements Tag {
 
     MacroFunction macro = new MacroFunction(tagNode.getChildren(), name, argNamesWithDefaults,
         catchKwargs, catchVarargs, caller, interpreter.getContext());
-    interpreter.getContext().addGlobalMacro(macro);
-
+//    interpreter.getContext().addGlobalMacro(macro);
+    JinjavaInterpreter.getCurrent().getContext().addGlobalMacro(macro);
     return "";
   }
 }
