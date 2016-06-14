@@ -146,7 +146,6 @@ public class MacroTagTest {
     String output = interpreter.render(template);
     assertThat(interpreter.getErrors()).isEmpty();
     assertThat(output).isEqualTo(macroResult);
-
   }
 
   private Node snippet(String jinja) {
