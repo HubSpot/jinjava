@@ -142,8 +142,11 @@ public class MacroTagTest {
   @Test
   public void itCanAccessMacrosAcrossFiles() throws IOException {
     String template = Resources.toString(Resources.getResource("tags/macrotag/include-another-macro.jinja"), StandardCharsets.UTF_8);
-    interpreter.render(template);
+    String macroResult = Resources.toString(Resources.getResource("tags/macrotag/include-another-macro-result"), StandardCharsets.UTF_8);
+    String output = interpreter.render(template);
     assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(output).isEqualTo(macroResult);
+
   }
 
   private Node snippet(String jinja) {
