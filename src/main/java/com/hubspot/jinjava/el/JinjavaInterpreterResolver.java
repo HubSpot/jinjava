@@ -200,7 +200,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
         return StrftimeFormatter.formatter(d.getFormat(), interpreter.getConfig().getLocale());
       } catch (IllegalArgumentException e) {
         interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, e.getMessage(), null, interpreter.getLineNumber(), null,
-            BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of("exception", e.getMessage(), "lineNumber", String.valueOf(interpreter.getLineNumber()))));
+            BasicTemplateErrorCategory.UNKNOWN_DATE, ImmutableMap.of("date", d.getDate().toString(), "exception", e.getMessage(), "lineNumber", String.valueOf(interpreter.getLineNumber()))));
       }
     }
 
@@ -213,7 +213,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
         return LocaleUtils.toLocale(d.getLanguage());
       } catch (IllegalArgumentException e) {
         interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, e.getMessage(), null, interpreter.getLineNumber(), null,
-            BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of("exception", e.getMessage(), "lineNumber", String.valueOf(interpreter.getLineNumber()))));
+            BasicTemplateErrorCategory.UNKNOWN_LOCALE, ImmutableMap.of("date", d.getDate().toString(), "exception", e.getMessage(), "lineNumber", String.valueOf(interpreter.getLineNumber()))));
       }
     }
 

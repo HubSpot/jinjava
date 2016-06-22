@@ -68,8 +68,10 @@ public class TemplateError {
   }
 
   public static TemplateError fromUnknownProperty(Object base, String variable, int lineNumber) {
-    return new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, String.format("Cannot resolve property '%s' in '%s'", variable, friendlyObjectToString(base)),
-        variable, lineNumber, null);
+    return new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY,
+        String.format("Cannot resolve property '%s' in '%s'", variable, friendlyObjectToString(base)),
+        variable, lineNumber, null, BasicTemplateErrorCategory.UNKNOWN_PROPERTY,
+        ImmutableMap.of("property", variable, "lineNumber", String.valueOf(lineNumber)));
   }
 
   private static String friendlyObjectToString(Object o) {
