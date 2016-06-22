@@ -4,5 +4,8 @@ public enum BasicTemplateErrorCategory implements TemplateErrorCategory {
   CYCLE_DETECTED,
   IMPORT_CYCLE_DETECTED,
   INCLUDE_CYCLE_DETECTED,
-  UNKNOWN
+  UNKNOWN,
+  UNKNOWN_DATE,
+  UNKNOWN_LOCALE,
+  UNKNOWN_PROPERTY
 }
