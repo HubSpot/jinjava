@@ -142,6 +142,17 @@ public class SetTagTest {
   }
 
   @Test
+  public void itSupportsListSetFunc() throws Exception {
+    context.put("show_count", Lists.newArrayList("foo"));
+    context.put("show", "bar");
+    TagNode tagNode = (TagNode) fixture("set-list-modify");
+    tag.interpret(tagNode, interpreter);
+
+    List<String> thelist = (List<String>) context.get("show_count");
+    assertThat(thelist).containsExactly("bar");
+  }
+
+  @Test
   public void itSupportsMultiVar() throws Exception {
     context.put("bar", "mybar");
 
