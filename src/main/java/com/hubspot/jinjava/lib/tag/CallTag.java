@@ -64,10 +64,19 @@ public class CallTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    String macroExpr = "{{" + tagNode.getHelpers().trim() + "}}";
+    String tagText = tagNode.getHelpers().trim();
+    LinkedHashMap<String, Object> args = new LinkedHashMap<>();
+    if (tagText.charAt(0) == '(') {
+      int end = tagText.indexOf(')');
+      String[] callerArgs = tagText.substring(1, end).split("\\s*,\\s*");
+      for (String arg: callerArgs) {
+        args.put(arg, null);
+      }
+      tagText = tagText.substring(end + 1).trim();
+    }
+    String macroExpr = "{{" + tagText + "}}";
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
-      LinkedHashMap<String, Object> args = new LinkedHashMap<>();
       MacroFunction caller = new MacroFunction(tagNode.getChildren(), "caller", args, false, false, true, interpreter.getContext());
       interpreter.getContext().addGlobalMacro(caller);
 
