@@ -39,7 +39,7 @@ public class ReplaceFilter implements Filter {
       String... args) {
 
     if (var == null) {
-      throw new InterpretException("filter " + getName() + " requires a var to operate on");
+      return null;
     }
     if (args.length < 2) {
       throw new InterpretException("filter " + getName() + " requires two string args");

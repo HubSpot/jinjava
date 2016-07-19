@@ -25,9 +25,8 @@ public class ReplaceFilterTest {
     filter.filter("foo", interpreter);
   }
 
-  @Test(expected = InterpretException.class)
-  public void expectsFilterVar() {
-    filter.filter(null, interpreter, "foo", "bar");
+  public void noopOnNullExpr() {
+    assertThat(filter.filter(null, interpreter, "foo", "bar")).isNull();
   }
 
   @Test
