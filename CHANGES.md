@@ -4,6 +4,7 @@
 
 * Add additional specific error enums
 * Add escapeJS filter
+* Allow null expressions as target of replace filter
 
 ### Version 2.1.10 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.10%22)) ###
 
