@@ -21,12 +21,12 @@ public class TruncDivOperator extends SimpleOperator {
       if (aInt && bInt) {
           Long d = converter.convert(a, Long.class);
           Long e = converter.convert(b, Long.class);
-          return (long)Math.floor(d/e);
+          return Math.floorDiv(d, e);
       }
       if (aNum && bNum) {
           Double d = converter.convert(a, Double.class);
           Double e = converter.convert(b, Double.class);
-          return (double)Math.floor(d/e);
+          return Math.floor(d/e);
       }
       throw new IllegalArgumentException("Unsupported operand type(s) for //: "
               + "'" + a.getClass().getSimpleName() + "' and "
