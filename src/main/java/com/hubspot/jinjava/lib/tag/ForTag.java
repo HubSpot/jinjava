@@ -71,7 +71,25 @@ public class ForTag implements Tag {
   @SuppressWarnings("unchecked")
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    List<String> helper = new HelperStringTokenizer(tagNode.getHelpers()).splitComma(true).allTokens();
+
+    /* apdlv72@gmail.com
+     * Fix for issues with for-loops that contain whitespace in their range, e.g.
+     * "{% for i in range(1 * 1, 2 * 2) %}"
+     * This is because HelperStringTokenizer will split the range expressions also
+     * at white spaces and end up with [i, in, range(1, *, 1, 2, *, 2)].
+     * To avoid this, the below fix will remove white space from the expression
+     * on the right side of the keyword "in". It will do so however only if there
+     * are no characters in this expression that indicate strings - namely ' and ".
+     * This avoids messing up expressions like {% for i in ['a ','b'] %} that
+     * contain spaces in the arguments.
+     * TODO A somewhat more sophisticated tokenizing/parsing of the for-loop expression.
+     */
+    String helpers = tagNode.getHelpers();
+    String parts[] = helpers.split("\\s+in\\s+");
+    if (2==parts.length && !parts[1].contains("'") && !parts[1].contains("\"") ) {
+        helpers = parts[0] + " in " + parts[1].replace(" ", "");
+    }
+    List<String> helper = new HelperStringTokenizer(helpers).splitComma(true).allTokens();
 
     List<String> loopVars = Lists.newArrayList();
     int inPos = 0;
