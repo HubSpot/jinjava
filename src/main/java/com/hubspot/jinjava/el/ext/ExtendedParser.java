@@ -52,9 +52,16 @@ public class ExtendedParser extends Parser {
   static final Scanner.ExtensionToken LITERAL_DICT_START = new Scanner.ExtensionToken("{");
   static final Scanner.ExtensionToken LITERAL_DICT_END = new Scanner.ExtensionToken("}");
 
+  static final Scanner.ExtensionToken TRUNC_DIV = new Scanner.ExtensionToken("//");
+  static final Scanner.ExtensionToken POWER_OF  = new Scanner.ExtensionToken("**");
+
   static {
     ExtendedScanner.addKeyToken(IF);
     ExtendedScanner.addKeyToken(ELSE);
+
+    ExtendedScanner.addKeyToken(TruncDivOperator.TOKEN);
+    ExtendedScanner.addKeyToken(PowerOfOperator.TOKEN);
+
     ExtendedScanner.addKeyToken(CollectionMembershipOperator.TOKEN);
   }
 
@@ -64,6 +71,8 @@ public class ExtendedParser extends Parser {
     putExtensionHandler(AbsOperator.TOKEN, AbsOperator.HANDLER);
     putExtensionHandler(NamedParameterOperator.TOKEN, NamedParameterOperator.HANDLER);
     putExtensionHandler(StringConcatOperator.TOKEN, StringConcatOperator.HANDLER);
+    putExtensionHandler(TruncDivOperator.TOKEN, TruncDivOperator.HANDLER);
+    putExtensionHandler(PowerOfOperator.TOKEN, PowerOfOperator.HANDLER);
 
     putExtensionHandler(CollectionMembershipOperator.TOKEN, CollectionMembershipOperator.HANDLER);
 
@@ -369,8 +378,14 @@ public class ExtendedParser extends Parser {
 
           AstProperty exptestProperty = createAstDot(identifier(EXPTEST_PREFIX + exptestName), "evaluate", true);
           v = createAstMethod(exptestProperty, new AstParameters(exptestParams));
-        }
+        } else if ("//".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
+            consumeToken(); // '//'
+            v = createAstBinary(v, mul(true), TruncDivOperator.OP);
 
+        } else if ("**".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
+            consumeToken(); // '**'
+            v = createAstBinary(v, mul(true), PowerOfOperator.OP);
+        }
         return v;
       }
     }
