@@ -115,6 +115,12 @@ public class ExtendedScanner extends Scanner {
     char c1 = getInput().charAt(getPosition());
     char c2 = getPosition() < getInput().length() - 1 ? getInput().charAt(getPosition() + 1) : (char) 0;
 
+    if (c1 == '/' && c2 == '/') {
+        return ExtendedParser.TRUNC_DIV;
+    }
+    if (c1 == '*' && c2 == '*') {
+        return ExtendedParser.POWER_OF;
+    }
     if (c1 == '|' && c2 != '|') {
       return ExtendedParser.PIPE;
     }

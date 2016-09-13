@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -31,10 +32,12 @@ public class ForTagTest {
 
   Context context;
   JinjavaInterpreter interpreter;
+  Jinjava jinjava;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
+    jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
     context = interpreter.getContext();
 
     tag = new ForTag();
@@ -111,6 +114,59 @@ public class ForTagTest {
     assertThat(dom.select(".item-0 .depth0").text()).isEqualTo("0");
 
     assertThat(dom.select(".item-0 .subnum").text()).isEqualTo("6 0");
+  }
+
+  @Test
+  public void testForLoopConstants() {
+
+      Map<String, Object> context = Maps.newHashMap();
+      String template = ""
+              + "{% for i in range(1 * 1, 2 * 2) %}{{i}}{% endfor %}";
+
+      String rendered = jinjava.render(template, context);
+      assertEquals("123", rendered);
+  }
+
+  @Test
+  public void testForLoopVariablesWithoutSpaces() {
+
+      Map<String, Object> context = Maps.newHashMap();
+      context.put("a", 2);
+      context.put("b", 3);
+
+      String template = ""
+          + "{% for index in range(a*b,a*b+b) %}"
+          + "{{index}} "
+          + "{% endfor %}";
+
+      String rendered = jinjava.render(template, context);
+      assertEquals("6 7 8 ", rendered);
+  }
+
+  @Test
+  public void testFoorLoopVariablesWithSpaces() {
+
+      Map<String, Object> context = Maps.newHashMap();
+      context.put("a", 2);
+      context.put("b", 3);
+
+      String template = ""
+          + "{% for index in range(a * b, a * b + b) %}"
+          + "{{index}} "
+          + "{% endfor %}";
+
+      String rendered = jinjava.render(template, context);
+      assertEquals("6 7 8 ", rendered);
+  }
+
+  @Test
+  public void testForLoopRangeWithStringsWithSpaces() {
+      Map<String, Object> context = Maps.newHashMap();
+      String template = ""
+           + "{% for i in ['a ','b'] %}{{i}}{% endfor %}";
+      String rendered = jinjava.render(template, context);
+      System.out.println(rendered);
+      assertEquals("a b", rendered);
   }
 
   private Node fixture(String name) {
