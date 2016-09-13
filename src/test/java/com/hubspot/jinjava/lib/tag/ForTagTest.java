@@ -116,8 +116,6 @@ public class ForTagTest {
     assertThat(dom.select(".item-0 .subnum").text()).isEqualTo("6 0");
   }
 
-  //////////////
-
   @Test
   public void testForLoopConstants() {
 
@@ -170,8 +168,6 @@ public class ForTagTest {
       System.out.println(rendered);
       assertEquals("a b", rendered);
   }
-
-  //////////////
 
   private Node fixture(String name) {
     try {
