@@ -20,7 +20,7 @@ public class PowerOfTest {
     }
 
     @Test
-    public  void testPowerOfInteger() {
+    public void testPowerOfInteger() {
 
         Map<String, Object> context = Maps.newHashMap();
         context.put("base",     2);
@@ -32,7 +32,7 @@ public class PowerOfTest {
     }
 
     @Test
-    public  void testPowerOfFractional() {
+    public void testPowerOfFractional() {
 
         Map<String, Object> context = Maps.newHashMap();
         context.put("base",     2);
@@ -44,7 +44,7 @@ public class PowerOfTest {
     }
 
     @Test
-    public  void test04PowerOfStringFails() {
+    public void test04PowerOfStringFails() {
 
         Map<String, Object> context = Maps.newHashMap();
         context.put("base",     "2");
