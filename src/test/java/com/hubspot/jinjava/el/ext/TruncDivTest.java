@@ -23,7 +23,7 @@ public class TruncDivTest {
      * Test the truncated division operator "//" with integer values
      */
     @Test
-    public  void testTruncDivInteger() {
+    public void testTruncDivInteger() {
         Map<String, Object> context = Maps.newHashMap();
         context.put("dividend", 5);
         context.put("divisor",  2);
@@ -37,7 +37,7 @@ public class TruncDivTest {
      * Test the truncated division operator "//" with fractional values
      */
     @Test
-    public  void testTruncDivFractional() {
+    public void testTruncDivFractional() {
 
         Map<String, Object> context = Maps.newHashMap();
         context.put("dividend", 5.0);
@@ -52,7 +52,7 @@ public class TruncDivTest {
      * Test the truncated division operator "//" with strings
      */
     @Test
-    public  void testTruncDivStringFails() {
+    public void testTruncDivStringFails() {
 
         Map<String, Object> context = Maps.newHashMap();
         context.put("dividend", "5");
