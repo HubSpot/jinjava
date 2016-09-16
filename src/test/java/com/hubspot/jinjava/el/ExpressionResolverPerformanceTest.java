@@ -48,7 +48,7 @@ public class ExpressionResolverPerformanceTest {
     }
 
     public void testMapResolver(int iterations) {
-      System.out.println("map resolver");
+      System.out.println("map resolver with " + iterations + " iterations");
       startTimer();
 
       for (int i = 0; i < iterations; i++) {
@@ -60,7 +60,7 @@ public class ExpressionResolverPerformanceTest {
     }
 
     public void testMethodResolver(int iterations) {
-      System.out.println("method resolver");
+      System.out.println("method resolver with " + iterations + " iterations");
       startTimer();
 
       for (int i = 0; i < iterations; i++) {
