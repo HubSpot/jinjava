@@ -3,16 +3,19 @@ package com.hubspot.jinjava.el;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ForwardingList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.hubspot.jinjava.Jinjava;
@@ -95,6 +98,7 @@ public class ExpressionResolverTest {
     Object val = interpreter.resolveELExpression("thedict['foo']", -1);
     assertThat(val).isEqualTo("bar");
     assertThat(interpreter.getContext().wasExpressionResolved("thedict['foo']")).isTrue();
+
   }
 
   @Test
@@ -106,6 +110,86 @@ public class ExpressionResolverTest {
     Object val = interpreter.resolveELExpression("thedict.foo", -1);
     assertThat(val).isEqualTo("bar");
     assertThat(interpreter.getContext().wasExpressionResolved("thedict.foo")).isTrue();
+  }
+
+  @Test
+  public void itResolvesMapValOnCustomObject() throws Exception {
+
+    MyCustomMap dict = new MyCustomMap();
+    context.put("thedict", dict);
+
+    Object val = interpreter.resolveELExpression("thedict['foo']", -1);
+    assertThat(val).isEqualTo("bar");
+    assertThat(interpreter.getContext().wasExpressionResolved("thedict['foo']")).isTrue();
+
+    Object val2 = interpreter.resolveELExpression("thedict.two", -1);
+    assertThat(val2).isEqualTo("2");
+    assertThat(interpreter.getContext().wasExpressionResolved("thedict.two")).isTrue();
+  }
+
+  public static final class MyCustomMap implements Map<String, String> {
+
+    Map<String, String> data = ImmutableMap.of("foo", "bar", "two", "2");
+
+    @Override
+    public int size() {
+      return data.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return data.isEmpty();
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+      return data.containsKey(key);
+    }
+
+    @Override
+    public boolean containsValue(Object value) {
+      return data.containsValue(value);
+    }
+
+    @Override
+    public String get(Object key) {
+      return data.get(key);
+    }
+
+    @Override
+    public String put(String key, String value) {
+      return null;
+    }
+
+    @Override
+    public String remove(Object key) {
+      return null;
+    }
+
+    @Override
+    public void putAll(Map<? extends String, ? extends String> m) {
+
+    }
+
+    @Override
+    public void clear() {
+
+    }
+
+    @Override
+    public Set<String> keySet() {
+      return data.keySet();
+    }
+
+    @Override
+    public Collection<String> values() {
+      return data.values();
+    }
+
+    @Override
+    public Set<Entry<String, String>> entrySet() {
+      return data.entrySet();
+    }
   }
 
   @Test
