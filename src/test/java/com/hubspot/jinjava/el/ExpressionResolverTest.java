@@ -98,7 +98,6 @@ public class ExpressionResolverTest {
     Object val = interpreter.resolveELExpression("thedict['foo']", -1);
     assertThat(val).isEqualTo("bar");
     assertThat(interpreter.getContext().wasExpressionResolved("thedict['foo']")).isTrue();
-
   }
 
   @Test
@@ -127,9 +126,25 @@ public class ExpressionResolverTest {
     assertThat(interpreter.getContext().wasExpressionResolved("thedict.two")).isTrue();
   }
 
+  @Test
+  public void itResolvesOtherMethodsOnCustomMapObject() throws Exception {
+
+    MyCustomMap dict = new MyCustomMap();
+    context.put("thedict", dict);
+
+    Object val = interpreter.resolveELExpression("thedict.size", -1);
+    assertThat(val).isEqualTo("777");
+
+    Object val1 = interpreter.resolveELExpression("thedict.size()", -1);
+    assertThat(val1).isEqualTo(3);
+
+    Object val2 = interpreter.resolveELExpression("thedict.items()", -1);
+    assertThat(val2.toString()).isEqualTo("[foo=bar, two=2, size=777]");
+ }
+
   public static final class MyCustomMap implements Map<String, String> {
 
-    Map<String, String> data = ImmutableMap.of("foo", "bar", "two", "2");
+    Map<String, String> data = ImmutableMap.of("foo", "bar", "two", "2", "size", "777");
 
     @Override
     public int size() {
