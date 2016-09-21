@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -41,6 +42,8 @@ public class SelectAttrFilter implements Filter {
       throw new InterpretException(getName() + " filter requires an attr to filter on", interpreter.getLineNumber());
     }
 
+    String[] expArgs = new String[]{};
+
     String attr = args[0];
 
     ExpTest expTest = interpreter.getContext().getExpTest("truthy");
@@ -49,6 +52,10 @@ public class SelectAttrFilter implements Filter {
       if (expTest == null) {
         throw new InterpretException("No expression test defined with name '" + args[1] + "'", interpreter.getLineNumber());
       }
+
+      if (args.length > 2) {
+        expArgs = Arrays.copyOfRange(args, 2, args.length);
+      }
     }
 
     ForLoop loop = ObjectIterator.getLoop(var);
@@ -56,7 +63,7 @@ public class SelectAttrFilter implements Filter {
       Object val = loop.next();
       Object attrVal = interpreter.resolveProperty(val, attr);
 
-      if (expTest.evaluate(attrVal, interpreter)) {
+      if (expTest.evaluate(attrVal, interpreter, expArgs)) {
         result.add(val);
       }
     }
