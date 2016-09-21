@@ -63,7 +63,7 @@ public class SelectAttrFilter implements Filter {
       Object val = loop.next();
       Object attrVal = interpreter.resolveProperty(val, attr);
 
-      if (expTest.evaluate(attrVal, interpreter, expArgs)) {
+      if (expTest.evaluate(attrVal, interpreter, (Object[]) expArgs)) {
         result.add(val);
       }
     }
