@@ -33,6 +33,13 @@ public class SelectAttrFilterTest {
         .isEqualTo("[2]");
   }
 
+  @Test
+  public void selectAttrWithIsEqualToExp() {
+    assertThat(jinjava.render("{{ users|selectattr('email', 'equalto', 'bar@bar.com') }}", new HashMap<String, Object>()))
+        .isEqualTo("[1]");
+  }
+
+
   public static class User {
     private int num;
     private boolean isActive;
