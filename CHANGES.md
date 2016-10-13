@@ -1,5 +1,10 @@
 # Jinjava Releases #
 
+### Version 2.1.12 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.12%22)) ###
+
+* Added ** and // operators
+* Fixed issue with passing arguments to expression tests
+
 ### Version 2.1.11 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.11%22)) ###
 
 * Add additional specific error enums
