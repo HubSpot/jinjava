@@ -20,18 +20,32 @@ import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.el.MethodNotFoundException;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableSet;
 
 public abstract class SimpleLibrary<T extends Importable> {
 
   private Map<String, T> lib = new HashMap<String, T>();
+  private Set<String> disabled = new HashSet<String>();
 
   protected SimpleLibrary(boolean registerDefaults) {
+    this(registerDefaults, null);
+  }
+
+  protected SimpleLibrary(boolean registerDefaults, Set<String> disabled) {
+    if (disabled != null) {
+      this.disabled = ImmutableSet.copyOf(disabled);
+    }
     if (registerDefaults) {
       registerDefaults();
     }
@@ -40,6 +54,10 @@ public abstract class SimpleLibrary<T extends Importable> {
   protected abstract void registerDefaults();
 
   public T fetch(String item) {
+    if (disabled.contains(item)) {
+      throw new MethodNotFoundException("'" + item + "' is disabled in this context ");
+    }
+
     return lib.get(StringUtils.lowerCase(item));
   }
 
@@ -65,12 +83,14 @@ public abstract class SimpleLibrary<T extends Importable> {
   }
 
   public void register(String name, T obj) {
-    lib.put(name, obj);
-    ENGINE_LOG.debug(getClass().getSimpleName() + ": Registered " + obj.getName());
+    if (!disabled.contains(obj.getName().toLowerCase())) {
+      lib.put(name, obj);
+      ENGINE_LOG.debug(getClass().getSimpleName() + ": Registered " + obj.getName());
+    }
   }
 
   public Collection<T> entries() {
-    return lib.values();
+    return lib.values().stream().filter(t -> !disabled.contains(t.getName())).collect(Collectors.toSet());
   }
 
 }

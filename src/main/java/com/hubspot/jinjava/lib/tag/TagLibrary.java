@@ -15,12 +15,14 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
+import java.util.Set;
+
 import com.hubspot.jinjava.lib.SimpleLibrary;
 
 public class TagLibrary extends SimpleLibrary<Tag> {
 
-  public TagLibrary(boolean registerDefaults) {
-    super(registerDefaults);
+  public TagLibrary(boolean registerDefaults, Set<String> disabled) {
+    super(registerDefaults, disabled);
   }
 
   @Override

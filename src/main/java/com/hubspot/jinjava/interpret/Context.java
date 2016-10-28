@@ -44,6 +44,12 @@ public class Context extends ScopeMap<String, Object> {
 
   private final SetMultimap<String, String> dependencies = HashMultimap.create();
 
+  public enum Library {
+    EXP_TEST,
+    FILTER,
+    TAG
+  }
+
   private final CallStack extendPathStack;
   private final CallStack importPathStack;
   private final CallStack includePathStack;
@@ -64,28 +70,35 @@ public class Context extends ScopeMap<String, Object> {
   private List<? extends Node> superBlock;
 
   public Context() {
-    this(null);
+    this(null, null, null);
   }
 
   public Context(Context parent) {
+    this(parent, null, null);
+  }
+
+  public Context(Context parent, Map<String, ?> bindings, Map<Library, Set<String>> disabled) {
     super(parent);
 
+    if (bindings != null) {
+      this.putAll(bindings);
+    }
+
     this.parent = parent;
-    this.expTestLibrary = new ExpTestLibrary(parent == null);
-    this.filterLibrary = new FilterLibrary(parent == null);
-    this.functionLibrary = new FunctionLibrary(parent == null);
-    this.tagLibrary = new TagLibrary(parent == null);
+
     this.extendPathStack = new CallStack(parent == null ? null : parent.getExtendPathStack(), ExtendsTagCycleException.class);
     this.importPathStack = new CallStack(parent == null ? null : parent.getImportPathStack(), ImportTagCycleException.class);
     this.includePathStack = new CallStack(parent == null ? null : parent.getIncludePathStack(), IncludeTagCycleException.class);
     this.macroStack = new CallStack(parent == null ? null : parent.getMacroStack(), MacroTagCycleException.class);
-  }
 
-  public Context(Context parent, Map<String, ?> bindings) {
-    this(parent);
-    if (bindings != null) {
-      this.putAll(bindings);
+    if (disabled == null) {
+      disabled = new HashMap<Library, Set<String>>();
     }
+
+    this.expTestLibrary = new ExpTestLibrary(parent == null, disabled.get(Library.EXP_TEST));
+    this.filterLibrary = new FilterLibrary(parent == null, disabled.get(Library.FILTER));
+    this.tagLibrary = new TagLibrary(parent == null, disabled.get(Library.TAG));
+    this.functionLibrary = new FunctionLibrary(parent == null, null);
   }
 
   @Override

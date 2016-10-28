@@ -1,12 +1,14 @@
 package com.hubspot.jinjava.lib.fn;
 
+import java.util.Set;
+
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.lib.SimpleLibrary;
 
 public class FunctionLibrary extends SimpleLibrary<ELFunctionDefinition> {
 
-  public FunctionLibrary(boolean registerDefaults) {
-    super(registerDefaults);
+  public FunctionLibrary(boolean registerDefaults, Set<String> disabled) {
+    super(registerDefaults, disabled);
   }
 
   @Override

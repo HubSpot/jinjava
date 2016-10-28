@@ -1,11 +1,13 @@
 package com.hubspot.jinjava.lib.exptest;
 
+import java.util.Set;
+
 import com.hubspot.jinjava.lib.SimpleLibrary;
 
 public class ExpTestLibrary extends SimpleLibrary<ExpTest> {
 
-  public ExpTestLibrary(boolean registerDefaults) {
-    super(registerDefaults);
+  public ExpTestLibrary(boolean registerDefaults, Set<String> disabled) {
+    super(registerDefaults, disabled);
   }
 
   @Override

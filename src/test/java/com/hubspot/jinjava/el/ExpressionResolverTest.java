@@ -11,11 +11,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.el.MethodNotFoundException;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.hubspot.jinjava.Jinjava;
@@ -329,6 +332,43 @@ public class ExpressionResolverTest {
     assertThat(interpreter.getErrors()).isNotEmpty();
     TemplateError e = interpreter.getErrors().get(0);
     assertThat(e.getMessage()).contains("Cannot find method 'wait'");
+  }
+
+  @Test(expected = MethodNotFoundException.class)
+  public void itBlocksDisabledTags() throws Exception {
+
+    Map<Context.Library, Set<String>> disabled =  ImmutableMap.of(Context.Library.TAG, ImmutableSet.of("raw"));
+    assertThat(interpreter.render("{% raw %}foo{% endraw %}")).isEqualTo("foo");
+
+    try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
+      interpreter.render("{% raw %} foo {% endraw %}");
+    }
+  }
+
+  @Test
+  public void itBlocksDisabledFilters() throws Exception {
+
+    Map<Context.Library, Set<String>> disabled =  ImmutableMap.of(Context.Library.FILTER, ImmutableSet.of("truncate"));
+    assertThat(interpreter.resolveELExpression("\"hey\"|truncate(2)", -1)).isEqualTo("h...");
+
+    try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
+      interpreter.resolveELExpression("\"hey\"|truncate(2)", -1);
+      TemplateError e = interpreter.getErrors().get(0);
+      assertThat(e.getMessage()).contains("truncate' is disabled in this context");
+    }
+  }
+
+  @Test
+  public void itBlocksDisabledExpTests() throws Exception {
+
+    Map<Context.Library, Set<String>> disabled =  ImmutableMap.of(Context.Library.EXP_TEST, ImmutableSet.of("even"));
+    assertThat(interpreter.render("{% if 2 is even %}yes{% endif %}")).isEqualTo("yes");
+
+    try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
+      interpreter.render("{% if 2 is even %}yes{% endif %}");
+      TemplateError e = interpreter.getErrors().get(0);
+      assertThat(e.getMessage()).contains("even' is disabled in this context");
+    }
   }
 
   @Test
