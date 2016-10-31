@@ -19,7 +19,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.Context.Library;
 
 public class JinjavaConfig {
 
@@ -33,22 +39,25 @@ public class JinjavaConfig {
 
   private final boolean readOnlyResolver;
 
+  private Map<Context.Library, Set<String>> disabled;
+
   public static Builder newBuilder() {
     return new Builder();
   }
 
   public JinjavaConfig() {
-    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, false, false, true);
+    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true);
   }
 
   public JinjavaConfig(Charset charset, Locale locale, ZoneId timeZone, int maxRenderDepth) {
-    this(charset, locale, timeZone, maxRenderDepth, false, false, true);
+    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true);
   }
 
   private JinjavaConfig(Charset charset,
                         Locale locale,
                         ZoneId timeZone,
                         int maxRenderDepth,
+                        Map<Context.Library, Set<String>> disabled,
                         boolean trimBlocks,
                         boolean lstripBlocks,
                         boolean readOnlyResolver) {
@@ -56,6 +65,7 @@ public class JinjavaConfig {
     this.locale = locale;
     this.timeZone = timeZone;
     this.maxRenderDepth = maxRenderDepth;
+    this.disabled = disabled;
     this.trimBlocks = trimBlocks;
     this.lstripBlocks = lstripBlocks;
     this.readOnlyResolver = readOnlyResolver;
@@ -89,11 +99,16 @@ public class JinjavaConfig {
     return readOnlyResolver;
   }
 
+  public Map<Library, Set<String>> getDisabled() {
+    return disabled;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
     private ZoneId timeZone = ZoneOffset.UTC;
     private int maxRenderDepth = 10;
+    private Map<Context.Library, Set<String>> disabled = new HashMap<>();
 
     private boolean trimBlocks;
     private boolean lstripBlocks;
@@ -114,6 +129,11 @@ public class JinjavaConfig {
 
     public Builder withTimeZone(ZoneId timeZone) {
       this.timeZone = timeZone;
+      return this;
+    }
+
+    public Builder withDisabled(Map<Context.Library, Set<String>> disabled) {
+      this.disabled = disabled;
       return this;
     }
 
@@ -138,7 +158,7 @@ public class JinjavaConfig {
     }
 
     public JinjavaConfig build() {
-      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, trimBlocks, lstripBlocks, readOnlyResolver);
+      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, disabled, trimBlocks, lstripBlocks, readOnlyResolver);
     }
   }
 

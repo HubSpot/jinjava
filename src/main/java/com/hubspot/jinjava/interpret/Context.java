@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -43,10 +44,12 @@ public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
 
   private final SetMultimap<String, String> dependencies = HashMultimap.create();
+  private Map<Library, Set<String>> disabled;
 
   public enum Library {
     EXP_TEST,
     FILTER,
+    FUNCTION,
     TAG
   }
 
@@ -79,6 +82,7 @@ public class Context extends ScopeMap<String, Object> {
 
   public Context(Context parent, Map<String, ?> bindings, Map<Library, Set<String>> disabled) {
     super(parent);
+    this.disabled = disabled;
 
     if (bindings != null) {
       this.putAll(bindings);
@@ -86,9 +90,12 @@ public class Context extends ScopeMap<String, Object> {
 
     this.parent = parent;
 
-    this.extendPathStack = new CallStack(parent == null ? null : parent.getExtendPathStack(), ExtendsTagCycleException.class);
-    this.importPathStack = new CallStack(parent == null ? null : parent.getImportPathStack(), ImportTagCycleException.class);
-    this.includePathStack = new CallStack(parent == null ? null : parent.getIncludePathStack(), IncludeTagCycleException.class);
+    this.extendPathStack = new CallStack(parent == null ? null : parent.getExtendPathStack(),
+                                         ExtendsTagCycleException.class);
+    this.importPathStack = new CallStack(parent == null ? null : parent.getImportPathStack(),
+                                         ImportTagCycleException.class);
+    this.includePathStack = new CallStack(parent == null ? null : parent.getIncludePathStack(),
+                                          IncludeTagCycleException.class);
     this.macroStack = new CallStack(parent == null ? null : parent.getMacroStack(), MacroTagCycleException.class);
 
     if (disabled == null) {
@@ -98,7 +105,7 @@ public class Context extends ScopeMap<String, Object> {
     this.expTestLibrary = new ExpTestLibrary(parent == null, disabled.get(Library.EXP_TEST));
     this.filterLibrary = new FilterLibrary(parent == null, disabled.get(Library.FILTER));
     this.tagLibrary = new TagLibrary(parent == null, disabled.get(Library.TAG));
-    this.functionLibrary = new FunctionLibrary(parent == null, null);
+    this.functionLibrary = new FunctionLibrary(parent == null, disabled.get(Library.FUNCTION));
   }
 
   @Override
@@ -282,7 +289,9 @@ public class Context extends ScopeMap<String, Object> {
       fns.addAll(parent.getAllFunctions());
     }
 
-    return fns;
+    final Set<String> disabledFunctions = disabled == null ? new HashSet<>() : disabled.getOrDefault(Library.FUNCTION,
+                                                                                                     new HashSet<>());
+    return fns.stream().filter(f -> !disabledFunctions.contains(f.getName())).collect(Collectors.toList());
   }
 
   public void registerFunction(ELFunctionDefinition f) {

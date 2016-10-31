@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.el;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -22,9 +23,12 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.objects.PyWrapper;
@@ -35,10 +39,12 @@ public class ExpressionResolverTest {
 
   private JinjavaInterpreter interpreter;
   private Context context;
+  private Jinjava jinjava;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
+    jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
     context = interpreter.getContext();
   }
 
@@ -66,7 +72,8 @@ public class ExpressionResolverTest {
   @Test
   public void itCanCompareStrings() throws Exception {
     context.put("foo", "white");
-    assertThat(interpreter.resolveELExpression("'2013-12-08 16:00:00+00:00' > '2013-12-08 13:00:00+00:00'", -1)).isEqualTo(Boolean.TRUE);
+    assertThat(interpreter.resolveELExpression("'2013-12-08 16:00:00+00:00' > '2013-12-08 13:00:00+00:00'",
+                                               -1)).isEqualTo(Boolean.TRUE);
     assertThat(interpreter.resolveELExpression("foo == \"white\"", -1)).isEqualTo(Boolean.TRUE);
   }
 
@@ -144,7 +151,7 @@ public class ExpressionResolverTest {
 
     Object val2 = interpreter.resolveELExpression("thedict.items()", -1);
     assertThat(val2.toString()).isEqualTo("[foo=bar, two=2, size=777]");
- }
+  }
 
   public static final class MyCustomMap implements Map<String, String> {
 
@@ -338,7 +345,7 @@ public class ExpressionResolverTest {
   @Test(expected = MethodNotFoundException.class)
   public void itBlocksDisabledTags() throws Exception {
 
-    Map<Context.Library, Set<String>> disabled =  ImmutableMap.of(Context.Library.TAG, ImmutableSet.of("raw"));
+    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(Context.Library.TAG, ImmutableSet.of("raw"));
     assertThat(interpreter.render("{% raw %}foo{% endraw %}")).isEqualTo("foo");
 
     try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
@@ -351,7 +358,7 @@ public class ExpressionResolverTest {
 
     final String jinja = "top {% include \"tags/includetag/raw.html\" %}";
 
-    Map<Context.Library, Set<String>> disabled =  ImmutableMap.of(Context.Library.TAG, ImmutableSet.of("raw"));
+    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(Context.Library.TAG, ImmutableSet.of("raw"));
     assertThat(interpreter.render(jinja)).isEqualTo("top before raw after\n");
 
     try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
@@ -362,7 +369,7 @@ public class ExpressionResolverTest {
   @Test
   public void itBlocksDisabledFilters() throws Exception {
 
-    Map<Context.Library, Set<String>> disabled =  ImmutableMap.of(Context.Library.FILTER, ImmutableSet.of("truncate"));
+    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(Context.Library.FILTER, ImmutableSet.of("truncate"));
     assertThat(interpreter.resolveELExpression("\"hey\"|truncate(2)", -1)).isEqualTo("h...");
 
     try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
@@ -373,9 +380,27 @@ public class ExpressionResolverTest {
   }
 
   @Test
+  public void itBlocksDisabledFunctions() throws Exception {
+
+    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(Library.FUNCTION, ImmutableSet.of(":range"));
+
+    String template = "hi {% for i in range(1, 3) %}{{i}} {% endfor %}";
+
+    String rendered = jinjava.render(template, context);
+    assertEquals("hi 1 2 ", rendered);
+
+    final JinjavaConfig config = JinjavaConfig.newBuilder().withDisabled(disabled).build();
+
+    final RenderResult renderResult = jinjava.renderForResult(template, context, config);
+    assertEquals("hi  ", renderResult.getOutput());
+    TemplateError e = renderResult.getErrors().get(0);
+    assertThat(e.getMessage()).contains("Could not resolve function 'range'");
+  }
+
+  @Test
   public void itBlocksDisabledExpTests() throws Exception {
 
-    Map<Context.Library, Set<String>> disabled =  ImmutableMap.of(Context.Library.EXP_TEST, ImmutableSet.of("even"));
+    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(Context.Library.EXP_TEST, ImmutableSet.of("even"));
     assertThat(interpreter.render("{% if 2 is even %}yes{% endif %}")).isEqualTo("yes");
 
     try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
@@ -402,7 +427,8 @@ public class ExpressionResolverTest {
   @Test
   public void presentNestedOptionalProperty() {
     context.put("myobj", new OptionalProperty(new MyClass(new Date(0)), "foo"));
-    assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nested.date", -1))).isEqualTo("1970-01-01 00:00:00");
+    assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nested.date", -1))).isEqualTo(
+        "1970-01-01 00:00:00");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
@@ -416,7 +442,8 @@ public class ExpressionResolverTest {
   @Test
   public void presentNestedNestedOptionalProperty() {
     context.put("myobj", new NestedOptionalProperty(new OptionalProperty(new MyClass(new Date(0)), "foo")));
-    assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nested.nested.date", -1))).isEqualTo("1970-01-01 00:00:00");
+    assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nested.nested.date", -1))).isEqualTo(
+        "1970-01-01 00:00:00");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 

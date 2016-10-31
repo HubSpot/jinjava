@@ -15,6 +15,10 @@ public class MacroFunctionMapper extends FunctionMapper {
 
   private Map<String, Method> map = Collections.emptyMap();
 
+  private static String buildFunctionName(String prefix, String name) {
+    return prefix + ":" + name;
+  }
+
   @Override
   public Method resolveFunction(String prefix, String localName) {
     MacroFunction macroFunction = JinjavaInterpreter.getCurrent().getContext().getGlobalMacro(localName);
@@ -23,14 +27,14 @@ public class MacroFunctionMapper extends FunctionMapper {
       return AbstractCallableMethod.EVAL_METHOD;
     }
 
-    return map.get(prefix + ":" + localName);
+    return map.get(buildFunctionName(prefix, localName));
   }
 
   public void setFunction(String prefix, String localName, Method method) {
     if (map.isEmpty()) {
       map = new HashMap<String, Method>();
     }
-    map.put(prefix + ":" + localName, method);
+    map.put(buildFunctionName(prefix, localName), method);
   }
 
 }
