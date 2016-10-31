@@ -15,12 +15,14 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Set;
+
 import com.hubspot.jinjava.lib.SimpleLibrary;
 
 public class FilterLibrary extends SimpleLibrary<Filter> {
 
-  public FilterLibrary(boolean registerDefaults) {
-    super(registerDefaults);
+  public FilterLibrary(boolean registerDefaults, Set<String> disabled) {
+    super(registerDefaults, disabled);
   }
 
   @Override

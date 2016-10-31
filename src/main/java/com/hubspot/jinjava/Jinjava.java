@@ -186,7 +186,7 @@ public class Jinjava {
    * @return result object containing rendered output, render context, and any encountered errors
    */
   public RenderResult renderForResult(String template, Map<String, ?> bindings, JinjavaConfig renderConfig) {
-    Context context = new Context(globalContext, bindings);
+    Context context = new Context(globalContext, bindings, null);
 
     JinjavaInterpreter parentInterpreter = JinjavaInterpreter.getCurrent();
     if (parentInterpreter != null) {

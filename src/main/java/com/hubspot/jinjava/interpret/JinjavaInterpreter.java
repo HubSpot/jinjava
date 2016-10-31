@@ -22,8 +22,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Stack;
 
 import org.apache.commons.lang3.StringUtils;
@@ -93,7 +95,11 @@ public class JinjavaInterpreter {
    * </code>
    */
   public InterpreterScopeClosable enterScope() {
-    context = new Context(context);
+    return enterScope(null);
+  }
+
+  public InterpreterScopeClosable enterScope(Map<Context.Library, Set<String>> disabled) {
+    context = new Context(context, null, disabled);
     return new InterpreterScopeClosable();
   }
 
