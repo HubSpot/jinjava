@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -342,6 +343,19 @@ public class ExpressionResolverTest {
 
     try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
       interpreter.render("{% raw %} foo {% endraw %}");
+    }
+  }
+
+  @Test(expected = InterpretException.class)
+  public void itBlocksDisabledTagsInIncludes() throws Exception {
+
+    final String jinja = "top {% include \"tags/includetag/raw.html\" %}";
+
+    Map<Context.Library, Set<String>> disabled =  ImmutableMap.of(Context.Library.TAG, ImmutableSet.of("raw"));
+    assertThat(interpreter.render(jinja)).isEqualTo("top before raw after\n");
+
+    try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
+      interpreter.render(jinja);
     }
   }
 
