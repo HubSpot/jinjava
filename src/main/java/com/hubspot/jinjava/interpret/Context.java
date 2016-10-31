@@ -80,6 +80,10 @@ public class Context extends ScopeMap<String, Object> {
     this(parent, null, null);
   }
 
+  public Context(Context parent, Map<String, ?> bindings) {
+    this(parent, bindings, null);
+  }
+
   public Context(Context parent, Map<String, ?> bindings, Map<Library, Set<String>> disabled) {
     super(parent);
     this.disabled = disabled;
