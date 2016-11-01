@@ -17,6 +17,7 @@ package com.hubspot.jinjava.interpret;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -273,6 +274,10 @@ public class Context extends ScopeMap<String, Object> {
 
   public void registerFilter(Filter f) {
     filterLibrary.addFilter(f);
+  }
+
+  public boolean isFunctionDisabled(String name) {
+    return disabled != null && disabled.getOrDefault(Library.FUNCTION, Collections.emptySet()).contains(name);
   }
 
   public ELFunctionDefinition getFunction(String name) {

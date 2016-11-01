@@ -394,7 +394,7 @@ public class ExpressionResolverTest {
     final RenderResult renderResult = jinjava.renderForResult(template, context, config);
     assertEquals("hi  ", renderResult.getOutput());
     TemplateError e = renderResult.getErrors().get(0);
-    assertThat(e.getMessage()).contains("Could not resolve function 'range'");
+    assertThat(e.getMessage()).contains("':range' is disabled in this context");
   }
 
   @Test

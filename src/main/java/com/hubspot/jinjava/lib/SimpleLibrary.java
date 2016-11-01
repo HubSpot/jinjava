@@ -55,7 +55,7 @@ public abstract class SimpleLibrary<T extends Importable> {
 
   public T fetch(String item) {
     if (disabled.contains(item)) {
-      throw new MethodNotFoundException("'" + item + "' is disabled in this context ");
+      throw new MethodNotFoundException("'" + item + "' is disabled in this context");
     }
 
     return lib.get(StringUtils.lowerCase(item));

@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.el.FunctionMapper;
+import javax.el.MethodNotFoundException;
 
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
+import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 
@@ -21,13 +23,20 @@ public class MacroFunctionMapper extends FunctionMapper {
 
   @Override
   public Method resolveFunction(String prefix, String localName) {
-    MacroFunction macroFunction = JinjavaInterpreter.getCurrent().getContext().getGlobalMacro(localName);
+    final Context context = JinjavaInterpreter.getCurrent().getContext();
+    MacroFunction macroFunction = context.getGlobalMacro(localName);
 
     if (macroFunction != null) {
       return AbstractCallableMethod.EVAL_METHOD;
     }
 
-    return map.get(buildFunctionName(prefix, localName));
+    final String functionName = buildFunctionName(prefix, localName);
+
+    if (context.isFunctionDisabled(functionName)) {
+      throw new MethodNotFoundException("'" + functionName + "' is disabled in this context");
+    }
+
+    return map.get(functionName);
   }
 
   public void setFunction(String prefix, String localName, Method method) {
