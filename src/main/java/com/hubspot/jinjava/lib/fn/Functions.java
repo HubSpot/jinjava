@@ -59,19 +59,7 @@ public class Functions {
       @JinjavaParam(value = "format", defaultValue = StrftimeFormatter.DEFAULT_DATE_FORMAT)
   })
   public static String dateTimeFormat(Object var, String... format) {
-    ZonedDateTime d = null;
-
-    if (var == null) {
-      d = ZonedDateTime.now(ZoneOffset.UTC);
-    } else if (var instanceof Number) {
-      d = ZonedDateTime.ofInstant(Instant.ofEpochMilli(((Number) var).longValue()), ZoneOffset.UTC);
-    } else if (var instanceof PyishDate) {
-      d = ((PyishDate) var).toDateTime();
-    } else if (var instanceof ZonedDateTime) {
-      d = (ZonedDateTime) var;
-    } else if (!ZonedDateTime.class.isAssignableFrom(var.getClass())) {
-      throw new InterpretException("Input to datetimeformat function must be a date object, was: " + var.getClass());
-    }
+    ZonedDateTime d = getDateTimeArg(var);
 
     if (d == null) {
       return "";
@@ -87,6 +75,38 @@ public class Functions {
     } else {
       return StrftimeFormatter.format(d, locale);
     }
+  }
+
+  private static ZonedDateTime getDateTimeArg(Object var) {
+
+    ZonedDateTime d = null;
+
+    if (var == null) {
+      d = ZonedDateTime.now(ZoneOffset.UTC);
+    } else if (var instanceof Number) {
+      d = ZonedDateTime.ofInstant(Instant.ofEpochMilli(((Number) var).longValue()), ZoneOffset.UTC);
+    } else if (var instanceof PyishDate) {
+      d = ((PyishDate) var).toDateTime();
+    } else if (var instanceof ZonedDateTime) {
+      d = (ZonedDateTime) var;
+    } else if (!ZonedDateTime.class.isAssignableFrom(var.getClass())) {
+      throw new InterpretException("Input to function must be a date object, was: " + var.getClass());
+    }
+
+    return d;
+  }
+
+  @JinjavaDoc(value = "gets the unix timestamp milliseconds value of a datetime", params = {
+      @JinjavaParam(value = "var", type = "date", defaultValue = "current time"),
+  })
+  public static long unixtimestamp(Object var) {
+    ZonedDateTime d = getDateTimeArg(var);
+
+    if (d == null) {
+      return 0;
+    }
+
+    return d.toEpochSecond() * 1000;
   }
 
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
