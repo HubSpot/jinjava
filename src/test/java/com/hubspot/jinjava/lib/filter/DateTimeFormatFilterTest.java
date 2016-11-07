@@ -52,7 +52,6 @@ public class DateTimeFormatFilterTest {
   public void itHandlesVarsAndLiterals() throws Exception {
     interpreter.getContext().put("d", d);
     interpreter.getContext().put("foo", "%Y-%m");
-
     assertThat(interpreter.renderFlat("{{ d|datetimeformat(foo) }}")).isEqualTo("2013-11");
     assertThat(interpreter.renderFlat("{{ d|datetimeformat(\"%Y-%m-%d\") }}")).isEqualTo("2013-11-06");
     assertThat(interpreter.getErrors()).isEmpty();
