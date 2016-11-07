@@ -16,7 +16,7 @@ public class UnixTimestampFilterTest {
   JinjavaInterpreter interpreter;
 
   private final ZonedDateTime d = ZonedDateTime.parse("2013-11-06T14:22:00.000+00:00[UTC]");
-  private final String timestamp = new Long(d.toEpochSecond() * 1000).toString();
+  private final String timestamp = Long.toString(d.toEpochSecond() * 1000);
 
   @Before
   public void setup() {
