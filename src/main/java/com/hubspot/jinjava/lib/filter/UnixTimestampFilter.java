@@ -7,7 +7,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
 
 @JinjavaDoc(
-    value = "gets the unix timestamp value (in millseconds) of a date object",
+    value = "gets the unix timestamp value (in milliseconds) of a date object",
     params = {
         @JinjavaParam(value = "value", defaultValue = "current time", desc = "The date variable"),
     },
