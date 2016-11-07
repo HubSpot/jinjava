@@ -99,11 +99,11 @@ public class Functions {
   @JinjavaDoc(value = "gets the unix timestamp milliseconds value of a datetime", params = {
       @JinjavaParam(value = "var", type = "date", defaultValue = "current time"),
   })
-  public static Object unixtimestamp(Object var) {
+  public static long unixtimestamp(Object var) {
     ZonedDateTime d = getDateTimeArg(var);
 
     if (d == null) {
-      return 0L;
+      return 0;
     }
 
     return d.toEpochSecond() * 1000;
