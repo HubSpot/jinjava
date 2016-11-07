@@ -12,9 +12,9 @@ public class UnixTimestampFunctionTest {
 
   @Test
   public void itGetsUnixTimestamps() {
-    assertThat(Functions.getUnixTimestamp(d.toEpochSecond() * 1000)).isEqualTo(d.toEpochSecond() * 1000);
-    assertThat(Functions.getUnixTimestamp(d)).isEqualTo(d.toEpochSecond() * 1000);
-    assertThat(Functions.getUnixTimestamp(null)).isEqualTo(ZonedDateTime.now().toEpochSecond() * 1000);
+    assertThat(Functions.unixtimestamp(d.toEpochSecond() * 1000)).isEqualTo(d.toEpochSecond() * 1000);
+    assertThat(Functions.unixtimestamp(d)).isEqualTo(d.toEpochSecond() * 1000);
+    assertThat(Functions.unixtimestamp(null)).isEqualTo(ZonedDateTime.now().toEpochSecond() * 1000);
   }
 
 }

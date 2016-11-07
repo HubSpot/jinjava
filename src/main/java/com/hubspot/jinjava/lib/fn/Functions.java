@@ -99,7 +99,7 @@ public class Functions {
   @JinjavaDoc(value = "gets the unix timestamp milliseconds value of a datetime", params = {
       @JinjavaParam(value = "var", type = "date", defaultValue = "current time"),
   })
-  public static Object getUnixTimestamp(Object var) {
+  public static Object unixtimestamp(Object var) {
     ZonedDateTime d = getDateTimeArg(var);
 
     if (d == null) {
