@@ -30,21 +30,21 @@ public class TreeParserTest {
 
   @Test
   public void itStripsRightWhiteSpace() throws Exception {
-    String leftSpace = "{% for foo in [1,2,3] -%}\n.{{ foo }}\n{% endfor %}";
+    String leftSpace = "{% for foo in [1,2,3] -%} \n .{{ foo }}\n{% endfor %}";
     final Node tree = new TreeParser(interpreter, leftSpace).buildTree();
     assertThat(interpreter.render(tree)).isEqualTo(".1\n.2\n.3\n");
   }
 
   @Test
   public void itStripsLeftWhiteSpace() throws Exception {
-    String leftSpace = "{% for foo in [1,2,3] %}\n{{ foo }}.\n{%- endfor %}";
+    String leftSpace = "{% for foo in [1,2,3] %}\n{{ foo }}. \n {%- endfor %}";
     final Node tree = new TreeParser(interpreter, leftSpace).buildTree();
     assertThat(interpreter.render(tree)).isEqualTo("\n1.\n2.\n3.");
   }
 
   @Test
   public void itStripsLeftAndRightWhiteSpace() throws Exception {
-    String leftSpace = "{% for foo in [1,2,3] -%}\n.{{ foo }}.\n{%- endfor %}";
+    String leftSpace = "{% for foo in [1,2,3] -%} \n .{{ foo }}. \n {%- endfor %}";
     final Node tree = new TreeParser(interpreter, leftSpace).buildTree();
     assertThat(interpreter.render(tree)).isEqualTo(".1..2..3.");
   }
