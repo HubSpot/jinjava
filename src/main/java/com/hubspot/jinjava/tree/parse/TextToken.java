@@ -46,6 +46,14 @@ public class TextToken extends Token {
   }
 
   public String output() {
+
+    if (isLeftTrim() && isRightTrim()) {
+      return trim();
+    } else if (isLeftTrim()) {
+      return StringUtils.stripStart(content, null);
+    } else if (isRightTrim()) {
+      return StringUtils.stripEnd(content, null);
+    }
     return content;
   }
 

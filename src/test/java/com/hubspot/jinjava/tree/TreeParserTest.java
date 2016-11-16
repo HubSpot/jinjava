@@ -29,6 +29,34 @@ public class TreeParserTest {
   }
 
   @Test
+  public void itStripsRightWhiteSpace() throws Exception {
+    String leftSpace = "{% for foo in [1,2,3] -%}\n.{{ foo }}\n{% endfor %}";
+    final Node tree = new TreeParser(interpreter, leftSpace).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo(".1\n.2\n.3\n");
+  }
+
+  @Test
+  public void itStripsLeftWhiteSpace() throws Exception {
+    String leftSpace = "{% for foo in [1,2,3] %}\n{{ foo }}.\n{%- endfor %}";
+    final Node tree = new TreeParser(interpreter, leftSpace).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo("\n1.\n2.\n3.");
+  }
+
+  @Test
+  public void itStripsLeftAndRightWhiteSpace() throws Exception {
+    String leftSpace = "{% for foo in [1,2,3] -%}\n.{{ foo }}.\n{%- endfor %}";
+    final Node tree = new TreeParser(interpreter, leftSpace).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo(".1..2..3.");
+  }
+
+  @Test
+  public void itPreservesInnerWhiteSpace() throws Exception {
+    String leftSpace = "{% for foo in [1,2,3] -%}\nL{% if true %}\n{{ foo }}\n{% endif %}R\n{%- endfor %}";
+    final Node tree = new TreeParser(interpreter, leftSpace).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo("L\n1\nRL\n2\nRL\n3\nR");
+  }
+
+  @Test
   public void trimAndLstripBlocks() {
     interpreter = new Jinjava(JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build()).newInterpreter();
 

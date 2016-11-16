@@ -20,6 +20,8 @@ import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_FIXED;
 import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
 import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
 
+import java.util.LinkedList;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Iterators;
@@ -56,15 +58,25 @@ public class TreeParser {
     parent = root;
 
     while (scanner.hasNext()) {
+
       Node node = nextNode();
+
       if (node != null) {
+        if (node instanceof TextNode
+            && parent instanceof TagNode
+            && parent.getChildren().isEmpty()
+            && parent.getMaster().isRightTrim()) {
+          node.getMaster().setLeftTrim(true);
+        }
         parent.getChildren().add(node);
       }
     }
 
     if (parent != root) {
       interpreter.addError(TemplateError.fromException(
-          new MissingEndTagException(((TagNode) parent).getEndName(), parent.getMaster().getImage(), parent.getLineNumber())));
+          new MissingEndTagException(((TagNode) parent).getEndName(),
+                                     parent.getMaster().getImage(),
+                                     parent.getLineNumber())));
     }
 
     return root;
@@ -77,20 +89,21 @@ public class TreeParser {
     Token token = scanner.next();
 
     switch (token.getType()) {
-    case TOKEN_FIXED:
-      return text((TextToken) token);
+      case TOKEN_FIXED:
+        return text((TextToken) token);
 
-    case TOKEN_EXPR_START:
-      return expression((ExpressionToken) token);
+      case TOKEN_EXPR_START:
+        return expression((ExpressionToken) token);
 
-    case TOKEN_TAG:
-      return tag((TagToken) token);
+      case TOKEN_TAG:
+        return tag((TagToken) token);
 
-    case TOKEN_NOTE:
-      break;
+      case TOKEN_NOTE:
+        break;
 
-    default:
-      interpreter.addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(), token.getLineNumber())));
+      default:
+        interpreter.addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(),
+                                                                                      token.getLineNumber())));
     }
 
     return null;
@@ -139,6 +152,17 @@ public class TreeParser {
   }
 
   private void endTag(Tag tag, TagToken tagToken) {
+
+    final LinkedList<Node> children = parent.getChildren();
+    final Node lastChild = children.isEmpty() ? null : children.get(children.size() - 1);
+
+    if (parent instanceof TagNode
+        && tagToken.isLeftTrim()
+        && lastChild != null
+        && lastChild instanceof TextNode) {
+      lastChild.getMaster().setRightTrim(true);
+    }
+
     while (!(parent instanceof RootNode)) {
       TagNode parentTag = (TagNode) parent;
       parent = parent.getParent();
@@ -147,7 +171,9 @@ public class TreeParser {
         break;
       } else {
         interpreter.addError(TemplateError.fromException(
-            new TemplateSyntaxException(tagToken.getImage(), "Mismatched end tag, expected: " + parentTag.getEndName(), tagToken.getLineNumber())));
+            new TemplateSyntaxException(tagToken.getImage(),
+                                        "Mismatched end tag, expected: " + parentTag.getEndName(),
+                                        tagToken.getLineNumber())));
       }
     }
   }
