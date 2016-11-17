@@ -20,8 +20,6 @@ import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_FIXED;
 import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
 import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
 
-import java.util.LinkedList;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Iterators;
@@ -181,14 +179,13 @@ public class TreeParser {
 
   private void endTag(Tag tag, TagToken tagToken) {
 
-    final LinkedList<Node> children = parent.getChildren();
-    final Node lastChild = children.isEmpty() ? null : children.get(children.size() - 1);
+    final Node lastSibling = getLastSibling();
 
     if (parent instanceof TagNode
         && tagToken.isLeftTrim()
-        && lastChild != null
-        && lastChild instanceof TextNode) {
-      lastChild.getMaster().setRightTrim(true);
+        && lastSibling != null
+        && lastSibling instanceof TextNode) {
+      lastSibling.getMaster().setRightTrim(true);
     }
 
     parent.getMaster().setRightTrimAfterEnd(tagToken.isRightTrim());
