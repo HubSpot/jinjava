@@ -58,16 +58,9 @@ public class TreeParser {
     parent = root;
 
     while (scanner.hasNext()) {
-
       Node node = nextNode();
 
       if (node != null) {
-        if (node instanceof TextNode
-            && parent instanceof TagNode
-            && parent.getChildren().isEmpty()
-            && parent.getMaster().isRightTrim()) {
-          node.getMaster().setLeftTrim(true);
-        }
         parent.getChildren().add(node);
       }
     }
@@ -85,6 +78,7 @@ public class TreeParser {
   /**
    * @return null if EOF or error
    */
+
   private Node nextNode() {
     Token token = scanner.next();
 
@@ -109,11 +103,36 @@ public class TreeParser {
     return null;
   }
 
+  private Node getLastSibling() {
+
+    if (parent == null || parent.getChildren().isEmpty()) {
+      return null;
+    }
+
+    return parent.getChildren().getLast();
+  }
+
   private Node text(TextToken textToken) {
     if (interpreter.getConfig().isLstripBlocks()) {
       if (scanner.hasNext() && scanner.peek().getType() == TOKEN_TAG) {
         textToken = new TextToken(StringUtils.stripEnd(textToken.getImage(), "\t "), textToken.getLineNumber());
       }
+    }
+
+    final Node lastSibling = getLastSibling();
+
+    // if last sibling was a tag and has rightTrimAfterEnd, strip whitespace
+    if (lastSibling != null
+        && lastSibling instanceof TagNode
+        && lastSibling.getMaster().isRightTrimAfterEnd()) {
+      textToken.setLeftTrim(true);
+    }
+
+    // for first TextNode child of TagNode where rightTrim is enabled, mark it for left trim
+    if (parent instanceof TagNode
+        && lastSibling == null
+        && parent.getMaster().isRightTrim()) {
+      textToken.setLeftTrim(true);
     }
 
     TextNode n = new TextNode(textToken);
@@ -137,6 +156,15 @@ public class TreeParser {
     if (tag instanceof EndTag) {
       endTag(tag, tagToken);
       return null;
+    } else {
+
+      // if a tag has left trim, mark the last sibling to trim right whitespace
+      if (tagToken.isLeftTrim()) {
+        final Node lastSibling = getLastSibling();
+        if (lastSibling != null && lastSibling instanceof TextNode) {
+          lastSibling.getMaster().setRightTrim(true);
+        }
+      }
     }
 
     TagNode node = new TagNode(tag, tagToken);
@@ -162,6 +190,8 @@ public class TreeParser {
         && lastChild instanceof TextNode) {
       lastChild.getMaster().setRightTrim(true);
     }
+
+    parent.getMaster().setRightTrimAfterEnd(tagToken.isRightTrim());
 
     while (!(parent instanceof RootNode)) {
       TagNode parentTag = (TagNode) parent;

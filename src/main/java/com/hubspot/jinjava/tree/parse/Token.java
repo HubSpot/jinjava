@@ -36,6 +36,7 @@ public abstract class Token implements Serializable {
 
   private boolean leftTrim;
   private boolean rightTrim;
+  private boolean rightTrimAfterEnd;
 
   public Token(String image, int lineNumber) {
     this.image = image;
@@ -59,12 +60,20 @@ public abstract class Token implements Serializable {
     return rightTrim;
   }
 
+  public boolean isRightTrimAfterEnd() {
+    return rightTrimAfterEnd;
+  }
+
   public void setLeftTrim(boolean leftTrim) {
     this.leftTrim = leftTrim;
   }
 
   public void setRightTrim(boolean rightTrim) {
     this.rightTrim = rightTrim;
+  }
+
+  public void setRightTrimAfterEnd(boolean rightTrimAfterEnd) {
+    this.rightTrimAfterEnd = rightTrimAfterEnd;
   }
 
   @Override
