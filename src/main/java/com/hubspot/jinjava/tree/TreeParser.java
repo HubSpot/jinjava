@@ -97,16 +97,13 @@ public class TreeParser {
         interpreter.addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(),
                                                                                       token.getLineNumber())));
     }
-
     return null;
   }
 
   private Node getLastSibling() {
-
     if (parent == null || parent.getChildren().isEmpty()) {
       return null;
     }
-
     return parent.getChildren().getLast();
   }
 
@@ -155,7 +152,6 @@ public class TreeParser {
       endTag(tag, tagToken);
       return null;
     } else {
-
       // if a tag has left trim, mark the last sibling to trim right whitespace
       if (tagToken.isLeftTrim()) {
         final Node lastSibling = getLastSibling();
@@ -204,5 +200,4 @@ public class TreeParser {
       }
     }
   }
-
 }
