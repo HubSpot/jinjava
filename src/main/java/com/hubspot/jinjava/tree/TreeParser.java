@@ -57,6 +57,7 @@ public class TreeParser {
 
     while (scanner.hasNext()) {
       Node node = nextNode();
+
       if (node != null) {
         parent.getChildren().add(node);
       }
@@ -64,7 +65,9 @@ public class TreeParser {
 
     if (parent != root) {
       interpreter.addError(TemplateError.fromException(
-          new MissingEndTagException(((TagNode) parent).getEndName(), parent.getMaster().getImage(), parent.getLineNumber())));
+          new MissingEndTagException(((TagNode) parent).getEndName(),
+                                     parent.getMaster().getImage(),
+                                     parent.getLineNumber())));
     }
 
     return root;
@@ -73,27 +76,35 @@ public class TreeParser {
   /**
    * @return null if EOF or error
    */
+
   private Node nextNode() {
     Token token = scanner.next();
 
     switch (token.getType()) {
-    case TOKEN_FIXED:
-      return text((TextToken) token);
+      case TOKEN_FIXED:
+        return text((TextToken) token);
 
-    case TOKEN_EXPR_START:
-      return expression((ExpressionToken) token);
+      case TOKEN_EXPR_START:
+        return expression((ExpressionToken) token);
 
-    case TOKEN_TAG:
-      return tag((TagToken) token);
+      case TOKEN_TAG:
+        return tag((TagToken) token);
 
-    case TOKEN_NOTE:
-      break;
+      case TOKEN_NOTE:
+        break;
 
-    default:
-      interpreter.addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(), token.getLineNumber())));
+      default:
+        interpreter.addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(),
+                                                                                      token.getLineNumber())));
     }
-
     return null;
+  }
+
+  private Node getLastSibling() {
+    if (parent == null || parent.getChildren().isEmpty()) {
+      return null;
+    }
+    return parent.getChildren().getLast();
   }
 
   private Node text(TextToken textToken) {
@@ -101,6 +112,22 @@ public class TreeParser {
       if (scanner.hasNext() && scanner.peek().getType() == TOKEN_TAG) {
         textToken = new TextToken(StringUtils.stripEnd(textToken.getImage(), "\t "), textToken.getLineNumber());
       }
+    }
+
+    final Node lastSibling = getLastSibling();
+
+    // if last sibling was a tag and has rightTrimAfterEnd, strip whitespace
+    if (lastSibling != null
+        && lastSibling instanceof TagNode
+        && lastSibling.getMaster().isRightTrimAfterEnd()) {
+      textToken.setLeftTrim(true);
+    }
+
+    // for first TextNode child of TagNode where rightTrim is enabled, mark it for left trim
+    if (parent instanceof TagNode
+        && lastSibling == null
+        && parent.getMaster().isRightTrim()) {
+      textToken.setLeftTrim(true);
     }
 
     TextNode n = new TextNode(textToken);
@@ -124,6 +151,14 @@ public class TreeParser {
     if (tag instanceof EndTag) {
       endTag(tag, tagToken);
       return null;
+    } else {
+      // if a tag has left trim, mark the last sibling to trim right whitespace
+      if (tagToken.isLeftTrim()) {
+        final Node lastSibling = getLastSibling();
+        if (lastSibling != null && lastSibling instanceof TextNode) {
+          lastSibling.getMaster().setRightTrim(true);
+        }
+      }
     }
 
     TagNode node = new TagNode(tag, tagToken);
@@ -139,6 +174,18 @@ public class TreeParser {
   }
 
   private void endTag(Tag tag, TagToken tagToken) {
+
+    final Node lastSibling = getLastSibling();
+
+    if (parent instanceof TagNode
+        && tagToken.isLeftTrim()
+        && lastSibling != null
+        && lastSibling instanceof TextNode) {
+      lastSibling.getMaster().setRightTrim(true);
+    }
+
+    parent.getMaster().setRightTrimAfterEnd(tagToken.isRightTrim());
+
     while (!(parent instanceof RootNode)) {
       TagNode parentTag = (TagNode) parent;
       parent = parent.getParent();
@@ -147,9 +194,10 @@ public class TreeParser {
         break;
       } else {
         interpreter.addError(TemplateError.fromException(
-            new TemplateSyntaxException(tagToken.getImage(), "Mismatched end tag, expected: " + parentTag.getEndName(), tagToken.getLineNumber())));
+            new TemplateSyntaxException(tagToken.getImage(),
+                                        "Mismatched end tag, expected: " + parentTag.getEndName(),
+                                        tagToken.getLineNumber())));
       }
     }
   }
-
 }
