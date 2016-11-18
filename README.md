@@ -17,7 +17,7 @@ Get it:
   <dependency>
     <groupId>com.hubspot.jinjava</groupId>
     <artifactId>jinjava</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.14</version>
   </dependency>
 ```
 
