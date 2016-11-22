@@ -31,7 +31,7 @@ public class TruncDivOperator extends SimpleOperator {
       Double e = converter.convert(b, Double.class);
       return Math.floor(d / e);
     }
-    throw new IllegalArgumentException(String.format("Unsupported operand type(s) for //: '%s' ('%s') and '%s' ('%s')",
+    throw new IllegalArgumentException(String.format("Unsupported operand type(s) for //: '%s' (%s) and '%s' (%s)",
                                                      a,
                                                      (a == null ? "null" : a.getClass().getSimpleName()),
                                                      b,
