@@ -40,7 +40,7 @@ public class StrftimeFormatter {
     CONVERSIONS['p'] = "a";
     CONVERSIONS['S'] = "ss";
     CONVERSIONS['U'] = "ww";
-    CONVERSIONS['w'] = "uu";
+    CONVERSIONS['w'] = "e";
     CONVERSIONS['W'] = "ww";
     CONVERSIONS['x'] = "MM/dd/yy";
     CONVERSIONS['X'] = "HH:mm:ss";

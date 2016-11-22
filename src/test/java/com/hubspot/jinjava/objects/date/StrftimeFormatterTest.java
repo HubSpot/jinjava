@@ -55,6 +55,11 @@ public class StrftimeFormatterTest {
   }
 
   @Test
+  public void testDayOfWeekNumber() {
+    assertThat(StrftimeFormatter.format(d, "%w")).isEqualTo("4");
+  }
+
+  @Test
   public void testTime() {
     assertThat(StrftimeFormatter.format(d, "%X")).isEqualTo("14:22:00");
   }
