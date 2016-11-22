@@ -184,7 +184,9 @@ public class TreeParser {
       lastSibling.getMaster().setRightTrim(true);
     }
 
-    parent.getMaster().setRightTrimAfterEnd(tagToken.isRightTrim());
+    if (parent.getMaster() != null) { // root node
+      parent.getMaster().setRightTrimAfterEnd(tagToken.isRightTrim());
+    }
 
     while (!(parent instanceof RootNode)) {
       TagNode parentTag = (TagNode) parent;
