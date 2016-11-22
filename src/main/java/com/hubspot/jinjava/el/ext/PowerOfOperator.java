@@ -10,6 +10,9 @@ import de.odysseus.el.tree.impl.ast.AstNode;
 
 public class PowerOfOperator extends SimpleOperator {
 
+  public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("**");
+  public static final PowerOfOperator OP = new PowerOfOperator();
+
   @Override
   protected Object apply(TypeConverter converter, Object a, Object b) {
     boolean aInt = a instanceof Integer || a instanceof Long;
@@ -35,9 +38,6 @@ public class PowerOfOperator extends SimpleOperator {
     )
     );
   }
-
-  public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("**");
-  public static final PowerOfOperator OP = new PowerOfOperator();
 
   public static final ExtensionHandler HANDLER = new ExtensionHandler(ExtensionPoint.MUL) {
     @Override
