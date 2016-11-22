@@ -1,7 +1,7 @@
 package com.hubspot.jinjava.el.ext;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 
@@ -13,6 +13,8 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
 
 public class TruncDivTest {
+
+    private Jinjava jinja;
 
     @Before
     public void setUp() {
@@ -58,15 +60,12 @@ public class TruncDivTest {
         context.put("dividend", "5");
         context.put("divisor",  "2");
 
-        String template = "{% set x = dividend // divisor %}{{x}}";
+        String template = "{% set x = dividend // divisor %}";
         try {
             jinja.render(template, context);
         } catch (FatalTemplateErrorsException e) {
             String msg = e.getMessage();
-            assertTrue(msg.contains("Unsupported operand type(s)"));
+            assertThat(msg).contains("Unsupported operand type(s): '5' ('String') and '2' ('String')");
         }
     }
-
-
-    private Jinjava jinja;
 }
