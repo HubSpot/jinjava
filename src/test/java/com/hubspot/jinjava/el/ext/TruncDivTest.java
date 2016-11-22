@@ -64,8 +64,7 @@ public class TruncDivTest {
         try {
             jinja.render(template, context);
         } catch (FatalTemplateErrorsException e) {
-            String msg = e.getMessage();
-            assertThat(msg).contains("Unsupported operand type(s): '5' ('String') and '2' ('String')");
+            assertThat(e.getMessage()).contains("Unsupported operand type(s) for //: '5' (String) and '2' (String)");
         }
     }
 }
