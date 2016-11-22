@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -71,6 +72,22 @@ public class ForTagTest {
     Document dom = Jsoup.parseBodyFragment(tag.interpret(tagNode, interpreter));
 
     assertThat(dom.select("p")).hasSize(2);
+  }
+
+  @Test
+  public void forLoopMultipleLoopVarsArbitraryNames() throws Exception {
+    Map<String, Object> dict = ImmutableMap.of(
+        "grand", "ol'",
+        "adserving", "team");
+
+    context.put("the_dictionary", dict);
+    String template = ""
+        + "{% for foo, bar in the_dictionary.items() %}"
+        + "{{ foo }}: {{ bar }}\n"
+        + "{% endfor %}";
+
+    String rendered = jinjava.render(template, context);
+    assertEquals("grand: ol'\nadserving: team\n", rendered);
   }
 
   @Test

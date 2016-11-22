@@ -40,7 +40,7 @@ import com.hubspot.jinjava.util.ObjectIterator;
 /**
  * {% for a in b|f1:d,c %}
  *
- * {% for key, value in my_dict %}
+ * {% for key, value in my_dict.items() %}
  *
  * @author anysome
  *
@@ -54,6 +54,16 @@ import com.hubspot.jinjava.util.ObjectIterator;
         @JinjavaSnippet(
             code = "{% for item in items %}\n" +
                 "    {{ item }}\n" +
+                "{% endfor %}"),
+        @JinjavaSnippet(
+            desc = "Iterating over dictionary values",
+            code = "{% for value in dictionary %}\n" +
+                "    {{ value }}\n" +
+                "{% endfor %}"),
+        @JinjavaSnippet(
+            desc = "Iterating over dictionary entries",
+            code = "{% for key, value in dictionary.items() %}\n" +
+                "    {{ key }}: {{ value }}\n" +
                 "{% endfor %}"),
         @JinjavaSnippet(
             desc = "Standard blog listing loop",
@@ -128,9 +138,9 @@ public class ForTag implements Tag {
               Map.Entry<String, Object> entry = (Entry<String, Object>) val;
               Object entryVal = null;
 
-              if ("key".equals(loopVar)) {
+              if (loopVars.indexOf(loopVar) == 0) {
                 entryVal = entry.getKey();
-              } else if ("value".equals(loopVar)) {
+              } else if (loopVars.indexOf(loopVar) == 1) {
                 entryVal = entry.getValue();
               }
 
