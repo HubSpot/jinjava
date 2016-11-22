@@ -139,6 +139,15 @@ public class MacroTagTest {
     assertThat(out).contains("Hello World Two");
   }
 
+  @Test
+  public void itCanAccessMacrosAcrossFiles() throws IOException {
+    String template = Resources.toString(Resources.getResource("tags/macrotag/include-another-macro.jinja"), StandardCharsets.UTF_8);
+    String macroResult = Resources.toString(Resources.getResource("tags/macrotag/include-another-macro-result"), StandardCharsets.UTF_8);
+    String output = interpreter.render(template);
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(output).isEqualTo(macroResult);
+  }
+
   private Node snippet(String jinja) {
     return new TreeParser(interpreter, jinja).buildTree().getChildren().getFirst();
   }
@@ -150,5 +159,4 @@ public class MacroTagTest {
       throw Throwables.propagate(e);
     }
   }
-
 }
