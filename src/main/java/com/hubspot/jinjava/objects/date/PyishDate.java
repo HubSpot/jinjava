@@ -53,16 +53,19 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
     return StrftimeFormatter.format(date, fmt);
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public int getYear() {
     return date.getYear();
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public int getMonth() {
     return date.getMonthValue();
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public int getDay() {
     return date.getDayOfMonth();
