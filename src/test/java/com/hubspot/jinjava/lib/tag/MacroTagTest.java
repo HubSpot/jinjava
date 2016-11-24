@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
@@ -107,7 +108,7 @@ public class MacroTagTest {
         "tools_body_3", ImmutableMap.of("html", "body3"),
         "tools_body_4", ImmutableMap.of("html", "body4")));
 
-    Document dom = Jsoup.parseBodyFragment(new Jinjava().render(Resources.toString(Resources.getResource(String.format("tags/macrotag/%s.jinja", "macro-used-in-forloop")), StandardCharsets.UTF_8), bindings));
+    Document dom = Jsoup.parseBodyFragment(new Jinjava().render(fixtureText("macro-used-in-forloop"), bindings));
     Element tabs = dom.select(".tabs").get(0);
     assertThat(tabs.select(".tools__description")).hasSize(4);
     assertThat(tabs.select(".tools__description").get(0).text()).isEqualTo("body1");
@@ -118,37 +119,61 @@ public class MacroTagTest {
 
   @Test
   public void itPreventsDirectMacroRecursion() throws IOException {
-    String template = Resources.toString(Resources.getResource("tags/macrotag/recursion.jinja"), StandardCharsets.UTF_8);
+    String template = fixtureText("recursion");
     interpreter.render(template);
     assertThat(interpreter.getErrors().get(0).getMessage()).contains("Cycle detected for macro 'hello'");
   }
 
   @Test
   public void itPreventsIndirectMacroRecursion() throws IOException {
-    String template = Resources.toString(Resources.getResource("tags/macrotag/recursion_indirect.jinja"), StandardCharsets.UTF_8);
+    String template = fixtureText("recursion_indirect");
     interpreter.render(template);
     assertThat(interpreter.getErrors().get(0).getMessage()).contains("Cycle detected for macro 'goodbye'");
   }
 
   @Test
   public void itAllowsMacrosCallingMacrosUsingCall() throws IOException {
-    String template = Resources.toString(Resources.getResource("tags/macrotag/macros-calling-macros.jinja"), StandardCharsets.UTF_8);
+    String template = fixtureText("macros-calling-macros");
     String out = interpreter.render(template);
     assertThat(interpreter.getErrors()).isEmpty();
     assertThat(out).contains("Hello World One");
     assertThat(out).contains("Hello World Two");
   }
 
+  @Test
+  public void itAllowsMacroRecursionWhenEnabledInConfiguration() throws IOException {
+    // I need a different configuration here therefore
+    interpreter = new Jinjava(JinjavaConfig.newBuilder().withEnableRecursiveMacroCalls(true).build()).newInterpreter();
+    JinjavaInterpreter.pushCurrent(interpreter);
+
+    try {
+      String template = fixtureText("ending-recursion");
+      String out = interpreter.render(template);
+      assertThat(interpreter.getErrors()).isEmpty();
+      assertThat(out).contains("Hello Hello Hello Hello Hello");
+    }
+    finally {
+      // and I need to cleanup my mess...
+      JinjavaInterpreter.popCurrent();
+    }
+  }
+
+
+
   private Node snippet(String jinja) {
     return new TreeParser(interpreter, jinja).buildTree().getChildren().getFirst();
   }
 
-  private TagNode fixture(String name) {
+  private String fixtureText(String name) {
     try {
-      return (TagNode) snippet(Resources.toString(Resources.getResource(String.format("tags/macrotag/%s.jinja", name)), StandardCharsets.UTF_8));
+      return Resources.toString(Resources.getResource(String.format("tags/macrotag/%s.jinja", name)), StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
+  }
+
+  private TagNode fixture(String name) {
+    return (TagNode) snippet(fixtureText(name));
   }
 
 }

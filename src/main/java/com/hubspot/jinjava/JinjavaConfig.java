@@ -38,6 +38,7 @@ public class JinjavaConfig {
   private final boolean lstripBlocks;
 
   private final boolean readOnlyResolver;
+  private final boolean enableRecursiveMacroCalls;
 
   private Map<Context.Library, Set<String>> disabled;
 
@@ -46,11 +47,11 @@ public class JinjavaConfig {
   }
 
   public JinjavaConfig() {
-    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true);
+    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false);
   }
 
   public JinjavaConfig(Charset charset, Locale locale, ZoneId timeZone, int maxRenderDepth) {
-    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true);
+    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false);
   }
 
   private JinjavaConfig(Charset charset,
@@ -60,7 +61,8 @@ public class JinjavaConfig {
                         Map<Context.Library, Set<String>> disabled,
                         boolean trimBlocks,
                         boolean lstripBlocks,
-                        boolean readOnlyResolver) {
+                        boolean readOnlyResolver,
+                        boolean enableRecursiveMacroCalls) {
     this.charset = charset;
     this.locale = locale;
     this.timeZone = timeZone;
@@ -69,6 +71,7 @@ public class JinjavaConfig {
     this.trimBlocks = trimBlocks;
     this.lstripBlocks = lstripBlocks;
     this.readOnlyResolver = readOnlyResolver;
+    this.enableRecursiveMacroCalls = enableRecursiveMacroCalls;
   }
 
   public Charset getCharset() {
@@ -99,6 +102,10 @@ public class JinjavaConfig {
     return readOnlyResolver;
   }
 
+  public boolean isEnableRecursiveMacroCalls() {
+    return enableRecursiveMacroCalls;
+  }
+
   public Map<Library, Set<String>> getDisabled() {
     return disabled;
   }
@@ -114,6 +121,7 @@ public class JinjavaConfig {
     private boolean lstripBlocks;
 
     private boolean readOnlyResolver = true;
+    private boolean enableRecursiveMacroCalls;
 
     private Builder() {}
 
@@ -152,13 +160,18 @@ public class JinjavaConfig {
       return this;
     }
 
+    public Builder withEnableRecursiveMacroCalls(boolean enableRecursiveMacroCalls) {
+      this.enableRecursiveMacroCalls = enableRecursiveMacroCalls;
+      return this;
+    }
+
     public Builder withReadOnlyResolver(boolean readOnlyResolver) {
       this.readOnlyResolver = readOnlyResolver;
       return this;
     }
 
     public JinjavaConfig build() {
-      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, disabled, trimBlocks, lstripBlocks, readOnlyResolver);
+      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, disabled, trimBlocks, lstripBlocks, readOnlyResolver, enableRecursiveMacroCalls);
     }
   }
 

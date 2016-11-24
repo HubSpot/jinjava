@@ -69,6 +69,10 @@ public class JinjavaInterpreter {
     this(orig.application, new Context(orig.context), orig.config);
   }
 
+  /**
+   * @deprecated use {{@link #getConfig()}}
+   */
+  @Deprecated
   public JinjavaConfig getConfiguration() {
     return config;
   }

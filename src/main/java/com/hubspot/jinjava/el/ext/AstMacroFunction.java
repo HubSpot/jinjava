@@ -6,12 +6,12 @@ import javax.el.ELContext;
 import javax.el.ELException;
 
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.interpret.CallStack;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MacroTagCycleException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
-
 import de.odysseus.el.misc.LocalMessages;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstFunction;
@@ -30,9 +30,16 @@ public class AstMacroFunction extends AstFunction {
     MacroFunction macroFunction = interpreter.getContext().getGlobalMacro(getName());
     if (macroFunction != null) {
 
+      CallStack macroStack = interpreter.getContext().getMacroStack();
       if (!macroFunction.isCaller()) {
         try {
-          interpreter.getContext().getMacroStack().push(getName(), -1);
+          boolean enableRecursiveMacroCalls = interpreter.getConfig().isEnableRecursiveMacroCalls();
+          if (enableRecursiveMacroCalls) {
+            macroStack.pushWithoutCycleCheck(getName());
+          }
+          else {
+            macroStack.push(getName(), -1);
+          }
         } catch (MacroTagCycleException e) {
           interpreter.addError(new TemplateError(TemplateError.ErrorType.WARNING,
                                                  TemplateError.ErrorReason.EXCEPTION,
@@ -55,7 +62,7 @@ public class AstMacroFunction extends AstFunction {
       } catch (InvocationTargetException e) {
         throw new ELException(LocalMessages.get("error.function.invocation", getName()), e.getCause());
       } finally {
-        interpreter.getContext().getMacroStack().pop();
+        macroStack.pop();
       }
     }
 
