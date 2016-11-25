@@ -26,6 +26,15 @@ public class CallStack {
     return false;
   }
 
+  /**
+   * This is added to allow for recursive macro calls. Adds the given path to the
+   * call stack without checking for a cycle.
+   * @param path the path to be added.
+   */
+  public void pushWithoutCycleCheck(String path) {
+    stack.push(path);
+  }
+
   public void push(String path, int lineNumber) {
     if (contains(path)) {
       throw TagCycleException.create(exceptionClass, path, Optional.of(lineNumber));

@@ -1,0 +1,5 @@
+{% macro hello(count) -%}
+    Hello {% if count > 0 %}{{ hello(count-1) }}{% endif %}
+{%- endmacro %}
+
+{{ hello(5) }}
