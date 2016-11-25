@@ -35,8 +35,7 @@ public class AstMacroFunction extends AstFunction {
         try {
           if (interpreter.getConfig().isEnableRecursiveMacroCalls()) {
             macroStack.pushWithoutCycleCheck(getName());
-          }
-          else {
+          } else {
             macroStack.push(getName(), -1);
           }
         } catch (MacroTagCycleException e) {
