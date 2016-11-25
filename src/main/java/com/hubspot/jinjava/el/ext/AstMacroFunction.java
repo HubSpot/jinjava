@@ -33,8 +33,7 @@ public class AstMacroFunction extends AstFunction {
       CallStack macroStack = interpreter.getContext().getMacroStack();
       if (!macroFunction.isCaller()) {
         try {
-          boolean enableRecursiveMacroCalls = interpreter.getConfig().isEnableRecursiveMacroCalls();
-          if (enableRecursiveMacroCalls) {
+          if (interpreter.getConfig().isEnableRecursiveMacroCalls()) {
             macroStack.pushWithoutCycleCheck(getName());
           }
           else {
