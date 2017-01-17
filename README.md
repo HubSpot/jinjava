@@ -21,6 +21,30 @@ Get it:
   </dependency>
 ```
 
+or if you have a conflicting EL implementation on your classpath:
+```xml
+<dependency>
+  <groupId>com.hubspot.jinjava</groupId>
+  <artifactId>jinjava</artifactId>
+  <version>2.1.14</version>
+  <classifier>with-shaded-juel</classifier>
+  <exclusions>
+    <exclusion>
+      <artifactId>juel-api</artifactId>
+      <groupId>de.odysseus.juel</groupId>
+    </exclusion>
+    <exclusion>
+      <artifactId>juel-impl</artifactId>
+      <groupId>de.odysseus.juel</groupId>
+    </exclusion>
+    <exclusion>
+      <artifactId>juel-spi</artifactId>
+      <groupId>de.odysseus.juel</groupId>
+    </exclusion>
+  </exclusions>
+</dependency>
+```
+
 or if you're stuck on java 7:
 ```xml
   <dependency>
