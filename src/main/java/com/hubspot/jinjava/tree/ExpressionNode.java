@@ -41,8 +41,8 @@ public class ExpressionNode extends Node {
   public OutputNode render(JinjavaInterpreter interpreter) {
     Object var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
     
-    if(var == null && interpreter.getConfig().isStrictUndefined()){
-        throw new UnknownTokenException(master.getExpr(),getLineNumber());
+    if (var == null && interpreter.getConfig().isStrictUndefined()) {
+        throw new UnknownTokenException(master.getExpr(), getLineNumber());
     } 
     
     String result = Objects.toString(var, "");
