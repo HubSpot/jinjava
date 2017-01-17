@@ -32,7 +32,6 @@
     <project.build.targetJdk>1.8</project.build.targetJdk>
     <basepom.check.skip-findbugs>false</basepom.check.skip-findbugs>
     <dep.plugin.checkstyle.version>2.17</dep.plugin.checkstyle.version>
-    <classifier.juel>with-shaded-juel</classifier.juel>
   </properties>
 
   <dependencies>
@@ -59,11 +58,6 @@
     <dependency>
       <groupId>de.odysseus.juel</groupId>
       <artifactId>juel-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>de.odysseus.juel</groupId>
-      <artifactId>juel-spi</artifactId>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -118,11 +112,6 @@
         <artifactId>juel-impl</artifactId>
         <version>2.2.7</version>
       </dependency>
-      <dependency>
-        <groupId>de.odysseus.juel</groupId>
-        <artifactId>juel-spi</artifactId>
-        <version>2.2.7</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -156,8 +145,7 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <shadedClassifierName>${classifier.juel}</shadedClassifierName>
+              <createDependencyReducedPom>true</createDependencyReducedPom>
               <artifactSet>
                 <includes>
                   <include>de.odysseus.juel:juel-api</include>
@@ -170,8 +158,8 @@
                   <shadedPattern>jinjava.javax.el</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>de.odysseus.juel</pattern>
-                  <shadedPattern>jinjava.de.odysseus.juel</shadedPattern>
+                  <pattern>de.odysseus.el</pattern>
+                  <shadedPattern>jinjava.de.odysseus.el</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
