@@ -2,6 +2,7 @@ package com.hubspot.jinjava.interpret;
 
 public class UnknownTokenException extends InterpretException {
 
+    private static final long serialVersionUID = -388757722051666198L;
     private final String token;
 
     public UnknownTokenException(String token, int lineNumber) {
@@ -12,7 +13,4 @@ public class UnknownTokenException extends InterpretException {
     public String getToken() {
         return token;
     }
-
-    private static final long serialVersionUID = -388757722051666198L;
-
 }
