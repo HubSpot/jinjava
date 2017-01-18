@@ -55,14 +55,16 @@ public class JinjavaConfig {
     this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false, false);
   }
 
-  private JinjavaConfig(Charset charset, 
-                        Locale locale, 
-                        ZoneId timeZone, 
+  private JinjavaConfig(Charset charset,
+                        Locale locale,
+                        ZoneId timeZone,
                         int maxRenderDepth,
-                        Map<Context.Library, Set<String>> disabled, 
-                        boolean trimBlocks, boolean lstripBlocks, 
+                        Map<Context.Library,
+                        Set<String>> disabled,
+                        boolean trimBlocks,
+                        boolean lstripBlocks,
                         boolean readOnlyResolver,
-                        boolean enableRecursiveMacroCalls, 
+                        boolean enableRecursiveMacroCalls,
                         boolean failOnUnknownTokens) {
     this.charset = charset;
     this.locale = locale;
@@ -183,8 +185,7 @@ public class JinjavaConfig {
     }
 
     public JinjavaConfig build() {
-      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, disabled, trimBlocks, lstripBlocks,
-          readOnlyResolver, enableRecursiveMacroCalls, failOnUnknownTokens);
+      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, disabled, trimBlocks, lstripBlocks, readOnlyResolver, enableRecursiveMacroCalls, failOnUnknownTokens);
     }
 
   }
