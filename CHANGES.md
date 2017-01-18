@@ -1,5 +1,10 @@
 # Jinjava Releases #
 
+### 2017-01-18 Version 2.1.15 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.15%22)) ###
+
+* shaded JUEL
+* added `failOnUnknownTokens` mode which is similar to Jinja's StrictUndefined
+
 ### 2016-11-18 Version 2.1.14 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.14%22)) ###
 
 * Enabled manual whitespace control by ending or closing tags with `{%-` or `-%}`
