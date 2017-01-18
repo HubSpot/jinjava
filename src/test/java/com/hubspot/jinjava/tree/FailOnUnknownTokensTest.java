@@ -25,15 +25,15 @@ public class FailOnUnknownTokensTest {
 
   }
 
-  @Test(expected=FatalTemplateErrorsException.class)
+  @Test(expected = FatalTemplateErrorsException.class)
   public void itThrowsExceptionOnUnknownToken() {
-      Map<String, String> context = new HashMap<String, String>();
-      context.put("token1", "test");
-      String template = "hello {{ token1 }} and {{ token2 }}";
-      String str = jinjava.render(template, context);
+    Map<String, String> context = new HashMap<String, String>();
+    context.put("token1", "test");
+    String template = "hello {{ token1 }} and {{ token2 }}";
+    String str = jinjava.render(template, context);
   }
 
-  @Test 
+  @Test
   public void itReplaceTokensWithoutException() {
     Map<String, String> context = new HashMap<String, String>();
     context.put("token1", "test");
