@@ -20,6 +20,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
@@ -39,6 +40,10 @@ public class ExpressionNode extends Node {
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
     Object var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
+
+    if (var == null && interpreter.getConfig().isFailOnUnknownTokens()) {
+      throw new UnknownTokenException(master.getExpr(), getLineNumber());
+    }
 
     String result = Objects.toString(var, "");
 

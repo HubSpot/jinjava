@@ -41,28 +41,31 @@ public class JinjavaConfig {
   private final boolean enableRecursiveMacroCalls;
 
   private Map<Context.Library, Set<String>> disabled;
+  private final boolean failOnUnknownTokens;
 
   public static Builder newBuilder() {
     return new Builder();
   }
 
   public JinjavaConfig() {
-    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false);
+    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false, false);
   }
 
   public JinjavaConfig(Charset charset, Locale locale, ZoneId timeZone, int maxRenderDepth) {
-    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false);
+    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false, false);
   }
 
   private JinjavaConfig(Charset charset,
                         Locale locale,
                         ZoneId timeZone,
                         int maxRenderDepth,
-                        Map<Context.Library, Set<String>> disabled,
+                        Map<Context.Library,
+                        Set<String>> disabled,
                         boolean trimBlocks,
                         boolean lstripBlocks,
                         boolean readOnlyResolver,
-                        boolean enableRecursiveMacroCalls) {
+                        boolean enableRecursiveMacroCalls,
+                        boolean failOnUnknownTokens) {
     this.charset = charset;
     this.locale = locale;
     this.timeZone = timeZone;
@@ -72,6 +75,7 @@ public class JinjavaConfig {
     this.lstripBlocks = lstripBlocks;
     this.readOnlyResolver = readOnlyResolver;
     this.enableRecursiveMacroCalls = enableRecursiveMacroCalls;
+    this.failOnUnknownTokens = failOnUnknownTokens;
   }
 
   public Charset getCharset() {
@@ -110,6 +114,10 @@ public class JinjavaConfig {
     return disabled;
   }
 
+  public boolean isFailOnUnknownTokens() {
+    return failOnUnknownTokens;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -122,6 +130,7 @@ public class JinjavaConfig {
 
     private boolean readOnlyResolver = true;
     private boolean enableRecursiveMacroCalls;
+    private boolean failOnUnknownTokens;
 
     private Builder() {}
 
@@ -170,9 +179,15 @@ public class JinjavaConfig {
       return this;
     }
 
-    public JinjavaConfig build() {
-      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, disabled, trimBlocks, lstripBlocks, readOnlyResolver, enableRecursiveMacroCalls);
+    public Builder withFailOnUnknownTokens(boolean failOnUnknownTokens) {
+      this.failOnUnknownTokens = failOnUnknownTokens;
+      return this;
     }
+
+    public JinjavaConfig build() {
+      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, disabled, trimBlocks, lstripBlocks, readOnlyResolver, enableRecursiveMacroCalls, failOnUnknownTokens);
+    }
+
   }
 
 }
