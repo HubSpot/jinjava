@@ -146,6 +146,7 @@
             </goals>
             <configuration>
               <createDependencyReducedPom>true</createDependencyReducedPom>
+              <shadedArtifactAttached>false</shadedArtifactAttached>
               <artifactSet>
                 <includes>
                   <include>de.odysseus.juel:juel-api</include>
