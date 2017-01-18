@@ -19,7 +19,7 @@ public class FailOnUnknownTokensTest {
   @Before
   public void setUp() throws Exception {
     JinjavaConfig.Builder builder = JinjavaConfig.newBuilder();
-    builder.withStrictUndefined(true);
+    builder.withFailOnUnknownTokens(true);
     JinjavaConfig config = builder.build();
     jinjava = new Jinjava(config);
 

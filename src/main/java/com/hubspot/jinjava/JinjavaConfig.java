@@ -179,7 +179,7 @@ public class JinjavaConfig {
       return this;
     }
 
-    public Builder withStrictUndefined(boolean failOnUnknownTokens) {
+    public Builder withFailOnUnknownTokens(boolean failOnUnknownTokens) {
       this.failOnUnknownTokens = failOnUnknownTokens;
       return this;
     }
