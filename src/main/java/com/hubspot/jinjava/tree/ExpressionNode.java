@@ -40,11 +40,11 @@ public class ExpressionNode extends Node {
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
     Object var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
-    
-    if(var == null && interpreter.getConfig().isStrictUndefined()){
-        throw new UnknownTokenException(master.getExpr(),getLineNumber());
-    } 
-    
+
+    if (var == null && interpreter.getConfig().isFailOnUnknownTokens()) {
+      throw new UnknownTokenException(master.getExpr(), getLineNumber());
+    }
+
     String result = Objects.toString(var, "");
 
     if (!StringUtils.equals(result, master.getImage()) && StringUtils.contains(result, "{{")) {
