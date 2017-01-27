@@ -368,6 +368,10 @@ public class Context extends ScopeMap<String, Object> {
     this.dependencies.get(type).add(identification);
   }
 
+  public void addDependencies(SetMultimap<String, String> dependencies) {
+    this.dependencies.putAll(dependencies);
+  }
+
   public SetMultimap<String, String> getDependencies() {
     return this.dependencies;
   }

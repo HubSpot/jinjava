@@ -133,6 +133,19 @@ public class JinjavaInterpreterTest {
   }
 
   @Test
+  public void bubbleUpDependenciesFromLowerScope() {
+    String dependencyType = "foo";
+    String dependencyIdentifier = "123";
+
+    interpreter.enterScope();
+    interpreter.getContext().addDependency(dependencyType, dependencyIdentifier);
+    assertThat(interpreter.getContext().getDependencies().get(dependencyType)).contains(dependencyIdentifier);
+    interpreter.leaveScope();
+
+    assertThat(interpreter.getContext().getDependencies().get(dependencyType)).contains(dependencyIdentifier);
+  }
+
+  @Test
   public void parseWithSyntaxError() {
     RenderResult result = new Jinjava().renderForResult("{%}", new HashMap<>());
     assertThat(result.getErrors()).isNotEmpty();

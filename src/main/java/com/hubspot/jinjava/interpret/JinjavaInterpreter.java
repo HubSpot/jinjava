@@ -110,6 +110,7 @@ public class JinjavaInterpreter {
   public void leaveScope() {
     Context parent = context.getParent();
     if (parent != null) {
+      parent.addDependencies(context.getDependencies());
       context = parent;
     }
   }
