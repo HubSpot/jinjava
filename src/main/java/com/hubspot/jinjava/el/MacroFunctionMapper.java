@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.el.FunctionMapper;
-import javax.el.MethodNotFoundException;
 
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 
@@ -33,7 +33,7 @@ public class MacroFunctionMapper extends FunctionMapper {
     final String functionName = buildFunctionName(prefix, localName);
 
     if (context.isFunctionDisabled(functionName)) {
-      throw new MethodNotFoundException("'" + functionName + "' is disabled in this context");
+      throw new DisabledException(functionName);
     }
 
     return map.get(functionName);
@@ -41,7 +41,7 @@ public class MacroFunctionMapper extends FunctionMapper {
 
   public void setFunction(String prefix, String localName, Method method) {
     if (map.isEmpty()) {
-      map = new HashMap<String, Method>();
+      map = new HashMap<>();
     }
     map.put(buildFunctionName(prefix, localName), method);
   }
