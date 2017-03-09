@@ -1,5 +1,9 @@
 # Jinjava Releases #
 
+### 2017-03-09 Version 2.1.16 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.16%22)) ###
+
+* disabled functions, filters and tags now add to template errors rather than throwing a fatal exception
+
 ### 2017-01-18 Version 2.1.15 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.15%22)) ###
 
 * shaded JUEL
