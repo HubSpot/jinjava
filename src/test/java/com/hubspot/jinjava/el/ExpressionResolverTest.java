@@ -12,8 +12,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.el.MethodNotFoundException;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,10 +24,10 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.date.PyishDate;
@@ -342,7 +340,7 @@ public class ExpressionResolverTest {
     assertThat(e.getMessage()).contains("Cannot find method 'wait'");
   }
 
-  @Test(expected = MethodNotFoundException.class)
+  @Test
   public void itBlocksDisabledTags() throws Exception {
 
     Map<Context.Library, Set<String>> disabled = ImmutableMap.of(Context.Library.TAG, ImmutableSet.of("raw"));
@@ -351,9 +349,14 @@ public class ExpressionResolverTest {
     try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
       interpreter.render("{% raw %} foo {% endraw %}");
     }
+
+    TemplateError e = interpreter.getErrors().get(0);
+    assertThat(e.getItem()).isEqualTo(ErrorItem.TAG);
+    assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
+    assertThat(e.getMessage()).contains("'raw' is disabled in this context");
   }
 
-  @Test(expected = InterpretException.class)
+  @Test
   public void itBlocksDisabledTagsInIncludes() throws Exception {
 
     final String jinja = "top {% include \"tags/includetag/raw.html\" %}";
@@ -364,6 +367,10 @@ public class ExpressionResolverTest {
     try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
       interpreter.render(jinja);
     }
+    TemplateError e = interpreter.getErrors().get(0);
+    assertThat(e.getItem()).isEqualTo(ErrorItem.TAG);
+    assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
+    assertThat(e.getMessage()).contains("'raw' is disabled in this context");
   }
 
   @Test
@@ -375,6 +382,8 @@ public class ExpressionResolverTest {
     try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
       interpreter.resolveELExpression("\"hey\"|truncate(2)", -1);
       TemplateError e = interpreter.getErrors().get(0);
+      assertThat(e.getItem()).isEqualTo(ErrorItem.FILTER);
+      assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
       assertThat(e.getMessage()).contains("truncate' is disabled in this context");
     }
   }
@@ -394,6 +403,8 @@ public class ExpressionResolverTest {
     final RenderResult renderResult = jinjava.renderForResult(template, context, config);
     assertEquals("hi  ", renderResult.getOutput());
     TemplateError e = renderResult.getErrors().get(0);
+    assertThat(e.getItem()).isEqualTo(ErrorItem.FUNCTION);
+    assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
     assertThat(e.getMessage()).contains("':range' is disabled in this context");
   }
 
@@ -406,6 +417,8 @@ public class ExpressionResolverTest {
     try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
       interpreter.render("{% if 2 is even %}yes{% endif %}");
       TemplateError e = interpreter.getErrors().get(0);
+      assertThat(e.getItem()).isEqualTo(ErrorItem.EXPRESSION_TEST);
+      assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
       assertThat(e.getMessage()).contains("even' is disabled in this context");
     }
   }

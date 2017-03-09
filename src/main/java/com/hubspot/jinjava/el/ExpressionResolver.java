@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.NamedParameter;
+import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
@@ -77,6 +78,8 @@ public class ExpressionResolver {
           "Error parsing '" + expression + "': " + StringUtils.substringAfter(e.getMessage(), "': "), interpreter.getLineNumber(), e)));
     } catch (ELException e) {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
+    } catch (DisabledException e) {
+      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter.getLineNumber(), e));
     } catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(
           String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression), e, interpreter.getLineNumber())));

@@ -24,9 +24,13 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
+import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MissingEndTagException;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
 import com.hubspot.jinjava.interpret.UnknownTagException;
@@ -142,9 +146,17 @@ public class TreeParser {
   }
 
   private Node tag(TagToken tagToken) {
-    Tag tag = interpreter.getContext().getTag(tagToken.getTagName());
-    if (tag == null) {
-      interpreter.addError(TemplateError.fromException(new UnknownTagException(tagToken)));
+
+    Tag tag;
+    try {
+      tag = interpreter.getContext().getTag(tagToken.getTagName());
+      if (tag == null) {
+        interpreter.addError(TemplateError.fromException(new UnknownTagException(tagToken)));
+        return null;
+      }
+    } catch (DisabledException e) {
+      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.TAG,
+          e.getMessage(), tagToken.getTagName(), interpreter.getLineNumber(), e));
       return null;
     }
 

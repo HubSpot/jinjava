@@ -3,12 +3,12 @@ package com.hubspot.jinjava.interpret;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.google.common.collect.ImmutableMap;
-import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
-import com.hubspot.jinjava.interpret.errorcategory.TemplateErrorCategory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.interpret.errorcategory.TemplateErrorCategory;
 
 public class TemplateError {
   public enum ErrorType {
@@ -22,6 +22,7 @@ public class TemplateError {
     BAD_URL,
     EXCEPTION,
     MISSING,
+    DISABLED,
     OTHER
   }
 
@@ -31,6 +32,8 @@ public class TemplateError {
     TAG,
     FUNCTION,
     PROPERTY,
+    FILTER,
+    EXPRESSION_TEST,
     OTHER
   }
 
