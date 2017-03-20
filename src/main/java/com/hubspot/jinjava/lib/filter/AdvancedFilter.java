@@ -17,13 +17,11 @@ package com.hubspot.jinjava.lib.filter;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.Importable;
-import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
-public interface Filter extends Importable {
+public interface AdvancedFilter extends Importable, Filter {
 
   /**
    * Filter the specified template variable within the context of a render process. {{ myvar|myfiltername(arg1,arg2) }}
@@ -33,24 +31,15 @@ public interface Filter extends Importable {
    * @param interpreter
    *          current interpreter context
    * @param args
-   *          any arguments passed to this filter invocation
+   *          any positional arguments passed to this filter invocation
+   * @param kwargs
+   *          any named arguments passed to this filter invocation
    * @return the filtered form of the given variable
    */
-  Object filter(Object var, JinjavaInterpreter interpreter, String... args);
+   Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs);
 
-  /*
-   * The JinjaJava parser calls filters giving to them two list of parameters:
-   *   - Positional arguments as Object[]
-   *   - Named arguments as Map<String, Object>
-   *
-   * This default method transforms that call to a simple filter that only receives String positional arguments to
-   * maintain backward-compatibility with old filters that don't support named arguments.
-   */
-  default Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
-    // We append the named arguments at the end of the positional ones
-    Object[] allArgs = ArrayUtils.addAll(args, kwargs.values().toArray());
-    String[] stringArgs = Arrays.stream(allArgs).map(Object::toString).toArray(String[]::new);
-
-    return filter(var, interpreter, stringArgs);
-  }
+   // Default implementation to maintain backward-compatibility with old Filters
+   default Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+       return filter(var, interpreter, (Object[]) args, new HashMap<>());
+   }
 }

@@ -7,12 +7,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import javax.el.ArrayELResolver;
 import javax.el.CompositeELResolver;
@@ -22,14 +17,11 @@ import javax.el.MapELResolver;
 import javax.el.PropertyNotFoundException;
 import javax.el.ResourceBundleELResolver;
 
+import com.hubspot.jinjava.el.ext.*;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
-import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
-import com.hubspot.jinjava.el.ext.ExtendedParser;
-import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
-import com.hubspot.jinjava.el.ext.JinjavaListELResolver;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
@@ -89,9 +81,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       // failed to access property, continue with method calls
     }
 
-    // TODO map named params to special arg in fn to invoke
-    // https://github.com/HubSpot/jinjava/issues/11
-    return super.invoke(context, base, method, paramTypes, params);
+    return super.invoke(context, base, method, paramTypes, generateMethodParams(method, params));
   }
 
   /**
@@ -102,6 +92,43 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
   @Override
   public Object getValue(ELContext context, Object base, Object property) {
     return getValue(context, base, property, true);
+  }
+
+  /*
+   * We transform the AST parameters to something meaningful to Jinjava.
+   *
+   * Functions, expressions and tags will receive the parameters as they are, but filters
+   * have a different signature to what they have in the AST to support named parameters, so
+   * this method transforms their arguments to be the following:
+   *
+   *  (Left Value, JinjavaInterpreter, Positional Arguments, Named Arguments)
+   */
+  private Object[] generateMethodParams(Object method, Object[] astParams) {
+    if (!"filter".equals(method)) {
+      return astParams; // We only change the signature method for filters
+    }
+
+    List<Object> methodParams = new ArrayList<Object>() {{
+      add(astParams[0]); // Left Value
+      add(astParams[1]); // JinjavaInterpreter
+    }};
+
+    List<Object> args = new ArrayList<>();
+    Map<String, Object> kwargs = new HashMap<>();
+
+    for (Object param: Arrays.asList(astParams).subList(methodParams.size(), astParams.length)) {
+      if (param instanceof NamedParameter) {
+        NamedParameter namedParameter = (NamedParameter) param;
+        kwargs.put(namedParameter.getName(), namedParameter.getValue());
+      } else {
+        args.add(param);
+      }
+    }
+
+    methodParams.add(args.toArray());
+    methodParams.add(kwargs);
+
+    return methodParams.toArray();
   }
 
   private Object getValue(ELContext context, Object base, Object property, boolean errOnUnknownProp) {
