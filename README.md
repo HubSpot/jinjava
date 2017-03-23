@@ -52,10 +52,10 @@ String renderedTemplate = jinjava.render(template, context);
 
 result:
 ```html
-<div>Hello, Handsome!</div>
+<div>Hello, Jared!</div>
 ```
 
-Voila! Hey, wait a minute...
+Voila!
 
 Advanced Topics
 ---------------
