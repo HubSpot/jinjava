@@ -33,6 +33,7 @@ public class JinjavaConfig {
   private final Locale locale;
   private final ZoneId timeZone;
   private final int maxRenderDepth;
+  private final long maxOutputSize;
 
   private final boolean trimBlocks;
   private final boolean lstripBlocks;
@@ -48,11 +49,11 @@ public class JinjavaConfig {
   }
 
   public JinjavaConfig() {
-    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false, false);
+    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false, false, 0);
   }
 
   public JinjavaConfig(Charset charset, Locale locale, ZoneId timeZone, int maxRenderDepth) {
-    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false, false);
+    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false, false, 0);
   }
 
   private JinjavaConfig(Charset charset,
@@ -65,7 +66,8 @@ public class JinjavaConfig {
                         boolean lstripBlocks,
                         boolean readOnlyResolver,
                         boolean enableRecursiveMacroCalls,
-                        boolean failOnUnknownTokens) {
+                        boolean failOnUnknownTokens,
+                        long maxOutputSize) {
     this.charset = charset;
     this.locale = locale;
     this.timeZone = timeZone;
@@ -76,6 +78,7 @@ public class JinjavaConfig {
     this.readOnlyResolver = readOnlyResolver;
     this.enableRecursiveMacroCalls = enableRecursiveMacroCalls;
     this.failOnUnknownTokens = failOnUnknownTokens;
+    this.maxOutputSize = maxOutputSize;
   }
 
   public Charset getCharset() {
@@ -92,6 +95,10 @@ public class JinjavaConfig {
 
   public int getMaxRenderDepth() {
     return maxRenderDepth;
+  }
+
+  public long getMaxOutputSize() {
+    return maxOutputSize;
   }
 
   public boolean isTrimBlocks() {
@@ -123,6 +130,7 @@ public class JinjavaConfig {
     private Locale locale = Locale.ENGLISH;
     private ZoneId timeZone = ZoneOffset.UTC;
     private int maxRenderDepth = 10;
+    private long maxOutputSize = 0; // in bytes
     private Map<Context.Library, Set<String>> disabled = new HashMap<>();
 
     private boolean trimBlocks;
@@ -184,8 +192,13 @@ public class JinjavaConfig {
       return this;
     }
 
+    public Builder withMaxOutputSize(long maxOutputSize) {
+      this.maxOutputSize = maxOutputSize;
+      return this;
+    }
+
     public JinjavaConfig build() {
-      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, disabled, trimBlocks, lstripBlocks, readOnlyResolver, enableRecursiveMacroCalls, failOnUnknownTokens);
+      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, disabled, trimBlocks, lstripBlocks, readOnlyResolver, enableRecursiveMacroCalls, failOnUnknownTokens, maxOutputSize);
     }
 
   }

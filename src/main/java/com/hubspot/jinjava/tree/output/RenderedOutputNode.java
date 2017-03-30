@@ -18,4 +18,8 @@ public class RenderedOutputNode implements OutputNode {
     return getValue();
   }
 
+  @Override
+  public long getSize() {
+    return output == null ? 0 : output.length();
+  }
 }
