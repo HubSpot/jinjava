@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.tree.TextNode;
@@ -101,7 +102,8 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void triesBeanMethodFirst() {
-    assertThat(interpreter.resolveProperty(ZonedDateTime.parse("2013-09-19T12:12:12+00:00"), "year").toString()).isEqualTo("2013");
+    assertThat(interpreter.resolveProperty(ZonedDateTime.parse("2013-09-19T12:12:12+00:00"), "year")
+        .toString()).isEqualTo("2013");
   }
 
   @Test
@@ -152,4 +154,17 @@ public class JinjavaInterpreterTest {
     assertThat(result.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
   }
 
+  @Test
+  public void itLimitsOutputSize() throws Exception {
+
+    JinjavaConfig outputSizeLimitedConfig = JinjavaConfig.newBuilder().withMaxOutputSize(20).build();
+    String output = "123456789012345678901234567890";
+
+    RenderResult renderResult = new Jinjava().renderForResult(output, new HashMap<>());
+    assertThat(renderResult.getOutput()).isEqualTo(output);
+    assertThat(renderResult.getErrors()).isEmpty();
+
+    renderResult = new Jinjava(outputSizeLimitedConfig).renderForResult(output, new HashMap<>());
+    assertThat(renderResult.getErrors().get(0).getMessage()).contains("OutputTooBigException");
+  }
 }
