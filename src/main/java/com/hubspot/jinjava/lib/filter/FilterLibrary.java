@@ -96,6 +96,7 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
         SafeFilter.class,
         TitleFilter.class,
         TrimFilter.class,
+        TypeOfFilter.class,
         WordCountFilter.class,
         WordWrapFilter.class);
   }
