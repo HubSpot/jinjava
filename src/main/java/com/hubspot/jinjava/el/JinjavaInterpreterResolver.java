@@ -208,6 +208,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       return new PyList((List<Object>) value);
     }
     if (Map.class.isAssignableFrom(value.getClass())) {
+      // FIXME: ensure keys are actually strings, if not, convert them
       return new PyMap((Map<String, Object>) value);
     }
 
