@@ -9,7 +9,8 @@ public class OutputList {
 
   private final List<OutputNode> nodes = new LinkedList<>();
   private final List<BlockPlaceholderOutputNode> blocks = new LinkedList<>();
-  private long maxOutputSize;
+  private final long maxOutputSize;
+  private long currentSize;
 
   public OutputList(long maxOutputSize) {
     this.maxOutputSize = maxOutputSize;
@@ -17,14 +18,22 @@ public class OutputList {
 
   public void addNode(OutputNode node) {
 
-    if (maxOutputSize > 0 && node.getSize() > maxOutputSize) {
-      throw new OutputTooBigException(node.getSize());
+    if (maxOutputSize > 0 && currentSize + node.getSize() > maxOutputSize) {
+      throw new OutputTooBigException(maxOutputSize, currentSize + node.getSize());
     }
 
+    currentSize += node.getSize();
     nodes.add(node);
 
     if (node instanceof BlockPlaceholderOutputNode) {
-      blocks.add((BlockPlaceholderOutputNode) node);
+      BlockPlaceholderOutputNode blockNode = (BlockPlaceholderOutputNode) node;
+
+      if (maxOutputSize > 0 && currentSize + blockNode.getSize() > maxOutputSize) {
+        throw new OutputTooBigException(maxOutputSize, currentSize + blockNode.getSize());
+      }
+
+      currentSize += blockNode.getSize();
+      blocks.add(blockNode);
     }
   }
 
@@ -35,7 +44,13 @@ public class OutputList {
   public String getValue() {
     StringBuilder val = new StringBuilder();
 
+    long valueSize = 0;
+
     for (OutputNode node : nodes) {
+      if (maxOutputSize > 0 && valueSize + node.getSize() > maxOutputSize) {
+        throw new OutputTooBigException(maxOutputSize, valueSize + node.getSize());
+      }
+      valueSize += node.getSize();
       val.append(node.getValue());
     }
 

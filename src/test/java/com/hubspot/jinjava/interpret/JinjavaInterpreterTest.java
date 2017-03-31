@@ -171,14 +171,15 @@ public class JinjavaInterpreterTest {
   @Test
   public void itLimitsOutputSizeWhenSumOfNodeSizesExceedsMax() throws Exception {
     JinjavaConfig outputSizeLimitedConfig = JinjavaConfig.newBuilder().withMaxOutputSize(19).build();
-    String input = "1234567890{% block testchild %}abcdefghij{% endblock %}";
-    String output = "1234567890abcdefghij"; // Note that this exceeds the max size
+    String input = "1234567890{% block testchild %}1234567890{% endblock %}";
+    String output = "12345678901234567890"; // Note that this exceeds the max size
 
     RenderResult renderResult = new Jinjava().renderForResult(input, new HashMap<>());
     assertThat(renderResult.getOutput()).isEqualTo(output);
     assertThat(renderResult.hasErrors()).isFalse();
 
     renderResult = new Jinjava(outputSizeLimitedConfig).renderForResult(input, new HashMap<>());
+    assertThat(renderResult.hasErrors()).isTrue();
     assertThat(renderResult.getErrors().get(0).getMessage()).contains("OutputTooBigException");
   }
 }
