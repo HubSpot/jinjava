@@ -12,7 +12,6 @@ public class OutputList {
   private long maxOutputSize;
 
   public OutputList(long maxOutputSize) {
-
     this.maxOutputSize = maxOutputSize;
   }
 
