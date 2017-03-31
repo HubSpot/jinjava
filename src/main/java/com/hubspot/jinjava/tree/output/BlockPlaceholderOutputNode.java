@@ -31,6 +31,11 @@ public class BlockPlaceholderOutputNode implements OutputNode {
   }
 
   @Override
+  public long getSize() {
+    return output == null ? 0 : output.getBytes().length;
+  }
+
+  @Override
   public String toString() {
     return getValue();
   }
