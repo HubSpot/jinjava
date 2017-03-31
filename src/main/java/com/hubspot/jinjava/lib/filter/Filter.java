@@ -39,7 +39,7 @@ public interface Filter extends Importable {
   Object filter(Object var, JinjavaInterpreter interpreter, String... args);
 
   /*
-   * The JinjaJava parser calls filters giving to them two list of parameters:
+   * The JinJava parser calls filters giving to them two lists of parameters:
    *   - Positional arguments as Object[]
    *   - Named arguments as Map<String, Object>
    *
