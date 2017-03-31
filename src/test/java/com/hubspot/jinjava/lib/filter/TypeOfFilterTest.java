@@ -25,18 +25,24 @@ public class TypeOfFilterTest {
 
   @Test
   public void testString() {
-    assertThat(filter.filter(" foo  ", interpreter)).isEqualTo("string");
-    assertThat(interpreter.renderFlat("{{ \"123\"|typeof }}")).isEqualTo("string");
+    assertThat(filter.filter(" foo  ", interpreter)).isEqualTo("str");
+    assertThat(interpreter.renderFlat("{{ \"123\"|typeof }}")).isEqualTo("str");
   }
 
   @Test
   public void testInteger() {
-    assertThat(filter.filter(123, interpreter)).isEqualTo("number");
+    assertThat(filter.filter(123, interpreter)).isEqualTo("int");
   }
 
   @Test
+  public void testLong() {
+    assertThat(filter.filter(123L, interpreter)).isEqualTo("long");
+  }
+
+
+  @Test
   public void testDouble() {
-    assertThat(filter.filter(123.3345d, interpreter)).isEqualTo("number");
+    assertThat(filter.filter(123.3345d, interpreter)).isEqualTo("float");
   }
 
   @Test
@@ -57,14 +63,14 @@ public class TypeOfFilterTest {
 
   @Test
   public void testNumber() throws Exception {
-    assertThat(interpreter.renderFlat("{{ 123|typeof }}")).isEqualTo("number");
-    assertThat(interpreter.renderFlat("{{ 3446.5|typeof }}")).isEqualTo("number");
-    assertThat(interpreter.renderFlat("{{ (123/3446.5)|typeof }}")).isEqualTo("number");
+    assertThat(interpreter.renderFlat("{{ 123|typeof }}")).isEqualTo("long");
+    assertThat(interpreter.renderFlat("{{ 3446.5|typeof }}")).isEqualTo("float");
+    assertThat(interpreter.renderFlat("{{ (123/3446.5)|typeof }}")).isEqualTo("float");
   }
 
   @Test
   public void testBool() {
-    assertThat(interpreter.renderFlat("{{ 1|bool|typeof }}")).isEqualTo("boolean");
-    assertThat(interpreter.renderFlat("{{ 0|bool|typeof }}")).isEqualTo("boolean");
+    assertThat(interpreter.renderFlat("{{ 1|bool|typeof }}")).isEqualTo("bool");
+    assertThat(interpreter.renderFlat("{{ 0|bool|typeof }}")).isEqualTo("bool");
   }
 }

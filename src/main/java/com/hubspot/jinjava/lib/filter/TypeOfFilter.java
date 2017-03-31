@@ -1,25 +1,20 @@
 package com.hubspot.jinjava.lib.filter;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Set;
+import java.util.List;
+import java.util.Map;
 
-import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.el.ext.AstDict;
 import com.hubspot.jinjava.el.ext.AstList;
 import com.hubspot.jinjava.el.ext.AstTuple;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.objects.collections.PyList;
-import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
 
 @JinjavaDoc(
     value = "Get a string that describes the type of the object")
 public class TypeOfFilter implements Filter {
-
-  private static final Set<Class<?>> SIMPLE_NAME_TYPES = ImmutableSet.of(String.class);
 
   @Override
   public String getName() {
@@ -32,16 +27,16 @@ public class TypeOfFilter implements Filter {
       return "null";
     }
 
-    if (var.getClass() == AstDict.class || var.getClass() == PyMap.class) {
+    if (var.getClass() == AstDict.class || Map.class.isAssignableFrom(var.getClass())) {
       return "dict";
     }
 
-    if (var.getClass() == AstList.class || var.getClass() == ArrayList.class || var.getClass() == PyList.class) {
+    if (var.getClass() == AstList.class || List.class.isAssignableFrom(var.getClass())) {
       return "list";
     }
 
     if (var.getClass() == Boolean.class) {
-      return "boolean";
+      return "bool";
     }
 
     if (var.getClass() == AstTuple.class) {
@@ -52,12 +47,20 @@ public class TypeOfFilter implements Filter {
       return "datetime";
     }
 
-    if (Number.class.isAssignableFrom(var.getClass())) {
-      return "number";
+    if (Integer.class.isAssignableFrom(var.getClass())) {
+      return "int";
     }
 
-    if (SIMPLE_NAME_TYPES.contains(var.getClass())) {
-      return var.getClass().getSimpleName().toLowerCase();
+    if (Long.class.isAssignableFrom(var.getClass())) {
+      return "long";
+    }
+
+    if (Float.class.isAssignableFrom(var.getClass()) || Double.class.isAssignableFrom(var.getClass())) {
+      return "float";
+    }
+
+    if (String.class.isAssignableFrom(var.getClass())) {
+      return "str";
     }
 
     return "unknown";
