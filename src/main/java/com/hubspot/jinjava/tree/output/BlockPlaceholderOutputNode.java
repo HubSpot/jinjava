@@ -1,5 +1,9 @@
 package com.hubspot.jinjava.tree.output;
 
+import java.nio.charset.Charset;
+
+import com.google.common.base.Charsets;
+
 public class BlockPlaceholderOutputNode implements OutputNode {
 
   private final String blockName;
@@ -32,7 +36,7 @@ public class BlockPlaceholderOutputNode implements OutputNode {
 
   @Override
   public long getSize() {
-    return output == null ? 0 : output.getBytes().length;
+    return output == null ? 0 : output.getBytes(Charset.forName(Charsets.UTF_8.name())).length;
   }
 
   @Override
