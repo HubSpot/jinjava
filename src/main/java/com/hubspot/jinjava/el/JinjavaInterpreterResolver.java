@@ -121,15 +121,11 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       return astParams; // We only change the signature method for filters
     }
 
-    List<Object> methodParams = new ArrayList<Object>() {{
-      add(astParams[0]); // Left Value
-      add(astParams[1]); // JinjavaInterpreter
-    }};
-
     List<Object> args = new ArrayList<>();
     Map<String, Object> kwargs = new HashMap<>();
 
-    for (Object param: Arrays.asList(astParams).subList(methodParams.size(), astParams.length)) {
+    // 2 -> Ignore the Left Value (0) and the JinjavaInterpreter (1)
+    for (Object param: Arrays.asList(astParams).subList(2, astParams.length)) {
       if (param instanceof NamedParameter) {
         NamedParameter namedParameter = (NamedParameter) param;
         kwargs.put(namedParameter.getName(), namedParameter.getValue());
@@ -138,10 +134,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       }
     }
 
-    methodParams.add(args.toArray());
-    methodParams.add(kwargs);
-
-    return methodParams.toArray();
+    return new Object[] {astParams[0], astParams[1], args.toArray(), kwargs};
   }
 
   private Object getValue(ELContext context, Object base, Object property, boolean errOnUnknownProp) {
