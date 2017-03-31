@@ -162,7 +162,7 @@ public class JinjavaInterpreterTest {
 
     RenderResult renderResult = new Jinjava().renderForResult(output, new HashMap<>());
     assertThat(renderResult.getOutput()).isEqualTo(output);
-    assertThat(renderResult.getErrors()).isEmpty();
+    assertThat(renderResult.hasErrors()).isFalse();
 
     renderResult = new Jinjava(outputSizeLimitedConfig).renderForResult(output, new HashMap<>());
     assertThat(renderResult.getErrors().get(0).getMessage()).contains("OutputTooBigException");
