@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,14 +16,10 @@ public class TypeOfFilterTest {
 
   JinjavaInterpreter interpreter;
   TypeOfFilter filter;
-  private Jinjava jinjava;
-  private Map<String, Object> context;
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
-    context = new HashMap<>();
-    interpreter = jinjava.newInterpreter();
+    interpreter = new Jinjava().newInterpreter();
     filter = new TypeOfFilter();
   }
 
@@ -56,8 +51,8 @@ public class TypeOfFilterTest {
   }
 
   @Test
-  public void testMap() throws Exception {
-    assertThat(interpreter.renderFlat("{{ [1,2,3]|typeof }}")).isEqualTo("dict");
+  public void testDict() throws Exception {
+    assertThat(filter.filter(new HashMap<>(), interpreter)).isEqualTo("dict");
   }
 
   @Test
@@ -72,13 +67,4 @@ public class TypeOfFilterTest {
     assertThat(interpreter.renderFlat("{{ 1|bool|typeof }}")).isEqualTo("boolean");
     assertThat(interpreter.renderFlat("{{ 0|bool|typeof }}")).isEqualTo("boolean");
   }
-
-  @Test
-  public void testDict() throws Exception {
-    assertThat(interpreter.renderFlat("{{ 1|bool|typeof }}")).isEqualTo("boolean");
-
-
-  }
-
-  // chararray?
 }
