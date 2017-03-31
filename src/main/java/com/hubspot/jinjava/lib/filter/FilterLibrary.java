@@ -31,12 +31,12 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
         AttrFilter.class,
         PrettyPrintFilter.class,
 
-    DefaultFilter.class,
+        DefaultFilter.class,
         DAliasedDefaultFilter.class,
         FileSizeFormatFilter.class,
         UrlizeFilter.class,
 
-    BatchFilter.class,
+        BatchFilter.class,
         CountFilter.class,
         DictSortFilter.class,
         FirstFilter.class,
@@ -56,11 +56,11 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
         SplitFilter.class,
         UniqueFilter.class,
 
-    DatetimeFilter.class,
+        DatetimeFilter.class,
         DateTimeFormatFilter.class,
         UnixTimestampFilter.class,
 
-    AbsFilter.class,
+        AbsFilter.class,
         AddFilter.class,
         BoolFilter.class,
         CutFilter.class,
@@ -75,7 +75,7 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
         RoundFilter.class,
         SumFilter.class,
 
-    EscapeFilter.class,
+        EscapeFilter.class,
         EAliasedEscapeFilter.class,
         EscapeJsFilter.class,
         ForceEscapeFilter.class,
@@ -83,7 +83,7 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
         UrlEncodeFilter.class,
         XmlAttrFilter.class,
 
-    CapitalizeFilter.class,
+        CapitalizeFilter.class,
         CenterFilter.class,
         FormatFilter.class,
         IndentFilter.class,
@@ -96,7 +96,6 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
         SafeFilter.class,
         TitleFilter.class,
         TrimFilter.class,
-        TypeOfFilter.class,
         WordCountFilter.class,
         WordWrapFilter.class);
   }

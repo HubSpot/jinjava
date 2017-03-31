@@ -1,4 +1,4 @@
-package com.hubspot.jinjava.lib.filter;
+package com.hubspot.jinjava.lib.fn;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -8,21 +8,14 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.el.ext.AstDict;
 import com.hubspot.jinjava.el.ext.AstList;
 import com.hubspot.jinjava.el.ext.AstTuple;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
 
 @JinjavaDoc(
-    value = "Get a string that describes the type of the object")
-public class TypeOfFilter implements Filter {
+    value = "Get a string that describes the type of the object, similar to Python's type()")
+public class TypeFunction {
 
-  @Override
-  public String getName() {
-    return "typeof";
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public static String type(Object var) {
     if (var == null) {
       return "null";
     }
