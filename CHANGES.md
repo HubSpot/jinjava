@@ -1,5 +1,11 @@
 # Jinjava Releases #
 
+### 2017-03-31 Version 2.1.17 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.17%22)) ###
+
+* added config option to limit the rendered output size
+* added named parameter support for filters
+* added `type()` function
+
 ### 2017-03-09 Version 2.1.16 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.16%22)) ###
 
 * disabled functions, filters and tags now add to template errors rather than throwing a fatal exception
