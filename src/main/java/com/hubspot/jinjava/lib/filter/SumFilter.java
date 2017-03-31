@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -25,7 +26,7 @@ import com.hubspot.jinjava.util.ObjectIterator;
             desc = "Sum up only certain attributes",
             code = "Total: {{ items|sum(attribute='price') }}")
     })
-public class SumFilter implements Filter {
+public class SumFilter implements AdvancedFilter {
 
   @Override
   public String getName() {
@@ -33,18 +34,15 @@ public class SumFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
     ForLoop loop = ObjectIterator.getLoop(var);
 
     BigDecimal sum = BigDecimal.ZERO;
-    String attr = null;
+    String attr = kwargs.containsKey("attribute") ? kwargs.get("attribute").toString() : null;
 
     if (args.length > 0) {
-      attr = args[0];
-    }
-    if (args.length > 1) {
       try {
-        sum = sum.add(new BigDecimal(args[1]));
+        sum = sum.add(new BigDecimal(args[0].toString()));
       } catch (NumberFormatException e) {
       }
     }
