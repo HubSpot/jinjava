@@ -1,15 +1,15 @@
 package com.hubspot.jinjava.lib.filter;
 
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
+
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 public class AdvancedFilterTest {
 
@@ -41,6 +41,20 @@ public class AdvancedFilterTest {
     jinjava.getGlobalContext().registerFilter(new MyMirrorFilter(expectedArgs, expectedKwargs));
 
     assertThat(jinjava.render("{{ 'test'|mirror(named2=3, named10='str', namedB=true) }}", new HashMap<>())).isEqualTo("test");
+  }
+
+  @Test
+  public void itTestsNullKwargs() {
+    jinjava = new Jinjava();
+
+    Object[] expectedArgs = new Object[] {};
+    Map<String, Object> expectedKwargs = new HashMap<String, Object>() {{
+      put("named1", null);
+    }};
+
+    jinjava.getGlobalContext().registerFilter(new MyMirrorFilter(expectedArgs, expectedKwargs));
+
+    assertThat(jinjava.render("{{ 'test'|divide(named1) }}", new HashMap<>())).isEqualTo("test");
   }
 
   @Test

@@ -15,13 +15,13 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.Importable;
+import java.util.Arrays;
+import java.util.Map;
+
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.Importable;
 
 public interface Filter extends Importable {
 
@@ -49,7 +49,7 @@ public interface Filter extends Importable {
   default Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
     // We append the named arguments at the end of the positional ones
     Object[] allArgs = ArrayUtils.addAll(args, kwargs.values().toArray());
-    String[] stringArgs = Arrays.stream(allArgs).map(Object::toString).toArray(String[]::new);
+    String[] stringArgs = Arrays.stream(allArgs).map(arg -> arg != null ? arg.toString() : null).toArray(String[]::new);
 
     return filter(var, interpreter, stringArgs);
   }
