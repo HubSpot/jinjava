@@ -36,6 +36,13 @@ public class SortFilterTest {
   }
 
   @Test
+  public void sortWithNamedAttributes() throws Exception {
+    // even if named attributes were never supported for this filter, ensure parameters are passed in order and it works
+    assertThat(render("(reverse=false, case_sensitive=false, attribute='foo.date')",
+        new MyBar(new MyFoo(new Date(250L))), new MyBar(new MyFoo(new Date(0L))), new MyBar(new MyFoo(new Date(100000000L))))).isEqualTo("0250100000000");
+  }
+
+  @Test
   public void sortStringsCaseInsensitive() {
     assertThat(render("()", "foo", "Foo", "bar")).isEqualTo("barfooFoo");
   }
@@ -65,7 +72,7 @@ public class SortFilterTest {
   public static class MyFoo {
     private Date date;
 
-    public MyFoo(Date date) {
+    MyFoo(Date date) {
       this.date = date;
     }
 
@@ -82,7 +89,7 @@ public class SortFilterTest {
   public static class MyBar {
     private MyFoo foo;
 
-    public MyBar(MyFoo foo) {
+    MyBar(MyFoo foo) {
       this.foo = foo;
     }
 
