@@ -10,7 +10,7 @@ import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,7 +34,6 @@ import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
 import com.hubspot.jinjava.el.ext.JinjavaListELResolver;
 import com.hubspot.jinjava.el.ext.NamedParameter;
-
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
@@ -122,7 +121,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     }
 
     List<Object> args = new ArrayList<>();
-    Map<String, Object> kwargs = new HashMap<>();
+    Map<String, Object> kwargs = new LinkedHashMap<>();
 
     // 2 -> Ignore the Left Value (0) and the JinjavaInterpreter (1)
     for (Object param: Arrays.asList(astParams).subList(2, astParams.length)) {
