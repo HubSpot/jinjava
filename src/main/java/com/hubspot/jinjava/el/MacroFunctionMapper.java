@@ -36,6 +36,10 @@ public class MacroFunctionMapper extends FunctionMapper {
       throw new DisabledException(functionName);
     }
 
+    if (map.containsKey(functionName)) {
+      context.addResolvedFunction(functionName);
+    }
+
     return map.get(functionName);
   }
 
