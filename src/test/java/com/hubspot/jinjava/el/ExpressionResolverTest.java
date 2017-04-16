@@ -424,6 +424,16 @@ public class ExpressionResolverTest {
   }
 
   @Test
+  public void itStoresResolvedFunctions() throws Exception {
+    context.put("datetime", 12345);
+    final JinjavaConfig config = JinjavaConfig.newBuilder().build();
+    String template = "{% for i in range(1, 5) %}{{i}} {% endfor %}\n{{ unixtimestamp(datetime) }}";
+    final RenderResult renderResult = jinjava.renderForResult(template, context, config);
+    assertThat(renderResult.getOutput()).isEqualTo("1 2 3 4 \n12000");
+    assertThat(renderResult.getContext().getResolvedFunctions()).hasSameElementsAs(ImmutableSet.of(":range", ":unixtimestamp"));
+  }
+
+  @Test
   public void presentOptionalProperty() {
     context.put("myobj", new OptionalProperty(null, "foo"));
     assertThat(interpreter.resolveELExpression("myobj.val", -1)).isEqualTo("foo");

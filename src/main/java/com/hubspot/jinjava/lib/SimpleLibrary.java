@@ -34,7 +34,7 @@ import com.hubspot.jinjava.interpret.DisabledException;
 
 public abstract class SimpleLibrary<T extends Importable> {
 
-  private Map<String, T> lib = new HashMap<String, T>();
+  private Map<String, T> lib = new HashMap<>();
   private Set<String> disabled = new HashSet<String>();
 
   protected SimpleLibrary(boolean registerDefaults) {
