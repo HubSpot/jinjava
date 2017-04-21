@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.interpret.errorcategory.TemplateErrorCategory;
@@ -191,16 +190,16 @@ public class TemplateError {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
-        .add("severity", severity)
-        .add("reason", reason)
-        .add("message", message)
-        .add("fieldName", fieldName)
-        .add("lineno", lineno)
-        .add("item", item)
-        .add("category", category)
-        .add("categoryErrors", categoryErrors)
-        .toString();
+    return "TemplateError{" +
+        "severity=" + severity +
+        ", reason=" + reason +
+        ", item=" + item +
+        ", message='" + message + '\'' +
+        ", fieldName='" + fieldName + '\'' +
+        ", lineno=" + lineno +
+        ", category=" + category +
+        ", categoryErrors=" + categoryErrors +
+        '}';
   }
 
 }
