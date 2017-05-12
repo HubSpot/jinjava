@@ -1,5 +1,9 @@
 # Jinjava Releases #
 
+### 2017-05-12 Version 2.2.0 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.2.0%22)) ###
+
+* Removes `FileResourceLocator` as a default `ResourceLocator` to close a security hole. See the [README](README.md#template-loading) for details on how to reenable it.
+
 ### 2017-04-11 Version 2.1.19 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.19%22)) ###
 
 * preserve order of named parameters
