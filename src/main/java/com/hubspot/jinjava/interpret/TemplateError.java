@@ -52,7 +52,13 @@ public class TemplateError {
   }
 
   public static TemplateError fromException(TemplateSyntaxException ex) {
-    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, ex.getLineNumber(), ex);
+    String fieldName = null;
+
+    if (ex instanceof UnknownTagException) {
+      fieldName = ((UnknownTagException) ex).getTag();
+    }
+
+    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), fieldName, ex.getLineNumber(), ex);
   }
 
   public static TemplateError fromException(Exception ex) {
