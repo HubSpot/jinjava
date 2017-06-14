@@ -7,7 +7,10 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -22,20 +25,22 @@ import javax.el.MapELResolver;
 import javax.el.PropertyNotFoundException;
 import javax.el.ResourceBundleELResolver;
 
-import com.google.common.collect.ImmutableMap;
-import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
 import com.hubspot.jinjava.el.ext.JinjavaListELResolver;
+import com.hubspot.jinjava.el.ext.NamedParameter;
+import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
@@ -88,9 +93,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       // failed to access property, continue with method calls
     }
 
-    // TODO map named params to special arg in fn to invoke
-    // https://github.com/HubSpot/jinjava/issues/11
-    return super.invoke(context, base, method, paramTypes, params);
+    return super.invoke(context, base, method, paramTypes, generateMethodParams(method, params));
   }
 
   /**
@@ -103,50 +106,87 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     return getValue(context, base, property, true);
   }
 
+  /*
+   * We transform the AST parameters to something meaningful to Jinjava.
+   *
+   * Functions, expressions and tags will receive the parameters as they are, but filters
+   * have a different signature to what they have in the AST to support named parameters, so
+   * this method transforms their arguments to be the following:
+   *
+   *  (Left Value, JinjavaInterpreter, Positional Arguments, Named Arguments)
+   */
+  private Object[] generateMethodParams(Object method, Object[] astParams) {
+    if (!"filter".equals(method)) {
+      return astParams; // We only change the signature method for filters
+    }
+
+    List<Object> args = new ArrayList<>();
+    Map<String, Object> kwargs = new LinkedHashMap<>();
+
+    // 2 -> Ignore the Left Value (0) and the JinjavaInterpreter (1)
+    for (Object param: Arrays.asList(astParams).subList(2, astParams.length)) {
+      if (param instanceof NamedParameter) {
+        NamedParameter namedParameter = (NamedParameter) param;
+        kwargs.put(namedParameter.getName(), namedParameter.getValue());
+      } else {
+        args.add(param);
+      }
+    }
+
+    return new Object[] {astParams[0], astParams[1], args.toArray(), kwargs};
+  }
+
   private Object getValue(ELContext context, Object base, Object property, boolean errOnUnknownProp) {
     String propertyName = Objects.toString(property, "");
     Object value = null;
 
     interpreter.getContext().addResolvedValue(propertyName);
+    ErrorItem item = ErrorItem.PROPERTY;
 
-    if (ExtendedParser.INTERPRETER.equals(property)) {
-      value = interpreter;
-    } else if (propertyName.startsWith(ExtendedParser.FILTER_PREFIX)) {
-      value = interpreter.getContext().getFilter(StringUtils.substringAfter(propertyName, ExtendedParser.FILTER_PREFIX));
-    } else if (propertyName.startsWith(ExtendedParser.EXPTEST_PREFIX)) {
-      value = interpreter.getContext().getExpTest(StringUtils.substringAfter(propertyName, ExtendedParser.EXPTEST_PREFIX));
-    } else {
-      if (base == null) {
-        // Look up property in context.
-        value = interpreter.retraceVariable((String) property, interpreter.getLineNumber());
+    try {
+      if (ExtendedParser.INTERPRETER.equals(property)) {
+        value = interpreter;
+      } else if (propertyName.startsWith(ExtendedParser.FILTER_PREFIX)) {
+        item = ErrorItem.FILTER;
+        value = interpreter.getContext().getFilter(StringUtils.substringAfter(propertyName, ExtendedParser.FILTER_PREFIX));
+      } else if (propertyName.startsWith(ExtendedParser.EXPTEST_PREFIX)) {
+        item = ErrorItem.EXPRESSION_TEST;
+        value = interpreter.getContext().getExpTest(StringUtils.substringAfter(propertyName, ExtendedParser.EXPTEST_PREFIX));
       } else {
-        // Get property of base object.
-        try {
-          if (base instanceof Optional) {
-            Optional<?> optBase = (Optional<?>) base;
-            if (!optBase.isPresent()) {
-              return null;
+        if (base == null) {
+          // Look up property in context.
+          value = interpreter.retraceVariable((String) property, interpreter.getLineNumber());
+        } else {
+          // Get property of base object.
+          try {
+            if (base instanceof Optional) {
+              Optional<?> optBase = (Optional<?>) base;
+              if (!optBase.isPresent()) {
+                return null;
+              }
+
+              base = optBase.get();
             }
 
-            base = optBase.get();
-          }
+            value = super.getValue(context, base, propertyName);
 
-          value = super.getValue(context, base, propertyName);
+            if (value instanceof Optional) {
+              Optional<?> optValue = (Optional<?>) value;
+              if (!optValue.isPresent()) {
+                return null;
+              }
 
-          if (value instanceof Optional) {
-            Optional<?> optValue = (Optional<?>) value;
-            if (!optValue.isPresent()) {
-              return null;
+              value = optValue.get();
             }
-
-            value = optValue.get();
-          }
-        } catch (PropertyNotFoundException e) {
-          if (errOnUnknownProp) {
-            interpreter.addError(TemplateError.fromUnknownProperty(base, propertyName, interpreter.getLineNumber()));
+          } catch (PropertyNotFoundException e) {
+            if (errOnUnknownProp) {
+              interpreter.addError(TemplateError.fromUnknownProperty(base, propertyName, interpreter.getLineNumber()));
+            }
           }
         }
       }
+    } catch (DisabledException e) {
+      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, item, e.getMessage(), propertyName, interpreter.getLineNumber(), e));
     }
 
     context.setPropertyResolved(true);
@@ -167,6 +207,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       return new PyList((List<Object>) value);
     }
     if (Map.class.isAssignableFrom(value.getClass())) {
+      // FIXME: ensure keys are actually strings, if not, convert them
       return new PyMap((Map<String, Object>) value);
     }
 

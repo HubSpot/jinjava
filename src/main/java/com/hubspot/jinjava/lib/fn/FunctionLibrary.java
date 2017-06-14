@@ -17,6 +17,7 @@ public class FunctionLibrary extends SimpleLibrary<ELFunctionDefinition> {
     register(new ELFunctionDefinition("", "unixtimestamp", Functions.class, "unixtimestamp", Object.class));
     register(new ELFunctionDefinition("", "truncate", Functions.class, "truncate", Object.class, Object[].class));
     register(new ELFunctionDefinition("", "range", Functions.class, "range", Object.class, Object[].class));
+    register(new ELFunctionDefinition("", "type", TypeFunction.class, "type", Object.class));
 
     register(new ELFunctionDefinition("", "super", Functions.class, "renderSuperBlock"));
 

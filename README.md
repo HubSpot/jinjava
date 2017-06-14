@@ -8,6 +8,7 @@
 <img src="https://github.com/HubSpot/jinjava/raw/master/jinjava.png" width="250" height="250" alt="jinjava">
 
 Java-based template engine based on django template syntax, adapted to render jinja templates (at least the subset of jinja in use in HubSpot content). Currently used in production to render thousands of websites with hundreds of millions of page views per month on the [HubSpot COS](http://www.hubspot.com/products/sites).
+
 *Note*: Requires Java >= 8. Originally forked from [jangod](https://code.google.com/p/jangod/).
 
 Get it:
@@ -17,9 +18,11 @@ Get it:
   <dependency>
     <groupId>com.hubspot.jinjava</groupId>
     <artifactId>jinjava</artifactId>
-    <version>2.1.14</version>
+    <version>{ LATEST_VERSION }</version>
   </dependency>
 ```
+
+where LATEST_VERSION is the [latest version from CHANGES](CHANGES.md).
 
 or if you're stuck on java 7:
 ```xml
@@ -52,10 +55,10 @@ String renderedTemplate = jinjava.render(template, context);
 
 result:
 ```html
-<div>Hello, Handsome!</div>
+<div>Hello, Jared!</div>
 ```
 
-Voila! Hey, wait a minute...
+Voila!
 
 Advanced Topics
 ---------------
@@ -67,14 +70,27 @@ Jinjava needs to know how to interpret template paths, so it can properly handle
 {% extends "foo/bar/base.html" %}
 ```
 
-By default, it will load a ```FileLocator```; you will likely want to provide your own implementation of 
-```ResourceLoader``` to hook into your application's template repository, and then tell jinjava about it:
+By default, it will load only a `ClasspathResourceLocator`. If you want to allow Jinjava to load any file from the 
+file system, you can add a `FileResourceLocator`. Be aware the security risks of allowing user input to prevent a user
+from adding code such as `{% include '/etc/password' %}`.
+ 
+You will likely want to provide your own implementation of 
+`ResourceLoader` to hook into your application's template repository, and then tell jinjava about it:
 
 ```java
 JinjavaConfig config = new JinjavaConfig();
 
 Jinjava jinjava = new Jinjava(config);
 jinjava.setResourceLocator(new MyCustomResourceLocator());
+```
+
+To use more than one `ResourceLocator`, use a `CascadingResourceLocator`. 
+
+```java
+JinjavaConfig config = new JinjavaConfig();
+
+Jinjava jinjava = new Jinjava(config);
+jinjava.setResourceLocator(new MyCustomResourceLocator(), new FileResourceLocator());
 ```
 
 ### Custom tags, filters and functions
@@ -86,7 +102,7 @@ You can provide custom jinja tags, filters, and static functions to the template
 jinjava.getGlobalContext().registerTag(new MyCustomTag());
 // define a custom filter implementing com.hubspot.jinjava.lib.Filter
 jinjava.getGlobalContext().registerFilter(new MyAwesomeFilter());
-// define a custom public static function (this one will bind to myfn.my_func('foo', 42))
+// define a custom public static function (this one will bind to myfn:my_func('foo', 42))
 jinjava.getGlobalContext().registerFunction(new ELFunctionDefinition("myfn", "my_func", 
     MyFuncsClass.class, "myFunc", String.class, Integer.class);
 

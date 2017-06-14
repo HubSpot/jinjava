@@ -33,9 +33,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
-import com.hubspot.jinjava.loader.CascadingResourceLocator;
 import com.hubspot.jinjava.loader.ClasspathResourceLocator;
-import com.hubspot.jinjava.loader.FileLocator;
 import com.hubspot.jinjava.loader.ResourceLocator;
 
 import de.odysseus.el.ExpressionFactoryImpl;
@@ -87,7 +85,7 @@ public class Jinjava {
     TypeConverter converter = new TruthyTypeConverter();
     this.expressionFactory = new ExpressionFactoryImpl(expConfig, converter);
 
-    this.resourceLocator = new CascadingResourceLocator(new ClasspathResourceLocator(), new FileLocator());
+    this.resourceLocator = new ClasspathResourceLocator();
   }
 
   /**

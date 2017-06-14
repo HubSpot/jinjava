@@ -3,12 +3,11 @@ package com.hubspot.jinjava.interpret;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.interpret.errorcategory.TemplateErrorCategory;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-
-import com.google.common.base.Objects;
 
 public class TemplateError {
   public enum ErrorType {
@@ -22,6 +21,7 @@ public class TemplateError {
     BAD_URL,
     EXCEPTION,
     MISSING,
+    DISABLED,
     OTHER
   }
 
@@ -31,6 +31,8 @@ public class TemplateError {
     TAG,
     FUNCTION,
     PROPERTY,
+    FILTER,
+    EXPRESSION_TEST,
     OTHER
   }
 
@@ -188,16 +190,16 @@ public class TemplateError {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
-        .add("severity", severity)
-        .add("reason", reason)
-        .add("message", message)
-        .add("fieldName", fieldName)
-        .add("lineno", lineno)
-        .add("item", item)
-        .add("category", category)
-        .add("categoryErrors", categoryErrors)
-        .toString();
+    return "TemplateError{" +
+        "severity=" + severity +
+        ", reason=" + reason +
+        ", item=" + item +
+        ", message='" + message + '\'' +
+        ", fieldName='" + fieldName + '\'' +
+        ", lineno=" + lineno +
+        ", category=" + category +
+        ", categoryErrors=" + categoryErrors +
+        '}';
   }
 
 }

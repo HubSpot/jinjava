@@ -26,16 +26,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.el.MethodNotFoundException;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
+import com.hubspot.jinjava.interpret.DisabledException;
 
 public abstract class SimpleLibrary<T extends Importable> {
 
-  private Map<String, T> lib = new HashMap<String, T>();
+  private Map<String, T> lib = new HashMap<>();
   private Set<String> disabled = new HashSet<String>();
 
   protected SimpleLibrary(boolean registerDefaults) {
@@ -55,7 +54,7 @@ public abstract class SimpleLibrary<T extends Importable> {
 
   public T fetch(String item) {
     if (disabled.contains(item)) {
-      throw new MethodNotFoundException("'" + item + "' is disabled in this context");
+      throw new DisabledException(item);
     }
 
     return lib.get(StringUtils.lowerCase(item));

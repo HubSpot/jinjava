@@ -4,4 +4,6 @@ public interface OutputNode {
 
   String getValue();
 
+  long getSize();
+
 }

@@ -40,6 +40,7 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TreeParser;
 import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
 import com.hubspot.jinjava.tree.output.OutputList;
+import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 
@@ -185,21 +186,23 @@ public class JinjavaInterpreter {
    * @return rendered result
    */
   public String render(Node root, boolean processExtendRoots) {
-    OutputList output = new OutputList();
+    OutputList output = new OutputList(config.getMaxOutputSize());
 
     for (Node node : root.getChildren()) {
       lineNumber = node.getLineNumber();
-      output.addNode(node.render(this));
+      OutputNode out = node.render(this);
+      output.addNode(out);
     }
 
     // render all extend parents, keeping the last as the root output
     if (processExtendRoots) {
       while (!extendParentRoots.isEmpty()) {
         Node parentRoot = extendParentRoots.removeFirst();
-        output = new OutputList();
+        output = new OutputList(config.getMaxOutputSize());
 
         for (Node node : parentRoot.getChildren()) {
-          output.addNode(node.render(this));
+          OutputNode out = node.render(this);
+          output.addNode(out);
         }
 
         context.getExtendPathStack().pop();
@@ -226,7 +229,7 @@ public class JinjavaInterpreter {
           List<? extends Node> superBlock = Iterables.get(blockChain, 1, null);
           context.setSuperBlock(superBlock);
 
-          OutputList blockValueBuilder = new OutputList();
+          OutputList blockValueBuilder = new OutputList(config.getMaxOutputSize());
 
           for (Node child : block) {
             blockValueBuilder.addNode(child.render(this));

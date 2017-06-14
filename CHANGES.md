@@ -1,5 +1,27 @@
 # Jinjava Releases #
 
+### 2017-05-12 Version 2.2.0 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.2.0%22)) ###
+
+* Removes `FileResourceLocator` as a default `ResourceLocator` to close a security hole. See the [README](README.md#template-loading) for details on how to reenable it.
+
+### 2017-04-11 Version 2.1.19 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.19%22)) ###
+
+* preserve order of named parameters
+
+### 2017-04-10 Version 2.1.18 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.18%22)) ###
+
+* fix bug when passing null argument to `filter`
+
+### 2017-03-31 Version 2.1.17 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.17%22)) ###
+
+* added config option to limit the rendered output size
+* added named parameter support for filters
+* added `type()` function
+
+### 2017-03-09 Version 2.1.16 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.16%22)) ###
+
+* disabled functions, filters and tags now add to template errors rather than throwing a fatal exception
+
 ### 2017-01-18 Version 2.1.15 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.15%22)) ###
 
 * shaded JUEL

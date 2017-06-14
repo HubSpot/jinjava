@@ -16,6 +16,7 @@
 package com.hubspot.jinjava.util;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ public final class ObjectIterator {
   @SuppressWarnings("unchecked")
   public static ForLoop getLoop(Object obj) {
     if (obj == null) {
-      return new ForLoop(Iterators.emptyIterator(), 0);
+      return new ForLoop(Collections.emptyIterator(), 0);
     }
     // collection
     if (obj instanceof Collection) {
