@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -17,6 +16,7 @@ import org.junit.Test;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
@@ -51,6 +51,14 @@ public class ForTagTest {
     Document dom = Jsoup.parseBodyFragment(tag.interpret(tagNode, interpreter));
 
     assertThat(dom.select("h3")).hasSize(3);
+  }
+
+  @Test
+  public void forLoopUsingScalarValue() throws Exception {
+    context.put("the_list", 999L);
+    TagNode tagNode = (TagNode) fixture("loop-with-scalar");
+    String output = tag.interpret(tagNode, interpreter);
+    assertThat(output.trim()).isEqualTo("<h3>The Number: 999</h3>");
   }
 
   @Test
