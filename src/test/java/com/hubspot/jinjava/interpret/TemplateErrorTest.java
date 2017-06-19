@@ -20,4 +20,10 @@ public class TemplateErrorTest {
     assertThat(e.getMessage()).isEqualTo("Cannot resolve property 'other' in '{foo=bar}'");
   }
 
+  @Test
+  public void itShowsFieldNameForUnknownTagError() {
+    TemplateError e = TemplateError.fromException(new UnknownTagException("unknown", "{% unknown() %}", 11));
+    assertThat(e.getFieldName()).isEqualTo("unknown");
+  }
+
 }
