@@ -17,15 +17,12 @@ package com.hubspot.jinjava.tree;
 
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
-import com.hubspot.jinjava.util.Logging;
 
 public class ExpressionNode extends Node {
   private static final long serialVersionUID = 341642231109911346L;
@@ -46,14 +43,6 @@ public class ExpressionNode extends Node {
     }
 
     String result = Objects.toString(var, "");
-
-    if (!StringUtils.equals(result, master.getImage()) && StringUtils.contains(result, "{{")) {
-      try {
-        result = interpreter.renderFlat(result);
-      } catch (Exception e) {
-        Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
-      }
-    }
 
     if (interpreter.getContext().isAutoEscape()) {
       result = EscapeFilter.escapeHtmlEntities(result);

@@ -30,7 +30,7 @@ public class ExpressionNodeTest {
     context.put("place", "world");
 
     ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(interpreter).toString()).isEqualTo("hello world");
+    assertThat(node.render(interpreter).toString()).isEqualTo("hello {{ place }}");
   }
 
   @Test
