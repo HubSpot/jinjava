@@ -10,6 +10,7 @@ import org.junit.Test;
 import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
@@ -30,7 +31,19 @@ public class ExpressionNodeTest {
     context.put("place", "world");
 
     ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(interpreter).toString()).isEqualTo("hello {{ place }}");
+    assertThat(node.render(interpreter).toString()).isEqualTo("hello world");
+  }
+
+  @Test
+  public void itRendersResultWithoutInterpretateExpression() throws Exception {
+    final JinjavaConfig config = JinjavaConfig.newBuilder().withNoNestedInpterpretation(true).build();
+    JinjavaInterpreter noNestedInterpreter =  new Jinjava(config).newInterpreter();
+    Context contextNoNestedInterpretation = noNestedInterpreter.getContext();
+    contextNoNestedInterpretation.put("myvar", "hello {{ place }}");
+    contextNoNestedInterpretation.put("place", "world");
+
+    ExpressionNode node = fixture("simplevar");
+    assertThat(node.render(noNestedInterpreter).toString()).isEqualTo("hello {{ place }}");
   }
 
   @Test
