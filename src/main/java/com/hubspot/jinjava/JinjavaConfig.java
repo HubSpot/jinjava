@@ -43,7 +43,7 @@ public class JinjavaConfig {
 
   private Map<Context.Library, Set<String>> disabled;
   private final boolean failOnUnknownTokens;
-  private final boolean enableNestedInterpretation;
+  private final boolean nestedInterpretationEnabled;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -69,7 +69,7 @@ public class JinjavaConfig {
                         boolean enableRecursiveMacroCalls,
                         boolean failOnUnknownTokens,
                         long maxOutputSize,
-                        boolean enableNestedInterpretation) {
+                        boolean nestedInterpretationEnabled) {
     this.charset = charset;
     this.locale = locale;
     this.timeZone = timeZone;
@@ -81,7 +81,7 @@ public class JinjavaConfig {
     this.enableRecursiveMacroCalls = enableRecursiveMacroCalls;
     this.failOnUnknownTokens = failOnUnknownTokens;
     this.maxOutputSize = maxOutputSize;
-    this.enableNestedInterpretation = enableNestedInterpretation;
+    this.nestedInterpretationEnabled = nestedInterpretationEnabled;
   }
 
   public Charset getCharset() {
@@ -128,8 +128,8 @@ public class JinjavaConfig {
     return failOnUnknownTokens;
   }
 
-  public boolean isEnableNestedInterpretation() {
-    return enableNestedInterpretation;
+  public boolean isNestedInterpretationEnabled() {
+    return nestedInterpretationEnabled;
   }
 
   public static class Builder {
@@ -146,7 +146,7 @@ public class JinjavaConfig {
     private boolean readOnlyResolver = true;
     private boolean enableRecursiveMacroCalls;
     private boolean failOnUnknownTokens;
-    private boolean enableNestedInterpretation;
+    private boolean nestedInterpretationEnabled;
 
     private Builder() {}
 
@@ -205,13 +205,13 @@ public class JinjavaConfig {
       return this;
     }
 
-    public Builder withEnableNestedInterpretation(boolean enableNestedInterpretation) {
-      this.enableNestedInterpretation = enableNestedInterpretation;
+    public Builder withNestedInterpretationEnabled(boolean nestedInterpretationEnabled) {
+      this.nestedInterpretationEnabled = nestedInterpretationEnabled;
       return this;
     }
 
     public JinjavaConfig build() {
-      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, disabled, trimBlocks, lstripBlocks, readOnlyResolver, enableRecursiveMacroCalls, failOnUnknownTokens, maxOutputSize, enableNestedInterpretation);
+      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, disabled, trimBlocks, lstripBlocks, readOnlyResolver, enableRecursiveMacroCalls, failOnUnknownTokens, maxOutputSize, nestedInterpretationEnabled);
     }
 
   }
