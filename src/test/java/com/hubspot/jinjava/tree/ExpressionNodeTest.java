@@ -36,7 +36,7 @@ public class ExpressionNodeTest {
 
   @Test
   public void itRendersResultWithoutInterpretateExpression() throws Exception {
-    final JinjavaConfig config = JinjavaConfig.newBuilder().withNoNestedInpterpretation(true).build();
+    final JinjavaConfig config = JinjavaConfig.newBuilder().withEnableNestedInterpretation(false).build();
     JinjavaInterpreter noNestedInterpreter =  new Jinjava(config).newInterpreter();
     Context contextNoNestedInterpretation = noNestedInterpreter.getContext();
     contextNoNestedInterpretation.put("myvar", "hello {{ place }}");

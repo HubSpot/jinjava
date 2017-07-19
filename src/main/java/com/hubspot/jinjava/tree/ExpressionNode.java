@@ -47,7 +47,7 @@ public class ExpressionNode extends Node {
 
     String result = Objects.toString(var, "");
 
-    if (!interpreter.getConfig().isNoNestedInterpretation()) {
+    if (interpreter.getConfig().isEnableNestedInterpretation()) {
       if (!StringUtils.equals(result, master.getImage()) && StringUtils.contains(result, "{{")) {
         try {
           result = interpreter.renderFlat(result);

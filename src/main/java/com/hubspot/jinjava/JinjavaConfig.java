@@ -43,18 +43,18 @@ public class JinjavaConfig {
 
   private Map<Context.Library, Set<String>> disabled;
   private final boolean failOnUnknownTokens;
-  private final boolean noNestedInterpretation;
+  private final boolean enableNestedInterpretation;
 
   public static Builder newBuilder() {
     return new Builder();
   }
 
   public JinjavaConfig() {
-    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false, false, 0, false);
+    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false, false, 0, true);
   }
 
   public JinjavaConfig(Charset charset, Locale locale, ZoneId timeZone, int maxRenderDepth) {
-    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false, false, 0, false);
+    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false, false, 0, true);
   }
 
   private JinjavaConfig(Charset charset,
@@ -69,7 +69,7 @@ public class JinjavaConfig {
                         boolean enableRecursiveMacroCalls,
                         boolean failOnUnknownTokens,
                         long maxOutputSize,
-                        boolean noNestedInterpretation) {
+                        boolean enableNestedInterpretation) {
     this.charset = charset;
     this.locale = locale;
     this.timeZone = timeZone;
@@ -81,7 +81,7 @@ public class JinjavaConfig {
     this.enableRecursiveMacroCalls = enableRecursiveMacroCalls;
     this.failOnUnknownTokens = failOnUnknownTokens;
     this.maxOutputSize = maxOutputSize;
-    this.noNestedInterpretation = noNestedInterpretation;
+    this.enableNestedInterpretation = enableNestedInterpretation;
   }
 
   public Charset getCharset() {
@@ -128,8 +128,8 @@ public class JinjavaConfig {
     return failOnUnknownTokens;
   }
 
-  public boolean isNoNestedInterpretation() {
-    return noNestedInterpretation;
+  public boolean isEnableNestedInterpretation() {
+    return enableNestedInterpretation;
   }
 
   public static class Builder {
@@ -146,7 +146,7 @@ public class JinjavaConfig {
     private boolean readOnlyResolver = true;
     private boolean enableRecursiveMacroCalls;
     private boolean failOnUnknownTokens;
-    private boolean noNestedInterpretation;
+    private boolean enableNestedInterpretation;
 
     private Builder() {}
 
@@ -205,13 +205,13 @@ public class JinjavaConfig {
       return this;
     }
 
-    public Builder withNoNestedInpterpretation(boolean noNestedInterpretation) {
-      this.noNestedInterpretation = noNestedInterpretation;
+    public Builder withEnableNestedInterpretation(boolean enableNestedInterpretation) {
+      this.enableNestedInterpretation = enableNestedInterpretation;
       return this;
     }
 
     public JinjavaConfig build() {
-      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, disabled, trimBlocks, lstripBlocks, readOnlyResolver, enableRecursiveMacroCalls, failOnUnknownTokens, maxOutputSize, noNestedInterpretation);
+      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, disabled, trimBlocks, lstripBlocks, readOnlyResolver, enableRecursiveMacroCalls, failOnUnknownTokens, maxOutputSize, enableNestedInterpretation);
     }
 
   }
