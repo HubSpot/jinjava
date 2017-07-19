@@ -47,11 +47,13 @@ public class ExpressionNode extends Node {
 
     String result = Objects.toString(var, "");
 
-    if (!StringUtils.equals(result, master.getImage()) && StringUtils.contains(result, "{{")) {
-      try {
-        result = interpreter.renderFlat(result);
-      } catch (Exception e) {
-        Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
+    if (interpreter.getConfig().isNestedInterpretationEnabled()) {
+      if (!StringUtils.equals(result, master.getImage()) && StringUtils.contains(result, "{{")) {
+        try {
+          result = interpreter.renderFlat(result);
+        } catch (Exception e) {
+          Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
+        }
       }
     }
 
