@@ -1,5 +1,9 @@
 # Jinjava Releases #
 
+### 2017-06-14 Version 2.2.2 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.2.1%22)) ###
+
+* Disable interpretation of nested expressions with a configuration.
+
 ### 2017-06-14 Version 2.2.1 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.2.1%22)) ###
 
 * Includes field name in unknown tag error
