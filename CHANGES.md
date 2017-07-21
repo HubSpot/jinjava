@@ -1,6 +1,10 @@
 # Jinjava Releases #
 
-### 2017-06-14 Version 2.2.2 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.2.1%22)) ###
+### 2017-07-21 Version 2.2.3 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.2.3%22)) ###
+
+* Make nested expressions configuration default to true.
+
+### 2017-07-19 Version 2.2.2 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.2.2%22)) ###
 
 * Disable interpretation of nested expressions with a configuration.
 
