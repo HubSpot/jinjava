@@ -47,7 +47,7 @@ public class ExpressionNodeTest {
   }
 
   @Test
-  public void itRendersResultWithDefaultBuilder() throws Exception {
+  public void itRendersWithNestedExpressionInterpretationByDefault() throws Exception {
     final JinjavaConfig config = JinjavaConfig.newBuilder().build();
     JinjavaInterpreter noNestedInterpreter =  new Jinjava(config).newInterpreter();
     Context contextNoNestedInterpretation = noNestedInterpreter.getContext();
