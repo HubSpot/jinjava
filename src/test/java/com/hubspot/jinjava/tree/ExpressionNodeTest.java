@@ -47,6 +47,18 @@ public class ExpressionNodeTest {
   }
 
   @Test
+  public void itRendersResultWithDefaultBuilder() throws Exception {
+    final JinjavaConfig config = JinjavaConfig.newBuilder().build();
+    JinjavaInterpreter noNestedInterpreter =  new Jinjava(config).newInterpreter();
+    Context contextNoNestedInterpretation = noNestedInterpreter.getContext();
+    contextNoNestedInterpretation.put("myvar", "hello {{ place }}");
+    contextNoNestedInterpretation.put("place", "world");
+
+    ExpressionNode node = fixture("simplevar");
+    assertThat(node.render(noNestedInterpreter).toString()).isEqualTo("hello world");
+  }
+
+  @Test
   public void itAvoidsInfiniteRecursionWhenVarsContainBraceBlocks() throws Exception {
     context.put("myvar", "hello {{ place }}");
     context.put("place", "{{ place }}");

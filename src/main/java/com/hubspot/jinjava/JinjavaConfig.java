@@ -146,7 +146,7 @@ public class JinjavaConfig {
     private boolean readOnlyResolver = true;
     private boolean enableRecursiveMacroCalls;
     private boolean failOnUnknownTokens;
-    private boolean nestedInterpretationEnabled;
+    private boolean nestedInterpretationEnabled = true;
 
     private Builder() {}
 
