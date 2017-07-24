@@ -102,6 +102,14 @@ public class ImportTagTest {
         .contains("using scoped var: myscopedvar");
   }
 
+  @Test
+  public void itImportsTemplateByNameWithoutBreakingMacroReferences() {
+    String result = fixture("imports-valid-macro-usage");
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result).contains("called within template in which it was imported");
+    assertThat(result).doesNotContain("called within template in which it was defined");
+  }
+
   private String fixture(String name) {
     try {
       return interpreter.renderFlat(Resources.toString(
@@ -110,5 +118,4 @@ public class ImportTagTest {
       throw Throwables.propagate(e);
     }
   }
-
 }
