@@ -18,17 +18,17 @@ public class ContextTest {
   }
 
   @Test
-  public void itAppliesResolvedValuesFromAnotherContextObject() {
-    Context appliedFrom = new Context();
-    appliedFrom.addResolvedValue(RESOLVED_VALUE);
-    appliedFrom.addResolvedFunction(RESOLVED_FUNCTION);
-    appliedFrom.addResolvedExpression(RESOLVED_EXPRESSION);
+  public void itAddsResolvedValuesFromAnotherContextObject() {
+    Context donor = new Context();
+    donor.addResolvedValue(RESOLVED_VALUE);
+    donor.addResolvedFunction(RESOLVED_FUNCTION);
+    donor.addResolvedExpression(RESOLVED_EXPRESSION);
 
     assertThat(context.getResolvedValues()).doesNotContain(RESOLVED_VALUE);
     assertThat(context.getResolvedFunctions()).doesNotContain(RESOLVED_FUNCTION);
     assertThat(context.getResolvedExpressions()).doesNotContain(RESOLVED_EXPRESSION);
 
-    context.addResolvedFrom(appliedFrom);
+    context.addResolvedFrom(donor);
 
     assertThat(context.getResolvedValues()).contains(RESOLVED_VALUE);
     assertThat(context.getResolvedFunctions()).contains(RESOLVED_FUNCTION);
