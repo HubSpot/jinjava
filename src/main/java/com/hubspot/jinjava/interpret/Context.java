@@ -221,6 +221,18 @@ public class Context extends ScopeMap<String, Object> {
     this.superBlock = null;
   }
 
+  /**
+   * Take all resolved strings from a context object and apply them to this context.
+   * Useful for passing resolved values up a tag hierarchy.
+   *
+   * @param context - context object to apply resolved values from.
+   */
+  public void addResolvedFrom(Context context) {
+    context.getResolvedExpressions().forEach(this::addResolvedExpression);
+    context.getResolvedFunctions().forEach(this::addResolvedFunction);
+    context.getResolvedValues().forEach(this::addResolvedValue);
+  }
+
   @SafeVarargs
   @SuppressWarnings("unchecked")
   public final void registerClasses(Class<? extends Importable>... classes) {
