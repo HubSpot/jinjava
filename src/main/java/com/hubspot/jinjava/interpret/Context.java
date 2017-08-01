@@ -227,7 +227,7 @@ public class Context extends ScopeMap<String, Object> {
    *
    * @param context - context object to apply resolved values from.
    */
-  public void applyResolvedFrom(Context context) {
+  public void addResolvedFrom(Context context) {
     context.getResolvedExpressions().forEach(this::addResolvedExpression);
     context.getResolvedFunctions().forEach(this::addResolvedFunction);
     context.getResolvedValues().forEach(this::addResolvedValue);

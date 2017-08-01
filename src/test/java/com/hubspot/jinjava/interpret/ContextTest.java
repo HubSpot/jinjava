@@ -28,7 +28,7 @@ public class ContextTest {
     assertThat(context.getResolvedFunctions()).doesNotContain(RESOLVED_FUNCTION);
     assertThat(context.getResolvedExpressions()).doesNotContain(RESOLVED_EXPRESSION);
 
-    context.applyResolvedFrom(appliedFrom);
+    context.addResolvedFrom(appliedFrom);
 
     assertThat(context.getResolvedValues()).contains(RESOLVED_VALUE);
     assertThat(context.getResolvedFunctions()).contains(RESOLVED_FUNCTION);
