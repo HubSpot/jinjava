@@ -57,7 +57,7 @@ public abstract class SimpleLibrary<T extends Importable> {
       throw new DisabledException(item);
     }
 
-    return lib.get(StringUtils.lowerCase(item));
+    return lib.get(item);
   }
 
   @SafeVarargs
@@ -82,7 +82,7 @@ public abstract class SimpleLibrary<T extends Importable> {
   }
 
   public void register(String name, T obj) {
-    if (!disabled.contains(obj.getName().toLowerCase())) {
+    if (!disabled.contains(obj.getName())) {
       lib.put(name, obj);
       ENGINE_LOG.debug(getClass().getSimpleName() + ": Registered " + obj.getName());
     }
