@@ -15,7 +15,7 @@ public class CamelCaseRegisteringFilterTest {
   Jinjava jinjava;
 
   @Test
-  public void testCamelCaseIsRegistered() {
+  public void itAllowsCamelCasedFilterNames() {
     jinjava = new Jinjava();
     jinjava.getGlobalContext().registerFilter(new ReturnHelloFilter());
 
