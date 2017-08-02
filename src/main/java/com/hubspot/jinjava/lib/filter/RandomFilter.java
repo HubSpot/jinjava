@@ -20,7 +20,6 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -52,7 +51,7 @@ public class RandomFilter implements Filter {
       if (size == 0) {
         return null;
       }
-      int index = ThreadLocalRandom.current().nextInt(size);
+      int index = interpreter.getRandom().nextInt(size);
       while (index-- > 0) {
         it.next();
       }
@@ -64,7 +63,7 @@ public class RandomFilter implements Filter {
       if (size == 0) {
         return null;
       }
-      int index = ThreadLocalRandom.current().nextInt(size);
+      int index = interpreter.getRandom().nextInt(size);
       return Array.get(object, index);
     }
     // map
@@ -75,7 +74,7 @@ public class RandomFilter implements Filter {
       if (size == 0) {
         return null;
       }
-      int index = ThreadLocalRandom.current().nextInt(size);
+      int index = interpreter.getRandom().nextInt(size);
       while (index-- > 0) {
         it.next();
       }
@@ -83,12 +82,12 @@ public class RandomFilter implements Filter {
     }
     // number
     if (object instanceof Number) {
-      return ThreadLocalRandom.current().nextLong(((Number) object).longValue());
+      return interpreter.getRandom().nextInt(((Number) object).intValue());
     }
     // string
     if (object instanceof String) {
       try {
-        return ThreadLocalRandom.current().nextLong(new BigDecimal((String) object).longValue());
+        return interpreter.getRandom().nextInt(new BigDecimal((String) object).intValue());
       } catch (Exception e) {
         return 0;
       }

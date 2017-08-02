@@ -25,8 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,6 +38,8 @@ import com.google.common.collect.Multimap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
+import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
+import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TreeParser;
 import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
@@ -54,6 +58,7 @@ public class JinjavaInterpreter {
 
   private final ExpressionResolver expressionResolver;
   private final Jinjava application;
+  private final Random random;
 
   private int lineNumber = -1;
   private final List<TemplateError> errors = new LinkedList<>();
@@ -62,6 +67,14 @@ public class JinjavaInterpreter {
     this.context = context;
     this.config = renderConfig;
     this.application = application;
+
+    if (config.getRandomNumberGeneratorStrategy() == RandomNumberGeneratorStrategy.THREAD_LOCAL) {
+      random = ThreadLocalRandom.current();
+    } else if (config.getRandomNumberGeneratorStrategy() == RandomNumberGeneratorStrategy.CONSTANT_ZERO) {
+      random = new ConstantZeroRandomNumberGenerator();
+    } else {
+      throw new IllegalStateException("No random number generator with strategy " + config.getRandomNumberGeneratorStrategy());
+    }
 
     this.expressionResolver = new ExpressionResolver(this, application.getExpressionFactory());
   }
@@ -114,6 +127,10 @@ public class JinjavaInterpreter {
       parent.addDependencies(context.getDependencies());
       context = parent;
     }
+  }
+
+  public Random getRandom() {
+    return random;
   }
 
   public class InterpreterScopeClosable implements AutoCloseable {
