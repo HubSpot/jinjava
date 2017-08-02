@@ -1,5 +1,9 @@
 # Jinjava Releases #
 
+### 2017-08-02 Version 2.2.5 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.2.5%22)) ###
+
+* Enable configuration of a [non-random number generator](https://github.com/HubSpot/jinjava/pull/135) for tests
+
 ### 2017-08-01 Version 2.2.4 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.2.4%22)) ###
 
 * Allow the use of filters including upper case letters: https://github.com/HubSpot/jinjava/pull/132
