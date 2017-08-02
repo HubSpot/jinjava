@@ -29,8 +29,8 @@ public class ShuffleFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     if (var instanceof Collection) {
-      List<?> list = new ArrayList<Object>((Collection<Object>) var);
-      Collections.shuffle(list);
+      List<?> list = new ArrayList<>((Collection<Object>) var);
+      Collections.shuffle(list, interpreter.getRandom());
       return list;
     }
 
