@@ -14,4 +14,11 @@ public class LengthLimitingStringBuilderTest {
     sb.append("0123456789");
     assertThatThrownBy(() -> sb.append("1")).isInstanceOf(OutputTooBigException.class);
   }
+
+  @Test
+  public void itDoesNotLimitWithZeroLength() throws Exception {
+    LengthLimitingStringBuilder sb = new LengthLimitingStringBuilder(0);
+    sb.append("0123456789");
+  }
+
 }
