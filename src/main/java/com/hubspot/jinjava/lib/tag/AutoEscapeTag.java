@@ -9,6 +9,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 
 @JinjavaDoc(
     value = "Autoescape the tag's contents",
@@ -39,7 +40,7 @@ public class AutoEscapeTag implements Tag {
       boolean escapeFlag = BooleanUtils.toBoolean(StringUtils.isNotBlank(boolFlagStr) ? boolFlagStr : "true");
       interpreter.getContext().setAutoEscape(escapeFlag);
 
-      StringBuilder result = new StringBuilder();
+      LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
 
       for (Node child : tagNode.getChildren()) {
         result.append(child.render(interpreter));

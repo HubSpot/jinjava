@@ -22,6 +22,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 
 @JinjavaDoc(
     value = "Escapes strings so that they can be safely inserted into a JavaScript variable declaration",
@@ -38,7 +39,7 @@ public class EscapeJsFilter implements Filter {
   @Override
   public Object filter(Object objectToFilter, JinjavaInterpreter jinjavaInterpreter, String... strings) {
     String input = Objects.toString(objectToFilter, "");
-    StringBuilder builder = new StringBuilder();
+    LengthLimitingStringBuilder builder = new LengthLimitingStringBuilder(jinjavaInterpreter.getConfig().getMaxOutputSize());
 
     for (int i = 0; i < input.length(); i++) {
       char ch = input.charAt(i);

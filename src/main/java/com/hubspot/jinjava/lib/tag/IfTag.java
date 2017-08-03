@@ -25,6 +25,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.ObjectTruthValue;
 
 @JinjavaDoc(
@@ -64,7 +65,7 @@ public class IfTag implements Tag {
       nextIfElseTagNode = findNextIfElseTagNode(nodeIterator);
     }
 
-    StringBuilder sb = new StringBuilder();
+    LengthLimitingStringBuilder sb = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
     if (nextIfElseTagNode != null) {
       while (nodeIterator.hasNext()) {
         Node n = nodeIterator.next();

@@ -24,6 +24,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import com.hubspot.jinjava.tree.Node;
+import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 
 public class Functions {
 
@@ -38,7 +39,7 @@ public class Functions {
   })
   public static String renderSuperBlock() {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
-    StringBuilder result = new StringBuilder();
+    LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
 
     List<? extends Node> superBlock = interpreter.getContext().getSuperBlock();
     if (superBlock != null) {
