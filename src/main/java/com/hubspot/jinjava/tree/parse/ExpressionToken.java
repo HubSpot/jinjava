@@ -32,8 +32,7 @@ public class ExpressionToken extends Token {
 
   @Override
   public String toString() {
-    StringBuilder s = new StringBuilder("{{ ").append(getExpr()).append("}}");
-    return s.toString();
+    return "{{ " + getExpr() + "}}";
   }
 
   @Override

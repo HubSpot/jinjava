@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.hubspot.jinjava.interpret.OutputTooBigException;
+import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 
 public class OutputList {
 
@@ -42,15 +43,9 @@ public class OutputList {
   }
 
   public String getValue() {
-    StringBuilder val = new StringBuilder();
-
-    long valueSize = 0;
+    LengthLimitingStringBuilder val = new LengthLimitingStringBuilder(maxOutputSize);
 
     for (OutputNode node : nodes) {
-      if (maxOutputSize > 0 && valueSize + node.getSize() > maxOutputSize) {
-        throw new OutputTooBigException(maxOutputSize, valueSize + node.getSize());
-      }
-      valueSize += node.getSize();
       val.append(node.getValue());
     }
 

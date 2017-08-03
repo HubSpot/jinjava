@@ -36,6 +36,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.ObjectIterator;
+import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 
 /**
  * {% for a in b|f1:d,c %}
@@ -125,7 +126,7 @@ public class ForTag implements Tag {
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       interpreter.getContext().put(LOOP, loop);
 
-      StringBuilder buff = new StringBuilder();
+      LengthLimitingStringBuilder buff = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
       while (loop.hasNext()) {
         Object val = loop.next();
 

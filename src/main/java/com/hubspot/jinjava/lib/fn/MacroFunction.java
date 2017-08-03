@@ -9,6 +9,7 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.tree.Node;
+import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 
 /**
  * Function definition parsed from a jinjava template, stored in global macros registry in interpreter context.
@@ -63,7 +64,7 @@ public class MacroFunction extends AbstractCallableMethod {
       // varargs list
       interpreter.getContext().put("varargs", varArgs);
 
-      StringBuilder result = new StringBuilder();
+      LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
 
       for (Node node : content) {
         result.append(node.render(interpreter));
