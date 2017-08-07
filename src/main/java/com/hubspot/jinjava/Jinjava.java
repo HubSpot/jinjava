@@ -15,9 +15,12 @@
  **********************************************************************/
 package com.hubspot.jinjava;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.el.ExpressionFactory;
@@ -195,7 +198,11 @@ public class Jinjava {
     JinjavaInterpreter.pushCurrent(interpreter);
 
     try {
+      final long start = System.nanoTime();
+      StringBuilder sb = new StringBuilder();
       String result = interpreter.render(template);
+      sb.append(String.format("\n   ******* jinjava render: %d ms", TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)));
+      ENGINE_LOG.info(sb.toString());
       return new RenderResult(result, interpreter.getContext(), interpreter.getErrors());
     } catch (InterpretException e) {
       return new RenderResult(TemplateError.fromSyntaxError(e), interpreter.getContext(), interpreter.getErrors());
