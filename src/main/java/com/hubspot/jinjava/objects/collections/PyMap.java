@@ -19,6 +19,11 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
     return map;
   }
 
+  @Override
+  public String toString() {
+    return delegate().toString();
+  }
+
   public Map<String, Object> toMap() {
     return map;
   }
