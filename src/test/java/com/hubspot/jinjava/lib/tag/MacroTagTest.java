@@ -158,7 +158,27 @@ public class MacroTagTest {
     }
   }
 
-
+  @Test
+  public void itPreventsRecursionForMacroWithVar() {
+    String jinja = "{%- macro allSpans(spans) %}" +
+        "{%- for span in spans %}" +
+        "{{ span.tag }}" +
+        "{%- endfor %}" +
+        "{%- endmacro %}" +
+        "{%- set spans = {" +
+        "    'html_1' : {" +
+        "        'tag'           : 'html {{ selector }}'," +
+        "        'span'          : 12" +
+        "    }" +
+        "} %}" +
+        "{% set selector='{{spans}}' %}" +
+        "{{ allSpans(spans, '') }}" +
+        "";
+    Node node = new TreeParser(interpreter, jinja).buildTree();
+    assertThat(JinjavaInterpreter.getCurrent() == interpreter).isTrue();
+    assertThat(interpreter.render(node)).isEqualTo(
+        "html {html_1={tag=html {html_1={tag=html {{ selector }}, span=12}}, span=12}}");
+  }
 
   private Node snippet(String jinja) {
     return new TreeParser(interpreter, jinja).buildTree().getChildren().getFirst();

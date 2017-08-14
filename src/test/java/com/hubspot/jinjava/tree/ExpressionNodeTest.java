@@ -68,6 +68,35 @@ public class ExpressionNodeTest {
   }
 
   @Test
+  public void itAvoidsInfiniteRecursionOfItself() throws Exception {
+    context.put("myvar", "hello {{myvar}}");
+
+    ExpressionNode node = fixture("simplevar");
+    // It renders once, and then stop further rendering after detecting recursion.
+    assertThat(node.render(interpreter).toString()).isEqualTo("hello hello {{myvar}}");
+  }
+
+  @Test
+  public void itNoRecursionHere() throws Exception {
+    context.put("myvar", "hello {{ place }}");
+    context.put("place", "{{location}}");
+    context.put("location", "this is a place.");
+
+    ExpressionNode node = fixture("simplevar");
+    assertThat(node.render(interpreter).toString()).isEqualTo("hello this is a place.");
+  }
+
+  @Test
+  public void itAvoidsInfiniteRecursion() throws Exception {
+    context.put("myvar", "hello {{ place }}");
+    context.put("place", "there, {{ location }}");
+    context.put("location", "this is {{ place }}");
+
+    ExpressionNode node = fixture("simplevar");
+    assertThat(node.render(interpreter).toString()).isEqualTo("hello there, this is {{ place }}");
+  }
+
+  @Test
   public void itRendersStringRange() throws Exception {
     context.put("theString", "1234567890");
 
