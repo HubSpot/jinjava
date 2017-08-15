@@ -208,7 +208,7 @@ public class JinjavaInterpreter {
 
     for (Node node : root.getChildren()) {
       lineNumber = node.getLineNumber();
-      if (context.getRenderStack().contains(node.getMaster().getImage())) {
+      if (context.doesRenderStackContain(node.getMaster().getImage())) {
         // This is a circular rendering. Stop rendering it here.
         output.addNode(new RenderedOutputNode(node.getMaster().getImage()));
       } else {

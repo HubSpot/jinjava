@@ -396,8 +396,8 @@ public class Context extends ScopeMap<String, Object> {
     return renderStack.pop();
   }
 
-  public Stack getRenderStack() {
-    return renderStack;
+  public boolean doesRenderStackContain(String template) {
+    return renderStack.contains(template);
   }
 
   public void addDependency(String type, String identification) {
