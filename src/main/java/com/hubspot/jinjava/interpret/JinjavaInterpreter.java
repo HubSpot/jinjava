@@ -217,7 +217,7 @@ public class JinjavaInterpreter {
       if (context.doesRenderStackContain(renderStr)) {
         // This is a circular rendering. Stop rendering it here.
         addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
-            "Circular rendering detected: '" + renderStr + "'", null, getLineNumber(),
+            "Rendering cycle detected: '" + renderStr + "'", null, getLineNumber(),
             null, BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED, ImmutableMap.of("string", renderStr)));
         output.addNode(new RenderedOutputNode(renderStr));
       } else {
