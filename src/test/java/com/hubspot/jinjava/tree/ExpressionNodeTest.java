@@ -68,7 +68,7 @@ public class ExpressionNodeTest {
   }
 
   @Test
-  public void itAvoidsInfiniteRecursionOfItself() throws Exception {
+  public void itDoesNotRescursivelyEvaluateExpressionsOfSelf() throws Exception {
     context.put("myvar", "hello {{myvar}}");
 
     ExpressionNode node = fixture("simplevar");
@@ -77,7 +77,7 @@ public class ExpressionNodeTest {
   }
 
   @Test
-  public void itNoRecursionHere() throws Exception {
+  public void itDoesNotRescursivelyEvaluateExpressions() throws Exception {
     context.put("myvar", "hello {{ place }}");
     context.put("place", "{{location}}");
     context.put("location", "this is a place.");
@@ -87,7 +87,7 @@ public class ExpressionNodeTest {
   }
 
   @Test
-  public void itAvoidsInfiniteRecursion() throws Exception {
+  public void itDoesNotRescursivelyEvaluateMoreExpressions() throws Exception {
     context.put("myvar", "hello {{ place }}");
     context.put("place", "there, {{ location }}");
     context.put("location", "this is {{ place }}");
