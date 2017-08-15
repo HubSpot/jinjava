@@ -33,11 +33,16 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.tree.Node;
@@ -208,11 +213,15 @@ public class JinjavaInterpreter {
 
     for (Node node : root.getChildren()) {
       lineNumber = node.getLineNumber();
-      if (context.doesRenderStackContain(node.getMaster().getImage())) {
+      String renderStr = node.getMaster().getImage();
+      if (context.doesRenderStackContain(renderStr)) {
         // This is a circular rendering. Stop rendering it here.
-        output.addNode(new RenderedOutputNode(node.getMaster().getImage()));
+        addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
+            "Circular rendering detected: '" + renderStr + "'", null, getLineNumber(),
+            null, BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED, ImmutableMap.of("string", renderStr)));
+        output.addNode(new RenderedOutputNode(renderStr));
       } else {
-        context.pushRenderStack(node.getMaster().getImage());
+        context.pushRenderStack(renderStr);
         OutputNode out = node.render(this);
         context.popRenderStack();
         output.addNode(out);

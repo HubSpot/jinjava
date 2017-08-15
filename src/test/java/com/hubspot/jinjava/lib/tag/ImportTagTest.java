@@ -56,7 +56,7 @@ public class ImportTagTest {
     interpreter.render(Resources.toString(Resources.getResource("tags/importtag/imports-self.jinja"), StandardCharsets.UTF_8));
     assertThat(context.get("c")).isEqualTo("hello");
 
-    assertThat(interpreter.getErrors().get(0).getMessage()).contains("Import cycle detected for path:", "imports-self.jinja");
+    assertThat(interpreter.getErrors().get(0).getMessage()).contains("Circular rendering detected:", "imports-self.jinja");
   }
 
   @Test
@@ -68,7 +68,7 @@ public class ImportTagTest {
     assertThat(context.get("a")).isEqualTo("foo");
     assertThat(context.get("b")).isEqualTo("bar");
 
-    assertThat(interpreter.getErrors().get(0).getMessage()).contains("Import cycle detected for path:", "b-imports-a.jinja");
+    assertThat(interpreter.getErrors().get(0).getMessage()).contains("Circular rendering detected:", "b-imports-a.jinja");
   }
 
   @Test
