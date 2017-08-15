@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.HashMultimap;
@@ -73,6 +74,8 @@ public class Context extends ScopeMap<String, Object> {
   private int renderDepth = -1;
   private Boolean autoEscape;
   private List<? extends Node> superBlock;
+
+  private final Stack<String> renderStack = new Stack<>();
 
   public Context() {
     this(null, null, null);
@@ -383,6 +386,18 @@ public class Context extends ScopeMap<String, Object> {
 
   public void setRenderDepth(int renderDepth) {
     this.renderDepth = renderDepth;
+  }
+
+  public void pushRenderStack(String template) {
+    renderStack.push(template);
+  }
+
+  public String popRenderStack() {
+    return renderStack.pop();
+  }
+
+  public boolean doesRenderStackContain(String template) {
+    return renderStack.contains(template);
   }
 
   public void addDependency(String type, String identification) {

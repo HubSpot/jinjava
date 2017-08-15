@@ -45,6 +45,7 @@ import com.hubspot.jinjava.tree.TreeParser;
 import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
 import com.hubspot.jinjava.tree.output.OutputList;
 import com.hubspot.jinjava.tree.output.OutputNode;
+import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 
@@ -207,8 +208,15 @@ public class JinjavaInterpreter {
 
     for (Node node : root.getChildren()) {
       lineNumber = node.getLineNumber();
-      OutputNode out = node.render(this);
-      output.addNode(out);
+      if (context.doesRenderStackContain(node.getMaster().getImage())) {
+        // This is a circular rendering. Stop rendering it here.
+        output.addNode(new RenderedOutputNode(node.getMaster().getImage()));
+      } else {
+        context.pushRenderStack(node.getMaster().getImage());
+        OutputNode out = node.render(this);
+        context.popRenderStack();
+        output.addNode(out);
+      }
     }
 
     // render all extend parents, keeping the last as the root output
