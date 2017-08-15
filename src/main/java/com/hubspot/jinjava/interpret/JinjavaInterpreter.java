@@ -34,11 +34,16 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.tree.Node;
@@ -46,6 +51,7 @@ import com.hubspot.jinjava.tree.TreeParser;
 import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
 import com.hubspot.jinjava.tree.output.OutputList;
 import com.hubspot.jinjava.tree.output.OutputNode;
+import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 
@@ -222,12 +228,23 @@ public class JinjavaInterpreter {
     for (Node node : root.getChildren()) {
       long child_start = System.nanoTime();
       lineNumber = node.getLineNumber();
-      OutputNode out = node.render(this);
-      output.addNode(out);
-      cost = System.nanoTime() - child_start;
-      if (cost > 1000000 * 100) {
-        sb.append(String.format("\n     ******* jinjava render line %d: %d ms.", lineNumber, TimeUnit.NANOSECONDS.toMillis(cost)));
-        sb.append(String.format("\n     ******* jinjava details %s:\n %s", node.getName(), /*node.toTreeString()*/ ""));
+      String renderStr = node.getMaster().getImage();
+      if (context.doesRenderStackContain(renderStr)) {
+        // This is a circular rendering. Stop rendering it here.
+        addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
+            "Rendering cycle detected: '" + renderStr + "'", null, getLineNumber(),
+            null, BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED, ImmutableMap.of("string", renderStr)));
+        output.addNode(new RenderedOutputNode(renderStr));
+      } else {
+        context.pushRenderStack(renderStr);
+        OutputNode out = node.render(this);
+        cost = System.nanoTime() - child_start;
+        if (cost > 1000000 * 100) {
+          sb.append(String.format("\n     ******* jinjava render line %d: %d ms.", lineNumber, TimeUnit.NANOSECONDS.toMillis(cost)));
+          sb.append(String.format("\n     ******* jinjava details %s:\n %s", node.getName(), /*node.toTreeString()*/ ""));
+        }
+        context.popRenderStack();
+        output.addNode(out);
       }
     }
     cost = System.nanoTime() - start;

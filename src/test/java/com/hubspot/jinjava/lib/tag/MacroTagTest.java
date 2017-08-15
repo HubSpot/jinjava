@@ -158,7 +158,25 @@ public class MacroTagTest {
     }
   }
 
-
+  @Test
+  public void itPreventsRecursionForMacroWithVar() {
+    String jinja = "{%- macro func(var) %}" +
+        "{%- for f in var %}" +
+        "{{ f.val }}" +
+        "{%- endfor %}" +
+        "{%- endmacro %}" +
+        "{%- set var = {" +
+        "    'f' : {" +
+        "        'val': '{{ self }}'," +
+        "    }" +
+        "} %}" +
+        "{% set self='{{var}}' %}" +
+        "{{ func(var) }}" +
+        "";
+    Node node = new TreeParser(interpreter, jinja).buildTree();
+    assertThat(interpreter.render(node)).isEqualTo(
+        "{f={val={f={val={{ self }}}}}}");
+  }
 
   private Node snippet(String jinja) {
     return new TreeParser(interpreter, jinja).buildTree().getChildren().getFirst();
