@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.nio.charset.StandardCharsets;
 
@@ -13,6 +14,7 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.UnknownTokenException;
 
 public class ExpressionNodeTest {
 
@@ -102,6 +104,54 @@ public class ExpressionNodeTest {
 
     ExpressionNode node = fixture("string-range");
     assertThat(node.render(interpreter).toString()).isEqualTo("345");
+  }
+
+  @Test
+  public void itFailsOnUnknownTokensVariables() throws Exception {
+    final JinjavaConfig config = JinjavaConfig.newBuilder().withFailOnUnknownTokens(true).build();
+    JinjavaInterpreter jinjavaInterpreter =  new Jinjava(config).newInterpreter();
+
+    String jinja = "{{ UnknownToken }}";
+    Node node = new TreeParser(jinjavaInterpreter, jinja).buildTree();
+    assertThatThrownBy(() -> jinjavaInterpreter.render(node))
+        .isInstanceOf(UnknownTokenException.class)
+        .hasMessage("Unknown token found: UnknownToken");
+  }
+
+  @Test
+  public void itFailsOnUnknownTokensOfLoops() throws Exception {
+    final JinjavaConfig config = JinjavaConfig.newBuilder().withFailOnUnknownTokens(true).build();
+    JinjavaInterpreter jinjavaInterpreter =  new Jinjava(config).newInterpreter();
+
+    String jinja = "{% for v in values %} {{ v }} {% endfor %}";
+    Node node = new TreeParser(jinjavaInterpreter, jinja).buildTree();
+    assertThatThrownBy(() -> jinjavaInterpreter.render(node))
+        .isInstanceOf(UnknownTokenException.class)
+        .hasMessage("Unknown token found: values");
+  }
+
+  @Test
+  public void itFailsOnUnknownTokensOfIf() throws Exception {
+    final JinjavaConfig config = JinjavaConfig.newBuilder().withFailOnUnknownTokens(true).build();
+    JinjavaInterpreter jinjavaInterpreter =  new Jinjava(config).newInterpreter();
+
+    String jinja = "{% if bad  %} BAD {% endif %}";
+    Node node = new TreeParser(jinjavaInterpreter, jinja).buildTree();
+    assertThatThrownBy(() -> jinjavaInterpreter.render(node))
+        .isInstanceOf(UnknownTokenException.class)
+        .hasMessage("Unknown token found: bad");
+  }
+
+  @Test
+  public void itFailsOnUnknownTokensWithFilter() throws Exception {
+    final JinjavaConfig config = JinjavaConfig.newBuilder().withFailOnUnknownTokens(true).build();
+    JinjavaInterpreter jinjavaInterpreter =  new Jinjava(config).newInterpreter();
+
+    String jinja = "{{ UnknownToken | default('abc') }}";
+    Node node = new TreeParser(jinjavaInterpreter, jinja).buildTree();
+    assertThatThrownBy(() -> jinjavaInterpreter.render(node))
+        .isInstanceOf(UnknownTokenException.class)
+        .hasMessage("Unknown token found: UnknownToken");
   }
 
   @Test

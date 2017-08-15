@@ -40,6 +40,7 @@ import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.collections.PyList;
@@ -93,6 +94,13 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       // failed to access property, continue with method calls
     }
 
+    if (interpreter.getConfig().isFailOnUnknownTokens()) {
+      for (Object param : params) {
+        if (param == null) {
+          throw new UnknownTokenException("", 0);
+        }
+      }
+    }
     return super.invoke(context, base, method, paramTypes, generateMethodParams(method, params));
   }
 
