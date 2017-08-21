@@ -50,5 +50,4 @@ public class EscapeJsonFilterTest {
     Map<String, String> vars = ImmutableMap.of("string", "Testing a 'single quote' for the week");
     assertThat(jinjava.render("{{ string|escapejson }}", vars)).isEqualTo("Testing a 'single quote' for the week");
   }
-
 }
