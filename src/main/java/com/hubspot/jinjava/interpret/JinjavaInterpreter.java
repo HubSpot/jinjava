@@ -237,11 +237,17 @@ public class JinjavaInterpreter {
         output.addNode(new RenderedOutputNode(renderStr));
       } else {
         context.pushRenderStack(renderStr);
-        OutputNode out = node.render(this);
+
+        OutputNode out = new RenderedOutputNode("");
+        if (lineNumber != 172) {
+          out = node.render(this);
+        } else {
+          out = node.render(this);
+        }
         cost = System.nanoTime() - child_start;
         if (cost > 1000000 * 100) {
           sb.append(String.format("\n     ******* jinjava render line %d: %d ms.", lineNumber, TimeUnit.NANOSECONDS.toMillis(cost)));
-          sb.append(String.format("\n     ******* jinjava details %s:\n %s", node.getName(), /*node.toTreeString()*/ ""));
+          sb.append(String.format("\n     ******* jinjava details %s:\n %s", node.getName(), renderStr));
         }
         context.popRenderStack();
         output.addNode(out);
