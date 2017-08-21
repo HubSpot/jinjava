@@ -82,6 +82,7 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
         StripTagsFilter.class,
         UrlEncodeFilter.class,
         XmlAttrFilter.class,
+        EscapeJsonFilter.class,
 
         CapitalizeFilter.class,
         CenterFilter.class,
