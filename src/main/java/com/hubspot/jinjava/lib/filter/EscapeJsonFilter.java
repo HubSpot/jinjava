@@ -10,7 +10,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value = "Uses StringEscapeUtils.escapeJson() to escape strings so that they can be used in JSON values",
+    value = "Escapes strings so that they can be used as JSON values",
     params = {
         @JinjavaParam(value = "s", desc = "String to escape")
     },
