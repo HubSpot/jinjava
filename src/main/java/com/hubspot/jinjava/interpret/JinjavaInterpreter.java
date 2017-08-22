@@ -342,6 +342,8 @@ public class JinjavaInterpreter {
     Object obj = context.get(varName);
     if (obj != null) {
       obj = var.resolve(obj);
+    } else  if (getConfig().isFailOnUnknownTokens()) {
+      throw new UnknownTokenException(variable, getLineNumber());
     }
     return obj;
   }
