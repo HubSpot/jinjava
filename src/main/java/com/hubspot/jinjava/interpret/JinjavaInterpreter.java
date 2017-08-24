@@ -239,7 +239,7 @@ public class JinjavaInterpreter {
         context.pushRenderStack(renderStr);
 
         OutputNode out = new RenderedOutputNode("");
-        if (lineNumber != 172) {
+        if (lineNumber != 26) {
           out = node.render(this);
         } else {
           out = node.render(this);
