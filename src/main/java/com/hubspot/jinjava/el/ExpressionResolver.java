@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.el.ELException;
 import javax.el.ExpressionFactory;
@@ -61,6 +62,7 @@ public class ExpressionResolver {
     }
 
     interpreter.getContext().addResolvedExpression(expression.trim());
+    Optional.ofNullable(interpreter.getContext().getParent()).ifPresent(parent -> parent.addResolvedExpression(expression.trim()));
 
     try {
       String elExpression = "#{" + expression.trim() + "}";
