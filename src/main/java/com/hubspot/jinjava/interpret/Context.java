@@ -189,6 +189,9 @@ public class Context extends ScopeMap<String, Object> {
 
   public void addResolvedValue(String value) {
     resolvedValues.add(value);
+    if (getParent() != null) {
+      getParent().addResolvedValue(value);
+    }
   }
 
   public Set<String> getResolvedValues() {
@@ -203,8 +206,11 @@ public class Context extends ScopeMap<String, Object> {
     return ImmutableSet.copyOf(resolvedFunctions);
   }
 
-  public void addResolvedFunction(String value) {
-    resolvedFunctions.add(value);
+  public void addResolvedFunction(String function) {
+    resolvedFunctions.add(function);
+    if (getParent() != null) {
+      getParent().addResolvedFunction(function);
+    }
   }
 
   public List<? extends Node> getSuperBlock() {
