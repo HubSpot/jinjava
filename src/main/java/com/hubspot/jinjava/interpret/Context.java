@@ -174,6 +174,9 @@ public class Context extends ScopeMap<String, Object> {
 
   public void addResolvedExpression(String expression) {
     resolvedExpressions.add(expression);
+    if (getParent() != null) {
+      getParent().addResolvedExpression(expression);
+    }
   }
 
   public Set<String> getResolvedExpressions() {
