@@ -1,6 +1,6 @@
 # Jinjava Releases #
 
-### 2017-08-12 Version 2.2.9 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.2.9%22)) ###
+### 2017-08-31 Version 2.2.9 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.2.9%22)) ###
 
 * Apply resolved functions, expressions, and values to all [parents of Context object](https://github.com/HubSpot/jinjava/pull/147)
 
