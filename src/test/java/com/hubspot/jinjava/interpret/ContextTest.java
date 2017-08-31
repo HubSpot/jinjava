@@ -34,4 +34,16 @@ public class ContextTest {
     assertThat(context.getResolvedFunctions()).contains(RESOLVED_FUNCTION);
     assertThat(context.getResolvedExpressions()).contains(RESOLVED_EXPRESSION);
   }
+
+  @Test
+  public void itRecursivelyAddsValuesUpTheContextChain() {
+    Context child = new Context(context);
+    child.addResolvedValue(RESOLVED_VALUE);
+    child.addResolvedFunction(RESOLVED_FUNCTION);
+    child.addResolvedExpression(RESOLVED_EXPRESSION);
+
+    assertThat(context.getResolvedValues()).contains(RESOLVED_VALUE);
+    assertThat(context.getResolvedFunctions()).contains(RESOLVED_FUNCTION);
+    assertThat(context.getResolvedExpressions()).contains(RESOLVED_EXPRESSION);
+  }
 }
