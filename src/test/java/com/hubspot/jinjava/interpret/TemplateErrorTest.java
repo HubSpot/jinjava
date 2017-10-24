@@ -26,4 +26,10 @@ public class TemplateErrorTest {
     assertThat(e.getFieldName()).isEqualTo("unknown");
   }
 
+  @Test
+  public void itShowsFieldNameForSyntaxError() {
+    TemplateError e = TemplateError.fromException(new TemplateSyntaxException("da codez", "{{ lolo lolo }}", 11));
+    assertThat(e.getFieldName()).isEqualTo("da codez");
+  }
+
 }
