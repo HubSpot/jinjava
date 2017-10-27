@@ -292,9 +292,11 @@ public class JinjavaInterpreter {
    *          name of variable in context
    * @param lineNumber
    *          current line number, for error reporting
+   * @param startPosition
+   *          current line position, for error reporting
    * @return resolved value for variable
    */
-  public Object retraceVariable(String variable, int lineNumber) {
+  public Object retraceVariable(String variable, int lineNumber, int startPosition) {
     if (StringUtils.isBlank(variable)) {
       return "";
     }
@@ -304,7 +306,7 @@ public class JinjavaInterpreter {
     if (obj != null) {
       obj = var.resolve(obj);
     } else  if (getConfig().isFailOnUnknownTokens()) {
-      throw new UnknownTokenException(variable, getLineNumber());
+      throw new UnknownTokenException(variable, lineNumber, startPosition);
     }
     return obj;
   }
@@ -316,16 +318,18 @@ public class JinjavaInterpreter {
    *          name of variable in context
    * @param lineNumber
    *          current line number, for error reporting
+   * @param startPosition
+   *          current line position, for error reporting
    * @return resolved value for variable
    */
-  public Object resolveObject(String variable, int lineNumber) {
+  public Object resolveObject(String variable, int lineNumber, int startPosition) {
     if (StringUtils.isBlank(variable)) {
       return "";
     }
     if (WhitespaceUtils.isQuoted(variable)) {
       return WhitespaceUtils.unquote(variable);
     } else {
-      Object val = retraceVariable(variable, lineNumber);
+      Object val = retraceVariable(variable, lineNumber, startPosition);
       if (val == null) {
         return variable;
       }
@@ -340,10 +344,12 @@ public class JinjavaInterpreter {
    *          name of variable in context
    * @param lineNumber
    *          current line number, for error reporting
+   * @param startPosition
+   *          current line position, for error reporting
    * @return resolved value for variable
    */
-  public String resolveString(String variable, int lineNumber) {
-    return Objects.toString(resolveObject(variable, lineNumber), "");
+  public String resolveString(String variable, int lineNumber, int startPosition) {
+    return Objects.toString(resolveObject(variable, lineNumber, startPosition), "");
   }
 
   public Context getContext() {

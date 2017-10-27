@@ -40,14 +40,14 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void resolveBlockStubs() throws Exception {
-    interpreter.addBlock("foobar", Lists.newLinkedList(Lists.newArrayList((new TextNode(new TextToken("sparta", -1))))));
+    interpreter.addBlock("foobar", Lists.newLinkedList(Lists.newArrayList((new TextNode(new TextToken("sparta", -1, -1))))));
     String content = "this is {% block foobar %}foobar{% endblock %}!";
     assertThat(interpreter.render(content)).isEqualTo("this is sparta!");
   }
 
   @Test
   public void resolveBlockStubsWithSpecialChars() throws Exception {
-    interpreter.addBlock("foobar", Lists.newLinkedList(Lists.newArrayList(new TextNode(new TextToken("$150.00", -1)))));
+    interpreter.addBlock("foobar", Lists.newLinkedList(Lists.newArrayList(new TextNode(new TextToken("$150.00", -1, -1)))));
     String content = "this is {% block foobar %}foobar{% endblock %}!";
     assertThat(interpreter.render(content)).isEqualTo("this is $150.00!");
   }

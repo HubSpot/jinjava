@@ -1,18 +1,18 @@
-/**********************************************************************
- * Copyright (c) 2014 HubSpot Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- **********************************************************************/
+/*
+ Copyright (c) 2014 HubSpot Inc.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 package com.hubspot.jinjava.tree.parse;
 
 import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_EXPR_END;
@@ -45,6 +45,7 @@ public class TokenScanner extends AbstractIterator<Token> {
   private int inBlock = 0;
   private char inQuote = 0;
   private int currLine = 1;
+  private int lastNewlinePos = 0;
 
   public TokenScanner(String input, JinjavaConfig config) {
     this.config = config;
@@ -61,10 +62,11 @@ public class TokenScanner extends AbstractIterator<Token> {
     inBlock = 0;
     inQuote = 0;
     currLine = 1;
+    lastNewlinePos = 0;
   }
 
   private Token getNextToken() {
-    char c = 0;
+    char c;
     while (currPost < length) {
       c = is[currPost++];
       if (currPost == length) {
@@ -200,6 +202,7 @@ public class TokenScanner extends AbstractIterator<Token> {
         break;
       case TOKEN_NEWLINE:
         currLine++;
+        lastNewlinePos = currPost;
 
         if (inComment > 0 || inBlock > 0) {
           continue;
@@ -237,14 +240,15 @@ public class TokenScanner extends AbstractIterator<Token> {
     if (inComment > 0) {
       type = TOKEN_NOTE;
     }
-    return Token.newToken(type, String.valueOf(is, tokenStart, tokenLength), currLine);
+    return Token.newToken(type, String.valueOf(is, tokenStart, tokenLength), currLine, tokenStart - lastNewlinePos + 1);
   }
 
   private Token newToken(int kind) {
-    Token t = Token.newToken(kind, String.valueOf(is, lastStart, tokenLength), currLine);
+    Token t = Token.newToken(kind, String.valueOf(is, lastStart, tokenLength), currLine, lastStart - lastNewlinePos + 1);
 
     if (t instanceof TagToken) {
       if (config.isTrimBlocks() && currPost < length && is[currPost] == '\n') {
+        lastNewlinePos = currPost;
         ++currPost;
         ++tokenStart;
       }
@@ -260,7 +264,7 @@ public class TokenScanner extends AbstractIterator<Token> {
     }
 
     if (inRaw > 0 && t.getType() != TOKEN_FIXED) {
-      return Token.newToken(TOKEN_FIXED, t.image, currLine);
+      return Token.newToken(TOKEN_FIXED, t.image, currLine, tokenStart);
     }
 
     return t;

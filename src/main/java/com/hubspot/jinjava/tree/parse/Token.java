@@ -26,21 +26,23 @@ import com.hubspot.jinjava.interpret.UnexpectedTokenException;
 
 public abstract class Token implements Serializable {
 
-  private static final long serialVersionUID = -7513379852268838992L;
+  private static final long serialVersionUID = 3359084948763661809L;
 
   protected final String image;
   // useful for some token type
   protected String content;
 
   protected final int lineNumber;
+  protected final int startPosition;
 
   private boolean leftTrim;
   private boolean rightTrim;
   private boolean rightTrimAfterEnd;
 
-  public Token(String image, int lineNumber) {
+  public Token(String image, int lineNumber, int startPosition) {
     this.image = image;
     this.lineNumber = lineNumber;
+    this.startPosition = startPosition;
     parse();
   }
 
@@ -76,6 +78,10 @@ public abstract class Token implements Serializable {
     this.rightTrimAfterEnd = rightTrimAfterEnd;
   }
 
+  public int getStartPosition() {
+    return startPosition;
+  }
+
   @Override
   public String toString() {
     return image;
@@ -85,18 +91,18 @@ public abstract class Token implements Serializable {
 
   public abstract int getType();
 
-  static Token newToken(int tokenKind, String image, int lineNumber) {
+  static Token newToken(int tokenKind, String image, int lineNumber, int startPosition) {
     switch (tokenKind) {
     case TOKEN_FIXED:
-      return new TextToken(image, lineNumber);
+      return new TextToken(image, lineNumber, startPosition);
     case TOKEN_NOTE:
-      return new NoteToken(image, lineNumber);
+      return new NoteToken(image, lineNumber, startPosition);
     case TOKEN_EXPR_START:
-      return new ExpressionToken(image, lineNumber);
+      return new ExpressionToken(image, lineNumber, startPosition);
     case TOKEN_TAG:
-      return new TagToken(image, lineNumber);
+      return new TagToken(image, lineNumber, startPosition);
     default:
-      throw new UnexpectedTokenException(String.valueOf((char) tokenKind), lineNumber);
+      throw new UnexpectedTokenException(String.valueOf((char) tokenKind), lineNumber, startPosition);
     }
   }
 

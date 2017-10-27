@@ -26,7 +26,7 @@ public class TruncateFilterTest {
 
   @Before
   public void setup() {
-    when(interpreter.resolveString(anyString(), anyInt())).thenAnswer(new ReturnsArgumentAt(0));
+    when(interpreter.resolveString(anyString(), anyInt(), anyInt())).thenAnswer(new ReturnsArgumentAt(0));
   }
 
   @Test

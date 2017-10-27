@@ -17,9 +17,10 @@ package com.hubspot.jinjava.interpret;
 
 public class InterpretException extends RuntimeException {
 
-  private static final long serialVersionUID = -3471306977643116138L;
+  private static final long serialVersionUID = -3471306977643126138L;
 
   private int lineNumber = -1;
+  private int startPosition = -1;
 
   public InterpretException(String msg) {
     super(msg);
@@ -30,17 +31,30 @@ public class InterpretException extends RuntimeException {
   }
 
   public InterpretException(String msg, int lineNumber) {
-    this(msg);
-    this.lineNumber = lineNumber;
+    this(msg,lineNumber, -1);
   }
 
-  public InterpretException(String msg, Throwable e, int lineNumber) {
+  public InterpretException(String msg, int lineNumber, int startPosition) {
+    this(msg);
+    this.lineNumber = lineNumber;
+    this.startPosition = startPosition;
+  }
+
+  public InterpretException(String msg, Throwable e, int lineNumber, int startPosition) {
     this(msg, e);
     this.lineNumber = lineNumber;
+    this.startPosition = startPosition;
+  }
+
+  public InterpretException(String msg, Throwable throwable, int lineNumber) {
+    this(msg, throwable, lineNumber, -1);
   }
 
   public int getLineNumber() {
     return lineNumber;
   }
 
+  public int getStartPosition() {
+    return startPosition;
+  }
 }

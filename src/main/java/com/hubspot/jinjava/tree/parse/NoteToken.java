@@ -19,10 +19,10 @@ import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
 
 public class NoteToken extends Token {
 
-  private static final long serialVersionUID = 6112027107603795408L;
+  private static final long serialVersionUID = -3859011447900311329L;
 
-  public NoteToken(String image, int lineNumber) {
-    super(image, lineNumber);
+  public NoteToken(String image, int lineNumber, int startPosition) {
+    super(image, lineNumber, startPosition);
   }
 
   @Override

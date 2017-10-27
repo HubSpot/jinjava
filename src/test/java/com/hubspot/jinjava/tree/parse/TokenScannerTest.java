@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -183,6 +184,12 @@ public class TokenScannerTest {
   }
 
   @Test
+  public void itGetsPositionsOfTokens() {
+    List<Token> tokens = tokens("positions");
+    assertThat(tokens.stream().map(Token::getStartPosition).collect(Collectors.toList())).isEqualTo(ImmutableList.of(1, 0, 4, 0, 6, 0, 6, 0, 4, 0, 4, 13, 25, 0, 1));
+  }
+
+  @Test
   public void itProperlyTokenizesCommentBlocksContainingTags() {
     List<Token> tokens = tokens("comment-with-tags");
     assertThat(tokens).hasSize(5);
@@ -272,11 +279,10 @@ public class TokenScannerTest {
 
   private TokenScanner fixture(String fixture) {
     try {
-      TokenScanner t = new TokenScanner(
+      return new TokenScanner(
           Resources.toString(Resources.getResource(String.format("parse/tokenizer/%s.jinja", fixture)),
               StandardCharsets.UTF_8),
           config);
-      return t;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

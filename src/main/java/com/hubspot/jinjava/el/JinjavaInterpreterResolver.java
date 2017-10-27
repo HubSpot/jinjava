@@ -155,7 +155,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       } else {
         if (base == null) {
           // Look up property in context.
-          value = interpreter.retraceVariable((String) property, interpreter.getLineNumber());
+          value = interpreter.retraceVariable((String) property, interpreter.getLineNumber(), -1);
         } else {
           // Get property of base object.
           try {

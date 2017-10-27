@@ -5,8 +5,8 @@ public class UnexpectedTokenException extends TemplateSyntaxException {
 
   private final String token;
 
-  public UnexpectedTokenException(String token, int lineNumber) {
-    super(token, "Unexpected token: " + token, lineNumber);
+  public UnexpectedTokenException(String token, int lineNumber, int startPosition) {
+    super(token, "Unexpected token: " + token, lineNumber, startPosition);
     this.token = token;
   }
 
