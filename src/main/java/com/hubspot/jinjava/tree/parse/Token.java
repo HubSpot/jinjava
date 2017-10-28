@@ -46,6 +46,10 @@ public abstract class Token implements Serializable {
     parse();
   }
 
+  public Token(String image, int lineNumber) {
+    this(image, lineNumber, -1);
+  }
+
   public String getImage() {
     return image;
   }

@@ -311,6 +311,11 @@ public class JinjavaInterpreter {
     return obj;
   }
 
+  public Object retraceVariable(String variable, int lineNumber) {
+    return retraceVariable(variable, lineNumber, -1);
+  }
+
+
   /**
    * Resolve a variable into an object value. If given a string literal (e.g. 'foo' or "foo"), this method returns the literal unquoted. If the variable is undefined in the context, this method returns the given variable string.
    *
@@ -337,6 +342,10 @@ public class JinjavaInterpreter {
     }
   }
 
+  public Object resolveObject(String variable, int lineNumber) {
+    return resolveObject(variable, lineNumber, -1);
+  }
+
   /**
    * Resolve a variable into a string value. If given a string literal (e.g. 'foo' or "foo"), this method returns the literal unquoted. If the variable is undefined in the context, this method returns the given variable string.
    *
@@ -351,6 +360,11 @@ public class JinjavaInterpreter {
   public String resolveString(String variable, int lineNumber, int startPosition) {
     return Objects.toString(resolveObject(variable, lineNumber, startPosition), "");
   }
+
+  public String resolveString(String variable, int lineNumber) {
+    return resolveString(variable, lineNumber, -1);
+  }
+
 
   public Context getContext() {
     return context;

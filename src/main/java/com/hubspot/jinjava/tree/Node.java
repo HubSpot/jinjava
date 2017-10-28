@@ -35,6 +35,10 @@ public abstract class Node implements Serializable {
   private Node parent = null;
   private LinkedList<Node> children = new LinkedList<Node>();
 
+  public Node(Token master, int lineNumber) {
+    this(master, lineNumber, -1);
+  }
+
   public Node(Token master, int lineNumber, int startPosition) {
     this.master = master;
     this.lineNumber = lineNumber;
