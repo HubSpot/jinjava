@@ -1,5 +1,9 @@
 # Jinjava Releases #
 
+### 2017-10-30 Version 2.3.0 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.3.0%22)) ###
+
+* Add column numbers to error messages
+
 ### 2017-10-24 Version 2.2.10 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.2.10%22)) ###
 
 * Use code of bad syntax as field name for `TemplateSyntaxException`s
