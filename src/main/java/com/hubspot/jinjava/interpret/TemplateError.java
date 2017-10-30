@@ -42,39 +42,50 @@ public class TemplateError {
   private final String message;
   private final String fieldName;
   private final int lineno;
+  private final int startPosition;
   private final TemplateErrorCategory category;
   private final Map<String, String> categoryErrors;
 
   private final Exception exception;
 
   public static TemplateError fromSyntaxError(InterpretException ex) {
-    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, ex.getLineNumber(), ex);
+    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, ex.getLineNumber(), ex.getStartPosition(), ex);
   }
 
   public static TemplateError fromException(TemplateSyntaxException ex) {
     String fieldName = (ex instanceof UnknownTagException) ? ((UnknownTagException) ex).getTag() : ex.getCode();
-    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), fieldName, ex.getLineNumber(), ex);
+    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), fieldName, ex.getLineNumber(), ex.getStartPosition(), ex);
   }
 
   public static TemplateError fromException(Exception ex) {
     int lineNumber = -1;
+    int startPosition = -1;
 
     if (ex instanceof InterpretException) {
       lineNumber = ((InterpretException) ex).getLineNumber();
+      startPosition = ((InterpretException) ex).getStartPosition();
     }
 
-    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, ex, BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of());
+    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, startPosition, ex, BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of());
+  }
+
+  public static TemplateError fromException(Exception ex, int lineNumber, int startPosition) {
+    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, startPosition, ex);
   }
 
   public static TemplateError fromException(Exception ex, int lineNumber) {
-    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, ex);
+    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, -1, ex);
   }
 
   public static TemplateError fromUnknownProperty(Object base, String variable, int lineNumber) {
+    return fromUnknownProperty(base, variable, lineNumber, -1);
+  }
+
+  public static TemplateError fromUnknownProperty(Object base, String variable, int lineNumber, int startPosition) {
     return new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY,
         String.format("Cannot resolve property '%s' in '%s'", variable, friendlyObjectToString(base)),
-        variable, lineNumber, null, BasicTemplateErrorCategory.UNKNOWN_PROPERTY,
-        ImmutableMap.of("property", variable, "lineNumber", String.valueOf(lineNumber)));
+        variable, lineNumber, startPosition,null, BasicTemplateErrorCategory.UNKNOWN_PROPERTY,
+        ImmutableMap.of("property", variable, "lineNumber", String.valueOf(lineNumber), "startPosition", String.valueOf(startPosition)));
   }
 
   private static String friendlyObjectToString(Object o) {
@@ -107,6 +118,27 @@ public class TemplateError {
     this.message = message;
     this.fieldName = fieldName;
     this.lineno = lineno;
+    this.startPosition = -1;
+    this.exception = exception;
+    this.category = BasicTemplateErrorCategory.UNKNOWN;
+    this.categoryErrors = null;
+  }
+
+  public TemplateError(ErrorType severity,
+                       ErrorReason reason,
+                       ErrorItem item,
+                       String message,
+                       String fieldName,
+                       int lineno,
+                       int startPosition,
+                       Exception exception) {
+    this.severity = severity;
+    this.reason = reason;
+    this.item = item;
+    this.message = message;
+    this.fieldName = fieldName;
+    this.lineno = lineno;
+    this.startPosition = startPosition;
     this.exception = exception;
     this.category = BasicTemplateErrorCategory.UNKNOWN;
     this.categoryErrors = null;
@@ -127,6 +159,29 @@ public class TemplateError {
     this.message = message;
     this.fieldName = fieldName;
     this.lineno = lineno;
+    this.startPosition = -1;
+    this.exception = exception;
+    this.category = category;
+    this.categoryErrors = categoryErrors;
+  }
+
+  public TemplateError(ErrorType severity,
+                       ErrorReason reason,
+                       ErrorItem item,
+                       String message,
+                       String fieldName,
+                       int lineno,
+                       int startPosition,
+                       Exception exception,
+                       TemplateErrorCategory category,
+                       Map<String, String> categoryErrors) {
+    this.severity = severity;
+    this.reason = reason;
+    this.item = item;
+    this.message = message;
+    this.fieldName = fieldName;
+    this.lineno = lineno;
+    this.startPosition = startPosition;
     this.exception = exception;
     this.category = category;
     this.categoryErrors = categoryErrors;
@@ -137,6 +192,7 @@ public class TemplateError {
                        String message,
                        String fieldName,
                        int lineno,
+                       int startPosition,
                        Exception exception) {
     this.severity = severity;
     this.reason = reason;
@@ -144,6 +200,7 @@ public class TemplateError {
     this.message = message;
     this.fieldName = fieldName;
     this.lineno = lineno;
+    this.startPosition = startPosition;
     this.exception = exception;
     this.category = BasicTemplateErrorCategory.UNKNOWN;
     this.categoryErrors = null;
@@ -173,6 +230,10 @@ public class TemplateError {
     return lineno;
   }
 
+  public int getStartPosition() {
+    return startPosition;
+  }
+
   public Exception getException() {
     return exception;
   }
@@ -186,7 +247,7 @@ public class TemplateError {
   }
 
   public TemplateError serializable() {
-    return new TemplateError(severity, reason, item, message, fieldName, lineno, null, category, categoryErrors);
+    return new TemplateError(severity, reason, item, message, fieldName, lineno, startPosition, null, category, categoryErrors);
   }
 
   @Override
@@ -198,9 +259,9 @@ public class TemplateError {
         ", message='" + message + '\'' +
         ", fieldName='" + fieldName + '\'' +
         ", lineno=" + lineno +
+        ", startPosition=" + startPosition +
         ", category=" + category +
         ", categoryErrors=" + categoryErrors +
         '}';
   }
-
 }

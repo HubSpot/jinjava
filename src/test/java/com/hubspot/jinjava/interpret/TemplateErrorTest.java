@@ -10,13 +10,13 @@ public class TemplateErrorTest {
 
   @Test
   public void itShowsFriendlyNameOfBaseObjectForPropNotFound() {
-    TemplateError e = TemplateError.fromUnknownProperty(new Object(), "foo", 123);
+    TemplateError e = TemplateError.fromUnknownProperty(new Object(), "foo", 123, 4);
     assertThat(e.getMessage()).isEqualTo("Cannot resolve property 'foo' in 'Object'");
   }
 
   @Test
   public void itUsesOverloadedToStringForBaseObject() {
-    TemplateError e = TemplateError.fromUnknownProperty(ImmutableMap.of("foo", "bar"), "other", 123);
+    TemplateError e = TemplateError.fromUnknownProperty(ImmutableMap.of("foo", "bar"), "other", 123, 4);
     assertThat(e.getMessage()).isEqualTo("Cannot resolve property 'other' in '{foo=bar}'");
   }
 

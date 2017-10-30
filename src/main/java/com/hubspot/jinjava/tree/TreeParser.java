@@ -156,7 +156,7 @@ public class TreeParser {
       }
     } catch (DisabledException e) {
       interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.TAG,
-          e.getMessage(), tagToken.getTagName(), interpreter.getLineNumber(), e));
+          e.getMessage(), tagToken.getTagName(), interpreter.getLineNumber(), tagToken.getStartPosition(), e));
       return null;
     }
 

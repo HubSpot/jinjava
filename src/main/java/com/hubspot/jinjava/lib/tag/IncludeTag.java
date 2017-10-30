@@ -63,7 +63,7 @@ public class IncludeTag implements Tag {
       interpreter.getContext().getIncludePathStack().push(templateFile, tagNode.getLineNumber(), tagNode.getStartPosition());
     } catch (IncludeTagCycleException e) {
       interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
-          "Include cycle detected for path: '" + templateFile + "'", null, tagNode.getLineNumber(), e,
+          "Include cycle detected for path: '" + templateFile + "'", null, tagNode.getLineNumber(), tagNode.getStartPosition(), e,
           BasicTemplateErrorCategory.INCLUDE_CYCLE_DETECTED, ImmutableMap.of("path", templateFile)));
       return "";
     }

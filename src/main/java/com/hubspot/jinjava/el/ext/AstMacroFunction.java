@@ -44,7 +44,8 @@ public class AstMacroFunction extends AstFunction {
                                                  TemplateError.ErrorItem.TAG,
                                                  "Cycle detected for macro '" + getName() + "'",
                                                  null,
-                                                 -1,
+                                                 e.getLineNumber(),
+                                                 e.getStartPosition(),
                                                  e,
                                                  BasicTemplateErrorCategory.CYCLE_DETECTED,
                                                  ImmutableMap.of("name", getName())));
