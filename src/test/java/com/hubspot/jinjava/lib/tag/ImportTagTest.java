@@ -79,7 +79,7 @@ public class ImportTagTest {
   @Test
   public void importedContextExposesMacros() {
     assertThat(fixture("import")).contains("<td height=\"42\">");
-    MacroFunction fn = (MacroFunction) interpreter.resolveObject("pegasus.spacer", -1);
+    MacroFunction fn = (MacroFunction) interpreter.resolveObject("pegasus.spacer", -1, -1);
     assertThat(fn.getName()).isEqualTo("spacer");
     assertThat(fn.getArguments()).containsExactly("orientation", "size");
     assertThat(fn.getDefaults()).contains(entry("orientation", "h"), entry("size", 42));

@@ -5,14 +5,22 @@ public class TemplateSyntaxException extends InterpretException {
 
   private final String code;
 
+  public TemplateSyntaxException(String code, String message, int lineNumber, int startPosition) {
+    super("Syntax error in '" + code + "': " + message, lineNumber, startPosition);
+    this.code = code;
+  }
+
   public TemplateSyntaxException(String code, String message, int lineNumber) {
-    super("Syntax error in '" + code + "': " + message, lineNumber);
+    this(code, message, lineNumber, -1);
+  }
+
+  public TemplateSyntaxException(String code, String message, int lineNumber, int startPosition, Throwable t) {
+    super(message, t, lineNumber, startPosition);
     this.code = code;
   }
 
   public TemplateSyntaxException(String code, String message, int lineNumber, Throwable t) {
-    super(message, t, lineNumber);
-    this.code = code;
+    this(code, message, lineNumber, -1, t);
   }
 
   public String getCode() {

@@ -22,14 +22,15 @@ import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 
 public class TagNode extends Node {
-  private static final long serialVersionUID = 2405693063353887509L;
+
+  private static final long serialVersionUID = -6971280448795354252L;
 
   private final Tag tag;
   private final TagToken master;
   private final String endName;
 
   public TagNode(Tag tag, TagToken token) {
-    super(token, token.getLineNumber());
+    super(token, token.getLineNumber(), token.getStartPosition());
 
     this.master = token;
     this.tag = tag;
@@ -37,7 +38,7 @@ public class TagNode extends Node {
   }
 
   private TagNode(TagNode n) {
-    super(n.master, n.getLineNumber());
+    super(n.master, n.getLineNumber(), n.getStartPosition());
 
     tag = n.tag;
     master = n.master;
@@ -51,7 +52,7 @@ public class TagNode extends Node {
     } catch (InterpretException e) {
       throw e;
     } catch (Exception e) {
-      throw new InterpretException("Error rendering tag", e, master.getLineNumber());
+      throw new InterpretException("Error rendering tag", e, master.getLineNumber(), master.getStartPosition());
     }
   }
 

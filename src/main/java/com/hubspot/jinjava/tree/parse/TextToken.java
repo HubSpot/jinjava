@@ -21,10 +21,10 @@ import org.apache.commons.lang3.StringUtils;
 
 public class TextToken extends Token {
 
-  private static final long serialVersionUID = -5015884072204770458L;
+  private static final long serialVersionUID = -6168990984496468543L;
 
-  public TextToken(String image, int lineNumber) {
-    super(image, lineNumber);
+  public TextToken(String image, int lineNumber, int startPosition) {
+    super(image, lineNumber, startPosition);
   }
 
   @Override

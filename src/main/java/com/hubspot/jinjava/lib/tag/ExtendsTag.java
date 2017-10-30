@@ -82,11 +82,11 @@ public class ExtendsTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     HelperStringTokenizer tokenizer = new HelperStringTokenizer(tagNode.getHelpers());
     if (!tokenizer.hasNext()) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'extends' expects template path", tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'extends' expects template path", tagNode.getLineNumber(), tagNode.getStartPosition());
     }
 
-    String path = interpreter.resolveString(tokenizer.next(), tagNode.getLineNumber());
-    interpreter.getContext().getExtendPathStack().push(path, tagNode.getLineNumber());
+    String path = interpreter.resolveString(tokenizer.next(), tagNode.getLineNumber(), tagNode.getStartPosition());
+    interpreter.getContext().getExtendPathStack().push(path, tagNode.getLineNumber(), tagNode.getStartPosition());
 
     try {
       String template = interpreter.getResource(path);
@@ -97,7 +97,7 @@ public class ExtendsTag implements Tag {
 
       return "";
     } catch (IOException e) {
-      throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber());
+      throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
     }
   }
 

@@ -66,7 +66,7 @@ public class MacroTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     Matcher matcher = MACRO_PATTERN.matcher(tagNode.getHelpers());
     if (!matcher.find()) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Unable to parse macro definition: " + tagNode.getHelpers(), tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Unable to parse macro definition: " + tagNode.getHelpers(), tagNode.getLineNumber(), tagNode.getStartPosition());
     }
 
     String name = matcher.group(1);

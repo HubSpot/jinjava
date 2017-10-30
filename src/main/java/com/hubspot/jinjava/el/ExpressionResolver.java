@@ -76,7 +76,7 @@ public class ExpressionResolver {
           BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of("exception", e.getMessage())));
     } catch (TreeBuilderException e) {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression,
-          "Error parsing '" + expression + "': " + StringUtils.substringAfter(e.getMessage(), "': "), interpreter.getLineNumber(), e)));
+          "Error parsing '" + expression + "': " + StringUtils.substringAfter(e.getMessage(), "': "), interpreter.getLineNumber(), e.getPosition(), e)));
     } catch (ELException e) {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
     } catch (DisabledException e) {

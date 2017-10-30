@@ -52,7 +52,7 @@ public class SetTagTest {
   public void itAssignsValToVar() throws Exception {
     TagNode tagNode = (TagNode) fixture("set-val");
     tag.interpret(tagNode, interpreter);
-    assertThat(interpreter.resolveObject("primary_line_height", -1)).isEqualTo(42L);
+    assertThat(interpreter.resolveObject("primary_line_height", -1, -1)).isEqualTo(42L);
   }
 
   @Test
@@ -60,7 +60,7 @@ public class SetTagTest {
     context.put("primary_font_size_num", 10);
     TagNode tagNode = (TagNode) fixture("set-var-exp");
     tag.interpret(tagNode, interpreter);
-    assertThat(interpreter.resolveObject("primary_line_height", -1)).isEqualTo(15.0);
+    assertThat(interpreter.resolveObject("primary_line_height", -1, -1)).isEqualTo(15.0);
   }
 
   @Test
@@ -79,7 +79,7 @@ public class SetTagTest {
     TagNode tagNode = (TagNode) fixture("set-complex-dict");
     tag.interpret(tagNode, interpreter);
 
-    Map<String, Object> dict = (Map<String, Object>) interpreter.resolveObject("styles", -1);
+    Map<String, Object> dict = (Map<String, Object>) interpreter.resolveObject("styles", -1, -1);
     assertThat(dict).contains(
         entry("heading", "color:bluecolor;text-shadow:2px 2px 1px rgba(0,0,0,.1);font-family:fontfam"),
         entry("module", "background:#ffffff;padding:123px;border:1px solid 10"));
@@ -90,7 +90,7 @@ public class SetTagTest {
     context.put("lw_font_size_base", 42);
     TagNode tagNode = (TagNode) fixture("set-string-concat");
     tag.interpret(tagNode, interpreter);
-    assertThat(interpreter.resolveObject("lw_font_size", -1)).isEqualTo("font-size: 42px; ");
+    assertThat(interpreter.resolveObject("lw_font_size", -1 ,-1)).isEqualTo("font-size: 42px; ");
   }
 
   @Test
@@ -98,7 +98,7 @@ public class SetTagTest {
     context.put("lw_font_size_base", 10);
     TagNode tagNode = (TagNode) fixture("set-expr-concat");
     tag.interpret(tagNode, interpreter);
-    assertThat(interpreter.resolveObject("lw_secondary_font_size", -1)).isEqualTo("font-size: 8px; ");
+    assertThat(interpreter.resolveObject("lw_secondary_font_size", -1, -1)).isEqualTo("font-size: 8px; ");
   }
 
   @Test
@@ -106,7 +106,7 @@ public class SetTagTest {
     context.put("max_size", "470");
     TagNode tagNode = (TagNode) fixture("set-filter-expr");
     tag.interpret(tagNode, interpreter);
-    assertThat(interpreter.resolveObject("ie_max_size", -1)).isEqualTo(440L);
+    assertThat(interpreter.resolveObject("ie_max_size", -1 ,-1)).isEqualTo(440L);
   }
 
   @Test
@@ -115,7 +115,7 @@ public class SetTagTest {
     TagNode tagNode = (TagNode) fixture("set-array");
     tag.interpret(tagNode, interpreter);
 
-    List<Object> result = (List<Object>) interpreter.resolveObject("the_list", -1);
+    List<Object> result = (List<Object>) interpreter.resolveObject("the_list", -1,-1);
     assertThat(result).containsExactly(1L, 2L, 3L, 7L);
   }
 
@@ -126,7 +126,7 @@ public class SetTagTest {
     TagNode tagNode = (TagNode) fixture("set-dictionary");
     tag.interpret(tagNode, interpreter);
 
-    Map<String, Object> result = (Map<String, Object>) interpreter.resolveObject("the_dictionary", -1);
+    Map<String, Object> result = (Map<String, Object>) interpreter.resolveObject("the_dictionary", -1,-1);
     assertThat(result).contains(entry("seven", 7L));
   }
 

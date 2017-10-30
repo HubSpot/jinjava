@@ -27,12 +27,13 @@ import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.util.Logging;
 
 public class ExpressionNode extends Node {
-  private static final long serialVersionUID = 341642231109911346L;
+
+  private static final long serialVersionUID = -6063173739682221042L;
 
   private final ExpressionToken master;
 
   public ExpressionNode(ExpressionToken token) {
-    super(token, token.getLineNumber());
+    super(token, token.getLineNumber(), token.getStartPosition());
     master = token;
   }
 

@@ -64,7 +64,7 @@ public class SetTag implements Tag {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     if (!tagNode.getHelpers().contains("=")) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' expects an assignment expression with '=', but was: " + tagNode.getHelpers(), tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' expects an assignment expression with '=', but was: " + tagNode.getHelpers(), tagNode.getLineNumber(), tagNode.getStartPosition());
     }
 
     int eqPos = tagNode.getHelpers().indexOf('=');
@@ -72,10 +72,10 @@ public class SetTag implements Tag {
     String expr = tagNode.getHelpers().substring(eqPos + 1, tagNode.getHelpers().length());
 
     if (var.length() == 0) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' requires a var name to assign to", tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' requires a var name to assign to", tagNode.getLineNumber(), tagNode.getStartPosition());
     }
     if (StringUtils.isBlank(expr)) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' requires an expression to assign to a var", tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' requires an expression to assign to a var", tagNode.getLineNumber(), tagNode.getStartPosition());
     }
 
     String[] varTokens = var.split(",");
@@ -86,7 +86,7 @@ public class SetTag implements Tag {
       List<Object> exprVals = (List<Object>) interpreter.resolveELExpression("[" + expr + "]", tagNode.getLineNumber());
 
       if (varTokens.length != exprVals.size()) {
-        throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' declares an uneven number of variables and assigned values", tagNode.getLineNumber());
+        throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' declares an uneven number of variables and assigned values", tagNode.getLineNumber(), tagNode.getStartPosition());
       }
 
       for (int i = 0; i < varTokens.length; i++) {

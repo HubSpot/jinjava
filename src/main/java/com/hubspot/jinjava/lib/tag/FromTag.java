@@ -51,10 +51,10 @@ public class FromTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     List<String> helper = new HelperStringTokenizer(tagNode.getHelpers()).splitComma(true).allTokens();
     if (helper.size() < 3 || !helper.get(1).equals("import")) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'from' expects import list: " + helper, tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'from' expects import list: " + helper, tagNode.getLineNumber(), tagNode.getStartPosition());
     }
 
-    String templateFile = interpreter.resolveString(helper.get(0), tagNode.getLineNumber());
+    String templateFile = interpreter.resolveString(helper.get(0), tagNode.getLineNumber(), tagNode.getStartPosition());
     Map<String, String> imports = new LinkedHashMap<>();
 
     PeekingIterator<String> args = Iterators.peekingIterator(helper.subList(2, helper.size()).iterator());
@@ -96,7 +96,7 @@ public class FromTag implements Tag {
 
       return "";
     } catch (IOException e) {
-      throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber());
+      throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
     }
   }
 

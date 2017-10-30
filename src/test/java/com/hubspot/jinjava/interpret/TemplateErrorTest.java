@@ -22,7 +22,7 @@ public class TemplateErrorTest {
 
   @Test
   public void itShowsFieldNameForUnknownTagError() {
-    TemplateError e = TemplateError.fromException(new UnknownTagException("unknown", "{% unknown() %}", 11));
+    TemplateError e = TemplateError.fromException(new UnknownTagException("unknown", "{% unknown() %}", 11, 3));
     assertThat(e.getFieldName()).isEqualTo("unknown");
   }
 

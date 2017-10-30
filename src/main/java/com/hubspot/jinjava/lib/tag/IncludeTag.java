@@ -17,12 +17,9 @@ package com.hubspot.jinjava.lib.tag;
 
 import java.io.IOException;
 
-import com.google.common.collect.ImmutableMap;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
-import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
-
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -30,9 +27,11 @@ import com.hubspot.jinjava.interpret.IncludeTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
@@ -54,14 +53,14 @@ public class IncludeTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     HelperStringTokenizer helper = new HelperStringTokenizer(tagNode.getHelpers());
     if (!helper.hasNext()) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'include' expects template path", tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'include' expects template path", tagNode.getLineNumber(), tagNode.getStartPosition());
     }
 
     String path = StringUtils.trimToEmpty(helper.next());
-    String templateFile = interpreter.resolveString(path, tagNode.getLineNumber());
+    String templateFile = interpreter.resolveString(path, tagNode.getLineNumber(), tagNode.getStartPosition());
 
     try {
-      interpreter.getContext().getIncludePathStack().push(templateFile, tagNode.getLineNumber());
+      interpreter.getContext().getIncludePathStack().push(templateFile, tagNode.getLineNumber(), tagNode.getStartPosition());
     } catch (IncludeTagCycleException e) {
       interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
           "Include cycle detected for path: '" + templateFile + "'", null, tagNode.getLineNumber(), e,
@@ -83,7 +82,7 @@ public class IncludeTag implements Tag {
       return result;
 
     } catch (IOException e) {
-      throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber());
+      throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
     } finally {
       interpreter.getContext().getIncludePathStack().pop();
     }

@@ -22,13 +22,13 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
 
 public class TagToken extends Token {
 
-  private static final long serialVersionUID = 2766011408032384360L;
+  private static final long serialVersionUID = -4927751270481832992L;
 
   private String tagName;
   private String helpers;
 
-  public TagToken(String image, int lineNumber) {
-    super(image, lineNumber);
+  public TagToken(String image, int lineNumber, int startPosition) {
+    super(image, lineNumber, startPosition);
   }
 
   @Override
@@ -42,7 +42,7 @@ public class TagToken extends Token {
   @Override
   protected void parse() {
     if (image.length() < 4) {
-      throw new TemplateSyntaxException(image, "Malformed tag token", getLineNumber());
+      throw new TemplateSyntaxException(image, "Malformed tag token", getLineNumber(), getStartPosition());
     }
 
     content = image.substring(2, image.length() - 2);
