@@ -46,7 +46,13 @@ public class TemplateError {
   private final TemplateErrorCategory category;
   private final Map<String, String> categoryErrors;
 
+  private short scopeLevel = 1;
+
   private final Exception exception;
+
+  public TemplateError withScopeLevel(short scopeLevel) {
+    return new TemplateError(getSeverity(), getReason(), getItem(), getMessage(), getFieldName(), getLineno(), getStartPosition(), getCategory(), getCategoryErrors(), scopeLevel, getException());
+  }
 
   public static TemplateError fromSyntaxError(InterpretException ex) {
     return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, ex.getLineNumber(), ex.getStartPosition(), ex);
@@ -143,6 +149,32 @@ public class TemplateError {
     this.category = BasicTemplateErrorCategory.UNKNOWN;
     this.categoryErrors = null;
   }
+
+
+  public TemplateError(ErrorType severity,
+                       ErrorReason reason,
+                       ErrorItem item,
+                       String message,
+                       String fieldName,
+                       int lineno,
+                       int startPosition,
+                       TemplateErrorCategory category,
+                       Map<String, String> categoryErrors,
+                       short scopeLevel,
+                       Exception exception) {
+    this.severity = severity;
+    this.reason = reason;
+    this.item = item;
+    this.message = message;
+    this.fieldName = fieldName;
+    this.lineno = lineno;
+    this.startPosition = startPosition;
+    this.exception = exception;
+    this.category = category;
+    this.categoryErrors = categoryErrors;
+    this.scopeLevel = scopeLevel;
+  }
+
 
   public TemplateError(ErrorType severity,
                        ErrorReason reason,
@@ -246,6 +278,10 @@ public class TemplateError {
     return categoryErrors;
   }
 
+  public short getScopeLevel() {
+    return scopeLevel;
+  }
+
   public TemplateError serializable() {
     return new TemplateError(severity, reason, item, message, fieldName, lineno, startPosition, null, category, categoryErrors);
   }
@@ -260,6 +296,7 @@ public class TemplateError {
         ", fieldName='" + fieldName + '\'' +
         ", lineno=" + lineno +
         ", startPosition=" + startPosition +
+        ", scopeLevel=" + scopeLevel +
         ", category=" + category +
         ", categoryErrors=" + categoryErrors +
         '}';
