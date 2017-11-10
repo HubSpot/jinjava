@@ -51,7 +51,7 @@ public class TemplateError {
   private final Exception exception;
 
   public TemplateError withScopeLevel(int scopeLevel) {
-    return new TemplateError(getSeverity(), getReason(), getItem(), getMessage(), getFieldName(), getLineno(), getStartPosition(), getCategory(), getCategoryErrors(), scopeLevel, getException());
+    return new TemplateError(getSeverity(), getReason(), getItem(), getMessage(), getFieldName(), getLineno(), getStartPosition(), getException(), getCategory(), getCategoryErrors(), scopeLevel);
   }
 
   public static TemplateError fromSyntaxError(InterpretException ex) {
@@ -158,10 +158,10 @@ public class TemplateError {
                        String fieldName,
                        int lineno,
                        int startPosition,
+                       Exception exception,
                        TemplateErrorCategory category,
                        Map<String, String> categoryErrors,
-                       int scopeLevel,
-                       Exception exception) {
+                       int scopeLevel) {
     this.severity = severity;
     this.reason = reason;
     this.item = item;
@@ -283,7 +283,7 @@ public class TemplateError {
   }
 
   public TemplateError serializable() {
-    return new TemplateError(severity, reason, item, message, fieldName, lineno, startPosition, category, categoryErrors, scopeLevel, null);
+    return new TemplateError(severity, reason, item, message, fieldName, lineno, startPosition, null, category, categoryErrors, scopeLevel);
   }
 
   @Override
