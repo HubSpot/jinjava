@@ -67,7 +67,7 @@ public class JinjavaInterpreter {
   private final Random random;
 
   private int lineNumber = -1;
-  private short scopeLevel = 1;
+  private int scopeLevel = 1;
   private final List<TemplateError> errors = new LinkedList<>();
 
   public JinjavaInterpreter(Jinjava application, Context context, JinjavaConfig renderConfig) {
@@ -88,7 +88,7 @@ public class JinjavaInterpreter {
 
   public JinjavaInterpreter(JinjavaInterpreter orig) {
     this(orig.application, new Context(orig.context), orig.config);
-    scopeLevel++;
+    scopeLevel = orig.getScopeLevel() + 1;
   }
 
   /**
@@ -429,6 +429,10 @@ public class JinjavaInterpreter {
 
   public void addError(TemplateError templateError) {
     this.errors.add(templateError.withScopeLevel(scopeLevel));
+  }
+
+  public int getScopeLevel() {
+    return scopeLevel;
   }
 
   public List<TemplateError> getErrors() {

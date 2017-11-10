@@ -46,11 +46,11 @@ public class TemplateError {
   private final TemplateErrorCategory category;
   private final Map<String, String> categoryErrors;
 
-  private short scopeLevel = 1;
+  private int scopeLevel = 1;
 
   private final Exception exception;
 
-  public TemplateError withScopeLevel(short scopeLevel) {
+  public TemplateError withScopeLevel(int scopeLevel) {
     return new TemplateError(getSeverity(), getReason(), getItem(), getMessage(), getFieldName(), getLineno(), getStartPosition(), getCategory(), getCategoryErrors(), scopeLevel, getException());
   }
 
@@ -160,7 +160,7 @@ public class TemplateError {
                        int startPosition,
                        TemplateErrorCategory category,
                        Map<String, String> categoryErrors,
-                       short scopeLevel,
+                       int scopeLevel,
                        Exception exception) {
     this.severity = severity;
     this.reason = reason;
@@ -278,7 +278,7 @@ public class TemplateError {
     return categoryErrors;
   }
 
-  public short getScopeLevel() {
+  public int getScopeLevel() {
     return scopeLevel;
   }
 
