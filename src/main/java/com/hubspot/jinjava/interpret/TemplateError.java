@@ -283,7 +283,7 @@ public class TemplateError {
   }
 
   public TemplateError serializable() {
-    return new TemplateError(severity, reason, item, message, fieldName, lineno, startPosition, null, category, categoryErrors);
+    return new TemplateError(severity, reason, item, message, fieldName, lineno, startPosition, category, categoryErrors, scopeLevel, null);
   }
 
   @Override
