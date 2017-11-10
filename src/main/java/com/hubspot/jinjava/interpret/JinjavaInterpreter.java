@@ -88,6 +88,7 @@ public class JinjavaInterpreter {
 
   public JinjavaInterpreter(JinjavaInterpreter orig) {
     this(orig.application, new Context(orig.context), orig.config);
+    scopeLevel++;
   }
 
   /**
