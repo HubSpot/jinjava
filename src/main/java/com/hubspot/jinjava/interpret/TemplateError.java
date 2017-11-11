@@ -46,12 +46,12 @@ public class TemplateError {
   private final TemplateErrorCategory category;
   private final Map<String, String> categoryErrors;
 
-  private int scopeLevel = 1;
+  private int scopeDepth = 1;
 
   private final Exception exception;
 
-  public TemplateError withScopeLevel(int scopeLevel) {
-    return new TemplateError(getSeverity(), getReason(), getItem(), getMessage(), getFieldName(), getLineno(), getStartPosition(), getException(), getCategory(), getCategoryErrors(), scopeLevel);
+  public TemplateError withScopeDepth(int scopeDepth) {
+    return new TemplateError(getSeverity(), getReason(), getItem(), getMessage(), getFieldName(), getLineno(), getStartPosition(), getException(), getCategory(), getCategoryErrors(), scopeDepth);
   }
 
   public static TemplateError fromSyntaxError(InterpretException ex) {
@@ -161,7 +161,7 @@ public class TemplateError {
                        Exception exception,
                        TemplateErrorCategory category,
                        Map<String, String> categoryErrors,
-                       int scopeLevel) {
+                       int scopeDepth) {
     this.severity = severity;
     this.reason = reason;
     this.item = item;
@@ -172,7 +172,7 @@ public class TemplateError {
     this.exception = exception;
     this.category = category;
     this.categoryErrors = categoryErrors;
-    this.scopeLevel = scopeLevel;
+    this.scopeDepth = scopeDepth;
   }
 
 
@@ -278,12 +278,12 @@ public class TemplateError {
     return categoryErrors;
   }
 
-  public int getScopeLevel() {
-    return scopeLevel;
+  public int getScopeDepth() {
+    return scopeDepth;
   }
 
   public TemplateError serializable() {
-    return new TemplateError(severity, reason, item, message, fieldName, lineno, startPosition, null, category, categoryErrors, scopeLevel);
+    return new TemplateError(severity, reason, item, message, fieldName, lineno, startPosition, null, category, categoryErrors, scopeDepth);
   }
 
   @Override
@@ -296,7 +296,7 @@ public class TemplateError {
         ", fieldName='" + fieldName + '\'' +
         ", lineno=" + lineno +
         ", startPosition=" + startPosition +
-        ", scopeLevel=" + scopeLevel +
+        ", scopeDepth=" + scopeDepth +
         ", category=" + category +
         ", categoryErrors=" + categoryErrors +
         '}';
