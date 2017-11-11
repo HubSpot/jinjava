@@ -30,8 +30,7 @@ public class IsEqualToExpTest implements ExpTest {
   }
 
   @Override
-  public boolean evaluate(Object var, JinjavaInterpreter interpreter,
-      Object... args) {
+  public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
     if (args.length == 0) {
       throw new InterpretException(getName() + " test requires 1 argument");
     }

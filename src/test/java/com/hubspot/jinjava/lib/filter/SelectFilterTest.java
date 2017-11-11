@@ -17,13 +17,18 @@ public class SelectFilterTest {
   @Before
   public void setup() {
     jinjava = new Jinjava();
-    jinjava.getGlobalContext().put("numbers", Lists.newArrayList(1, 2, 3, 4, 5));
+    jinjava.getGlobalContext().put("numbers", Lists.newArrayList(1L, 2L, 3L, 4L, 5L));
   }
 
   @Test
   public void testSelect() {
-    assertThat(jinjava.render("{{numbers|select('odd')}}", new HashMap<String, Object>())).isEqualTo("[1, 3, 5]");
-    assertThat(jinjava.render("{{numbers|select('even')}}", new HashMap<String, Object>())).isEqualTo("[2, 4]");
+    assertThat(jinjava.render("{{numbers|select('odd')}}", new HashMap<>())).isEqualTo("[1, 3, 5]");
+    assertThat(jinjava.render("{{numbers|select('even')}}", new HashMap<>())).isEqualTo("[2, 4]");
+  }
+
+  @Test
+  public void testSelectWithEqualToAttr() {
+    assertThat(jinjava.render("{{numbers|select('equalto', 3)}}", new HashMap<>())).isEqualTo("[3]");
   }
 
 }
