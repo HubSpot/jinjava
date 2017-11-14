@@ -1,5 +1,10 @@
 # Jinjava Releases #
 
+### 2017-11-14 Version 2.3.1 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.3.1%22)) ###
+
+* [select filter now supports expression tests with arguments like 'equalto'](https://github.com/HubSpot/jinjava/pull/158)
+* [`TemplateError`s now include a scope depth](https://github.com/HubSpot/jinjava/pull/157)
+
 ### 2017-10-30 Version 2.3.0 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.3.0%22)) ###
 
 * Add column numbers to error messages
