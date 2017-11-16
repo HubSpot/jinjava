@@ -61,6 +61,17 @@ public class ExpressionNodeTest {
   }
 
   @Test
+  public void itRendersNestedTags() throws Exception {
+    final JinjavaConfig config = JinjavaConfig.newBuilder().build();
+    JinjavaInterpreter jinjava =  new Jinjava(config).newInterpreter();
+    Context context = jinjava.getContext();
+    context.put("myvar", "hello {% if (true) %}nasty{% endif %}");
+
+    ExpressionNode node = fixture("simplevar");
+    assertThat(node.render(jinjava).toString()).isEqualTo("hello nasty");
+  }
+
+  @Test
   public void itAvoidsInfiniteRecursionWhenVarsContainBraceBlocks() throws Exception {
     context.put("myvar", "hello {{ place }}");
     context.put("place", "{{ place }}");
