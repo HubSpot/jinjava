@@ -1,5 +1,10 @@
 # Jinjava Releases #
 
+### 2017-11-14 Version 2.3.3 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.3.3%22)) ###
+
+* [always evaluate tags and control structures in nested expressions](https://github.com/HubSpot/jinjava/pull/161)
+
+
 ### 2017-11-14 Version 2.3.2 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.3.2%22)) ###
 
 * [select filter now supports expression tests with arguments like 'equalto'](https://github.com/HubSpot/jinjava/pull/158)
