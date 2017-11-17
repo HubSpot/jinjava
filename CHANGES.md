@@ -1,6 +1,6 @@
 # Jinjava Releases #
 
-### 2017-11-14 Version 2.3.3 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.3.3%22)) ###
+### 2017-11-16 Version 2.3.3 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.3.3%22)) ###
 
 * [always evaluate tags and control structures in nested expressions](https://github.com/HubSpot/jinjava/pull/161)
 
