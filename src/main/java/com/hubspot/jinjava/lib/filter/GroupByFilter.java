@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -49,7 +49,7 @@ public class GroupByFilter implements Filter {
     String attr = args[0];
 
     ForLoop loop = ObjectIterator.getLoop(var);
-    Multimap<String, Object> groupBuckets = ArrayListMultimap.create();
+    Multimap<String, Object> groupBuckets = LinkedListMultimap.create();
 
     while (loop.hasNext()) {
       Object val = loop.next();
