@@ -35,8 +35,7 @@ public class GroupByFilterTest {
                 new Person("male", "jim", "jones"),
                 new Person("female", "barb", "smith")
                 ))));
-
-    String test = dom.select("ul.root > li").get(0).text();
+    
     assertThat(dom.select("ul.root > li")).hasSize(2);
     assertThat(dom.select("ul.root > li").get(0).text()).contains("male jared");
     assertThat(dom.select("ul.root > li.male > ul > li")).hasSize(3);
