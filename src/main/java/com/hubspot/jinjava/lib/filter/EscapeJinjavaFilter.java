@@ -63,7 +63,7 @@ public class EscapeJinjavaFilter implements Filter {
 
   @Override
   public String getName() {
-    return "escapeJinjava";
+    return "escape_jinjava";
   }
 
 }
