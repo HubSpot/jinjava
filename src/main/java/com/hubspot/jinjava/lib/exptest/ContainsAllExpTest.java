@@ -1,8 +1,6 @@
 package com.hubspot.jinjava.lib.exptest;
 
-import java.util.Iterator;
 import java.util.Objects;
-import java.util.Optional;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
@@ -34,19 +32,6 @@ public class ContainsAllExpTest implements ExpTest {
     }
 
     return true;
-  }
-
-  private Optional<Iterator<?>> getIterator(Object var) {
-
-    if (Iterator.class.isAssignableFrom(var.getClass())) {
-      return Optional.of((Iterator<?>) var);
-    }
-
-    if (Iterable.class.isAssignableFrom(var.getClass())) {
-      return Optional.of(((Iterable<?>) var).iterator());
-    }
-
-    return Optional.empty();
   }
 
   @Override
