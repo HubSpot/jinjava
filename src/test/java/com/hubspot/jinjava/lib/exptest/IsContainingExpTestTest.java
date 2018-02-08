@@ -17,7 +17,6 @@ public class IsContainingExpTestTest {
 
   @Before
   public void setup() {
-
     jinjava = new Jinjava();
   }
 
