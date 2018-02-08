@@ -6,7 +6,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
-public class IsContainedInExpTest implements ExpTest {
+public class IsWithinExpTest implements ExpTest {
 
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
@@ -27,6 +27,6 @@ public class IsContainedInExpTest implements ExpTest {
 
   @Override
   public String getName() {
-    return "containedin";
+    return "within";
   }
 }

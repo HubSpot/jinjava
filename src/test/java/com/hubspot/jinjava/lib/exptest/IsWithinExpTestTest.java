@@ -9,9 +9,9 @@ import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
 
-public class IsContainedInExpTestTest {
+public class IsWithinExpTestTest {
 
-  private static final String IN_TEMPLATE = "{%% if %s is containedin %s %%}pass{%% else %%}fail{%% endif %%}";
+  private static final String IN_TEMPLATE = "{%% if %s is within %s %%}pass{%% else %%}fail{%% endif %%}";
 
   private Jinjava jinjava;
 

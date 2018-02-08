@@ -33,7 +33,7 @@ public class ExpTestLibrary extends SimpleLibrary<ExpTest> {
         IsUpperExpTest.class,
         IsContainingAllExpTest.class,
         IsContainingExpTest.class,
-        IsContainedInExpTest.class);
+        IsWithinExpTest.class);
   }
 
   public ExpTest getExpTest(String name) {
