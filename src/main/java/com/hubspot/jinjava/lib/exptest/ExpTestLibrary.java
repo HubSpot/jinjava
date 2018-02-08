@@ -31,9 +31,9 @@ public class ExpTestLibrary extends SimpleLibrary<ExpTest> {
         IsTruthyExpTest.class,
         IsUndefinedExpTest.class,
         IsUpperExpTest.class,
-        ContainsAllExpTest.class,
-        ContainsExpTest.class,
-        IsInExpTest.class);
+        IsContainingAllExpTest.class,
+        IsContainingExpTest.class,
+        IsContainedInExpTest.class);
   }
 
   public ExpTest getExpTest(String name) {
