@@ -11,7 +11,7 @@ public class ContainsAllExpTest implements ExpTest {
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
 
-    if (null == var || args.length == 0) {
+    if (null == var || args.length == 0 || args[0] == null) {
       return false;
     }
 
