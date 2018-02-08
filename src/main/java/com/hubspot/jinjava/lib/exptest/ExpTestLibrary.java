@@ -30,7 +30,10 @@ public class ExpTestLibrary extends SimpleLibrary<ExpTest> {
         IsStringStartingWithExpTest.class,
         IsTruthyExpTest.class,
         IsUndefinedExpTest.class,
-        IsUpperExpTest.class);
+        IsUpperExpTest.class,
+        ContainsAllExpTest.class,
+        ContainsExpTest.class,
+        IsInExpTest.class);
   }
 
   public ExpTest getExpTest(String name) {
