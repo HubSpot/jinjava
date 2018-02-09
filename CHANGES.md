@@ -1,11 +1,11 @@
 # Jinjava Releases #
 
-### 2017-01-26 Version 2.3.6 ([Maven Central]()) ###
+### 2018-02-9 Version 2.3.6 ([Maven Central]()) ###
 
 * [Add more sequence expression tests](https://github.com/HubSpot/jinjava/pull/175)
 * [Don't put stack trace in the exception message](https://github.com/HubSpot/jinjava/pull/174)
 
-### 2017-01-26 Version 2.3.5 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.3.5%22)) ###
+### 2018-01-26 Version 2.3.5 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.3.5%22)) ###
 
 * [Add new EscapeJinjavaFilter](https://github.com/HubSpot/jinjava/pull/168)
 
