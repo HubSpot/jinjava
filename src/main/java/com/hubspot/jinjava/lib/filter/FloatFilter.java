@@ -1,5 +1,8 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -37,11 +40,22 @@ public class FloatFilter implements Filter {
       return defaultVal;
     }
 
+    if (Float.class.isAssignableFrom(var.getClass())) {
+      return var;
+    }
     if (Number.class.isAssignableFrom(var.getClass())) {
       return ((Number) var).floatValue();
     }
 
-    return NumberUtils.toFloat(var.toString(), defaultVal);
+    Locale locale = interpreter.getConfig().getLocale();
+    NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+    float result;
+    try {
+      result = numberFormat.parse(var.toString()).floatValue();
+    } catch (Exception e) {
+      result = defaultVal;
+    }
+    return result;
   }
 
 }

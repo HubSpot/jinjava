@@ -2,13 +2,21 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.charset.StandardCharsets;
+import java.time.ZoneOffset;
+import java.util.Locale;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 public class IntFilterTest {
+
+  private static final Locale FRENCH_LOCALE = new Locale("fr", "FR");
+  private static final JinjavaConfig FRENCH_LOCALE_CONFIG = new JinjavaConfig(StandardCharsets.UTF_8, FRENCH_LOCALE, ZoneOffset.UTC, 10);
 
   IntFilter filter;
   JinjavaInterpreter interpreter;
@@ -21,7 +29,7 @@ public class IntFilterTest {
 
   @Test
   public void itReturnsSameWhenVarIsNumber() {
-    Integer var = Integer.valueOf(123);
+    Integer var = 123;
     assertThat(filter.filter(var, interpreter)).isSameAs(var);
   }
 
@@ -42,8 +50,30 @@ public class IntFilterTest {
   }
 
   @Test
+  public void itInterpretsUsCommasAndPeriodsWithUsLocale() {
+    assertThat(filter.filter("123,123.12", interpreter)).isEqualTo(123123);
+  }
+
+  @Test
+  public void itInterpretsFrenchCommasAndPeriodsWithUsLocale() {
+    assertThat(filter.filter("123.123,12", interpreter)).isEqualTo(123);
+  }
+
+  @Test
   public void itReturnsDefaultWhenUnableToParseVar() {
     assertThat(filter.filter("foo", interpreter)).isEqualTo(0);
+  }
+
+  @Test
+  public void itInterpretsUsCommasAndPeriodsWithFrenchLocale() {
+    interpreter = new Jinjava(FRENCH_LOCALE_CONFIG).newInterpreter();
+    assertThat(filter.filter("123,123.12", interpreter)).isEqualTo(123);
+  }
+
+  @Test
+  public void itInterpretsFrenchCommasAndPeriodsWithFrenchLocale() {
+    interpreter = new Jinjava(FRENCH_LOCALE_CONFIG).newInterpreter();
+    assertThat(filter.filter("123\u00A0123,12", interpreter)).isEqualTo(123123);
   }
 
 }
