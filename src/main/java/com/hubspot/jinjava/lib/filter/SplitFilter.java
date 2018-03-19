@@ -48,9 +48,10 @@ public class SplitFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     Splitter splitter;
-
+    String delimiter = "SPACE";
     if (args.length > 0) {
       splitter = Splitter.on(args[0]);
+      delimiter = args[0];
     }
     else {
       splitter = Splitter.on(CharMatcher.WHITESPACE);
@@ -61,8 +62,10 @@ public class SplitFilter implements Filter {
       if (limit > 0) {
         splitter = splitter.limit(limit);
       }
+      delimiter += String.format(":%d", limit);
     }
 
+    // System.out.println(String.format("Split on %s for %s", delimiter, Objects.toString(var, "")));
     return Lists.newArrayList(splitter.omitEmptyStrings().trimResults().split(Objects.toString(var, "")));
   }
 

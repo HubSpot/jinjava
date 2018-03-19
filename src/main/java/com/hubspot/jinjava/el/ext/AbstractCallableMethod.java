@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 
 /**
  * Defines a function which will be called in the context of an interpreter instance. Supports named params with default values, as well as var args.
@@ -69,7 +70,12 @@ public abstract class AbstractCallableMethod {
       }
     }
 
-    return doEvaluate(argMap, kwargMap, varArgs);
+    long startMs = System.currentTimeMillis();
+    System.out.println(String.format("*** Evaluating %s %s",
+        name, Lists.newArrayList(args).toString()));
+    Object result = doEvaluate(argMap, kwargMap, varArgs);
+    System.out.println(String.format("***       %d %s", System.currentTimeMillis() - startMs, name));
+    return result;
   }
 
   public abstract Object doEvaluate(Map<String, Object> argMap, Map<String, Object> kwargMap, List<Object> varArgs);
