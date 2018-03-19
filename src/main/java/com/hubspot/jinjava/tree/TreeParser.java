@@ -71,7 +71,7 @@ public class TreeParser {
       interpreter.addError(TemplateError.fromException(
           new MissingEndTagException(((TagNode) parent).getEndName(),
                                      parent.getMaster().getImage(),
-                                     parent.getLineNumber())));
+                                     parent.getLineNumber(), parent.getStartPosition())));
     }
 
     return root;
@@ -99,7 +99,7 @@ public class TreeParser {
 
       default:
         interpreter.addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(),
-                                                                                      token.getLineNumber())));
+                                                                                      token.getLineNumber(), token.getStartPosition())));
     }
     return null;
   }
@@ -114,7 +114,7 @@ public class TreeParser {
   private Node text(TextToken textToken) {
     if (interpreter.getConfig().isLstripBlocks()) {
       if (scanner.hasNext() && scanner.peek().getType() == TOKEN_TAG) {
-        textToken = new TextToken(StringUtils.stripEnd(textToken.getImage(), "\t "), textToken.getLineNumber());
+        textToken = new TextToken(StringUtils.stripEnd(textToken.getImage(), "\t "), textToken.getLineNumber(), textToken.getStartPosition());
       }
     }
 
@@ -156,7 +156,7 @@ public class TreeParser {
       }
     } catch (DisabledException e) {
       interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.TAG,
-          e.getMessage(), tagToken.getTagName(), interpreter.getLineNumber(), e));
+          e.getMessage(), tagToken.getTagName(), interpreter.getLineNumber(), tagToken.getStartPosition(), e));
       return null;
     }
 
@@ -210,7 +210,7 @@ public class TreeParser {
         interpreter.addError(TemplateError.fromException(
             new TemplateSyntaxException(tagToken.getImage(),
                                         "Mismatched end tag, expected: " + parentTag.getEndName(),
-                                        tagToken.getLineNumber())));
+                                        tagToken.getLineNumber(), tagToken.getStartPosition())));
       }
     }
   }

@@ -28,12 +28,13 @@ import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.util.Logging;
 
 public class ExpressionNode extends Node {
-  private static final long serialVersionUID = 341642231109911346L;
+
+  private static final long serialVersionUID = -6063173739682221042L;
 
   private final ExpressionToken master;
 
   public ExpressionNode(ExpressionToken token) {
-    super(token, token.getLineNumber());
+    super(token, token.getLineNumber(), token.getStartPosition());
     master = token;
   }
 
@@ -43,12 +44,14 @@ public class ExpressionNode extends Node {
     long cost = 0;
     StringBuilder sb = new StringBuilder();
 
+
     Object var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
 
     String result = Objects.toString(var, "");
 
     if (interpreter.getConfig().isNestedInterpretationEnabled()) {
-      if (!StringUtils.equals(result, master.getImage()) && StringUtils.contains(result, "{{")) {
+      if (!StringUtils.equals(result, master.getImage()) &&
+          (StringUtils.contains(result, "{{") || StringUtils.contains(result, "{%"))) {
         try {
           result = interpreter.renderFlat(result);
         } catch (Exception e) {

@@ -51,7 +51,7 @@ public class MacroTagTest {
     TagNode t = fixture("simple");
     assertThat(t.render(interpreter).getValue()).isEmpty();
 
-    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.getPath", -1);
+    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.getPath", -1, -1);
     assertThat(fn.getName()).isEqualTo("getPath");
     assertThat(fn.getArguments()).isEmpty();
     assertThat(fn.isCaller()).isFalse();
@@ -67,7 +67,7 @@ public class MacroTagTest {
     TagNode t = fixture("with-args");
     assertThat(t.render(interpreter).getValue()).isEmpty();
 
-    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.section_link", -1);
+    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.section_link", -1, -1);
     assertThat(fn.getName()).isEqualTo("section_link");
     assertThat(fn.getArguments()).containsExactly("link", "text");
 
@@ -79,7 +79,7 @@ public class MacroTagTest {
     TagNode t = fixture("def-vals");
     assertThat(t.render(interpreter).getValue()).isEmpty();
 
-    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.article", -1);
+    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.article", -1, -1);
     assertThat(fn.getArguments()).containsExactly("title", "thumb", "link", "summary", "last");
     assertThat(fn.getDefaults()).contains(entry("last", false));
 
@@ -94,7 +94,7 @@ public class MacroTagTest {
     TagNode t = fixture("array-def-val");
     assertThat(t.render(interpreter).getValue()).isEmpty();
 
-    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.prefix", -1);
+    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.prefix", -1, -1);
     assertThat(fn.getArguments()).containsExactly("property", "value", "prefixes", "prefixval");
     assertThat(fn.getDefaults()).contains(entry("prefixes", Lists.newArrayList("webkit", "moz")));
   }

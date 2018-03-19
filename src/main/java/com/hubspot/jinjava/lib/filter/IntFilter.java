@@ -1,5 +1,8 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -8,7 +11,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 /**
- * int(value, default=0) Convert the value into an integer. If the conversion doesn’t work it will return 0. You can override this default using the first parameter.
+ * int(value, default=0) Convert the value into an integer. If the conversion doesn't work it will return 0. You can override this default using the first parameter.
  */
 @JinjavaDoc(
     value = "Convert the value into an integer.",
@@ -46,7 +49,16 @@ public class IntFilter implements Filter {
       return ((Number) var).intValue();
     }
 
-    return NumberUtils.toInt(var.toString(), defaultVal);
+    Locale locale = interpreter.getConfig().getLocale();
+    NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+    numberFormat.setParseIntegerOnly(true);
+    int result;
+    try {
+      result = numberFormat.parse(var.toString()).intValue();
+    } catch (Exception e) {
+      result = defaultVal;
+    }
+    return result;
   }
 
 }

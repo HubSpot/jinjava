@@ -1,5 +1,43 @@
 # Jinjava Releases #
 
+### 2018-02-26 Version 2.4.0 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.0%7Cjar)) ###
+
+* [Make int/float parsing locale aware](https://github.com/HubSpot/jinjava/pull/178)
+
+### 2018-02-09 Version 2.3.6 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.3.6%22)) ###
+
+* [Add more sequence expression tests](https://github.com/HubSpot/jinjava/pull/175)
+* [Don't put stack trace in the exception message](https://github.com/HubSpot/jinjava/pull/174)
+
+### 2018-01-26 Version 2.3.5 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.3.5%22)) ###
+
+* [Add new EscapeJinjavaFilter](https://github.com/HubSpot/jinjava/pull/168)
+
+### 2017-11-30 Version 2.3.4 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.3.4%22)) ###
+
+* [Preserve groupby order of elements](https://github.com/HubSpot/jinjava/pull/163)
+
+### 2017-11-16 Version 2.3.3 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.3.3%22)) ###
+
+* [always evaluate tags and control structures in nested expressions](https://github.com/HubSpot/jinjava/pull/161)
+
+### 2017-11-14 Version 2.3.2 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.3.2%22)) ###
+
+* [select filter now supports expression tests with arguments like 'equalto'](https://github.com/HubSpot/jinjava/pull/158)
+* [`TemplateError`s now include a scope depth](https://github.com/HubSpot/jinjava/pull/157)
+
+### 2017-10-30 Version 2.3.0 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.3.0%22)) ###
+
+* Add column numbers to error messages
+
+### 2017-10-24 Version 2.2.10 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.2.10%22)) ###
+
+* Use code of bad syntax as field name for `TemplateSyntaxException`s
+
+### 2017-08-31 Version 2.2.9 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.2.9%22)) ###
+
+* Apply resolved functions, expressions, and values to all [parents of Context object](https://github.com/HubSpot/jinjava/pull/147)
+
 ### 2017-08-12 Version 2.2.8 ([Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.2.8%22)) ###
 
 * Prevent recursion in Jinjava.

@@ -43,12 +43,12 @@ public class IfchangedTag implements Tag {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     if (StringUtils.isBlank(tagNode.getHelpers())) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'ifchanged' expects a variable parameter", tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'ifchanged' expects a variable parameter", tagNode.getLineNumber(), tagNode.getStartPosition());
     }
     boolean isChanged = true;
     String var = tagNode.getHelpers().trim();
     Object older = interpreter.getContext().get(LASTKEY + var);
-    Object test = interpreter.retraceVariable(var, tagNode.getLineNumber());
+    Object test = interpreter.retraceVariable(var, tagNode.getLineNumber(), tagNode.getStartPosition());
     if (older == null) {
       if (test == null) {
         isChanged = false;

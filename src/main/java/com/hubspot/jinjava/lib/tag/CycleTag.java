@@ -62,19 +62,19 @@ public class CycleTag implements Tag {
       HelperStringTokenizer items = new HelperStringTokenizer(helper.get(0));
       items.splitComma(true);
       values = items.allTokens();
-      Integer forindex = (Integer) interpreter.retraceVariable(LOOP_INDEX, tagNode.getLineNumber());
+      Integer forindex = (Integer) interpreter.retraceVariable(LOOP_INDEX, tagNode.getLineNumber(), tagNode.getStartPosition());
       if (forindex == null) {
         forindex = 0;
       }
       if (values.size() == 1) {
         var = values.get(0);
-        values = (List<String>) interpreter.retraceVariable(var, tagNode.getLineNumber());
+        values = (List<String>) interpreter.retraceVariable(var, tagNode.getLineNumber(), tagNode.getStartPosition());
         if (values == null) {
-          return interpreter.resolveString(var, tagNode.getLineNumber());
+          return interpreter.resolveString(var, tagNode.getLineNumber(), tagNode.getStartPosition());
         }
       } else {
         for (int i = 0; i < values.size(); i++) {
-          values.set(i, interpreter.resolveString(values.get(i), tagNode.getLineNumber()));
+          values.set(i, interpreter.resolveString(values.get(i), tagNode.getLineNumber(), tagNode.getStartPosition()));
         }
       }
       return values.get(forindex % values.size());
@@ -83,13 +83,13 @@ public class CycleTag implements Tag {
       items.splitComma(true);
       values = items.allTokens();
       for (int i = 0; i < values.size(); i++) {
-        values.set(i, interpreter.resolveString(values.get(i), tagNode.getLineNumber()));
+        values.set(i, interpreter.resolveString(values.get(i), tagNode.getLineNumber(), tagNode.getStartPosition()));
       }
       var = helper.get(2);
       interpreter.getContext().put(var, values);
       return "";
     } else {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'cycle' expects 1 or 3 helper(s), was: " + helper.size(), tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'cycle' expects 1 or 3 helper(s), was: " + helper.size(), tagNode.getLineNumber(), tagNode.getStartPosition());
     }
   }
 

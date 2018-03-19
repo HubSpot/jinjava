@@ -68,6 +68,7 @@ public class JinjavaInterpreter {
   private final Random random;
 
   private int lineNumber = -1;
+  private int scopeDepth = 1;
   private final List<TemplateError> errors = new LinkedList<>();
 
   public JinjavaInterpreter(Jinjava application, Context context, JinjavaConfig renderConfig) {
@@ -88,6 +89,7 @@ public class JinjavaInterpreter {
 
   public JinjavaInterpreter(JinjavaInterpreter orig) {
     this(orig.application, new Context(orig.context), orig.config);
+    scopeDepth = orig.getScopeDepth() + 1;
   }
 
   /**
@@ -125,11 +127,13 @@ public class JinjavaInterpreter {
 
   public InterpreterScopeClosable enterScope(Map<Context.Library, Set<String>> disabled) {
     context = new Context(context, null, disabled);
+    scopeDepth++;
     return new InterpreterScopeClosable();
   }
 
   public void leaveScope() {
     Context parent = context.getParent();
+    scopeDepth--;
     if (parent != null) {
       parent.addDependencies(context.getDependencies());
       context = parent;
@@ -232,7 +236,7 @@ public class JinjavaInterpreter {
       if (context.doesRenderStackContain(renderStr)) {
         // This is a circular rendering. Stop rendering it here.
         addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
-            "Rendering cycle detected: '" + renderStr + "'", null, getLineNumber(),
+            "Rendering cycle detected: '" + renderStr + "'", null, getLineNumber(), node.getStartPosition(),
             null, BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED, ImmutableMap.of("string", renderStr)));
         output.addNode(new RenderedOutputNode(renderStr));
       } else {
@@ -331,9 +335,11 @@ public class JinjavaInterpreter {
    *          name of variable in context
    * @param lineNumber
    *          current line number, for error reporting
+   * @param startPosition
+   *          current line position, for error reporting
    * @return resolved value for variable
    */
-  public Object retraceVariable(String variable, int lineNumber) {
+  public Object retraceVariable(String variable, int lineNumber, int startPosition) {
     if (StringUtils.isBlank(variable)) {
       return "";
     }
@@ -343,10 +349,15 @@ public class JinjavaInterpreter {
     if (obj != null) {
       obj = var.resolve(obj);
     } else  if (getConfig().isFailOnUnknownTokens()) {
-      throw new UnknownTokenException(variable, getLineNumber());
+      throw new UnknownTokenException(variable, lineNumber, startPosition);
     }
     return obj;
   }
+
+  public Object retraceVariable(String variable, int lineNumber) {
+    return retraceVariable(variable, lineNumber, -1);
+  }
+
 
   /**
    * Resolve a variable into an object value. If given a string literal (e.g. 'foo' or "foo"), this method returns the literal unquoted. If the variable is undefined in the context, this method returns the given variable string.
@@ -355,21 +366,27 @@ public class JinjavaInterpreter {
    *          name of variable in context
    * @param lineNumber
    *          current line number, for error reporting
+   * @param startPosition
+   *          current line position, for error reporting
    * @return resolved value for variable
    */
-  public Object resolveObject(String variable, int lineNumber) {
+  public Object resolveObject(String variable, int lineNumber, int startPosition) {
     if (StringUtils.isBlank(variable)) {
       return "";
     }
     if (WhitespaceUtils.isQuoted(variable)) {
       return WhitespaceUtils.unquote(variable);
     } else {
-      Object val = retraceVariable(variable, lineNumber);
+      Object val = retraceVariable(variable, lineNumber, startPosition);
       if (val == null) {
         return variable;
       }
       return val;
     }
+  }
+
+  public Object resolveObject(String variable, int lineNumber) {
+    return resolveObject(variable, lineNumber, -1);
   }
 
   /**
@@ -379,11 +396,18 @@ public class JinjavaInterpreter {
    *          name of variable in context
    * @param lineNumber
    *          current line number, for error reporting
+   * @param startPosition
+   *          current line position, for error reporting
    * @return resolved value for variable
    */
-  public String resolveString(String variable, int lineNumber) {
-    return Objects.toString(resolveObject(variable, lineNumber), "");
+  public String resolveString(String variable, int lineNumber, int startPosition) {
+    return Objects.toString(resolveObject(variable, lineNumber, startPosition), "");
   }
+
+  public String resolveString(String variable, int lineNumber) {
+    return resolveString(variable, lineNumber, -1);
+  }
+
 
   public Context getContext() {
     return context;
@@ -443,7 +467,11 @@ public class JinjavaInterpreter {
   }
 
   public void addError(TemplateError templateError) {
-    this.errors.add(templateError);
+    this.errors.add(templateError.withScopeDepth(scopeDepth));
+  }
+
+  public int getScopeDepth() {
+    return scopeDepth;
   }
 
   public List<TemplateError> getErrors() {

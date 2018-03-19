@@ -55,7 +55,7 @@ public class IfTag implements Tag {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     if (StringUtils.isBlank(tagNode.getHelpers())) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'if' expects expression", tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'if' expects expression", tagNode.getLineNumber(), tagNode.getStartPosition());
     }
 
     Iterator<Node> nodeIterator = tagNode.getChildren().iterator();

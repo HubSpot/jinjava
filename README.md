@@ -7,7 +7,7 @@
 
 <img src="https://github.com/HubSpot/jinjava/raw/master/jinjava.png" width="250" height="250" alt="jinjava">
 
-Java-based template engine based on django template syntax, adapted to render jinja templates (at least the subset of jinja in use in HubSpot content). Currently used in production to render thousands of websites with hundreds of millions of page views per month on the [HubSpot COS](http://www.hubspot.com/products/sites).
+Java-based template engine based on django template syntax, adapted to render jinja templates (at least the subset of jinja in use in HubSpot content). Currently used in production to render thousands of websites with hundreds of millions of page views per month on the [HubSpot CMS](http://www.hubspot.com/products/sites).
 
 *Note*: Requires Java >= 8. Originally forked from [jangod](https://code.google.com/p/jangod/).
 

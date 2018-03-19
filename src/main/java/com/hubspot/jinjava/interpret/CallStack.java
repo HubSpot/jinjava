@@ -35,9 +35,9 @@ public class CallStack {
     stack.push(path);
   }
 
-  public void push(String path, int lineNumber) {
+  public void push(String path, int lineNumber, int startPosition) {
     if (contains(path)) {
-      throw TagCycleException.create(exceptionClass, path, Optional.of(lineNumber));
+      throw TagCycleException.create(exceptionClass, path, Optional.of(lineNumber), Optional.of(startPosition));
     }
 
     stack.push(path);

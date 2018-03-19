@@ -19,10 +19,10 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.output.OutputNode;
 
 public class RootNode extends Node {
-  private static final long serialVersionUID = 97675838726004658L;
+  private static final long serialVersionUID = 5904181260202954424L;
 
   RootNode() {
-    super(null, 0);
+    super(null, 0, 0);
   }
 
   @Override

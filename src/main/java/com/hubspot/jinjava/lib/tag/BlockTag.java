@@ -49,7 +49,7 @@ public class BlockTag implements Tag {
   public OutputNode interpretOutput(TagNode tagNode, JinjavaInterpreter interpreter) {
     HelperStringTokenizer tagData = new HelperStringTokenizer(tagNode.getHelpers());
     if (!tagData.hasNext()) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'block' expects an identifier", tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'block' expects an identifier", tagNode.getLineNumber(), tagNode.getStartPosition());
     }
 
     String blockName = WhitespaceUtils.unquote(tagData.next());

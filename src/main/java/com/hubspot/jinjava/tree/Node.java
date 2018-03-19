@@ -26,17 +26,23 @@ import com.hubspot.jinjava.tree.parse.Token;
 
 public abstract class Node implements Serializable {
 
-  private static final long serialVersionUID = 7323842986596895498L;
+  private static final long serialVersionUID = -6194634312533310816L;
 
   private final Token master;
   private final int lineNumber;
+  private final int startPosition;
 
   private Node parent = null;
   private LinkedList<Node> children = new LinkedList<Node>();
 
   public Node(Token master, int lineNumber) {
+    this(master, lineNumber, -1);
+  }
+
+  public Node(Token master, int lineNumber, int startPosition) {
     this.master = master;
     this.lineNumber = lineNumber;
+    this.startPosition = startPosition;
   }
 
   public Node getParent() {
@@ -53,6 +59,10 @@ public abstract class Node implements Serializable {
 
   public int getLineNumber() {
     return lineNumber;
+  }
+
+  public int getStartPosition() {
+    return startPosition;
   }
 
   public LinkedList<Node> getChildren() {

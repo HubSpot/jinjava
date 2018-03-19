@@ -4,13 +4,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-
-import com.google.common.collect.ImmutableMap;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
-import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
-
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -19,9 +15,11 @@ import com.hubspot.jinjava.interpret.ImportTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -67,7 +65,7 @@ public class ImportTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     List<String> helper = new HelperStringTokenizer(tagNode.getHelpers()).allTokens();
     if (helper.isEmpty()) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'import' expects 1 helper, was: " + helper.size(), tagNode.getLineNumber());
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'import' expects 1 helper, was: " + helper.size(), tagNode.getLineNumber(), tagNode.getStartPosition());
     }
 
     String contextVar = "";
@@ -79,15 +77,15 @@ public class ImportTag implements Tag {
     String path = StringUtils.trimToEmpty(helper.get(0));
 
     try {
-      interpreter.getContext().getImportPathStack().push(path, tagNode.getLineNumber());
+      interpreter.getContext().getImportPathStack().push(path, tagNode.getLineNumber(), tagNode.getStartPosition());
     } catch (ImportTagCycleException e) {
       interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
-          "Import cycle detected for path: '" + path + "'", null, tagNode.getLineNumber(),
+          "Import cycle detected for path: '" + path + "'", null, tagNode.getLineNumber(), tagNode.getStartPosition(),
           e, BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED, ImmutableMap.of("path", path)));
       return "";
     }
 
-    String templateFile = interpreter.resolveString(path, tagNode.getLineNumber());
+    String templateFile = interpreter.resolveString(path, tagNode.getLineNumber(), tagNode.getStartPosition());
     interpreter.getContext().addDependency("coded_files", templateFile);
     try {
       String template = interpreter.getResource(templateFile);
@@ -112,7 +110,7 @@ public class ImportTag implements Tag {
 
       return "";
     } catch (IOException e) {
-      throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber());
+      throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
     }
   }
 

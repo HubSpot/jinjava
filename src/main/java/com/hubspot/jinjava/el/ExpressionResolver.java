@@ -72,15 +72,15 @@ public class ExpressionResolver {
       return result;
 
     } catch (PropertyNotFoundException e) {
-      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, e.getMessage(), "", interpreter.getLineNumber(), e,
+      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, e.getMessage(), "", interpreter.getLineNumber(), -1, e,
           BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of("exception", e.getMessage())));
     } catch (TreeBuilderException e) {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression,
-          "Error parsing '" + expression + "': " + StringUtils.substringAfter(e.getMessage(), "': "), interpreter.getLineNumber(), e)));
+          "Error parsing '" + expression + "': " + StringUtils.substringAfter(e.getMessage(), "': "), interpreter.getLineNumber(), e.getPosition(), e)));
     } catch (ELException e) {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
     } catch (DisabledException e) {
-      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter.getLineNumber(), e));
+      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter.getLineNumber(), -1, e));
     } catch (UnknownTokenException e) {
       // Re-throw the exception because you only get this when the config failOnUnknownTokens is enabled.
       throw e;
