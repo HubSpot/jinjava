@@ -160,7 +160,7 @@ public class JinjavaInterpreter {
     Node node = new TreeParser(this, template).buildTree();
     final long cost = System.nanoTime() - start;
     if (cost > 1000000 * 10) {
-      sb.append(String.format("\n   ******* jinjava parse: %d ms", TimeUnit.NANOSECONDS.toMillis(cost)));
+      sb.append(String.format("%n   ******* jinjava parse: %d ms", TimeUnit.NANOSECONDS.toMillis(cost)));
       ENGINE_LOG.info(sb.toString());
     }
     return node;
@@ -242,16 +242,12 @@ public class JinjavaInterpreter {
       } else {
         context.pushRenderStack(renderStr);
 
-        OutputNode out = new RenderedOutputNode("");
-        if (lineNumber != 26) {
-          out = node.render(this);
-        } else {
-          out = node.render(this);
-        }
+        OutputNode out = node.render(this);
         cost = System.nanoTime() - child_start;
         if (cost > 1000000 * 100) {
-          sb.append(String.format("\n     ******* jinjava render line %d: %d ms.", lineNumber, TimeUnit.NANOSECONDS.toMillis(cost)));
-          sb.append(String.format("\n     ******* jinjava details %s:\n %s", node.getName(), renderStr));
+          sb.append(String.format("%n     ******* jinjava render line %d: %d ms.", lineNumber, TimeUnit.NANOSECONDS
+              .toMillis(cost)));
+          sb.append(String.format("%n     ******* jinjava details %s:%n %s", node.getName(), renderStr));
         }
         context.popRenderStack();
         output.addNode(out);
@@ -259,7 +255,7 @@ public class JinjavaInterpreter {
     }
     cost = System.nanoTime() - start;
     if (cost > 1000000 * 100) {
-      sb.append(String.format("\n   ******* jinjava render child nodes: %d ms.", TimeUnit.NANOSECONDS.toMillis(cost)));
+      sb.append(String.format("%n   ******* jinjava render child nodes: %d ms.", TimeUnit.NANOSECONDS.toMillis(cost)));
     }
 
     // render all extend parents, keeping the last as the root output
@@ -279,13 +275,14 @@ public class JinjavaInterpreter {
 
     cost = System.nanoTime() - start;
     if (cost > 1000000 * 10) {
-      sb.append(String.format("\n   ******* jinjava before resolve block stubs: %d ms.", TimeUnit.NANOSECONDS.toMillis(cost)));
+      sb.append(String.format("%n   ******* jinjava before resolve block stubs: %d ms.",
+          TimeUnit.NANOSECONDS.toMillis(cost)));
     }
     resolveBlockStubs(output);
 
     cost = System.nanoTime() - start;
     if (cost > 1000000 * 10) {
-      sb.append(String.format("\n   ******* jinjava render node: %d ms.\n", TimeUnit.NANOSECONDS.toMillis(cost)));
+      sb.append(String.format("%n   ******* jinjava render node: %d ms.%n", TimeUnit.NANOSECONDS.toMillis(cost)));
       ENGINE_LOG.info(sb.toString());
     }
     return output.getValue();

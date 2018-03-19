@@ -16,7 +16,6 @@
 package com.hubspot.jinjava.tree;
 
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -40,11 +39,6 @@ public class ExpressionNode extends Node {
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
-    final long start = System.nanoTime();
-    long cost = 0;
-    StringBuilder sb = new StringBuilder();
-
-
     Object var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
 
     String result = Objects.toString(var, "");
@@ -64,10 +58,6 @@ public class ExpressionNode extends Node {
       result = EscapeFilter.escapeHtmlEntities(result);
     }
 
-    cost = System.nanoTime() - start;
-    if (cost > 1000000) {
-      sb.append(String.format("\n   ******* jinjava render expression %s: %d ms.", Objects.toString(var, ""), TimeUnit.NANOSECONDS.toMillis(cost)));
-    }
     return new RenderedOutputNode(result);
   }
 

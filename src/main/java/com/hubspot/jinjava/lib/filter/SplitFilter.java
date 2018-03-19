@@ -65,7 +65,9 @@ public class SplitFilter implements Filter {
       delimiter += String.format(":%d", limit);
     }
 
-    // System.out.println(String.format("Split on %s for %s", delimiter, Objects.toString(var, "")));
+    if (delimiter.equals("DEBUG")) {
+      System.out.println(String.format("Split on %s for %s", delimiter, Objects.toString(var, "")));
+    }
     return Lists.newArrayList(splitter.omitEmptyStrings().trimResults().split(Objects.toString(var, "")));
   }
 

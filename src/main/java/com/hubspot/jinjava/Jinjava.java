@@ -201,7 +201,8 @@ public class Jinjava {
       final long start = System.nanoTime();
       StringBuilder sb = new StringBuilder();
       String result = interpreter.render(template);
-      sb.append(String.format("\n   ******* jinjava render: %d ms", TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)));
+      sb.append(String.format("%n   ******* jinjava render: %d ms",
+          TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)));
       ENGINE_LOG.info(sb.toString());
       return new RenderResult(result, interpreter.getContext(), interpreter.getErrors());
     } catch (InterpretException e) {
