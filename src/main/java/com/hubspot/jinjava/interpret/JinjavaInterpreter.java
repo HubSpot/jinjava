@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **********************************************************************/
+
 package com.hubspot.jinjava.interpret;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
@@ -223,14 +224,14 @@ public class JinjavaInterpreter {
    * @return rendered result
    */
   public String render(Node root, boolean processExtendRoots) {
-    final long start = System.nanoTime();
-    long cost = 0;
+    final long startMs = System.currentTimeMillis();
+    long costMs = 0;
     StringBuilder sb = new StringBuilder();
 
     OutputList output = new OutputList(config.getMaxOutputSize());
 
     for (Node node : root.getChildren()) {
-      long child_start = System.nanoTime();
+      long childStart = System.currentTimeMillis();
       lineNumber = node.getLineNumber();
       String renderStr = node.getMaster().getImage();
       if (context.doesRenderStackContain(renderStr)) {
@@ -243,19 +244,19 @@ public class JinjavaInterpreter {
         context.pushRenderStack(renderStr);
 
         OutputNode out = node.render(this);
-        cost = System.nanoTime() - child_start;
-        if (cost > 1000000 * 100) {
-          sb.append(String.format("%n     ******* jinjava render line %d: %d ms.", lineNumber, TimeUnit.NANOSECONDS
-              .toMillis(cost)));
-          sb.append(String.format("%n     ******* jinjava details %s:%n %s", node.getName(), renderStr));
+        costMs = System.currentTimeMillis() - childStart;
+        if (costMs > 100) {
+          sb.append(String.format("%n    %s ******* jinjava render line %d: %d ms str=%s [root=%s]",
+              costMs > 1000 ? "WARN" : "INFO",
+              lineNumber, costMs, renderStr, root.getMaster()));
         }
         context.popRenderStack();
         output.addNode(out);
       }
     }
-    cost = System.nanoTime() - start;
-    if (cost > 1000000 * 100) {
-      sb.append(String.format("%n   ******* jinjava render child nodes: %d ms.", TimeUnit.NANOSECONDS.toMillis(cost)));
+    costMs = System.currentTimeMillis() - startMs;
+    if (costMs > 100) {
+      sb.append(String.format("%n   ******* jinjava render child nodes: %d ms.", costMs));
     }
 
     // render all extend parents, keeping the last as the root output
@@ -273,16 +274,16 @@ public class JinjavaInterpreter {
       }
     }
 
-    cost = System.nanoTime() - start;
-    if (cost > 1000000 * 10) {
+    costMs = System.currentTimeMillis() - startMs;
+    if (costMs > 100) {
       sb.append(String.format("%n   ******* jinjava before resolve block stubs: %d ms.",
-          TimeUnit.NANOSECONDS.toMillis(cost)));
+          costMs));
     }
     resolveBlockStubs(output);
 
-    cost = System.nanoTime() - start;
-    if (cost > 1000000 * 10) {
-      sb.append(String.format("%n   ******* jinjava render node: %d ms.%n", TimeUnit.NANOSECONDS.toMillis(cost)));
+    costMs = System.currentTimeMillis() - startMs;
+    if (costMs > 100) {
+      sb.append(String.format("%n   ******* jinjava render node: %d ms.%n", costMs));
       ENGINE_LOG.info(sb.toString());
     }
     return output.getValue();

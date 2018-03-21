@@ -71,10 +71,16 @@ public abstract class AbstractCallableMethod {
     }
 
     long startMs = System.currentTimeMillis();
-    System.out.println(String.format("*** Evaluating %s %s",
-        name, Lists.newArrayList(args).toString()));
     Object result = doEvaluate(argMap, kwargMap, varArgs);
-    System.out.println(String.format("***       %d %s", System.currentTimeMillis() - startMs, name));
+    long costMs = System.currentTimeMillis() - startMs;
+    String params = Lists.newArrayList(args).toString();
+    if (params.length() > 100) {
+      params = "<TOO LONG>";
+    }
+    if (costMs > 10) {
+      System.out.println(String.format("***       %d evaluated  %s %s", costMs,
+          name, params));
+    }
     return result;
   }
 
