@@ -34,8 +34,6 @@
 
   <properties>
     <project.build.targetJdk>1.8</project.build.targetJdk>
-    <basepom.check.skip-findbugs>false</basepom.check.skip-findbugs>
-    <dep.plugin.checkstyle.version>2.17</dep.plugin.checkstyle.version>
   </properties>
 
   <dependencies>
