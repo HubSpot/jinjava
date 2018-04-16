@@ -39,19 +39,25 @@ public class SelectAttrFilterTest {
         .isEqualTo("[1]");
   }
 
+  @Test
+  public void selectAttrWithNumericIsEqualToExp() {
+    assertThat(jinjava.render("{{ users|selectattr('num', 'equalto', 1) }}", new HashMap<String, Object>()))
+        .isEqualTo("[1]");
+  }
+
 
   public static class User {
-    private int num;
+    private long num;
     private boolean isActive;
     private String email;
 
-    public User(int num, boolean isActive, String email) {
+    public User(long num, boolean isActive, String email) {
       this.num = num;
       this.isActive = isActive;
       this.email = email;
     }
 
-    public int getNum() {
+    public long getNum() {
       return num;
     }
 

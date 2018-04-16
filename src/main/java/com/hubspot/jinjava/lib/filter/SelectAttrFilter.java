@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -27,7 +28,7 @@ import com.hubspot.jinjava.util.ObjectIterator;
                 "    <div class=\"post-item\">Post in listing markup</div>\n" +
                 "{% endfor %}")
     })
-public class SelectAttrFilter implements Filter {
+public class SelectAttrFilter implements AdvancedFilter {
 
   @Override
   public String getName() {
@@ -35,20 +36,29 @@ public class SelectAttrFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
     List<Object> result = new ArrayList<>();
 
     if (args.length == 0) {
       throw new InterpretException(getName() + " filter requires an attr to filter on", interpreter.getLineNumber());
     }
 
-    String[] expArgs = new String[]{};
+    if (!(args[0] instanceof String)) {
+      throw new InterpretException(getName() + " filter requires the filter attr arg to be a string", interpreter.getLineNumber());
+    }
 
-    String attr = args[0];
+    Object[] expArgs = new String[]{};
+
+    String attr = (String) args[0];
 
     ExpTest expTest = interpreter.getContext().getExpTest("truthy");
     if (args.length > 1) {
-      expTest = interpreter.getContext().getExpTest(args[1]);
+
+      if (!(args[1] instanceof String)) {
+        throw new InterpretException(getName() + " filter requires the expression test arg to be a string", interpreter.getLineNumber());
+      }
+
+      expTest = interpreter.getContext().getExpTest((String) args[1]);
       if (expTest == null) {
         throw new InterpretException("No expression test defined with name '" + args[1] + "'", interpreter.getLineNumber());
       }
@@ -63,12 +73,11 @@ public class SelectAttrFilter implements Filter {
       Object val = loop.next();
       Object attrVal = interpreter.resolveProperty(val, attr);
 
-      if (expTest.evaluate(attrVal, interpreter, (Object[]) expArgs)) {
+      if (expTest.evaluate(attrVal, interpreter, expArgs)) {
         result.add(val);
       }
     }
 
     return result;
   }
-
 }
