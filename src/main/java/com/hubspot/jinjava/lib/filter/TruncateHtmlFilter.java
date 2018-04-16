@@ -76,7 +76,7 @@ public class TruncateHtmlFilter implements Filter {
     private String ending;
     private boolean killwords;
 
-    public ContentTruncatingNodeVisitor(int maxTextLen, String ending, boolean killwords) {
+    ContentTruncatingNodeVisitor(int maxTextLen, String ending, boolean killwords) {
       this.maxTextLen = maxTextLen;
       this.ending = ending;
       this.killwords = killwords;
