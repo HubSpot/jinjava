@@ -24,8 +24,8 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 @SuppressWarnings("unchecked")
 public class ExtendedSyntaxBuilderTest {
 
-  Context context;
-  JinjavaInterpreter interpreter;
+  private Context context;
+  private JinjavaInterpreter interpreter;
 
   @Before
   public void setup() {
@@ -109,6 +109,19 @@ public class ExtendedSyntaxBuilderTest {
     assertThat(val("12 in [1, 2, 3]")).isEqualTo(false);
     assertThat(val("12 in [1, 12, 3]")).isEqualTo(true);
   }
+
+  // TODO: support negated collection membership. See CollectionMembershipOperator
+//  @Test
+//  public void stringNotInStringOperator() {
+//    assertThat(val("'foo' not in 'foobar'")).isEqualTo(false);
+//    assertThat(val("'gg' not in 'foobar'")).isEqualTo(true);
+//  }
+
+//  @Test
+//  public void objNotInCollectionOperator() {
+//    assertThat(val("12 not in [1, 2, 3]")).isEqualTo(true);
+//    assertThat(val("12 not in [1, 12, 3]")).isEqualTo(false);
+//  }
 
   @Test
   public void conditionalExprWithNoElse() {
