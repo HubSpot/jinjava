@@ -6,24 +6,32 @@ public class UnknownTagException extends TemplateSyntaxException {
   private static final long serialVersionUID = 1L;
 
   private final String tag;
-  private final String defintion;
+  private final String definition;
 
   public UnknownTagException(String tag, String definition, int lineNumber, int startPosition) {
     super(definition, "Unknown tag: " + tag, lineNumber, startPosition);
     this.tag = tag;
-    this.defintion = definition;
+    this.definition = definition;
   }
 
   public UnknownTagException(TagToken tagToken) {
-    this(tagToken.getTagName(), tagToken.getImage(), tagToken.getLineNumber(), tagToken.getStartPosition());
+    this(tagToken.getRawTagName(), tagToken.getImage(), tagToken.getLineNumber(), tagToken.getStartPosition());
   }
 
   public String getTag() {
     return tag;
   }
 
+  /**
+   * @deprecated use correct spelling
+   */
+  @Deprecated
   public String getDefintion() {
-    return defintion;
+    return definition;
+  }
+
+  public String getDefinition() {
+    return definition;
   }
 
 }
