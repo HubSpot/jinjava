@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -63,7 +62,7 @@ public class SortFilter implements Filter {
     }
 
     List<?> result = Lists.newArrayList(ObjectIterator.getLoop(var));
-    Collections.sort(result, new ObjectComparator(interpreter, reverse, caseSensitive, attr));
+    result.sort(new ObjectComparator(interpreter, reverse, caseSensitive, attr));
 
     return result;
   }
@@ -73,7 +72,7 @@ public class SortFilter implements Filter {
     private final boolean caseSensitive;
     private final Variable variable;
 
-    public ObjectComparator(JinjavaInterpreter interpreter, boolean reverse, boolean caseSensitive, String attr) {
+    ObjectComparator(JinjavaInterpreter interpreter, boolean reverse, boolean caseSensitive, String attr) {
       this.reverse = reverse;
       this.caseSensitive = caseSensitive;
 

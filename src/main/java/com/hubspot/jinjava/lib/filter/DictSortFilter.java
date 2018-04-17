@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.lib.filter;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +55,7 @@ public class DictSortFilter implements Filter {
     Map<String, Object> dict = (Map<String, Object>) var;
 
     List<Map.Entry<String, Object>> sorted = Lists.newArrayList(dict.entrySet());
-    Collections.sort(sorted, new MapEntryComparator(caseSensitive, sortByKey));
+    sorted.sort(new MapEntryComparator(caseSensitive, sortByKey));
 
     return sorted;
   }
@@ -67,7 +66,7 @@ public class DictSortFilter implements Filter {
     private final boolean caseSensitive;
     private final boolean sortByKey;
 
-    public MapEntryComparator(boolean caseSensitive, boolean sortByKey) {
+    MapEntryComparator(boolean caseSensitive, boolean sortByKey) {
       this.caseSensitive = caseSensitive;
       this.sortByKey = sortByKey;
     }

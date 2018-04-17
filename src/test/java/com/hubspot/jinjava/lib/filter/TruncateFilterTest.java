@@ -1,17 +1,12 @@
 package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -23,11 +18,6 @@ public class TruncateFilterTest {
   JinjavaInterpreter interpreter;
   @InjectMocks
   TruncateFilter filter;
-
-  @Before
-  public void setup() {
-    when(interpreter.resolveString(anyString(), anyInt(), anyInt())).thenAnswer(new ReturnsArgumentAt(0));
-  }
 
   @Test
   public void itPassesThroughSmallEnoughText() throws Exception {
