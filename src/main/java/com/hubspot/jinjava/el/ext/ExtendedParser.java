@@ -378,7 +378,7 @@ public class ExtendedParser extends Parser {
             exptestParams.add(arg);
           }
 
-          AstProperty exptestProperty = createAstDot(identifier(EXPTEST_PREFIX + exptestName), "evaluate", true);
+          AstProperty exptestProperty = createAstDot(identifier(EXPTEST_PREFIX + exptestName), "evaluateNegated", true);
           v = createAstMethod(exptestProperty, new AstParameters(exptestParams));
         } else if ("is".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
           consumeToken(); // 'is'
