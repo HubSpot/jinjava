@@ -395,8 +395,6 @@ public class JinjavaInterpreter {
    */
   public Object resolveELExpression(String expression, int lineNumber) {
     this.lineNumber = lineNumber;
-    this.position = 0;
-
     return expressionResolver.resolveExpression(expression);
   }
 
