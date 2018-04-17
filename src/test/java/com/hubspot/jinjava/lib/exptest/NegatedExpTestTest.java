@@ -11,7 +11,7 @@ import com.hubspot.jinjava.Jinjava;
 
 public class NegatedExpTestTest {
 
-  private static final String TEMPLATE = "{%% if %s is not %s %%}pass{%% else %%}fail{%% endif %%}";
+  private static final String TEMPLATE = "{%% if %s is %s %s %%}pass{%% else %%}fail{%% endif %%}";
   private static final String CONTAINING_TEMPLATE = "{%% if %s is not containing %s %%}pass{%% else %%}fail{%% endif %%}";
 
   private Jinjava jinjava;
@@ -23,7 +23,8 @@ public class NegatedExpTestTest {
 
   @Test
   public void itNegatesDefined() {
-    assertThat(jinjava.render(String.format(TEMPLATE, "blah", "defined"), new HashMap<>())).isEqualTo("pass");
+    assertThat(jinjava.render(String.format(TEMPLATE, "blah", "", "defined"), new HashMap<>())).isEqualTo("fail");
+    assertThat(jinjava.render(String.format(TEMPLATE, "blah", "not", "defined"), new HashMap<>())).isEqualTo("pass");
   }
 
   @Test
