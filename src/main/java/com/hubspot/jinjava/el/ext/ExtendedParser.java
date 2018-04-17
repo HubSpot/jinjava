@@ -181,7 +181,7 @@ public class ExtendedParser extends Parser {
     List<AstNode> l = Collections.emptyList();
     AstNode v = expr(false);
     if (v != null) {
-      l = new ArrayList<AstNode>();
+      l = new ArrayList<>();
       l.add(v);
       while (getToken().getSymbol() == COMMA) {
         consumeToken();
@@ -363,8 +363,23 @@ public class ExtendedParser extends Parser {
 
             AstProperty filterProperty = createAstDot(identifier(FILTER_PREFIX + filterName), "filter", true);
             v = createAstMethod(filterProperty, new AstParameters(filterParams)); // function("filter:" + filterName, new AstParameters(filterParams));
-
           } while ("|".equals(getToken().getImage()));
+        } else if ("is".equals(getToken().getImage()) &&
+            "not".equals(lookahead(0).getImage()) &&
+            lookahead(1).getSymbol() == IDENTIFIER) {
+          consumeToken(); // 'is'
+          consumeToken(); // 'not'
+          String exptestName = consumeToken().getImage();
+          List<AstNode> exptestParams = Lists.newArrayList(v, interpreter());
+
+          // optional exptest arg
+          AstNode arg = expr(false);
+          if (arg != null) {
+            exptestParams.add(arg);
+          }
+
+          AstProperty exptestProperty = createAstDot(identifier(EXPTEST_PREFIX + exptestName), "evaluateNegated", true);
+          v = createAstMethod(exptestProperty, new AstParameters(exptestParams));
         } else if ("is".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
           consumeToken(); // 'is'
           String exptestName = consumeToken().getImage();

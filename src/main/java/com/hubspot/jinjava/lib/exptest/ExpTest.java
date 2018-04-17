@@ -18,4 +18,8 @@ public interface ExpTest extends Importable {
 
   boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args);
 
+  default boolean evaluateNegated(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return !evaluate(var, interpreter, args);
+  }
+
 }

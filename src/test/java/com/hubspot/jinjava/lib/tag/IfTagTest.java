@@ -28,7 +28,7 @@ public class IfTagTest {
   IfTag tag;
 
   Jinjava jinjava;
-  Context context;
+  private Context context;
 
   @Before
   public void setup() {

@@ -31,7 +31,7 @@ public class ForTagTest {
 
   ForTag tag;
 
-  Context context;
+  private Context context;
   JinjavaInterpreter interpreter;
   Jinjava jinjava;
 
@@ -169,7 +169,7 @@ public class ForTagTest {
   }
 
   @Test
-  public void testFoorLoopVariablesWithSpaces() {
+  public void testForLoopVariablesWithSpaces() {
 
       Map<String, Object> context = Maps.newHashMap();
       context.put("a", 2);
