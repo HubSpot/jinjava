@@ -20,7 +20,7 @@ public class RenderResult {
   public RenderResult(TemplateError fromException, Context context, List<TemplateError> errors) {
     this.output = "";
     this.context = context;
-    this.errors = ImmutableList.<TemplateError> builder().add(fromException).addAll(errors).build();
+    this.errors = ImmutableList.<TemplateError>builder().add(fromException).addAll(errors).build();
   }
 
   public RenderResult(String result) {

@@ -47,28 +47,28 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itResolvesListLiterals() throws Exception {
+  public void itResolvesListLiterals() {
     Object val = interpreter.resolveELExpression("['0.5','50']", -1);
     List<Object> list = (List<Object>) val;
     assertThat(list).containsExactly("0.5", "50");
   }
 
   @Test
-  public void itResolvesImmutableListLiterals() throws Exception {
+  public void itResolvesImmutableListLiterals() {
     Object val = interpreter.resolveELExpression("('0.5','50')", -1);
     List<Object> list = (List<Object>) val;
     assertThat(list).containsExactly("0.5", "50");
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void testTuplesAreImmutable() throws Exception {
+  public void testTuplesAreImmutable() {
     Object val = interpreter.resolveELExpression("('0.5','50')", -1);
     List<Object> list = (List<Object>) val;
     list.add("foo");
   }
 
   @Test
-  public void itCanCompareStrings() throws Exception {
+  public void itCanCompareStrings() {
     context.put("foo", "white");
     assertThat(interpreter.resolveELExpression("'2013-12-08 16:00:00+00:00' > '2013-12-08 13:00:00+00:00'",
                                                -1)).isEqualTo(Boolean.TRUE);
@@ -76,7 +76,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itResolvesUntrimmedExprs() throws Exception {
+  public void itResolvesUntrimmedExprs() {
     context.put("foo", "bar");
     Object val = interpreter.resolveELExpression("  foo ", -1);
     assertThat(val).isEqualTo("bar");
@@ -84,7 +84,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itResolvesMathVals() throws Exception {
+  public void itResolvesMathVals() {
     context.put("i_am_seven", 7L);
     Object val = interpreter.resolveELExpression("(i_am_seven * 2 + 1)/3", -1);
     assertThat(val).isEqualTo(5.0);
@@ -92,14 +92,14 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itResolvesListVal() throws Exception {
+  public void itResolvesListVal() {
     context.put("thelist", Lists.newArrayList(1L, 2L, 3L));
     Object val = interpreter.resolveELExpression("thelist[1]", -1);
     assertThat(val).isEqualTo(2L);
   }
 
   @Test
-  public void itResolvesDictValWithBracket() throws Exception {
+  public void itResolvesDictValWithBracket() {
     Map<String, Object> dict = Maps.newHashMap();
     dict.put("foo", "bar");
     context.put("thedict", dict);
@@ -110,7 +110,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itResolvesDictValWithDotParam() throws Exception {
+  public void itResolvesDictValWithDotParam() {
     Map<String, Object> dict = Maps.newHashMap();
     dict.put("foo", "bar");
     context.put("thedict", dict);
@@ -121,7 +121,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itResolvesMapValOnCustomObject() throws Exception {
+  public void itResolvesMapValOnCustomObject() {
 
     MyCustomMap dict = new MyCustomMap();
     context.put("thedict", dict);
@@ -136,7 +136,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itResolvesOtherMethodsOnCustomMapObject() throws Exception {
+  public void itResolvesOtherMethodsOnCustomMapObject() {
 
     MyCustomMap dict = new MyCustomMap();
     context.put("thedict", dict);
@@ -217,7 +217,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itResolvesInnerDictVal() throws Exception {
+  public void itResolvesInnerDictVal() {
     Map<String, Object> dict = Maps.newHashMap();
     Map<String, Object> inner = Maps.newHashMap();
     inner.put("test", "val");
@@ -229,7 +229,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itResolvesInnerListVal() throws Exception {
+  public void itResolvesInnerListVal() {
     Map<String, Object> dict = Maps.newHashMap();
     List<String> inner = Lists.newArrayList("val");
     dict.put("inner", inner);
@@ -257,14 +257,14 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itRecordsFilterNames() throws Exception {
+  public void itRecordsFilterNames() {
     Object val = interpreter.resolveELExpression("2.3 | round", -1);
     assertThat(val).isEqualTo(new BigDecimal(2));
     assertThat(interpreter.getContext().wasValueResolved("filter:round")).isTrue();
   }
 
   @Test
-  public void callCustomListProperty() throws Exception {
+  public void callCustomListProperty() {
     List<Integer> myList = new MyCustomList<>(Lists.newArrayList(1, 2, 3, 4));
 
     context.put("mylist", myList);
@@ -273,7 +273,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void complexInWithOrCondition() throws Exception {
+  public void complexInWithOrCondition() {
     context.put("foo", "this is<hr>something");
     context.put("bar", "this is<hr/>something");
 
@@ -283,7 +283,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void unknownProperty() throws Exception {
+  public void unknownProperty() {
     interpreter.resolveELExpression("foo", 23);
     assertThat(interpreter.getErrors()).isEmpty();
 
@@ -300,7 +300,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void syntaxError() throws Exception {
+  public void syntaxError() {
     interpreter.resolveELExpression("(*&W", 123);
     assertThat(interpreter.getErrors()).hasSize(1);
 
@@ -311,7 +311,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itWrapsDates() throws Exception {
+  public void itWrapsDates() {
     context.put("myobj", new MyClass(new Date(0)));
     Object result = interpreter.resolveELExpression("myobj.date", -1);
     assertThat(result).isInstanceOf(PyishDate.class);
@@ -319,7 +319,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void blackListedProperties() throws Exception {
+  public void blackListedProperties() {
     context.put("myobj", new MyClass(new Date(0)));
     interpreter.resolveELExpression("myobj.class.methods[0]", -1);
 
@@ -331,7 +331,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void blackListedMethods() throws Exception {
+  public void blackListedMethods() {
     context.put("myobj", new MyClass(new Date(0)));
     interpreter.resolveELExpression("myobj.wait()", -1);
 
@@ -341,7 +341,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itBlocksDisabledTags() throws Exception {
+  public void itBlocksDisabledTags() {
 
     Map<Context.Library, Set<String>> disabled = ImmutableMap.of(Context.Library.TAG, ImmutableSet.of("raw"));
     assertThat(interpreter.render("{% raw %}foo{% endraw %}")).isEqualTo("foo");
@@ -357,7 +357,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itBlocksDisabledTagsInIncludes() throws Exception {
+  public void itBlocksDisabledTagsInIncludes() {
 
     final String jinja = "top {% include \"tags/includetag/raw.html\" %}";
 
@@ -374,7 +374,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itBlocksDisabledFilters() throws Exception {
+  public void itBlocksDisabledFilters() {
 
     Map<Context.Library, Set<String>> disabled = ImmutableMap.of(Context.Library.FILTER, ImmutableSet.of("truncate"));
     assertThat(interpreter.resolveELExpression("\"hey\"|truncate(2)", -1)).isEqualTo("h...");
@@ -389,7 +389,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itBlocksDisabledFunctions() throws Exception {
+  public void itBlocksDisabledFunctions() {
 
     Map<Context.Library, Set<String>> disabled = ImmutableMap.of(Library.FUNCTION, ImmutableSet.of(":range"));
 
@@ -409,7 +409,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itBlocksDisabledExpTests() throws Exception {
+  public void itBlocksDisabledExpTests() {
 
     Map<Context.Library, Set<String>> disabled = ImmutableMap.of(Context.Library.EXP_TEST, ImmutableSet.of("even"));
     assertThat(interpreter.render("{% if 2 is even %}yes{% endif %}")).isEqualTo("yes");
@@ -424,7 +424,7 @@ public class ExpressionResolverTest {
   }
 
   @Test
-  public void itStoresResolvedFunctions() throws Exception {
+  public void itStoresResolvedFunctions() {
     context.put("datetime", 12345);
     final JinjavaConfig config = JinjavaConfig.newBuilder().build();
     String template = "{% for i in range(1, 5) %}{{i}} {% endfor %}\n{{ unixtimestamp(datetime) }}";
