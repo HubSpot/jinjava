@@ -2,11 +2,25 @@ package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.Jinjava;
 
 public class TemplateErrorTest {
+
+  private Context context;
+  private JinjavaInterpreter interpreter;
+
+  @Before
+  public void setup() {
+    interpreter = new Jinjava().newInterpreter();
+    JinjavaInterpreter.pushCurrent(interpreter);
+
+    context = interpreter.getContext();
+  }
+
 
   @Test
   public void itShowsFriendlyNameOfBaseObjectForPropNotFound() {
@@ -22,8 +36,8 @@ public class TemplateErrorTest {
 
   @Test
   public void itShowsFieldNameForUnknownTagError() {
-    TemplateError e = TemplateError.fromException(new UnknownTagException("unknown", "{% unknown() %}", 11, 3));
-    assertThat(e.getFieldName()).isEqualTo("unknown");
+    TemplateError e = TemplateError.fromException(new UnknownTagException("unKnown", "{% unKnown() %}", 11, 3));
+    assertThat(e.getFieldName()).isEqualTo("unKnown");
   }
 
   @Test
@@ -32,4 +46,9 @@ public class TemplateErrorTest {
     assertThat(e.getFieldName()).isEqualTo("da codez");
   }
 
+  @Test
+  public void itRetainsFieldNameCaseForUnknownToken() {
+    interpreter.render("{% unKnown() %}");
+    assertThat(interpreter.getErrors().get(0).getFieldName()).isEqualTo("unKnown");
+  }
 }
