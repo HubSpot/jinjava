@@ -65,13 +65,38 @@ public class FloatFilterTest {
   }
 
   @Test
+  public void itReturnsVarWithTrailingPercentAsDefault() {
+    assertThat(filter.filter("123%", interpreter)).isEqualTo(0.0f);
+  }
+
+  @Test
+  public void itReturnsVarWithLeadingLettersAsDefault() {
+    assertThat(filter.filter("abc123", interpreter)).isEqualTo(0.0f);
+  }
+
+  @Test
+  public void itReturnsVarWithTrailingLettersAsDefault() {
+    assertThat(filter.filter("123abc", interpreter)).isEqualTo(0.0f);
+  }
+
+  @Test
+  public void itReturnsVarWithLeadingCurrencySymbolAsDefault() {
+    assertThat(filter.filter("$123", interpreter)).isEqualTo(0.0f);
+  }
+
+  @Test
+  public void itReturnsVarWithTrailingCurrencySymbolAsDefault() {
+    assertThat(filter.filter("123$", interpreter)).isEqualTo(0.0f);
+  }
+
+  @Test
   public void itInterpretsUsCommasAndPeriodsWithUsLocale() {
     assertThat(filter.filter("123,123.45", interpreter)).isEqualTo(123123.45f);
   }
 
   @Test
-  public void itInterpretsFrenchCommasAndPeriodsWithUsLocale() {
-    assertThat(filter.filter("123.123,45", interpreter)).isEqualTo(123.123f);
+  public void itDoesntInterpretFrenchCommasAndPeriodsWithUsLocale() {
+    assertThat(filter.filter("123.123,45", interpreter)).isEqualTo(0.0f);
   }
 
   @Test
@@ -80,9 +105,9 @@ public class FloatFilterTest {
   }
 
   @Test
-  public void itInterpretsUsCommasAndPeriodsWithFrenchLocale() {
+  public void itDoesntInterpretUsCommasAndPeriodsWithFrenchLocale() {
     interpreter = new Jinjava(FRENCH_LOCALE_CONFIG).newInterpreter();
-    assertThat(filter.filter("123,123.12", interpreter)).isEqualTo(123.123f);
+    assertThat(filter.filter("123,123.12", interpreter)).isEqualTo(0.0f);
   }
 
   @Test
@@ -90,5 +115,4 @@ public class FloatFilterTest {
     interpreter = new Jinjava(FRENCH_LOCALE_CONFIG).newInterpreter();
     assertThat(filter.filter("123\u00A0123,45", interpreter)).isEqualTo(123123.45f);
   }
-
 }

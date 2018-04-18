@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.util.Locale;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,13 +51,43 @@ public class IntFilterTest {
   }
 
   @Test
-  public void itInterpretsUsCommasAndPeriodsWithUsLocale() {
+  public void itReturnsVarWithLeadingPercentAsDefault() {
+    assertThat(filter.filter("%60", interpreter)).isEqualTo(0);
+  }
+
+  @Test
+  public void itReturnsVarWithTrailingPercentAsDefault() {
+    assertThat(filter.filter("60%", interpreter)).isEqualTo(0);
+  }
+
+  @Test
+  public void itReturnsVarWithLeadingLettersAsDefault() {
+    assertThat(filter.filter("abc60", interpreter)).isEqualTo(0);
+  }
+
+  @Test
+  public void itReturnsVarWithTrailingLettersAsDefault() {
+    assertThat(filter.filter("60abc", interpreter)).isEqualTo(0);
+  }
+
+  @Test
+  public void itReturnsVarWithLeadingCurrencySymbolAsDefault() {
+    assertThat(filter.filter("$60", interpreter)).isEqualTo(0);
+  }
+
+  @Test
+  public void itReturnsVarWithTrailingCurrencySymbolAsDefault() {
+    assertThat(filter.filter("60$", interpreter)).isEqualTo(0);
+  }
+
+  @Test
+  public void itDoesntInterpretsUsCommasAndPeriodsWithUsLocale() {
     assertThat(filter.filter("123,123.12", interpreter)).isEqualTo(123123);
   }
 
   @Test
-  public void itInterpretsFrenchCommasAndPeriodsWithUsLocale() {
-    assertThat(filter.filter("123.123,12", interpreter)).isEqualTo(123);
+  public void itDoesntInterpreFrenchCommasAndPeriodsWithUsLocale() {
+    assertThat(filter.filter("123.123,12", interpreter)).isEqualTo(0);
   }
 
   @Test
@@ -65,9 +96,9 @@ public class IntFilterTest {
   }
 
   @Test
-  public void itInterpretsUsCommasAndPeriodsWithFrenchLocale() {
+  public void itDoesntInterpretUsCommasAndPeriodsWithFrenchLocale() {
     interpreter = new Jinjava(FRENCH_LOCALE_CONFIG).newInterpreter();
-    assertThat(filter.filter("123,123.12", interpreter)).isEqualTo(123);
+    assertThat(filter.filter("123,123.12", interpreter)).isEqualTo(0);
   }
 
   @Test
@@ -75,5 +106,4 @@ public class IntFilterTest {
     interpreter = new Jinjava(FRENCH_LOCALE_CONFIG).newInterpreter();
     assertThat(filter.filter("123\u00A0123,12", interpreter)).isEqualTo(123123);
   }
-
 }
