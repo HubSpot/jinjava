@@ -116,7 +116,7 @@ public class ForTag implements Tag {
     }
 
     if (inPos >= helper.size()) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'for' expects valid 'in' clause, got: " + tagNode.getHelpers(), tagNode.getLineNumber(), tagNode.getStartPosition());
+      throw new TemplateSyntaxException(tagNode.getHelpers().trim(), "Tag 'for' expects valid 'in' clause, got: " + tagNode.getHelpers(), tagNode.getLineNumber(), tagNode.getStartPosition());
     }
 
     String loopExpr = StringUtils.join(helper.subList(inPos + 1, helper.size()), ",");
