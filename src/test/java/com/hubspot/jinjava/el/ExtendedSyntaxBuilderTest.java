@@ -265,12 +265,15 @@ public class ExtendedSyntaxBuilderTest {
     assertThat(interpreter.getErrors().get(0).getLineno()).isEqualTo(1);
     assertThat(interpreter.getErrors().get(0).getMessage()).contains("position 14");
     assertThat(interpreter.getErrors().get(0).getStartPosition()).isEqualTo(14);
+    assertThat(interpreter.getErrors().get(0).getFieldName()).isEqualTo("thing");
     assertThat(interpreter.getErrors().get(1).getLineno()).isEqualTo(1);
     assertThat(interpreter.getErrors().get(1).getMessage()).contains("position 33");
     assertThat(interpreter.getErrors().get(1).getStartPosition()).isEqualTo(33);
+    assertThat(interpreter.getErrors().get(1).getFieldName()).isEqualTo("thing");
     assertThat(interpreter.getErrors().get(2).getLineno()).isEqualTo(2);
     assertThat(interpreter.getErrors().get(2).getMessage()).contains("position 13");
     assertThat(interpreter.getErrors().get(2).getStartPosition()).isEqualTo(13);
+    assertThat(interpreter.getErrors().get(2).getFieldName()).isEqualTo("blabbity");
   }
 
   private Object val(String expr) {
