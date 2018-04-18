@@ -37,6 +37,9 @@ public class ExpressionResolver {
   private final JinjavaInterpreterResolver resolver;
   private final JinjavaELContext elContext;
 
+  private static final String EXPRESSION_START_TOKEN = "#{";
+  private static final String EXPRESSION_END_TOKEN = "}";
+
   public ExpressionResolver(JinjavaInterpreter interpreter, ExpressionFactory expressionFactory) {
     this.interpreter = interpreter;
     this.expressionFactory = expressionFactory;
@@ -63,7 +66,7 @@ public class ExpressionResolver {
     interpreter.getContext().addResolvedExpression(expression.trim());
 
     try {
-      String elExpression = "#{" + expression.trim() + "}";
+      String elExpression = EXPRESSION_START_TOKEN + expression.trim() + EXPRESSION_END_TOKEN;
       ValueExpression valueExp = expressionFactory.createValueExpression(elContext, elExpression, Object.class);
       Object result = valueExp.getValue(elContext);
 
@@ -78,7 +81,7 @@ public class ExpressionResolver {
       int position = interpreter.getPosition() + e.getPosition();
       // replacing the position in the string like this isn't great, but JUEL's parser does not allow passing in a starting position
       String errorMessage = StringUtils.substringAfter(e.getMessage(), "': ").replaceFirst("position [0-9]+", "position " + position);
-      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression,
+      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression.substring(e.getPosition() - EXPRESSION_START_TOKEN.length()),
           "Error parsing '" + expression + "': " + errorMessage, interpreter.getLineNumber(), position, e)));
     } catch (ELException e) {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
