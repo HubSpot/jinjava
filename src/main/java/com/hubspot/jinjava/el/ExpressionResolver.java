@@ -75,8 +75,11 @@ public class ExpressionResolver {
       interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, e.getMessage(), "", interpreter.getLineNumber(), interpreter.getPosition(), e,
           BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of("exception", e.getMessage())));
     } catch (TreeBuilderException e) {
+      int position = interpreter.getPosition() + e.getPosition();
+      // replacing the position in the string like this isn't great, but JUEL's parser does not allow passing in a starting position
+      String errorMessage = StringUtils.substringAfter(e.getMessage(), "': ").replaceFirst("position [0-9]+", "position " + position);
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression,
-          "Error parsing '" + expression + "': " + StringUtils.substringAfter(e.getMessage(), "': "), interpreter.getLineNumber(), interpreter.getPosition() + e.getPosition(), e)));
+          "Error parsing '" + expression + "': " + errorMessage, interpreter.getLineNumber(), position, e)));
     } catch (ELException e) {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
     } catch (DisabledException e) {
