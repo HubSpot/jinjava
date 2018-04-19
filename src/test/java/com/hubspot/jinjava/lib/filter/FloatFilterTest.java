@@ -62,6 +62,7 @@ public class FloatFilterTest {
   @Test
   public void itReturnsVarAsFloat() {
     assertThat(filter.filter("123.45", interpreter)).isEqualTo(123.45f);
+    assertThat(filter.filter("1.100000", interpreter)).isEqualTo(1.100000f);
   }
 
   @Test

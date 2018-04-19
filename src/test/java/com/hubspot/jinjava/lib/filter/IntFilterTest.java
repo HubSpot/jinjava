@@ -47,7 +47,14 @@ public class IntFilterTest {
 
   @Test
   public void itReturnsVarAsInt() {
-    assertThat(filter.filter("123", interpreter)).isEqualTo(123);
+    assertThat(filter.filter("123", interpreter))
+        .isInstanceOf(Integer.class)
+        .isEqualTo(123);
+  }
+
+  @Test
+  public void itReturnsVarWithFloatingPointAsInt() {
+    assertThat(filter.filter("123.1", interpreter)).isEqualTo(123);
   }
 
   @Test
@@ -81,12 +88,12 @@ public class IntFilterTest {
   }
 
   @Test
-  public void itDoesntInterpretsUsCommasAndPeriodsWithUsLocale() {
+  public void itInterpretsUsCommasAndPeriodsWithUsLocale() {
     assertThat(filter.filter("123,123.12", interpreter)).isEqualTo(123123);
   }
 
   @Test
-  public void itDoesntInterpreFrenchCommasAndPeriodsWithUsLocale() {
+  public void itDoesntInterpretFrenchCommasAndPeriodsWithUsLocale() {
     assertThat(filter.filter("123.123,12", interpreter)).isEqualTo(0);
   }
 
