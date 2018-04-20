@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
 import java.text.NumberFormat;
+import java.text.ParsePosition;
 import java.util.Locale;
 
 import org.apache.commons.lang3.math.NumberUtils;
@@ -47,12 +48,17 @@ public class FloatFilter implements Filter {
       return ((Number) var).floatValue();
     }
 
+    String input = var.toString();
     Locale locale = interpreter.getConfig().getLocale();
     NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+    ParsePosition pp = new ParsePosition(0);
     float result;
     try {
-      result = numberFormat.parse(var.toString()).floatValue();
+      result = numberFormat.parse(input, pp).floatValue();
     } catch (Exception e) {
+      result = defaultVal;
+    }
+    if (pp.getErrorIndex() != -1 || pp.getIndex() != input.length()) {
       result = defaultVal;
     }
     return result;
