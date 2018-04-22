@@ -1,6 +1,6 @@
 # Jinjava Releases #
 
-### 2018-04-18 Version 2.4.1 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.1%7Cjar)) ###
+### 2018-04-22 Version 2.4.1 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.1%7Cjar)) ###
 
 * [Use `AdvancedFilter` for `selectattr` filter](https://github.com/HubSpot/jinjava/pull/183)
 * [Java 9 Support](https://github.com/HubSpot/jinjava/pull/186)
@@ -8,6 +8,7 @@
 * [Fix column numbers in syntax errors](https://github.com/HubSpot/jinjava/pull/188)
 * [When reporting errors, preserve casing](https://github.com/HubSpot/jinjava/pull/189)
 * [Populate `fieldName` in `TemplateSyntaxException`s](https://github.com/HubSpot/jinjava/pull/190)
+* [Reintroduce stricter parsing in int and float filters](https://github.com/HubSpot/jinjava/pull/191)
 
 ### 2018-02-26 Version 2.4.0 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.0%7Cjar)) ###
 
