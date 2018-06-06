@@ -1,11 +1,20 @@
 package com.hubspot.jinjava.lib.tag;
 
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.TagNode;
 
@@ -52,6 +61,9 @@ public class CallTag implements Tag {
 
   private static final long serialVersionUID = 7231253469979314727L;
 
+  private static final Pattern CALL_PATTERN = Pattern.compile("(?:\\(([^\\)]*)\\))?(.*)");
+  private static final Splitter ARGS_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
+
   @Override
   public String getName() {
     return "call";
@@ -64,20 +76,42 @@ public class CallTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    String tagText = tagNode.getHelpers().trim();
-    LinkedHashMap<String, Object> args = new LinkedHashMap<>();
-    if (tagText.charAt(0) == '(') {
-      int end = tagText.indexOf(')');
-      String[] callerArgs = tagText.substring(1, end).split("\\s*,\\s*");
-      for (String arg: callerArgs) {
-        args.put(arg, null);
-      }
-      tagText = tagText.substring(end + 1).trim();
+    Matcher matcher = CALL_PATTERN.matcher(tagNode.getHelpers().trim());
+    if (!matcher.find()) {
+      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Unable to parse call block: " + tagNode.getHelpers(), tagNode.getLineNumber(), tagNode.getStartPosition());
     }
-    String macroExpr = "{{" + tagText + "}}";
+
+    String args = Strings.nullToEmpty(matcher.group(1));
+    String macro = matcher.group(2);
+
+    LinkedHashMap<String, Object> argNamesWithDefaults = new LinkedHashMap<>();
+
+    List<String> argList = Lists.newArrayList(ARGS_SPLITTER.split(args));
+    for (int i = 0; i < argList.size(); i++) {
+      String arg = argList.get(i);
+
+      if (arg.contains("=")) {
+        String argName = StringUtils.substringBefore(arg, "=").trim();
+        StringBuilder argValStr = new StringBuilder(StringUtils.substringAfter(arg, "=").trim());
+
+        if (StringUtils.startsWith(argValStr, "[") && !StringUtils.endsWith(argValStr, "]")) {
+          while (i + 1 < argList.size() && !StringUtils.endsWith(argValStr, "]")) {
+            argValStr.append(", ").append(argList.get(i + 1));
+            i++;
+          }
+        }
+
+        Object argVal = interpreter.resolveELExpression(argValStr.toString(), tagNode.getLineNumber());
+        argNamesWithDefaults.put(argName, argVal);
+      } else {
+        argNamesWithDefaults.put(arg, null);
+      }
+    }
+
+    String macroExpr = "{{" + macro + "}}";
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
-      MacroFunction caller = new MacroFunction(tagNode.getChildren(), "caller", args, false, false, true, interpreter.getContext());
+      MacroFunction caller = new MacroFunction(tagNode.getChildren(), "caller", argNamesWithDefaults, false, false, true, interpreter.getContext());
       interpreter.getContext().addGlobalMacro(caller);
 
       return interpreter.render(macroExpr);

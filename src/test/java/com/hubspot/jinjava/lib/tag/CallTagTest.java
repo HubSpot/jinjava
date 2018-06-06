@@ -78,6 +78,28 @@ public class CallTagTest {
     assertThat(dom.select("#3x9").text().trim()).isEqualTo("27");
   }
 
+  @Test
+  public void testCallerDefaultArgs() {
+    String template = fixture("default_args");
+    String out = interpreter.render(template).trim();
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(out).contains("regular=some_arg");
+    assertThat(out).contains("default_str=foo");
+    assertThat(out).contains("default_expr=12");
+    assertThat(out).contains("default_list=[42, 23, 666]");
+  }
+
+  @Test
+  public void testCallerOverrideArgs() {
+    String template = fixture("override_args");
+    String out = interpreter.render(template).trim();
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(out).contains("regular=some_arg");
+    assertThat(out).contains("default_str=123");
+    assertThat(out).contains("default_expr=42");
+    assertThat(out).contains("default_list=oops, no list");
+  }
+
   private String fixture(String name) {
     try {
       return Resources.toString(Resources.getResource(String.format("tags/calltag/%s.jinja", name)), StandardCharsets.UTF_8);
