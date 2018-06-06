@@ -100,6 +100,19 @@ public class CallTagTest {
     assertThat(out).contains("default_list=oops, no list");
   }
 
+  @Test
+  public void testCallerVarKwArgs() {
+    String template = fixture("caller_var_kw");
+    String out = interpreter.render(template).trim();
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(out).contains("arg=some_arg");
+    assertThat(out).contains("vararg: var_arg");
+    assertThat(out).contains("vararg: 666");
+    assertThat(out).contains("kw: default_list=oops, no list");
+    assertThat(out).contains("kw: default_str=123");
+    assertThat(out).contains("kw: default_expr=42");
+  }
+
   private String fixture(String name) {
     try {
       return Resources.toString(Resources.getResource(String.format("tags/calltag/%s.jinja", name)), StandardCharsets.UTF_8);

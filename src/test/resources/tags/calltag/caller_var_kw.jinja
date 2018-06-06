@@ -1,0 +1,13 @@
+{% macro callme() %}
+    {{ caller("some_arg", "var_arg", 666, default_list="oops, no list", default_str=123, default_expr=42) }}
+{% endmacro %}
+
+{% call(arg) callme() %}
+    arg={{arg}}
+    {% for a in varargs %}
+        vararg: {{a}}
+    {% endfor %}
+    {% for k,v in kwargs.items() %}
+        kw: {{k}}={{v}}
+    {% endfor %}
+{% endcall %}
