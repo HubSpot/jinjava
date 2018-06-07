@@ -1,0 +1,5 @@
+{% macro list_kwargs() %}
+    {% for k,v in kwargs.items() %}
+        {{k}}={{v}}
+    {% endfor %}
+{% endmacro %}

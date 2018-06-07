@@ -60,7 +60,7 @@ public class MacroFunction extends AbstractCallableMethod {
         interpreter.getContext().put(argEntry.getKey(), argEntry.getValue());
       }
       // parameter map
-      interpreter.getContext().put("kwargs", argMap);
+      interpreter.getContext().put("kwargs", kwargMap);
       // varargs list
       interpreter.getContext().put("varargs", varArgs);
 
