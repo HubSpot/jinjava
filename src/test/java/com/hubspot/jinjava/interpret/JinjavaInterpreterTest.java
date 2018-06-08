@@ -3,16 +3,23 @@ package com.hubspot.jinjava.interpret;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.objects.collections.PyList;
+import com.hubspot.jinjava.objects.collections.PyMap;
+import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.parse.TextToken;
 
@@ -104,6 +111,25 @@ public class JinjavaInterpreterTest {
   public void triesBeanMethodFirst() {
     assertThat(interpreter.resolveProperty(ZonedDateTime.parse("2013-09-19T12:12:12+00:00"), "year")
         .toString()).isEqualTo("2013");
+  }
+
+  @Test
+  public void itWrapsDateChildren() {
+    ZonedDateTime testDate = ZonedDateTime.parse("2013-09-19T12:12:12+00:00");
+
+    List<ZonedDateTime> dateList = Arrays.asList(testDate);
+    Object result = interpreter.resolveProperty(ImmutableMap.of("dates", dateList), "dates");
+    assertThat(result).isOfAnyClassIn(PyList.class);
+    PyList pyList = (PyList) result;
+    assertThat(pyList).containsOnly(new PyishDate(testDate));
+
+
+    Map<String, ZonedDateTime> dateMap = ImmutableMap.of("date", ZonedDateTime.parse("2013-09-19T12:12:12+00:00"));
+    result = interpreter.resolveProperty(ImmutableMap.of("dates", dateMap), "dates");
+    assertThat(result).isOfAnyClassIn(PyMap.class);
+    PyMap pyMap = (PyMap) result;
+    assertThat(pyMap).containsOnlyKeys("date");
+    assertThat(pyMap.get("date")).isEqualTo(new PyishDate(testDate));
   }
 
   @Test
