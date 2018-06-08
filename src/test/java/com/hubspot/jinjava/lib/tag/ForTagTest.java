@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +23,7 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
@@ -191,6 +193,18 @@ public class ForTagTest {
       String rendered = jinjava.render(template, context);
       System.out.println(rendered);
       assertEquals("a b", rendered);
+  }
+
+  @Test
+  public void testForLoopWithDates() {
+    Map<String, Object> context = Maps.newHashMap();
+    Date testDate = new Date();
+    context.put("the_list", Lists.newArrayList(new Date()));
+    String template = ""
+        + "{% for i in the_list %}{{i}}{% endfor %}";
+    String rendered = jinjava.render(template, context);
+    System.out.println(rendered);
+    assertEquals(new PyishDate(testDate).toString(), rendered);
   }
 
   private Node fixture(String name) {
