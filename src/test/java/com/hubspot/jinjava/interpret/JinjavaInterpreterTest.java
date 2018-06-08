@@ -123,7 +123,6 @@ public class JinjavaInterpreterTest {
     PyList pyList = (PyList) result;
     assertThat(pyList).containsOnly(new PyishDate(testDate));
 
-
     Map<String, ZonedDateTime> dateMap = ImmutableMap.of("date", ZonedDateTime.parse("2013-09-19T12:12:12+00:00"));
     result = interpreter.resolveProperty(ImmutableMap.of("dates", dateMap), "dates");
     assertThat(result).isOfAnyClassIn(PyMap.class);
