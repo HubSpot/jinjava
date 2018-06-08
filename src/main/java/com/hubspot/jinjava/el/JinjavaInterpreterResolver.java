@@ -10,14 +10,12 @@ import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.el.ArrayELResolver;
 import javax.el.CompositeELResolver;
@@ -206,16 +204,11 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     }
 
     if (List.class.isAssignableFrom(value.getClass())) {
-      List<Object> list = (List) value;
-      return new PyList(list.stream().map(this::wrap).collect(Collectors.toList()));
+      return new PyList((List<Object>) value);
     }
     if (Map.class.isAssignableFrom(value.getClass())) {
-      Map<Object, Object> map = (Map<Object, Object>) value;
-      Map<String, Object> wrapped = new HashMap<>();
-      for (Map.Entry<Object, Object> e : map.entrySet()) {
-        wrapped.put(e.getKey().toString(), wrap(e.getValue()));
-      }
-      return new PyMap(wrapped);
+      // FIXME: ensure keys are actually strings, if not, convert them
+      return new PyMap((Map<String, Object>) value);
     }
 
     if (Date.class.isAssignableFrom(value.getClass())) {
