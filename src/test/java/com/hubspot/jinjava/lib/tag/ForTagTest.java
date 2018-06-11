@@ -199,7 +199,7 @@ public class ForTagTest {
   public void testForLoopWithDates() {
     Map<String, Object> context = Maps.newHashMap();
     Date testDate = new Date();
-    context.put("the_list", Lists.newArrayList(new Date()));
+    context.put("the_list", Lists.newArrayList(testDate));
     String template = ""
         + "{% for i in the_list %}{{i}}{% endfor %}";
     String rendered = jinjava.render(template, context);
