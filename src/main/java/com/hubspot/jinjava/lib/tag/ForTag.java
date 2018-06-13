@@ -17,7 +17,6 @@ package com.hubspot.jinjava.lib.tag;
 
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -36,8 +35,8 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
-import com.hubspot.jinjava.util.ObjectIterator;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
+import com.hubspot.jinjava.util.ObjectIterator;
 
 /**
  * {% for a in b|f1:d,c %}
@@ -129,8 +128,7 @@ public class ForTag implements Tag {
 
       LengthLimitingStringBuilder buff = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
       while (loop.hasNext()) {
-        Object val = loop.next();
-        val = interpreter.resolveProperty(val, Collections.emptyList());
+        Object val = interpreter.wrap(loop.next());
 
         // set item variables
         if (loopVars.size() == 1) {

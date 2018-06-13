@@ -127,4 +127,15 @@ public class ExpressionResolver {
 
     return value;
   }
+
+  /**
+   * Wrap an object in it's PyIsh equivalent
+   *
+   * @param object
+   *          Bean.
+   * @return Wrapped bean.
+   */
+  public Object wrap(Object object) {
+    return resolver.wrap(object);
+  }
 }
