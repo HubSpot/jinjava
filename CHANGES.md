@@ -1,5 +1,8 @@
 # Jinjava Releases #
 
+### 2018-06-13 Version 2.4.3 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.3%7Cjar)) ###
+* [Wrap items in for loop with "PyIsh" equivalents](https://github.com/HubSpot/jinjava/pull/202)
+
 ### 2018-06-01 Version 2.4.2 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.2%7Cjar)) ###
 * [Upgrade jsoup to address CVE](https://github.com/HubSpot/jinjava/pull/200)
 
