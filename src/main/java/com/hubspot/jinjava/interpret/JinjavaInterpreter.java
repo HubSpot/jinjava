@@ -424,6 +424,17 @@ public class JinjavaInterpreter {
     return expressionResolver.resolveProperty(object, propertyNames);
   }
 
+  /**
+   * Wrap an object in it's PyIsh equivalent
+   *
+   * @param object
+   *          Bean.
+   * @return Wrapped bean.
+   */
+  public Object wrap(Object object) {
+    return expressionResolver.wrap(object);
+  }
+
   public int getLineNumber() {
     return lineNumber;
   }
