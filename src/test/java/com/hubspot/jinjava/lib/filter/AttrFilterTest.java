@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.RenderResult;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateErrorReason;
 
 public class AttrFilterTest {
 
@@ -37,7 +37,7 @@ public class AttrFilterTest {
     RenderResult renderResult = jinjava.renderForResult("{{ foo|attr(\"barf\") }}", context);
     assertThat(renderResult.getOutput()).isEmpty();
     assertThat(renderResult.getErrors()).hasSize(1);
-    assertThat(renderResult.getErrors().get(0).getReason()).isEqualTo(ErrorReason.UNKNOWN);
+    assertThat(renderResult.getErrors().get(0).getReason()).isEqualTo(TemplateErrorReason.UNKNOWN);
     assertThat(renderResult.getErrors().get(0).getFieldName()).isEqualTo("barf");
   }
 

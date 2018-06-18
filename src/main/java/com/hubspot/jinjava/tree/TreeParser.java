@@ -29,8 +29,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MissingEndTagException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.interpret.TemplateErrorReason;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
 import com.hubspot.jinjava.interpret.UnknownTagException;
@@ -154,7 +154,7 @@ public class TreeParser {
         return null;
       }
     } catch (DisabledException e) {
-      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.TAG,
+      interpreter.addError(new TemplateError(ErrorType.FATAL, TemplateErrorReason.DISABLED, ErrorItem.TAG,
           e.getMessage(), tagToken.getTagName(), interpreter.getLineNumber(), tagToken.getStartPosition(), e));
       return null;
     }

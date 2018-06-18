@@ -15,16 +15,6 @@ public class TemplateError {
     WARNING
   }
 
-  public enum ErrorReason {
-    SYNTAX_ERROR,
-    UNKNOWN,
-    BAD_URL,
-    EXCEPTION,
-    MISSING,
-    DISABLED,
-    OTHER
-  }
-
   public enum ErrorItem {
     TEMPLATE,
     TOKEN,
@@ -55,12 +45,12 @@ public class TemplateError {
   }
 
   public static TemplateError fromSyntaxError(InterpretException ex) {
-    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, ex.getLineNumber(), ex.getStartPosition(), ex);
+    return new TemplateError(ErrorType.FATAL, TemplateErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, ex.getLineNumber(), ex.getStartPosition(), ex);
   }
 
   public static TemplateError fromException(TemplateSyntaxException ex) {
     String fieldName = (ex instanceof UnknownTagException) ? ((UnknownTagException) ex).getTag() : ex.getCode();
-    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), fieldName, ex.getLineNumber(), ex.getStartPosition(), ex);
+    return new TemplateError(ErrorType.FATAL, TemplateErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), fieldName, ex.getLineNumber(), ex.getStartPosition(), ex);
   }
 
   public static TemplateError fromException(Exception ex) {
@@ -72,15 +62,15 @@ public class TemplateError {
       startPosition = ((InterpretException) ex).getStartPosition();
     }
 
-    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, startPosition, ex, BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of());
+    return new TemplateError(ErrorType.FATAL, TemplateErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, startPosition, ex, BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of());
   }
 
   public static TemplateError fromException(Exception ex, int lineNumber, int startPosition) {
-    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, startPosition, ex);
+    return new TemplateError(ErrorType.FATAL, TemplateErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, startPosition, ex);
   }
 
   public static TemplateError fromException(Exception ex, int lineNumber) {
-    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, -1, ex);
+    return new TemplateError(ErrorType.FATAL, TemplateErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, -1, ex);
   }
 
   public static TemplateError fromUnknownProperty(Object base, String variable, int lineNumber) {
@@ -88,7 +78,7 @@ public class TemplateError {
   }
 
   public static TemplateError fromUnknownProperty(Object base, String variable, int lineNumber, int startPosition) {
-    return new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY,
+    return new TemplateError(ErrorType.WARNING, TemplateErrorReason.UNKNOWN, ErrorItem.PROPERTY,
         String.format("Cannot resolve property '%s' in '%s'", variable, friendlyObjectToString(base)),
         variable, lineNumber, startPosition,null, BasicTemplateErrorCategory.UNKNOWN_PROPERTY,
         ImmutableMap.of("property", variable, "lineNumber", String.valueOf(lineNumber), "startPosition", String.valueOf(startPosition)));

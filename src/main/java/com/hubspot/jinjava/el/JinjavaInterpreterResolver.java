@@ -38,8 +38,8 @@ import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.interpret.TemplateErrorReason;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.collections.PyList;
@@ -186,7 +186,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
         }
       }
     } catch (DisabledException e) {
-      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, item, e.getMessage(), propertyName, interpreter.getLineNumber(), -1, e));
+      interpreter.addError(new TemplateError(ErrorType.FATAL, TemplateErrorReason.DISABLED, item, e.getMessage(), propertyName, interpreter.getLineNumber(), -1, e));
     }
 
     context.setPropertyResolved(true);
@@ -240,7 +240,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       try {
         return StrftimeFormatter.formatter(d.getFormat(), interpreter.getConfig().getLocale());
       } catch (IllegalArgumentException e) {
-        interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, e.getMessage(), null, interpreter.getLineNumber(), -1, null,
+        interpreter.addError(new TemplateError(ErrorType.WARNING, TemplateErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, e.getMessage(), null, interpreter.getLineNumber(), -1, null,
             BasicTemplateErrorCategory.UNKNOWN_DATE, ImmutableMap.of("date", d.getDate().toString(), "exception", e.getMessage(), "lineNumber", String.valueOf(interpreter.getLineNumber()))));
       }
     }
@@ -253,7 +253,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       try {
         return LocaleUtils.toLocale(d.getLanguage());
       } catch (IllegalArgumentException e) {
-        interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, e.getMessage(), null, interpreter.getLineNumber(), -1, null,
+        interpreter.addError(new TemplateError(ErrorType.WARNING, TemplateErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, e.getMessage(), null, interpreter.getLineNumber(), -1, null,
             BasicTemplateErrorCategory.UNKNOWN_LOCALE, ImmutableMap.of("date", d.getDate().toString(), "exception", e.getMessage(), "lineNumber", String.valueOf(interpreter.getLineNumber()))));
       }
     }

@@ -18,8 +18,8 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.interpret.TemplateErrorReason;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
@@ -75,7 +75,7 @@ public class ExpressionResolver {
       return result;
 
     } catch (PropertyNotFoundException e) {
-      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, e.getMessage(), "", interpreter.getLineNumber(), interpreter.getPosition(), e,
+      interpreter.addError(new TemplateError(ErrorType.WARNING, TemplateErrorReason.UNKNOWN, ErrorItem.PROPERTY, e.getMessage(), "", interpreter.getLineNumber(), interpreter.getPosition(), e,
           BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of("exception", e.getMessage())));
     } catch (TreeBuilderException e) {
       int position = interpreter.getPosition() + e.getPosition();
@@ -86,7 +86,7 @@ public class ExpressionResolver {
     } catch (ELException e) {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
     } catch (DisabledException e) {
-      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter.getLineNumber(), interpreter.getPosition(), e));
+      interpreter.addError(new TemplateError(ErrorType.FATAL, TemplateErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter.getLineNumber(), interpreter.getPosition(), e));
     } catch (UnknownTokenException e) {
       // Re-throw the exception because you only get this when the config failOnUnknownTokens is enabled.
       throw e;

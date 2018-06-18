@@ -27,7 +27,7 @@ import org.junit.Test;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.RenderResult;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateErrorReason;
 
 public class TagTest {
 
@@ -60,7 +60,7 @@ public class TagTest {
     script = "{% for  %}{{item}}{% endfor%}";
     RenderResult r = jinjava.renderForResult(script, bindings);
     assertThat(r.getErrors()).hasSize(1);
-    assertThat(r.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
+    assertThat(r.getErrors().get(0).getReason()).isEqualTo(TemplateErrorReason.SYNTAX_ERROR);
   }
 
   @Test
@@ -208,7 +208,7 @@ public class TagTest {
     script = "{%if  %}hello{%else%}world{%endif%}";
     RenderResult r = jinjava.renderForResult(script, bindings);
     assertThat(r.getErrors()).hasSize(1);
-    assertThat(r.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
+    assertThat(r.getErrors().get(0).getReason()).isEqualTo(TemplateErrorReason.SYNTAX_ERROR);
   }
 
   @Test
