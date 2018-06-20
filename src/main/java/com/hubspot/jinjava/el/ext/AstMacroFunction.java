@@ -10,9 +10,10 @@ import com.hubspot.jinjava.interpret.CallStack;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MacroTagCycleException;
 import com.hubspot.jinjava.interpret.TemplateError;
-import com.hubspot.jinjava.interpret.TemplateErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+
 import de.odysseus.el.misc.LocalMessages;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstFunction;
@@ -41,7 +42,7 @@ public class AstMacroFunction extends AstFunction {
           }
         } catch (MacroTagCycleException e) {
           interpreter.addError(new TemplateError(TemplateError.ErrorType.WARNING,
-                                                 TemplateErrorReason.EXCEPTION,
+                                                 ErrorReason.EXCEPTION,
                                                  TemplateError.ErrorItem.TAG,
                                                  "Cycle detected for macro '" + getName() + "'",
                                                  null,

@@ -150,7 +150,7 @@ public class JinjavaInterpreterTest {
   public void parseWithSyntaxError() {
     RenderResult result = new Jinjava().renderForResult("{%}", new HashMap<>());
     assertThat(result.getErrors()).isNotEmpty();
-    assertThat(result.getErrors().get(0).getReason()).isEqualTo(TemplateErrorReason.SYNTAX_ERROR);
+    assertThat(result.getErrors().get(0).getReason()).isEqualTo(TemplateError.ErrorReason.SYNTAX_ERROR);
   }
 
   @Test

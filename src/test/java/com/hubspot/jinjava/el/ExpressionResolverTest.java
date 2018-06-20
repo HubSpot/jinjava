@@ -28,7 +28,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
-import com.hubspot.jinjava.interpret.TemplateErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
@@ -293,7 +293,7 @@ public class ExpressionResolverTest {
     assertThat(interpreter.getErrors()).hasSize(1);
 
     TemplateError e = interpreter.getErrors().get(0);
-    assertThat(e.getReason()).isEqualTo(TemplateErrorReason.UNKNOWN);
+    assertThat(e.getReason()).isEqualTo(ErrorReason.UNKNOWN);
     assertThat(e.getLineno()).isEqualTo(23);
     assertThat(e.getFieldName()).isEqualTo("bar");
     assertThat(e.getMessage()).contains("Cannot resolve property 'bar'");
@@ -305,7 +305,7 @@ public class ExpressionResolverTest {
     assertThat(interpreter.getErrors()).hasSize(1);
 
     TemplateError e = interpreter.getErrors().get(0);
-    assertThat(e.getReason()).isEqualTo(TemplateErrorReason.SYNTAX_ERROR);
+    assertThat(e.getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
     assertThat(e.getLineno()).isEqualTo(123);
     assertThat(e.getMessage()).contains("invalid character");
   }
@@ -325,7 +325,7 @@ public class ExpressionResolverTest {
 
     assertThat(interpreter.getErrors()).isNotEmpty();
     TemplateError e = interpreter.getErrors().get(0);
-    assertThat(e.getReason()).isEqualTo(TemplateErrorReason.UNKNOWN);
+    assertThat(e.getReason()).isEqualTo(ErrorReason.UNKNOWN);
     assertThat(e.getFieldName()).isEqualTo("class");
     assertThat(e.getMessage()).contains("Cannot resolve property 'class'");
   }
@@ -352,7 +352,7 @@ public class ExpressionResolverTest {
 
     TemplateError e = interpreter.getErrors().get(0);
     assertThat(e.getItem()).isEqualTo(ErrorItem.TAG);
-    assertThat(e.getReason()).isEqualTo(TemplateErrorReason.DISABLED);
+    assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
     assertThat(e.getMessage()).contains("'raw' is disabled in this context");
   }
 
@@ -369,7 +369,7 @@ public class ExpressionResolverTest {
     }
     TemplateError e = interpreter.getErrors().get(0);
     assertThat(e.getItem()).isEqualTo(ErrorItem.TAG);
-    assertThat(e.getReason()).isEqualTo(TemplateErrorReason.DISABLED);
+    assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
     assertThat(e.getMessage()).contains("'raw' is disabled in this context");
   }
 
@@ -383,7 +383,7 @@ public class ExpressionResolverTest {
       interpreter.resolveELExpression("\"hey\"|truncate(2)", -1);
       TemplateError e = interpreter.getErrors().get(0);
       assertThat(e.getItem()).isEqualTo(ErrorItem.FILTER);
-      assertThat(e.getReason()).isEqualTo(TemplateErrorReason.DISABLED);
+      assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
       assertThat(e.getMessage()).contains("truncate' is disabled in this context");
     }
   }
@@ -404,7 +404,7 @@ public class ExpressionResolverTest {
     assertEquals("hi  ", renderResult.getOutput());
     TemplateError e = renderResult.getErrors().get(0);
     assertThat(e.getItem()).isEqualTo(ErrorItem.FUNCTION);
-    assertThat(e.getReason()).isEqualTo(TemplateErrorReason.DISABLED);
+    assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
     assertThat(e.getMessage()).contains("':range' is disabled in this context");
   }
 
@@ -418,7 +418,7 @@ public class ExpressionResolverTest {
       interpreter.render("{% if 2 is even %}yes{% endif %}");
       TemplateError e = interpreter.getErrors().get(0);
       assertThat(e.getItem()).isEqualTo(ErrorItem.EXPRESSION_TEST);
-      assertThat(e.getReason()).isEqualTo(TemplateErrorReason.DISABLED);
+      assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
       assertThat(e.getMessage()).contains("even' is disabled in this context");
     }
   }
