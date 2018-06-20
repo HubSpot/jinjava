@@ -15,16 +15,6 @@ public class TemplateError {
     WARNING
   }
 
-  public enum ErrorReason {
-    SYNTAX_ERROR,
-    UNKNOWN,
-    BAD_URL,
-    EXCEPTION,
-    MISSING,
-    DISABLED,
-    OTHER
-  }
-
   public enum ErrorItem {
     TEMPLATE,
     TOKEN,
@@ -36,8 +26,18 @@ public class TemplateError {
     OTHER
   }
 
+  public enum ErrorReason implements com.hubspot.jinjava.interpret.ErrorReason {
+    SYNTAX_ERROR,
+    UNKNOWN,
+    BAD_URL,
+    EXCEPTION,
+    MISSING,
+    DISABLED,
+    OTHER
+  }
+
   private final ErrorType severity;
-  private final ErrorReason reason;
+  private final com.hubspot.jinjava.interpret.ErrorReason reason;
   private final ErrorItem item;
   private final String message;
   private final String fieldName;
@@ -112,7 +112,7 @@ public class TemplateError {
   private static final Pattern GENERIC_TOSTRING_PATTERN = Pattern.compile("@[0-9a-z]{4,}$");
 
   public TemplateError(ErrorType severity,
-                       ErrorReason reason,
+                       com.hubspot.jinjava.interpret.ErrorReason reason,
                        ErrorItem item,
                        String message,
                        String fieldName,
@@ -131,7 +131,7 @@ public class TemplateError {
   }
 
   public TemplateError(ErrorType severity,
-                       ErrorReason reason,
+                       com.hubspot.jinjava.interpret.ErrorReason reason,
                        ErrorItem item,
                        String message,
                        String fieldName,
@@ -152,7 +152,7 @@ public class TemplateError {
 
 
   public TemplateError(ErrorType severity,
-                       ErrorReason reason,
+                       com.hubspot.jinjava.interpret.ErrorReason reason,
                        ErrorItem item,
                        String message,
                        String fieldName,
@@ -177,7 +177,7 @@ public class TemplateError {
 
 
   public TemplateError(ErrorType severity,
-                       ErrorReason reason,
+                       com.hubspot.jinjava.interpret.ErrorReason reason,
                        ErrorItem item,
                        String message,
                        String fieldName,
@@ -198,7 +198,7 @@ public class TemplateError {
   }
 
   public TemplateError(ErrorType severity,
-                       ErrorReason reason,
+                       com.hubspot.jinjava.interpret.ErrorReason reason,
                        ErrorItem item,
                        String message,
                        String fieldName,
@@ -220,7 +220,7 @@ public class TemplateError {
   }
 
   public TemplateError(ErrorType severity,
-                       ErrorReason reason,
+                       com.hubspot.jinjava.interpret.ErrorReason reason,
                        String message,
                        String fieldName,
                        int lineno,
@@ -242,7 +242,7 @@ public class TemplateError {
     return severity;
   }
 
-  public ErrorReason getReason() {
+  public com.hubspot.jinjava.interpret.ErrorReason getReason() {
     return reason;
   }
 

@@ -40,7 +40,6 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
@@ -222,7 +221,7 @@ public class JinjavaInterpreter {
       String renderStr = node.getMaster().getImage();
       if (context.doesRenderStackContain(renderStr)) {
         // This is a circular rendering. Stop rendering it here.
-        addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
+        addError(new TemplateError(ErrorType.WARNING, TemplateError.ErrorReason.EXCEPTION, ErrorItem.TAG,
             "Rendering cycle detected: '" + renderStr + "'", null, getLineNumber(), node.getStartPosition(),
             null, BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED, ImmutableMap.of("string", renderStr)));
         output.addNode(new RenderedOutputNode(renderStr));

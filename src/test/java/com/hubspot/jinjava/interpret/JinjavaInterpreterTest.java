@@ -12,7 +12,6 @@ import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.parse.TextToken;
 
@@ -151,7 +150,7 @@ public class JinjavaInterpreterTest {
   public void parseWithSyntaxError() {
     RenderResult result = new Jinjava().renderForResult("{%}", new HashMap<>());
     assertThat(result.getErrors()).isNotEmpty();
-    assertThat(result.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
+    assertThat(result.getErrors().get(0).getReason()).isEqualTo(TemplateError.ErrorReason.SYNTAX_ERROR);
   }
 
   @Test
