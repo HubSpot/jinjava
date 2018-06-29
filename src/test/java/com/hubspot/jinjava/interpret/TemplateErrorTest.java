@@ -2,23 +2,12 @@ package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 
 public class TemplateErrorTest {
-
-  private JinjavaInterpreter interpreter;
-  private Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-    interpreter = jinjava.newInterpreter();
-    JinjavaInterpreter.pushCurrent(interpreter);
-  }
 
   @Test
   public void itShowsFriendlyNameOfBaseObjectForPropNotFound() {
@@ -46,13 +35,14 @@ public class TemplateErrorTest {
 
   @Test
   public void itRetainsFieldNameCaseForUnknownToken() {
+    JinjavaInterpreter interpreter = new Jinjava().newInterpreter();
     interpreter.render("{% unKnown() %}");
     assertThat(interpreter.getErrors().get(0).getFieldName()).isEqualTo("unKnown");
   }
 
   @Test
   public void itSetsFieldNameCaseForSyntaxErrorInFor() {
-    RenderResult renderResult = jinjava.renderForResult("{% for item inna navigation %}{% endfor %}", ImmutableMap.of());
+    RenderResult renderResult = new Jinjava().renderForResult("{% for item inna navigation %}{% endfor %}", ImmutableMap.of());
     assertThat(renderResult.getErrors().get(0).getFieldName()).isEqualTo("item inna navigation");
   }
 
