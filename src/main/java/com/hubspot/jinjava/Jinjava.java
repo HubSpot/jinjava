@@ -36,6 +36,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.loader.ClasspathResourceLocator;
 import com.hubspot.jinjava.loader.ResourceLocator;
 
@@ -206,6 +207,9 @@ public class Jinjava {
       ENGINE_LOG.info(sb.toString());
       return new RenderResult(result, interpreter.getContext(), interpreter.getErrors());
     } catch (InterpretException e) {
+      if (e instanceof TemplateSyntaxException) {
+        return new RenderResult(TemplateError.fromException((TemplateSyntaxException) e), interpreter.getContext(), interpreter.getErrors());
+      }
       return new RenderResult(TemplateError.fromSyntaxError(e), interpreter.getContext(), interpreter.getErrors());
     } catch (Exception e) {
       return new RenderResult(TemplateError.fromException(e), interpreter.getContext(), interpreter.getErrors());

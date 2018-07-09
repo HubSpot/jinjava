@@ -121,8 +121,7 @@ public class TreeParser {
     final Node lastSibling = getLastSibling();
 
     // if last sibling was a tag and has rightTrimAfterEnd, strip whitespace
-    if (lastSibling != null
-        && lastSibling instanceof TagNode
+    if (lastSibling instanceof TagNode
         && lastSibling.getMaster().isRightTrimAfterEnd()) {
       textToken.setLeftTrim(true);
     }
@@ -167,7 +166,7 @@ public class TreeParser {
       // if a tag has left trim, mark the last sibling to trim right whitespace
       if (tagToken.isLeftTrim()) {
         final Node lastSibling = getLastSibling();
-        if (lastSibling != null && lastSibling instanceof TextNode) {
+        if (lastSibling instanceof TextNode) {
           lastSibling.getMaster().setRightTrim(true);
         }
       }

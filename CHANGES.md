@@ -1,5 +1,21 @@
 # Jinjava Releases #
 
+### 2018-06-13 Version 2.4.3 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.3%7Cjar)) ###
+* [Wrap items in for loop with "PyIsh" equivalents](https://github.com/HubSpot/jinjava/pull/202)
+
+### 2018-06-01 Version 2.4.2 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.2%7Cjar)) ###
+* [Upgrade jsoup to address CVE](https://github.com/HubSpot/jinjava/pull/200)
+
+### 2018-04-22 Version 2.4.1 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.1%7Cjar)) ###
+
+* [Use `AdvancedFilter` for `selectattr` filter](https://github.com/HubSpot/jinjava/pull/183)
+* [Java 9 Support](https://github.com/HubSpot/jinjava/pull/186)
+* [Adds negation for expressions ("is not") ](https://github.com/HubSpot/jinjava/pull/187)
+* [Fix column numbers in syntax errors](https://github.com/HubSpot/jinjava/pull/188)
+* [When reporting errors, preserve casing](https://github.com/HubSpot/jinjava/pull/189)
+* [Populate `fieldName` in `TemplateSyntaxException`s](https://github.com/HubSpot/jinjava/pull/190)
+* [Reintroduce stricter parsing in int and float filters](https://github.com/HubSpot/jinjava/pull/191)
+
 ### 2018-02-26 Version 2.4.0 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.0%7Cjar)) ###
 
 * [Make int/float parsing locale aware](https://github.com/HubSpot/jinjava/pull/178)

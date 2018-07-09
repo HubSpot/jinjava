@@ -69,6 +69,7 @@ public class JinjavaInterpreter {
   private final Random random;
 
   private int lineNumber = -1;
+  private int position = 0;
   private int scopeDepth = 1;
   private final List<TemplateError> errors = new LinkedList<>();
 
@@ -233,6 +234,7 @@ public class JinjavaInterpreter {
     for (Node node : root.getChildren()) {
       long childStart = System.currentTimeMillis();
       lineNumber = node.getLineNumber();
+      position = node.getStartPosition();
       String renderStr = node.getMaster().getImage();
       if (context.doesRenderStackContain(renderStr)) {
         // This is a circular rendering. Stop rendering it here.
@@ -430,7 +432,6 @@ public class JinjavaInterpreter {
    */
   public Object resolveELExpression(String expression, int lineNumber) {
     this.lineNumber = lineNumber;
-
     return expressionResolver.resolveExpression(expression);
   }
 
@@ -460,8 +461,23 @@ public class JinjavaInterpreter {
     return expressionResolver.resolveProperty(object, propertyNames);
   }
 
+  /**
+   * Wrap an object in it's PyIsh equivalent
+   *
+   * @param object
+   *          Bean.
+   * @return Wrapped bean.
+   */
+  public Object wrap(Object object) {
+    return expressionResolver.wrap(object);
+  }
+
   public int getLineNumber() {
     return lineNumber;
+  }
+
+  public int getPosition() {
+    return position;
   }
 
   public void addError(TemplateError templateError) {

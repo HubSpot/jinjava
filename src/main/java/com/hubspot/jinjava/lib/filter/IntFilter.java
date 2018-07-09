@@ -1,6 +1,8 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.text.ParsePosition;
 import java.util.Locale;
 
 import org.apache.commons.lang3.math.NumberUtils;
@@ -49,13 +51,17 @@ public class IntFilter implements Filter {
       return ((Number) var).intValue();
     }
 
+    String input = var.toString().trim();
     Locale locale = interpreter.getConfig().getLocale();
     NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
-    numberFormat.setParseIntegerOnly(true);
+    ParsePosition pp = new ParsePosition(0);
     int result;
     try {
-      result = numberFormat.parse(var.toString()).intValue();
+      result = numberFormat.parse(input, pp).intValue();
     } catch (Exception e) {
+      result = defaultVal;
+    }
+    if (pp.getErrorIndex() != -1 || pp.getIndex() != input.length()) {
       result = defaultVal;
     }
     return result;

@@ -25,6 +25,7 @@ public class TagToken extends Token {
   private static final long serialVersionUID = -4927751270481832992L;
 
   private String tagName;
+  private String rawTagName;
   private String helpers;
 
   public TagToken(String image, int lineNumber, int startPosition) {
@@ -69,12 +70,17 @@ public class TagToken extends Token {
     }
 
     if (pos < content.length()) {
-      tagName = content.substring(nameStart, pos).toLowerCase();
+      rawTagName = content.substring(nameStart, pos);
       helpers = content.substring(pos);
     } else {
-      tagName = content.toLowerCase().trim();
+      rawTagName = content.trim();
       helpers = "";
     }
+    tagName = rawTagName.toLowerCase();
+  }
+
+  public String getRawTagName() {
+    return rawTagName;
   }
 
   public String getTagName() {

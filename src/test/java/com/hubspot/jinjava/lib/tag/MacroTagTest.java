@@ -75,6 +75,17 @@ public class MacroTagTest {
   }
 
   @Test
+  public void testFnWithKwArgs() {
+    TagNode t = fixture("list_kwargs");
+    assertThat(t.render(interpreter).getValue()).isEmpty();
+
+    String out = snippet("{{ list_kwargs(foo=\"bar\", bas='baz', answer=42) }}").render(interpreter).getValue().trim();
+    assertThat(out).contains("foo=bar");
+    assertThat(out).contains("bas=baz");
+    assertThat(out).contains("answer=42");
+  }
+
+  @Test
   public void testFnWithArgsWithDefVals() {
     TagNode t = fixture("def-vals");
     assertThat(t.render(interpreter).getValue()).isEmpty();

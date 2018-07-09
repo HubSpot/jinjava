@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.base.Splitter;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -23,6 +23,7 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
@@ -31,7 +32,7 @@ public class ForTagTest {
 
   ForTag tag;
 
-  Context context;
+  private Context context;
   JinjavaInterpreter interpreter;
   Jinjava jinjava;
 
@@ -45,7 +46,7 @@ public class ForTagTest {
   }
 
   @Test
-  public void forLoopUsingLoopLastVar() throws Exception {
+  public void forLoopUsingLoopLastVar() {
     context.put("the_list", Lists.newArrayList(1L, 2L, 3L, 7L));
     TagNode tagNode = (TagNode) fixture("loop-last-var");
     Document dom = Jsoup.parseBodyFragment(tag.interpret(tagNode, interpreter));
@@ -54,7 +55,7 @@ public class ForTagTest {
   }
 
   @Test
-  public void forLoopUsingScalarValue() throws Exception {
+  public void forLoopUsingScalarValue() {
     context.put("the_list", 999L);
     TagNode tagNode = (TagNode) fixture("loop-with-scalar");
     String output = tag.interpret(tagNode, interpreter);
@@ -62,7 +63,7 @@ public class ForTagTest {
   }
 
   @Test
-  public void forLoopNestedFor() throws Exception {
+  public void forLoopNestedFor() {
     TagNode tagNode = (TagNode) fixture("nested-fors");
     assertThat(Splitter.on("\n").trimResults().omitEmptyStrings().split(
         tag.interpret(tagNode, interpreter)))
@@ -70,7 +71,7 @@ public class ForTagTest {
   }
 
   @Test
-  public void forLoopMultipleLoopVars() throws Exception {
+  public void forLoopMultipleLoopVars() {
     Map<String, Object> dict = Maps.newHashMap();
     dict.put("foo", "one");
     dict.put("bar", 2L);
@@ -83,7 +84,7 @@ public class ForTagTest {
   }
 
   @Test
-  public void forLoopMultipleLoopVarsArbitraryNames() throws Exception {
+  public void forLoopMultipleLoopVarsArbitraryNames() {
     Map<String, Object> dict = ImmutableMap.of(
         "grand", "ol'",
         "adserving", "team");
@@ -99,13 +100,13 @@ public class ForTagTest {
   }
 
   @Test
-  public void forLoopLiteralLoopExpr() throws Exception {
+  public void forLoopLiteralLoopExpr() {
     TagNode tagNode = (TagNode) fixture("literal-loop-expr");
     assertThat(tag.interpret(tagNode, interpreter)).isEqualTo("012345");
   }
 
   @Test
-  public void forLoopWithNestedCycle() throws Exception {
+  public void forLoopWithNestedCycle() {
     context.put("cycle1", "odd");
     context.put("cycle2", "even");
 
@@ -115,13 +116,13 @@ public class ForTagTest {
   }
 
   @Test
-  public void forLoopIndexVar() throws Exception {
+  public void forLoopIndexVar() {
     TagNode tagNode = (TagNode) fixture("loop-index-var");
     assertThat(tag.interpret(tagNode, interpreter)).isEqualTo("012345");
   }
 
   @Test
-  public void forLoopSupportsAllLoopVarsInHublDocs() throws Exception {
+  public void forLoopSupportsAllLoopVarsInHublDocs() {
     TagNode tagNode = (TagNode) fixture("hubl-docs-loop-vars");
     Document dom = Jsoup.parseBodyFragment(tag.interpret(tagNode, interpreter));
 
@@ -169,7 +170,7 @@ public class ForTagTest {
   }
 
   @Test
-  public void testFoorLoopVariablesWithSpaces() {
+  public void testForLoopVariablesWithSpaces() {
 
       Map<String, Object> context = Maps.newHashMap();
       context.put("a", 2);
@@ -194,13 +195,25 @@ public class ForTagTest {
       assertEquals("a b", rendered);
   }
 
+  @Test
+  public void testForLoopWithDates() {
+    Map<String, Object> context = Maps.newHashMap();
+    Date testDate = new Date();
+    context.put("the_list", Lists.newArrayList(testDate));
+    String template = ""
+        + "{% for i in the_list %}{{i}}{% endfor %}";
+    String rendered = jinjava.render(template, context);
+    System.out.println(rendered);
+    assertEquals(new PyishDate(testDate).toString(), rendered);
+  }
+
   private Node fixture(String name) {
     try {
       return new TreeParser(interpreter, Resources.toString(
           Resources.getResource(String.format("tags/fortag/%s.jinja", name)), StandardCharsets.UTF_8))
               .buildTree().getChildren().getFirst();
     } catch (IOException e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 

@@ -37,6 +37,9 @@ public class ExpressionResolver {
   private final JinjavaInterpreterResolver resolver;
   private final JinjavaELContext elContext;
 
+  private static final String EXPRESSION_START_TOKEN = "#{";
+  private static final String EXPRESSION_END_TOKEN = "}";
+
   public ExpressionResolver(JinjavaInterpreter interpreter, ExpressionFactory expressionFactory) {
     this.interpreter = interpreter;
     this.expressionFactory = expressionFactory;
@@ -63,7 +66,7 @@ public class ExpressionResolver {
     interpreter.getContext().addResolvedExpression(expression.trim());
 
     try {
-      String elExpression = "#{" + expression.trim() + "}";
+      String elExpression = EXPRESSION_START_TOKEN + expression.trim() + EXPRESSION_END_TOKEN;
       ValueExpression valueExp = expressionFactory.createValueExpression(elContext, elExpression, Object.class);
       Object result = valueExp.getValue(elContext);
 
@@ -72,21 +75,24 @@ public class ExpressionResolver {
       return result;
 
     } catch (PropertyNotFoundException e) {
-      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, e.getMessage(), "", interpreter.getLineNumber(), -1, e,
+      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, e.getMessage(), "", interpreter.getLineNumber(), interpreter.getPosition(), e,
           BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of("exception", e.getMessage())));
     } catch (TreeBuilderException e) {
-      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression,
-          "Error parsing '" + expression + "': " + StringUtils.substringAfter(e.getMessage(), "': "), interpreter.getLineNumber(), e.getPosition(), e)));
+      int position = interpreter.getPosition() + e.getPosition();
+      // replacing the position in the string like this isn't great, but JUEL's parser does not allow passing in a starting position
+      String errorMessage = StringUtils.substringAfter(e.getMessage(), "': ").replaceFirst("position [0-9]+", "position " + position);
+      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression.substring(e.getPosition() - EXPRESSION_START_TOKEN.length()),
+          "Error parsing '" + expression + "': " + errorMessage, interpreter.getLineNumber(), position, e)));
     } catch (ELException e) {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
     } catch (DisabledException e) {
-      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter.getLineNumber(), -1, e));
+      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter.getLineNumber(), interpreter.getPosition(), e));
     } catch (UnknownTokenException e) {
       // Re-throw the exception because you only get this when the config failOnUnknownTokens is enabled.
       throw e;
     } catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(
-          String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression), e, interpreter.getLineNumber())));
+          String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression), e, interpreter.getLineNumber(), interpreter.getPosition())));
     }
 
     return "";
@@ -120,5 +126,16 @@ public class ExpressionResolver {
     }
 
     return value;
+  }
+
+  /**
+   * Wrap an object in it's PyIsh equivalent
+   *
+   * @param object
+   *          Bean.
+   * @return Wrapped bean.
+   */
+  public Object wrap(Object object) {
+    return resolver.wrap(object);
   }
 }

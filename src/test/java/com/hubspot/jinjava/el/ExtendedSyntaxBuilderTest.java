@@ -24,8 +24,8 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 @SuppressWarnings("unchecked")
 public class ExtendedSyntaxBuilderTest {
 
-  Context context;
-  JinjavaInterpreter interpreter;
+  private Context context;
+  private JinjavaInterpreter interpreter;
 
   @Before
   public void setup() {
@@ -110,6 +110,19 @@ public class ExtendedSyntaxBuilderTest {
     assertThat(val("12 in [1, 12, 3]")).isEqualTo(true);
   }
 
+  // TODO: support negated collection membership. See CollectionMembershipOperator
+//  @Test
+//  public void stringNotInStringOperator() {
+//    assertThat(val("'foo' not in 'foobar'")).isEqualTo(false);
+//    assertThat(val("'gg' not in 'foobar'")).isEqualTo(true);
+//  }
+
+//  @Test
+//  public void objNotInCollectionOperator() {
+//    assertThat(val("12 not in [1, 2, 3]")).isEqualTo(true);
+//    assertThat(val("12 not in [1, 12, 3]")).isEqualTo(false);
+//  }
+
   @Test
   public void conditionalExprWithNoElse() {
     context.put("foo", "bar");
@@ -164,7 +177,7 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
-  public void itParsesDictWithVariableRefs() throws Exception {
+  public void itParsesDictWithVariableRefs() {
     List<?> theList = Lists.newArrayList(1L, 2L, 3L);
     context.put("the_list", theList);
     context.put("i_am_seven", 7L);
@@ -181,7 +194,7 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
-  public void itReturnsLeftResultForOrExpr() throws Exception {
+  public void itReturnsLeftResultForOrExpr() {
     context.put("left", "foo");
     context.put("right", "bar");
 
@@ -189,7 +202,7 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
-  public void itReturnsRightResultForOrExpr() throws Exception {
+  public void itReturnsRightResultForOrExpr() {
     context.put("right", "bar");
 
     assertThat(val("left or right")).isEqualTo("bar");
@@ -205,7 +218,7 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
-  public void testParseExp() throws Exception {
+  public void testParseExp() {
     context.put("foo", "fff");
     context.put("a", "aaa");
     context.put("b", "bbb");
@@ -214,7 +227,7 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
-  public void listRangeSyntax() throws Exception {
+  public void listRangeSyntax() {
     List<?> theList = Lists.newArrayList(1, 2, 3, 4, 5);
     context.put("mylist", theList);
     assertThat(val("mylist[0:3]")).isEqualTo(Lists.newArrayList(1, 2, 3));
@@ -223,7 +236,7 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
-  public void invalidNestedAssignmentExpr() throws Exception {
+  public void invalidNestedAssignmentExpr() {
     assertThat(val("content.template_path = 'Custom/Email/Responsive/testing.html'")).isEqualTo("");
     assertThat(interpreter.getErrors()).isNotEmpty();
     assertThat(interpreter.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
@@ -231,7 +244,7 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
-  public void invalidIdentifierAssignmentExpr() throws Exception {
+  public void invalidIdentifierAssignmentExpr() {
     assertThat(val("content = 'Custom/Email/Responsive/testing.html'")).isEqualTo("");
     assertThat(interpreter.getErrors()).isNotEmpty();
     assertThat(interpreter.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
@@ -239,10 +252,28 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
-  public void invalidPipeOperatorExpr() throws Exception {
+  public void invalidPipeOperatorExpr() {
     assertThat(val("topics|1")).isEqualTo("");
     assertThat(interpreter.getErrors()).isNotEmpty();
     assertThat(interpreter.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
+  }
+
+  @Test
+  public void itReturnsCorrectSyntaxErrorPositions() {
+    assertThat(interpreter.render("hi {{ missing thing }}{{ missing thing }}\nI am {{ blah blabbity }} too")).isEqualTo("hi \nI am  too");
+    assertThat(interpreter.getErrors().size()).isEqualTo(3);
+    assertThat(interpreter.getErrors().get(0).getLineno()).isEqualTo(1);
+    assertThat(interpreter.getErrors().get(0).getMessage()).contains("position 14");
+    assertThat(interpreter.getErrors().get(0).getStartPosition()).isEqualTo(14);
+    assertThat(interpreter.getErrors().get(0).getFieldName()).isEqualTo("thing");
+    assertThat(interpreter.getErrors().get(1).getLineno()).isEqualTo(1);
+    assertThat(interpreter.getErrors().get(1).getMessage()).contains("position 33");
+    assertThat(interpreter.getErrors().get(1).getStartPosition()).isEqualTo(33);
+    assertThat(interpreter.getErrors().get(1).getFieldName()).isEqualTo("thing");
+    assertThat(interpreter.getErrors().get(2).getLineno()).isEqualTo(2);
+    assertThat(interpreter.getErrors().get(2).getMessage()).contains("position 13");
+    assertThat(interpreter.getErrors().get(2).getStartPosition()).isEqualTo(13);
+    assertThat(interpreter.getErrors().get(2).getFieldName()).isEqualTo("blabbity");
   }
 
   private Object val(String expr) {

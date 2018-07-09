@@ -22,11 +22,11 @@ public class CollectionMembershipOperator extends SimpleOperator {
     }
 
     if (CharSequence.class.isAssignableFrom(o2.getClass())) {
-      return Boolean.valueOf(StringUtils.contains((CharSequence) o2, Objects.toString(o1, "")));
+      return StringUtils.contains((CharSequence) o2, Objects.toString(o1, ""));
     }
 
     if (Collection.class.isAssignableFrom(o2.getClass())) {
-      return Boolean.valueOf(((Collection<?>) o2).contains(o1));
+      return ((Collection<?>) o2).contains(o1);
     }
 
     return Boolean.FALSE;
