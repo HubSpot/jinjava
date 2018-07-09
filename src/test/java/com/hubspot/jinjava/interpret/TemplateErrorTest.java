@@ -46,4 +46,17 @@ public class TemplateErrorTest {
     assertThat(renderResult.getErrors().get(0).getFieldName()).isEqualTo("item inna navigation");
   }
 
+  @Test
+  public void itLimitsErrorStringToAReasonableSize() {
+
+    String veryLong = "";
+
+    for (int i = 0; i < 1500; i++) {
+      veryLong = veryLong.concat("0");
+    }
+
+    TemplateError e = TemplateError.fromUnknownProperty(ImmutableMap.of("foo", veryLong), "other", 123, 4);
+    assertThat(e.getMessage()).startsWith("Cannot resolve property 'other' in '{foo=");
+    assertThat(e.getMessage().length()).isLessThan(1500);
+  }
 }
