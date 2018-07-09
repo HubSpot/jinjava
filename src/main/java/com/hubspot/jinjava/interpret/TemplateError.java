@@ -10,6 +10,10 @@ import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.interpret.errorcategory.TemplateErrorCategory;
 
 public class TemplateError {
+
+  private static final Pattern GENERIC_TOSTRING_PATTERN = Pattern.compile("@[0-9a-z]{4,}$");
+  private static final int MAX_STRING_LENGTH = 1024;
+
   public enum ErrorType {
     FATAL,
     WARNING
@@ -101,6 +105,10 @@ public class TemplateError {
 
     String s = o.toString();
 
+    if (s.length() > MAX_STRING_LENGTH) {
+      s = s.substring(0, MAX_STRING_LENGTH) + "...";
+    }
+
     if (!GENERIC_TOSTRING_PATTERN.matcher(s).find()) {
       return s;
     }
@@ -108,8 +116,6 @@ public class TemplateError {
     Class<?> c = o.getClass();
     return c.getSimpleName();
   }
-
-  private static final Pattern GENERIC_TOSTRING_PATTERN = Pattern.compile("@[0-9a-z]{4,}$");
 
   public TemplateError(ErrorType severity,
                        ErrorReason reason,
