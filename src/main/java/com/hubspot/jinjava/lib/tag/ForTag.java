@@ -15,6 +15,8 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.List;
@@ -163,7 +165,12 @@ public class ForTag implements Tag {
         }
 
         for (Node node : tagNode.getChildren()) {
+          long startMs = System.currentTimeMillis();
           buff.append(node.render(interpreter));
+          long costMs = System.currentTimeMillis() - startMs;
+          if (costMs > 20) {
+            ENGINE_LOG.warn("ForTag render time: {} {}", costMs, node.getMaster().getImage());
+          }
         }
       }
 

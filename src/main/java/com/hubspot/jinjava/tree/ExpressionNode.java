@@ -58,6 +58,9 @@ public class ExpressionNode extends Node {
       result = EscapeFilter.escapeHtmlEntities(result);
     }
 
+    if (master.getExpr().trim().equals("required_head_tags")) {
+      interpreter.getContext().putResolvedExpressionValue(master.getExpr().trim(), result.toString());
+    }
     return new RenderedOutputNode(result);
   }
 
