@@ -225,12 +225,9 @@ public class JinjavaInterpreter {
    * @return rendered result
    */
   public String render(Node root, boolean processExtendRoots) {
-    final long startMs = System.currentTimeMillis();
-    long costMs = 0;
-    StringBuilder sb = new StringBuilder();
-
     OutputList output = new OutputList(config.getMaxOutputSize());
 
+    long startMs = System.currentTimeMillis();
     for (Node node : root.getChildren()) {
       long childStart = System.currentTimeMillis();
       lineNumber = node.getLineNumber();
@@ -244,21 +241,20 @@ public class JinjavaInterpreter {
         output.addNode(new RenderedOutputNode(renderStr));
       } else {
         context.pushRenderStack(renderStr);
-
+        long nodeStartMs = System.currentTimeMillis();
         OutputNode out = node.render(this);
-        costMs = System.currentTimeMillis() - childStart;
-        if (costMs > 100) {
-          sb.append(String.format("%n    %s ******* jinjava render line %d: %d ms str=%s [root=%s]",
-              costMs > 1000 ? "WARN" : "INFO",
-              lineNumber, costMs, renderStr, root.getMaster()));
+        long nodeCostMs = System.currentTimeMillis() - nodeStartMs;
+        if (nodeCostMs > 30) {
+          ENGINE_LOG.warn("    Node render time exceeded 30ms({}): {}", nodeCostMs, renderStr);
         }
         context.popRenderStack();
         output.addNode(out);
       }
     }
-    costMs = System.currentTimeMillis() - startMs;
-    if (costMs > 100) {
-      sb.append(String.format("%n   ******* jinjava render child nodes: %d ms.", costMs));
+
+    long costMs = System.currentTimeMillis() - startMs;
+    if (costMs > 500) {
+      ENGINE_LOG.warn("Max render time exceeded 500ms({}): {}", costMs, root.getName());
     }
 
     // render all extend parents, keeping the last as the root output
@@ -275,19 +271,7 @@ public class JinjavaInterpreter {
         context.getExtendPathStack().pop();
       }
     }
-
-    costMs = System.currentTimeMillis() - startMs;
-    if (costMs > 100) {
-      sb.append(String.format("%n   ******* jinjava before resolve block stubs: %d ms.",
-          costMs));
-    }
     resolveBlockStubs(output);
-
-    costMs = System.currentTimeMillis() - startMs;
-    if (costMs > 100) {
-      sb.append(String.format("%n   ******* jinjava render node: %d ms.%n", costMs));
-      ENGINE_LOG.info(sb.toString());
-    }
     return output.getValue();
   }
 

@@ -193,13 +193,17 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     return wrap(value);
   }
 
+  private boolean isInstanceOfPyWrapper(Object value) {
+    return value instanceof PyWrapper;
+  }
+
   @SuppressWarnings("unchecked")
   Object wrap(Object value) {
     if (value == null) {
       return null;
     }
 
-    if (value instanceof PyWrapper) {
+    if (isInstanceOfPyWrapper(value)) {
       return value;
     }
 

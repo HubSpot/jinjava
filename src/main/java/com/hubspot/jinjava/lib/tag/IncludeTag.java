@@ -15,9 +15,12 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
 import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.nodes.Document;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -69,13 +72,21 @@ public class IncludeTag implements Tag {
     }
 
     try {
+      long startMs = System.currentTimeMillis();
       String template = interpreter.getResource(templateFile);
+      long costMs = System.currentTimeMillis() - startMs;
+      ENGINE_LOG.warn("IncludeTag getResource time: {} {}", costMs, path);
+
       Node node = interpreter.parse(template);
 
       interpreter.getContext().addDependency("coded_files", templateFile);
 
       JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
+
+      startMs = System.currentTimeMillis();
       String result = child.render(node);
+      costMs = System.currentTimeMillis() - startMs;
+      ENGINE_LOG.warn("IncludeTag child render time: {} {}", costMs, path);
 
       interpreter.getErrors().addAll(child.getErrors());
 

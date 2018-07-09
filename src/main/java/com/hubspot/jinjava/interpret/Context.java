@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **********************************************************************/
+
 package com.hubspot.jinjava.interpret;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import com.hubspot.jinjava.lib.Importable;
@@ -63,6 +65,7 @@ public class Context extends ScopeMap<String, Object> {
   private final Set<String> resolvedExpressions = new HashSet<>();
   private final Set<String> resolvedValues = new HashSet<>();
   private final Set<String> resolvedFunctions = new HashSet<>();
+  private final Map<String, String> resolvedExpressionValues = new HashMap<>();
 
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
@@ -177,6 +180,16 @@ public class Context extends ScopeMap<String, Object> {
     if (getParent() != null) {
       getParent().addResolvedExpression(expression);
     }
+  }
+
+  public void putResolvedExpressionValue(String expression, String value) {
+    resolvedExpressionValues.put(expression, value);
+    if (getParent() != null) {
+      getParent().putResolvedExpressionValue(expression, value);
+    }
+  }
+  public Map<String, String> getResolvedExpressionValues() {
+    return ImmutableMap.copyOf(resolvedExpressionValues);
   }
 
   public Set<String> getResolvedExpressions() {

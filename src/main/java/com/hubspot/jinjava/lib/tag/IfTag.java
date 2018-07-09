@@ -15,6 +15,8 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
 import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
@@ -72,7 +74,14 @@ public class IfTag implements Tag {
         if (n.getName().equals(ElseIfTag.ELSEIF) || n.getName().equals(ElseTag.ELSE)) {
           break;
         }
+//        long startMs = System.currentTimeMillis();
         sb.append(n.render(interpreter));
+//        if (tagNode.getMaster().toString().equals("{% if  topic  %}")) {
+//          long costMs = System.currentTimeMillis() - startMs;
+//          if (costMs > 20) {
+//            ENGINE_LOG.warn("render time: {} {}", costMs, n.getMaster().getImage());
+//          }
+//        }
       }
     }
 
