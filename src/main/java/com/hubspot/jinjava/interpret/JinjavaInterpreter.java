@@ -253,7 +253,7 @@ public class JinjavaInterpreter {
     }
 
     long costMs = System.currentTimeMillis() - startMs;
-    if (costMs > 500) {
+    if (costMs > 100) {
       ENGINE_LOG.warn("Max render time exceeded 500ms({}): {}", costMs, root.getName());
     }
 

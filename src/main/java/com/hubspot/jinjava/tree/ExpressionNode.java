@@ -59,7 +59,7 @@ public class ExpressionNode extends Node {
     }
 
     if (master.getExpr().trim().equals("required_head_tags")) {
-      interpreter.getContext().putResolvedExpressionValue(master.getExpr().trim(), result.toString());
+      interpreter.getContext().putResolvedExpressionValue(master.getExpr().trim(), result);
     }
     return new RenderedOutputNode(result);
   }
