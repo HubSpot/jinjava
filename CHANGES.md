@@ -1,5 +1,9 @@
 # Jinjava Releases #
 
+### 2018-07-10 Version 2.4.4 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.4%7Cjar)) ###
+* [Fix calling macros with kwargs](https://github.com/HubSpot/jinjava/pull/208)
+* [Limit the size of strings in TemplateErrors](https://github.com/HubSpot/jinjava/pull/209)
+
 ### 2018-06-13 Version 2.4.3 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.3%7Cjar)) ###
 * [Wrap items in for loop with "PyIsh" equivalents](https://github.com/HubSpot/jinjava/pull/202)
 
