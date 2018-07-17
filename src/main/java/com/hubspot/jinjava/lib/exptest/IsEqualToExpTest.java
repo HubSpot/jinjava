@@ -8,6 +8,7 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 import de.odysseus.el.misc.BooleanOperations;
+import de.odysseus.el.misc.TypeConverter;
 
 @JinjavaDoc(
     value = "Check if an object has the same value as another object",
@@ -25,6 +26,8 @@ import de.odysseus.el.misc.BooleanOperations;
     })
 public class IsEqualToExpTest implements ExpTest {
 
+  private static final TypeConverter TYPE_CONVERTER = new TruthyTypeConverter();
+
   @Override
   public String getName() {
     return "equalto";
@@ -36,7 +39,7 @@ public class IsEqualToExpTest implements ExpTest {
       throw new InterpretException(getName() + " test requires 1 argument");
     }
 
-    return BooleanOperations.eq(new TruthyTypeConverter(), var, args[0]);
+    return BooleanOperations.eq(TYPE_CONVERTER, var, args[0]);
   }
 
 }
