@@ -1,12 +1,14 @@
 package com.hubspot.jinjava.lib.exptest;
 
-import java.util.Objects;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.el.TruthyTypeConverter;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+
+import de.odysseus.el.misc.BooleanOperations;
+import de.odysseus.el.misc.TypeConverter;
 
 @JinjavaDoc(
     value = "Check if an object has the same value as another object",
@@ -24,6 +26,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     })
 public class IsEqualToExpTest implements ExpTest {
 
+  private static final TypeConverter TYPE_CONVERTER = new TruthyTypeConverter();
+
   @Override
   public String getName() {
     return "equalto";
@@ -35,7 +39,7 @@ public class IsEqualToExpTest implements ExpTest {
       throw new InterpretException(getName() + " test requires 1 argument");
     }
 
-    return Objects.equals(var, args[0]);
+    return BooleanOperations.eq(TYPE_CONVERTER, var, args[0]);
   }
 
 }
