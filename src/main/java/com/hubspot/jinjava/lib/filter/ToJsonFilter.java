@@ -10,13 +10,13 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
 @JinjavaDoc(
-    value = "Writes objects as JSON strings",
+    value = "Writes object as a JSON string",
     params = {
         @JinjavaParam(value = "o", desc = "Object to write to JSON")
     },
     snippets = {
         @JinjavaSnippet(
-            code = "{{object|escapejson}}"
+            code = "{{object|tojson}}"
         )
     })
 public class ToJsonFilter implements Filter {
