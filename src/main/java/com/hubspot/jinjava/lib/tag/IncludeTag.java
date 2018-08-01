@@ -20,7 +20,6 @@ import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.nodes.Document;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -75,7 +74,9 @@ public class IncludeTag implements Tag {
       long startMs = System.currentTimeMillis();
       String template = interpreter.getResource(templateFile);
       long costMs = System.currentTimeMillis() - startMs;
-      ENGINE_LOG.warn("IncludeTag getResource time: {} {}", costMs, path);
+      ENGINE_LOG.warn("{}IncludeTag getResource time: {} {}",
+          StringUtils.repeat("  ", interpreter.getContext().getIncludePathStack().size()),
+          costMs, path);
 
       Node node = interpreter.parse(template);
 
@@ -86,7 +87,9 @@ public class IncludeTag implements Tag {
       startMs = System.currentTimeMillis();
       String result = child.render(node);
       costMs = System.currentTimeMillis() - startMs;
-      ENGINE_LOG.warn("IncludeTag child render time: {} {}", costMs, path);
+      ENGINE_LOG.warn("{}IncludeTag child render time: {} {}",
+          StringUtils.repeat("  ", interpreter.getContext().getIncludePathStack().size()),
+          costMs, path);
 
       interpreter.getErrors().addAll(child.getErrors());
 

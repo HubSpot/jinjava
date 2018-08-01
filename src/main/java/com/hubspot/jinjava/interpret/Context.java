@@ -418,6 +418,10 @@ public class Context extends ScopeMap<String, Object> {
     return renderStack.pop();
   }
 
+  public int getRenderStackSize() {
+    return renderStack.size();
+  }
+
   public boolean doesRenderStackContain(String template) {
     return renderStack.contains(template);
   }

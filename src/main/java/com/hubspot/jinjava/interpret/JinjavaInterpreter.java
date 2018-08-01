@@ -226,7 +226,15 @@ public class JinjavaInterpreter {
    */
   public String render(Node root, boolean processExtendRoots) {
     OutputList output = new OutputList(config.getMaxOutputSize());
+    String depth = StringUtils.repeat("  ", getContext().getIncludePathStack().size());
 
+    if (root.getChildren().size() > 5) {
+      ENGINE_LOG.warn("{} children of this node.", root.getChildren().size());
+      for (Node node : root.getChildren()) {
+        String renderStr = node.getMaster().getImage();
+        ENGINE_LOG.debug("  child: {}", renderStr.replaceAll("\n", "\\\n"));
+      }
+    }
     long startMs = System.currentTimeMillis();
     for (Node node : root.getChildren()) {
       long childStart = System.currentTimeMillis();
@@ -245,7 +253,7 @@ public class JinjavaInterpreter {
         OutputNode out = node.render(this);
         long nodeCostMs = System.currentTimeMillis() - nodeStartMs;
         if (nodeCostMs > 30) {
-          ENGINE_LOG.warn("    Node render time exceeded 30ms({}): {}", nodeCostMs, renderStr);
+          ENGINE_LOG.warn("{}  Node render time exceeded 30ms({}): {}", depth, nodeCostMs, renderStr);
         }
         context.popRenderStack();
         output.addNode(out);
@@ -254,7 +262,7 @@ public class JinjavaInterpreter {
 
     long costMs = System.currentTimeMillis() - startMs;
     if (costMs > 100) {
-      ENGINE_LOG.warn("Max render time exceeded 500ms({}): {}", costMs, root.getName());
+      ENGINE_LOG.warn("{}Max render time exceeded 100ms({}): {}", depth, costMs, root.getName());
     }
 
     // render all extend parents, keeping the last as the root output

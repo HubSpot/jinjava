@@ -53,4 +53,8 @@ public class CallStack {
 
     return Optional.of(stack.pop());
   }
+
+  public int size() {
+    return stack.size();
+  }
 }
