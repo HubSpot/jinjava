@@ -230,10 +230,10 @@ public class JinjavaInterpreter {
 
     if (root.getChildren().size() > 5) {
       ENGINE_LOG.warn("{} children of this node.", root.getChildren().size());
-      for (Node node : root.getChildren()) {
-        String renderStr = node.getMaster().getImage();
-        ENGINE_LOG.debug("  child: {}", renderStr.replaceAll("\n", "\\\n"));
-      }
+//      for (Node node : root.getChildren()) {
+//        String renderStr = node.getMaster().getImage();
+//        ENGINE_LOG.info("  child: {}", renderStr.replaceAll("\\n", "\\\\n"));
+//      }
     }
     long startMs = System.currentTimeMillis();
     for (Node node : root.getChildren()) {
