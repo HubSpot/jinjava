@@ -41,6 +41,8 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.lib.exptest.ExpTest;
+import com.hubspot.jinjava.lib.filter.Filter;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
@@ -166,6 +168,15 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
               }
 
               base = optBase.get();
+            }
+            if (propertyName.equals("filter") && base instanceof Filter) {
+              return null;
+            }
+            if (propertyName.equals("evaluate") && base instanceof ExpTest) {
+              return null;
+            }
+            if (propertyName.equals("append") && base instanceof PyWrapper) {
+              return null;
             }
 
             value = super.getValue(context, base, propertyName);

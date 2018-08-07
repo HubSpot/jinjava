@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -69,6 +71,7 @@ public class SelectAttrFilter implements AdvancedFilter {
     }
 
     ForLoop loop = ObjectIterator.getLoop(var);
+    long startMs = System.currentTimeMillis();
     while (loop.hasNext()) {
       Object val = loop.next();
       Object attrVal = interpreter.resolveProperty(val, attr);
@@ -76,6 +79,9 @@ public class SelectAttrFilter implements AdvancedFilter {
       if (expTest.evaluate(attrVal, interpreter, expArgs)) {
         result.add(val);
       }
+    }
+    if (loop.getLength() > 1000) {
+      ENGINE_LOG.warn("Loop {} attr={} took {} ms", loop.getLength(), attr, System.currentTimeMillis() - startMs);
     }
 
     return result;
