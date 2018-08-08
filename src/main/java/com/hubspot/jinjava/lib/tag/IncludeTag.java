@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **********************************************************************/
+
 package com.hubspot.jinjava.lib.tag;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
@@ -60,6 +61,8 @@ public class IncludeTag implements Tag {
     }
 
     String path = StringUtils.trimToEmpty(helper.next());
+    final String renderName = String.format("IncludeTag:%s", path);
+    interpreter.startRender(renderName);
     String templateFile = interpreter.resolveString(path, tagNode.getLineNumber(), tagNode.getStartPosition());
 
     try {
@@ -73,12 +76,15 @@ public class IncludeTag implements Tag {
 
     try {
       long startMs = System.currentTimeMillis();
+      interpreter.startRender("getResource");
       String template = interpreter.getResource(templateFile);
+      interpreter.endRender("getResource");
       long costMs = System.currentTimeMillis() - startMs;
       ENGINE_LOG.info("{}IncludeTag getResource time: {} {}",
           StringUtils.repeat("  ", interpreter.getContext().getIncludePathStack().size()),
           costMs, path);
 
+      interpreter.startRender("renderResource");
       Node node = interpreter.parse(template);
 
       interpreter.getContext().addDependency("coded_files", templateFile);
@@ -93,7 +99,7 @@ public class IncludeTag implements Tag {
           costMs, path);
 
       interpreter.getErrors().addAll(child.getErrors());
-
+      interpreter.endRender("renderResource");
       return result;
 
     } catch (IOException e) {
@@ -103,6 +109,7 @@ public class IncludeTag implements Tag {
       ENGINE_LOG.warn("{}IncludeTag render time: {} {}",
           StringUtils.repeat("  ", interpreter.getContext().getIncludePathStack().size()),
           System.currentTimeMillis() - thisStartMs, path);
+      interpreter.endRender(renderName);
     }
   }
 

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -37,51 +38,56 @@ public class SelectAttrFilter implements AdvancedFilter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
-    List<Object> result = new ArrayList<>();
+    interpreter.startRender(getName());
+    try {
+      List<Object> result = new ArrayList<>();
 
-    if (args.length == 0) {
-      throw new InterpretException(getName() + " filter requires an attr to filter on", interpreter.getLineNumber());
-    }
-
-    if (!(args[0] instanceof String)) {
-      throw new InterpretException(getName() + " filter requires the filter attr arg to be a string", interpreter.getLineNumber());
-    }
-
-    Object[] expArgs = new String[]{};
-
-    String attr = (String) args[0];
-
-    ExpTest expTest = interpreter.getContext().getExpTest("truthy");
-    if (args.length > 1) {
-
-      if (!(args[1] instanceof String)) {
-        throw new InterpretException(getName() + " filter requires the expression test arg to be a string", interpreter.getLineNumber());
+      if (args.length == 0) {
+        throw new InterpretException(getName() + " filter requires an attr to filter on", interpreter.getLineNumber());
       }
 
-      expTest = interpreter.getContext().getExpTest((String) args[1]);
-      if (expTest == null) {
-        throw new InterpretException("No expression test defined with name '" + args[1] + "'", interpreter.getLineNumber());
+      if (!(args[0] instanceof String)) {
+        throw new InterpretException(getName() + " filter requires the filter attr arg to be a string", interpreter.getLineNumber());
       }
 
-      if (args.length > 2) {
-        expArgs = Arrays.copyOfRange(args, 2, args.length);
+      Object[] expArgs = new String[]{};
+
+      String attr = (String) args[0];
+
+      ExpTest expTest = interpreter.getContext().getExpTest("truthy");
+      if (args.length > 1) {
+
+        if (!(args[1] instanceof String)) {
+          throw new InterpretException(getName() + " filter requires the expression test arg to be a string", interpreter
+              .getLineNumber());
+        }
+
+        expTest = interpreter.getContext().getExpTest((String) args[1]);
+        if (expTest == null) {
+          throw new InterpretException("No expression test defined with name '" + args[1] + "'", interpreter.getLineNumber());
+        }
+
+        if (args.length > 2) {
+          expArgs = Arrays.copyOfRange(args, 2, args.length);
+        }
       }
-    }
 
-    ForLoop loop = ObjectIterator.getLoop(var);
-    long startMs = System.currentTimeMillis();
-    while (loop.hasNext()) {
-      Object val = loop.next();
-      Object attrVal = interpreter.resolveProperty(val, attr);
+      ForLoop loop = ObjectIterator.getLoop(var);
+      long startMs = System.currentTimeMillis();
+      while (loop.hasNext()) {
+        Object val = loop.next();
+        Object attrVal = interpreter.resolveProperty(val, attr);
 
-      if (expTest.evaluate(attrVal, interpreter, expArgs)) {
-        result.add(val);
+        if (expTest.evaluate(attrVal, interpreter, expArgs)) {
+          result.add(val);
+        }
       }
+      if (loop.getLength() > 1000) {
+        // ENGINE_LOG.warn("Loop {} attr={} took {} ms", loop.getLength(), attr, System.currentTimeMillis() - startMs);
+      }
+      return result;
+    } finally {
+      interpreter.endRender(getName(), ImmutableMap.of("attr", Arrays.toString(args), "kwargs", kwargs));
     }
-    if (loop.getLength() > 1000) {
-      // ENGINE_LOG.warn("Loop {} attr={} took {} ms", loop.getLength(), attr, System.currentTimeMillis() - startMs);
-    }
-
-    return result;
   }
 }

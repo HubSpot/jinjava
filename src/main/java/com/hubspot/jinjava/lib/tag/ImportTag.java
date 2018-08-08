@@ -87,6 +87,8 @@ public class ImportTag implements Tag {
 
     String templateFile = interpreter.resolveString(path, tagNode.getLineNumber(), tagNode.getStartPosition());
     interpreter.getContext().addDependency("coded_files", templateFile);
+    final String renderName = String.format("%s:%s", getName(), templateFile);
+    interpreter.startRender(renderName);
     try {
       String template = interpreter.getResource(templateFile);
       Node node = interpreter.parse(template);
@@ -111,6 +113,8 @@ public class ImportTag implements Tag {
       return "";
     } catch (IOException e) {
       throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
+    } finally {
+      interpreter.endRender(renderName);
     }
   }
 

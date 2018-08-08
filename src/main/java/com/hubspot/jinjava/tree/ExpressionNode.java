@@ -39,29 +39,36 @@ public class ExpressionNode extends Node {
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
-    Object var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
+    final String renderName = String.format("Expression:%s", master.getExpr());
+    interpreter.startRender(renderName);
 
-    String result = Objects.toString(var, "");
+      Object var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
 
-    if (interpreter.getConfig().isNestedInterpretationEnabled()) {
-      if (!StringUtils.equals(result, master.getImage()) &&
-          (StringUtils.contains(result, "{{") || StringUtils.contains(result, "{%"))) {
-        try {
-          result = interpreter.renderFlat(result);
-        } catch (Exception e) {
-          Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
+      String result = Objects.toString(var, "");
+
+      if (interpreter.getConfig().isNestedInterpretationEnabled()) {
+        if (!StringUtils.equals(result, master.getImage()) &&
+            (StringUtils.contains(result, "{{") || StringUtils.contains(result, "{%"))) {
+          try {
+            result = interpreter.renderFlat(result);
+          } catch (Exception e) {
+            Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
+          }
         }
       }
-    }
 
-    if (interpreter.getContext().isAutoEscape()) {
-      result = EscapeFilter.escapeHtmlEntities(result);
-    }
+      if (interpreter.getContext().isAutoEscape()) {
+        result = EscapeFilter.escapeHtmlEntities(result);
+      }
 
-    if (master.getExpr().trim().equals("required_head_tags")) {
-      interpreter.getContext().putResolvedExpressionValue(master.getExpr().trim(), result);
-    }
-    return new RenderedOutputNode(result);
+      if (master.getExpr().trim().equals("required_head_tags")) {
+        interpreter.getContext().putResolvedExpressionValue(master.getExpr().trim(), result);
+      }
+    RenderedOutputNode output = new RenderedOutputNode(result);
+
+      interpreter.endRender(renderName);
+      return output;
+
   }
 
   @Override

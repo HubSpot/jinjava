@@ -40,6 +40,11 @@ public interface AdvancedFilter extends Importable, Filter {
 
    // Default implementation to maintain backward-compatibility with old Filters
    default Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-       return filter(var, interpreter, (Object[]) args, new HashMap<>());
+       interpreter.startRender(getName());
+       try {
+         return filter(var, interpreter, (Object[]) args, new HashMap<>());
+       } finally {
+         interpreter.endRender(getName());
+       }
    }
 }

@@ -159,7 +159,13 @@ public class JinjavaInterpreter {
     // return new TreeParser(this, template).buildTree();
     final long start = System.nanoTime();
     StringBuilder sb = new StringBuilder();
-    Node node = new TreeParser(this, template).buildTree();
+    startRender("Parse");
+    Node node;
+    try {
+      node = new TreeParser(this, template).buildTree();
+    } finally {
+      endRender("Parse");
+    }
     final long cost = System.nanoTime() - start;
     if (cost > 1000000 * 10) {
       sb.append(String.format("%n   ******* jinjava parse: %d ms", TimeUnit.NANOSECONDS.toMillis(cost)));
@@ -501,4 +507,24 @@ public class JinjavaInterpreter {
     }
   }
 
+  public void startRender(String name) {
+    RenderTimings renderTimings = (RenderTimings) getContext().get("request");
+    if (renderTimings != null) {
+      renderTimings.start(this, name);
+    }
+  }
+
+  public void endRender(String name) {
+    RenderTimings renderTimings = (RenderTimings) getContext().get("request");
+    if (renderTimings != null) {
+      renderTimings.end(this, name);
+    }
+  }
+
+  public void endRender(String name, Map<String, Object> data) {
+    RenderTimings renderTimings = (RenderTimings) getContext().get("request");
+    if (renderTimings != null) {
+      renderTimings.end(this, name, data);
+    }
+  }
 }

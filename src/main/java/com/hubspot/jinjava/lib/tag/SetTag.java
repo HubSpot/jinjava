@@ -63,6 +63,7 @@ public class SetTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+
     if (!tagNode.getHelpers().contains("=")) {
       throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' expects an assignment expression with '=', but was: " + tagNode.getHelpers(), tagNode.getLineNumber(), tagNode.getStartPosition());
     }
@@ -78,31 +79,39 @@ public class SetTag implements Tag {
       throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' requires an expression to assign to a var", tagNode.getLineNumber(), tagNode.getStartPosition());
     }
 
-    String[] varTokens = var.split(",");
+    final String renderName = String.format("Set %s=%s", var, expr);
+    interpreter.startRender(renderName);
+    try {
+      String[] varTokens = var.split(",");
 
-    if (varTokens.length > 1) {
-      // handle multi-variable assignment
-      @SuppressWarnings("unchecked")
-      List<Object> exprVals = (List<Object>) interpreter.resolveELExpression("[" + expr + "]", tagNode.getLineNumber());
+      if (varTokens.length > 1) {
+        // handle multi-variable assignment
+        @SuppressWarnings("unchecked")
+        List<Object> exprVals = (List<Object>) interpreter.resolveELExpression("[" + expr + "]", tagNode.getLineNumber());
 
-      if (varTokens.length != exprVals.size()) {
-        throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' declares an uneven number of variables and assigned values", tagNode.getLineNumber(), tagNode.getStartPosition());
+        if (varTokens.length != exprVals.size()) {
+          throw new TemplateSyntaxException(tagNode.getMaster()
+              .getImage(), "Tag 'set' declares an uneven number of variables and assigned values", tagNode.getLineNumber(), tagNode
+              .getStartPosition());
+        }
+
+        for (int i = 0; i < varTokens.length; i++) {
+          String varItem = varTokens[i].trim();
+          Object val = exprVals.get(i);
+          interpreter.getContext().put(varItem, val);
+        }
+
+      } else {
+        // handle single variable assignment
+        Object val = interpreter.resolveELExpression(expr, tagNode.getLineNumber());
+        interpreter.getContext().put(var, val);
+
       }
 
-      for (int i = 0; i < varTokens.length; i++) {
-        String varItem = varTokens[i].trim();
-        Object val = exprVals.get(i);
-        interpreter.getContext().put(varItem, val);
-      }
-
-    } else {
-      // handle single variable assignment
-      Object val = interpreter.resolveELExpression(expr, tagNode.getLineNumber());
-      interpreter.getContext().put(var, val);
-
+      return "";
+    } finally {
+      interpreter.endRender(renderName);
     }
-
-    return "";
   }
 
   @Override
