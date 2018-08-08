@@ -1,7 +1,5 @@
 package com.hubspot.jinjava.lib.filter;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -81,7 +79,7 @@ public class SelectAttrFilter implements AdvancedFilter {
       }
     }
     if (loop.getLength() > 1000) {
-      ENGINE_LOG.warn("Loop {} attr={} took {} ms", loop.getLength(), attr, System.currentTimeMillis() - startMs);
+      // ENGINE_LOG.warn("Loop {} attr={} took {} ms", loop.getLength(), attr, System.currentTimeMillis() - startMs);
     }
 
     return result;

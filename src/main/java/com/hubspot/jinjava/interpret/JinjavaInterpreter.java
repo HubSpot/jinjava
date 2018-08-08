@@ -228,13 +228,6 @@ public class JinjavaInterpreter {
     OutputList output = new OutputList(config.getMaxOutputSize());
     String depth = StringUtils.repeat("  ", getContext().getIncludePathStack().size());
 
-    if (root.getChildren().size() > 5) {
-      ENGINE_LOG.warn("{} children of this node.", root.getChildren().size());
-//      for (Node node : root.getChildren()) {
-//        String renderStr = node.getMaster().getImage();
-//        ENGINE_LOG.info("  child: {}", renderStr.replaceAll("\\n", "\\\\n"));
-//      }
-    }
     long startMs = System.currentTimeMillis();
     for (Node node : root.getChildren()) {
       long childStart = System.currentTimeMillis();

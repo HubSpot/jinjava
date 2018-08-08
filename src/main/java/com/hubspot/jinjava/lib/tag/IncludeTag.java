@@ -53,6 +53,7 @@ public class IncludeTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    long thisStartMs = System.currentTimeMillis();
     HelperStringTokenizer helper = new HelperStringTokenizer(tagNode.getHelpers());
     if (!helper.hasNext()) {
       throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'include' expects template path", tagNode.getLineNumber(), tagNode.getStartPosition());
@@ -74,7 +75,7 @@ public class IncludeTag implements Tag {
       long startMs = System.currentTimeMillis();
       String template = interpreter.getResource(templateFile);
       long costMs = System.currentTimeMillis() - startMs;
-      ENGINE_LOG.warn("{}IncludeTag getResource time: {} {}",
+      ENGINE_LOG.info("{}IncludeTag getResource time: {} {}",
           StringUtils.repeat("  ", interpreter.getContext().getIncludePathStack().size()),
           costMs, path);
 
@@ -87,7 +88,7 @@ public class IncludeTag implements Tag {
       startMs = System.currentTimeMillis();
       String result = child.render(node);
       costMs = System.currentTimeMillis() - startMs;
-      ENGINE_LOG.warn("{}IncludeTag child render time: {} {}",
+      ENGINE_LOG.info("{}IncludeTag child render time: {} {}",
           StringUtils.repeat("  ", interpreter.getContext().getIncludePathStack().size()),
           costMs, path);
 
@@ -99,6 +100,9 @@ public class IncludeTag implements Tag {
       throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
     } finally {
       interpreter.getContext().getIncludePathStack().pop();
+      ENGINE_LOG.warn("{}IncludeTag render time: {} {}",
+          StringUtils.repeat("  ", interpreter.getContext().getIncludePathStack().size()),
+          System.currentTimeMillis() - thisStartMs, path);
     }
   }
 
