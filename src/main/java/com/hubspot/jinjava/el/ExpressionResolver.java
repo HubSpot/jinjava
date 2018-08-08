@@ -1,8 +1,11 @@
 package com.hubspot.jinjava.el;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.el.ELException;
 import javax.el.ExpressionFactory;
@@ -66,7 +69,18 @@ public class ExpressionResolver {
     interpreter.getContext().addResolvedExpression(expression.trim());
 
     try {
-      String elExpression = EXPRESSION_START_TOKEN + expression.trim() + EXPRESSION_END_TOKEN;
+      String hackExpression = expression.trim();
+
+        Pattern pattern = Pattern.compile("^(.*\\|)?selectattr\\([^)]*,[^)]*,[^)]*\\)\\|first$");
+        Matcher matcher = pattern.matcher(hackExpression);
+        if (matcher.find()) {
+          int pos = hackExpression.lastIndexOf("selectattr");
+          hackExpression = hackExpression.substring(0, pos) +
+              "selectattrfirst" + hackExpression.substring(pos + 10).replace("|first", "");
+          ENGINE_LOG.warn("Replaced {} as {}", expression, hackExpression);
+        }
+
+      String elExpression = EXPRESSION_START_TOKEN + hackExpression + EXPRESSION_END_TOKEN;
       ValueExpression valueExp = expressionFactory.createValueExpression(elContext, elExpression, Object.class);
       Object result = valueExp.getValue(elContext);
 
@@ -75,6 +89,7 @@ public class ExpressionResolver {
       return result;
 
     } catch (PropertyNotFoundException e) {
+      ENGINE_LOG.error("error", e);
       interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, e.getMessage(), "", interpreter.getLineNumber(), interpreter.getPosition(), e,
           BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of("exception", e.getMessage())));
     } catch (TreeBuilderException e) {
