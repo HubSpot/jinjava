@@ -90,8 +90,11 @@ public class ImportTag implements Tag {
     final String renderName = String.format("%s:%s", getName(), templateFile);
     interpreter.startRender(renderName);
     try {
+      final String getResource = String.format("getResource:%s", templateFile);
+      interpreter.startRender(getResource);
       String template = interpreter.getResource(templateFile);
       Node node = interpreter.parse(template);
+      interpreter.endRender(getResource);
 
       if (StringUtils.isBlank(contextVar)) {
         interpreter.render(node);
