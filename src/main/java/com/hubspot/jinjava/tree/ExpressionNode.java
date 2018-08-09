@@ -41,7 +41,7 @@ public class ExpressionNode extends Node {
   public OutputNode render(JinjavaInterpreter interpreter) {
     final String renderName = String.format("Expression:%s", master.getExpr());
     interpreter.startRender(renderName);
-
+    try {
       Object var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
 
       String result = Objects.toString(var, "");
@@ -64,10 +64,11 @@ public class ExpressionNode extends Node {
       if (master.getExpr().trim().equals("required_head_tags")) {
         interpreter.getContext().putResolvedExpressionValue(master.getExpr().trim(), result);
       }
-    RenderedOutputNode output = new RenderedOutputNode(result);
-
-      interpreter.endRender(renderName);
+      RenderedOutputNode output = new RenderedOutputNode(result);
       return output;
+    } finally {
+      interpreter.endRender(renderName);
+    }
 
   }
 
