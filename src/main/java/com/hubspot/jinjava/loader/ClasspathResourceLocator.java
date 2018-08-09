@@ -11,10 +11,14 @@ public class ClasspathResourceLocator implements ResourceLocator {
   @Override
   public String getString(String fullName, Charset encoding,
       JinjavaInterpreter interpreter) throws IOException {
+    final String renderName = String.format("InterpreterGetResource:%s", fullName);
     try {
+      interpreter.startRender(renderName);
       return Resources.toString(Resources.getResource(fullName), encoding);
     } catch (IllegalArgumentException e) {
       throw new ResourceNotFoundException("Couldn't find resource: " + fullName);
+    } finally {
+      interpreter.endRender(renderName);
     }
   }
 
