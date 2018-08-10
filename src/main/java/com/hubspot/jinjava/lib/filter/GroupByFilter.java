@@ -1,7 +1,9 @@
 package com.hubspot.jinjava.lib.filter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import com.google.common.collect.LinkedListMultimap;
@@ -50,18 +52,24 @@ public class GroupByFilter implements Filter {
 
     ForLoop loop = ObjectIterator.getLoop(var);
     Multimap<String, Object> groupBuckets = LinkedListMultimap.create();
+    Map<String, Object> groupMapRaw = new HashMap<>();
 
     while (loop.hasNext()) {
       Object val = loop.next();
 
-      String grouper = Objects.toString(interpreter.resolveProperty(val, attr));
+      Object resolvedProperty = interpreter.resolveProperty(val, attr);
+      String grouper = Objects.toString(resolvedProperty);
       groupBuckets.put(grouper, val);
+
+      if (!groupMapRaw.containsKey(grouper)) {
+        groupMapRaw.put(grouper, resolvedProperty);
+      }
     }
 
     List<Group> groups = new ArrayList<>();
     for (String grouper : groupBuckets.keySet()) {
       List<Object> list = Lists.newArrayList(groupBuckets.get(grouper));
-      groups.add(new Group(grouper, list));
+      groups.add(new Group(grouper, groupMapRaw.get(grouper), list));
     }
 
     return groups;
@@ -69,15 +77,21 @@ public class GroupByFilter implements Filter {
 
   public static class Group {
     private final String grouper;
+    private final Object grouperObject;
     private final List<Object> list;
 
-    public Group(String grouper, List<Object> list) {
+    public Group(String grouper, Object grouperObject, List<Object> list) {
       this.grouper = grouper;
+      this.grouperObject = grouperObject;
       this.list = list;
     }
 
     public String getGrouper() {
       return grouper;
+    }
+
+    public Object getGrouperObject() {
+      return grouperObject;
     }
 
     public List<Object> getList() {
