@@ -13,8 +13,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 public class ToJsonFilterTest {
 
-  JinjavaInterpreter interpreter;
-  ToJsonFilter filter;
+  private JinjavaInterpreter interpreter;
+  private ToJsonFilter filter;
 
   @Before
   public void setup() {
