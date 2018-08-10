@@ -77,7 +77,7 @@ public class GroupByFilter implements Filter {
 
   public static class Group {
     private final String grouper;
-    private final Object grouperObject
+    private final Object grouperObject;
     private final List<Object> list;
 
     public Group(String grouper, Object grouperObject, List<Object> list) {
