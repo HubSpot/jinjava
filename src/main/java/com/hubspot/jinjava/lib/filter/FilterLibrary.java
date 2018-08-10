@@ -100,7 +100,9 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
         TitleFilter.class,
         TrimFilter.class,
         WordCountFilter.class,
-        WordWrapFilter.class);
+        WordWrapFilter.class,
+        ToJsonFilter.class,
+        FromJsonFilter.class);
   }
 
   public Filter getFilter(String filterName) {
