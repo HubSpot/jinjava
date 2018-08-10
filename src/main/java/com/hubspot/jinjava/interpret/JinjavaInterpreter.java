@@ -479,4 +479,24 @@ public class JinjavaInterpreter {
     }
   }
 
+  public void startRender(String name) {
+    RenderTimings renderTimings = (RenderTimings) getContext().get("request");
+    if (renderTimings != null) {
+      renderTimings.start(this, name);
+    }
+  }
+
+  public void endRender(String name) {
+    RenderTimings renderTimings = (RenderTimings) getContext().get("request");
+    if (renderTimings != null) {
+      renderTimings.end(this, name);
+    }
+  }
+
+  public void endRender(String name, Map<String, Object> data) {
+    RenderTimings renderTimings = (RenderTimings) getContext().get("request");
+    if (renderTimings != null) {
+      renderTimings.end(this, name, data);
+    }
+  }
 }
