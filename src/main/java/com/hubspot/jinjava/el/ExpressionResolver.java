@@ -4,8 +4,6 @@ import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.el.ELException;
 import javax.el.ExpressionFactory;
@@ -71,14 +69,14 @@ public class ExpressionResolver {
     try {
       String hackExpression = expression.trim();
 
-        Pattern pattern = Pattern.compile("^(.*\\|)?selectattr\\([^)]*,[^)]*,[^)]*\\)\\|first$");
-        Matcher matcher = pattern.matcher(hackExpression);
-        if (matcher.find()) {
-          int pos = hackExpression.lastIndexOf("selectattr");
-          hackExpression = hackExpression.substring(0, pos) +
-              "selectattrfirst" + hackExpression.substring(pos + 10).replace("|first", "");
-          ENGINE_LOG.warn("Replaced {} as {}", expression, hackExpression);
-        }
+//        Pattern pattern = Pattern.compile("^(.*\\|)?selectattr\\([^)]*,[^)]*,[^)]*\\)\\|first$");
+//        Matcher matcher = pattern.matcher(hackExpression);
+//        if (matcher.find()) {
+//          int pos = hackExpression.lastIndexOf("selectattr");
+//          hackExpression = hackExpression.substring(0, pos) +
+//              "selectattrfirst" + hackExpression.substring(pos + 10).replace("|first", "");
+//          ENGINE_LOG.warn("Replaced {} as {}", expression, hackExpression);
+//        }
 
       String elExpression = EXPRESSION_START_TOKEN + hackExpression + EXPRESSION_END_TOKEN;
       ValueExpression valueExp = expressionFactory.createValueExpression(elContext, elExpression, Object.class);

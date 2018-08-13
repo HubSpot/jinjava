@@ -39,6 +39,7 @@ public class SelectAttrFilter implements AdvancedFilter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
     interpreter.startRender(getName());
+    int loopSize = 0;
     try {
       List<Object> result = new ArrayList<>();
 
@@ -73,6 +74,7 @@ public class SelectAttrFilter implements AdvancedFilter {
       }
 
       ForLoop loop = ObjectIterator.getLoop(var);
+      loopSize = loop.getLength();
       long startMs = System.currentTimeMillis();
       while (loop.hasNext()) {
         Object val = loop.next();
@@ -87,7 +89,8 @@ public class SelectAttrFilter implements AdvancedFilter {
       }
       return result;
     } finally {
-      interpreter.endRender(getName(), ImmutableMap.of("attr", Arrays.toString(args), "kwargs", kwargs));
+      interpreter.endRender(getName(), ImmutableMap.of("attr", Arrays.toString(args), "kwargs", kwargs,
+          "size", loopSize));
     }
   }
 }
