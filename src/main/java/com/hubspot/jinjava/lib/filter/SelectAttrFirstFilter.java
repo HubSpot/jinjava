@@ -1,9 +1,7 @@
 
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -16,20 +14,20 @@ import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
-    value = "Filters a sequence of objects by applying a test to an attribute of an object and only selecting " +
-        "first with the test succeeding. This is similar to selectattr but is fast if you just want the first" +
-        "item",
+    value = "Filters a sequence of objects by applying a test to an" +
+        " attribute of an object and only selecting first with the" +
+        " test succeeding. This is similar to selectattr but is fast" +
+        " if you just want the first item",
     params = {
         @JinjavaParam(value = "sequence", type = "sequence", desc = "Sequence to test"),
         @JinjavaParam(value = "attr", desc = "Attribute to test for and select items that contain it"),
-        @JinjavaParam(value = "exp_test", type = "name of expression test", defaultValue = "truthy", desc = "Specify which expression test to run for making the selection")
+        @JinjavaParam(value = "exp_test", type = "name of expression test", defaultValue = "truthy",
+            desc = "Specify which expression test to run for making the selection")
     },
     snippets = {
         @JinjavaSnippet(
-            desc = "This loop would select any post containing content.post_list_summary_featured_image",
-            code = "{% for content in contents|selectattr('post_list_summary_featured_image') %}\n" +
-                "    <div class=\"post-item\">Post in listing markup</div>\n" +
-                "{% endfor %}")
+            desc = "This expression would select the first containing content.post_list_summary_featured_image",
+            code = "{{ contents|selectattrfirst('post_list_summary_featured_image') }}")
     })
 public class SelectAttrFirstFilter implements AdvancedFilter {
 

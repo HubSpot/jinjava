@@ -50,6 +50,7 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
         RejectFilter.class,
         SelectFilter.class,
         SelectAttrFilter.class,
+        SelectAttrFirstFilter.class,
         SliceFilter.class,
         ShuffleFilter.class,
         SortFilter.class,
