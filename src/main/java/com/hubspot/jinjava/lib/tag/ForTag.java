@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -86,6 +87,7 @@ public class ForTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     final String renderName = String.format("%s:%s", getName(), tagNode.getMaster().getImage());
     interpreter.startRender(renderName);
+    int loopSize = 0;
 
     try {
     /* apdlv72@gmail.com
@@ -129,6 +131,7 @@ public class ForTag implements Tag {
       String loopExpr = StringUtils.join(helper.subList(inPos + 1, helper.size()), ",");
       Object collection = interpreter.resolveELExpression(loopExpr, tagNode.getLineNumber());
       ForLoop loop = ObjectIterator.getLoop(collection);
+      loopSize = loop.getLength();
 
       try (InterpreterScopeClosable c = interpreter.enterScope()) {
         interpreter.getContext().put(LOOP, loop);
@@ -182,7 +185,7 @@ public class ForTag implements Tag {
         return buff.toString();
       }
     } finally {
-      interpreter.endRender(renderName);
+      interpreter.endRender(renderName, ImmutableMap.of("size", loopSize));
     }
 
   }

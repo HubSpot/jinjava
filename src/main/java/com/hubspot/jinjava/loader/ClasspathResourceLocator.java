@@ -13,12 +13,16 @@ public class ClasspathResourceLocator implements ResourceLocator {
       JinjavaInterpreter interpreter) throws IOException {
     final String renderName = String.format("InterpreterGetResource:%s", fullName);
     try {
-      interpreter.startRender(renderName);
+      if (interpreter != null) {
+        interpreter.startRender(renderName);
+      }
       return Resources.toString(Resources.getResource(fullName), encoding);
     } catch (IllegalArgumentException e) {
       throw new ResourceNotFoundException("Couldn't find resource: " + fullName);
     } finally {
-      interpreter.endRender(renderName);
+      if (interpreter != null) {
+        interpreter.endRender(renderName);
+      }
     }
   }
 
