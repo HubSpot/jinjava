@@ -15,8 +15,6 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
 import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
@@ -60,32 +58,38 @@ public class IfTag implements Tag {
       throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'if' expects expression", tagNode.getLineNumber(), tagNode.getStartPosition());
     }
 
-    Iterator<Node> nodeIterator = tagNode.getChildren().iterator();
-    TagNode nextIfElseTagNode = tagNode;
+    final String renderName = String.format("%s:%s", getName(), tagNode.getMaster().getImage());
+    interpreter.startRender(renderName);
+    try {
+      Iterator<Node> nodeIterator = tagNode.getChildren().iterator();
+      TagNode nextIfElseTagNode = tagNode;
 
-    while (nextIfElseTagNode != null && !evaluateIfElseTagNode(nextIfElseTagNode, interpreter)) {
-      nextIfElseTagNode = findNextIfElseTagNode(nodeIterator);
-    }
+      while (nextIfElseTagNode != null && !evaluateIfElseTagNode(nextIfElseTagNode, interpreter)) {
+        nextIfElseTagNode = findNextIfElseTagNode(nodeIterator);
+      }
 
-    LengthLimitingStringBuilder sb = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
-    if (nextIfElseTagNode != null) {
-      while (nodeIterator.hasNext()) {
-        Node n = nodeIterator.next();
-        if (n.getName().equals(ElseIfTag.ELSEIF) || n.getName().equals(ElseTag.ELSE)) {
-          break;
-        }
+      LengthLimitingStringBuilder sb = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
+      if (nextIfElseTagNode != null) {
+        while (nodeIterator.hasNext()) {
+          Node n = nodeIterator.next();
+          if (n.getName().equals(ElseIfTag.ELSEIF) || n.getName().equals(ElseTag.ELSE)) {
+            break;
+          }
 //        long startMs = System.currentTimeMillis();
-        sb.append(n.render(interpreter));
+          sb.append(n.render(interpreter));
 //        if (tagNode.getMaster().toString().equals("{% if  topic  %}")) {
 //          long costMs = System.currentTimeMillis() - startMs;
 //          if (costMs > 20) {
 //            ENGINE_LOG.warn("render time: {} {}", costMs, n.getMaster().getImage());
 //          }
 //        }
+        }
       }
-    }
 
-    return sb.toString();
+      return sb.toString();
+    } finally {
+      interpreter.endRender(renderName);
+    }
   }
 
   private TagNode findNextIfElseTagNode(Iterator<Node> nodeIterator) {

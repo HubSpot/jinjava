@@ -84,7 +84,10 @@ public class ForTag implements Tag {
   @SuppressWarnings("unchecked")
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    final String renderName = String.format("%s:%s", getName(), tagNode.getMaster().getImage());
+    interpreter.startRender(renderName);
 
+    try {
     /* apdlv72@gmail.com
      * Fix for issues with for-loops that contain whitespace in their range, e.g.
      * "{% for i in range(1 * 1, 2 * 2) %}"
@@ -97,84 +100,89 @@ public class ForTag implements Tag {
      * contain spaces in the arguments.
      * TODO A somewhat more sophisticated tokenizing/parsing of the for-loop expression.
      */
-    String helpers = tagNode.getHelpers();
-    String parts[] = helpers.split("\\s+in\\s+");
-    if (2==parts.length && !parts[1].contains("'") && !parts[1].contains("\"") ) {
+      String helpers = tagNode.getHelpers();
+      String parts[] = helpers.split("\\s+in\\s+");
+      if (2 == parts.length && !parts[1].contains("'") && !parts[1].contains("\"")) {
         helpers = parts[0] + " in " + parts[1].replace(" ", "");
-    }
-    List<String> helper = new HelperStringTokenizer(helpers).splitComma(true).allTokens();
-
-    List<String> loopVars = Lists.newArrayList();
-    int inPos = 0;
-    while (inPos < helper.size()) {
-      String val = helper.get(inPos);
-
-      if ("in".equals(val)) {
-        break;
-      } else {
-        loopVars.add(val);
-        inPos++;
       }
-    }
+      List<String> helper = new HelperStringTokenizer(helpers).splitComma(true).allTokens();
 
-    if (inPos >= helper.size()) {
-      throw new TemplateSyntaxException(tagNode.getHelpers().trim(), "Tag 'for' expects valid 'in' clause, got: " + tagNode.getHelpers(), tagNode.getLineNumber(), tagNode.getStartPosition());
-    }
+      List<String> loopVars = Lists.newArrayList();
+      int inPos = 0;
+      while (inPos < helper.size()) {
+        String val = helper.get(inPos);
 
-    String loopExpr = StringUtils.join(helper.subList(inPos + 1, helper.size()), ",");
-    Object collection = interpreter.resolveELExpression(loopExpr, tagNode.getLineNumber());
-    ForLoop loop = ObjectIterator.getLoop(collection);
-
-    try (InterpreterScopeClosable c = interpreter.enterScope()) {
-      interpreter.getContext().put(LOOP, loop);
-
-      LengthLimitingStringBuilder buff = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
-      while (loop.hasNext()) {
-        Object val = interpreter.wrap(loop.next());
-
-        // set item variables
-        if (loopVars.size() == 1) {
-          interpreter.getContext().put(loopVars.get(0), val);
+        if ("in".equals(val)) {
+          break;
         } else {
-          for (String loopVar : loopVars) {
-            if (Map.Entry.class.isAssignableFrom(val.getClass())) {
-              Map.Entry<String, Object> entry = (Entry<String, Object>) val;
-              Object entryVal = null;
+          loopVars.add(val);
+          inPos++;
+        }
+      }
 
-              if (loopVars.indexOf(loopVar) == 0) {
-                entryVal = entry.getKey();
-              } else if (loopVars.indexOf(loopVar) == 1) {
-                entryVal = entry.getValue();
-              }
+      if (inPos >= helper.size()) {
+        throw new TemplateSyntaxException(tagNode.getHelpers()
+            .trim(), "Tag 'for' expects valid 'in' clause, got: " + tagNode.getHelpers(), tagNode.getLineNumber(), tagNode
+            .getStartPosition());
+      }
 
-              interpreter.getContext().put(loopVar, entryVal);
-            } else {
-              try {
-                PropertyDescriptor[] valProps = Introspector.getBeanInfo(val.getClass()).getPropertyDescriptors();
-                for (PropertyDescriptor valProp : valProps) {
-                  if (loopVar.equals(valProp.getName())) {
-                    interpreter.getContext().put(loopVar, valProp.getReadMethod().invoke(val));
-                    break;
-                  }
+      String loopExpr = StringUtils.join(helper.subList(inPos + 1, helper.size()), ",");
+      Object collection = interpreter.resolveELExpression(loopExpr, tagNode.getLineNumber());
+      ForLoop loop = ObjectIterator.getLoop(collection);
+
+      try (InterpreterScopeClosable c = interpreter.enterScope()) {
+        interpreter.getContext().put(LOOP, loop);
+
+        LengthLimitingStringBuilder buff = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
+        while (loop.hasNext()) {
+          Object val = interpreter.wrap(loop.next());
+
+          // set item variables
+          if (loopVars.size() == 1) {
+            interpreter.getContext().put(loopVars.get(0), val);
+          } else {
+            for (String loopVar : loopVars) {
+              if (Map.Entry.class.isAssignableFrom(val.getClass())) {
+                Map.Entry<String, Object> entry = (Entry<String, Object>) val;
+                Object entryVal = null;
+
+                if (loopVars.indexOf(loopVar) == 0) {
+                  entryVal = entry.getKey();
+                } else if (loopVars.indexOf(loopVar) == 1) {
+                  entryVal = entry.getValue();
                 }
-              } catch (Exception e) {
-                throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
+
+                interpreter.getContext().put(loopVar, entryVal);
+              } else {
+                try {
+                  PropertyDescriptor[] valProps = Introspector.getBeanInfo(val.getClass()).getPropertyDescriptors();
+                  for (PropertyDescriptor valProp : valProps) {
+                    if (loopVar.equals(valProp.getName())) {
+                      interpreter.getContext().put(loopVar, valProp.getReadMethod().invoke(val));
+                      break;
+                    }
+                  }
+                } catch (Exception e) {
+                  throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
+                }
               }
+            }
+          }
+
+          for (Node node : tagNode.getChildren()) {
+            long startMs = System.currentTimeMillis();
+            buff.append(node.render(interpreter));
+            long costMs = System.currentTimeMillis() - startMs;
+            if (costMs > 20) {
+              ENGINE_LOG.warn("ForTag render time: {} {}", costMs, node.getMaster().getImage());
             }
           }
         }
 
-        for (Node node : tagNode.getChildren()) {
-          long startMs = System.currentTimeMillis();
-          buff.append(node.render(interpreter));
-          long costMs = System.currentTimeMillis() - startMs;
-          if (costMs > 20) {
-            ENGINE_LOG.warn("ForTag render time: {} {}", costMs, node.getMaster().getImage());
-          }
-        }
+        return buff.toString();
       }
-
-      return buff.toString();
+    } finally {
+      interpreter.endRender(renderName);
     }
 
   }

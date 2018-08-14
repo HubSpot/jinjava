@@ -50,7 +50,8 @@ public interface Filter extends Importable {
    * maintain backward-compatibility with old filters that don't support named arguments.
    */
   default Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
-    interpreter.startRender(getName());
+    final String renderName = String.format("Filter:%s", getName());
+    interpreter.startRender(renderName);
     // We append the named arguments at the end of the positional ones
     Object[] allArgs = ArrayUtils.addAll(args, kwargs.values().toArray());
 
@@ -58,7 +59,7 @@ public interface Filter extends Importable {
     try {
       return filter(var, interpreter, stringArgs.toArray(new String[]{}));
     } finally {
-      interpreter.endRender(getName());
+      interpreter.endRender(renderName);
     }
   }
 }
