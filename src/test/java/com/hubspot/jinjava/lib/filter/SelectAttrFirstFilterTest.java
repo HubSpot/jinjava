@@ -48,6 +48,11 @@ public class SelectAttrFirstFilterTest {
         .isEqualTo("1");
   }
 
+  @Test
+  public void selectAttrWithNoMatch() {
+    assertThat(jinjava.render("{{ users|selectattrfirst('email', 'equalto', 'abc') }}", new HashMap<String, Object>()))
+        .isEqualTo("");
+  }
 
   public static class User {
     private long num;
