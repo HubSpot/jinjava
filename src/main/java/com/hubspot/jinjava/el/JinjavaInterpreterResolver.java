@@ -169,15 +169,15 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
               base = optBase.get();
             }
-            if (propertyName.equals("filter") && base instanceof Filter) {
-              return null;
-            }
-            if (propertyName.equals("evaluate") && base instanceof ExpTest) {
-              return null;
-            }
-            if (propertyName.equals("append") && base instanceof PyWrapper) {
-              return null;
-            }
+//            if (propertyName.equals("filter") && base instanceof Filter) {
+//              return null;
+//            }
+//            if (propertyName.equals("evaluate") && base instanceof ExpTest) {
+//              return null;
+//            }
+//            if (propertyName.equals("append") && base instanceof PyWrapper) {
+//              return null;
+//            }
 
             value = super.getValue(context, base, propertyName);
 
@@ -191,6 +191,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
             }
           } catch (PropertyNotFoundException e) {
             if (errOnUnknownProp) {
+              ENGINE_LOG.error("error", e);
               interpreter.addError(TemplateError.fromUnknownProperty(base, propertyName, interpreter.getLineNumber(), -1));
             }
           }

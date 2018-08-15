@@ -97,6 +97,7 @@ public class ExpressionResolver {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression.substring(e.getPosition() - EXPRESSION_START_TOKEN.length()),
           "Error parsing '" + expression + "': " + errorMessage, interpreter.getLineNumber(), position, e)));
     } catch (ELException e) {
+      ENGINE_LOG.error("error", e);
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
     } catch (DisabledException e) {
       interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter.getLineNumber(), interpreter.getPosition(), e));
@@ -104,6 +105,7 @@ public class ExpressionResolver {
       // Re-throw the exception because you only get this when the config failOnUnknownTokens is enabled.
       throw e;
     } catch (Exception e) {
+      ENGINE_LOG.error("error", e);
       interpreter.addError(TemplateError.fromException(new InterpretException(
           String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression), e, interpreter.getLineNumber(), interpreter.getPosition())));
     }
