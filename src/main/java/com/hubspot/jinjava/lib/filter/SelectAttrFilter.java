@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -73,21 +74,33 @@ public class SelectAttrFilter implements AdvancedFilter {
         }
       }
 
+      final ExpTest expTestFinal = expTest;
+      final Object[] expArgsFinal = expArgs;
+      final Predicate<Object> predicate = new Predicate<Object>() {
+        @Override
+        public boolean test(Object o) {
+          Object attrVal = interpreter.resolveProperty(o, attr);
+          return expTestFinal.evaluate(attrVal, interpreter, expArgsFinal);
+        }
+      };
+
       ForLoop loop = ObjectIterator.getLoop(var);
       loopSize = loop.getLength();
-      long startMs = System.currentTimeMillis();
-      while (loop.hasNext()) {
-        Object val = loop.next();
-        Object attrVal = interpreter.resolveProperty(val, attr);
-
-        if (expTest.evaluate(attrVal, interpreter, expArgs)) {
-          result.add(val);
-        }
-      }
-      if (loop.getLength() > 1000) {
-        // ENGINE_LOG.warn("Loop {} attr={} took {} ms", loop.getLength(), attr, System.currentTimeMillis() - startMs);
-      }
-      return result;
+      loop.setPredicate(predicate);
+      return loop;
+//      long startMs = System.currentTimeMillis();
+//      while (loop.hasNext()) {
+//        Object val = loop.next();
+//        Object attrVal = interpreter.resolveProperty(val, attr);
+//
+//        if (expTest.evaluate(attrVal, interpreter, expArgs)) {
+//          result.add(val);
+//        }
+//      }
+//      if (loop.getLength() > 1000) {
+//        // ENGINE_LOG.warn("Loop {} attr={} took {} ms", loop.getLength(), attr, System.currentTimeMillis() - startMs);
+//      }
+//      return result;
     } finally {
       interpreter.endRender(getName(), ImmutableMap.of("attr", Arrays.toString(args), "kwargs", kwargs,
           "size", loopSize));

@@ -31,6 +31,11 @@ public final class ObjectIterator {
     if (obj == null) {
       return new ForLoop(Collections.emptyIterator(), 0);
     }
+
+    if (obj instanceof ForLoop) {
+      return (ForLoop) obj;
+    }
+
     // collection
     if (obj instanceof Collection) {
       Collection<Object> clt = (Collection<Object>) obj;

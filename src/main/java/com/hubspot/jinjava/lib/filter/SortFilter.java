@@ -10,6 +10,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 import com.hubspot.jinjava.util.Variable;
 
@@ -61,7 +62,15 @@ public class SortFilter implements Filter {
       attr = args[2];
     }
 
-    List<?> result = Lists.newArrayList(ObjectIterator.getLoop(var));
+    List<Object> result = Lists.newArrayList();
+    ForLoop loop = ObjectIterator.getLoop(var);
+    while (loop.hasNext()) {
+      Object o = loop.next();
+      if (o != null) {
+        result.add(o);
+      }
+    }
+
     result.sort(new ObjectComparator(interpreter, reverse, caseSensitive, attr));
 
     return result;

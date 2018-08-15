@@ -22,7 +22,7 @@ import java.util.function.Predicate;
 
 import com.google.common.collect.PeekingIterator;
 
-public class ForLoop implements PeekingIterator<Object> {
+public class ForLoop implements Iterator<Object> {
   private static final int NULL_VALUE = Integer.MIN_VALUE;
 
   private int index = -1;
@@ -36,10 +36,10 @@ public class ForLoop implements PeekingIterator<Object> {
 
   private int depth;
 
-  private PeekingIterator<?> it;
+  private Iterator<?> it;
   private Predicate<Object> predicate = null;
 
-  public ForLoop(PeekingIterator<?> ite, int len) {
+  public ForLoop(Iterator<?> ite, int len) {
     length = len;
     if (len < 2) {
       revindex = 1;
@@ -53,7 +53,7 @@ public class ForLoop implements PeekingIterator<Object> {
     it = ite;
   }
 
-  public ForLoop(PeekingIterator<?> ite) {
+  public ForLoop(Iterator<?> ite) {
     it = ite;
     if (it.hasNext()) {
       last = false;
@@ -94,12 +94,6 @@ public class ForLoop implements PeekingIterator<Object> {
       break;
     }
     return res;
-  }
-
-
-  @Override
-  public Object peek() {
-    return it.peek();
   }
 
   public int getIndex() {
