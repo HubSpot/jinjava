@@ -24,6 +24,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.util.ForLoop;
 
 @JinjavaDoc(
     value = "Return the number of items of a sequence or mapping",
@@ -39,6 +40,9 @@ public class LengthFilter implements Filter {
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
     if (null == object) {
       return 0;
+    }
+    if (object instanceof ForLoop) {
+      return ((ForLoop) object).getLength();
     }
 
     if (object instanceof Collection) {

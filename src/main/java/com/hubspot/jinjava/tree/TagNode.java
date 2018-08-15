@@ -15,6 +15,8 @@
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.Tag;
@@ -52,6 +54,7 @@ public class TagNode extends Node {
     } catch (InterpretException e) {
       throw e;
     } catch (Exception e) {
+      ENGINE_LOG.error("Erro", e);
       throw new InterpretException("Error rendering tag", e, master.getLineNumber(), master.getStartPosition());
     }
   }

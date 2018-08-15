@@ -41,14 +41,13 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
-import com.hubspot.jinjava.lib.exptest.ExpTest;
-import com.hubspot.jinjava.lib.filter.Filter;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
+import com.hubspot.jinjava.util.ForLoop;
 
 import de.odysseus.el.util.SimpleResolver;
 
@@ -191,8 +190,11 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
             }
           } catch (PropertyNotFoundException e) {
             if (errOnUnknownProp) {
-              ENGINE_LOG.error("error", e);
+              ENGINE_LOG.error("Cannot find property {} in {}", propertyName, base.getClass().getSimpleName(), e);
               interpreter.addError(TemplateError.fromUnknownProperty(base, propertyName, interpreter.getLineNumber(), -1));
+              if (base.getClass().equals(ForLoop.class)) {
+                throw new PropertyNotFoundException("Forloop exception");
+              }
             }
           }
         }

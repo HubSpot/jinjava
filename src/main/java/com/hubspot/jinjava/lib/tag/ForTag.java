@@ -138,7 +138,11 @@ public class ForTag implements Tag {
 
         LengthLimitingStringBuilder buff = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
         while (loop.hasNext()) {
-          Object val = interpreter.wrap(loop.next());
+          Object o = loop.next();
+          if (o == null) {
+            continue;
+          }
+          Object val = interpreter.wrap(o);
 
           // set item variables
           if (loopVars.size() == 1) {

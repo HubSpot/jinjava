@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +41,7 @@ public class SelectAttrFilter implements AdvancedFilter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
+    ENGINE_LOG.error(String.format("%s:%s", getName(), Arrays.toString(args)));
     interpreter.startRender(getName());
     int loopSize = 0;
     try {
