@@ -18,8 +18,11 @@ package com.hubspot.jinjava.util;
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
 import java.util.Iterator;
+import java.util.function.Predicate;
 
-public class ForLoop implements Iterator<Object> {
+import com.google.common.collect.PeekingIterator;
+
+public class ForLoop implements PeekingIterator<Object> {
   private static final int NULL_VALUE = Integer.MIN_VALUE;
 
   private int index = -1;
@@ -30,11 +33,13 @@ public class ForLoop implements Iterator<Object> {
   private boolean first = true;
   private boolean last;
 
+
   private int depth;
 
-  private Iterator<?> it;
+  private PeekingIterator<?> it;
+  private Predicate<Object> predicate = null;
 
-  public ForLoop(Iterator<?> ite, int len) {
+  public ForLoop(PeekingIterator<?> ite, int len) {
     length = len;
     if (len < 2) {
       revindex = 1;
@@ -48,7 +53,7 @@ public class ForLoop implements Iterator<Object> {
     it = ite;
   }
 
-  public ForLoop(Iterator<?> ite) {
+  public ForLoop(PeekingIterator<?> ite) {
     it = ite;
     if (it.hasNext()) {
       last = false;
@@ -62,8 +67,8 @@ public class ForLoop implements Iterator<Object> {
 
   @Override
   public Object next() {
-    Object res;
-    if (it.hasNext()) {
+    Object res = null;
+    while (it.hasNext()) {
       index++;
       counter++;
       if (length != NULL_VALUE) {
@@ -80,10 +85,21 @@ public class ForLoop implements Iterator<Object> {
       if (index > 0) {
         first = false;
       }
-    } else {
-      res = null;
+      if (predicate != null) {
+        if (!predicate.test(res)) {
+          res = null;
+          continue;
+        }
+      }
+      break;
     }
     return res;
+  }
+
+
+  @Override
+  public Object peek() {
+    return it.peek();
   }
 
   public int getIndex() {
@@ -154,4 +170,7 @@ public class ForLoop implements Iterator<Object> {
     throw new UnsupportedOperationException();
   }
 
+  public void setPredicate(Predicate<Object> predicate) {
+    this.predicate = predicate;
+  }
 }

@@ -23,26 +23,26 @@ public class SelectAttrFilterTest {
 
   @Test
   public void selectAttrWithNoExp() {
-    assertThat(jinjava.render("{{ users|selectattr('is_active') }}", new HashMap<String, Object>()))
-        .isEqualTo("[1]");
+    assertThat(jinjava.render("{{ users|selectattr('is_active')|first }}", new HashMap<String, Object>()))
+        .isEqualTo("1");
   }
 
   @Test
   public void selectAttrWithExp() {
-    assertThat(jinjava.render("{{ users|selectattr('email', 'none') }}", new HashMap<String, Object>()))
-        .isEqualTo("[2]");
+    assertThat(jinjava.render("{{ users|selectattr('email', 'none')|first }}", new HashMap<String, Object>()))
+        .isEqualTo("2");
   }
 
   @Test
   public void selectAttrWithIsEqualToExp() {
-    assertThat(jinjava.render("{{ users|selectattr('email', 'equalto', 'bar@bar.com') }}", new HashMap<String, Object>()))
-        .isEqualTo("[1]");
+    assertThat(jinjava.render("{{ users|selectattr('email', 'equalto', 'bar@bar.com')|first }}", new HashMap<String, Object>()))
+        .isEqualTo("1");
   }
 
   @Test
   public void selectAttrWithNumericIsEqualToExp() {
-    assertThat(jinjava.render("{{ users|selectattr('num', 'equalto', 1) }}", new HashMap<String, Object>()))
-        .isEqualTo("[1]");
+    assertThat(jinjava.render("{{ users|selectattr('num', 'equalto', 1)|first }}", new HashMap<String, Object>()))
+        .isEqualTo("1");
   }
 
 
