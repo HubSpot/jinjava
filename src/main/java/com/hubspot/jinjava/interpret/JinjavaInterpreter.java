@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **********************************************************************/
+
 package com.hubspot.jinjava.interpret;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
@@ -444,7 +445,10 @@ public class JinjavaInterpreter {
   }
 
   public void addError(TemplateError templateError) {
-    this.errors.add(templateError.withScopeDepth(scopeDepth));
+    // Limit the number of error.
+    if (errors.size() < 20) {
+      this.errors.add(templateError.withScopeDepth(scopeDepth));
+    }
   }
 
   public int getScopeDepth() {

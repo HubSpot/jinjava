@@ -37,6 +37,8 @@ public class TagCycleException extends TemplateStateException {
         return new IncludeTagCycleException(path, line, position);
       } else if (clazz.equals(MacroTagCycleException.class)) {
         return new MacroTagCycleException(path, line, position);
+      } else if (clazz.equals(FromTagCycleException.class)) {
+        return new FromTagCycleException(path, line, position);
       }
     }
 
