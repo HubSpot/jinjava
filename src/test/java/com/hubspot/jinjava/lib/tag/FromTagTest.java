@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -15,6 +16,7 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.loader.ResourceLocator;
 
 public class FromTagTest {
@@ -52,6 +54,20 @@ public class FromTagTest {
         .contains("wrap-spacer:")
         .contains("<td height=\"42\">")
         .contains("wrap-padding: padding-left:42px;padding-right:42px");
+  }
+
+  @Test
+  public void importedCycleDected() {
+    fixture("from-recursion");
+    assertTrue(interpreter.getErrors().stream()
+        .anyMatch(e -> e.getCategory() == BasicTemplateErrorCategory.FROM_CYCLE_DETECTED));
+  }
+
+  @Test
+  public void importedIndirectCycleDected() {
+    fixture("from-a-to-b");
+    assertTrue(interpreter.getErrors().stream()
+        .anyMatch(e -> e.getCategory() == BasicTemplateErrorCategory.FROM_CYCLE_DETECTED));
   }
 
   private String fixture(String name) {

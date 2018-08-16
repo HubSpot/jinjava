@@ -472,7 +472,10 @@ public class JinjavaInterpreter {
   }
 
   public void addError(TemplateError templateError) {
-    this.errors.add(templateError.withScopeDepth(scopeDepth));
+    // Limit the number of error.
+    if (errors.size() < 20) {
+      this.errors.add(templateError.withScopeDepth(scopeDepth));
+    }
   }
 
   public int getScopeDepth() {
