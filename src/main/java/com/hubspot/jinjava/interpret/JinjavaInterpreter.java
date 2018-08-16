@@ -36,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -71,6 +72,7 @@ public class JinjavaInterpreter {
   private int position = 0;
   private int scopeDepth = 1;
   private final List<TemplateError> errors = new LinkedList<>();
+  private static final int MAX_ERROR_SIZE = 100;
 
   public JinjavaInterpreter(Jinjava application, Context context, JinjavaConfig renderConfig) {
     this.context = context;
@@ -446,7 +448,7 @@ public class JinjavaInterpreter {
 
   public void addError(TemplateError templateError) {
     // Limit the number of error.
-    if (errors.size() < 20) {
+    if (errors.size() < MAX_ERROR_SIZE) {
       this.errors.add(templateError.withScopeDepth(scopeDepth));
     }
   }
@@ -455,8 +457,23 @@ public class JinjavaInterpreter {
     return scopeDepth;
   }
 
+  public void addAllErrors(Collection<TemplateError> other) {
+    if (errors.size() >= MAX_ERROR_SIZE) {
+      return;
+    }
+    other.stream()
+        .limit(MAX_ERROR_SIZE - errors.size())
+        .forEach(errors::add);
+  }
+
+  // We cannot just remove this, other projects may depend on it.
   public List<TemplateError> getErrors() {
-    return errors;
+    return getErrorsCopy();
+  }
+
+  // Explicitly indicate this returns a copy of the errors list.
+  public List<TemplateError> getErrorsCopy() {
+    return Lists.newArrayList(errors);
   }
 
   private static final ThreadLocal<Stack<JinjavaInterpreter>> CURRENT_INTERPRETER = ThreadLocal.withInitial(Stack::new);

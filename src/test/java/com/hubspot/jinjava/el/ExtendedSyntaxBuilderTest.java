@@ -238,42 +238,42 @@ public class ExtendedSyntaxBuilderTest {
   @Test
   public void invalidNestedAssignmentExpr() {
     assertThat(val("content.template_path = 'Custom/Email/Responsive/testing.html'")).isEqualTo("");
-    assertThat(interpreter.getErrors()).isNotEmpty();
-    assertThat(interpreter.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
-    assertThat(interpreter.getErrors().get(0).getMessage()).containsIgnoringCase("identifier");
+    assertThat(interpreter.getErrorsCopy()).isNotEmpty();
+    assertThat(interpreter.getErrorsCopy().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
+    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).containsIgnoringCase("identifier");
   }
 
   @Test
   public void invalidIdentifierAssignmentExpr() {
     assertThat(val("content = 'Custom/Email/Responsive/testing.html'")).isEqualTo("");
-    assertThat(interpreter.getErrors()).isNotEmpty();
-    assertThat(interpreter.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
-    assertThat(interpreter.getErrors().get(0).getMessage()).containsIgnoringCase("'='");
+    assertThat(interpreter.getErrorsCopy()).isNotEmpty();
+    assertThat(interpreter.getErrorsCopy().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
+    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).containsIgnoringCase("'='");
   }
 
   @Test
   public void invalidPipeOperatorExpr() {
     assertThat(val("topics|1")).isEqualTo("");
-    assertThat(interpreter.getErrors()).isNotEmpty();
-    assertThat(interpreter.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
+    assertThat(interpreter.getErrorsCopy()).isNotEmpty();
+    assertThat(interpreter.getErrorsCopy().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
   }
 
   @Test
   public void itReturnsCorrectSyntaxErrorPositions() {
     assertThat(interpreter.render("hi {{ missing thing }}{{ missing thing }}\nI am {{ blah blabbity }} too")).isEqualTo("hi \nI am  too");
-    assertThat(interpreter.getErrors().size()).isEqualTo(3);
-    assertThat(interpreter.getErrors().get(0).getLineno()).isEqualTo(1);
-    assertThat(interpreter.getErrors().get(0).getMessage()).contains("position 14");
-    assertThat(interpreter.getErrors().get(0).getStartPosition()).isEqualTo(14);
-    assertThat(interpreter.getErrors().get(0).getFieldName()).isEqualTo("thing");
-    assertThat(interpreter.getErrors().get(1).getLineno()).isEqualTo(1);
-    assertThat(interpreter.getErrors().get(1).getMessage()).contains("position 33");
-    assertThat(interpreter.getErrors().get(1).getStartPosition()).isEqualTo(33);
-    assertThat(interpreter.getErrors().get(1).getFieldName()).isEqualTo("thing");
-    assertThat(interpreter.getErrors().get(2).getLineno()).isEqualTo(2);
-    assertThat(interpreter.getErrors().get(2).getMessage()).contains("position 13");
-    assertThat(interpreter.getErrors().get(2).getStartPosition()).isEqualTo(13);
-    assertThat(interpreter.getErrors().get(2).getFieldName()).isEqualTo("blabbity");
+    assertThat(interpreter.getErrorsCopy().size()).isEqualTo(3);
+    assertThat(interpreter.getErrorsCopy().get(0).getLineno()).isEqualTo(1);
+    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("position 14");
+    assertThat(interpreter.getErrorsCopy().get(0).getStartPosition()).isEqualTo(14);
+    assertThat(interpreter.getErrorsCopy().get(0).getFieldName()).isEqualTo("thing");
+    assertThat(interpreter.getErrorsCopy().get(1).getLineno()).isEqualTo(1);
+    assertThat(interpreter.getErrorsCopy().get(1).getMessage()).contains("position 33");
+    assertThat(interpreter.getErrorsCopy().get(1).getStartPosition()).isEqualTo(33);
+    assertThat(interpreter.getErrorsCopy().get(1).getFieldName()).isEqualTo("thing");
+    assertThat(interpreter.getErrorsCopy().get(2).getLineno()).isEqualTo(2);
+    assertThat(interpreter.getErrorsCopy().get(2).getMessage()).contains("position 13");
+    assertThat(interpreter.getErrorsCopy().get(2).getStartPosition()).isEqualTo(13);
+    assertThat(interpreter.getErrorsCopy().get(2).getFieldName()).isEqualTo("blabbity");
   }
 
   private Object val(String expr) {

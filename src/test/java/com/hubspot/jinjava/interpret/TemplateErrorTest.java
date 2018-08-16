@@ -37,7 +37,7 @@ public class TemplateErrorTest {
   public void itRetainsFieldNameCaseForUnknownToken() {
     JinjavaInterpreter interpreter = new Jinjava().newInterpreter();
     interpreter.render("{% unKnown() %}");
-    assertThat(interpreter.getErrors().get(0).getFieldName()).isEqualTo("unKnown");
+    assertThat(interpreter.getErrorsCopy().get(0).getFieldName()).isEqualTo("unKnown");
   }
 
   @Test

@@ -26,7 +26,7 @@ public class UnixTimestampFilterTest {
 
   @After
   public void tearDown() throws Exception {
-    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
   @Test

@@ -77,7 +77,7 @@ public class IncludeTag implements Tag {
       JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
       String result = child.render(node);
 
-      interpreter.getErrors().addAll(child.getErrors());
+      interpreter.addAllErrors(child.getErrorsCopy());
 
       return result;
 

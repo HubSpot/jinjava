@@ -25,7 +25,7 @@ public class TreeParserTest {
   @Test
   public void parseHtmlWithCommentLines() {
     parse("parse/tokenizer/comment-plus.jinja");
-    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
   @Test
