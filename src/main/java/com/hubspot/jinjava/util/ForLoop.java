@@ -18,7 +18,9 @@ package com.hubspot.jinjava.util;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class ForLoop implements Iterator<Object> {
   private static final int NULL_VALUE = Integer.MIN_VALUE;
@@ -34,6 +36,7 @@ public class ForLoop implements Iterator<Object> {
   private int depth;
 
   private Iterator<?> it;
+  private List<Object> allValues;
 
   public ForLoop(Iterator<?> ite, int len) {
     length = len;
@@ -113,14 +116,14 @@ public class ForLoop implements Iterator<Object> {
 
   public int getRevindex0() {
     if (revindex == NULL_VALUE) {
-      ENGINE_LOG.warn("can't compute items' length while looping.");
+      ENGINE_LOG.warn("can't compute items' revindex while looping.");
     }
     return revindex;
   }
 
   public int getRevcounter() {
     if (revcounter == NULL_VALUE) {
-      ENGINE_LOG.warn("can't compute items' length while looping.");
+      ENGINE_LOG.warn("can't compute items' revcounter while looping.");
     }
     return revcounter;
   }
@@ -155,4 +158,13 @@ public class ForLoop implements Iterator<Object> {
     throw new UnsupportedOperationException();
   }
 
+  public Object get(int index) {
+    if (allValues == null) {
+      allValues = new ArrayList<>();
+      while (hasNext()) {
+        allValues.add(next());
+      }
+    }
+    return allValues.get(index);
+  }
 }

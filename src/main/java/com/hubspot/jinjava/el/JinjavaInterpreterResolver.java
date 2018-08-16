@@ -49,6 +49,7 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
+import com.hubspot.jinjava.util.ForLoop;
 
 import de.odysseus.el.util.SimpleResolver;
 
@@ -158,6 +159,8 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
         if (base == null) {
           // Look up property in context.
           value = interpreter.retraceVariable((String) property, interpreter.getLineNumber(), -1);
+        } else if (base instanceof ForLoop && property instanceof Number) {
+          value = ((ForLoop) base).get(((Number) property).intValue());
         } else {
           // Get property of base object.
           try {

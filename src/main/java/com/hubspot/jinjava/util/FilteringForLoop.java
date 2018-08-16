@@ -24,6 +24,11 @@ public class FilteringForLoop extends ForLoop {
   private boolean hasPeeked;
   private Object peekedElement;
 
+  public FilteringForLoop(Iterator<?> ite, int len, Predicate<Object> predicate) {
+    super(ite, len);
+    this.predicate = predicate;
+  }
+
   public FilteringForLoop(Iterator<?> ite, Predicate<Object> predicate) {
     super(ite);
     this.predicate = predicate;

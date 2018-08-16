@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **********************************************************************/
+
 package com.hubspot.jinjava.util;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import com.google.common.collect.Iterators;
 
@@ -30,6 +32,11 @@ public final class ObjectIterator {
   public static ForLoop getLoop(Object obj) {
     if (obj == null) {
       return new ForLoop(Collections.emptyIterator(), 0);
+    }
+
+    // already a forloop
+    if (obj instanceof ForLoop) {
+      return (ForLoop) obj;
     }
     // collection
     if (obj instanceof Collection) {
@@ -55,6 +62,42 @@ public final class ObjectIterator {
     }
     // others
     return new ForLoop(Iterators.singletonIterator(obj), 1);
+  }
+
+  public static ForLoop getLoop(Object obj, Predicate<Object> predicate) {
+    if (obj == null) {
+      return new ForLoop(Collections.emptyIterator(), 0);
+    }
+
+    // already a forloop
+    if (obj instanceof ForLoop) {
+      return (ForLoop) obj;
+    }
+
+    // collection
+    if (obj instanceof Collection) {
+      Collection<Object> clt = (Collection<Object>) obj;
+      return new FilteringForLoop(clt.iterator(), clt.size(), predicate);
+    }
+    // array
+    if (obj.getClass().isArray()) {
+      Object[] arr = (Object[]) obj;
+      return new FilteringForLoop(Iterators.forArray(arr), arr.length, predicate);
+    }
+    // map
+    if (obj instanceof Map) {
+      Collection<Object> clt = ((Map<Object, Object>) obj).values();
+      return new FilteringForLoop(clt.iterator(), clt.size(), predicate);
+    }
+    // iterable,iterator
+    if (obj instanceof Iterable) {
+      return new FilteringForLoop(((Iterable<Object>) obj).iterator(), predicate);
+    }
+    if (obj instanceof Iterator) {
+      return new FilteringForLoop((Iterator<Object>) obj, predicate);
+    }
+    // others
+    return new FilteringForLoop(Iterators.singletonIterator(obj), 1, predicate);
   }
 
 }
