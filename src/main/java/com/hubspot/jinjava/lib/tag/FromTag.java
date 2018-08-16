@@ -5,14 +5,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.FromTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -55,6 +62,15 @@ public class FromTag implements Tag {
     }
 
     String templateFile = interpreter.resolveString(helper.get(0), tagNode.getLineNumber(), tagNode.getStartPosition());
+    try {
+      interpreter.getContext().pushFromStack(templateFile, tagNode.getLineNumber(), tagNode.getStartPosition());
+    } catch (FromTagCycleException e) {
+      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
+          "From cycle detected for path: '" + templateFile + "'", null, tagNode.getLineNumber(), tagNode
+          .getStartPosition(), e,
+          BasicTemplateErrorCategory.FROM_CYCLE_DETECTED, ImmutableMap.of("path", templateFile)));
+      return "";
+    }
     Map<String, String> imports = new LinkedHashMap<>();
 
     PeekingIterator<String> args = Iterators.peekingIterator(helper.subList(2, helper.size()).iterator());

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **********************************************************************/
+
 package com.hubspot.jinjava.interpret;
 
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ public class Context extends ScopeMap<String, Object> {
   private final CallStack importPathStack;
   private final CallStack includePathStack;
   private final CallStack macroStack;
+  private final CallStack fromStack;
 
   private final Set<String> resolvedExpressions = new HashSet<>();
   private final Set<String> resolvedValues = new HashSet<>();
@@ -106,6 +108,8 @@ public class Context extends ScopeMap<String, Object> {
     this.includePathStack = new CallStack(parent == null ? null : parent.getIncludePathStack(),
                                           IncludeTagCycleException.class);
     this.macroStack = new CallStack(parent == null ? null : parent.getMacroStack(), MacroTagCycleException.class);
+    this.fromStack = new CallStack(parent == null ? null : parent.getFromStack(),
+        FromTagCycleException.class);
 
     if (disabled == null) {
       disabled = new HashMap<Library, Set<String>>();
@@ -377,8 +381,19 @@ public class Context extends ScopeMap<String, Object> {
     return includePathStack;
   }
 
+  private CallStack getFromStack() {
+    return fromStack;
+  }
+
   public CallStack getMacroStack() {
     return macroStack;
+  }
+
+  public void pushFromStack(String path, int lineNumber, int startPosition) {
+    fromStack.push(path, lineNumber, startPosition);
+  }
+  public void popFromStack() {
+    fromStack.pop();
   }
 
   public int getRenderDepth() {
