@@ -56,7 +56,7 @@ public class ImportTagTest {
     interpreter.render(Resources.toString(Resources.getResource("tags/importtag/imports-self.jinja"), StandardCharsets.UTF_8));
     assertThat(context.get("c")).isEqualTo("hello");
 
-    assertThat(interpreter.getErrors().get(0).getMessage()).contains("Rendering cycle detected:", "imports-self.jinja");
+    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("Rendering cycle detected:", "imports-self.jinja");
   }
 
   @Test
@@ -68,7 +68,7 @@ public class ImportTagTest {
     assertThat(context.get("a")).isEqualTo("foo");
     assertThat(context.get("b")).isEqualTo("bar");
 
-    assertThat(interpreter.getErrors().get(0).getMessage()).contains("Rendering cycle detected:", "b-imports-a.jinja");
+    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("Rendering cycle detected:", "b-imports-a.jinja");
   }
 
   @Test
@@ -95,7 +95,7 @@ public class ImportTagTest {
   public void importedContextFnsProperlyResolveScopedVars() {
     String result = fixture("imports-macro-referencing-macro");
 
-    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
     assertThat(result)
         .contains("using public fn: public fn: foo")
         .contains("using private fn: private fn: bar")

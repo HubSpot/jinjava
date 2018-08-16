@@ -285,14 +285,14 @@ public class ExpressionResolverTest {
   @Test
   public void unknownProperty() {
     interpreter.resolveELExpression("foo", 23);
-    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
 
     context.put("foo", new Object());
     interpreter.resolveELExpression("foo.bar", 23);
 
-    assertThat(interpreter.getErrors()).hasSize(1);
+    assertThat(interpreter.getErrorsCopy()).hasSize(1);
 
-    TemplateError e = interpreter.getErrors().get(0);
+    TemplateError e = interpreter.getErrorsCopy().get(0);
     assertThat(e.getReason()).isEqualTo(ErrorReason.UNKNOWN);
     assertThat(e.getLineno()).isEqualTo(23);
     assertThat(e.getFieldName()).isEqualTo("bar");
@@ -302,9 +302,9 @@ public class ExpressionResolverTest {
   @Test
   public void syntaxError() {
     interpreter.resolveELExpression("(*&W", 123);
-    assertThat(interpreter.getErrors()).hasSize(1);
+    assertThat(interpreter.getErrorsCopy()).hasSize(1);
 
-    TemplateError e = interpreter.getErrors().get(0);
+    TemplateError e = interpreter.getErrorsCopy().get(0);
     assertThat(e.getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
     assertThat(e.getLineno()).isEqualTo(123);
     assertThat(e.getMessage()).contains("invalid character");
@@ -323,8 +323,8 @@ public class ExpressionResolverTest {
     context.put("myobj", new MyClass(new Date(0)));
     interpreter.resolveELExpression("myobj.class.methods[0]", -1);
 
-    assertThat(interpreter.getErrors()).isNotEmpty();
-    TemplateError e = interpreter.getErrors().get(0);
+    assertThat(interpreter.getErrorsCopy()).isNotEmpty();
+    TemplateError e = interpreter.getErrorsCopy().get(0);
     assertThat(e.getReason()).isEqualTo(ErrorReason.UNKNOWN);
     assertThat(e.getFieldName()).isEqualTo("class");
     assertThat(e.getMessage()).contains("Cannot resolve property 'class'");
@@ -335,8 +335,8 @@ public class ExpressionResolverTest {
     context.put("myobj", new MyClass(new Date(0)));
     interpreter.resolveELExpression("myobj.wait()", -1);
 
-    assertThat(interpreter.getErrors()).isNotEmpty();
-    TemplateError e = interpreter.getErrors().get(0);
+    assertThat(interpreter.getErrorsCopy()).isNotEmpty();
+    TemplateError e = interpreter.getErrorsCopy().get(0);
     assertThat(e.getMessage()).contains("Cannot find method 'wait'");
   }
 
@@ -350,7 +350,7 @@ public class ExpressionResolverTest {
       interpreter.render("{% raw %} foo {% endraw %}");
     }
 
-    TemplateError e = interpreter.getErrors().get(0);
+    TemplateError e = interpreter.getErrorsCopy().get(0);
     assertThat(e.getItem()).isEqualTo(ErrorItem.TAG);
     assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
     assertThat(e.getMessage()).contains("'raw' is disabled in this context");
@@ -367,7 +367,7 @@ public class ExpressionResolverTest {
     try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
       interpreter.render(jinja);
     }
-    TemplateError e = interpreter.getErrors().get(0);
+    TemplateError e = interpreter.getErrorsCopy().get(0);
     assertThat(e.getItem()).isEqualTo(ErrorItem.TAG);
     assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
     assertThat(e.getMessage()).contains("'raw' is disabled in this context");
@@ -381,7 +381,7 @@ public class ExpressionResolverTest {
 
     try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
       interpreter.resolveELExpression("\"hey\"|truncate(2)", -1);
-      TemplateError e = interpreter.getErrors().get(0);
+      TemplateError e = interpreter.getErrorsCopy().get(0);
       assertThat(e.getItem()).isEqualTo(ErrorItem.FILTER);
       assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
       assertThat(e.getMessage()).contains("truncate' is disabled in this context");
@@ -416,7 +416,7 @@ public class ExpressionResolverTest {
 
     try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
       interpreter.render("{% if 2 is even %}yes{% endif %}");
-      TemplateError e = interpreter.getErrors().get(0);
+      TemplateError e = interpreter.getErrorsCopy().get(0);
       assertThat(e.getItem()).isEqualTo(ErrorItem.EXPRESSION_TEST);
       assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
       assertThat(e.getMessage()).contains("even' is disabled in this context");
@@ -437,14 +437,14 @@ public class ExpressionResolverTest {
   public void presentOptionalProperty() {
     context.put("myobj", new OptionalProperty(null, "foo"));
     assertThat(interpreter.resolveELExpression("myobj.val", -1)).isEqualTo("foo");
-    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
   @Test
   public void emptyOptionalProperty() {
     context.put("myobj", new OptionalProperty(null, null));
     assertThat(interpreter.resolveELExpression("myobj.val", -1)).isNull();
-    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
   @Test
@@ -452,14 +452,14 @@ public class ExpressionResolverTest {
     context.put("myobj", new OptionalProperty(new MyClass(new Date(0)), "foo"));
     assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nested.date", -1))).isEqualTo(
         "1970-01-01 00:00:00");
-    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
   @Test
   public void emptyNestedOptionalProperty() {
     context.put("myobj", new OptionalProperty(null, null));
     assertThat(interpreter.resolveELExpression("myobj.nested.date", -1)).isNull();
-    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
   @Test
@@ -467,7 +467,7 @@ public class ExpressionResolverTest {
     context.put("myobj", new NestedOptionalProperty(new OptionalProperty(new MyClass(new Date(0)), "foo")));
     assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nested.nested.date", -1))).isEqualTo(
         "1970-01-01 00:00:00");
-    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
   public static final class MyClass {

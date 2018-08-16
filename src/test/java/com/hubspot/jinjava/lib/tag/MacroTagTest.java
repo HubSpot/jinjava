@@ -132,21 +132,21 @@ public class MacroTagTest {
   public void itPreventsDirectMacroRecursion() throws IOException {
     String template = fixtureText("recursion");
     interpreter.render(template);
-    assertThat(interpreter.getErrors().get(0).getMessage()).contains("Cycle detected for macro 'hello'");
+    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("Cycle detected for macro 'hello'");
   }
 
   @Test
   public void itPreventsIndirectMacroRecursion() throws IOException {
     String template = fixtureText("recursion_indirect");
     interpreter.render(template);
-    assertThat(interpreter.getErrors().get(0).getMessage()).contains("Cycle detected for macro 'goodbye'");
+    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("Cycle detected for macro 'goodbye'");
   }
 
   @Test
   public void itAllowsMacrosCallingMacrosUsingCall() throws IOException {
     String template = fixtureText("macros-calling-macros");
     String out = interpreter.render(template);
-    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
     assertThat(out).contains("Hello World One");
     assertThat(out).contains("Hello World Two");
   }
@@ -160,7 +160,7 @@ public class MacroTagTest {
     try {
       String template = fixtureText("ending-recursion");
       String out = interpreter.render(template);
-      assertThat(interpreter.getErrors()).isEmpty();
+      assertThat(interpreter.getErrorsCopy()).isEmpty();
       assertThat(out).contains("Hello Hello Hello Hello Hello");
     }
     finally {

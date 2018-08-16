@@ -55,7 +55,7 @@ public class DateTimeFormatFilterTest {
 
     assertThat(interpreter.renderFlat("{{ d|datetimeformat(foo) }}")).isEqualTo("2013-11");
     assertThat(interpreter.renderFlat("{{ d|datetimeformat(\"%Y-%m-%d\") }}")).isEqualTo("2013-11-06");
-    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
 }

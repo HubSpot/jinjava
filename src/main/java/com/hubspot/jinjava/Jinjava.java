@@ -197,14 +197,14 @@ public class Jinjava {
 
     try {
       String result = interpreter.render(template);
-      return new RenderResult(result, interpreter.getContext(), interpreter.getErrors());
+      return new RenderResult(result, interpreter.getContext(), interpreter.getErrorsCopy());
     } catch (InterpretException e) {
       if (e instanceof TemplateSyntaxException) {
-        return new RenderResult(TemplateError.fromException((TemplateSyntaxException) e), interpreter.getContext(), interpreter.getErrors());
+        return new RenderResult(TemplateError.fromException((TemplateSyntaxException) e), interpreter.getContext(), interpreter.getErrorsCopy());
       }
-      return new RenderResult(TemplateError.fromSyntaxError(e), interpreter.getContext(), interpreter.getErrors());
+      return new RenderResult(TemplateError.fromSyntaxError(e), interpreter.getContext(), interpreter.getErrorsCopy());
     } catch (Exception e) {
-      return new RenderResult(TemplateError.fromException(e), interpreter.getContext(), interpreter.getErrors());
+      return new RenderResult(TemplateError.fromException(e), interpreter.getContext(), interpreter.getErrorsCopy());
     } finally {
       JinjavaInterpreter.popCurrent();
     }

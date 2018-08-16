@@ -59,14 +59,14 @@ public class FromTagTest {
   @Test
   public void importedCycleDected() {
     fixture("from-recursion");
-    assertTrue(interpreter.getErrors().stream()
+    assertTrue(interpreter.getErrorsCopy().stream()
         .anyMatch(e -> e.getCategory() == BasicTemplateErrorCategory.FROM_CYCLE_DETECTED));
   }
 
   @Test
   public void importedIndirectCycleDected() {
     fixture("from-a-to-b");
-    assertTrue(interpreter.getErrors().stream()
+    assertTrue(interpreter.getErrorsCopy().stream()
         .anyMatch(e -> e.getCategory() == BasicTemplateErrorCategory.FROM_CYCLE_DETECTED));
   }
 
