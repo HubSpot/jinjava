@@ -13,14 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  **********************************************************************/
+
 package com.hubspot.jinjava.util;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
 import java.util.Iterator;
 import java.util.function.Predicate;
-
-import com.google.common.collect.PeekingIterator;
 
 public class ForLoop implements Iterator<Object> {
   private static final int NULL_VALUE = Integer.MIN_VALUE;
