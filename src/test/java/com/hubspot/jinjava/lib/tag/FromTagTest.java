@@ -63,6 +63,13 @@ public class FromTagTest {
         .anyMatch(e -> e.getCategory() == BasicTemplateErrorCategory.FROM_CYCLE_DETECTED));
   }
 
+  @Test
+  public void importedIndirectCycleDected() {
+    fixture("from-a-to-b");
+    assertTrue(interpreter.getErrors().stream()
+        .anyMatch(e -> e.getCategory() == BasicTemplateErrorCategory.FROM_CYCLE_DETECTED));
+  }
+
   private String fixture(String name) {
     try {
       return interpreter.renderFlat(Resources.toString(

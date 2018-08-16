@@ -392,6 +392,7 @@ public class Context extends ScopeMap<String, Object> {
   public void pushFromStack(String path, int lineNumber, int startPosition) {
     fromStack.push(path, lineNumber, startPosition);
   }
+
   public void popFromStack() {
     fromStack.pop();
   }

@@ -71,48 +71,52 @@ public class FromTag implements Tag {
           BasicTemplateErrorCategory.FROM_CYCLE_DETECTED, ImmutableMap.of("path", templateFile)));
       return "";
     }
-    Map<String, String> imports = new LinkedHashMap<>();
+    try {
+      Map<String, String> imports = new LinkedHashMap<>();
 
-    PeekingIterator<String> args = Iterators.peekingIterator(helper.subList(2, helper.size()).iterator());
+      PeekingIterator<String> args = Iterators.peekingIterator(helper.subList(2, helper.size()).iterator());
 
-    while (args.hasNext()) {
-      String fromName = args.next();
-      String importName = fromName;
+      while (args.hasNext()) {
+        String fromName = args.next();
+        String importName = fromName;
 
-      if (args.hasNext() && args.peek() != null && args.peek().equals("as")) {
-        args.next();
-        importName = args.next();
+        if (args.hasNext() && args.peek() != null && args.peek().equals("as")) {
+          args.next();
+          importName = args.next();
+        }
+
+        imports.put(fromName, importName);
       }
 
-      imports.put(fromName, importName);
-    }
+      try {
+        String template = interpreter.getResource(templateFile);
+        Node node = interpreter.parse(template);
 
-    try {
-      String template = interpreter.getResource(templateFile);
-      Node node = interpreter.parse(template);
+        JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
+        child.render(node);
 
-      JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
-      child.render(node);
+        interpreter.getErrors().addAll(child.getErrors());
 
-      interpreter.getErrors().addAll(child.getErrors());
-
-      for (Map.Entry<String, String> importMapping : imports.entrySet()) {
-        Object val = child.getContext().getGlobalMacro(importMapping.getKey());
-
-        if (val != null) {
-          interpreter.getContext().addGlobalMacro((MacroFunction) val);
-        } else {
-          val = child.getContext().get(importMapping.getKey());
+        for (Map.Entry<String, String> importMapping : imports.entrySet()) {
+          Object val = child.getContext().getGlobalMacro(importMapping.getKey());
 
           if (val != null) {
-            interpreter.getContext().put(importMapping.getValue(), val);
+            interpreter.getContext().addGlobalMacro((MacroFunction) val);
+          } else {
+            val = child.getContext().get(importMapping.getKey());
+
+            if (val != null) {
+              interpreter.getContext().put(importMapping.getValue(), val);
+            }
           }
         }
-      }
 
-      return "";
-    } catch (IOException e) {
-      throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
+        return "";
+      } catch (IOException e) {
+        throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
+      }
+    } finally {
+      interpreter.getContext().popFromStack();
     }
   }
 
