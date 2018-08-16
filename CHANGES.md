@@ -1,9 +1,9 @@
 # Jinjava Releases #
 
-### 2018-07-10 Version 2.4.5 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.5%7Cjar)) ###
+### 2018-08-16 Version 2.4.5 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.5%7Cjar)) ###
 * [Limit the number errors](https://github.com/HubSpot/jinjava/pull/222)
 * [Detect fromTag cycle](https://github.com/HubSpot/jinjava/pull/221)
-* [Make jinjajava interpreter render timings trackable] (https://github.com/HubSpot/jinjava/pull/219)
+* [Make jinjajava interpreter render timings trackable](https://github.com/HubSpot/jinjava/pull/219)
 * [Add raw object to group in groupby filter](https://github.com/HubSpot/jinjava/pull/218)
 * [Register json filters](https://github.com/HubSpot/jinjava/pull/216)
 * [Add filter to convert JSON string to Map](https://github.com/HubSpot/jinjava/pull/215)
