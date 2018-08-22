@@ -18,8 +18,8 @@ import com.hubspot.jinjava.tree.parse.TextToken;
 
 public class JinjavaInterpreterTest {
 
-  Jinjava jinjava;
-  JinjavaInterpreter interpreter;
+  private Jinjava jinjava;
+  private JinjavaInterpreter interpreter;
 
   @Before
   public void setup() {
@@ -39,21 +39,21 @@ public class JinjavaInterpreterTest {
   }
 
   @Test
-  public void resolveBlockStubs() throws Exception {
+  public void resolveBlockStubs() {
     interpreter.addBlock("foobar", Lists.newLinkedList(Lists.newArrayList((new TextNode(new TextToken("sparta", -1, -1))))));
     String content = "this is {% block foobar %}foobar{% endblock %}!";
     assertThat(interpreter.render(content)).isEqualTo("this is sparta!");
   }
 
   @Test
-  public void resolveBlockStubsWithSpecialChars() throws Exception {
+  public void resolveBlockStubsWithSpecialChars() {
     interpreter.addBlock("foobar", Lists.newLinkedList(Lists.newArrayList(new TextNode(new TextToken("$150.00", -1, -1)))));
     String content = "this is {% block foobar %}foobar{% endblock %}!";
     assertThat(interpreter.render(content)).isEqualTo("this is $150.00!");
   }
 
   @Test
-  public void resolveBlockStubsWithCycle() throws Exception {
+  public void resolveBlockStubsWithCycle() {
     String content = interpreter.render("{% block foo %}{% block foo %}{% endblock %}{% endblock %}");
     assertThat(content).isEmpty();
   }
@@ -155,7 +155,7 @@ public class JinjavaInterpreterTest {
   }
 
   @Test
-  public void itLimitsOutputSize() throws Exception {
+  public void itLimitsOutputSize() {
 
     JinjavaConfig outputSizeLimitedConfig = JinjavaConfig.newBuilder().withMaxOutputSize(20).build();
     String output = "123456789012345678901234567890";
@@ -169,7 +169,7 @@ public class JinjavaInterpreterTest {
   }
 
   @Test
-  public void itLimitsOutputSizeWhenSumOfNodeSizesExceedsMax() throws Exception {
+  public void itLimitsOutputSizeWhenSumOfNodeSizesExceedsMax() {
     JinjavaConfig outputSizeLimitedConfig = JinjavaConfig.newBuilder().withMaxOutputSize(19).build();
     String input = "1234567890{% block testchild %}1234567890{% endblock %}";
     String output = "12345678901234567890"; // Note that this exceeds the max size
