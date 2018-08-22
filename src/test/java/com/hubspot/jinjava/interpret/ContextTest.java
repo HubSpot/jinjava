@@ -56,9 +56,6 @@ public class ContextTest {
     Jinjava jinjava = new Jinjava();
     Context globalContext = jinjava.getGlobalContext();
 
-    context.addResolvedExpression("exp");
-    context.addDependency("dep", "mydep");
-
     RenderResult result = jinjava.renderForResult("{{ foo + 1 }}", ImmutableMap.of("foo", 1));
 
     assertThat(result.getOutput()).isEqualTo("2");
