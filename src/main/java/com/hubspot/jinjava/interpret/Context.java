@@ -112,13 +112,20 @@ public class Context extends ScopeMap<String, Object> {
         FromTagCycleException.class);
 
     if (disabled == null) {
-      disabled = new HashMap<Library, Set<String>>();
+      disabled = new HashMap<>();
     }
 
     this.expTestLibrary = new ExpTestLibrary(parent == null, disabled.get(Library.EXP_TEST));
     this.filterLibrary = new FilterLibrary(parent == null, disabled.get(Library.FILTER));
     this.tagLibrary = new TagLibrary(parent == null, disabled.get(Library.TAG));
     this.functionLibrary = new FunctionLibrary(parent == null, disabled.get(Library.FUNCTION));
+  }
+
+  public void reset() {
+    // clear anything that pushes up to its parent's values
+    resolvedExpressions.clear();
+    resolvedValues.clear();
+    resolvedFunctions.clear();
   }
 
   @Override
@@ -162,7 +169,7 @@ public class Context extends ScopeMap<String, Object> {
 
   public boolean isAutoEscape() {
     if (autoEscape != null) {
-      return autoEscape.booleanValue();
+      return autoEscape;
     }
 
     if (parent != null) {

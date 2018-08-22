@@ -206,6 +206,7 @@ public class Jinjava {
     } catch (Exception e) {
       return new RenderResult(TemplateError.fromException(e), interpreter.getContext(), interpreter.getErrorsCopy());
     } finally {
+      globalContext.reset();
       JinjavaInterpreter.popCurrent();
     }
   }
