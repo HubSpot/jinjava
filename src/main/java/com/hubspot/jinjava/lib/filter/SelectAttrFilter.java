@@ -1,8 +1,6 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Streams;
@@ -38,7 +36,6 @@ public class SelectAttrFilter implements AdvancedFilter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
-    List<Object> result = new ArrayList<>();
 
     if (args.length == 0) {
       throw new InterpretException(getName() + " filter requires an attr to filter on", interpreter.getLineNumber());
