@@ -7,7 +7,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import com.google.common.collect.Iterators;
 
@@ -36,13 +38,13 @@ public class LazyList<T> implements List<T> {
   public boolean contains(Object o) {
 
     for (int i = 0; i < list.size(); i++) {
-      if (list.get(i).equals(o)) {
+      if (Objects.equals(list.get(i), equals(o))) {
         return true;
       }
     }
 
     while (iterator.hasNext()) {
-      if (iterator.next().equals(o)) {
+      if (Objects.equals(iterator.next(), o)) {
         return true;
       }
     }
@@ -77,14 +79,14 @@ public class LazyList<T> implements List<T> {
   public boolean remove(Object o) {
 
     for (int i = 0; i < list.size(); i++) {
-      if (list.get(i).equals(o)) {
+      if (Objects.equals(list.get(i), o)) {
         list.remove(i);
         return true;
       }
     }
 
     while (iterator.hasNext()) {
-      if (iterator.next().equals(o)) {
+      if (Objects.equals(iterator.next(), o)) {
         list.remove(list.size() - 1);
         return true;
       }
@@ -95,8 +97,12 @@ public class LazyList<T> implements List<T> {
 
   @Override
   public boolean containsAll(Collection<?> c) {
-    Set<?> set = new HashSet<>(c);
 
+    if (c == this || c.isEmpty()) {
+      return true;
+    }
+
+    Set<?> set = new HashSet<>(c);
 
     for (int i = 0; i < list.size(); i++) {
       T object = list.get(i);
@@ -123,12 +129,22 @@ public class LazyList<T> implements List<T> {
 
   @Override
   public boolean addAll(Collection<? extends T> c) {
-    iterator = new ArrayWrappedIterator<>(Iterators.concat(iterator.getIterator(), c.iterator()), list);
+
+    if (c.isEmpty()) {
+      return false;
+    }
+
+    Iterator<? extends T> collection = c.iterator();
+    iterator = new ArrayWrappedIterator<>(Iterators.concat(iterator.getIterator(), collection), list);
     return true;
   }
 
   @Override
   public boolean addAll(int index, Collection<? extends T> c) {
+
+    if (c.isEmpty()) {
+      return false;
+    }
 
     int offset = index - list.size();
     if (offset < 0) {
@@ -170,7 +186,7 @@ public class LazyList<T> implements List<T> {
   public T get(int index) {
 
     int offset = index - list.size();
-    if (offset <= 0) {
+    if (offset < 0) {
       return list.get(index);
     } else {
       while (offset != 0) {
@@ -243,14 +259,18 @@ public class LazyList<T> implements List<T> {
 
     int i = 0;
     for (; i < list.size(); i++) {
-      if (list.get(i).equals(o)) {
+      if (Objects.equals(list.get(i), o)) {
         return i;
       }
     }
 
+    if (list.size() == 0) {
+      i--;
+    }
+
     while (iterator.hasNext()) {
       i++;
-      if (iterator.next().equals(o)) {
+      if (Objects.equals(iterator.next(), o)) {
         return i;
       }
     }
@@ -307,9 +327,35 @@ public class LazyList<T> implements List<T> {
       if (o == list) {
         sb.append("(this Collection)");
       } else {
-        sb.append(o.toString());
+        sb.append(String.valueOf(o));
       }
     }
     return sb.append(']').toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+
+    if (o == this) {
+      return true;
+    }
+
+    if (!(o instanceof List)) {
+      return false;
+    }
+
+    return this.containsAll((List) o);
+  }
+
+  @Override
+  public int hashCode() {
+    iterator.unpack();
+    return list.hashCode();
+  }
+
+  @Override
+  public boolean removeIf(Predicate<? super T> filter) {
+    iterator.unpack();
+    return list.removeIf(filter);
   }
 }
