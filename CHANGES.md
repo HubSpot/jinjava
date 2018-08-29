@@ -1,5 +1,10 @@
 # Jinjava Releases #
 
+### 2018-08-29 Version 2.4.6 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.6%7Cjar)) ###
+
+* [Fix a memory leak in the global context](https://github.com/HubSpot/jinjava/pull/227)
+* [Do not allow calling getClass() on objects](https://github.com/HubSpot/jinjava/pull/230)
+
 ### 2018-08-16 Version 2.4.5 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.5%7Cjar)) ###
 * [Limit the number errors](https://github.com/HubSpot/jinjava/pull/222)
 * [Detect fromTag cycle](https://github.com/HubSpot/jinjava/pull/221)
