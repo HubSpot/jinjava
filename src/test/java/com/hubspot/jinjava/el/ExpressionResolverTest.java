@@ -333,11 +333,11 @@ public class ExpressionResolverTest {
   @Test
   public void blackListedMethods() {
     context.put("myobj", new MyClass(new Date(0)));
-    interpreter.resolveELExpression("myobj.wait()", -1);
+    interpreter.resolveELExpression("myobj.getClass()", -1);
 
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
     TemplateError e = interpreter.getErrorsCopy().get(0);
-    assertThat(e.getMessage()).contains("Cannot find method 'wait'");
+    assertThat(e.getMessage()).contains("Cannot find method 'getClass'");
   }
 
   @Test
