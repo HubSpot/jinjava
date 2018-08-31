@@ -1,5 +1,8 @@
 # Jinjava Releases #
 
+### 2018-08-31 Version 2.4.7 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.7%7Cjar)) ###
+* [Do not allow returning objects of type Class](https://github.com/HubSpot/jinjava/pull/232)
+
 ### 2018-08-29 Version 2.4.6 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.6%7Cjar)) ###
 
 * [Fix a memory leak in the global context](https://github.com/HubSpot/jinjava/pull/227)
