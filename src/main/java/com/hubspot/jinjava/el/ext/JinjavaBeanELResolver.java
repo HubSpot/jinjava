@@ -13,11 +13,12 @@ import com.google.common.collect.ImmutableSet;
  * {@link BeanELResolver} supporting snake case property names.
  */
 public class JinjavaBeanELResolver extends BeanELResolver {
-  private static final Set<String> RESTRICTED_PROPERTIES = ImmutableSet.<String> builder()
+  private static final Set<String> RESTRICTED_PROPERTIES = ImmutableSet.<String>builder()
       .add("class")
       .build();
 
-  private static final Set<String> RESTRICTED_METHODS = ImmutableSet.<String> builder()
+  private static final Set<String> RESTRICTED_METHODS = ImmutableSet.<String>builder()
+      .add("class")
       .add("clone")
       .add("hashCode")
       .add("forName")
