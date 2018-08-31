@@ -21,6 +21,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       .add("clone")
       .add("hashCode")
       .add("getClass")
+      .add("getDeclaringClass")
       .add("notify")
       .add("notifyAll")
       .add("wait")
