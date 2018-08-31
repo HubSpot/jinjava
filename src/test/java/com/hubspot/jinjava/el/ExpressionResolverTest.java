@@ -331,7 +331,24 @@ public class ExpressionResolverTest {
   }
 
   @Test
+  public void itWillNotReturnClassObjectProperties() {
+    context.put("myobj", new MyClass(new Date(0)));
+    Object clazz = interpreter.resolveELExpression("myobj.clazz", -1);
+    assertThat(clazz).isNull();
+  }
+
+  @Test
   public void blackListedMethods() {
+    context.put("myobj", new MyClass(new Date(0)));
+    interpreter.resolveELExpression("myobj.wait()", -1);
+
+    assertThat(interpreter.getErrorsCopy()).isNotEmpty();
+    TemplateError e = interpreter.getErrorsCopy().get(0);
+    assertThat(e.getMessage()).contains("Cannot find method 'wait'");
+  }
+
+  @Test
+  public void itWillNotReturnClassObjects() {
     context.put("myobj", new MyClass(new Date(0)));
     interpreter.resolveELExpression("myobj.getClass()", -1);
 
@@ -339,6 +356,7 @@ public class ExpressionResolverTest {
     TemplateError e = interpreter.getErrorsCopy().get(0);
     assertThat(e.getMessage()).contains("Cannot find method 'getClass'");
   }
+
 
   @Test
   public void itBlocksDisabledTags() {
@@ -476,6 +494,8 @@ public class ExpressionResolverTest {
     MyClass(Date date) {
       this.date = date;
     }
+
+    public Class getClazz() { return this.getClass(); }
 
     public Date getDate() {
       return date;
