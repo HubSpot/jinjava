@@ -13,15 +13,17 @@ import com.google.common.collect.ImmutableSet;
  * {@link BeanELResolver} supporting snake case property names.
  */
 public class JinjavaBeanELResolver extends BeanELResolver {
-  private static final Set<String> RESTRICTED_PROPERTIES = ImmutableSet.<String> builder()
+  private static final Set<String> RESTRICTED_PROPERTIES = ImmutableSet.<String>builder()
       .add("class")
       .build();
 
-  private static final Set<String> RESTRICTED_METHODS = ImmutableSet.<String> builder()
+  private static final Set<String> RESTRICTED_METHODS = ImmutableSet.<String>builder()
+      .add("class")
       .add("clone")
       .add("hashCode")
       .add("getClass")
       .add("getDeclaringClass")
+      .add("forName")
       .add("notify")
       .add("notifyAll")
       .add("wait")
@@ -46,7 +48,8 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
   @Override
   public Object getValue(ELContext context, Object base, Object property) {
-    return super.getValue(context, base, validatePropertyName(property));
+    Object result = super.getValue(context, base, validatePropertyName(property));
+    return result instanceof Class ? null : result;
   }
 
   @Override
@@ -64,7 +67,13 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     if (method == null || RESTRICTED_METHODS.contains(method.toString())) {
       throw new MethodNotFoundException("Cannot find method '" + method + "' in " + base.getClass());
     }
-    return super.invoke(context, base, method, paramTypes, params);
+    Object result = super.invoke(context, base, method, paramTypes, params);
+
+    if (result instanceof Class) {
+      throw new MethodNotFoundException("Cannot find method '" + method + "' in " + base.getClass());
+    }
+
+    return result;
   }
 
   private String validatePropertyName(Object property) {
