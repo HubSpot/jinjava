@@ -109,13 +109,16 @@ public class CallTag implements Tag {
     }
 
     String macroExpr = "{{" + macro + "}}";
+    String result = null;
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       MacroFunction caller = new MacroFunction(tagNode.getChildren(), "caller", argNamesWithDefaults, false, false, true, interpreter.getContext());
       interpreter.getContext().addGlobalMacro(caller);
 
-      return interpreter.render(macroExpr);
+      result = interpreter.render(macroExpr);
     }
+
+    return result;
   }
 
 }
