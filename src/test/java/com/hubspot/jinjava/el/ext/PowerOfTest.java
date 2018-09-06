@@ -21,31 +21,66 @@ public class PowerOfTest {
 
     @Test
     public void testPowerOfInteger() {
-
         Map<String, Object> context = Maps.newHashMap();
         context.put("base",     2);
-        context.put("exponent", 8);
+        context.put("evenExponent", 8);
+        context.put("oddExponent", 7);
+        context.put("negativeBase", -2);
+        context.put("negativeExponent", -8);
 
-        String template = "{% set x = base ** exponent %}{{x}}";
-        String rendered = jinja.render(template, context);
-        assertEquals("256", rendered);
+        String[][] testCases = {
+            { "{% set x = base ** evenExponent %}{{x}}", "256" },
+            { "{% set x = 2 ** 8 %}{{x}}", "256" },
+            { "{% set x = base ** 8 %}{{x}}", "256" },
+            { "{% set x = 2 ** evenExponent %}{{x}}", "256" },
+            { "{% set x = negativeBase ** evenExponent %}{{x}}", "256" },
+            { "{% set x = -2 ** 8 %}{{x}}", "256" },
+            { "{% set x = base ** negativeExponent %}{{x}}", "0" },
+            { "{% set x = 2 ** -8 %}{{x}}", "0" },
+            { "{% set x = negativeBase ** oddExponent %}{{x}}", "-128"},
+            { "{% set x = -2 ** 7 %}{{x}}", "-128" }
+        };
+
+        for (String[] testCase : testCases ) {
+            String template = testCase[0];
+            String expected = testCase[1];
+            String rendered = jinja.render(template, context);
+            assertEquals(expected, rendered);
+        }
     }
 
     @Test
     public void testPowerOfFractional() {
-
         Map<String, Object> context = Maps.newHashMap();
         context.put("base",     2);
-        context.put("exponent", 8.0);
+        context.put("evenExponent", 8.0);
+        context.put("oddExponent", 7.0);
+        context.put("negativeBase", -2);
+        context.put("negativeExponent", -8.0);
 
-        String template = "{% set x = base ** exponent %}{{x}}";
-        String rendered = jinja.render(template, context);
-        assertEquals("256.0", rendered);
+        String[][] testCases = {
+            { "{% set x = base ** evenExponent %}{{x}}", "256.0" },
+            { "{% set x = 2 ** 8.0 %}{{x}}", "256.0" },
+            { "{% set x = base ** 8.0 %}{{x}}", "256.0" },
+            { "{% set x = 2 ** evenExponent %}{{x}}", "256.0" },
+            { "{% set x = negativeBase ** evenExponent %}{{x}}", "256.0" },
+            { "{% set x = -2 ** 8.0 %}{{x}}", "256.0" },
+            { "{% set x = base ** negativeExponent %}{{x}}", "0.00390625" },
+            { "{% set x = 2 ** -8.0 %}{{x}}", "0.00390625" },
+            { "{% set x = negativeBase ** oddExponent %}{{x}}", "-128.0"},
+            { "{% set x = -2 ** 7.0 %}{{x}}", "-128.0" }
+        };
+
+        for (String[] testCase : testCases ) {
+            String template = testCase[0];
+            String expected = testCase[1];
+            String rendered = jinja.render(template, context);
+            assertEquals(expected, rendered);
+        }
     }
 
     @Test
-    public void test04PowerOfStringFails() {
-
+    public void testPowerOfStringFails() {
         Map<String, Object> context = Maps.newHashMap();
         context.put("base",     "2");
         context.put("exponent", "8");
