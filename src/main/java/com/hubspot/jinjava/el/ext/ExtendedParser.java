@@ -52,8 +52,8 @@ public class ExtendedParser extends Parser {
   static final Scanner.ExtensionToken LITERAL_DICT_START = new Scanner.ExtensionToken("{");
   static final Scanner.ExtensionToken LITERAL_DICT_END = new Scanner.ExtensionToken("}");
 
-  static final Scanner.ExtensionToken TRUNC_DIV = new Scanner.ExtensionToken("//");
-  static final Scanner.ExtensionToken POWER_OF  = new Scanner.ExtensionToken("**");
+  static final Scanner.ExtensionToken TRUNC_DIV = TruncDivOperator.TOKEN;
+  static final Scanner.ExtensionToken POWER_OF  = PowerOfOperator.TOKEN;
 
   static {
     ExtendedScanner.addKeyToken(IF);
@@ -393,14 +393,8 @@ public class ExtendedParser extends Parser {
 
           AstProperty exptestProperty = createAstDot(identifier(EXPTEST_PREFIX + exptestName), "evaluate", true);
           v = createAstMethod(exptestProperty, new AstParameters(exptestParams));
-        } else if ("//".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
-            consumeToken(); // '//'
-            v = createAstBinary(v, mul(true), TruncDivOperator.OP);
-
-        } else if ("**".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
-            consumeToken(); // '**'
-            v = createAstBinary(v, mul(true), PowerOfOperator.OP);
         }
+
         return v;
       }
     }
