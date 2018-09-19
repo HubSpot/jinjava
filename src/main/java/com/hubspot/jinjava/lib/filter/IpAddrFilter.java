@@ -14,7 +14,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     },
     snippets = {
         @JinjavaSnippet(
-            desc = "This example is an alternative to using the is divisibleby expression test",
+            desc = "This example shows how to test if a string is a valid ip address",
             code = "{% set ip = '1.0.0.1' %}\n" +
                 "{% if ip|ipaddr %}\n" +
                 "    The string is a valid IP address\n" +
