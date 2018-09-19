@@ -49,7 +49,6 @@ public class IpAddrFilterTest {
     assertThat(ipAddrFilter.filter("1200:0000:AB00:1234:O000:2552:7777:1313", interpreter)).isEqualTo(false);
     assertThat(ipAddrFilter.filter("1200::AB00:1234::2552:7777:1313:1232", interpreter)).isEqualTo(false);
     assertThat(ipAddrFilter.filter("321", interpreter)).isEqualTo(false);
-    assertThat(ipAddrFilter.filter(104, interpreter)).isEqualTo(false);
   }
 
 }
