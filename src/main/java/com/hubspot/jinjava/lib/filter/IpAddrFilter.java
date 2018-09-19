@@ -34,7 +34,7 @@ public class IpAddrFilter implements Filter {
     }
 
     if (object instanceof String) {
-      String address = (String) object;
+      String address = ((String) object).trim();
       return IP4_PATTERN.matcher(address).matches()
           || IP6_PATTERN.matcher(address).matches()
           || IP6_COMPRESSED_PATTERN.matcher(address).matches();

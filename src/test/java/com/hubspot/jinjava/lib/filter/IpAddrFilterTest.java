@@ -24,6 +24,7 @@ public class IpAddrFilterTest {
     assertThat(ipAddrFilter.filter("255.182.100.1", interpreter)).isEqualTo(true);
     assertThat(ipAddrFilter.filter("125.0.100.1", interpreter)).isEqualTo(true);
     assertThat(ipAddrFilter.filter("128.0.0.1", interpreter)).isEqualTo(true);
+    assertThat(ipAddrFilter.filter("   128.0.0.1   ", interpreter)).isEqualTo(true);
   }
 
   @Test
