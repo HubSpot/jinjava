@@ -1,17 +1,16 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Streams;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
-import com.hubspot.jinjava.util.ForLoop;
+import com.hubspot.jinjava.objects.collections.LazyList;
 import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
@@ -37,7 +36,6 @@ public class SelectAttrFilter implements AdvancedFilter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
-    List<Object> result = new ArrayList<>();
 
     if (args.length == 0) {
       throw new InterpretException(getName() + " filter requires an attr to filter on", interpreter.getLineNumber());
@@ -68,16 +66,10 @@ public class SelectAttrFilter implements AdvancedFilter {
       }
     }
 
-    ForLoop loop = ObjectIterator.getLoop(var);
-    while (loop.hasNext()) {
-      Object val = loop.next();
-      Object attrVal = interpreter.resolveProperty(val, attr);
-
-      if (expTest.evaluate(attrVal, interpreter, expArgs)) {
-        result.add(val);
-      }
-    }
-
-    return result;
+    final ExpTest loopTest = expTest;
+    final Object[] loopArgs = expArgs;
+    return new LazyList<>(Streams.stream(ObjectIterator.getIterator(var))
+        .filter(val -> loopTest.evaluate(interpreter.resolveProperty(val, attr), interpreter, loopArgs))
+        .iterator());
   }
 }

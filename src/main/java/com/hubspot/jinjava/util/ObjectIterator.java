@@ -57,4 +57,34 @@ public final class ObjectIterator {
     return new ForLoop(Iterators.singletonIterator(obj), 1);
   }
 
+  public static Iterator<Object> getIterator(Object obj) {
+    if (obj == null) {
+      return Collections.emptyIterator();
+    }
+    // collection
+    if (obj instanceof Collection) {
+      Collection<Object> clt = (Collection<Object>) obj;
+      return clt.iterator();
+    }
+    // array
+    if (obj.getClass().isArray()) {
+      Object[] arr = (Object[]) obj;
+      return Iterators.forArray(arr);
+    }
+    // map
+    if (obj instanceof Map) {
+      Collection<Object> clt = ((Map<Object, Object>) obj).values();
+      return clt.iterator();
+    }
+    // iterable,iterator
+    if (obj instanceof Iterable) {
+      return ((Iterable<Object>) obj).iterator();
+    }
+    if (obj instanceof Iterator) {
+      return (Iterator<Object>) obj;
+    }
+    // others
+    return Iterators.singletonIterator(obj);
+  }
+
 }
