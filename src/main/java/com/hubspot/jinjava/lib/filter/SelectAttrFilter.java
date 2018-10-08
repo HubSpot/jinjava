@@ -13,6 +13,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
+import com.hubspot.jinjava.util.Variable;
 
 @JinjavaDoc(
     value = "Filters a sequence of objects by applying a test to an attribute of an object and only selecting the ones with the test succeeding.",
@@ -37,6 +38,10 @@ public class SelectAttrFilter implements AdvancedFilter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
+    return applyFilter(var, interpreter, args, kwargs, true);
+  }
+
+  protected Object applyFilter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs, boolean acceptObjects) {
     List<Object> result = new ArrayList<>();
 
     if (args.length == 0) {
@@ -71,9 +76,9 @@ public class SelectAttrFilter implements AdvancedFilter {
     ForLoop loop = ObjectIterator.getLoop(var);
     while (loop.hasNext()) {
       Object val = loop.next();
-      Object attrVal = interpreter.resolveProperty(val, attr);
 
-      if (expTest.evaluate(attrVal, interpreter, expArgs)) {
+      Object attrVal = new Variable(interpreter, String.format("%s.%s", "placeholder", attr)).resolve(val);
+      if (acceptObjects == expTest.evaluate(attrVal, interpreter, expArgs)) {
         result.add(val);
       }
     }
