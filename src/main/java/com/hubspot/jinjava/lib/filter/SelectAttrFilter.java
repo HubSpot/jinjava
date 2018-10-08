@@ -41,6 +41,10 @@ public class SelectAttrFilter implements AdvancedFilter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
+    return applyFilter(var, interpreter, args, kwargs, true);
+  }
+
+  protected Object applyFilter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs, boolean acceptObjects) {
     List<Object> result = new ArrayList<>();
 
     if (args.length == 0) {
@@ -77,7 +81,8 @@ public class SelectAttrFilter implements AdvancedFilter {
       Object val = loop.next();
 
       Object attrVal = new Variable(interpreter, String.format("%s.%s", "placeholder", attr)).resolve(val);
-      if (expTest.evaluate(attrVal, interpreter, expArgs)) {
+      boolean pass = expTest.evaluate(attrVal, interpreter, expArgs);
+      if ((acceptObjects && pass) || (!acceptObjects && !pass)) {
         result.add(val);
       }
     }
