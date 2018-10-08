@@ -49,8 +49,7 @@ public class RejectAttrFilterTest {
     assertThat(jinjava.render("{{ users|rejectattr('option.name', 'equalto', 'option0') }}", new HashMap<String, Object>()))
         .isEqualTo("[1, 2]");
   }
-
-
+  
   public static class User {
     private int num;
     private boolean isActive;

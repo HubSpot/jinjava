@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Splitter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -31,8 +30,6 @@ import com.hubspot.jinjava.util.Variable;
                 "{% endfor %}")
     })
 public class SelectAttrFilter implements AdvancedFilter {
-
-  private static final Splitter PROPERTY_SPLITTER = Splitter.on('.');
 
   @Override
   public String getName() {
