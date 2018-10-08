@@ -12,6 +12,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
+import com.hubspot.jinjava.util.Variable;
 
 @JinjavaDoc(
     value = "Filters a sequence of objects by applying a test to an attribute of an object or the attribute and "
@@ -61,7 +62,7 @@ public class RejectAttrFilter implements Filter {
     ForLoop loop = ObjectIterator.getLoop(var);
     while (loop.hasNext()) {
       Object val = loop.next();
-      Object attrVal = interpreter.resolveProperty(val, attr);
+      Object attrVal = new Variable(interpreter, String.format("%s.%s", val.toString(), attr)).resolve(val);
 
       if (!expTest.evaluate(attrVal, interpreter, (Object[]) expArgs)) {
         result.add(val);

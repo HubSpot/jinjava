@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Splitter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -13,6 +14,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
+import com.hubspot.jinjava.util.Variable;
 
 @JinjavaDoc(
     value = "Filters a sequence of objects by applying a test to an attribute of an object and only selecting the ones with the test succeeding.",
@@ -29,6 +31,8 @@ import com.hubspot.jinjava.util.ObjectIterator;
                 "{% endfor %}")
     })
 public class SelectAttrFilter implements AdvancedFilter {
+
+  private static final Splitter PROPERTY_SPLITTER = Splitter.on('.');
 
   @Override
   public String getName() {
@@ -71,8 +75,8 @@ public class SelectAttrFilter implements AdvancedFilter {
     ForLoop loop = ObjectIterator.getLoop(var);
     while (loop.hasNext()) {
       Object val = loop.next();
-      Object attrVal = interpreter.resolveProperty(val, attr);
 
+      Object attrVal = new Variable(interpreter, String.format("%s.%s", val.toString(), attr)).resolve(val);
       if (expTest.evaluate(attrVal, interpreter, expArgs)) {
         result.add(val);
       }
