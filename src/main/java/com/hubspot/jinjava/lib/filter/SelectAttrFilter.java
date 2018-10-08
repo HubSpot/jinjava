@@ -78,8 +78,7 @@ public class SelectAttrFilter implements AdvancedFilter {
       Object val = loop.next();
 
       Object attrVal = new Variable(interpreter, String.format("%s.%s", "placeholder", attr)).resolve(val);
-      boolean pass = expTest.evaluate(attrVal, interpreter, expArgs);
-      if ((acceptObjects && pass) || (!acceptObjects && !pass)) {
+      if (acceptObjects == expTest.evaluate(attrVal, interpreter, expArgs)) {
         result.add(val);
       }
     }
