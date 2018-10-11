@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.filter;
 
-import com.google.common.base.Joiner;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -21,8 +20,6 @@ import com.hubspot.jinjava.objects.date.StrftimeFormatter;
     })
 public class DateTimeFormatFilter implements Filter {
 
-  private static final Joiner ERROR_MESSAGE_JOINER = Joiner.on(", ");
-
   @Override
   public String getName() {
     return "datetimeformat";
@@ -38,7 +35,6 @@ public class DateTimeFormatFilter implements Filter {
     else {
       return Functions.dateTimeFormat(var);
     }
-
   }
 
 }
