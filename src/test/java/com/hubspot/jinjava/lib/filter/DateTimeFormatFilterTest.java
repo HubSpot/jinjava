@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 
 public class DateTimeFormatFilterTest {
@@ -58,4 +59,20 @@ public class DateTimeFormatFilterTest {
     assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
+  @Test
+  public void itSupportsTimezones() throws Exception {
+    assertThat(filter.filter(1539277785000L, interpreter, "%B %d, %Y, at %I:%M %p")).isEqualTo("October 11, 2018, at 05:09 PM");
+    assertThat(filter.filter(1539277785000L, interpreter, "%B %d, %Y, at %I:%M %p", "America/New_York")).isEqualTo("October 11, 2018, at 01:09 PM");
+    assertThat(filter.filter(1539277785000L, interpreter, "%B %d, %Y, at %I:%M %p", "UTC+8")).isEqualTo("October 12, 2018, at 01:09 AM");
+  }
+
+  @Test(expected = InvalidDateFormatException.class)
+  public void itThrowsExceptionOnInvalidTimezone() throws Exception {
+    filter.filter(1539277785000L, interpreter, "%B %d, %Y, at %I:%M %p", "Not a timezone");
+  }
+
+  @Test(expected = InvalidDateFormatException.class)
+  public void itThrowsExceptionOnInvalidDateformat() throws Exception {
+    filter.filter(1539277785000L, interpreter, "Not a format");
+  }
 }
