@@ -76,6 +76,8 @@ public class Functions {
       }
     } else if (var instanceof ZonedDateTime) {
       zoneOffset = ((ZonedDateTime) var).getZone();
+    } else if (var instanceof PyishDate) {
+      zoneOffset = ((PyishDate) var).toDateTime().getZone();
     }
 
     ZonedDateTime d = getDateTimeArg(var, zoneOffset);
@@ -105,7 +107,9 @@ public class Functions {
     } else if (var instanceof Number) {
       d = ZonedDateTime.ofInstant(Instant.ofEpochMilli(((Number) var).longValue()), zoneOffset);
     } else if (var instanceof PyishDate) {
-      d = ((PyishDate) var).toDateTime();
+      PyishDate pyishDate = ((PyishDate) var);
+      d = pyishDate.toDateTime();
+      d = d.withZoneSameInstant(zoneOffset);
     } else if (var instanceof ZonedDateTime) {
       d = (ZonedDateTime) var;
       d = d.withZoneSameInstant(zoneOffset);
