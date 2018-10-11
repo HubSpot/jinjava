@@ -66,6 +66,7 @@ public class Functions {
   public static String dateTimeFormat(Object var, String... format) {
 
     ZoneId zoneOffset = ZoneOffset.UTC;
+
     if (format.length > 1) {
       String timezone = format[1];
       try {
@@ -73,6 +74,8 @@ public class Functions {
       } catch (DateTimeException e) {
         throw new InvalidDateFormatException(timezone, e);
       }
+    } else if (var instanceof ZonedDateTime) {
+      zoneOffset = ((ZonedDateTime) var).getZone();
     }
 
     ZonedDateTime d = getDateTimeArg(var, zoneOffset);
@@ -105,6 +108,7 @@ public class Functions {
       d = ((PyishDate) var).toDateTime();
     } else if (var instanceof ZonedDateTime) {
       d = (ZonedDateTime) var;
+      d = d.withZoneSameInstant(zoneOffset);
     } else if (!ZonedDateTime.class.isAssignableFrom(var.getClass())) {
       throw new InterpretException("Input to function must be a date object, was: " + var.getClass());
     }
