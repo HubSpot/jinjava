@@ -22,9 +22,8 @@ public class DoTag implements Tag {
     if (StringUtils.isBlank(tagNode.getHelpers())) {
       throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'do' expects expression", tagNode.getLineNumber(), tagNode.getStartPosition());
     }
-
-    String expression = tagNode.getHelpers();
-    interpreter.resolveELExpression(expression, tagNode.getLineNumber());
+    
+    interpreter.resolveELExpression(tagNode.getHelpers(), tagNode.getLineNumber());
     return "";
   }
 
