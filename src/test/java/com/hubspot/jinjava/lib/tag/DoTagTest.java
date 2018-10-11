@@ -15,8 +15,8 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 public class DoTagTest {
 
   private Context context;
-  JinjavaInterpreter interpreter;
-  Jinjava jinjava;
+  private JinjavaInterpreter interpreter;
+  private Jinjava jinjava;
 
   @Before
   public void setup() {
@@ -38,5 +38,4 @@ public class DoTagTest {
     assertThat(renderResult.getErrors()).hasSize(1);
     assertThat(renderResult.getErrors().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
   }
-
 }
