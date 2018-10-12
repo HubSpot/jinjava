@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 public class ScopeMap<K, V> implements Map<K, V> {
 
   private final Map<K, V> scope;
@@ -134,8 +132,6 @@ public class ScopeMap<K, V> implements Map<K, V> {
   }
 
   @Override
-  @SuppressFBWarnings(justification = "using overridden get() to do scoped retrieve with parent fallback",
-      value = "WMI_WRONG_MAP_ITERATOR")
   public Set<java.util.Map.Entry<K, V>> entrySet() {
     Set<java.util.Map.Entry<K, V>> entries = new HashSet<>();
 
