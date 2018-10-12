@@ -2,7 +2,9 @@ package com.hubspot.jinjava.lib.fn;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
+import java.time.DateTimeException;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import com.hubspot.jinjava.tree.Node;
@@ -57,10 +60,27 @@ public class Functions {
 
   @JinjavaDoc(value = "formats a date to a string", params = {
       @JinjavaParam(value = "var", type = "date", defaultValue = "current time"),
-      @JinjavaParam(value = "format", defaultValue = StrftimeFormatter.DEFAULT_DATE_FORMAT)
+      @JinjavaParam(value = "format", defaultValue = StrftimeFormatter.DEFAULT_DATE_FORMAT),
+      @JinjavaParam(value = "timezone", defaultValue = "utc", desc = "Time zone of output date")
   })
   public static String dateTimeFormat(Object var, String... format) {
-    ZonedDateTime d = getDateTimeArg(var);
+
+    ZoneId zoneOffset = ZoneOffset.UTC;
+
+    if (format.length > 1) {
+      String timezone = format[1];
+      try {
+        zoneOffset = ZoneId.of(timezone);
+      } catch (DateTimeException e) {
+        throw new InvalidDateFormatException(timezone, e);
+      }
+    } else if (var instanceof ZonedDateTime) {
+      zoneOffset = ((ZonedDateTime) var).getZone();
+    } else if (var instanceof PyishDate) {
+      zoneOffset = ((PyishDate) var).toDateTime().getZone();
+    }
+
+    ZonedDateTime d = getDateTimeArg(var, zoneOffset);
 
     if (d == null) {
       return "";
@@ -78,18 +98,21 @@ public class Functions {
     }
   }
 
-  private static ZonedDateTime getDateTimeArg(Object var) {
+  private static ZonedDateTime getDateTimeArg(Object var, ZoneId zoneOffset) {
 
     ZonedDateTime d = null;
 
     if (var == null) {
-      d = ZonedDateTime.now(ZoneOffset.UTC);
+      d = ZonedDateTime.now(zoneOffset);
     } else if (var instanceof Number) {
-      d = ZonedDateTime.ofInstant(Instant.ofEpochMilli(((Number) var).longValue()), ZoneOffset.UTC);
+      d = ZonedDateTime.ofInstant(Instant.ofEpochMilli(((Number) var).longValue()), zoneOffset);
     } else if (var instanceof PyishDate) {
-      d = ((PyishDate) var).toDateTime();
+      PyishDate pyishDate = ((PyishDate) var);
+      d = pyishDate.toDateTime();
+      d = d.withZoneSameInstant(zoneOffset);
     } else if (var instanceof ZonedDateTime) {
       d = (ZonedDateTime) var;
+      d = d.withZoneSameInstant(zoneOffset);
     } else if (!ZonedDateTime.class.isAssignableFrom(var.getClass())) {
       throw new InterpretException("Input to function must be a date object, was: " + var.getClass());
     }
@@ -101,7 +124,7 @@ public class Functions {
       @JinjavaParam(value = "var", type = "date", defaultValue = "current time"),
   })
   public static long unixtimestamp(Object var) {
-    ZonedDateTime d = getDateTimeArg(var);
+    ZonedDateTime d = getDateTimeArg(var, ZoneOffset.UTC);
 
     if (d == null) {
       return 0;
