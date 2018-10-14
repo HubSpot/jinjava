@@ -13,6 +13,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     value = "Evaluates to true if the value is a valid IPv4 or IPv6 address",
     params = {
         @JinjavaParam(value = "value", type = "string", desc = "String to check IP Address"),
+        @JinjavaParam(value = "function", type = "string", desc = "Optional name of function. Supported functions: 'prefix'"),
     },
     snippets = {
         @JinjavaSnippet(
