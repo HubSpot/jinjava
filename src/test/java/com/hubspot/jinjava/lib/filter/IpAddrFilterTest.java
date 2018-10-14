@@ -51,4 +51,14 @@ public class IpAddrFilterTest {
     assertThat(ipAddrFilter.filter("321", interpreter)).isEqualTo(false);
   }
 
+  @Test
+  public void itReturnsIpAddressPrefix() {
+    assertThat(ipAddrFilter.filter("255.182.100.1/24", interpreter, "prefix")).isEqualTo(24);
+  }
+
+  @Test
+  public void itRejectsInvalidIpAddressPrefix() {
+    assertThat(ipAddrFilter.filter("255.182.100.abc/24", interpreter, "prefix")).isEqualTo(null);
+  }
+
 }
