@@ -1,7 +1,9 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Splitter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -11,6 +13,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     value = "Evaluates to true if the value is a valid IPv4 or IPv6 address",
     params = {
         @JinjavaParam(value = "value", type = "string", desc = "String to check IP Address"),
+        @JinjavaParam(value = "function", type = "string", desc = "Optional name of function. Supported functions: 'prefix'"),
     },
     snippets = {
         @JinjavaSnippet(
@@ -26,20 +29,60 @@ public class IpAddrFilter implements Filter {
   private static final Pattern IP6_PATTERN = Pattern.compile("^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$");
   private static final Pattern IP6_COMPRESSED_PATTERN = Pattern.compile("^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$");
 
+  private static final Splitter PREFIX_SPLITTER = Splitter.on('/');
+  private static final String PREFIX_STRING = "prefix";
+
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
 
     if (object == null) {
       return false;
     }
 
-    if (object instanceof String) {
-      String address = ((String) object).trim();
-      return IP4_PATTERN.matcher(address).matches()
-          || IP6_PATTERN.matcher(address).matches()
-          || IP6_COMPRESSED_PATTERN.matcher(address).matches();
+    if (args.length > 0) {
+      String function = args[0].trim();
+      if (function.equalsIgnoreCase(PREFIX_STRING)) {
+        return getPrefix(object);
+      }
     }
+
+    if (object instanceof String) {
+      return validIp(((String) object).trim());
+    }
+
     return false;
+  }
+
+  private Integer getPrefix(Object object) {
+
+    if (!(object instanceof String)) {
+      return null;
+    }
+
+    String fullAddress = ((String) object).trim();
+
+    List<String> parts = PREFIX_SPLITTER.splitToList(fullAddress);
+    if (parts.size() != 2) {
+      return null;
+    }
+
+    String ipAddress = parts.get(0);
+    if (!validIp(ipAddress)) {
+      return null;
+    }
+
+    String prefixString = parts.get(1);
+    try {
+      return Integer.parseInt(prefixString);
+    } catch (NumberFormatException ex) {
+      return null;
+    }
+  }
+
+  private boolean validIp(String address) {
+    return IP4_PATTERN.matcher(address).matches()
+        || IP6_PATTERN.matcher(address).matches()
+        || IP6_COMPRESSED_PATTERN.matcher(address).matches();
   }
 
   @Override
