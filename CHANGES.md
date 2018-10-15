@@ -1,5 +1,12 @@
 # Jinjava Releases #
 
+### 2018-10-15 Version 2.4.9 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.9%7Cjar)) ###
+* [Add `ipaddr` filter to test valid IP addresses](https://github.com/HubSpot/jinjava/pull/237)
+* [Enable nested properties for `selectattr` and `rejectattr`](https://github.com/HubSpot/jinjava/pull/238)
+* [Add `do` tag to evaluate expressions without print](https://github.com/HubSpot/jinjava/pull/240)
+* [Add support for timezone conversions in `datetimeformat` filter](https://github.com/HubSpot/jinjava/pull/241)
+* [Add `prefix` function for `ipaddr` filter](https://github.com/HubSpot/jinjava/pull/243)
+
 ### 2018-09-07 Version 2.4.8 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.8%7Cjar)) ###
 * [Bug fix for trunc division and power operations](https://github.com/HubSpot/jinjava/pull/234)
 
