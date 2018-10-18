@@ -37,9 +37,8 @@ public class JinjavaListELResolver extends ListELResolver {
         List<?> list = (List<?>) base;
         if (index < 0) {
           // Leave the range checking to the superclass.
-          index += list.size();
+          property = index + list.size();
         }
-        return super.getValue(context, base, index);
       }
       return super.getValue(context, base, property);
     } catch (IllegalArgumentException e) {
