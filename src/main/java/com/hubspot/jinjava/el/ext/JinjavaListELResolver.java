@@ -34,10 +34,9 @@ public class JinjavaListELResolver extends ListELResolver {
       // If we're dealing with a negative index, convert it to a positive one.
       if (isResolvable(base)) {
         int index = toIndex(property);
-        List<?> list = (List<?>) base;
         if (index < 0) {
           // Leave the range checking to the superclass.
-          property = index + list.size();
+          property = index + ((List<?>) base).size();
         }
       }
       return super.getValue(context, base, property);
