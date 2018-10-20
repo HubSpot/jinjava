@@ -1,5 +1,9 @@
 # Jinjava Releases #
 
+
+### 2018-10-19 Version 2.4.10 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.10%7Cjar)) ###
+* [Support negative array indices](https://github.com/HubSpot/jinjava/pull/245)
+
 ### 2018-10-15 Version 2.4.9 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.9%7Cjar)) ###
 * [Add `ipaddr` filter to test valid IP addresses](https://github.com/HubSpot/jinjava/pull/237)
 * [Enable nested properties for `selectattr` and `rejectattr`](https://github.com/HubSpot/jinjava/pull/238)
