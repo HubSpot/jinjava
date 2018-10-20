@@ -99,6 +99,41 @@ public class ExpressionResolverTest {
   }
 
   @Test
+  public void itResolvesListStringNegative() {
+    context.put("thelist", Lists.newArrayList("foo", "bar", "blah"));
+    Object val = interpreter.resolveELExpression("thelist[-1]", -1);
+    assertThat(val).isEqualTo("blah");
+  }
+
+  @Test
+  public void itResolvesListStringNextToLast() {
+    context.put("thelist", Lists.newArrayList("foo", "bar", "blah"));
+    Object val = interpreter.resolveELExpression("thelist[-2]", -1);
+    assertThat(val).isEqualTo("bar");
+  }
+
+  @Test
+  public void itResolvesListStringNegativeIndicatingFirst() {
+    context.put("thelist", Lists.newArrayList("foo", "bar", "blah"));
+    Object val = interpreter.resolveELExpression("thelist[-3]", -1);
+    assertThat(val).isEqualTo("foo");
+  }
+
+  @Test
+  public void itResolvesListStringNegativeZero() {
+    context.put("thelist", Lists.newArrayList("foo", "bar", "blah"));
+    Object val = interpreter.resolveELExpression("thelist[-0]", -1);
+    assertThat(val).isEqualTo("foo");
+  }
+
+  @Test
+  public void itResolvesListStringNegativeOutOfBounds() {
+    context.put("thelist", Lists.newArrayList("foo", "bar", "blah"));
+    Object val = interpreter.resolveELExpression("thelist[-4]", -1);
+    assertThat(val).isEqualTo(null);
+  }
+
+  @Test
   public void itResolvesDictValWithBracket() {
     Map<String, Object> dict = Maps.newHashMap();
     dict.put("foo", "bar");
