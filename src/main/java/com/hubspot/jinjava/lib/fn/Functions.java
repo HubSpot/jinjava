@@ -58,6 +58,25 @@ public class Functions {
     return Collections.unmodifiableList(Lists.newArrayList(items));
   }
 
+  @JinjavaDoc(value = "return datetime of beginning of the day", params = {
+      @JinjavaParam(value = "timezone", type = "string", defaultValue = "utc", desc = "Optional timezone"),
+  })
+  public static ZonedDateTime today(String... var) {
+
+    ZoneId zoneOffset = ZoneOffset.UTC;
+    if (var.length > 0) {
+      String timezone = var[0];
+      try {
+        zoneOffset = ZoneId.of(timezone);
+      } catch (DateTimeException e) {
+        throw new InvalidDateFormatException(timezone, e);
+      }
+    }
+
+    ZonedDateTime dateTime = getDateTimeArg(null, zoneOffset);
+    return dateTime.toLocalDate().atStartOfDay(zoneOffset);
+  }
+
   @JinjavaDoc(value = "formats a date to a string", params = {
       @JinjavaParam(value = "var", type = "date", defaultValue = "current time"),
       @JinjavaParam(value = "format", defaultValue = StrftimeFormatter.DEFAULT_DATE_FORMAT),
@@ -81,7 +100,6 @@ public class Functions {
     }
 
     ZonedDateTime d = getDateTimeArg(var, zoneOffset);
-
     if (d == null) {
       return "";
     }
