@@ -1,5 +1,7 @@
 # Jinjava Releases #
 
+### 2018-10-23 Version 2.4.11 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.11%7Cjar)) ###
+* [Add function for getting start of day](https://github.com/HubSpot/jinjava/pull/247)
 
 ### 2018-10-19 Version 2.4.10 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.10%7Cjar)) ###
 * [Support negative array indices](https://github.com/HubSpot/jinjava/pull/245)
