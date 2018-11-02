@@ -79,18 +79,19 @@ public class SelectAttrFilter implements AdvancedFilter {
 
       // push temporary variable to be resolved
       String tempValue = generateTempVariable();
-      while (interpreter.getContext().containsKey(tempValue)) {
+      String expression = generateTempVariable(tempValue, attr);
+
+      // ensure this random value hasn't been seen before
+      while (interpreter.getContext().containsKey(tempValue) || interpreter.getContext().getResolvedExpressions().contains(expression)) {
         tempValue = generateTempVariable();
       }
 
       interpreter.getContext().put(tempValue, val);
 
-      String expression = String.format("%s.%s", tempValue, attr).trim();
       Object attrVal = interpreter.resolveELExpression(expression, interpreter.getLineNumber());
 
       // cleanup
       interpreter.getContext().remove(tempValue);
-      interpreter.getContext().getResolvedExpressions().remove(expression);
 
       if (acceptObjects == expTest.evaluate(attrVal, interpreter, expArgs)) {
         result.add(val);
@@ -102,6 +103,10 @@ public class SelectAttrFilter implements AdvancedFilter {
 
   private String generateTempVariable() {
     return "jj_temp_" + Math.abs(ThreadLocalRandom.current().nextInt());
+  }
+
+  private String generateTempVariable(String tempValue, String expression) {
+    return String.format("%s.%s", tempValue, expression).trim();
   }
 
 }
