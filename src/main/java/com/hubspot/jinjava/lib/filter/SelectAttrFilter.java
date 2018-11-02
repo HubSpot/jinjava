@@ -85,8 +85,13 @@ public class SelectAttrFilter implements AdvancedFilter {
 
       interpreter.getContext().put(tempValue, val);
 
-      Object attrVal = interpreter.resolveELExpression(String.format("%s.%s", tempValue, attr), interpreter.getLineNumber());
+      String expression = String.format("%s.%s", tempValue, attr).trim();
+      Object attrVal = interpreter.resolveELExpression(expression, interpreter.getLineNumber());
+
+      // cleanup
       interpreter.getContext().remove(tempValue);
+      interpreter.getContext().getResolvedExpressions().remove(expression);
+
       if (acceptObjects == expTest.evaluate(attrVal, interpreter, expArgs)) {
         result.add(val);
       }
