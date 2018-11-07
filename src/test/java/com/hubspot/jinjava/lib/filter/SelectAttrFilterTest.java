@@ -3,12 +3,10 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 
@@ -20,9 +18,9 @@ public class SelectAttrFilterTest {
   public void setup() {
     jinjava = new Jinjava();
     jinjava.getGlobalContext().put("users", Lists.newArrayList(
-        new User(0, false, "foo@bar.com", new Option(0, "option0"), ImmutableList.of(new Option(0, "option0"))),
-        new User(1, true, "bar@bar.com", new Option(1, "option1"), ImmutableList.of(new Option(1, "option1"))),
-        new User(2, false, null, new Option(2, "option2"), ImmutableList.of(new Option(2, "option2")))));
+        new User(0, false, "foo@bar.com", new Option(0, "option0")),
+        new User(1, true, "bar@bar.com", new Option(1, "option1")),
+        new User(2, false, null, new Option(2, "option2"))));
   }
 
   @Test
@@ -58,30 +56,18 @@ public class SelectAttrFilterTest {
         .isEqualTo("[2]");
   }
 
-  @Test
-  public void selectAttrWithNestedFilter() {
-
-    assertThat(jinjava.render("{{ users|selectattr(\"optionList|map('id')\", 'containing', 1) }}", new HashMap<String, Object>()))
-        .isEqualTo("[1]");
-
-    assertThat(jinjava.render("{{ users|selectattr(\"optionList|map('name')\", 'containing', 'option2') }}", new HashMap<String, Object>()))
-        .isEqualTo("[2]");
-  }
-
 
   public static class User {
     private long num;
     private boolean isActive;
     private String email;
     private Option option;
-    private List<Option> optionList;
 
-    public User(long num, boolean isActive, String email, Option option, List<Option> optionList) {
+    public User(long num, boolean isActive, String email, Option option) {
       this.num = num;
       this.isActive = isActive;
       this.email = email;
       this.option = option;
-      this.optionList = optionList;
     }
 
     public long getNum() {
@@ -98,10 +84,6 @@ public class SelectAttrFilterTest {
 
     public Option getOption() {
       return option;
-    }
-
-    public List<Option> getOptionList() {
-      return optionList;
     }
 
     @Override
