@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -13,7 +14,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
-import com.hubspot.jinjava.util.Variable;
 
 @JinjavaDoc(
     value = "Filters a sequence of objects by applying a test to an attribute of an object and only selecting the ones with the test succeeding.",
@@ -77,7 +77,22 @@ public class SelectAttrFilter implements AdvancedFilter {
     while (loop.hasNext()) {
       Object val = loop.next();
 
-      Object attrVal = new Variable(interpreter, String.format("%s.%s", "placeholder", attr)).resolve(val);
+      // push temporary variable to be resolved
+      String tempValue = generateTempVariable();
+      String expression = generateTempVariable(tempValue, attr);
+
+      // ensure this random value hasn't been seen before
+      while (interpreter.getContext().containsKey(tempValue) || interpreter.getContext().getResolvedExpressions().contains(expression)) {
+        tempValue = generateTempVariable();
+      }
+
+      interpreter.getContext().put(tempValue, val);
+
+      Object attrVal = interpreter.resolveELExpression(expression, interpreter.getLineNumber());
+
+      // cleanup
+      interpreter.getContext().remove(tempValue);
+
       if (acceptObjects == expTest.evaluate(attrVal, interpreter, expArgs)) {
         result.add(val);
       }
@@ -85,4 +100,13 @@ public class SelectAttrFilter implements AdvancedFilter {
 
     return result;
   }
+
+  private String generateTempVariable() {
+    return "jj_temp_" + Math.abs(ThreadLocalRandom.current().nextInt());
+  }
+
+  private String generateTempVariable(String tempValue, String expression) {
+    return String.format("%s.%s", tempValue, expression).trim();
+  }
+
 }
