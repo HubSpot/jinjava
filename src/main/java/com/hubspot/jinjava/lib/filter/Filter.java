@@ -15,11 +15,10 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -53,7 +52,17 @@ public interface Filter extends Importable {
     // We append the named arguments at the end of the positional ones
     Object[] allArgs = ArrayUtils.addAll(args, kwargs.values().toArray());
 
-    List<String> stringArgs = Arrays.stream(allArgs).map(arg -> Objects.toString(arg, null)).collect(Collectors.toList());
-    return filter(var, interpreter, stringArgs.toArray(new String[]{}));
+    List<String> stringArgs = new ArrayList<>();
+
+    for (Object arg : allArgs) {
+      stringArgs.add(arg == null ? null : Objects.toString(arg));
+    }
+
+    String[] filterArgs = new String[stringArgs.size()];
+    for (int i = 0; i < stringArgs.size(); i++) {
+      filterArgs[i] = stringArgs.get(i);
+    }
+
+    return filter(var, interpreter, filterArgs);
   }
 }
