@@ -1,13 +1,12 @@
 package com.hubspot.jinjava.lib.filter;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 
 @JinjavaDoc(
         value = "Return a copy of the value with all occurrences of a matched regular expression replaced with a new one. " +
@@ -40,11 +39,16 @@ public class RegexReplaceFilter implements Filter {
             throw new InterpretException("filter " + getName() + " requires two string args");
         }
 
-        String s = (String) var;
-        String toReplace = args[0];
-        String replaceWith = args[1];
+        if (var instanceof String) {
+            String toReplace = args[0];
+            String replaceWith = args[1];
+            String s = (String) var;
 
-        return s.replaceAll(toReplace, replaceWith);
+            Pattern p = Pattern.compile(toReplace);
+            Matcher matcher = p.matcher(s);
+            return matcher.replaceAll(replaceWith);
+        } else {
+            throw new InterpretException(getName() + " filter requires a string parameter");
+        }
     }
-
 }
