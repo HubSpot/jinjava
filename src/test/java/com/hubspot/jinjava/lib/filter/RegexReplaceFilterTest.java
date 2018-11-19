@@ -30,8 +30,12 @@ public class RegexReplaceFilterTest {
     }
 
     @Test
-    public void replaceString() {
+    public void itMatchesRegexAndReplacesString() {
         assertThat(filter.filter("It costs $300", interpreter, "[^a-zA-Z]", "")).isEqualTo("Itcosts");
     }
 
+    @Test(expected = InterpretException.class)
+    public void isThrowsExceptionOnInvalidRegex() {
+        filter.filter("It costs $300", interpreter, "[", "");
+    }
 }
