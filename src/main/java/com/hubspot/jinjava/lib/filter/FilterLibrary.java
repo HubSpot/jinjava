@@ -95,6 +95,7 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
         TruncateHtmlFilter.class,
         UpperFilter.class,
         ReplaceFilter.class,
+        RegexReplaceFilter.class,
         StringFilter.class,
         SafeFilter.class,
         TitleFilter.class,
