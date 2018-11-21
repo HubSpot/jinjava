@@ -1,5 +1,9 @@
 # Jinjava Releases #
 
+### 2018-11-21 Version 2.4.12 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.12%7Cjar)) ###
+* [Adds regex_replace filter](https://github.com/HubSpot/jinjava/pull/252)
+* [Removes some usage of Java 8 streams to fix a bytecode issue](https://github.com/HubSpot/jinjava/pull/254)
+
 ### 2018-10-23 Version 2.4.11 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.11%7Cjar)) ###
 * [Add function for getting start of day](https://github.com/HubSpot/jinjava/pull/247)
 
