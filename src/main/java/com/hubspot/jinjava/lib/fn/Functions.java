@@ -116,7 +116,7 @@ public class Functions {
     }
   }
 
-  private static ZonedDateTime getDateTimeArg(Object var, ZoneId zoneOffset) {
+  public static ZonedDateTime getDateTimeArg(Object var, ZoneId zoneOffset) {
 
     ZonedDateTime d = null;
 
