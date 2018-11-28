@@ -31,6 +31,6 @@ public class MinusTimeFilter extends BaseDateFilter {
 
   @Override
   public String getName() {
-    return "minus";
+    return "minus_time";
   }
 }

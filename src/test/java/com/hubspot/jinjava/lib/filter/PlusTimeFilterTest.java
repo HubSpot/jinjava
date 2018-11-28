@@ -35,23 +35,23 @@ public class PlusTimeFilterTest {
     long oneMinute = 1543352796000L;
     long oneSecond = 1543352737000L;
     Map<String, Object> vars = ImmutableMap.of("test", ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC));
-    assertThat(jinjava.render("{{ test|plus(1, 'days')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneDay));
-    assertThat(jinjava.render("{{ test|plus(1, 'hours')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneHour));
-    assertThat(jinjava.render("{{ test|plus(1, 'minutes')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneMinute));
-    assertThat(jinjava.render("{{ test|plus(1, 'seconds')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneSecond));
+    assertThat(jinjava.render("{{ test|plus_time(1, 'days')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneDay));
+    assertThat(jinjava.render("{{ test|plus_time(1, 'hours')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneHour));
+    assertThat(jinjava.render("{{ test|plus_time(1, 'minutes')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneMinute));
+    assertThat(jinjava.render("{{ test|plus_time(1, 'seconds')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneSecond));
 
     vars = ImmutableMap.of("test", new PyishDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)));
-    assertThat(jinjava.render("{{ test|plus(1, 'days')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneDay));
+    assertThat(jinjava.render("{{ test|plus_time(1, 'days')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneDay));
 
     vars = ImmutableMap.of("test", timestamp);
-    assertThat(jinjava.render("{{ test|plus(1, 'days')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneDay));
+    assertThat(jinjava.render("{{ test|plus_time(1, 'days')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneDay));
   }
 
   @Test
   public void itErrorsOnInvalidVariableType() {
 
     Map<String, Object> vars = ImmutableMap.of("test", "not a date");
-    RenderResult renderResult = jinjava.renderForResult("{{ test|plus(1, 'days')|unixtimestamp }}", vars);
+    RenderResult renderResult = jinjava.renderForResult("{{ test|plus_time(1, 'days')|unixtimestamp }}", vars);
     assertThat(renderResult.getErrors()).hasSize(1);
   }
 
@@ -61,7 +61,7 @@ public class PlusTimeFilterTest {
     long timestamp = 1543352736000L;
 
     Map<String, Object> vars = ImmutableMap.of("test", ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC));
-    RenderResult renderResult = jinjava.renderForResult("{{ test|plus('not a number', 'days')|unixtimestamp }}", vars);
+    RenderResult renderResult = jinjava.renderForResult("{{ test|plus_time('not a number', 'days')|unixtimestamp }}", vars);
     assertThat(renderResult.getErrors()).hasSize(1);
   }
 
@@ -71,7 +71,7 @@ public class PlusTimeFilterTest {
     long timestamp = 1543352736000L;
 
     Map<String, Object> vars = ImmutableMap.of("test", ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC));
-    RenderResult renderResult = jinjava.renderForResult("{{ test|plus(1, 'parsec')|unixtimestamp }}", vars);
+    RenderResult renderResult = jinjava.renderForResult("{{ test|plus_time(1, 'parsec')|unixtimestamp }}", vars);
     assertThat(renderResult.getErrors()).hasSize(1);
   }
 
@@ -82,7 +82,7 @@ public class PlusTimeFilterTest {
     long timestamp = 1543352736000L;
 
     Map<String, Object> vars = ImmutableMap.of("test", ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC));
-    RenderResult renderResult = jinjava.renderForResult("{{ test|plus(1, 'years')|unixtimestamp }}", vars);
+    RenderResult renderResult = jinjava.renderForResult("{{ test|plus_time(1, 'years')|unixtimestamp }}", vars);
     assertThat(renderResult.getErrors()).hasSize(1);
   }
 

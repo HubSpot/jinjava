@@ -33,17 +33,17 @@ public class BetweenTimesFilterTest {
     Map<String, Object> vars = ImmutableMap.of("begin", ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC),
         "end", ZonedDateTime.ofInstant(Instant.ofEpochMilli(oneDay), ZoneOffset.UTC));
 
-    assertThat(jinjava.render("{{ begin|between(end, 'days') }}", vars)).isEqualTo("1");
-    assertThat(jinjava.render("{{ begin|between(end, 'hours') }}", vars)).isEqualTo("24");
-    assertThat(jinjava.render("{{ begin|between(end, 'minutes') }}", vars)).isEqualTo("1440");
-    assertThat(jinjava.render("{{ begin|between(end, 'seconds') }}", vars)).isEqualTo("86400");
+    assertThat(jinjava.render("{{ begin|between_times(end, 'days') }}", vars)).isEqualTo("1");
+    assertThat(jinjava.render("{{ begin|between_times(end, 'hours') }}", vars)).isEqualTo("24");
+    assertThat(jinjava.render("{{ begin|between_times(end, 'minutes') }}", vars)).isEqualTo("1440");
+    assertThat(jinjava.render("{{ begin|between_times(end, 'seconds') }}", vars)).isEqualTo("86400");
 
     vars = ImmutableMap.of("begin", new PyishDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)),
         "end", new PyishDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(oneDay), ZoneOffset.UTC)));
 
-    assertThat(jinjava.render("{{ begin|between(end, 'days') }}", vars)).isEqualTo("1");
+    assertThat(jinjava.render("{{ begin|between_times(end, 'days') }}", vars)).isEqualTo("1");
 
     vars = ImmutableMap.of("begin", timestamp, "end", oneDay);
-    assertThat(jinjava.render("{{ begin|between(end, 'days') }}", vars)).isEqualTo("1");
+    assertThat(jinjava.render("{{ begin|between_times(end, 'days') }}", vars)).isEqualTo("1");
   }
 }

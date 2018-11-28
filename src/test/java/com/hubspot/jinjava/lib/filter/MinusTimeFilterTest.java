@@ -34,15 +34,15 @@ public class MinusTimeFilterTest {
     long oneMinute = 1543352676000L;
     long oneSecond = 1543352735000L;
     Map<String, Object> vars = ImmutableMap.of("test", ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC));
-    assertThat(jinjava.render("{{ test|minus(1, 'days')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneDay));
-    assertThat(jinjava.render("{{ test|minus(1, 'hours')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneHour));
-    assertThat(jinjava.render("{{ test|minus(1, 'minutes')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneMinute));
-    assertThat(jinjava.render("{{ test|minus(1, 'seconds')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneSecond));
+    assertThat(jinjava.render("{{ test|minus_time(1, 'days')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneDay));
+    assertThat(jinjava.render("{{ test|minus_time(1, 'hours')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneHour));
+    assertThat(jinjava.render("{{ test|minus_time(1, 'minutes')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneMinute));
+    assertThat(jinjava.render("{{ test|minus_time(1, 'seconds')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneSecond));
 
     vars = ImmutableMap.of("test", new PyishDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)));
-    assertThat(jinjava.render("{{ test|minus(1, 'days')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneDay));
+    assertThat(jinjava.render("{{ test|minus_time(1, 'days')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneDay));
 
     vars = ImmutableMap.of("test", timestamp);
-    assertThat(jinjava.render("{{ test|minus(1, 'days')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneDay));
+    assertThat(jinjava.render("{{ test|minus_time(1, 'days')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneDay));
   }
 }
