@@ -53,7 +53,7 @@ public class BetweenTimesFilter implements AdvancedFilter {
       return Functions.getDateTimeArg(var, ZoneOffset.UTC);
     }
   }
-  
+
   @Override
   public String getName() {
     return "between_times";
