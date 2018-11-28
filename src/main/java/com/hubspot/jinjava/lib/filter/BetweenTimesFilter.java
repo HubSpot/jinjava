@@ -5,11 +5,24 @@ import java.time.ZonedDateTime;
 import java.time.temporal.TemporalUnit;
 import java.util.Map;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
+@JinjavaDoc(
+    value = "Calculates the time between two datetime objects",
+    params = {
+        @JinjavaParam(value = "begin", desc = "Datetime object or timestamp at the beginning of the period"),
+        @JinjavaParam(value = "end", desc = "Datetime object or timestamp at the end of the period"),
+        @JinjavaParam(value = "unit", desc = "Which temporal unit to use"),
+    },
+    snippets = {
+        @JinjavaSnippet(code = "{% begin|between_times(end, 'hours') %}"),
+    })
 public class BetweenTimesFilter implements AdvancedFilter {
 
   @Override
