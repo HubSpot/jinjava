@@ -166,15 +166,22 @@ public class Functions {
     }
 
     if (datetimeFormat == null) {
-      throw new InterpretException(String.format("%s() requires non-null datetime format", STRING_TO_TIME_FUNCTION));
+      throw new InterpretException(String.format("%s() requires non-null datetime format",
+          STRING_TO_TIME_FUNCTION));
     }
 
     try {
       return new PyishDate(ZonedDateTime.parse(datetimeString, DateTimeFormatter.ofPattern(datetimeFormat)));
     } catch (DateTimeParseException e) {
-      throw new InterpretException(String.format("%s() could not match datetime input %s with datetime format %s", STRING_TO_TIME_FUNCTION, datetimeString, datetimeFormat));
+      throw new InterpretException(String.format("%s() could not match datetime input %s with datetime format %s",
+          STRING_TO_TIME_FUNCTION,
+          datetimeString,
+          datetimeFormat));
+
     } catch (IllegalArgumentException e) {
-      throw new InterpretException(String.format("%s() requires valid datetime format, was %s", STRING_TO_TIME_FUNCTION, datetimeFormat));
+      throw new InterpretException(String.format("%s() requires valid datetime format, was %s",
+          STRING_TO_TIME_FUNCTION,
+          datetimeFormat));
     }
   }
 

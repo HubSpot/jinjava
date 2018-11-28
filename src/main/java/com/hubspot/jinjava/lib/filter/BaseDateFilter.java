@@ -40,5 +40,4 @@ public abstract class BaseDateFilter implements Filter {
     }
     return unitMap.get(lowercase);
   }
-
 }

@@ -85,5 +85,4 @@ public class PlusTimeFilterTest {
     RenderResult renderResult = jinjava.renderForResult("{{ test|plus_time(1, 'years')|unixtimestamp }}", vars);
     assertThat(renderResult.getErrors()).hasSize(1);
   }
-
 }
