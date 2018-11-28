@@ -19,6 +19,7 @@ public class FunctionLibrary extends SimpleLibrary<ELFunctionDefinition> {
     register(new ELFunctionDefinition("", "range", Functions.class, "range", Object.class, Object[].class));
     register(new ELFunctionDefinition("", "type", TypeFunction.class, "type", Object.class));
     register(new ELFunctionDefinition("", "today", Functions.class, "today", String[].class));
+    register(new ELFunctionDefinition("", "strtotime", Functions.class, Functions.STRING_TO_TIME_FUNCTION, String.class, String.class));
 
     register(new ELFunctionDefinition("", "super", Functions.class, "renderSuperBlock"));
 

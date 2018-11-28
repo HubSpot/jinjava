@@ -8,7 +8,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
-public class PlusFilter extends BaseDateFilter {
+public class MinusTimeFilter extends BaseDateFilter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
@@ -16,14 +16,14 @@ public class PlusFilter extends BaseDateFilter {
     TemporalAmount diff = parseArgs(args);
     if (var instanceof ZonedDateTime) {
       ZonedDateTime dateTime = (ZonedDateTime) var;
-      return new PyishDate(dateTime.plus(diff));
+      return dateTime.minus(diff);
     } else if (var instanceof PyishDate) {
       PyishDate pyishDate = (PyishDate) var;
-      return new PyishDate(pyishDate.toDateTime().plus(diff));
-    } else if (var instanceof Number) {
-      Number timestamp = (Number) var;
+      return new PyishDate(pyishDate.toDateTime().minus(diff));
+    } else if (var instanceof Long) {
+      Long timestamp = (Long) var;
       ZonedDateTime zonedDateTime = Functions.getDateTimeArg(timestamp, ZoneOffset.UTC);
-      return new PyishDate(zonedDateTime.plus(diff));
+      return new PyishDate(zonedDateTime.minus(diff));
     }
 
     return var;
@@ -31,6 +31,6 @@ public class PlusFilter extends BaseDateFilter {
 
   @Override
   public String getName() {
-    return "plus";
+    return "minus";
   }
 }

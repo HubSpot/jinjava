@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
-public class MinusFilterTest {
+public class MinusTimeFilterTest {
 
   Jinjava jinjava;
 

@@ -10,7 +10,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
-public class BetweenFilter implements AdvancedFilter {
+public class BetweenTimesFilter implements AdvancedFilter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
@@ -44,6 +44,6 @@ public class BetweenFilter implements AdvancedFilter {
 
   @Override
   public String getName() {
-    return "between";
+    return "between_times";
   }
 }

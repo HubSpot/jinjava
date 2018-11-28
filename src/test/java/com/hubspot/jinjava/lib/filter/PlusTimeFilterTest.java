@@ -15,7 +15,7 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
-public class PlusFilterTest {
+public class PlusTimeFilterTest {
 
   Jinjava jinjava;
 
