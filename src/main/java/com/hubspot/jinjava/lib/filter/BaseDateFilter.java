@@ -13,7 +13,6 @@ public abstract class BaseDateFilter implements Filter {
   private static final Map<String, ChronoUnit> unitMap = Arrays.stream(ChronoUnit.values())
       .collect(Collectors.toMap(u -> u.toString().toLowerCase(), u -> u));
 
-
   protected long parseDiffAmount(String... args) {
 
     if (args.length < 2) {
@@ -46,6 +45,4 @@ public abstract class BaseDateFilter implements Filter {
     }
     return unitMap.get(lowercase);
   }
-
-
 }

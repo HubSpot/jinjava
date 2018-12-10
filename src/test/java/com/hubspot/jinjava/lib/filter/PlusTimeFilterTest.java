@@ -76,15 +76,4 @@ public class PlusTimeFilterTest {
     RenderResult renderResult = jinjava.renderForResult("{{ test|plus_time(1, 'parsec')|unixtimestamp }}", vars);
     assertThat(renderResult.getErrors()).hasSize(1);
   }
-
-
-  @Test
-  public void itErrorsOnNonExactTemporalUnit() {
-
-    long timestamp = 1543352736000L;
-
-    Map<String, Object> vars = ImmutableMap.of("test", ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC));
-    RenderResult renderResult = jinjava.renderForResult("{{ test|plus_time(1, 'years')|unixtimestamp }}", vars);
-    assertThat(renderResult.getErrors()).hasSize(1);
-  }
 }
