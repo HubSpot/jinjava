@@ -59,6 +59,10 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
         DatetimeFilter.class,
         DateTimeFormatFilter.class,
         UnixTimestampFilter.class,
+        PlusTimeFilter.class,
+        MinusTimeFilter.class,
+        BetweenTimesFilter.class,
+        StringToTimeFilter.class,
 
         AbsFilter.class,
         AddFilter.class,

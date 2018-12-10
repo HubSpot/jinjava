@@ -7,6 +7,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +32,8 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 
 public class Functions {
+
+  public static final String STRING_TO_TIME_FUNCTION = "stringToTime";
 
   public static final int RANGE_LIMIT = 1000;
 
@@ -116,7 +120,7 @@ public class Functions {
     }
   }
 
-  private static ZonedDateTime getDateTimeArg(Object var, ZoneId zoneOffset) {
+  public static ZonedDateTime getDateTimeArg(Object var, ZoneId zoneOffset) {
 
     ZonedDateTime d = null;
 
@@ -149,6 +153,36 @@ public class Functions {
     }
 
     return d.toEpochSecond() * 1000;
+  }
+
+  @JinjavaDoc(value = "converts a string and datetime format into a datetime object", params = {
+      @JinjavaParam(value = "var", type = "datetimeString", defaultValue = "datetime as string"),
+      @JinjavaParam(value = "var", type = "datetimeFormat", defaultValue = "format of the datetime string")
+  })
+  public static PyishDate stringToTime(String datetimeString, String datetimeFormat) {
+
+    if (datetimeString == null) {
+      return null;
+    }
+
+    if (datetimeFormat == null) {
+      throw new InterpretException(String.format("%s() requires non-null datetime format",
+          STRING_TO_TIME_FUNCTION));
+    }
+
+    try {
+      return new PyishDate(ZonedDateTime.parse(datetimeString, DateTimeFormatter.ofPattern(datetimeFormat)));
+    } catch (DateTimeParseException e) {
+      throw new InterpretException(String.format("%s() could not match datetime input %s with datetime format %s",
+          STRING_TO_TIME_FUNCTION,
+          datetimeString,
+          datetimeFormat));
+
+    } catch (IllegalArgumentException e) {
+      throw new InterpretException(String.format("%s() requires valid datetime format, was %s",
+          STRING_TO_TIME_FUNCTION,
+          datetimeFormat));
+    }
   }
 
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
