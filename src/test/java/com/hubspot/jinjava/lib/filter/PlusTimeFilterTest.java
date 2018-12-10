@@ -34,11 +34,13 @@ public class PlusTimeFilterTest {
     long oneHour = 1543356336000L;
     long oneMinute = 1543352796000L;
     long oneSecond = 1543352737000L;
+    long oneMonth = 1545944736000L;
     Map<String, Object> vars = ImmutableMap.of("test", ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC));
     assertThat(jinjava.render("{{ test|plus_time(1, 'days')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneDay));
     assertThat(jinjava.render("{{ test|plus_time(1, 'hours')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneHour));
     assertThat(jinjava.render("{{ test|plus_time(1, 'minutes')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneMinute));
     assertThat(jinjava.render("{{ test|plus_time(1, 'seconds')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneSecond));
+    assertThat(jinjava.render("{{ test|plus_time(1, 'months')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneMonth));
 
     vars = ImmutableMap.of("test", new PyishDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)));
     assertThat(jinjava.render("{{ test|plus_time(1, 'days')|unixtimestamp }}", vars)).isEqualTo(String.valueOf(oneDay));

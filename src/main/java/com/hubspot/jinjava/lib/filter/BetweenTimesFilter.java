@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.filter;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.Map;
 
@@ -13,6 +14,9 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
+/**
+ * {@link ChronoUnit} for valid time units
+ */
 @JinjavaDoc(
     value = "Calculates the time between two datetime objects",
     params = {
