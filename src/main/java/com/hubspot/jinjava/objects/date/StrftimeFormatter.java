@@ -47,7 +47,7 @@ public class StrftimeFormatter {
     CONVERSIONS['y'] = "yy";
     CONVERSIONS['Y'] = "yyyy";
     CONVERSIONS['z'] = "Z";
-    CONVERSIONS['Z'] = "z";
+    CONVERSIONS['Z'] = "ZZZZ";
     CONVERSIONS['%'] = "%";
   }
 
