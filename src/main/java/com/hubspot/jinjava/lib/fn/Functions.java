@@ -171,7 +171,8 @@ public class Functions {
     }
 
     try {
-      return new PyishDate(ZonedDateTime.parse(datetimeString, DateTimeFormatter.ofPattern(datetimeFormat)));
+      String convertedFormat = StrftimeFormatter.toJavaDateTimeFormat(datetimeFormat);
+      return new PyishDate(ZonedDateTime.parse(datetimeString, DateTimeFormatter.ofPattern(convertedFormat)));
     } catch (DateTimeParseException e) {
       throw new InterpretException(String.format("%s() could not match datetime input %s with datetime format %s",
           STRING_TO_TIME_FUNCTION,
