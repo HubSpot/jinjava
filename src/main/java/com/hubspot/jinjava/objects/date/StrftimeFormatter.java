@@ -47,7 +47,7 @@ public class StrftimeFormatter {
     CONVERSIONS['y'] = "yy";
     CONVERSIONS['Y'] = "yyyy";
     CONVERSIONS['z'] = "Z";
-    CONVERSIONS['Z'] = "ZZZ";
+    CONVERSIONS['Z'] = "ZZZZ";
     CONVERSIONS['%'] = "%";
   }
 
@@ -57,7 +57,7 @@ public class StrftimeFormatter {
    * @param strftime
    * @return date formatted as string
    */
-  private static String toJavaDateTimeFormat(String strftime) {
+  public static String toJavaDateTimeFormat(String strftime) {
     if (!StringUtils.contains(strftime, '%')) {
       return replaceL(strftime);
     }

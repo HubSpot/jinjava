@@ -83,4 +83,9 @@ public class StrftimeFormatterTest {
         .startsWith("6. marraskuuta 2013 klo 14.22.00");
   }
 
+  @Test
+  public void testZoneOutput() {
+    assertThat(StrftimeFormatter.format(d, "%z")).isEqualTo("+0000");
+    assertThat(StrftimeFormatter.format(d, "%Z")).isEqualTo("GMT");
+  }
 }
