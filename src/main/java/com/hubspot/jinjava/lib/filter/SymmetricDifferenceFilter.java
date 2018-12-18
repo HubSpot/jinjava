@@ -6,10 +6,23 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
+@JinjavaDoc(
+    value = "Returns a list containing elements present in only one list.",
+    params = {
+        @JinjavaParam(value = "value", type = "sequence", desc = "The first list"),
+        @JinjavaParam(value = "list", type = "sequence", desc = "The second list")
+    },
+    snippets = {
+        @JinjavaSnippet(
+            code = "{{ [1, 2, 3]|symmetric_difference([2, 3, 4]) }}")
+    })
 public class SymmetricDifferenceFilter implements AdvancedFilter {
 
   @Override
