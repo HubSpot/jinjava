@@ -54,7 +54,6 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
         ShuffleFilter.class,
         SortFilter.class,
         SplitFilter.class,
-        UniqueFilter.class,
 
         DatetimeFilter.class,
         DateTimeFormatFilter.class,
@@ -63,6 +62,12 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
         MinusTimeFilter.class,
         BetweenTimesFilter.class,
         StringToTimeFilter.class,
+
+        UnionFilter.class,
+        IntersectFilter.class,
+        DifferenceFilter.class,
+        SymmetricDifferenceFilter.class,
+        UniqueFilter.class,
 
         AbsFilter.class,
         AddFilter.class,
