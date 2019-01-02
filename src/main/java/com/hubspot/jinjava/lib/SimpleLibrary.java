@@ -26,8 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.interpret.DisabledException;
@@ -35,7 +33,7 @@ import com.hubspot.jinjava.interpret.DisabledException;
 public abstract class SimpleLibrary<T extends Importable> {
 
   private Map<String, T> lib = new HashMap<>();
-  private Set<String> disabled = new HashSet<String>();
+  private Set<String> disabled = new HashSet<>();
 
   protected SimpleLibrary(boolean registerDefaults) {
     this(registerDefaults, null);

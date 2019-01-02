@@ -17,8 +17,7 @@ public class TypeFunctionTest {
   private JinjavaInterpreter interpreter;
 
   @Before
-  public void setup() throws NoSuchMethodException {
-
+  public void setup() {
     interpreter = new Jinjava().newInterpreter();
   }
 
@@ -53,7 +52,7 @@ public class TypeFunctionTest {
   }
 
   @Test
-  public void testDict() throws Exception {
+  public void testDict() {
     assertThat(TypeFunction.type(new HashMap<>())).isEqualTo("dict");
   }
 

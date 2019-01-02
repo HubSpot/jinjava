@@ -71,7 +71,7 @@ public class CallTag implements Tag {
       MacroFunction caller = new MacroFunction(tagNode.getChildren(), "caller", args, false, false, true, interpreter.getContext());
       interpreter.getContext().addGlobalMacro(caller);
 
-      return interpreter.render(macroExpr);
+      return interpreter.getContext().isValidationMode() ? "" : interpreter.render(macroExpr);
     }
   }
 

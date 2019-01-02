@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,54 +33,61 @@ public class IfTagTest {
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
+    jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
     context = interpreter.getContext();
+    JinjavaInterpreter.pushCurrent(interpreter);
+  }
+
+  @After
+  public void tearDown() {
+    JinjavaInterpreter.popCurrent();
   }
 
   @Test
-  public void itEvaluatesChildrenWhenExpressionIsTrue() throws Exception {
+  public void itEvaluatesChildrenWhenExpressionIsTrue() {
     context.put("foo", "bar");
     TagNode n = fixture("if");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("ifblock");
   }
 
   @Test
-  public void itDoesntEvalChildrenWhenExprIsFalse() throws Exception {
+  public void itDoesntEvalChildrenWhenExprIsFalse() {
     context.put("foo", null);
     TagNode n = fixture("if");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("");
   }
 
   @Test
-  public void itTreatsNotFoundPropsAsNull() throws Exception {
+  public void itTreatsNotFoundPropsAsNull() {
     context.put("settings", new Object());
     TagNode n = fixture("if-non-existent-prop");
     assertThat(tag.interpret(n, interpreter).trim()).isEmpty();
   }
 
   @Test
-  public void itEvalsIfNotElseWhenExpIsTrue() throws Exception {
+  public void itEvalsIfNotElseWhenExpIsTrue() {
     context.put("foo", "bar");
     TagNode n = fixture("if-else");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("ifblock");
   }
 
   @Test
-  public void itEvalsElseNotIfWhenExpIsFalse() throws Exception {
+  public void itEvalsElseNotIfWhenExpIsFalse() {
     context.put("foo", "");
     TagNode n = fixture("if-else");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("elseblock");
   }
 
   @Test
-  public void itEvalsOnlyIfInElifTreeWhenExpIsTrue() throws Exception {
+  public void itEvalsOnlyIfInElifTreeWhenExpIsTrue() {
     context.put("foo", "bar");
     TagNode n = fixture("if-elif-else");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("ifblock");
   }
 
   @Test
-  public void itEvalsOnlyElifInTreeWhenExp2IsTrue() throws Exception {
+  public void itEvalsOnlyElifInTreeWhenExp2IsTrue() {
     context.put("foo", "");
     context.put("bar", "val");
     TagNode n = fixture("if-elif-else");
@@ -87,7 +95,7 @@ public class IfTagTest {
   }
 
   @Test
-  public void itEvalsOnlyElseInTreeWhenExpsAllFalse() throws Exception {
+  public void itEvalsOnlyElseInTreeWhenExpsAllFalse() {
     context.put("foo", "");
     context.put("bar", "");
     TagNode n = fixture("if-elif-else");
@@ -95,7 +103,7 @@ public class IfTagTest {
   }
 
   @Test
-  public void itEvalsSecondElifInTreeWhenExp3IsTrue() throws Exception {
+  public void itEvalsSecondElifInTreeWhenExp3IsTrue() {
     context.put("foo", "");
     context.put("bar", "");
     context.put("elf", "true");
@@ -104,7 +112,7 @@ public class IfTagTest {
   }
 
   @Test
-  public void itEvalsExprWithFilter() throws Exception {
+  public void itEvalsExprWithFilter() {
     context.put("items", Lists.newArrayList("foo", "bar"));
     TagNode n = fixture("if-expr-filter");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("ifblock");

@@ -49,6 +49,15 @@ public class Context extends ScopeMap<String, Object> {
   private final SetMultimap<String, String> dependencies = HashMultimap.create();
   private Map<Library, Set<String>> disabled;
 
+  public boolean isValidationMode() {
+    return validationMode;
+  }
+
+  public Context setValidationMode(boolean validationMode) {
+    this.validationMode = validationMode;
+    return this;
+  }
+
   public enum Library {
     EXP_TEST,
     FILTER,
@@ -78,6 +87,8 @@ public class Context extends ScopeMap<String, Object> {
   private List<? extends Node> superBlock;
 
   private final Stack<String> renderStack = new Stack<>();
+
+  private boolean validationMode = false;
 
   public Context() {
     this(null, null, null);

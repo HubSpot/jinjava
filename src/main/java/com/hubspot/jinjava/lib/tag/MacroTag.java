@@ -19,7 +19,7 @@ import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.TagNode;
 
 @JinjavaDoc(
-    value = "HubL macros allow you to print multiple statements with a dynamic value or values",
+    value = "Macros allow you to print multiple statements with a dynamic value or values",
     params = {
         @JinjavaParam(value = "macro_name", desc = "The name given to a macro"),
         @JinjavaParam(value = "argument_names", desc = "Named arguments that are dynamically, when the macro is run")
@@ -49,7 +49,7 @@ public class MacroTag implements Tag {
 
   private static final long serialVersionUID = 8397609322126956077L;
 
-  private static final Pattern MACRO_PATTERN = Pattern.compile("([a-zA-Z_][\\w_]*)[^\\(]*\\(([^\\)]*)\\)");
+  private static final Pattern MACRO_PATTERN = Pattern.compile("([a-zA-Z_][\\w_]*)[^(]*\\(([^)]*)\\)");
   private static final Splitter ARGS_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
   @Override

@@ -69,7 +69,7 @@ public class SetTag implements Tag {
 
     int eqPos = tagNode.getHelpers().indexOf('=');
     String var = tagNode.getHelpers().substring(0, eqPos).trim();
-    String expr = tagNode.getHelpers().substring(eqPos + 1, tagNode.getHelpers().length());
+    String expr = tagNode.getHelpers().substring(eqPos + 1);
 
     if (var.length() == 0) {
       throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' requires a var name to assign to", tagNode.getLineNumber(), tagNode.getStartPosition());
@@ -92,14 +92,17 @@ public class SetTag implements Tag {
       for (int i = 0; i < varTokens.length; i++) {
         String varItem = varTokens[i].trim();
         Object val = exprVals.get(i);
-        interpreter.getContext().put(varItem, val);
+        if (!interpreter.getContext().isValidationMode()) {
+          interpreter.getContext().put(varItem, val);
+        }
       }
 
     } else {
       // handle single variable assignment
       Object val = interpreter.resolveELExpression(expr, tagNode.getLineNumber());
-      interpreter.getContext().put(var, val);
-
+      if (!interpreter.getContext().isValidationMode()) {
+        interpreter.getContext().put(var, val);
+      }
     }
 
     return "";

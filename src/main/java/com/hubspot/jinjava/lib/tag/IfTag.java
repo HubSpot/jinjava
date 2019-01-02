@@ -37,13 +37,13 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
                 "{% endif %}"),
         @JinjavaSnippet(
             code = "{% if number <= 2 %}\n" +
-                "Varible named number is less than or equal to 2.\n" +
+                "Variable named number is less than or equal to 2.\n" +
                 "{% elif number <= 4 %}\n" +
-                "Varible named number is less than or equal to 4.\n" +
+                "Variable named number is less than or equal to 4.\n" +
                 "{% elif number <= 6 %}\n" +
-                "Varible named number is less than or equal to 6.\n" +
+                "Variable named number is less than or equal to 6.\n" +
                 "{% else %}\n" +
-                "Varible named number is greater than 6.\n" +
+                "Variable named number is greater than 6.\n" +
                 "{% endif %}")
     })
 public class IfTag implements Tag {
@@ -58,46 +58,51 @@ public class IfTag implements Tag {
       throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'if' expects expression", tagNode.getLineNumber(), tagNode.getStartPosition());
     }
 
-    Iterator<Node> nodeIterator = tagNode.getChildren().iterator();
-    TagNode nextIfElseTagNode = tagNode;
-
-    while (nextIfElseTagNode != null && !evaluateIfElseTagNode(nextIfElseTagNode, interpreter)) {
-      nextIfElseTagNode = findNextIfElseTagNode(nodeIterator);
-    }
-
     LengthLimitingStringBuilder sb = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
-    if (nextIfElseTagNode != null) {
+
+    Iterator<Node> nodeIterator = tagNode.getChildren().iterator();
+
+    boolean parentValidationMode = interpreter.getContext().isValidationMode();
+
+    boolean execute = isPositiveIfElseNode(tagNode, interpreter);
+    boolean executedAnyBlock = false;
+
+    try {
+
       while (nodeIterator.hasNext()) {
-        Node n = nodeIterator.next();
-        if (n.getName().equals(ElseIfTag.ELSEIF) || n.getName().equals(ElseTag.ELSE)) {
-          break;
+
+        executedAnyBlock = executedAnyBlock || execute;
+        if (interpreter.isValidationMode() && !parentValidationMode) {
+          interpreter.getContext().setValidationMode(!execute);
         }
-        sb.append(n.render(interpreter));
+
+        Node node = nodeIterator.next();
+        if (TagNode.class.isAssignableFrom(node.getClass())) {
+          TagNode tag = (TagNode) node;
+          if (tag.getName().equals(ElseIfTag.ELSEIF)) {
+            execute = isPositiveIfElseNode(tag, interpreter);
+            continue;
+          } else if (tag.getName().equals(ElseTag.ELSE)) {
+            execute = !executedAnyBlock;
+            continue;
+          }
+        }
+
+        if (execute) {
+          sb.append(node.render(interpreter));
+        } else if (interpreter.getContext().isValidationMode()) {
+          node.render(interpreter);
+        }
       }
+
+    } finally {
+      interpreter.getContext().setValidationMode(parentValidationMode);
     }
 
     return sb.toString();
   }
 
-  private TagNode findNextIfElseTagNode(Iterator<Node> nodeIterator) {
-    while (nodeIterator.hasNext()) {
-      Node node = nodeIterator.next();
-      if (TagNode.class.isAssignableFrom(node.getClass())) {
-        TagNode tag = (TagNode) node;
-        if (tag.getName().equals(ElseIfTag.ELSEIF) || tag.getName().equals(ElseTag.ELSE)) {
-          return tag;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  protected boolean evaluateIfElseTagNode(TagNode tagNode, JinjavaInterpreter interpreter) {
-    if (tagNode.getName().equals(ElseTag.ELSE)) {
-      return true;
-    }
-
+  protected boolean isPositiveIfElseNode(TagNode tagNode, JinjavaInterpreter interpreter) {
     return ObjectTruthValue.evaluate(interpreter.resolveELExpression(tagNode.getHelpers(), tagNode.getLineNumber()));
   }
 

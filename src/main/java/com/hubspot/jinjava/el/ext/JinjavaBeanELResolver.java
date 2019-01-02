@@ -67,6 +67,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     if (method == null || RESTRICTED_METHODS.contains(method.toString())) {
       throw new MethodNotFoundException("Cannot find method '" + method + "' in " + base.getClass());
     }
+
     Object result = super.invoke(context, base, method, paramTypes, params);
 
     if (result instanceof Class) {
