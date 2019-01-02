@@ -28,7 +28,7 @@ public class PrintTag implements Tag {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     String result = Objects.toString(interpreter.resolveELExpression(tagNode.getHelpers(), tagNode.getLineNumber()), "");
-    return interpreter.getContext().isValidationMode() ? result : "";
+    return interpreter.getContext().isValidationMode() ? "" : result;
   }
 
   @Override
