@@ -43,6 +43,7 @@ public class RangeFunctionTest {
   @Test
   public void itTruncatesHugeRanges() {
     assertThat(Functions.range(2, 200000000).size()).isEqualTo(Functions.RANGE_LIMIT);
+    assertThat(Functions.range(2, Long.MAX_VALUE).size()).isEqualTo(Functions.RANGE_LIMIT);
   }
 
 }

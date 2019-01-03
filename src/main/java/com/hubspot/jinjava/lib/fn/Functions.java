@@ -259,21 +259,21 @@ public class Functions {
 
     List<Integer> result = new ArrayList<>();
 
-    int start = 0;
-    int end;
+    long start = 0;
+    long end;
     int step = 1;
 
     switch (args.length) {
       case 0:
-        end = NumberUtils.toInt(arg1.toString());
+        end = NumberUtils.toLong(arg1.toString());
         break;
       case 1:
-        start = NumberUtils.toInt(arg1.toString());
-        end = NumberUtils.toInt(args[0].toString());
+        start = NumberUtils.toLong(arg1.toString());
+        end = NumberUtils.toLong(args[0].toString());
         break;
       default:
-        start = NumberUtils.toInt(arg1.toString());
-        end = NumberUtils.toInt(args[0].toString());
+        start = NumberUtils.toLong(arg1.toString());
+        end = NumberUtils.toLong(args[0].toString());
         step = NumberUtils.toInt(args[1].toString(), 1);
     }
 
@@ -287,11 +287,11 @@ public class Functions {
         return result;
       }
 
-      for (int i = start; i < end; i += step) {
+      for (long i = start; i < end; i += step) {
         if (result.size() >= RANGE_LIMIT) {
           break;
         }
-        result.add(i);
+        result.add(((Long) i).intValue());
       }
     } else {
 
@@ -299,11 +299,11 @@ public class Functions {
         return result;
       }
 
-      for (int i = start; i > end; i += step) {
+      for (long i = start; i > end; i += step) {
         if (result.size() >= RANGE_LIMIT) {
           break;
         }
-        result.add(i);
+        result.add(((Long) i).intValue());
       }
     }
 
