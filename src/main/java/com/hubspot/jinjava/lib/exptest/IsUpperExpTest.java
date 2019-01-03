@@ -24,7 +24,7 @@ public class IsUpperExpTest implements ExpTest {
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter,
       Object... args) {
-    if (var == null || !(var instanceof String)) {
+    if (!(var instanceof String)) {
       return false;
     }
 

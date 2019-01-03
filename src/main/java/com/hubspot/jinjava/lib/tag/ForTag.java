@@ -40,11 +40,10 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 /**
  * {% for a in b|f1:d,c %}
- *
+ * <p>
  * {% for key, value in my_dict.items() %}
  *
  * @author anysome
- *
  */
 @JinjavaDoc(
     value = "Outputs the inner content for each item in the given iterable",
@@ -97,8 +96,8 @@ public class ForTag implements Tag {
      */
     String helpers = tagNode.getHelpers();
     String parts[] = helpers.split("\\s+in\\s+");
-    if (2==parts.length && !parts[1].contains("'") && !parts[1].contains("\"") ) {
-        helpers = parts[0] + " in " + parts[1].replace(" ", "");
+    if (parts.length == 2 && !parts[1].contains("'") && !parts[1].contains("\"")) {
+      helpers = parts[0] + " in " + parts[1].replace(" ", "");
     }
     List<String> helper = new HelperStringTokenizer(helpers).splitComma(true).allTokens();
 
@@ -116,7 +115,10 @@ public class ForTag implements Tag {
     }
 
     if (inPos >= helper.size()) {
-      throw new TemplateSyntaxException(tagNode.getHelpers().trim(), "Tag 'for' expects valid 'in' clause, got: " + tagNode.getHelpers(), tagNode.getLineNumber(), tagNode.getStartPosition());
+      throw new TemplateSyntaxException(tagNode.getHelpers().trim(),
+          "Tag 'for' expects valid 'in' clause, got: " + tagNode.getHelpers(),
+          tagNode.getLineNumber(),
+          tagNode.getStartPosition());
     }
 
     String loopExpr = StringUtils.join(helper.subList(inPos + 1, helper.size()), ",");
@@ -124,6 +126,12 @@ public class ForTag implements Tag {
     ForLoop loop = ObjectIterator.getLoop(collection);
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
+
+      if (loop.getLength() == 0 && interpreter.isValidationMode()) {
+        loop = ObjectIterator.getLoop(0);
+        interpreter.getContext().setValidationMode(true);
+      }
+
       interpreter.getContext().put(LOOP, loop);
 
       LengthLimitingStringBuilder buff = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
@@ -163,13 +171,16 @@ public class ForTag implements Tag {
         }
 
         for (Node node : tagNode.getChildren()) {
-          buff.append(node.render(interpreter));
+          if (interpreter.getContext().isValidationMode()) {
+            node.render(interpreter);
+          } else {
+            buff.append(node.render(interpreter));
+          }
         }
       }
 
       return buff.toString();
     }
-
   }
 
   @Override

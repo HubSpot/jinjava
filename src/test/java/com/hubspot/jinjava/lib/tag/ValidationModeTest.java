@@ -73,6 +73,73 @@ public class ValidationModeTest {
   }
 
   @Test
+  public void itResolvesAllForExpressionsInValidationMode() {
+
+    interpreter.setValidationMode(true);
+
+    interpreter.render(
+        "{{ badCode( }}" +
+            "{% for i in [1, 2, 3] %}" +
+            "  {{ badCode( }}" +
+            "{% endfor %}");
+
+    assertThat(interpreter.getErrors().size()).isEqualTo(4);
+  }
+
+  @Test
+  public void itResolvesNestedForExpressionsInValidationMode() {
+
+    interpreter.setValidationMode(true);
+
+    String output = interpreter.render(
+        "{{ badCode( }}" +
+            "{% for i in [] %}" +
+            "  outer loop" +
+            "  {% for i in [1, 2, 3] %}" +
+            "    inner loop  {{ badCode( }}" +
+            "  {% endfor %}" +
+            "{% endfor %}" +
+            "done"
+    );
+
+    assertThat(interpreter.getErrors().size()).isEqualTo(4);
+    assertThat(output.trim()).isEqualTo("done");
+  }
+
+  @Test
+  public void itResolvesZeroLoopForExpressionsInValidationMode() {
+
+    interpreter.setValidationMode(true);
+
+    String output = interpreter.render(
+        "{{ badCode( }}" +
+            "{% for i in [] %}" +
+            "in loop {{ badCode( }}" +
+            "{% endfor %}" +
+            "hi");
+
+    assertThat(interpreter.getErrors().size()).isEqualTo(2);
+    assertThat(output.trim()).isEqualTo("hi");
+  }
+
+  @Test
+  public void itResolvesZeroLoopTupleForExpressionsInValidationMode() {
+
+    interpreter.setValidationMode(true);
+
+    String output = interpreter.render(
+        "{{ badCode( }}" +
+            "{% set map = {} %}" +
+            "{% for a, b in map.items() %}" +
+            "in loop {{ badCode( }}" +
+            "{% endfor %}" +
+            "hi");
+
+    assertThat(interpreter.getErrors().size()).isEqualTo(2);
+    assertThat(output.trim()).isEqualTo("hi");
+  }
+
+  @Test
   public void itDoesNotSetValuesInValidatedBlocks() {
 
     interpreter.setValidationMode(true);
