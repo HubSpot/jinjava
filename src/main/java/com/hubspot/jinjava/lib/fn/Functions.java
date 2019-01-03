@@ -259,21 +259,27 @@ public class Functions {
 
     List<Integer> result = new ArrayList<>();
 
-    long start = 0;
-    long end;
+    int start = 0;
+    int end = 0;
     int step = 1;
 
     switch (args.length) {
       case 0:
-        end = NumberUtils.toLong(arg1.toString());
+        if (NumberUtils.isNumber(arg1.toString())) {
+          end = NumberUtils.toInt(arg1.toString(), RANGE_LIMIT);
+        }
         break;
       case 1:
-        start = NumberUtils.toLong(arg1.toString());
-        end = NumberUtils.toLong(args[0].toString());
+        start = NumberUtils.toInt(arg1.toString());
+        if (NumberUtils.isNumber(args[0].toString())) {
+          end = NumberUtils.toInt(args[0].toString(), start + RANGE_LIMIT);
+        }
         break;
       default:
-        start = NumberUtils.toLong(arg1.toString());
-        end = NumberUtils.toLong(args[0].toString());
+        start = NumberUtils.toInt(arg1.toString());
+        if (NumberUtils.isNumber(args[0].toString())) {
+          end = NumberUtils.toInt(args[0].toString(), start + RANGE_LIMIT);
+        }
         step = NumberUtils.toInt(args[1].toString(), 1);
     }
 
@@ -287,11 +293,11 @@ public class Functions {
         return result;
       }
 
-      for (long i = start; i < end; i += step) {
+      for (int i = start; i < end; i += step) {
         if (result.size() >= RANGE_LIMIT) {
           break;
         }
-        result.add(((Long) i).intValue());
+        result.add(i);
       }
     } else {
 
@@ -299,11 +305,11 @@ public class Functions {
         return result;
       }
 
-      for (long i = start; i > end; i += step) {
+      for (int i = start; i > end; i += step) {
         if (result.size() >= RANGE_LIMIT) {
           break;
         }
-        result.add(((Long) i).intValue());
+        result.add(i);
       }
     }
 
