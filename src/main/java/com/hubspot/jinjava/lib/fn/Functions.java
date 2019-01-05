@@ -260,20 +260,26 @@ public class Functions {
     List<Integer> result = new ArrayList<>();
 
     int start = 0;
-    int end;
+    int end = 0;
     int step = 1;
 
     switch (args.length) {
       case 0:
-        end = NumberUtils.toInt(arg1.toString());
+        if (NumberUtils.isNumber(arg1.toString())) {
+          end = NumberUtils.toInt(arg1.toString(), RANGE_LIMIT);
+        }
         break;
       case 1:
         start = NumberUtils.toInt(arg1.toString());
-        end = NumberUtils.toInt(args[0].toString());
+        if (NumberUtils.isNumber(args[0].toString())) {
+          end = NumberUtils.toInt(args[0].toString(), start + RANGE_LIMIT);
+        }
         break;
       default:
         start = NumberUtils.toInt(arg1.toString());
-        end = NumberUtils.toInt(args[0].toString());
+        if (NumberUtils.isNumber(args[0].toString())) {
+          end = NumberUtils.toInt(args[0].toString(), start + RANGE_LIMIT);
+        }
         step = NumberUtils.toInt(args[1].toString(), 1);
     }
 
