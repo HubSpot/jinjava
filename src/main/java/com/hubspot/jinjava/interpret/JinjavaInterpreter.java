@@ -67,7 +67,6 @@ public class JinjavaInterpreter {
   private final ExpressionResolver expressionResolver;
   private final Jinjava application;
   private final Random random;
-  private boolean validationMode = false;
 
   private int lineNumber = -1;
   private int position = 0;
@@ -149,12 +148,7 @@ public class JinjavaInterpreter {
   }
 
   public boolean isValidationMode() {
-    return validationMode;
-  }
-
-  public JinjavaInterpreter setValidationMode(boolean validationMode) {
-    this.validationMode = validationMode;
-    return this;
+    return config.isValidationMode();
   }
 
   public class InterpreterScopeClosable implements AutoCloseable {
