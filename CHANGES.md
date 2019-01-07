@@ -1,5 +1,13 @@
 # Jinjava Releases #
 
+### 2019-01-17 Version 2.4.13 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.13%7Cjar)) ###
+* [Add support for expressions in selectattr and rejectattr](https://github.com/HubSpot/jinjava/pull/249)
+* [Add filters for datetime arithmetic](https://github.com/HubSpot/jinjava/pull/258)
+* [Add conversion to Java datetime format for strtotime](https://github.com/HubSpot/jinjava/pull/260)
+* [Add set theory filters such as union, intersect and difference](https://github.com/HubSpot/jinjava/pull/262)
+* [Add validation mode for extended syntax checking](https://github.com/HubSpot/jinjava/pull/264)
+* [Better handling for out of range values in ranage function](https://github.com/HubSpot/jinjava/pull/265)
+
 ### 2018-11-21 Version 2.4.12 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.12%7Cjar)) ###
 * [Adds regex_replace filter](https://github.com/HubSpot/jinjava/pull/252)
 * [Removes some usage of Java 8 streams to fix a bytecode issue](https://github.com/HubSpot/jinjava/pull/254)
