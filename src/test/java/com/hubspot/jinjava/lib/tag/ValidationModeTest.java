@@ -14,6 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.filter.Filter;
@@ -27,15 +28,55 @@ import com.hubspot.jinjava.tree.parse.TextToken;
 public class ValidationModeTest {
 
   JinjavaInterpreter interpreter;
+  JinjavaInterpreter validatingInterpreter;
 
   Jinjava jinjava;
   private Context context;
 
+  ValidationFilter validationFilter;
+
+  class ValidationFilter implements Filter {
+
+    private int executionCount = 0;
+
+    @Override
+    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+      executionCount++;
+      return var;
+    }
+
+    public int getExecutionCount() {
+      return executionCount;
+    }
+
+    @Override
+    public String getName() {
+      return "validation_filter";
+    }
+  }
+
+  private static int functionExecutionCount = 0;
+
+  public static int validationTestFunction() {
+    return ++functionExecutionCount;
+  }
+
+
   @Before
   public void setup() {
+
+    validationFilter = new ValidationFilter();
+
+    ELFunctionDefinition validationFunction = new ELFunctionDefinition("", "validation_test", ValidationModeTest.class, "validationTestFunction");
+
     jinjava = new Jinjava();
+    jinjava.getGlobalContext().registerFilter(validationFilter);
+    jinjava.getGlobalContext().registerFunction(validationFunction);
     interpreter = jinjava.newInterpreter();
     context = interpreter.getContext();
+
+    validatingInterpreter = new JinjavaInterpreter(jinjava, context, JinjavaConfig.newBuilder().withValidationMode(true).build());
+
     JinjavaInterpreter.pushCurrent(interpreter);
   }
 
@@ -47,51 +88,43 @@ public class ValidationModeTest {
   @Test
   public void itResolvesAllIfExpressionsInValidationMode() {
 
-    interpreter.setValidationMode(true);
-
-    interpreter.render(
+    validatingInterpreter.render(
         "{{ badCode( }}" +
             "{% if false %}" +
             "  {{ badCode( }}" +
             "{% endif %}");
 
-    assertThat(interpreter.getErrors().size()).isEqualTo(2);
+    assertThat(validatingInterpreter.getErrors().size()).isEqualTo(2);
   }
 
   @Test
   public void itResolvesAllUnlessExpressionsInValidationMode() {
 
-    interpreter.setValidationMode(true);
-
-    interpreter.render(
+    validatingInterpreter.render(
         "{{ badCode( }}" +
             "{% unless false %}" +
             "  {{ badCode( }}" +
             "{% endunless %}");
 
-    assertThat(interpreter.getErrors().size()).isEqualTo(2);
+    assertThat(validatingInterpreter.getErrors().size()).isEqualTo(2);
   }
 
   @Test
   public void itResolvesAllForExpressionsInValidationMode() {
 
-    interpreter.setValidationMode(true);
-
-    interpreter.render(
+    validatingInterpreter.render(
         "{{ badCode( }}" +
             "{% for i in [1, 2, 3] %}" +
             "  {{ badCode( }}" +
             "{% endfor %}");
 
-    assertThat(interpreter.getErrors().size()).isEqualTo(4);
+    assertThat(validatingInterpreter.getErrors().size()).isEqualTo(4);
   }
 
   @Test
   public void itResolvesNestedForExpressionsInValidationMode() {
 
-    interpreter.setValidationMode(true);
-
-    String output = interpreter.render(
+    String output = validatingInterpreter.render(
         "{{ badCode( }}" +
             "{% for i in [] %}" +
             "  outer loop" +
@@ -102,32 +135,28 @@ public class ValidationModeTest {
             "done"
     );
 
-    assertThat(interpreter.getErrors().size()).isEqualTo(4);
+    assertThat(validatingInterpreter.getErrors().size()).isEqualTo(4);
     assertThat(output.trim()).isEqualTo("done");
   }
 
   @Test
   public void itResolvesZeroLoopForExpressionsInValidationMode() {
 
-    interpreter.setValidationMode(true);
-
-    String output = interpreter.render(
+    String output = validatingInterpreter.render(
         "{{ badCode( }}" +
             "{% for i in [] %}" +
             "in loop {{ badCode( }}" +
             "{% endfor %}" +
             "hi");
 
-    assertThat(interpreter.getErrors().size()).isEqualTo(2);
+    assertThat(validatingInterpreter.getErrors().size()).isEqualTo(2);
     assertThat(output.trim()).isEqualTo("hi");
   }
 
   @Test
   public void itResolvesZeroLoopTupleForExpressionsInValidationMode() {
 
-    interpreter.setValidationMode(true);
-
-    String output = interpreter.render(
+    String output = validatingInterpreter.render(
         "{{ badCode( }}" +
             "{% set map = {} %}" +
             "{% for a, b in map.items() %}" +
@@ -135,16 +164,14 @@ public class ValidationModeTest {
             "{% endfor %}" +
             "hi");
 
-    assertThat(interpreter.getErrors().size()).isEqualTo(2);
+    assertThat(validatingInterpreter.getErrors().size()).isEqualTo(2);
     assertThat(output.trim()).isEqualTo("hi");
   }
 
   @Test
   public void itDoesNotSetValuesInValidatedBlocks() {
 
-    interpreter.setValidationMode(true);
-
-    String output = interpreter.render(
+    String output = validatingInterpreter.render(
         "{% set foo = \"orig value\" %}" +
             "{% if false %}" +
             "  {% set foo = \"in false block\" %}" +
@@ -152,15 +179,13 @@ public class ValidationModeTest {
             "{{ foo }}");
 
     assertThat(output.trim()).isEqualTo("orig value");
-    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(validatingInterpreter.getErrors()).isEmpty();
   }
 
   @Test
   public void itDoesNotSetValuesInNestedValidatedBlocks() {
 
-    interpreter.setValidationMode(true);
-
-    String output = interpreter.render(
+    String output = validatingInterpreter.render(
         "{% set foo = \"orig value\" %}" +
             "{% if false %}" +
             " {% if true %}" +
@@ -170,15 +195,13 @@ public class ValidationModeTest {
             "{{ foo }}");
 
     assertThat(output.trim()).isEqualTo("orig value");
-    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(validatingInterpreter.getErrors()).isEmpty();
   }
 
   @Test
   public void itDoesNotPrintValuesInNestedValidatedBlocks() {
 
-    interpreter.setValidationMode(true);
-
-    String output = interpreter.render(
+    String output = validatingInterpreter.render(
         "hi " +
             "{% if false %}" +
             " hidey " +
@@ -189,7 +212,7 @@ public class ValidationModeTest {
             "there");
 
     assertThat(output.trim()).isEqualTo("hi there");
-    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(validatingInterpreter.getErrors()).isEmpty();
   }
 
   private class InstrumentedMacroFunction extends MacroFunction {
@@ -234,30 +257,15 @@ public class ValidationModeTest {
     assertThat(interpreter.render(template).trim()).isEqualTo("hello");
     assertThat(macro.getInvocationCount()).isEqualTo(1);
 
-    interpreter.setValidationMode(true);
-
-    assertThat(interpreter.render(template).trim()).isEqualTo("hello");
+    assertThat(validatingInterpreter.render(template).trim()).isEqualTo("hello");
     assertThat(macro.getInvocationCount()).isEqualTo(3);
-    assertThat(interpreter.getErrors()).isEmpty();
-  }
-
-  private static int functionExecutionCount = 0;
-
-  public static int validationTestFunction() {
-    return ++functionExecutionCount;
+    assertThat(validatingInterpreter.getErrors()).isEmpty();
   }
 
   @Test
   public void itDoesNotExecuteFunctionsInValidatedBlocks() {
 
     functionExecutionCount = 0;
-
-    ELFunctionDefinition func = new ELFunctionDefinition("", "validation_test", ValidationModeTest.class, "validationTestFunction");
-
-    Jinjava jinjava = new Jinjava();
-    jinjava.getGlobalContext().registerFunction(func);
-    JinjavaInterpreter interpreter = jinjava.newInterpreter();
-    JinjavaInterpreter.pushCurrent(interpreter);
 
     assertThat(functionExecutionCount).isEqualTo(0);
 
@@ -273,48 +281,21 @@ public class ValidationModeTest {
     assertThat(result).isEqualTo("1");
     assertThat(functionExecutionCount).isEqualTo(1);
 
-    interpreter.setValidationMode(true);
-    result = interpreter.render(template);
+    result = validatingInterpreter.render(template);
 
-    assertThat(interpreter.getErrors().size()).isEqualTo(1);
-    assertThat(interpreter.getErrors().get(0).getMessage()).contains("hey(");
+    assertThat(validatingInterpreter.getErrors().size()).isEqualTo(1);
+    assertThat(validatingInterpreter.getErrors().get(0).getMessage()).contains("hey(");
     assertThat(result).isEqualTo("2");
     assertThat(functionExecutionCount).isEqualTo(2);
-  }
-
-  class ValidationFilter implements Filter {
-
-    private int executionCount = 0;
-
-    @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-      executionCount++;
-      return var;
-    }
-
-    public int getExecutionCount() {
-      return executionCount;
-    }
-
-    @Override
-    public String getName() {
-      return "validation_filter";
-    }
   }
 
   @Test
   public void itDoesNotExecuteFiltersInValidatedBlocks() {
 
-    ValidationFilter validationFilter = new ValidationFilter();
-    Jinjava jinjava = new Jinjava();
-    jinjava.getGlobalContext().registerFilter(validationFilter);
-    JinjavaInterpreter interpreter = jinjava.newInterpreter();
-    JinjavaInterpreter.pushCurrent(interpreter);
-
     assertThat(validationFilter.getExecutionCount()).isEqualTo(0);
 
     String template =
-        "  {{ 10|validation_filter() }}" +
+        "{{ 10|validation_filter() }}" +
             "{% if false %}" +
             "  {{ 10|validation_filter() }}" +
             "  {{ hey( }}" +
@@ -325,11 +306,11 @@ public class ValidationModeTest {
     assertThat(result).isEqualTo("10");
     assertThat(validationFilter.getExecutionCount()).isEqualTo(1);
 
-    interpreter.setValidationMode(true);
-    result = interpreter.render(template).trim();
+    JinjavaInterpreter.pushCurrent(validatingInterpreter);
+    result = validatingInterpreter.render(template).trim();
 
-    assertThat(interpreter.getErrors().size()).isEqualTo(1);
-    assertThat(interpreter.getErrors().get(0).getMessage()).contains("hey(");
+    assertThat(validatingInterpreter.getErrors().size()).isEqualTo(1);
+    assertThat(validatingInterpreter.getErrors().get(0).getMessage()).contains("hey(");
     assertThat(result).isEqualTo("10");
     assertThat(validationFilter.getExecutionCount()).isEqualTo(2);
   }

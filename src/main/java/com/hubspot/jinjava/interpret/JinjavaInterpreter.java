@@ -149,12 +149,7 @@ public class JinjavaInterpreter {
   }
 
   public boolean isValidationMode() {
-    return validationMode;
-  }
-
-  public JinjavaInterpreter setValidationMode(boolean validationMode) {
-    this.validationMode = validationMode;
-    return this;
+    return config.isValidationMode();
   }
 
   public class InterpreterScopeClosable implements AutoCloseable {
