@@ -67,7 +67,6 @@ public class JinjavaInterpreter {
   private final ExpressionResolver expressionResolver;
   private final Jinjava application;
   private final Random random;
-  private boolean validationMode = false;
 
   private int lineNumber = -1;
   private int position = 0;
