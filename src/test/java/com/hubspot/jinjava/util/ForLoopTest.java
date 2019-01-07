@@ -53,8 +53,8 @@ public class ForLoopTest {
   private ForLoop loop;
 
   @Before
-  public void setUp() throws Exception {
-    ArrayList<Object> al = new ArrayList<Object>();
+  public void setUp() {
+    ArrayList<Object> al = new ArrayList<>();
     al.add("String");
     al.add("true1");
     al.add(Boolean.TRUE);

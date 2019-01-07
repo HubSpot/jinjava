@@ -10,7 +10,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 
 @JinjavaDoc(
-    value = "Process all inner HubL as plain text",
+    value = "Process all inner expressions as plain text",
     snippets = {
         @JinjavaSnippet(
             code = "{% raw %}\n" +
@@ -33,6 +33,11 @@ public class RawTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+
+    if (interpreter.getContext().isValidationMode()) {
+      return "";
+    }
+
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
 
     for (Node n : tagNode.getChildren()) {

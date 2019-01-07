@@ -35,12 +35,12 @@ public class UnlessTag extends IfTag {
   }
 
   @Override
-  protected boolean evaluateIfElseTagNode(TagNode tagNode, JinjavaInterpreter interpreter) {
+  protected boolean isPositiveIfElseNode(TagNode tagNode, JinjavaInterpreter interpreter) {
     if (tagNode.getName().equals("unless")) {
       return !ObjectTruthValue.evaluate(interpreter.resolveELExpression(tagNode.getHelpers(), tagNode.getLineNumber()));
     }
 
-    return super.evaluateIfElseTagNode(tagNode, interpreter);
+    return super.isPositiveIfElseNode(tagNode, interpreter);
   }
 
 }

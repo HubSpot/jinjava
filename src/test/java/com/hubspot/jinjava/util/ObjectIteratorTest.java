@@ -70,7 +70,7 @@ public class ObjectIteratorTest {
 
   @Test
   public void test6() {
-    List<String> items = new ArrayList<String>();
+    List<String> items = new ArrayList<>();
     items.add("hello");
     items.add("world");
     items.add("jinjava");
@@ -82,7 +82,7 @@ public class ObjectIteratorTest {
 
   @Test
   public void test7() {
-    Map<Object, Object> items = new HashMap<Object, Object>();
+    Map<Object, Object> items = new HashMap<>();
     items.put("ok", 1);
     items.put(1, "ok");
     items.put(2, 2);

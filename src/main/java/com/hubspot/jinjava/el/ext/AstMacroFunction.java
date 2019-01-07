@@ -65,7 +65,7 @@ public class AstMacroFunction extends AstFunction {
       }
     }
 
-    return super.eval(bindings, context);
+    return interpreter.getContext().isValidationMode() ? "" : super.eval(bindings, context);
   }
 
 }

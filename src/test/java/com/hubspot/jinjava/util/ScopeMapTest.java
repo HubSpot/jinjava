@@ -23,7 +23,7 @@ public class ScopeMapTest {
 
   @Test
   public void noParent() {
-    ScopeMap<String, String> map = new ScopeMap<String, String>();
+    ScopeMap<String, String> map = new ScopeMap<>();
     map.put("a", "v");
     assertThat(map).contains(entry("a", "v"));
     assertThat(map).containsKeys("a");
@@ -33,8 +33,8 @@ public class ScopeMapTest {
   @Test
   public void withParent() {
     ScopeMap<String, String> map = new ScopeMap<String, String>(
-        new ScopeMap<String, String>(
-            new ScopeMap<String, String>(null, a), b), c);
+        new ScopeMap<>(
+            new ScopeMap<>(null, a), b), c);
 
     assertThat(map.get("a1")).isEqualTo("vc1");
     assertThat(map.get("a2")).isEqualTo("vb2");
