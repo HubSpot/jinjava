@@ -63,22 +63,6 @@ public class MacroTagTest {
   }
 
   @Test
-  public void testSimpleConditionalFn() {
-    TagNode t = fixture("simple-conditional");
-    assertThat(t.render(interpreter).getValue()).isEmpty();
-
-    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.getPath", -1, -1);
-    assertThat(fn.getName()).isEqualTo("getPath");
-    assertThat(fn.getArguments()).isEmpty();
-    assertThat(fn.isCaller()).isFalse();
-    assertThat(fn.isCatchKwargs()).isFalse();
-    assertThat(fn.isCatchVarargs()).isFalse();
-
-    context.put("myname", "jared");
-    assertThat(snippet("{{ getPath() }}").render(interpreter).getValue().trim()).isEqualTo("one");
-  }
-
-  @Test
   public void testFnWithArgs() {
     TagNode t = fixture("with-args");
     assertThat(t.render(interpreter).getValue()).isEmpty();
