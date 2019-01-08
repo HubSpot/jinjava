@@ -1,6 +1,9 @@
 # Jinjava Releases #
 
-### 2019-01-17 Version 2.4.13 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.13%7Cjar)) ###
+### 2019-01-08 Version 2.4.14 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.14%7Cjar)) ###
+* [Critical fix for elif statements](https://github.com/HubSpot/jinjava/pull/268)
+
+### 2019-01-07 Version 2.4.13 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.13%7Cjar)) ###
 * [Add support for expressions in selectattr and rejectattr](https://github.com/HubSpot/jinjava/pull/249)
 * [Add filters for datetime arithmetic](https://github.com/HubSpot/jinjava/pull/258)
 * [Add conversion to Java datetime format for strtotime](https://github.com/HubSpot/jinjava/pull/260)
