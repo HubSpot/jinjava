@@ -80,7 +80,7 @@ public class IfTag implements Tag {
         if (TagNode.class.isAssignableFrom(node.getClass())) {
           TagNode tag = (TagNode) node;
           if (tag.getName().equals(ElseIfTag.ELSEIF)) {
-            execute = isPositiveIfElseNode(tag, interpreter);
+            execute = !executedAnyBlock && isPositiveIfElseNode(tag, interpreter);
             continue;
           } else if (tag.getName().equals(ElseTag.ELSE)) {
             execute = !executedAnyBlock;
