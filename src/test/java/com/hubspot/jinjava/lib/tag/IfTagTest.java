@@ -87,6 +87,13 @@ public class IfTagTest {
   }
 
   @Test
+  public void itEvalsOnlyIfInElifTreeWhenBothAreTrue() {
+    context.put("foo", "bar");
+    TagNode n = fixture("if-true-elif-true");
+    assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("one");
+  }
+
+  @Test
   public void itEvalsOnlyElifInTreeWhenExp2IsTrue() {
     context.put("foo", "");
     context.put("bar", "val");
