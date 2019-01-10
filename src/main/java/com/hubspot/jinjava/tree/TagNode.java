@@ -19,6 +19,7 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.output.OutputNode;
+import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 
 public class TagNode extends Node {
@@ -47,6 +48,11 @@ public class TagNode extends Node {
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
+
+    if (interpreter.getContext().isValidationMode() && !tag.isRenderedInValidationMode()) {
+      return new RenderedOutputNode("");
+    }
+
     try {
       return tag.interpretOutput(this, interpreter);
     } catch (InterpretException e) {

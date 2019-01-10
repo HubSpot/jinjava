@@ -34,6 +34,11 @@ public class AutoEscapeTag implements Tag {
   }
 
   @Override
+  public boolean isRenderedInValidationMode() {
+    return true;
+  }
+
+  @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       String boolFlagStr = StringUtils.trim(tagNode.getHelpers());

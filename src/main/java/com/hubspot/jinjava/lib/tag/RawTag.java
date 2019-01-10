@@ -34,10 +34,6 @@ public class RawTag implements Tag {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
 
-    if (interpreter.getContext().isValidationMode()) {
-      return "";
-    }
-
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
 
     for (Node n : tagNode.getChildren()) {

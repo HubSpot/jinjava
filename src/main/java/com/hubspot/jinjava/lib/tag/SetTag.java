@@ -91,18 +91,12 @@ public class SetTag implements Tag {
 
       for (int i = 0; i < varTokens.length; i++) {
         String varItem = varTokens[i].trim();
-        Object val = exprVals.get(i);
-        if (!interpreter.getContext().isValidationMode()) {
-          interpreter.getContext().put(varItem, val);
-        }
+        interpreter.getContext().put(varItem, exprVals.get(i));
       }
 
     } else {
       // handle single variable assignment
-      Object val = interpreter.resolveELExpression(expr, tagNode.getLineNumber());
-      if (!interpreter.getContext().isValidationMode()) {
-        interpreter.getContext().put(var, val);
-      }
+      interpreter.getContext().put(var, interpreter.resolveELExpression(expr, tagNode.getLineNumber()));
     }
 
     return "";
