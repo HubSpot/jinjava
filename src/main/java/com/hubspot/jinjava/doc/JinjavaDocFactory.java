@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Throwables;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.doc.annotations.JinjavaMetaValue;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -79,7 +78,7 @@ public class JinjavaDocFactory {
           try {
             realMethod = (Method) realMethod.getDeclaringClass().getField("delegate").get(null);
           } catch (Exception e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
           }
         }
 

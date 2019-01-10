@@ -22,7 +22,8 @@ public abstract class AbstractCallableMethod {
     try {
       EVAL_METHOD = AbstractCallableMethod.class.getMethod("evaluate", Object[].class);
     } catch (Exception e) {
-      throw Throwables.propagate(e);
+      Throwables.throwIfUnchecked(e);
+      throw new RuntimeException(e);
     }
   }
 

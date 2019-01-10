@@ -12,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
@@ -131,7 +130,7 @@ public class IfTagTest {
           Resources.getResource(String.format("tags/iftag/%s.jinja", name)), StandardCharsets.UTF_8))
           .buildTree().getChildren().getFirst();
     } catch (IOException e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 

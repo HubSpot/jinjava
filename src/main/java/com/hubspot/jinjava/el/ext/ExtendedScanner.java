@@ -4,8 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import com.google.common.base.Throwables;
-
 import de.odysseus.el.tree.impl.Scanner;
 
 public class ExtendedScanner extends Scanner {
@@ -57,7 +55,7 @@ public class ExtendedScanner extends Scanner {
       POSITION_FIELD = Scanner.class.getDeclaredField("position");
       POSITION_FIELD.setAccessible(true);
     } catch (NoSuchFieldException | SecurityException | NoSuchMethodException e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -65,7 +63,7 @@ public class ExtendedScanner extends Scanner {
     try {
       ADD_KEY_TOKEN_METHOD.invoke(null, token);
     } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -73,7 +71,7 @@ public class ExtendedScanner extends Scanner {
     try {
       TOKEN_FIELD.set(this, token);
     } catch (IllegalArgumentException | IllegalAccessException e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -82,7 +80,7 @@ public class ExtendedScanner extends Scanner {
     try {
       POSITION_FIELD.set(this, getPosition() + n);
     } catch (IllegalArgumentException | IllegalAccessException e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 
