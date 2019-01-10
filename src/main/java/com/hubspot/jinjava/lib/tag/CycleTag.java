@@ -50,6 +50,11 @@ public class CycleTag implements Tag {
   private static final String LOOP_INDEX = "loop.index0";
   private static final String TAGNAME = "cycle";
 
+  @Override
+  public boolean isRenderedInValidationMode() {
+    return true;
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {

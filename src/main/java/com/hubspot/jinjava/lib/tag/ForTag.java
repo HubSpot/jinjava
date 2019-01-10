@@ -78,6 +78,11 @@ public class ForTag implements Tag {
   private static final String TAGNAME = "for";
   private static final String ENDTAGNAME = "endfor";
 
+  @Override
+  public boolean isRenderedInValidationMode() {
+    return true;
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {

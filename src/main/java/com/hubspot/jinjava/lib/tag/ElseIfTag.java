@@ -11,6 +11,11 @@ public class ElseIfTag implements Tag {
   static final String ELSEIF = "elif";
 
   @Override
+  public boolean isRenderedInValidationMode() {
+    return true;
+  }
+
+  @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     return "";
   }

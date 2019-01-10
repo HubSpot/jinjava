@@ -32,8 +32,12 @@ public interface Tag extends Importable, Serializable {
   String interpret(TagNode tagNode, JinjavaInterpreter interpreter);
 
   /**
-   * @return Get name of end tag lowerCase Null if it's a single tag without content.
+   * @return Get name of end tag (lowerCase). Null if it's a single tag without content.
    */
   String getEndTagName();
+
+  default boolean isRenderedInValidationMode() {
+    return false;
+  }
 
 }

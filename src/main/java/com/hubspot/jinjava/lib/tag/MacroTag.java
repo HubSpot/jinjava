@@ -63,6 +63,11 @@ public class MacroTag implements Tag {
   }
 
   @Override
+  public boolean isRenderedInValidationMode() {
+    return true;
+  }
+
+  @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     Matcher matcher = MACRO_PATTERN.matcher(tagNode.getHelpers());
     if (!matcher.find()) {

@@ -26,6 +26,11 @@ public class ElseTag implements Tag {
   static final String ELSE = "else";
 
   @Override
+  public boolean isRenderedInValidationMode() {
+    return true;
+  }
+
+  @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     return "";
   }

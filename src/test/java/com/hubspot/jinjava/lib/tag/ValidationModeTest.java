@@ -61,7 +61,6 @@ public class ValidationModeTest {
     return ++functionExecutionCount;
   }
 
-
   @Before
   public void setup() {
 

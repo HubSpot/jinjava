@@ -53,6 +53,11 @@ public class IfTag implements Tag {
   private static final String ENDTAGNAME = "endif";
 
   @Override
+  public boolean isRenderedInValidationMode() {
+    return true;
+  }
+
+  @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     if (StringUtils.isBlank(tagNode.getHelpers())) {
       throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'if' expects expression", tagNode.getLineNumber(), tagNode.getStartPosition());
