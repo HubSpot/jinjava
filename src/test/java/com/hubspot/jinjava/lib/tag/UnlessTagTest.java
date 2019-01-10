@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
@@ -51,7 +50,7 @@ public class UnlessTagTest {
           Resources.getResource(String.format("tags/iftag/%s.jinja", name)), StandardCharsets.UTF_8))
           .buildTree().getChildren().getFirst();
     } catch (IOException e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 

@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -92,7 +91,7 @@ public class TreeParserTest {
       return new TreeParser(interpreter, Resources.toString(
           Resources.getResource(fixture), StandardCharsets.UTF_8)).buildTree();
     } catch (Exception e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 

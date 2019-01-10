@@ -11,7 +11,6 @@ import org.jsoup.select.Elements;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
@@ -68,7 +67,7 @@ public class BatchFilterTest {
     try {
       return jinjava.render(Resources.toString(Resources.getResource(String.format("filter/%s.jinja", template)), StandardCharsets.UTF_8), context);
     } catch (Exception e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 

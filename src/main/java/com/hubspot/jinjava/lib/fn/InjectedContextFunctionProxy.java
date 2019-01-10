@@ -5,14 +5,14 @@ import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import com.google.common.base.Throwables;
+
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.bytecode.AccessFlag;
-
-import com.google.common.base.Throwables;
 
 public class InjectedContextFunctionProxy {
 
@@ -69,7 +69,8 @@ public class InjectedContextFunctionProxy {
       return new ELFunctionDefinition(namespace, name, staticMethod);
     } catch (Throwable e) {
       ENGINE_LOG.error("Error creating injected context function", e);
-      throw Throwables.propagate(e);
+      Throwables.throwIfUnchecked(e);
+      throw new RuntimeException(e);
     }
   }
 

@@ -71,7 +71,8 @@ public abstract class SimpleLibrary<T extends Importable> {
 
       return instances;
     } catch (Exception e) {
-      throw Throwables.propagate(e);
+      Throwables.throwIfUnchecked(e);
+      throw new RuntimeException(e);
     }
   }
 

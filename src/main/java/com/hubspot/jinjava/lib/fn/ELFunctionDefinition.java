@@ -23,7 +23,8 @@ public class ELFunctionDefinition implements Importable {
       m.setAccessible(true);
       return m;
     } catch (Exception e) {
-      throw Throwables.propagate(e);
+      Throwables.throwIfUnchecked(e);
+      throw new RuntimeException(e);
     }
   }
 
