@@ -1,15 +1,14 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
-import com.google.common.base.Joiner;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.util.ForLoop;
+import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
@@ -39,7 +38,8 @@ public class JoinFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    List<String> vals = new ArrayList<>();
+
+    LengthLimitingStringBuilder stringBuilder = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxStringLength());
 
     String separator = "";
     if (args.length > 0) {
@@ -52,6 +52,7 @@ public class JoinFilter implements Filter {
     }
 
     ForLoop loop = ObjectIterator.getLoop(var);
+    boolean first = true;
     while (loop.hasNext()) {
       Object val = loop.next();
 
@@ -59,10 +60,19 @@ public class JoinFilter implements Filter {
         val = interpreter.resolveProperty(val, attr);
       }
 
-      vals.add(Objects.toString(val, ""));
+      try {
+        if (!first) {
+          stringBuilder.append(separator);
+        } else {
+          first = false;
+        }
+        stringBuilder.append(Objects.toString(val, ""));
+      } catch (OutputTooBigException ex) {
+        return stringBuilder.toString();
+      }
     }
 
-    return Joiner.on(separator).join(vals);
+    return stringBuilder.toString();
   }
 
 }
