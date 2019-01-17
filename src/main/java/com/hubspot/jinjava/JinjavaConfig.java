@@ -54,11 +54,11 @@ public class JinjavaConfig {
   }
 
   public JinjavaConfig() {
-    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, Long.MAX_VALUE);
+    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, 0);
   }
 
   public JinjavaConfig(Charset charset, Locale locale, ZoneId timeZone, int maxRenderDepth) {
-    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, Long.MAX_VALUE);
+    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, 0);
   }
 
   private JinjavaConfig(Charset charset,
@@ -170,7 +170,7 @@ public class JinjavaConfig {
     private boolean nestedInterpretationEnabled = true;
     private RandomNumberGeneratorStrategy randomNumberGeneratorStrategy = RandomNumberGeneratorStrategy.THREAD_LOCAL;
     private boolean validationMode = false;
-    private long maxStringLength = Long.MAX_VALUE;
+    private long maxStringLength = 0;
 
     private Builder() {}
 
