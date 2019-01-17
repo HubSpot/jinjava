@@ -74,7 +74,7 @@ public class JoinFilter implements Filter {
       } catch (OutputTooBigException ex) {
         interpreter.addError(new TemplateError(ErrorType.WARNING,
             ErrorReason.OTHER,
-            ErrorItem.OTHER,
+            ErrorItem.FILTER,
             String.format("Result of %s filter has been truncuated to the max String length of %d", getName(), interpreter.getConfig().getMaxStringLength()),
             null,
             interpreter.getLineNumber(),
