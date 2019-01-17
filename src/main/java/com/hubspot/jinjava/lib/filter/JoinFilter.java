@@ -7,6 +7,10 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
+import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.ObjectIterator;
@@ -68,6 +72,15 @@ public class JoinFilter implements Filter {
         }
         stringBuilder.append(Objects.toString(val, ""));
       } catch (OutputTooBigException ex) {
+        interpreter.addError(new TemplateError(ErrorType.WARNING,
+            ErrorReason.OTHER,
+            ErrorItem.OTHER,
+            String.format("Result of %s filter has been truncuated to the max String length of %d", getName(), interpreter.getConfig().getMaxStringLength()),
+            null,
+            interpreter.getLineNumber(),
+            interpreter.getPosition(),
+            ex));
+
         return stringBuilder.toString();
       }
     }

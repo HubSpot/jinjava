@@ -10,6 +10,7 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.RenderResult;
 
 public class JoinFilterTest {
 
@@ -39,7 +40,9 @@ public class JoinFilterTest {
         .withMaxStringLength(5)
         .build());
 
-    assertThat(jinjava.render("{{ [1, 2, 3, 4, 5]|join('|') }}", new HashMap<String, Object>())).isEqualTo("1|2|3");
+    RenderResult result = jinjava.renderForResult("{{ [1, 2, 3, 4, 5]|join('|') }}", new HashMap<String, Object>());
+    assertThat(result.getOutput()).isEqualTo("1|2|3");
+    assertThat(result.getErrors().size()).isEqualTo(1);
   }
 
   public static class User {
