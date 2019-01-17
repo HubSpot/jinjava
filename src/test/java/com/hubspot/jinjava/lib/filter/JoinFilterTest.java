@@ -35,7 +35,7 @@ public class JoinFilterTest {
   }
 
   @Test
-  public void itLimitsString() {
+  public void itTruncatesStringToConfigLimit() {
     jinjava = new Jinjava(JinjavaConfig.newBuilder()
         .withMaxStringLength(5)
         .build());
@@ -43,6 +43,7 @@ public class JoinFilterTest {
     RenderResult result = jinjava.renderForResult("{{ [1, 2, 3, 4, 5]|join('|') }}", new HashMap<String, Object>());
     assertThat(result.getOutput()).isEqualTo("1|2|3");
     assertThat(result.getErrors().size()).isEqualTo(1);
+    assertThat(result.getErrors().get(0).getMessage()).contains("filter has been truncated to the max String length");
   }
 
   public static class User {
