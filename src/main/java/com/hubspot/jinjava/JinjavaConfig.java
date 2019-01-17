@@ -47,17 +47,18 @@ public class JinjavaConfig {
   private final boolean nestedInterpretationEnabled;
   private final RandomNumberGeneratorStrategy randomNumberGenerator;
   private final boolean validationMode;
+  private final long maxStringLength;
 
   public static Builder newBuilder() {
     return new Builder();
   }
 
   public JinjavaConfig() {
-    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false);
+    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, 0);
   }
 
   public JinjavaConfig(Charset charset, Locale locale, ZoneId timeZone, int maxRenderDepth) {
-    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false);
+    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, 0);
   }
 
   private JinjavaConfig(Charset charset,
@@ -73,7 +74,8 @@ public class JinjavaConfig {
                         long maxOutputSize,
                         boolean nestedInterpretationEnabled,
                         RandomNumberGeneratorStrategy randomNumberGenerator,
-                        boolean validationMode) {
+                        boolean validationMode,
+                        long maxStringLength) {
     this.charset = charset;
     this.locale = locale;
     this.timeZone = timeZone;
@@ -88,6 +90,7 @@ public class JinjavaConfig {
     this.nestedInterpretationEnabled = nestedInterpretationEnabled;
     this.randomNumberGenerator = randomNumberGenerator;
     this.validationMode = validationMode;
+    this.maxStringLength = maxStringLength;
   }
 
   public Charset getCharset() {
@@ -146,6 +149,10 @@ public class JinjavaConfig {
     return validationMode;
   }
 
+  public long getMaxStringLength() {
+    return maxStringLength;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -163,6 +170,7 @@ public class JinjavaConfig {
     private boolean nestedInterpretationEnabled = true;
     private RandomNumberGeneratorStrategy randomNumberGeneratorStrategy = RandomNumberGeneratorStrategy.THREAD_LOCAL;
     private boolean validationMode = false;
+    private long maxStringLength = 0;
 
     private Builder() {}
 
@@ -237,8 +245,27 @@ public class JinjavaConfig {
       return this;
     }
 
+    public Builder withMaxStringLength(long maxStringLength) {
+      this.maxStringLength = maxStringLength;
+      return this;
+    }
+
     public JinjavaConfig build() {
-      return new JinjavaConfig(charset, locale, timeZone, maxRenderDepth, disabled, trimBlocks, lstripBlocks, readOnlyResolver, enableRecursiveMacroCalls, failOnUnknownTokens, maxOutputSize, nestedInterpretationEnabled, randomNumberGeneratorStrategy, validationMode);
+      return new JinjavaConfig(charset,
+          locale,
+          timeZone,
+          maxRenderDepth,
+          disabled,
+          trimBlocks,
+          lstripBlocks,
+          readOnlyResolver,
+          enableRecursiveMacroCalls,
+          failOnUnknownTokens,
+          maxOutputSize,
+          nestedInterpretationEnabled,
+          randomNumberGeneratorStrategy,
+          validationMode,
+          maxStringLength);
     }
 
   }
