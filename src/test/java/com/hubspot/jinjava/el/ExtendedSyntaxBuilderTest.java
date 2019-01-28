@@ -274,6 +274,8 @@ public class ExtendedSyntaxBuilderTest {
     assertThat(val("stringToSplit.split('-')")).isEqualTo(new String[]{ "one", "two", "three", "four", "five" });
 
     assertThat(val("stringToSplit.split('-')[-1]")).isEqualTo("five");
+    assertThat(val("stringToSplit.split('-')[1.5]")).isEqualTo("");
+    assertThat(val("stringToSplit.split('-')[-1.5]")).isEqualTo("");
 
     // out of range returns null, as -6 + the length of the array is still
     // negative, and java doesn't support negative array indices.
