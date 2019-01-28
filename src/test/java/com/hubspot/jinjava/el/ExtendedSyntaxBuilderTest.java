@@ -265,6 +265,25 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
+  public void arrayWithNegativeIndeces() {
+    String stringToSplit = "one-two-three-four-five";
+    context.put("stringToSplit", stringToSplit);
+
+    // Negative index handling on lists happens elsewhere, so make sure we're
+    // dealing with an array of Strings.
+    assertThat(val("stringToSplit.split('-')")).isEqualTo(new String[]{ "one", "two", "three", "four", "five" });
+
+    assertThat(val("stringToSplit.split('-')[-1]")).isEqualTo("five");
+
+    // out of range returns null, as -6 + the length of the array is still
+    // negative, and java doesn't support negative array indeces.
+    assertThat(val("stringToSplit.split('-')[-6]")).isEqualTo(null);
+
+    assertThat(val("stringToSplit.split('-')[0:2]")).isEqualTo(Lists.newArrayList("one", "two"));
+    assertThat(val("stringToSplit.split('-')[0:-2]")).isEqualTo(Lists.newArrayList("one", "two", "three"));
+  }
+
+  @Test
   public void invalidNestedAssignmentExpr() {
     assertThat(val("content.template_path = 'Custom/Email/Responsive/testing.html'")).isEqualTo("");
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
