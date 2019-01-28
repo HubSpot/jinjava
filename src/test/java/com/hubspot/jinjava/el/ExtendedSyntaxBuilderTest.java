@@ -235,7 +235,7 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
-  public void listRangeSyntaxNegativeIndeces() {
+  public void listRangeSyntaxNegativeIndices() {
     List<?> theList = Lists.newArrayList(1, 2, 3, 4, 5);
     context.put("mylist", theList);
 
@@ -265,7 +265,7 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
-  public void arrayWithNegativeIndeces() {
+  public void arrayWithNegativeIndices() {
     String stringToSplit = "one-two-three-four-five";
     context.put("stringToSplit", stringToSplit);
 
@@ -276,7 +276,7 @@ public class ExtendedSyntaxBuilderTest {
     assertThat(val("stringToSplit.split('-')[-1]")).isEqualTo("five");
 
     // out of range returns null, as -6 + the length of the array is still
-    // negative, and java doesn't support negative array indeces.
+    // negative, and java doesn't support negative array indices.
     assertThat(val("stringToSplit.split('-')[-6]")).isEqualTo(null);
 
     assertThat(val("stringToSplit.split('-')[0:2]")).isEqualTo(Lists.newArrayList("one", "two"));
