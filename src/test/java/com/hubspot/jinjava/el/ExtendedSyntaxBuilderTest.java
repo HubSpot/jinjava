@@ -235,6 +235,36 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
+  public void listRangeSyntaxNegativeIndeces() {
+    List<?> theList = Lists.newArrayList(1, 2, 3, 4, 5);
+    context.put("mylist", theList);
+
+    // assorted valid negative starts and ends
+    assertThat(val("mylist[0:-1]")).isEqualTo(Lists.newArrayList(1, 2, 3, 4));
+    assertThat(val("mylist[0:-2]")).isEqualTo(Lists.newArrayList(1, 2, 3));
+    assertThat(val("mylist[-3:-1]")).isEqualTo(Lists.newArrayList(3, 4));
+    assertThat(val("mylist[-5:-4]")).isEqualTo(Lists.newArrayList(1));
+
+    // same start and end -- negative
+    assertThat(val("mylist[-3:-3]")).isEqualTo(Lists.newArrayList());
+
+    // negative start, positive end
+    assertThat(val("mylist[-3:5]")).isEqualTo(Lists.newArrayList(3, 4, 5));
+
+    // positive start, negative end
+    assertThat(val("mylist[2:-2]")).isEqualTo(Lists.newArrayList(3));
+
+    // 6 is out of range, but this is what python does
+    assertThat(val("mylist[-3:6]")).isEqualTo(Lists.newArrayList(3, 4, 5));
+
+    // -6 is out of range, but this is what python does
+    assertThat(val("mylist[-6:3]")).isEqualTo(Lists.newArrayList(1, 2, 3));
+
+    // start after end
+    assertThat(val("mylist[-2:-3]")).isEqualTo(Lists.newArrayList());
+  }
+
+  @Test
   public void invalidNestedAssignmentExpr() {
     assertThat(val("content.template_path = 'Custom/Email/Responsive/testing.html'")).isEqualTo("");
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();

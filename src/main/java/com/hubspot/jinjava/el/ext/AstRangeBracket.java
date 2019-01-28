@@ -9,8 +9,8 @@ import javax.el.ELContext;
 import javax.el.ELException;
 import javax.el.PropertyNotFoundException;
 
+import com.google.common.collect.Iterables;
 import com.hubspot.jinjava.objects.collections.PyList;
-
 import de.odysseus.el.misc.LocalMessages;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBracket;
@@ -71,6 +71,17 @@ public class AstRangeBracket extends AstBracket {
 
     PyList result = new PyList(new ArrayList<>());
     int index = 0;
+
+    // Handle negative indeces.
+    if ((startNum < 0) || (endNum < 0)) {
+       int size = Iterables.size(baseItr);
+       if (startNum < 0) {
+          startNum += size;
+       }
+       if (endNum < 0) {
+          endNum += size;
+       }
+    }
 
     Iterator<?> baseIterator = baseItr.iterator();
     while (baseIterator.hasNext()) {
