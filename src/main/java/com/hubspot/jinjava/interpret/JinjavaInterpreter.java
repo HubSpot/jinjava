@@ -45,6 +45,8 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.interpret.errorcategory.DeferredValue;
+import com.hubspot.jinjava.interpret.errorcategory.DeferredValueEncounteredException;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.tree.Node;
@@ -234,8 +236,13 @@ public class JinjavaInterpreter {
             null, BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED, ImmutableMap.of("string", renderStr)));
         output.addNode(new RenderedOutputNode(renderStr));
       } else {
+        OutputNode out;
         context.pushRenderStack(renderStr);
-        OutputNode out = node.render(this);
+        try {
+          out = node.render(this);
+        } catch (DeferredValueEncounteredException e) {
+          out = new RenderedOutputNode(node.getMaster().getImage());
+        }
         context.popRenderStack();
         output.addNode(out);
       }
@@ -317,6 +324,9 @@ public class JinjavaInterpreter {
     String varName = var.getName();
     Object obj = context.get(varName);
     if (obj != null) {
+      if (obj instanceof DeferredValue) {
+        throw new DeferredValueEncounteredException(variable, lineNumber, startPosition);
+      }
       obj = var.resolve(obj);
     } else  if (getConfig().isFailOnUnknownTokens()) {
       throw new UnknownTokenException(variable, lineNumber, startPosition);

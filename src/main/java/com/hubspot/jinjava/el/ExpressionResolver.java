@@ -23,6 +23,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.interpret.errorcategory.DeferredValueEncounteredException;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 
 import de.odysseus.el.tree.TreeBuilderException;
@@ -90,7 +91,11 @@ public class ExpressionResolver {
     } catch (UnknownTokenException e) {
       // Re-throw the exception because you only get this when the config failOnUnknownTokens is enabled.
       throw e;
-    } catch (Exception e) {
+    } catch (DeferredValueEncounteredException e) {
+      // Re-throw so that it can be handled in JinjavaInterpreter
+      throw e;
+    }
+    catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(
           String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression), e, interpreter.getLineNumber(), interpreter.getPosition())));
     }
