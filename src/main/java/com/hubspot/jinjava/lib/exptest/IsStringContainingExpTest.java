@@ -26,8 +26,12 @@ public class IsStringContainingExpTest extends IsStringExpTest {
       return false;
     }
 
-    if (args.length == 0 || args[0] == null) {
+    if (args.length == 0) {
       throw new InterpretException(getName() + " test requires an argument");
+    }
+
+    if (args[0] == null) {
+      return false;
     }
 
     return ((String) var).contains(args[0].toString());
