@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Map;
 import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -18,7 +19,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
             desc = "%s can be replaced with other variables or values",
             code = "{{ \"Hi %s %s\"|format(contact.firstname, contact.lastname) }} ")
     })
-public class FormatFilter implements Filter {
+public class FormatFilter implements AdvancedFilter {
 
   @Override
   public String getName() {
@@ -26,9 +27,8 @@ public class FormatFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
     String fmt = Objects.toString(var, "");
-    return String.format(fmt, (Object[]) args);
+    return String.format(fmt, args);
   }
-
 }
