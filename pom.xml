@@ -156,6 +156,8 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
+        <!-- Remove basepom's stuff -->
+        <configuration combine.self="override"/>
         <executions>
           <execution>
             <phase>package</phase>
