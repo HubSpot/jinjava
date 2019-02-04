@@ -20,7 +20,12 @@ public class FormatFilterTest {
 
   @Test
   public void testFormatFilter() {
-    assertThat(jinjava.render("{{ '%s - %s'|format(\"Hello?\", \"Foo!\") }}", new HashMap<String, Object>())).isEqualTo("Hello? - Foo!");
+    assertThat(jinjava.render("{{ '%s - %s'|format(\"Hello?\", \"Foo!\") }}", new HashMap<>())).isEqualTo("Hello? - Foo!");
+  }
+
+  @Test
+  public void testFormatNumber() {
+    assertThat(jinjava.render("{{ '%,d'|format(10000) }}", new HashMap<>())).isEqualTo("10,000");
   }
 
 }
