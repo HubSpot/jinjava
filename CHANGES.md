@@ -1,5 +1,13 @@
 # Jinjava Releases #
 
+### 2019-02-05 Version 2.4.15 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.15%7Cjar)) ###
+* [Upgrade format filter to advanced filter](https://github.com/HubSpot/jinjava/pull/279)
+* [Allow null in string expression tests](https://github.com/HubSpot/jinjava/pull/278)
+* [Support negative indices in list slices](https://github.com/HubSpot/jinjava/pull/276)
+* [Add max string length configuration](https://github.com/HubSpot/jinjava/pull/275)
+* [Removed uses of `Throwables.propagate`](https://github.com/HubSpot/jinjava/pull/272)
+* [Allow tags to declare themselves safe for execution in validation mode](https://github.com/HubSpot/jinjava/pull/273)
+
 ### 2019-01-08 Version 2.4.14 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.14%7Cjar)) ###
 * [Critical fix for elif statements](https://github.com/HubSpot/jinjava/pull/268)
 
