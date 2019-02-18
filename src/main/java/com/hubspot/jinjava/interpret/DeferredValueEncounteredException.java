@@ -1,4 +1,4 @@
-package com.hubspot.jinjava.interpret.errorcategory;
+package com.hubspot.jinjava.interpret;
 
 import com.hubspot.jinjava.interpret.InterpretException;
 

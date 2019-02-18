@@ -23,7 +23,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
-import com.hubspot.jinjava.interpret.errorcategory.DeferredValueEncounteredException;
+import com.hubspot.jinjava.interpret.DeferredValueEncounteredException;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 
 import de.odysseus.el.tree.TreeBuilderException;

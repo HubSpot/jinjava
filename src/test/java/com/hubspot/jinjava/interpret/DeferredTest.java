@@ -6,7 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.errorcategory.DeferredValue;
 
 public class DeferredTest {
 

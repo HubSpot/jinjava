@@ -15,12 +15,9 @@
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
-import java.util.stream.Collectors;
-
-import com.google.common.base.Joiner;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.errorcategory.DeferredValueEncounteredException;
+import com.hubspot.jinjava.interpret.DeferredValueEncounteredException;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
