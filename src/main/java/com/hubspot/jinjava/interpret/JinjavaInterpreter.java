@@ -238,7 +238,7 @@ public class JinjavaInterpreter {
         context.pushRenderStack(renderStr);
         try {
           out = node.render(this);
-        } catch (DeferredValueEncounteredException e) {
+        } catch (DeferredValueException e) {
           out = new RenderedOutputNode(node.getMaster().getImage());
         }
         context.popRenderStack();
@@ -323,7 +323,7 @@ public class JinjavaInterpreter {
     Object obj = context.get(varName);
     if (obj != null) {
       if (obj instanceof DeferredValue) {
-        throw new DeferredValueEncounteredException(variable, lineNumber, startPosition);
+        throw new DeferredValueException(variable, lineNumber, startPosition);
       }
       obj = var.resolve(obj);
     } else  if (getConfig().isFailOnUnknownTokens()) {

@@ -9,7 +9,7 @@ import com.hubspot.jinjava.Jinjava;
 
 public class DeferredTest {
 
-  private static final DeferredValue DEFERRED_VALUE = new DeferredValue();
+  private static final DeferredValue DEFERRED_VALUE = DeferredValue.instance();
 
   private JinjavaInterpreter interpreter;
 
