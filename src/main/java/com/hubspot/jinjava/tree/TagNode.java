@@ -15,8 +15,12 @@
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
+import java.util.stream.Collectors;
+
+import com.google.common.base.Joiner;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.errorcategory.DeferredValueEncounteredException;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
@@ -48,13 +52,14 @@ public class TagNode extends Node {
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
-
     if (interpreter.getContext().isValidationMode() && !tag.isRenderedInValidationMode()) {
       return new RenderedOutputNode("");
     }
 
     try {
       return tag.interpretOutput(this, interpreter);
+    } catch (DeferredValueEncounteredException e) {
+      return new RenderedOutputNode(reconstructImage());
     } catch (InterpretException e) {
       throw e;
     } catch (Exception e) {
@@ -82,6 +87,19 @@ public class TagNode extends Node {
 
   public Tag getTag() {
     return tag;
+  }
+
+
+  private String reconstructImage() {
+    StringBuilder builder = new StringBuilder().append(master.getImage());
+
+    for (Node n : getChildren()) {
+      builder.append(n.getMaster().getImage());
+    }
+
+    builder.append("{% ").append(getEndName()). append(" %}");
+
+    return builder.toString();
   }
 
 }

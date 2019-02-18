@@ -9,38 +9,80 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.errorcategory.DeferredValue;
 
 public class DeferredTest {
-  private Jinjava jinjava;
+
+  private static final DeferredValue DEFERRED_VALUE = new DeferredValue();
+
   private JinjavaInterpreter interpreter;
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
+    Jinjava jinjava = new Jinjava();
     interpreter = jinjava.newInterpreter();
+    interpreter.getContext().put("deferred", DEFERRED_VALUE);
+    interpreter.getContext().put("resolved", "resolvedValue");
   }
 
   @Test
-  public void test() {
-    DeferredValue deferredValue = new DeferredValue();
-    interpreter.getContext().put("deferred", deferredValue);
-    interpreter.getContext().put("resolved", "resolvedValue");
-
+  public void itDefersSimpleEvaluations() {
+    // Just checking assumptions
     String output = interpreter.render("deferred");
     assertThat(output).isEqualTo("deferred");
 
-    output = interpreter.render("hello {{deferred}} hello");
-    assertThat(output).isEqualTo("hello {{deferred}} hello");
+    output = interpreter.render("resolved");
+    assertThat(output).isEqualTo("resolved");
+
+    output = interpreter.render("a {{deferred}} b");
+    assertThat(output).isEqualTo("a {{deferred}} b");
     assertThat(interpreter.getErrors()).isEmpty();
 
-    output = interpreter.render("hello {{deferred.nested}} hello");
-    assertThat(output).isEqualTo("hello {{deferred.nested}} hello");
-    assertThat(interpreter.getErrors()).isEmpty();
-
-    output = interpreter.render("hello {{deferred.nested}} hello");
-    assertThat(output).isEqualTo("hello {{deferred.nested}} hello");
-    assertThat(interpreter.getErrors()).isEmpty();
-
-    output = interpreter.render("hello {{deferred}} {{resolved}} hello");
-    assertThat(output).isEqualTo("hello {{deferred}} resolvedValue hello");
+    output = interpreter.render("a {{resolved}} b");
+    assertThat(output).isEqualTo("a resolvedValue b");
     assertThat(interpreter.getErrors()).isEmpty();
   }
+
+  @Test
+  public void itDefersWholeNestedExpressions() {
+    String output = interpreter.render("a {{deferred.nested}} b");
+    assertThat(output).isEqualTo("a {{deferred.nested}} b");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itDefersAsLittleAsPossible() {
+    String output = interpreter.render("a {{deferred}} {{resolved}} b");
+    assertThat(output).isEqualTo("a {{deferred}} resolvedValue b");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itPreservesIfTag() {
+    String output = interpreter.render("{% if deferred %}{{resolved}}{% else %}b{% endif %}");
+    assertThat(output).isEqualTo("{% if deferred %}{{resolved}}{% else %}b{% endif %}");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  /**
+   * This may or may not be desirable behaviour.
+   */
+  @Test
+  public void itDoesntPreservesElseIfTag() {
+    String output = interpreter.render("{% if true %}a{% elif deferred %}b{% endif %}");
+    assertThat(output).isEqualTo("a");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itPreservesForTag() {
+    String output = interpreter.render("{% for item in deferred %}{{item.name}}{% else %}last{% endfor %}");
+    assertThat(output).isEqualTo("{% for item in deferred %}{{item.name}}{% else %}last{% endfor %}");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itPreservesFilters() {
+    String output = interpreter.render("{{ deferred|capitalize }}");
+    assertThat(output).isEqualTo("{{ deferred|capitalize }}");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
 }
