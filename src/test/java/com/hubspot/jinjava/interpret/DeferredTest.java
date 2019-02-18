@@ -9,20 +9,18 @@ import com.hubspot.jinjava.Jinjava;
 
 public class DeferredTest {
 
-  private static final DeferredValue DEFERRED_VALUE = DeferredValue.instance();
-
   private JinjavaInterpreter interpreter;
 
   @Before
   public void setup() {
     Jinjava jinjava = new Jinjava();
     interpreter = jinjava.newInterpreter();
-    interpreter.getContext().put("deferred", DEFERRED_VALUE);
+    interpreter.getContext().put("deferred", DeferredValue.instance());
     interpreter.getContext().put("resolved", "resolvedValue");
   }
 
   @Test
-  public void itDefersSimpleEvaluations() {
+  public void checkAssumptions() {
     // Just checking assumptions
     String output = interpreter.render("deferred");
     assertThat(output).isEqualTo("deferred");
@@ -30,12 +28,15 @@ public class DeferredTest {
     output = interpreter.render("resolved");
     assertThat(output).isEqualTo("resolved");
 
-    output = interpreter.render("a {{deferred}} b");
-    assertThat(output).isEqualTo("a {{deferred}} b");
-    assertThat(interpreter.getErrors()).isEmpty();
-
     output = interpreter.render("a {{resolved}} b");
     assertThat(output).isEqualTo("a resolvedValue b");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itDefersSimpleExpressions() {
+    String output = interpreter.render("a {{deferred}} b");
+    assertThat(output).isEqualTo("a {{deferred}} b");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
