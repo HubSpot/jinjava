@@ -85,4 +85,11 @@ public class DeferredTest {
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
+  @Test
+  public void itPreservesFunctions() {
+    String output = interpreter.render("{{ deferred|datetimeformat('%B %e, %Y') }}");
+    assertThat(output).isEqualTo("{{ deferred|datetimeformat('%B %e, %Y') }}");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
 }
