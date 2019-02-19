@@ -85,6 +85,9 @@ public class ExpressionResolver {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression.substring(e.getPosition() - EXPRESSION_START_TOKEN.length()),
           "Error parsing '" + expression + "': " + errorMessage, interpreter.getLineNumber(), position, e)));
     } catch (ELException e) {
+      if (e.getCause() != null && e.getCause() instanceof DeferredValueException) {
+        throw (DeferredValueException) e.getCause();
+      }
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
     } catch (DisabledException e) {
       interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter.getLineNumber(), interpreter.getPosition(), e));
@@ -94,8 +97,7 @@ public class ExpressionResolver {
     } catch (DeferredValueException e) {
       // Re-throw so that it can be handled in JinjavaInterpreter
       throw e;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(
           String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression), e, interpreter.getLineNumber(), interpreter.getPosition())));
     }

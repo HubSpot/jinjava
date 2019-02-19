@@ -6,6 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 
 public class DeferredTest {
 
@@ -14,7 +16,12 @@ public class DeferredTest {
   @Before
   public void setup() {
     Jinjava jinjava = new Jinjava();
-    interpreter = jinjava.newInterpreter();
+
+    Context context = new Context();
+    JinjavaConfig config = JinjavaConfig.newBuilder()
+        .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
+        .build();
+    interpreter = new JinjavaInterpreter(jinjava, context, config);
     interpreter.getContext().put("deferred", DeferredValue.instance());
     interpreter.getContext().put("resolved", "resolvedValue");
   }
@@ -89,6 +96,13 @@ public class DeferredTest {
   public void itPreservesFunctions() {
     String output = interpreter.render("{{ deferred|datetimeformat('%B %e, %Y') }}");
     assertThat(output).isEqualTo("{{ deferred|datetimeformat('%B %e, %Y') }}");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itPreservesRandomness() {
+    String output = interpreter.render("{{ [1,2,3]|shuffle }}");
+    assertThat(output).isEqualTo("{{ [1,2,3]|shuffle }}");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 

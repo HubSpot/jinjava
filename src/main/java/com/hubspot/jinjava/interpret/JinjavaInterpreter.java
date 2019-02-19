@@ -46,6 +46,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
+import com.hubspot.jinjava.random.DeferredRandomNumberGenerator;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TreeParser;
@@ -79,12 +80,18 @@ public class JinjavaInterpreter {
     this.config = renderConfig;
     this.application = application;
 
-    if (config.getRandomNumberGeneratorStrategy() == RandomNumberGeneratorStrategy.THREAD_LOCAL) {
-      random = ThreadLocalRandom.current();
-    } else if (config.getRandomNumberGeneratorStrategy() == RandomNumberGeneratorStrategy.CONSTANT_ZERO) {
-      random = new ConstantZeroRandomNumberGenerator();
-    } else {
-      throw new IllegalStateException("No random number generator with strategy " + config.getRandomNumberGeneratorStrategy());
+    switch (config.getRandomNumberGeneratorStrategy()) {
+      case THREAD_LOCAL:
+        random = ThreadLocalRandom.current();
+        break;
+      case CONSTANT_ZERO:
+        random = new ConstantZeroRandomNumberGenerator();
+        break;
+      case DEFERRED:
+        random = new DeferredRandomNumberGenerator();
+        break;
+      default:
+        throw new IllegalStateException("No random number generator with strategy " + config.getRandomNumberGeneratorStrategy());
     }
 
     this.expressionResolver = new ExpressionResolver(this, application.getExpressionFactory());
