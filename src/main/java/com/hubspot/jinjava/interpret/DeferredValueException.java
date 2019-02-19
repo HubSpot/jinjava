@@ -1,7 +1,7 @@
 package com.hubspot.jinjava.interpret;
 
 /**
- * Exception thrown when attempting to render a DeferredValue.
+ * Exception thrown when attempting to render a {@link com.hubspot.jinjava.interpret.DeferredValue}.
  * The exception is effectively used for flow control, to unwind evaluating a template Node
  * and instead echo its contents to the output.
  */

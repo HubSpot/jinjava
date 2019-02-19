@@ -8,7 +8,7 @@ import java.util.stream.LongStream;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 
 /**
- * A random number generator that always returns 0. Useful for testing code when you want the output to be constant.
+ * A random number generator that throws {@link com.hubspot.jinjava.interpret.DeferredValueException} for all supported methods.
  */
 public class DeferredRandomNumberGenerator extends Random {
 
