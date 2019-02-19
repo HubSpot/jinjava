@@ -47,7 +47,6 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
 import com.hubspot.jinjava.random.DeferredRandomNumberGenerator;
-import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TreeParser;
 import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
