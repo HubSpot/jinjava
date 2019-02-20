@@ -23,6 +23,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 
 import de.odysseus.el.tree.TreeBuilderException;
@@ -84,11 +85,17 @@ public class ExpressionResolver {
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression.substring(e.getPosition() - EXPRESSION_START_TOKEN.length()),
           "Error parsing '" + expression + "': " + errorMessage, interpreter.getLineNumber(), position, e)));
     } catch (ELException e) {
+      if (e.getCause() != null && e.getCause() instanceof DeferredValueException) {
+        throw (DeferredValueException) e.getCause();
+      }
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
     } catch (DisabledException e) {
       interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter.getLineNumber(), interpreter.getPosition(), e));
     } catch (UnknownTokenException e) {
       // Re-throw the exception because you only get this when the config failOnUnknownTokens is enabled.
+      throw e;
+    } catch (DeferredValueException e) {
+      // Re-throw so that it can be handled in JinjavaInterpreter
       throw e;
     } catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(

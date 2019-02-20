@@ -46,7 +46,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
-import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
+import com.hubspot.jinjava.random.DeferredRandomNumberGenerator;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TreeParser;
 import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
@@ -79,12 +79,18 @@ public class JinjavaInterpreter {
     this.config = renderConfig;
     this.application = application;
 
-    if (config.getRandomNumberGeneratorStrategy() == RandomNumberGeneratorStrategy.THREAD_LOCAL) {
-      random = ThreadLocalRandom.current();
-    } else if (config.getRandomNumberGeneratorStrategy() == RandomNumberGeneratorStrategy.CONSTANT_ZERO) {
-      random = new ConstantZeroRandomNumberGenerator();
-    } else {
-      throw new IllegalStateException("No random number generator with strategy " + config.getRandomNumberGeneratorStrategy());
+    switch (config.getRandomNumberGeneratorStrategy()) {
+      case THREAD_LOCAL:
+        random = ThreadLocalRandom.current();
+        break;
+      case CONSTANT_ZERO:
+        random = new ConstantZeroRandomNumberGenerator();
+        break;
+      case DEFERRED:
+        random = new DeferredRandomNumberGenerator();
+        break;
+      default:
+        throw new IllegalStateException("No random number generator with strategy " + config.getRandomNumberGeneratorStrategy());
     }
 
     this.expressionResolver = new ExpressionResolver(this, application.getExpressionFactory());
@@ -234,8 +240,13 @@ public class JinjavaInterpreter {
             null, BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED, ImmutableMap.of("string", renderStr)));
         output.addNode(new RenderedOutputNode(renderStr));
       } else {
+        OutputNode out;
         context.pushRenderStack(renderStr);
-        OutputNode out = node.render(this);
+        try {
+          out = node.render(this);
+        } catch (DeferredValueException e) {
+          out = new RenderedOutputNode(node.getMaster().getImage());
+        }
         context.popRenderStack();
         output.addNode(out);
       }
@@ -317,6 +328,9 @@ public class JinjavaInterpreter {
     String varName = var.getName();
     Object obj = context.get(varName);
     if (obj != null) {
+      if (obj instanceof DeferredValue) {
+        throw new DeferredValueException(variable, lineNumber, startPosition);
+      }
       obj = var.resolve(obj);
     } else  if (getConfig().isFailOnUnknownTokens()) {
       throw new UnknownTokenException(variable, lineNumber, startPosition);
