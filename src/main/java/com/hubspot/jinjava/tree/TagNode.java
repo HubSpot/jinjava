@@ -94,9 +94,9 @@ public class TagNode extends Node {
       builder.append(n.getMaster().getImage());
     }
 
-    builder.append(TokenScannerSymbols.TOKEN_EXPR_START).append(TokenScannerSymbols.TOKEN_TAG).append(" ")
+    builder.append(TokenScannerSymbols.TOKEN_EXPR_START_CHAR).append(TokenScannerSymbols.TOKEN_TAG_CHAR).append(" ")
         .append(getEndName())
-        .append(" ").append(TokenScannerSymbols.TOKEN_TAG).append(TokenScannerSymbols.TOKEN_EXPR_END);
+        .append(" ").append(TokenScannerSymbols.TOKEN_TAG_CHAR).append(TokenScannerSymbols.TOKEN_EXPR_END_CHAR);
 
     return builder.toString();
   }
