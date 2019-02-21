@@ -1,0 +1,10 @@
+{% macro callme() %}
+    {{ caller("some_arg", default_list="oops, no list", default_str=123, default_expr=42) }}
+{% endmacro %}
+
+{% call(regular, default_str="foo", default_expr=3*4, default_list=[42,23,666]) callme() %}
+    regular={{regular}}
+    default_str={{default_str}}
+    default_expr={{default_expr}}
+    default_list={{default_list}}
+{% endcall %}

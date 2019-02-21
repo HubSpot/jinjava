@@ -1,0 +1,16 @@
+{% macro dump_users(users) -%}
+    <ul>
+    {%- for user in users %}
+        <li><p>{{ user.username|e }}</p>{{ caller(user) }}</li>
+    {%- endfor %}
+    </ul>
+{%- endmacro %}
+
+{% call(user) dump_users(list_of_user) %}
+    <dl>
+        <dl>Realname</dl>
+        <dd>{{ user.realname|e }}</dd>
+        <dl>Description</dl>
+        <dd>{{ user.description }}</dd>
+    </dl>
+{% endcall %}

@@ -1,0 +1,17 @@
+{% macro multiplication_table(numbers) -%}
+    <table>
+    {%- for a in numbers %}
+        <tr>
+        {%- for b in numbers -%}
+            {{ caller(a, b, a*b) }}
+        {%- endfor -%}
+        </tr>
+    {%- endfor %}
+    </table>
+{%- endmacro %}
+
+{% call(a, b, prod) multiplication_table(list_of_numbers) %}
+    <td id="{{ a }}x{{ b }}">
+        {{ prod }}
+    </td>
+{% endcall %}
