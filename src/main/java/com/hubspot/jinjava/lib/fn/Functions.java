@@ -58,6 +58,11 @@ public class Functions {
     return result.toString();
   }
 
+  //I'm so sorry for this is a fake method but i didn't have more time to find better solution for  global namespace
+  public static void putVariable(){
+        //not needed
+    }
+
   public static List<Object> immutableListOf(Object... items) {
     return Collections.unmodifiableList(Lists.newArrayList(items));
   }

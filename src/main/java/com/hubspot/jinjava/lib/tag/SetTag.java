@@ -16,6 +16,7 @@
 package com.hubspot.jinjava.lib.tag;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -70,6 +71,19 @@ public class SetTag implements Tag {
     int eqPos = tagNode.getHelpers().indexOf('=');
     String var = tagNode.getHelpers().substring(0, eqPos).trim();
     String expr = tagNode.getHelpers().substring(eqPos + 1);
+
+
+    if(expr.contains("namespace(")){ //looking for namespace function for global variable
+      String globalVar = var +"." + expr.substring(expr.indexOf('(')+1,expr.indexOf("="));
+      String globalValue = expr.substring(expr.indexOf('=')+1,expr.trim().length());
+      interpreter.putNamespaceVariable(globalVar,globalValue);
+      return "";
+    }
+
+    if(Objects.nonNull(interpreter.getNamespaceVariableIfExists(var))){
+        interpreter.putNamespaceVariable(var,expr);
+      return "";
+    }
 
     if (var.length() == 0) {
       throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' requires a var name to assign to", tagNode.getLineNumber(), tagNode.getStartPosition());

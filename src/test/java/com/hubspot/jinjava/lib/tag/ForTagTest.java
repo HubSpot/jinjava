@@ -207,6 +207,54 @@ public class ForTagTest {
     assertEquals(new PyishDate(testDate).toString(), rendered);
   }
 
+  @Test
+  public void testForLoopWithBooleanFromNamespaceVariable() {
+    // given
+    jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
+    context = interpreter.getContext();
+    String template = "{% set ns = namespace(found=false) %}\n" +
+        "{% for item in items %}\n" +
+            "{{item}}" +
+        " {% set ns.found=true %}\n" +
+        "{% endfor %}\n" +
+        "Found item having something: {{ ns.found }}";
+
+    context.put("items", Lists.newArrayList("A", "B"));
+
+    // when
+    String rendered = jinjava.render(template, context);
+
+    // debug
+    System.out.println(rendered);
+
+    // then
+    assertThat(rendered).isEqualTo("\n\nA \n\nB \n\nFound item having something: true ");
+  }
+
+  @Test
+  public void getGlobalVariableVialNamespace() {
+    // given
+    jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
+    context = interpreter.getContext();
+    final String value = "true";
+    jinjava.getGlobalVariables().setVariable("ns.found", value);
+    String template = "Found item having something: {{ ns.found }}";
+    context.put("items", Lists.newArrayList("A", "B"));
+
+    // when
+    String rendered = jinjava.render(template, context);
+    String result = "Found item having something: " + value;
+
+    // debug
+    System.out.println(rendered);
+
+    // then
+    assertThat(jinjava.getGlobalVariables().getVariableFor("ns.found")).isEqualTo(value);
+    assertThat(result).isEqualTo(rendered);
+  }
+
   private Node fixture(String name) {
     try {
       return new TreeParser(interpreter, Resources.toString(

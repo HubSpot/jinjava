@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.el.ELException;
 import javax.el.ExpressionFactory;
@@ -68,12 +69,18 @@ public class ExpressionResolver {
 
     try {
       String elExpression = EXPRESSION_START_TOKEN + expression.trim() + EXPRESSION_END_TOKEN;
-      ValueExpression valueExp = expressionFactory.createValueExpression(elContext, elExpression, Object.class);
-      Object result = valueExp.getValue(elContext);
-
-      validateResult(result);
-
-      return result;
+      Object namespaceVariable = interpreter.getNamespaceVariableIfExists(expression.trim());
+      if(namespaceVariable != null){
+        return namespaceVariable;
+      }else {
+        ValueExpression valueExp = expressionFactory.createValueExpression(elContext, elExpression, Object.class);
+        Object result = valueExp.getValue(elContext);
+        if(Objects.isNull(result)){
+          interpreter.getNamsepaceVariable(expression.trim());
+        }
+        validateResult(result);
+        return result;
+      }
 
     } catch (PropertyNotFoundException e) {
       interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, e.getMessage(), "", interpreter.getLineNumber(), interpreter.getPosition(), e,

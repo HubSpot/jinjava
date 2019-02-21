@@ -37,6 +37,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.loader.ClasspathResourceLocator;
 import com.hubspot.jinjava.loader.ResourceLocator;
 
+import com.hubspot.jinjava.objects.GlobalVariables;
 import de.odysseus.el.ExpressionFactoryImpl;
 import de.odysseus.el.misc.TypeConverter;
 import de.odysseus.el.tree.TreeBuilder;
@@ -62,6 +63,7 @@ public class Jinjava {
 
   private Context globalContext;
   private JinjavaConfig globalConfig;
+  private GlobalVariables variables;
 
   /**
    * Create a new Jinjava processor instance with the default global config
@@ -79,6 +81,7 @@ public class Jinjava {
   public Jinjava(JinjavaConfig globalConfig) {
     this.globalConfig = globalConfig;
     this.globalContext = new Context();
+    this.variables = new GlobalVariables();
 
     Properties expConfig = new Properties();
     expConfig.setProperty(TreeBuilder.class.getName(), ExtendedSyntaxBuilder.class.getName());
@@ -120,6 +123,10 @@ public class Jinjava {
    */
   public Context getGlobalContext() {
     return globalContext;
+  }
+
+  public GlobalVariables getGlobalVariables() {
+    return variables;
   }
 
   public ResourceLocator getResourceLocator() {
