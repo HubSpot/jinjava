@@ -21,7 +21,7 @@ import java.math.BigInteger;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
@@ -38,38 +38,37 @@ public class AbsFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+
+    if (object == null) {
+      return null;
+    }
+
     if (object instanceof Integer) {
       return Math.abs((Integer) object);
-    }
-    if (object instanceof Float) {
+    } else if (object instanceof Float) {
       return Math.abs((Float) object);
-    }
-    if (object instanceof Long) {
+    } else if (object instanceof Long) {
       return Math.abs((Long) object);
-    }
-    if (object instanceof Short) {
+    } else if (object instanceof Short) {
       return Math.abs((Short) object);
-    }
-    if (object instanceof Double) {
+    } else if (object instanceof Double) {
       return Math.abs((Double) object);
-    }
-    if (object instanceof BigDecimal) {
+    } else if (object instanceof BigDecimal) {
       return ((BigDecimal) object).abs();
-    }
-    if (object instanceof BigInteger) {
+    } else if (object instanceof BigInteger) {
       return ((BigInteger) object).abs();
-    }
-    if (object instanceof Byte) {
+    } else if (object instanceof Byte) {
       return Math.abs((Byte) object);
-    }
-    if (object instanceof String) {
+    } else {
       try {
-        return new BigDecimal((String) object).abs();
+        return new BigDecimal(object.toString()).abs();
       } catch (Exception e) {
-        throw new InterpretException(object + " can't be handled by abs filter", e);
+        throw new InvalidArgumentException(interpreter,
+            getName(),
+            String.format("Input %s must be a number", getName(), object.toString()),
+            "number");
       }
     }
-    return object;
   }
 
   @Override

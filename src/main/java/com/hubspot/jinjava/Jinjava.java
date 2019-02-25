@@ -29,6 +29,7 @@ import com.hubspot.jinjava.el.TruthyTypeConverter;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
 import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
@@ -203,7 +204,10 @@ public class Jinjava {
         return new RenderResult(TemplateError.fromException((TemplateSyntaxException) e), interpreter.getContext(), interpreter.getErrorsCopy());
       }
       return new RenderResult(TemplateError.fromSyntaxError(e), interpreter.getContext(), interpreter.getErrorsCopy());
-    } catch (Exception e) {
+    } catch (InvalidArgumentException e) {
+      return new RenderResult(TemplateError.fromInvalidArgumentException(e), interpreter.getContext(), interpreter.getErrorsCopy());
+    }
+    catch (Exception e) {
       return new RenderResult(TemplateError.fromException(e), interpreter.getContext(), interpreter.getErrorsCopy());
     } finally {
       globalContext.reset();

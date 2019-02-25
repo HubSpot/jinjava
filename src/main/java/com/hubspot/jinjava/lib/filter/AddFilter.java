@@ -23,6 +23,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(
     value = "adds a number to the existing value",
@@ -39,8 +40,13 @@ public class AddFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+
+    if (object == null) {
+      return null;
+    }
+
     if (arg.length != 1) {
-      throw new InterpretException("filter add expects 1 arg >>> " + arg.length);
+      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument");
     }
 
     try {
