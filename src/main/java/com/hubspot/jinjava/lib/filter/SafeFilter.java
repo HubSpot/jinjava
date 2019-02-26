@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
@@ -12,6 +13,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  */
 @JinjavaDoc(
     value = "Mark the value as safe, which means that in an environment with automatic escaping enabled this variable will not be escaped.",
+    input = @JinjavaParam(value = "value", desc = "Value to mark as safe"),
     snippets = {
         @JinjavaSnippet(code = "{{ content.post_list_content|safe }}")
     })

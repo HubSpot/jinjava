@@ -9,8 +9,8 @@ import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 
 @JinjavaDoc(
     value = "Formats a date object",
+    input = @JinjavaParam(value = "value", defaultValue = "current time", desc = "The date variable or UNIX timestamp to format"),
     params = {
-        @JinjavaParam(value = "value", defaultValue = "current time", desc = "The date variable or UNIX timestamp to format"),
         @JinjavaParam(value = "format", defaultValue = StrftimeFormatter.DEFAULT_DATE_FORMAT, desc = "The format of the date determined by the directives added to this parameter"),
         @JinjavaParam(value = "timezone", defaultValue = "utc", desc = "Time zone of output date")
     },

@@ -11,6 +11,8 @@ public @interface JinjavaDoc {
 
   String value() default "";
 
+  JinjavaParam input();
+
   JinjavaParam[] params() default {};
 
   JinjavaSnippet[] snippets() default {};

@@ -10,11 +10,13 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Escape strings for use in URLs (uses UTF-8 encoding). It accepts both dictionaries and regular strings as well as pairwise iterables.",
+    input = @JinjavaParam(value = "url", type = "string", desc = "the url to escape"),
     snippets = {
         @JinjavaSnippet(code = "{{ \"Escape & URL encode this string\"|urlencode }}")
     })

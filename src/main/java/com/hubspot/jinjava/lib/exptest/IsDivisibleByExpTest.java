@@ -3,8 +3,9 @@ package com.hubspot.jinjava.lib.exptest;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(value = "Check if a variable is divisible by a number",
     params = {
@@ -34,8 +35,19 @@ public class IsDivisibleByExpTest implements ExpTest {
       return false;
     }
 
-    if (args.length == 0 || args[0] == null || !Number.class.isAssignableFrom(args[0].getClass())) {
-      throw new InterpretException(getName() + " test requires a numeric argument");
+    if (args.length == 0) {
+      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (name of expression test to filter by)");
+    }
+
+    if (args[0] == null) {
+      return false;
+    }
+
+    if (!Number.class.isAssignableFrom(args[0].getClass())) {
+      throw new InvalidArgumentException(interpreter,
+          getName(),
+          String.format(InvalidArgumentException.NUMBER_FORMAT_EXCEPTION_TEMPLATE, "num", args[0].toString()),
+          "num");
     }
 
     return ((Number) var).intValue() % ((Number) args[0]).intValue() == 0;

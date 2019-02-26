@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Locale;
@@ -17,8 +16,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  */
 @JinjavaDoc(
     value = "Convert the value into an integer.",
+    input = @JinjavaParam(value = "value", desc = "The value to convert to an integer"),
     params = {
-        @JinjavaParam(value = "value", desc = "The value to convert to an integer"),
         @JinjavaParam(value = "default", type = "number", defaultValue = "0", desc = "Value to return if the conversion fails")
     },
     snippets = {

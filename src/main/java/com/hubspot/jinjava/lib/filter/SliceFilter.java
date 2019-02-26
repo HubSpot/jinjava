@@ -6,17 +6,16 @@ import com.google.common.collect.Iterators;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Slice an iterator and return a list of lists containing those items.",
+    input = @JinjavaParam(value = "value", type = "sequence", desc = "The sequence or dict that the filter is applied to"),
     params = {
-        @JinjavaParam(value = "value", type = "sequence", desc = "The sequence or dict that the filter is applied to"),
         @JinjavaParam(value = "slices", type = "number", desc = "Specifies how many items will be sliced"),
-        @JinjavaParam(value = "fill_with", desc = "Used to fill missing values on the last iteration")
     },
     snippets = {
         @JinjavaSnippet(
@@ -44,7 +43,7 @@ public class SliceFilter implements Filter {
     ForLoop loop = ObjectIterator.getLoop(var);
 
     if (args.length == 0) {
-      throw new InterpretException(getName() + " requires number of slices argument", interpreter.getLineNumber());
+      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (number of slices)");
     }
 
     int slices = NumberUtils.toInt(args[0], 3);

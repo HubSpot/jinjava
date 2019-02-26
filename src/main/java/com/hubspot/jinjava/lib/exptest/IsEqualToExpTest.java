@@ -4,8 +4,8 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.el.TruthyTypeConverter;
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 import de.odysseus.el.misc.BooleanOperations;
 import de.odysseus.el.misc.TypeConverter;
@@ -36,7 +36,7 @@ public class IsEqualToExpTest implements ExpTest {
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
     if (args.length == 0) {
-      throw new InterpretException(getName() + " test requires 1 argument");
+      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (other object to check equality against)");
     }
 
     return BooleanOperations.eq(TYPE_CONVERTER, var, args[0]);

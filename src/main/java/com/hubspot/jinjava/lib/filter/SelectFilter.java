@@ -8,14 +8,17 @@ import java.util.Map;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Filters a sequence of objects by applying a test to the object and only selecting the ones with the test succeeding.",
+    input = @JinjavaParam(value = "sequence", type = "sequence", desc = "Sequence to test"),
     params = {
         @JinjavaParam(value = "value", type = "sequence"),
         @JinjavaParam(value = "exp_test", type = "name of expression test", defaultValue = "truthy", desc = "Specify which expression test to run for making the selection")
@@ -37,7 +40,7 @@ public class SelectFilter implements AdvancedFilter {
     List<Object> result = new ArrayList<>();
 
     if (args.length == 0) {
-      throw new InterpretException(getName() + " requires an exp test to filter on", interpreter.getLineNumber());
+      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (name of expression test to filter by)");
     }
 
     Object[] expArgs = new Object[]{};
@@ -48,7 +51,7 @@ public class SelectFilter implements AdvancedFilter {
 
     ExpTest expTest = interpreter.getContext().getExpTest(args[0].toString());
     if (expTest == null) {
-      throw new InterpretException("No exp test defined for name '" + args[0] + "'", interpreter.getLineNumber());
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.EXPRESSION_TEST, 0, args[0].toString());
     }
 
     ForLoop loop = ObjectIterator.getLoop(var);

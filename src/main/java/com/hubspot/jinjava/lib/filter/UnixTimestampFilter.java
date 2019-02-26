@@ -8,9 +8,7 @@ import com.hubspot.jinjava.lib.fn.Functions;
 
 @JinjavaDoc(
     value = "Gets the UNIX timestamp value (in milliseconds) of a date object",
-    params = {
-        @JinjavaParam(value = "value", defaultValue = "current time", desc = "The date variable"),
-    },
+    input = @JinjavaParam(value = "value", defaultValue = "current time", desc = "The date variable"),
     snippets = {
         @JinjavaSnippet(code = "{% mydatetime|unixtimestamp %}"),
     })

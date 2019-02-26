@@ -21,14 +21,13 @@ import java.math.BigInteger;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Return the absolute value of the argument.",
-    params = {
-        @JinjavaParam(value = "number", type = "number", desc = "The number that you want to get the absolute value of")
-    },
+    input = @JinjavaParam(value = "number", type = "number", desc = "The number that you want to get the absolute value of"),
     snippets = {
         @JinjavaSnippet(
             code = "{% set my_number = -53 %}\n" +
@@ -63,10 +62,7 @@ public class AbsFilter implements Filter {
       try {
         return new BigDecimal(object.toString()).abs();
       } catch (Exception e) {
-        throw new InvalidArgumentException(interpreter,
-            getName(),
-            String.format("Input %s must be a number", getName(), object.toString()),
-            "number");
+        throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
       }
     }
   }

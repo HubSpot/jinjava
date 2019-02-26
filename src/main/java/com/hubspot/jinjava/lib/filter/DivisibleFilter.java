@@ -18,13 +18,13 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(
     value = "Evaluates to true if the value is divisible by the given number",
+    input = @JinjavaParam(value = "value", type = "number", desc = "The value to be divided"),
     params = {
-        @JinjavaParam(value = "value", type = "number", desc = "The value to be divided"),
         @JinjavaParam(value = "divisor", type = "number", desc = "The divisor to check if the value is divisible by")
     },
     snippets = {
@@ -44,7 +44,7 @@ public class DivisibleFilter implements Filter {
     }
     if (object instanceof Number) {
       if (arg.length != 1) {
-        throw new InterpretException("filter divisible expects 1 arg >>> " + arg.length);
+        throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (number to divide by)");
       }
       long factor = Long.parseLong(arg[0]);
       long value = ((Number) object).longValue();

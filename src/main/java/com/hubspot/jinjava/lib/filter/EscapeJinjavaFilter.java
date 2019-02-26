@@ -29,9 +29,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     value = "Converts the characters { and } in string s to Jinjava-safe sequences. "
         + "Use this filter if you need to display text that might contain such characters in Jinjava. "
         + "Marks return value as markup string.",
-    params = {
-        @JinjavaParam(value = "s", desc = "String to escape")
-    },
+    input = @JinjavaParam(value = "s", desc = "String to escape"),
     snippets = {
         @JinjavaSnippet(
             code = "{% set escape_string = \"{{This markup is printed as text}}\" %}\n" +

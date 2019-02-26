@@ -17,8 +17,8 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Return a string which is the concatenation of the strings in the sequence.",
+    input = @JinjavaParam(value = "value", desc = "The values to join"),
     params = {
-        @JinjavaParam(value = "value", desc = "The values to join"),
         @JinjavaParam(value = "d", desc = "The separator string used to join the items"),
         @JinjavaParam(value = "attr", desc = "Optional dict object attribute to use in joining")
     },

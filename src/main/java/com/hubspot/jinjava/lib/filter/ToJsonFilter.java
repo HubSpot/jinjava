@@ -5,15 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
 @JinjavaDoc(
     value = "Writes object as a JSON string",
-    params = {
-        @JinjavaParam(value = "o", desc = "Object to write to JSON")
-    },
+    input = @JinjavaParam(value = "object", desc = "Object to write to JSON"),
     snippets = {
         @JinjavaSnippet(
             code = "{{object|tojson}}"
@@ -28,7 +27,7 @@ public class ToJsonFilter implements Filter {
     try {
       return OBJECT_MAPPER.writeValueAsString(var);
     } catch (JsonProcessingException e) {
-      throw new InterpretException("Could not write object as string for `tojson` filter.", e, interpreter.getLineNumber());
+      throw new InvalidInputException(interpreter, this, InvalidReason.JSON_WRITE);
     }
   }
 

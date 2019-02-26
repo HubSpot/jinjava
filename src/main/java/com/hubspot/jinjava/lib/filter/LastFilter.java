@@ -9,9 +9,7 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Return the last item of a sequence",
-    params = {
-        @JinjavaParam(value = "seq", type = "sequence", desc = "Sequence to return last item from")
-    },
+    input = @JinjavaParam(value = "seq", type = "sequence", desc = "Sequence to return last item from"),
     snippets = {
         @JinjavaSnippet(
             code = "{% set my_sequence = ['Item 1', 'Item 2', 'Item 3'] %}\n" +

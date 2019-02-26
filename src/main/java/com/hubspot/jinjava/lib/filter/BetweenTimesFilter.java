@@ -9,8 +9,10 @@ import java.util.Map;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
@@ -19,32 +21,32 @@ import com.hubspot.jinjava.objects.date.PyishDate;
  */
 @JinjavaDoc(
     value = "Calculates the time between two datetime objects",
+    input = @JinjavaParam(value = "begin", desc = "Datetime object or timestamp at the beginning of the period"),
     params = {
-        @JinjavaParam(value = "begin", desc = "Datetime object or timestamp at the beginning of the period"),
         @JinjavaParam(value = "end", desc = "Datetime object or timestamp at the end of the period"),
         @JinjavaParam(value = "unit", desc = "Which temporal unit to use"),
     },
     snippets = {
         @JinjavaSnippet(code = "{% begin|between_times(end, 'hours') %}"),
     })
-public class BetweenTimesFilter implements AdvancedFilter {
+public class BetweenTimesFilter extends BaseDateFilter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
 
-    if (args.length < 2) {
-      throw new InterpretException(String.format("%s filter requires a datetime and a string parameter", getName()));
+    if (args.length != 2) {
+      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 datetime (end date) and 1 string (diff unit) argument");
     }
 
     ZonedDateTime start = getZonedDateTime(var);
     ZonedDateTime end = getZonedDateTime(args[0]);
 
     Object args1 = args[1];
-    if (!(args1 instanceof String)) {
-      throw new InterpretException(String.format("%s filter requires a string as the second parameter", getName()));
+    if (args1 == null) {
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 1);
     }
 
-    TemporalUnit temporalUnit = BaseDateFilter.getTemporalUnit((String) args[1]);
+    TemporalUnit temporalUnit = getTemporalUnit(interpreter, args[1].toString());
     return temporalUnit.between(start, end);
   }
 

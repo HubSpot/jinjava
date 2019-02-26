@@ -10,8 +10,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 @JinjavaDoc(
     value = "Filters a sequence of objects by applying a test to an attribute of an object or the attribute and "
         + "rejecting the ones with the test succeeding.",
+    input = @JinjavaParam(value = "seq", type = "sequence", desc = "Sequence to test"),
     params = {
-        @JinjavaParam(value = "seq", type = "sequence", desc = "Sequence to test"),
         @JinjavaParam(value = "attribute", desc = "Attribute to test for and reject items that contain it"),
         @JinjavaParam(value = "exp_test", type = "name of expression test", defaultValue = "truthy", desc = "Specify which expression test to run for making the rejection")
     },

@@ -11,8 +11,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Returns a list containing elements present in either list",
+    input = @JinjavaParam(value = "value", type = "sequence", desc = "The first list"),
     params = {
-        @JinjavaParam(value = "value", type = "sequence", desc = "The first list"),
         @JinjavaParam(value = "list", type = "sequence", desc = "The second list")
     },
     snippets = {

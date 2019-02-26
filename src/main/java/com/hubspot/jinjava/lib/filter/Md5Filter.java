@@ -28,7 +28,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Calculates the md5 hash of the given object",
-    params = @JinjavaParam(value = "value", desc = "Value to get MD5 hash of"),
+    input = @JinjavaParam(value = "value", desc = "Value to get MD5 hash of"),
     snippets = {
         @JinjavaSnippet(code = "{{ content.absolute_url|md5 }}")
     })

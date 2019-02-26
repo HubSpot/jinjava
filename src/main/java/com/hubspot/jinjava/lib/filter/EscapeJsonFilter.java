@@ -11,9 +11,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Escapes strings so that they can be used as JSON values",
-    params = {
-        @JinjavaParam(value = "s", desc = "String to escape")
-    },
+    input = @JinjavaParam(value = "s", desc = "String to escape"),
     snippets = {
         @JinjavaSnippet(
             code = "{{String that contains JavaScript|escapejson}}"

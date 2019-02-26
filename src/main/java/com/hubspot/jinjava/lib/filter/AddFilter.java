@@ -16,19 +16,20 @@ limitations under the License.
 package com.hubspot.jinjava.lib.filter;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(
     value = "adds a number to the existing value",
+    input = @JinjavaParam(value = "number", type = "number", desc = "Number or numeric variable to add to"),
     params = {
-        @JinjavaParam(value = "number", type = "number", desc = "Number or numeric variable to add to"),
         @JinjavaParam(value = "addend", type = "number", desc = "The number added to the base number")
     },
     snippets = {
@@ -46,17 +47,28 @@ public class AddFilter implements Filter {
     }
 
     if (arg.length != 1) {
-      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument");
+      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (number to add to base)");
     }
 
+    BigDecimal base;
     try {
-      BigDecimal base = new BigDecimal(Objects.toString(object));
-      BigDecimal addend = new BigDecimal(Objects.toString(arg[0]));
-
-      return base.add(addend);
-    } catch (Exception e) {
-      throw new InterpretException("filter add error", e);
+      base = new BigDecimal(object.toString());
+    } catch (NumberFormatException e) {
+      throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
     }
+
+    if (arg[0] == null) {
+      return base;
+    }
+
+    BigDecimal addend;
+    try {
+      addend = new BigDecimal(arg[0]);
+    } catch (NumberFormatException e) {
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, arg[0]);
+    }
+
+    return base.add(addend);
   }
 
   @Override

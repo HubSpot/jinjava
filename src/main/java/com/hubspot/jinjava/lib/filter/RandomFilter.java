@@ -28,7 +28,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Return a random item from the sequence.",
-    params = @JinjavaParam(value = "seq", type = "sequence", desc = "Sequence to return a random item from"),
+    input = @JinjavaParam(value = "seq", type = "sequence", desc = "Sequence to return a random item from"),
     snippets = {
         @JinjavaSnippet(
             desc = "The example below is a standard blog loop that returns a single random post.",

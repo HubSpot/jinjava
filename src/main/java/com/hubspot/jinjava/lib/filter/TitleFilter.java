@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import org.apache.commons.lang3.text.WordUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
@@ -13,6 +14,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  */
 @JinjavaDoc(
     value = "Return a titlecased version of the value. I.e. words will start with uppercase letters, all remaining characters are lowercase.",
+    input = @JinjavaParam(value = "string", type = "string", desc = "the string to titlecase"),
     snippets = {
         @JinjavaSnippet(
             code = "{{ \"My title should be titlecase\"|title }} "

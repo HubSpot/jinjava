@@ -7,7 +7,7 @@ public class TemplateSyntaxException extends InterpretException {
 
   @Deprecated
   public TemplateSyntaxException(String code, String message, int lineNumber, int startPosition) {
-    super("Syntax error in '" + code + "': " + message, lineNumber, startPosition);
+    super(String.format("Syntax error in '%s': %s", code, message), lineNumber, startPosition);
     this.code = code;
   }
 

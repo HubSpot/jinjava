@@ -12,15 +12,15 @@ import com.google.common.collect.Multimap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Group a sequence of objects by a common attribute.",
+    input = @JinjavaParam(value = "value", desc = "The dict to iterate through and group by a common attribute"),
     params = {
-        @JinjavaParam(value = "value", desc = "The dict to iterate through and group by a common attribute"),
         @JinjavaParam(value = "attribute", desc = "The common attribute to group by")
     },
     snippets = {
@@ -44,8 +44,9 @@ public class GroupByFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if (args.length == 0) {
-      throw new InterpretException(getName() + " requires an attr name to group on", interpreter.getLineNumber());
+
+    if (args.length != 1) {
+      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (attr name to group by)");
     }
 
     String attr = args[0];

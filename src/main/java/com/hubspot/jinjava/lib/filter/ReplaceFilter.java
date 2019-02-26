@@ -6,15 +6,15 @@ import org.apache.commons.lang3.math.NumberUtils;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(
     value = "Return a copy of the value with all occurrences of a substring replaced with a new one. " +
         "The first argument is the substring that should be replaced, the second is the replacement " +
         "string. If the optional third argument count is given, only the first count occurrences are replaced",
+    input = @JinjavaParam(value = "s", desc = "Base string to find and replace within"),
     params = {
-        @JinjavaParam(value = "s", desc = "Base string to find and replace within"),
         @JinjavaParam(value = "old", desc = "The old substring that you want to match and replace"),
         @JinjavaParam(value = "new", desc = "The new string that you replace the matched substring"),
         @JinjavaParam(value = "count", type = "number", desc = "Replace only the first N occurrences")
@@ -41,8 +41,10 @@ public class ReplaceFilter implements Filter {
     if (var == null) {
       return null;
     }
-    if (args.length < 2) {
-      throw new InterpretException("filter " + getName() + " requires two string args");
+    if (args.length != 2 && args.length != 3) {
+      throw new TemplateSyntaxException(interpreter,
+          getName(),
+          "requires 2 arguments (substring to replace, replacement string) or 3 arguments (substring to replace, replacement string, number of occurrences to replace)");
     }
 
     String s = (String) var;

@@ -21,13 +21,16 @@ import java.math.BigInteger;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(
     value = "Multiplies the current object with the given multiplier",
+    input = @JinjavaParam(value = "value", type = "number", desc = "Base number to be multiplied"),
     params = {
-        @JinjavaParam(value = "value", type = "number", desc = "Base number to be multiplied"),
         @JinjavaParam(value = "multiplier", type = "number", desc = "The multiplier")
     },
     snippets = {
@@ -39,11 +42,17 @@ public class MultiplyFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+
     if (arg.length != 1) {
-      throw new InterpretException("filter multiply expects 1 arg >>> " + arg.length);
+      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (number to multiply by)");
     }
     String toMul = arg[0];
-    Number num = new BigDecimal(toMul);
+    Number num;
+    try {
+      num = new BigDecimal(toMul);
+    } catch (NumberFormatException e) {
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, toMul);
+    }
 
     if (object instanceof Integer) {
       return num.intValue() * (Integer) object;
@@ -72,8 +81,8 @@ public class MultiplyFilter implements Filter {
     if (object instanceof String) {
       try {
         return num.doubleValue() * Double.parseDouble((String) object);
-      } catch (Exception e) {
-        throw new InterpretException(object + " can't be dealed with multiply filter", e);
+      } catch (NumberFormatException e) {
+        throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
       }
     }
     return object;

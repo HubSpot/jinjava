@@ -13,8 +13,8 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Returns the sum of a sequence of numbers plus the value of parameter ‘start’ (which defaults to 0). When the sequence is empty it returns start.",
+    input = @JinjavaParam(value = "value", type = "iterable", desc = "Selects the sequence or dict to sum values from"),
     params = {
-        @JinjavaParam(value = "value", type = "iterable", desc = "Selects the sequence or dict to sum values from"),
         @JinjavaParam(value = "attribute", desc = "Specify an optional attribute of dict to sum"),
         @JinjavaParam(value = "start", type = "number", defaultValue = "0", desc = "Sets a value to return, if there is nothing in the variable to sum")
     },

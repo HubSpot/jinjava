@@ -23,8 +23,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  */
 @JinjavaDoc(
     value = "Splits the input string into a list on the given separator",
+    input = @JinjavaParam(value = "string", desc = "The string to split"),
     params = {
-        @JinjavaParam(value = "s", desc = "The string to split"),
         @JinjavaParam(value = "separator", defaultValue = " ", desc = "Specifies the separator to split the variable by"),
         @JinjavaParam(value = "limit", type = "number", defaultValue = "0", desc = "Limits resulting list by putting remainder of string into last list item")
     },

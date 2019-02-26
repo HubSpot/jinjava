@@ -26,9 +26,7 @@ import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 
 @JinjavaDoc(
     value = "Escapes strings so that they can be safely inserted into a JavaScript variable declaration",
-    params = {
-        @JinjavaParam(value = "s", desc = "String to escape")
-    },
+    input = @JinjavaParam(value = "s", desc = "String to escape"),
     snippets = {
         @JinjavaSnippet(
             code = "{% set escape_string = \"This string can safely be inserted into JavaScript\" %}\n" +

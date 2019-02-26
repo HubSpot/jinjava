@@ -3,11 +3,13 @@ package com.hubspot.jinjava.lib.filter;
 import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Returns string value of object",
+    input = @JinjavaParam(value = "value", desc = "The value to turn into a string"),
     snippets = {
         @JinjavaSnippet(
             code = "{% set number_to_string = 45 %}\n" +

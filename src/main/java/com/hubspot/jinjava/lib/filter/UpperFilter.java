@@ -16,11 +16,13 @@ limitations under the License.
 package com.hubspot.jinjava.lib.filter;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Convert a value to uppercase",
+    input = @JinjavaParam(value = "string", type = "string", desc = "the string to uppercase"),
     snippets = {
         @JinjavaSnippet(code = "{{ \"text to make uppercase\"|uppercase }}")
     })
