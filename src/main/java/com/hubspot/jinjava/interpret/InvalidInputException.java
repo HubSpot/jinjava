@@ -7,6 +7,7 @@ public class InvalidInputException extends RuntimeException {
   private final int lineNumber;
   private final int startPosition;
   private final String message;
+  private final String name;
 
   public InvalidInputException(JinjavaInterpreter interpreter, Importable importable, InvalidReason invalidReason, Object... errorMessageArgs) {
     this.message = String.format("Invalid input in '%s': input variable %s",
@@ -15,6 +16,7 @@ public class InvalidInputException extends RuntimeException {
 
     this.lineNumber = interpreter.getLineNumber();
     this.startPosition = interpreter.getPosition();
+    this.name = importable.getName();
   }
 
   public String getMessage() {
@@ -27,5 +29,9 @@ public class InvalidInputException extends RuntimeException {
 
   public int getStartPosition() {
     return startPosition;
+  }
+
+  public String getName() {
+    return name;
   }
 }

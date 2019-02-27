@@ -27,6 +27,7 @@ public class TemplateError {
     MISSING,
     DISABLED,
     INVALID_ARGUMENT,
+    INVALID_INPUT,
     OTHER
   }
 
@@ -73,7 +74,18 @@ public class TemplateError {
         ErrorReason.INVALID_ARGUMENT,
         ErrorItem.PROPERTY,
         ex.getMessage(),
-        ex.getFieldName(),
+        ex.getName(),
+        ex.getLineNumber(),
+        ex.getStartPosition(),
+        ex);
+  }
+
+  public static TemplateError fromInvalidInputException(InvalidInputException ex) {
+    return new TemplateError(ErrorType.FATAL,
+        ErrorReason.INVALID_INPUT,
+        ErrorItem.PROPERTY,
+        ex.getMessage(),
+        ex.getName(),
         ex.getLineNumber(),
         ex.getStartPosition(),
         ex);

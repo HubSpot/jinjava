@@ -8,7 +8,8 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(
     value = "Return true if object is a string which contains a specified other string",
-    params = @JinjavaParam(value = "string", type = "string", desc = "A second string to check is contained in the first string"),
+    input =  @JinjavaParam(value = "string", type = "string"),
+    params = @JinjavaParam(value = "check", type = "string", desc = "A second string to check is contained in the first string"),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is string_containing 'foo' %}\n" +

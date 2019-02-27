@@ -11,7 +11,8 @@ import de.odysseus.el.misc.BooleanOperations;
 import de.odysseus.el.misc.TypeConverter;
 
 @JinjavaDoc(
-    value = "Check if an object has the same value as another object",
+    value = "Returns true if an object has the same value as another object",
+    input = @JinjavaParam(value = "first", type = "object"),
     params = {
         @JinjavaParam(value = "other", type = "object", desc = "Another object to check equality against")
     },

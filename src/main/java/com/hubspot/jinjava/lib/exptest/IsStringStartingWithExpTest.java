@@ -1,12 +1,15 @@
 package com.hubspot.jinjava.lib.exptest;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Return true if object is a string which starts with a specified other string",
+    input =  @JinjavaParam(value = "string", type = "string"),
+    params = @JinjavaParam(value = "check", type = "string", desc = "A second string to check is the start of the first string"),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is string_startingwith 'foo' %}\n" +

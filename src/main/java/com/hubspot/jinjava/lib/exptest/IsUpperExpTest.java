@@ -3,11 +3,13 @@ package com.hubspot.jinjava.lib.exptest;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Return true if string is all uppercased",
+    input = @JinjavaParam(value = "value", type = "string"),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is upper %}\n" +

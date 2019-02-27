@@ -1,11 +1,13 @@
 package com.hubspot.jinjava.lib.exptest;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Return true if object is a string",
+    input = @JinjavaParam(value = "value", type = "object"),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is string %}\n" +

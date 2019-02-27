@@ -1,11 +1,13 @@
 package com.hubspot.jinjava.lib.exptest;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value = "Return true if the value is even",
+    value = "Returns true if the value is even",
+    input = @JinjavaParam(value = "num", type = "number"),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is even %}\n" +

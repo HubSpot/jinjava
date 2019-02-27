@@ -2,10 +2,21 @@ package com.hubspot.jinjava.lib.exptest;
 
 import java.util.Objects;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
+@JinjavaDoc(
+    value = "Returns true if a list contains a value",
+    input = @JinjavaParam(value = "list", type = "list"),
+    params = @JinjavaParam(value = "value", type = "object", desc = "The value to check is in the list"),
+    snippets = {
+        @JinjavaSnippet(
+            code = "{{ [1, 2, 3] is containing 2 }}")
+    })
 public class IsContainingExpTest implements ExpTest {
 
   @Override

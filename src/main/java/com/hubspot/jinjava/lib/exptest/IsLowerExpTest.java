@@ -3,11 +3,13 @@ package com.hubspot.jinjava.lib.exptest;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value = "Return true if the given string is all lowercased",
+    value = "Return true if the given string is all lowercase",
+    input = @JinjavaParam(value = "string", type = "string"),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is lower %}\n" +
