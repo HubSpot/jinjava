@@ -11,8 +11,9 @@ import com.hubspot.jinjava.objects.date.StrftimeFormatter;
     value = "Formats a date object",
     params = {
         @JinjavaParam(value = "value", defaultValue = "current time", desc = "The date variable or UNIX timestamp to format"),
-        @JinjavaParam(value = "format", defaultValue = StrftimeFormatter.DEFAULT_DATE_FORMAT, desc = "The format of the date determined by the directives added to this parameter"),
-        @JinjavaParam(value = "timezone", defaultValue = "utc", desc = "Time zone of output date")
+        @JinjavaParam(value = "format", type = "string", defaultValue = StrftimeFormatter.DEFAULT_DATE_FORMAT, desc = "The format of the date determined by the directives added to this parameter"),
+        @JinjavaParam(value = "timezone", type = "string", defaultValue = "UTC", desc = "Time zone of output date"),
+        @JinjavaParam(value = "locale", type = "string", defaultValue = "en-US", desc = "Locale to use when formatting datetime")
     },
     snippets = {
         @JinjavaSnippet(code = "{% content.updated|datetimeformat('%B %e, %Y') %}"),
