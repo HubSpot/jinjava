@@ -16,6 +16,8 @@
 package com.hubspot.jinjava.tree;
 
 import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.lib.tag.Tag;
@@ -57,7 +59,7 @@ public class TagNode extends Node {
       return tag.interpretOutput(this, interpreter);
     } catch (DeferredValueException e) {
       return new RenderedOutputNode(reconstructImage());
-    } catch (InterpretException e) {
+    } catch (InterpretException|InvalidInputException| InvalidArgumentException e) {
       throw e;
     } catch (Exception e) {
       throw new InterpretException("Error rendering tag", e, master.getLineNumber(), master.getStartPosition());

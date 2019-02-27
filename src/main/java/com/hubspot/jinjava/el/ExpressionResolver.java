@@ -13,8 +13,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.NamedParameter;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
@@ -23,7 +26,6 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
-import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 
 import de.odysseus.el.tree.TreeBuilderException;
@@ -97,6 +99,10 @@ public class ExpressionResolver {
     } catch (DeferredValueException e) {
       // Re-throw so that it can be handled in JinjavaInterpreter
       throw e;
+    } catch (InvalidInputException e) {
+      interpreter.addError(TemplateError.fromInvalidInputException(e));
+    } catch (InvalidArgumentException e) {
+      interpreter.addError(TemplateError.fromInvalidArgumentException(e));
     } catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(
           String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression), e, interpreter.getLineNumber(), interpreter.getPosition())));
