@@ -13,7 +13,7 @@ import com.hubspot.jinjava.objects.date.StrftimeFormatter;
         @JinjavaParam(value = "value", defaultValue = "current time", desc = "The date variable or UNIX timestamp to format"),
         @JinjavaParam(value = "format", type = "string", defaultValue = StrftimeFormatter.DEFAULT_DATE_FORMAT, desc = "The format of the date determined by the directives added to this parameter"),
         @JinjavaParam(value = "timezone", type = "string", defaultValue = "UTC", desc = "Time zone of output date"),
-        @JinjavaParam(value = "locale", type = "string", defaultValue = "en-US", desc = "Locale to use when formatting datetime")
+        @JinjavaParam(value = "languageTag", type = "string", defaultValue = "us", desc = "The language to use when formatting the datetime")
     },
     snippets = {
         @JinjavaSnippet(code = "{% content.updated|datetimeformat('%B %e, %Y') %}"),
