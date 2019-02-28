@@ -101,6 +101,16 @@ public class ImportTagTest {
         .contains("using scoped var: myscopedvar");
   }
 
+  @Test
+  public void itImportsMacroWithCall() throws IOException {
+    Jinjava jinjava = new Jinjava();
+    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+
+    String renderResult = interpreter.render(Resources.toString(Resources.getResource("tags/importtag/imports-macro.jinja"), StandardCharsets.UTF_8));
+    assertThat(renderResult.trim()).isEqualTo("");
+    assertThat(interpreter.getErrorsCopy()).hasSize(0);
+  }
+
   private String fixture(String name) {
     try {
       return interpreter.renderFlat(Resources.toString(
