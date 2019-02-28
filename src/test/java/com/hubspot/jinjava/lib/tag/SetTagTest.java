@@ -13,8 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.runners.MockitoJUnitRunner;
-
+import org.mockito.junit.MockitoJUnitRunner;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
@@ -191,6 +190,25 @@ public class SetTagTest {
         entry("myvar2", "mybar"),
         entry("myvar3", Lists.newArrayList(1L, 2L, 3L, 4L)),
         entry("myvar4", "yoooooo"));
+  }
+
+  @Test
+  public void setGlobalVariableVialNamespace() {
+    // given
+    Jinjava jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
+    context = interpreter.getContext();
+
+    String template = "{% set ns = namespace(found=false) %}";
+
+    // when
+    context.put("items", Lists.newArrayList("A", "B"));
+
+    jinjava.render(template, context);
+
+    // then
+    assertThat(jinjava.getGlobalVariables().getVariableFor("ns.found")).isEqualTo("false");
+    assertThat(jinjava.getGlobalVariables().size()).isEqualTo(1);
   }
 
   private Node fixture(String name) {

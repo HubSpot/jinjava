@@ -157,7 +157,14 @@ public class JinjavaInterpreter {
     return config.isValidationMode();
   }
 
-  public class InterpreterScopeClosable implements AutoCloseable {
+    public Object getNamespaceVariableIfExists(String expression) {
+        if (application.getGlobalVariables().contains(expression)) {
+            return application.getGlobalVariables().getVariableFor(expression);
+        }
+        return null;
+    }
+
+    public class InterpreterScopeClosable implements AutoCloseable {
 
     @Override
     public void close() {
@@ -309,6 +316,14 @@ public class JinjavaInterpreter {
     }
   }
 
+  public void putNamespaceVariable(String name,Object value){
+    application.getGlobalVariables().setVariable(name, value);
+  }
+
+  public Object getNamsepaceVariable(String name){
+    return application.getGlobalVariables().getVariableFor(name);
+  }
+
   /**
    * Resolve a variable from the interpreter context, returning null if not found. This method updates the template error accumulators when a variable is not found.
    *
@@ -332,7 +347,9 @@ public class JinjavaInterpreter {
         throw new DeferredValueException(variable, lineNumber, startPosition);
       }
       obj = var.resolve(obj);
-    } else  if (getConfig().isFailOnUnknownTokens()) {
+    } else if (application.getGlobalVariables().contains(variable)) {
+      obj = application.getGlobalVariables().getVariableFor(variable);
+    } else if (getConfig().isFailOnUnknownTokens()) {
       throw new UnknownTokenException(variable, lineNumber, startPosition);
     }
     return obj;

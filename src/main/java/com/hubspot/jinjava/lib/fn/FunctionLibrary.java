@@ -22,6 +22,7 @@ public class FunctionLibrary extends SimpleLibrary<ELFunctionDefinition> {
     register(new ELFunctionDefinition("", "strtotime", Functions.class, Functions.STRING_TO_TIME_FUNCTION, String.class, String.class));
 
     register(new ELFunctionDefinition("", "super", Functions.class, "renderSuperBlock"));
+    register(new ELFunctionDefinition("", "namespace", Functions.class, "putVariable"));
 
     register(new ELFunctionDefinition("fn", "list", Lists.class, "newArrayList", Object[].class));
     register(new ELFunctionDefinition("fn", "immutable_list", Functions.class, "immutableListOf", Object[].class));
