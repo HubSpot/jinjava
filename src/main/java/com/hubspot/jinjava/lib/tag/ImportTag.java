@@ -95,7 +95,13 @@ public class ImportTag implements Tag {
         interpreter.render(node);
       } else {
         JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
-        child.render(node);
+        JinjavaInterpreter.pushCurrent(child);
+
+        try {
+          child.render(node);
+        } finally {
+          JinjavaInterpreter.popCurrent();
+        }
 
         interpreter.addAllErrors(child.getErrorsCopy());
 
