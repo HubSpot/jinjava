@@ -8,8 +8,8 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(
     value = "Return true if variable is pointing at same object as other variable",
-    input = @JinjavaParam(value = "object", type = "object"),
-    params = @JinjavaParam(value = "other", type = "object", desc = "A second object to check the variables value against"),
+    input = @JinjavaParam(value = "object", type = "object", required = true),
+    params = @JinjavaParam(value = "other", type = "object", desc = "A second object to check the variables value against", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% if var_one is sameas var_two %}\n" +

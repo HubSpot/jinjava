@@ -9,7 +9,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Return true if the given object is a dict",
-    input = @JinjavaParam(value = "object", type = "object"),
+    input = @JinjavaParam(value = "object", type = "object", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is mapping %}\n" +

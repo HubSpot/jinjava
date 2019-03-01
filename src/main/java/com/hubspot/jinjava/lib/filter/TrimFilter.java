@@ -14,7 +14,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  */
 @JinjavaDoc(
     value = "Strip leading and trailing whitespace.",
-    input = @JinjavaParam(value = "string", type = "string", desc = "the string to strip whitespace from"),
+    input = @JinjavaParam(value = "string", type = "string", desc = "the string to strip whitespace from", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{{ \" remove whitespace \"|trim }}")

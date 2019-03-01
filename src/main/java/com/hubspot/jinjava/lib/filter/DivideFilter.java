@@ -29,9 +29,9 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(
     value = "Divides the current value by a divisor",
-    input = @JinjavaParam(value = "value", type = "number", desc = "The numerator to be divided"),
+    input = @JinjavaParam(value = "value", type = "number", desc = "The numerator to be divided", required = true),
     params = {
-        @JinjavaParam(value = "divisor", type = "number", desc = "The divisor to divide the value")
+        @JinjavaParam(value = "divisor", type = "number", desc = "The divisor to divide the value", required = true)
     },
     snippets = {
         @JinjavaSnippet(
@@ -42,7 +42,7 @@ public class DivideFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-    if (arg.length != 1) {
+    if (arg.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 number (divisor) argument");
     }
     String toMul = arg[0];

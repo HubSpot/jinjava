@@ -7,7 +7,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Return true if object is undefined",
-    input = @JinjavaParam(value = "value", type = "object"),
+    input = @JinjavaParam(value = "value", type = "object", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is undefined %}\n" +

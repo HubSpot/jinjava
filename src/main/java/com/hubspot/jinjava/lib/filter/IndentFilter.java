@@ -17,7 +17,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Uses whitespace to indent a string.",
-    input = @JinjavaParam(value = "string", desc = "The string to indent"),
+    input = @JinjavaParam(value = "string", desc = "The string to indent", required = true),
     params = {
         @JinjavaParam(value = "width", type = "number", defaultValue = "4", desc = "Amount of whitespace to indent"),
         @JinjavaParam(value = "indentfirst", type = "boolean", defaultValue = "False", desc = "If True, first line will be indented")

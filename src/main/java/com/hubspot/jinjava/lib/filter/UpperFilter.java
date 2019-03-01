@@ -22,7 +22,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Convert a value to uppercase",
-    input = @JinjavaParam(value = "string", type = "string", desc = "the string to uppercase"),
+    input = @JinjavaParam(value = "string", type = "string", desc = "the string to uppercase", required = true),
     snippets = {
         @JinjavaSnippet(code = "{{ \"text to make uppercase\"|uppercase }}")
     })

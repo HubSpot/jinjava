@@ -14,7 +14,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  */
 @JinjavaDoc(
     value = "Return a titlecased version of the value. I.e. words will start with uppercase letters, all remaining characters are lowercase.",
-    input = @JinjavaParam(value = "string", type = "string", desc = "the string to titlecase"),
+    input = @JinjavaParam(value = "string", type = "string", desc = "the string to titlecase", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{{ \"My title should be titlecase\"|title }} "

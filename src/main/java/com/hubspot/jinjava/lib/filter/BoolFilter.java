@@ -25,7 +25,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  */
 @JinjavaDoc(
         value = "Convert value into a boolean.",
-        input = @JinjavaParam(value = "value", desc = "The value to convert to a boolean"),
+        input = @JinjavaParam(value = "value", desc = "The value to convert to a boolean", required = true),
         snippets = {
                 @JinjavaSnippet(
                         desc = "This example converts a text string value to a boolean",

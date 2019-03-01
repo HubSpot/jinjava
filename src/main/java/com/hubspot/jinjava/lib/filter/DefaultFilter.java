@@ -26,9 +26,9 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
 
 @JinjavaDoc(
     value = "If the value is undefined it will return the passed default value, otherwise the value of the variable",
-    input = @JinjavaParam(value = "value", desc = "The variable or value to test"),
+    input = @JinjavaParam(value = "value", desc = "The variable or value to test", required = true),
     params = {
-        @JinjavaParam(value = "default_value", desc = "Value to print when variable is not defined"),
+        @JinjavaParam(value = "default_value", desc = "Value to print when variable is not defined", required = true),
         @JinjavaParam(value = "boolean", type = "boolean", defaultValue = "False", desc = "Set to True to use with variables which evaluate to false")
     },
     snippets = {
@@ -45,11 +45,11 @@ public class DefaultFilter implements Filter {
   public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
     boolean truthy = false;
 
-    if (args.length != 1 && args.length != 2) {
-      throw new TemplateSyntaxException(interpreter, getName(), "requires either 1 (default value to use) or 2 (default value to use, ) arguments");
+    if (args.length < 1) {
+      throw new TemplateSyntaxException(interpreter, getName(), "requires either 1 (default value to use) or 2 (default value to use, default with variables that evaluate to false) arguments");
     }
 
-    if (args.length == 2) {
+    if (args.length > 2) {
       truthy = BooleanUtils.toBoolean(args[1]);
     }
 

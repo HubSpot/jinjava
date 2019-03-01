@@ -13,7 +13,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Converts JSON string to Object",
-    input = @JinjavaParam(value = "string", desc = "JSON String to write to object"),
+    input = @JinjavaParam(value = "string", desc = "JSON String to write to object", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{{object|fromJson}}"

@@ -11,7 +11,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Counts the words in the given string",
-    input = @JinjavaParam(value = "string", type = "string", desc = "string to count the words from"),
+    input = @JinjavaParam(value = "string", type = "string", desc = "string to count the words from", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{%  set count_words = \"Count the number of words in this variable\" %}\n" +

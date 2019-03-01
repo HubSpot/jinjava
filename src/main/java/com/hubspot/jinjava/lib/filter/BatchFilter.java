@@ -15,7 +15,7 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "A filter that groups up items within a sequence",
-    input = @JinjavaParam(value = "value", desc = "The sequence or dict that the filter is applied to"),
+    input = @JinjavaParam(value = "value", desc = "The sequence or dict that the filter is applied to", required = true),
     params = {
         @JinjavaParam(value = "linecount", type = "number", desc = "Number of items to include in the batch", defaultValue = "0"),
         @JinjavaParam(value = "fill_with", desc = "Value used to fill up missing items")

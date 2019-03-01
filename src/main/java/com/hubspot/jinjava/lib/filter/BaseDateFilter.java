@@ -18,7 +18,7 @@ public abstract class BaseDateFilter implements AdvancedFilter {
 
   protected long parseDiffAmount(JinjavaInterpreter interpreter, Object... args) {
 
-    if (args.length != 2) {
+    if (args.length < 2) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 number (diff amount) and 1 string (diff unit) argument");
     }
 
@@ -36,7 +36,7 @@ public abstract class BaseDateFilter implements AdvancedFilter {
 
   protected ChronoUnit parseChronoUnit(JinjavaInterpreter interpreter, Object... args) {
 
-    if (args.length != 2) {
+    if (args.length < 2) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 number (diff amount) and 1 string (diff unit) argument");
     }
 

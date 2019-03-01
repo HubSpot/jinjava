@@ -11,7 +11,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Enforce HTML escaping. This will probably double escape variables.",
-    input = @JinjavaParam(value = "value", desc = "Value to escape"),
+    input = @JinjavaParam(value = "value", desc = "Value to escape", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% set escape_string = \"<div>This markup is printed as text</div>\" %}\n" +

@@ -7,7 +7,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Return true if the object is a number",
-    input = @JinjavaParam(value = "object", type = "object"),
+    input = @JinjavaParam(value = "object", type = "object", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is number %}\n" +

@@ -12,9 +12,9 @@ import de.odysseus.el.misc.TypeConverter;
 
 @JinjavaDoc(
     value = "Returns true if an object has the same value as another object",
-    input = @JinjavaParam(value = "first", type = "object"),
+    input = @JinjavaParam(value = "first", type = "object", required = true),
     params = {
-        @JinjavaParam(value = "other", type = "object", desc = "Another object to check equality against")
+        @JinjavaParam(value = "other", type = "object", desc = "Another object to check equality against", required = true)
     },
     snippets = {
         @JinjavaSnippet(

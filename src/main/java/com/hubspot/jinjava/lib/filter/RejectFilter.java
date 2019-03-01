@@ -16,9 +16,9 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Filters a sequence of objects by applying a test to the object and rejecting the ones with the test succeeding.",
-    input = @JinjavaParam(value = "seq", type = "Sequence to test"),
+    input = @JinjavaParam(value = "seq", type = "Sequence to test", required = true),
     params = {
-        @JinjavaParam(value = "exp_test", type = "name of expression test", desc = "Specify which expression test to run for making the selection")
+        @JinjavaParam(value = "exp_test", type = "name of expression test", desc = "Specify which expression test to run for making the selection", required = true)
     },
     snippets = {
         @JinjavaSnippet(
@@ -36,7 +36,7 @@ public class RejectFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     List<Object> result = new ArrayList<>();
 
-    if (args.length == 0) {
+    if (args.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (name of expression test to filter by)");
     }
 

@@ -27,7 +27,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Return the number of items of a sequence or mapping",
-    input = @JinjavaParam(value = "object", desc = "The sequence to count"),
+    input = @JinjavaParam(value = "object", desc = "The sequence to count", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% set services = ['Web design', 'SEO', 'Inbound Marketing', 'PPC'] %}\n" +

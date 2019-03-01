@@ -8,9 +8,9 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(
     value = "Renders the attribute of a dictionary",
-    input = @JinjavaParam(value = "obj", desc = "The dictionary containing the attribute"),
+    input = @JinjavaParam(value = "obj", desc = "The dictionary containing the attribute", required = true),
     params = {
-        @JinjavaParam(value = "name", desc = "The dictionary attribute name to access")
+        @JinjavaParam(value = "name", desc = "The dictionary attribute name to access", required = true)
     },
     snippets = {
         @JinjavaSnippet(
@@ -27,7 +27,7 @@ public class AttrFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
 
-    if (args.length != 1) {
+    if (args.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (attribute name to use)");
     }
 

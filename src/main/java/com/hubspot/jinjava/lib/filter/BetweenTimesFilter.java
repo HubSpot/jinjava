@@ -21,10 +21,10 @@ import com.hubspot.jinjava.objects.date.PyishDate;
  */
 @JinjavaDoc(
     value = "Calculates the time between two datetime objects",
-    input = @JinjavaParam(value = "begin", desc = "Datetime object or timestamp at the beginning of the period"),
+    input = @JinjavaParam(value = "begin", desc = "Datetime object or timestamp at the beginning of the period", required = true),
     params = {
-        @JinjavaParam(value = "end", desc = "Datetime object or timestamp at the end of the period"),
-        @JinjavaParam(value = "unit", desc = "Which temporal unit to use"),
+        @JinjavaParam(value = "end", desc = "Datetime object or timestamp at the end of the period", required = true),
+        @JinjavaParam(value = "unit", desc = "Which temporal unit to use", required = true),
     },
     snippets = {
         @JinjavaSnippet(code = "{% begin|between_times(end, 'hours') %}"),
@@ -34,7 +34,7 @@ public class BetweenTimesFilter extends BaseDateFilter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
 
-    if (args.length != 2) {
+    if (args.length < 2) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 datetime (end date) and 1 string (diff unit) argument");
     }
 

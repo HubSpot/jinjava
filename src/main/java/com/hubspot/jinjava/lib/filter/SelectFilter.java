@@ -18,9 +18,8 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Filters a sequence of objects by applying a test to the object and only selecting the ones with the test succeeding.",
-    input = @JinjavaParam(value = "sequence", type = "sequence", desc = "Sequence to test"),
+    input = @JinjavaParam(value = "sequence", type = "sequence", desc = "Sequence to test", required = true),
     params = {
-        @JinjavaParam(value = "value", type = "sequence"),
         @JinjavaParam(value = "exp_test", type = "name of expression test", defaultValue = "truthy", desc = "Specify which expression test to run for making the selection")
     },
     snippets = {

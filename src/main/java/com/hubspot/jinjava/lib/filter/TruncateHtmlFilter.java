@@ -21,7 +21,7 @@ import com.hubspot.jinjava.lib.fn.Functions;
 
 @JinjavaDoc(
     value = "Truncates a given string, respecting html markup (i.e. will properly close all nested tags)",
-    input = @JinjavaParam(value = "html", desc = "HTML to truncate"),
+    input = @JinjavaParam(value = "html", desc = "HTML to truncate", required = true),
     params = {
       @JinjavaParam(value = "length", type = "number", defaultValue = "255", desc = "Length at which to truncate text (HTML characters not included)"),
       @JinjavaParam(value = "end", defaultValue = "...", desc = "The characters that will be added to indicate where the text was truncated"),

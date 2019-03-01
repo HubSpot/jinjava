@@ -7,7 +7,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Returns true if the value is even",
-    input = @JinjavaParam(value = "num", type = "number"),
+    input = @JinjavaParam(value = "num", type = "number", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is even %}\n" +

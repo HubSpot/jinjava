@@ -11,9 +11,9 @@ import com.hubspot.jinjava.lib.fn.Functions;
 
 @JinjavaDoc(
     value = "Converts a datetime string and datetime format to a datetime object",
-    input = @JinjavaParam(value = "datetimeString", desc = "Datetime string"),
+    input = @JinjavaParam(value = "datetimeString", desc = "Datetime string", required = true),
     params = {
-        @JinjavaParam(value = "datetimeFormat", desc = "Format of the datetime string"),
+        @JinjavaParam(value = "datetimeFormat", desc = "Format of the datetime string", required = true),
     },
     snippets = {
         @JinjavaSnippet(code = "{% mydatetime|unixtimestamp %}"),
@@ -23,7 +23,7 @@ public class StringToTimeFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
 
-    if (args.length != 1) {
+    if (args.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (datetime format string)");
     }
 

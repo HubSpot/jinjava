@@ -28,7 +28,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     value = "Converts the characters &, <, >, ‘, and ” in string s to HTML-safe sequences. "
         + "Use this filter if you need to display text that might contain such characters in HTML. "
         + "Marks return value as markup string.",
-    input = @JinjavaParam(value = "s", desc = "String to escape"),
+    input = @JinjavaParam(value = "s", desc = "String to escape", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% set escape_string = \"<div>This markup is printed as text</div>\" %}\n" +

@@ -11,9 +11,9 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Returns a list containing elements present in both lists",
-    input = @JinjavaParam(value = "value", type = "sequence", desc = "The first list"),
+    input = @JinjavaParam(value = "value", type = "sequence", desc = "The first list", required = true),
     params = {
-        @JinjavaParam(value = "list", type = "sequence", desc = "The second list")
+        @JinjavaParam(value = "list", type = "sequence", desc = "The second list", required = true)
     },
     snippets = {
         @JinjavaSnippet(
@@ -23,7 +23,7 @@ public class IntersectFilter extends AbstractSetFilter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
-    return new ArrayList<>(Sets.intersection(objectToSet(var), objectToSet(parseArgs(args))));
+    return new ArrayList<>(Sets.intersection(objectToSet(var), objectToSet(parseArgs(interpreter, args))));
   }
 
   @Override

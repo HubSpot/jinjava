@@ -14,7 +14,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  */
 @JinjavaDoc(
     value = "Strip SGML/XML tags and replace adjacent whitespace by one space.",
-    input = @JinjavaParam(value = "string", desc = "string to strip tags from"),
+    input = @JinjavaParam(value = "string", desc = "string to strip tags from", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% set some_html = \"<div><strong>Some text</strong></div>\" %}\n" +

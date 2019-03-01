@@ -7,7 +7,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Return true if a number is an odd number",
-    input = @JinjavaParam(value = "num", type = "number"),
+    input = @JinjavaParam(value = "num", type = "number", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is odd %}\n" +

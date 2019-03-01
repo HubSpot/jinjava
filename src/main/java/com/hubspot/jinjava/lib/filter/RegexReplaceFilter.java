@@ -16,10 +16,10 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
         value = "Return a copy of the value with all occurrences of a matched regular expression (Java RE2 syntax) " +
                 "replaced with a new one. The first argument is the regular expression to be matched, the second " +
                 "is the replacement string",
-        input = @JinjavaParam(value = "s", desc = "Base string to find and replace within"),
+        input = @JinjavaParam(value = "s", desc = "Base string to find and replace within", required = true),
         params = {
-                @JinjavaParam(value = "regex", desc = "The regular expression that you want to match and replace"),
-                @JinjavaParam(value = "new", desc = "The new string that you replace the matched substring")
+                @JinjavaParam(value = "regex", desc = "The regular expression that you want to match and replace", required = true),
+                @JinjavaParam(value = "new", desc = "The new string that you replace the matched substring", required = true)
         },
         snippets = {
                 @JinjavaSnippet(
@@ -37,7 +37,7 @@ public class RegexReplaceFilter implements Filter {
     public Object filter(Object var, JinjavaInterpreter interpreter,
                          String... args) {
 
-        if (args.length != 2) {
+        if (args.length < 2) {
             throw new TemplateSyntaxException(interpreter, getName(), "requires 2 arguments (regex string, replacement string)");
         }
 

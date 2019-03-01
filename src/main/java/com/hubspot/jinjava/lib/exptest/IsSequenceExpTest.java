@@ -7,7 +7,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Return true if the variable is a sequence. Sequences are variables that are iterable.",
-    input = @JinjavaParam(value = "object", type = "object"),
+    input = @JinjavaParam(value = "object", type = "object", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is sequence %}\n" +

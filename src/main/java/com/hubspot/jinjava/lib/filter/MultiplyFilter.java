@@ -29,9 +29,9 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(
     value = "Multiplies the current object with the given multiplier",
-    input = @JinjavaParam(value = "value", type = "number", desc = "Base number to be multiplied"),
+    input = @JinjavaParam(value = "value", type = "number", desc = "Base number to be multiplied", required = true),
     params = {
-        @JinjavaParam(value = "multiplier", type = "number", desc = "The multiplier")
+        @JinjavaParam(value = "multiplier", type = "number", desc = "The multiplier", required = true)
     },
     snippets = {
         @JinjavaSnippet(
@@ -43,7 +43,7 @@ public class MultiplyFilter implements Filter {
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
 
-    if (arg.length != 1) {
+    if (arg.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (number to multiply by)");
     }
     String toMul = arg[0];

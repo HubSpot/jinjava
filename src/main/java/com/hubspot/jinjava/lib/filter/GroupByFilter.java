@@ -19,9 +19,9 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Group a sequence of objects by a common attribute.",
-    input = @JinjavaParam(value = "value", desc = "The dict to iterate through and group by a common attribute"),
+    input = @JinjavaParam(value = "value", desc = "The dict to iterate through and group by a common attribute", required = true),
     params = {
-        @JinjavaParam(value = "attribute", desc = "The common attribute to group by")
+        @JinjavaParam(value = "attribute", desc = "The common attribute to group by", required = true)
     },
     snippets = {
         @JinjavaSnippet(
@@ -45,7 +45,7 @@ public class GroupByFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
 
-    if (args.length != 1) {
+    if (args.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (attr name to group by)");
     }
 

@@ -17,10 +17,10 @@ import com.hubspot.jinjava.objects.date.PyishDate;
  */
 @JinjavaDoc(
     value = "Adds a specified amount of time to a datetime object",
-    input = @JinjavaParam(value = "var", desc = "Datetime object or timestamp"),
+    input = @JinjavaParam(value = "var", desc = "Datetime object or timestamp", required = true),
     params = {
-        @JinjavaParam(value = "diff", desc = "The amount to add to the datetime"),
-        @JinjavaParam(value = "unit", desc = "Which temporal unit to use"),
+        @JinjavaParam(value = "diff", desc = "The amount to add to the datetime", required = true),
+        @JinjavaParam(value = "unit", desc = "Which temporal unit to use", required = true),
     },
     snippets = {
         @JinjavaSnippet(code = "{% mydatetime|plus_time(3, 'days') %}"),

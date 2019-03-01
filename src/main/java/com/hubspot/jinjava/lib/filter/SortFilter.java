@@ -15,7 +15,7 @@ import com.hubspot.jinjava.util.Variable;
 
 @JinjavaDoc(
     value = "Sort an iterable.",
-    input = @JinjavaParam(value = "value", type = "iterable", desc = "The sequence or dict to sort through iteration"),
+    input = @JinjavaParam(value = "value", type = "iterable", desc = "The sequence or dict to sort through iteration", required = true),
     params = {
         @JinjavaParam(value = "reverse", type = "boolean", defaultValue = "False", desc = "Boolean to reverse the sort order"),
         @JinjavaParam(value = "case_sensitive", type = "boolean", defaultValue = "False", desc = "Determines whether or not the sorting is case sensitive"),

@@ -13,9 +13,9 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Slice an iterator and return a list of lists containing those items.",
-    input = @JinjavaParam(value = "value", type = "sequence", desc = "The sequence or dict that the filter is applied to"),
+    input = @JinjavaParam(value = "value", type = "sequence", desc = "The sequence or dict that the filter is applied to", required = true),
     params = {
-        @JinjavaParam(value = "slices", type = "number", desc = "Specifies how many items will be sliced"),
+        @JinjavaParam(value = "slices", type = "number", desc = "Specifies how many items will be sliced", required = true),
     },
     snippets = {
         @JinjavaSnippet(
@@ -42,7 +42,7 @@ public class SliceFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     ForLoop loop = ObjectIterator.getLoop(var);
 
-    if (args.length == 0) {
+    if (args.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (number of slices)");
     }
 

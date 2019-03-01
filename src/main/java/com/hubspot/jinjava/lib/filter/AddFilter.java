@@ -28,9 +28,9 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(
     value = "adds a number to the existing value",
-    input = @JinjavaParam(value = "number", type = "number", desc = "Number or numeric variable to add to"),
+    input = @JinjavaParam(value = "number", type = "number", desc = "Number or numeric variable to add to", required = true),
     params = {
-        @JinjavaParam(value = "addend", type = "number", desc = "The number added to the base number")
+        @JinjavaParam(value = "addend", type = "number", desc = "The number added to the base number", required = true)
     },
     snippets = {
         @JinjavaSnippet(
@@ -40,13 +40,13 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 public class AddFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
 
     if (object == null) {
       return null;
     }
 
-    if (arg.length != 1) {
+    if (args.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (number to add to base)");
     }
 
@@ -57,15 +57,15 @@ public class AddFilter implements Filter {
       throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
     }
 
-    if (arg[0] == null) {
+    if (args[0] == null) {
       return base;
     }
 
     BigDecimal addend;
     try {
-      addend = new BigDecimal(arg[0]);
+      addend = new BigDecimal(args[0]);
     } catch (NumberFormatException e) {
-      throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, arg[0]);
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, args[0]);
     }
 
     return base.add(addend);

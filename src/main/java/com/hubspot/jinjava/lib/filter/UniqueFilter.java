@@ -12,7 +12,7 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Extract a unique set from a sequence of objects",
-    input = @JinjavaParam(value = "sequence", type = "sequence", desc = "Sequence to filter"),
+    input = @JinjavaParam(value = "sequence", type = "sequence", desc = "Sequence to filter", required = true),
     params = {
         @JinjavaParam(value = "attr", type = "Optional attribute on object to use as unique identifier")
     },

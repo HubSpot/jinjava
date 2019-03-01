@@ -10,7 +10,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Uses whitespace to center the value in a field of a given width.",
-    input = @JinjavaParam(value = "value", desc = "Value to center"),
+    input = @JinjavaParam(value = "value", desc = "Value to center", required = true),
     params = {
         @JinjavaParam(value = "width", type = "number", defaultValue = "80", desc = "Width of field to center value in")
     },

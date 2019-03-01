@@ -9,7 +9,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Capitalize a value. The first character will be uppercase, all others lowercase.",
-    input = @JinjavaParam(value = "string", desc = "String to capitalize the first letter of"),
+    input = @JinjavaParam(value = "string", desc = "String to capitalize the first letter of", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% set sentence = \"the first letter of a sentence should always be capitalized.\" %}\n" +

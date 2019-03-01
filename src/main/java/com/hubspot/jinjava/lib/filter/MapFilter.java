@@ -13,9 +13,9 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Applies a filter on a sequence of objects or looks up an attribute.",
-    input = @JinjavaParam(value = "value", type = "object", desc = "Sequence to apply filter or dict to lookup attribute"),
+    input = @JinjavaParam(value = "value", type = "object", desc = "Sequence to apply filter or dict to lookup attribute", required = true),
     params = {
-        @JinjavaParam(value = "attribute", desc = "Filter to apply to an object or dict attribute to lookup")
+        @JinjavaParam(value = "attribute", desc = "Filter to apply to an object or dict attribute to lookup", required = true)
     },
     snippets = {
         @JinjavaSnippet(
@@ -37,7 +37,7 @@ public class MapFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     ForLoop loop = ObjectIterator.getLoop(var);
 
-    if (args.length == 0) {
+    if (args.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (name of filter or attribute to apply to given sequence)");
     }
 

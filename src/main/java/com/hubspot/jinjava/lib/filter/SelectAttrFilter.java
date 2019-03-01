@@ -19,9 +19,9 @@ import com.hubspot.jinjava.util.Variable;
 
 @JinjavaDoc(
     value = "Filters a sequence of objects by applying a test to an attribute of an object and only selecting the ones with the test succeeding.",
-    input = @JinjavaParam(value = "sequence", type = "sequence", desc = "Sequence to test"),
+    input = @JinjavaParam(value = "sequence", type = "sequence", desc = "Sequence to test", required = true),
     params = {
-        @JinjavaParam(value = "attr", desc = "Attribute to test for and select items that contain it"),
+        @JinjavaParam(value = "attr", desc = "Attribute to test for and select items that contain it", required = true),
         @JinjavaParam(value = "exp_test", type = "name of expression test", defaultValue = "truthy", desc = "Specify which expression test to run for making the selection")
     },
     snippets = {
@@ -46,7 +46,7 @@ public class SelectAttrFilter implements AdvancedFilter {
   protected Object applyFilter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs, boolean acceptObjects) {
     List<Object> result = new ArrayList<>();
 
-    if (args.length == 0) {
+    if (args.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires at least 1 argument (attr to filter on)");
     }
 

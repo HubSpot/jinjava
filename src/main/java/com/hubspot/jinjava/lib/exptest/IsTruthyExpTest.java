@@ -8,7 +8,7 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
 
 @JinjavaDoc(
     value = "Return true if object is 'truthy'",
-    input = @JinjavaParam(value = "value", type = "object"),
+    input = @JinjavaParam(value = "value", type = "object", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is truthy %}\n" +

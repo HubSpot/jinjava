@@ -11,8 +11,8 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Returns true if a list contains a value",
-    input = @JinjavaParam(value = "list", type = "list"),
-    params = @JinjavaParam(value = "value", type = "object", desc = "The value to check is in the list"),
+    input = @JinjavaParam(value = "list", type = "list", required = true),
+    params = @JinjavaParam(value = "value", type = "object", desc = "The value to check is in the list", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{{ [1, 2, 3] is containing 2 }}")

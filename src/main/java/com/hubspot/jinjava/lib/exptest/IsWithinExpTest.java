@@ -11,8 +11,8 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Returns true if a value is within a list",
-    input = @JinjavaParam(value = "value", type="object"),
-    params = @JinjavaParam(value = "list", type="list", desc = "A list to check if the value is in."),
+    input = @JinjavaParam(value = "value", type = "object", required = true),
+    params = @JinjavaParam(value = "list", type = "list", desc = "A list to check if the value is in.", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{{ 2 is within [1, 2, 3] }}")

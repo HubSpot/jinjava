@@ -9,7 +9,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Return true if the given string is all lowercase",
-    input = @JinjavaParam(value = "string", type = "string"),
+    input = @JinjavaParam(value = "string", type = "string", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is lower %}\n" +

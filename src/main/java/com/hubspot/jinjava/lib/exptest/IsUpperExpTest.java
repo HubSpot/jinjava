@@ -9,7 +9,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Return true if string is all uppercased",
-    input = @JinjavaParam(value = "value", type = "string"),
+    input = @JinjavaParam(value = "value", type = "string", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is upper %}\n" +

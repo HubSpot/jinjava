@@ -14,9 +14,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Round the number to a given precision.",
-    input = @JinjavaParam(value = "value", type = "number", desc = "The number to round"),
+    input = @JinjavaParam(value = "value", type = "number", desc = "The number to round", required = true),
     params = {
-        @JinjavaParam(value = "value", type = "number", desc = "The number to round"),
         @JinjavaParam(value = "precision", type = "number", defaultValue = "0", desc = "Specifies the precision of rounding"),
         @JinjavaParam(value = "method", type = "enum common|ceil|floor", defaultValue = "common", desc = "Method of rounding: 'common' rounds either up or down, 'ceil' always rounds up, and 'floor' always rounds down.")
     },
@@ -39,7 +38,7 @@ public class RoundFilter implements Filter {
       return null;
     }
 
-    BigDecimal result = BigDecimal.ZERO;
+    BigDecimal result;
     try {
       result = new BigDecimal(var.toString());
     } catch (NumberFormatException e) {

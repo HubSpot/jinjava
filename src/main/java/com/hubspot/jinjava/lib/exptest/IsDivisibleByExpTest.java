@@ -10,8 +10,8 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(
     value = "Returns true if a variable is divisible by a number",
-    input = @JinjavaParam(value = "num", type = "number"),
-    params = @JinjavaParam(value = "divisor", type = "number", desc = "The number to check whether a number is divisible by"),
+    input = @JinjavaParam(value = "num", type = "number", required = true),
+    params = @JinjavaParam(value = "divisor", type = "number", desc = "The number to check whether a number is divisible by", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is divisbleby 5 %}\n" +

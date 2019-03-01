@@ -16,7 +16,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Escape strings for use in URLs (uses UTF-8 encoding). It accepts both dictionaries and regular strings as well as pairwise iterables.",
-    input = @JinjavaParam(value = "url", type = "string", desc = "the url to escape"),
+    input = @JinjavaParam(value = "url", type = "string", desc = "the url to escape", required = true),
     snippets = {
         @JinjavaSnippet(code = "{{ \"Escape & URL encode this string\"|urlencode }}")
     })

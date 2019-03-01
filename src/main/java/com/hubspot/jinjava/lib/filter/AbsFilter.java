@@ -27,7 +27,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Return the absolute value of the argument.",
-    input = @JinjavaParam(value = "number", type = "number", desc = "The number that you want to get the absolute value of"),
+    input = @JinjavaParam(value = "number", type = "number", desc = "The number that you want to get the absolute value of", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% set my_number = -53 %}\n" +

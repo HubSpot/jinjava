@@ -25,7 +25,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Reverse the object or return an iterator the iterates over it the other way round.",
-    input = @JinjavaParam(value = "value", type = "object", desc = "The sequence or dict to reverse the iteration order"),
+    input = @JinjavaParam(value = "value", type = "object", desc = "The sequence or dict to reverse the iteration order", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% set nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] %}\n" +

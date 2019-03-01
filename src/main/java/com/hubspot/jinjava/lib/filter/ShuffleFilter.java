@@ -12,7 +12,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Randomly shuffle a given list, returning a new list with all of the items of the original list in a random order",
-    input = @JinjavaParam(value = "sequence", type = "sequence", desc = "Sequence to shuffle"),
+    input = @JinjavaParam(value = "sequence", type = "sequence", desc = "Sequence to shuffle", required = true),
     snippets = {
         @JinjavaSnippet(
             desc = "The example below is a standard blog loop that's order is randomized on page load",

@@ -27,9 +27,9 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(
     value = "Removes a string from the value from another string",
-    input = @JinjavaParam(value = "value", desc = "The original string"),
+    input = @JinjavaParam(value = "value", desc = "The original string", required = true),
     params = {
-        @JinjavaParam(value = "to_remove", desc = "String to remove from the original string")
+        @JinjavaParam(value = "to_remove", desc = "String to remove from the original string", required = true)
     },
     snippets = {
         @JinjavaSnippet(
@@ -41,7 +41,7 @@ public class CutFilter implements Filter {
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
 
-    if (arg.length != 1) {
+    if (arg.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (string to remove from target)");
     }
     String cutee = arg[0];

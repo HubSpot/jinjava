@@ -23,7 +23,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  */
 @JinjavaDoc(
     value = "Splits the input string into a list on the given separator",
-    input = @JinjavaParam(value = "string", desc = "The string to split"),
+    input = @JinjavaParam(value = "string", desc = "The string to split", required = true),
     params = {
         @JinjavaParam(value = "separator", defaultValue = " ", desc = "Specifies the separator to split the variable by"),
         @JinjavaParam(value = "limit", type = "number", defaultValue = "0", desc = "Limits resulting list by putting remainder of string into last list item")
@@ -53,7 +53,7 @@ public class SplitFilter implements Filter {
       splitter = Splitter.on(args[0]);
     }
     else {
-      splitter = Splitter.on(CharMatcher.WHITESPACE);
+      splitter = Splitter.on(CharMatcher.whitespace());
     }
 
     if (args.length > 1) {
