@@ -36,28 +36,17 @@ public class InvalidArgumentException extends RuntimeException {
   }
 
   private static String formatArgumentNumber(int argumentNumber) {
-    switch (argumentNumber){
-      case 1:
-        return "1st";
-      case 2:
-        return "2nd";
-      case 3:
-        return "3rd";
-      case 4:
-        return "4th";
-      case 5:
-        return "5th";
-      case 6:
-        return "6th";
-      case 7:
-        return "7th";
-      case 8:
-        return "8th";
-      case 9:
-        return "9th";
-      default:
-        return String.valueOf(argumentNumber);
 
+    String base = "th";
+    int remainder = argumentNumber % 10;
+    if (remainder == 1) {
+      base = "st";
+    } else if (remainder == 2) {
+      base = "nd";
+    } else if (remainder == 3) {
+      base = "rd";
     }
+
+    return String.format("%d%s", argumentNumber, base);
   }
 }
