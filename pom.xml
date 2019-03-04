@@ -80,6 +80,10 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>ch.obermuhlner</groupId>
+      <artifactId>big-math</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -129,6 +133,11 @@
         <groupId>com.google.re2j</groupId>
         <artifactId>re2j</artifactId>
         <version>1.2</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.obermuhlner</groupId>
+        <artifactId>big-math</artifactId>
+        <version>2.0.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
