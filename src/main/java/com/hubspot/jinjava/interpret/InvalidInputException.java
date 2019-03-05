@@ -10,17 +10,17 @@ public class InvalidInputException extends RuntimeException {
   private final String name;
 
   public InvalidInputException(JinjavaInterpreter interpreter, Importable importable, InvalidReason invalidReason, Object... errorMessageArgs) {
-    this(interpreter, importable, String.format("Invalid input in '%s': input variable %s",
+    this(interpreter, importable.getName(), String.format("Invalid input for '%s': input %s",
         importable.getName(),
         String.format(invalidReason.getErrorMessage(), errorMessageArgs)));
   }
 
-  public InvalidInputException(JinjavaInterpreter interpreter, Importable importable, String errorMessage) {
+  public InvalidInputException(JinjavaInterpreter interpreter, String name, String errorMessage) {
     this.message = errorMessage;
 
     this.lineNumber = interpreter.getLineNumber();
     this.startPosition = interpreter.getPosition();
-    this.name = importable.getName();
+    this.name = name;
   }
 
   public String getMessage() {
