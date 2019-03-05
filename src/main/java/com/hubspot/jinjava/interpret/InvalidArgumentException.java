@@ -10,9 +10,13 @@ public class InvalidArgumentException extends RuntimeException {
   private final String name;
 
   public InvalidArgumentException(JinjavaInterpreter interpreter, Importable importable, InvalidReason invalidReason, int argumentNumber, Object... errorMessageArgs) {
-    this.message = String.format("Invalid argument in '%s': %s",
+    this(interpreter, importable, String.format("Invalid argument in '%s': %s",
         importable.getName(),
-        String.format("%s %s", formatArgumentNumber(argumentNumber + 1), String.format(invalidReason.getErrorMessage(), errorMessageArgs)));
+        String.format("%s %s", formatArgumentNumber(argumentNumber + 1), String.format(invalidReason.getErrorMessage(), errorMessageArgs))));
+  }
+
+  public InvalidArgumentException(JinjavaInterpreter interpreter, Importable importable, String errorMessage) {
+    this.message = String.format("Invalid argument in '%s': %s", importable.getName(), errorMessage);
 
     this.lineNumber = interpreter.getLineNumber();
     this.startPosition = interpreter.getPosition();
