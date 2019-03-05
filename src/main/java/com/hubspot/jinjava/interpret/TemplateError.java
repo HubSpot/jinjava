@@ -66,7 +66,7 @@ public class TemplateError {
 
   public static TemplateError fromException(TemplateSyntaxException ex) {
     String fieldName = (ex instanceof UnknownTagException) ? ((UnknownTagException) ex).getTag() : ex.getCode();
-    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), fieldName, ex.getLineNumber(), ex.getStartPosition(), ex);
+    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ex.getMessage(), fieldName, ex.getLineNumber(), ex.getStartPosition(), ex);
   }
 
   public static TemplateError fromInvalidArgumentException(InvalidArgumentException ex) {
