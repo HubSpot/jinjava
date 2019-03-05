@@ -1,11 +1,13 @@
 package com.hubspot.jinjava.lib.exptest;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value = "Return true if the value is even",
+    value = "Returns true if the value is even",
+    input = @JinjavaParam(value = "num", type = "number", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% if variable is even %}\n" +
@@ -24,6 +26,7 @@ public class IsEvenExpTest implements ExpTest {
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter,
       Object... args) {
+
     if (var == null || !Number.class.isAssignableFrom(var.getClass())) {
       return false;
     }

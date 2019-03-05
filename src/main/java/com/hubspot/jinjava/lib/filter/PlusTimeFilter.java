@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -16,10 +17,10 @@ import com.hubspot.jinjava.objects.date.PyishDate;
  */
 @JinjavaDoc(
     value = "Adds a specified amount of time to a datetime object",
+    input = @JinjavaParam(value = "var", desc = "Datetime object or timestamp", required = true),
     params = {
-        @JinjavaParam(value = "var", desc = "Datetime object or timestamp"),
-        @JinjavaParam(value = "diff", desc = "The amount to add to the datetime"),
-        @JinjavaParam(value = "unit", desc = "Which temporal unit to use"),
+        @JinjavaParam(value = "diff", desc = "The amount to add to the datetime", required = true),
+        @JinjavaParam(value = "unit", desc = "Which temporal unit to use", required = true),
     },
     snippets = {
         @JinjavaSnippet(code = "{% mydatetime|plus_time(3, 'days') %}"),
@@ -27,10 +28,9 @@ import com.hubspot.jinjava.objects.date.PyishDate;
 public class PlusTimeFilter extends BaseDateFilter {
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-
-    long diff = parseDiffAmount(args);
-    ChronoUnit chronoUnit = parseChronoUnit(args);
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
+    long diff = parseDiffAmount(interpreter, args);
+    ChronoUnit chronoUnit = parseChronoUnit(interpreter, args);
 
     if (var instanceof ZonedDateTime) {
       ZonedDateTime dateTime = (ZonedDateTime) var;

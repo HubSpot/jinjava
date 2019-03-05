@@ -6,16 +6,16 @@ import java.util.List;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Applies a filter on a sequence of objects or looks up an attribute.",
+    input = @JinjavaParam(value = "value", type = "object", desc = "Sequence to apply filter or dict to lookup attribute", required = true),
     params = {
-        @JinjavaParam(value = "value", type = "object", desc = "Sequence to apply filter or dict to lookup attribute"),
-        @JinjavaParam(value = "attribute", desc = "Filter to apply to an object or dict attribute to lookup")
+        @JinjavaParam(value = "attribute", desc = "Filter to apply to an object or dict attribute to lookup", required = true)
     },
     snippets = {
         @JinjavaSnippet(
@@ -37,8 +37,8 @@ public class MapFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     ForLoop loop = ObjectIterator.getLoop(var);
 
-    if (args.length == 0) {
-      throw new InterpretException(getName() + " filter requires name of filter or attribute to apply to given sequence");
+    if (args.length < 1) {
+      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (name of filter or attribute to apply to given sequence)");
     }
 
     String attr = args[0];

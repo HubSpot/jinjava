@@ -13,20 +13,19 @@
  */
 package com.hubspot.jinjava.lib.filter;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import org.apache.commons.lang3.BooleanUtils;
 
 /**
  * bool(value) Convert value to boolean.
  */
 @JinjavaDoc(
         value = "Convert value into a boolean.",
-        params = {
-                @JinjavaParam(value = "value", desc = "The value to convert to a boolean"),
-        },
+        input = @JinjavaParam(value = "value", desc = "The value to convert to a boolean", required = true),
         snippets = {
                 @JinjavaSnippet(
                         desc = "This example converts a text string value to a boolean",

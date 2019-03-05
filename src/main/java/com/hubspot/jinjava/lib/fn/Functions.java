@@ -63,7 +63,7 @@ public class Functions {
   }
 
   @JinjavaDoc(value = "return datetime of beginning of the day", params = {
-      @JinjavaParam(value = "timezone", type = "string", defaultValue = "utc", desc = "Optional timezone"),
+      @JinjavaParam(value = "timezone", type = "string", defaultValue = "utc", desc = "timezone"),
   })
   public static ZonedDateTime today(String... var) {
 
@@ -156,8 +156,8 @@ public class Functions {
   }
 
   @JinjavaDoc(value = "converts a string and datetime format into a datetime object", params = {
-      @JinjavaParam(value = "var", type = "datetimeString", defaultValue = "datetime as string"),
-      @JinjavaParam(value = "var", type = "datetimeFormat", defaultValue = "format of the datetime string")
+      @JinjavaParam(value = "var", type = "datetimeString", desc = "datetime as string"),
+      @JinjavaParam(value = "var", type = "datetimeFormat", desc = "format of the datetime string")
   })
   public static PyishDate stringToTime(String datetimeString, String datetimeFormat) {
 

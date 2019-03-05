@@ -16,8 +16,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Create an HTML/XML attribute string based on the items in a dict.",
+    input = @JinjavaParam(value = "dict", type = "dict", desc = "Dict to filter", required = true),
     params = {
-        @JinjavaParam(value = "d", type = "dict", desc = "Dict to filter"),
         @JinjavaParam(value = "autospace", type = "boolean", defaultValue = "True", desc = "Automatically prepend a space in front of the item")
     },
     snippets = {

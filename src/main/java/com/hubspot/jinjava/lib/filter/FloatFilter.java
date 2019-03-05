@@ -13,8 +13,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Convert the value into a floating point number.",
+    input = @JinjavaParam(value = "value", desc = "Value to convert to a float", required = true),
     params = {
-        @JinjavaParam(value = "value", desc = "Value to convert to a float"),
         @JinjavaParam(value = "default", type = "float", defaultValue = "0.0", desc = "Value to return if conversion fails")
     },
     snippets = {

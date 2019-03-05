@@ -12,7 +12,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Convert the value into a list. If it was a string the returned list will be a list of characters.",
-    params = @JinjavaParam(value = "value", desc = "Value to add to a sequence"),
+    input = @JinjavaParam(value = "value", desc = "Value to add to a sequence", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% set one = 1 %}\n" +

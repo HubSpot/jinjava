@@ -7,14 +7,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Converts JSON string to Object",
-    params = {
-        @JinjavaParam(value = "s", desc = "JSON String to write to object")
-    },
+    input = @JinjavaParam(value = "string", desc = "JSON String to write to object", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{{object|fromJson}}"
@@ -26,16 +25,20 @@ public class FromJsonFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+
+    if (var == null) {
+      return null;
+    }
+
     try {
 
       if (var instanceof String) {
         return OBJECT_MAPPER.readValue((String) var, HashMap.class);
       } else {
-        throw new InterpretException(String.format("%s filter requires a string parameter", getName()));
+        throw new InvalidInputException(interpreter, this, InvalidReason.STRING);
       }
-
     } catch (IOException e) {
-      throw new InterpretException("Could not convert JSON string to object in `fromjson` filter.", e, interpreter.getLineNumber());
+      throw new InvalidInputException(interpreter, this, InvalidReason.JSON_READ);
     }
   }
 

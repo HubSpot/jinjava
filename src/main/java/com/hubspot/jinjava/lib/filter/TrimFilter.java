@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
@@ -13,6 +14,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  */
 @JinjavaDoc(
     value = "Strip leading and trailing whitespace.",
+    input = @JinjavaParam(value = "string", type = "string", desc = "the string to strip whitespace from", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{{ \" remove whitespace \"|trim }}")

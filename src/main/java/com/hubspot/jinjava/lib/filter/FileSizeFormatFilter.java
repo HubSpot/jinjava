@@ -12,8 +12,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Format the value like a ‘human-readable’ file size (i.e. 13 kB, 4.1 MB, 102 Bytes, etc).",
+    input = @JinjavaParam(value = "value", desc = "The value to convert to filesize format", required = true),
     params = {
-        @JinjavaParam(value = "value", desc = "The value to convert to filesize format"),
         @JinjavaParam(value = "binary", type = "boolean", defaultValue = "False", desc = "Use binary prefixes (Mebi, Gibi)")
     },
     snippets = {

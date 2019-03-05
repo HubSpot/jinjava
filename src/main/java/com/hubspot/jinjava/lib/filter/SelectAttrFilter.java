@@ -8,8 +8,10 @@ import java.util.Map;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
@@ -17,9 +19,9 @@ import com.hubspot.jinjava.util.Variable;
 
 @JinjavaDoc(
     value = "Filters a sequence of objects by applying a test to an attribute of an object and only selecting the ones with the test succeeding.",
+    input = @JinjavaParam(value = "sequence", type = "sequence", desc = "Sequence to test", required = true),
     params = {
-        @JinjavaParam(value = "sequence", type = "sequence", desc = "Sequence to test"),
-        @JinjavaParam(value = "attr", desc = "Attribute to test for and select items that contain it"),
+        @JinjavaParam(value = "attr", desc = "Attribute to test for and select items that contain it", required = true),
         @JinjavaParam(value = "exp_test", type = "name of expression test", defaultValue = "truthy", desc = "Specify which expression test to run for making the selection")
     },
     snippets = {
@@ -44,28 +46,27 @@ public class SelectAttrFilter implements AdvancedFilter {
   protected Object applyFilter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs, boolean acceptObjects) {
     List<Object> result = new ArrayList<>();
 
-    if (args.length == 0) {
-      throw new InterpretException(getName() + " filter requires an attr to filter on", interpreter.getLineNumber());
+    if (args.length < 1) {
+      throw new TemplateSyntaxException(interpreter, getName(), "requires at least 1 argument (attr to filter on)");
     }
 
-    if (!(args[0] instanceof String)) {
-      throw new InterpretException(getName() + " filter requires the filter attr arg to be a string", interpreter.getLineNumber());
+    if (args[0] == null) {
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 0);
     }
+
+    String attr = args[0].toString();
 
     Object[] expArgs = new String[]{};
 
-    String attr = (String) args[0];
-
     ExpTest expTest = interpreter.getContext().getExpTest("truthy");
     if (args.length > 1) {
-
-      if (!(args[1] instanceof String)) {
-        throw new InterpretException(getName() + " filter requires the expression test arg to be a string", interpreter.getLineNumber());
+      if (args[1] == null) {
+        throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 1);
       }
 
-      expTest = interpreter.getContext().getExpTest((String) args[1]);
+      expTest = interpreter.getContext().getExpTest(args[1].toString());
       if (expTest == null) {
-        throw new InterpretException("No expression test defined with name '" + args[1] + "'", interpreter.getLineNumber());
+        throw new InvalidArgumentException(interpreter, this, InvalidReason.EXPRESSION_TEST, 1, args[1].toString());
       }
 
       if (args.length > 2) {
