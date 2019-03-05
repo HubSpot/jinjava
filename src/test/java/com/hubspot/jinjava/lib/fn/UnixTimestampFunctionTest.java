@@ -15,7 +15,7 @@ public class UnixTimestampFunctionTest {
   public void itGetsUnixTimestamps() {
     assertThat(Functions.unixtimestamp(epochMilliseconds)).isEqualTo(epochMilliseconds);
     assertThat(Functions.unixtimestamp(d)).isEqualTo(epochMilliseconds);
-    assertThat(Functions.unixtimestamp(null)).isEqualTo(ZonedDateTime.now().toEpochSecond() * 1000);
+    assertThat(Math.abs(Functions.unixtimestamp(null) - ZonedDateTime.now().toEpochSecond() * 1000)).isLessThan(10);
   }
 
 }
