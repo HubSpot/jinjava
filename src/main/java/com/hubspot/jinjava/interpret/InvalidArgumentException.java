@@ -16,7 +16,7 @@ public class InvalidArgumentException extends RuntimeException {
   }
 
   public InvalidArgumentException(JinjavaInterpreter interpreter, Importable importable, String errorMessage) {
-    this.message = String.format("Invalid argument in '%s': %s", importable.getName(), errorMessage);
+    this.message = errorMessage;
 
     this.lineNumber = interpreter.getLineNumber();
     this.startPosition = interpreter.getPosition();
