@@ -63,7 +63,7 @@ public class ExpressionResolver {
    */
   public Object resolveExpression(String expression) {
     if (StringUtils.isBlank(expression)) {
-      return "";
+      return null;
     }
 
     interpreter.getContext().addResolvedExpression(expression.trim());
