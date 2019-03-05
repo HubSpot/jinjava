@@ -72,7 +72,7 @@ public class AstRangeBracket extends AstBracket {
     PyList result = new PyList(new ArrayList<>());
     int index = 0;
 
-    // Handle negative indeces.
+    // Handle negative indices.
     if ((startNum < 0) || (endNum < 0)) {
        int size = Iterables.size(baseItr);
        if (startNum < 0) {
