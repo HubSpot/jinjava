@@ -86,12 +86,25 @@ public class ExpressionResolver {
       String errorMessage = StringUtils.substringAfter(e.getMessage(), "': ").replaceFirst("position [0-9]+", "position " + position);
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression.substring(e.getPosition() - EXPRESSION_START_TOKEN.length()),
           "Error parsing '" + expression + "': " + errorMessage, interpreter.getLineNumber(), position, e)));
-    } catch (ELException e) {
+    }
+    catch (ELException e) {
       if (e.getCause() != null && e.getCause() instanceof DeferredValueException) {
         throw (DeferredValueException) e.getCause();
       }
-      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
-    } catch (DisabledException e) {
+      if (e.getCause() != null && e.getCause() instanceof TemplateSyntaxException) {
+        interpreter.addError(TemplateError.fromException((TemplateSyntaxException) e.getCause()));
+      }
+      else if (e.getCause() != null && e.getCause() instanceof InvalidInputException) {
+        interpreter.addError(TemplateError.fromInvalidInputException((InvalidInputException) e.getCause()));
+      }
+      else if (e.getCause() != null && e.getCause() instanceof InvalidArgumentException) {
+        interpreter.addError(TemplateError.fromInvalidArgumentException((InvalidArgumentException) e.getCause()));
+      }
+      else {
+        interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
+      }
+    }
+    catch (DisabledException e) {
       interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter.getLineNumber(), interpreter.getPosition(), e));
     } catch (UnknownTokenException e) {
       // Re-throw the exception because you only get this when the config failOnUnknownTokens is enabled.
