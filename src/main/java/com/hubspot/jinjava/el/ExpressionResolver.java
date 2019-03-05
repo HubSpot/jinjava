@@ -121,7 +121,7 @@ public class ExpressionResolver {
           String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression), e, interpreter.getLineNumber(), interpreter.getPosition())));
     }
 
-    return "";
+    return null;
   }
 
   private void validateResult(Object result) {
