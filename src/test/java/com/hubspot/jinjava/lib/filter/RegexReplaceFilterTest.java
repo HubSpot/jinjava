@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 public class RegexReplaceFilterTest {
@@ -34,7 +35,7 @@ public class RegexReplaceFilterTest {
         assertThat(filter.filter("It costs $300", interpreter, "[^a-zA-Z]", "")).isEqualTo("Itcosts");
     }
 
-    @Test(expected = InterpretException.class)
+    @Test(expected = InvalidArgumentException.class)
     public void isThrowsExceptionOnInvalidRegex() {
         filter.filter("It costs $300", interpreter, "[", "");
     }

@@ -23,7 +23,7 @@ import com.hubspot.jinjava.objects.date.PyishDate;
 
 @JinjavaDoc(
     value = "Pretty print a variable. Useful for debugging.",
-    params = @JinjavaParam(value = "value", type = "object", desc = "Object to Pretty Print"),
+    input = @JinjavaParam(value = "value", type = "object", desc = "Object to Pretty Print", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% set this_var =\"Variable that I want to debug\" %}\n" +

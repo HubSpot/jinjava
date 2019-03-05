@@ -22,14 +22,14 @@ import org.apache.commons.lang3.StringUtils;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(
     value = "Removes a string from the value from another string",
+    input = @JinjavaParam(value = "value", desc = "The original string", required = true),
     params = {
-        @JinjavaParam(value = "value", desc = "The original string"),
-        @JinjavaParam(value = "to_remove", desc = "String to remove from the original string")
+        @JinjavaParam(value = "to_remove", desc = "String to remove from the original string", required = true)
     },
     snippets = {
         @JinjavaSnippet(
@@ -40,8 +40,9 @@ public class CutFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-    if (arg.length != 1) {
-      throw new InterpretException("filter cut expects 1 arg >>> " + arg.length);
+
+    if (arg.length < 1) {
+      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (string to remove from target)");
     }
     String cutee = arg[0];
     String origin = Objects.toString(object, "");

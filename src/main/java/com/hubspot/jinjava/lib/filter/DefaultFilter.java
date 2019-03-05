@@ -20,15 +20,15 @@ import org.apache.commons.lang3.BooleanUtils;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.ObjectTruthValue;
 
 @JinjavaDoc(
     value = "If the value is undefined it will return the passed default value, otherwise the value of the variable",
+    input = @JinjavaParam(value = "value", desc = "The variable or value to test", required = true),
     params = {
-        @JinjavaParam(value = "value", desc = "The variable or value to test"),
-        @JinjavaParam(value = "default_value", desc = "Value to print when variable is not defined"),
+        @JinjavaParam(value = "default_value", desc = "Value to print when variable is not defined", required = true),
         @JinjavaParam(value = "boolean", type = "boolean", defaultValue = "False", desc = "Set to True to use with variables which evaluate to false")
     },
     snippets = {
@@ -42,15 +42,15 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
 public class DefaultFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
     boolean truthy = false;
 
-    if (arg.length == 0) {
-      throw new InterpretException("default filter requires 1 or 2 args");
+    if (args.length < 1) {
+      throw new TemplateSyntaxException(interpreter, getName(), "requires either 1 (default value to use) or 2 (default value to use, default with variables that evaluate to false) arguments");
     }
 
-    if (arg.length == 2) {
-      truthy = BooleanUtils.toBoolean(arg[1]);
+    if (args.length > 2) {
+      truthy = BooleanUtils.toBoolean(args[1]);
     }
 
     if (truthy) {
@@ -62,7 +62,7 @@ public class DefaultFilter implements Filter {
       return object;
     }
 
-    return arg[0];
+    return args[0];
   }
 
   @Override

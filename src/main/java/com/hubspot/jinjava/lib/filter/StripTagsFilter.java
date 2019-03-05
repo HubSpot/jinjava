@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
@@ -13,6 +14,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  */
 @JinjavaDoc(
     value = "Strip SGML/XML tags and replace adjacent whitespace by one space.",
+    input = @JinjavaParam(value = "string", desc = "string to strip tags from", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{% set some_html = \"<div><strong>Some text</strong></div>\" %}\n" +
@@ -24,6 +26,7 @@ public class StripTagsFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+
     if (!(object instanceof String)) {
       return object;
     }

@@ -13,8 +13,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Return a copy of the string passed to the filter wrapped after 79 characters.",
+    input = @JinjavaParam(value = "s", type = "string", desc = "String to wrap after a certain number of characters", required = true),
     params = {
-        @JinjavaParam(value = "s", desc = "String to wrap after a certain number of chracters"),
         @JinjavaParam(value = "width", type = "number", defaultValue = "79", desc = "Sets the width of spaces at which to wrap the text"),
         @JinjavaParam(value = "break_long_words", type = "boolean", defaultValue = "True", desc = "If true, long words will be broken when wrapped")
     },

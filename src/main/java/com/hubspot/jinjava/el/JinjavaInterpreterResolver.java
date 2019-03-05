@@ -171,6 +171,22 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
               base = optBase.get();
             }
 
+            // java doesn't natively support negative array indices, so the
+            // super class getValue returns null for them.  To make negative
+            // indices work as they do in python, detect them here and convert
+            // to the equivalent positive index.
+            //
+            // Check for Integer or Long instead of Number so the behavior for a
+            // floating-point index doesn't change (e.g. -1.5 stays -1.5, it
+            // doesn't become -1).
+            if (base.getClass().isArray() && ((property instanceof Integer) || (property instanceof Long))) {
+               int propertyNum = ((Number)property).intValue();
+               if (propertyNum < 0) {
+                  propertyNum += ((Object[])base).length;
+                  propertyName = String.valueOf(propertyNum);
+               }
+            }
+
             value = super.getValue(context, base, propertyName);
 
             if (value instanceof Optional) {

@@ -13,8 +13,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.NamedParameter;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
@@ -23,7 +26,6 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
-import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 
 import de.odysseus.el.tree.TreeBuilderException;
@@ -84,12 +86,25 @@ public class ExpressionResolver {
       String errorMessage = StringUtils.substringAfter(e.getMessage(), "': ").replaceFirst("position [0-9]+", "position " + position);
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression.substring(e.getPosition() - EXPRESSION_START_TOKEN.length()),
           "Error parsing '" + expression + "': " + errorMessage, interpreter.getLineNumber(), position, e)));
-    } catch (ELException e) {
+    }
+    catch (ELException e) {
       if (e.getCause() != null && e.getCause() instanceof DeferredValueException) {
         throw (DeferredValueException) e.getCause();
       }
-      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
-    } catch (DisabledException e) {
+      if (e.getCause() != null && e.getCause() instanceof TemplateSyntaxException) {
+        interpreter.addError(TemplateError.fromException((TemplateSyntaxException) e.getCause()));
+      }
+      else if (e.getCause() != null && e.getCause() instanceof InvalidInputException) {
+        interpreter.addError(TemplateError.fromInvalidInputException((InvalidInputException) e.getCause()));
+      }
+      else if (e.getCause() != null && e.getCause() instanceof InvalidArgumentException) {
+        interpreter.addError(TemplateError.fromInvalidArgumentException((InvalidArgumentException) e.getCause()));
+      }
+      else {
+        interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
+      }
+    }
+    catch (DisabledException e) {
       interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter.getLineNumber(), interpreter.getPosition(), e));
     } catch (UnknownTokenException e) {
       // Re-throw the exception because you only get this when the config failOnUnknownTokens is enabled.
@@ -97,6 +112,10 @@ public class ExpressionResolver {
     } catch (DeferredValueException e) {
       // Re-throw so that it can be handled in JinjavaInterpreter
       throw e;
+    } catch (InvalidInputException e) {
+      interpreter.addError(TemplateError.fromInvalidInputException(e));
+    } catch (InvalidArgumentException e) {
+      interpreter.addError(TemplateError.fromInvalidArgumentException(e));
     } catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(
           String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression), e, interpreter.getLineNumber(), interpreter.getPosition())));

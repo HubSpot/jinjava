@@ -16,19 +16,21 @@ limitations under the License.
 package com.hubspot.jinjava.lib.filter;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 @JinjavaDoc(
     value = "adds a number to the existing value",
+    input = @JinjavaParam(value = "number", type = "number", desc = "Number or numeric variable to add to", required = true),
     params = {
-        @JinjavaParam(value = "number", type = "number", desc = "Number or numeric variable to add to"),
-        @JinjavaParam(value = "addend", type = "number", desc = "The number added to the base number")
+        @JinjavaParam(value = "addend", type = "number", desc = "The number added to the base number", required = true)
     },
     snippets = {
         @JinjavaSnippet(
@@ -38,19 +40,35 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 public class AddFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-    if (arg.length != 1) {
-      throw new InterpretException("filter add expects 1 arg >>> " + arg.length);
+  public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
+
+    if (object == null) {
+      return null;
     }
 
+    if (args.length < 1) {
+      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (number to add to base)");
+    }
+
+    BigDecimal base;
     try {
-      BigDecimal base = new BigDecimal(Objects.toString(object));
-      BigDecimal addend = new BigDecimal(Objects.toString(arg[0]));
-
-      return base.add(addend);
-    } catch (Exception e) {
-      throw new InterpretException("filter add error", e);
+      base = new BigDecimal(object.toString());
+    } catch (NumberFormatException e) {
+      throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
     }
+
+    if (args[0] == null) {
+      return base;
+    }
+
+    BigDecimal addend;
+    try {
+      addend = new BigDecimal(args[0]);
+    } catch (NumberFormatException e) {
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, args[0]);
+    }
+
+    return base.add(addend);
   }
 
   @Override

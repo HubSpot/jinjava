@@ -17,4 +17,6 @@ public @interface JinjavaParam {
 
   String defaultValue() default "";
 
+  boolean required() default false;
+
 }

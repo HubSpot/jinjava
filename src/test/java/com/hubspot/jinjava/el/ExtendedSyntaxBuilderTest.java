@@ -235,7 +235,7 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
-  public void listRangeSyntaxNegativeIndeces() {
+  public void listRangeSyntaxNegativeIndices() {
     List<?> theList = Lists.newArrayList(1, 2, 3, 4, 5);
     context.put("mylist", theList);
 
@@ -262,6 +262,27 @@ public class ExtendedSyntaxBuilderTest {
 
     // start after end
     assertThat(val("mylist[-2:-3]")).isEqualTo(Lists.newArrayList());
+  }
+
+  @Test
+  public void arrayWithNegativeIndices() {
+    String stringToSplit = "one-two-three-four-five";
+    context.put("stringToSplit", stringToSplit);
+
+    // Negative index handling on lists happens elsewhere, so make sure we're
+    // dealing with an array of Strings.
+    assertThat(val("stringToSplit.split('-')")).isEqualTo(new String[]{ "one", "two", "three", "four", "five" });
+
+    assertThat(val("stringToSplit.split('-')[-1]")).isEqualTo("five");
+    assertThat(val("stringToSplit.split('-')[1.5]")).isEqualTo("");
+    assertThat(val("stringToSplit.split('-')[-1.5]")).isEqualTo("");
+
+    // out of range returns null, as -6 + the length of the array is still
+    // negative, and java doesn't support negative array indices.
+    assertThat(val("stringToSplit.split('-')[-6]")).isEqualTo(null);
+
+    assertThat(val("stringToSplit.split('-')[0:2]")).isEqualTo(Lists.newArrayList("one", "two"));
+    assertThat(val("stringToSplit.split('-')[0:-2]")).isEqualTo(Lists.newArrayList("one", "two", "three"));
   }
 
   @Test

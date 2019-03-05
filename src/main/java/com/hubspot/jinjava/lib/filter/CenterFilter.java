@@ -1,7 +1,5 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Objects;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -12,8 +10,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Uses whitespace to center the value in a field of a given width.",
+    input = @JinjavaParam(value = "value", desc = "Value to center", required = true),
     params = {
-        @JinjavaParam(value = "value", desc = "Value to center"),
         @JinjavaParam(value = "width", type = "number", defaultValue = "80", desc = "Width of field to center value in")
     },
     snippets = {
@@ -33,14 +31,17 @@ public class CenterFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    String str = Objects.toString(var, "");
+
+    if (var == null) {
+      return null;
+    }
 
     int size = 80;
     if (args.length > 0) {
       size = NumberUtils.toInt(args[0], 80);
     }
 
-    return StringUtils.center(str, size);
+    return StringUtils.center(var.toString(), size);
   }
 
 }

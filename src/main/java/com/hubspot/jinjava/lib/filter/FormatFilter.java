@@ -10,8 +10,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Apply Python string formatting to an object.",
+    input = @JinjavaParam(value = "value", desc = "String value to reformat", required = true),
     params = {
-        @JinjavaParam(value = "value", desc = "String value to reformat"),
         @JinjavaParam(value = "args", type = "String...", desc = "Values to insert into string")
     },
     snippets = {

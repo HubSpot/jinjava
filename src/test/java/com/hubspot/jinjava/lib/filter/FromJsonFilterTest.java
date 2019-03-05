@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 
@@ -37,7 +37,7 @@ public class FromJsonFilterTest {
     assertThat(nested.get("third")).isEqualTo(4);
   }
 
-  @Test(expected = InterpretException.class)
+  @Test(expected = InvalidInputException.class)
   public void itFailsWhenStringIsNotJson() {
 
     String nestedJson = "blah";
@@ -45,7 +45,7 @@ public class FromJsonFilterTest {
     filter.filter(nestedJson, interpreter);
   }
 
-  @Test(expected = InterpretException.class)
+  @Test(expected = InvalidInputException.class)
   public void itFailsWhenParameterIsNotString() {
 
     Integer nestedJson = 456;

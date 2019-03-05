@@ -16,8 +16,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Sort a dict and yield (key, value) pairs.",
+    input = @JinjavaParam(value = "value", desc = "Dict to sort", required = true),
     params = {
-        @JinjavaParam(value = "value", desc = "Dict to sort"),
         @JinjavaParam(value = "case_sensitive", type = "boolean", defaultValue = "False", desc = "Determines whether or not the sorting is case sensitive"),
         @JinjavaParam(value = "by", type = "enum key|value", defaultValue = "key", desc = "Sort by dict key or value")
     },
