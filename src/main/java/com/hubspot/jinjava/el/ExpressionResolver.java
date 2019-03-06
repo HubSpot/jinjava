@@ -63,7 +63,7 @@ public class ExpressionResolver {
    */
   public Object resolveExpression(String expression) {
     if (StringUtils.isBlank(expression)) {
-      return null;
+      return "";
     }
 
     interpreter.getContext().addResolvedExpression(expression.trim());
@@ -121,7 +121,7 @@ public class ExpressionResolver {
           String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression), e, interpreter.getLineNumber(), interpreter.getPosition())));
     }
 
-    return null;
+    return "";
   }
 
   private void validateResult(Object result) {
