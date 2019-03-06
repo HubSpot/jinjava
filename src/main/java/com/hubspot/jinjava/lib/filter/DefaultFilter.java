@@ -49,7 +49,7 @@ public class DefaultFilter implements Filter {
       throw new TemplateSyntaxException(interpreter, getName(), "requires either 1 (default value to use) or 2 (default value to use, default with variables that evaluate to false) arguments");
     }
 
-    if (args.length > 2) {
+    if (args.length > 1) {
       truthy = BooleanUtils.toBoolean(args[1]);
     }
 
