@@ -8,7 +8,9 @@ import com.google.common.primitives.Doubles;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
@@ -33,9 +35,11 @@ public class RootFilter implements Filter {
     double root = 2;
     if (args.length > 0 && args[0] != null) {
       Double tryRoot = Doubles.tryParse(args[0]);
-      if (tryRoot != null) {
-        root = tryRoot;
+      if (tryRoot == null) {
+        throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, args[0]);
       }
+
+      root = tryRoot;
     }
 
     if (object instanceof Integer) {
@@ -75,8 +79,8 @@ public class RootFilter implements Filter {
         } else {
           return BigDecimalMath.root(new BigDecimal((String) object), new BigDecimal(root), PRECISION);
         }
-      } catch (Exception e) {
-        throw new InterpretException(object + " can't be handled by root filter", e);
+      } catch (NumberFormatException e) {
+        throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
       }
     }
 
@@ -88,7 +92,14 @@ public class RootFilter implements Filter {
     return "root";
   }
 
-  private double calculateRoot(double base, double n) {
-    return Math.pow(Math.E, Math.log(base)/n);
+  private double calculateRoot(double num, double root) {
+
+    if (root == 2) {
+      return Math.sqrt(num);
+    } else if (root == 3) {
+      return Math.cbrt(num);
+    }
+
+    return Math.pow(Math.E, Math.log(num)/root);
   }
 }
