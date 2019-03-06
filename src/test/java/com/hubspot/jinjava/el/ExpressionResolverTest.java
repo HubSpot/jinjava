@@ -454,7 +454,7 @@ public class ExpressionResolverTest {
     final JinjavaConfig config = JinjavaConfig.newBuilder().withDisabled(disabled).build();
 
     final RenderResult renderResult = jinjava.renderForResult(template, context, config);
-    assertEquals("hi  ", renderResult.getOutput());
+    assertEquals("hi ", renderResult.getOutput());
     TemplateError e = renderResult.getErrors().get(0);
     assertThat(e.getItem()).isEqualTo(ErrorItem.FUNCTION);
     assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
