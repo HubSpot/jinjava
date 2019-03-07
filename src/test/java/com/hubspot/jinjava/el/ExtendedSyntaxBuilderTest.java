@@ -274,8 +274,8 @@ public class ExtendedSyntaxBuilderTest {
     assertThat(val("stringToSplit.split('-')")).isEqualTo(new String[]{ "one", "two", "three", "four", "five" });
 
     assertThat(val("stringToSplit.split('-')[-1]")).isEqualTo("five");
-    assertThat(val("stringToSplit.split('-')[1.5]")).isEqualTo("");
-    assertThat(val("stringToSplit.split('-')[-1.5]")).isEqualTo("");
+    assertThat(val("stringToSplit.split('-')[1.5]")).isEqualTo(null);
+    assertThat(val("stringToSplit.split('-')[-1.5]")).isEqualTo(null);
 
     // out of range returns null, as -6 + the length of the array is still
     // negative, and java doesn't support negative array indices.
@@ -287,7 +287,7 @@ public class ExtendedSyntaxBuilderTest {
 
   @Test
   public void invalidNestedAssignmentExpr() {
-    assertThat(val("content.template_path = 'Custom/Email/Responsive/testing.html'")).isEqualTo("");
+    assertThat(val("content.template_path = 'Custom/Email/Responsive/testing.html'")).isEqualTo(null);
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
     assertThat(interpreter.getErrorsCopy().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
     assertThat(interpreter.getErrorsCopy().get(0).getMessage()).containsIgnoringCase("identifier");
@@ -295,7 +295,7 @@ public class ExtendedSyntaxBuilderTest {
 
   @Test
   public void invalidIdentifierAssignmentExpr() {
-    assertThat(val("content = 'Custom/Email/Responsive/testing.html'")).isEqualTo("");
+    assertThat(val("content = 'Custom/Email/Responsive/testing.html'")).isEqualTo(null);
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
     assertThat(interpreter.getErrorsCopy().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
     assertThat(interpreter.getErrorsCopy().get(0).getMessage()).containsIgnoringCase("'='");
@@ -303,7 +303,7 @@ public class ExtendedSyntaxBuilderTest {
 
   @Test
   public void invalidPipeOperatorExpr() {
-    assertThat(val("topics|1")).isEqualTo("");
+    assertThat(val("topics|1")).isEqualTo(null);
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
     assertThat(interpreter.getErrorsCopy().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
   }
