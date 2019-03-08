@@ -12,38 +12,36 @@ import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-public class RootFilterTest {
+public class LogFilterTest {
 
   JinjavaInterpreter interpreter;
-  RootFilter filter;
+  LogFilter filter;
 
   @Before
   public void setup() {
     interpreter = new Jinjava().newInterpreter();
-    filter = new RootFilter();
+    filter = new LogFilter();
   }
 
   @Test
-  public void itCalculatesSquareRoot() {
-    assertThat(filter.filter(100, interpreter)).isEqualTo(10D);
-    assertThat(filter.filter(22500, interpreter)).isEqualTo(150D);
-  }
-
-
-  @Test
-  public void itCalculatesCubeRoot() {
-    assertThat(filter.filter(125, interpreter, "3")).isEqualTo(5d);
+  public void itCalculatesLogBase2() {
+    assertThat(filter.filter(65536, interpreter, "2")).isEqualTo(16D);
   }
 
   @Test
-  public void itCalculatesNthRoot() {
-    assertThat(filter.filter(9765625d, interpreter, "5.0")).isEqualTo(25d);
+  public void itCalculatesLogBase10() {
+    assertThat(filter.filter(100, interpreter, "10")).isEqualTo(2D);
   }
 
   @Test
-  public void itCalculatesNthRootOfBigDecimal() {
-    BigDecimal result = ((BigDecimal) filter.filter(new BigDecimal(9765625d), interpreter, "5.0"));
-    assertThat(result.doubleValue()).isEqualTo(25d);
+  public void itCalculatesLogBaseN() {
+    assertThat(filter.filter(9765625d, interpreter, "45.123")).isEqualTo(4.224920597763891);
+  }
+
+  @Test
+  public void itCalculatesBigDecimalLogBaseN() {
+    BigDecimal result = (BigDecimal) filter.filter(new BigDecimal(9765625d), interpreter, "45.123");
+    assertThat(result.doubleValue()).isEqualTo(4.224920597763891);
   }
 
   @Test(expected = InvalidInputException.class)
@@ -55,4 +53,5 @@ public class RootFilterTest {
   public void itErrorsOnNegativeArgument() {
     filter.filter(10d, interpreter, "-5.0");
   }
+
 }

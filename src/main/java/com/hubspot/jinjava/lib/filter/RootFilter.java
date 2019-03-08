@@ -27,7 +27,7 @@ import ch.obermuhlner.math.big.BigDecimalMath;
     })
 public class RootFilter implements Filter {
 
-  private static final MathContext PRECISION = new MathContext(100);
+  private static final MathContext PRECISION = new MathContext(50);
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
@@ -43,42 +43,32 @@ public class RootFilter implements Filter {
     }
 
     if (object instanceof Integer) {
-      return calculateRoot((Integer) object, root);
+      return calculateRoot(interpreter, (Integer) object, root);
     }
     if (object instanceof Float) {
-      return calculateRoot((Float) object, root);
+      return calculateRoot(interpreter, (Float) object, root);
     }
     if (object instanceof Long) {
-      return calculateRoot((Long) object, root);
+      return calculateRoot(interpreter, (Long) object, root);
     }
     if (object instanceof Short) {
-      return calculateRoot((Short) object, root);
+      return calculateRoot(interpreter, (Short) object, root);
     }
     if (object instanceof Double) {
-      return calculateRoot((Double) object, root);
-    }
-    if (object instanceof BigDecimal) {
-      if (root == 2) {
-        return BigDecimalMath.sqrt((BigDecimal) object, PRECISION);
-      }
-      return BigDecimalMath.root((BigDecimal) object, new BigDecimal(root), PRECISION);
-    }
-    if (object instanceof BigInteger) {
-      if (root == 2) {
-        return BigDecimalMath.sqrt(new BigDecimal((BigInteger) object), PRECISION);
-      }
-      return BigDecimalMath.root(new BigDecimal((BigInteger) object), new BigDecimal(root), PRECISION);
+      return calculateRoot(interpreter, (Double) object, root);
     }
     if (object instanceof Byte) {
-      return calculateRoot((Byte) object, root);
+      return calculateRoot(interpreter, (Byte) object, root);
+    }
+    if (object instanceof BigDecimal) {
+      return calculateBigRoot(interpreter, (BigDecimal) object, root);
+    }
+    if (object instanceof BigInteger) {
+      return calculateBigRoot(interpreter, new BigDecimal((BigInteger) object), root);
     }
     if (object instanceof String) {
       try {
-        if (root == 2) {
-          return BigDecimalMath.sqrt(new BigDecimal((String) object), PRECISION);
-        } else {
-          return BigDecimalMath.root(new BigDecimal((String) object), new BigDecimal(root), PRECISION);
-        }
+        return calculateBigRoot(interpreter, new BigDecimal((String) object), root);
       } catch (NumberFormatException e) {
         throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
       }
@@ -92,7 +82,9 @@ public class RootFilter implements Filter {
     return "root";
   }
 
-  private double calculateRoot(double num, double root) {
+  private double calculateRoot(JinjavaInterpreter interpreter, double num, double root) {
+
+    checkArguments(interpreter, num, root);
 
     if (root == 2) {
       return Math.sqrt(num);
@@ -100,6 +92,27 @@ public class RootFilter implements Filter {
       return Math.cbrt(num);
     }
 
-    return Math.pow(Math.E, Math.log(num)/root);
+    return BigDecimalMath.root(new BigDecimal(num), new BigDecimal(root), PRECISION).doubleValue();
+  }
+
+  private BigDecimal calculateBigRoot(JinjavaInterpreter interpreter, BigDecimal num, double root) {
+
+    checkArguments(interpreter, num.doubleValue(), root);
+
+    if (root == 2) {
+      return BigDecimalMath.sqrt(num, PRECISION);
+    }
+
+    return BigDecimalMath.root(num, new BigDecimal(root), PRECISION);
+  }
+
+  private void checkArguments(JinjavaInterpreter interpreter, double num, double root) {
+    if (num <= 0) {
+      throw new InvalidInputException(interpreter, this, InvalidReason.POSITIVE_NUMBER, num);
+    }
+
+    if (root <= 0) {
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.POSITIVE_NUMBER, 0, root);
+    }
   }
 }
