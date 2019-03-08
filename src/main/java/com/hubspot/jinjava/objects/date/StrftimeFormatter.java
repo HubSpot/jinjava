@@ -111,6 +111,10 @@ public class StrftimeFormatter {
   public static DateTimeFormatter formatter(String strftime, Locale locale) {
     DateTimeFormatter fmt;
 
+    if (strftime == null) {
+      strftime = "";
+    }
+
     switch (strftime.toLowerCase()) {
     case "short":
       fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
