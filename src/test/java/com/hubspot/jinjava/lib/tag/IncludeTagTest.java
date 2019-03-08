@@ -59,4 +59,13 @@ public class IncludeTagTest {
     assertThat(dependencies.get("coded_files").contains("{% include \"tags/includetag/cat.html\" %}"));
   }
 
+  @Test
+  public void itIncludesFileWithMacroCall() throws IOException {
+
+    RenderResult result = jinjava.renderForResult(Resources.toString(Resources.getResource("tags/includetag/include-with-import.jinja"), StandardCharsets.UTF_8),
+        new HashMap<>());
+
+    assertThat(result.getErrors()).isEmpty();
+  }
+
 }
