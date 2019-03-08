@@ -93,7 +93,12 @@ public class FromTag implements Tag {
         Node node = interpreter.parse(template);
 
         JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
-        child.render(node);
+        JinjavaInterpreter.pushCurrent(child);
+        try {
+          child.render(node);
+        } finally {
+          JinjavaInterpreter.popCurrent();
+        }
 
         interpreter.addAllErrors(child.getErrorsCopy());
 
