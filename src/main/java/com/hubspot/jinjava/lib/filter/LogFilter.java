@@ -6,6 +6,9 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 import com.google.common.primitives.Doubles;
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
@@ -13,6 +16,14 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
 
+@JinjavaDoc(
+    value = "Return the log of the input.",
+    input = @JinjavaParam(value = "number", type = "number", desc = "The number that you want to get the log of", required = true),
+    params = @JinjavaParam(value = "base", type = "number", defaultValue = "e (natural logarithm)", desc = "The base to use for the log calculation"),
+    snippets = {
+        @JinjavaSnippet(
+            code = "{{ 100|root(10) }}")
+    })
 public class LogFilter implements Filter {
 
   private static final MathContext PRECISION = new MathContext(50);

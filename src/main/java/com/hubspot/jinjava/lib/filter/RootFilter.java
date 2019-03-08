@@ -16,14 +16,12 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import ch.obermuhlner.math.big.BigDecimalMath;
 
 @JinjavaDoc(
-    value = "Return the absolute value of the argument.",
-    params = {
-        @JinjavaParam(value = "number", type = "number", desc = "The number that you want to get the absolute value of")
-    },
+    value = "Return the root of the input.",
+    input = @JinjavaParam(value = "number", type = "number", desc = "The number that you want to get the root of", required = true),
+    params = @JinjavaParam(value = "root", type = "number", defaultValue = "2", desc = "The nth root to use for the calculation"),
     snippets = {
         @JinjavaSnippet(
-            code = "{% set my_number = -53 %}\n" +
-                "{{ my_number|abs }}")
+            code = "{{ 100|root(10) }}")
     })
 public class RootFilter implements Filter {
 
