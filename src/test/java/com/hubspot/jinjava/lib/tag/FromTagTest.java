@@ -69,6 +69,12 @@ public class FromTagTest {
         .anyMatch(e -> e.getCategory() == BasicTemplateErrorCategory.FROM_CYCLE_DETECTED));
   }
 
+  @Test
+  public void itImportsWithMacroTag() {
+    fixture("from-simple-with-call");
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
+  }
+
   private String fixture(String name) {
     try {
       return interpreter.renderFlat(Resources.toString(
