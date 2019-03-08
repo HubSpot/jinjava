@@ -74,17 +74,7 @@ public class IncludeTag implements Tag {
 
       interpreter.getContext().addDependency("coded_files", templateFile);
 
-      JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
-      JinjavaInterpreter.pushCurrent(child);
-
-      try {
-        String result = child.render(node);
-        interpreter.addAllErrors(child.getErrorsCopy());
-        return result;
-      } finally {
-        JinjavaInterpreter.popCurrent();
-      }
-
+      return interpreter.render(node);
     } catch (IOException e) {
       throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
     } finally {
