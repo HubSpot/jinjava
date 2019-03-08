@@ -49,9 +49,18 @@ public class LogFilterTest {
     filter.filter(-10d, interpreter, "5.0");
   }
 
+  @Test(expected = InvalidInputException.class)
+  public void itErrorsOnStringInput() {
+    filter.filter("not a number", interpreter, "5.0");
+  }
+
   @Test(expected = InvalidArgumentException.class)
   public void itErrorsOnNegativeArgument() {
     filter.filter(10d, interpreter, "-5.0");
   }
 
+  @Test(expected = InvalidArgumentException.class)
+  public void itErrorsOnStringArgument() {
+    filter.filter(10d, interpreter, "not a number");
+  }
 }
