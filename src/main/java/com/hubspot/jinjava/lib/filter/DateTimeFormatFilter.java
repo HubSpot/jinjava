@@ -28,9 +28,9 @@ public class DateTimeFormatFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter,
       String... args) {
-      
+
     if (var == null) {
-       return null; 
+      return null;
     }
 
     if (args.length > 0) {
