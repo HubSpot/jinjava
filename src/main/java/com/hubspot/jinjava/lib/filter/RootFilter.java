@@ -21,7 +21,7 @@ import ch.obermuhlner.math.big.BigDecimalMath;
     params = @JinjavaParam(value = "root", type = "number", defaultValue = "2", desc = "The nth root to use for the calculation"),
     snippets = {
         @JinjavaSnippet(
-            code = "{{ 100|root(10) }}")
+            code = "{{ 125|root(3) }}")
     })
 public class RootFilter implements Filter {
 

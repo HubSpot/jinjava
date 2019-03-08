@@ -22,7 +22,7 @@ import ch.obermuhlner.math.big.BigDecimalMath;
     params = @JinjavaParam(value = "base", type = "number", defaultValue = "e (natural logarithm)", desc = "The base to use for the log calculation"),
     snippets = {
         @JinjavaSnippet(
-            code = "{{ 100|root(10) }}")
+            code = "{{ 25|log(5) }}")
     })
 public class LogFilter implements Filter {
 
