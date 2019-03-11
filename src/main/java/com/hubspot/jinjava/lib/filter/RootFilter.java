@@ -16,8 +16,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import ch.obermuhlner.math.big.BigDecimalMath;
 
 @JinjavaDoc(
-    value = "Return the root of the input.",
-    input = @JinjavaParam(value = "number", type = "number", desc = "The number that you want to get the root of", required = true),
+    value = "Return the square root of the input.",
+    input = @JinjavaParam(value = "number", type = "number", desc = "The number to get the root of", required = true),
     params = @JinjavaParam(value = "root", type = "number", defaultValue = "2", desc = "The nth root to use for the calculation"),
     snippets = {
         @JinjavaSnippet(
