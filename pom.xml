@@ -9,7 +9,7 @@
 
   <groupId>com.hubspot.jinjava</groupId>
   <artifactId>jinjava</artifactId>
-  <version>2.5.0-SNAPSHOT</version>
+  <version>2.5.1-SNAPSHOT</version>
   <description>Jinja templating engine implemented in Java</description>
   <url>https://github.com/HubSpot/jinjava</url>
 
@@ -166,7 +166,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <!-- Remove basepom's stuff -->
-        <configuration combine.self="override"/>
+        <configuration combine.self="override" />
         <executions>
           <execution>
             <phase>package</phase>
