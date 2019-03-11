@@ -71,6 +71,8 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
 
         AbsFilter.class,
         AddFilter.class,
+        RootFilter.class,
+        LogFilter.class,
         BoolFilter.class,
         CutFilter.class,
         DivideFilter.class,
