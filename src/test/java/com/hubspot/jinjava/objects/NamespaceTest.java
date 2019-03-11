@@ -6,12 +6,12 @@ import org.junit.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class GlobalVariablesTest {
-    private GlobalVariables globalVariables;
+public class NamespaceTest {
+    private Namespace namespace;
 
     @Before
     public void setup(){
-        globalVariables = new GlobalVariables();
+        namespace = new Namespace();
     }
 
     @Test
@@ -20,7 +20,7 @@ public class GlobalVariablesTest {
         String key = "key";
 
         // when
-        final Object result = globalVariables.getVariableFor(key);
+        final Object result = namespace.getVariableFor(key);
 
         // then
         assertThat(result).isEqualTo("");
@@ -30,11 +30,11 @@ public class GlobalVariablesTest {
     public void shouldReplaceValueForKeyIfValueForKeyExists() {
         // given
         String key = "key";
-        globalVariables.setVariable(key, Boolean.TRUE);
-        globalVariables.setVariable(key, "second value");
+        namespace.setVariable(key, Boolean.TRUE);
+        namespace.setVariable(key, "second value");
 
         // when
-        final Object result = globalVariables.getVariableFor(key);
+        final Object result = namespace.getVariableFor(key);
 
         // then
         assertThat(result).isEqualTo("second value");
@@ -47,9 +47,10 @@ public class GlobalVariablesTest {
         final String value = "Test";
 
         // when
-        globalVariables.setVariable(key, value);
+        namespace.setVariable(key, value);
 
         // then
-        assertThat(globalVariables.getVariableFor(key)).isEqualTo(value);
+        assertThat(namespace.getVariableFor(key)).isEqualTo(value);
     }
+
 }

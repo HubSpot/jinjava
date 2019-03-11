@@ -193,22 +193,88 @@ public class SetTagTest {
   }
 
   @Test
-  public void setGlobalVariableVialNamespace() {
+  public void shouldSetNamespaceVariable() {
     // given
     Jinjava jinjava = new Jinjava();
     interpreter = jinjava.newInterpreter();
     context = interpreter.getContext();
 
-    String template = "{% set ns = namespace(found=false) %}";
+    String template = "{% set ns = namespace(found=false) %}" +
+        "Result: {{ns.found}}";
 
     // when
-    context.put("items", Lists.newArrayList("A", "B"));
+    final String result = jinjava.render(template, null);
 
-    jinjava.render(template, context);
+    // debug
+    System.out.println(result);
 
     // then
-    assertThat(jinjava.getGlobalVariables().getVariableFor("ns.found")).isEqualTo("false");
-    assertThat(jinjava.getGlobalVariables().size()).isEqualTo(1);
+    assertThat(result).isEqualTo("Result: false");
+  }
+
+  @Test
+  public void shouldSetAFewVariablesInNamespace() {
+    // given
+    Jinjava jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
+    context = interpreter.getContext();
+
+    String template = "{% set ns = namespace(found=false) %}" +
+    "{% set ns.count=3 %}" +
+    "Found: {{ns.found}}, Count: {{ns.count}}";
+
+    // when
+    final String result = jinjava.render(template, null);
+
+    // debug
+    System.out.println(result);
+
+    // then
+    assertThat(result).isEqualTo("Found: false, Count: 3");
+  }
+
+  @Test
+  public void shouldUpdateNamespaceVariableWithTheSameDataType() {
+    // given
+    Jinjava jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
+    context = interpreter.getContext();
+
+    String template = "{% set ns = namespace(found=false) %}" +
+        "{% set ns.found=true %}" +
+        "Result: {{ns.found}}";
+
+    // when
+    final String result = jinjava.render(template, null);
+
+    // debug
+    System.out.println(result);
+
+    // then
+    assertThat(result).isEqualTo("Result: true");
+  }
+
+  @Test
+  public void shouldUpdateNamespaceVariableWithDifferentDataType() {
+    // given
+    Jinjava jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
+    context = interpreter.getContext();
+
+    String template = "{% set ns = namespace(found=false) %}" +
+        "{% set ns.found=true %}" +
+        "{% set ns.found=1 %}" +
+        "Result: {{ns.found + 1}}";
+    context.put("items", Lists.newArrayList("A", "B"));
+
+    // when
+    final String result = jinjava.render(template, context);
+
+    // debug
+    System.out.println(result);
+
+    // then
+    assertThat(result).isEqualTo("Result: 2");
   }
 
   private Node fixture(String name) {

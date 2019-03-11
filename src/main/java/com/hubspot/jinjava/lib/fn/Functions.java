@@ -9,12 +9,10 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
+import com.hubspot.jinjava.el.ext.NamedParameter;
+import com.hubspot.jinjava.objects.Namespace;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -58,10 +56,14 @@ public class Functions {
     return result.toString();
   }
 
-  //I'm so sorry for this is a fake method but i didn't have more time to find better solution for  global namespace
-  public static void putVariable(){
-        //not needed
-    }
+  public static Namespace getNamespace(NamedParameter... namedParameters){
+
+    final Namespace namespace = JinjavaInterpreter.getCurrent().getContext().getNamespace();
+    Arrays.asList(namedParameters)
+        .forEach(namedParameter -> namespace.setVariable(namedParameter.getName(),namedParameter.getValue()));
+
+    return namespace;
+  }
 
   public static List<Object> immutableListOf(Object... items) {
     return Collections.unmodifiableList(Lists.newArrayList(items));

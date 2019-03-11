@@ -5,11 +5,11 @@ import java.util.Map;
 
 /**
  *
- * It is a java version of a class namespace that will help stores variables globally.
+ * It is a java version of a namespace functionality in jinja2.
  *
  * @author dominik symonowicz
  */
-public class GlobalVariables {
+public class Namespace {
 
     Map<String,Object> variables = new HashMap<>();
 
@@ -19,6 +19,10 @@ public class GlobalVariables {
 
     public Object getVariableFor(String name){
         return variables.getOrDefault(name,"");
+    }
+
+    public Map<String,Object> get(){
+        return variables;
     }
 
     public void reset(){
@@ -32,4 +36,5 @@ public class GlobalVariables {
     public boolean contains(String name) {
         return variables.containsKey(name);
     }
+
 }

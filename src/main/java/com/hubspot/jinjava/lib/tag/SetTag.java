@@ -16,8 +16,8 @@
 package com.hubspot.jinjava.lib.tag;
 
 import java.util.List;
-import java.util.Objects;
 
+import com.hubspot.jinjava.objects.Namespace;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -72,19 +72,6 @@ public class SetTag implements Tag {
     String var = tagNode.getHelpers().substring(0, eqPos).trim();
     String expr = tagNode.getHelpers().substring(eqPos + 1);
 
-
-    if(expr.contains("namespace(")){ //looking for namespace function for global variable
-      String globalVar = var +"." + expr.substring(expr.indexOf('(')+1,expr.indexOf("="));
-      String globalValue = expr.substring(expr.indexOf('=')+1,expr.trim().length());
-      interpreter.putNamespaceVariable(globalVar,globalValue);
-      return "";
-    }
-
-    if(Objects.nonNull(interpreter.getNamespaceVariableIfExists(var))){
-        interpreter.putNamespaceVariable(var,expr);
-      return "";
-    }
-
     if (var.length() == 0) {
       throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' requires a var name to assign to", tagNode.getLineNumber(), tagNode.getStartPosition());
     }
@@ -110,10 +97,35 @@ public class SetTag implements Tag {
 
     } else {
       // handle single variable assignment
-      interpreter.getContext().put(var, interpreter.resolveELExpression(expr, tagNode.getLineNumber()));
+      setVariable(tagNode, interpreter, var, expr);
+
     }
 
     return "";
+  }
+
+  private void setVariable(TagNode tagNode, JinjavaInterpreter interpreter, String var, String expr) {
+    if(tagNode.getHelpers().contains(".")){
+      int dotPosition = tagNode.getHelpers().indexOf('.');
+      String variableName = tagNode.getHelpers().substring(0, dotPosition).trim();
+        if (interpreter.getContext().containsKey(variableName)) {
+          setVariableForNamespace(tagNode, interpreter, dotPosition, variableName);
+        } else {
+          interpreter.getContext().put(var, interpreter.resolveELExpression(expr, tagNode.getLineNumber()));
+        }
+
+    }else{
+      interpreter.getContext().put(var, interpreter.resolveELExpression(expr, tagNode.getLineNumber()));
+    }
+  }
+
+  private void setVariableForNamespace(TagNode tagNode, JinjavaInterpreter interpreter, int dotPosition, String variableName) {
+
+    Namespace namespace = (Namespace) interpreter.getContext().get(variableName);
+    int variableAndKeyPosition = tagNode.getHelpers().indexOf('=');
+    String variableKey =  tagNode.getHelpers().substring(dotPosition + 1,variableAndKeyPosition);
+    String value = tagNode.getHelpers().substring(variableAndKeyPosition + 1);
+    namespace.setVariable(variableKey, interpreter.resolveELExpression(value, tagNode.getLineNumber()));
   }
 
   @Override

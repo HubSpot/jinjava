@@ -183,16 +183,4 @@ public class JinjavaInterpreterTest {
     assertThat(renderResult.getErrors().get(0).getMessage()).contains("OutputTooBigException");
   }
 
-  @Test
-  public void retraceVariableFromGlobalVariables(){
-    // given
-    final String variableName = "Test";
-    jinjava.getGlobalVariables().setVariable(variableName,false);
-
-    // when
-    final Object result = interpreter.retraceVariable(variableName, 0, 0);
-
-    // then
-    assertThat(result).isEqualTo(Boolean.FALSE);
-  }
 }
