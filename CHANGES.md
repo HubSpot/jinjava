@@ -1,5 +1,14 @@
 # Jinjava Releases #
 
+### 2019-02-05 Version 2.5.0 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.0%7Cjar)) ###
+* [Render node in include tag in the same interpreter scopes](https://github.com/HubSpot/jinjava/pull/301)
+* [Fix expression resolver in include and from tag](https://github.com/HubSpot/jinjava/pull/300)
+* [Add root and log filters](https://github.com/HubSpot/jinjava/pull/299)
+* [Update expression resolver to return null instead of blank string](https://github.com/HubSpot/jinjava/pull/296)
+* [Expression resolver fixed in import tag](https://github.com/HubSpot/jinjava/pull/290)
+* [Error and documentation overhaul](https://github.com/HubSpot/jinjava/pull/289)
+* [Allow partial evalutation of templates](https://github.com/HubSpot/jinjava/pull/282)
+
 ### 2019-02-05 Version 2.4.15 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.15%7Cjar)) ###
 * [Upgrade format filter to advanced filter](https://github.com/HubSpot/jinjava/pull/279)
 * [Allow null in string expression tests](https://github.com/HubSpot/jinjava/pull/278)
