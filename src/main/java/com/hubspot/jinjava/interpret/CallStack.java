@@ -8,10 +8,17 @@ public class CallStack {
   private final CallStack parent;
   private final Class<? extends TagCycleException> exceptionClass;
   private final Stack<String> stack = new Stack<>();
+  private final int depth;
 
   public CallStack(CallStack parent, Class<? extends TagCycleException> exceptionClass) {
     this.parent = parent;
     this.exceptionClass = exceptionClass;
+
+    if (parent == null) {
+      this.depth = 0;
+    } else {
+      this.depth = parent.depth + 1;
+    }
   }
 
   public boolean contains(String path) {
@@ -33,6 +40,14 @@ public class CallStack {
    */
   public void pushWithoutCycleCheck(String path) {
     stack.push(path);
+  }
+
+  public void pushWithMaxDepth(String path, int maxDepth, int lineNumber, int startPosition) {
+    if (depth < maxDepth) {
+      stack.push(path);
+    } else {
+      throw TagCycleException.create(exceptionClass, path, Optional.of(lineNumber), Optional.of(startPosition));
+    }
   }
 
   public void push(String path, int lineNumber, int startPosition) {

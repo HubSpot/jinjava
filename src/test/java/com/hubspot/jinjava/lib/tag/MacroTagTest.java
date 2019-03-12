@@ -169,6 +169,46 @@ public class MacroTagTest {
   }
 
   @Test
+  public void itAllowsMacroRecursionWithMaxDepth() throws IOException {
+
+    interpreter = new Jinjava(JinjavaConfig.newBuilder()
+        .withEnableRecursiveMacroCalls(true)
+        .withMaxMacroRecursionDepth(10)
+        .build()).newInterpreter();
+    JinjavaInterpreter.pushCurrent(interpreter);
+
+    try {
+      String template = fixtureText("ending-recursion");
+      String out = interpreter.render(template);
+      assertThat(interpreter.getErrorsCopy()).isEmpty();
+      assertThat(out).contains("Hello Hello Hello Hello Hello");
+    }
+    finally {
+      JinjavaInterpreter.popCurrent();
+    }
+  }
+
+  @Test
+  public void itEnforcesMacroRecursionWithMaxDepth() throws IOException {
+
+    interpreter = new Jinjava(JinjavaConfig.newBuilder()
+        .withEnableRecursiveMacroCalls(true)
+        .withMaxMacroRecursionDepth(2)
+        .build()).newInterpreter();
+    JinjavaInterpreter.pushCurrent(interpreter);
+
+    try {
+      String template = fixtureText("ending-recursion");
+      String out = interpreter.render(template);
+      assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("Max recursion limit of 2 reached for macro 'hello'");
+      assertThat(out).contains("Hello Hello");
+    }
+    finally {
+      JinjavaInterpreter.popCurrent();
+    }
+  }
+
+  @Test
   public void itPreventsRecursionForMacroWithVar() {
     String jinja = "{%- macro func(var) %}" +
         "{%- for f in var %}" +

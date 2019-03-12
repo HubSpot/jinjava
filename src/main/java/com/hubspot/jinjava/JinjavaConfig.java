@@ -41,6 +41,7 @@ public class JinjavaConfig {
 
   private final boolean readOnlyResolver;
   private final boolean enableRecursiveMacroCalls;
+  private final int maxMacroRecursionDepth;
 
   private Map<Context.Library, Set<String>> disabled;
   private final boolean failOnUnknownTokens;
@@ -54,11 +55,11 @@ public class JinjavaConfig {
   }
 
   public JinjavaConfig() {
-    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, 0);
+    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false, 0, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, 0);
   }
 
   public JinjavaConfig(Charset charset, Locale locale, ZoneId timeZone, int maxRenderDepth) {
-    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, 0);
+    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false, 0, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, 0);
   }
 
   private JinjavaConfig(Charset charset,
@@ -70,6 +71,7 @@ public class JinjavaConfig {
                         boolean lstripBlocks,
                         boolean readOnlyResolver,
                         boolean enableRecursiveMacroCalls,
+                        int maxMacroRecursionDepth,
                         boolean failOnUnknownTokens,
                         long maxOutputSize,
                         boolean nestedInterpretationEnabled,
@@ -85,6 +87,7 @@ public class JinjavaConfig {
     this.lstripBlocks = lstripBlocks;
     this.readOnlyResolver = readOnlyResolver;
     this.enableRecursiveMacroCalls = enableRecursiveMacroCalls;
+    this.maxMacroRecursionDepth = maxMacroRecursionDepth;
     this.failOnUnknownTokens = failOnUnknownTokens;
     this.maxOutputSize = maxOutputSize;
     this.nestedInterpretationEnabled = nestedInterpretationEnabled;
@@ -133,6 +136,10 @@ public class JinjavaConfig {
     return enableRecursiveMacroCalls;
   }
 
+  public int getMaxMacroRecursionDepth() {
+    return maxMacroRecursionDepth;
+  }
+
   public Map<Library, Set<String>> getDisabled() {
     return disabled;
   }
@@ -166,6 +173,7 @@ public class JinjavaConfig {
 
     private boolean readOnlyResolver = true;
     private boolean enableRecursiveMacroCalls;
+    private int maxMacroRecursionDepth;
     private boolean failOnUnknownTokens;
     private boolean nestedInterpretationEnabled = true;
     private RandomNumberGeneratorStrategy randomNumberGeneratorStrategy = RandomNumberGeneratorStrategy.THREAD_LOCAL;
@@ -220,6 +228,11 @@ public class JinjavaConfig {
       return this;
     }
 
+    public Builder withMaxMacroRecursionDepth(int maxMacroRecursionDepth) {
+      this.maxMacroRecursionDepth = maxMacroRecursionDepth;
+      return this;
+    }
+
     public Builder withReadOnlyResolver(boolean readOnlyResolver) {
       this.readOnlyResolver = readOnlyResolver;
       return this;
@@ -260,6 +273,7 @@ public class JinjavaConfig {
           lstripBlocks,
           readOnlyResolver,
           enableRecursiveMacroCalls,
+          maxMacroRecursionDepth,
           failOnUnknownTokens,
           maxOutputSize,
           nestedInterpretationEnabled,

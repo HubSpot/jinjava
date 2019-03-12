@@ -34,15 +34,27 @@ public class AstMacroFunction extends AstFunction {
       if (!macroFunction.isCaller()) {
         try {
           if (interpreter.getConfig().isEnableRecursiveMacroCalls()) {
-            macroStack.pushWithoutCycleCheck(getName());
+            if (interpreter.getConfig().getMaxMacroRecursionDepth() != 0) {
+              macroStack.pushWithMaxDepth(getName(), interpreter.getConfig().getMaxMacroRecursionDepth(), -1, -1);
+            } else {
+              macroStack.pushWithoutCycleCheck(getName());
+            }
           } else {
             macroStack.push(getName(), -1, -1);
           }
         } catch (MacroTagCycleException e) {
+
+          int maxDepth = interpreter.getConfig().getMaxMacroRecursionDepth();
+          String message;
+          if (maxDepth == 0) {
+            message = String.format("Cycle detected for macro '%s'", getName());
+          } else {
+            message = String.format("Max recursion limit of %d reached for macro '%s'", maxDepth, getName());
+          }
           interpreter.addError(new TemplateError(TemplateError.ErrorType.WARNING,
                                                  TemplateError.ErrorReason.EXCEPTION,
                                                  TemplateError.ErrorItem.TAG,
-                                                 "Cycle detected for macro '" + getName() + "'",
+                                                 message,
                                                  null,
                                                  e.getLineNumber(),
                                                  e.getStartPosition(),
