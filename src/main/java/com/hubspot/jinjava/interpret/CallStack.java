@@ -14,11 +14,7 @@ public class CallStack {
     this.parent = parent;
     this.exceptionClass = exceptionClass;
 
-    if (parent == null) {
-      this.depth = 0;
-    } else {
-      this.depth = parent.depth + 1;
-    }
+    this.depth = parent == null ? 0 : parent.depth + 1;
   }
 
   public boolean contains(String path) {
