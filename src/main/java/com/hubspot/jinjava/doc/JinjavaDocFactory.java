@@ -160,7 +160,7 @@ public class JinjavaDocFactory {
             docAnnotation.value(),
             docAnnotation.aliasOf(),
             docAnnotation.deprecated(),
-            extractParams(docAnnotation.input()), 
+            extractParams(docAnnotation.input()),
             extractParams(docAnnotation.params()),
             extractSnippets(docAnnotation.snippets()),
             extractMeta(docAnnotation.meta())));
