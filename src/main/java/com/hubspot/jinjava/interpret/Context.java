@@ -40,6 +40,7 @@ import com.hubspot.jinjava.lib.fn.FunctionLibrary;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.TagLibrary;
+import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.ScopeMap;
 
@@ -74,6 +75,7 @@ public class Context extends ScopeMap<String, Object> {
   private final Set<String> resolvedExpressions = new HashSet<>();
   private final Set<String> resolvedValues = new HashSet<>();
   private final Set<String> resolvedFunctions = new HashSet<>();
+  private final Namespace namespace = new Namespace();
 
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
@@ -453,6 +455,10 @@ public class Context extends ScopeMap<String, Object> {
 
   public SetMultimap<String, String> getDependencies() {
     return this.dependencies;
+  }
+
+  public Namespace getNamespace(){
+    return namespace;
   }
 
 }

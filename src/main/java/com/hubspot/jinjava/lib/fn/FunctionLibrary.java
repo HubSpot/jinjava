@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.fn;
 import java.util.Set;
 
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.el.ext.NamedParameter;
 import com.hubspot.jinjava.lib.SimpleLibrary;
 
 public class FunctionLibrary extends SimpleLibrary<ELFunctionDefinition> {
@@ -22,6 +23,7 @@ public class FunctionLibrary extends SimpleLibrary<ELFunctionDefinition> {
     register(new ELFunctionDefinition("", "strtotime", Functions.class, Functions.STRING_TO_TIME_FUNCTION, String.class, String.class));
 
     register(new ELFunctionDefinition("", "super", Functions.class, "renderSuperBlock"));
+    register(new ELFunctionDefinition("", "namespace", Functions.class, "createNamespace", NamedParameter[].class));
 
     register(new ELFunctionDefinition("fn", "list", Lists.class, "newArrayList", Object[].class));
     register(new ELFunctionDefinition("fn", "immutable_list", Functions.class, "immutableListOf", Object[].class));

@@ -25,6 +25,7 @@ import javax.el.MapELResolver;
 import javax.el.PropertyNotFoundException;
 import javax.el.ResourceBundleELResolver;
 
+import com.hubspot.jinjava.objects.Namespace;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -204,6 +205,10 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
     if (value instanceof PyWrapper) {
       return value;
+    }
+
+    if (value instanceof Namespace) {
+      return new PyMap(((Namespace) value).getAsDictionary());
     }
 
     if (List.class.isAssignableFrom(value.getClass())) {

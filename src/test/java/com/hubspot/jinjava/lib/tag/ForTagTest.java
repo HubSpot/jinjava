@@ -207,6 +207,57 @@ public class ForTagTest {
     assertEquals(new PyishDate(testDate).toString(), rendered);
   }
 
+  @Test
+  public void testForLoopWithBooleanFromNamespaceVariable() {
+    // given
+    jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
+    context = interpreter.getContext();
+    String template = "{% set ns = namespace(found=false) %}" +
+        "{% for item in items %}" +
+          "{% if item=='B' %}" +
+            "{% set ns.found=true %}" +
+          "{% endif %}" +
+        "{% endfor %}" +
+        "Found item having something: {{ ns.found }}";
+
+    context.put("items", Lists.newArrayList("A", "B"));
+
+    // when
+    String rendered = jinjava.render(template, context);
+
+    // debug
+    System.out.println(rendered);
+
+    // then
+    assertThat(rendered).isEqualTo("Found item having something: true");
+  }
+
+  @Test
+  public void forLoopShouldCountUsingNamespaceVariable() {
+    // given
+    jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
+    context = interpreter.getContext();
+    String template = "{% set ns = namespace(found=2) %}" +
+        "{% for item in items %}" +
+        "{% set ns.found= ns.found + 1 %}" +
+        "{% endfor %}" +
+        "Found item having something: {{ ns.found }}";
+
+    context.put("items", Lists.newArrayList("A", "B"));
+
+    // when
+    String rendered = jinjava.render(template, context);
+
+    // debug
+    System.out.println(rendered);
+
+    // then
+    assertThat(rendered).isEqualTo("Found item having something: 4");
+  }
+
+
   private Node fixture(String name) {
     try {
       return new TreeParser(interpreter, Resources.toString(

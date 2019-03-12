@@ -17,6 +17,7 @@ package com.hubspot.jinjava.lib.tag;
 
 import java.util.List;
 
+import com.hubspot.jinjava.objects.Namespace;
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -96,10 +97,36 @@ public class SetTag implements Tag {
 
     } else {
       // handle single variable assignment
-      interpreter.getContext().put(var, interpreter.resolveELExpression(expr, tagNode.getLineNumber()));
+      setVariable(tagNode, interpreter, var, expr);
     }
 
     return "";
+  }
+
+  private void setVariable(TagNode tagNode, JinjavaInterpreter interpreter, String var, String expr) {
+    if(tagNode.getHelpers().contains(".")){
+      int dotPosition = tagNode.getHelpers().indexOf('.');
+      String variableName = tagNode.getHelpers().substring(0, dotPosition).trim();
+
+      if (interpreter.getContext().containsKey(variableName)) {
+        setVariableForNamespace(tagNode, interpreter, dotPosition, variableName);
+      } else {
+        interpreter.getContext().put(var, interpreter.resolveELExpression(expr, tagNode.getLineNumber()));
+      }
+    } else {
+      interpreter.getContext().put(var, interpreter.resolveELExpression(expr, tagNode.getLineNumber()));
+    }
+  }
+
+  private void setVariableForNamespace(TagNode tagNode, JinjavaInterpreter interpreter, int dotPosition, String variableName) {
+
+    Namespace namespace = (Namespace) interpreter.getContext().get(variableName);
+
+    int variableAndKeyPosition = tagNode.getHelpers().indexOf('=');
+    String variableKey =  tagNode.getHelpers().substring(dotPosition + 1,variableAndKeyPosition);
+    String value = tagNode.getHelpers().substring(variableAndKeyPosition + 1);
+
+    namespace.put(variableKey, interpreter.resolveELExpression(value, tagNode.getLineNumber()));
   }
 
   @Override

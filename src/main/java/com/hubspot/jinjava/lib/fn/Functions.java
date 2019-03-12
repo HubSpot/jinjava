@@ -9,12 +9,15 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Collections;
+import java.util.ArrayList;
 
+import com.hubspot.jinjava.el.ext.NamedParameter;
+import com.hubspot.jinjava.objects.Namespace;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -56,6 +59,15 @@ public class Functions {
     }
 
     return result.toString();
+  }
+
+  public static Namespace createNamespace(NamedParameter... namedParameters){
+
+    final Namespace namespace = JinjavaInterpreter.getCurrent().getContext().getNamespace();
+    Arrays.asList(namedParameters)
+        .forEach(namedParameter -> namespace.put(namedParameter.getName(),namedParameter.getValue()));
+
+    return namespace;
   }
 
   public static List<Object> immutableListOf(Object... items) {

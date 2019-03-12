@@ -13,8 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.runners.MockitoJUnitRunner;
-
+import org.mockito.junit.MockitoJUnitRunner;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
@@ -191,6 +190,79 @@ public class SetTagTest {
         entry("myvar2", "mybar"),
         entry("myvar3", Lists.newArrayList(1L, 2L, 3L, 4L)),
         entry("myvar4", "yoooooo"));
+  }
+
+  @Test
+  public void shouldSetNamespaceVariable() {
+    // given
+    Jinjava jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
+    context = interpreter.getContext();
+
+    String template = "{% set ns = namespace(found=false) %}" +
+        "Result: {{ns.found}}";
+
+    // when
+    final String result = jinjava.render(template, null);
+
+    // then
+    assertThat(result).isEqualTo("Result: false");
+  }
+
+  @Test
+  public void shouldSetAFewVariablesInNamespace() {
+    // given
+    Jinjava jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
+    context = interpreter.getContext();
+
+    String template = "{% set ns = namespace(found=false) %}" +
+    "{% set ns.count=3 %}" +
+    "Found: {{ns.found}}, Count: {{ns.count}}";
+
+    // when
+    final String result = jinjava.render(template, null);
+
+    // then
+    assertThat(result).isEqualTo("Found: false, Count: 3");
+  }
+
+  @Test
+  public void shouldUpdateNamespaceVariableWithTheSameDataType() {
+    // given
+    Jinjava jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
+    context = interpreter.getContext();
+
+    String template = "{% set ns = namespace(found=false) %}" +
+        "{% set ns.found=true %}" +
+        "Result: {{ns.found}}";
+
+    // when
+    final String result = jinjava.render(template, null);
+
+    // then
+    assertThat(result).isEqualTo("Result: true");
+  }
+
+  @Test
+  public void shouldUpdateNamespaceVariableWithDifferentDataType() {
+    // given
+    Jinjava jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
+    context = interpreter.getContext();
+
+    String template = "{% set ns = namespace(found=false) %}" +
+        "{% set ns.found=true %}" +
+        "{% set ns.found=1 %}" +
+        "Result: {{ns.found + 1}}";
+    context.put("items", Lists.newArrayList("A", "B"));
+
+    // when
+    final String result = jinjava.render(template, context);
+
+    // then
+    assertThat(result).isEqualTo("Result: 2");
   }
 
   private Node fixture(String name) {
