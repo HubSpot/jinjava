@@ -6,12 +6,14 @@ public class JinjavaDocParam {
   private final String type;
   private final String desc;
   private final String defaultValue;
+  private final boolean required;
 
-  public JinjavaDocParam(String name, String type, String desc, String defaultValue) {
+  public JinjavaDocParam(String name, String type, String desc, String defaultValue, boolean required) {
     this.name = name;
     this.type = type;
     this.desc = desc;
     this.defaultValue = defaultValue;
+    this.required = required;
   }
 
   public String getName() {
@@ -28,6 +30,10 @@ public class JinjavaDocParam {
 
   public String getDefaultValue() {
     return defaultValue;
+  }
+
+  public boolean getRequired() {
+    return required;
   }
 
 }
