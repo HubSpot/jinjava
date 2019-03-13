@@ -123,8 +123,8 @@ public class SetTag implements Tag {
     Namespace namespace = (Namespace) interpreter.getContext().get(variableName);
 
     int variableAndKeyPosition = tagNode.getHelpers().indexOf('=');
-    String variableKey =  tagNode.getHelpers().substring(dotPosition + 1,variableAndKeyPosition);
-    String value = tagNode.getHelpers().substring(variableAndKeyPosition + 1);
+    String variableKey =  tagNode.getHelpers().substring(dotPosition + 1,variableAndKeyPosition).trim();
+    String value = tagNode.getHelpers().substring(variableAndKeyPosition + 1).trim();
 
     namespace.put(variableKey, interpreter.resolveELExpression(value, tagNode.getLineNumber()));
   }
