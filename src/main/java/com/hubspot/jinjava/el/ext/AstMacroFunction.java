@@ -45,12 +45,10 @@ public class AstMacroFunction extends AstFunction {
         } catch (MacroTagCycleException e) {
 
           int maxDepth = interpreter.getConfig().getMaxMacroRecursionDepth();
-          String message;
-          if (maxDepth == 0) {
-            message = String.format("Cycle detected for macro '%s'", getName());
-          } else {
-            message = String.format("Max recursion limit of %d reached for macro '%s'", maxDepth, getName());
-          }
+          String message = maxDepth == 0
+              ? String.format("Cycle detected for macro '%s'", getName())
+              : String.format("Max recursion limit of %d reached for macro '%s'", maxDepth, getName());
+
           interpreter.addError(new TemplateError(TemplateError.ErrorType.WARNING,
                                                  TemplateError.ErrorReason.EXCEPTION,
                                                  TemplateError.ErrorItem.TAG,
