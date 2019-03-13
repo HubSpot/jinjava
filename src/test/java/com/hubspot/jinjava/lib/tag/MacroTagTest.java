@@ -189,6 +189,27 @@ public class MacroTagTest {
   }
 
   @Test
+  public void itAllowsMacroRecursionWithMaxDepthInValidationMode() throws IOException {
+
+    interpreter = new Jinjava(JinjavaConfig.newBuilder()
+        .withEnableRecursiveMacroCalls(true)
+        .withMaxMacroRecursionDepth(10)
+        .withValidationMode(true)
+        .build()).newInterpreter();
+    JinjavaInterpreter.pushCurrent(interpreter);
+
+    try {
+      String template = fixtureText("ending-recursion");
+      String out = interpreter.render(template);
+      assertThat(interpreter.getErrorsCopy()).isEmpty();
+      assertThat(out).contains("Hello Hello Hello Hello Hello");
+    }
+    finally {
+      JinjavaInterpreter.popCurrent();
+    }
+  }
+
+  @Test
   public void itEnforcesMacroRecursionWithMaxDepth() throws IOException {
 
     interpreter = new Jinjava(JinjavaConfig.newBuilder()

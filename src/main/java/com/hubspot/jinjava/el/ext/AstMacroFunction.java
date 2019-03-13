@@ -45,6 +45,11 @@ public class AstMacroFunction extends AstFunction {
         } catch (MacroTagCycleException e) {
 
           int maxDepth = interpreter.getConfig().getMaxMacroRecursionDepth();
+          if (maxDepth != 0 && interpreter.getConfig().isValidationMode()) {
+            // validation mode is only concerned with syntax
+            return "";
+          }
+
           String message = maxDepth == 0
               ? String.format("Cycle detected for macro '%s'", getName())
               : String.format("Max recursion limit of %d reached for macro '%s'", maxDepth, getName());
