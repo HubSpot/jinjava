@@ -33,7 +33,13 @@
 
   <properties>
     <project.build.targetJdk>1.8</project.build.targetJdk>
+
     <dep.javassist.version>3.24.1-GA</dep.javassist.version>
+    <dep.mockito.version>2.23.4</dep.mockito.version>
+    <dep.objenesis.version>2.6</dep.objenesis.version>
+
+    <dep.plugin.findbugs.version>3.0.5</dep.plugin.findbugs.version>
+    <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
   </properties>
 
   <dependencies>
@@ -196,6 +202,28 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.basepom.maven</groupId>
+        <artifactId>duplicate-finder-maven-plugin</artifactId>
+        <configuration>
+          <exceptions>
+            <exception>
+              <conflictingDependencies>
+                <dependency>
+                  <groupId>net.bytebuddy</groupId>
+                  <artifactId>byte-buddy</artifactId>
+                  <version>1.9.3</version>
+                </dependency>
+                <dependency>
+                  <groupId>net.bytebuddy</groupId>
+                  <artifactId>byte-buddy-agent</artifactId>
+                  <version>1.9.3</version>
+                </dependency>
+              </conflictingDependencies>
+            </exception>
+          </exceptions>
+        </configuration>
       </plugin>
     </plugins>
   </build>
