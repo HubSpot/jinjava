@@ -33,6 +33,7 @@
 
   <properties>
     <project.build.targetJdk>1.8</project.build.targetJdk>
+    <dep.javassist.version>3.24.1-GA</dep.javassist.version>
   </properties>
 
   <dependencies>
