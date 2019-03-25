@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.util.Locale;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -112,5 +111,15 @@ public class IntFilterTest {
   public void itInterpretsFrenchCommasAndPeriodsWithFrenchLocale() {
     interpreter = new Jinjava(FRENCH_LOCALE_CONFIG).newInterpreter();
     assertThat(filter.filter("123\u00A0123,12", interpreter)).isEqualTo(123123);
+  }
+
+  @Test
+  public void itConvertsProperlyInExpressionTest() {
+    assertThat(interpreter.render("{{ '3'|int in [null, 4, 5, 6, null, 3] }}")).isEqualTo("true");
+  }
+
+  @Test
+  public void itConvertsProperlyInExpressionTestWithWrongType() {
+    assertThat(interpreter.render("{{ 'test' in [null, 4, 5, 6, null, 3] }}")).isEqualTo("false");
   }
 }
