@@ -36,14 +36,8 @@ public class CollectionMembershipOperator extends SimpleOperator {
           }
           continue;
         }
-
-        if (convertedObject == null) {
-          convertedObject = converter.convert(o1, value.getClass());
-        }
-
-        if (convertedObject.equals(value)) {
-          return Boolean.TRUE;
-        }
+        convertedObject = converter.convert(o1, value.getClass());
+        return collection.contains(convertedObject);
       }
     }
 
