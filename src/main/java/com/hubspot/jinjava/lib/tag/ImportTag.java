@@ -95,6 +95,7 @@ public class ImportTag implements Tag {
         interpreter.render(node);
       } else {
         JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
+        child.getContext().put("importResourcePath", templateFile);
         JinjavaInterpreter.pushCurrent(child);
 
         try {
