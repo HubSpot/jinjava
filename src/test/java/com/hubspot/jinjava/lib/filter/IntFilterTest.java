@@ -120,7 +120,6 @@ public class IntFilterTest {
 
   @Test
   public void itConvertsProperlyInExpressionTestWithWrongType() {
-    assertThat(interpreter.render("{{ 'test' in [null, 4, 5, 6, null, 3] }}")).isEqualTo("true");
+    assertThat(interpreter.render("{{ 'test' in [null, 4, 5, 6, null, 3] }}")).isEqualTo("false");
   }
-
 }
