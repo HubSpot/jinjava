@@ -86,6 +86,13 @@ public class DeferredTest {
  }
 
   @Test
+  public void itResolvesForTagWherePossible() {
+    String output = interpreter.render("{% for i in [1, 2] %}{{i}}{{deferred}}{% endfor %}");
+    assertThat(output).isEqualTo("1{{deferred}}2{{deferred}}");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
   public void itPreservesForTag() {
     String output = interpreter.render("{% for item in deferred %}{{item.name}}{% else %}last{% endfor %}");
     assertThat(output).isEqualTo("{% for item in deferred %}{{item.name}}{% else %}last{% endfor %}");
