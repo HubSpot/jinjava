@@ -30,6 +30,13 @@ public class CollectionMembershipOperator extends SimpleOperator {
 
       Object convertedObject = null;
       for (Object value : collection) {
+        if (value == null) {
+          if (o1 == null) {
+            return Boolean.TRUE;
+          }
+          continue;
+        }
+
         if (convertedObject == null) {
           convertedObject = converter.convert(o1, value.getClass());
         }

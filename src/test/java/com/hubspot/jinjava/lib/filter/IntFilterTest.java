@@ -115,7 +115,7 @@ public class IntFilterTest {
 
   @Test
   public void itConvertsProperlyInExpressionTest() {
-    assertThat(interpreter.render("{{ '3'|int in [3, 4, 5] }}")).isEqualTo("true");
+    assertThat(interpreter.render("{{ '3'|int in [null, 4, 5, 6, null, 3] }}")).isEqualTo("true");
   }
 
 }
