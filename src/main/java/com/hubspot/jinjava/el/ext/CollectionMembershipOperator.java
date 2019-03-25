@@ -3,6 +3,8 @@ package com.hubspot.jinjava.el.ext;
 import java.util.Collection;
 import java.util.Objects;
 
+import javax.el.ELException;
+
 import org.apache.commons.lang3.StringUtils;
 
 import de.odysseus.el.misc.TypeConverter;
@@ -28,15 +30,17 @@ public class CollectionMembershipOperator extends SimpleOperator {
     if (Collection.class.isAssignableFrom(o2.getClass())) {
       Collection<?> collection = (Collection<?>) o2;
 
-      Object convertedObject = null;
       for (Object value : collection) {
         if (value == null) {
           if (o1 == null) {
             return Boolean.TRUE;
           }
         } else {
-          convertedObject = converter.convert(o1, value.getClass());
-          return collection.contains(convertedObject);
+          try {
+            return collection.contains(converter.convert(o1, value.getClass()));
+          } catch (ELException e) {
+            return Boolean.FALSE;
+          }
         }
       }
     }
