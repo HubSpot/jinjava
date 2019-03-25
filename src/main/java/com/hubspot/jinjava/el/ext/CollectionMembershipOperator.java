@@ -26,7 +26,18 @@ public class CollectionMembershipOperator extends SimpleOperator {
     }
 
     if (Collection.class.isAssignableFrom(o2.getClass())) {
-      return ((Collection<?>) o2).contains(o1);
+      Collection<?> collection = (Collection<?>) o2;
+
+      Object convertedObject = null;
+      for (Object value : collection) {
+        if (convertedObject == null) {
+          convertedObject = converter.convert(o1, value.getClass());
+        }
+
+        if (convertedObject.equals(value)) {
+          return Boolean.TRUE;
+        }
+      }
     }
 
     return Boolean.FALSE;
