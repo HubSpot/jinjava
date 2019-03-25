@@ -34,10 +34,10 @@ public class CollectionMembershipOperator extends SimpleOperator {
           if (o1 == null) {
             return Boolean.TRUE;
           }
-          continue;
+        } else {
+          convertedObject = converter.convert(o1, value.getClass());
+          return collection.contains(convertedObject);
         }
-        convertedObject = converter.convert(o1, value.getClass());
-        return collection.contains(convertedObject);
       }
     }
 
