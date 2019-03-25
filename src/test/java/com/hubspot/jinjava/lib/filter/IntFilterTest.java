@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.util.Locale;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -112,5 +111,15 @@ public class IntFilterTest {
   public void itInterpretsFrenchCommasAndPeriodsWithFrenchLocale() {
     interpreter = new Jinjava(FRENCH_LOCALE_CONFIG).newInterpreter();
     assertThat(filter.filter("123\u00A0123,12", interpreter)).isEqualTo(123123);
+  }
+
+  @Test
+  public void itUsesLongsForLargeValues() {
+    assertThat(filter.filter("1000000000001", interpreter)).isEqualTo(1000000000001L);
+  }
+
+  @Test
+  public void itUsesLongsForLargeValueDefaults() {
+    assertThat(filter.filter("not a number", interpreter, "1000000000001")).isEqualTo(1000000000001L);
   }
 }
