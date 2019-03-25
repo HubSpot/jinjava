@@ -78,6 +78,13 @@ public class DeferredTest {
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
+ @Test
+  public void itResolvesIfTagWherePossible() {
+   String output = interpreter.render("{% if true %}{{deferred}}{% endif %}");
+   assertThat(output).isEqualTo("{{deferred}}");
+   assertThat(interpreter.getErrors()).isEmpty();
+ }
+
   @Test
   public void itPreservesForTag() {
     String output = interpreter.render("{% for item in deferred %}{{item.name}}{% else %}last{% endfor %}");
