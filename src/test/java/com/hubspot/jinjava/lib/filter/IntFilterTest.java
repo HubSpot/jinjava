@@ -122,4 +122,14 @@ public class IntFilterTest {
   public void itUsesLongsForLargeValueDefaults() {
     assertThat(filter.filter("not a number", interpreter, "1000000000001")).isEqualTo(1000000000001L);
   }
+  
+  @Test
+  public void itConvertsProperlyInExpressionTest() {
+    assertThat(interpreter.render("{{ '3'|int in [null, 4, 5, 6, null, 3] }}")).isEqualTo("true");
+  }
+
+  @Test
+  public void itConvertsProperlyInExpressionTestWithWrongType() {
+    assertThat(interpreter.render("{{ 'test' in [null, 4, 5, 6, null, 3] }}")).isEqualTo("false");
+  }
 }
