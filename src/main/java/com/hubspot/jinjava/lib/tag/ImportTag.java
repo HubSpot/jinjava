@@ -91,27 +91,31 @@ public class ImportTag implements Tag {
       String template = interpreter.getResource(templateFile);
       Node node = interpreter.parse(template);
 
+      JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
+      child.getContext().put("import_resource_path", templateFile);
+      JinjavaInterpreter.pushCurrent(child);
+
+      try {
+        child.render(node);
+      } finally {
+        JinjavaInterpreter.popCurrent();
+      }
+
+      interpreter.addAllErrors(child.getErrorsCopy());
+
+      Map<String, Object> childBindings = child.getContext().getSessionBindings();
+
       if (StringUtils.isBlank(contextVar)) {
-        interpreter.render(node);
-      } else {
-        JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
-        child.getContext().put("importResourcePath", templateFile);
-        JinjavaInterpreter.pushCurrent(child);
-
-        try {
-          child.render(node);
-        } finally {
-          JinjavaInterpreter.popCurrent();
+        for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
+          interpreter.getContext().addGlobalMacro(macro);
         }
-
-        interpreter.addAllErrors(child.getErrorsCopy());
-
-        Map<String, Object> childBindings = child.getContext().getSessionBindings();
+        childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
+        interpreter.getContext().putAll(childBindings);
+      } else {
         for (Map.Entry<String, MacroFunction> macro : child.getContext().getGlobalMacros().entrySet()) {
           childBindings.put(macro.getKey(), macro.getValue());
         }
         childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-
         interpreter.getContext().put(contextVar, childBindings);
       }
 

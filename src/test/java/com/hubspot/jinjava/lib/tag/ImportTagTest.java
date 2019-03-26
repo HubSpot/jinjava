@@ -55,7 +55,7 @@ public class ImportTagTest {
     interpreter.render(Resources.toString(Resources.getResource("tags/importtag/imports-self.jinja"), StandardCharsets.UTF_8));
     assertThat(context.get("c")).isEqualTo("hello");
 
-    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("Rendering cycle detected:", "imports-self.jinja");
+    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("Import cycle detected", "imports-self.jinja");
   }
 
   @Test
@@ -67,7 +67,7 @@ public class ImportTagTest {
     assertThat(context.get("a")).isEqualTo("foo");
     assertThat(context.get("b")).isEqualTo("bar");
 
-    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("Rendering cycle detected:", "b-imports-a.jinja");
+    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("Import cycle detected", "b-imports-a.jinja");
   }
 
   @Test
