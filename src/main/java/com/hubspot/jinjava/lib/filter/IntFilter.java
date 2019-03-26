@@ -37,33 +37,40 @@ public class IntFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter,
       String... args) {
 
-    int defaultVal = 0;
+    Long defaultVal = 0L;
     if (args.length > 0) {
-      defaultVal = NumberUtils.toInt(args[0], 0);
+      defaultVal = NumberUtils.toLong(args[0], 0);
     }
 
     if (var == null) {
-      return defaultVal;
+      return convertResult(defaultVal);
     }
 
     if (Number.class.isAssignableFrom(var.getClass())) {
-      return ((Number) var).intValue();
+      return convertResult(((Number) var).longValue());
     }
 
     String input = var.toString().trim();
     Locale locale = interpreter.getConfig().getLocale();
     NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
     ParsePosition pp = new ParsePosition(0);
-    int result;
+    Long result;
     try {
-      result = numberFormat.parse(input, pp).intValue();
+      result = numberFormat.parse(input, pp).longValue();
     } catch (Exception e) {
       result = defaultVal;
     }
     if (pp.getErrorIndex() != -1 || pp.getIndex() != input.length()) {
       result = defaultVal;
     }
-    return result;
+    return convertResult(result);
+  }
+
+  private Object convertResult(Long result) {
+    if (result > Integer.MAX_VALUE) {
+      return result;
+    }
+    return result.intValue();
   }
 
 }
