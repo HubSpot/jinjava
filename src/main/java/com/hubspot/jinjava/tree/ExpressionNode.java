@@ -19,6 +19,7 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
 import com.hubspot.jinjava.tree.output.OutputNode;
@@ -39,7 +40,12 @@ public class ExpressionNode extends Node {
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
-    Object var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
+    Object var;
+    try {
+      var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
+    } catch (DeferredValueException e){
+      var = master.getImage();
+    }
 
     String result = Objects.toString(var, "");
 
