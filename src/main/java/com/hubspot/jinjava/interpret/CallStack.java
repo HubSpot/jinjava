@@ -64,4 +64,15 @@ public class CallStack {
 
     return Optional.of(stack.pop());
   }
+
+  public Optional<String> peek() {
+    if (stack.isEmpty()) {
+      if (parent != null) {
+        return parent.peek();
+      }
+      return Optional.empty();
+    }
+
+    return Optional.of(stack.peek());
+  }
 }

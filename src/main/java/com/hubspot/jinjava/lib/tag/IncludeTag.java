@@ -73,12 +73,14 @@ public class IncludeTag implements Tag {
       Node node = interpreter.parse(template);
 
       interpreter.getContext().addDependency("coded_files", templateFile);
+      interpreter.getContext().getCurrentPathStack().push(templateFile, interpreter.getLineNumber(), interpreter.getPosition());
 
       return interpreter.render(node);
     } catch (IOException e) {
       throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
     } finally {
       interpreter.getContext().getIncludePathStack().pop();
+      interpreter.getContext().getCurrentPathStack().pop();
     }
   }
 

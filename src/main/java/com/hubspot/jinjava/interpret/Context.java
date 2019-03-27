@@ -45,6 +45,7 @@ import com.hubspot.jinjava.util.ScopeMap;
 
 public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
+  public static final String IMPORT_RESOURCE_PATH_KEY = "import_resource_path";
 
   private final SetMultimap<String, String> dependencies = HashMultimap.create();
   private Map<Library, Set<String>> disabled;
@@ -70,6 +71,7 @@ public class Context extends ScopeMap<String, Object> {
   private final CallStack includePathStack;
   private final CallStack macroStack;
   private final CallStack fromStack;
+  private final CallStack currentPathStack;
 
   private final Set<String> resolvedExpressions = new HashSet<>();
   private final Set<String> resolvedValues = new HashSet<>();
@@ -121,6 +123,7 @@ public class Context extends ScopeMap<String, Object> {
     this.macroStack = new CallStack(parent == null ? null : parent.getMacroStack(), MacroTagCycleException.class);
     this.fromStack = new CallStack(parent == null ? null : parent.getFromStack(),
         FromTagCycleException.class);
+    this.currentPathStack = new CallStack(parent == null ? null : parent.getCurrentPathStack(), TagCycleException.class);
 
     if (disabled == null) {
       disabled = new HashMap<>();
@@ -405,6 +408,10 @@ public class Context extends ScopeMap<String, Object> {
 
   public CallStack getMacroStack() {
     return macroStack;
+  }
+
+  public CallStack getCurrentPathStack() {
+    return currentPathStack;
   }
 
   public void pushFromStack(String path, int lineNumber, int startPosition) {

@@ -11,6 +11,7 @@ import com.google.common.collect.PeekingIterator;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.FromTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -93,6 +94,7 @@ public class FromTag implements Tag {
         Node node = interpreter.parse(template);
 
         JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
+        child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
         JinjavaInterpreter.pushCurrent(child);
         try {
           child.render(node);

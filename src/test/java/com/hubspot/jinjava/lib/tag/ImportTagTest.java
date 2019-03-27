@@ -55,7 +55,7 @@ public class ImportTagTest {
     interpreter.render(Resources.toString(Resources.getResource("tags/importtag/imports-self.jinja"), StandardCharsets.UTF_8));
     assertThat(context.get("c")).isEqualTo("hello");
 
-    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("Rendering cycle detected:", "imports-self.jinja");
+    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("Import cycle detected", "imports-self.jinja");
   }
 
   @Test
@@ -67,7 +67,7 @@ public class ImportTagTest {
     assertThat(context.get("a")).isEqualTo("foo");
     assertThat(context.get("b")).isEqualTo("bar");
 
-    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("Rendering cycle detected:", "b-imports-a.jinja");
+    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("Import cycle detected", "b-imports-a.jinja");
   }
 
   @Test
@@ -109,6 +109,17 @@ public class ImportTagTest {
     String renderResult = interpreter.render(Resources.toString(Resources.getResource("tags/importtag/imports-macro.jinja"), StandardCharsets.UTF_8));
     assertThat(renderResult.trim()).isEqualTo("");
     assertThat(interpreter.getErrorsCopy()).hasSize(0);
+  }
+
+  @Test
+  public void itAddsImportResourcePathToMacrosToUseAsCurrentPath() throws IOException {
+    Jinjava jinjava = new Jinjava();
+    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+
+    interpreter.render(Resources.toString(Resources.getResource("tags/importtag/imports-global-macro.jinja"), StandardCharsets.UTF_8));
+
+    assertThat(interpreter.getContext().getGlobalMacro("getPath").getLocalContextScope().get(Context.IMPORT_RESOURCE_PATH_KEY))
+        .isEqualTo("tags/macrotag/simple.jinja");
   }
 
   private String fixture(String name) {

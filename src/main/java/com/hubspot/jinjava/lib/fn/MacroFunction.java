@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.fn;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
@@ -45,6 +46,10 @@ public class MacroFunction extends AbstractCallableMethod {
   @Override
   public Object doEvaluate(Map<String, Object> argMap, Map<String, Object> kwargMap, List<Object> varArgs) {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+    Optional<String> importFile = Optional.ofNullable((String) localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY));
+
+    // pushWithoutCycleCheck() is used to here so that macros calling macros from the same file will not throw a TagCycleException
+    importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pushWithoutCycleCheck(path));
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       for (Map.Entry<String, Object> scopeEntry : localContextScope.getScope().entrySet()) {
@@ -71,6 +76,8 @@ public class MacroFunction extends AbstractCallableMethod {
       }
 
       return result.toString();
+    } finally {
+      importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop());
     }
   }
 
@@ -84,6 +91,10 @@ public class MacroFunction extends AbstractCallableMethod {
 
   public boolean isCaller() {
     return caller;
+  }
+
+  public Context getLocalContextScope() {
+    return localContextScope;
   }
 
 }
