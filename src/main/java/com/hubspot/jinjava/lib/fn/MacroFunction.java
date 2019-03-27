@@ -47,7 +47,9 @@ public class MacroFunction extends AbstractCallableMethod {
   public Object doEvaluate(Map<String, Object> argMap, Map<String, Object> kwargMap, List<Object> varArgs) {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     Optional<String> importFile = Optional.ofNullable((String) localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY));
-    importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().push(path, interpreter.getLineNumber(), interpreter.getPosition()));
+
+    // pushWithoutCycleCheck() is used to here so that macros calling macros from the same file will not throw a TagCycleException
+    importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pushWithoutCycleCheck(path));
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       for (Map.Entry<String, Object> scopeEntry : localContextScope.getScope().entrySet()) {
@@ -73,8 +75,9 @@ public class MacroFunction extends AbstractCallableMethod {
         result.append(node.render(interpreter));
       }
 
-      importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop());
       return result.toString();
+    } finally {
+      importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop());
     }
   }
 
