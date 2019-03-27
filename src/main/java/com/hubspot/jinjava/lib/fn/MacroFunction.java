@@ -93,4 +93,8 @@ public class MacroFunction extends AbstractCallableMethod {
     return caller;
   }
 
+  public Context getLocalContextScope() {
+    return localContextScope;
+  }
+
 }
