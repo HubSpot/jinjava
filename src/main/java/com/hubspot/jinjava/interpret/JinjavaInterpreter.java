@@ -255,6 +255,7 @@ public class JinjavaInterpreter {
     // render all extend parents, keeping the last as the root output
     if (processExtendRoots) {
       while (!extendParentRoots.isEmpty()) {
+        context.getCurrentPathStack().push(context.getExtendPathStack().peek().orElse(""), lineNumber, position);
         Node parentRoot = extendParentRoots.removeFirst();
         output = new OutputList(config.getMaxOutputSize());
 
@@ -264,6 +265,7 @@ public class JinjavaInterpreter {
         }
 
         context.getExtendPathStack().pop();
+        context.getCurrentPathStack().pop();
       }
     }
 
