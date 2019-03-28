@@ -45,7 +45,6 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
 public class BlockTag implements Tag {
 
   public static final String TAG_NAME = "block";
-  public static final String END_TAG_NAME = "endblock";
 
   private static final long serialVersionUID = -2362317415797088108L;
 
@@ -66,11 +65,6 @@ public class BlockTag implements Tag {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     throw new UnsupportedOperationException("BlockTag must be rendered directly via interpretOutput() method");
-  }
-
-  @Override
-  public String getEndTagName() {
-    return END_TAG_NAME;
   }
 
   @Override

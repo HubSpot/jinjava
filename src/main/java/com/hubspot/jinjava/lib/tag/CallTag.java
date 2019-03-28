@@ -51,18 +51,12 @@ import com.hubspot.jinjava.tree.TagNode;
 public class CallTag implements Tag {
 
   public static final String TAG_NAME = "call";
-  public static final String END_TAG_NAME = "endcall";
 
   private static final long serialVersionUID = 7231253469979314727L;
 
   @Override
   public String getName() {
     return TAG_NAME;
-  }
-
-  @Override
-  public String getEndTagName() {
-    return END_TAG_NAME;
   }
 
   @Override

@@ -36,7 +36,6 @@ import com.hubspot.jinjava.tree.TagNode;
 public class IfchangedTag implements Tag {
 
   public static final String TAG_NAME = "ifchanged";
-  public static final String END_TAG_NAME = "endifchanged";
 
   private static final long serialVersionUID = 3567908136629704724L;
   private static final String LASTKEY = "'IF\"CHG";
@@ -66,11 +65,6 @@ public class IfchangedTag implements Tag {
       return sb.toString();
     }
     return "";
-  }
-
-  @Override
-  public String getEndTagName() {
-    return END_TAG_NAME;
   }
 
   @Override

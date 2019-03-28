@@ -48,7 +48,6 @@ import com.hubspot.jinjava.tree.TagNode;
 public class MacroTag implements Tag {
 
   public static final String TAG_NAME = "macro";
-  public static final String END_TAG_NAME = "endmacro";
 
   private static final long serialVersionUID = 8397609322126956077L;
 
@@ -58,11 +57,6 @@ public class MacroTag implements Tag {
   @Override
   public String getName() {
     return TAG_NAME;
-  }
-
-  @Override
-  public String getEndTagName() {
-    return END_TAG_NAME;
   }
 
   @Override

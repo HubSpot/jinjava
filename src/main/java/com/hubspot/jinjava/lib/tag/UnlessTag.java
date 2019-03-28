@@ -23,18 +23,12 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
 public class UnlessTag extends IfTag {
 
   public static final String TAG_NAME = "unless";
-  public static final String END_TAG_NAME = "endunless";
 
   private static final long serialVersionUID = 1562284758153763419L;
 
   @Override
   public String getName() {
     return TAG_NAME;
-  }
-
-  @Override
-  public String getEndTagName() {
-    return END_TAG_NAME;
   }
 
   @Override

@@ -49,7 +49,6 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
 public class IfTag implements Tag {
 
   public static final String TAG_NAME = "if";
-  public static final String END_TAG_NAME = "endif";
 
   private static final long serialVersionUID = -3784039314941268904L;
 
@@ -110,11 +109,6 @@ public class IfTag implements Tag {
 
   protected boolean isPositiveIfElseNode(TagNode tagNode, JinjavaInterpreter interpreter) {
     return ObjectTruthValue.evaluate(interpreter.resolveELExpression(tagNode.getHelpers(), tagNode.getLineNumber()));
-  }
-
-  @Override
-  public String getEndTagName() {
-    return END_TAG_NAME;
   }
 
   @Override
