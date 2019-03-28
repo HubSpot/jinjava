@@ -19,16 +19,20 @@ import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
         ),
     })
 public class RawTag implements Tag {
+
+  public static final String TAG_NAME = "raw";
+  public static final String END_TAG_NAME = "endraw";
+
   private static final long serialVersionUID = -6963360187396753883L;
 
   @Override
   public String getName() {
-    return "raw";
+    return TAG_NAME;
   }
 
   @Override
   public String getEndTagName() {
-    return "endraw";
+    return END_TAG_NAME;
   }
 
   @Override

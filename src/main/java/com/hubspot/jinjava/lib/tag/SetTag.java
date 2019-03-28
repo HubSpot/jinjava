@@ -53,12 +53,13 @@ import com.hubspot.jinjava.tree.TagNode;
     })
 public class SetTag implements Tag {
 
+  public static final String TAG_NAME = "set";
+
   private static final long serialVersionUID = -8558479410226781539L;
-  private static final String TAGNAME = "set";
 
   @Override
   public String getName() {
-    return TAGNAME;
+    return TAG_NAME;
   }
 
   @Override

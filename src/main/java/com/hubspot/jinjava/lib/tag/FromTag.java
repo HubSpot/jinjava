@@ -48,11 +48,13 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
     })
 public class FromTag implements Tag {
 
+  public static final String TAG_NAME = "from";
+
   private static final long serialVersionUID = 6152691434172265022L;
 
   @Override
   public String getName() {
-    return "from";
+    return TAG_NAME;
   }
 
   @Override

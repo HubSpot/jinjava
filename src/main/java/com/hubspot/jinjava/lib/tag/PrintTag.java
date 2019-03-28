@@ -18,11 +18,13 @@ import com.hubspot.jinjava.tree.TagNode;
     })
 public class PrintTag implements Tag {
 
+  public static final String TAG_NAME = "print";
+
   private static final long serialVersionUID = -8613906103187594569L;
 
   @Override
   public String getName() {
-    return "print";
+    return TAG_NAME;
   }
 
   @Override

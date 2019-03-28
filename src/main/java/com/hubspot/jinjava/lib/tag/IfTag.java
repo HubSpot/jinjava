@@ -48,9 +48,10 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
     })
 public class IfTag implements Tag {
 
+  public static final String TAG_NAME = "if";
+  public static final String END_TAG_NAME = "endif";
+
   private static final long serialVersionUID = -3784039314941268904L;
-  private static final String TAGNAME = "if";
-  private static final String ENDTAGNAME = "endif";
 
   @Override
   public boolean isRenderedInValidationMode() {
@@ -84,10 +85,10 @@ public class IfTag implements Tag {
         Node node = nodeIterator.next();
         if (TagNode.class.isAssignableFrom(node.getClass())) {
           TagNode tag = (TagNode) node;
-          if (tag.getName().equals(ElseIfTag.ELSEIF)) {
+          if (tag.getName().equals(ElseIfTag.TAG_NAME)) {
             execute = !executedAnyBlock && isPositiveIfElseNode(tag, interpreter);
             continue;
-          } else if (tag.getName().equals(ElseTag.ELSE)) {
+          } else if (tag.getName().equals(ElseTag.TAG_NAME)) {
             execute = !executedAnyBlock;
             continue;
           }
@@ -113,12 +114,12 @@ public class IfTag implements Tag {
 
   @Override
   public String getEndTagName() {
-    return ENDTAGNAME;
+    return END_TAG_NAME;
   }
 
   @Override
   public String getName() {
-    return TAGNAME;
+    return TAG_NAME;
   }
 
 }

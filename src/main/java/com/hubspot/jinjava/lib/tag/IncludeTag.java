@@ -47,6 +47,9 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
         @JinjavaSnippet(code = "{% include \"hubspot/styles/patches/recommended.css\" %}")
     })
 public class IncludeTag implements Tag {
+
+  public static final String TAG_NAME = "include";
+
   private static final long serialVersionUID = -8391753639874726854L;
 
   @Override
@@ -91,7 +94,7 @@ public class IncludeTag implements Tag {
 
   @Override
   public String getName() {
-    return "include";
+    return TAG_NAME;
   }
 
 }

@@ -21,16 +21,20 @@ import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
                 "{% endautoescape %}")
     })
 public class AutoEscapeTag implements Tag {
+
+  public static final String TAG_NAME = "autoescape";
+  public static final String END_TAG_NAME = "endautoescape";
+
   private static final long serialVersionUID = 786006577642541285L;
 
   @Override
   public String getName() {
-    return "autoescape";
+    return TAG_NAME;
   }
 
   @Override
   public String getEndTagName() {
-    return "endautoescape";
+    return END_TAG_NAME;
   }
 
   @Override

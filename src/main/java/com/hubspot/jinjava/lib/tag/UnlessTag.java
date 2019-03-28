@@ -22,16 +22,19 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
     snippets = @JinjavaSnippet(code = "{% unless x < 0 %} x is greater than zero {% endunless %}"))
 public class UnlessTag extends IfTag {
 
+  public static final String TAG_NAME = "unless";
+  public static final String END_TAG_NAME = "endunless";
+
   private static final long serialVersionUID = 1562284758153763419L;
 
   @Override
   public String getName() {
-    return "unless";
+    return TAG_NAME;
   }
 
   @Override
   public String getEndTagName() {
-    return "endunless";
+    return END_TAG_NAME;
   }
 
   @Override

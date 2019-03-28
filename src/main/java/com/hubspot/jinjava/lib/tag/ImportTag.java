@@ -54,11 +54,14 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
                 "{{ header_footer.footer('h3', 'Company footer info') }}")
     })
 public class ImportTag implements Tag {
+
+  public static final String TAG_NAME = "import";
+
   private static final long serialVersionUID = 8433638845398005260L;
 
   @Override
   public String getName() {
-    return "import";
+    return TAG_NAME;
   }
 
   @Override
