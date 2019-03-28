@@ -46,9 +46,10 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
     })
 public class CycleTag implements Tag {
 
+  public static final String TAG_NAME = "cycle";
+
   private static final long serialVersionUID = 9145890505287556784L;
   private static final String LOOP_INDEX = "loop.index0";
-  private static final String TAGNAME = "cycle";
 
   @Override
   public boolean isRenderedInValidationMode() {
@@ -105,7 +106,7 @@ public class CycleTag implements Tag {
 
   @Override
   public String getName() {
-    return TAGNAME;
+    return TAG_NAME;
   }
 
 }

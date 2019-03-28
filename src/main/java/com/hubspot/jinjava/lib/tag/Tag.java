@@ -34,10 +34,11 @@ public interface Tag extends Importable, Serializable {
   /**
    * @return Get name of end tag (lowerCase). Null if it's a single tag without content.
    */
-  String getEndTagName();
+  default String getEndTagName() {
+    return String.format("end%s", getName());
+  }
 
   default boolean isRenderedInValidationMode() {
     return false;
   }
-
 }

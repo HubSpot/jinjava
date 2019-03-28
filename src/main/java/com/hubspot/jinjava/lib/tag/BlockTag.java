@@ -43,6 +43,9 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
                 "{% endblock %}"),
     })
 public class BlockTag implements Tag {
+
+  public static final String TAG_NAME = "block";
+
   private static final long serialVersionUID = -2362317415797088108L;
 
   @Override
@@ -65,13 +68,8 @@ public class BlockTag implements Tag {
   }
 
   @Override
-  public String getEndTagName() {
-    return "endblock";
-  }
-
-  @Override
   public String getName() {
-    return "block";
+    return TAG_NAME;
   }
 
 }

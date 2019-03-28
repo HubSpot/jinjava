@@ -47,6 +47,8 @@ import com.hubspot.jinjava.tree.TagNode;
     })
 public class MacroTag implements Tag {
 
+  public static final String TAG_NAME = "macro";
+
   private static final long serialVersionUID = 8397609322126956077L;
 
   private static final Pattern MACRO_PATTERN = Pattern.compile("([a-zA-Z_][\\w_]*)[^(]*\\(([^)]*)\\)");
@@ -54,12 +56,7 @@ public class MacroTag implements Tag {
 
   @Override
   public String getName() {
-    return "macro";
-  }
-
-  @Override
-  public String getEndTagName() {
-    return "endmacro";
+    return TAG_NAME;
   }
 
   @Override

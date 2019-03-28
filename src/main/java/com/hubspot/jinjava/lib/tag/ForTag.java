@@ -73,10 +73,10 @@ import com.hubspot.jinjava.util.ObjectIterator;
     })
 public class ForTag implements Tag {
 
+  public static final String TAG_NAME = "for";
+
   private static final long serialVersionUID = 6175143875754966497L;
   private static final String LOOP = "loop";
-  private static final String TAGNAME = "for";
-  private static final String ENDTAGNAME = "endfor";
 
   @Override
   public boolean isRenderedInValidationMode() {
@@ -189,13 +189,8 @@ public class ForTag implements Tag {
   }
 
   @Override
-  public String getEndTagName() {
-    return ENDTAGNAME;
-  }
-
-  @Override
   public String getName() {
-    return TAGNAME;
+    return TAG_NAME;
   }
 
 }

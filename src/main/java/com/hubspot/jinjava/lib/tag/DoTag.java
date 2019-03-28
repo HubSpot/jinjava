@@ -16,6 +16,8 @@ import com.hubspot.jinjava.tree.TagNode;
     })
 public class DoTag implements Tag {
 
+  public static final String TAG_NAME = "do";
+
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
 
@@ -34,6 +36,6 @@ public class DoTag implements Tag {
 
   @Override
   public String getName() {
-    return "do";
+    return TAG_NAME;
   }
 }

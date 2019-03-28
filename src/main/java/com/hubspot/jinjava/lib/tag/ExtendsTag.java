@@ -76,6 +76,9 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
                 "{% endblock %}")
     })
 public class ExtendsTag implements Tag {
+
+  public static final String TAG_NAME = "extends";
+
   private static final long serialVersionUID = 4692863362280761393L;
 
   @Override
@@ -108,7 +111,7 @@ public class ExtendsTag implements Tag {
 
   @Override
   public String getName() {
-    return "extends";
+    return TAG_NAME;
   }
 
 }
