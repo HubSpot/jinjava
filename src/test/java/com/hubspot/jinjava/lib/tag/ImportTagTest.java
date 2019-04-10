@@ -111,17 +111,6 @@ public class ImportTagTest {
     assertThat(interpreter.getErrorsCopy()).hasSize(0);
   }
 
-  @Test
-  public void itAddsImportResourcePathToMacrosToUseAsCurrentPath() throws IOException {
-    Jinjava jinjava = new Jinjava();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
-
-    interpreter.render(Resources.toString(Resources.getResource("tags/importtag/imports-global-macro.jinja"), StandardCharsets.UTF_8));
-
-    assertThat(interpreter.getContext().getGlobalMacro("getPath").getLocalContextScope().get(Context.IMPORT_RESOURCE_PATH_KEY))
-        .isEqualTo("tags/macrotag/simple.jinja");
-  }
-
   private String fixture(String name) {
     try {
       return interpreter.renderFlat(Resources.toString(

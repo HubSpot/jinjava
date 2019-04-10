@@ -22,8 +22,6 @@ public class MacroFunction extends AbstractCallableMethod {
 
   private final List<Node> content;
 
-  private final boolean catchKwargs;
-  private final boolean catchVarargs;
   private final boolean caller;
 
   private final Context localContextScope;
@@ -31,14 +29,10 @@ public class MacroFunction extends AbstractCallableMethod {
   public MacroFunction(List<Node> content,
                        String name,
                        LinkedHashMap<String, Object> argNamesWithDefaults,
-                       boolean catchKwargs,
-                       boolean catchVarargs,
                        boolean caller,
                        Context localContextScope) {
     super(name, argNamesWithDefaults);
     this.content = content;
-    this.catchKwargs = catchKwargs;
-    this.catchVarargs = catchVarargs;
     this.caller = caller;
     this.localContextScope = localContextScope;
   }
@@ -81,20 +75,7 @@ public class MacroFunction extends AbstractCallableMethod {
     }
   }
 
-  public boolean isCatchKwargs() {
-    return catchKwargs;
-  }
-
-  public boolean isCatchVarargs() {
-    return catchVarargs;
-  }
-
   public boolean isCaller() {
     return caller;
   }
-
-  public Context getLocalContextScope() {
-    return localContextScope;
-  }
-
 }

@@ -54,8 +54,6 @@ public class MacroTagTest {
     assertThat(fn.getName()).isEqualTo("getPath");
     assertThat(fn.getArguments()).isEmpty();
     assertThat(fn.isCaller()).isFalse();
-    assertThat(fn.isCatchKwargs()).isFalse();
-    assertThat(fn.isCatchVarargs()).isFalse();
 
     context.put("myname", "jared");
     assertThat(snippet("{{ getPath() }}").render(interpreter).getValue().trim()).isEqualTo("Hello jared");

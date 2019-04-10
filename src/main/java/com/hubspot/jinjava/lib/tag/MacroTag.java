@@ -98,12 +98,8 @@ public class MacroTag implements Tag {
       }
     }
 
-    boolean catchKwargs = false;
-    boolean catchVarargs = false;
-    boolean caller = false;
-
     MacroFunction macro = new MacroFunction(tagNode.getChildren(), name, argNamesWithDefaults,
-        catchKwargs, catchVarargs, caller, interpreter.getContext());
+        false, interpreter.getContext());
     interpreter.getContext().addGlobalMacro(macro);
 
     return "";

@@ -221,10 +221,8 @@ public class ValidationModeTest {
     InstrumentedMacroFunction(List<Node> content,
                               String name,
                               LinkedHashMap<String, Object> argNamesWithDefaults,
-                              boolean catchKwargs,
-                              boolean catchVarargs,
                               boolean caller, Context localContextScope) {
-      super(content, name, argNamesWithDefaults, catchKwargs, catchVarargs, caller, localContextScope);
+      super(content, name, argNamesWithDefaults, caller, localContextScope);
     }
 
     @Override
@@ -242,7 +240,7 @@ public class ValidationModeTest {
   public void itDoesNotExecuteMacrosInValidatedBlocks() {
 
     TextNode textNode = new TextNode(new TextToken("hello", 1, 1));
-    InstrumentedMacroFunction macro = new InstrumentedMacroFunction(ImmutableList.of(textNode), "hello", new LinkedHashMap<>(), false, false, false, interpreter
+    InstrumentedMacroFunction macro = new InstrumentedMacroFunction(ImmutableList.of(textNode), "hello", new LinkedHashMap<>(), false, interpreter
         .getContext());
     interpreter.getContext().addGlobalMacro(macro);
 
