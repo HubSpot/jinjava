@@ -68,8 +68,7 @@ public class SortFilter implements Filter {
 
     List<String> attr = getAttributeArgument(interpreter, args);
 
-    List<?> result = Lists.newArrayList(ObjectIterator.getLoop(var));
-    return result.stream()
+    return Lists.newArrayList(ObjectIterator.getLoop(var)).stream()
         .sorted(Comparator.comparing((o) -> mapObject(interpreter, o, attr),
             new ObjectComparator(reverse, caseSensitive)))
         .collect(Collectors.toList());
