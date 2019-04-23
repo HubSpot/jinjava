@@ -56,33 +56,17 @@ public class SortFilter implements Filter {
       return null;
     }
 
-    boolean reverse = false;
-    if (args.length > 0) {
-      reverse = BooleanUtils.toBoolean(args[0]);
-    }
+    boolean reverse = args.length > 0 && BooleanUtils.toBoolean(args[0]);
+    boolean caseSensitive = args.length > 1 && BooleanUtils.toBoolean(args[1]);
 
-    boolean caseSensitive = false;
-    if (args.length > 1) {
-      caseSensitive = BooleanUtils.toBoolean(args[1]);
-    }
-
-    List<String> attr = getAttributeArgument(interpreter, args);
+    List<String> attr = args.length > 2 && args[2] != null
+        ? DOT_SPLITTER.splitToList(args[2])
+        : Collections.emptyList();
 
     return Lists.newArrayList(ObjectIterator.getLoop(var)).stream()
         .sorted(Comparator.comparing((o) -> mapObject(interpreter, o, attr),
             new ObjectComparator(reverse, caseSensitive)))
         .collect(Collectors.toList());
-  }
-
-  private List<String> getAttributeArgument(JinjavaInterpreter interpreter, String[] args) {
-    if (args.length > 2) {
-      String attrArg = args[2];
-      if (attrArg == null) {
-        throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 2);
-      }
-      return DOT_SPLITTER.splitToList(attrArg);
-    }
-    return Collections.emptyList();
   }
 
   private Object mapObject(JinjavaInterpreter interpreter, Object o, List<String> propertyChain) {
