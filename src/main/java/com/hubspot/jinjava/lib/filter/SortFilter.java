@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -69,7 +70,8 @@ public class SortFilter implements Filter {
 
     List<?> result = Lists.newArrayList(ObjectIterator.getLoop(var));
     return result.stream()
-        .sorted(Comparator.comparing((o) -> mapObject(interpreter, o, attr), new ObjectComparator(interpreter, reverse, caseSensitive)))
+        .sorted(Comparator.comparing((o) -> mapObject(interpreter, o, attr),
+            new ObjectComparator(reverse, caseSensitive)))
         .collect(Collectors.toList());
   }
 
@@ -101,11 +103,11 @@ public class SortFilter implements Filter {
     return result;
   }
 
-  private static class ObjectComparator implements Comparator<Object> {
+  private static class ObjectComparator implements Comparator<Object>, Serializable {
     private final boolean reverse;
     private final boolean caseSensitive;
 
-    ObjectComparator(JinjavaInterpreter interpreter, boolean reverse, boolean caseSensitive) {
+    ObjectComparator(boolean reverse, boolean caseSensitive) {
       this.reverse = reverse;
       this.caseSensitive = caseSensitive;
     }
