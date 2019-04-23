@@ -9,7 +9,9 @@ public enum InvalidReason {
   JSON_READ("could not be converted to an object"),
   JSON_WRITE("object could not be written as a string"),
   REGEX("with value %s must be valid regex"),
-  POSITIVE_NUMBER("with value %s must be a positive number")
+  POSITIVE_NUMBER("with value %s must be a positive number"),
+  NULL_IN_LIST("of type 'list' cannot contain a null item"),
+  NULL_ATTRIBUTE_IN_LIST("with value '%s' must be a valid attribute of every item in the list")
   ;
 
   private final String errorMessage;

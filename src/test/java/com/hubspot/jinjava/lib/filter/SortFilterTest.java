@@ -10,6 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.RenderResult;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 
 public class SortFilterTest {
 
@@ -58,15 +60,46 @@ public class SortFilterTest {
         new MyBar(new MyFoo(new Date(250L))), new MyBar(new MyFoo(new Date(0L))), new MyBar(new MyFoo(new Date(100000000L))))).isEqualTo("0250100000000");
   }
 
+  @Test
+  public void itThrowsInvalidArgumentExceptionOnNullAttribute() {
+    RenderResult result = renderForResult("(false, false, null)", new MyFoo(new Date(250L)), new MyFoo(new Date(0L)), new MyFoo(new Date(100000000L)));
+    assertThat(result.getOutput()).isEmpty();
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getSeverity()).isEqualTo(ErrorType.FATAL);
+    assertThat(result.getErrors().get(0).getMessage()).contains("cannot be null");
+  }
+
+  @Test
+  public void itThrowsInvalidArgumentWhenObjectAttributeIsNull() {
+    RenderResult result = renderForResult("(false, false, 'doesNotResolve')", new MyFoo(new Date(250L)), new MyFoo(new Date(0L)), new MyFoo(new Date(100000000L)));
+    assertThat(result.getOutput()).isEmpty();
+    assertThat(result.getErrors()).hasSize(2);
+    assertThat(result.getErrors().get(1).getSeverity()).isEqualTo(ErrorType.FATAL);
+    assertThat(result.getErrors().get(1).getMessage()).contains("must be a valid attribute of every item in the list");
+  }
+
+  @Test
+  public void itThrowsInvalidInputWhenListContainsNull() {
+    RenderResult result = renderForResult("(false, false)", new MyFoo(new Date(250L)), new MyFoo(new Date(0L)), null, new MyFoo(new Date(100000000L)));
+    assertThat(result.getOutput()).isEmpty();
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getSeverity()).isEqualTo(ErrorType.FATAL);
+    assertThat(result.getErrors().get(0).getMessage()).contains("cannot contain a null item");
+  }
+
   String render(Object... items) {
     return render("", items);
   }
 
   String render(String sortExtra, Object... items) {
+    return renderForResult(sortExtra, items).getOutput();
+  }
+
+  RenderResult renderForResult(String sortExtra, Object... items) {
     Map<String, Object> context = new HashMap<>();
     context.put("iterable", items);
 
-    return jinjava.render("{% for item in iterable|sort" + sortExtra + " %}{{ item }}{% endfor %}", context);
+    return jinjava.renderForResult("{% for item in iterable|sort" + sortExtra + " %}{{ item }}{% endfor %}", context);
   }
 
   public static class MyFoo {
