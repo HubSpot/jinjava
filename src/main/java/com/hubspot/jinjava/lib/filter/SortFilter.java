@@ -59,10 +59,11 @@ public class SortFilter implements Filter {
     boolean reverse = args.length > 0 && BooleanUtils.toBoolean(args[0]);
     boolean caseSensitive = args.length > 1 && BooleanUtils.toBoolean(args[1]);
 
-    List<String> attr = args.length > 2 && args[2] != null
-        ? DOT_SPLITTER.splitToList(args[2])
-        : Collections.emptyList();
+    if (args.length > 2 && args[2] == null) {
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 2);
+    }
 
+    List<String> attr = args.length > 2 ? DOT_SPLITTER.splitToList(args[2]) : Collections.emptyList();
     return Lists.newArrayList(ObjectIterator.getLoop(var)).stream()
         .sorted(Comparator.comparing((o) -> mapObject(interpreter, o, attr),
             new ObjectComparator(reverse, caseSensitive)))
@@ -81,7 +82,11 @@ public class SortFilter implements Filter {
 
     Object result = interpreter.resolveProperty(o, propertyChain);
     if (result == null) {
-      throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL_ATTRIBUTE_IN_LIST, 2, DOT_JOINER.join(propertyChain));
+      throw new InvalidArgumentException(interpreter,
+          this,
+          InvalidReason.NULL_ATTRIBUTE_IN_LIST,
+          2,
+          DOT_JOINER.join(propertyChain));
     }
     return result;
   }
