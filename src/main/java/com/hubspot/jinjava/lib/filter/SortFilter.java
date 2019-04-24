@@ -1,17 +1,24 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.io.Serializable;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.BooleanUtils;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ObjectIterator;
-import com.hubspot.jinjava.util.Variable;
 
 @JinjavaDoc(
     value = "Sort an iterable.",
@@ -35,6 +42,9 @@ import com.hubspot.jinjava.util.Variable;
     })
 public class SortFilter implements Filter {
 
+  private static final Splitter DOT_SPLITTER = Splitter.on('.').omitEmptyStrings();
+  private static final Joiner DOT_JOINER = Joiner.on('.');
+
   @Override
   public String getName() {
     return "sort";
@@ -46,53 +56,54 @@ public class SortFilter implements Filter {
       return null;
     }
 
-    boolean reverse = false;
-    if (args.length > 0) {
-      reverse = BooleanUtils.toBoolean(args[0]);
+    boolean reverse = args.length > 0 && BooleanUtils.toBoolean(args[0]);
+    boolean caseSensitive = args.length > 1 && BooleanUtils.toBoolean(args[1]);
+
+    if (args.length > 2 && args[2] == null) {
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 2);
     }
 
-    boolean caseSensitive = false;
-    if (args.length > 1) {
-      caseSensitive = BooleanUtils.toBoolean(args[1]);
+    List<String> attr = args.length > 2 ? DOT_SPLITTER.splitToList(args[2]) : Collections.emptyList();
+    return Lists.newArrayList(ObjectIterator.getLoop(var)).stream()
+        .sorted(Comparator.comparing((o) -> mapObject(interpreter, o, attr),
+            new ObjectComparator(reverse, caseSensitive)))
+        .collect(Collectors.toList());
+  }
+
+  private Object mapObject(JinjavaInterpreter interpreter, Object o, List<String> propertyChain) {
+
+    if (o == null) {
+      throw new InvalidInputException(interpreter, this, InvalidReason.NULL_IN_LIST);
     }
 
-    String attr = null;
-    if (args.length > 2) {
-      attr = args[2];
+    if (propertyChain.isEmpty()) {
+      return o;
     }
 
-    List<?> result = Lists.newArrayList(ObjectIterator.getLoop(var));
-    result.sort(new ObjectComparator(interpreter, reverse, caseSensitive, attr));
-
+    Object result = interpreter.resolveProperty(o, propertyChain);
+    if (result == null) {
+      throw new InvalidArgumentException(interpreter,
+          this,
+          InvalidReason.NULL_ATTRIBUTE_IN_LIST,
+          2,
+          DOT_JOINER.join(propertyChain));
+    }
     return result;
   }
 
-  private static class ObjectComparator implements Comparator<Object> {
+  private static class ObjectComparator implements Comparator<Object>, Serializable {
     private final boolean reverse;
     private final boolean caseSensitive;
-    private final Variable variable;
 
-    ObjectComparator(JinjavaInterpreter interpreter, boolean reverse, boolean caseSensitive, String attr) {
+    ObjectComparator(boolean reverse, boolean caseSensitive) {
       this.reverse = reverse;
       this.caseSensitive = caseSensitive;
-
-      if (attr != null) {
-        this.variable = new Variable(interpreter, "o." + attr);
-      }
-      else {
-        this.variable = null;
-      }
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public int compare(Object o1, Object o2) {
       int result = 0;
-
-      if (variable != null) {
-        o1 = variable.resolve(o1);
-        o2 = variable.resolve(o2);
-      }
 
       if (o1 instanceof String && !caseSensitive) {
         result = ((String) o1).compareToIgnoreCase((String) o2);
