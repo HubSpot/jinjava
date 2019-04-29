@@ -140,6 +140,7 @@ public class Context extends ScopeMap<String, Object> {
     resolvedExpressions.clear();
     resolvedValues.clear();
     resolvedFunctions.clear();
+    dependencies.clear();
   }
 
   @Override
