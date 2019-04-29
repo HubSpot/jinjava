@@ -16,12 +16,15 @@
 package com.hubspot.jinjava.lib.tag;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.TagNode;
@@ -81,23 +84,28 @@ public class SetTag implements Tag {
 
     String[] varTokens = var.split(",");
 
-    if (varTokens.length > 1) {
-      // handle multi-variable assignment
-      @SuppressWarnings("unchecked")
-      List<Object> exprVals = (List<Object>) interpreter.resolveELExpression("[" + expr + "]", tagNode.getLineNumber());
+    try {
+      if (varTokens.length > 1) {
+        // handle multi-variable assignment
+        @SuppressWarnings("unchecked")
+        List<Object> exprVals = (List<Object>) interpreter.resolveELExpression("[" + expr + "]", tagNode.getLineNumber());
 
-      if (varTokens.length != exprVals.size()) {
-        throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' declares an uneven number of variables and assigned values", tagNode.getLineNumber(), tagNode.getStartPosition());
+        if (varTokens.length != exprVals.size()) {
+          throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' declares an uneven number of variables and assigned values", tagNode.getLineNumber(), tagNode.getStartPosition());
+        }
+
+        for (int i = 0; i < varTokens.length; i++) {
+          String varItem = varTokens[i].trim();
+          interpreter.getContext().put(varItem, exprVals.get(i));
+        }
+
+      } else {
+        // handle single variable assignment
+        interpreter.getContext().put(var, interpreter.resolveELExpression(expr, tagNode.getLineNumber()));
       }
-
-      for (int i = 0; i < varTokens.length; i++) {
-        String varItem = varTokens[i].trim();
-        interpreter.getContext().put(varItem, exprVals.get(i));
-      }
-
-    } else {
-      // handle single variable assignment
-      interpreter.getContext().put(var, interpreter.resolveELExpression(expr, tagNode.getLineNumber()));
+    } catch (DeferredValueException e) {
+      Stream.of(varTokens).forEach(varToken -> interpreter.getContext().put(varToken.trim(), DeferredValue.instance()));
+      throw e;
     }
 
     return "";

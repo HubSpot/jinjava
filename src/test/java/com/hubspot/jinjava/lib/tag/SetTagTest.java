@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 
 import java.io.IOException;
@@ -19,6 +20,8 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.Node;
@@ -191,6 +194,28 @@ public class SetTagTest {
         entry("myvar2", "mybar"),
         entry("myvar3", Lists.newArrayList(1L, 2L, 3L, 4L)),
         entry("myvar4", "yoooooo"));
+  }
+
+  @Test
+  public void itThrowsAndDefersVarWhenValContainsDeferred() {
+    context.put("primary_font_size_num", DeferredValue.instance());
+    TagNode tagNode = (TagNode) fixture("set-var-exp");
+    assertThatThrownBy(() -> tag.interpret(tagNode, interpreter)).isInstanceOf(DeferredValueException.class);
+    assertThat(context).contains(entry("primary_line_height", DeferredValue.instance()));
+  }
+
+  @Test
+  public void itThrowsAndDefersMultiVarWhenValContainsDeferred() {
+    context.put("bar", DeferredValue.instance());
+
+    TagNode tagNode = (TagNode) fixture("set-multivar");
+
+    assertThatThrownBy(() -> tag.interpret(tagNode, interpreter)).isInstanceOf(DeferredValueException.class);
+    assertThat(context).contains(
+        entry("myvar1", DeferredValue.instance()),
+        entry("myvar2", DeferredValue.instance()),
+        entry("myvar3", DeferredValue.instance()),
+        entry("myvar4", DeferredValue.instance()));
   }
 
   private Node fixture(String name) {
