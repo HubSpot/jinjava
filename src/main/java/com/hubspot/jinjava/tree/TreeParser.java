@@ -199,11 +199,13 @@ public class TreeParser {
       parent.getMaster().setRightTrimAfterEnd(tagToken.isRightTrim());
     }
 
+    boolean hasMatchingStartTag = false;
     while (!(parent instanceof RootNode)) {
       TagNode parentTag = (TagNode) parent;
       parent = parent.getParent();
 
       if (parentTag.getEndName().equals(tag.getEndTagName())) {
+        hasMatchingStartTag = true;
         break;
       } else {
         interpreter.addError(TemplateError.fromException(
@@ -211,6 +213,18 @@ public class TreeParser {
                                         "Mismatched end tag, expected: " + parentTag.getEndName(),
                                         tagToken.getLineNumber(), tagToken.getStartPosition())));
       }
+    }
+    if (!hasMatchingStartTag) {
+      interpreter.addError(new TemplateError(
+          ErrorType.WARNING,
+          ErrorReason.SYNTAX_ERROR,
+          ErrorItem.TAG,
+          "Missing start tag",
+          tag.getName(),
+          tagToken.getLineNumber(),
+          tagToken.getStartPosition(),
+          null
+      ));
     }
   }
 }
