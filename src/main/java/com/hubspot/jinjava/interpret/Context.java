@@ -140,6 +140,7 @@ public class Context extends ScopeMap<String, Object> {
     resolvedExpressions.clear();
     resolvedValues.clear();
     resolvedFunctions.clear();
+    dependencies.clear();
   }
 
   @Override
@@ -452,10 +453,16 @@ public class Context extends ScopeMap<String, Object> {
 
   public void addDependency(String type, String identification) {
     this.dependencies.get(type).add(identification);
+    if (parent != null) {
+      parent.addDependency(type, identification);
+    }
   }
 
   public void addDependencies(SetMultimap<String, String> dependencies) {
     this.dependencies.putAll(dependencies);
+    if (parent != null) {
+      parent.addDependencies(dependencies);
+    }
   }
 
   public SetMultimap<String, String> getDependencies() {
