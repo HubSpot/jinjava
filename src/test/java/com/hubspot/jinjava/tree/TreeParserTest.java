@@ -11,6 +11,7 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 
 public class TreeParserTest {
 
@@ -84,6 +85,16 @@ public class TreeParserTest {
         .isEqualTo("<div>\n"
             + "        yay\n"
             + "</div>\n");
+  }
+
+  @Test
+  public void itWarnsAgainstMissingStartTags() {
+    String expression = "{% if true %} foo {% endif %} {% endif %}";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.getErrors()).hasSize(1);
+    assertThat(interpreter.getErrors().get(0).getSeverity()).isEqualTo(ErrorType.WARNING);
+    assertThat(interpreter.getErrors().get(0).getMessage()).isEqualTo("Missing start tag");
+    assertThat(interpreter.getErrors().get(0).getFieldName()).isEqualTo("endif");
   }
 
   Node parse(String fixture) {
