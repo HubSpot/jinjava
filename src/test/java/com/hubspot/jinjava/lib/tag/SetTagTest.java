@@ -199,7 +199,9 @@ public class SetTagTest {
   @Test
   public void itThrowsAndDefersVarWhenValContainsDeferred() {
     context.put("primary_font_size_num", DeferredValue.instance());
+
     TagNode tagNode = (TagNode) fixture("set-var-exp");
+
     assertThatThrownBy(() -> tag.interpret(tagNode, interpreter)).isInstanceOf(DeferredValueException.class);
     assertThat(context).contains(entry("primary_line_height", DeferredValue.instance()));
   }
