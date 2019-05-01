@@ -144,6 +144,7 @@ public class Context extends ScopeMap<String, Object> {
     resolvedValues.clear();
     resolvedFunctions.clear();
     dependencies = HashMultimap.create();
+    deferredNodes.clear();
   }
 
   @Override
