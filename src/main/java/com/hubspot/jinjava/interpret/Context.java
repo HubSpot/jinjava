@@ -47,7 +47,7 @@ public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
   public static final String IMPORT_RESOURCE_PATH_KEY = "import_resource_path";
 
-  private final SetMultimap<String, String> dependencies = HashMultimap.create();
+  private SetMultimap<String, String> dependencies = HashMultimap.create();
   private Map<Library, Set<String>> disabled;
 
   public boolean isValidationMode() {
@@ -140,7 +140,7 @@ public class Context extends ScopeMap<String, Object> {
     resolvedExpressions.clear();
     resolvedValues.clear();
     resolvedFunctions.clear();
-    dependencies.clear();
+    dependencies = HashMultimap.create();
   }
 
   @Override
