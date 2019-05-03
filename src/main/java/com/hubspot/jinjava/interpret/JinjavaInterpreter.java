@@ -245,6 +245,7 @@ public class JinjavaInterpreter {
         try {
           out = node.render(this);
         } catch (DeferredValueException e) {
+          context.addDeferredNode(node);
           out = new RenderedOutputNode(node.getMaster().getImage());
         }
         context.popRenderStack();

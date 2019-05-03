@@ -77,6 +77,8 @@ public class Context extends ScopeMap<String, Object> {
   private final Set<String> resolvedValues = new HashSet<>();
   private final Set<String> resolvedFunctions = new HashSet<>();
 
+  private Set<Node> deferredNodes = new HashSet<>();
+
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
   private final FunctionLibrary functionLibrary;
@@ -141,6 +143,7 @@ public class Context extends ScopeMap<String, Object> {
     resolvedValues.clear();
     resolvedFunctions.clear();
     dependencies = HashMultimap.create();
+    deferredNodes = new HashSet<>();
   }
 
   @Override
@@ -237,6 +240,17 @@ public class Context extends ScopeMap<String, Object> {
     if (getParent() != null) {
       getParent().addResolvedFunction(function);
     }
+  }
+
+  public void addDeferredNode(Node node) {
+    deferredNodes.add(node);
+    if (getParent() != null) {
+      getParent().addDeferredNode(node);
+    }
+  }
+
+  public Set<Node> getDeferredNodes() {
+    return ImmutableSet.copyOf(deferredNodes);
   }
 
   public List<? extends Node> getSuperBlock() {
