@@ -28,7 +28,6 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import com.hubspot.jinjava.lib.Importable;
@@ -78,7 +77,7 @@ public class Context extends ScopeMap<String, Object> {
   private final Set<String> resolvedValues = new HashSet<>();
   private final Set<String> resolvedFunctions = new HashSet<>();
 
-  private List<Node> deferredNodes = new ArrayList<>();
+  private Set<Node> deferredNodes = new HashSet<>();
 
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
@@ -144,7 +143,7 @@ public class Context extends ScopeMap<String, Object> {
     resolvedValues.clear();
     resolvedFunctions.clear();
     dependencies = HashMultimap.create();
-    deferredNodes = new ArrayList<>();
+    deferredNodes = new HashSet<>();
   }
 
   @Override
@@ -250,8 +249,8 @@ public class Context extends ScopeMap<String, Object> {
     }
   }
 
-  public List<Node> getDeferredNodes() {
-    return ImmutableList.copyOf(deferredNodes);
+  public Set<Node> getDeferredNodes() {
+    return ImmutableSet.copyOf(deferredNodes);
   }
 
   public List<? extends Node> getSuperBlock() {
