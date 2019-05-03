@@ -62,7 +62,7 @@ public class PrettyPrintFilter implements Filter {
 
       for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
         try {
-          if (pd.getPropertyType().equals(Class.class)) {
+          if (pd.getPropertyType() != null && pd.getPropertyType().equals(Class.class)) {
             continue;
           }
 
