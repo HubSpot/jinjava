@@ -24,6 +24,7 @@ import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 
 public class TagNode extends Node {
 
@@ -88,7 +89,6 @@ public class TagNode extends Node {
     return tag;
   }
 
-
   private String reconstructImage() {
     StringBuilder builder = new StringBuilder().append(master.getImage());
 
@@ -96,7 +96,15 @@ public class TagNode extends Node {
       builder.append(n.getMaster().getImage());
     }
 
-    builder.append("{% ").append(getEndName()). append(" %}");
+    String endTag = String.format(
+        "%s%s %s %s%s",
+        TokenScannerSymbols.TOKEN_EXPR_START_CHAR,
+        TokenScannerSymbols.TOKEN_TAG_CHAR,
+        getEndName(),
+        TokenScannerSymbols.TOKEN_TAG_CHAR,
+        TokenScannerSymbols.TOKEN_EXPR_END_CHAR
+    );
+    builder.append(endTag);
 
     return builder.toString();
   }
