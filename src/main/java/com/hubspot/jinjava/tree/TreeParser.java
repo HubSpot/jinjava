@@ -95,6 +95,18 @@ public class TreeParser {
         return tag((TagToken) token);
 
       case TOKEN_NOTE:
+        if (!token.getImage().endsWith("#}")) {
+          interpreter.addError(new TemplateError(
+              ErrorType.WARNING,
+              ErrorReason.SYNTAX_ERROR,
+              ErrorItem.TAG,
+              "Unclosed comment",
+              "comment",
+              token.getLineNumber(),
+              token.getStartPosition(),
+              null
+          ));
+        }
         break;
 
       default:
