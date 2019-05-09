@@ -97,6 +97,16 @@ public class TreeParserTest {
     assertThat(interpreter.getErrors().get(0).getFieldName()).isEqualTo("endif");
   }
 
+  @Test
+  public void itWarnsAgainstUnclosedComment() {
+    String expression = "foo {# this is an unclosed comment %}";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.getErrors()).hasSize(1);
+    assertThat(interpreter.getErrors().get(0).getSeverity()).isEqualTo(ErrorType.WARNING);
+    assertThat(interpreter.getErrors().get(0).getMessage()).isEqualTo("Unclosed comment");
+    assertThat(interpreter.getErrors().get(0).getFieldName()).isEqualTo("comment");
+  }
+
   Node parse(String fixture) {
     try {
       return new TreeParser(interpreter, Resources.toString(
