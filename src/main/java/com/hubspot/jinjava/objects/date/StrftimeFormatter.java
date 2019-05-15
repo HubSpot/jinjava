@@ -19,6 +19,7 @@ public class StrftimeFormatter {
    * Mapped from http://strftime.org/, http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
    */
   private static final String[] CONVERSIONS = new String[255];
+  private static final String[] NOMINATIVE_CONVERSIONS = new String[255];
 
   static {
     CONVERSIONS['a'] = "EEE";
@@ -49,6 +50,8 @@ public class StrftimeFormatter {
     CONVERSIONS['z'] = "Z";
     CONVERSIONS['Z'] = "ZZZZ";
     CONVERSIONS['%'] = "%";
+
+    NOMINATIVE_CONVERSIONS['B'] = "LLLL";
   }
 
   /**
@@ -64,21 +67,29 @@ public class StrftimeFormatter {
 
     StringBuilder result = new StringBuilder();
 
+    boolean replaceL = true;
     for (int i = 0; i < strftime.length(); i++) {
       char c = strftime.charAt(i);
       if (c == '%') {
         c = strftime.charAt(++i);
         boolean stripLeadingZero = false;
+        String[] conversions = CONVERSIONS;
 
         if (c == '-') {
           stripLeadingZero = true;
           c = strftime.charAt(++i);
         }
 
+        if (c == 'O') {
+          c = strftime.charAt(++i);
+          conversions = NOMINATIVE_CONVERSIONS;
+          replaceL = false;
+        }
+
         if (stripLeadingZero) {
-          result.append(CONVERSIONS[c].substring(1));
+          result.append(conversions[c].substring(1));
         } else {
-          result.append(CONVERSIONS[c]);
+          result.append(conversions[c]);
         }
       } else if (Character.isLetter(c)) {
         result.append("'");
@@ -97,7 +108,8 @@ public class StrftimeFormatter {
       }
     }
 
-    return replaceL(result.toString());
+    String formatResult = result.toString();
+    return replaceL ? replaceL(formatResult) : formatResult;
   }
 
   private static String replaceL(String s) {

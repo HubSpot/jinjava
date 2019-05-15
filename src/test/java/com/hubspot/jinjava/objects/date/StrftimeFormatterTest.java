@@ -88,4 +88,12 @@ public class StrftimeFormatterTest {
     assertThat(StrftimeFormatter.format(d, "%z")).isEqualTo("+0000");
     assertThat(StrftimeFormatter.format(d, "%Z")).isEqualTo("GMT");
   }
+
+  @Test
+  public void itConvertsNominativeFormats() {
+    ZonedDateTime zonedDateTime = ZonedDateTime.parse("2019-06-06T14:22:00.000+00:00");
+
+    assertThat(StrftimeFormatter.formatter("%OB").withLocale(Locale.forLanguageTag("ru")).format(zonedDateTime))
+        .isEqualTo("Июнь");
+  }
 }
