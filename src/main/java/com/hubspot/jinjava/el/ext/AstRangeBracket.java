@@ -41,7 +41,16 @@ public class AstRangeBracket extends AstBracket {
       return evalString((String) base, bindings, context);
     }
 
-    Object start = property.eval(bindings, context);
+    Iterable<?> baseItr;
+
+    if (base.getClass().isArray()) {
+      baseItr = Arrays.asList((Object[]) base);
+    }
+    else {
+      baseItr = (Iterable<?>) base;
+    }
+
+    Object start = property == null ? 0 : property.eval(bindings, context);
     if (start == null && strict) {
       return Collections.emptyList();
     }
@@ -49,7 +58,7 @@ public class AstRangeBracket extends AstBracket {
       throw new ELException("Range start is not a number");
     }
 
-    Object end = rangeMax.eval(bindings, context);
+    Object end = rangeMax == null ? (Iterables.size(baseItr)) : rangeMax.eval(bindings, context);
     if (end == null && strict) {
       return Collections.emptyList();
     }
@@ -60,21 +69,13 @@ public class AstRangeBracket extends AstBracket {
     int startNum = ((Number) start).intValue();
     int endNum = ((Number) end).intValue();
 
-    Iterable<?> baseItr;
-
-    if (base.getClass().isArray()) {
-      baseItr = Arrays.asList((Object[]) base);
-    }
-    else {
-      baseItr = (Iterable<?>) base;
-    }
-
     PyList result = new PyList(new ArrayList<>());
     int index = 0;
 
     // Handle negative indices.
     if ((startNum < 0) || (endNum < 0)) {
-       int size = Iterables.size(baseItr);
+      // size may have been calculated already
+       int size = rangeMax == null ? endNum : Iterables.size(baseItr);
        if (startNum < 0) {
           startNum += size;
        }
