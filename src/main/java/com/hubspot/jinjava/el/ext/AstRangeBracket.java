@@ -41,14 +41,9 @@ public class AstRangeBracket extends AstBracket {
       return evalString((String) base, bindings, context);
     }
 
-    Iterable<?> baseItr;
-
-    if (base.getClass().isArray()) {
-      baseItr = Arrays.asList((Object[]) base);
-    }
-    else {
-      baseItr = (Iterable<?>) base;
-    }
+    Iterable<?> baseItr = base.getClass().isArray()
+        ? Arrays.asList((Object[]) base)
+        : (Iterable<?>) base;
 
     Object start = property == null ? 0 : property.eval(bindings, context);
     if (start == null && strict) {
