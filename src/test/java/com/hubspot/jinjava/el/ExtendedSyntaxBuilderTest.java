@@ -286,6 +286,12 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
+  public void arrayWithImplicitIndices() {
+    assertThat(val("[1, 2, 3][1:]")).isEqualTo(Lists.newArrayList(2L, 3L));
+    assertThat(val("[1, 2, 3][:2]")).isEqualTo(Lists.newArrayList(1L, 2L));
+  }
+
+  @Test
   public void invalidNestedAssignmentExpr() {
     assertThat(val("content.template_path = 'Custom/Email/Responsive/testing.html'")).isEqualTo(null);
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
