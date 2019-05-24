@@ -56,6 +56,10 @@ public class ExpressionNode extends Node {
         try {
           result = interpreter.renderFlat(result);
         } catch (Exception e) {
+          if (e instanceof DeferredValueException){
+            interpreter.getContext().addDeferredNode(this);
+            result = master.getImage();
+          }
           Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
         }
       }

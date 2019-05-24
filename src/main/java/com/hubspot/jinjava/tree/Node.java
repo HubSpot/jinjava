@@ -73,6 +73,10 @@ public abstract class Node implements Serializable {
     this.children = children;
   }
 
+  public String reconstructImage(){
+    return master.getImage();
+  }
+
   public abstract OutputNode render(JinjavaInterpreter interpreter);
 
   public abstract String getName();
