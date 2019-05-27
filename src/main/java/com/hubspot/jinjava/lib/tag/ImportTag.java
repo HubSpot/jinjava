@@ -109,7 +109,7 @@ public class ImportTag implements Tag {
       Map<String, Object> childBindings = child.getContext().getSessionBindings();
 
       if (!child.getContext().getDeferredNodes().isEmpty()){
-        interpreter.getContext().addDeferredNode(node);
+        node.getChildren().forEach(deferredChild -> interpreter.getContext().addDeferredNode(deferredChild));
         if (StringUtils.isBlank(contextVar)) {
           childBindings.keySet().forEach(key -> interpreter.getContext().put(key, DeferredValue.instance()));
         } else {
