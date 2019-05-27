@@ -106,6 +106,8 @@ public class ImportTag implements Tag {
         JinjavaInterpreter.popCurrent();
       }
 
+      interpreter.addAllErrors(child.getErrorsCopy());
+
       Map<String, Object> childBindings = child.getContext().getSessionBindings();
 
       if (!child.getContext().getDeferredNodes().isEmpty()){
@@ -118,8 +120,6 @@ public class ImportTag implements Tag {
 
         throw new DeferredValueException(templateFile, tagNode.getLineNumber(), tagNode.getStartPosition());
       }
-
-      interpreter.addAllErrors(child.getErrorsCopy());
 
       if (StringUtils.isBlank(contextVar)) {
         for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
