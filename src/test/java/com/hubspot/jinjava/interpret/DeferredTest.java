@@ -68,6 +68,13 @@ public class DeferredTest {
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
+  @Test
+  public void itPreservesNestedIfTag() {
+    String output = interpreter.render("{% if deferred %}{% if resolved %}{{resolved}}{% endif %}{% else %}b{% endif %}");
+    assertThat(output).isEqualTo("{% if deferred %}{% if resolved %}{{resolved}}{% endif %}{% else %}b{% endif %}");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
   /**
    * This may or may not be desirable behaviour.
    */
