@@ -93,6 +93,14 @@ public class DeferredTest {
   }
 
   @Test
+  public void itPreservesNestedExpressions() {
+    interpreter.getContext().put("nested", "some {{deferred}} value");
+    String output = interpreter.render("Test {{nested}}");
+    assertThat(output).isEqualTo("Test some {{deferred}} value");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
   public void itPreservesForTag() {
     String output = interpreter.render("{% for item in deferred %}{{item.name}}{% else %}last{% endfor %}");
     assertThat(output).isEqualTo("{% for item in deferred %}{{item.name}}{% else %}last{% endfor %}");
