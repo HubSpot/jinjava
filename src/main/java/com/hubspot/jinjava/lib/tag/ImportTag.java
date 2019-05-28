@@ -113,6 +113,8 @@ public class ImportTag implements Tag {
       if (!child.getContext().getDeferredNodes().isEmpty()){
         node.getChildren().forEach(deferredChild -> interpreter.getContext().addDeferredNode(deferredChild));
         if (StringUtils.isBlank(contextVar)) {
+          childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
+          childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
           childBindings.keySet().forEach(key -> interpreter.getContext().put(key, DeferredValue.instance()));
         } else {
           interpreter.getContext().put(contextVar, DeferredValue.instance());

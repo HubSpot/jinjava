@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.entry;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,9 +16,11 @@ import org.junit.Test;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.loader.ResourceLocator;
+import com.hubspot.jinjava.tree.Node;
 
 public class ImportTagTest {
 
@@ -73,6 +77,70 @@ public class ImportTagTest {
   @Test
   public void importedContextExposesVars() {
     assertThat(fixture("import")).contains("wrap-padding: padding-left:42px;padding-right:42px");
+  }
+
+  @Test
+  public void itDefersImportedContextEntirely() {
+    Jinjava jinjava = new Jinjava();
+    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+    interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
+    fixture("import-property");
+    assertThat(interpreter.getContext().get("pegasus")).isInstanceOf(DeferredValue.class);
+  }
+
+  @Test
+  public void itDefersGloballyImportedContextEntirely() {
+    Jinjava jinjava = new Jinjava();
+    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+    interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
+    fixture("import-property-global");
+    assertThat(interpreter.getContext().get("primary_line_height")).isInstanceOf(DeferredValue.class);
+  }
+
+  @Test
+  public void itDoesNotRenderAnythingDependingOnImportedContext() {
+    try {
+      Jinjava jinjava = new Jinjava();
+      interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+      interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
+      String renderedImport = fixture("import-property");
+      assertThat(renderedImport).isEqualTo(Resources.toString(Resources.getResource("tags/macrotag/import-property.jinja"), StandardCharsets.UTF_8));
+    } catch (IOException e) {
+      throw new RuntimeException();
+    }
+  }
+
+  @Test
+  public void itDoesNotRenderAnythingDependingOnGloballyImportedContext() {
+    try {
+      Jinjava jinjava = new Jinjava();
+      interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+      interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
+      String renderedImport = fixture("import-property-global");
+      assertThat(renderedImport).isEqualTo(Resources.toString(Resources.getResource("tags/macrotag/import-property-global.jinja"), StandardCharsets.UTF_8));
+    } catch (IOException e) {
+      throw new RuntimeException();
+    }
+  }
+
+  @Test
+  public void itAddsAllDeferredNodesOfImportedContext() {
+    Jinjava jinjava = new Jinjava();
+    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+    interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
+    fixture("import-property");
+    Set<String> deferredImages = interpreter.getContext().getDeferredNodes().stream().map(Node::reconstructImage).collect(Collectors.toSet());
+    assertThat(deferredImages.stream().filter(image -> image.contains("{% set primary_line_height")).collect(Collectors.toSet())).isNotEmpty();
+  }
+
+  @Test
+  public void itAddsAllDeferredNodesOfGloballyImportedContext() {
+    Jinjava jinjava = new Jinjava();
+    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+    interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
+    fixture("import-property-global");
+    Set<String> deferredImages = interpreter.getContext().getDeferredNodes().stream().map(Node::reconstructImage).collect(Collectors.toSet());
+    assertThat(deferredImages.stream().filter(image -> image.contains("{% set primary_line_height")).collect(Collectors.toSet())).isNotEmpty();
   }
 
   @Test
