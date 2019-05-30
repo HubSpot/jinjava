@@ -110,6 +110,7 @@ public class ImportTag implements Tag {
 
       Map<String, Object> childBindings = child.getContext().getSessionBindings();
 
+      // If the template depends on deferred values it should not be rendered and all defined variables should be deferred too
       if (!child.getContext().getDeferredNodes().isEmpty()){
         node.getChildren().forEach(deferredChild -> interpreter.getContext().addDeferredNode(deferredChild));
         if (StringUtils.isBlank(contextVar)) {
