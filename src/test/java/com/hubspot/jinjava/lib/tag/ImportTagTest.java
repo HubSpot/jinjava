@@ -80,7 +80,7 @@ public class ImportTagTest {
   }
 
   @Test
-  public void itDefersImportedContextEntirely() {
+  public void itDefersImportedVariable() {
     Jinjava jinjava = new Jinjava();
     interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
     interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
@@ -89,7 +89,7 @@ public class ImportTagTest {
   }
 
   @Test
-  public void itDefersGloballyImportedContextEntirely() {
+  public void itDefersGloballyImportedVariables() {
     Jinjava jinjava = new Jinjava();
     interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
     interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
@@ -98,20 +98,16 @@ public class ImportTagTest {
   }
 
   @Test
-  public void itDoesNotRenderAnythingDependingOnImportedContext() {
-    try {
-      Jinjava jinjava = new Jinjava();
-      interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
-      interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
-      String renderedImport = fixture("import-property");
-      assertThat(renderedImport).isEqualTo(Resources.toString(Resources.getResource("tags/macrotag/import-property.jinja"), StandardCharsets.UTF_8));
-    } catch (IOException e) {
-      throw new RuntimeException();
-    }
+  public void itReconstructsDeferredImportTag() {
+    Jinjava jinjava = new Jinjava();
+    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+    interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
+    String renderedImport = fixture("import-property");
+    assertThat(renderedImport).contains("{% import \"tags/settag/set-var-exp.jinja\" as pegasus %}");
   }
 
   @Test
-  public void itDoesNotRenderAnythingDependingOnGloballyImportedContext() {
+  public void itDoesNotRenderTagsDependingOnDeferredImport() {
     try {
       Jinjava jinjava = new Jinjava();
       interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
@@ -124,7 +120,20 @@ public class ImportTagTest {
   }
 
   @Test
-  public void itAddsAllDeferredNodesOfImportedContext() {
+  public void itDoesNotRenderTagsDependingOnDeferredGlobalImport() {
+    try {
+      Jinjava jinjava = new Jinjava();
+      interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+      interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
+      String renderedImport = fixture("import-property");
+      assertThat(renderedImport).isEqualTo(Resources.toString(Resources.getResource("tags/macrotag/import-property.jinja"), StandardCharsets.UTF_8));
+    } catch (IOException e) {
+      throw new RuntimeException();
+    }
+  }
+
+  @Test
+  public void itAddsAllDeferredNodesOfImport() {
     Jinjava jinjava = new Jinjava();
     interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
     interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
@@ -134,7 +143,7 @@ public class ImportTagTest {
   }
 
   @Test
-  public void itAddsAllDeferredNodesOfGloballyImportedContext() {
+  public void itAddsAllDeferredNodesOfGlobalImport() {
     Jinjava jinjava = new Jinjava();
     interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
     interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
