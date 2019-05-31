@@ -11,6 +11,8 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.ImportTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -107,6 +109,20 @@ public class ImportTag implements Tag {
       interpreter.addAllErrors(child.getErrorsCopy());
 
       Map<String, Object> childBindings = child.getContext().getSessionBindings();
+
+      // If the template depends on deferred values it should not be rendered and all defined variables should be deferred too
+      if (!child.getContext().getDeferredNodes().isEmpty()){
+        node.getChildren().forEach(deferredChild -> interpreter.getContext().addDeferredNode(deferredChild));
+        if (StringUtils.isBlank(contextVar)) {
+          childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
+          childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
+          childBindings.keySet().forEach(key -> interpreter.getContext().put(key, DeferredValue.instance()));
+        } else {
+          interpreter.getContext().put(contextVar, DeferredValue.instance());
+        }
+
+        throw new DeferredValueException(templateFile, tagNode.getLineNumber(), tagNode.getStartPosition());
+      }
 
       if (StringUtils.isBlank(contextVar)) {
         for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {

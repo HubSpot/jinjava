@@ -68,6 +68,13 @@ public class DeferredTest {
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
+  @Test
+  public void itPreservesNestedIfTag() {
+    String output = interpreter.render("{% if deferred %}{% if resolved %}{{resolved}}{% endif %}{% else %}b{% endif %}");
+    assertThat(output).isEqualTo("{% if deferred %}{% if resolved %}{{resolved}}{% endif %}{% else %}b{% endif %}");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
   /**
    * This may or may not be desirable behaviour.
    */
@@ -89,6 +96,14 @@ public class DeferredTest {
   public void itResolvesForTagWherePossible() {
     String output = interpreter.render("{% for i in [1, 2] %}{{i}}{{deferred}}{% endfor %}");
     assertThat(output).isEqualTo("1{{deferred}}2{{deferred}}");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itPreservesNestedExpressions() {
+    interpreter.getContext().put("nested", "some {{deferred}} value");
+    String output = interpreter.render("Test {{nested}}");
+    assertThat(output).isEqualTo("Test some {{deferred}} value");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 

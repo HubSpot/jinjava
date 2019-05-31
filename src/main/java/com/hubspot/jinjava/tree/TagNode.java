@@ -90,26 +90,28 @@ public class TagNode extends Node {
     return tag;
   }
 
-  private String reconstructImage() {
+  public String reconstructImage() {
     StringBuilder builder = new StringBuilder().append(master.getImage());
-
     for (Node n : getChildren()) {
-      builder.append(n.getMaster().getImage());
+      builder.append(n.reconstructImage());
     }
 
     if (getEndName() != null) {
-      String endTag = String.format(
-          "%s%s %s %s%s",
-          TokenScannerSymbols.TOKEN_EXPR_START_CHAR,
-          TokenScannerSymbols.TOKEN_TAG_CHAR,
-          getEndName(),
-          TokenScannerSymbols.TOKEN_TAG_CHAR,
-          TokenScannerSymbols.TOKEN_EXPR_END_CHAR
-      );
-      builder.append(endTag);
+      builder.append(reconstructEnd());
     }
 
     return builder.toString();
+  }
+
+  public String reconstructEnd() {
+    return String.format(
+        "%s%s %s %s%s",
+        TokenScannerSymbols.TOKEN_EXPR_START_CHAR,
+        TokenScannerSymbols.TOKEN_TAG_CHAR,
+        getEndName(),
+        TokenScannerSymbols.TOKEN_TAG_CHAR,
+        TokenScannerSymbols.TOKEN_EXPR_END_CHAR
+    );
   }
 
 }
