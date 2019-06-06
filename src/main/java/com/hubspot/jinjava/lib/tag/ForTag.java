@@ -132,7 +132,7 @@ public class ForTag implements Tag {
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
 
-      if (loop.getLength() == 0 && interpreter.isValidationMode()) {
+      if (interpreter.isValidationMode() && !loop.hasNext()) {
         loop = ObjectIterator.getLoop(0);
         interpreter.getContext().setValidationMode(true);
       }
