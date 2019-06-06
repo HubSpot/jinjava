@@ -11,7 +11,9 @@ public enum InvalidReason {
   REGEX("with value %s must be valid regex"),
   POSITIVE_NUMBER("with value %s must be a positive number"),
   NULL_IN_LIST("of type 'list' cannot contain a null item"),
-  NULL_ATTRIBUTE_IN_LIST("with value '%s' must be a valid attribute of every item in the list")
+  NULL_ATTRIBUTE_IN_LIST("with value '%s' must be a valid attribute of every item in the list"),
+  ENUM("with value '%s' must be one of: %s"),
+  CIDR("with value '%s' must be a valid CIDR address")
   ;
 
   private final String errorMessage;

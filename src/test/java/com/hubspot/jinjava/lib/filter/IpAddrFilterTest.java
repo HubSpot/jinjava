@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -61,4 +62,30 @@ public class IpAddrFilterTest {
     assertThat(ipAddrFilter.filter("255.182.100.abc/24", interpreter, "prefix")).isEqualTo(null);
   }
 
+  @Test
+  public void itReturnsIpAddressNetMask() {
+    assertThat(ipAddrFilter.filter("255.182.100.1/10", interpreter, "netmask")).isEqualTo("255.192.0.0");
+  }
+
+  @Test
+  public void itReturnsIpAddressBroadcast() {
+    assertThat(ipAddrFilter.filter("192.168.0.1/20", interpreter, "broadcast")).isEqualTo("192.168.15.255");
+  }
+
+  @Test
+  public void itReturnsIpAddressAddress() {
+    assertThat(ipAddrFilter.filter("192.168.0.1/20", interpreter, "address")).isEqualTo("192.168.0.1");
+  }
+
+  @Test
+  public void itAddsErrorOnInvalidCidrAddress() {
+    assertThatThrownBy(() -> ipAddrFilter.filter("192.168.0.1/200", interpreter, "broadcast"))
+        .hasMessageContaining("must be a valid CIDR address");
+  }
+
+  @Test
+  public void itAddsErrorOnInvalidFunctionName() {
+    assertThatThrownBy(() -> ipAddrFilter.filter("192.168.0.1/20", interpreter, "notAFunction"))
+        .hasMessageContaining("must be one of");
+  }
 }
