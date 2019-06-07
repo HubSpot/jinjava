@@ -39,7 +39,11 @@ public class IpAddrFilter implements Filter {
   private static final String NETMASK_STRING = "netmask";
   private static final String ADDRESS_STRING = "address";
   private static final String BROADCAST_STRING = "broadcast";
-  private static final String AVAILABLE_FUNCTIONS = Joiner.on(", ").join(PREFIX_STRING, NETMASK_STRING, ADDRESS_STRING, BROADCAST_STRING);
+  private static final String AVAILABLE_FUNCTIONS = Joiner.on(", ").join(
+      PREFIX_STRING,
+      NETMASK_STRING,
+      ADDRESS_STRING,
+      BROADCAST_STRING);
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
@@ -87,7 +91,7 @@ public class IpAddrFilter implements Filter {
     try {
       prefix = Integer.parseInt(prefixString);
     } catch (NumberFormatException ex) {
-      return null;
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, prefixString);
     }
 
 
