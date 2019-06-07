@@ -1,5 +1,22 @@
 # Jinjava Releases #
 
+### 2019-06-07 Version 2.5.1 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.1%7Cjar)) ###
+* [Support more ipaddr filters](https://github.com/HubSpot/jinjava/pull/338)
+* [Upgrade to newer basepom](https://github.com/HubSpot/jinjava/pull/334)
+* [Support empty bracket implicit index syntax](https://github.com/HubSpot/jinjava/pull/331)
+* [Support nominative date formats](https://github.com/HubSpot/jinjava/pull/330)
+* [Add a warning for unclosed comments](https://github.com/HubSpot/jinjava/pull/329)
+* [Add a warning when there is no matching start tag for an end tag](https://github.com/HubSpot/jinjava/pull/326)
+* [Add child dependency to parent dependencies](https://github.com/HubSpot/jinjava/pull/325)
+* [Rewrite sort filter to address several problems](https://github.com/HubSpot/jinjava/pull/323)
+* [Fix cycle reference during serialization](https://github.com/HubSpot/jinjava/pull/319)
+* [Add support for resolving relative paths in separate files](https://github.com/HubSpot/jinjava/pull/316)
+* [Return long value from int filter if over max int length](https://github.com/HubSpot/jinjava/pull/315)
+* [Use type converter when evaulting 'in'](https://github.com/HubSpot/jinjava/pull/314)
+* [Only add max depth error when not in validation mode](https://github.com/HubSpot/jinjava/pull/310)
+* [Expand documentation factory with new fields](https://github.com/HubSpot/jinjava/pull/309)
+* [Allow ability to set a max recursion depth in config](https://github.com/HubSpot/jinjava/pull/308)
+
 ### 2019-02-05 Version 2.5.0 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.0%7Cjar)) ###
 * [Render node in include tag in the same interpreter scopes](https://github.com/HubSpot/jinjava/pull/301)
 * [Fix expression resolver in include and from tag](https://github.com/HubSpot/jinjava/pull/300)
