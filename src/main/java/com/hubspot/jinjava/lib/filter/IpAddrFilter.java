@@ -71,7 +71,6 @@ public class IpAddrFilter implements Filter {
     }
 
     String fullAddress = ((String) object).trim();
-
     List<String> parts = PREFIX_SPLITTER.splitToList(fullAddress);
     if (parts.size() != 2) {
       return null;
@@ -93,7 +92,6 @@ public class IpAddrFilter implements Filter {
     } catch (NumberFormatException ex) {
       throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, prefixString);
     }
-
 
     switch (function) {
       case PREFIX_STRING:
