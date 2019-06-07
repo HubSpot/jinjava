@@ -3,10 +3,15 @@ package com.hubspot.jinjava.lib.filter;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.net.util.SubnetUtils;
+
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
@@ -31,6 +36,14 @@ public class IpAddrFilter implements Filter {
 
   private static final Splitter PREFIX_SPLITTER = Splitter.on('/');
   private static final String PREFIX_STRING = "prefix";
+  private static final String NETMASK_STRING = "netmask";
+  private static final String ADDRESS_STRING = "address";
+  private static final String BROADCAST_STRING = "broadcast";
+  private static final String AVAILABLE_FUNCTIONS = Joiner.on(", ").join(
+      PREFIX_STRING,
+      NETMASK_STRING,
+      ADDRESS_STRING,
+      BROADCAST_STRING);
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
@@ -41,9 +54,7 @@ public class IpAddrFilter implements Filter {
 
     if (args.length > 0) {
       String function = args[0].trim();
-      if (function.equalsIgnoreCase(PREFIX_STRING)) {
-        return getPrefix(object);
-      }
+      return getFunctionValue(interpreter, function.toLowerCase(), object);
     }
 
     if (object instanceof String) {
@@ -53,14 +64,13 @@ public class IpAddrFilter implements Filter {
     return false;
   }
 
-  private Integer getPrefix(Object object) {
+  private Object getFunctionValue(JinjavaInterpreter interpreter, String function, Object object) {
 
     if (!(object instanceof String)) {
       return null;
     }
 
     String fullAddress = ((String) object).trim();
-
     List<String> parts = PREFIX_SPLITTER.splitToList(fullAddress);
     if (parts.size() != 2) {
       return null;
@@ -71,11 +81,35 @@ public class IpAddrFilter implements Filter {
       return null;
     }
 
+    if (function.equalsIgnoreCase(ADDRESS_STRING)) {
+      return ipAddress;
+    }
+
     String prefixString = parts.get(1);
+    Integer prefix;
     try {
-      return Integer.parseInt(prefixString);
+      prefix = Integer.parseInt(prefixString);
     } catch (NumberFormatException ex) {
-      return null;
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, prefixString);
+    }
+
+    switch (function) {
+      case PREFIX_STRING:
+        return prefix;
+      case NETMASK_STRING:
+        return getSubnetUtils(interpreter, fullAddress).getInfo().getNetmask();
+      case BROADCAST_STRING:
+        return getSubnetUtils(interpreter, fullAddress).getInfo().getBroadcastAddress();
+    }
+
+    throw new InvalidArgumentException(interpreter, this, InvalidReason.ENUM, 1, function, AVAILABLE_FUNCTIONS);
+  }
+
+  private SubnetUtils getSubnetUtils(JinjavaInterpreter interpreter, String address) {
+    try {
+      return new SubnetUtils(address);
+    } catch (IllegalArgumentException e) {
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.CIDR, 0, address);
     }
   }
 
