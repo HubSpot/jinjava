@@ -6,6 +6,10 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 
 public class TemplateErrorTest {
 
@@ -58,5 +62,46 @@ public class TemplateErrorTest {
     TemplateError e = TemplateError.fromUnknownProperty(ImmutableMap.of("foo", veryLong), "other", 123, 4);
     assertThat(e.getMessage()).startsWith("Cannot resolve property 'other' in '{foo=");
     assertThat(e.getMessage().length()).isLessThan(1500);
+  }
+
+
+  @Test
+  public void itComparesEquality() {
+
+    TemplateError error1 = new TemplateError(ErrorType.WARNING,
+        ErrorReason.SYNTAX_ERROR,
+        ErrorItem.TAG,
+        "error",
+        "badField",
+        10,
+        100,
+        new Exception(),
+        BasicTemplateErrorCategory.FROM_CYCLE_DETECTED,
+        ImmutableMap.of("test1", "test2"));
+
+    TemplateError error2 = new TemplateError(ErrorType.WARNING,
+        ErrorReason.SYNTAX_ERROR,
+        ErrorItem.TAG,
+        "error",
+        "badField",
+        10,
+        100,
+        new Exception(),
+        BasicTemplateErrorCategory.FROM_CYCLE_DETECTED,
+        ImmutableMap.of("test1", "test2"));
+
+    TemplateError error3 = new TemplateError(ErrorType.WARNING,
+        ErrorReason.SYNTAX_ERROR,
+        ErrorItem.TAG,
+        "error",
+        "differentField",
+        10,
+        100,
+        new Exception(),
+        BasicTemplateErrorCategory.FROM_CYCLE_DETECTED,
+        ImmutableMap.of("test1", "test2"));
+
+    assertThat(error1).isEqualTo(error2);
+    assertThat(error1).isNotEqualTo(error3);
   }
 }

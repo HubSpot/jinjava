@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.interpret;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -330,5 +331,38 @@ public class TemplateError {
         ", category=" + category +
         ", categoryErrors=" + categoryErrors +
         '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof TemplateError)) {
+      return false;
+    }
+
+    TemplateError other = (TemplateError) o;
+    return Objects.equals(severity, other.severity)
+        && Objects.equals(reason, other.reason)
+        && Objects.equals(item, other.item)
+        && Objects.equals(message, other.message)
+        && Objects.equals(fieldName, other.fieldName)
+        && Objects.equals(lineno, other.lineno)
+        && Objects.equals(startPosition, other.startPosition)
+        && Objects.equals(category, other.category)
+        && Objects.equals(categoryErrors, other.categoryErrors)
+        && Objects.equals(scopeDepth, other.scopeDepth);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(severity,
+        reason,
+        item,
+        message,
+        fieldName,
+        lineno,
+        startPosition,
+        category,
+        categoryErrors,
+        scopeDepth);
   }
 }
