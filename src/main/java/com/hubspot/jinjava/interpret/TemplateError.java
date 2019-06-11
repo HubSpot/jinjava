@@ -359,7 +359,7 @@ public class TemplateError {
         item,
         message,
         fieldName,
-        lineno, 
+        lineno,
         startPosition,
         category,
         categoryErrors,
