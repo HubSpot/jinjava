@@ -354,6 +354,15 @@ public class TemplateError {
 
   @Override
   public int hashCode() {
-    return Objects.hash(severity, reason, item, message, fieldName, lineno, startPosition, category, categoryErrors, scopeDepth);
+    return Objects.hash(severity,
+        reason,
+        item,
+        message,
+        fieldName,
+        lineno, 
+        startPosition,
+        category,
+        categoryErrors,
+        scopeDepth);
   }
 }
