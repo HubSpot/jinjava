@@ -6,7 +6,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 
-public class DummyObject implements Map<String, Object> {
+public class DummyObject implements Map<String, Object>, PyWrapper {
 
   @Override
   public int size() {
