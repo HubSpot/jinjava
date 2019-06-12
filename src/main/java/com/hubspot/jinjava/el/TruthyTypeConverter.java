@@ -2,6 +2,7 @@ package com.hubspot.jinjava.el;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.EnumSet;
 
 import com.hubspot.jinjava.objects.DummyObject;
 import com.hubspot.jinjava.util.ObjectTruthValue;
@@ -99,8 +100,9 @@ public class TruthyTypeConverter extends TypeConverterImpl {
   @Override
   protected <T extends Enum<T>> T coerceToEnum(Object value, Class<T> type) {
     if (value instanceof DummyObject) {
-      if (type.getEnumConstants().length > 0) {
-        return type.getEnumConstants()[0];
+      EnumSet<T> enumSet = EnumSet.allOf(type);
+      if (!enumSet.isEmpty()) {
+        return enumSet.iterator().next();
       }
     }
     return super.coerceToEnum(value, type);
