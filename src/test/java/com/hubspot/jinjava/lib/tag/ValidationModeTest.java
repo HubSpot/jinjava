@@ -153,6 +153,19 @@ public class ValidationModeTest {
   }
 
   @Test
+  public void itAllowsPropertyReferenceInForLoopInValidationMode() {
+
+    String output = validatingInterpreter.render(
+            "{% for i in [] %}" +
+            "{{ i.test }}" +
+            "{% endfor %}" +
+            "hi");
+
+    assertThat(validatingInterpreter.getErrors().size()).isEqualTo(0);
+    assertThat(output.trim()).isEqualTo("hi");
+  }
+
+  @Test
   public void itResolvesZeroLoopTupleForExpressionsInValidationMode() {
 
     String output = validatingInterpreter.render(
