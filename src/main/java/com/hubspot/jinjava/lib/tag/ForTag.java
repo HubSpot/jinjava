@@ -31,6 +31,7 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.objects.DummyObject;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.ForLoop;
@@ -133,7 +134,7 @@ public class ForTag implements Tag {
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
 
       if (interpreter.isValidationMode() && !loop.hasNext()) {
-        loop = ObjectIterator.getLoop(0);
+        loop = ObjectIterator.getLoop(new DummyObject());
         interpreter.getContext().setValidationMode(true);
       }
 
