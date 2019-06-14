@@ -62,8 +62,7 @@ public class IncludeTag implements Tag {
 
     String path = StringUtils.trimToEmpty(helper.next());
 
-    String parentPath = (String) interpreter.getContext().get("current_path");
-    String templateFile = RelativePathResolver.resolveToAbsolutePath(parentPath, interpreter.resolveString(path, tagNode.getLineNumber(), tagNode.getStartPosition()));
+    String templateFile = RelativePathResolver.resolveToAbsolutePath(interpreter.resolveString(path, tagNode.getLineNumber(), tagNode.getStartPosition()), interpreter);
 
     try {
       interpreter.getContext().getIncludePathStack().push(templateFile, tagNode.getLineNumber(), tagNode.getStartPosition());
