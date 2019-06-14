@@ -26,6 +26,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
+import com.hubspot.jinjava.util.RelativePathResolver;
 
 @JinjavaDoc(
     value = "Template inheritance allows you to build a base “skeleton” template that contains all the "
@@ -89,6 +90,7 @@ public class ExtendsTag implements Tag {
     }
 
     String path = interpreter.resolveString(tokenizer.next(), tagNode.getLineNumber(), tagNode.getStartPosition());
+    path = RelativePathResolver.resolveToAbsolutePath(path, interpreter);
     interpreter.getContext().getExtendPathStack().push(path, tagNode.getLineNumber(), tagNode.getStartPosition());
 
     try {

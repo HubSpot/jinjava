@@ -11,6 +11,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
+import com.hubspot.jinjava.util.RelativePathResolver;
 
 /**
  * Function definition parsed from a jinjava template, stored in global macros registry in interpreter context.
@@ -40,7 +41,8 @@ public class MacroFunction extends AbstractCallableMethod {
   @Override
   public Object doEvaluate(Map<String, Object> argMap, Map<String, Object> kwargMap, List<Object> varArgs) {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
-    Optional<String> importFile = Optional.ofNullable((String) localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY));
+    Optional<String> importFile = Optional.ofNullable((String) localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY))
+        .map(path -> RelativePathResolver.resolveToAbsolutePath(path, interpreter));
 
     // pushWithoutCycleCheck() is used to here so that macros calling macros from the same file will not throw a TagCycleException
     importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pushWithoutCycleCheck(path));
