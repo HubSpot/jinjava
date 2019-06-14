@@ -68,4 +68,13 @@ public class IncludeTagTest {
     assertThat(result.getErrors()).isEmpty();
   }
 
+  @Test
+  public void itIncludesFileViaRelativePath() throws IOException {
+    jinjava.getGlobalContext().put("current_path", "tags/includetag/includes-relative-path.jinja");
+    RenderResult result = jinjava.renderForResult(Resources.toString(Resources.getResource("tags/includetag/includes-relative-path.jinja"), StandardCharsets.UTF_8),
+        new HashMap<>());
+
+    assertThat(result.getOutput().trim()).isEqualTo("INCLUDED");
+  }
+
 }

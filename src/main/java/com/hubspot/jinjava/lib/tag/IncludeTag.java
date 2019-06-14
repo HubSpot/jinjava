@@ -35,6 +35,7 @@ import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
+import com.hubspot.jinjava.util.RelativePathResolver;
 
 @JinjavaDoc(
     value = "includes multiple files in one template or stylesheet",
@@ -60,7 +61,9 @@ public class IncludeTag implements Tag {
     }
 
     String path = StringUtils.trimToEmpty(helper.next());
-    String templateFile = interpreter.resolveString(path, tagNode.getLineNumber(), tagNode.getStartPosition());
+
+    String parentPath = (String) interpreter.getContext().get("current_path");
+    String templateFile = RelativePathResolver.resolveToAbsolutePath(parentPath, interpreter.resolveString(path, tagNode.getLineNumber(), tagNode.getStartPosition()));
 
     try {
       interpreter.getContext().getIncludePathStack().push(templateFile, tagNode.getLineNumber(), tagNode.getStartPosition());
