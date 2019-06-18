@@ -191,7 +191,7 @@ public class ImportTagTest {
   @Test
   public void itImportsMacroViaRelativePathWithCall() throws IOException {
     Jinjava jinjava = new Jinjava();
-    context.put("current_path", "tags/importtag/imports-macro-relative.jinja");
+    context.put(Context.CURRENT_PATH_KEY, "tags/importtag/imports-macro-relative.jinja");
     interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
 
     String renderResult = interpreter.render(Resources.toString(Resources.getResource("tags/importtag/imports-macro-relative.jinja"), StandardCharsets.UTF_8));

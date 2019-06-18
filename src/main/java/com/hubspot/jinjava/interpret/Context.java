@@ -46,6 +46,7 @@ import com.hubspot.jinjava.util.ScopeMap;
 public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
   public static final String IMPORT_RESOURCE_PATH_KEY = "import_resource_path";
+  public static final String CURRENT_PATH_KEY = "current_path";
 
   private SetMultimap<String, String> dependencies = HashMultimap.create();
   private Map<Library, Set<String>> disabled;
