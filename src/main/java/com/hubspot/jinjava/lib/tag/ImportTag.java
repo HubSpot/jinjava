@@ -26,7 +26,6 @@ import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
-import com.hubspot.jinjava.util.RelativePathResolver;
 
 /**
  * Jinja2 supports putting often used code into macros. These macros can go into different templates and get imported from there. This works similar to the import statements in Python. It’s important to know that imports are cached and
@@ -91,7 +90,7 @@ public class ImportTag implements Tag {
       return "";
     }
 
-    String templateFile = RelativePathResolver.resolveToAbsolutePath(interpreter.resolveString(path, tagNode.getLineNumber(), tagNode.getStartPosition()), interpreter);
+    String templateFile = interpreter.resolveString(path, tagNode.getLineNumber(), tagNode.getStartPosition());
     interpreter.getContext().addDependency("coded_files", templateFile);
     try {
       String template = interpreter.getResource(templateFile);

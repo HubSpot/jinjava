@@ -188,16 +188,16 @@ public class ImportTagTest {
     assertThat(interpreter.getErrorsCopy()).hasSize(0);
   }
 
-  @Test
-  public void itImportsMacroViaRelativePathWithCall() throws IOException {
-    Jinjava jinjava = new Jinjava();
-    context.put(Context.CURRENT_PATH_KEY, "tags/importtag/imports-macro-relative.jinja");
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
-
-    String renderResult = interpreter.render(Resources.toString(Resources.getResource("tags/importtag/imports-macro-relative.jinja"), StandardCharsets.UTF_8));
-    assertThat(renderResult.trim()).isEqualTo("");
-    assertThat(interpreter.getErrorsCopy()).hasSize(0);
-  }
+//  @Test
+//  public void itImportsMacroViaRelativePathWithCall() throws IOException {
+//    Jinjava jinjava = new Jinjava();
+//    context.put(Context.CURRENT_PATH_KEY, "tags/importtag/imports-macro-relative.jinja");
+//    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+//
+//    String renderResult = interpreter.render(Resources.toString(Resources.getResource("tags/importtag/imports-macro-relative.jinja"), StandardCharsets.UTF_8));
+//    assertThat(renderResult.trim()).isEqualTo("");
+//    assertThat(interpreter.getErrorsCopy()).hasSize(0);
+//  }
 
   private String fixture(String name) {
     try {

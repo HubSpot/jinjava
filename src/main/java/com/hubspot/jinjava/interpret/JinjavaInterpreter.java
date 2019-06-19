@@ -401,6 +401,9 @@ public class JinjavaInterpreter {
   }
 
   public String getResource(String resource) throws IOException {
+    if (application.getResourceLocator().getRelativePathResolver().isPresent()) {
+      resource = application.getResourceLocator().getRelativePathResolver().get().resolveToAbsolutePath(resource, this);
+    }
     return application.getResourceLocator().getString(resource, config.getCharset(), this);
   }
 
