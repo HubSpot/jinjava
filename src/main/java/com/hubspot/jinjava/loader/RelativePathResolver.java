@@ -1,9 +1,24 @@
 package com.hubspot.jinjava.loader;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-public interface RelativePathResolver {
+public class RelativePathResolver implements LocationResolver {
+  public static final String CURRENT_PATH_CONTEXT_KEY = "current_path";
 
-  String resolveToAbsolutePath(String path, JinjavaInterpreter interpreter);
+  @Override
+  public String resolve(String path, JinjavaInterpreter interpreter) {
+    if (path.startsWith("./")) {
+      String parentPath = interpreter.getContext().getCurrentPathStack().peek()
+          .orElseGet(() -> (String) interpreter.getContext().get(CURRENT_PATH_CONTEXT_KEY));
+
+      Path templatePath = Paths.get(parentPath);
+      Path folderPath = templatePath.getParent() != null ? templatePath.getParent() : Paths.get("");
+      return folderPath.resolve(path).normalize().toString();
+    }
+    return path;
+  }
 
 }

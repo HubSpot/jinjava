@@ -25,7 +25,7 @@ public interface ResourceLocator {
 
   String getString(String fullName, Charset encoding, JinjavaInterpreter interpreter) throws IOException;
 
-  default Optional<RelativePathResolver> getRelativePathResolver() {
+  default Optional<LocationResolver> getLocationResolver() {
     return Optional.empty();
   }
 
