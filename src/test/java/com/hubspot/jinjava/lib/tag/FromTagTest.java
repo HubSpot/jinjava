@@ -1,11 +1,13 @@
 package com.hubspot.jinjava.lib.tag;
 
+import static com.hubspot.jinjava.loader.RelativePathResolver.CURRENT_PATH_CONTEXT_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
@@ -16,6 +18,8 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.loader.LocationResolver;
+import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
 
 public class FromTagTest {
@@ -27,11 +31,18 @@ public class FromTagTest {
   public void setup() {
     Jinjava jinjava = new Jinjava();
     jinjava.setResourceLocator(new ResourceLocator() {
+      private RelativePathResolver relativePathResolver = new RelativePathResolver();
+
       @Override
       public String getString(String fullName, Charset encoding,
           JinjavaInterpreter interpreter) throws IOException {
         return Resources.toString(
             Resources.getResource(String.format("tags/macrotag/%s", fullName)), StandardCharsets.UTF_8);
+      }
+
+      @Override
+      public Optional<LocationResolver> getLocationResolver() {
+        return Optional.of(relativePathResolver);
       }
     });
 
@@ -72,6 +83,13 @@ public class FromTagTest {
   @Test
   public void itImportsWithMacroTag() {
     fixture("from-simple-with-call");
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
+  }
+
+  @Test
+  public void itImportsViaRelativePath() {
+    interpreter.getContext().put(CURRENT_PATH_CONTEXT_KEY, "relative/relative-from.jinja");
+    fixture("relative-from");
     assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 

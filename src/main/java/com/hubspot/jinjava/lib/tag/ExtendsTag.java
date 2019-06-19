@@ -89,6 +89,7 @@ public class ExtendsTag implements Tag {
     }
 
     String path = interpreter.resolveString(tokenizer.next(), tagNode.getLineNumber(), tagNode.getStartPosition());
+    path = interpreter.resolveResourceLocation(path);
     interpreter.getContext().getExtendPathStack().push(path, tagNode.getLineNumber(), tagNode.getStartPosition());
 
     try {

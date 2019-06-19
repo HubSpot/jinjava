@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag;
 
+import static com.hubspot.jinjava.loader.RelativePathResolver.CURRENT_PATH_CONTEXT_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Optional;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,10 +19,12 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
-import com.hubspot.jinjava.interpret.TagCycleException;
 import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
+import com.hubspot.jinjava.interpret.TagCycleException;
+import com.hubspot.jinjava.loader.LocationResolver;
+import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
 
 public class ExtendsTagTest {
@@ -102,7 +106,16 @@ public class ExtendsTagTest {
     }
   }
 
+  @Test
+  public void itExtendsViaRelativePath() throws IOException {
+    jinjava.getGlobalContext().put(CURRENT_PATH_CONTEXT_KEY, "relative/relative-extends.jinja");
+    String result = jinjava.render(locator.fixture("relative/relative-extends.jinja"), new HashMap<>());
+    assertThat(result).contains("This is a relative path extends");
+  }
+
   private static class ExtendsTagTestResourceLocator implements ResourceLocator {
+    private RelativePathResolver relativePathResolver = new RelativePathResolver();
+
     @Override
     public String getString(String fullName, Charset encoding, JinjavaInterpreter interpreter) throws IOException {
       return fixture(fullName);
@@ -110,6 +123,11 @@ public class ExtendsTagTest {
 
     public String fixture(String name) throws IOException {
       return Resources.toString(Resources.getResource(String.format("tags/extendstag/%s", name)), StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public Optional<LocationResolver> getLocationResolver() {
+      return Optional.of(relativePathResolver);
     }
   }
 }

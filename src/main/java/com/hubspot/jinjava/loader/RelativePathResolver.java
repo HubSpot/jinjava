@@ -12,7 +12,7 @@ public class RelativePathResolver implements LocationResolver {
   public String resolve(String path, JinjavaInterpreter interpreter) {
     if (path.startsWith("./")) {
       String parentPath = interpreter.getContext().getCurrentPathStack().peek()
-          .orElseGet(() -> (String) interpreter.getContext().get(CURRENT_PATH_CONTEXT_KEY));
+          .orElseGet(() -> (String) interpreter.getContext().getOrDefault(CURRENT_PATH_CONTEXT_KEY, ""));
 
       Path templatePath = Paths.get(parentPath);
       Path folderPath = templatePath.getParent() != null ? templatePath.getParent() : Paths.get("");
