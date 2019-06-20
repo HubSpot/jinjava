@@ -15,8 +15,10 @@ public class RelativePathResolver implements LocationResolver {
           .orElseGet(() -> (String) interpreter.getContext().getOrDefault(CURRENT_PATH_CONTEXT_KEY, ""));
 
       Path templatePath = Paths.get(parentPath);
-      Path folderPath = templatePath.getParent() != null ? templatePath.getParent() : Paths.get("");
-      return folderPath.resolve(path).normalize().toString();
+      if (templatePath != null) {
+        Path folderPath = templatePath.getParent() != null ? templatePath.getParent() : Paths.get("");
+        return folderPath.resolve(path).normalize().toString();
+      }
     }
     return path;
   }
