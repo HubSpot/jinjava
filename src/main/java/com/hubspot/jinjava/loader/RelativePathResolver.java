@@ -10,7 +10,7 @@ public class RelativePathResolver implements LocationResolver {
 
   @Override
   public String resolve(String path, JinjavaInterpreter interpreter) {
-    if (path.startsWith("./")) {
+    if (path.startsWith("./") || path.startsWith("../")) {
       String parentPath = interpreter.getContext().getCurrentPathStack().peek()
           .orElseGet(() -> (String) interpreter.getContext().getOrDefault(CURRENT_PATH_CONTEXT_KEY, ""));
 
@@ -22,5 +22,4 @@ public class RelativePathResolver implements LocationResolver {
     }
     return path;
   }
-
 }

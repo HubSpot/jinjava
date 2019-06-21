@@ -28,5 +28,4 @@ public interface ResourceLocator {
   default Optional<LocationResolver> getLocationResolver() {
     return Optional.empty();
   }
-
 }
