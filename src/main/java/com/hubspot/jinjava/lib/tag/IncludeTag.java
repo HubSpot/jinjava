@@ -61,6 +61,7 @@ public class IncludeTag implements Tag {
 
     String path = StringUtils.trimToEmpty(helper.next());
     String templateFile = interpreter.resolveString(path, tagNode.getLineNumber(), tagNode.getStartPosition());
+    templateFile = interpreter.resolveResourceLocation(templateFile);
 
     try {
       interpreter.getContext().getIncludePathStack().push(templateFile, tagNode.getLineNumber(), tagNode.getStartPosition());

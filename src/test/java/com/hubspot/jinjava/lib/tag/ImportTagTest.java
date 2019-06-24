@@ -1,11 +1,13 @@
 package com.hubspot.jinjava.lib.tag;
 
+import static com.hubspot.jinjava.loader.RelativePathResolver.CURRENT_PATH_CONTEXT_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,6 +21,8 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.loader.LocationResolver;
+import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
 import com.hubspot.jinjava.tree.Node;
 
@@ -184,6 +188,33 @@ public class ImportTagTest {
     interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
 
     String renderResult = interpreter.render(Resources.toString(Resources.getResource("tags/importtag/imports-macro.jinja"), StandardCharsets.UTF_8));
+    assertThat(renderResult.trim()).isEqualTo("");
+    assertThat(interpreter.getErrorsCopy()).hasSize(0);
+  }
+
+  @Test
+  public void itImportsMacroViaRelativePathWithCall() throws IOException {
+    Jinjava jinjava = new Jinjava();
+    jinjava.setResourceLocator(new ResourceLocator() {
+      private RelativePathResolver relativePathResolver = new RelativePathResolver();
+
+      @Override
+      public String getString(String fullName, Charset encoding,
+                              JinjavaInterpreter interpreter) throws IOException {
+        return Resources.toString(
+            Resources.getResource(String.format("%s", fullName)), StandardCharsets.UTF_8);
+      }
+
+      @Override
+      public Optional<LocationResolver> getLocationResolver() {
+        return Optional.of(relativePathResolver);
+      }
+    });
+
+    context.put(CURRENT_PATH_CONTEXT_KEY, "tags/importtag/imports-macro-relative.jinja");
+    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+
+    String renderResult = interpreter.render(Resources.toString(Resources.getResource("tags/importtag/imports-macro-relative.jinja"), StandardCharsets.UTF_8));
     assertThat(renderResult.trim()).isEqualTo("");
     assertThat(interpreter.getErrorsCopy()).hasSize(0);
   }

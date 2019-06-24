@@ -1,10 +1,13 @@
 package com.hubspot.jinjava.lib.tag;
 
+import static com.hubspot.jinjava.loader.RelativePathResolver.CURRENT_PATH_CONTEXT_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +16,11 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.SetMultimap;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
+import com.hubspot.jinjava.loader.LocationResolver;
+import com.hubspot.jinjava.loader.RelativePathResolver;
+import com.hubspot.jinjava.loader.ResourceLocator;
 
 public class IncludeTagTest {
 
@@ -66,6 +73,32 @@ public class IncludeTagTest {
         new HashMap<>());
 
     assertThat(result.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itIncludesFileViaRelativePath() throws IOException {
+    jinjava = new Jinjava();
+    jinjava.setResourceLocator(new ResourceLocator() {
+      private RelativePathResolver relativePathResolver = new RelativePathResolver();
+
+      @Override
+      public String getString(String fullName, Charset encoding,
+                              JinjavaInterpreter interpreter) throws IOException {
+        return Resources.toString(
+            Resources.getResource(String.format("%s", fullName)), StandardCharsets.UTF_8);
+      }
+
+      @Override
+      public Optional<LocationResolver> getLocationResolver() {
+        return Optional.of(relativePathResolver);
+      }
+    });
+
+    jinjava.getGlobalContext().put(CURRENT_PATH_CONTEXT_KEY, "tags/includetag/includes-relative-path.jinja");
+    RenderResult result = jinjava.renderForResult(Resources.toString(Resources.getResource("tags/includetag/includes-relative-path.jinja"), StandardCharsets.UTF_8),
+        new HashMap<>());
+
+    assertThat(result.getOutput().trim()).isEqualTo("INCLUDED");
   }
 
 }

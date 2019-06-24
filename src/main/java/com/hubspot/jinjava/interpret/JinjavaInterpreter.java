@@ -400,6 +400,12 @@ public class JinjavaInterpreter {
     return context;
   }
 
+  public String resolveResourceLocation(String location) {
+    return application.getResourceLocator().getLocationResolver()
+        .map(resolver -> resolver.resolve(location, this))
+        .orElse(location);
+  }
+
   public String getResource(String resource) throws IOException {
     return application.getResourceLocator().getString(resource, config.getCharset(), this);
   }
