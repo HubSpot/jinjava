@@ -1,16 +1,17 @@
 package com.hubspot.jinjava.tree;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
+import com.hubspot.jinjava.interpret.UnknownTokenException;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
-import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class FailOnUnknownTokensTest {
   private static Jinjava jinjava;
@@ -39,5 +40,22 @@ public class FailOnUnknownTokensTest {
     String template = "hello {{ token1 }} and {{ token2 }}";
     String renderedTemplate = jinjava.render(template, context);
     assertThat(renderedTemplate).isEqualTo("hello test and test1");
+  }
+
+  @Test
+  public void itReplacesTokensInContextButThrowsExceptionForOthers() {
+    Map<String, String> context = new HashMap<>();
+    context.put("animal", "lamb");
+    context.put("fruit", "apple");
+    String template = "{{ name }} has a {{ animal }}";
+    try{
+      jinjava.render(template, context);
+    } catch (Exception ex) {
+      assertThat(ex.getMessage()).containsIgnoringCase("unknown token found");
+      assertThatExceptionOfType(UnknownTokenException.class);
+    }
+
+    template = "{{ name | default('mary') }} has a {{ animal }} and eats {{ fruit | default('mango')}}";
+    assertThat(jinjava.render(template, context)).isEqualTo("mary has a lamb and eats apple");
   }
 }

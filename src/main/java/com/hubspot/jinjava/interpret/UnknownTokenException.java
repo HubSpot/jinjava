@@ -5,8 +5,8 @@ public class UnknownTokenException extends InterpretException {
   private static final long serialVersionUID = -388757722051666198L;
   private final String token;
 
-  public UnknownTokenException(String token, int lineNumber, int startPosition) {
-    super("Unknown token found: " + token, lineNumber, startPosition);
+  public UnknownTokenException(String token) {
+    super("Unknown token found in expression: {{ " + token + " }}");
     this.token = token;
   }
 
