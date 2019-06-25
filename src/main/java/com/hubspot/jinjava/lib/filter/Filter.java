@@ -40,6 +40,17 @@ public interface Filter extends Importable {
    */
   Object filter(Object var, JinjavaInterpreter interpreter, String... args);
 
+  /**
+   * Filter the specified template variable within the context of a render process. {{ myvar|myfiltername(arg1,arg2) }}
+   *
+   * @param var
+   *          the variable which this filter should operate on
+   * @param interpreter
+   *          current interpreter context
+   * @param args
+   *          any arguments passed to this filter invocation as an Object []
+   * @return the filtered form of the given variable
+   */
   Object filter(Object var, JinjavaInterpreter interpreter, Object... args);
 
   /*
