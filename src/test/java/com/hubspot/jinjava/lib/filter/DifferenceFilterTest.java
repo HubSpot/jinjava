@@ -1,13 +1,12 @@
 package com.hubspot.jinjava.lib.filter;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.HashMap;
-
+import com.hubspot.jinjava.Jinjava;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.hubspot.jinjava.Jinjava;
+import java.util.HashMap;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DifferenceFilterTest {
 

@@ -50,4 +50,9 @@ public class SliceFilter implements Filter {
     return Iterators.paddedPartition(loop, slices);
   }
 
+  @Override
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return null;
+  }
+
 }

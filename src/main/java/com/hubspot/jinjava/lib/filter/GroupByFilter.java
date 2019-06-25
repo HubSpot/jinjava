@@ -1,11 +1,5 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -16,6 +10,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
+
+import java.util.*;
 
 @JinjavaDoc(
     value = "Group a sequence of objects by a common attribute.",
@@ -74,6 +70,11 @@ public class GroupByFilter implements Filter {
     }
 
     return groups;
+  }
+
+  @Override
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return null;
   }
 
   public static class Group {

@@ -1,19 +1,18 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @JinjavaDoc(
     value = "Uses whitespace to indent a string.",
@@ -55,6 +54,11 @@ public class IndentFilter implements Filter {
     }
 
     return NEWLINE_JOINER.join(indentedLines);
+  }
+
+  @Override
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return null;
   }
 
   private static final Splitter NEWLINE_SPLITTER = Splitter.on('\n');

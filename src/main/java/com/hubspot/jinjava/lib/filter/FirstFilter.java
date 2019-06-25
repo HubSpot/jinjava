@@ -28,4 +28,9 @@ public class FirstFilter implements Filter {
     return loop.next();
   }
 
+  @Override
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return null;
+  }
+
 }

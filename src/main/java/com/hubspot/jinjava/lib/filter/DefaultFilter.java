@@ -39,6 +39,8 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
             desc = "If you want to use default with variables that evaluate to false you have to set the second parameter to true",
             code = "{{ ''|default('the string was empty', true) }}")
     })
+
+@SuppressWarnings("Duplicates")
 public class DefaultFilter implements Filter {
 
   @Override
@@ -51,6 +53,30 @@ public class DefaultFilter implements Filter {
 
     if (args.length > 1) {
       truthy = BooleanUtils.toBoolean(args[1]);
+    }
+
+    if (truthy) {
+      if (ObjectTruthValue.evaluate(object)) {
+        return object;
+      }
+    }
+    else if (object != null) {
+      return object;
+    }
+
+    return args[0];
+  }
+
+  @Override
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... args) {
+    boolean truthy = false;
+
+    if (args.length < 1) {
+      throw new TemplateSyntaxException(interpreter, getName(), "requires either 1 (default value to use) or 2 (default value to use, default with variables that evaluate to false) arguments");
+    }
+
+    if (args.length > 1) {
+      truthy = BooleanUtils.toBoolean(args[1].toString());
     }
 
     if (truthy) {

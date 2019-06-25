@@ -44,4 +44,9 @@ public class CenterFilter implements Filter {
     return StringUtils.center(var.toString(), size);
   }
 
+  @Override
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return null;
+  }
+
 }

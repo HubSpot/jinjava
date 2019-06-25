@@ -49,5 +49,10 @@ public class BoolFilter implements Filter {
         return str.equals("1") ? Boolean.TRUE : BooleanUtils.toBoolean(str);
     }
 
+    @Override
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+        return null;
+    }
+
 }
 

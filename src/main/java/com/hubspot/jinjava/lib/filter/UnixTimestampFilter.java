@@ -24,4 +24,9 @@ public class UnixTimestampFilter implements Filter {
       return Functions.unixtimestamp(var);
   }
 
+    @Override
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+        return null;
+    }
+
 }

@@ -47,7 +47,12 @@ public class TruncateFilter implements Filter {
     return Functions.truncate(object, (Object[]) arg);
   }
 
-  @Override
+    @Override
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+        return null;
+    }
+
+    @Override
   public String getName() {
     return "truncate";
   }

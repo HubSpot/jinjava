@@ -64,4 +64,9 @@ public class ReplaceFilter implements Filter {
     }
   }
 
+  @Override
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return null;
+  }
+
 }

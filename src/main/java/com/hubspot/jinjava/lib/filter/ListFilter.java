@@ -1,14 +1,14 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Collection;
-import java.util.List;
-
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Chars;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+
+import java.util.Collection;
+import java.util.List;
 
 @JinjavaDoc(
     value = "Convert the value into a list. If it was a string the returned list will be a list of characters.",
@@ -45,6 +45,11 @@ public class ListFilter implements Filter {
     }
 
     return result;
+  }
+
+  @Override
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return null;
   }
 
 }

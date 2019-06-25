@@ -34,4 +34,9 @@ public class LastFilter implements Filter {
     return last;
   }
 
+  @Override
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return null;
+  }
+
 }

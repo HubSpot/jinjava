@@ -36,4 +36,9 @@ public class CapitalizeFilter implements Filter {
     return var;
   }
 
+  @Override
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return null;
+  }
+
 }

@@ -15,15 +15,15 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.Importable;
+import com.hubspot.jinjava.objects.PyWrapper;
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import org.apache.commons.lang3.ArrayUtils;
-
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.Importable;
 
 public interface Filter extends Importable {
 
@@ -40,6 +40,8 @@ public interface Filter extends Importable {
    */
   Object filter(Object var, JinjavaInterpreter interpreter, String... args);
 
+  Object filter(Object var, JinjavaInterpreter interpreter, Object... args);
+
   /*
    * The JinJava parser calls filters giving to them two lists of parameters:
    *   - Positional arguments as Object[]
@@ -55,6 +57,9 @@ public interface Filter extends Importable {
     List<String> stringArgs = new ArrayList<>();
 
     for (Object arg : allArgs) {
+      if(arg instanceof PyWrapper) {
+        return filter(var, interpreter, allArgs);
+      }
       stringArgs.add(arg == null ? null : Objects.toString(arg));
     }
 

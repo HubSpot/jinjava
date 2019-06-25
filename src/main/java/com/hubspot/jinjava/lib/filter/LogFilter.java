@@ -77,6 +77,11 @@ public class LogFilter implements Filter {
     return object;
   }
 
+  @Override
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return null;
+  }
+
   private double calculateLog(JinjavaInterpreter interpreter, double num, Double base) {
 
     checkArguments(interpreter, num, base);

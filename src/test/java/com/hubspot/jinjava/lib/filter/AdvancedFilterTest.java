@@ -1,15 +1,14 @@
 package com.hubspot.jinjava.lib.filter;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
-
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AdvancedFilterTest {
 
@@ -111,6 +110,11 @@ public class AdvancedFilterTest {
     @Override
     public String getName() {
       return "mirror";
+    }
+
+    @Override
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+      return null;
     }
 
     @Override

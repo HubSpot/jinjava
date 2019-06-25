@@ -34,4 +34,9 @@ public class AttrFilter implements Filter {
     return interpreter.resolveProperty(var, args[0]);
   }
 
+  @Override
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return null;
+  }
+
 }

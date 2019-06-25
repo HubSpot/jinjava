@@ -1,9 +1,6 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
-
+import ch.obermuhlner.math.big.BigDecimalMath;
 import com.google.common.primitives.Doubles;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -13,7 +10,9 @@ import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-import ch.obermuhlner.math.big.BigDecimalMath;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
 
 @JinjavaDoc(
     value = "Return the square root of the input.",
@@ -73,6 +72,11 @@ public class RootFilter implements Filter {
     }
 
     return object;
+  }
+
+  @Override
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return null;
   }
 
   @Override

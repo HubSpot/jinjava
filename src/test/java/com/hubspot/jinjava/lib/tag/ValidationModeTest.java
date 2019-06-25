@@ -1,17 +1,5 @@
 package com.hubspot.jinjava.lib.tag;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -23,6 +11,17 @@ import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.parse.TextToken;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationModeTest {
@@ -43,6 +42,11 @@ public class ValidationModeTest {
     public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
       executionCount++;
       return var;
+    }
+
+    @Override
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+      return null;
     }
 
     public int getExecutionCount() {

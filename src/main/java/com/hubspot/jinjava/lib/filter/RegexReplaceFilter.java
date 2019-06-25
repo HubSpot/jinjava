@@ -62,4 +62,9 @@ public class RegexReplaceFilter implements Filter {
             throw new InvalidInputException(interpreter, this, InvalidReason.STRING);
         }
     }
+
+    @Override
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+        return null;
+    }
 }
