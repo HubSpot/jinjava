@@ -157,7 +157,7 @@ public class ExpressionNodeTest {
     final JinjavaConfig config = JinjavaConfig.newBuilder().withFailOnUnknownTokens(true).build();
     JinjavaInterpreter jinjavaInterpreter =  new Jinjava(config).newInterpreter();
 
-    String jinja = "{{ UnknownToken}}";
+    String jinja = "{{ UnknownToken }}";
     Node node = new TreeParser(jinjavaInterpreter, jinja).buildTree();
     assertThatThrownBy(() -> jinjavaInterpreter.render(node))
         .isInstanceOf(UnknownTokenException.class)
