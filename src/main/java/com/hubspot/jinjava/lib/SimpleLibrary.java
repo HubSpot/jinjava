@@ -15,8 +15,6 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -83,7 +81,6 @@ public abstract class SimpleLibrary<T extends Importable> {
   public void register(String name, T obj) {
     if (!disabled.contains(obj.getName())) {
       lib.put(name, obj);
-      ENGINE_LOG.debug(getClass().getSimpleName() + ": Registered " + obj.getName());
     }
   }
 
