@@ -202,7 +202,6 @@ public class JinjavaInterpreter {
    * @return rendered result
    */
   public String render(String template) {
-    ENGINE_LOG.debug(template);
     return render(parse(template), true);
   }
 
