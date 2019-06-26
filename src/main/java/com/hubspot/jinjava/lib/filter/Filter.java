@@ -15,15 +15,12 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Map;
+
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.Importable;
-import com.hubspot.jinjava.objects.PyWrapper;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public interface Filter extends Importable {
 
@@ -36,19 +33,6 @@ public interface Filter extends Importable {
    *          current interpreter context
    * @param args
    *          any arguments passed to this filter invocation
-   * @return the filtered form of the given variable
-   */
-  Object filter(Object var, JinjavaInterpreter interpreter, String... args);
-
-  /**
-   * Filter the specified template variable within the context of a render process. {{ myvar|myfiltername(arg1,arg2) }}
-   *
-   * @param var
-   *          the variable which this filter should operate on
-   * @param interpreter
-   *          current interpreter context
-   * @param args
-   *          any arguments passed to this filter invocation as an Object []
    * @return the filtered form of the given variable
    */
   Object filter(Object var, JinjavaInterpreter interpreter, Object... args);
@@ -65,20 +49,6 @@ public interface Filter extends Importable {
     // We append the named arguments at the end of the positional ones
     Object[] allArgs = ArrayUtils.addAll(args, kwargs.values().toArray());
 
-    List<String> stringArgs = new ArrayList<>();
-
-    for (Object arg : allArgs) {
-      if(arg instanceof PyWrapper) {
-        return filter(var, interpreter, allArgs);
-      }
-      stringArgs.add(arg == null ? null : Objects.toString(arg));
-    }
-
-    String[] filterArgs = new String[stringArgs.size()];
-    for (int i = 0; i < stringArgs.size(); i++) {
-      filterArgs[i] = stringArgs.get(i);
-    }
-
-    return filter(var, interpreter, filterArgs);
+    return filter(var, interpreter, allArgs);
   }
 }

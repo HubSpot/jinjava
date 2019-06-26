@@ -15,6 +15,9 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -22,8 +25,7 @@ import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
+
 
 @JinjavaDoc(
     value = "Return the absolute value of the argument.",
@@ -36,7 +38,7 @@ import java.math.BigInteger;
 public class AbsFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
 
     if (object == null) {
       return null;
@@ -65,11 +67,6 @@ public class AbsFilter implements Filter {
         throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
       }
     }
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   @Override

@@ -36,7 +36,7 @@ public class ReplaceFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter,
-      String... args) {
+                       Object... args) {
 
     if (var == null) {
       return null;
@@ -48,12 +48,12 @@ public class ReplaceFilter implements Filter {
     }
 
     String s = (String) var;
-    String toReplace = args[0];
-    String replaceWith = args[1];
+    String toReplace = args[0].toString();
+    String replaceWith = args[1].toString();
     Integer count = null;
 
     if (args.length > 2) {
-      count = NumberUtils.createInteger(args[2]);
+      count = NumberUtils.createInteger(args[2].toString());
     }
 
     if (count == null) {
@@ -62,11 +62,6 @@ public class ReplaceFilter implements Filter {
     else {
       return StringUtils.replace(s, toReplace, replaceWith, count);
     }
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
 }

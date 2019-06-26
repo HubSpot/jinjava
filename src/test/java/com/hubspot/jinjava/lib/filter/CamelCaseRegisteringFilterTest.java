@@ -1,11 +1,12 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,11 +26,6 @@ public class CamelCaseRegisteringFilterTest {
     @Override
     public String getName() {
       return "returnHello";
-    }
-
-    @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-      return null;
     }
 
     @Override

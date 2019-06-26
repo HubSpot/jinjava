@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
+import ch.obermuhlner.math.big.BigDecimalMath;
 import com.google.common.primitives.Doubles;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -14,7 +15,6 @@ import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-import ch.obermuhlner.math.big.BigDecimalMath;
 
 @JinjavaDoc(
     value = "Return the natural log of the input.",
@@ -29,12 +29,12 @@ public class LogFilter implements Filter {
   private static final MathContext PRECISION = new MathContext(50);
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... args) {
 
     // default to e
     Double root = null;
     if (args.length > 0 && args[0] != null) {
-      Double tryRoot = Doubles.tryParse(args[0]);
+      Double tryRoot = Doubles.tryParse(args[0].toString());
       if (tryRoot == null) {
         throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, args[0]);
       }
@@ -75,11 +75,6 @@ public class LogFilter implements Filter {
     }
 
     return object;
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   private double calculateLog(JinjavaInterpreter interpreter, double num, Double base) {

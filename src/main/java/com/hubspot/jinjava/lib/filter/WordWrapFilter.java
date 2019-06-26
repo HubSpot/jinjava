@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Objects;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -8,7 +10,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
-import java.util.Objects;
 
 @JinjavaDoc(
     value = "Return a copy of the string passed to the filter wrapped after 79 characters.",
@@ -32,25 +33,20 @@ public class WordWrapFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
     String str = Objects.toString(var, "");
 
     int wrapLength = 79;
     if (args.length > 0) {
-      wrapLength = NumberUtils.toInt(args[0], 79);
+      wrapLength = NumberUtils.toInt(args[0].toString(), 79);
     }
 
     boolean wrapLongWords = true;
     if (args.length > 1) {
-      wrapLongWords = BooleanUtils.toBoolean(args[1]);
+      wrapLongWords = BooleanUtils.toBoolean(args[1].toString());
     }
 
     return WordUtils.wrap(str, wrapLength, "\n", wrapLongWords);
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
 }

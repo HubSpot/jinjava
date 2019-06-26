@@ -1,12 +1,12 @@
 package com.hubspot.jinjava.lib.filter;
 
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

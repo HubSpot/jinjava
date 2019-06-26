@@ -1,14 +1,15 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+import java.util.Locale;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.text.NumberFormat;
-import java.text.ParsePosition;
-import java.util.Locale;
 
 @JinjavaDoc(
     value = "Convert the value into a floating point number.",
@@ -30,10 +31,10 @@ public class FloatFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
     float defaultVal = 0;
     if (args.length > 0) {
-      defaultVal = NumberUtils.toFloat(args[0], 0.0f);
+      defaultVal = NumberUtils.toFloat(args[0].toString(), 0.0f);
     }
 
     if (var == null) {
@@ -61,11 +62,6 @@ public class FloatFilter implements Filter {
       result = defaultVal;
     }
     return result;
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
 }

@@ -39,20 +39,15 @@ public class SliceFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
     ForLoop loop = ObjectIterator.getLoop(var);
 
     if (args.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (number of slices)");
     }
 
-    int slices = NumberUtils.toInt(args[0], 3);
+    int slices = NumberUtils.toInt(args[0].toString(), 3);
     return Iterators.paddedPartition(loop, slices);
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
 }

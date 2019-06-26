@@ -1,5 +1,9 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
+
 import ch.obermuhlner.math.big.BigDecimalMath;
 import com.google.common.primitives.Doubles;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -10,9 +14,6 @@ import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
 
 @JinjavaDoc(
     value = "Return the square root of the input.",
@@ -27,13 +28,13 @@ public class RootFilter implements Filter {
   private static final MathContext PRECISION = new MathContext(50);
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... args) {
 
     double root = 2;
     if (args.length > 0 && args[0] != null) {
-      Double tryRoot = Doubles.tryParse(args[0]);
+      Double tryRoot = Doubles.tryParse(args[0].toString());
       if (tryRoot == null) {
-        throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, args[0]);
+        throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, args[0].toString());
       }
 
       root = tryRoot;
@@ -72,11 +73,6 @@ public class RootFilter implements Filter {
     }
 
     return object;
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   @Override

@@ -38,7 +38,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 public class DivisibleFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
     if (object == null) {
       return false;
     }
@@ -46,18 +46,13 @@ public class DivisibleFilter implements Filter {
       if (arg.length < 1) {
         throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (number to divide by)");
       }
-      long factor = Long.parseLong(arg[0]);
+      long factor = Long.parseLong(arg[0].toString());
       long value = ((Number) object).longValue();
       if (value % factor == 0) {
         return true;
       }
     }
     return false;
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   @Override

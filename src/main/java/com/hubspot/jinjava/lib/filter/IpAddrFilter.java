@@ -1,5 +1,8 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.List;
+import java.util.regex.Pattern;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -10,8 +13,6 @@ import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import org.apache.commons.net.util.SubnetUtils;
 
-import java.util.List;
-import java.util.regex.Pattern;
 
 @JinjavaDoc(
     value = "Evaluates to true if the value is a valid IPv4 or IPv6 address",
@@ -45,14 +46,14 @@ public class IpAddrFilter implements Filter {
       BROADCAST_STRING);
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... args) {
 
     if (object == null) {
       return false;
     }
 
     if (args.length > 0) {
-      String function = args[0].trim();
+      String function = args[0].toString().trim();
       return getFunctionValue(interpreter, function.toLowerCase(), object);
     }
 
@@ -61,11 +62,6 @@ public class IpAddrFilter implements Filter {
     }
 
     return false;
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   private Object getFunctionValue(JinjavaInterpreter interpreter, String function, Object object) {

@@ -1,14 +1,15 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+import java.util.Locale;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.text.NumberFormat;
-import java.text.ParsePosition;
-import java.util.Locale;
 
 /**
  * int(value, default=0) Convert the value into an integer. If the conversion doesn't work it will return 0. You can override this default using the first parameter.
@@ -34,11 +35,11 @@ public class IntFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter,
-      String... args) {
+                       Object... args) {
 
     Long defaultVal = 0L;
     if (args.length > 0) {
-      defaultVal = NumberUtils.toLong(args[0], 0);
+      defaultVal = NumberUtils.toLong(args[0].toString(), 0);
     }
 
     if (var == null) {
@@ -63,11 +64,6 @@ public class IntFilter implements Filter {
       result = defaultVal;
     }
     return convertResult(result);
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   private Object convertResult(Long result) {

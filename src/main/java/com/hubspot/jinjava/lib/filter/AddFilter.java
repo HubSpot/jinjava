@@ -15,16 +15,18 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import java.math.BigDecimal;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
-import com.hubspot.jinjava.interpret.InvalidInputException;
 
-import java.math.BigDecimal;
+
 
 @JinjavaDoc(
     value = "adds a number to the existing value",
@@ -40,7 +42,7 @@ import java.math.BigDecimal;
 public class AddFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... args) {
 
     if (object == null) {
       return null;
@@ -63,17 +65,12 @@ public class AddFilter implements Filter {
 
     BigDecimal addend;
     try {
-      addend = new BigDecimal(args[0]);
+      addend = new BigDecimal(args[0].toString());
     } catch (NumberFormatException e) {
       throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, args[0]);
     }
 
     return base.add(addend);
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   @Override

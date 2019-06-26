@@ -1,5 +1,8 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -11,8 +14,6 @@ import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @JinjavaDoc(
     value = "Filters a sequence of objects by applying a test to the object and rejecting the ones with the test succeeding.",
@@ -33,7 +34,7 @@ public class RejectFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
     List<Object> result = new ArrayList<>();
 
     if (args.length < 1) {
@@ -44,7 +45,7 @@ public class RejectFilter implements Filter {
       throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 0);
     }
 
-    ExpTest expTest = interpreter.getContext().getExpTest(args[0]);
+    ExpTest expTest = interpreter.getContext().getExpTest(args[0].toString());
     if (expTest == null) {
       throw new InvalidArgumentException(interpreter, this, InvalidReason.EXPRESSION_TEST, 0, args[0]);
     }
@@ -59,11 +60,6 @@ public class RejectFilter implements Filter {
     }
 
     return result;
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
 }

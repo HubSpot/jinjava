@@ -1,12 +1,13 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.regex.Pattern;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import org.jsoup.Jsoup;
 
-import java.util.regex.Pattern;
 
 /**
  * striptags(value) Strip SGML/XML tags and replace adjacent whitespace by one space.
@@ -24,7 +25,7 @@ public class StripTagsFilter implements Filter {
   private static final Pattern WHITESPACE = Pattern.compile("\\s{2,}");
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
 
     if (!(object instanceof String)) {
       return object;
@@ -35,11 +36,6 @@ public class StripTagsFilter implements Filter {
     String normalizedVal = WHITESPACE.matcher(strippedVal).replaceAll(" ");
 
     return normalizedVal;
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   @Override

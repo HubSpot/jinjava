@@ -1,12 +1,13 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Map;
+import java.util.Objects;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-import java.util.Map;
-import java.util.Objects;
 
 @JinjavaDoc(
     value = "Apply Python string formatting to an object.",
@@ -24,11 +25,6 @@ public class FormatFilter implements AdvancedFilter {
   @Override
   public String getName() {
     return "format";
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   @Override

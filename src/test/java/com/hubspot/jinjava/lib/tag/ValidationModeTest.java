@@ -1,5 +1,9 @@
 package com.hubspot.jinjava.lib.tag;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -17,9 +21,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,14 +40,9 @@ public class ValidationModeTest {
     private int executionCount = 0;
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       executionCount++;
       return var;
-    }
-
-    @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-      return null;
     }
 
     public int getExecutionCount() {

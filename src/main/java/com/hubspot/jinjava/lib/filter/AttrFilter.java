@@ -25,18 +25,13 @@ public class AttrFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
 
     if (args.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (attribute name to use)");
     }
 
-    return interpreter.resolveProperty(var, args[0]);
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
+    return interpreter.resolveProperty(var, args[0].toString());
   }
 
 }

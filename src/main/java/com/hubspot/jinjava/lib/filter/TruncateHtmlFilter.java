@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Objects;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -14,7 +16,6 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.NodeVisitor;
 
-import java.util.Objects;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
@@ -39,7 +40,7 @@ public class TruncateHtmlFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
     if (var instanceof String) {
       int length = DEFAULT_TRUNCATE_LENGTH;
       String ends = DEFAULT_END;
@@ -58,7 +59,7 @@ public class TruncateHtmlFilter implements Filter {
 
       boolean killwords = false;
       if (args.length > 2) {
-        killwords = BooleanUtils.toBoolean(args[2]);
+        killwords = BooleanUtils.toBoolean(args[2].toString());
       }
 
       Document dom = Jsoup.parseBodyFragment((String) var);
@@ -70,11 +71,6 @@ public class TruncateHtmlFilter implements Filter {
     }
 
     return var;
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   private static class ContentTruncatingNodeVisitor implements NodeVisitor {

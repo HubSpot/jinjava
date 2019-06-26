@@ -15,14 +15,15 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Locale;
+import java.util.Objects;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 
-import java.util.Locale;
-import java.util.Objects;
 
 @JinjavaDoc(
     value = "Escapes strings so that they can be safely inserted into a JavaScript variable declaration",
@@ -35,7 +36,7 @@ import java.util.Objects;
 public class EscapeJsFilter implements Filter {
 
   @Override
-  public Object filter(Object objectToFilter, JinjavaInterpreter jinjavaInterpreter, String... strings) {
+  public Object filter(Object objectToFilter, JinjavaInterpreter jinjavaInterpreter, Object... strings) {
     String input = Objects.toString(objectToFilter, "");
     LengthLimitingStringBuilder builder = new LengthLimitingStringBuilder(jinjavaInterpreter.getConfig().getMaxOutputSize());
 
@@ -94,11 +95,6 @@ public class EscapeJsFilter implements Filter {
     }
 
     return builder.toString();
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   @Override

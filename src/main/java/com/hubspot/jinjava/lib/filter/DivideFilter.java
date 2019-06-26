@@ -15,6 +15,9 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -24,8 +27,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 @JinjavaDoc(
     value = "Divides the current value by a divisor",
@@ -41,11 +42,11 @@ import java.math.BigInteger;
 public class DivideFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
     if (arg.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 number (divisor) argument");
     }
-    String toMul = arg[0];
+    String toMul = (arg[0] == null) ? null : arg[0].toString();
     Number num;
     if (toMul != null) {
       try {
@@ -88,11 +89,6 @@ public class DivideFilter implements Filter {
       }
     }
     return object;
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   @Override

@@ -1,11 +1,16 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
+
 
 @JinjavaDoc(
     value = "Formats a date object",
@@ -27,19 +32,21 @@ public class DateTimeFormatFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter,
-      String... args) {
-
+      Object... args) {
+    List<String> stringArgs = new ArrayList<>();
+    for(Object arg: args) {
+      stringArgs.add(arg == null ? null : Objects.toString(arg));
+    }
+    String[] filterArgs = new String[stringArgs.size()];
+    for (int i = 0; i < stringArgs.size(); i++) {
+      filterArgs[i] = stringArgs.get(i);
+    }
     if (args.length > 0) {
-      return Functions.dateTimeFormat(var, args);
+      return Functions.dateTimeFormat(var, filterArgs);
     }
     else {
       return Functions.dateTimeFormat(var);
     }
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
 }

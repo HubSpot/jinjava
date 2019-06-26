@@ -1,5 +1,9 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.math.BigDecimal;
+import java.util.Map;
+import java.util.Objects;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -7,9 +11,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
-import java.math.BigDecimal;
-import java.util.Map;
-import java.util.Objects;
 
 @JinjavaDoc(
     value = "Returns the sum of a sequence of numbers plus the value of parameter ‘start’ (which defaults to 0). When the sequence is empty it returns start.",
@@ -31,11 +32,6 @@ public class SumFilter implements AdvancedFilter {
   @Override
   public String getName() {
     return "sum";
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   @Override

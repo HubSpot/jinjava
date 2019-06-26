@@ -35,7 +35,7 @@ public class RegexReplaceFilter implements Filter {
 
     @Override
     public Object filter(Object var, JinjavaInterpreter interpreter,
-                         String... args) {
+                         Object... args) {
 
         if (args.length < 2) {
             throw new TemplateSyntaxException(interpreter, getName(), "requires 2 arguments (regex string, replacement string)");
@@ -47,8 +47,8 @@ public class RegexReplaceFilter implements Filter {
 
         if (var instanceof String) {
             String s = (String) var;
-            String toReplace = args[0];
-            String replaceWith = args[1];
+            String toReplace = args[0].toString();
+            String replaceWith = args[1].toString();
 
             try {
                 Pattern p = Pattern.compile(toReplace);
@@ -63,8 +63,4 @@ public class RegexReplaceFilter implements Filter {
         }
     }
 
-    @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-        return null;
-    }
 }

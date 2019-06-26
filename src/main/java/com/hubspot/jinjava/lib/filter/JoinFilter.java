@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Objects;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -13,7 +15,6 @@ import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.ObjectIterator;
 
-import java.util.Objects;
 
 @JinjavaDoc(
     value = "Return a string which is the concatenation of the strings in the sequence.",
@@ -41,18 +42,18 @@ public class JoinFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
 
     LengthLimitingStringBuilder stringBuilder = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxStringLength());
 
     String separator = "";
     if (args.length > 0) {
-      separator = args[0];
+      separator = args[0].toString();
     }
 
     String attr = null;
     if (args.length > 1) {
-      attr = args[1];
+      attr = args[1].toString();
     }
 
     ForLoop loop = ObjectIterator.getLoop(var);
@@ -86,11 +87,6 @@ public class JoinFilter implements Filter {
     }
 
     return stringBuilder.toString();
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
 }

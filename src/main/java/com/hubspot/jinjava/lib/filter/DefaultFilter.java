@@ -15,6 +15,7 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import com.hubspot.jinjava.objects.PyWrapper;
 import org.apache.commons.lang3.BooleanUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -44,30 +45,6 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
 public class DefaultFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
-    boolean truthy = false;
-
-    if (args.length < 1) {
-      throw new TemplateSyntaxException(interpreter, getName(), "requires either 1 (default value to use) or 2 (default value to use, default with variables that evaluate to false) arguments");
-    }
-
-    if (args.length > 1) {
-      truthy = BooleanUtils.toBoolean(args[1]);
-    }
-
-    if (truthy) {
-      if (ObjectTruthValue.evaluate(object)) {
-        return object;
-      }
-    }
-    else if (object != null) {
-      return object;
-    }
-
-    return args[0];
-  }
-
-  @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, Object... args) {
     boolean truthy = false;
 
@@ -88,7 +65,7 @@ public class DefaultFilter implements Filter {
       return object;
     }
 
-    return args[0];
+    return (args[0] instanceof PyWrapper) ? args[0] : args[0].toString();
   }
 
   @Override

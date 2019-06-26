@@ -15,6 +15,8 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Objects;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -22,7 +24,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Objects;
 
 @JinjavaDoc(
     value = "Removes a string from the value from another string",
@@ -38,19 +39,14 @@ import java.util.Objects;
 public class CutFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
 
     if (arg.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (string to remove from target)");
     }
-    String cutee = arg[0];
+    String cutee = arg[0].toString();
     String origin = Objects.toString(object, "");
     return StringUtils.replace(origin, cutee, "");
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   @Override

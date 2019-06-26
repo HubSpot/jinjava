@@ -22,13 +22,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 public class DatetimeFilter extends DateTimeFormatFilter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
     return super.filter(object, interpreter, arg);
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   @Override

@@ -1,5 +1,11 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -11,11 +17,6 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.ArrayList;
 
 @JinjavaDoc(
     value = "Group a sequence of objects by a common attribute.",
@@ -43,13 +44,13 @@ public class GroupByFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
 
     if (args.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (attr name to group by)");
     }
 
-    String attr = args[0];
+    String attr = args[0].toString();
 
     ForLoop loop = ObjectIterator.getLoop(var);
     Multimap<String, Object> groupBuckets = LinkedListMultimap.create();
@@ -74,11 +75,6 @@ public class GroupByFilter implements Filter {
     }
 
     return groups;
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   public static class Group {

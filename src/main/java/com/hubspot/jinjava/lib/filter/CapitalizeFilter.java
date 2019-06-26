@@ -23,7 +23,7 @@ public class CapitalizeFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
 
     if (var == null) {
       return null;
@@ -34,11 +34,6 @@ public class CapitalizeFilter implements Filter {
       return StringUtils.capitalize(value);
     }
     return var;
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
 }

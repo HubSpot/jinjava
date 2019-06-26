@@ -1,5 +1,9 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -8,9 +12,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @JinjavaDoc(
     value = "Converts URLs in plain text into clickable links.",
@@ -36,25 +37,25 @@ public class UrlizeFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
     Matcher m = URL_RE.matcher(Objects.toString(var, ""));
     StringBuffer result = new StringBuffer();
 
     int trimUrlLimit = Integer.MAX_VALUE;
     if (args.length > 0) {
-      trimUrlLimit = NumberUtils.toInt(args[0], Integer.MAX_VALUE);
+      trimUrlLimit = NumberUtils.toInt(args[0].toString(), Integer.MAX_VALUE);
     }
 
     String fmt = "<a href=\"%s\"";
 
     boolean nofollow = false;
     if (args.length > 1) {
-      nofollow = BooleanUtils.toBoolean(args[1]);
+      nofollow = BooleanUtils.toBoolean(args[1].toString());
     }
 
     String target = "";
     if (args.length > 2) {
-      target = args[2];
+      target = args[2].toString();
     }
 
     if (nofollow) {
@@ -76,11 +77,6 @@ public class UrlizeFilter implements Filter {
 
     m.appendTail(result);
     return result.toString();
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   private static final Pattern URL_RE = Pattern.compile(

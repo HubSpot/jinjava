@@ -1,5 +1,11 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -13,11 +19,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ObjectIterator;
 import org.apache.commons.lang3.BooleanUtils;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @JinjavaDoc(
     value = "Sort an iterable.",
@@ -50,28 +51,23 @@ public class SortFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
     if (var == null) {
       return null;
     }
 
-    boolean reverse = args.length > 0 && BooleanUtils.toBoolean(args[0]);
-    boolean caseSensitive = args.length > 1 && BooleanUtils.toBoolean(args[1]);
+    boolean reverse = args.length > 0 && BooleanUtils.toBoolean(args[0].toString());
+    boolean caseSensitive = args.length > 1 && BooleanUtils.toBoolean(args[1].toString());
 
     if (args.length > 2 && args[2] == null) {
       throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 2);
     }
 
-    List<String> attr = args.length > 2 ? DOT_SPLITTER.splitToList(args[2]) : Collections.emptyList();
+    List<String> attr = args.length > 2 ? DOT_SPLITTER.splitToList(args[2].toString()) : Collections.emptyList();
     return Lists.newArrayList(ObjectIterator.getLoop(var)).stream()
         .sorted(Comparator.comparing((o) -> mapObject(interpreter, o, attr),
             new ObjectComparator(reverse, caseSensitive)))
         .collect(Collectors.toList());
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
   private Object mapObject(JinjavaInterpreter interpreter, Object o, List<String> propertyChain) {

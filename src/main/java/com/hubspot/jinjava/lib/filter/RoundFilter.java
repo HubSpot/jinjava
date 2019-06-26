@@ -1,5 +1,8 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -8,8 +11,6 @@ import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 @JinjavaDoc(
     value = "Round the number to a given precision.",
@@ -31,7 +32,7 @@ public class RoundFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
 
     if (var == null) {
       return null;
@@ -46,12 +47,12 @@ public class RoundFilter implements Filter {
 
     int precision = 0;
     if (args.length > 0) {
-      precision = NumberUtils.toInt(args[0]);
+      precision = NumberUtils.toInt(args[0].toString());
     }
 
     String method = "common";
     if (args.length > 1) {
-      method = args[1];
+      method = args[1].toString();
     }
 
     RoundingMode roundingMode;
@@ -69,11 +70,6 @@ public class RoundFilter implements Filter {
     }
 
     return result.setScale(precision, roundingMode);
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
 }

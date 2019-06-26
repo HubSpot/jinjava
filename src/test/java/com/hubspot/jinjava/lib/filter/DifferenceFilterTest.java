@@ -1,10 +1,11 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.HashMap;
+
 import com.hubspot.jinjava.Jinjava;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

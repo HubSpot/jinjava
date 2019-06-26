@@ -1,5 +1,8 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -7,8 +10,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @JinjavaDoc(
     value = "Extract a unique set from a sequence of objects",
@@ -34,12 +35,12 @@ public class UniqueFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
     Map<Object, Object> result = new LinkedHashMap<>();
     String attr = null;
 
     if (args.length > 0) {
-      attr = args[0];
+      attr = args[0].toString();
     }
 
     ForLoop loop = ObjectIterator.getLoop(var);
@@ -57,11 +58,6 @@ public class UniqueFilter implements Filter {
     }
 
     return result.values();
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
 }

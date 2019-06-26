@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Objects;
+
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -9,7 +11,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.util.Objects;
 
 /**
  * split(separator=' ', limit=0)
@@ -45,29 +46,24 @@ public class SplitFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
     Splitter splitter;
 
     if (args.length > 0) {
-      splitter = Splitter.on(args[0]);
+      splitter = Splitter.on(args[0].toString());
     }
     else {
       splitter = Splitter.on(CharMatcher.whitespace());
     }
 
     if (args.length > 1) {
-      int limit = NumberUtils.toInt(args[1], 0);
+      int limit = NumberUtils.toInt(args[1].toString(), 0);
       if (limit > 0) {
         splitter = splitter.limit(limit);
       }
     }
 
     return Lists.newArrayList(splitter.omitEmptyStrings().trimResults().split(Objects.toString(var, "")));
-  }
-
-  @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return null;
   }
 
 }

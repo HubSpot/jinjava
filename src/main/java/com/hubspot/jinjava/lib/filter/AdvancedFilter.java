@@ -15,11 +15,12 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.Importable;
 
-import java.util.HashMap;
-import java.util.Map;
 
 public interface AdvancedFilter extends Importable, Filter {
 
@@ -39,7 +40,7 @@ public interface AdvancedFilter extends Importable, Filter {
    Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs);
 
    // Default implementation to maintain backward-compatibility with old Filters
-   default Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-       return filter(var, interpreter, (Object[]) args, new HashMap<>());
+   default Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+       return filter(var, interpreter, args, new HashMap<>());
    }
 }
