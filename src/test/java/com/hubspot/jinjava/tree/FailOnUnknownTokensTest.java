@@ -37,23 +37,24 @@ public class FailOnUnknownTokensTest {
   }
 
   @Test
-  public void itReplacesTokensInContextButThrowsExceptionForOthers() {
-    final JinjavaConfig config = JinjavaConfig.newBuilder().withFailOnUnknownTokens(true).build();
-    JinjavaInterpreter jinjavaInterpreter =  new Jinjava(config).newInterpreter();
+  public void itReplacesTokensWithDefaultValues() {
     Map<String, String> context = new HashMap<>();
     context.put("animal", "lamb");
     context.put("fruit", "apple");
+
+    String template = "{{ name | default('mary') }} has a {{ animal }} and eats {{ fruit | default('mango')}}";
+    assertThat(jinjava.render(template, context)).isEqualTo("mary has a lamb and eats apple");
+  }
+
+  @Test
+  public void itReplacesTokensInContextButThrowsExceptionForOthers() {
+    final JinjavaConfig config = JinjavaConfig.newBuilder().withFailOnUnknownTokens(true).build();
+    JinjavaInterpreter jinjavaInterpreter =  new Jinjava(config).newInterpreter();
+
     String template = "{{ name }} has a {{ animal }}";
-
     Node node = new TreeParser(jinjavaInterpreter, template).buildTree();
-
     assertThatThrownBy(() -> jinjavaInterpreter.render(node))
             .isInstanceOf(UnknownTokenException.class)
             .hasMessageContaining("Unknown token found: name");
-
-
-
-    template = "{{ name | default('mary') }} has a {{ animal }} and eats {{ fruit | default('mango')}}";
-    assertThat(jinjava.render(template, context)).isEqualTo("mary has a lamb and eats apple");
   }
 }
