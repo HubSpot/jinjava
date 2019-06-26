@@ -6,7 +6,7 @@ public class UnknownTokenException extends InterpretException {
   private final String token;
 
   public UnknownTokenException(String token) {
-    super("Unknown token found in expression: {{ " + token + " }}");
+    super("Unknown token found: " + token.trim());
     this.token = token;
   }
 

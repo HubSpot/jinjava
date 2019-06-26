@@ -16,12 +16,28 @@
 
 package com.hubspot.jinjava.interpret;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
+import java.util.Stack;
+import java.util.concurrent.ThreadLocalRandom;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.ImmutableMap;
-
+import com.google.common.collect.Multimap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
@@ -39,23 +55,6 @@ import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Random;
-import java.util.Set;
-import java.util.Map;
-import java.util.Stack;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Collections;
-
-import java.util.concurrent.ThreadLocalRandom;
-
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
 public class JinjavaInterpreter {
 
