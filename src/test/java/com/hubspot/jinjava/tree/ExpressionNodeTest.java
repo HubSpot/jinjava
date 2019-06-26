@@ -149,7 +149,7 @@ public class ExpressionNodeTest {
     Node node = new TreeParser(jinjavaInterpreter, jinja).buildTree();
     assertThatThrownBy(() -> jinjavaInterpreter.render(node))
         .isInstanceOf(UnknownTokenException.class)
-        .hasMessage("Unknown token found: bad");
+        .hasMessageContaining("Unknown token found: bad");
   }
 
   @Test
