@@ -72,7 +72,7 @@ public class ExpressionResolver {
       String elExpression = EXPRESSION_START_TOKEN + expression.trim() + EXPRESSION_END_TOKEN;
       ValueExpression valueExp = expressionFactory.createValueExpression(elContext, elExpression, Object.class);
       Object result = valueExp.getValue(elContext);
-      if(result == null && interpreter.getConfig().isFailOnUnknownTokens()) {
+      if (result == null && interpreter.getConfig().isFailOnUnknownTokens()) {
         throw new UnknownTokenException(expression);
       }
       validateResult(result);
