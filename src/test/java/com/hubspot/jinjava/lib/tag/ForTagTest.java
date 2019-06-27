@@ -191,7 +191,6 @@ public class ForTagTest {
       String template = ""
            + "{% for i in ['a ','b'] %}{{i}}{% endfor %}";
       String rendered = jinjava.render(template, context);
-      System.out.println(rendered);
       assertEquals("a b", rendered);
   }
 
@@ -203,7 +202,6 @@ public class ForTagTest {
     String template = ""
         + "{% for i in the_list %}{{i}}{% endfor %}";
     String rendered = jinjava.render(template, context);
-    System.out.println(rendered);
     assertEquals(new PyishDate(testDate).toString(), rendered);
   }
 
