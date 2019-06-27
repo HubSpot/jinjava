@@ -44,4 +44,9 @@ public class IsContainingAllExpTestTest {
   public void itFailsOnNullValues() {
     assertThat(jinjava.render(String.format(CONTAINING_TEMPLATE, "[1, 2, 3]", "null"), new HashMap<>())).isEqualTo("fail");
   }
+
+  @Test
+  public void itPerformsTypeConversion() {
+    assertThat(jinjava.render(String.format(CONTAINING_TEMPLATE, "[1, 2, 3]", "['2', '3']"), new HashMap<>())).isEqualTo("pass");
+  }
 }

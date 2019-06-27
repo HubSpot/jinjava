@@ -26,8 +26,8 @@ public class IsWithinExpTestTest {
   }
 
   @Test
-  public void itPassesOnNullValueInSequence() {
-    assertThat(jinjava.render(String.format(IN_TEMPLATE, "null", "[1, 2, null]"), new HashMap<>())).isEqualTo("pass");
+  public void itFailsOnNullValueInSequence() {
+    assertThat(jinjava.render(String.format(IN_TEMPLATE, "null", "[1, 2, null]"), new HashMap<>())).isEqualTo("fail");
   }
 
   @Test
@@ -43,5 +43,10 @@ public class IsWithinExpTestTest {
   @Test
   public void itFailsOnNullSequence() {
     assertThat(jinjava.render(String.format(IN_TEMPLATE, "2", "null"), new HashMap<>())).isEqualTo("fail");
+  }
+
+  @Test
+  public void itPerformsTypeConversion() {
+    assertThat(jinjava.render(String.format(IN_TEMPLATE, "'1'", "[100000000000, 1]"), new HashMap<>())).isEqualTo("pass");
   }
 }

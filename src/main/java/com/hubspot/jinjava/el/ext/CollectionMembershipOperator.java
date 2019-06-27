@@ -18,7 +18,7 @@ import de.odysseus.el.tree.impl.ast.AstNode;
 public class CollectionMembershipOperator extends SimpleOperator {
 
   @Override
-  protected Object apply(TypeConverter converter, Object o1, Object o2) {
+  public Object apply(TypeConverter converter, Object o1, Object o2) {
     if (o2 == null) {
       return Boolean.FALSE;
     }

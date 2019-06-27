@@ -1,13 +1,9 @@
 package com.hubspot.jinjava.lib.exptest;
 
-import java.util.Objects;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.util.ForLoop;
-import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Returns true if a value is within a list",
@@ -17,7 +13,7 @@ import com.hubspot.jinjava.util.ObjectIterator;
         @JinjavaSnippet(
             code = "{{ 2 is within [1, 2, 3] }}")
     })
-public class IsWithinExpTest implements ExpTest {
+public class IsWithinExpTest extends CollectionExpTest {
 
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
@@ -26,14 +22,7 @@ public class IsWithinExpTest implements ExpTest {
       return false;
     }
 
-    ForLoop loop = ObjectIterator.getLoop(args[0]);
-    while (loop.hasNext()) {
-      if (Objects.equals(loop.next(), var)) {
-        return true;
-      }
-    }
-
-    return false;
+    return (Boolean) COLLECTION_MEMBERSHIP_OPERATOR.apply(TYPE_CONVERTER, var, args[0]);
   }
 
   @Override

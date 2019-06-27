@@ -1,7 +1,5 @@
 package com.hubspot.jinjava.lib.exptest;
 
-import java.util.Objects;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -17,7 +15,7 @@ import com.hubspot.jinjava.util.ObjectIterator;
         @JinjavaSnippet(
             code = "{{ [1, 2, 3] is containingall [2, 3] }}")
     })
-public class IsContainingAllExpTest implements ExpTest {
+public class IsContainingAllExpTest extends CollectionExpTest {
 
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
@@ -29,15 +27,7 @@ public class IsContainingAllExpTest implements ExpTest {
     ForLoop loop = ObjectIterator.getLoop(args[0]);
     while (loop.hasNext()) {
       Object matchValue = loop.next();
-      ForLoop varLoop = ObjectIterator.getLoop(var);
-      boolean matches = false;
-      while (varLoop.hasNext()) {
-        if (Objects.equals(matchValue, varLoop.next())) {
-          matches = true;
-          break;
-        }
-      }
-      if (!matches) {
+      if (!(Boolean) COLLECTION_MEMBERSHIP_OPERATOR.apply(TYPE_CONVERTER, matchValue, var)) {
         return false;
       }
     }
