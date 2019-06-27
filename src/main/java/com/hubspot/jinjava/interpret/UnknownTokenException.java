@@ -6,7 +6,7 @@ public class UnknownTokenException extends InterpretException {
   private final String token;
 
   public UnknownTokenException(String token, int lineNumber, int startPosition) {
-    super("Unknown token found: " + token, lineNumber, startPosition);
+    super("Unknown token found: " + token.trim(), lineNumber, startPosition);
     this.token = token;
   }
 

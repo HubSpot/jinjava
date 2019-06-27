@@ -334,8 +334,6 @@ public class JinjavaInterpreter {
         throw new DeferredValueException(variable, lineNumber, startPosition);
       }
       obj = var.resolve(obj);
-    } else  if (getConfig().isFailOnUnknownTokens()) {
-      throw new UnknownTokenException(variable, lineNumber, startPosition);
     }
     return obj;
   }
