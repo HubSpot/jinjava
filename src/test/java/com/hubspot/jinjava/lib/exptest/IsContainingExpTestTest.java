@@ -26,8 +26,8 @@ public class IsContainingExpTestTest {
   }
 
   @Test
-  public void itPassesOnNullContainedValue() {
-    assertThat(jinjava.render(String.format(CONTAINING_TEMPLATE, "[1, 2, null]", "null"), new HashMap<>())).isEqualTo("pass");
+  public void itFailsOnNullContainedValue() {
+    assertThat(jinjava.render(String.format(CONTAINING_TEMPLATE, "[1, 2, null]", "null"), new HashMap<>())).isEqualTo("fail");
   }
 
   @Test
@@ -48,5 +48,10 @@ public class IsContainingExpTestTest {
   @Test
   public void itFailsOnNullSequence() {
     assertThat(jinjava.render(String.format(CONTAINING_TEMPLATE, "null", "2"), new HashMap<>())).isEqualTo("fail");
+  }
+
+  @Test
+  public void itPerformsTypeConversion() {
+    assertThat(jinjava.render(String.format(CONTAINING_TEMPLATE, "[1, 2, 3]", "'2'"), new HashMap<>())).isEqualTo("pass");
   }
 }
