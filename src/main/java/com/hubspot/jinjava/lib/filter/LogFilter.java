@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.Objects;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
 import com.google.common.primitives.Doubles;
@@ -34,7 +35,7 @@ public class LogFilter implements Filter {
     // default to e
     Double root = null;
     if (args.length > 0 && args[0] != null) {
-      Double tryRoot = Doubles.tryParse(args[0].toString());
+      Double tryRoot = Doubles.tryParse(Objects.toString(args[0]));
       if (tryRoot == null) {
         throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, args[0]);
       }

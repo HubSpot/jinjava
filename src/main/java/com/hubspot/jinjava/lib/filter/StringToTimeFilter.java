@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Objects;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -35,7 +37,7 @@ public class StringToTimeFilter implements Filter {
       throw new InvalidInputException(interpreter, this, InvalidReason.STRING);
     }
 
-    return Functions.stringToTime((String) var, args[0].toString());
+    return Functions.stringToTime((String) var, Objects.toString(args[0]));
   }
 
   @Override

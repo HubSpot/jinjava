@@ -48,12 +48,12 @@ public class JoinFilter implements Filter {
 
     String separator = "";
     if (args.length > 0) {
-      separator = args[0].toString();
+      separator = Objects.toString(args[0]);
     }
 
     String attr = null;
     if (args.length > 1) {
-      attr = args[1].toString();
+      attr = Objects.toString(args[1]);
     }
 
     ForLoop loop = ObjectIterator.getLoop(var);

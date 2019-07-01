@@ -25,6 +25,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.ObjectTruthValue;
 
+import java.util.Objects;
+
 @JinjavaDoc(
     value = "If the value is undefined it will return the passed default value, otherwise the value of the variable",
     input = @JinjavaParam(value = "value", desc = "The variable or value to test", required = true),
@@ -53,7 +55,7 @@ public class DefaultFilter implements Filter {
     }
 
     if (args.length > 1) {
-      truthy = BooleanUtils.toBoolean(args[1].toString());
+      truthy = BooleanUtils.toBoolean(Objects.toString(args[1]));
     }
 
     if (truthy) {
@@ -65,7 +67,7 @@ public class DefaultFilter implements Filter {
       return object;
     }
 
-    return (args[0] instanceof PyWrapper) ? args[0] : args[0].toString();
+    return (args[0] instanceof PyWrapper) ? args[0] : Objects.toString(args[0]);
   }
 
   @Override

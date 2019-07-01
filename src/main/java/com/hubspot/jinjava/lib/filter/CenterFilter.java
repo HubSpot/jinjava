@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -38,7 +40,7 @@ public class CenterFilter implements Filter {
 
     int size = 80;
     if (args.length > 0) {
-      size = NumberUtils.toInt(args[0].toString(), 80);
+      size = NumberUtils.toInt(Objects.toString(args[0]), 80);
     }
 
     return StringUtils.center(var.toString(), size);

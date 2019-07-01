@@ -38,7 +38,7 @@ public class FileSizeFormatFilter implements Filter {
 
     boolean binary = false;
     if (args.length > 0) {
-      binary = BooleanUtils.toBoolean(args[0].toString());
+      binary = BooleanUtils.toBoolean(Objects.toString(args[0]));
     }
 
     int base = binary ? 1024 : 1000;

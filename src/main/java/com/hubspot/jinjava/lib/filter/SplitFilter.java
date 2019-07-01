@@ -50,14 +50,14 @@ public class SplitFilter implements Filter {
     Splitter splitter;
 
     if (args.length > 0) {
-      splitter = Splitter.on(args[0].toString());
+      splitter = Splitter.on(Objects.toString(args[0]));
     }
     else {
       splitter = Splitter.on(CharMatcher.whitespace());
     }
 
     if (args.length > 1) {
-      int limit = NumberUtils.toInt(args[1].toString(), 0);
+      int limit = NumberUtils.toInt(Objects.toString(args[1]), 0);
       if (limit > 0) {
         splitter = splitter.limit(limit);
       }

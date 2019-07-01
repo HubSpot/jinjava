@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -43,12 +44,12 @@ public class DictSortFilter implements Filter {
 
     boolean caseSensitive = false;
     if (args.length > 0) {
-      caseSensitive = BooleanUtils.toBoolean(args[0].toString());
+      caseSensitive = BooleanUtils.toBoolean(Objects.toString(args[0]));
     }
 
     boolean sortByKey = true;
     if (args.length > 1) {
-      sortByKey = "value".equalsIgnoreCase(args[1].toString());
+      sortByKey = "value".equalsIgnoreCase(Objects.toString(args[1]));
     }
 
     @SuppressWarnings("unchecked")

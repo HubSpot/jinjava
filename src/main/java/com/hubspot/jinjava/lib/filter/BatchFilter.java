@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -58,7 +59,7 @@ public class BatchFilter implements Filter {
       return Collections.emptyList();
     }
 
-    int lineCount = NumberUtils.toInt(args[0].toString(), 0);
+    int lineCount = NumberUtils.toInt(Objects.toString(args[0]), 0);
     if (lineCount == 0) {
       return Collections.emptyList();
     }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -55,7 +56,7 @@ public class SelectAttrFilter implements AdvancedFilter {
       throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 0);
     }
 
-    String attr = args[0].toString();
+    String attr = Objects.toString(args[0]);
 
     Object[] expArgs = new String[]{};
 
@@ -65,9 +66,9 @@ public class SelectAttrFilter implements AdvancedFilter {
         throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 1);
       }
 
-      expTest = interpreter.getContext().getExpTest(args[1].toString());
+      expTest = interpreter.getContext().getExpTest(Objects.toString(args[1]));
       if (expTest == null) {
-        throw new InvalidArgumentException(interpreter, this, InvalidReason.EXPRESSION_TEST, 1, args[1].toString());
+        throw new InvalidArgumentException(interpreter, this, InvalidReason.EXPRESSION_TEST, 1, Objects.toString(args[1]));
       }
 
       if (args.length > 2) {

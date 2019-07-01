@@ -51,7 +51,7 @@ public class XmlAttrFilter implements Filter {
     }
 
     String space = " ";
-    if (args.length > 0 && !BooleanUtils.toBoolean(args[0].toString())) {
+    if (args.length > 0 && !BooleanUtils.toBoolean(Objects.toString(args[0]))) {
       space = "";
     }
 

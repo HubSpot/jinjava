@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Locale;
+import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -39,7 +40,7 @@ public class IntFilter implements Filter {
 
     Long defaultVal = 0L;
     if (args.length > 0) {
-      defaultVal = NumberUtils.toLong(args[0].toString(), 0);
+      defaultVal = NumberUtils.toLong(Objects.toString(args[0]), 0);
     }
 
     if (var == null) {

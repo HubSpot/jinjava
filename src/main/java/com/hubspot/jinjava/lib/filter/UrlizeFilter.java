@@ -43,19 +43,19 @@ public class UrlizeFilter implements Filter {
 
     int trimUrlLimit = Integer.MAX_VALUE;
     if (args.length > 0) {
-      trimUrlLimit = NumberUtils.toInt(args[0].toString(), Integer.MAX_VALUE);
+      trimUrlLimit = NumberUtils.toInt(Objects.toString(args[0]), Integer.MAX_VALUE);
     }
 
     String fmt = "<a href=\"%s\"";
 
     boolean nofollow = false;
     if (args.length > 1) {
-      nofollow = BooleanUtils.toBoolean(args[1].toString());
+      nofollow = BooleanUtils.toBoolean(Objects.toString(args[1]));
     }
 
     String target = "";
     if (args.length > 2) {
-      target = args[2].toString();
+      target = Objects.toString(args[2]);
     }
 
     if (nofollow) {

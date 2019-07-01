@@ -13,15 +13,14 @@ import com.hubspot.jinjava.lib.fn.Functions;
         @JinjavaSnippet(code = "{% mydatetime|unixtimestamp %}"),
     })
 public class UnixTimestampFilter implements Filter {
+  @Override
+  public String getName() {
+      return "unixtimestamp";
+  }
 
-    @Override
-    public String getName() {
-        return "unixtimestamp";
-    }
-
-    @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
-        return Functions.unixtimestamp(var);
-    }
+  @Override
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return Functions.unixtimestamp(var);
+  }
 
 }

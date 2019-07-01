@@ -5,6 +5,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.Map;
+import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -47,7 +48,7 @@ public class BetweenTimesFilter extends BaseDateFilter {
       throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 1);
     }
 
-    TemporalUnit temporalUnit = getTemporalUnit(interpreter, args[1].toString());
+    TemporalUnit temporalUnit = getTemporalUnit(interpreter, Objects.toString(args[1]));
     return temporalUnit.between(start, end);
   }
 

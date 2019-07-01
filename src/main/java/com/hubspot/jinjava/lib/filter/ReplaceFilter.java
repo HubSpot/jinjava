@@ -9,6 +9,8 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
+import java.util.Objects;
+
 @JinjavaDoc(
     value = "Return a copy of the value with all occurrences of a substring replaced with a new one. " +
         "The first argument is the substring that should be replaced, the second is the replacement " +
@@ -48,12 +50,12 @@ public class ReplaceFilter implements Filter {
     }
 
     String s = (String) var;
-    String toReplace = args[0].toString();
-    String replaceWith = args[1].toString();
+    String toReplace = Objects.toString(args[0]);
+    String replaceWith = Objects.toString(args[1]);
     Integer count = null;
 
     if (args.length > 2) {
-      count = NumberUtils.createInteger(args[2].toString());
+      count = NumberUtils.createInteger(Objects.toString(args[2]));
     }
 
     if (count == null) {

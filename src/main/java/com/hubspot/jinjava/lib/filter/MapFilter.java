@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.filter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -42,7 +43,7 @@ public class MapFilter implements Filter {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (name of filter or attribute to apply to given sequence)");
     }
 
-    String attr = args[0].toString();
+    String attr = Objects.toString(args[0]);
     Filter apply = interpreter.getContext().getFilter(attr);
 
     List<Object> result = new ArrayList<>();

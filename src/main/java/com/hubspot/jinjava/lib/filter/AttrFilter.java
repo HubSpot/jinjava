@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Objects;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -31,7 +33,7 @@ public class AttrFilter implements Filter {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (attribute name to use)");
     }
 
-    return interpreter.resolveProperty(var, args[0].toString());
+    return interpreter.resolveProperty(var, Objects.toString(args[0]));
   }
 
 }

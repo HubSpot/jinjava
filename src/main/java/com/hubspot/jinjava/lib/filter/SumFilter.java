@@ -43,7 +43,7 @@ public class SumFilter implements AdvancedFilter {
 
     if (args.length > 0) {
       try {
-        sum = sum.add(new BigDecimal(args[0].toString()));
+        sum = sum.add(new BigDecimal(Objects.toString(args[0])));
       } catch (NumberFormatException e) {
       }
     }

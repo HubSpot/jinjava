@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.google.common.collect.Iterators;
@@ -46,7 +48,7 @@ public class SliceFilter implements Filter {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (number of slices)");
     }
 
-    int slices = NumberUtils.toInt(args[0].toString(), 3);
+    int slices = NumberUtils.toInt(Objects.toString(args[0]), 3);
     return Iterators.paddedPartition(loop, slices);
   }
 

@@ -11,7 +11,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 
-
 @JinjavaDoc(
     value = "Formats a date object",
     input = @JinjavaParam(value = "value", defaultValue = "current time", desc = "The date variable or UNIX timestamp to format", required = true),
@@ -34,8 +33,8 @@ public class DateTimeFormatFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter,
       Object... args) {
     List<String> stringArgs = new ArrayList<>();
-    for(Object arg: args) {
-      stringArgs.add(arg == null ? null : Objects.toString(arg));
+    for (Object arg : args) {
+      stringArgs.add(Objects.toString(arg));
     }
     String[] filterArgs = new String[stringArgs.size()];
     for (int i = 0; i < stringArgs.size(); i++) {

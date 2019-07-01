@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.filter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -47,12 +48,12 @@ public class RoundFilter implements Filter {
 
     int precision = 0;
     if (args.length > 0) {
-      precision = NumberUtils.toInt(args[0].toString());
+      precision = NumberUtils.toInt(Objects.toString(args[0]));
     }
 
     String method = "common";
     if (args.length > 1) {
-      method = args[1].toString();
+      method = Objects.toString(args[1]);
     }
 
     RoundingMode roundingMode;

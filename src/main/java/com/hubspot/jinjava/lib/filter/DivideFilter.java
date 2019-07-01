@@ -17,6 +17,7 @@ package com.hubspot.jinjava.lib.filter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -46,7 +47,7 @@ public class DivideFilter implements Filter {
     if (arg.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 number (divisor) argument");
     }
-    String toMul = (arg[0] == null) ? null : arg[0].toString();
+    String toMul = (arg[0] == null) ? null : Objects.toString(arg[0]);
     Number num;
     if (toMul != null) {
       try {

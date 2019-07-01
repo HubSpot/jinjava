@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.filter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -45,7 +46,7 @@ public class RejectFilter implements Filter {
       throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 0);
     }
 
-    ExpTest expTest = interpreter.getContext().getExpTest(args[0].toString());
+    ExpTest expTest = interpreter.getContext().getExpTest(Objects.toString(args[0]));
     if (expTest == null) {
       throw new InvalidArgumentException(interpreter, this, InvalidReason.EXPRESSION_TEST, 0, args[0]);
     }

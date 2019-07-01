@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Objects;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -56,14 +57,14 @@ public class SortFilter implements Filter {
       return null;
     }
 
-    boolean reverse = args.length > 0 && BooleanUtils.toBoolean(args[0].toString());
-    boolean caseSensitive = args.length > 1 && BooleanUtils.toBoolean(args[1].toString());
+    boolean reverse = args.length > 0 && BooleanUtils.toBoolean(Objects.toString(args[0]));
+    boolean caseSensitive = args.length > 1 && BooleanUtils.toBoolean(Objects.toString(args[1]));
 
     if (args.length > 2 && args[2] == null) {
       throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 2);
     }
 
-    List<String> attr = args.length > 2 ? DOT_SPLITTER.splitToList(args[2].toString()) : Collections.emptyList();
+    List<String> attr = args.length > 2 ? DOT_SPLITTER.splitToList(Objects.toString(args[2])) : Collections.emptyList();
     return Lists.newArrayList(ObjectIterator.getLoop(var)).stream()
         .sorted(Comparator.comparing((o) -> mapObject(interpreter, o, attr),
             new ObjectComparator(reverse, caseSensitive)))

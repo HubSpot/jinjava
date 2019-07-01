@@ -38,12 +38,12 @@ public class WordWrapFilter implements Filter {
 
     int wrapLength = 79;
     if (args.length > 0) {
-      wrapLength = NumberUtils.toInt(args[0].toString(), 79);
+      wrapLength = NumberUtils.toInt(Objects.toString(args[0]), 79);
     }
 
     boolean wrapLongWords = true;
     if (args.length > 1) {
-      wrapLongWords = BooleanUtils.toBoolean(args[1].toString());
+      wrapLongWords = BooleanUtils.toBoolean(Objects.toString(args[1]));
     }
 
     return WordUtils.wrap(str, wrapLength, "\n", wrapLongWords);

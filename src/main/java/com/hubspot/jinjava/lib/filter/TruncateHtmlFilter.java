@@ -59,7 +59,7 @@ public class TruncateHtmlFilter implements Filter {
 
       boolean killwords = false;
       if (args.length > 2) {
-        killwords = BooleanUtils.toBoolean(args[2].toString());
+        killwords = BooleanUtils.toBoolean(Objects.toString(args[2]));
       }
 
       Document dom = Jsoup.parseBodyFragment((String) var);
