@@ -1,5 +1,13 @@
 # Jinjava Releases #
 
+### 2019-07-11 Version 2.5.2 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.2%7Cjar)) ###
+* [Add type conversion to collection expression tests](https://github.com/HubSpot/jinjava/pull/349)
+* [Change initialization of JinjavaInterpreter to instantiation](https://github.com/HubSpot/jinjava/pull/347)
+* [Resolve Failure on Unknown Incompatible with default filter](https://github.com/HubSpot/jinjava/pull/345)
+* [Add initial support for resolving relative paths](https://github.com/HubSpot/jinjava/pull/343)
+* [Add dummy object for validation mode](https://github.com/HubSpot/jinjava/pull/341)
+* [Implements equals() and hashCode() methods for TemplateError](https://github.com/HubSpot/jinjava/pull/340)
+
 ### 2019-06-07 Version 2.5.1 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.1%7Cjar)) ###
 * [Support more ipaddr filters](https://github.com/HubSpot/jinjava/pull/338)
 * [Upgrade to newer basepom](https://github.com/HubSpot/jinjava/pull/334)
