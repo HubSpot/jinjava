@@ -96,7 +96,7 @@ public class FromTag implements Tag {
         String template = interpreter.getResource(templateFile);
         Node node = interpreter.parse(template);
 
-        JinjavaInterpreter child = new JinjavaInterpreter(interpreter);
+        JinjavaInterpreter child = interpreter.getConfig().getInterpreterFactory().newInstance(interpreter);
         child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
         JinjavaInterpreter.pushCurrent(child);
         try {

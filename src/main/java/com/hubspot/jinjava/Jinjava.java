@@ -194,7 +194,7 @@ public class Jinjava {
       renderConfig = parentInterpreter.getConfig();
     }
 
-    JinjavaInterpreter interpreter = new JinjavaInterpreter(this, context, renderConfig);
+    JinjavaInterpreter interpreter = globalConfig.getInterpreterFactory().newInstance(this, context, renderConfig);
     JinjavaInterpreter.pushCurrent(interpreter);
 
     try {
@@ -224,7 +224,7 @@ public class Jinjava {
    * @return a new interpreter instance
    */
   public JinjavaInterpreter newInterpreter() {
-    return new JinjavaInterpreter(this, this.getGlobalContext(), this.getGlobalConfig());
+    return globalConfig.getInterpreterFactory().newInstance(this, this.getGlobalContext(), this.getGlobalConfig());
   }
 
 }
