@@ -101,7 +101,7 @@ public class ForTag implements Tag {
      * TODO A somewhat more sophisticated tokenizing/parsing of the for-loop expression.
      */
     String helpers = tagNode.getHelpers();
-    String parts[] = helpers.split("\\s+in\\s+");
+    String[] parts = helpers.split("\\s+in\\s+");
     if (parts.length == 2 && !parts[1].contains("'") && !parts[1].contains("\"")) {
       helpers = parts[0] + " in " + parts[1].replace(" ", "");
     }

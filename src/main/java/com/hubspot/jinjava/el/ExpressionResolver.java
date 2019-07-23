@@ -57,8 +57,7 @@ public class ExpressionResolver {
   /**
    * Resolve expression against current context.
    *
-   * @param expression
-   *          Jinja expression.
+   * @param expression Jinja expression.
    * @return Value of expression.
    */
   public Object resolveExpression(String expression) {
@@ -80,34 +79,34 @@ public class ExpressionResolver {
       return result;
 
     } catch (PropertyNotFoundException e) {
-      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, e.getMessage(), "", interpreter.getLineNumber(), interpreter.getPosition(), e,
+      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, e.getMessage(), "", interpreter
+          .getLineNumber(), interpreter.getPosition(), e,
           BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of("exception", e.getMessage())));
     } catch (TreeBuilderException e) {
       int position = interpreter.getPosition() + e.getPosition();
       // replacing the position in the string like this isn't great, but JUEL's parser does not allow passing in a starting position
-      String errorMessage = StringUtils.substringAfter(e.getMessage(), "': ").replaceFirst("position [0-9]+", "position " + position);
-      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression.substring(e.getPosition() - EXPRESSION_START_TOKEN.length()),
+      String errorMessage = StringUtils.substringAfter(e.getMessage(), "': ")
+          .replaceFirst("position [0-9]+", "position " + position);
+      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression.substring(e.getPosition() - EXPRESSION_START_TOKEN
+          .length()),
           "Error parsing '" + expression + "': " + errorMessage, interpreter.getLineNumber(), position, e)));
-    }
-    catch (ELException e) {
+    } catch (ELException e) {
       if (e.getCause() != null && e.getCause() instanceof DeferredValueException) {
         throw (DeferredValueException) e.getCause();
       }
       if (e.getCause() != null && e.getCause() instanceof TemplateSyntaxException) {
         interpreter.addError(TemplateError.fromException((TemplateSyntaxException) e.getCause()));
-      }
-      else if (e.getCause() != null && e.getCause() instanceof InvalidInputException) {
+      } else if (e.getCause() != null && e.getCause() instanceof InvalidInputException) {
         interpreter.addError(TemplateError.fromInvalidInputException((InvalidInputException) e.getCause()));
-      }
-      else if (e.getCause() != null && e.getCause() instanceof InvalidArgumentException) {
+      } else if (e.getCause() != null && e.getCause() instanceof InvalidArgumentException) {
         interpreter.addError(TemplateError.fromInvalidArgumentException((InvalidArgumentException) e.getCause()));
+      } else {
+        interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter
+            .getLineNumber(), e)));
       }
-      else {
-        interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
-      }
-    }
-    catch (DisabledException e) {
-      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter.getLineNumber(), interpreter.getPosition(), e));
+    } catch (DisabledException e) {
+      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter
+          .getLineNumber(), interpreter.getPosition(), e));
     } catch (UnknownTokenException e) {
       // Re-throw the exception because you only get this when the config failOnUnknownTokens is enabled.
       throw e;
@@ -120,7 +119,8 @@ public class ExpressionResolver {
       interpreter.addError(TemplateError.fromInvalidArgumentException(e));
     } catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(
-          String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression), e, interpreter.getLineNumber(), interpreter.getPosition())));
+          String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression), e, interpreter.getLineNumber(), interpreter
+          .getPosition())));
     }
 
     return null;
@@ -135,10 +135,8 @@ public class ExpressionResolver {
   /**
    * Resolve property of bean.
    *
-   * @param object
-   *          Bean.
-   * @param propertyNames
-   *          Names of properties to resolve recursively.
+   * @param object        Bean.
+   * @param propertyNames Names of properties to resolve recursively.
    * @return Value of property.
    */
   public Object resolveProperty(Object object, List<String> propertyNames) {
@@ -159,8 +157,7 @@ public class ExpressionResolver {
   /**
    * Wrap an object in it's PyIsh equivalent
    *
-   * @param object
-   *          Bean.
+   * @param object Bean.
    * @return Wrapped bean.
    */
   public Object wrap(Object object) {

@@ -100,9 +100,9 @@ public class IpAddrFilter implements Filter {
         return getSubnetUtils(interpreter, fullAddress).getInfo().getNetmask();
       case BROADCAST_STRING:
         return getSubnetUtils(interpreter, fullAddress).getInfo().getBroadcastAddress();
+      default:
+        throw new InvalidArgumentException(interpreter, this, InvalidReason.ENUM, 1, function, AVAILABLE_FUNCTIONS);
     }
-
-    throw new InvalidArgumentException(interpreter, this, InvalidReason.ENUM, 1, function, AVAILABLE_FUNCTIONS);
   }
 
   private SubnetUtils getSubnetUtils(JinjavaInterpreter interpreter, String address) {

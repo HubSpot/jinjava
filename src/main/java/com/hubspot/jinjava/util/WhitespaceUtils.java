@@ -12,8 +12,7 @@ public final class WhitespaceUtils {
     for (int i = 0; i < s.length(); i++) {
       if (Character.isWhitespace(s.charAt(i))) {
         continue;
-      }
-      else {
+      } else {
         return s.regionMatches(i, prefix, 0, prefix.length());
       }
     }
@@ -29,8 +28,7 @@ public final class WhitespaceUtils {
     for (int i = s.length() - 1; i >= 0; i--) {
       if (Character.isWhitespace(s.charAt(i))) {
         continue;
-      }
-      else {
+      } else {
         return s.regionMatches(i - suffix.length() + 1, suffix, 0, suffix.length());
       }
     }
@@ -48,8 +46,7 @@ public final class WhitespaceUtils {
         throw new InterpretException("Unbalanced quotes: " + s);
       }
       return true;
-    }
-    else if (startsWith(s, "\"")) {
+    } else if (startsWith(s, "\"")) {
       if (!endsWith(s, "\"")) {
         throw new InterpretException("Unbalanced quotes: " + s);
       }
@@ -64,8 +61,7 @@ public final class WhitespaceUtils {
     }
     if (startsWith(s, "'")) {
       return unwrap(s, "'", "'");
-    }
-    else if (startsWith(s, "\"")) {
+    } else if (startsWith(s, "\"")) {
       return unwrap(s, "\"", "\"");
     }
     return s.trim();

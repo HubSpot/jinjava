@@ -88,8 +88,7 @@ public class JinjavaListELResolver extends ListELResolver {
   public void setValue(ELContext context, Object base, Object property, Object value) {
     try {
       super.setValue(context, base, property, value);
-    } catch (IllegalArgumentException e) {
-      /* */ }
+    } catch (IllegalArgumentException ignored) {
+    }
   }
-
 }

@@ -58,8 +58,7 @@ public class ReplaceFilter implements Filter {
 
     if (count == null) {
       return StringUtils.replace(s, toReplace, replaceWith);
-    }
-    else {
+    } else {
       return StringUtils.replace(s, toReplace, replaceWith, count);
     }
   }

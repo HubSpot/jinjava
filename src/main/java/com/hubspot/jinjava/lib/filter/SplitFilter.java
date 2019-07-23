@@ -51,8 +51,7 @@ public class SplitFilter implements Filter {
 
     if (args.length > 0) {
       splitter = Splitter.on(args[0]);
-    }
-    else {
+    } else {
       splitter = Splitter.on(CharMatcher.whitespace());
     }
 

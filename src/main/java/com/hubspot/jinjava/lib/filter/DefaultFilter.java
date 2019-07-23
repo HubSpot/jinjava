@@ -57,8 +57,7 @@ public class DefaultFilter implements Filter {
       if (ObjectTruthValue.evaluate(object)) {
         return object;
       }
-    }
-    else if (object != null) {
+    } else if (object != null) {
       return object;
     }
 

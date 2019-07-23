@@ -23,6 +23,8 @@ import com.hubspot.jinjava.lib.tag.Tag;
 public class JinjavaDocFactory {
   private static final Logger LOG = LoggerFactory.getLogger(JinjavaDocFactory.class);
 
+  private static final Class JINJAVA_DOC_CLASS = com.hubspot.jinjava.doc.annotations.JinjavaDoc.class;
+
   private final Jinjava jinjava;
 
   public JinjavaDocFactory(Jinjava jinjava) {
@@ -42,20 +44,20 @@ public class JinjavaDocFactory {
 
   private void addExpTests(JinjavaDoc doc) {
     for (ExpTest t : jinjava.getGlobalContext().getAllExpTests()) {
-      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = t.getClass().getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
+      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = t.getClass()
+          .getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
 
       if (docAnnotation == null) {
-        LOG.warn("Expression Test {} doesn't have a @{} annotation", t.getName(), com.hubspot.jinjava.doc.annotations.JinjavaDoc.class.getName());
+        LOG.warn("Expression Test {} doesn't have a @{} annotation", t.getName(), JINJAVA_DOC_CLASS.getName());
         doc.addExpTest(new JinjavaDocExpTest(t.getName(),
             "",
             "",
             false,
-            new JinjavaDocParam[] {},
-            new JinjavaDocParam[] {},
-            new JinjavaDocSnippet[] {},
+            new JinjavaDocParam[]{},
+            new JinjavaDocParam[]{},
+            new JinjavaDocSnippet[]{},
             Collections.emptyMap()));
-      }
-      else if (!docAnnotation.hidden()) {
+      } else if (!docAnnotation.hidden()) {
         doc.addExpTest(new JinjavaDocExpTest(t.getName(),
             docAnnotation.value(),
             docAnnotation.aliasOf(),
@@ -70,20 +72,20 @@ public class JinjavaDocFactory {
 
   private void addFilterDocs(JinjavaDoc doc) {
     for (Filter f : jinjava.getGlobalContext().getAllFilters()) {
-      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = f.getClass().getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
+      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = f.getClass()
+          .getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
 
       if (docAnnotation == null) {
-        LOG.warn("Filter {} doesn't have a @{} annotation", f.getClass(), com.hubspot.jinjava.doc.annotations.JinjavaDoc.class.getName());
+        LOG.warn("Filter {} doesn't have a @{} annotation", f.getClass(), JINJAVA_DOC_CLASS.getName());
         doc.addFilter(new JinjavaDocFilter(f.getName(),
             "",
             "",
             false,
-            new JinjavaDocParam[] {},
-            new JinjavaDocParam[] {},
-            new JinjavaDocSnippet[] {},
+            new JinjavaDocParam[]{},
+            new JinjavaDocParam[]{},
+            new JinjavaDocSnippet[]{},
             Collections.emptyMap()));
-      }
-      else if (!docAnnotation.hidden()) {
+      } else if (!docAnnotation.hidden()) {
         doc.addFilter(new JinjavaDocFilter(f.getName(),
             docAnnotation.value(),
             docAnnotation.aliasOf(),
@@ -111,17 +113,16 @@ public class JinjavaDocFactory {
         com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = realMethod.getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
 
         if (docAnnotation == null) {
-          LOG.warn("Function {} doesn't have a @{} annotation", fn.getName(), com.hubspot.jinjava.doc.annotations.JinjavaDoc.class.getName());
+          LOG.warn("Function {} doesn't have a @{} annotation", fn.getName(), JINJAVA_DOC_CLASS.getName());
           doc.addFunction(new JinjavaDocFunction(fn.getLocalName(),
               "",
               "",
               false,
-              new JinjavaDocParam[] {},
-              new JinjavaDocParam[] {},
-              new JinjavaDocSnippet[] {},
+              new JinjavaDocParam[]{},
+              new JinjavaDocParam[]{},
+              new JinjavaDocSnippet[]{},
               Collections.emptyMap()));
-        }
-        else if (!docAnnotation.hidden()) {
+        } else if (!docAnnotation.hidden()) {
           doc.addFunction(new JinjavaDocFunction(fn.getLocalName(),
               docAnnotation.value(),
               docAnnotation.aliasOf(),
@@ -140,21 +141,21 @@ public class JinjavaDocFactory {
       if (t instanceof EndTag) {
         continue;
       }
-      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = t.getClass().getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
+      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = t.getClass()
+          .getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
 
       if (docAnnotation == null) {
-        LOG.warn("Tag {} doesn't have a @{} annotation", t.getName(), com.hubspot.jinjava.doc.annotations.JinjavaDoc.class.getName());
+        LOG.warn("Tag {} doesn't have a @{} annotation", t.getName(), JINJAVA_DOC_CLASS.getName());
         doc.addTag(new JinjavaDocTag(t.getName(),
             StringUtils.isBlank(t.getEndTagName()),
             "",
             "",
             false,
-            new JinjavaDocParam[] {},
-            new JinjavaDocParam[] {},
-            new JinjavaDocSnippet[] {},
+            new JinjavaDocParam[]{},
+            new JinjavaDocParam[]{},
+            new JinjavaDocSnippet[]{},
             Collections.emptyMap()));
-      }
-      else if (!docAnnotation.hidden()) {
+      } else if (!docAnnotation.hidden()) {
         doc.addTag(new JinjavaDocTag(t.getName(),
             StringUtils.isBlank(t.getEndTagName()),
             docAnnotation.value(),

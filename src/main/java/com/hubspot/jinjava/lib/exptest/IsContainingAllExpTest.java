@@ -9,8 +9,8 @@ import com.hubspot.jinjava.util.ObjectIterator;
 
 @JinjavaDoc(
     value = "Returns true if a list contains all values in a second list",
-    input = @JinjavaParam(value = "list", type="list", required = true),
-    params = @JinjavaParam(value = "list_two", type="list", desc = "The second list to check if every element is in the first list", required = true),
+    input = @JinjavaParam(value = "list", type = "list", required = true),
+    params = @JinjavaParam(value = "list_two", type = "list", desc = "The second list to check if every element is in the first list", required = true),
     snippets = {
         @JinjavaSnippet(
             code = "{{ [1, 2, 3] is containingall [2, 3] }}")

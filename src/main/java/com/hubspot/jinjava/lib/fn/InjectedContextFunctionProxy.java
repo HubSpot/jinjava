@@ -16,8 +16,7 @@ import javassist.bytecode.AccessFlag;
 
 public class InjectedContextFunctionProxy {
 
-  public static ELFunctionDefinition defineProxy(String namespace, String name, Method m, Object injectedInstance)
-  {
+  public static ELFunctionDefinition defineProxy(String namespace, String name, Method m, Object injectedInstance) {
     try {
       ClassPool pool = ClassPool.getDefault();
 

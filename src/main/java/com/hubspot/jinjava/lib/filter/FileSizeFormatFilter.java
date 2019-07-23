@@ -62,6 +62,6 @@ public class FileSizeFormatFilter implements Filter {
     return String.format("%.1f %s", (base * bytes / unit), prefix);
   }
 
-  private static final String[] BINARY_SIZES = { "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
-  private static final String[] DECIMAL_SIZES = { "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
+  private static final String[] BINARY_SIZES = {"KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"};
+  private static final String[] DECIMAL_SIZES = {"KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
 }

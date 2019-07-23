@@ -81,8 +81,7 @@ public class DictSortFilter implements Filter {
 
       if (!caseSensitive && sVal1 instanceof String && sVal2 instanceof String) {
         result = ((String) sVal1).compareToIgnoreCase((String) sVal2);
-      }
-      else if (Comparable.class.isAssignableFrom(sVal1.getClass()) && Comparable.class.isAssignableFrom(sVal2.getClass())) {
+      } else if (Comparable.class.isAssignableFrom(sVal1.getClass()) && Comparable.class.isAssignableFrom(sVal2.getClass())) {
         result = ((Comparable<Object>) sVal1).compareTo(sVal2);
       }
 

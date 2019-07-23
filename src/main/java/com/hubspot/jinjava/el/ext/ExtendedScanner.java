@@ -102,6 +102,8 @@ public class ExtendedScanner extends Scanner {
             return fixed(Symbol.START_EVAL_DEFERRED);
           case '$':
             return fixed(Symbol.START_EVAL_DYNAMIC);
+          default:
+            return nextText();
         }
       }
       return nextText();

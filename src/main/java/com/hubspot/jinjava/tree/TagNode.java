@@ -61,7 +61,7 @@ public class TagNode extends Node {
     } catch (DeferredValueException e) {
       interpreter.getContext().addDeferredNode(this);
       return new RenderedOutputNode(reconstructImage());
-    } catch (InterpretException|InvalidInputException| InvalidArgumentException e) {
+    } catch (InterpretException | InvalidInputException | InvalidArgumentException e) {
       throw e;
     } catch (Exception e) {
       throw new InterpretException("Error rendering tag", e, master.getLineNumber(), master.getStartPosition());

@@ -34,7 +34,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     })
 public class Md5Filter implements Filter {
 
-  private static final String[] NOSTR = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f" };
+  private static final String[] NOSTR = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"};
   private static final String MD5 = "MD5";
 
   private String byteToArrayString(byte bByte) {

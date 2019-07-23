@@ -107,8 +107,7 @@ public class SortFilter implements Filter {
 
       if (o1 instanceof String && !caseSensitive) {
         result = ((String) o1).compareToIgnoreCase((String) o2);
-      }
-      else if (Comparable.class.isAssignableFrom(o1.getClass()) && Comparable.class.isAssignableFrom(o2.getClass())) {
+      } else if (Comparable.class.isAssignableFrom(o1.getClass()) && Comparable.class.isAssignableFrom(o2.getClass())) {
         result = ((Comparable<Object>) o1).compareTo(o2);
       }
 

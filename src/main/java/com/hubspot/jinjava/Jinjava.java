@@ -209,8 +209,7 @@ public class Jinjava {
       return new RenderResult(TemplateError.fromInvalidArgumentException(e), interpreter.getContext(), interpreter.getErrorsCopy());
     } catch (InvalidInputException e) {
       return new RenderResult(TemplateError.fromInvalidInputException(e), interpreter.getContext(), interpreter.getErrorsCopy());
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       return new RenderResult(TemplateError.fromException(e), interpreter.getContext(), interpreter.getErrorsCopy());
     } finally {
       globalContext.reset();

@@ -73,7 +73,7 @@ public abstract class Node implements Serializable {
     this.children = children;
   }
 
-  public String reconstructImage(){
+  public String reconstructImage() {
     return master.getImage();
   }
 

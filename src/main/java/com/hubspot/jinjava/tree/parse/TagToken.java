@@ -63,8 +63,7 @@ public class TagToken extends Token {
       char c = content.charAt(pos);
       if (nameStart == -1 && Character.isJavaIdentifierStart(c)) {
         nameStart = pos;
-      }
-      else if (nameStart != -1 && !Character.isJavaIdentifierPart(c)) {
+      } else if (nameStart != -1 && !Character.isJavaIdentifierPart(c)) {
         break;
       }
     }

@@ -15,11 +15,11 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.Importable;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.Importable;
 
 public interface AdvancedFilter extends Importable, Filter {
 
