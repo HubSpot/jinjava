@@ -194,7 +194,8 @@ public class JinjavaConfig {
     private long maxStringLength = 0;
     private InterpreterFactory interpreterFactory = new JinjavaInterpreterFactory();
 
-    private Builder() {}
+    private Builder() {
+    }
 
     public Builder withCharset(Charset charset) {
       this.charset = charset;

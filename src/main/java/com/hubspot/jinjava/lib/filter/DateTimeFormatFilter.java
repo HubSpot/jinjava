@@ -31,8 +31,7 @@ public class DateTimeFormatFilter implements Filter {
 
     if (args.length > 0) {
       return Functions.dateTimeFormat(var, args);
-    }
-    else {
+    } else {
       return Functions.dateTimeFormat(var);
     }
   }

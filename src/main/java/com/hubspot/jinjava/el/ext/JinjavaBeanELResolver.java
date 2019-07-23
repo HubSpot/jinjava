@@ -32,7 +32,8 @@ public class JinjavaBeanELResolver extends BeanELResolver {
   /**
    * Creates a new read/write {@link JinjavaBeanELResolver}.
    */
-  public JinjavaBeanELResolver() {}
+  public JinjavaBeanELResolver() {
+  }
 
   /**
    * Creates a new {@link JinjavaBeanELResolver} whose read-only status is determined by the given parameter.

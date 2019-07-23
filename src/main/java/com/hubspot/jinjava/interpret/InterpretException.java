@@ -31,7 +31,7 @@ public class InterpretException extends RuntimeException {
   }
 
   public InterpretException(String msg, int lineNumber) {
-    this(msg,lineNumber, -1);
+    this(msg, lineNumber, -1);
   }
 
   public InterpretException(String msg, int lineNumber, int startPosition) {

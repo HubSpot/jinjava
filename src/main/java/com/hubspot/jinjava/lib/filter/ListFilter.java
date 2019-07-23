@@ -34,13 +34,9 @@ public class ListFilter implements Filter {
 
     if (var instanceof String) {
       result = Chars.asList(((String) var).toCharArray());
-    }
-
-    else if (Collection.class.isAssignableFrom(var.getClass())) {
+    } else if (Collection.class.isAssignableFrom(var.getClass())) {
       result = Lists.newArrayList((Collection<?>) var);
-    }
-
-    else {
+    } else {
       result = Lists.newArrayList(var);
     }
 

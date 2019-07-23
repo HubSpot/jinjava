@@ -180,9 +180,9 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
             // floating-point index doesn't change (e.g. -1.5 stays -1.5, it
             // doesn't become -1).
             if (base.getClass().isArray() && ((property instanceof Integer) || (property instanceof Long))) {
-               int propertyNum = ((Number)property).intValue();
+               int propertyNum = ((Number) property).intValue();
                if (propertyNum < 0) {
-                  propertyNum += ((Object[])base).length;
+                  propertyNum += ((Object[]) base).length;
                   propertyName = String.valueOf(propertyNum);
                }
             }

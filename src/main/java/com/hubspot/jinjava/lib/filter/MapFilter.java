@@ -50,8 +50,7 @@ public class MapFilter implements Filter {
       Object val = loop.next();
       if (apply != null) {
         val = apply.filter(val, interpreter);
-      }
-      else {
+      } else {
         val = interpreter.resolveProperty(val, attr);
       }
 

@@ -91,129 +91,127 @@ public class TokenScanner extends AbstractIterator<Token> {
       }
 
       switch (c) {
-      case TOKEN_PREFIX:
-        if (currPost < length) {
-          c = is[currPost];
-          switch (c) {
-          case TOKEN_NOTE:
-            if (inComment == 1 || inRaw == 1) {
-              continue;
-            }
-            inComment = 1;
+        case TOKEN_PREFIX:
+          if (currPost < length) {
+            c = is[currPost];
+            switch (c) {
+              case TOKEN_NOTE:
+                if (inComment == 1 || inRaw == 1) {
+                  continue;
+                }
+                inComment = 1;
 
-            tokenLength = currPost - tokenStart - 1;
-            if (tokenLength > 0) {
-              // start a new token
-              lastStart = tokenStart;
-              tokenStart = --currPost;
-              tokenKind = c;
+                tokenLength = currPost - tokenStart - 1;
+                if (tokenLength > 0) {
+                  // start a new token
+                  lastStart = tokenStart;
+                  tokenStart = --currPost;
+                  tokenKind = c;
+                  inComment = 0;
+                  return newToken(TOKEN_FIXED);
+                } else {
+                  tokenKind = c;
+                }
+                break;
+              case TOKEN_TAG:
+              case TOKEN_EXPR_START:
+                if (inComment > 0) {
+                  continue;
+                }
+                if (inRaw > 0 && (c == TOKEN_EXPR_START || !isEndRaw())) {
+                  continue;
+                }
+                // match token two ends
+                if (!matchToken(c) && tokenKind > 0) {
+                  continue;
+                }
+                if (inBlock++ > 0) {
+                  continue;
+                }
+
+                tokenLength = currPost - tokenStart - 1;
+                if (tokenLength > 0) {
+                  // start a new token
+                  lastStart = tokenStart;
+                  tokenStart = --currPost;
+                  tokenKind = c;
+                  return newToken(TOKEN_FIXED);
+                } else {
+                  tokenKind = c;
+                }
+                break;
+              default:
+                break;
+            }
+          } else { // reach the stream end
+            return getEndToken();
+          }
+          break;
+
+        // maybe current token is closing
+        case TOKEN_TAG:
+        case TOKEN_EXPR_END:
+          if (inComment > 0) {
+            continue;
+          }
+          if (!matchToken(c)) {
+            continue;
+          }
+          if (currPost < length) {
+            c = is[currPost];
+            if (c == TOKEN_POSTFIX) {
+              inBlock = 0;
+
+              tokenLength = currPost - tokenStart + 1;
+              if (tokenLength > 0) {
+                // start a new token
+                lastStart = tokenStart;
+                tokenStart = ++currPost;
+                int kind = tokenKind;
+                tokenKind = TOKEN_FIXED;
+                return newToken(kind);
+              }
+            }
+          } else {
+            return getEndToken();
+          }
+          break;
+        case TOKEN_NOTE:
+          if (!matchToken(c)) {
+            continue;
+          }
+          if (currPost < length) {
+            c = is[currPost];
+            if (c == TOKEN_POSTFIX) {
               inComment = 0;
-              return newToken(TOKEN_FIXED);
-            } else {
-              tokenKind = c;
-            }
-            break;
-          case TOKEN_TAG:
-          case TOKEN_EXPR_START:
-            if (inComment > 0) {
-              continue;
-            }
-            if (inRaw > 0 && (c == TOKEN_EXPR_START || !isEndRaw())) {
-              continue;
-            }
-            // match token two ends
-            if (!matchToken(c) && tokenKind > 0) {
-              continue;
-            }
-            if (inBlock++ > 0) {
-              continue;
-            }
 
-            tokenLength = currPost - tokenStart - 1;
-            if (tokenLength > 0) {
-              // start a new token
-              lastStart = tokenStart;
-              tokenStart = --currPost;
-              tokenKind = c;
-              return newToken(TOKEN_FIXED);
-            } else {
-              tokenKind = c;
+              tokenLength = currPost - tokenStart + 1;
+              if (tokenLength > 0) {
+                // start a new token
+                lastStart = tokenStart;
+                tokenStart = ++currPost;
+                tokenKind = TOKEN_FIXED;
+                return newToken(TOKEN_NOTE);
+              }
             }
-            break;
-          default:
-            break;
+          } else {
+            return getEndToken();
           }
-        }
-        // reach the stream end
-        else {
-          return getEndToken();
-        }
-        break;
+          break;
+        case TOKEN_NEWLINE:
+          currLine++;
+          lastNewlinePos = currPost;
 
-      // maybe current token is closing
-      case TOKEN_TAG:
-      case TOKEN_EXPR_END:
-        if (inComment > 0) {
-          continue;
-        }
-        if (!matchToken(c)) {
-          continue;
-        }
-        if (currPost < length) {
-          c = is[currPost];
-          if (c == TOKEN_POSTFIX) {
-            inBlock = 0;
-
-            tokenLength = currPost - tokenStart + 1;
-            if (tokenLength > 0) {
-              // start a new token
-              lastStart = tokenStart;
-              tokenStart = ++currPost;
-              int kind = tokenKind;
-              tokenKind = TOKEN_FIXED;
-              return newToken(kind);
-            }
+          if (inComment > 0 || inBlock > 0) {
+            continue;
           }
-        } else {
-          return getEndToken();
-        }
-        break;
-      case TOKEN_NOTE:
-        if (!matchToken(c)) {
-          continue;
-        }
-        if (currPost < length) {
-          c = is[currPost];
-          if (c == TOKEN_POSTFIX) {
-            inComment = 0;
 
-            tokenLength = currPost - tokenStart + 1;
-            if (tokenLength > 0) {
-              // start a new token
-              lastStart = tokenStart;
-              tokenStart = ++currPost;
-              tokenKind = TOKEN_FIXED;
-              return newToken(TOKEN_NOTE);
-            }
-          }
-        } else {
-          return getEndToken();
-        }
-        break;
-      case TOKEN_NEWLINE:
-        currLine++;
-        lastNewlinePos = currPost;
-
-        if (inComment > 0 || inBlock > 0) {
-          continue;
-        }
-
-        tokenKind = TOKEN_FIXED;
-        break;
-      default:
-        if (tokenKind == -1) {
           tokenKind = TOKEN_FIXED;
-        }
+          break;
+        default:
+          if (tokenKind == -1) {
+            tokenKind = TOKEN_FIXED;
+          }
       }
     }
     return null;

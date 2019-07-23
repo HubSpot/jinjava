@@ -21,14 +21,12 @@ public class AdditionOperator extends AstBinary.SimpleOperator {
 
       if (o2 instanceof Collection) {
         result.addAll((Collection<Object>) o2);
-      }
-      else {
+      } else {
         result.add(o2);
       }
 
       return result;
-    }
-    else if (o1 instanceof Map && o2 instanceof Map) {
+    } else if (o1 instanceof Map && o2 instanceof Map) {
       Map<Object, Object> result = new HashMap<>((Map<Object, Object>) o1);
       result.putAll((Map<Object, Object>) o2);
 

@@ -46,8 +46,7 @@ public class PrettyPrintFilter implements Filter {
 
     if (var instanceof String || var instanceof Number || var instanceof PyishDate || var instanceof Iterable || var instanceof Map) {
       varStr = Objects.toString(var);
-    }
-    else {
+    } else {
       varStr = objPropsToString(var);
     }
 

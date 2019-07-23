@@ -15,7 +15,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
     value = "Converts URLs in plain text into clickable links.",
-    input = @JinjavaParam(value = "value", type="string", desc = "string URL to convert to an anchor", required = true),
+    input = @JinjavaParam(value = "value", type = "string", desc = "string URL to convert to an anchor", required = true),
     params = {
         @JinjavaParam(value = "trim_url_limit", type = "number", desc = "Sets a character limit"),
         @JinjavaParam(value = "nofollow", type = "boolean", defaultValue = "False", desc = "Adds nofollow to generated link tag"),

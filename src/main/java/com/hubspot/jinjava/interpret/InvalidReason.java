@@ -13,8 +13,7 @@ public enum InvalidReason {
   NULL_IN_LIST("of type 'list' cannot contain a null item"),
   NULL_ATTRIBUTE_IN_LIST("with value '%s' must be a valid attribute of every item in the list"),
   ENUM("with value '%s' must be one of: %s"),
-  CIDR("with value '%s' must be a valid CIDR address")
-  ;
+  CIDR("with value '%s' must be a valid CIDR address");
 
   private final String errorMessage;
 

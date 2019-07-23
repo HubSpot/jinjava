@@ -62,8 +62,7 @@ public class SumFilter implements AdvancedFilter {
       try {
         if (Number.class.isAssignableFrom(val.getClass())) {
           addend = new BigDecimal(((Number) val).doubleValue());
-        }
-        else {
+        } else {
           addend = new BigDecimal(Objects.toString(val, "0"));
         }
       } catch (NumberFormatException e) {
