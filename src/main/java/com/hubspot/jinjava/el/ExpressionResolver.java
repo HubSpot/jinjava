@@ -94,8 +94,7 @@ public class ExpressionResolver {
     } catch (TreeBuilderException e) {
       int position = interpreter.getPosition() + e.getPosition();
       // replacing the position in the string like this isn't great, but JUEL's parser does not allow passing in a starting position
-      String errorMessage = StringUtils.substringAfter(e.getMessage(), "': ")
-          .replaceFirst("position [0-9]+", "position " + position);
+      String errorMessage = StringUtils.substringAfter(e.getMessage(), "': ").replaceFirst("position [0-9]+", "position " + position);
       interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(
           expression.substring(e.getPosition() - EXPRESSION_START_TOKEN.length()),
           "Error parsing '" + expression + "': " + errorMessage,
@@ -130,8 +129,11 @@ public class ExpressionResolver {
       interpreter.addError(TemplateError.fromInvalidArgumentException(e));
     } catch (Exception e) {
       interpreter.addError(TemplateError.fromException(new InterpretException(
-          String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression), e, interpreter.getLineNumber(), interpreter
-          .getPosition())));
+          String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression),
+          e,
+          interpreter.getLineNumber(),
+          interpreter.getPosition()
+      )));
     }
 
     return null;
