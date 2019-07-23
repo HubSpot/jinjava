@@ -3,6 +3,9 @@ language: java
 jdk:
   - oraclejdk8
 
+# https://travis-ci.community/t/error-installing-oraclejdk8-expected-feature-release-number-in-range-of-9-to-14-but-got-8/3766
+dist: trusty
+
 cache:
   directories:
     - $HOME/.m2
@@ -18,5 +21,6 @@ notifications:
 before_install:
   - pip install --user codecov
 after_success:
+  - mvn validate -e
   - codecov
 
