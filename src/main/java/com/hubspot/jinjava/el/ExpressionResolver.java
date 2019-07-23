@@ -79,17 +79,30 @@ public class ExpressionResolver {
       return result;
 
     } catch (PropertyNotFoundException e) {
-      interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.UNKNOWN, ErrorItem.PROPERTY, e.getMessage(), "", interpreter
-          .getLineNumber(), interpreter.getPosition(), e,
-          BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of("exception", e.getMessage())));
+      interpreter.addError(new TemplateError(
+          ErrorType.WARNING,
+          ErrorReason.UNKNOWN,
+          ErrorItem.PROPERTY,
+          e.getMessage(),
+          "",
+          interpreter.getLineNumber(),
+          interpreter.getPosition(),
+          e,
+          BasicTemplateErrorCategory.UNKNOWN,
+          ImmutableMap.of("exception", e.getMessage())
+      ));
     } catch (TreeBuilderException e) {
       int position = interpreter.getPosition() + e.getPosition();
       // replacing the position in the string like this isn't great, but JUEL's parser does not allow passing in a starting position
       String errorMessage = StringUtils.substringAfter(e.getMessage(), "': ")
           .replaceFirst("position [0-9]+", "position " + position);
-      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression.substring(e.getPosition() - EXPRESSION_START_TOKEN
-          .length()),
-          "Error parsing '" + expression + "': " + errorMessage, interpreter.getLineNumber(), position, e)));
+      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(
+          expression.substring(e.getPosition() - EXPRESSION_START_TOKEN.length()),
+          "Error parsing '" + expression + "': " + errorMessage,
+          interpreter.getLineNumber(),
+          position,
+          e
+      )));
     } catch (ELException e) {
       if (e.getCause() != null && e.getCause() instanceof DeferredValueException) {
         throw (DeferredValueException) e.getCause();
@@ -101,12 +114,10 @@ public class ExpressionResolver {
       } else if (e.getCause() != null && e.getCause() instanceof InvalidArgumentException) {
         interpreter.addError(TemplateError.fromInvalidArgumentException((InvalidArgumentException) e.getCause()));
       } else {
-        interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter
-            .getLineNumber(), e)));
+        interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
       }
     } catch (DisabledException e) {
-      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter
-          .getLineNumber(), interpreter.getPosition(), e));
+      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter.getLineNumber(), interpreter.getPosition(), e));
     } catch (UnknownTokenException e) {
       // Re-throw the exception because you only get this when the config failOnUnknownTokens is enabled.
       throw e;
