@@ -55,6 +55,13 @@ public class MapFilterTest {
         .hasMessageContaining("'attribute' argument cannot be null");
   }
 
+  @Test
+  public void itAddsErrorIfNoArgumentsAreProvided() {
+    assertThatThrownBy(() -> jinjava.render("{{ titles|map()|join(' ') }}",
+        ImmutableMap.of("titles", (Object) Lists.newArrayList(new TestClass(12345)))))
+        .hasMessageContaining("requires 1 argument");
+  }
+
   public class TestClass {
 
     private final long date;
