@@ -43,7 +43,9 @@ public class MapFilter implements AdvancedFilter {
     ForLoop loop = ObjectIterator.getLoop(var);
 
     if (args.length < 1 && kwargs.size() < 1) {
-      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (name of filter or attribute to apply to given sequence)");
+      throw new TemplateSyntaxException(interpreter,
+          getName(),
+          "requires 1 argument (name of filter or attribute to apply to given sequence)");
     }
 
     String attr;
