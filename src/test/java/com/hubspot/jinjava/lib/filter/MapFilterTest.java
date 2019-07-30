@@ -42,6 +42,13 @@ public class MapFilterTest {
   }
 
   @Test
+  public void itMapsFirstArgumentToFilterIfFilterExists() {
+    assertThatThrownBy(() -> jinjava.render("{{ titles|map('date')|join(' ') }}",
+        ImmutableMap.of("titles", (Object) Lists.newArrayList(new TestClass(12345)))))
+        .hasMessageContaining("Input to function must be a date object");
+  }
+
+  @Test
   public void itAddsErrorIfFirstArgumentIsNull() {
     assertThatThrownBy(() -> jinjava.render("{{ titles|map(null)|join(' ') }}",
         ImmutableMap.of("titles", (Object) Lists.newArrayList(new TestClass(12345)))))
