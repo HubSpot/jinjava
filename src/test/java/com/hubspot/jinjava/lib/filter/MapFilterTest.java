@@ -35,6 +35,13 @@ public class MapFilterTest {
   }
 
   @Test
+  public void itPassesAdditionalArgumentsIntoFilter() {
+    assertThat(jinjava.render("{{ titles|map('truncate', 5, true, '')|join(', ') }}",
+        ImmutableMap.of("titles", (Object) Lists.newArrayList("Happy Day", "FOOBAR", "barfoo"))))
+        .isEqualTo("Happy, FOOBA, barfo");
+  }
+
+  @Test
   public void itUsesAttributeIfAttributeNameClashesWithFilter() {
     assertThat(jinjava.render("{{ titles|map(attribute='date')|join(' ') }}",
         ImmutableMap.of("titles", (Object) Lists.newArrayList(new TestClass(12345)))))

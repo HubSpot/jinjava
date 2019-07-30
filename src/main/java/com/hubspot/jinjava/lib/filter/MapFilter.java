@@ -1,6 +1,8 @@
 package com.hubspot.jinjava.lib.filter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +72,7 @@ public class MapFilter implements AdvancedFilter {
     while (loop.hasNext()) {
       Object val = loop.next();
       if (apply != null) {
-        val = apply.filter(val, interpreter);
+        val = apply.filter(val, interpreter, Arrays.copyOfRange(args, 1, args.length), Collections.emptyMap());
       } else {
         val = interpreter.resolveProperty(val, attr);
       }
