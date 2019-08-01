@@ -1,11 +1,16 @@
 package com.hubspot.jinjava.lib.filter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.ForLoop;
@@ -26,7 +31,9 @@ import com.hubspot.jinjava.util.ObjectIterator;
             code = "{% set seq = ['item1', 'item2', 'item3'] %}\n" +
                 "{{ seq|map('upper') }}")
     })
-public class MapFilter implements Filter {
+public class MapFilter implements AdvancedFilter {
+
+  private static final String ATTRIBUTE_ARGUMENT = "attribute";
 
   @Override
   public String getName() {
@@ -34,22 +41,38 @@ public class MapFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
     ForLoop loop = ObjectIterator.getLoop(var);
 
-    if (args.length < 1) {
-      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (name of filter or attribute to apply to given sequence)");
+    if (args.length < 1 && kwargs.size() < 1) {
+      throw new TemplateSyntaxException(interpreter,
+          getName(),
+          "requires 1 argument (name of filter or attribute to apply to given sequence)");
     }
 
-    String attr = args[0];
-    Filter apply = interpreter.getContext().getFilter(attr);
+    String attr;
+    Filter apply = null;
+    if (kwargs.containsKey(ATTRIBUTE_ARGUMENT)) {
+      Object attrArg = kwargs.get(ATTRIBUTE_ARGUMENT);
+      if (attrArg == null) {
+        throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, ATTRIBUTE_ARGUMENT);
+      }
+      attr = attrArg.toString();
+    } else {
+      Object attrArg = args[0];
+      if (attrArg == null) {
+        throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 0);
+      }
+      attr = attrArg.toString();
+      apply = interpreter.getContext().getFilter(attr);
+    }
 
     List<Object> result = new ArrayList<>();
 
     while (loop.hasNext()) {
       Object val = loop.next();
       if (apply != null) {
-        val = apply.filter(val, interpreter);
+        val = apply.filter(val, interpreter, Arrays.copyOfRange(args, 1, args.length), Collections.emptyMap());
       } else {
         val = interpreter.resolveProperty(val, attr);
       }
@@ -59,5 +82,4 @@ public class MapFilter implements Filter {
 
     return result;
   }
-
 }
