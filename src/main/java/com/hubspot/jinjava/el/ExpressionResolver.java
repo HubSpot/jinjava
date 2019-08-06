@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.el.ELException;
 import javax.el.ExpressionFactory;
@@ -74,6 +75,12 @@ public class ExpressionResolver {
       if (result == null && interpreter.getConfig().isFailOnUnknownTokens()) {
         throw new UnknownTokenException(expression, interpreter.getLineNumber(), interpreter.getPosition());
       }
+
+      // automatically convert suppliers into their values on resolution
+      if (result instanceof Supplier) {
+        result = ((Supplier) result).get();
+      }
+
       validateResult(result);
 
       return result;
