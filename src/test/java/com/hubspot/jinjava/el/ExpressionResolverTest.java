@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +26,7 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.LazyExpression;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
@@ -521,6 +523,52 @@ public class ExpressionResolverTest {
     assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nested.nested.date", -1))).isEqualTo(
         "1970-01-01 00:00:00");
     assertThat(interpreter.getErrorsCopy()).isEmpty();
+  }
+
+
+  @Test
+  public void itResolvesLazyExpressionsToTheirUnderlyingValue() {
+
+    TestClass testClass = new TestClass();
+    Supplier<String> lazyString = () -> result("hallelujah", testClass);
+
+    context.put("myobj", ImmutableMap.of("test", LazyExpression.of(lazyString)));
+
+    assertThat(Objects.toString(interpreter.resolveELExpression("myobj.test", -1))).isEqualTo(
+        "hallelujah");
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
+    assertThat(testClass.isTouched()).isTrue();
+  }
+
+  @Test
+  public void itResolvesSuppliersOnlyIfResolved() {
+
+    TestClass testClass = new TestClass();
+    Supplier<String> lazyString = () -> result("hallelujah", testClass);
+
+    context.put("myobj", ImmutableMap.of("test", LazyExpression.of(lazyString), "nope", "test"));
+
+    assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nope", -1))).isEqualTo(
+        "test");
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
+    assertThat(testClass.isTouched()).isFalse();
+  }
+
+  public String result(String value, TestClass testClass) {
+    testClass.touch();
+    return value;
+  }
+
+  public class TestClass {
+    private boolean touched = false;
+
+    public boolean isTouched() {
+      return touched;
+    }
+
+    public void touch() {
+      this.touched = true;
+    }
   }
 
   public static final class MyClass {

@@ -19,6 +19,7 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.LazyExpression;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -74,6 +75,12 @@ public class ExpressionResolver {
       if (result == null && interpreter.getConfig().isFailOnUnknownTokens()) {
         throw new UnknownTokenException(expression, interpreter.getLineNumber(), interpreter.getPosition());
       }
+
+      // resolve the LazyExpression supplier automatically
+      if (result instanceof LazyExpression) {
+        result = ((LazyExpression) result).get();
+      }
+
       validateResult(result);
 
       return result;
