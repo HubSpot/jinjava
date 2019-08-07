@@ -26,6 +26,7 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.LazyExpression;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
@@ -526,12 +527,12 @@ public class ExpressionResolverTest {
 
 
   @Test
-  public void itResolvesSuppliersToTheirUnderlyingValue() {
+  public void itResolvesLazyExpressionsToTheirUnderlyingValue() {
 
     TestClass testClass = new TestClass();
     Supplier<String> lazyString = () -> result("hallelujah", testClass);
 
-    context.put("myobj", ImmutableMap.of("test", lazyString));
+    context.put("myobj", ImmutableMap.of("test", LazyExpression.of(lazyString)));
 
     assertThat(Objects.toString(interpreter.resolveELExpression("myobj.test", -1))).isEqualTo(
         "hallelujah");
@@ -545,7 +546,7 @@ public class ExpressionResolverTest {
     TestClass testClass = new TestClass();
     Supplier<String> lazyString = () -> result("hallelujah", testClass);
 
-    context.put("myobj", ImmutableMap.of("test", lazyString, "nope", "test"));
+    context.put("myobj", ImmutableMap.of("test", LazyExpression.of(lazyString), "nope", "test"));
 
     assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nope", -1))).isEqualTo(
         "test");

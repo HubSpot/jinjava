@@ -3,7 +3,6 @@ package com.hubspot.jinjava.el;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 import javax.el.ELException;
 import javax.el.ExpressionFactory;
@@ -20,6 +19,7 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.LazyExpression;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -77,8 +77,8 @@ public class ExpressionResolver {
       }
 
       // automatically convert suppliers into their values on resolution
-      if (result instanceof Supplier) {
-        result = ((Supplier) result).get();
+      if (result instanceof LazyExpression) {
+        result = ((LazyExpression) result).get();
       }
 
       validateResult(result);
