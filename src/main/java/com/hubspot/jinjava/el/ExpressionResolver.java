@@ -76,7 +76,7 @@ public class ExpressionResolver {
         throw new UnknownTokenException(expression, interpreter.getLineNumber(), interpreter.getPosition());
       }
 
-      // automatically convert suppliers into their values on resolution
+      // resolve the LazyExpression supplier automatically
       if (result instanceof LazyExpression) {
         result = ((LazyExpression) result).get();
       }
