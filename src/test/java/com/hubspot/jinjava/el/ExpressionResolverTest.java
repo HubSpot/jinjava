@@ -554,13 +554,26 @@ public class ExpressionResolverTest {
     assertThat(testClass.isTouched()).isFalse();
   }
 
+  @Test
+  public void itResolvesLazyExpressionsInNested() {
+
+    Supplier<TestClass> lazyObject = TestClass::new;
+
+    context.put("myobj", ImmutableMap.of("test", LazyExpression.of(lazyObject)));
+
+    assertThat(Objects.toString(interpreter.resolveELExpression("myobj.test.name", -1))).isEqualTo(
+        "Amazing test class");
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
+  }
+
   public String result(String value, TestClass testClass) {
     testClass.touch();
     return value;
   }
 
-  public class TestClass {
+  public static class TestClass {
     private boolean touched = false;
+    private String name = "Amazing test class";
 
     public boolean isTouched() {
       return touched;
@@ -568,6 +581,10 @@ public class ExpressionResolverTest {
 
     public void touch() {
       this.touched = true;
+    }
+
+    public String getName() {
+      return name;
     }
   }
 

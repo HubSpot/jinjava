@@ -36,6 +36,7 @@ import com.hubspot.jinjava.el.ext.JinjavaListELResolver;
 import com.hubspot.jinjava.el.ext.NamedParameter;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.LazyExpression;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -216,6 +217,10 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
   Object wrap(Object value) {
     if (value == null) {
       return null;
+    }
+
+    if (value instanceof LazyExpression) {
+      value = ((LazyExpression) value).get();
     }
 
     if (value instanceof PyWrapper) {
