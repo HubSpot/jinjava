@@ -21,6 +21,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.output.BlockInfo;
 import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
@@ -57,7 +58,7 @@ public class BlockTag implements Tag {
 
     String blockName = WhitespaceUtils.unquote(tagData.next());
 
-    interpreter.addBlock(blockName, tagNode.getChildren());
+    interpreter.addBlock(blockName, new BlockInfo(tagNode.getChildren(), interpreter.getContext().getCurrentPathStack().peek().orElse("")));
 
     return new BlockPlaceholderOutputNode(blockName);
   }

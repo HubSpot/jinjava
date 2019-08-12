@@ -33,6 +33,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -49,6 +50,7 @@ import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
 import com.hubspot.jinjava.random.DeferredRandomNumberGenerator;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TreeParser;
+import com.hubspot.jinjava.tree.output.BlockInfo;
 import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
 import com.hubspot.jinjava.tree.output.OutputList;
 import com.hubspot.jinjava.tree.output.OutputNode;
@@ -58,7 +60,7 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
 
 public class JinjavaInterpreter {
 
-  private final Multimap<String, List<? extends Node>> blocks = ArrayListMultimap.create();
+  private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
   private final LinkedList<Node> extendParentRoots = new LinkedList<>();
 
   private Context context;
@@ -113,8 +115,8 @@ public class JinjavaInterpreter {
     extendParentRoots.add(root);
   }
 
-  public void addBlock(String name, LinkedList<? extends Node> value) {
-    blocks.put(name, value);
+  public void addBlock(String name, BlockInfo blockInfo) {
+    blocks.put(name, blockInfo);
   }
 
   /**
@@ -282,17 +284,24 @@ public class JinjavaInterpreter {
     for (BlockPlaceholderOutputNode blockPlaceholder : output.getBlocks()) {
 
       if (!blockNames.contains(blockPlaceholder.getBlockName())) {
-        Collection<List<? extends Node>> blockChain = blocks.get(blockPlaceholder.getBlockName());
-        List<? extends Node> block = Iterables.getFirst(blockChain, null);
+        Collection<BlockInfo> blockChain = blocks.get(blockPlaceholder.getBlockName());
+        BlockInfo block = Iterables.getFirst(blockChain, null);
 
         if (block != null) {
-          List<? extends Node> superBlock = Iterables.get(blockChain, 1, null);
+          List<? extends Node> superBlock = Optional.ofNullable(Iterables.get(blockChain, 1, null))
+              .map(BlockInfo::getNodes).orElse(null);
           context.setSuperBlock(superBlock);
 
           OutputList blockValueBuilder = new OutputList(config.getMaxOutputSize());
 
-          for (Node child : block) {
+          for (Node child : block.getNodes()) {
+            if (!Strings.isNullOrEmpty(block.getParentPath())) {
+              getContext().getCurrentPathStack().push(block.getParentPath(), lineNumber, position);
+            }
             blockValueBuilder.addNode(child.render(this));
+            if (!Strings.isNullOrEmpty(block.getParentPath())) {
+              getContext().getCurrentPathStack().pop();
+            }
           }
 
           blockNames.push(blockPlaceholder.getBlockName());

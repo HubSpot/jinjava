@@ -113,6 +113,20 @@ public class ExtendsTagTest {
     assertThat(result).contains("This is a relative path extends");
   }
 
+  @Test
+  public void itHandlesRelativePathsInBlocksInExtendingTemplate() throws IOException {
+    jinjava.getGlobalContext().put(CURRENT_PATH_CONTEXT_KEY, "relative/relative-block.jinja");
+    String result = jinjava.render(locator.fixture("relative/relative-block.jinja"), new HashMap<>());
+    assertThat(result).contains("hello");
+  }
+
+  @Test
+  public void itHandlesRelativePathsInBlocksFromExtendedTemplate() throws IOException {
+    jinjava.getGlobalContext().put(CURRENT_PATH_CONTEXT_KEY, "relative/relative-block-2.jinja");
+    String result = jinjava.render(locator.fixture("relative/relative-block-2.jinja"), new HashMap<>());
+    assertThat(result).contains("hello");
+  }
+
   private static class ExtendsTagTestResourceLocator implements ResourceLocator {
     private RelativePathResolver relativePathResolver = new RelativePathResolver();
 
