@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,14 +42,16 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void resolveBlockStubs() {
-    interpreter.addBlock("foobar", new BlockInfo(Lists.newLinkedList(Lists.newArrayList((new TextNode(new TextToken("sparta", -1, -1))))), ""));
+    interpreter.addBlock("foobar", new BlockInfo(Lists.newLinkedList(Lists.newArrayList((new TextNode(new TextToken("sparta", -1, -1))))),
+        Optional.empty()));
     String content = "this is {% block foobar %}foobar{% endblock %}!";
     assertThat(interpreter.render(content)).isEqualTo("this is sparta!");
   }
 
   @Test
   public void resolveBlockStubsWithSpecialChars() {
-    interpreter.addBlock("foobar", new BlockInfo(Lists.newLinkedList(Lists.newArrayList(new TextNode(new TextToken("$150.00", -1, -1)))), ""));
+    interpreter.addBlock("foobar", new BlockInfo(Lists.newLinkedList(Lists.newArrayList(new TextNode(new TextToken("$150.00", -1, -1)))),
+        Optional.empty()));
     String content = "this is {% block foobar %}foobar{% endblock %}!";
     assertThat(interpreter.render(content)).isEqualTo("this is $150.00!");
   }

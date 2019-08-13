@@ -1,16 +1,18 @@
 package com.hubspot.jinjava.tree.output;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.hubspot.jinjava.tree.Node;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class BlockInfo {
 
   private final List<? extends Node> nodes;
 
-  private final String parentPath;
+  private final Optional<String> parentPath;
 
-  public BlockInfo(List<? extends Node> nodes, String parentPath) {
+  public BlockInfo(List<? extends Node> nodes, Optional<String> parentPath) {
     this.nodes = nodes;
     this.parentPath = parentPath;
   }
@@ -19,7 +21,7 @@ public class BlockInfo {
     return nodes;
   }
 
-  public String getParentPath() {
+  public Optional<String> getParentPath() {
     return parentPath;
   }
 }

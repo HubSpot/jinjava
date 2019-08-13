@@ -58,7 +58,7 @@ public class BlockTag implements Tag {
 
     String blockName = WhitespaceUtils.unquote(tagData.next());
 
-    interpreter.addBlock(blockName, new BlockInfo(tagNode.getChildren(), interpreter.getContext().getCurrentPathStack().peek().orElse("")));
+    interpreter.addBlock(blockName, new BlockInfo(tagNode.getChildren(), interpreter.getContext().getCurrentPathStack().peek()));
 
     return new BlockPlaceholderOutputNode(blockName);
   }

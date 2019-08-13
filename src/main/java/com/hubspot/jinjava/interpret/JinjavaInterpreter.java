@@ -33,7 +33,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -295,13 +294,11 @@ public class JinjavaInterpreter {
           OutputList blockValueBuilder = new OutputList(config.getMaxOutputSize());
 
           for (Node child : block.getNodes()) {
-            if (!Strings.isNullOrEmpty(block.getParentPath())) {
-              getContext().getCurrentPathStack().push(block.getParentPath(), lineNumber, position);
-            }
+            block.getParentPath().ifPresent(path -> getContext().getCurrentPathStack().push(path, lineNumber, position));
+
             blockValueBuilder.addNode(child.render(this));
-            if (!Strings.isNullOrEmpty(block.getParentPath())) {
-              getContext().getCurrentPathStack().pop();
-            }
+
+            block.getParentPath().ifPresent(path -> getContext().getCurrentPathStack().pop());
           }
 
           blockNames.push(blockPlaceholder.getBlockName());
