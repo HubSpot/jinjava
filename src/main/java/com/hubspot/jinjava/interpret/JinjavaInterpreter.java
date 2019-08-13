@@ -287,7 +287,7 @@ public class JinjavaInterpreter {
         Collection<BlockInfo> blockChain = blocks.get(blockPlaceholder.getBlockName());
         BlockInfo block = Iterables.getFirst(blockChain, null);
 
-        if (block != null) {
+        if (block != null && block.getNodes() != null) {
           List<? extends Node> superBlock = Optional.ofNullable(Iterables.get(blockChain, 1, null))
               .map(BlockInfo::getNodes).orElse(null);
           context.setSuperBlock(superBlock);
