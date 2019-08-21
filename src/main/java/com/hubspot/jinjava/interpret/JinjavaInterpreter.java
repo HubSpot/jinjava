@@ -294,13 +294,17 @@ public class JinjavaInterpreter {
           OutputList blockValueBuilder = new OutputList(config.getMaxOutputSize());
 
           for (Node child : block.getNodes()) {
-            block.getParentPath().filter(path -> !getContext().getCurrentPathStack().contains(path))
-                .ifPresent(path -> getContext().getCurrentPathStack().push(path, lineNumber, position));
+            boolean pushedParentPathOntoStack = false;
+            if (block.getParentPath().isPresent() && !getContext().getCurrentPathStack().contains(block.getParentPath().get())) {
+              getContext().getCurrentPathStack().push(block.getParentPath().get(), lineNumber, position);
+              pushedParentPathOntoStack = true;
+            }
 
             blockValueBuilder.addNode(child.render(this));
 
-            block.getParentPath().filter(path -> !getContext().getCurrentPathStack().contains(path))
-                .ifPresent(path -> getContext().getCurrentPathStack().pop());
+            if (pushedParentPathOntoStack) {
+              getContext().getCurrentPathStack().pop();
+            }
           }
 
           blockNames.push(blockPlaceholder.getBlockName());
