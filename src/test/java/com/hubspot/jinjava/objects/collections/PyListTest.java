@@ -93,4 +93,16 @@ public class PyListTest {
     assertThat(jinjava.render("{% set test = [10, 20, 30, 10, 20, 30] %}" +
         "{{ test.index(20, 2, 6) }}", Collections.emptyMap())).isEqualTo("4");
   }
+
+  @Test
+  public void itReturnsNegativeOneForMissingObjectForIndex() {
+    assertThat(jinjava.render("{% set test = [10, 20, 30, 10, 20, 30] %}" +
+        "{{ test.index(999) }}", Collections.emptyMap())).isEqualTo("-1");
+  }
+
+  @Test
+  public void itReturnsNegativeOneForMissingObjectForIndexWithinBounds() {
+    assertThat(jinjava.render("{% set test = [10, 20, 30, 10, 20, 30] %}" +
+        "{{ test.index(999, 1, 5) }}", Collections.emptyMap())).isEqualTo("-1");
+  }
 }
