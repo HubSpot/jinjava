@@ -26,4 +26,7 @@ public class PyList extends ForwardingList<Object> implements PyWrapper {
     return add(e);
   }
 
+  public void prepend(Object e) {
+    add(0, e);
+  }
 }
