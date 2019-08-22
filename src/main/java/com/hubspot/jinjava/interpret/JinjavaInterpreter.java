@@ -270,7 +270,11 @@ public class JinjavaInterpreter {
 
         for (Node node : parentRoot.getChildren()) {
           OutputNode out = node.render(this);
-          output.addNode(out);
+          try {
+            output.addNode(out);
+          } catch (OutputTooBigException ex) {
+            addError(TemplateError.fromException(ex));
+          }
         }
 
         context.getExtendPathStack().pop();
