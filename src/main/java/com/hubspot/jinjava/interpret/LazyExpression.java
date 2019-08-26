@@ -18,4 +18,9 @@ public class LazyExpression implements Supplier {
   public Object get() {
     return supplier.get();
   }
+
+  @Override
+  public String toString() {
+    return super.toString();
+  }
 }
