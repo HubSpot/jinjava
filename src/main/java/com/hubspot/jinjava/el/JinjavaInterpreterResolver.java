@@ -172,6 +172,10 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
               base = optBase.get();
             }
 
+            if (base instanceof LazyExpression) {
+              base = ((LazyExpression) base).get();
+            }
+
             // java doesn't natively support negative array indices, so the
             // super class getValue returns null for them.  To make negative
             // indices work as they do in python, detect them here and convert
@@ -198,6 +202,11 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
               value = optValue.get();
             }
+
+            if (value instanceof LazyExpression) {
+              value = ((LazyExpression) value).get();
+            }
+
           } catch (PropertyNotFoundException e) {
             if (errOnUnknownProp) {
               interpreter.addError(TemplateError.fromUnknownProperty(base, propertyName, interpreter.getLineNumber(), -1));
