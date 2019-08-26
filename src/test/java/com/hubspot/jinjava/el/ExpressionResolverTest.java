@@ -532,7 +532,7 @@ public class ExpressionResolverTest {
     TestClass testClass = new TestClass();
     Supplier<String> lazyString = () -> result("hallelujah", testClass);
 
-    context.put("myobj", ImmutableMap.of("test", LazyExpression.of(lazyString)));
+    context.put("myobj", ImmutableMap.of("test", LazyExpression.of(lazyString, "")));
 
     assertThat(Objects.toString(interpreter.resolveELExpression("myobj.test", -1))).isEqualTo(
         "hallelujah");
@@ -546,7 +546,7 @@ public class ExpressionResolverTest {
     TestClass testClass = new TestClass();
     Supplier<String> lazyString = () -> result("hallelujah", testClass);
 
-    context.put("myobj", ImmutableMap.of("test", LazyExpression.of(lazyString), "nope", "test"));
+    context.put("myobj", ImmutableMap.of("test", LazyExpression.of(lazyString, ""), "nope", "test"));
 
     assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nope", -1))).isEqualTo(
         "test");
@@ -559,7 +559,7 @@ public class ExpressionResolverTest {
 
     Supplier<TestClass> lazyObject = TestClass::new;
 
-    context.put("myobj", ImmutableMap.of("test", LazyExpression.of(lazyObject)));
+    context.put("myobj", ImmutableMap.of("test", LazyExpression.of(lazyObject, "")));
 
     assertThat(Objects.toString(interpreter.resolveELExpression("myobj.test.name", -1))).isEqualTo(
         "Amazing test class");
