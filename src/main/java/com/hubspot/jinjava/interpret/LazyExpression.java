@@ -21,12 +21,8 @@ public class LazyExpression implements Supplier {
     return supplier.get();
   }
 
-  public String getImage() {
-    return image;
-  }
-
   @Override
   public String toString() {
-    return super.toString();
+    return image;
   }
 }
