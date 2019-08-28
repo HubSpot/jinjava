@@ -71,6 +71,11 @@ public class DateTimeFormatFilterTest {
     assertThat(filter.filter(1539277785000L, interpreter, "%l:%M %p %Z", "America/Los_Angeles")).isEqualTo("10:09 AM PDT");
   }
 
+  @Test
+  public void itOutputsTimezoneOffset() {
+    assertThat(filter.filter(1539277785000L, interpreter, "%l:%M %p %z", "America/Los_Angeles")).isEqualTo("10:09 AM -0700");
+  }
+
   @Test(expected = InvalidDateFormatException.class)
   public void itThrowsExceptionOnInvalidTimezone() throws Exception {
     filter.filter(1539277785000L, interpreter, "%B %d, %Y, at %I:%M %p", "Not a timezone");
