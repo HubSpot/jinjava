@@ -3,7 +3,9 @@ package com.hubspot.jinjava.tree.output;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 
 public class OutputList {
@@ -46,7 +48,12 @@ public class OutputList {
     LengthLimitingStringBuilder val = new LengthLimitingStringBuilder(maxOutputSize);
 
     for (OutputNode node : nodes) {
-      val.append(node.getValue());
+      try {
+        val.append(node.getValue());
+      } catch (OutputTooBigException e) {
+        JinjavaInterpreter.getCurrent().addError(TemplateError.fromOutputTooBigException(e));
+        return val.toString();
+      }
     }
 
     return val.toString();

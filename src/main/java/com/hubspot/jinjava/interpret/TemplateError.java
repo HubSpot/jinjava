@@ -29,6 +29,7 @@ public class TemplateError {
     DISABLED,
     INVALID_ARGUMENT,
     INVALID_INPUT,
+    OUTPUT_TOO_BIG,
     OTHER
   }
 
@@ -102,6 +103,10 @@ public class TemplateError {
     }
 
     return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, startPosition, ex, BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of());
+  }
+
+  public static TemplateError fromOutputTooBigException(Exception ex) {
+    return new TemplateError(ErrorType.FATAL, ErrorReason.OUTPUT_TOO_BIG, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, -1, -1, ex, BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of());
   }
 
   public static TemplateError fromException(Exception ex, int lineNumber, int startPosition) {
