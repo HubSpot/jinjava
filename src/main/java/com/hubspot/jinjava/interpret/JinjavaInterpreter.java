@@ -238,7 +238,12 @@ public class JinjavaInterpreter {
         addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
             "Rendering cycle detected: '" + renderStr + "'", null, getLineNumber(), node.getStartPosition(),
             null, BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED, ImmutableMap.of("string", renderStr)));
-        output.addNode(new RenderedOutputNode(renderStr));
+        try {
+          output.addNode(new RenderedOutputNode(renderStr));
+        } catch (OutputTooBigException e) {
+          addError(TemplateError.fromOutputTooBigException(e));
+          return output.getValue();
+        }
       } else {
         OutputNode out;
         context.pushRenderStack(renderStr);
@@ -249,7 +254,12 @@ public class JinjavaInterpreter {
           out = new RenderedOutputNode(node.getMaster().getImage());
         }
         context.popRenderStack();
-        output.addNode(out);
+        try {
+          output.addNode(out);
+        } catch (OutputTooBigException e) {
+          addError(TemplateError.fromOutputTooBigException(e));
+          return output.getValue();
+        }
       }
     }
 
@@ -262,7 +272,12 @@ public class JinjavaInterpreter {
 
         for (Node node : parentRoot.getChildren()) {
           OutputNode out = node.render(this);
-          output.addNode(out);
+          try {
+            output.addNode(out);
+          } catch (OutputTooBigException e) {
+            addError(TemplateError.fromOutputTooBigException(e));
+            return output.getValue();
+          }
         }
 
         context.getExtendPathStack().pop();
