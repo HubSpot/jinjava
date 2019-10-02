@@ -204,7 +204,8 @@ public class Functions {
         try {
           length = Integer.parseInt(Objects.toString(arg[0]));
         } catch (Exception e) {
-          ENGINE_LOG.info("truncate(): error setting length for {}, using default {}", arg[0], DEFAULT_TRUNCATE_LENGTH);
+          ENGINE_LOG.debug("truncate(): error setting length for {}, using default {}", arg[0],
+              DEFAULT_TRUNCATE_LENGTH);
         }
       }
 
