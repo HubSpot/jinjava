@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.filter;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.googlecode.ipv6.IPv6Network;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -166,15 +167,22 @@ public class IpAddrFilter implements Filter {
       );
     }
 
+    boolean isv4 = IP4_PATTERN.matcher(ipAddress).matches();
     switch (parameter) {
       case PREFIX_STRING:
         return prefix;
       case NETMASK_STRING:
-        return getSubnetUtils(interpreter, fullAddress).getInfo().getNetmask();
+        return isv4
+          ? getSubnetUtils(interpreter, fullAddress).getInfo().getNetmask()
+          : getIpv6Network(interpreter, fullAddress).getNetmask().asAddress().toString();
       case BROADCAST_STRING:
-        return getSubnetUtils(interpreter, fullAddress).getInfo().getBroadcastAddress();
+        return isv4
+          ? getSubnetUtils(interpreter, fullAddress).getInfo().getBroadcastAddress()
+          : getIpv6Network(interpreter, fullAddress).getLast().toString();
       case NETWORK_STRING:
-        return getSubnetUtils(interpreter, fullAddress).getInfo().getNetworkAddress();
+        return isv4
+          ? getSubnetUtils(interpreter, fullAddress).getInfo().getNetworkAddress()
+          : getIpv6Network(interpreter, fullAddress).toString().split("/")[0];
       default:
         throw new InvalidArgumentException(
           interpreter,
@@ -198,6 +206,14 @@ public class IpAddrFilter implements Filter {
         0,
         address
       );
+    }
+  }
+
+  private IPv6Network getIpv6Network(JinjavaInterpreter interpreter, String address) {
+    try {
+      return IPv6Network.fromString(address);
+    } catch (IllegalArgumentException e) {
+      throw new InvalidArgumentException(interpreter, this.getName(), e.getMessage());
     }
   }
 
