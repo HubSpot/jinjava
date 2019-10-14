@@ -8,8 +8,10 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.util.SubnetUtils;
 
 @JinjavaDoc(
@@ -25,7 +27,7 @@ import org.apache.commons.net.util.SubnetUtils;
       value = "function",
       type = "string",
       defaultValue = "prefix",
-      desc = "Name of function. Supported functions: 'prefix'"
+      desc = "Name of function. Supported functions: 'prefix', 'netmask', 'network', 'address', 'broadcast'"
     )
   },
   snippets = {
@@ -35,6 +37,11 @@ import org.apache.commons.net.util.SubnetUtils;
       "{% if ip|ipaddr %}\n" +
       "    The string is a valid IP address\n" +
       "{% endif %}"
+    ),
+    @JinjavaSnippet(
+      desc = "This example shows how to filter list of ip addresses",
+      code = "{{ ['192.108.0.1', null, True, 13, '2000::'] | ipaddr }}",
+      output = "['192.108.0.1', '2000::']"
     )
   }
 )
@@ -54,9 +61,16 @@ public class IpAddrFilter implements Filter {
   private static final String NETMASK_STRING = "netmask";
   private static final String ADDRESS_STRING = "address";
   private static final String BROADCAST_STRING = "broadcast";
+  private static final String NETWORK_STRING = "network";
   private static final String AVAILABLE_FUNCTIONS = Joiner
     .on(", ")
-    .join(PREFIX_STRING, NETMASK_STRING, ADDRESS_STRING, BROADCAST_STRING);
+    .join(
+      PREFIX_STRING,
+      NETMASK_STRING,
+      ADDRESS_STRING,
+      BROADCAST_STRING,
+      NETWORK_STRING
+    );
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
@@ -64,33 +78,66 @@ public class IpAddrFilter implements Filter {
       return false;
     }
 
-    if (args.length > 0) {
-      String function = args[0].trim();
-      return getFunctionValue(interpreter, function.toLowerCase(), object);
+    String parameter = getParameter(args);
+    if (object instanceof List) {
+      return getFilteredItems(interpreter, parameter, object);
     }
 
     if (object instanceof String) {
-      return validIp(((String) object).trim());
+      return getValue(interpreter, object, parameter);
     }
 
     return false;
   }
 
-  @Override
-  public boolean preserveSafeString() {
-    return false;
+  private String getParameter(String... args) {
+    if (args.length > 0) {
+      return args[0].trim();
+    }
+
+    return null;
   }
 
-  private Object getFunctionValue(
+  private List<String> getFilteredItems(
     JinjavaInterpreter interpreter,
-    String function,
+    String parameter,
     Object object
+  ) {
+    List<String> filteredItems = new ArrayList<>();
+    for (Object item : (List) object) {
+      Object value;
+      try {
+        value = getValue(interpreter, item, parameter);
+      } catch (InvalidArgumentException exception) {
+        continue;
+      }
+
+      if (value instanceof String || value instanceof Integer) {
+        filteredItems.add(String.valueOf(value));
+      }
+
+      if (value instanceof Boolean && (Boolean) value) {
+        filteredItems.add((String) item);
+      }
+    }
+
+    return filteredItems;
+  }
+
+  private Object getValue(
+    JinjavaInterpreter interpreter,
+    Object object,
+    String parameter
   ) {
     if (!(object instanceof String)) {
       return null;
     }
 
     String fullAddress = ((String) object).trim();
+    if (StringUtils.isEmpty(parameter)) {
+      return validIp(fullAddress);
+    }
+
     List<String> parts = PREFIX_SPLITTER.splitToList(fullAddress);
     if (parts.size() != 2) {
       return null;
@@ -101,7 +148,7 @@ public class IpAddrFilter implements Filter {
       return null;
     }
 
-    if (function.equalsIgnoreCase(ADDRESS_STRING)) {
+    if (parameter.equalsIgnoreCase(ADDRESS_STRING)) {
       return ipAddress;
     }
 
@@ -119,20 +166,22 @@ public class IpAddrFilter implements Filter {
       );
     }
 
-    switch (function) {
+    switch (parameter) {
       case PREFIX_STRING:
         return prefix;
       case NETMASK_STRING:
         return getSubnetUtils(interpreter, fullAddress).getInfo().getNetmask();
       case BROADCAST_STRING:
         return getSubnetUtils(interpreter, fullAddress).getInfo().getBroadcastAddress();
+      case NETWORK_STRING:
+        return getSubnetUtils(interpreter, fullAddress).getInfo().getNetworkAddress();
       default:
         throw new InvalidArgumentException(
           interpreter,
           this,
           InvalidReason.ENUM,
           1,
-          function,
+          parameter,
           AVAILABLE_FUNCTIONS
         );
     }
@@ -152,12 +201,24 @@ public class IpAddrFilter implements Filter {
     }
   }
 
-  private boolean validIp(String address) {
+  protected boolean validIp(String address) {
+    return validIpv4(address) || validIpv6(address);
+  }
+
+  protected boolean validIpv4(String address) {
+    return IP4_PATTERN.matcher(address).matches();
+  }
+
+  protected boolean validIpv6(String address) {
     return (
-      IP4_PATTERN.matcher(address).matches() ||
       IP6_PATTERN.matcher(address).matches() ||
       IP6_COMPRESSED_PATTERN.matcher(address).matches()
     );
+  }
+
+  @Override
+  public boolean preserveSafeString() {
+    return false;
   }
 
   @Override
