@@ -51,6 +51,11 @@
         <artifactId>commons-net</artifactId>
         <version>3.3</version>
       </dependency>
+      <dependency>
+        <groupId>com.googlecode.java-ipv6</groupId>
+        <artifactId>java-ipv6</artifactId>
+        <version>0.17</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -90,6 +95,10 @@
     <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.java-ipv6</groupId>
+      <artifactId>java-ipv6</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>

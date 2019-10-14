@@ -78,13 +78,25 @@ public class IpAddrFilterTest {
   }
 
   @Test
-  public void itReturnsIpAddressNetMask() {
+  public void itReturnsIpv4AddressNetMask() {
     assertThat(ipAddrFilter.filter("255.182.100.1/10", interpreter, "netmask")).isEqualTo("255.192.0.0");
   }
 
   @Test
-  public void itReturnsIpAddressBroadcast() {
+  public void itReturnsIpv6AddressNetMask() {
+    assertThat(ipAddrFilter.filter("1200:0000:AB00:1234:0000:2552:7777:1313/43", interpreter, "netmask"))
+            .isEqualTo("ffff:ffff:ffe0::");
+  }
+
+  @Test
+  public void itReturnsIpv4AddressBroadcast() {
     assertThat(ipAddrFilter.filter("192.168.0.1/20", interpreter, "broadcast")).isEqualTo("192.168.15.255");
+  }
+
+  @Test
+  public void itReturnsIpv6AddressBroadcast() {
+    assertThat(ipAddrFilter.filter("1200:0000:AB00:1234:0000:2552:7777:1313/43", interpreter, "broadcast"))
+            .isEqualTo("1200:0:ab1f:ffff:ffff:ffff:ffff:ffff");
   }
 
   @Test
@@ -100,8 +112,14 @@ public class IpAddrFilterTest {
 
 
   @Test
-  public void itReturnsIpAddressNetwork() {
+  public void itReturnsIpv4AddressNetwork() {
     assertThat(ipAddrFilter.filter("192.168.0.1/20", interpreter, "network")).isEqualTo("192.168.0.0");
+  }
+
+  @Test
+  public void itReturnsIpv6AddressNetwork() {
+    assertThat(ipAddrFilter.filter("1200:0000:AB00:1234:0000:2552:7777:1313/43", interpreter, "network"))
+            .isEqualTo("1200:0:ab00::");
   }
 
   @Test
@@ -154,7 +172,7 @@ public class IpAddrFilterTest {
   public void itFiltersIpAddressesNetwork() {
     List<Object> inputAddresses = Arrays.asList("192.24.2.1", "host.fqdn", "::1", "192.168.32.0/24", "fe80::100/10",
         true, null, 13);
-    List<Object> expectedAddresses = Arrays.asList("192.168.32.0");
+    List<Object> expectedAddresses = Arrays.asList("192.168.32.0", "fe80::");
     assertThat(ipAddrFilter.filter(inputAddresses, interpreter, "network")).isEqualTo(expectedAddresses);
   }
 
@@ -162,7 +180,7 @@ public class IpAddrFilterTest {
   public void itFiltersIpAddressesNetmask() {
     List<Object> inputAddresses = Arrays.asList("192.24.2.1", "host.fqdn", "::1", "192.168.32.0/24", "fe80::100/10",
         true, null, 13);
-    List<Object> expectedAddresses = Arrays.asList("255.255.255.0");
+    List<Object> expectedAddresses = Arrays.asList("255.255.255.0", "ffc0::");
     assertThat(ipAddrFilter.filter(inputAddresses, interpreter, "netmask")).isEqualTo(expectedAddresses);
   }
 
@@ -170,7 +188,7 @@ public class IpAddrFilterTest {
   public void itFiltersIpAddressesBroadcast() {
     List<Object> inputAddresses = Arrays.asList("192.24.2.1", "host.fqdn", "::1", "192.168.32.0/24", "fe80::100/10",
         true, null, 13);
-    List<Object> expectedAddresses = Arrays.asList("192.168.32.255");
+    List<Object> expectedAddresses = Arrays.asList("192.168.32.255", "febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
     assertThat(ipAddrFilter.filter(inputAddresses, interpreter, "broadcast")).isEqualTo(expectedAddresses);
   }
 }
