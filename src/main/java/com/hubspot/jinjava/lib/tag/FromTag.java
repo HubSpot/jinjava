@@ -66,6 +66,7 @@ public class FromTag implements Tag {
 
     String templateFile = interpreter.resolveString(helper.get(0), tagNode.getLineNumber(), tagNode.getStartPosition());
     templateFile = interpreter.resolveResourceLocation(templateFile);
+    interpreter.getContext().addDependency("coded_files", templateFile);
     try {
       interpreter.getContext().pushFromStack(templateFile, tagNode.getLineNumber(), tagNode.getStartPosition());
     } catch (FromTagCycleException e) {
