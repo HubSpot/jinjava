@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -49,12 +51,16 @@ public class IpAddrFilter implements Filter {
   private static final String ADDRESS_STRING = "address";
   private static final String BROADCAST_STRING = "broadcast";
   private static final String NETWORK_STRING = "network";
+  private static final String PUBLIC_STRING = "public";
+  private static final String PRIVATE_STRING = "private";
   private static final String AVAILABLE_FUNCTIONS = Joiner.on(", ").join(
       PREFIX_STRING,
       NETMASK_STRING,
       ADDRESS_STRING,
       BROADCAST_STRING,
-      NETWORK_STRING);
+      NETWORK_STRING,
+      PUBLIC_STRING,
+      PRIVATE_STRING);
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
@@ -118,6 +124,11 @@ public class IpAddrFilter implements Filter {
     }
 
     List<String> parts = PREFIX_SPLITTER.splitToList(fullAddress);
+    if (parts.size() == 1 && (parameter.equalsIgnoreCase(PUBLIC_STRING) || parameter.equalsIgnoreCase(PRIVATE_STRING))) {
+      parts = new ArrayList<>(parts);
+      parts.add("0");
+    }
+
     if (parts.size() != 2) {
       return null;
     }
@@ -152,6 +163,10 @@ public class IpAddrFilter implements Filter {
       case NETWORK_STRING:
         return isv4 ? getSubnetUtils(interpreter, fullAddress).getInfo().getNetworkAddress() :
             getIpv6Network(interpreter, fullAddress).toString().split("/")[0];
+      case PUBLIC_STRING:
+        return !isIpAddressPrivate(getInetAddress(ipAddress), isv4);
+      case PRIVATE_STRING:
+        return isIpAddressPrivate(getInetAddress(ipAddress), isv4);
       default:
         throw new InvalidArgumentException(interpreter, this, InvalidReason.ENUM, 1, parameter, AVAILABLE_FUNCTIONS);
     }
@@ -171,6 +186,26 @@ public class IpAddrFilter implements Filter {
     } catch (IllegalArgumentException e) {
       throw new InvalidArgumentException(interpreter, this.getName(), e.getMessage());
     }
+  }
+
+  private InetAddress getInetAddress(String ipAddress) {
+    try {
+      return InetAddress.getByName(ipAddress);
+    } catch (UnknownHostException e) {
+      return null;
+    }
+  }
+
+  private boolean isIpAddressPrivate(InetAddress inetAddress, boolean isv4) {
+
+    if (inetAddress == null) {
+      return false;
+    }
+
+    return isv4 ? inetAddress.isSiteLocalAddress() :
+                  inetAddress.isSiteLocalAddress() ||
+                  inetAddress.isLinkLocalAddress() ||
+                  inetAddress.isLoopbackAddress();
   }
 
   protected boolean validIp(String address) {

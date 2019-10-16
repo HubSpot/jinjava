@@ -191,4 +191,20 @@ public class IpAddrFilterTest {
     List<Object> expectedAddresses = Arrays.asList("192.168.32.255", "febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
     assertThat(ipAddrFilter.filter(inputAddresses, interpreter, "broadcast")).isEqualTo(expectedAddresses);
   }
+
+  @Test
+  public void itFiltersIpAddressesPublic() {
+    List<Object> inputAddresses = Arrays.asList("192.24.2.1", "host.fqdn", "192.168.32.0/24", "fe80::100/10",
+            true, null, 13, "", "2001:db8:32c:faad::/64");
+    List<Object> expectedAddresses = Arrays.asList("192.24.2.1", "2001:db8:32c:faad::/64");
+    assertThat(ipAddrFilter.filter(inputAddresses, interpreter, "public")).isEqualTo(expectedAddresses);
+  }
+
+  @Test
+  public void itFiltersIpAddressesPrivate() {
+    List<Object> inputAddresses = Arrays.asList("192.24.2.1", "host.fqdn", "192.168.32.0/24", "fe80::100/10",
+            true, null, 13, "", "2001:db8:32c:faad::/64");
+    List<Object> expectedAddresses = Arrays.asList("192.168.32.0/24", "fe80::100/10");
+    assertThat(ipAddrFilter.filter(inputAddresses, interpreter, "private")).isEqualTo(expectedAddresses);
+  }
 }
