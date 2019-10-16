@@ -65,6 +65,7 @@ public class IpAddrFilter implements Filter {
   private static final String ADDRESS_STRING = "address";
   private static final String BROADCAST_STRING = "broadcast";
   private static final String NETWORK_STRING = "network";
+  private static final String GATEWAY_STRING = "gateway";
   private static final String PUBLIC_STRING = "public";
   private static final String PRIVATE_STRING = "private";
   private static final String AVAILABLE_FUNCTIONS = Joiner
@@ -75,6 +76,7 @@ public class IpAddrFilter implements Filter {
       ADDRESS_STRING,
       BROADCAST_STRING,
       NETWORK_STRING,
+      GATEWAY_STRING,
       PUBLIC_STRING,
       PRIVATE_STRING
     );
@@ -200,6 +202,10 @@ public class IpAddrFilter implements Filter {
         return isv4
           ? getSubnetUtils(interpreter, fullAddress).getInfo().getNetworkAddress()
           : getIpv6Network(interpreter, fullAddress).toString().split("/")[0];
+      case GATEWAY_STRING:
+        return isv4
+          ? getSubnetUtils(interpreter, fullAddress).getInfo().getLowAddress()
+          : getIpv6Network(interpreter, fullAddress).getFirst().add(1).toString();
       case PUBLIC_STRING:
         return !isIpAddressPrivate(getInetAddress(ipAddress), isv4);
       case PRIVATE_STRING:
