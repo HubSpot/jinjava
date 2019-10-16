@@ -86,6 +86,8 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
         RoundFilter.class,
         SumFilter.class,
         IpAddrFilter.class,
+        Ipv4Filter.class,
+        Ipv6Filter.class,
 
         EscapeFilter.class,
         EAliasedEscapeFilter.class,
