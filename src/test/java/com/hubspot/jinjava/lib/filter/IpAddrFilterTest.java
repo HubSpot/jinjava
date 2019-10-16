@@ -123,6 +123,17 @@ public class IpAddrFilterTest {
   }
 
   @Test
+  public void itReturnsIpv4AddressGateway() {
+    assertThat(ipAddrFilter.filter("192.168.0.10/20", interpreter, "gateway")).isEqualTo("192.168.0.1");
+  }
+
+  @Test
+  public void itReturnsIpv6AddressGateway() {
+    assertThat(ipAddrFilter.filter("1200:0000:AB00:1234:0000:2552:7777:1313/43", interpreter, "gateway"))
+            .isEqualTo("1200:0:ab00::1");
+  }
+
+  @Test
   public void itAddsErrorOnInvalidCidrAddress() {
     assertThatThrownBy(() -> ipAddrFilter.filter("192.168.0.1/200", interpreter, "broadcast"))
         .hasMessageContaining("must be a valid CIDR address");
@@ -174,6 +185,14 @@ public class IpAddrFilterTest {
         true, null, 13);
     List<Object> expectedAddresses = Arrays.asList("192.168.32.0", "fe80::");
     assertThat(ipAddrFilter.filter(inputAddresses, interpreter, "network")).isEqualTo(expectedAddresses);
+  }
+
+  @Test
+  public void itFiltersIpAddressesGateway() {
+    List<Object> inputAddresses = Arrays.asList("192.24.2.1", "host.fqdn", "::1", "192.168.32.0/24", "fe80::100/10",
+            true, null, 13);
+    List<Object> expectedAddresses = Arrays.asList("192.168.32.1", "fe80::1");
+    assertThat(ipAddrFilter.filter(inputAddresses, interpreter, "gateway")).isEqualTo(expectedAddresses);
   }
 
   @Test
