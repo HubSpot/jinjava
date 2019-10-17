@@ -9,10 +9,14 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.util.ForLoop;
+import com.hubspot.jinjava.util.ObjectIterator;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.util.SubnetUtils;
@@ -88,7 +92,11 @@ public class IpAddrFilter implements Filter {
     }
 
     String parameter = getParameter(args);
-    if (object instanceof List) {
+    if (object instanceof Map) {
+      return getMapOfFilteredItems(interpreter, parameter, object);
+    }
+
+    if (object instanceof Iterable) {
       return getFilteredItems(interpreter, parameter, object);
     }
 
@@ -107,30 +115,65 @@ public class IpAddrFilter implements Filter {
     return null;
   }
 
+  private Object getMapOfFilteredItems(
+    JinjavaInterpreter interpreter,
+    String parameter,
+    Object map
+  ) {
+    Iterator<Map.Entry<Object, Object>> iterator = ((Map) map).entrySet().iterator();
+    while (iterator.hasNext()) {
+      Map.Entry<Object, Object> item = iterator.next();
+
+      String filteredItem = filterItem(interpreter, parameter, item.getValue());
+      if (filteredItem != null) {
+        item.setValue(filteredItem);
+      } else {
+        iterator.remove();
+      }
+    }
+
+    return map;
+  }
+
   private List<String> getFilteredItems(
     JinjavaInterpreter interpreter,
     String parameter,
     Object object
   ) {
     List<String> filteredItems = new ArrayList<>();
-    for (Object item : (List) object) {
-      Object value;
-      try {
-        value = getValue(interpreter, item, parameter);
-      } catch (InvalidArgumentException exception) {
-        continue;
-      }
+    ForLoop loop = ObjectIterator.getLoop(object);
 
-      if (value instanceof String || value instanceof Integer) {
-        filteredItems.add(String.valueOf(value));
-      }
-
-      if (value instanceof Boolean && (Boolean) value) {
-        filteredItems.add((String) item);
+    while (loop.hasNext()) {
+      String filteredItem = filterItem(interpreter, parameter, loop.next());
+      if (filteredItem != null) {
+        filteredItems.add(filteredItem);
       }
     }
 
     return filteredItems;
+  }
+
+  private String filterItem(
+    JinjavaInterpreter interpreter,
+    String parameter,
+    Object item
+  ) {
+    Object value;
+    try {
+      value = getValue(interpreter, item, parameter);
+    } catch (InvalidArgumentException exception) {
+      return null;
+    }
+
+    if (value instanceof String || value instanceof Integer) {
+      return String.valueOf(value);
+    }
+
+    if (value instanceof Boolean && (Boolean) value) {
+      return (String) item;
+    }
+
+    return null;
   }
 
   private Object getValue(

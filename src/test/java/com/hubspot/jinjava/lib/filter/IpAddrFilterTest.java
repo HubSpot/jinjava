@@ -7,7 +7,9 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.SafeString;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Before;
@@ -245,6 +247,22 @@ public class IpAddrFilterTest {
   }
 
   @Test
+  public void itFiltersIpAddressesInMap() {
+    Map<Integer, Object> validAddresses = new HashMap<>();
+    validAddresses.put(1, "192.24.2.1");
+    validAddresses.put(3, "192.168.32.0");
+    validAddresses.put(6, "fe80::100");
+    Map<Integer, Object> invalidAddresses = new HashMap<>();
+    invalidAddresses.put(2, null);
+    invalidAddresses.put(4, 13);
+    invalidAddresses.put(5, true);
+
+    Map<Integer, Object> allAddresses = new HashMap<>(validAddresses);
+    allAddresses.putAll(invalidAddresses);
+    assertThat(ipAddrFilter.filter(allAddresses, interpreter)).isEqualTo(validAddresses);
+  }
+
+  @Test
   public void itFiltersIpAddressesAddress() {
     List<Object> inputAddresses = Arrays.asList(
       "192.24.2.1",
@@ -327,6 +345,24 @@ public class IpAddrFilterTest {
       13
     );
     List<Object> expectedAddresses = Arrays.asList("255.255.255.0", "ffc0::");
+    assertThat(ipAddrFilter.filter(inputAddresses, interpreter, "netmask"))
+      .isEqualTo(expectedAddresses);
+  }
+
+  @Test
+  public void itFiltersIpAddressesWithParameterInMap() {
+    Map<Integer, Object> inputAddresses = new HashMap<>();
+    inputAddresses.put(1, "192.24.2.1");
+    inputAddresses.put(2, null);
+    inputAddresses.put(3, "192.168.32.0/24");
+    inputAddresses.put(4, 13);
+    inputAddresses.put(5, true);
+    inputAddresses.put(6, "fe80::100/10");
+
+    Map<Integer, Object> expectedAddresses = new HashMap<>();
+    expectedAddresses.put(3, "255.255.255.0");
+    expectedAddresses.put(6, "ffc0::");
+
     assertThat(ipAddrFilter.filter(inputAddresses, interpreter, "netmask"))
       .isEqualTo(expectedAddresses);
   }
