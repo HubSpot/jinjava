@@ -26,6 +26,8 @@ public class MacroFunction extends AbstractCallableMethod {
 
   private final Context localContextScope;
 
+  private boolean deferred;
+
   public MacroFunction(List<Node> content,
                        String name,
                        LinkedHashMap<String, Object> argNamesWithDefaults,
@@ -35,6 +37,7 @@ public class MacroFunction extends AbstractCallableMethod {
     this.content = content;
     this.caller = caller;
     this.localContextScope = localContextScope;
+    this.deferred = false;
   }
 
   @Override
@@ -73,6 +76,14 @@ public class MacroFunction extends AbstractCallableMethod {
     } finally {
       importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop());
     }
+  }
+
+  public void setDeferred(boolean deferred) {
+    this.deferred = deferred;
+  }
+
+  public boolean isDeferred() {
+    return deferred;
   }
 
   public boolean isCaller() {
