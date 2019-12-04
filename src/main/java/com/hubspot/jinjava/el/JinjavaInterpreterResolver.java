@@ -34,6 +34,8 @@ import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
 import com.hubspot.jinjava.el.ext.JinjavaListELResolver;
 import com.hubspot.jinjava.el.ext.NamedParameter;
+import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.LazyExpression;
@@ -205,6 +207,10 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
             if (value instanceof LazyExpression) {
               value = ((LazyExpression) value).get();
+            }
+
+            if (value instanceof DeferredValue) {
+              throw new DeferredValueException(propertyName, interpreter.getLineNumber(), interpreter.getPosition());
             }
 
           } catch (PropertyNotFoundException e) {

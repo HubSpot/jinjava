@@ -91,7 +91,7 @@ public class ImportTagTest {
     interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
     interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
     fixture("import-property");
-    assertThat(interpreter.getContext().get("pegasus")).isInstanceOf(DeferredValue.class);
+    assertThat(((Map)interpreter.getContext().get("pegasus")).get("primary_line_height")).isInstanceOf(DeferredValue.class);
   }
 
   @Test

@@ -16,6 +16,7 @@ import org.junit.Test;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.loader.LocationResolver;
@@ -64,6 +65,13 @@ public class FromTagTest {
         .contains("wrap-spacer:")
         .contains("<td height=\"42\">")
         .contains("wrap-padding: padding-left:42px;padding-right:42px");
+  }
+
+  @Test
+  public void importedDefersVars() {
+    interpreter.getContext().put("padding", DeferredValue.instance());
+    assertThat(fixture("from"))
+        .contains("{{ wp }}");
   }
 
   @Test

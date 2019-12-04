@@ -29,6 +29,8 @@ public class MacroFunction extends AbstractCallableMethod {
   private final int definitionLineNumber;
   private final int definitionStartPosition;
 
+  private boolean deferred;
+
   public MacroFunction(List<Node> content,
                        String name,
                        LinkedHashMap<String, Object> argNamesWithDefaults,
@@ -42,6 +44,7 @@ public class MacroFunction extends AbstractCallableMethod {
     this.localContextScope = localContextScope;
     this.definitionLineNumber = lineNumber;
     this.definitionStartPosition = startPosition;
+    this.deferred = false;
   }
 
   @Override
@@ -83,6 +86,14 @@ public class MacroFunction extends AbstractCallableMethod {
     } finally {
       importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop());
     }
+  }
+
+  public void setDeferred(boolean deferred) {
+    this.deferred = deferred;
+  }
+
+  public boolean isDeferred() {
+    return deferred;
   }
 
   public boolean isCaller() {
