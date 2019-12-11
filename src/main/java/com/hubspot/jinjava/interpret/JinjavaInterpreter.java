@@ -571,4 +571,12 @@ public class JinjavaInterpreter {
       renderTimings.end(this, name, data);
     }
   }
+
+  public int getLineNumber(JinjavaInterpreter interpreter) {
+    return interpreter.getContext().getCurrentPathStack().getTopLineNumber();
+  }
+
+  private int getStartPosition(JinjavaInterpreter interpreter) {
+    return interpreter.getContext().getCurrentPathStack().getTopStartPosition();
+  }
 }

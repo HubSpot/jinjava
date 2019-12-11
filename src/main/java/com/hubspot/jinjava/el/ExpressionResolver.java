@@ -102,7 +102,7 @@ public class ExpressionResolver {
       int position = interpreter.getPosition() + e.getPosition();
       // replacing the position in the string like this isn't great, but JUEL's parser does not allow passing in a starting position
       String errorMessage = StringUtils.substringAfter(e.getMessage(), "': ").replaceFirst("position [0-9]+", "position " + position);
-      interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(
+      interpreter.addError(TemplateError.fromException(interpreter, new TemplateSyntaxException(
           expression.substring(e.getPosition() - EXPRESSION_START_TOKEN.length()),
           "Error parsing '" + expression + "': " + errorMessage,
           interpreter.getLineNumber(),
@@ -114,13 +114,13 @@ public class ExpressionResolver {
         throw (DeferredValueException) e.getCause();
       }
       if (e.getCause() != null && e.getCause() instanceof TemplateSyntaxException) {
-        interpreter.addError(TemplateError.fromException((TemplateSyntaxException) e.getCause()));
+        interpreter.addError(TemplateError.fromException(interpreter, (TemplateSyntaxException) e.getCause()));
       } else if (e.getCause() != null && e.getCause() instanceof InvalidInputException) {
-        interpreter.addError(TemplateError.fromInvalidInputException((InvalidInputException) e.getCause()));
+        interpreter.addError(TemplateError.fromInvalidInputException(interpreter, (InvalidInputException) e.getCause()));
       } else if (e.getCause() != null && e.getCause() instanceof InvalidArgumentException) {
-        interpreter.addError(TemplateError.fromInvalidArgumentException((InvalidArgumentException) e.getCause()));
+        interpreter.addError(TemplateError.fromInvalidArgumentException(interpreter, (InvalidArgumentException) e.getCause()));
       } else {
-        interpreter.addError(TemplateError.fromException(new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
+        interpreter.addError(TemplateError.fromException(interpreter, new TemplateSyntaxException(expression, e.getMessage(), interpreter.getLineNumber(), e)));
       }
     } catch (DisabledException e) {
       interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.FUNCTION, e.getMessage(), expression, interpreter.getLineNumber(), interpreter.getPosition(), e));
@@ -131,11 +131,11 @@ public class ExpressionResolver {
       // Re-throw so that it can be handled in JinjavaInterpreter
       throw e;
     } catch (InvalidInputException e) {
-      interpreter.addError(TemplateError.fromInvalidInputException(e));
+      interpreter.addError(TemplateError.fromInvalidInputException(interpreter, e));
     } catch (InvalidArgumentException e) {
-      interpreter.addError(TemplateError.fromInvalidArgumentException(e));
+      interpreter.addError(TemplateError.fromInvalidArgumentException(interpreter, e));
     } catch (Exception e) {
-      interpreter.addError(TemplateError.fromException(new InterpretException(
+      interpreter.addError(TemplateError.fromException(interpreter, new InterpretException(
           String.format("Error resolving expression [%s]: " + getRootCauseMessage(e), expression),
           e,
           interpreter.getLineNumber(),

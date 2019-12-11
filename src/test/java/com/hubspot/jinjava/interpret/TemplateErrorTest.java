@@ -27,13 +27,13 @@ public class TemplateErrorTest {
 
   @Test
   public void itShowsFieldNameForUnknownTagError() {
-    TemplateError e = TemplateError.fromException(new UnknownTagException("unKnown", "{% unKnown() %}", 11, 3));
+    TemplateError e = TemplateError.fromException(JinjavaInterpreter.getCurrent(), new UnknownTagException("unKnown", "{% unKnown() %}", 11, 3));
     assertThat(e.getFieldName()).isEqualTo("unKnown");
   }
 
   @Test
   public void itShowsFieldNameForSyntaxError() {
-    TemplateError e = TemplateError.fromException(new TemplateSyntaxException("da codez", "{{ lolo lolo }}", 11));
+    TemplateError e = TemplateError.fromException(JinjavaInterpreter.getCurrent(), new TemplateSyntaxException("da codez", "{{ lolo lolo }}", 11));
     assertThat(e.getFieldName()).isEqualTo("da codez");
   }
 

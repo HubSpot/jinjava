@@ -62,47 +62,67 @@ public class TemplateError {
     return new TemplateError(getSeverity(), getReason(), getItem(), getMessage(), getFieldName(), getLineno(), getStartPosition(), getException(), getCategory(), getCategoryErrors(), scopeDepth);
   }
 
-  public static TemplateError fromSyntaxError(InterpretException ex) {
-    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, ex.getLineNumber(), ex.getStartPosition(), ex);
+  public static TemplateError fromSyntaxError(JinjavaInterpreter interpreter,
+                                              InterpretException ex) {
+    return new TemplateError(ErrorType.FATAL,
+        ErrorReason.SYNTAX_ERROR,
+        ErrorItem.OTHER,
+        ExceptionUtils.getMessage(ex),
+        null,
+        getLineNumber(interpreter),
+        getStartPosition(interpreter),
+        ex);
   }
 
-  public static TemplateError fromException(TemplateSyntaxException ex) {
+  public static TemplateError fromException(JinjavaInterpreter interpreter,
+                                            TemplateSyntaxException ex) {
     String fieldName = (ex instanceof UnknownTagException) ? ((UnknownTagException) ex).getTag() : ex.getCode();
-    return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ex.getMessage(), fieldName, ex.getLineNumber(), ex.getStartPosition(), ex);
+    return new TemplateError(ErrorType.FATAL,
+        ErrorReason.SYNTAX_ERROR,
+        ErrorItem.OTHER,
+        ex.getMessage(),
+        fieldName,
+        getLineNumber(interpreter),
+        getStartPosition(interpreter),
+        ex);
   }
 
-  public static TemplateError fromInvalidArgumentException(InvalidArgumentException ex) {
+  public static TemplateError fromInvalidArgumentException(JinjavaInterpreter interpreter,
+                                                           InvalidArgumentException ex) {
     return new TemplateError(ErrorType.FATAL,
         ErrorReason.INVALID_ARGUMENT,
         ErrorItem.PROPERTY,
         ex.getMessage(),
         ex.getName(),
-        ex.getLineNumber(),
-        ex.getStartPosition(),
+        getLineNumber(interpreter),
+        getStartPosition(interpreter),
         ex);
   }
 
-  public static TemplateError fromInvalidInputException(InvalidInputException ex) {
+  public static TemplateError fromInvalidInputException(JinjavaInterpreter interpreter,
+                                                        InvalidInputException ex) {
     return new TemplateError(ErrorType.FATAL,
         ErrorReason.INVALID_INPUT,
         ErrorItem.PROPERTY,
         ex.getMessage(),
         ex.getName(),
-        ex.getLineNumber(),
-        ex.getStartPosition(),
+        getLineNumber(interpreter),
+        getStartPosition(interpreter),
         ex);
   }
 
-  public static TemplateError fromException(Exception ex) {
-    int lineNumber = -1;
-    int startPosition = -1;
-
-    if (ex instanceof InterpretException) {
-      lineNumber = ((InterpretException) ex).getLineNumber();
-      startPosition = ((InterpretException) ex).getStartPosition();
-    }
-
-    return new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, lineNumber, startPosition, ex, BasicTemplateErrorCategory.UNKNOWN, ImmutableMap.of());
+  public static TemplateError fromException(JinjavaInterpreter interpreter,
+                                            Exception ex) {
+    return new TemplateError(ErrorType.FATAL,
+        ErrorReason.EXCEPTION,
+        ErrorItem.OTHER,
+        ExceptionUtils.getMessage(ex),
+        null,
+        getLineNumber(interpreter),
+        getStartPosition(interpreter),
+        ex,
+        BasicTemplateErrorCategory.UNKNOWN,
+        ImmutableMap.of());
   }
 
   public static TemplateError fromOutputTooBigException(Exception ex) {
@@ -150,9 +170,9 @@ public class TemplateError {
   public TemplateError(ErrorType severity,
                        ErrorReason reason,
                        ErrorItem item,
+                       JinjavaInterpreter interpreter,
                        String message,
                        String fieldName,
-                       int lineno,
                        Exception exception) {
     this.severity = severity;
     this.reason = reason;
@@ -171,8 +191,6 @@ public class TemplateError {
                        ErrorItem item,
                        String message,
                        String fieldName,
-                       int lineno,
-                       int startPosition,
                        Exception exception) {
     this.severity = severity;
     this.reason = reason;
@@ -192,8 +210,6 @@ public class TemplateError {
                        ErrorItem item,
                        String message,
                        String fieldName,
-                       int lineno,
-                       int startPosition,
                        Exception exception,
                        TemplateErrorCategory category,
                        Map<String, String> categoryErrors,
@@ -217,7 +233,6 @@ public class TemplateError {
                        ErrorItem item,
                        String message,
                        String fieldName,
-                       int lineno,
                        Exception exception,
                        TemplateErrorCategory category,
                        Map<String, String> categoryErrors) {
@@ -238,8 +253,6 @@ public class TemplateError {
                        ErrorItem item,
                        String message,
                        String fieldName,
-                       int lineno,
-                       int startPosition,
                        Exception exception,
                        TemplateErrorCategory category,
                        Map<String, String> categoryErrors) {
@@ -259,8 +272,6 @@ public class TemplateError {
                        ErrorReason reason,
                        String message,
                        String fieldName,
-                       int lineno,
-                       int startPosition,
                        Exception exception) {
     this.severity = severity;
     this.reason = reason;

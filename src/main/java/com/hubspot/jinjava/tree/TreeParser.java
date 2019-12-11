@@ -68,7 +68,7 @@ public class TreeParser {
     }
 
     if (parent != root) {
-      interpreter.addError(TemplateError.fromException(
+      interpreter.addError(TemplateError.fromException(interpreter,
           new MissingEndTagException(((TagNode) parent).getEndName(),
                                      parent.getMaster().getImage(),
                                      parent.getLineNumber(), parent.getStartPosition())));
@@ -110,7 +110,7 @@ public class TreeParser {
         break;
 
       default:
-        interpreter.addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(),
+        interpreter.addError(TemplateError.fromException(interpreter, new UnexpectedTokenException(token.getImage(),
                                                                                       token.getLineNumber(), token.getStartPosition())));
     }
     return null;
@@ -162,7 +162,7 @@ public class TreeParser {
     try {
       tag = interpreter.getContext().getTag(tagToken.getTagName());
       if (tag == null) {
-        interpreter.addError(TemplateError.fromException(new UnknownTagException(tagToken)));
+        interpreter.addError(TemplateError.fromException(interpreter, new UnknownTagException(tagToken)));
         return null;
       }
     } catch (DisabledException e) {
@@ -220,7 +220,7 @@ public class TreeParser {
         hasMatchingStartTag = true;
         break;
       } else {
-        interpreter.addError(TemplateError.fromException(
+        interpreter.addError(TemplateError.fromException(interpreter,
             new TemplateSyntaxException(tagToken.getImage(),
                                         "Mismatched end tag, expected: " + parentTag.getEndName(),
                                         tagToken.getLineNumber(), tagToken.getStartPosition())));

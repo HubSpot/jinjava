@@ -101,4 +101,13 @@ public class IncludeTagTest {
     assertThat(result.getOutput().trim()).isEqualTo("INCLUDED");
   }
 
+  @Test
+  public void itSetsErrorLineNumbersCorrectly() throws IOException {
+
+    RenderResult result = jinjava.renderForResult(Resources.toString(Resources.getResource("tags/includetag/errors/base.html"), StandardCharsets.UTF_8),
+        new HashMap<>());
+
+    assertThat(result.getErrors()).isEmpty();
+  }
+
 }

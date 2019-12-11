@@ -202,15 +202,15 @@ public class Jinjava {
       return new RenderResult(result, interpreter.getContext(), interpreter.getErrorsCopy());
     } catch (InterpretException e) {
       if (e instanceof TemplateSyntaxException) {
-        return new RenderResult(TemplateError.fromException((TemplateSyntaxException) e), interpreter.getContext(), interpreter.getErrorsCopy());
+        return new RenderResult(TemplateError.fromException(interpreter, (TemplateSyntaxException) e), interpreter.getContext(), interpreter.getErrorsCopy());
       }
-      return new RenderResult(TemplateError.fromSyntaxError(e), interpreter.getContext(), interpreter.getErrorsCopy());
+      return new RenderResult(TemplateError.fromSyntaxError(interpreter, e), interpreter.getContext(), interpreter.getErrorsCopy());
     } catch (InvalidArgumentException e) {
-      return new RenderResult(TemplateError.fromInvalidArgumentException(e), interpreter.getContext(), interpreter.getErrorsCopy());
+      return new RenderResult(TemplateError.fromInvalidArgumentException(interpreter, e), interpreter.getContext(), interpreter.getErrorsCopy());
     } catch (InvalidInputException e) {
-      return new RenderResult(TemplateError.fromInvalidInputException(e), interpreter.getContext(), interpreter.getErrorsCopy());
+      return new RenderResult(TemplateError.fromInvalidInputException(interpreter, e), interpreter.getContext(), interpreter.getErrorsCopy());
     } catch (Exception e) {
-      return new RenderResult(TemplateError.fromException(e), interpreter.getContext(), interpreter.getErrorsCopy());
+      return new RenderResult(TemplateError.fromException(interpreter, e), interpreter.getContext(), interpreter.getErrorsCopy());
     } finally {
       globalContext.reset();
       JinjavaInterpreter.popCurrent();
