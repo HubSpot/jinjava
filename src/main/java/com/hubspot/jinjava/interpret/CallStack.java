@@ -36,8 +36,8 @@ public class CallStack {
    * call stack without checking for a cycle.
    * @param path the path to be added.
    */
-  public void pushWithoutCycleCheck(String path) {
-    stack.push(path);
+  public void pushWithoutCycleCheck(String path, int lineNumber, int startPosition) {
+    pushToStack(path, lineNumber, startPosition);
   }
 
   public void pushWithMaxDepth(String path, int maxDepth, int lineNumber, int startPosition) {

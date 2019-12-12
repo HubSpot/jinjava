@@ -43,7 +43,7 @@ public class MacroFunction extends AbstractCallableMethod {
     Optional<String> importFile = Optional.ofNullable((String) localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY));
 
     // pushWithoutCycleCheck() is used to here so that macros calling macros from the same file will not throw a TagCycleException
-    importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pushWithoutCycleCheck(path));
+    importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pushWithoutCycleCheck(path, interpreter.getLineNumber(), interpreter.getPosition()));
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       for (Map.Entry<String, Object> scopeEntry : localContextScope.getScope().entrySet()) {
