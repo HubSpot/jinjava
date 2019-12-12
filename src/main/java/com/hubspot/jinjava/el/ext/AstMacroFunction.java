@@ -31,7 +31,7 @@ public class AstMacroFunction extends AstFunction {
     MacroFunction macroFunction = interpreter.getContext().getGlobalMacro(getName());
     if (macroFunction != null) {
 
-      if (macroFunction.isDeferred()){
+      if (macroFunction.isDeferred()) {
         throw new DeferredValueException(getName(), interpreter.getLineNumber(), interpreter.getPosition());
       }
 
