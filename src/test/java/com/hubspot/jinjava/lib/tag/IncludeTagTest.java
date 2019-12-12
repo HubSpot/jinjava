@@ -110,4 +110,14 @@ public class IncludeTagTest {
     assertThat(result.getErrors()).hasSize(1);
     assertThat(result.getErrors().get(0).getLineno()).isEqualTo(7);
   }
+
+  @Test
+  public void itSetsErrorLineNumbersCorrectlyTwoLevelsDeep() throws IOException {
+
+    RenderResult result = jinjava.renderForResult(Resources.toString(Resources.getResource("tags/includetag/errors/base2.html"), StandardCharsets.UTF_8),
+        new HashMap<>());
+
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getLineno()).isEqualTo(2);
+  }
 }
