@@ -232,6 +232,18 @@ public class ImportTagTest {
     assertThat(result.getErrors().get(0).getLineno()).isEqualTo(2);
   }
 
+  @Test
+  public void itSetsErrorLineNumbersCorrectlyThroughIncludeTag() throws IOException {
+
+    Jinjava jinjava = new Jinjava();
+    RenderResult result = jinjava.renderForResult(Resources.toString(Resources.getResource("tags/importtag/errors/include.jinja"), StandardCharsets.UTF_8),
+        new HashMap<>());
+
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getLineno()).isEqualTo(7);
+  }
+
+
 
   private String fixture(String name) {
     try {
