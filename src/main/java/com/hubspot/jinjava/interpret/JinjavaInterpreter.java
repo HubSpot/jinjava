@@ -515,6 +515,10 @@ public class JinjavaInterpreter {
     return scopeDepth;
   }
 
+  /**
+    Use {@link #addAllChildErrors(Collection)} instead to fix error line numbers
+   */
+  @Deprecated
   public void addAllErrors(Collection<TemplateError> other) {
     if (errors.size() >= MAX_ERROR_SIZE) {
       return;
@@ -525,6 +529,10 @@ public class JinjavaInterpreter {
   }
 
   public void addAllChildErrors(Collection<TemplateError> childErrors) {
+    if (errors.size() >= MAX_ERROR_SIZE) {
+      return;
+    }
+
     childErrors.stream()
         .limit(MAX_ERROR_SIZE - errors.size())
         .forEach(error -> {
