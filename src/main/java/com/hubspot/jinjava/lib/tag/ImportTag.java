@@ -107,7 +107,7 @@ public class ImportTag implements Tag {
         JinjavaInterpreter.popCurrent();
       }
 
-      interpreter.addAllErrors(child.getErrorsCopy());
+      interpreter.addAllChildErrors(child.getErrorsCopy());
 
       Map<String, Object> childBindings = child.getContext().getSessionBindings();
 

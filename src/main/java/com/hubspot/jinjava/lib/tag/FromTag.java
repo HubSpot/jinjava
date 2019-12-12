@@ -106,7 +106,7 @@ public class FromTag implements Tag {
           JinjavaInterpreter.popCurrent();
         }
 
-        interpreter.addAllErrors(child.getErrorsCopy());
+        interpreter.addAllChildErrors(child.getErrorsCopy());
 
         for (Map.Entry<String, String> importMapping : imports.entrySet()) {
           Object val = child.getContext().getGlobalMacro(importMapping.getKey());

@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.entry;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.loader.LocationResolver;
 import com.hubspot.jinjava.loader.RelativePathResolver;
@@ -218,6 +220,18 @@ public class ImportTagTest {
     assertThat(renderResult.trim()).isEqualTo("");
     assertThat(interpreter.getErrorsCopy()).hasSize(0);
   }
+
+  @Test
+  public void itSetsErrorLineNumbersCorrectly() throws IOException {
+
+    Jinjava jinjava = new Jinjava();
+    RenderResult result = jinjava.renderForResult(Resources.toString(Resources.getResource("tags/importtag/errors/base.jinja"), StandardCharsets.UTF_8),
+        new HashMap<>());
+
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getLineno()).isEqualTo(2);
+  }
+
 
   private String fixture(String name) {
     try {

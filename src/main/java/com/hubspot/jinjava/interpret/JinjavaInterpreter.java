@@ -521,7 +521,17 @@ public class JinjavaInterpreter {
     }
     other.stream()
         .limit(MAX_ERROR_SIZE - errors.size())
-        .forEach(errors::add);
+        .forEach(this::addError);
+  }
+
+  public void addAllChildErrors(Collection<TemplateError> childErrors) {
+    childErrors.stream()
+        .limit(MAX_ERROR_SIZE - errors.size())
+        .forEach(error -> {
+          error.setStartPosition(this.getPosition());
+          error.setLineno(this.getLineNumber());
+          this.addError(error);
+        });
   }
 
   // We cannot just remove this, other projects may depend on it.
