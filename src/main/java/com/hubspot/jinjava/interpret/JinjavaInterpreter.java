@@ -498,6 +498,13 @@ public class JinjavaInterpreter {
   }
 
   public void addError(TemplateError templateError) {
+
+    // fix line numbers not matching up with source template
+    if (!context.getCurrentPathStack().isEmpty()) {
+      templateError.setStartPosition(context.getCurrentPathStack().getTopStartPosition());
+      templateError.setLineno(context.getCurrentPathStack().getTopLineNumber());
+    }
+
     // Limit the number of error.
     if (errors.size() < MAX_ERROR_SIZE) {
       this.errors.add(templateError.withScopeDepth(scopeDepth));

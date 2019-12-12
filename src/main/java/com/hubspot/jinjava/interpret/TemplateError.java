@@ -49,8 +49,8 @@ public class TemplateError {
   private final ErrorItem item;
   private final String message;
   private final String fieldName;
-  private final int lineno;
-  private final int startPosition;
+  private int lineno;
+  private int startPosition;
   private final TemplateErrorCategory category;
   private final Map<String, String> categoryErrors;
 
@@ -298,8 +298,16 @@ public class TemplateError {
     return lineno;
   }
 
+  public void setLineno(int lineno) {
+    this.lineno = lineno;
+  }
+
   public int getStartPosition() {
     return startPosition;
+  }
+
+  public void setStartPosition(int startPosition) {
+    this.startPosition = startPosition;
   }
 
   public Exception getException() {
