@@ -83,7 +83,6 @@ public class MacroTagTest {
 
     interpreter.getContext().put("mylink", DeferredValue.instance());
     assertThat(snippet("{{section_link(mylink, 'mytext')}}").render(interpreter).getValue().trim()).isEqualTo("{{section_link(mylink, 'mytext')}}");
-    assertThat(fn.isDeferred()).isTrue();
   }
 
   @Test
