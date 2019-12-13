@@ -47,7 +47,7 @@ public class TemplateError {
   private final ErrorType severity;
   private final ErrorReason reason;
   private final ErrorItem item;
-  private final String message;
+  private String message;
   private final String fieldName;
   private int lineno;
   private int startPosition;
@@ -288,6 +288,10 @@ public class TemplateError {
 
   public String getMessage() {
     return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
   }
 
   public String getFieldName() {

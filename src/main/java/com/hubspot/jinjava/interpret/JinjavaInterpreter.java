@@ -33,6 +33,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -501,6 +502,7 @@ public class JinjavaInterpreter {
 
     // fix line numbers not matching up with source template
     if (!context.getCurrentPathStack().isEmpty()) {
+      templateError.setMessage(getWrappedErrorMessage(context.getCurrentPathStack().peek().get(), templateError));
       templateError.setStartPosition(context.getCurrentPathStack().getTopStartPosition());
       templateError.setLineno(context.getCurrentPathStack().getTopLineNumber());
     }
@@ -516,7 +518,7 @@ public class JinjavaInterpreter {
   }
 
   /**
-    Use {@link #addAllChildErrors(Collection)} instead to fix error line numbers
+    Use {@link #addAllChildErrors(String, Collection)} instead to fix error line numbers
    */
   @Deprecated
   public void addAllErrors(Collection<TemplateError> other) {
@@ -528,7 +530,7 @@ public class JinjavaInterpreter {
         .forEach(this::addError);
   }
 
-  public void addAllChildErrors(Collection<TemplateError> childErrors) {
+  public void addAllChildErrors(String childTemplateName, Collection<TemplateError> childErrors) {
     if (errors.size() >= MAX_ERROR_SIZE) {
       return;
     }
@@ -536,6 +538,7 @@ public class JinjavaInterpreter {
     childErrors.stream()
         .limit(MAX_ERROR_SIZE - errors.size())
         .forEach(error -> {
+          error.setMessage(getWrappedErrorMessage(childTemplateName, error));
           error.setStartPosition(this.getPosition());
           error.setLineno(this.getLineNumber());
           this.addError(error);
@@ -594,6 +597,24 @@ public class JinjavaInterpreter {
     RenderTimings renderTimings = (RenderTimings) getContext().get("request");
     if (renderTimings != null) {
       renderTimings.end(this, name, data);
+    }
+  }
+
+  private String getWrappedErrorMessage(String childTemplateName, TemplateError templateError) {
+
+    String severity = templateError.getSeverity() == ErrorType.WARNING ? "Warning" : "Error";
+    String lineNumber = templateError.getLineno() > 0
+        ? String.format(" on line %d", templateError.getLineno())
+        : "";
+
+    if (Strings.isNullOrEmpty(templateError.getMessage())) {
+      return String.format("Unknown %s in file `%s`%s", severity.toLowerCase(), childTemplateName, lineNumber);
+    } else {
+      return String.format("%s in file `%s`%s: %s",
+          severity,
+          childTemplateName,
+          lineNumber,
+          templateError.getMessage());
     }
   }
 }

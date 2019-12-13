@@ -109,6 +109,7 @@ public class IncludeTagTest {
 
     assertThat(result.getErrors()).hasSize(1);
     assertThat(result.getErrors().get(0).getLineno()).isEqualTo(7);
+    assertThat(result.getErrors().get(0).getMessage()).contains("Error in file `tags/includetag/errors/error.html` on line 4");
   }
 
   @Test
@@ -119,5 +120,6 @@ public class IncludeTagTest {
 
     assertThat(result.getErrors()).hasSize(1);
     assertThat(result.getErrors().get(0).getLineno()).isEqualTo(2);
+    assertThat(result.getErrors().get(0).getMessage()).contains("Error in file `tags/includetag/errors/error.html` on line 4");
   }
 }
