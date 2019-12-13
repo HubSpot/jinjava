@@ -93,6 +93,8 @@ public class ExtendsTag implements Tag {
     interpreter.getContext().getExtendPathStack().push(path, tagNode.getLineNumber(), tagNode.getStartPosition());
 
     try {
+      interpreter.getContext().getCurrentPathStack().push(path, interpreter.getLineNumber(), interpreter.getPosition());
+
       String template = interpreter.getResource(path);
       Node node = interpreter.parse(template);
 
@@ -102,6 +104,8 @@ public class ExtendsTag implements Tag {
       return "";
     } catch (IOException e) {
       throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
+    } finally {
+      interpreter.getContext().getCurrentPathStack().pop();
     }
   }
 
