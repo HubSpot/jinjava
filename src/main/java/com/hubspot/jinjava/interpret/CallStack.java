@@ -11,12 +11,20 @@ public class CallStack {
   private final int depth;
   private int topLineNumber;
   private int topStartPosition;
+  private boolean inheritFromParent;
 
   public CallStack(CallStack parent, Class<? extends TagCycleException> exceptionClass) {
     this.parent = parent;
     this.exceptionClass = exceptionClass;
 
     this.depth = parent == null ? 0 : parent.depth + 1;
+    if (parent != null) {
+      if (parent.inheritFromParent || parent.topLineNumber > 0) {
+        this.inheritFromParent = true;
+        this.topStartPosition = parent.topStartPosition;
+        this.topLineNumber = parent.topLineNumber;
+      }
+    }
   }
 
   public boolean contains(String path) {
@@ -91,7 +99,7 @@ public class CallStack {
   }
 
   private void pushToStack(String path, int lineNumber, int startPosition) {
-    if (stack.empty()) {
+    if (!inheritFromParent && stack.empty()) {
       topLineNumber = lineNumber;
       topStartPosition = startPosition;
     }
