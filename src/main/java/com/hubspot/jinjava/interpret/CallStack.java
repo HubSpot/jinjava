@@ -19,6 +19,9 @@ public class CallStack {
 
     this.depth = parent == null ? 0 : parent.depth + 1;
     if (parent != null) {
+      if (!parent.isEmpty()) {
+        stack.push(parent.peek().get());
+      }
       if (parent.inheritFromParent || parent.topLineNumber > 0) {
         this.inheritFromParent = true;
         this.topStartPosition = parent.topStartPosition;
