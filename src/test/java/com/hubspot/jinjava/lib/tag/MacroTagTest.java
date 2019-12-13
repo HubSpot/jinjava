@@ -21,6 +21,7 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.Node;
@@ -69,6 +70,20 @@ public class MacroTagTest {
     assertThat(fn.getArguments()).containsExactly("link", "text");
 
     assertThat(snippet("{{section_link('mylink', 'mytext')}}").render(interpreter).getValue().trim()).isEqualTo("link: mylink, text: mytext");
+  }
+
+  @Test
+  public void testFnWithDeferredArgs() {
+    TagNode t = fixture("with-args");
+    assertThat(t.render(interpreter).getValue()).isEmpty();
+
+    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.section_link", -1, -1);
+    assertThat(fn.getName()).isEqualTo("section_link");
+    assertThat(fn.getArguments()).containsExactly("link", "text");
+
+    interpreter.getContext().put("mylink", DeferredValue.instance());
+    assertThat(snippet("{{section_link(mylink, 'mytext')}}").render(interpreter).getValue().trim()).isEqualTo("{{section_link(mylink, 'mytext')}}");
+    assertThat(fn.isDeferred()).isTrue();
   }
 
   @Test

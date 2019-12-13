@@ -19,6 +19,7 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.loader.LocationResolver;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
@@ -68,13 +69,6 @@ public class FromTagTest {
   }
 
   @Test
-  public void importedDefersVars() {
-    interpreter.getContext().put("padding", DeferredValue.instance());
-    assertThat(fixture("from"))
-        .contains("{{ wp }}");
-  }
-
-  @Test
   public void importedCycleDected() {
     fixture("from-recursion");
     assertTrue(interpreter.getErrorsCopy().stream()
@@ -101,13 +95,26 @@ public class FromTagTest {
     assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
+  @Test
+  public void itDefersImport() {
+    interpreter.getContext().put("padding", DeferredValue.instance());
+    String template = fixtureText("from");
+    String rendered = fixture("from");
+    assertThat(rendered).isEqualTo(template);
+    MacroFunction spacer = interpreter.getContext().getGlobalMacro("spacer");
+    assertThat(spacer.isDeferred()).isTrue();
+  }
+
   private String fixture(String name) {
+    return interpreter.renderFlat(fixtureText(name));
+  }
+
+  private String fixtureText(String name) {
     try {
-      return interpreter.renderFlat(Resources.toString(
-          Resources.getResource(String.format("tags/macrotag/%s.jinja", name)), StandardCharsets.UTF_8));
+      return Resources.toString(
+          Resources.getResource(String.format("tags/macrotag/%s.jinja", name)), StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
-
 }
