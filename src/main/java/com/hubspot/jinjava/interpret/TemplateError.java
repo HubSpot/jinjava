@@ -2,6 +2,7 @@ package com.hubspot.jinjava.interpret;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -53,13 +54,16 @@ public class TemplateError {
   private int startPosition;
   private final TemplateErrorCategory category;
   private final Map<String, String> categoryErrors;
+  private String sourceTemplate;
 
   private int scopeDepth = 1;
 
   private final Exception exception;
 
   public TemplateError withScopeDepth(int scopeDepth) {
-    return new TemplateError(getSeverity(), getReason(), getItem(), getMessage(), getFieldName(), getLineno(), getStartPosition(), getException(), getCategory(), getCategoryErrors(), scopeDepth);
+    TemplateError error = new TemplateError(getSeverity(), getReason(), getItem(), getMessage(), getFieldName(), getLineno(), getStartPosition(), getException(), getCategory(), getCategoryErrors(), scopeDepth);
+    getSourceTemplate().ifPresent(error::setSourceTemplate);
+    return error;
   }
 
   public static TemplateError fromSyntaxError(InterpretException ex) {
@@ -328,6 +332,14 @@ public class TemplateError {
 
   public int getScopeDepth() {
     return scopeDepth;
+  }
+
+  public Optional<String> getSourceTemplate() {
+    return Optional.ofNullable(sourceTemplate);
+  }
+
+  public void setSourceTemplate(String sourceTemplate) {
+    this.sourceTemplate = sourceTemplate;
   }
 
   public TemplateError serializable() {

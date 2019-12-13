@@ -230,6 +230,11 @@ public class ImportTagTest {
 
     assertThat(result.getErrors()).hasSize(1);
     assertThat(result.getErrors().get(0).getLineno()).isEqualTo(2);
+
+    assertThat(result.getErrors().get(0).getMessage()).contains("Error in `tags/importtag/errors/file-with-error.jinja` on line 11");
+
+    assertThat(result.getErrors().get(0).getSourceTemplate().isPresent());
+    assertThat(result.getErrors().get(0).getSourceTemplate().get()).isEqualTo("tags/importtag/errors/file-with-error.jinja");
   }
 
   @Test
@@ -241,6 +246,11 @@ public class ImportTagTest {
 
     assertThat(result.getErrors()).hasSize(1);
     assertThat(result.getErrors().get(0).getLineno()).isEqualTo(7);
+
+    assertThat(result.getErrors().get(0).getMessage()).contains("Error in `tags/importtag/errors/file-with-error.jinja` on line 11");
+
+    assertThat(result.getErrors().get(0).getSourceTemplate().isPresent());
+    assertThat(result.getErrors().get(0).getSourceTemplate().get()).isEqualTo("tags/importtag/errors/file-with-error.jinja");
   }
 
 

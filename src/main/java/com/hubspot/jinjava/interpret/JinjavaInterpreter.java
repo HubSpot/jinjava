@@ -502,7 +502,10 @@ public class JinjavaInterpreter {
 
     // fix line numbers not matching up with source template
     if (!context.getCurrentPathStack().isEmpty()) {
-      templateError.setMessage(getWrappedErrorMessage(context.getCurrentPathStack().peek().get(), templateError));
+      if (!templateError.getSourceTemplate().isPresent()) {
+        templateError.setMessage(getWrappedErrorMessage(context.getCurrentPathStack().peek().get(), templateError));
+        templateError.setSourceTemplate(context.getCurrentPathStack().peek().get());
+      }
       templateError.setStartPosition(context.getCurrentPathStack().getTopStartPosition());
       templateError.setLineno(context.getCurrentPathStack().getTopLineNumber());
     }
@@ -538,7 +541,10 @@ public class JinjavaInterpreter {
     childErrors.stream()
         .limit(MAX_ERROR_SIZE - errors.size())
         .forEach(error -> {
-          error.setMessage(getWrappedErrorMessage(childTemplateName, error));
+          if (!error.getSourceTemplate().isPresent()) {
+            error.setMessage(getWrappedErrorMessage(childTemplateName, error));
+            error.setSourceTemplate(childTemplateName);
+          }
           error.setStartPosition(this.getPosition());
           error.setLineno(this.getLineNumber());
           this.addError(error);
@@ -610,7 +616,7 @@ public class JinjavaInterpreter {
     if (Strings.isNullOrEmpty(templateError.getMessage())) {
       return String.format("Unknown %s in file `%s`%s", severity.toLowerCase(), childTemplateName, lineNumber);
     } else {
-      return String.format("%s in file `%s`%s: %s",
+      return String.format("%s in `%s`%s: %s",
           severity,
           childTemplateName,
           lineNumber,
