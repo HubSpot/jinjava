@@ -105,4 +105,8 @@ public class CallStack {
     }
     stack.push(path);
   }
+
+  public boolean isInheritFromParent() {
+    return inheritFromParent;
+  }
 }
