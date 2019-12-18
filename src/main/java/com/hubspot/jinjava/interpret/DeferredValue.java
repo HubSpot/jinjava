@@ -8,7 +8,16 @@ package com.hubspot.jinjava.interpret;
 public class DeferredValue {
   private static final DeferredValue INSTANCE = new DeferredValue();
 
-  private DeferredValue() {
+  private Object originalValue;
+
+  private DeferredValue() {}
+
+  public DeferredValue(Object originalValue) {
+    this.originalValue = originalValue;
+  }
+
+  public Object getOriginalValue() {
+    return originalValue;
   }
 
   public static DeferredValue instance() {
