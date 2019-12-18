@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.tree.Node;
@@ -80,6 +81,10 @@ public class MacroFunction extends AbstractCallableMethod {
 
       for (Node node : content) {
         result.append(node.render(interpreter));
+      }
+
+      if (!interpreter.getContext().getDeferredNodes().isEmpty()) {
+        throw new DeferredValueException(getName(), interpreter.getLineNumber(), interpreter.getPosition());
       }
 
       return result.toString();
