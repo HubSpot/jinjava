@@ -12,7 +12,7 @@ public class DeferredValue {
 
   private DeferredValue() { }
 
-  public DeferredValue(Object originalValue) {
+  private DeferredValue(Object originalValue) {
     this.originalValue = originalValue;
   }
 
@@ -22,5 +22,9 @@ public class DeferredValue {
 
   public static DeferredValue instance() {
     return INSTANCE;
+  }
+
+  public static DeferredValue instance(Object originalValue) {
+    return new DeferredValue(originalValue);
   }
 }

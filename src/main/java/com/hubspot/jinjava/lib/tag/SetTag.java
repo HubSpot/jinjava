@@ -110,7 +110,7 @@ public class SetTag implements Tag {
           if (originalValue instanceof DeferredValue) {
             interpreter.getContext().put(key, originalValue);
           } else {
-            interpreter.getContext().put(key, new DeferredValue(originalValue));
+            interpreter.getContext().put(key, DeferredValue.instance(originalValue));
           }
         } else {
           interpreter.getContext().put(key, DeferredValue.instance());
