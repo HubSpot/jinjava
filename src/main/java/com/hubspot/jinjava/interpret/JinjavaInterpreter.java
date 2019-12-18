@@ -501,8 +501,7 @@ public class JinjavaInterpreter {
   public void addError(TemplateError templateError) {
 
     // fix line numbers not matching up with source template
-    if (!context.getCurrentPathStack().isEmpty()
-        || context.getCurrentPathStack().isInheritFromParent()) {
+    if (!context.getCurrentPathStack().isEmpty()) {
       if (!templateError.getSourceTemplate().isPresent()) {
         templateError.setMessage(getWrappedErrorMessage(context.getCurrentPathStack().peek().get(), templateError));
         templateError.setSourceTemplate(context.getCurrentPathStack().peek().get());
