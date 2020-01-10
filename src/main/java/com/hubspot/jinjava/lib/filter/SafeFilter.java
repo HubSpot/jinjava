@@ -3,8 +3,6 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InvalidInputException;
-import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.SafeString;
 
@@ -31,7 +29,7 @@ public class SafeFilter implements Filter {
     }
 
     if (!(var instanceof String)) {
-      throw new InvalidInputException(interpreter, this, InvalidReason.STRING);
+      return var;
     }
 
     return new SafeString((String) var);
