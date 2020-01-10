@@ -19,7 +19,6 @@ public class SafeFilterTest {
   public void setup() {
     interpreter = new Jinjava().newInterpreter();
     interpreter.getContext().setAutoEscape(true);
-    interpreter.getContext().put("v", HTML);
   }
 
   @After
@@ -29,7 +28,13 @@ public class SafeFilterTest {
 
   @Test
   public void itDoesNotEscapeStringMarkedAsSafe() throws Exception {
-    assertThat(interpreter.renderFlat("{{ v|safe }}")).isEqualTo(HTML);
+    interpreter.getContext().put("html", HTML);
+    assertThat(interpreter.renderFlat("{{ html|safe }}")).isEqualTo(HTML);
   }
 
+  @Test
+  public void itPassesVarThroughIfNotInstanceOfString() throws Exception {
+    interpreter.getContext().put("number", -3);
+    assertThat(interpreter.renderFlat("{{ number|safe|abs }}")).isEqualTo("3");
+  }
 }
