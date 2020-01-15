@@ -15,6 +15,8 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.BooleanUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -42,7 +44,7 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
 public class DefaultFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... args) {
     boolean truthy = false;
 
     if (args.length < 1) {
@@ -50,7 +52,7 @@ public class DefaultFilter implements Filter {
     }
 
     if (args.length > 1) {
-      truthy = BooleanUtils.toBoolean(args[1]);
+      truthy = BooleanUtils.toBoolean(Objects.toString(args[1]));
     }
 
     if (truthy) {

@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -36,7 +38,7 @@ public class ReplaceFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter,
-      String... args) {
+      Object... args) {
 
     if (var == null) {
       return null;
@@ -48,12 +50,12 @@ public class ReplaceFilter implements Filter {
     }
 
     String s = (String) var;
-    String toReplace = args[0];
-    String replaceWith = args[1];
+    String toReplace = Objects.toString(args[0]);
+    String replaceWith = Objects.toString(args[1]);
     Integer count = null;
 
     if (args.length > 2) {
-      count = NumberUtils.createInteger(args[2]);
+      count = NumberUtils.createInteger(Objects.toString(args[2]));
     }
 
     if (count == null) {

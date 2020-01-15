@@ -36,7 +36,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 public class LengthFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
     if (null == object) {
       return 0;
     }

@@ -28,7 +28,7 @@ public class UrlEncodeFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
     if (var == null && args.length == 0) {
       return "";
     }
@@ -55,7 +55,7 @@ public class UrlEncodeFilter implements Filter {
       return urlEncode(var.toString());
     }
 
-    return urlEncode(args[0]);
+    return urlEncode(Objects.toString(args[0]));
   }
 
   private String urlEncode(String s) {

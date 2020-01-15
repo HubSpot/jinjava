@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.util.Objects;
 
 import com.google.common.primitives.Doubles;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -28,11 +29,11 @@ public class RootFilter implements Filter {
   private static final MathContext PRECISION = new MathContext(50);
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... args) {
 
     double root = 2;
     if (args.length > 0 && args[0] != null) {
-      Double tryRoot = Doubles.tryParse(args[0]);
+      Double tryRoot = Doubles.tryParse(Objects.toString(args[0]));
       if (tryRoot == null) {
         throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, args[0]);
       }

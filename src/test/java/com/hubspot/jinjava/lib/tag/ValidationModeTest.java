@@ -40,7 +40,7 @@ public class ValidationModeTest {
     private int executionCount = 0;
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       executionCount++;
       return var;
     }

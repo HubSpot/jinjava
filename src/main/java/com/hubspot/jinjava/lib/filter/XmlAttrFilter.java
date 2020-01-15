@@ -33,7 +33,7 @@ public class XmlAttrFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
     if (var == null || !Map.class.isAssignableFrom(var.getClass())) {
       return var;
     }
@@ -51,7 +51,7 @@ public class XmlAttrFilter implements Filter {
     }
 
     String space = " ";
-    if (args.length > 0 && !BooleanUtils.toBoolean(args[0])) {
+    if (args.length > 0 && !BooleanUtils.toBoolean(Objects.toString(args[0]))) {
       space = "";
     }
 
