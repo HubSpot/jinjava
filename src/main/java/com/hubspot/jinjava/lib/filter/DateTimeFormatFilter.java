@@ -33,15 +33,15 @@ public class DateTimeFormatFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter,
       Object... args) {
 
-	List<String> stringArgs = new ArrayList<>();
-	for(Object arg: args) {
-		stringArgs.add(Objects.toString(arg));
-	}
-	String[] filterArgs = new String[stringArgs.size()];
-	for(int i=0; i < filterArgs.length; i++) {
-		filterArgs[i] = stringArgs.get(i);
-	}
-	  
+    List<String> stringArgs = new ArrayList<>();
+    for(Object arg: args) {
+        stringArgs.add(Objects.toString(arg));
+    }
+    String[] filterArgs = new String[stringArgs.size()];
+    for(int i=0; i < filterArgs.length; i++) {
+        filterArgs[i] = stringArgs.get(i);
+    }
+
     if (args.length > 0) {
       return Functions.dateTimeFormat(var, filterArgs);
     } else {
