@@ -34,11 +34,11 @@ public class DateTimeFormatFilter implements Filter {
       Object... args) {
 
     List<String> stringArgs = new ArrayList<>();
-    for(Object arg: args) {
+    for (Object arg: args) {
         stringArgs.add(Objects.toString(arg));
     }
     String[] filterArgs = new String[stringArgs.size()];
-    for(int i=0; i < filterArgs.length; i++) {
+    for (int i = 0; i < filterArgs.length; i++) {
         filterArgs[i] = stringArgs.get(i);
     }
 
