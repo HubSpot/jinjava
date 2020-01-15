@@ -52,17 +52,6 @@ public interface Filter extends Importable {
     // We append the named arguments at the end of the positional ones
     Object[] allArgs = ArrayUtils.addAll(args, kwargs.values().toArray());
 
-    List<String> stringArgs = new ArrayList<>();
-
-    for (Object arg : allArgs) {
-      stringArgs.add(arg == null ? null : Objects.toString(arg));
-    }
-
-    String[] filterArgs = new String[stringArgs.size()];
-    for (int i = 0; i < stringArgs.size(); i++) {
-      filterArgs[i] = stringArgs.get(i);
-    }
-
-    return filter(var, interpreter, filterArgs);
+    return filter(var, interpreter, allArgs);
   }
 }

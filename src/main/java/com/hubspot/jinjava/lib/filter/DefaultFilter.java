@@ -24,6 +24,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.util.ObjectTruthValue;
 
 @JinjavaDoc(
@@ -63,7 +64,7 @@ public class DefaultFilter implements Filter {
       return object;
     }
 
-    return args[0];
+    return (args[0] instanceof PyWrapper) ? args[0] : Objects.toString(args[0]);
   }
 
   @Override
