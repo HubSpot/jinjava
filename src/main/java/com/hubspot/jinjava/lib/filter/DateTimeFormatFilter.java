@@ -1,7 +1,5 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -33,13 +31,9 @@ public class DateTimeFormatFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter,
       Object... args) {
 
-    List<String> stringArgs = new ArrayList<>();
-    for (Object arg: args) {
-        stringArgs.add(Objects.toString(arg));
-    }
-    String[] filterArgs = new String[stringArgs.size()];
+    String[] filterArgs = new String[args.length];
     for (int i = 0; i < filterArgs.length; i++) {
-        filterArgs[i] = stringArgs.get(i);
+        filterArgs[i] = Objects.toString(args[i]);
     }
 
     if (args.length > 0) {
