@@ -94,7 +94,6 @@ public class FromTag implements Tag {
       }
 
       try {
-        interpreter.getContext().getCurrentPathStack().push(templateFile, interpreter.getLineNumber(), interpreter.getPosition());
         String template = interpreter.getResource(templateFile);
         Node node = interpreter.parse(template);
 
@@ -126,8 +125,6 @@ public class FromTag implements Tag {
         return "";
       } catch (IOException e) {
         throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
-      } finally {
-        interpreter.getContext().getCurrentPathStack().pop();
       }
     } finally {
       interpreter.getContext().popFromStack();

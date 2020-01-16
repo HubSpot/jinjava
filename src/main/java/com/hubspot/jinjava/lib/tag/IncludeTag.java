@@ -73,12 +73,12 @@ public class IncludeTag implements Tag {
     }
 
     try {
-      interpreter.getContext().getCurrentPathStack().push(templateFile, interpreter.getLineNumber(), interpreter.getPosition());
 
       String template = interpreter.getResource(templateFile);
       Node node = interpreter.parse(template);
 
       interpreter.getContext().addDependency("coded_files", templateFile);
+      interpreter.getContext().getCurrentPathStack().push(templateFile, interpreter.getLineNumber(), interpreter.getPosition());
 
       return interpreter.render(node);
     } catch (IOException e) {
