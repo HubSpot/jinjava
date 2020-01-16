@@ -314,8 +314,8 @@ public class ExtendedSyntaxBuilderTest {
     assertThat(interpreter.getErrorsCopy().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
   }
 
-  @Test
-  public void itReturnsCorrectSyntaxErrorPositions() {
+//  @Test
+//  public void itReturnsCorrectSyntaxErrorPositions() {
 //    assertThat(interpreter.render("hi {{ missing thing }}{{ missing thing }}\nI am {{ blah blabbity }} too")).isEqualTo("hi \nI am  too");
 //    assertThat(interpreter.getErrorsCopy().size()).isEqualTo(3);
 //    assertThat(interpreter.getErrorsCopy().get(0).getLineno()).isEqualTo(1);
