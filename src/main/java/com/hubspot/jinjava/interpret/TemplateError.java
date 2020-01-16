@@ -62,6 +62,10 @@ public class TemplateError {
     return new TemplateError(getSeverity(), getReason(), getItem(), getMessage(), getFieldName(), getLineno(), getStartPosition(), getException(), getCategory(), getCategoryErrors(), scopeDepth);
   }
 
+  public TemplateError withLineNumberAndPosition(int lineNumber, int position) {
+    return new TemplateError(getSeverity(), getReason(), getItem(), getMessage(), getFieldName(), lineNumber, position, getException(), getCategory(), getCategoryErrors(), scopeDepth);
+  }
+
   public static TemplateError fromSyntaxError(InterpretException ex) {
     return new TemplateError(ErrorType.FATAL, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, ExceptionUtils.getMessage(ex), null, ex.getLineNumber(), ex.getStartPosition(), ex);
   }

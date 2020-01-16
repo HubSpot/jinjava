@@ -500,7 +500,7 @@ public class JinjavaInterpreter {
   public void addError(TemplateError templateError) {
     // Limit the number of error.
     if (errors.size() < MAX_ERROR_SIZE) {
-      this.errors.add(templateError.withScopeDepth(scopeDepth));
+      this.errors.add(templateError.withScopeDepth(scopeDepth).withLineNumberAndPosition(lineNumber, position));
     }
   }
 
@@ -513,6 +513,7 @@ public class JinjavaInterpreter {
       return;
     }
     other.stream()
+        .map(error -> error.withLineNumberAndPosition(lineNumber, position))
         .limit(MAX_ERROR_SIZE - errors.size())
         .forEach(errors::add);
   }
