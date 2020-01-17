@@ -29,7 +29,7 @@ public class ShuffleFilter implements Filter {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     if (var instanceof Collection) {
       List<?> list = new ArrayList<>((Collection<Object>) var);
       Collections.shuffle(list, interpreter.getRandom());

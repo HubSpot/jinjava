@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -52,19 +51,19 @@ public class SortFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     if (var == null) {
       return null;
     }
 
-    boolean reverse = args.length > 0 && BooleanUtils.toBoolean(Objects.toString(args[0]));
-    boolean caseSensitive = args.length > 1 && BooleanUtils.toBoolean(Objects.toString(args[1]));
+    boolean reverse = args.length > 0 && BooleanUtils.toBoolean(args[0]);
+    boolean caseSensitive = args.length > 1 && BooleanUtils.toBoolean(args[1]);
 
     if (args.length > 2 && args[2] == null) {
       throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 2);
     }
 
-    List<String> attr = args.length > 2 ? DOT_SPLITTER.splitToList(Objects.toString(args[2])) : Collections.emptyList();
+    List<String> attr = args.length > 2 ? DOT_SPLITTER.splitToList(args[2]) : Collections.emptyList();
     return Lists.newArrayList(ObjectIterator.getLoop(var)).stream()
         .sorted(Comparator.comparing((o) -> mapObject(interpreter, o, attr),
             new ObjectComparator(reverse, caseSensitive)))

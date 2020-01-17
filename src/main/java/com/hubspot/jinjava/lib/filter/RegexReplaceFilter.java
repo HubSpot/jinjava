@@ -1,7 +1,5 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Objects;
-
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 import com.google.re2j.PatternSyntaxException;
@@ -37,7 +35,7 @@ public class RegexReplaceFilter implements Filter {
 
     @Override
     public Object filter(Object var, JinjavaInterpreter interpreter,
-                         Object... args) {
+                         String... args) {
 
         if (args.length < 2) {
             throw new TemplateSyntaxException(interpreter, getName(), "requires 2 arguments (regex string, replacement string)");
@@ -49,8 +47,8 @@ public class RegexReplaceFilter implements Filter {
 
         if (var instanceof String) {
             String s = (String) var;
-            String toReplace = Objects.toString(args[0]);
-            String replaceWith = Objects.toString(args[1]);
+            String toReplace = args[0];
+            String replaceWith = args[1];
 
             try {
                 Pattern p = Pattern.compile(toReplace);

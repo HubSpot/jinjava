@@ -43,7 +43,7 @@ import com.hubspot.jinjava.lib.fn.Functions;
 public class TruncateFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
     return Functions.truncate(object, (Object[]) arg);
   }
 

@@ -29,7 +29,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 public class LowerFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
     if (object instanceof String) {
       String value = (String) object;
       return value.toLowerCase();

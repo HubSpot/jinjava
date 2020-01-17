@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -37,19 +36,19 @@ public class DictSortFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     if (var == null || !Map.class.isAssignableFrom(var.getClass())) {
       return var;
     }
 
     boolean caseSensitive = false;
     if (args.length > 0) {
-      caseSensitive = BooleanUtils.toBoolean(Objects.toString(args[0]));
+      caseSensitive = BooleanUtils.toBoolean(args[0]);
     }
 
     boolean sortByKey = true;
     if (args.length > 1) {
-      sortByKey = "value".equalsIgnoreCase(Objects.toString(args[1]));
+      sortByKey = "value".equalsIgnoreCase(args[1]);
     }
 
     @SuppressWarnings("unchecked")

@@ -1,7 +1,5 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Objects;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -23,7 +21,7 @@ import com.hubspot.jinjava.lib.fn.Functions;
 public class StringToTimeFilter implements Filter {
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
 
     if (args.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (datetime format string)");
@@ -37,7 +35,7 @@ public class StringToTimeFilter implements Filter {
       throw new InvalidInputException(interpreter, this, InvalidReason.STRING);
     }
 
-    return Functions.stringToTime((String) var, Objects.toString(args[0]));
+    return Functions.stringToTime((String) var, args[0]);
   }
 
   @Override

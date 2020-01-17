@@ -3,7 +3,6 @@ package com.hubspot.jinjava.lib.filter;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Locale;
-import java.util.Objects;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -32,10 +31,10 @@ public class FloatFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     float defaultVal = 0;
     if (args.length > 0) {
-      defaultVal = NumberUtils.toFloat(Objects.toString(args[0]), 0.0f);
+      defaultVal = NumberUtils.toFloat(args[0], 0.0f);
     }
 
     if (var == null) {

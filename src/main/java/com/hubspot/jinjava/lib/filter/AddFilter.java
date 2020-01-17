@@ -16,7 +16,6 @@ limitations under the License.
 package com.hubspot.jinjava.lib.filter;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -41,7 +40,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 public class AddFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, Object... args) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
 
     if (object == null) {
       return null;
@@ -64,7 +63,7 @@ public class AddFilter implements Filter {
 
     BigDecimal addend;
     try {
-      addend = new BigDecimal(Objects.toString(args[0]));
+      addend = new BigDecimal(args[0]);
     } catch (NumberFormatException e) {
       throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, args[0]);
     }

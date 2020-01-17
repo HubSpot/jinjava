@@ -2,7 +2,6 @@ package com.hubspot.jinjava.lib.filter;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -35,12 +34,12 @@ public class UniqueFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     Map<Object, Object> result = new LinkedHashMap<>();
     String attr = null;
 
     if (args.length > 0) {
-      attr = Objects.toString(args[0]);
+      attr = args[0];
     }
 
     ForLoop loop = ObjectIterator.getLoop(var);
