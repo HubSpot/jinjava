@@ -39,7 +39,7 @@ public class BoolFilter implements Filter {
 
     @Override
     public Object filter(Object var, JinjavaInterpreter interpreter,
-                         String... args) {
+                         Object... args) {
         if (var == null) {
             return false;
         }

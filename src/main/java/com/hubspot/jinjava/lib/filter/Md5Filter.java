@@ -69,7 +69,7 @@ public class Md5Filter implements Filter {
   }
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
     if (object instanceof String) {
       return md5((String) object, interpreter.getConfig().getCharset());
     }

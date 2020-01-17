@@ -23,7 +23,7 @@ public class FirstFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
     ForLoop loop = ObjectIterator.getLoop(var);
     return loop.next();
   }

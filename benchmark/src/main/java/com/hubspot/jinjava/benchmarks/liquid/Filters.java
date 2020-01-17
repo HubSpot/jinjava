@@ -33,7 +33,7 @@ public class Filters {
    */
   public static class OverrideDateFilter extends DatetimeFilter {
     @Override
-    public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+    public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
       return Functions.dateTimeFormat(ZonedDateTime.now(), arg);
     }
   }
@@ -45,7 +45,7 @@ public class Filters {
     }
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       return null;
     }
   }
@@ -57,7 +57,7 @@ public class Filters {
     }
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       if(var == null) {
         return "";
       }
@@ -73,7 +73,7 @@ public class Filters {
       return "money_with_currency";
     }
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       Object val = super.filter(var, interpreter, args);
       if(val.toString().length() == 0) {
         return "";
@@ -89,7 +89,7 @@ public class Filters {
     }
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       double grams = toDouble(Objects.toString(var));
       return String.format("%.2f", grams / 1000);
     }
@@ -102,7 +102,7 @@ public class Filters {
     }
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       return super.filter(var, interpreter, args) + " kg";
     }
   }
@@ -114,7 +114,7 @@ public class Filters {
     }
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       return "/files/1/[shop_id]/[shop_id]/assets/" + var;
     }
   }
@@ -126,7 +126,7 @@ public class Filters {
     }
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       return "/global/" + var;
     }
   }
@@ -138,7 +138,7 @@ public class Filters {
     }
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       return "/shopify/" + var;
     }
   }
@@ -150,7 +150,7 @@ public class Filters {
     }
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       return String.format("<script src=\"%s\" type=\"text/javascript\"></script>", var);
     }
   }
@@ -162,7 +162,7 @@ public class Filters {
     }
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       String media = "all";
       if(args.length > 0) {
         media = args[0];
@@ -178,7 +178,7 @@ public class Filters {
     }
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       String url = args[0];
       String title = "";
       if(args.length > 1) {
@@ -195,7 +195,7 @@ public class Filters {
     }
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       String alt = "";
       if(args.length > 0) {
         alt = args[0];
@@ -212,7 +212,7 @@ public class Filters {
     }
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       String label = Objects.toString(var);
       String tag = args[0];
 
@@ -227,7 +227,7 @@ public class Filters {
     }
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       String tag = Objects.toString(var);
       String cssClass = "active";
       if(args.length > 0) {
@@ -251,7 +251,7 @@ public class Filters {
     }
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       String label = Objects.toString(var);
       String tag = args[0];
 
@@ -270,7 +270,7 @@ public class Filters {
     }
 
     @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       String label = Objects.toString(var);
       String tag = args[0];
 

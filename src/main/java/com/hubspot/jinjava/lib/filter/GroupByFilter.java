@@ -43,13 +43,13 @@ public class GroupByFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
 
     if (args.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (attr name to group by)");
     }
 
-    String attr = args[0];
+    String attr = Objects.toString(args[0]);
 
     ForLoop loop = ObjectIterator.getLoop(var);
     Multimap<String, Object> groupBuckets = LinkedListMultimap.create();

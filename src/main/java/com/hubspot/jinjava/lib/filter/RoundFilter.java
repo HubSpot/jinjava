@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.filter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Objects;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -32,7 +33,7 @@ public class RoundFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
 
     if (var == null) {
       return null;
@@ -47,12 +48,12 @@ public class RoundFilter implements Filter {
 
     int precision = 0;
     if (args.length > 0) {
-      precision = NumberUtils.toInt(args[0]);
+      precision = NumberUtils.toInt(Objects.toString(args[0]));
     }
 
     String method = "common";
     if (args.length > 1) {
-      method = args[1];
+      method = Objects.toString(args[1]);
     }
 
     RoundingMode roundingMode;

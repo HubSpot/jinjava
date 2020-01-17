@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.apache.commons.net.util.SubnetUtils;
@@ -46,14 +47,14 @@ public class IpAddrFilter implements Filter {
       BROADCAST_STRING);
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... args) {
 
     if (object == null) {
       return false;
     }
 
     if (args.length > 0) {
-      String function = args[0].trim();
+      String function = Objects.toString(args[0]).trim();
       return getFunctionValue(interpreter, function.toLowerCase(), object);
     }
 

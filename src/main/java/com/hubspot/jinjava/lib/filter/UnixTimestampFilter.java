@@ -20,7 +20,7 @@ public class UnixTimestampFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
       return Functions.unixtimestamp(var);
   }
 

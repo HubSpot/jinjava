@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Objects;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -27,10 +29,15 @@ public class DateTimeFormatFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter,
-      String... args) {
+      Object... args) {
+
+    String[] filterArgs = new String[args.length];
+    for (int i = 0; i < filterArgs.length; i++) {
+        filterArgs[i] = Objects.toString(args[i]);
+    }
 
     if (args.length > 0) {
-      return Functions.dateTimeFormat(var, args);
+      return Functions.dateTimeFormat(var, filterArgs);
     } else {
       return Functions.dateTimeFormat(var);
     }

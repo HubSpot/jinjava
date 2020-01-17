@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -53,12 +54,12 @@ public class BatchFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
     if (var == null || args.length == 0) {
       return Collections.emptyList();
     }
 
-    int lineCount = NumberUtils.toInt(args[0], 0);
+    int lineCount = NumberUtils.toInt(Objects.toString(args[0]), 0);
     if (lineCount == 0) {
       return Collections.emptyList();
     }
