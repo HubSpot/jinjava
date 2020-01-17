@@ -39,12 +39,12 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 public class CutFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
 
     if (arg.length < 1) {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (string to remove from target)");
     }
-    String cutee = arg[0];
+    String cutee = Objects.toString(arg[0]);
     String origin = Objects.toString(object, "");
     return StringUtils.replace(origin, cutee, "");
   }

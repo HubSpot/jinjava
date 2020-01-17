@@ -53,7 +53,6 @@ public class AdvancedFilterTest {
     }};
 
     jinjava.getGlobalContext().registerFilter(new MyMirrorFilter(expectedArgs, expectedKwargs));
-
     assertThat(jinjava.render("{{ 'test'|divide(named1) }}", new HashMap<>())).isEqualTo("test");
   }
 

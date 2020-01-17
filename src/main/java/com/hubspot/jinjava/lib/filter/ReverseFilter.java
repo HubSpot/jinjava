@@ -36,7 +36,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 public class ReverseFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
     if (object == null) {
       return null;
     }

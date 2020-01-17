@@ -15,10 +15,7 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -38,7 +35,7 @@ public interface Filter extends Importable {
    *          any arguments passed to this filter invocation
    * @return the filtered form of the given variable
    */
-  Object filter(Object var, JinjavaInterpreter interpreter, String... args);
+  Object filter(Object var, JinjavaInterpreter interpreter, Object... args);
 
   /*
    * The JinJava parser calls filters giving to them two lists of parameters:
@@ -52,17 +49,6 @@ public interface Filter extends Importable {
     // We append the named arguments at the end of the positional ones
     Object[] allArgs = ArrayUtils.addAll(args, kwargs.values().toArray());
 
-    List<String> stringArgs = new ArrayList<>();
-
-    for (Object arg : allArgs) {
-      stringArgs.add(arg == null ? null : Objects.toString(arg));
-    }
-
-    String[] filterArgs = new String[stringArgs.size()];
-    for (int i = 0; i < stringArgs.size(); i++) {
-      filterArgs[i] = stringArgs.get(i);
-    }
-
-    return filter(var, interpreter, filterArgs);
+    return filter(var, interpreter, allArgs);
   }
 }

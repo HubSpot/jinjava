@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -35,11 +36,11 @@ public class IntFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter,
-      String... args) {
+      Object... args) {
 
     Long defaultVal = 0L;
     if (args.length > 0) {
-      defaultVal = NumberUtils.toLong(args[0], 0);
+      defaultVal = NumberUtils.toLong(Objects.toString(args[0]), 0);
     }
 
     if (var == null) {

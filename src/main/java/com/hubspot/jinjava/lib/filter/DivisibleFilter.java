@@ -15,6 +15,8 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Objects;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -38,7 +40,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 public class DivisibleFilter implements Filter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
     if (object == null) {
       return false;
     }
@@ -46,7 +48,7 @@ public class DivisibleFilter implements Filter {
       if (arg.length < 1) {
         throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (number to divide by)");
       }
-      long factor = Long.parseLong(arg[0]);
+      long factor = Long.parseLong(Objects.toString(arg[0]));
       long value = ((Number) object).longValue();
       if (value % factor == 0) {
         return true;

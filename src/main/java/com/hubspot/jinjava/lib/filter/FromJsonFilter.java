@@ -24,7 +24,7 @@ public class FromJsonFilter implements Filter {
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
 
     if (var == null) {
       return null;

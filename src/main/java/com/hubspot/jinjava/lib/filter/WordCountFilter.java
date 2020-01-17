@@ -26,7 +26,7 @@ public class WordCountFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
     Matcher matcher = WORD_RE.matcher(Objects.toString(var, ""));
 
     int count = 0;

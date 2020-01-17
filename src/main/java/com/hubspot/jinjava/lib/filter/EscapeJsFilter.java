@@ -35,7 +35,7 @@ import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 public class EscapeJsFilter implements Filter {
 
   @Override
-  public Object filter(Object objectToFilter, JinjavaInterpreter jinjavaInterpreter, String... strings) {
+  public Object filter(Object objectToFilter, JinjavaInterpreter jinjavaInterpreter, Object... strings) {
     String input = Objects.toString(objectToFilter, "");
     LengthLimitingStringBuilder builder = new LengthLimitingStringBuilder(jinjavaInterpreter.getConfig().getMaxOutputSize());
 
