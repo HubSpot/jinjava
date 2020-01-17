@@ -37,7 +37,7 @@ public class PrettyPrintFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     if (var == null) {
       return "null";
     }

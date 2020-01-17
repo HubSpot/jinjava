@@ -29,7 +29,7 @@ public class FileSizeFormatFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     float bytes = NumberUtils.toFloat(Objects.toString(var), 0.0f);
 
     if (bytes == 1) {
@@ -38,7 +38,7 @@ public class FileSizeFormatFilter implements Filter {
 
     boolean binary = false;
     if (args.length > 0) {
-      binary = BooleanUtils.toBoolean(Objects.toString(args[0]));
+      binary = BooleanUtils.toBoolean(args[0]);
     }
 
     int base = binary ? 1024 : 1000;

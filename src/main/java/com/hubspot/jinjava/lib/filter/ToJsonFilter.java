@@ -23,7 +23,7 @@ public class ToJsonFilter implements Filter {
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     try {
       return OBJECT_MAPPER.writeValueAsString(var);
     } catch (JsonProcessingException e) {

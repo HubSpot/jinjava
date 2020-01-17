@@ -41,18 +41,18 @@ public class JoinFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
 
     LengthLimitingStringBuilder stringBuilder = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxStringLength());
 
     String separator = "";
     if (args.length > 0) {
-      separator = Objects.toString(args[0]);
+      separator = args[0];
     }
 
     String attr = null;
     if (args.length > 1) {
-      attr = Objects.toString(args[1]);
+      attr = args[1];
     }
 
     ForLoop loop = ObjectIterator.getLoop(var);

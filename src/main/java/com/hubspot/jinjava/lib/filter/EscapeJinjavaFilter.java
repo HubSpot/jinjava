@@ -55,7 +55,7 @@ public class EscapeJinjavaFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
     return escapeJinjavaEntities(Objects.toString(object, ""));
   }
 

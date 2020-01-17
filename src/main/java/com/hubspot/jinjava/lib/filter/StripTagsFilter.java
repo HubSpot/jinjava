@@ -25,7 +25,7 @@ public class StripTagsFilter implements Filter {
   private static final Pattern WHITESPACE = Pattern.compile("\\s{2,}");
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
 
     if (!(object instanceof String)) {
       return object;

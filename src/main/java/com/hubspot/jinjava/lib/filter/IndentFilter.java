@@ -37,15 +37,15 @@ public class IndentFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     int width = 4;
     if (args.length > 0) {
-      width = NumberUtils.toInt(Objects.toString(args[0]), 4);
+      width = NumberUtils.toInt(args[0], 4);
     }
 
     boolean indentFirst = false;
     if (args.length > 1) {
-      indentFirst = BooleanUtils.toBoolean(Objects.toString(args[1]));
+      indentFirst = BooleanUtils.toBoolean(args[1]);
     }
 
     List<String> indentedLines = new ArrayList<>();

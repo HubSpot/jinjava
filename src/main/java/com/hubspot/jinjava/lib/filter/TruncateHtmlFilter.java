@@ -40,7 +40,7 @@ public class TruncateHtmlFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, Object... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     if (var instanceof String) {
       int length = DEFAULT_TRUNCATE_LENGTH;
       String ends = DEFAULT_END;
@@ -59,7 +59,7 @@ public class TruncateHtmlFilter implements Filter {
 
       boolean killwords = false;
       if (args.length > 2) {
-        killwords = BooleanUtils.toBoolean(Objects.toString(args[2]));
+        killwords = BooleanUtils.toBoolean(args[2]);
       }
 
       Document dom = Jsoup.parseBodyFragment((String) var);

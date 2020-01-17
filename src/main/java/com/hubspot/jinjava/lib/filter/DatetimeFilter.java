@@ -22,7 +22,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 public class DatetimeFilter extends DateTimeFormatFilter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, Object... arg) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
     return super.filter(object, interpreter, arg);
   }
 

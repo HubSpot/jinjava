@@ -26,7 +26,7 @@ public class SafeFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter,
-      Object... args) {
+      String... args) {
     return var;
   }
 
