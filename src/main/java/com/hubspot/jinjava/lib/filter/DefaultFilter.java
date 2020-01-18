@@ -15,6 +15,9 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Map;
+import java.util.Objects;
+
 import org.apache.commons.lang3.BooleanUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -22,6 +25,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.util.ObjectTruthValue;
 
 @JinjavaDoc(
@@ -39,10 +43,10 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
             desc = "If you want to use default with variables that evaluate to false you have to set the second parameter to true",
             code = "{{ ''|default('the string was empty', true) }}")
     })
-public class DefaultFilter implements Filter {
+public class DefaultFilter implements AdvancedFilter {
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object object, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
     boolean truthy = false;
 
     if (args.length < 1) {
@@ -50,7 +54,7 @@ public class DefaultFilter implements Filter {
     }
 
     if (args.length > 1) {
-      truthy = BooleanUtils.toBoolean(args[1]);
+      truthy = BooleanUtils.toBoolean(Objects.toString(args[1]));
     }
 
     if (truthy) {
@@ -61,7 +65,7 @@ public class DefaultFilter implements Filter {
       return object;
     }
 
-    return args[0];
+    return args[0] instanceof PyWrapper ? args[0] : Objects.toString(args[0]);
   }
 
   @Override
