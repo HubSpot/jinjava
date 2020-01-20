@@ -235,7 +235,7 @@ public class Functions {
       }
     }
 
-    if (var instanceof SafeString){
+    if (var instanceof SafeString) {
       return new SafeString(truncate(var.toString(), arg).toString());
     }
 
