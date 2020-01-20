@@ -25,6 +25,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
@@ -232,6 +233,10 @@ public class Functions {
       } else {
         return string;
       }
+    }
+
+    if (var instanceof SafeString){
+      return new SafeString(truncate(var.toString(), arg).toString());
     }
 
     return var;
