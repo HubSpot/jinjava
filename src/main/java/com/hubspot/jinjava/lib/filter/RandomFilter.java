@@ -25,6 +25,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
     value = "Return a random item from the sequence.",
@@ -91,6 +92,10 @@ public class RandomFilter implements Filter {
       } catch (Exception e) {
         return 0;
       }
+    }
+    // safe string
+    if (object instanceof SafeString) {
+      return new SafeString(filter(object.toString(), interpreter, arg).toString());
     }
 
     return object;

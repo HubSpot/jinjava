@@ -19,6 +19,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
     value = "Convert a value to lowercase",
@@ -33,6 +34,9 @@ public class LowerFilter implements Filter {
     if (object instanceof String) {
       String value = (String) object;
       return value.toLowerCase();
+    }
+    if (object instanceof SafeString) {
+      return new SafeString(filter(object.toString(), interpreter, arg).toString());
     }
     return object;
   }

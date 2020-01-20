@@ -12,6 +12,7 @@ import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
 
@@ -70,6 +71,9 @@ public class RootFilter implements Filter {
       } catch (NumberFormatException e) {
         throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
       }
+    }
+    if (object instanceof SafeString) {
+      return new SafeString(filter(object.toString(), interpreter, args).toString());
     }
 
     return object;

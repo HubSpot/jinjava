@@ -13,6 +13,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
     value = "Evaluates to true if the value is a valid IPv4 or IPv6 address",
@@ -59,6 +60,9 @@ public class IpAddrFilter implements Filter {
 
     if (object instanceof String) {
       return validIp(((String) object).trim());
+    }
+    if (object instanceof SafeString) {
+      return new SafeString(filter(object.toString(), interpreter, args).toString());
     }
 
     return false;

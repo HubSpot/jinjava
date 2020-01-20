@@ -26,6 +26,7 @@ import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
     value = "Multiplies the current object with the given multiplier",
@@ -85,6 +86,10 @@ public class MultiplyFilter implements Filter {
         throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
       }
     }
+    if (object instanceof SafeString) {
+      return new SafeString(filter(object.toString(), interpreter, arg).toString());
+    }
+
     return object;
   }
 

@@ -37,4 +37,12 @@ public class SafeFilterTest {
     interpreter.getContext().put("number", -3);
     assertThat(interpreter.renderFlat("{{ number|safe|abs }}")).isEqualTo("3");
   }
+
+  @Test
+  public void itWorksWhenChainingFilters() throws Exception {
+    interpreter.getContext().put("safe_html", HTML);
+    assertThat(interpreter.renderFlat("{{ safe_html|safe|upper }}")).isEqualTo(HTML.toUpperCase());
+    assertThat(interpreter.renderFlat("{{ safe_html|upper|safe }}")).isEqualTo(HTML.toUpperCase());
+    assertThat(interpreter.renderFlat("{{ safe_html|safe|length }}")).isEqualTo(String.valueOf(HTML.length()));
+  }
 }

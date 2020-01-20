@@ -18,10 +18,13 @@ package com.hubspot.jinjava.lib.filter;
 import java.lang.reflect.Array;
 import java.util.Collection;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
     value = "Reverse the object or return an iterator the iterates over it the other way round.",
@@ -70,7 +73,12 @@ public class ReverseFilter implements Filter {
       for (int i = 0; i <= length; i++) {
         res[i] = origin.charAt(length - i);
       }
+      StringUtils.reverse((String) object);
       return String.valueOf(res);
+    }
+    //safe string
+    if (object instanceof SafeString) {
+      return new SafeString(filter(object.toString(), interpreter, arg).toString());
     }
 
     return object;

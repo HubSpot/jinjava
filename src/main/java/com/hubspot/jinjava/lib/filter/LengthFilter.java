@@ -24,6 +24,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
     value = "Return the number of items of a sequence or mapping",
@@ -76,6 +77,11 @@ public class LengthFilter implements Filter {
     if (object instanceof String) {
       return ((String) object).length();
     }
+
+    if (object instanceof SafeString) {
+      return new SafeString(filter(object.toString(), interpreter, arg).toString());
+    }
+
     return 0;
   }
 

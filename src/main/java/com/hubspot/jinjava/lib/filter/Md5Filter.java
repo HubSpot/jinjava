@@ -25,6 +25,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
     value = "Calculates the md5 hash of the given object",
@@ -72,6 +73,9 @@ public class Md5Filter implements Filter {
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
     if (object instanceof String) {
       return md5((String) object, interpreter.getConfig().getCharset());
+    }
+    if (object instanceof SafeString) {
+      return new SafeString(filter(object.toString(), interpreter, arg).toString());
     }
     return object;
   }
