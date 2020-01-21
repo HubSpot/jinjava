@@ -205,6 +205,27 @@ public class ForTagTest {
     assertEquals(new PyishDate(testDate).toString(), rendered);
   }
 
+  @Test
+  public void testTuplesWithPyList() {
+	  String template = "{% for href, caption in [('index.html', 'Index'), ('downloads.html', 'Downloads'), ('products.html', 'Products')] %}" + 
+	  		"<li><a href=\"{{href|e}}\">{{caption|e}}</a></li>\n" + 
+	  		"{% endfor %}";
+	  String expected = "<li><a href=\"index.html\">Index</a></li>\n" +
+	  		"<li><a href=\"downloads.html\">Downloads</a></li>\n" +
+	  		"<li><a href=\"products.html\">Products</a></li>\n";
+	  
+	  String rendered = jinjava.render(template, context);
+	  assertEquals(rendered, expected);
+	  
+	  template = "{% for a, b, c in [(1,2,3), (4,5,6)] %}"
+	  		+ "<p>{{a}} {{b}} {{c}}</p>\n"
+	  		+ "{% endfor %}";
+	  expected = "<p>1 2 3</p>\n"
+	  		+ "<p>4 5 6</p>\n";
+	  rendered = jinjava.render(template, context);
+	  assertEquals(rendered, expected);
+  }
+  
   private Node fixture(String name) {
     try {
       return new TreeParser(interpreter, Resources.toString(
