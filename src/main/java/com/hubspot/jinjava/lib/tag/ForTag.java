@@ -19,7 +19,6 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
@@ -165,10 +164,10 @@ public class ForTag implements Tag {
               interpreter.getContext().put(loopVar, entryVal);
             } else if (List.class.isAssignableFrom(val.getClass())) {
               List<Object> entries = ((PyList) val).toList();
-              String entryVal = null;
+              Object entryVal = null;
               // safety check for size
               if (entries.size() >= loopVarIndex) {
-                entryVal = Objects.toString(entries.get(loopVarIndex));
+                entryVal = entries.get(loopVarIndex);
               }
               interpreter.getContext().put(loopVar, entryVal);
             } else {

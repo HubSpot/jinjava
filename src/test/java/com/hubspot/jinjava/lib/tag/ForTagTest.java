@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.tree.Node;
@@ -207,23 +209,55 @@ public class ForTagTest {
 
   @Test
   public void testTuplesWithPyList() {
-	  String template = "{% for href, caption in [('index.html', 'Index'), ('downloads.html', 'Downloads'), ('products.html', 'Products')] %}" + 
+	String template = "{% for href, caption in [('index.html', 'Index'), ('downloads.html', 'Downloads'), ('products.html', 'Products')] %}" + 
 	  		"<li><a href=\"{{href|e}}\">{{caption|e}}</a></li>\n" + 
 	  		"{% endfor %}";
-	  String expected = "<li><a href=\"index.html\">Index</a></li>\n" +
+	String expected = "<li><a href=\"index.html\">Index</a></li>\n" +
 	  		"<li><a href=\"downloads.html\">Downloads</a></li>\n" +
 	  		"<li><a href=\"products.html\">Products</a></li>\n";
 	  
-	  String rendered = jinjava.render(template, context);
-	  assertEquals(rendered, expected);
-	  
-	  template = "{% for a, b, c in [(1,2,3), (4,5,6)] %}"
-	  		+ "<p>{{a}} {{b}} {{c}}</p>\n"
+	String rendered = jinjava.render(template, context);
+	assertEquals(rendered, expected);
+  }
+  
+  @Test
+  public void testTuplesWithThreeValues() {
+	String template = "{% for a, b, c in [(1,2,3), (4,5,6)] %}"
+		  		+ "<p>{{a}} {{b}} {{c}}</p>\n"
+		  		+ "{% endfor %}";
+    String expected = "<p>1 2 3</p>\n"
+  		+ "<p>4 5 6</p>\n";
+    String rendered = jinjava.render(template, context);
+    assertEquals(rendered, expected);
+  }
+  
+  @Test
+  public void testWithSingleTuple() {
+	String template = "{% for a, b, c, d in [(43, 21, 33, 54)] %}"
+	  		+ "<h1>{{a}} - {{b}}, {{c}} - {{d}}</h1>"
 	  		+ "{% endfor %}";
-	  expected = "<p>1 2 3</p>\n"
-	  		+ "<p>4 5 6</p>\n";
-	  rendered = jinjava.render(template, context);
-	  assertEquals(rendered, expected);
+	String expected = "<h1>43 - 21, 33 - 54</h1>";
+	String rendered = jinjava.render(template, context);
+	assertEquals(rendered, expected);
+  }
+  
+  @Test
+  public void testTuplesWithNonStringValues() {
+	String template = "{% for firstVal, secondVal in [(32, 21)] %}"
+			+ "{{firstVal + secondVal}}"
+			+ "{% endfor %}";
+	String rendered = jinjava.render(template, context);
+	assertEquals(rendered, "53");
+  }
+  
+  @Test
+  public void testRenderingFailsForLessValues() {
+	  String template = "{% for a,b,c in [(1,2)] %}"
+	  		+ "{{a}} {{b}} {{c}}"
+	  		+ "{% endfor %}";
+	  assertThatThrownBy(() -> jinjava.render(template, context))
+	  		.isInstanceOf(InterpretException.class)
+	  		.hasMessageContaining("Error rendering tag");
   }
   
   private Node fixture(String name) {
