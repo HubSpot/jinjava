@@ -24,7 +24,7 @@ import ch.obermuhlner.math.big.BigDecimalMath;
         @JinjavaSnippet(
             code = "{{ 25|log(5) }}")
     })
-public class LogFilter implements SafeStringFilter {
+public class LogFilter implements Filter {
 
   private static final MathContext PRECISION = new MathContext(50);
 

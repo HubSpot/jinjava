@@ -29,7 +29,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
                 "    {{ var|indent(2, true) }}\n" +
                 "</pre>")
     })
-public class IndentFilter implements SafeStringFilter {
+public class IndentFilter implements Filter {
 
   @Override
   public String getName() {

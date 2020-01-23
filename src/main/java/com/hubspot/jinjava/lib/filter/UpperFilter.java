@@ -26,7 +26,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     snippets = {
         @JinjavaSnippet(code = "{{ \"text to make uppercase\"|uppercase }}")
     })
-public class UpperFilter implements SafeStringFilter {
+public class UpperFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {

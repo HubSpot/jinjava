@@ -22,7 +22,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
                 "    {{ var|center(80) }}\n" +
                 "</pre>")
     })
-public class CenterFilter implements SafeStringFilter {
+public class CenterFilter implements Filter {
 
   @Override
   public String getName() {

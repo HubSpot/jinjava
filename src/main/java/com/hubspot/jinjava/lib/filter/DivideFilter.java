@@ -38,7 +38,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
             code = "{% set numerator = 106 %}\n" +
                 "{% numerator|divide(2) %}")
     })
-public class DivideFilter implements SafeStringFilter {
+public class DivideFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {

@@ -34,7 +34,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
             code = "{% set escape_string = \"<div>This markup is printed as text</div>\" %}\n" +
                 "{{ escape_string|escape }}")
     })
-public class EscapeFilter implements SafeStringFilter {
+public class EscapeFilter implements Filter {
 
   private static final String SAMP = "&";
   private static final String BAMP = "&amp;";

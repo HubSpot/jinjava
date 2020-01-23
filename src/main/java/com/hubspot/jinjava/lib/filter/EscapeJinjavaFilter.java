@@ -36,7 +36,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
                 "{{ escape_string|escapeJinjava }}")
     })
 
-public class EscapeJinjavaFilter implements SafeStringFilter {
+public class EscapeJinjavaFilter implements Filter {
 
   private static final String SLBRACE = "{";
   private static final String BLBRACE = "&lbrace;";

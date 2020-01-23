@@ -30,7 +30,7 @@ import com.hubspot.jinjava.objects.SafeString;
             desc = "If target is specified, the target attribute will be added to the <a> tag",
             code = "{{ \"http://www.hubspot.com\"|urlize(10, true, target='_blank') }}"),
     })
-public class UrlizeFilter implements SafeStringFilter {
+public class UrlizeFilter implements Filter {
 
   @Override
   public String getName() {

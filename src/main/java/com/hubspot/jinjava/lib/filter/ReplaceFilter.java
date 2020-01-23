@@ -27,7 +27,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
             code = "{{ \"aaaaargh\"|replace(\"a\", \"d'oh, \", 2) }}",
             output = "d'oh, d'oh, aaargh")
     })
-public class ReplaceFilter implements SafeStringFilter {
+public class ReplaceFilter implements Filter {
 
   @Override
   public String getName() {

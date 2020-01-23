@@ -36,7 +36,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
             code = "{% set my_string = \"Hello world.\" %}\n" +
                 "{{ my_string|cut(' world') }}")
     })
-public class CutFilter implements SafeStringFilter {
+public class CutFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {

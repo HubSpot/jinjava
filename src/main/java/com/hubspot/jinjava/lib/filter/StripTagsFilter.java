@@ -20,7 +20,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
             code = "{% set some_html = \"<div><strong>Some text</strong></div>\" %}\n" +
                 "{{ some_html|striptags }}")
     })
-public class StripTagsFilter implements SafeStringFilter {
+public class StripTagsFilter implements Filter {
 
   private static final Pattern WHITESPACE = Pattern.compile("\\s{2,}");
 

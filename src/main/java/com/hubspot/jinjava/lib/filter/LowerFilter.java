@@ -26,7 +26,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
     snippets = {
         @JinjavaSnippet(code = "{{ \"Text to MAKE Lowercase\"|lowercase }}")
     })
-public class LowerFilter implements SafeStringFilter {
+public class LowerFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {

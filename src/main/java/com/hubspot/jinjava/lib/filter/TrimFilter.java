@@ -17,7 +17,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
         @JinjavaSnippet(
             code = "{{ \" remove whitespace \"|trim }}")
     })
-public class TrimFilter implements SafeStringFilter {
+public class TrimFilter implements Filter {
 
   @Override
   public String getName() {

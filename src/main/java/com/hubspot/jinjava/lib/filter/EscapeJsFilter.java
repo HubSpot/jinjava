@@ -32,7 +32,7 @@ import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
             code = "{% set escape_string = \"This string can safely be inserted into JavaScript\" %}\n" +
                 "{{ escape_string|escapejs }}")
     })
-public class EscapeJsFilter implements SafeStringFilter {
+public class EscapeJsFilter implements Filter {
 
   @Override
   public Object filter(Object objectToFilter, JinjavaInterpreter jinjavaInterpreter, String... strings) {

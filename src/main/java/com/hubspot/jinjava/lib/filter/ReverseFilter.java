@@ -33,7 +33,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
                 "    {{ num }}\n" +
                 "{% endfor %}")
     })
-public class ReverseFilter implements SafeStringFilter {
+public class ReverseFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {

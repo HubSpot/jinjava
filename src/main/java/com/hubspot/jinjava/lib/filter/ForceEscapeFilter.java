@@ -17,7 +17,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
             code = "{% set escape_string = \"<div>This markup is printed as text</div>\" %}\n" +
                 "{{ escape_string|forceescape }}\n")
     })
-public class ForceEscapeFilter implements SafeStringFilter {
+public class ForceEscapeFilter implements Filter {
 
   @Override
   public String getName() {

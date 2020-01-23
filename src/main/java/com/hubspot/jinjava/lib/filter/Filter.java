@@ -24,6 +24,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.Importable;
+import com.hubspot.jinjava.objects.SafeString;
 
 public interface Filter extends Importable  {
 
@@ -64,5 +65,23 @@ public interface Filter extends Importable  {
     }
 
     return filter(var, interpreter, filterArgs);
+  }
+
+  /**
+   *  Apply filtering to a SafeString object and return result as a SafeString
+   *
+   * @param var
+   *          the SafeString variable which this filter should operate on
+   * @param interpreter
+   *          current interpreter context
+   * @param args
+   *          any arguments passed to this filter invocation
+   * @return the filtered form of the given variable as a SafeString
+   */
+  default Object safeFilter(Object var, JinjavaInterpreter interpreter, String... args) {
+    if (var instanceof SafeString) {
+      return new SafeString(filter(var.toString(), interpreter, args).toString());
+    }
+    return var;
   }
 }

@@ -20,7 +20,7 @@ import com.hubspot.jinjava.objects.SafeString;
             code = "{{object|fromJson}}"
         )
     })
-public class FromJsonFilter implements SafeStringFilter {
+public class FromJsonFilter implements Filter {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 

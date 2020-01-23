@@ -18,7 +18,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
         )
     })
 
-public class EscapeJsonFilter implements SafeStringFilter {
+public class EscapeJsonFilter implements Filter {
 
   @Override
   public String getName() {

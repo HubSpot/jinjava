@@ -27,7 +27,7 @@ import com.hubspot.jinjava.objects.SafeString;
             code = "{{ \"It costs $300\"|regex_replace(\"[^a-zA-Z]\", \"\") }}",
             output = "Itcosts")
     })
-public class RegexReplaceFilter implements SafeStringFilter {
+public class RegexReplaceFilter implements Filter {
 
   @Override
   public String getName() {
