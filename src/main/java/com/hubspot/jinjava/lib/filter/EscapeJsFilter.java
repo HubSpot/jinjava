@@ -32,15 +32,22 @@ import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
             code = "{% set escape_string = \"This string can safely be inserted into JavaScript\" %}\n" +
                 "{{ escape_string|escapejs }}")
     })
-public class EscapeJsFilter implements Filter {
+public class EscapeJsFilter implements SafeStringFilter {
 
   @Override
   public Object filter(Object objectToFilter, JinjavaInterpreter jinjavaInterpreter, String... strings) {
-    String input = Objects.toString(objectToFilter, "");
-    LengthLimitingStringBuilder builder = new LengthLimitingStringBuilder(jinjavaInterpreter.getConfig().getMaxOutputSize());
+    if (objectToFilter instanceof String) {
+      String input = Objects.toString(objectToFilter, "");
+      return escapeJsEntities(input, jinjavaInterpreter.getConfig().getMaxOutputSize());
+    }
+    return safeFilter(objectToFilter, jinjavaInterpreter, strings);
+  }
 
-    for (int i = 0; i < input.length(); i++) {
-      char ch = input.charAt(i);
+  private String escapeJsEntities(String stringToFilter, long maxLength) {
+    LengthLimitingStringBuilder builder = new LengthLimitingStringBuilder(maxLength);
+
+    for (int i = 0; i < stringToFilter.length(); i++) {
+      char ch = stringToFilter.charAt(i);
 
       if (ch > 0xfff) {
         builder.append("\\u");
@@ -53,22 +60,22 @@ public class EscapeJsFilter implements Filter {
         builder.append(toHex(ch));
       } else if (ch < 32) {
         switch (ch) {
-          case '\b' :
+          case '\b':
             builder.append("\\b");
             break;
-          case '\f' :
+          case '\f':
             builder.append("\\f");
             break;
-          case '\n' :
+          case '\n':
             builder.append("\\n");
             break;
-          case '\t' :
+          case '\t':
             builder.append("\\t");
             break;
-          case '\r' :
+          case '\r':
             builder.append("\\r");
             break;
-          default :
+          default:
             if (ch > 0xf) {
               builder.append("\\u00");
               builder.append(toHex(ch));
@@ -80,19 +87,18 @@ public class EscapeJsFilter implements Filter {
         }
       } else {
         switch (ch) {
-          case '"' :
+          case '"':
             builder.append("\\\"");
             break;
-          case '\\' :
+          case '\\':
             builder.append("\\\\");
             break;
-          default :
+          default:
             builder.append(ch);
             break;
         }
       }
     }
-
     return builder.toString();
   }
 

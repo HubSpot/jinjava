@@ -1,7 +1,5 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Objects;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -19,7 +17,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
         @JinjavaSnippet(
             code = "{{ \" remove whitespace \"|trim }}")
     })
-public class TrimFilter implements Filter {
+public class TrimFilter implements SafeStringFilter {
 
   @Override
   public String getName() {
@@ -28,7 +26,9 @@ public class TrimFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    return StringUtils.trim(Objects.toString(var));
+    if (var instanceof String) {
+      return safeFilter(StringUtils.trim(var.toString()), interpreter, args);
+    }
+    return safeFilter(var, interpreter, args);
   }
-
 }

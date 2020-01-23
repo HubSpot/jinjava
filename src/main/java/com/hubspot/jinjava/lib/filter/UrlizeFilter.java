@@ -12,6 +12,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
     value = "Converts URLs in plain text into clickable links.",
@@ -29,7 +30,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
             desc = "If target is specified, the target attribute will be added to the <a> tag",
             code = "{{ \"http://www.hubspot.com\"|urlize(10, true, target='_blank') }}"),
     })
-public class UrlizeFilter implements Filter {
+public class UrlizeFilter implements SafeStringFilter {
 
   @Override
   public String getName() {
@@ -76,7 +77,7 @@ public class UrlizeFilter implements Filter {
     }
 
     m.appendTail(result);
-    return result.toString();
+    return new SafeString(result.toString()); // Always return a safe string so the generated HTML is not escaped
   }
 
   private static final Pattern URL_RE = Pattern.compile(

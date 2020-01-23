@@ -29,7 +29,7 @@ import com.hubspot.jinjava.objects.SafeString;
                 "    The string is a valid IP address\n" +
                 "{% endif %}")
     })
-public class IpAddrFilter implements Filter {
+public class IpAddrFilter implements SafeStringFilter {
 
   private static final Pattern IP4_PATTERN = Pattern.compile("(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])");
   private static final Pattern IP6_PATTERN = Pattern.compile("^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$");
@@ -48,9 +48,11 @@ public class IpAddrFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
-
     if (object == null) {
       return false;
+    }
+    if (object instanceof SafeString){
+      object = object.toString();
     }
 
     if (args.length > 0) {
@@ -61,10 +63,6 @@ public class IpAddrFilter implements Filter {
     if (object instanceof String) {
       return validIp(((String) object).trim());
     }
-    if (object instanceof SafeString) {
-      return new SafeString(filter(object.toString(), interpreter, args).toString());
-    }
-
     return false;
   }
 
@@ -74,7 +72,7 @@ public class IpAddrFilter implements Filter {
       return null;
     }
 
-    String fullAddress = ((String) object).trim();
+    String fullAddress = object.toString().trim();
     List<String> parts = PREFIX_SPLITTER.splitToList(fullAddress);
     if (parts.size() != 2) {
       return null;

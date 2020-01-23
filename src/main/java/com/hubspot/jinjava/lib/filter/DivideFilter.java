@@ -1,17 +1,17 @@
 /**********************************************************************
-Copyright (c) 2014 HubSpot Inc.
+ Copyright (c) 2014 HubSpot Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
@@ -26,7 +26,6 @@ import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
-import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
     value = "Divides the current value by a divisor",
@@ -39,7 +38,7 @@ import com.hubspot.jinjava.objects.SafeString;
             code = "{% set numerator = 106 %}\n" +
                 "{% numerator|divide(2) %}")
     })
-public class DivideFilter implements Filter {
+public class DivideFilter implements SafeStringFilter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
@@ -88,10 +87,8 @@ public class DivideFilter implements Filter {
         throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
       }
     }
-    if (object instanceof SafeString) {
-      return new SafeString(filter(object.toString(), interpreter, arg).toString());
-    }
-    return object;
+
+    return safeFilter(object, interpreter, arg);
   }
 
   @Override

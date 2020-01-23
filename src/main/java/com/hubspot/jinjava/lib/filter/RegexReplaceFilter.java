@@ -11,6 +11,7 @@ import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
         value = "Return a copy of the value with all occurrences of a matched regular expression (Java RE2 syntax) " +
@@ -26,7 +27,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
                         code = "{{ \"It costs $300\"|regex_replace(\"[^a-zA-Z]\", \"\") }}",
                         output = "Itcosts")
         })
-public class RegexReplaceFilter implements Filter {
+public class RegexReplaceFilter implements SafeStringFilter {
 
     @Override
     public String getName() {
@@ -43,6 +44,10 @@ public class RegexReplaceFilter implements Filter {
 
         if (var == null) {
             return null;
+        }
+
+        if (var instanceof SafeString){
+            return safeFilter(var, interpreter, args);
         }
 
         if (var instanceof String) {

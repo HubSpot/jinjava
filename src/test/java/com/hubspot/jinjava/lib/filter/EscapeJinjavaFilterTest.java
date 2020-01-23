@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 public class EscapeJinjavaFilterTest {
 
@@ -22,7 +23,14 @@ public class EscapeJinjavaFilterTest {
   @Test
   public void testEscape() {
     assertThat(f.filter("", interpreter)).isEqualTo("");
+    assertThat(f.filter("1", interpreter)).isEqualTo("1");
     assertThat(f.filter("{{ me & you }}", interpreter)).isEqualTo("&lbrace;&lbrace; me & you &rbrace;&rbrace;");
   }
 
+  @Test
+  public void testSafeStringCanBeEscaped() {
+    assertThat(f.filter("", interpreter)).isEqualTo("");
+    assertThat(f.filter(new SafeString("{{ me & you }}"), interpreter).toString()).isEqualTo("&lbrace;&lbrace; me & you &rbrace;&rbrace;");
+    assertThat(f.filter(new SafeString("{{ me & you }}"), interpreter)).isInstanceOf(SafeString.class);
+  }
 }

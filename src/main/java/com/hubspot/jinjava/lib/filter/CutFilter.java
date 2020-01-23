@@ -36,7 +36,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
             code = "{% set my_string = \"Hello world.\" %}\n" +
                 "{{ my_string|cut(' world') }}")
     })
-public class CutFilter implements Filter {
+public class CutFilter implements SafeStringFilter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
@@ -45,8 +45,11 @@ public class CutFilter implements Filter {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (string to remove from target)");
     }
     String cutee = arg[0];
-    String origin = Objects.toString(object, "");
-    return StringUtils.replace(origin, cutee, "");
+    if (object instanceof String) {
+      String origin = Objects.toString(object, "");
+      return StringUtils.replace(origin, cutee, "");
+    }
+    return safeFilter(object, interpreter, arg);
   }
 
   @Override

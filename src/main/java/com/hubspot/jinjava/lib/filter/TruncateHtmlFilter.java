@@ -30,7 +30,7 @@ import com.hubspot.jinjava.lib.fn.Functions;
     snippets = {
     @JinjavaSnippet(code = "{{ \"<p>I want to truncate this text without breaking my HTML<p>\"|truncatehtml(28, '..', false) }}", output = "<p>I want to truncate this text without breaking my HTML</p>")
 })
-public class TruncateHtmlFilter implements Filter {
+public class TruncateHtmlFilter implements SafeStringFilter {
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
   private static final String DEFAULT_END = "...";
 
@@ -70,7 +70,7 @@ public class TruncateHtmlFilter implements Filter {
       return dom.select("body").html();
     }
 
-    return var;
+    return safeFilter(var, interpreter, args);
   }
 
   private static class ContentTruncatingNodeVisitor implements NodeVisitor {

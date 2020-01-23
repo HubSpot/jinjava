@@ -20,6 +20,7 @@ public class UrlizeFilterTest {
   @Before
   public void setup() throws Exception {
     jinjava = new Jinjava();
+    jinjava.getGlobalContext().setAutoEscape(true); // Ensure that autoescape does not affect generated HTML
     jinjava.getGlobalContext().put("txt", Resources.toString(Resources.getResource("filter/urlize.txt"), StandardCharsets.UTF_8));
   }
 

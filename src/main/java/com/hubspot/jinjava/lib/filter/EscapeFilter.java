@@ -34,7 +34,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
             code = "{% set escape_string = \"<div>This markup is printed as text</div>\" %}\n" +
                 "{{ escape_string|escape }}")
     })
-public class EscapeFilter implements Filter {
+public class EscapeFilter implements SafeStringFilter {
 
   private static final String SAMP = "&";
   private static final String BAMP = "&amp;";
@@ -45,10 +45,10 @@ public class EscapeFilter implements Filter {
   private static final String BSQ = "&#39;";
   private static final String BDQ = "&quot;";
 
-  private static final String[] TO_REPLACE = new String[] {
+  private static final String[] TO_REPLACE = new String[]{
       SAMP, SGT, SLT, "'", "\""
   };
-  private static final String[] REPLACE_WITH = new String[] {
+  private static final String[] REPLACE_WITH = new String[]{
       BAMP, BGT, BLT, BSQ, BDQ
   };
 
@@ -58,7 +58,10 @@ public class EscapeFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-    return escapeHtmlEntities(Objects.toString(object, ""));
+    if (object instanceof String) {
+      return escapeHtmlEntities(Objects.toString(object, ""));
+    }
+    return safeFilter(object, interpreter, arg);
   }
 
   @Override

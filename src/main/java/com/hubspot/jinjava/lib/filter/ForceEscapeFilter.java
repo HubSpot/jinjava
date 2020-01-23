@@ -17,7 +17,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
             code = "{% set escape_string = \"<div>This markup is printed as text</div>\" %}\n" +
                 "{{ escape_string|forceescape }}\n")
     })
-public class ForceEscapeFilter implements Filter {
+public class ForceEscapeFilter implements SafeStringFilter {
 
   @Override
   public String getName() {
@@ -26,7 +26,10 @@ public class ForceEscapeFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    return StringEscapeUtils.escapeHtml4(Objects.toString(var, ""));
+    if (var instanceof String) {
+      return StringEscapeUtils.escapeHtml4(Objects.toString(var, ""));
+    }
+    return safeFilter(var, interpreter, args);
   }
 
 }

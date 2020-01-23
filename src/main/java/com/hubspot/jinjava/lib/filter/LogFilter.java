@@ -13,7 +13,6 @@ import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.objects.SafeString;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
 
@@ -25,13 +24,12 @@ import ch.obermuhlner.math.big.BigDecimalMath;
         @JinjavaSnippet(
             code = "{{ 25|log(5) }}")
     })
-public class LogFilter implements Filter {
+public class LogFilter implements SafeStringFilter {
 
   private static final MathContext PRECISION = new MathContext(50);
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
-
     // default to e
     Double root = null;
     if (args.length > 0 && args[0] != null) {
@@ -42,7 +40,6 @@ public class LogFilter implements Filter {
 
       root = tryRoot;
     }
-
     if (object instanceof Integer) {
       return calculateLog(interpreter, (Integer) object, root);
     }
@@ -74,11 +71,8 @@ public class LogFilter implements Filter {
         throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
       }
     }
-    if (object instanceof SafeString) {
-      return new SafeString(filter(object.toString(), interpreter, args).toString());
-    }
 
-    return object;
+    return safeFilter(object, interpreter, args);
   }
 
   private double calculateLog(JinjavaInterpreter interpreter, double num, Double base) {

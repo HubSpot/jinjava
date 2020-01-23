@@ -36,7 +36,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
                 "{{ escape_string|escapeJinjava }}")
     })
 
-public class EscapeJinjavaFilter implements Filter {
+public class EscapeJinjavaFilter implements SafeStringFilter {
 
   private static final String SLBRACE = "{";
   private static final String BLBRACE = "&lbrace;";
@@ -56,7 +56,10 @@ public class EscapeJinjavaFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-    return escapeJinjavaEntities(Objects.toString(object, ""));
+    if (object instanceof String) {
+      return escapeJinjavaEntities(Objects.toString(object, ""));
+    }
+    return safeFilter(object, interpreter, arg);
   }
 
   @Override

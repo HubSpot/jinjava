@@ -20,22 +20,21 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
             code = "{% set some_html = \"<div><strong>Some text</strong></div>\" %}\n" +
                 "{{ some_html|striptags }}")
     })
-public class StripTagsFilter implements Filter {
+public class StripTagsFilter implements SafeStringFilter {
 
   private static final Pattern WHITESPACE = Pattern.compile("\\s{2,}");
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
 
-    if (!(object instanceof String)) {
-      return object;
+    if (object instanceof String) {
+      String val = interpreter.renderFlat((String) object);
+      String strippedVal = Jsoup.parseBodyFragment(val).text();
+      String normalizedVal = WHITESPACE.matcher(strippedVal).replaceAll(" ");
+      
+      return normalizedVal;
     }
-
-    String val = interpreter.renderFlat((String) object);
-    String strippedVal = Jsoup.parseBodyFragment(val).text();
-    String normalizedVal = WHITESPACE.matcher(strippedVal).replaceAll(" ");
-
-    return normalizedVal;
+    return safeFilter(object, interpreter, arg);
   }
 
   @Override

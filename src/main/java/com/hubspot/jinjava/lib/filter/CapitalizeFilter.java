@@ -15,7 +15,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
             code = "{% set sentence = \"the first letter of a sentence should always be capitalized.\" %}\n" +
                 "{{ sentence|capitalize }}")
     })
-public class CapitalizeFilter implements Filter {
+public class CapitalizeFilter implements SafeStringFilter {
 
   @Override
   public String getName() {
@@ -33,7 +33,7 @@ public class CapitalizeFilter implements Filter {
       String value = (String) var;
       return StringUtils.capitalize(value);
     }
-    return var;
+    return safeFilter(var, interpreter, args);
   }
 
 }

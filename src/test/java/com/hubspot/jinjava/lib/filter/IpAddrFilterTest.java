@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -87,5 +88,19 @@ public class IpAddrFilterTest {
   public void itAddsErrorOnInvalidFunctionName() {
     assertThatThrownBy(() -> ipAddrFilter.filter("192.168.0.1/20", interpreter, "notAFunction"))
         .hasMessageContaining("must be one of");
+  }
+
+  @Test
+  public void itWorksWithSafeFilters() throws Exception {
+    String ipAddress = "192.168.0.1";
+    String broadcastIpAddress = "192.168.0.1/20";
+    String invalidIpAddress = "192.168.0.999";
+    interpreter.getContext().put("safe_ip", ipAddress);
+    interpreter.getContext().put("invalid_ip", invalidIpAddress);
+    interpreter.getContext().put("broadcast_ip", broadcastIpAddress);
+    Assertions.assertThat(interpreter.renderFlat("{{ safe_ip|safe|ipaddr }}")).isEqualTo(String.valueOf(true));
+    Assertions.assertThat(interpreter.renderFlat("{{ broadcast_ip|safe|ipaddr('broadcast')}}")).isEqualTo("192.168.15.255");
+    Assertions.assertThat(interpreter.renderFlat("{{ invalid_ip|safe|ipaddr }}")).isEqualTo(String.valueOf(false));
+    Assertions.assertThat(interpreter.renderFlat("{{ safe_ip|ipaddr }}")).isEqualTo(String.valueOf(true));
   }
 }

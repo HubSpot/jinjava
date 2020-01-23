@@ -74,12 +74,8 @@ public class LengthFilter implements Filter {
       return size;
     }
 
-    if (object instanceof String) {
-      return ((String) object).length();
-    }
-
-    if (object instanceof SafeString) {
-      return new SafeString(filter(object.toString(), interpreter, arg).toString());
+    if (object instanceof String || object instanceof SafeString) {
+      return object.toString().length();
     }
 
     return 0;

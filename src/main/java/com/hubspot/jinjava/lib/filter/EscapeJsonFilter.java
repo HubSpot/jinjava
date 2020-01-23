@@ -18,7 +18,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
         )
     })
 
-public class EscapeJsonFilter implements Filter {
+public class EscapeJsonFilter implements SafeStringFilter {
 
   @Override
   public String getName() {
@@ -27,6 +27,9 @@ public class EscapeJsonFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    return StringEscapeUtils.escapeJson(Objects.toString(var));
+    if (var instanceof String) {
+      return StringEscapeUtils.escapeJson(Objects.toString(var));
+    }
+    return safeFilter(var, interpreter, args);
   }
 }

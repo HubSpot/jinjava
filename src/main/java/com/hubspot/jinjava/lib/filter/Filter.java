@@ -25,7 +25,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.Importable;
 
-public interface Filter extends Importable {
+public interface Filter extends Importable  {
 
   /**
    * Filter the specified template variable within the context of a render process. {{ myvar|myfiltername(arg1,arg2) }}

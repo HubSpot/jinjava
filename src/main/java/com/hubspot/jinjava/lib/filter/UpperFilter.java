@@ -19,7 +19,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
     value = "Convert a value to uppercase",
@@ -27,19 +26,14 @@ import com.hubspot.jinjava.objects.SafeString;
     snippets = {
         @JinjavaSnippet(code = "{{ \"text to make uppercase\"|uppercase }}")
     })
-public class UpperFilter implements Filter {
+public class UpperFilter implements SafeStringFilter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
     if (object instanceof String) {
-      String value = (String) object;
-      return value.toUpperCase();
+      return object.toString().toUpperCase();
     }
-
-    if (object instanceof SafeString) {
-      return new SafeString(filter(object.toString(), interpreter, arg).toString());
-    }
-    return object;
+    return safeFilter(object, interpreter, arg);
   }
 
   @Override

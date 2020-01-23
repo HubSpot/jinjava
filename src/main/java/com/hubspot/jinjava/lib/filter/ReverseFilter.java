@@ -22,7 +22,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
     value = "Reverse the object or return an iterator the iterates over it the other way round.",
@@ -34,7 +33,7 @@ import com.hubspot.jinjava.objects.SafeString;
                 "    {{ num }}\n" +
                 "{% endfor %}")
     })
-public class ReverseFilter implements Filter {
+public class ReverseFilter implements SafeStringFilter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
@@ -73,12 +72,8 @@ public class ReverseFilter implements Filter {
       }
       return String.valueOf(res);
     }
-    //safe string
-    if (object instanceof SafeString) {
-      return new SafeString(filter(object.toString(), interpreter, arg).toString());
-    }
 
-    return object;
+    return safeFilter(object, interpreter, arg);
   }
 
   @Override

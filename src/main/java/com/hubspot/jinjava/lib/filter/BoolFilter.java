@@ -31,7 +31,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
                         desc = "This example converts a text string value to a boolean",
                         code = "{% if \"true\"|bool == true %}hello world{% endif %}")
         })
-public class BoolFilter implements Filter {
+public class BoolFilter implements SafeStringFilter {
     @Override
     public String getName() {
         return "bool";
