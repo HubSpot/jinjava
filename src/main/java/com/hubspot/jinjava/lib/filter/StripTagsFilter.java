@@ -31,7 +31,7 @@ public class StripTagsFilter implements SafeStringFilter {
       String val = interpreter.renderFlat((String) object);
       String strippedVal = Jsoup.parseBodyFragment(val).text();
       String normalizedVal = WHITESPACE.matcher(strippedVal).replaceAll(" ");
-      
+
       return normalizedVal;
     }
     return safeFilter(object, interpreter, arg);
