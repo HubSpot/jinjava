@@ -29,7 +29,7 @@ public class FormatFilter implements AdvancedFilter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
-    if (var instanceof SafeString){
+    if (var instanceof SafeString) {
       return new SafeString(format(var, args));
     }
     return format(var, args);

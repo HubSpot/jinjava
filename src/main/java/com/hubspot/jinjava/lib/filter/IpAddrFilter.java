@@ -51,7 +51,7 @@ public class IpAddrFilter implements SafeStringFilter {
     if (object == null) {
       return false;
     }
-    if (object instanceof SafeString){
+    if (object instanceof SafeString) {
       object = object.toString();
     }
 
