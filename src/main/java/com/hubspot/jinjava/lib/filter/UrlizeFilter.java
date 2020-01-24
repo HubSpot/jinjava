@@ -12,7 +12,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
     value = "Converts URLs in plain text into clickable links.",
@@ -39,45 +38,48 @@ public class UrlizeFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    Matcher m = URL_RE.matcher(Objects.toString(var, ""));
-    StringBuffer result = new StringBuffer();
+    if (var instanceof String){
+      Matcher m = URL_RE.matcher(Objects.toString(var, ""));
+      StringBuffer result = new StringBuffer();
 
-    int trimUrlLimit = Integer.MAX_VALUE;
-    if (args.length > 0) {
-      trimUrlLimit = NumberUtils.toInt(args[0], Integer.MAX_VALUE);
+      int trimUrlLimit = Integer.MAX_VALUE;
+      if (args.length > 0) {
+        trimUrlLimit = NumberUtils.toInt(args[0], Integer.MAX_VALUE);
+      }
+
+      String fmt = "<a href=\"%s\"";
+
+      boolean nofollow = false;
+      if (args.length > 1) {
+        nofollow = BooleanUtils.toBoolean(args[1]);
+      }
+
+      String target = "";
+      if (args.length > 2) {
+        target = args[2];
+      }
+
+      if (nofollow) {
+        fmt += " rel=\"nofollow\"";
+      }
+
+      if (StringUtils.isNotBlank(target)) {
+        fmt += " target=\"" + target + "\"";
+      }
+
+      fmt += ">%s</a>";
+
+      while (m.find()) {
+        String url = m.group();
+        String urlShort = StringUtils.abbreviate(url, trimUrlLimit);
+
+        m.appendReplacement(result, String.format(fmt, url, urlShort));
+      }
+
+      m.appendTail(result);
+      return result.toString();
     }
-
-    String fmt = "<a href=\"%s\"";
-
-    boolean nofollow = false;
-    if (args.length > 1) {
-      nofollow = BooleanUtils.toBoolean(args[1]);
-    }
-
-    String target = "";
-    if (args.length > 2) {
-      target = args[2];
-    }
-
-    if (nofollow) {
-      fmt += " rel=\"nofollow\"";
-    }
-
-    if (StringUtils.isNotBlank(target)) {
-      fmt += " target=\"" + target + "\"";
-    }
-
-    fmt += ">%s</a>";
-
-    while (m.find()) {
-      String url = m.group();
-      String urlShort = StringUtils.abbreviate(url, trimUrlLimit);
-
-      m.appendReplacement(result, String.format(fmt, url, urlShort));
-    }
-
-    m.appendTail(result);
-    return new SafeString(result.toString()); // Always return a safe string so the generated HTML is not escaped
+    return safeFilter(var, interpreter, args);
   }
 
   private static final Pattern URL_RE = Pattern.compile(
