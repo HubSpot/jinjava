@@ -38,7 +38,7 @@ public class UrlizeFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if (var instanceof String){
+    if (var instanceof String) {
       Matcher m = URL_RE.matcher(Objects.toString(var, ""));
       StringBuffer result = new StringBuffer();
 
