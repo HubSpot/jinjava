@@ -27,7 +27,7 @@ public class TrimFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     if (var instanceof String) {
-      return safeFilter(StringUtils.trim(var.toString()), interpreter, args);
+      return StringUtils.trim((String) var);
     }
     return safeFilter(var, interpreter, args);
   }
