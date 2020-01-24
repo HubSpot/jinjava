@@ -65,7 +65,7 @@ public class RootFilter implements Filter {
     if (object instanceof BigInteger) {
       return calculateBigRoot(interpreter, new BigDecimal((BigInteger) object), root);
     }
-    if (object instanceof String || object  instanceof SafeString) {
+    if (object instanceof String || object instanceof SafeString) {
       try {
         return calculateBigRoot(interpreter, new BigDecimal(object.toString()), root);
       } catch (NumberFormatException e) {

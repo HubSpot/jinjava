@@ -37,8 +37,10 @@ public class EscapeJsFilter implements Filter {
   @Override
   public Object filter(Object objectToFilter, JinjavaInterpreter jinjavaInterpreter, String... strings) {
     if (objectToFilter instanceof String) {
-      String input = Objects.toString(objectToFilter, "");
-      return escapeJsEntities(input, jinjavaInterpreter.getConfig().getMaxOutputSize());
+      return escapeJsEntities(
+          Objects.toString(objectToFilter, ""),
+          jinjavaInterpreter.getConfig().getMaxOutputSize()
+      );
     }
     return safeFilter(objectToFilter, jinjavaInterpreter, strings);
   }
