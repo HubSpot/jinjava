@@ -210,7 +210,7 @@ public class ForTagTest {
   @Test
   public void testTuplesWithPyList() {
 	String template = "{% for href, caption in [('index.html', 'Index'), ('downloads.html', 'Downloads'), ('products.html', 'Products')] %}" + 
-	  		"<li><a href=\"{{href|e}}\">{{caption|e}}</a></li>\n" + 
+	  		"<li><a href=\"{{href}}\">{{caption}}</a></li>\n" + 
 	  		"{% endfor %}";
 	String expected = "<li><a href=\"index.html\">Index</a></li>\n" +
 	  		"<li><a href=\"downloads.html\">Downloads</a></li>\n" +
