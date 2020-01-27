@@ -267,7 +267,8 @@ public class JinjavaInterpreter {
     // render all extend parents, keeping the last as the root output
     if (processExtendRoots) {
       while (!extendParentRoots.isEmpty()) {
-        context.getCurrentPathStack().push(context.getExtendPathStack().peek().orElse(""), lineNumber, position);
+        context.getCurrentPathStack().push(context.getExtendPathStack().peek().orElse(""),
+            context.getExtendPathStack().getTopLineNumber(), context.getExtendPathStack().getTopStartPosition());
         Node parentRoot = extendParentRoots.removeFirst();
         output = new OutputList(config.getMaxOutputSize());
 
@@ -312,7 +313,7 @@ public class JinjavaInterpreter {
           for (Node child : block.getNodes()) {
             boolean pushedParentPathOntoStack = false;
             if (block.getParentPath().isPresent() && !getContext().getCurrentPathStack().contains(block.getParentPath().get())) {
-              getContext().getCurrentPathStack().push(block.getParentPath().get(), lineNumber, position);
+              getContext().getCurrentPathStack().push(block.getParentPath().get(), block.getParentLineNo(), block.getParentPosition());
               pushedParentPathOntoStack = true;
             }
 
