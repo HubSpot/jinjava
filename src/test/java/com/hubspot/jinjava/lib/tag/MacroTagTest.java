@@ -57,7 +57,7 @@ public class MacroTagTest {
     assertThat(fn.isCaller()).isFalse();
 
     context.put("myname", "jared");
-    assertThat(snippet("{{ getPath() }}").render(interpreter).getValue().trim()).isEqualTo("Hello jared");
+    assertThat(snippet("{{ getPath() }}").render(interpreter).getValue()).isEqualTo("Hello jared");
   }
 
   @Test
@@ -259,6 +259,15 @@ public class MacroTagTest {
     Node node = new TreeParser(interpreter, jinja).buildTree();
     assertThat(interpreter.render(node)).isEqualTo(
         "{f={val={f={val={{ self }}}}}}");
+  }
+
+  @Test
+  public void itReconstructsMacroDefinitionFromMacroFunction(){
+    TagNode t = fixture("simple");
+    assertThat(t.render(interpreter).getValue()).isEmpty();
+
+    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.getPath", -1, -1);
+    assertThat(fn.reconstructImage()).isEqualTo(fixtureText("simple").trim());
   }
 
   private Node snippet(String jinja) {

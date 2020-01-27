@@ -94,4 +94,11 @@ public class MacroFunction extends AbstractCallableMethod {
   public boolean isCaller() {
     return caller;
   }
+
+  public String reconstructImage() {
+    if (content != null && !content.isEmpty()){
+      return content.get(0).getParent().reconstructImage();
+    }
+    return "";
+  }
 }
