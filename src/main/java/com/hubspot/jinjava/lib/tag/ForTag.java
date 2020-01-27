@@ -32,6 +32,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.objects.DummyObject;
+import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.ForLoop;
@@ -148,7 +149,8 @@ public class ForTag implements Tag {
         if (loopVars.size() == 1) {
           interpreter.getContext().put(loopVars.get(0), val);
         } else {
-          for (String loopVar : loopVars) {
+          for (int loopVarIndex = 0; loopVarIndex < loopVars.size(); loopVarIndex++) {
+            String loopVar = loopVars.get(loopVarIndex);
             if (Map.Entry.class.isAssignableFrom(val.getClass())) {
               Map.Entry<String, Object> entry = (Entry<String, Object>) val;
               Object entryVal = null;
@@ -159,6 +161,14 @@ public class ForTag implements Tag {
                 entryVal = entry.getValue();
               }
 
+              interpreter.getContext().put(loopVar, entryVal);
+            } else if (List.class.isAssignableFrom(val.getClass())) {
+              List<Object> entries = ((PyList) val).toList();
+              Object entryVal = null;
+              // safety check for size
+              if (entries.size() >= loopVarIndex) {
+                entryVal = entries.get(loopVarIndex);
+              }
               interpreter.getContext().put(loopVar, entryVal);
             } else {
               try {
