@@ -15,11 +15,11 @@
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
@@ -104,14 +104,17 @@ public class TagNode extends Node {
   }
 
   public String reconstructEnd() {
-    return String.format(
-        "%s%s %s %s%s",
-        TokenScannerSymbols.TOKEN_EXPR_START_CHAR,
-        TokenScannerSymbols.TOKEN_TAG_CHAR,
-        getEndName(),
-        TokenScannerSymbols.TOKEN_TAG_CHAR,
-        TokenScannerSymbols.TOKEN_EXPR_END_CHAR
-    );
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(TokenScannerSymbols.TOKEN_EXPR_START_CHAR).append(TokenScannerSymbols.TOKEN_TAG_CHAR);
+    if (getChildren() != null && !getChildren().isEmpty() && getChildren().getLast().getMaster().isRightTrim()) {
+      stringBuilder.append(TokenScannerSymbols.TOKEN_TRIM_CHAR);
+    }
+    stringBuilder.append(" ").append(getEndName()).append(" ");
+    if (getMaster().isRightTrimAfterEnd()) {
+      stringBuilder.append(TokenScannerSymbols.TOKEN_TRIM_CHAR);
+    }
+    stringBuilder.append(TokenScannerSymbols.TOKEN_TAG_CHAR).append(TokenScannerSymbols.TOKEN_EXPR_END_CHAR);
+    return stringBuilder.toString();
   }
 
 }
