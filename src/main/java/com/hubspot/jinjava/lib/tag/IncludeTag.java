@@ -73,7 +73,6 @@ public class IncludeTag implements Tag {
     }
 
     try {
-
       String template = interpreter.getResource(templateFile);
       Node node = interpreter.parse(template);
 
