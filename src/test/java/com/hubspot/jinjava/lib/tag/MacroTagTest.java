@@ -270,6 +270,15 @@ public class MacroTagTest {
     assertThat(fn.reconstructImage()).isEqualTo(fixtureText("simple").trim());
   }
 
+  @Test
+  public void itReconstructsMacroDefinitionFromMacroFunctionWithNoTrim(){
+    TagNode t = fixture("simple-no-trim");
+    assertThat(t.render(interpreter).getValue()).isEmpty();
+
+    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.getPath", -1, -1);
+    assertThat(fn.reconstructImage()).isEqualTo(fixtureText("simple-no-trim").trim());
+  }
+
   private Node snippet(String jinja) {
     return new TreeParser(interpreter, jinja).buildTree().getChildren().getFirst();
   }
