@@ -495,8 +495,16 @@ public class JinjavaInterpreter {
     return lineNumber;
   }
 
+  public void setLineNumber(int lineNumber) {
+    this.lineNumber = lineNumber;
+  }
+
   public int getPosition() {
     return position;
+  }
+
+  public void setPosition(int position) {
+    this.position = position;
   }
 
   public void addError(TemplateError templateError) {

@@ -144,6 +144,8 @@ public class ImportTag implements Tag {
       return "";
     } catch (IOException e) {
       throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
+    } finally {
+      interpreter.getContext().getCurrentPathStack().pop();
     }
   }
 

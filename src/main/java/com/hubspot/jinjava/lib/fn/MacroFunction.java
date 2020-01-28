@@ -26,15 +26,22 @@ public class MacroFunction extends AbstractCallableMethod {
 
   private final Context localContextScope;
 
+  private final int definitionLineNumber;
+  private final int definitionStartPosition;
+
   public MacroFunction(List<Node> content,
                        String name,
                        LinkedHashMap<String, Object> argNamesWithDefaults,
                        boolean caller,
-                       Context localContextScope) {
+                       Context localContextScope,
+                       int lineNumber,
+                       int startPosition) {
     super(name, argNamesWithDefaults);
     this.content = content;
     this.caller = caller;
     this.localContextScope = localContextScope;
+    this.definitionLineNumber = lineNumber;
+    this.definitionStartPosition = startPosition;
   }
 
   @Override
@@ -46,6 +53,9 @@ public class MacroFunction extends AbstractCallableMethod {
     importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pushWithoutCycleCheck(path, interpreter.getLineNumber(), interpreter.getPosition()));
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
+      interpreter.setLineNumber(definitionLineNumber);
+      interpreter.setPosition(definitionStartPosition);
+
       for (Map.Entry<String, Object> scopeEntry : localContextScope.getScope().entrySet()) {
         if (scopeEntry.getValue() instanceof MacroFunction) {
           interpreter.getContext().addGlobalMacro((MacroFunction) scopeEntry.getValue());
