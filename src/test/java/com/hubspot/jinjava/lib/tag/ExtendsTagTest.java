@@ -127,6 +127,18 @@ public class ExtendsTagTest {
     assertThat(result).contains("hello");
   }
 
+  @Test
+  public void itSetsErrorLineNumbersCorrectly() throws IOException {
+    RenderResult result = jinjava.renderForResult(locator.fixture("errors/linenumber-block.jinja"), new HashMap<>());
+
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getLineno()).isEqualTo(5);
+    assertThat(result.getErrors().get(0).getMessage()).contains("Error in `/errors/base.html` on line 16");
+
+    assertThat(result.getErrors().get(0).getSourceTemplate().isPresent());
+    assertThat(result.getErrors().get(0).getSourceTemplate().get()).isEqualTo("/errors/base.html");
+  }
+
   private static class ExtendsTagTestResourceLocator implements ResourceLocator {
     private RelativePathResolver relativePathResolver = new RelativePathResolver();
 
