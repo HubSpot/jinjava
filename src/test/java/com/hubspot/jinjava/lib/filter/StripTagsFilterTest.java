@@ -13,6 +13,7 @@ import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StripTagsFilterTest {
@@ -50,6 +51,11 @@ public class StripTagsFilterTest {
   @Test
   public void itStripsTagsFromHtml() throws Exception {
     assertThat(filter.filter("foo <b>bar</b> other", interpreter)).isEqualTo("foo bar other");
+  }
+
+  @Test
+  public void itStripsTagsFromSafeStringWithHtml() throws Exception {
+    assertThat(filter.filter(new SafeString("foo <b>bar</b> other"), interpreter).toString()).isEqualTo("foo bar other");
   }
 
 }

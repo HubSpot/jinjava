@@ -20,16 +20,22 @@ public class UrlizeFilterTest {
   @Before
   public void setup() throws Exception {
     jinjava = new Jinjava();
+    jinjava.getGlobalContext().setAutoEscape(true); // Ensure that autoescape does not affect generated HTML
     jinjava.getGlobalContext().put("txt", Resources.toString(Resources.getResource("filter/urlize.txt"), StandardCharsets.UTF_8));
   }
 
   @Test
-  public void urlizeText() {
-    Document dom = Jsoup.parseBodyFragment(jinjava.render("{{ txt|urlize }}", new HashMap<String, Object>()));
+  public void urlizeTextWorksWhenSafe() {
+    Document dom = Jsoup.parseBodyFragment(jinjava.render("{{ txt|urlize|safe }}", new HashMap<String, Object>()));
     assertThat(dom.select("a")).hasSize(3);
     assertThat(dom.select("a").get(0).attr("href")).isEqualTo("http://www.espn.com");
     assertThat(dom.select("a").get(1).attr("href")).isEqualTo("http://yahoo.com");
     assertThat(dom.select("a").get(2).attr("href")).isEqualTo("https://hubspot.com");
   }
 
+  @Test
+  public void urlizeTextIsEscaped() {
+    String rendered = jinjava.render("{{ txt|urlize }}", new HashMap<String, Object>());
+    assertThat(rendered).doesNotContain("<a>").doesNotContain("</a>");
+  }
 }

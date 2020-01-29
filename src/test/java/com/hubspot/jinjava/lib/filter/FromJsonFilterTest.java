@@ -11,10 +11,12 @@ import org.junit.Test;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 
 public class FromJsonFilterTest {
 
+  private static final String NESTED_JSON = "{\"first\":[1,2,3],\"nested\":{\"second\":\"string\",\"third\":4}}";
   private JinjavaInterpreter interpreter;
   private FromJsonFilter filter;
 
@@ -26,20 +28,12 @@ public class FromJsonFilterTest {
 
   @Test
   public void itReadsStringAsObject() {
-
-    String nestedJson = "{\"first\":[1,2,3],\"nested\":{\"second\":\"string\",\"third\":4}}";
-
-    HashMap<String, Object> node = (HashMap<String, Object>) filter.filter(nestedJson, interpreter);
-    assertThat(node.get("first")).isEqualTo(Arrays.asList(1, 2, 3));
-
-    HashMap<String, Object> nested = (HashMap<String, Object>) node.get("nested");
-    assertThat(nested.get("second")).isEqualTo("string");
-    assertThat(nested.get("third")).isEqualTo(4);
+    HashMap<String, Object> node = (HashMap<String, Object>) filter.filter(NESTED_JSON, interpreter);
+    checkedNestJson(node);
   }
 
   @Test(expected = InvalidInputException.class)
   public void itFailsWhenStringIsNotJson() {
-
     String nestedJson = "blah";
 
     filter.filter(nestedJson, interpreter);
@@ -47,9 +41,23 @@ public class FromJsonFilterTest {
 
   @Test(expected = InvalidInputException.class)
   public void itFailsWhenParameterIsNotString() {
-
     Integer nestedJson = 456;
 
     filter.filter(nestedJson, interpreter);
+  }
+
+  @Test
+  public void itReadsSafeStringAsObject() {
+    SafeString nestedJson = new SafeString(NESTED_JSON);
+    HashMap<String, Object> node = (HashMap<String, Object>) filter.filter(nestedJson, interpreter);
+    checkedNestJson(node);
+  }
+
+  private void checkedNestJson(HashMap<String, Object> node) {
+    assertThat(node.get("first")).isEqualTo(Arrays.asList(1, 2, 3));
+
+    HashMap<String, Object> nested = (HashMap<String, Object>) node.get("nested");
+    assertThat(nested.get("second")).isEqualTo("string");
+    assertThat(nested.get("third")).isEqualTo(4);
   }
 }

@@ -10,6 +10,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
     value = "Converts JSON string to Object",
@@ -32,8 +33,8 @@ public class FromJsonFilter implements Filter {
 
     try {
 
-      if (var instanceof String) {
-        return OBJECT_MAPPER.readValue((String) var, HashMap.class);
+      if (var instanceof String || var instanceof SafeString) {
+        return OBJECT_MAPPER.readValue(var.toString(), HashMap.class);
       } else {
         throw new InvalidInputException(interpreter, this, InvalidReason.STRING);
       }

@@ -26,7 +26,10 @@ public class ForceEscapeFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    return StringEscapeUtils.escapeHtml4(Objects.toString(var, ""));
+    if (var instanceof String) {
+      return StringEscapeUtils.escapeHtml4(Objects.toString(var, ""));
+    }
+    return safeFilter(var, interpreter, args);
   }
 
 }

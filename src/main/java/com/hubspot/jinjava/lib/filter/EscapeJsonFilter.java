@@ -27,6 +27,9 @@ public class EscapeJsonFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    return StringEscapeUtils.escapeJson(Objects.toString(var));
+    if (var instanceof String) {
+      return StringEscapeUtils.escapeJson(Objects.toString(var));
+    }
+    return safeFilter(var, interpreter, args);
   }
 }

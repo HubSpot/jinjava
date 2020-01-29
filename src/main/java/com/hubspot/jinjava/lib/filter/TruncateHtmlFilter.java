@@ -70,7 +70,7 @@ public class TruncateHtmlFilter implements Filter {
       return dom.select("body").html();
     }
 
-    return var;
+    return safeFilter(var, interpreter, args);
   }
 
   private static class ContentTruncatingNodeVisitor implements NodeVisitor {

@@ -45,8 +45,11 @@ public class CutFilter implements Filter {
       throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (string to remove from target)");
     }
     String cutee = arg[0];
-    String origin = Objects.toString(object, "");
-    return StringUtils.replace(origin, cutee, "");
+    if (object instanceof String) {
+      String origin = Objects.toString(object, "");
+      return StringUtils.replace(origin, cutee, "");
+    }
+    return safeFilter(object, interpreter, arg);
   }
 
   @Override

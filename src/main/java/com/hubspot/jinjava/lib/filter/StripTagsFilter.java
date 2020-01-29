@@ -27,15 +27,14 @@ public class StripTagsFilter implements Filter {
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
 
-    if (!(object instanceof String)) {
-      return object;
+    if (object instanceof String) {
+      String val = interpreter.renderFlat((String) object);
+      String strippedVal = Jsoup.parseBodyFragment(val).text();
+      String normalizedVal = WHITESPACE.matcher(strippedVal).replaceAll(" ");
+
+      return normalizedVal;
     }
-
-    String val = interpreter.renderFlat((String) object);
-    String strippedVal = Jsoup.parseBodyFragment(val).text();
-    String normalizedVal = WHITESPACE.matcher(strippedVal).replaceAll(" ");
-
-    return normalizedVal;
+    return safeFilter(object, interpreter, arg);
   }
 
   @Override
