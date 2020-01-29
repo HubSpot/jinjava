@@ -101,4 +101,32 @@ public class IncludeTagTest {
     assertThat(result.getOutput().trim()).isEqualTo("INCLUDED");
   }
 
+  @Test
+  public void itSetsErrorLineNumbersCorrectly() throws IOException {
+
+    RenderResult result = jinjava.renderForResult(Resources.toString(Resources.getResource("tags/includetag/errors/base.html"), StandardCharsets.UTF_8),
+        new HashMap<>());
+
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getLineno()).isEqualTo(7);
+
+    assertThat(result.getErrors().get(0).getMessage()).contains("Error in `tags/includetag/errors/error.html` on line 4");
+
+    assertThat(result.getErrors().get(0).getSourceTemplate().isPresent());
+    assertThat(result.getErrors().get(0).getSourceTemplate().get()).isEqualTo("tags/includetag/errors/error.html");
+  }
+
+  @Test
+  public void itSetsErrorLineNumbersCorrectlyTwoLevelsDeep() throws IOException {
+
+    RenderResult result = jinjava.renderForResult(Resources.toString(Resources.getResource("tags/includetag/errors/base2.html"), StandardCharsets.UTF_8),
+        new HashMap<>());
+
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getLineno()).isEqualTo(2);
+    assertThat(result.getErrors().get(0).getMessage()).contains("Error in `tags/includetag/errors/error.html` on line 4");
+
+    assertThat(result.getErrors().get(0).getSourceTemplate().isPresent());
+    assertThat(result.getErrors().get(0).getSourceTemplate().get()).isEqualTo("tags/includetag/errors/error.html");
+  }
 }

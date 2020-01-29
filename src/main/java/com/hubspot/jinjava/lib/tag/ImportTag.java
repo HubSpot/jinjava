@@ -94,6 +94,8 @@ public class ImportTag implements Tag {
     templateFile = interpreter.resolveResourceLocation(templateFile);
     interpreter.getContext().addDependency("coded_files", templateFile);
     try {
+      interpreter.getContext().getCurrentPathStack().push(templateFile, interpreter.getLineNumber(), interpreter.getPosition());
+
       String template = interpreter.getResource(templateFile);
       Node node = interpreter.parse(template);
 
@@ -107,7 +109,7 @@ public class ImportTag implements Tag {
         JinjavaInterpreter.popCurrent();
       }
 
-      interpreter.addAllErrors(child.getErrorsCopy());
+      interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
 
       Map<String, Object> childBindings = child.getContext().getSessionBindings();
 
@@ -142,6 +144,8 @@ public class ImportTag implements Tag {
       return "";
     } catch (IOException e) {
       throw new InterpretException(e.getMessage(), e, tagNode.getLineNumber(), tagNode.getStartPosition());
+    } finally {
+      interpreter.getContext().getCurrentPathStack().pop();
     }
   }
 

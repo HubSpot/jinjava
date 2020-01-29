@@ -99,7 +99,7 @@ public class MacroTag implements Tag {
     }
 
     MacroFunction macro = new MacroFunction(tagNode.getChildren(), name, argNamesWithDefaults,
-        false, interpreter.getContext());
+        false, interpreter.getContext(), interpreter.getLineNumber(), interpreter.getPosition());
     interpreter.getContext().addGlobalMacro(macro);
 
     return "";

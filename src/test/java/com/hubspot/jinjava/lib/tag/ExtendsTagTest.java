@@ -127,6 +127,51 @@ public class ExtendsTagTest {
     assertThat(result).contains("hello");
   }
 
+  @Test
+  public void itSetsErrorLineNumbersCorrectlyInBlocksInExtendingTemplate() throws IOException {
+    RenderResult result = jinjava.renderForResult(locator.fixture("errors/extends-no-error.jinja"), new HashMap<>());
+
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getLineno()).isEqualTo(8);
+    assertThat(result.getErrors().get(0).getMessage()).doesNotContain("Error in `/errors/no-error.html` on line");
+  }
+
+  @Test
+  public void itSetsErrorLineNumbersCorrectlyInBlocksFromExtendedTemplate() throws IOException {
+    RenderResult result = jinjava.renderForResult(locator.fixture("errors/extends-block-error.jinja"), new HashMap<>());
+
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getLineno()).isEqualTo(5);
+    assertThat(result.getErrors().get(0).getMessage()).contains("Error in `/errors/block-error.html` on line 16");
+
+    assertThat(result.getErrors().get(0).getSourceTemplate().isPresent());
+    assertThat(result.getErrors().get(0).getSourceTemplate().get()).isEqualTo("/errors/block-error.html");
+  }
+
+  @Test
+  public void itSetsErrorLineNumbersCorrectlyOutsideBlocksFromExtendedTemplate() throws IOException {
+    RenderResult result = jinjava.renderForResult(locator.fixture("errors/extends-outside-block-error.jinja"), new HashMap<>());
+
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getLineno()).isEqualTo(1);
+    assertThat(result.getErrors().get(0).getMessage()).contains("Error in `/errors/outside-block-error.html` on line 9");
+
+    assertThat(result.getErrors().get(0).getSourceTemplate().isPresent());
+    assertThat(result.getErrors().get(0).getSourceTemplate().get()).isEqualTo("/errors/outside-block-error.html");
+  }
+
+  @Test
+  public void itSetsErrorLineNumbersCorrectlyInBlocksFromExtendedTemplateInIncludedTemplate() throws IOException {
+    RenderResult result = jinjava.renderForResult(locator.fixture("errors/extends-include-block-error.jinja"), new HashMap<>());
+
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getLineno()).isEqualTo(3);
+    assertThat(result.getErrors().get(0).getMessage()).contains("Error in `/errors/error.html` on line 5");
+
+    assertThat(result.getErrors().get(0).getSourceTemplate().isPresent());
+    assertThat(result.getErrors().get(0).getSourceTemplate().get()).isEqualTo("/errors/error.html");
+  }
+
   private static class ExtendsTagTestResourceLocator implements ResourceLocator {
     private RelativePathResolver relativePathResolver = new RelativePathResolver();
 

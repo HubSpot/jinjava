@@ -249,7 +249,7 @@ public class ValidationModeTest {
                               String name,
                               LinkedHashMap<String, Object> argNamesWithDefaults,
                               boolean caller, Context localContextScope) {
-      super(content, name, argNamesWithDefaults, caller, localContextScope);
+      super(content, name, argNamesWithDefaults, caller, localContextScope, -1, -1);
     }
 
     @Override

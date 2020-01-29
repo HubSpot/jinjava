@@ -9,6 +9,8 @@ public class CallStack {
   private final Class<? extends TagCycleException> exceptionClass;
   private final Stack<String> stack = new Stack<>();
   private final int depth;
+  private int topLineNumber = -1;
+  private int topStartPosition = -1;
 
   public CallStack(CallStack parent, Class<? extends TagCycleException> exceptionClass) {
     this.parent = parent;
@@ -34,13 +36,13 @@ public class CallStack {
    * call stack without checking for a cycle.
    * @param path the path to be added.
    */
-  public void pushWithoutCycleCheck(String path) {
-    stack.push(path);
+  public void pushWithoutCycleCheck(String path, int lineNumber, int startPosition) {
+    pushToStack(path, lineNumber, startPosition);
   }
 
   public void pushWithMaxDepth(String path, int maxDepth, int lineNumber, int startPosition) {
     if (depth < maxDepth) {
-      stack.push(path);
+      pushToStack(path, lineNumber, startPosition);
     } else {
       throw TagCycleException.create(exceptionClass, path, Optional.of(lineNumber), Optional.of(startPosition));
     }
@@ -51,7 +53,7 @@ public class CallStack {
       throw TagCycleException.create(exceptionClass, path, Optional.of(lineNumber), Optional.of(startPosition));
     }
 
-    stack.push(path);
+    pushToStack(path, lineNumber, startPosition);
   }
 
   public Optional<String> pop() {
@@ -74,5 +76,31 @@ public class CallStack {
     }
 
     return Optional.of(stack.peek());
+  }
+
+  public int getTopLineNumber() {
+    if (topLineNumber == -1 && parent != null) {
+      return parent.getTopLineNumber();
+    }
+    return topLineNumber;
+  }
+
+  public int getTopStartPosition() {
+    if (topStartPosition == -1 && parent != null) {
+      return parent.getTopStartPosition();
+    }
+    return topStartPosition;
+  }
+
+  public boolean isEmpty() {
+    return stack.empty() && (parent == null || parent.isEmpty());
+  }
+
+  private void pushToStack(String path, int lineNumber, int startPosition) {
+    if (isEmpty()) {
+      topLineNumber = lineNumber;
+      topStartPosition = startPosition;
+    }
+    stack.push(path);
   }
 }

@@ -35,9 +35,9 @@ public class AstMacroFunction extends AstFunction {
         try {
           if (interpreter.getConfig().isEnableRecursiveMacroCalls()) {
             if (interpreter.getConfig().getMaxMacroRecursionDepth() != 0) {
-              macroStack.pushWithMaxDepth(getName(), interpreter.getConfig().getMaxMacroRecursionDepth(), -1, -1);
+              macroStack.pushWithMaxDepth(getName(), interpreter.getConfig().getMaxMacroRecursionDepth(), interpreter.getLineNumber(), interpreter.getPosition());
             } else {
-              macroStack.pushWithoutCycleCheck(getName());
+              macroStack.pushWithoutCycleCheck(getName(), interpreter.getLineNumber(), interpreter.getPosition());
             }
           } else {
             macroStack.push(getName(), -1, -1);

@@ -12,9 +12,15 @@ public class BlockInfo {
 
   private final Optional<String> parentPath;
 
-  public BlockInfo(List<? extends Node> nodes, Optional<String> parentPath) {
+  private final int parentLineNo;
+
+  private final int parentPosition;
+
+  public BlockInfo(List<? extends Node> nodes, Optional<String> parentPath, int parentLineNo, int parentPosition) {
     this.nodes = nodes;
     this.parentPath = parentPath;
+    this.parentLineNo = parentLineNo;
+    this.parentPosition = parentPosition;
   }
 
   public List<? extends Node> getNodes() {
@@ -23,5 +29,13 @@ public class BlockInfo {
 
   public Optional<String> getParentPath() {
     return parentPath;
+  }
+
+  public int getParentLineNo() {
+    return parentLineNo;
+  }
+
+  public int getParentPosition() {
+    return parentPosition;
   }
 }

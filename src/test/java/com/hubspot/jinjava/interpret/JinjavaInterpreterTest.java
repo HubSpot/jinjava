@@ -43,7 +43,7 @@ public class JinjavaInterpreterTest {
   @Test
   public void resolveBlockStubs() {
     interpreter.addBlock("foobar", new BlockInfo(Lists.newLinkedList(Lists.newArrayList((new TextNode(new TextToken("sparta", -1, -1))))),
-        Optional.empty()));
+        Optional.empty(), 0, 0));
     String content = "this is {% block foobar %}foobar{% endblock %}!";
     assertThat(interpreter.render(content)).isEqualTo("this is sparta!");
   }
@@ -51,7 +51,7 @@ public class JinjavaInterpreterTest {
   @Test
   public void resolveBlockStubsWithSpecialChars() {
     interpreter.addBlock("foobar", new BlockInfo(Lists.newLinkedList(Lists.newArrayList(new TextNode(new TextToken("$150.00", -1, -1)))),
-        Optional.empty()));
+        Optional.empty(), 0, 0));
     String content = "this is {% block foobar %}foobar{% endblock %}!";
     assertThat(interpreter.render(content)).isEqualTo("this is $150.00!");
   }
