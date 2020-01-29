@@ -273,6 +273,8 @@ public class JinjavaInterpreter {
         output = new OutputList(config.getMaxOutputSize());
 
         for (Node node : parentRoot.getChildren()) {
+          lineNumber = node.getLineNumber() - 1; // The line number is off by one when rendering the extend parent
+          position = node.getStartPosition();
           OutputNode out = node.render(this);
           try {
             output.addNode(out);
@@ -318,8 +320,7 @@ public class JinjavaInterpreter {
             if (block.getParentPath().isPresent() && !getContext().getCurrentPathStack().contains(block.getParentPath().get())) {
               getContext().getCurrentPathStack().push(block.getParentPath().get(), block.getParentLineNo(), block.getParentPosition());
               pushedParentPathOntoStack = true;
-              // The linenumber is off by one when rendering the block from the parent template
-              lineNumber--;
+              lineNumber--; // The line number is off by one when rendering the block from the parent template
             }
 
             blockValueBuilder.addNode(child.render(this));
