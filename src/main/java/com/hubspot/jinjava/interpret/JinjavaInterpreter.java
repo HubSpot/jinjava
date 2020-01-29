@@ -311,10 +311,15 @@ public class JinjavaInterpreter {
           OutputList blockValueBuilder = new OutputList(config.getMaxOutputSize());
 
           for (Node child : block.getNodes()) {
+            lineNumber = child.getLineNumber();
+            position = child.getStartPosition();
+
             boolean pushedParentPathOntoStack = false;
             if (block.getParentPath().isPresent() && !getContext().getCurrentPathStack().contains(block.getParentPath().get())) {
               getContext().getCurrentPathStack().push(block.getParentPath().get(), block.getParentLineNo(), block.getParentPosition());
               pushedParentPathOntoStack = true;
+              // The linenumber is off by one when rendering the block from the parent template
+              lineNumber--;
             }
 
             blockValueBuilder.addNode(child.render(this));
