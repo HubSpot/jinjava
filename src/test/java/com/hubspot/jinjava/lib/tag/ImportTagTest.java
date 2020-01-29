@@ -253,6 +253,21 @@ public class ImportTagTest {
     assertThat(result.getErrors().get(0).getSourceTemplate().get()).isEqualTo("tags/importtag/errors/file-with-error.jinja");
   }
 
+  @Test
+  public void itSetsErrorLineNumbersCorrectlyForImportedMacros() throws IOException {
+
+    Jinjava jinjava = new Jinjava();
+    RenderResult result = jinjava.renderForResult(Resources.toString(Resources.getResource("tags/importtag/errors/import-macro.jinja"), StandardCharsets.UTF_8),
+        new HashMap<>());
+
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getLineno()).isEqualTo(3);
+
+    assertThat(result.getErrors().get(0).getMessage()).contains("Error in `tags/importtag/errors/macro-with-error.jinja` on line 12");
+
+    assertThat(result.getErrors().get(0).getSourceTemplate().isPresent());
+    assertThat(result.getErrors().get(0).getSourceTemplate().get()).isEqualTo("tags/importtag/errors/macro-with-error.jinja");
+  }
 
 
   private String fixture(String name) {
