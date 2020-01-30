@@ -2,6 +2,8 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.net.URISyntaxException;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,4 +33,15 @@ public class TrimFilterTest {
     assertThat(filter.filter(new SafeString(" foo  "), interpreter)).isInstanceOf(SafeString.class);
   }
 
+  @Test
+  public void itTrimsObject() throws URISyntaxException {
+    assertThat(filter.filter(new TestObject(), interpreter)).isEqualTo("hello");
+  }
+
+  private class TestObject {
+    @Override
+    public String toString() {
+      return "    hello   ";
+    }
+  }
 }
