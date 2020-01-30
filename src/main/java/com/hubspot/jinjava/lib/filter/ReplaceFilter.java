@@ -35,7 +35,8 @@ public class ReplaceFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(Object var, JinjavaInterpreter interpreter,
+      String... args) {
 
     if (var == null) {
       return null;
@@ -45,23 +46,21 @@ public class ReplaceFilter implements Filter {
           getName(),
           "requires 2 arguments (substring to replace, replacement string) or 3 arguments (substring to replace, replacement string, number of occurrences to replace)");
     }
-    if (var instanceof String) {
-      String s = (String) var;
-      String toReplace = args[0];
-      String replaceWith = args[1];
-      Integer count = null;
 
-      if (args.length > 2) {
-        count = NumberUtils.createInteger(args[2]);
-      }
+    String s = (String) var;
+    String toReplace = args[0];
+    String replaceWith = args[1];
+    Integer count = null;
 
-      if (count == null) {
-        return StringUtils.replace(s, toReplace, replaceWith);
-      } else {
-        return StringUtils.replace(s, toReplace, replaceWith, count);
-      }
+    if (args.length > 2) {
+      count = NumberUtils.createInteger(args[2]);
     }
-    return safeFilter(var, interpreter, args);
+
+    if (count == null) {
+      return StringUtils.replace(s, toReplace, replaceWith);
+    } else {
+      return StringUtils.replace(s, toReplace, replaceWith, count);
+    }
   }
 
 }

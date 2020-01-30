@@ -30,6 +30,7 @@ public class LogFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
+
     // default to e
     Double root = null;
     if (args.length > 0 && args[0] != null) {
@@ -40,6 +41,7 @@ public class LogFilter implements Filter {
 
       root = tryRoot;
     }
+
     if (object instanceof Integer) {
       return calculateLog(interpreter, (Integer) object, root);
     }
@@ -72,7 +74,7 @@ public class LogFilter implements Filter {
       }
     }
 
-    return safeFilter(object, interpreter, args);
+    return object;
   }
 
   private double calculateLog(JinjavaInterpreter interpreter, double num, Double base) {

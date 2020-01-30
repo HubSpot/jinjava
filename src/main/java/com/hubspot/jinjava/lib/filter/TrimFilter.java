@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -26,9 +28,7 @@ public class TrimFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if (var instanceof String) {
-      return StringUtils.trim((String) var);
-    }
-    return safeFilter(var, interpreter, args);
+    return StringUtils.trim(Objects.toString(var));
   }
+
 }

@@ -6,11 +6,20 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.junit.Before;
 import org.junit.Test;
 
-import com.hubspot.jinjava.objects.SafeString;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 public class TypeFunctionTest {
+
+  private JinjavaInterpreter interpreter;
+
+  @Before
+  public void setup() {
+    interpreter = new Jinjava().newInterpreter();
+  }
 
   @Test
   public void testString() {
@@ -51,10 +60,4 @@ public class TypeFunctionTest {
   public void testBool() {
     assertThat(TypeFunction.type(Boolean.FALSE)).isEqualTo("bool");
   }
-
-  @Test
-  public void testSafeString() {
-    assertThat(TypeFunction.type(new SafeString("test safe string"))).isEqualTo("str");
-  }
-
 }

@@ -31,9 +31,10 @@ public class UpperFilter implements Filter {
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
     if (object instanceof String) {
-      return object.toString().toUpperCase();
+      String value = (String) object;
+      return value.toUpperCase();
     }
-    return safeFilter(object, interpreter, arg);
+    return object;
   }
 
   @Override

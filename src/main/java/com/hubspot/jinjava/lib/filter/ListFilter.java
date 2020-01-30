@@ -9,7 +9,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
     value = "Convert the value into a list. If it was a string the returned list will be a list of characters.",
@@ -33,8 +32,8 @@ public class ListFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     List<?> result;
 
-    if (var instanceof String || var instanceof SafeString) {
-      result = Chars.asList(var.toString().toCharArray());
+    if (var instanceof String) {
+      result = Chars.asList(((String) var).toCharArray());
     } else if (Collection.class.isAssignableFrom(var.getClass())) {
       result = Lists.newArrayList((Collection<?>) var);
     } else {

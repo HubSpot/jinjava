@@ -56,10 +56,7 @@ public class EscapeJinjavaFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-    if (object instanceof String) {
-      return escapeJinjavaEntities(Objects.toString(object, ""));
-    }
-    return safeFilter(object, interpreter, arg);
+    return escapeJinjavaEntities(Objects.toString(object, ""));
   }
 
   @Override

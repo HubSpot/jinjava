@@ -41,10 +41,7 @@ public class CenterFilter implements Filter {
       size = NumberUtils.toInt(args[0], 80);
     }
 
-    if (var instanceof String) {
-      return StringUtils.center(var.toString(), size);
-    }
-    return safeFilter(var, interpreter, args);
+    return StringUtils.center(var.toString(), size);
   }
 
 }
