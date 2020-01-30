@@ -45,8 +45,4 @@ public class EscapeJsFilterTest {
     assertThat(jinjava.render("{{ 'Testing a \"quote for the week\"'|escapejs }}", new HashMap<>())).isEqualTo("Testing a \\\"quote for the week\\\"");
   }
 
-  @Test
-  public void testSafeStringCanBeEscaped() {
-    assertThat(jinjava.render("{{ 'Testing\nlineb\"reak\n'|safe|escapejs }}", new HashMap<>())).isEqualTo("Testing\\nlineb\\\"reak\\n");
-  }
 }

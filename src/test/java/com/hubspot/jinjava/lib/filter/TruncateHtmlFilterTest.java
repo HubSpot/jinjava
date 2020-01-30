@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.objects.SafeString;
 
 public class TruncateHtmlFilterTest {
 
@@ -37,13 +36,6 @@ public class TruncateHtmlFilterTest {
 
     result = (String) filter.filter(fixture("filter/truncatehtml/long-content-with-tags.html"), interpreter, "35", "...", "true");
     assertThat(result).isEqualTo("<h1>HTML Ipsum Presents</h1> \n<p><strong>Pellentesque ha...</strong></p>");
-  }
-
-  @Test
-  public void itWorksForSafeString() {
-    Object result = filter.filter(new SafeString(fixture("filter/truncatehtml/long-content-with-tags.html")), interpreter, "33");
-    assertThat(result.toString()).isEqualTo("<h1>HTML Ipsum Presents</h1> \n<p><strong>Pellentesque...</strong></p>");
-    assertThat(result).isInstanceOf(SafeString.class);
   }
 
   private static String fixture(String name) {

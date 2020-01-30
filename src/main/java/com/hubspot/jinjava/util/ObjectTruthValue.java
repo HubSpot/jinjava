@@ -19,8 +19,6 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
 
-import com.hubspot.jinjava.objects.SafeString;
-
 public final class ObjectTruthValue {
 
   private ObjectTruthValue() {
@@ -43,10 +41,6 @@ public final class ObjectTruthValue {
 
     if (object instanceof String) {
       return !"".equals(object) && !"false".equalsIgnoreCase((String) object);
-    }
-
-    if (object instanceof SafeString) {
-      return !"".equals(object.toString()) && !"false".equalsIgnoreCase(object.toString());
     }
 
     if (object.getClass().isArray()) {

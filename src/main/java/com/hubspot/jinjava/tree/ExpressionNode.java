@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
-import com.hubspot.jinjava.objects.SafeString;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
@@ -62,7 +61,7 @@ public class ExpressionNode extends Node {
       }
     }
 
-    if (interpreter.getContext().isAutoEscape() && !(var instanceof SafeString)) {
+    if (interpreter.getContext().isAutoEscape()) {
       result = EscapeFilter.escapeHtmlEntities(result);
     }
 

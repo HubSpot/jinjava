@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.objects.SafeString;
 
 public class TrimFilterTest {
 
@@ -23,12 +22,6 @@ public class TrimFilterTest {
   @Test
   public void testTrim() {
     assertThat(filter.filter(" foo  ", interpreter)).isEqualTo("foo");
-  }
-
-  @Test
-  public void testTrimSafeString() {
-    assertThat(filter.filter(new SafeString(" foo  "), interpreter).toString()).isEqualTo("foo");
-    assertThat(filter.filter(new SafeString(" foo  "), interpreter)).isInstanceOf(SafeString.class);
   }
 
 }

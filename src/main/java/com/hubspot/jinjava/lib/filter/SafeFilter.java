@@ -4,10 +4,12 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.objects.SafeString;
 
 /**
  * Mark the value as safe which means that in an environment with automatic escaping enabled this variable will not be escaped.
+ *
+ * This is currently implemented as a pass-through for the given variable.
+ *
  */
 @JinjavaDoc(
     value = "Mark the value as safe, which means that in an environment with automatic escaping enabled this variable will not be escaped.",
@@ -23,15 +25,9 @@ public class SafeFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if (var == null) {
-      return null;
-    }
-
-    if (!(var instanceof String)) {
-      return var;
-    }
-
-    return new SafeString((String) var);
+  public Object filter(Object var, JinjavaInterpreter interpreter,
+      String... args) {
+    return var;
   }
+
 }

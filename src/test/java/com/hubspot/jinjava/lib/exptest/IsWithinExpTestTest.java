@@ -12,7 +12,6 @@ import com.hubspot.jinjava.Jinjava;
 public class IsWithinExpTestTest {
 
   private static final String IN_TEMPLATE = "{%% if %s is within %s %%}pass{%% else %%}fail{%% endif %%}";
-  private static final String SAFE_STRING_TEMPLATE = "{%% if (%s|safe) is within %s %%}pass{%% else %%}fail{%% endif %%}";
 
   private Jinjava jinjava;
 
@@ -49,15 +48,5 @@ public class IsWithinExpTestTest {
   @Test
   public void itPerformsTypeConversion() {
     assertThat(jinjava.render(String.format(IN_TEMPLATE, "'1'", "[100000000000, 1]"), new HashMap<>())).isEqualTo("pass");
-  }
-
-  @Test
-  public void itWorksForStrings() {
-    assertThat(jinjava.render(String.format(IN_TEMPLATE, "'a'", "['a','b','c']"), new HashMap<>())).isEqualTo("pass");
-  }
-
-  @Test
-  public void itWorksForSafeString() {
-    assertThat(jinjava.render(String.format(SAFE_STRING_TEMPLATE, "'a'", "['a','b','c']"), new HashMap<>())).isEqualTo("pass");
   }
 }

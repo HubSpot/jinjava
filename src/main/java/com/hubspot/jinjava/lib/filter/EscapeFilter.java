@@ -45,10 +45,10 @@ public class EscapeFilter implements Filter {
   private static final String BSQ = "&#39;";
   private static final String BDQ = "&quot;";
 
-  private static final String[] TO_REPLACE = new String[]{
+  private static final String[] TO_REPLACE = new String[] {
       SAMP, SGT, SLT, "'", "\""
   };
-  private static final String[] REPLACE_WITH = new String[]{
+  private static final String[] REPLACE_WITH = new String[] {
       BAMP, BGT, BLT, BSQ, BDQ
   };
 
@@ -58,10 +58,7 @@ public class EscapeFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-    if (object instanceof String) {
-      return escapeHtmlEntities(Objects.toString(object, ""));
-    }
-    return safeFilter(object, interpreter, arg);
+    return escapeHtmlEntities(Objects.toString(object, ""));
   }
 
   @Override

@@ -73,7 +73,7 @@ public class ReverseFilter implements Filter {
       return String.valueOf(res);
     }
 
-    return safeFilter(object, interpreter, arg);
+    return object;
   }
 
   @Override

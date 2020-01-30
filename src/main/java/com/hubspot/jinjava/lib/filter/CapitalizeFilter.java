@@ -33,7 +33,7 @@ public class CapitalizeFilter implements Filter {
       String value = (String) var;
       return StringUtils.capitalize(value);
     }
-    return safeFilter(var, interpreter, args);
+    return var;
   }
 
 }

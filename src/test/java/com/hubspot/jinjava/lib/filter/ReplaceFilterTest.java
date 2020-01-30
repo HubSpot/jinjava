@@ -8,7 +8,6 @@ import org.junit.Test;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.objects.SafeString;
 
 public class ReplaceFilterTest {
 
@@ -26,7 +25,6 @@ public class ReplaceFilterTest {
     filter.filter("foo", interpreter);
   }
 
-  @Test
   public void noopOnNullExpr() {
     assertThat(filter.filter(null, interpreter, "foo", "bar")).isNull();
   }
@@ -41,8 +39,4 @@ public class ReplaceFilterTest {
     assertThat(filter.filter("aaaaargh", interpreter, "a", "d'oh, ", "2")).isEqualTo("d'oh, d'oh, aaargh");
   }
 
-  @Test
-  public void replaceSafeStringWithCount() {
-    assertThat(filter.filter(new SafeString("aaaaargh"), interpreter, "a", "d'oh, ", "2").toString()).isEqualTo("d'oh, d'oh, aaargh");
-  }
 }

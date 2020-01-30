@@ -38,25 +38,23 @@ public class IndentFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if (var instanceof String) {
-      int width = 4;
-      if (args.length > 0) {
-        width = NumberUtils.toInt(args[0], 4);
-      }
-
-      boolean indentFirst = false;
-      if (args.length > 1) {
-        indentFirst = BooleanUtils.toBoolean(args[1]);
-      }
-
-      List<String> indentedLines = new ArrayList<>();
-      for (String line : NEWLINE_SPLITTER.split(Objects.toString(var, ""))) {
-        int thisWidth = indentedLines.size() == 0 && !indentFirst ? 0 : width;
-        indentedLines.add(StringUtils.repeat(' ', thisWidth) + line);
-      }
-      return NEWLINE_JOINER.join(indentedLines);
+    int width = 4;
+    if (args.length > 0) {
+      width = NumberUtils.toInt(args[0], 4);
     }
-    return safeFilter(var, interpreter, args);
+
+    boolean indentFirst = false;
+    if (args.length > 1) {
+      indentFirst = BooleanUtils.toBoolean(args[1]);
+    }
+
+    List<String> indentedLines = new ArrayList<>();
+    for (String line : NEWLINE_SPLITTER.split(Objects.toString(var, ""))) {
+      int thisWidth = indentedLines.size() == 0 && !indentFirst ? 0 : width;
+      indentedLines.add(StringUtils.repeat(' ', thisWidth) + line);
+    }
+
+    return NEWLINE_JOINER.join(indentedLines);
   }
 
   private static final Splitter NEWLINE_SPLITTER = Splitter.on('\n');
