@@ -24,6 +24,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.Importable;
+import com.hubspot.jinjava.objects.SafeString;
 
 public interface Filter extends Importable {
 
@@ -64,5 +65,13 @@ public interface Filter extends Importable {
     }
 
     return filter(var, interpreter, filterArgs);
+  }
+  default Object filter(SafeString var, JinjavaInterpreter interpreter, String... args) {
+
+    Object result = filter(var.toString(), interpreter, args);
+    if (result instanceof String) {
+      return new SafeString(result.toString());
+    }
+    return result;
   }
 }
