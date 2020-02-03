@@ -60,7 +60,8 @@ public interface Filter extends Importable {
     for (int i = 0; i < stringArgs.size(); i++) {
       filterArgs[i] = stringArgs.get(i);
     }
-    if (var instanceof SafeString){
+
+    if (var instanceof SafeString) {
       return filter((SafeString) var, interpreter, filterArgs);
     }
 

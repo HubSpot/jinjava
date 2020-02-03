@@ -80,7 +80,7 @@ public class LengthFilter implements Filter {
   }
 
   @Override
-  public boolean preserveSafeString(){
+  public boolean preserveSafeString() {
     return false;
   }
 
