@@ -77,6 +77,11 @@ public class Md5Filter implements Filter {
   }
 
   @Override
+  public boolean preserveSafeString() {
+    return false;
+  }
+
+  @Override
   public String getName() {
     return "md5";
   }

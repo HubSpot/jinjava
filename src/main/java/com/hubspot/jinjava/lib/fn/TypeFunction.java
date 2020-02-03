@@ -10,6 +10,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.el.ext.AstDict;
 import com.hubspot.jinjava.el.ext.AstList;
 import com.hubspot.jinjava.el.ext.AstTuple;
+import com.hubspot.jinjava.objects.SafeString;
 import com.hubspot.jinjava.objects.date.PyishDate;
 
 
@@ -35,6 +36,7 @@ public class TypeFunction {
       .put(Long.class, "long")
       .put(Map.class, "dict")
       .put(String.class, "str")
+      .put(SafeString.class, "str")
       .build();
 
   public static String type(Object var) {

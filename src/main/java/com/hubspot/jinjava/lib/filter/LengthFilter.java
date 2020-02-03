@@ -80,6 +80,11 @@ public class LengthFilter implements Filter {
   }
 
   @Override
+  public boolean preserveSafeString(){
+    return false;
+  }
+
+  @Override
   public String getName() {
     return "length";
   }

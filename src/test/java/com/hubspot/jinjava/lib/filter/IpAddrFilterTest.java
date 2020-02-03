@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 public class IpAddrFilterTest {
 
@@ -87,5 +88,13 @@ public class IpAddrFilterTest {
   public void itAddsErrorOnInvalidFunctionName() {
     assertThatThrownBy(() -> ipAddrFilter.filter("192.168.0.1/20", interpreter, "notAFunction"))
         .hasMessageContaining("must be one of");
+  }
+
+  @Test
+  public void itWorksWithSafeString() throws Exception {
+    assertThat(ipAddrFilter.filter(new SafeString("1200:0000:AB00:1234:0000:2552:7777:1313"), interpreter)).isEqualTo(true);
+    assertThat(ipAddrFilter.filter(new SafeString("255.182.100.abc"), interpreter)).isEqualTo(false);
+    assertThat(ipAddrFilter.filter(new SafeString("   128.0.0.1   "), interpreter)).isEqualTo(true);
+    assertThat(ipAddrFilter.filter(new SafeString("255.182.100.1/10"), interpreter, "netmask")).isEqualTo("255.192.0.0");
   }
 }

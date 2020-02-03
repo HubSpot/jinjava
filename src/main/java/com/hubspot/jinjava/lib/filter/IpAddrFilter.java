@@ -64,6 +64,11 @@ public class IpAddrFilter implements Filter {
     return false;
   }
 
+  @Override
+  public boolean preserveSafeString() {
+    return false;
+  }
+
   private Object getFunctionValue(JinjavaInterpreter interpreter, String function, Object object) {
 
     if (!(object instanceof String)) {
@@ -123,5 +128,4 @@ public class IpAddrFilter implements Filter {
   public String getName() {
     return "ipaddr";
   }
-
 }
