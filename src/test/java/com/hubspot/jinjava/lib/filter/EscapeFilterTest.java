@@ -1,12 +1,13 @@
 package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 public class EscapeFilterTest {
 
@@ -27,4 +28,9 @@ public class EscapeFilterTest {
     assertThat(f.filter(1, interpreter)).isEqualTo("1");
   }
 
+  @Test
+  public void testSafeStringCanBeEscaped() {
+    assertThat(f.filter(new SafeString("<a>Previously marked as safe<a/>"), interpreter).toString()).isEqualTo("&lt;a&gt;Previously marked as safe&lt;a/&gt;");
+    assertThat(f.filter(new SafeString("<a>Previously marked as safe<a/>"), interpreter)).isInstanceOf(SafeString.class);
+  }
 }

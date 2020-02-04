@@ -9,6 +9,7 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 public class RegexReplaceFilterTest {
 
@@ -38,5 +39,10 @@ public class RegexReplaceFilterTest {
     @Test(expected = InvalidArgumentException.class)
     public void isThrowsExceptionOnInvalidRegex() {
         filter.filter("It costs $300", interpreter, "[", "");
+    }
+
+    @Test
+    public void itMatchesRegexAndReplacesStringForSafeString() {
+        assertThat(filter.filter(new SafeString("It costs $300"), interpreter, "[^a-zA-Z]", "").toString()).isEqualTo("Itcosts");
     }
 }

@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.objects.SafeString;
 
 public class IsStringStartingWithExpTestTest {
   private static final String STARTING_TEMPLATE = "{{ var is string_startingwith arg }}";
@@ -33,5 +34,10 @@ public class IsStringStartingWithExpTestTest {
   @Test
   public void itReturnsFalseForNull() {
     assertThat(jinjava.render(STARTING_TEMPLATE, ImmutableMap.of("var", "testing"))).isEqualTo("false");
+  }
+
+  @Test
+  public void itWorksForSafeString() {
+    assertThat(jinjava.render(STARTING_TEMPLATE, ImmutableMap.of("var", "testing", "arg", new SafeString("tes")))).isEqualTo("true");
   }
 }

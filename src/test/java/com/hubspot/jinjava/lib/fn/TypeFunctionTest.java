@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 public class TypeFunctionTest {
 
@@ -60,4 +61,10 @@ public class TypeFunctionTest {
   public void testBool() {
     assertThat(TypeFunction.type(Boolean.FALSE)).isEqualTo("bool");
   }
+
+  @Test
+  public void testSafeString() {
+    assertThat(TypeFunction.type(new SafeString("foo"))).isEqualTo("str");
+  }
+
 }
