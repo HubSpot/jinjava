@@ -3,7 +3,11 @@ package com.hubspot.jinjava.interpret;
 import java.util.Optional;
 import java.util.Stack;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class CallStack {
+  private static final Logger LOG = LoggerFactory.getLogger(CallStack.class);
 
   private final CallStack parent;
   private final Class<? extends TagCycleException> exceptionClass;
@@ -13,6 +17,10 @@ public class CallStack {
   private int topStartPosition = -1;
 
   public CallStack(CallStack parent, Class<? extends TagCycleException> exceptionClass) {
+    if (parent == this) {
+      LOG.error("Attempt to make this call stack a parent of itself! Ignoring parent.");
+      parent = null;
+    }
     this.parent = parent;
     this.exceptionClass = exceptionClass;
 

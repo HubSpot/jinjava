@@ -108,7 +108,7 @@ public class MacroTagTest {
   }
 
   @Test
-  public void testMacroUsedInForLoop() throws Exception {
+  public void testMacroUsedInForLoop() {
     Map<String, Object> bindings = new HashMap<>();
     bindings.put("widget_data", ImmutableMap.of(
         "tools_body_1", ImmutableMap.of("html", "body1"),
@@ -126,21 +126,21 @@ public class MacroTagTest {
   }
 
   @Test
-  public void itPreventsDirectMacroRecursion() throws IOException {
+  public void itPreventsDirectMacroRecursion() {
     String template = fixtureText("recursion");
     interpreter.render(template);
     assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("Cycle detected for macro 'hello'");
   }
 
   @Test
-  public void itPreventsIndirectMacroRecursion() throws IOException {
+  public void itPreventsIndirectMacroRecursion() {
     String template = fixtureText("recursion_indirect");
     interpreter.render(template);
     assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("Cycle detected for macro 'goodbye'");
   }
 
   @Test
-  public void itAllowsMacrosCallingMacrosUsingCall() throws IOException {
+  public void itAllowsMacrosCallingMacrosUsingCall() {
     String template = fixtureText("macros-calling-macros");
     String out = interpreter.render(template);
     assertThat(interpreter.getErrorsCopy()).isEmpty();
@@ -149,7 +149,7 @@ public class MacroTagTest {
   }
 
   @Test
-  public void itAllowsMacroRecursionWhenEnabledInConfiguration() throws IOException {
+  public void itAllowsMacroRecursionWhenEnabledInConfiguration() {
     // I need a different configuration here therefore
     interpreter = new Jinjava(JinjavaConfig.newBuilder().withEnableRecursiveMacroCalls(true).build()).newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
@@ -167,7 +167,7 @@ public class MacroTagTest {
   }
 
   @Test
-  public void itAllowsMacroRecursionWithMaxDepth() throws IOException {
+  public void itAllowsMacroRecursionWithMaxDepth() {
 
     interpreter = new Jinjava(JinjavaConfig.newBuilder()
         .withEnableRecursiveMacroCalls(true)
@@ -187,7 +187,7 @@ public class MacroTagTest {
   }
 
   @Test
-  public void itAllowsMacroRecursionWithMaxDepthInValidationMode() throws IOException {
+  public void itAllowsMacroRecursionWithMaxDepthInValidationMode() {
 
     interpreter = new Jinjava(JinjavaConfig.newBuilder()
         .withEnableRecursiveMacroCalls(true)
@@ -208,7 +208,7 @@ public class MacroTagTest {
   }
 
   @Test
-  public void itEnforcesMacroRecursionWithMaxDepth() throws IOException {
+  public void itEnforcesMacroRecursionWithMaxDepth() {
 
     interpreter = new Jinjava(JinjavaConfig.newBuilder()
         .withEnableRecursiveMacroCalls(true)
