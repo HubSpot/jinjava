@@ -28,6 +28,7 @@ public class MacroFunction extends AbstractCallableMethod {
   private final Context localContextScope;
 
   private final int definitionLineNumber;
+
   private final int definitionStartPosition;
 
   private boolean deferred;

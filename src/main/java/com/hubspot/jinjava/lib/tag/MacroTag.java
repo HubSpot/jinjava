@@ -109,6 +109,9 @@ public class MacroTag implements Tag {
     macro.setDeferred(deferred);
 
     interpreter.getContext().addGlobalMacro(macro);
+    if (deferred) {
+      throw new DeferredValueException(name, tagNode.getLineNumber(), tagNode.getStartPosition());
+    }
 
     if (deferred) {
       throw new DeferredValueException(name, tagNode.getLineNumber(), tagNode.getStartPosition());
