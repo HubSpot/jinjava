@@ -13,7 +13,6 @@ import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
@@ -78,7 +77,6 @@ public class MacroTag implements Tag {
     LinkedHashMap<String, Object> argNamesWithDefaults = new LinkedHashMap<>();
 
     List<String> argList = Lists.newArrayList(ARGS_SPLITTER.split(args));
-    boolean deferred = false;
     for (int i = 0; i < argList.size(); i++) {
       String arg = argList.get(i);
 
@@ -93,12 +91,8 @@ public class MacroTag implements Tag {
           }
         }
 
-        try {
-          Object argVal = interpreter.resolveELExpression(argValStr.toString(), tagNode.getLineNumber());
-          argNamesWithDefaults.put(argName, argVal);
-        } catch (DeferredValueException e) {
-          deferred = true;
-        }
+        Object argVal = interpreter.resolveELExpression(argValStr.toString(), tagNode.getLineNumber());
+        argNamesWithDefaults.put(argName, argVal);
       } else {
         argNamesWithDefaults.put(arg, null);
       }
@@ -106,13 +100,7 @@ public class MacroTag implements Tag {
 
     MacroFunction macro = new MacroFunction(tagNode.getChildren(), name, argNamesWithDefaults,
         false, interpreter.getContext(), interpreter.getLineNumber(), interpreter.getPosition());
-    macro.setDeferred(deferred);
-
     interpreter.getContext().addGlobalMacro(macro);
-
-    if (deferred) {
-      throw new DeferredValueException(name, tagNode.getLineNumber(), tagNode.getStartPosition());
-    }
 
     return "";
   }

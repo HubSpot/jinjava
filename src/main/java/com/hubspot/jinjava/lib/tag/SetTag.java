@@ -16,6 +16,7 @@
 package com.hubspot.jinjava.lib.tag;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -103,19 +104,7 @@ public class SetTag implements Tag {
         interpreter.getContext().put(var, interpreter.resolveELExpression(expr, tagNode.getLineNumber()));
       }
     } catch (DeferredValueException e) {
-      for (String varToken : varTokens) {
-        String key = varToken.trim();
-        Object originalValue = interpreter.getContext().get(key);
-        if (originalValue != null) {
-          if (originalValue instanceof DeferredValue) {
-            interpreter.getContext().put(key, originalValue);
-          } else {
-            interpreter.getContext().put(key, DeferredValue.instance(originalValue));
-          }
-        } else {
-          interpreter.getContext().put(key, DeferredValue.instance());
-        }
-      }
+      Stream.of(varTokens).forEach(varToken -> interpreter.getContext().put(varToken.trim(), DeferredValue.instance()));
       throw e;
     }
 
