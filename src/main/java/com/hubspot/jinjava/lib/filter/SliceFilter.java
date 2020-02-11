@@ -1,8 +1,10 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.math.NumberUtils;
 
-import com.google.common.collect.Iterators;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -47,7 +49,27 @@ public class SliceFilter implements Filter {
     }
 
     int slices = NumberUtils.toInt(args[0], 3);
-    return Iterators.paddedPartition(loop, slices);
+    List<List<Object>> result = new ArrayList<>();
+
+    List<Object> currentList = null;
+    int i = 0;
+    while(loop.hasNext()) {
+      Object next = loop.next();
+      if (i % slices == 0) {
+        currentList = new ArrayList<>(slices);
+        result.add(currentList);
+      }
+      currentList.add(next);
+      i++;
+    }
+
+    if (args.length > 1 && currentList != null) {
+      while (currentList.size() < slices) {
+        currentList.add(args[1]);
+      }
+    }
+
+    return result;
   }
 
 }

@@ -33,7 +33,35 @@ public class SliceFilterTest {
     assertThat(dom.select(".columwrapper ul")).hasSize(3);
     assertThat(dom.select(".columwrapper .column-1 li")).hasSize(3);
     assertThat(dom.select(".columwrapper .column-2 li")).hasSize(3);
-    assertThat(dom.select(".columwrapper .column-3 li")).hasSize(3);
+    assertThat(dom.select(".columwrapper .column-3 li")).hasSize(1);
+  }
+
+  @Test
+  public void testSliceWithReplacement() throws Exception {
+    String result = jinjava.render(
+        Resources.toString(Resources.getResource("filter/slice-filter-replacement.jinja"), StandardCharsets.UTF_8),
+        ImmutableMap.of("items", (Object) Lists.newArrayList("a", "b", "c", "d", "e")));
+
+    assertThat(result).isEqualTo("\n" +
+        "  1\n" +
+        "    a\n" +
+        "    b\n" +
+        "  2\n" +
+        "    c\n" +
+        "    d\n" +
+        "  3\n" +
+        "    e\n" +
+        "    hello\n" +
+        "");
+  }
+
+  @Test
+  public void testSliceWithEmptyList() throws Exception {
+    String result = jinjava.render(
+        Resources.toString(Resources.getResource("filter/slice-filter-empty.jinja"), StandardCharsets.UTF_8),
+        ImmutableMap.of("items", (Object) Lists.newArrayList()));
+
+    assertThat(result).isEqualTo("\n");
   }
 
 }
