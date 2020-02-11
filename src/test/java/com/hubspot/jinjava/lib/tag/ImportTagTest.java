@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -92,7 +91,7 @@ public class ImportTagTest {
     interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
     interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
     fixture("import-property");
-    assertThat(((Map)interpreter.getContext().get("pegasus")).get("primary_line_height")).isInstanceOf(DeferredValue.class);
+    assertThat(interpreter.getContext().get("pegasus")).isInstanceOf(DeferredValue.class);
   }
 
   @Test

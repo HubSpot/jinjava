@@ -113,29 +113,15 @@ public class ImportTag implements Tag {
 
       Map<String, Object> childBindings = child.getContext().getSessionBindings();
 
-      // If the template depends on deferred values it should not be rendered and all defined variables and macros should be deferred too
+      // If the template depends on deferred values it should not be rendered and all defined variables should be deferred too
       if (!child.getContext().getDeferredNodes().isEmpty()) {
         node.getChildren().forEach(deferredChild -> interpreter.getContext().addDeferredNode(deferredChild));
         if (StringUtils.isBlank(contextVar)) {
-          for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
-            macro.setDeferred(true);
-            interpreter.getContext().addGlobalMacro(macro);
-          }
           childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
           childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
           childBindings.keySet().forEach(key -> interpreter.getContext().put(key, DeferredValue.instance()));
         } else {
-          for (Map.Entry<String, MacroFunction> macroEntry : child.getContext().getGlobalMacros().entrySet()) {
-            MacroFunction macro = macroEntry.getValue();
-            macro.setDeferred(true);
-            childBindings.put(macroEntry.getKey(), macro);
-          }
-          childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-          childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
-          for (String key: childBindings.keySet()) {
-            childBindings.put(key, DeferredValue.instance());
-          }
-          interpreter.getContext().put(contextVar, childBindings);
+          interpreter.getContext().put(contextVar, DeferredValue.instance());
         }
 
         throw new DeferredValueException(templateFile, tagNode.getLineNumber(), tagNode.getStartPosition());

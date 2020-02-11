@@ -2,7 +2,6 @@ package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,12 +24,6 @@ public class DeferredTest {
     interpreter = new JinjavaInterpreter(jinjava, context, config);
     interpreter.getContext().put("deferred", DeferredValue.instance());
     interpreter.getContext().put("resolved", "resolvedValue");
-    JinjavaInterpreter.pushCurrent(interpreter);
-  }
-
-  @After
-  public void teardown() {
-    JinjavaInterpreter.popCurrent();
   }
 
   @Test
@@ -140,37 +133,6 @@ public class DeferredTest {
     String output = interpreter.render("{{ [1,2,3]|shuffle }}");
     assertThat(output).isEqualTo("{{ [1,2,3]|shuffle }}");
     assertThat(interpreter.getErrors()).isEmpty();
-  }
-
-
-  @Test
-  public void itDefersMacro() {
-    interpreter.getContext().put("padding", 0);
-    interpreter.getContext().put("added_padding", 10);
-    String deferredOutput = interpreter.render(
-        "{% macro inc_padding(width) %}" +
-            "{% set padding = padding + width %}" +
-            "{{padding}}" +
-            "{% endmacro %}" +
-            "{{ padding }}," +
-            "{% set padding =  inc_padding(added_padding) | int %}" +
-            "{{ padding }}," +
-            "{% set padding = inc_padding(deferred) | int %}" +
-            "{{ padding}}," +
-            "{% set padding = inc_padding(added_padding) | int %}" +
-            "{{ padding }}");
-    Object padding = interpreter.getContext().get("padding");
-    assertThat(padding).isInstanceOf(DeferredValue.class);
-    assertThat(((DeferredValue)padding).getOriginalValue()).isEqualTo(10);
-
-    interpreter.getContext().put("padding", ((DeferredValue)padding).getOriginalValue());
-    interpreter.getContext().put("added_padding", 10);
-    // not deferred anymore
-    interpreter.getContext().put("deferred", 5);
-    interpreter.getContext().getGlobalMacro("inc_padding").setDeferred(false);
-
-    String output = interpreter.render(deferredOutput);
-    assertThat(output).isEqualTo("0,10,15,25");
   }
 
 }

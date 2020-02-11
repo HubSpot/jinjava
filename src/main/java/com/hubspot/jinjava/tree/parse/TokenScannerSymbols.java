@@ -25,7 +25,6 @@ public interface TokenScannerSymbols {
   char TOKEN_EXPR_START_CHAR = '{';
   char TOKEN_EXPR_END_CHAR = '}';
   char TOKEN_NEWLINE_CHAR = '\n';
-  char TOKEN_TRIM_CHAR = '-';
 
   int TOKEN_PREFIX = TOKEN_PREFIX_CHAR;
   int TOKEN_POSTFIX = TOKEN_POSTFIX_CHAR;
@@ -35,6 +34,5 @@ public interface TokenScannerSymbols {
   int TOKEN_EXPR_START = TOKEN_EXPR_START_CHAR;
   int TOKEN_EXPR_END = TOKEN_EXPR_END_CHAR;
   int TOKEN_NEWLINE = TOKEN_NEWLINE_CHAR;
-  int TOKEN_TRIM = TOKEN_TRIM_CHAR;
 
 }

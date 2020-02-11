@@ -7,7 +7,6 @@ import javax.el.ELException;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.CallStack;
-import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MacroTagCycleException;
 import com.hubspot.jinjava.interpret.TemplateError;
@@ -30,10 +29,6 @@ public class AstMacroFunction extends AstFunction {
 
     MacroFunction macroFunction = interpreter.getContext().getGlobalMacro(getName());
     if (macroFunction != null) {
-
-      if (macroFunction.isDeferred()) {
-        throw new DeferredValueException(getName(), interpreter.getLineNumber(), interpreter.getPosition());
-      }
 
       CallStack macroStack = interpreter.getContext().getMacroStack();
       if (!macroFunction.isCaller()) {
