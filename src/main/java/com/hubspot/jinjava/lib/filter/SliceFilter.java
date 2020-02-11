@@ -8,6 +8,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.ForLoop;
@@ -49,6 +51,9 @@ public class SliceFilter implements Filter {
     }
 
     int slices = NumberUtils.toInt(args[0], 3);
+    if (slices <= 0) {
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.POSITIVE_NUMBER, 0, args[0]);
+    }
     List<List<Object>> result = new ArrayList<>();
 
     List<Object> currentList = null;
