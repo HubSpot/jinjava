@@ -58,7 +58,7 @@ public class SliceFilter implements Filter {
 
     List<Object> currentList = null;
     int i = 0;
-    while(loop.hasNext()) {
+    while (loop.hasNext()) {
       Object next = loop.next();
       if (i % slices == 0) {
         currentList = new ArrayList<>(slices);
