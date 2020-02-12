@@ -20,6 +20,7 @@ import com.hubspot.jinjava.util.ObjectIterator;
     input = @JinjavaParam(value = "value", type = "sequence", desc = "The sequence or dict that the filter is applied to", required = true),
     params = {
         @JinjavaParam(value = "slices", type = "number", desc = "Specifies how many items will be sliced", required = true),
+        @JinjavaParam(value = "fillWith", type = "object", desc = "Specifies which object to use to fill missing values on final iteration", required = false),
     },
     snippets = {
         @JinjavaSnippet(
