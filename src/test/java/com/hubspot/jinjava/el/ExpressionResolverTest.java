@@ -484,7 +484,7 @@ public class ExpressionResolverTest {
     final JinjavaConfig config = JinjavaConfig.newBuilder().build();
     String template = "{% for i in range(1, 5) %}{{i}} {% endfor %}\n{{ unixtimestamp(datetime) }}";
     final RenderResult renderResult = jinjava.renderForResult(template, context, config);
-    assertThat(renderResult.getOutput()).isEqualTo("1 2 3 4 \n12000");
+    assertThat(renderResult.getOutput()).isEqualTo("1 2 3 4 \n12345");
     assertThat(renderResult.getContext().getResolvedFunctions()).hasSameElementsAs(ImmutableSet.of(":range", ":unixtimestamp"));
   }
 
