@@ -29,7 +29,7 @@ public class StrftimeFormatter {
     CONVERSIONS['c'] = "EEE MMM dd HH:mm:ss yyyy";
     CONVERSIONS['d'] = "dd";
     CONVERSIONS['e'] = "d"; // The day of the month like with %d, but padded with blank (range 1 through 31).
-    CONVERSIONS['f'] = "SSSS";
+    CONVERSIONS['f'] = "SSSSSS";
     CONVERSIONS['H'] = "HH";
     CONVERSIONS['h'] = "hh";
     CONVERSIONS['I'] = "hh";

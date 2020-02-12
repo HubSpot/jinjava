@@ -15,7 +15,7 @@ public class StrftimeFormatterTest {
   @Before
   public void setup() {
     Locale.setDefault(Locale.ENGLISH);
-    d = ZonedDateTime.parse("2013-11-06T14:22:00.000+00:00");
+    d = ZonedDateTime.parse("2013-11-06T14:22:00.123+00:00");
   }
 
   @Test
@@ -62,6 +62,11 @@ public class StrftimeFormatterTest {
   @Test
   public void testTime() {
     assertThat(StrftimeFormatter.format(d, "%X")).isEqualTo("14:22:00");
+  }
+
+  @Test
+  public void testMicrosecs() {
+    assertThat(StrftimeFormatter.format(d, "%X %f")).isEqualTo("14:22:00 123000");
   }
 
   @Test
