@@ -145,8 +145,8 @@ public class Functions {
   @JinjavaDoc(value = "gets the unix timestamp milliseconds value of a datetime", params = {
       @JinjavaParam(value = "var", type = "date", defaultValue = "current time"),
   })
-  public static long unixtimestamp(Object var) {
-    ZonedDateTime d = getDateTimeArg(var, ZoneOffset.UTC);
+  public static long unixtimestamp(Object... var) {
+    ZonedDateTime d = getDateTimeArg(var == null || var.length == 0 ? null : var[0], ZoneOffset.UTC);
 
     if (d == null) {
       return 0;
