@@ -69,8 +69,9 @@ public class SliceFilter implements Filter {
     }
 
     if (args.length > 1 && currentList != null) {
+      Object fillWith = args[1];
       while (currentList.size() < slices) {
-        currentList.add(args[1]);
+        currentList.add(fillWith);
       }
     }
 
