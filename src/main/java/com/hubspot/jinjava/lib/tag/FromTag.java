@@ -12,6 +12,8 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.FromTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -108,6 +110,7 @@ public class FromTag implements Tag {
 
         interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
 
+        boolean importsDeferredValue = false;
         for (Map.Entry<String, String> importMapping : imports.entrySet()) {
           Object val = child.getContext().getGlobalMacro(importMapping.getKey());
 
@@ -118,8 +121,29 @@ public class FromTag implements Tag {
 
             if (val != null) {
               interpreter.getContext().put(importMapping.getValue(), val);
+              if (val instanceof DeferredValue) {
+                importsDeferredValue = true;
+              }
             }
           }
+        }
+
+        if (importsDeferredValue) {
+          for (Map.Entry<String, String> importMapping : imports.entrySet()) {
+            Object val = child.getContext().getGlobalMacro(importMapping.getKey());
+            if (val != null) {
+              MacroFunction macro = (MacroFunction) val;
+              macro.setDeferred(true);
+              interpreter.getContext().addGlobalMacro(macro);
+            } else {
+              val = child.getContext().get(importMapping.getKey());
+              if (val != null) {
+                interpreter.getContext().put(importMapping.getValue(), DeferredValue.instance());
+              }
+            }
+          }
+
+          throw new DeferredValueException(templateFile, tagNode.getLineNumber(), tagNode.getStartPosition());
         }
 
         return "";

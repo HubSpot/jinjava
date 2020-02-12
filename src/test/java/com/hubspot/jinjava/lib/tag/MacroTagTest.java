@@ -21,6 +21,7 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.Node;
@@ -56,7 +57,7 @@ public class MacroTagTest {
     assertThat(fn.isCaller()).isFalse();
 
     context.put("myname", "jared");
-    assertThat(snippet("{{ getPath() }}").render(interpreter).getValue().trim()).isEqualTo("Hello jared");
+    assertThat(snippet("{{ getPath() }}").render(interpreter).getValue()).isEqualTo("Hello jared");
   }
 
   @Test
@@ -69,6 +70,19 @@ public class MacroTagTest {
     assertThat(fn.getArguments()).containsExactly("link", "text");
 
     assertThat(snippet("{{section_link('mylink', 'mytext')}}").render(interpreter).getValue().trim()).isEqualTo("link: mylink, text: mytext");
+  }
+
+  @Test
+  public void testFnWithDeferredArgs() {
+    TagNode t = fixture("with-args");
+    assertThat(t.render(interpreter).getValue()).isEmpty();
+
+    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.section_link", -1, -1);
+    assertThat(fn.getName()).isEqualTo("section_link");
+    assertThat(fn.getArguments()).containsExactly("link", "text");
+
+    interpreter.getContext().put("mylink", DeferredValue.instance());
+    assertThat(snippet("{{section_link(mylink, 'mytext')}}").render(interpreter).getValue().trim()).isEqualTo("{{section_link(mylink, 'mytext')}}");
   }
 
   @Test
@@ -245,6 +259,24 @@ public class MacroTagTest {
     Node node = new TreeParser(interpreter, jinja).buildTree();
     assertThat(interpreter.render(node)).isEqualTo(
         "{f={val={f={val={{ self }}}}}}");
+  }
+
+  @Test
+  public void itReconstructsMacroDefinitionFromMacroFunction(){
+    TagNode t = fixture("simple");
+    assertThat(t.render(interpreter).getValue()).isEmpty();
+
+    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.getPath", -1, -1);
+    assertThat(fn.reconstructImage()).isEqualTo(fixtureText("simple").trim());
+  }
+
+  @Test
+  public void itReconstructsMacroDefinitionFromMacroFunctionWithNoTrim(){
+    TagNode t = fixture("simple-no-trim");
+    assertThat(t.render(interpreter).getValue()).isEmpty();
+
+    MacroFunction fn = (MacroFunction) interpreter.resolveObject("__macros__.getPath", -1, -1);
+    assertThat(fn.reconstructImage()).isEqualTo(fixtureText("simple-no-trim").trim());
   }
 
   private Node snippet(String jinja) {

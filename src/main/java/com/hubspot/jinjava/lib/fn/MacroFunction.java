@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.tree.Node;
@@ -27,7 +28,10 @@ public class MacroFunction extends AbstractCallableMethod {
   private final Context localContextScope;
 
   private final int definitionLineNumber;
+
   private final int definitionStartPosition;
+
+  private boolean deferred;
 
   public MacroFunction(List<Node> content,
                        String name,
@@ -42,6 +46,7 @@ public class MacroFunction extends AbstractCallableMethod {
     this.localContextScope = localContextScope;
     this.definitionLineNumber = lineNumber;
     this.definitionStartPosition = startPosition;
+    this.deferred = false;
   }
 
   @Override
@@ -79,13 +84,32 @@ public class MacroFunction extends AbstractCallableMethod {
         result.append(node.render(interpreter));
       }
 
+      if (!interpreter.getContext().getDeferredNodes().isEmpty()) {
+        throw new DeferredValueException(getName(), interpreter.getLineNumber(), interpreter.getPosition());
+      }
+
       return result.toString();
     } finally {
       importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop());
     }
   }
 
+  public void setDeferred(boolean deferred) {
+    this.deferred = deferred;
+  }
+
+  public boolean isDeferred() {
+    return deferred;
+  }
+
   public boolean isCaller() {
     return caller;
+  }
+
+  public String reconstructImage() {
+    if (content != null && !content.isEmpty()) {
+      return content.get(0).getParent().reconstructImage();
+    }
+    return "";
   }
 }
