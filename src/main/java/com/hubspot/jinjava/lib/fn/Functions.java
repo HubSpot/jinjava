@@ -152,7 +152,7 @@ public class Functions {
       return 0;
     }
 
-    return d.toEpochSecond() * 1000;
+    return d.toEpochSecond() * 1000 + Math.round(d.getNano() / 1_000_000.0);
   }
 
   @JinjavaDoc(value = "converts a string and datetime format into a datetime object", params = {
