@@ -41,6 +41,7 @@ public class JinjavaConfig {
   private final boolean trimBlocks;
   private final boolean lstripBlocks;
 
+  private final boolean trackResolved;
   private final boolean readOnlyResolver;
   private final boolean enableRecursiveMacroCalls;
   private final int maxMacroRecursionDepth;
@@ -62,11 +63,11 @@ public class JinjavaConfig {
   }
 
   public JinjavaConfig(InterpreterFactory interpreterFactory) {
-    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false, 0, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, 0, interpreterFactory);
+    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false, 0, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, 0, true, interpreterFactory);
   }
 
   public JinjavaConfig(Charset charset, Locale locale, ZoneId timeZone, int maxRenderDepth) {
-    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false, 0, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, 0, new JinjavaInterpreterFactory());
+    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false, 0, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, 0, true, new JinjavaInterpreterFactory());
   }
 
   private JinjavaConfig(Charset charset,
@@ -85,6 +86,7 @@ public class JinjavaConfig {
                         RandomNumberGeneratorStrategy randomNumberGenerator,
                         boolean validationMode,
                         long maxStringLength,
+                        boolean trackResolved,
                         InterpreterFactory interpreterFactory) {
     this.charset = charset;
     this.locale = locale;
@@ -101,6 +103,7 @@ public class JinjavaConfig {
     this.nestedInterpretationEnabled = nestedInterpretationEnabled;
     this.randomNumberGenerator = randomNumberGenerator;
     this.validationMode = validationMode;
+    this.trackResolved = trackResolved;
     this.maxStringLength = maxStringLength;
     this.interpreterFactory = interpreterFactory;
   }
@@ -169,6 +172,8 @@ public class JinjavaConfig {
     return maxStringLength;
   }
 
+  public boolean isTrackResolved() { return trackResolved; }
+
   public InterpreterFactory getInterpreterFactory() {
     return interpreterFactory;
   }
@@ -192,6 +197,7 @@ public class JinjavaConfig {
     private RandomNumberGeneratorStrategy randomNumberGeneratorStrategy = RandomNumberGeneratorStrategy.THREAD_LOCAL;
     private boolean validationMode = false;
     private long maxStringLength = 0;
+    private boolean trackResolved = true;
     private InterpreterFactory interpreterFactory = new JinjavaInterpreterFactory();
 
     private Builder() {
@@ -226,7 +232,6 @@ public class JinjavaConfig {
       this.randomNumberGeneratorStrategy = randomNumberGeneratorStrategy;
       return this;
     }
-
 
     public Builder withTrimBlocks(boolean trimBlocks) {
       this.trimBlocks = trimBlocks;
@@ -278,8 +283,13 @@ public class JinjavaConfig {
       return this;
     }
 
-    public Builder withInterperterFactory(InterpreterFactory interperterFactory) {
-      this.interpreterFactory = interperterFactory;
+    public Builder withTrackResolved(boolean trackResolved) {
+      this.trackResolved = trackResolved;
+      return this;
+    }
+
+    public Builder withInterpreterFactory(InterpreterFactory interpreterFactory) {
+      this.interpreterFactory = interpreterFactory;
       return this;
     }
 
@@ -300,6 +310,7 @@ public class JinjavaConfig {
           randomNumberGeneratorStrategy,
           validationMode,
           maxStringLength,
+          trackResolved,
           interpreterFactory);
     }
 

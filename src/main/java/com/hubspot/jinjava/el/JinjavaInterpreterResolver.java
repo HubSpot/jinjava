@@ -146,7 +146,9 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     String propertyName = Objects.toString(property, "");
     Object value = null;
 
-    interpreter.getContext().addResolvedValue(propertyName);
+    if (interpreter.getConfig().isTrackResolved()) {
+      interpreter.getContext().addResolvedValue(propertyName);
+    }
     ErrorItem item = ErrorItem.PROPERTY;
 
     try {

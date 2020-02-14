@@ -23,7 +23,8 @@ public class MacroFunctionMapper extends FunctionMapper {
 
   @Override
   public Method resolveFunction(String prefix, String localName) {
-    final Context context = JinjavaInterpreter.getCurrent().getContext();
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+    final Context context = interpreter.getContext();
     MacroFunction macroFunction = context.getGlobalMacro(localName);
 
     if (macroFunction != null) {
@@ -36,7 +37,7 @@ public class MacroFunctionMapper extends FunctionMapper {
       throw new DisabledException(functionName);
     }
 
-    if (map.containsKey(functionName)) {
+    if (map.containsKey(functionName) && interpreter.getConfig().isTrackResolved()) {
       context.addResolvedFunction(functionName);
     }
 

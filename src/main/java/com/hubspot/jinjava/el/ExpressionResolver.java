@@ -66,7 +66,9 @@ public class ExpressionResolver {
       return null;
     }
 
-    interpreter.getContext().addResolvedExpression(expression.trim());
+    if (interpreter.getConfig().isTrackResolved()) {
+      interpreter.getContext().addResolvedExpression(expression.trim());
+    }
 
     try {
       String elExpression = EXPRESSION_START_TOKEN + expression.trim() + EXPRESSION_END_TOKEN;

@@ -57,6 +57,32 @@ public class JinjavaInterpreterTest {
   }
 
   @Test
+  public void itTracksResolvedExpressions() {
+    String testName = "itTracksResolvedExpressions";
+    assertThat(interpreter.getConfig().isTrackResolved()).isTrue();
+    assertThat(interpreter.getContext().getResolvedExpressions()).doesNotContain(testName);
+
+    interpreter.render("{{" + testName + "}}");
+
+    assertThat(interpreter.getContext().getResolvedExpressions()).contains(testName);
+  }
+
+  @Test
+  public void itDoesNotTrackResolvedExpressionsWhenDisabled() {
+    String testName = "itDoesNotTrackResolvedExpressionsWhenDisabled";
+
+    jinjava = new Jinjava(JinjavaConfig.newBuilder().withTrackResolved(false).build());
+    interpreter = jinjava.newInterpreter();
+
+    assertThat(interpreter.getConfig().isTrackResolved()).isFalse();
+    assertThat(interpreter.getContext().getResolvedExpressions()).doesNotContain(testName);
+
+    interpreter.render("{{" + testName + "}}");
+
+    assertThat(interpreter.getContext().getResolvedExpressions()).doesNotContain(testName);
+  }
+
+  @Test
   public void resolveBlockStubsWithCycle() {
     String content = interpreter.render("{% block foo %}{% block foo %}{% endblock %}{% endblock %}");
     assertThat(content).isEmpty();
