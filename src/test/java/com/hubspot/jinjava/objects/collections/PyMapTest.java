@@ -40,6 +40,12 @@ public class PyMapTest {
   }
 
   @Test
+  public void itIgnoresKeysWithUnknownVariableName() {
+    assertThat(jinjava.render("{% set test = {keyName: \"value1\"} %}" +
+        "{{ test[\"keyName\"] }}", Collections.emptyMap())).isEqualTo("");
+  }
+
+  @Test
   public void itUpdatesKeysWithVariableName() {
     assertThat(jinjava.render("{% set test = {\"key1\": \"value1\"} %}" +
         "{% set keyName = \"key1\" %}" +
