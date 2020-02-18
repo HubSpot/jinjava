@@ -33,7 +33,7 @@ public class AstDict extends AstLiteral {
       if (entry.getKey() instanceof AstString) {
         key = Objects.toString(entry.getKey().eval(bindings, context));
       } else if (entry.getKey() instanceof AstIdentifier) {
-        key = ((AstIdentifier) entry.getKey()).getName();
+        key = entry.getKey().eval(bindings, context).toString();
       } else {
         throw new TemplateStateException("Dict key must be a string or identifier, was: " + entry.getKey());
       }
