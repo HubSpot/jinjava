@@ -105,4 +105,11 @@ public class PyListTest {
     assertThat(jinjava.render("{% set test = [10, 20, 30, 10, 20, 30] %}" +
         "{{ test.index(999, 1, 5) }}", Collections.emptyMap())).isEqualTo("-1");
   }
+
+  @Test
+  public void itInterpretsVariables() {
+    assertThat(jinjava.render("{% set ten = \"10\" %}{% set test = [ten, 20, 30] %}" +
+        "{{ test }}", Collections.emptyMap())).isEqualTo("[10, 20, 30]");
+  }
+
 }
