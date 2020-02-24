@@ -28,18 +28,18 @@ public class AstDict extends AstLiteral {
     Map<String, Object> resolved = new LinkedHashMap<>();
 
     for (Map.Entry<AstNode, AstNode> entry : dict.entrySet()) {
+      AstNode entryKey = entry.getKey();
       String key;
 
-      if (entry.getKey() instanceof AstString) {
-        key = Objects.toString(entry.getKey().eval(bindings, context));
-      } else if (entry.getKey() instanceof AstIdentifier) {
-        Object result = entry.getKey().eval(bindings, context);
-        if (result == null) {
-          continue;
-        }
-        key = result.toString();
+      if (entryKey instanceof AstString) {
+        key = Objects.toString(entryKey.eval(bindings, context));
+      } else if (entryKey instanceof AstIdentifier) {
+        Object result = entryKey.eval(bindings, context);
+        key = result == null
+            ? ((AstIdentifier) entryKey).getName() // this is for compatibility with the previous behavior
+            : result.toString();
       } else {
-        throw new TemplateStateException("Dict key must be a string or identifier, was: " + entry.getKey());
+        throw new TemplateStateException("Dict key must be a string or identifier, was: " + entryKey);
       }
 
       resolved.put(key, entry.getValue().eval(bindings, context));
@@ -58,7 +58,7 @@ public class AstDict extends AstLiteral {
     StringBuilder s = new StringBuilder("{");
 
     for (Map.Entry<AstNode, AstNode> entry : dict.entrySet()) {
-      s.append(Objects.toString(entry.getKey())).append(":").append(Objects.toString(entry.getValue()));
+      s.append(entry.getKey()).append(":").append(entry.getValue());
     }
 
     return s.append("}").toString();
