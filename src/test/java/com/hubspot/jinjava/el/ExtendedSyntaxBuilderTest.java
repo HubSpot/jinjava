@@ -160,7 +160,7 @@ public class ExtendedSyntaxBuilderTest {
   public void mapLiteral() {
     context.put("foo", "bar");
     assertThat((Map<String, Object>) val("{}")).isEmpty();
-    Map<String, Object> map = (Map<String, Object>) val("{\"foo\": foo, \"foo2\": foo, \"foo3\": 123, \"foo4\": 'string', \"foo5\": {}, \"foo6\": [1, 2]}");
+    Map<String, Object> map = (Map<String, Object>) val("{foo: foo, \"foo2\": foo, foo3: 123, foo4: 'string', foo5: {}, foo6: [1, 2]}");
     assertThat(map).contains(entry("foo", "bar"), entry("foo2", "bar"), entry("foo3", 123L),
         entry("foo4", "string"), entry("foo6", Arrays.asList(1L, 2L)));
 
