@@ -93,7 +93,8 @@ page at http://checkstyle.sourceforge.net/config.html -->
             3. imports will be sorted in the groups
             4. groups are separated by single blank line -->
     <module name="CustomImportOrder">
-      <property name="customImportOrderRules" value="STATIC###SPECIAL_IMPORTS"/>
+      <property name="customImportOrderRules" value="STATIC###STANDARD_JAVA_PACKAGE###SPECIAL_IMPORTS"/>
+      <property name="specialImportsRegExp" value="^org\."/>
       <property name="separateLineBetweenGroups" value="true"/>
     </module>
   </module>
