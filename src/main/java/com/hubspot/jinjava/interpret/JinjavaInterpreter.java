@@ -42,6 +42,7 @@ import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -318,6 +319,10 @@ public class JinjavaInterpreter {
     resolveBlockStubs(output, new Stack<>());
   }
 
+  @SuppressFBWarnings(
+    justification = "Iterables#getFirst DOES allow null for default value",
+    value = "NP_NONNULL_PARAM_VIOLATION"
+  )
   private void resolveBlockStubs(OutputList output, Stack<String> blockNames) {
     for (BlockPlaceholderOutputNode blockPlaceholder : output.getBlocks()) {
       if (!blockNames.contains(blockPlaceholder.getBlockName())) {
