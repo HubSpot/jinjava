@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,11 +13,8 @@ import org.mockito.Mock;
 import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-
 @RunWith(MockitoJUnitRunner.class)
 public class StripTagsFilterTest {
-
   @Mock
   JinjavaInterpreter interpreter;
 
@@ -44,12 +42,13 @@ public class StripTagsFilterTest {
 
   @Test
   public void itNormalizesWhitespaceInNonHtmlStrings() throws Exception {
-    assertThat(filter.filter("foo bar  other   var", interpreter)).isEqualTo("foo bar other var");
+    assertThat(filter.filter("foo bar  other   var", interpreter))
+      .isEqualTo("foo bar other var");
   }
 
   @Test
   public void itStripsTagsFromHtml() throws Exception {
-    assertThat(filter.filter("foo <b>bar</b> other", interpreter)).isEqualTo("foo bar other");
+    assertThat(filter.filter("foo <b>bar</b> other", interpreter))
+      .isEqualTo("foo bar other");
   }
-
 }

@@ -9,5 +9,4 @@ public class EAliasedEscapeFilter extends EscapeFilter {
   public String getName() {
     return "e";
   }
-
 }

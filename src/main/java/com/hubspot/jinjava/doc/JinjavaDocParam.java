@@ -1,14 +1,19 @@
 package com.hubspot.jinjava.doc;
 
 public class JinjavaDocParam {
-
   private final String name;
   private final String type;
   private final String desc;
   private final String defaultValue;
   private final boolean required;
 
-  public JinjavaDocParam(String name, String type, String desc, String defaultValue, boolean required) {
+  public JinjavaDocParam(
+    String name,
+    String type,
+    String desc,
+    String defaultValue,
+    boolean required
+  ) {
     this.name = name;
     this.type = type;
     this.desc = desc;
@@ -35,5 +40,4 @@ public class JinjavaDocParam {
   public boolean getRequired() {
     return required;
   }
-
 }

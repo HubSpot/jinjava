@@ -1,12 +1,10 @@
 package com.hubspot.jinjava.util;
 
+import com.hubspot.jinjava.interpret.OutputTooBigException;
 import java.io.Serializable;
 import java.util.stream.IntStream;
 
-import com.hubspot.jinjava.interpret.OutputTooBigException;
-
 public class LengthLimitingStringBuilder implements Serializable, CharSequence {
-
   private static final long serialVersionUID = -1891922886257965755L;
 
   private final StringBuilder builder;

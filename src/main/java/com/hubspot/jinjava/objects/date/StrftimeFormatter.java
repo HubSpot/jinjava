@@ -4,7 +4,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Locale;
-
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -13,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
  * @author jstehler
  */
 public class StrftimeFormatter {
-
   public static final String DEFAULT_DATE_FORMAT = "%H:%M / %d-%m-%Y";
   /*
    * Mapped from http://strftime.org/, http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
@@ -128,25 +126,25 @@ public class StrftimeFormatter {
     }
 
     switch (strftime.toLowerCase()) {
-    case "short":
-      fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
-      break;
-    case "medium":
-      fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
-      break;
-    case "long":
-      fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);
-      break;
-    case "full":
-      fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL);
-      break;
-    default:
-      try {
-        fmt = DateTimeFormatter.ofPattern(toJavaDateTimeFormat(strftime));
+      case "short":
+        fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
         break;
-      } catch (IllegalArgumentException e) {
-        throw new InvalidDateFormatException(strftime, e);
-      }
+      case "medium":
+        fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
+        break;
+      case "long":
+        fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);
+        break;
+      case "full":
+        fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL);
+        break;
+      default:
+        try {
+          fmt = DateTimeFormatter.ofPattern(toJavaDateTimeFormat(strftime));
+          break;
+        } catch (IllegalArgumentException e) {
+          throw new InvalidDateFormatException(strftime, e);
+        }
     }
 
     return fmt.withLocale(locale);
@@ -167,5 +165,4 @@ public class StrftimeFormatter {
   public static String format(ZonedDateTime d, String strftime, Locale locale) {
     return formatter(strftime, locale).format(d);
   }
-
 }

@@ -1,10 +1,9 @@
 package com.hubspot.jinjava.objects;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.collect.ImmutableList;
 
 public class DummyObject implements Map<String, Object>, PyWrapper {
 
@@ -44,14 +43,10 @@ public class DummyObject implements Map<String, Object>, PyWrapper {
   }
 
   @Override
-  public void putAll(Map<? extends String, ?> m) {
-
-  }
+  public void putAll(Map<? extends String, ?> m) {}
 
   @Override
-  public void clear() {
-
-  }
+  public void clear() {}
 
   @Override
   public Set<String> keySet() {

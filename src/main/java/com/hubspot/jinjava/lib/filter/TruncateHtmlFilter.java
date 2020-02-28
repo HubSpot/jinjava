@@ -2,8 +2,12 @@ package com.hubspot.jinjava.lib.filter;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.fn.Functions;
 import java.util.Objects;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -13,23 +17,35 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.NodeVisitor;
 
-import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
-import com.hubspot.jinjava.doc.annotations.JinjavaParam;
-import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.fn.Functions;
-
 @JinjavaDoc(
-    value = "Truncates a given string, respecting html markup (i.e. will properly close all nested tags)",
-    input = @JinjavaParam(value = "html", desc = "HTML to truncate", required = true),
-    params = {
-      @JinjavaParam(value = "length", type = "number", defaultValue = "255", desc = "Length at which to truncate text (HTML characters not included)"),
-      @JinjavaParam(value = "end", defaultValue = "...", desc = "The characters that will be added to indicate where the text was truncated"),
-      @JinjavaParam(value = "breakword", type = "boolean", defaultValue = "false", desc = "If set to true, text will be truncated in the middle of words")
-    },
-    snippets = {
-    @JinjavaSnippet(code = "{{ \"<p>I want to truncate this text without breaking my HTML<p>\"|truncatehtml(28, '..', false) }}", output = "<p>I want to truncate this text without breaking my HTML</p>")
-})
+  value = "Truncates a given string, respecting html markup (i.e. will properly close all nested tags)",
+  input = @JinjavaParam(value = "html", desc = "HTML to truncate", required = true),
+  params = {
+    @JinjavaParam(
+      value = "length",
+      type = "number",
+      defaultValue = "255",
+      desc = "Length at which to truncate text (HTML characters not included)"
+    ),
+    @JinjavaParam(
+      value = "end",
+      defaultValue = "...",
+      desc = "The characters that will be added to indicate where the text was truncated"
+    ),
+    @JinjavaParam(
+      value = "breakword",
+      type = "boolean",
+      defaultValue = "false",
+      desc = "If set to true, text will be truncated in the middle of words"
+    )
+  },
+  snippets = {
+    @JinjavaSnippet(
+      code = "{{ \"<p>I want to truncate this text without breaking my HTML<p>\"|truncatehtml(28, '..', false) }}",
+      output = "<p>I want to truncate this text without breaking my HTML</p>"
+    )
+  }
+)
 public class TruncateHtmlFilter implements Filter {
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
   private static final String DEFAULT_END = "...";
@@ -49,7 +65,11 @@ public class TruncateHtmlFilter implements Filter {
         try {
           length = Integer.parseInt(Objects.toString(args[0]));
         } catch (Exception e) {
-          ENGINE_LOG.warn("truncatehtml(): error setting length for {}, using default {}", args[0], DEFAULT_TRUNCATE_LENGTH);
+          ENGINE_LOG.warn(
+            "truncatehtml(): error setting length for {}, using default {}",
+            args[0],
+            DEFAULT_TRUNCATE_LENGTH
+          );
         }
       }
 
@@ -63,7 +83,11 @@ public class TruncateHtmlFilter implements Filter {
       }
 
       Document dom = Jsoup.parseBodyFragment((String) var);
-      ContentTruncatingNodeVisitor visitor = new ContentTruncatingNodeVisitor(length, ends, killwords);
+      ContentTruncatingNodeVisitor visitor = new ContentTruncatingNodeVisitor(
+        length,
+        ends,
+        killwords
+      );
       dom.select("body").traverse(visitor);
       dom.select(".__deleteme").remove();
 

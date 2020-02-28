@@ -8,9 +8,13 @@ public class TagCycleException extends TemplateStateException {
   private final String path;
   private final String tagName;
 
-  public TagCycleException(String tagName, String path, int lineNumber, int startPosition) {
+  public TagCycleException(
+    String tagName,
+    String path,
+    int lineNumber,
+    int startPosition
+  ) {
     super(tagName + " tag cycle for '" + path + "'", lineNumber, startPosition);
-
     this.path = path;
     this.tagName = tagName;
   }
@@ -23,8 +27,12 @@ public class TagCycleException extends TemplateStateException {
     return tagName;
   }
 
-  public static TagCycleException create(Class<? extends TagCycleException> clazz, String path, Optional<Integer> lineNumber, Optional<Integer> startPosition) {
-
+  public static TagCycleException create(
+    Class<? extends TagCycleException> clazz,
+    String path,
+    Optional<Integer> lineNumber,
+    Optional<Integer> startPosition
+  ) {
     final Integer line = lineNumber.orElse(-1);
     final Integer position = startPosition.orElse(-1);
 
@@ -44,5 +52,4 @@ public class TagCycleException extends TemplateStateException {
 
     return new TagCycleException("", path, line, position);
   }
-
 }

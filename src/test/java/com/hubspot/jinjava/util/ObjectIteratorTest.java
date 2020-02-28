@@ -21,11 +21,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.Test;
 
 public class ObjectIteratorTest {
-
   private Object items = null;
   private ForLoop loop = null;
 

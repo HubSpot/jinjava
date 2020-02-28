@@ -6,5 +6,4 @@ public class ImportTagCycleException extends TagCycleException {
   public ImportTagCycleException(String path, int lineNumber, int startPosition) {
     super("Import", path, lineNumber, startPosition);
   }
-
 }

@@ -15,29 +15,31 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 @JinjavaDoc(
-    value = "Return the absolute value of the argument.",
-    input = @JinjavaParam(value = "number", type = "number", desc = "The number that you want to get the absolute value of", required = true),
-    snippets = {
-        @JinjavaSnippet(
-            code = "{% set my_number = -53 %}\n" +
-                "{{ my_number|abs }}")
-    })
+  value = "Return the absolute value of the argument.",
+  input = @JinjavaParam(
+    value = "number",
+    type = "number",
+    desc = "The number that you want to get the absolute value of",
+    required = true
+  ),
+  snippets = {
+    @JinjavaSnippet(code = "{% set my_number = -53 %}\n" + "{{ my_number|abs }}")
+  }
+)
 public class AbsFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-
     if (object == null) {
       return null;
     }
@@ -62,7 +64,12 @@ public class AbsFilter implements Filter {
       try {
         return new BigDecimal(object.toString()).abs();
       } catch (Exception e) {
-        throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
+        throw new InvalidInputException(
+          interpreter,
+          this,
+          InvalidReason.NUMBER_FORMAT,
+          object.toString()
+        );
       }
     }
   }
@@ -71,5 +78,4 @@ public class AbsFilter implements Filter {
   public String getName() {
     return "abs";
   }
-
 }

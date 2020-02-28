@@ -1,15 +1,13 @@
 package com.hubspot.jinjava.objects.collections;
 
+import com.google.common.collect.ForwardingList;
+import com.hubspot.jinjava.objects.PyWrapper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import com.google.common.collect.ForwardingList;
-import com.hubspot.jinjava.objects.PyWrapper;
-
 public class PyList extends ForwardingList<Object> implements PyWrapper {
-
   private List<Object> list;
 
   public PyList(List<Object> list) {
@@ -46,9 +44,7 @@ public class PyList extends ForwardingList<Object> implements PyWrapper {
   }
 
   public long count(Object o) {
-    return stream()
-        .filter(object -> Objects.equals(object, o))
-        .count();
+    return stream().filter(object -> Objects.equals(object, o)).count();
   }
 
   public void reverse() {

@@ -30,5 +30,4 @@ public class DatetimeFilter extends DateTimeFormatFilter {
   public String getName() {
     return "date";
   }
-
 }

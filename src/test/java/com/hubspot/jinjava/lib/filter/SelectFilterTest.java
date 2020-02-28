@@ -2,16 +2,13 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.Lists;
+import com.hubspot.jinjava.Jinjava;
 import java.util.HashMap;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-import com.hubspot.jinjava.Jinjava;
-
 public class SelectFilterTest {
-
   Jinjava jinjava;
 
   @Before
@@ -22,13 +19,15 @@ public class SelectFilterTest {
 
   @Test
   public void testSelect() {
-    assertThat(jinjava.render("{{numbers|select('odd')}}", new HashMap<>())).isEqualTo("[1, 3, 5]");
-    assertThat(jinjava.render("{{numbers|select('even')}}", new HashMap<>())).isEqualTo("[2, 4]");
+    assertThat(jinjava.render("{{numbers|select('odd')}}", new HashMap<>()))
+      .isEqualTo("[1, 3, 5]");
+    assertThat(jinjava.render("{{numbers|select('even')}}", new HashMap<>()))
+      .isEqualTo("[2, 4]");
   }
 
   @Test
   public void testSelectWithEqualToAttr() {
-    assertThat(jinjava.render("{{numbers|select('equalto', 3)}}", new HashMap<>())).isEqualTo("[3]");
+    assertThat(jinjava.render("{{numbers|select('equalto', 3)}}", new HashMap<>()))
+      .isEqualTo("[3]");
   }
-
 }

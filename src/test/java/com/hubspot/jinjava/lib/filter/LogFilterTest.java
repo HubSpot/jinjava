@@ -2,18 +2,15 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.math.BigDecimal;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.math.BigDecimal;
+import org.junit.Before;
+import org.junit.Test;
 
 public class LogFilterTest {
-
   JinjavaInterpreter interpreter;
   LogFilter filter;
 
@@ -35,12 +32,17 @@ public class LogFilterTest {
 
   @Test
   public void itCalculatesLogBaseN() {
-    assertThat(filter.filter(9765625d, interpreter, "45.123")).isEqualTo(4.224920597763891);
+    assertThat(filter.filter(9765625d, interpreter, "45.123"))
+      .isEqualTo(4.224920597763891);
   }
 
   @Test
   public void itCalculatesBigDecimalLogBaseN() {
-    BigDecimal result = (BigDecimal) filter.filter(new BigDecimal(9765625d), interpreter, "45.123");
+    BigDecimal result = (BigDecimal) filter.filter(
+      new BigDecimal(9765625d),
+      interpreter,
+      "45.123"
+    );
     assertThat(result.doubleValue()).isEqualTo(4.224920597763891);
   }
 

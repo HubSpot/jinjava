@@ -21,7 +21,9 @@ public class FatalTemplateErrorsException extends InterpretException {
 
   private static String generateMessage(Collection<TemplateError> errors) {
     if (errors.isEmpty()) {
-      throw new IllegalArgumentException("FatalTemplateErrorsException should have at least one error");
+      throw new IllegalArgumentException(
+        "FatalTemplateErrorsException should have at least one error"
+      );
     }
 
     return errors.iterator().next().getMessage();
@@ -34,5 +36,4 @@ public class FatalTemplateErrorsException extends InterpretException {
   public Iterable<TemplateError> getErrors() {
     return errors;
   }
-
 }

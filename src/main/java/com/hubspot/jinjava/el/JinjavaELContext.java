@@ -1,13 +1,10 @@
 package com.hubspot.jinjava.el;
 
+import de.odysseus.el.util.SimpleContext;
 import java.lang.reflect.Method;
-
 import javax.el.ELResolver;
 
-import de.odysseus.el.util.SimpleContext;
-
 public class JinjavaELContext extends SimpleContext {
-
   private MacroFunctionMapper functionMapper;
 
   public JinjavaELContext() {
@@ -30,5 +27,4 @@ public class JinjavaELContext extends SimpleContext {
   public void setFunction(String prefix, String localName, Method method) {
     getFunctionMapper().setFunction(prefix, localName, method);
   }
-
 }

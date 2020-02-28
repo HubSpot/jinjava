@@ -15,8 +15,6 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
-import java.math.BigDecimal;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -25,36 +23,54 @@ import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import java.math.BigDecimal;
 
 @JinjavaDoc(
-    value = "adds a number to the existing value",
-    input = @JinjavaParam(value = "number", type = "number", desc = "Number or numeric variable to add to", required = true),
-    params = {
-        @JinjavaParam(value = "addend", type = "number", desc = "The number added to the base number", required = true)
-    },
-    snippets = {
-        @JinjavaSnippet(
-            code = "{% set my_num = 40 %} \n" +
-                "{{ my_num|add(13) }}")
-    })
+  value = "adds a number to the existing value",
+  input = @JinjavaParam(
+    value = "number",
+    type = "number",
+    desc = "Number or numeric variable to add to",
+    required = true
+  ),
+  params = {
+    @JinjavaParam(
+      value = "addend",
+      type = "number",
+      desc = "The number added to the base number",
+      required = true
+    )
+  },
+  snippets = {
+    @JinjavaSnippet(code = "{% set my_num = 40 %} \n" + "{{ my_num|add(13) }}")
+  }
+)
 public class AddFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
-
     if (object == null) {
       return null;
     }
 
     if (args.length < 1) {
-      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (number to add to base)");
+      throw new TemplateSyntaxException(
+        interpreter,
+        getName(),
+        "requires 1 argument (number to add to base)"
+      );
     }
 
     BigDecimal base;
     try {
       base = new BigDecimal(object.toString());
     } catch (NumberFormatException e) {
-      throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
+      throw new InvalidInputException(
+        interpreter,
+        this,
+        InvalidReason.NUMBER_FORMAT,
+        object.toString()
+      );
     }
 
     if (args[0] == null) {
@@ -65,7 +81,13 @@ public class AddFilter implements Filter {
     try {
       addend = new BigDecimal(args[0]);
     } catch (NumberFormatException e) {
-      throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, args[0]);
+      throw new InvalidArgumentException(
+        interpreter,
+        this,
+        InvalidReason.NUMBER_FORMAT,
+        0,
+        args[0]
+      );
     }
 
     return base.add(addend);
@@ -75,5 +97,4 @@ public class AddFilter implements Filter {
   public String getName() {
     return "add";
   }
-
 }

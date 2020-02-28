@@ -153,5 +153,4 @@ public class ForLoop implements Iterator<Object> {
   public void remove() {
     throw new UnsupportedOperationException();
   }
-
 }

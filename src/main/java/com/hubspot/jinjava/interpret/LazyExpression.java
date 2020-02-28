@@ -1,11 +1,9 @@
 package com.hubspot.jinjava.interpret;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.function.Supplier;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 public class LazyExpression implements Supplier {
-
   private final Supplier supplier;
   private final String image;
 

@@ -3,7 +3,6 @@ package com.hubspot.jinjava.el.ext;
 import java.util.Objects;
 
 public class NamedParameter {
-
   private final String name;
   private final Object value;
 
@@ -24,5 +23,4 @@ public class NamedParameter {
   public String toString() {
     return Objects.toString(value, "");
   }
-
 }

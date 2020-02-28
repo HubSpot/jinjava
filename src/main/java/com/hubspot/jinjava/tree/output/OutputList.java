@@ -1,15 +1,13 @@
 package com.hubspot.jinjava.tree.output;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
+import java.util.LinkedList;
+import java.util.List;
 
 public class OutputList {
-
   private final List<OutputNode> nodes = new LinkedList<>();
   private final List<BlockPlaceholderOutputNode> blocks = new LinkedList<>();
   private final long maxOutputSize;
@@ -20,7 +18,6 @@ public class OutputList {
   }
 
   public void addNode(OutputNode node) {
-
     if (maxOutputSize > 0 && currentSize + node.getSize() > maxOutputSize) {
       throw new OutputTooBigException(maxOutputSize, currentSize + node.getSize());
     }
@@ -51,7 +48,9 @@ public class OutputList {
       try {
         val.append(node.getValue());
       } catch (OutputTooBigException e) {
-        JinjavaInterpreter.getCurrent().addError(TemplateError.fromOutputTooBigException(e));
+        JinjavaInterpreter
+          .getCurrent()
+          .addError(TemplateError.fromOutputTooBigException(e));
         return val.toString();
       }
     }
@@ -63,5 +62,4 @@ public class OutputList {
   public String toString() {
     return getValue();
   }
-
 }

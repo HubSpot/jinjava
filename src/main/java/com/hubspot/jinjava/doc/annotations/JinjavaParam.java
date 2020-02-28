@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface JinjavaParam {
-
   String value();
 
   String type() default "String";
@@ -18,5 +17,4 @@ public @interface JinjavaParam {
   String defaultValue() default "";
 
   boolean required() default false;
-
 }

@@ -7,6 +7,4 @@ package com.hubspot.jinjava.objects;
  *
  * @author jstehler
  */
-public interface PyWrapper {
-
-}
+public interface PyWrapper {}

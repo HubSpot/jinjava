@@ -6,5 +6,4 @@ public class FromTagCycleException extends TagCycleException {
   public FromTagCycleException(String path, int lineNumber, int startPosition) {
     super("From", path, lineNumber, startPosition);
   }
-
 }

@@ -9,5 +9,4 @@ public class DAliasedDefaultFilter extends DefaultFilter {
   public String getName() {
     return "d";
   }
-
 }

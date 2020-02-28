@@ -2,21 +2,18 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Arrays;
-import java.util.HashMap;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.SafeString;
-
+import java.util.Arrays;
+import java.util.HashMap;
+import org.junit.Before;
+import org.junit.Test;
 
 public class FromJsonFilterTest {
-
-  private static final String NESTED_JSON = "{\"first\":[1,2,3],\"nested\":{\"second\":\"string\",\"third\":4}}";
+  private static final String NESTED_JSON =
+    "{\"first\":[1,2,3],\"nested\":{\"second\":\"string\",\"third\":4}}";
   private JinjavaInterpreter interpreter;
   private FromJsonFilter filter;
 
@@ -28,13 +25,15 @@ public class FromJsonFilterTest {
 
   @Test
   public void itReadsStringAsObject() {
-    HashMap<String, Object> node = (HashMap<String, Object>) filter.filter(NESTED_JSON, interpreter);
+    HashMap<String, Object> node = (HashMap<String, Object>) filter.filter(
+      NESTED_JSON,
+      interpreter
+    );
     checkedNestJson(node);
   }
 
   @Test(expected = InvalidInputException.class)
   public void itFailsWhenStringIsNotJson() {
-
     String nestedJson = "blah";
 
     filter.filter(nestedJson, interpreter);
@@ -42,7 +41,6 @@ public class FromJsonFilterTest {
 
   @Test(expected = InvalidInputException.class)
   public void itFailsWhenParameterIsNotString() {
-
     Integer nestedJson = 456;
 
     filter.filter(nestedJson, interpreter);
@@ -51,7 +49,10 @@ public class FromJsonFilterTest {
   @Test
   public void itReadsSafeStringAsObject() {
     SafeString nestedJson = new SafeString(NESTED_JSON);
-    HashMap<String, Object> node = (HashMap<String, Object>) filter.filter(nestedJson, interpreter);
+    HashMap<String, Object> node = (HashMap<String, Object>) filter.filter(
+      nestedJson,
+      interpreter
+    );
     checkedNestJson(node);
   }
 

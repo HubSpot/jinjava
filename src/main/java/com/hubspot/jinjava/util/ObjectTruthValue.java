@@ -15,19 +15,16 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.util;
 
+import com.hubspot.jinjava.objects.SafeString;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
 
-import com.hubspot.jinjava.objects.SafeString;
-
 public final class ObjectTruthValue {
 
-  private ObjectTruthValue() {
-  }
+  private ObjectTruthValue() {}
 
   public static boolean evaluate(Object object) {
-
     if (object == null) {
       return false;
     }
@@ -46,7 +43,9 @@ public final class ObjectTruthValue {
     }
 
     if (object instanceof SafeString) {
-      return !"".equals(object.toString()) && !"false".equalsIgnoreCase(object.toString());
+      return (
+        !"".equals(object.toString()) && !"false".equalsIgnoreCase(object.toString())
+      );
     }
 
     if (object.getClass().isArray()) {
@@ -63,5 +62,4 @@ public final class ObjectTruthValue {
 
     return true;
   }
-
 }

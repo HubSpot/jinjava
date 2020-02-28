@@ -15,34 +15,40 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Objects;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
 @JinjavaDoc(
-    value = "Removes a string from the value from another string",
-    input = @JinjavaParam(value = "value", desc = "The original string", required = true),
-    params = {
-        @JinjavaParam(value = "to_remove", desc = "String to remove from the original string", required = true)
-    },
-    snippets = {
-        @JinjavaSnippet(
-            code = "{% set my_string = \"Hello world.\" %}\n" +
-                "{{ my_string|cut(' world') }}")
-    })
+  value = "Removes a string from the value from another string",
+  input = @JinjavaParam(value = "value", desc = "The original string", required = true),
+  params = {
+    @JinjavaParam(
+      value = "to_remove",
+      desc = "String to remove from the original string",
+      required = true
+    )
+  },
+  snippets = {
+    @JinjavaSnippet(
+      code = "{% set my_string = \"Hello world.\" %}\n" + "{{ my_string|cut(' world') }}"
+    )
+  }
+)
 public class CutFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-
     if (arg.length < 1) {
-      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (string to remove from target)");
+      throw new TemplateSyntaxException(
+        interpreter,
+        getName(),
+        "requires 1 argument (string to remove from target)"
+      );
     }
     String cutee = arg[0];
     String origin = Objects.toString(object, "");
@@ -53,5 +59,4 @@ public class CutFilter implements Filter {
   public String getName() {
     return "cut";
   }
-
 }

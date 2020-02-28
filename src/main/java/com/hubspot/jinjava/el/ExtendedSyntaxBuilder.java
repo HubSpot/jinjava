@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.el;
 
 import com.hubspot.jinjava.el.ext.ExtendedParser;
-
 import de.odysseus.el.tree.impl.Builder;
 import de.odysseus.el.tree.impl.Parser;
 
@@ -27,5 +26,4 @@ public class ExtendedSyntaxBuilder extends Builder {
   protected Parser createParser(String expression) {
     return new ExtendedParser(this, expression);
   }
-
 }

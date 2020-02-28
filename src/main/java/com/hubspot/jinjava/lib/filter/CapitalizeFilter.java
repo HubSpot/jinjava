@@ -1,20 +1,25 @@
 package com.hubspot.jinjava.lib.filter;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import org.apache.commons.lang3.StringUtils;
 
 @JinjavaDoc(
-    value = "Capitalize a value. The first character will be uppercase, all others lowercase.",
-    input = @JinjavaParam(value = "string", desc = "String to capitalize the first letter of", required = true),
-    snippets = {
-        @JinjavaSnippet(
-            code = "{% set sentence = \"the first letter of a sentence should always be capitalized.\" %}\n" +
-                "{{ sentence|capitalize }}")
-    })
+  value = "Capitalize a value. The first character will be uppercase, all others lowercase.",
+  input = @JinjavaParam(
+    value = "string",
+    desc = "String to capitalize the first letter of",
+    required = true
+  ),
+  snippets = {
+    @JinjavaSnippet(
+      code = "{% set sentence = \"the first letter of a sentence should always be capitalized.\" %}\n" +
+      "{{ sentence|capitalize }}"
+    )
+  }
+)
 public class CapitalizeFilter implements Filter {
 
   @Override
@@ -24,7 +29,6 @@ public class CapitalizeFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-
     if (var == null) {
       return null;
     }
@@ -35,5 +39,4 @@ public class CapitalizeFilter implements Filter {
     }
     return var;
   }
-
 }

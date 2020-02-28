@@ -21,7 +21,6 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 
 public class TagToken extends Token {
-
   private static final long serialVersionUID = -4927751270481832992L;
 
   private String tagName;
@@ -43,7 +42,12 @@ public class TagToken extends Token {
   @Override
   protected void parse() {
     if (image.length() < 4) {
-      throw new TemplateSyntaxException(image, "Malformed tag token", getLineNumber(), getStartPosition());
+      throw new TemplateSyntaxException(
+        image,
+        "Malformed tag token",
+        getLineNumber(),
+        getStartPosition()
+      );
     }
 
     content = image.substring(2, image.length() - 2);
@@ -97,5 +101,4 @@ public class TagToken extends Token {
     }
     return "{% " + tagName + " " + helpers + " %}";
   }
-
 }

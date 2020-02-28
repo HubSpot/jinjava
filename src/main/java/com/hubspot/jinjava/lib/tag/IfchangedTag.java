@@ -15,26 +15,26 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
+import org.apache.commons.lang3.StringUtils;
 
 @JinjavaDoc(
-    value = "Outputs the tag contents if the given variable has changed since a prior invocation of this tag",
-    hidden = true,
-    snippets = {
-        @JinjavaSnippet(
-            code = "{% ifchanged var %}\n" +
-                "Variable to test if changed\n" +
-                "{% endifchanged %}")
-    })
+  value = "Outputs the tag contents if the given variable has changed since a prior invocation of this tag",
+  hidden = true,
+  snippets = {
+    @JinjavaSnippet(
+      code = "{% ifchanged var %}\n" +
+      "Variable to test if changed\n" +
+      "{% endifchanged %}"
+    )
+  }
+)
 public class IfchangedTag implements Tag {
-
   public static final String TAG_NAME = "ifchanged";
 
   private static final long serialVersionUID = 3567908136629704724L;
@@ -43,12 +43,21 @@ public class IfchangedTag implements Tag {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     if (StringUtils.isBlank(tagNode.getHelpers())) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'ifchanged' expects a variable parameter", tagNode.getLineNumber(), tagNode.getStartPosition());
+      throw new TemplateSyntaxException(
+        tagNode.getMaster().getImage(),
+        "Tag 'ifchanged' expects a variable parameter",
+        tagNode.getLineNumber(),
+        tagNode.getStartPosition()
+      );
     }
     boolean isChanged = true;
     String var = tagNode.getHelpers().trim();
     Object older = interpreter.getContext().get(LASTKEY + var);
-    Object test = interpreter.retraceVariable(var, tagNode.getLineNumber(), tagNode.getStartPosition());
+    Object test = interpreter.retraceVariable(
+      var,
+      tagNode.getLineNumber(),
+      tagNode.getStartPosition()
+    );
     if (older == null) {
       if (test == null) {
         isChanged = false;
@@ -71,5 +80,4 @@ public class IfchangedTag implements Tag {
   public String getName() {
     return TAG_NAME;
   }
-
 }

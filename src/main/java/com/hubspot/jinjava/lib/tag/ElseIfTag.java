@@ -6,7 +6,6 @@ import com.hubspot.jinjava.tree.TagNode;
 
 @JinjavaDoc(value = "", hidden = true)
 public class ElseIfTag implements Tag {
-
   public static final String TAG_NAME = "elif";
 
   private static final long serialVersionUID = -7988057025956316803L;
@@ -30,5 +29,4 @@ public class ElseIfTag implements Tag {
   public String getName() {
     return TAG_NAME;
   }
-
 }

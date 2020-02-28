@@ -2,11 +2,9 @@ package com.hubspot.jinjava.lib.fn;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
+import com.google.common.base.Throwables;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-
-import com.google.common.base.Throwables;
-
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
@@ -16,29 +14,56 @@ import javassist.bytecode.AccessFlag;
 
 public class InjectedContextFunctionProxy {
 
-  public static ELFunctionDefinition defineProxy(String namespace, String name, Method m, Object injectedInstance) {
+  public static ELFunctionDefinition defineProxy(
+    String namespace,
+    String name,
+    Method m,
+    Object injectedInstance
+  ) {
     try {
       ClassPool pool = ClassPool.getDefault();
 
-      String ccName = InjectedContextFunctionProxy.class.getSimpleName() + "$$" + namespace + "$$" + name;
+      String ccName =
+        InjectedContextFunctionProxy.class.getSimpleName() +
+        "$$" +
+        namespace +
+        "$$" +
+        name;
       Class<?> injectedClass = null;
 
       try {
-        injectedClass = InjectedContextFunctionProxy.class.getClassLoader().loadClass(ccName);
+        injectedClass =
+          InjectedContextFunctionProxy.class.getClassLoader().loadClass(ccName);
       } catch (ClassNotFoundException e) {
         CtClass cc = pool.makeClass(ccName);
         CtClass mc = pool.get(m.getDeclaringClass().getName());
 
-        CtField injectedField = CtField.make(String.format("public static %s injectedField;", m.getDeclaringClass().getName()), cc);
+        CtField injectedField = CtField.make(
+          String.format(
+            "public static %s injectedField;",
+            m.getDeclaringClass().getName()
+          ),
+          cc
+        );
         cc.addField(injectedField);
 
-        CtField injectedMethod = CtField.make(String.format("public static %s delegate;", Method.class.getName()), cc);
+        CtField injectedMethod = CtField.make(
+          String.format("public static %s delegate;", Method.class.getName()),
+          cc
+        );
         cc.addField(injectedMethod);
 
         CtMethod ctMethod = mc.getDeclaredMethod(m.getName());
 
-        CtMethod invokeMethod = CtNewMethod.make(Modifier.PUBLIC | Modifier.STATIC, ctMethod.getReturnType(), "invoke",
-            ctMethod.getParameterTypes(), ctMethod.getExceptionTypes(), null, cc);
+        CtMethod invokeMethod = CtNewMethod.make(
+          Modifier.PUBLIC | Modifier.STATIC,
+          ctMethod.getReturnType(),
+          "invoke",
+          ctMethod.getParameterTypes(),
+          ctMethod.getExceptionTypes(),
+          null,
+          cc
+        );
         invokeMethod.setBody("{ return $proceed($$); }", "injectedField", m.getName());
 
         for (CtClass param : ctMethod.getParameterTypes()) {
@@ -72,5 +97,4 @@ public class InjectedContextFunctionProxy {
       throw new RuntimeException(e);
     }
   }
-
 }

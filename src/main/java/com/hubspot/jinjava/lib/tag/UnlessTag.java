@@ -17,11 +17,17 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
  */
 
 @JinjavaDoc(
-    value = "Unless is a conditional just like 'if' but works on the inverse logic.",
-    params = @JinjavaParam(value = "expr", type = "expression", desc = "Condition to evaluate"),
-    snippets = @JinjavaSnippet(code = "{% unless x < 0 %} x is greater than zero {% endunless %}"))
+  value = "Unless is a conditional just like 'if' but works on the inverse logic.",
+  params = @JinjavaParam(
+    value = "expr",
+    type = "expression",
+    desc = "Condition to evaluate"
+  ),
+  snippets = @JinjavaSnippet(
+    code = "{% unless x < 0 %} x is greater than zero {% endunless %}"
+  )
+)
 public class UnlessTag extends IfTag {
-
   public static final String TAG_NAME = "unless";
 
   private static final long serialVersionUID = 1562284758153763419L;
@@ -32,12 +38,16 @@ public class UnlessTag extends IfTag {
   }
 
   @Override
-  protected boolean isPositiveIfElseNode(TagNode tagNode, JinjavaInterpreter interpreter) {
+  protected boolean isPositiveIfElseNode(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter
+  ) {
     if (tagNode.getName().equals("unless")) {
-      return !ObjectTruthValue.evaluate(interpreter.resolveELExpression(tagNode.getHelpers(), tagNode.getLineNumber()));
+      return !ObjectTruthValue.evaluate(
+        interpreter.resolveELExpression(tagNode.getHelpers(), tagNode.getLineNumber())
+      );
     }
 
     return super.isPositiveIfElseNode(tagNode, interpreter);
   }
-
 }

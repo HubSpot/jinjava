@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
-
 import org.junit.Test;
 
 public class PyishDateTest {

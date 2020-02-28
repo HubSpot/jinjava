@@ -10,5 +10,4 @@ public class CapitalizeFilterTest {
   public void testCapitalize() {
     assertThat(new CapitalizeFilter().filter("foo", null)).isEqualTo("Foo");
   }
-
 }

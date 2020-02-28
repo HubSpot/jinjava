@@ -1,15 +1,14 @@
 package com.hubspot.jinjava.el.ext;
 
+import de.odysseus.el.misc.NumberOperations;
+import de.odysseus.el.misc.TypeConverter;
+import de.odysseus.el.tree.impl.ast.AstBinary;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import de.odysseus.el.misc.NumberOperations;
-import de.odysseus.el.misc.TypeConverter;
-import de.odysseus.el.tree.impl.ast.AstBinary;
 
 public class AdditionOperator extends AstBinary.SimpleOperator {
 

@@ -6,5 +6,4 @@ public class IncludeTagCycleException extends TagCycleException {
   public IncludeTagCycleException(String path, int lineNumber, int startPosition) {
     super("Include", path, lineNumber, startPosition);
   }
-
 }

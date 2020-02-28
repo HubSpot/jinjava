@@ -1,12 +1,5 @@
 package com.hubspot.jinjava.el.ext;
 
-import java.util.Collection;
-import java.util.Objects;
-
-import javax.el.ELException;
-
-import org.apache.commons.lang3.StringUtils;
-
 import de.odysseus.el.misc.TypeConverter;
 import de.odysseus.el.tree.impl.Parser.ExtensionHandler;
 import de.odysseus.el.tree.impl.Parser.ExtensionPoint;
@@ -14,6 +7,10 @@ import de.odysseus.el.tree.impl.Scanner;
 import de.odysseus.el.tree.impl.ast.AstBinary;
 import de.odysseus.el.tree.impl.ast.AstBinary.SimpleOperator;
 import de.odysseus.el.tree.impl.ast.AstNode;
+import java.util.Collection;
+import java.util.Objects;
+import javax.el.ELException;
+import org.apache.commons.lang3.StringUtils;
 
 public class CollectionMembershipOperator extends SimpleOperator {
 
@@ -51,11 +48,13 @@ public class CollectionMembershipOperator extends SimpleOperator {
   public static final CollectionMembershipOperator OP = new CollectionMembershipOperator();
   public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("in");
 
-  public static final ExtensionHandler HANDLER = new ExtensionHandler(ExtensionPoint.CMP) {
+  public static final ExtensionHandler HANDLER = new ExtensionHandler(
+    ExtensionPoint.CMP
+  ) {
+
     @Override
     public AstNode createAstNode(AstNode... children) {
       return new AstBinary(children[0], children[1], OP);
     }
   };
-
 }

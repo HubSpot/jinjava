@@ -1,20 +1,15 @@
 package com.hubspot.jinjava.el.ext;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.el.ELContext;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.hubspot.jinjava.objects.collections.PyList;
-
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstLiteral;
 import de.odysseus.el.tree.impl.ast.AstParameters;
+import java.util.ArrayList;
+import java.util.List;
+import javax.el.ELContext;
+import org.apache.commons.lang3.StringUtils;
 
 public class AstList extends AstLiteral {
-
   private final AstParameters elements;
 
   public AstList(AstParameters elements) {
@@ -34,7 +29,9 @@ public class AstList extends AstLiteral {
 
   @Override
   public void appendStructure(StringBuilder builder, Bindings bindings) {
-    throw new UnsupportedOperationException("appendStructure not implemented in " + getClass().getSimpleName());
+    throw new UnsupportedOperationException(
+      "appendStructure not implemented in " + getClass().getSimpleName()
+    );
   }
 
   protected String elementsToString() {
@@ -51,5 +48,4 @@ public class AstList extends AstLiteral {
   public String toString() {
     return String.format("[%s]", elementsToString());
   }
-
 }

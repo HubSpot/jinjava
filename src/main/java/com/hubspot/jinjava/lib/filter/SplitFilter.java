@@ -1,9 +1,5 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Objects;
-
-import org.apache.commons.lang3.math.NumberUtils;
-
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -11,6 +7,8 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.util.Objects;
+import org.apache.commons.lang3.math.NumberUtils;
 
 /**
  * split(separator=' ', limit=0)
@@ -22,22 +20,33 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  * @author jstehler
  */
 @JinjavaDoc(
-    value = "Splits the input string into a list on the given separator",
-    input = @JinjavaParam(value = "string", desc = "The string to split", required = true),
-    params = {
-        @JinjavaParam(value = "separator", defaultValue = " ", desc = "Specifies the separator to split the variable by"),
-        @JinjavaParam(value = "limit", type = "number", defaultValue = "0", desc = "Limits resulting list by putting remainder of string into last list item")
-    },
-    snippets = {
-        @JinjavaSnippet(
-            code = "{% set string_to_split = \"Stephen; David; Cait; Nancy; Mike; Joe; Niall; Tim; Amanda\" %}\n" +
-                "{% set names = string_to_split|split(';', 4) %}\n" +
-                "<ul>\n" +
-                "   {% for name in names %}\n" +
-                "       <li>{{ name }}</li>\n" +
-                "   {% endfor %}\n" +
-                "</ul>")
-    })
+  value = "Splits the input string into a list on the given separator",
+  input = @JinjavaParam(value = "string", desc = "The string to split", required = true),
+  params = {
+    @JinjavaParam(
+      value = "separator",
+      defaultValue = " ",
+      desc = "Specifies the separator to split the variable by"
+    ),
+    @JinjavaParam(
+      value = "limit",
+      type = "number",
+      defaultValue = "0",
+      desc = "Limits resulting list by putting remainder of string into last list item"
+    )
+  },
+  snippets = {
+    @JinjavaSnippet(
+      code = "{% set string_to_split = \"Stephen; David; Cait; Nancy; Mike; Joe; Niall; Tim; Amanda\" %}\n" +
+      "{% set names = string_to_split|split(';', 4) %}\n" +
+      "<ul>\n" +
+      "   {% for name in names %}\n" +
+      "       <li>{{ name }}</li>\n" +
+      "   {% endfor %}\n" +
+      "</ul>"
+    )
+  }
+)
 public class SplitFilter implements Filter {
 
   @Override
@@ -62,7 +71,8 @@ public class SplitFilter implements Filter {
       }
     }
 
-    return Lists.newArrayList(splitter.omitEmptyStrings().trimResults().split(Objects.toString(var, "")));
+    return Lists.newArrayList(
+      splitter.omitEmptyStrings().trimResults().split(Objects.toString(var, ""))
+    );
   }
-
 }

@@ -9,5 +9,4 @@ public class CountFilter extends LengthFilter {
   public String getName() {
     return "count";
   }
-
 }

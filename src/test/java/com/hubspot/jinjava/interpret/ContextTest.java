@@ -2,16 +2,15 @@ package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.Jinjava;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableMap;
-import com.hubspot.jinjava.Jinjava;
-
 public class ContextTest {
-  private static final String RESOLVED_EXPRESSION = "exp" ;
-  private static final String RESOLVED_FUNCTION = "func" ;
-  private static final String RESOLVED_VALUE = "val" ;
+  private static final String RESOLVED_EXPRESSION = "exp";
+  private static final String RESOLVED_FUNCTION = "func";
+  private static final String RESOLVED_VALUE = "val";
 
   private Context context;
 
@@ -52,11 +51,13 @@ public class ContextTest {
 
   @Test
   public void itResetsGlobalContextAfterRender() {
-
     Jinjava jinjava = new Jinjava();
     Context globalContext = jinjava.getGlobalContext();
 
-    RenderResult result = jinjava.renderForResult("{{ foo + 1 }}", ImmutableMap.of("foo", 1));
+    RenderResult result = jinjava.renderForResult(
+      "{{ foo + 1 }}",
+      ImmutableMap.of("foo", 1)
+    );
 
     assertThat(result.getOutput()).isEqualTo("2");
     assertThat(result.getContext().getResolvedExpressions()).containsOnly("foo + 1");

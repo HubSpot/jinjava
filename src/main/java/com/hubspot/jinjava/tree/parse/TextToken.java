@@ -20,7 +20,6 @@ import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_FIXED;
 import org.apache.commons.lang3.StringUtils;
 
 public class TextToken extends Token {
-
   private static final long serialVersionUID = -6168990984496468543L;
 
   public TextToken(String image, int lineNumber, int startPosition) {
@@ -46,7 +45,6 @@ public class TextToken extends Token {
   }
 
   public String output() {
-
     if (isLeftTrim() && isRightTrim()) {
       return trim();
     } else if (isLeftTrim()) {

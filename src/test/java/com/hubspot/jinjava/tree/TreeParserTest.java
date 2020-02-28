@@ -2,19 +2,16 @@ package com.hubspot.jinjava.tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.nio.charset.StandardCharsets;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import java.nio.charset.StandardCharsets;
+import org.junit.Before;
+import org.junit.Test;
 
 public class TreeParserTest {
-
   JinjavaInterpreter interpreter;
 
   @Before
@@ -51,7 +48,8 @@ public class TreeParserTest {
 
   @Test
   public void itPreservesInnerWhiteSpace() throws Exception {
-    String expression = "{% for foo in [1,2,3] -%}\nL{% if true %}\n{{ foo }}\n{% endif %}R\n{%- endfor %}";
+    String expression =
+      "{% for foo in [1,2,3] -%}\nL{% if true %}\n{{ foo }}\n{% endif %}R\n{%- endfor %}";
     final Node tree = new TreeParser(interpreter, expression).buildTree();
     assertThat(interpreter.render(tree)).isEqualTo("L\n1\nRL\n2\nRL\n3\nR");
   }
@@ -79,12 +77,14 @@ public class TreeParserTest {
 
   @Test
   public void trimAndLstripBlocks() {
-    interpreter = new Jinjava(JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build()).newInterpreter();
+    interpreter =
+      new Jinjava(
+        JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build()
+      )
+      .newInterpreter();
 
     assertThat(interpreter.render(parse("parse/tokenizer/whitespace-tags.jinja")))
-        .isEqualTo("<div>\n"
-            + "        yay\n"
-            + "</div>\n");
+      .isEqualTo("<div>\n" + "        yay\n" + "</div>\n");
   }
 
   @Test
@@ -93,7 +93,8 @@ public class TreeParserTest {
     final Node tree = new TreeParser(interpreter, expression).buildTree();
     assertThat(interpreter.getErrors()).hasSize(1);
     assertThat(interpreter.getErrors().get(0).getSeverity()).isEqualTo(ErrorType.WARNING);
-    assertThat(interpreter.getErrors().get(0).getMessage()).isEqualTo("Missing start tag");
+    assertThat(interpreter.getErrors().get(0).getMessage())
+      .isEqualTo("Missing start tag");
     assertThat(interpreter.getErrors().get(0).getFieldName()).isEqualTo("endif");
   }
 
@@ -109,11 +110,13 @@ public class TreeParserTest {
 
   Node parse(String fixture) {
     try {
-      return new TreeParser(interpreter, Resources.toString(
-          Resources.getResource(fixture), StandardCharsets.UTF_8)).buildTree();
+      return new TreeParser(
+        interpreter,
+        Resources.toString(Resources.getResource(fixture), StandardCharsets.UTF_8)
+      )
+      .buildTree();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
-
 }

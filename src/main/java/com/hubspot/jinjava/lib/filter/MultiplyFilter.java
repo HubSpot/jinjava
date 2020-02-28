@@ -15,9 +15,6 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -26,32 +23,50 @@ import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 @JinjavaDoc(
-    value = "Multiplies the current object with the given multiplier",
-    input = @JinjavaParam(value = "value", type = "number", desc = "Base number to be multiplied", required = true),
-    params = {
-        @JinjavaParam(value = "multiplier", type = "number", desc = "The multiplier", required = true)
-    },
-    snippets = {
-        @JinjavaSnippet(
-            code = "{% set n = 20 %}\n" +
-                "{{ n|multiply(3) }}")
-    })
+  value = "Multiplies the current object with the given multiplier",
+  input = @JinjavaParam(
+    value = "value",
+    type = "number",
+    desc = "Base number to be multiplied",
+    required = true
+  ),
+  params = {
+    @JinjavaParam(
+      value = "multiplier",
+      type = "number",
+      desc = "The multiplier",
+      required = true
+    )
+  },
+  snippets = { @JinjavaSnippet(code = "{% set n = 20 %}\n" + "{{ n|multiply(3) }}") }
+)
 public class MultiplyFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-
     if (arg.length < 1) {
-      throw new TemplateSyntaxException(interpreter, getName(), "requires 1 argument (number to multiply by)");
+      throw new TemplateSyntaxException(
+        interpreter,
+        getName(),
+        "requires 1 argument (number to multiply by)"
+      );
     }
     String toMul = arg[0];
     Number num;
     try {
       num = new BigDecimal(toMul);
     } catch (NumberFormatException e) {
-      throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, toMul);
+      throw new InvalidArgumentException(
+        interpreter,
+        this,
+        InvalidReason.NUMBER_FORMAT,
+        0,
+        toMul
+      );
     }
 
     if (object instanceof Integer) {
@@ -82,7 +97,12 @@ public class MultiplyFilter implements Filter {
       try {
         return num.doubleValue() * Double.parseDouble((String) object);
       } catch (NumberFormatException e) {
-        throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
+        throw new InvalidInputException(
+          interpreter,
+          this,
+          InvalidReason.NUMBER_FORMAT,
+          object.toString()
+        );
       }
     }
     return object;
@@ -92,5 +112,4 @@ public class MultiplyFilter implements Filter {
   public String getName() {
     return "multiply";
   }
-
 }

@@ -2,13 +2,11 @@ package com.hubspot.jinjava.lib.fn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-
 import org.junit.Test;
-
-import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 
 public class TodayFunctionTest {
 
