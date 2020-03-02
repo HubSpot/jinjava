@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
   snippets = {
     @JinjavaSnippet(
       code = "{% set escape_string = \"{{This markup is printed as text}}\" %}\n" +
-      "{{ escape_string|escapeJinjava }}"
+      "{{ escape_string|escape_jinjava }}"
     )
   }
 )
