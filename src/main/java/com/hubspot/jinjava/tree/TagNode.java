@@ -27,7 +27,6 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 
 public class TagNode extends Node {
-
   private static final long serialVersionUID = -6971280448795354252L;
 
   private final Tag tag;
@@ -36,7 +35,6 @@ public class TagNode extends Node {
 
   public TagNode(Tag tag, TagToken token) {
     super(token, token.getLineNumber(), token.getStartPosition());
-
     this.master = token;
     this.tag = tag;
     this.endName = tag.getEndTagName();
@@ -44,7 +42,6 @@ public class TagNode extends Node {
 
   private TagNode(TagNode n) {
     super(n.master, n.getLineNumber(), n.getStartPosition());
-
     tag = n.tag;
     master = n.master;
     endName = n.endName;
@@ -52,7 +49,9 @@ public class TagNode extends Node {
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
-    if (interpreter.getContext().isValidationMode() && !tag.isRenderedInValidationMode()) {
+    if (
+      interpreter.getContext().isValidationMode() && !tag.isRenderedInValidationMode()
+    ) {
       return new RenderedOutputNode("");
     }
 
@@ -64,7 +63,12 @@ public class TagNode extends Node {
     } catch (InterpretException | InvalidInputException | InvalidArgumentException e) {
       throw e;
     } catch (Exception e) {
-      throw new InterpretException("Error rendering tag", e, master.getLineNumber(), master.getStartPosition());
+      throw new InterpretException(
+        "Error rendering tag",
+        e,
+        master.getLineNumber(),
+        master.getStartPosition()
+      );
     }
   }
 
@@ -105,16 +109,23 @@ public class TagNode extends Node {
 
   public String reconstructEnd() {
     StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder.append(TokenScannerSymbols.TOKEN_EXPR_START_CHAR).append(TokenScannerSymbols.TOKEN_TAG_CHAR);
-    if (getChildren() != null && !getChildren().isEmpty() && getChildren().getLast().getMaster().isRightTrim()) {
+    stringBuilder
+      .append(TokenScannerSymbols.TOKEN_EXPR_START_CHAR)
+      .append(TokenScannerSymbols.TOKEN_TAG_CHAR);
+    if (
+      getChildren() != null &&
+      !getChildren().isEmpty() &&
+      getChildren().getLast().getMaster().isRightTrim()
+    ) {
       stringBuilder.append(TokenScannerSymbols.TOKEN_TRIM_CHAR);
     }
     stringBuilder.append(" ").append(getEndName()).append(" ");
     if (getMaster().isRightTrimAfterEnd()) {
       stringBuilder.append(TokenScannerSymbols.TOKEN_TRIM_CHAR);
     }
-    stringBuilder.append(TokenScannerSymbols.TOKEN_TAG_CHAR).append(TokenScannerSymbols.TOKEN_EXPR_END_CHAR);
+    stringBuilder
+      .append(TokenScannerSymbols.TOKEN_TAG_CHAR)
+      .append(TokenScannerSymbols.TOKEN_EXPR_END_CHAR);
     return stringBuilder.toString();
   }
-
 }

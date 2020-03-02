@@ -4,17 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-
 import org.junit.Test;
 
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
-
 public class ShuffleFilterTest {
-
   ShuffleFilter filter = new ShuffleFilter();
 
   JinjavaInterpreter interpreter = mock(JinjavaInterpreter.class);
@@ -22,7 +19,6 @@ public class ShuffleFilterTest {
   @SuppressWarnings("unchecked")
   @Test
   public void itShufflesItems() {
-
     when(interpreter.getRandom()).thenReturn(ThreadLocalRandom.current());
 
     List<String> before = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9");
@@ -42,7 +38,6 @@ public class ShuffleFilterTest {
   @SuppressWarnings("unchecked")
   @Test
   public void itShufflesConsistentlyWithConstantRandom() {
-
     when(interpreter.getRandom()).thenReturn(new ConstantZeroRandomNumberGenerator());
 
     List<String> before = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9");
@@ -53,5 +48,4 @@ public class ShuffleFilterTest {
 
     assertThat(after).containsExactly("2", "3", "4", "5", "6", "7", "8", "9", "1");
   }
-
 }

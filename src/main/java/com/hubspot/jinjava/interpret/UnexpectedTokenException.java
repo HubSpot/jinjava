@@ -13,5 +13,4 @@ public class UnexpectedTokenException extends TemplateSyntaxException {
   public String getToken() {
     return token;
   }
-
 }

@@ -6,5 +6,4 @@ public class ExtendsTagCycleException extends TagCycleException {
   public ExtendsTagCycleException(String path, int lineNumber, int startPosition) {
     super("Extends", path, lineNumber, startPosition);
   }
-
 }

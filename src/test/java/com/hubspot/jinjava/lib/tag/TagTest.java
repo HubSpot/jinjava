@@ -18,19 +18,16 @@ package com.hubspot.jinjava.lib.tag;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.Before;
+import org.junit.Test;
 
 public class TagTest {
-
   Jinjava jinjava;
 
   String script;
@@ -114,7 +111,8 @@ public class TagTest {
 
   @Test
   public void ifchangedFor() {
-    script = "{% for item in var1|reverse %}{%ifchanged item%}{{item}}{%endifchanged%}{% endfor%}";
+    script =
+      "{% for item in var1|reverse %}{%ifchanged item%}{{item}}{%endifchanged%}{% endfor%}";
     res = jinjava.render(script, bindings);
     assertEquals("6894523", res);
   }
@@ -142,7 +140,8 @@ public class TagTest {
 
   @Test
   public void cycleFor2() {
-    script = "{% cycle var3,var2,'hello' as d%}{% for item in var1 %}{%cycle d%}{% endfor%}";
+    script =
+      "{% cycle var3,var2,'hello' as d%}{% for item in var1 %}{%cycle d%}{% endfor%}";
     res = jinjava.render(script, bindings);
     assertEquals("1245hello12", res);
   }

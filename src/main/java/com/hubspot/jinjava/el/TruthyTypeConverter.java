@@ -1,13 +1,11 @@
 package com.hubspot.jinjava.el;
 
+import com.hubspot.jinjava.objects.DummyObject;
+import com.hubspot.jinjava.util.ObjectTruthValue;
+import de.odysseus.el.misc.TypeConverterImpl;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.EnumSet;
-
-import com.hubspot.jinjava.objects.DummyObject;
-import com.hubspot.jinjava.util.ObjectTruthValue;
-
-import de.odysseus.el.misc.TypeConverterImpl;
 
 public class TruthyTypeConverter extends TypeConverterImpl {
   private static final long serialVersionUID = 1L;

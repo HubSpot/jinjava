@@ -3,9 +3,8 @@ package com.hubspot.jinjava.tree.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
-import org.junit.Test;
-
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import org.junit.Test;
 
 public class TagTokenTest {
 
@@ -38,5 +37,4 @@ public class TagTokenTest {
       assertThat(e).hasMessageContaining("Malformed");
     }
   }
-
 }

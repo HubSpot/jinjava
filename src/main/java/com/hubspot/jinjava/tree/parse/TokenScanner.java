@@ -29,7 +29,6 @@ import com.google.common.collect.AbstractIterator;
 import com.hubspot.jinjava.JinjavaConfig;
 
 public class TokenScanner extends AbstractIterator<Token> {
-
   private final JinjavaConfig config;
 
   private final char[] is;
@@ -147,7 +146,6 @@ public class TokenScanner extends AbstractIterator<Token> {
             return getEndToken();
           }
           break;
-
         // maybe current token is closing
         case TOKEN_TAG:
         case TOKEN_EXPR_END:
@@ -238,11 +236,21 @@ public class TokenScanner extends AbstractIterator<Token> {
     if (inComment > 0) {
       type = TOKEN_NOTE;
     }
-    return Token.newToken(type, String.valueOf(is, tokenStart, tokenLength), currLine, tokenStart - lastNewlinePos + 1);
+    return Token.newToken(
+      type,
+      String.valueOf(is, tokenStart, tokenLength),
+      currLine,
+      tokenStart - lastNewlinePos + 1
+    );
   }
 
   private Token newToken(int kind) {
-    Token t = Token.newToken(kind, String.valueOf(is, lastStart, tokenLength), currLine, lastStart - lastNewlinePos + 1);
+    Token t = Token.newToken(
+      kind,
+      String.valueOf(is, lastStart, tokenLength),
+      currLine,
+      lastStart - lastNewlinePos + 1
+    );
 
     if (t instanceof TagToken) {
       if (config.isTrimBlocks() && currPost < length && is[currPost] == '\n') {
@@ -288,5 +296,4 @@ public class TokenScanner extends AbstractIterator<Token> {
 
     return t;
   }
-
 }

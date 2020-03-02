@@ -18,21 +18,6 @@ package com.hubspot.jinjava.interpret;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
-import java.util.Stack;
-import java.util.concurrent.ThreadLocalRandom;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -57,9 +42,22 @@ import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
+import java.util.Stack;
+import java.util.concurrent.ThreadLocalRandom;
+import org.apache.commons.lang3.StringUtils;
 
 public class JinjavaInterpreter {
-
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
   private final LinkedList<Node> extendParentRoots = new LinkedList<>();
 
@@ -76,7 +74,11 @@ public class JinjavaInterpreter {
   private final List<TemplateError> errors = new LinkedList<>();
   private static final int MAX_ERROR_SIZE = 100;
 
-  public JinjavaInterpreter(Jinjava application, Context context, JinjavaConfig renderConfig) {
+  public JinjavaInterpreter(
+    Jinjava application,
+    Context context,
+    JinjavaConfig renderConfig
+  ) {
     this.context = context;
     this.config = renderConfig;
     this.application = application;
@@ -92,10 +94,14 @@ public class JinjavaInterpreter {
         random = new DeferredRandomNumberGenerator();
         break;
       default:
-        throw new IllegalStateException("No random number generator with strategy " + config.getRandomNumberGeneratorStrategy());
+        throw new IllegalStateException(
+          "No random number generator with strategy " +
+          config.getRandomNumberGeneratorStrategy()
+        );
     }
 
-    this.expressionResolver = new ExpressionResolver(this, application.getExpressionFactory());
+    this.expressionResolver =
+      new ExpressionResolver(this, application.getExpressionFactory());
   }
 
   public JinjavaInterpreter(JinjavaInterpreter orig) {
@@ -165,7 +171,6 @@ public class JinjavaInterpreter {
     public void close() {
       leaveScope();
     }
-
   }
 
   public Node parse(String template) {
@@ -236,9 +241,20 @@ public class JinjavaInterpreter {
       String renderStr = node.getMaster().getImage();
       if (context.doesRenderStackContain(renderStr)) {
         // This is a circular rendering. Stop rendering it here.
-        addError(new TemplateError(ErrorType.WARNING, ErrorReason.EXCEPTION, ErrorItem.TAG,
-            "Rendering cycle detected: '" + renderStr + "'", null, getLineNumber(), node.getStartPosition(),
-            null, BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED, ImmutableMap.of("string", renderStr)));
+        addError(
+          new TemplateError(
+            ErrorType.WARNING,
+            ErrorReason.EXCEPTION,
+            ErrorItem.TAG,
+            "Rendering cycle detected: '" + renderStr + "'",
+            null,
+            getLineNumber(),
+            node.getStartPosition(),
+            null,
+            BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
+            ImmutableMap.of("string", renderStr)
+          )
+        );
         try {
           output.addNode(new RenderedOutputNode(renderStr));
         } catch (OutputTooBigException e) {
@@ -267,8 +283,13 @@ public class JinjavaInterpreter {
     // render all extend parents, keeping the last as the root output
     if (processExtendRoots) {
       while (!extendParentRoots.isEmpty()) {
-        context.getCurrentPathStack().push(context.getExtendPathStack().peek().orElse(""),
-            context.getExtendPathStack().getTopLineNumber(), context.getExtendPathStack().getTopStartPosition());
+        context
+          .getCurrentPathStack()
+          .push(
+            context.getExtendPathStack().peek().orElse(""),
+            context.getExtendPathStack().getTopLineNumber(),
+            context.getExtendPathStack().getTopStartPosition()
+          );
         Node parentRoot = extendParentRoots.removeFirst();
         output = new OutputList(config.getMaxOutputSize());
 
@@ -298,16 +319,21 @@ public class JinjavaInterpreter {
     resolveBlockStubs(output, new Stack<>());
   }
 
+  @SuppressFBWarnings(
+    justification = "Iterables#getFirst DOES allow null for default value",
+    value = "NP_NONNULL_PARAM_VIOLATION"
+  )
   private void resolveBlockStubs(OutputList output, Stack<String> blockNames) {
     for (BlockPlaceholderOutputNode blockPlaceholder : output.getBlocks()) {
-
       if (!blockNames.contains(blockPlaceholder.getBlockName())) {
         Collection<BlockInfo> blockChain = blocks.get(blockPlaceholder.getBlockName());
         BlockInfo block = Iterables.getFirst(blockChain, null);
 
         if (block != null && block.getNodes() != null) {
-          List<? extends Node> superBlock = Optional.ofNullable(Iterables.get(blockChain, 1, null))
-              .map(BlockInfo::getNodes).orElse(null);
+          List<? extends Node> superBlock = Optional
+            .ofNullable(Iterables.get(blockChain, 1, null))
+            .map(BlockInfo::getNodes)
+            .orElse(null);
           context.setSuperBlock(superBlock);
 
           OutputList blockValueBuilder = new OutputList(config.getMaxOutputSize());
@@ -317,8 +343,17 @@ public class JinjavaInterpreter {
             position = child.getStartPosition();
 
             boolean pushedParentPathOntoStack = false;
-            if (block.getParentPath().isPresent() && !getContext().getCurrentPathStack().contains(block.getParentPath().get())) {
-              getContext().getCurrentPathStack().push(block.getParentPath().get(), block.getParentLineNo(), block.getParentPosition());
+            if (
+              block.getParentPath().isPresent() &&
+              !getContext().getCurrentPathStack().contains(block.getParentPath().get())
+            ) {
+              getContext()
+                .getCurrentPathStack()
+                .push(
+                  block.getParentPath().get(),
+                  block.getParentLineNo(),
+                  block.getParentPosition()
+                );
               pushedParentPathOntoStack = true;
               lineNumber--; // The line number is off by one when rendering the block from the parent template
             }
@@ -377,7 +412,6 @@ public class JinjavaInterpreter {
     return retraceVariable(variable, lineNumber, -1);
   }
 
-
   /**
    * Resolve a variable into an object value. If given a string literal (e.g. 'foo' or "foo"), this method returns the literal unquoted. If the variable is undefined in the context, this method returns the given variable string.
    *
@@ -427,19 +461,22 @@ public class JinjavaInterpreter {
     return resolveString(variable, lineNumber, -1);
   }
 
-
   public Context getContext() {
     return context;
   }
 
   public String resolveResourceLocation(String location) {
-    return application.getResourceLocator().getLocationResolver()
-        .map(resolver -> resolver.resolve(location, this))
-        .orElse(location);
+    return application
+      .getResourceLocator()
+      .getLocationResolver()
+      .map(resolver -> resolver.resolve(location, this))
+      .orElse(location);
   }
 
   public String getResource(String resource) throws IOException {
-    return application.getResourceLocator().getString(resource, config.getCharset(), this);
+    return application
+      .getResourceLocator()
+      .getString(resource, config.getCharset(), this);
   }
 
   public JinjavaConfig getConfig() {
@@ -514,11 +551,15 @@ public class JinjavaInterpreter {
   }
 
   public void addError(TemplateError templateError) {
-
     // fix line numbers not matching up with source template
     if (!context.getCurrentPathStack().isEmpty()) {
       if (!templateError.getSourceTemplate().isPresent()) {
-        templateError.setMessage(getWrappedErrorMessage(context.getCurrentPathStack().peek().get(), templateError));
+        templateError.setMessage(
+          getWrappedErrorMessage(
+            context.getCurrentPathStack().peek().get(),
+            templateError
+          )
+        );
         templateError.setSourceTemplate(context.getCurrentPathStack().peek().get());
       }
       templateError.setStartPosition(context.getCurrentPathStack().getTopStartPosition());
@@ -543,19 +584,22 @@ public class JinjavaInterpreter {
     if (errors.size() >= MAX_ERROR_SIZE) {
       return;
     }
-    other.stream()
-        .limit(MAX_ERROR_SIZE - errors.size())
-        .forEach(this::addError);
+    other.stream().limit(MAX_ERROR_SIZE - errors.size()).forEach(this::addError);
   }
 
-  public void addAllChildErrors(String childTemplateName, Collection<TemplateError> childErrors) {
+  public void addAllChildErrors(
+    String childTemplateName,
+    Collection<TemplateError> childErrors
+  ) {
     if (errors.size() >= MAX_ERROR_SIZE) {
       return;
     }
 
-    childErrors.stream()
-        .limit(MAX_ERROR_SIZE - errors.size())
-        .forEach(error -> {
+    childErrors
+      .stream()
+      .limit(MAX_ERROR_SIZE - errors.size())
+      .forEach(
+        error -> {
           if (!error.getSourceTemplate().isPresent()) {
             error.setMessage(getWrappedErrorMessage(childTemplateName, error));
             error.setSourceTemplate(childTemplateName);
@@ -563,7 +607,8 @@ public class JinjavaInterpreter {
           error.setStartPosition(this.getPosition());
           error.setLineno(this.getLineNumber());
           this.addError(error);
-        });
+        }
+      );
   }
 
   // We cannot just remove this, other projects may depend on it.
@@ -576,7 +621,9 @@ public class JinjavaInterpreter {
     return Lists.newArrayList(errors);
   }
 
-  private static final ThreadLocal<Stack<JinjavaInterpreter>> CURRENT_INTERPRETER = ThreadLocal.withInitial(Stack::new);
+  private static final ThreadLocal<Stack<JinjavaInterpreter>> CURRENT_INTERPRETER = ThreadLocal.withInitial(
+    Stack::new
+  );
 
   public static JinjavaInterpreter getCurrent() {
     if (CURRENT_INTERPRETER.get().isEmpty()) {
@@ -621,21 +668,32 @@ public class JinjavaInterpreter {
     }
   }
 
-  private String getWrappedErrorMessage(String childTemplateName, TemplateError templateError) {
-
-    String severity = templateError.getSeverity() == ErrorType.WARNING ? "Warning" : "Error";
+  private String getWrappedErrorMessage(
+    String childTemplateName,
+    TemplateError templateError
+  ) {
+    String severity = templateError.getSeverity() == ErrorType.WARNING
+      ? "Warning"
+      : "Error";
     String lineNumber = templateError.getLineno() > 0
-        ? String.format(" on line %d", templateError.getLineno())
-        : "";
+      ? String.format(" on line %d", templateError.getLineno())
+      : "";
 
     if (Strings.isNullOrEmpty(templateError.getMessage())) {
-      return String.format("Unknown %s in file `%s`%s", severity.toLowerCase(), childTemplateName, lineNumber);
+      return String.format(
+        "Unknown %s in file `%s`%s",
+        severity.toLowerCase(),
+        childTemplateName,
+        lineNumber
+      );
     } else {
-      return String.format("%s in `%s`%s: %s",
-          severity,
-          childTemplateName,
-          lineNumber,
-          templateError.getMessage());
+      return String.format(
+        "%s in `%s`%s: %s",
+        severity,
+        childTemplateName,
+        lineNumber,
+        templateError.getMessage()
+      );
     }
   }
 }

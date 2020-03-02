@@ -6,7 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class WordCountFilterTest {
-
   WordCountFilter filter;
 
   @Before
@@ -21,7 +20,7 @@ public class WordCountFilterTest {
 
   @Test
   public void multiWords() {
-    assertThat(filter.filter("this is foo.\nfoo is coo. hooray for foo.", null)).isEqualTo(9);
+    assertThat(filter.filter("this is foo.\nfoo is coo. hooray for foo.", null))
+      .isEqualTo(9);
   }
-
 }

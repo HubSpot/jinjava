@@ -21,7 +21,6 @@ import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.TextToken;
 
 public class TextNode extends Node {
-
   private static final long serialVersionUID = 127827773323298439L;
 
   private final TextToken master;
@@ -33,7 +32,9 @@ public class TextNode extends Node {
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
-    return new RenderedOutputNode(interpreter.getContext().isValidationMode() ? "" : master.output());
+    return new RenderedOutputNode(
+      interpreter.getContext().isValidationMode() ? "" : master.output()
+    );
   }
 
   @Override
@@ -45,5 +46,4 @@ public class TextNode extends Node {
   public String getName() {
     return getClass().getSimpleName();
   }
-
 }

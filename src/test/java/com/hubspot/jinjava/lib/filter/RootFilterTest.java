@@ -2,18 +2,15 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.math.BigDecimal;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.math.BigDecimal;
+import org.junit.Before;
+import org.junit.Test;
 
 public class RootFilterTest {
-
   JinjavaInterpreter interpreter;
   RootFilter filter;
 
@@ -29,7 +26,6 @@ public class RootFilterTest {
     assertThat(filter.filter(22500, interpreter)).isEqualTo(150D);
   }
 
-
   @Test
   public void itCalculatesCubeRoot() {
     assertThat(filter.filter(125, interpreter, "3")).isEqualTo(5d);
@@ -42,7 +38,8 @@ public class RootFilterTest {
 
   @Test
   public void itCalculatesNthRootOfBigDecimal() {
-    BigDecimal result = ((BigDecimal) filter.filter(new BigDecimal(9765625d), interpreter, "5.0"));
+    BigDecimal result =
+      ((BigDecimal) filter.filter(new BigDecimal(9765625d), interpreter, "5.0"));
     assertThat(result.doubleValue()).isEqualTo(25d);
   }
 

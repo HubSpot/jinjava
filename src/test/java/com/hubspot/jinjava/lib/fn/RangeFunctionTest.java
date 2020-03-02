@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Collections;
-
 import org.junit.Test;
 
 public class RangeFunctionTest {
@@ -44,7 +43,7 @@ public class RangeFunctionTest {
   @Test
   public void itTruncatesHugeRanges() {
     assertThat(Functions.range(2, 200000000).size()).isEqualTo(Functions.RANGE_LIMIT);
-    assertThat(Functions.range(Long.MAX_VALUE - 1, Long.MAX_VALUE).size()).isEqualTo(Functions.RANGE_LIMIT);
+    assertThat(Functions.range(Long.MAX_VALUE - 1, Long.MAX_VALUE).size())
+      .isEqualTo(Functions.RANGE_LIMIT);
   }
-
 }

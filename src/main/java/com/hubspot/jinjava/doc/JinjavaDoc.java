@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class JinjavaDoc {
-
   private final Map<String, JinjavaDocExpTest> expTests = new TreeMap<>();
   private final Map<String, JinjavaDocFilter> filters = new TreeMap<>();
   private final Map<String, JinjavaDocFunction> functions = new TreeMap<>();
@@ -41,5 +40,4 @@ public class JinjavaDoc {
   public void addTag(JinjavaDocTag tag) {
     tags.put(tag.getName(), tag);
   }
-
 }

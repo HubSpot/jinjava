@@ -3,26 +3,23 @@ package com.hubspot.jinjava.el;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 @SuppressWarnings("unchecked")
 public class ExtendedSyntaxBuilderTest {
-
   private Context context;
   private JinjavaInterpreter interpreter;
 
@@ -79,7 +76,8 @@ public class ExtendedSyntaxBuilderTest {
   @Test
   public void namedFnArgs() {
     context.put("path", "/page");
-    assertThat(val("path=='/' or truncate(path,length=5,killwords=true,end='')=='/page'")).isEqualTo(true);
+    assertThat(val("path=='/' or truncate(path,length=5,killwords=true,end='')=='/page'"))
+      .isEqualTo(true);
     assertThat(val("truncate('foobar', length = 3)")).isEqualTo("f...");
   }
 
@@ -110,17 +108,17 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   // TODO: support negated collection membership. See CollectionMembershipOperator
-//  @Test
-//  public void stringNotInStringOperator() {
-//    assertThat(val("'foo' not in 'foobar'")).isEqualTo(false);
-//    assertThat(val("'gg' not in 'foobar'")).isEqualTo(true);
-//  }
+  //  @Test
+  //  public void stringNotInStringOperator() {
+  //    assertThat(val("'foo' not in 'foobar'")).isEqualTo(false);
+  //    assertThat(val("'gg' not in 'foobar'")).isEqualTo(true);
+  //  }
 
-//  @Test
-//  public void objNotInCollectionOperator() {
-//    assertThat(val("12 not in [1, 2, 3]")).isEqualTo(true);
-//    assertThat(val("12 not in [1, 12, 3]")).isEqualTo(false);
-//  }
+  //  @Test
+  //  public void objNotInCollectionOperator() {
+  //    assertThat(val("12 not in [1, 2, 3]")).isEqualTo(true);
+  //    assertThat(val("12 not in [1, 12, 3]")).isEqualTo(false);
+  //  }
 
   @Test
   public void conditionalExprWithNoElse() {
@@ -160,12 +158,20 @@ public class ExtendedSyntaxBuilderTest {
   public void mapLiteral() {
     context.put("foo", "bar");
     assertThat((Map<String, Object>) val("{}")).isEmpty();
-    Map<String, Object> map = (Map<String, Object>) val("{foo: foo, \"foo2\": foo, foo3: 123, foo4: 'string', foo5: {}, foo6: [1, 2]}");
-    assertThat(map).contains(entry("foo", "bar"), entry("foo2", "bar"), entry("foo3", 123L),
-        entry("foo4", "string"), entry("foo6", Arrays.asList(1L, 2L)));
+    Map<String, Object> map = (Map<String, Object>) val(
+      "{foo: foo, \"foo2\": foo, foo3: 123, foo4: 'string', foo5: {}, foo6: [1, 2]}"
+    );
+    assertThat(map)
+      .contains(
+        entry("foo", "bar"),
+        entry("foo2", "bar"),
+        entry("foo3", 123L),
+        entry("foo4", "string"),
+        entry("foo6", Arrays.asList(1L, 2L))
+      );
 
     assertThat((Map<String, Object>) val("{\"address\":\"123 Main - Boston, MA 02111\"}"))
-        .contains(entry("address", "123 Main - Boston, MA 02111"));
+      .contains(entry("address", "123 Main - Boston, MA 02111"));
   }
 
   @Test
@@ -210,7 +216,9 @@ public class ExtendedSyntaxBuilderTest {
   private String fixture(String name) {
     try {
       return Resources.toString(
-          Resources.getResource(String.format("el/dict/%s.fixture", name)), StandardCharsets.UTF_8);
+        Resources.getResource(String.format("el/dict/%s.fixture", name)),
+        StandardCharsets.UTF_8
+      );
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -271,7 +279,8 @@ public class ExtendedSyntaxBuilderTest {
 
     // Negative index handling on lists happens elsewhere, so make sure we're
     // dealing with an array of Strings.
-    assertThat(val("stringToSplit.split('-')")).isEqualTo(new String[]{ "one", "two", "three", "four", "five" });
+    assertThat(val("stringToSplit.split('-')"))
+      .isEqualTo(new String[] { "one", "two", "three", "four", "five" });
 
     assertThat(val("stringToSplit.split('-')[-1]")).isEqualTo("five");
     assertThat(val("stringToSplit.split('-')[1.5]")).isEqualTo(null);
@@ -281,8 +290,10 @@ public class ExtendedSyntaxBuilderTest {
     // negative, and java doesn't support negative array indices.
     assertThat(val("stringToSplit.split('-')[-6]")).isEqualTo(null);
 
-    assertThat(val("stringToSplit.split('-')[0:2]")).isEqualTo(Lists.newArrayList("one", "two"));
-    assertThat(val("stringToSplit.split('-')[0:-2]")).isEqualTo(Lists.newArrayList("one", "two", "three"));
+    assertThat(val("stringToSplit.split('-')[0:2]"))
+      .isEqualTo(Lists.newArrayList("one", "two"));
+    assertThat(val("stringToSplit.split('-')[0:-2]"))
+      .isEqualTo(Lists.newArrayList("one", "two", "three"));
   }
 
   @Test
@@ -293,30 +304,41 @@ public class ExtendedSyntaxBuilderTest {
 
   @Test
   public void invalidNestedAssignmentExpr() {
-    assertThat(val("content.template_path = 'Custom/Email/Responsive/testing.html'")).isEqualTo(null);
+    assertThat(val("content.template_path = 'Custom/Email/Responsive/testing.html'"))
+      .isEqualTo(null);
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
-    assertThat(interpreter.getErrorsCopy().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
-    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).containsIgnoringCase("identifier");
+    assertThat(interpreter.getErrorsCopy().get(0).getReason())
+      .isEqualTo(ErrorReason.SYNTAX_ERROR);
+    assertThat(interpreter.getErrorsCopy().get(0).getMessage())
+      .containsIgnoringCase("identifier");
   }
 
   @Test
   public void invalidIdentifierAssignmentExpr() {
     assertThat(val("content = 'Custom/Email/Responsive/testing.html'")).isEqualTo(null);
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
-    assertThat(interpreter.getErrorsCopy().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
-    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).containsIgnoringCase("'='");
+    assertThat(interpreter.getErrorsCopy().get(0).getReason())
+      .isEqualTo(ErrorReason.SYNTAX_ERROR);
+    assertThat(interpreter.getErrorsCopy().get(0).getMessage())
+      .containsIgnoringCase("'='");
   }
 
   @Test
   public void invalidPipeOperatorExpr() {
     assertThat(val("topics|1")).isEqualTo(null);
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
-    assertThat(interpreter.getErrorsCopy().get(0).getReason()).isEqualTo(ErrorReason.SYNTAX_ERROR);
+    assertThat(interpreter.getErrorsCopy().get(0).getReason())
+      .isEqualTo(ErrorReason.SYNTAX_ERROR);
   }
 
   @Test
   public void itReturnsCorrectSyntaxErrorPositions() {
-    assertThat(interpreter.render("hi {{ missing thing }}{{ missing thing }}\nI am {{ blah blabbity }} too")).isEqualTo("hi \nI am  too");
+    assertThat(
+        interpreter.render(
+          "hi {{ missing thing }}{{ missing thing }}\nI am {{ blah blabbity }} too"
+        )
+      )
+      .isEqualTo("hi \nI am  too");
     assertThat(interpreter.getErrorsCopy().size()).isEqualTo(3);
     assertThat(interpreter.getErrorsCopy().get(0).getLineno()).isEqualTo(1);
     assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("position 14");
@@ -335,5 +357,4 @@ public class ExtendedSyntaxBuilderTest {
   private Object val(String expr) {
     return interpreter.resolveELExpression(expr, -1);
   }
-
 }

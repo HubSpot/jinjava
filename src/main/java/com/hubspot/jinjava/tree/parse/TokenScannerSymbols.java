@@ -16,7 +16,6 @@ limitations under the License.
 package com.hubspot.jinjava.tree.parse;
 
 public interface TokenScannerSymbols {
-
   char TOKEN_PREFIX_CHAR = '{';
   char TOKEN_POSTFIX_CHAR = '}';
   char TOKEN_FIXED_CHAR = 0;
@@ -36,5 +35,4 @@ public interface TokenScannerSymbols {
   int TOKEN_EXPR_END = TOKEN_EXPR_END_CHAR;
   int TOKEN_NEWLINE = TOKEN_NEWLINE_CHAR;
   int TOKEN_TRIM = TOKEN_TRIM_CHAR;
-
 }

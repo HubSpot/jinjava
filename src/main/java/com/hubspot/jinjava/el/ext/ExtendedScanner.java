@@ -1,10 +1,9 @@
 package com.hubspot.jinjava.el.ext;
 
+import de.odysseus.el.tree.impl.Scanner;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import de.odysseus.el.tree.impl.Scanner;
 
 public class ExtendedScanner extends Scanner {
 
@@ -62,7 +61,9 @@ public class ExtendedScanner extends Scanner {
   protected static void addKeyToken(Token token) {
     try {
       ADD_KEY_TOKEN_METHOD.invoke(null, token);
-    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+    } catch (
+      IllegalAccessException | IllegalArgumentException | InvocationTargetException e
+    ) {
       throw new RuntimeException(e);
     }
   }
@@ -96,7 +97,10 @@ public class ExtendedScanner extends Scanner {
       }
       return nextEval();
     } else {
-      if (getPosition() + 1 < getInput().length() && getInput().charAt(getPosition() + 1) == '{') {
+      if (
+        getPosition() + 1 < getInput().length() &&
+        getInput().charAt(getPosition() + 1) == '{'
+      ) {
         switch (getInput().charAt(getPosition())) {
           case '#':
             return fixed(Symbol.START_EVAL_DEFERRED);
@@ -113,13 +117,15 @@ public class ExtendedScanner extends Scanner {
   @Override
   protected Token nextEval() throws ScanException {
     char c1 = getInput().charAt(getPosition());
-    char c2 = getPosition() < getInput().length() - 1 ? getInput().charAt(getPosition() + 1) : (char) 0;
+    char c2 = getPosition() < getInput().length() - 1
+      ? getInput().charAt(getPosition() + 1)
+      : (char) 0;
 
     if (c1 == '/' && c2 == '/') {
-        return ExtendedParser.TRUNC_DIV;
+      return ExtendedParser.TRUNC_DIV;
     }
     if (c1 == '*' && c2 == '*') {
-        return ExtendedParser.POWER_OF;
+      return ExtendedParser.POWER_OF;
     }
     if (c1 == '|' && c2 != '|') {
       return ExtendedParser.PIPE;
@@ -162,7 +168,6 @@ public class ExtendedScanner extends Scanner {
             case '"':
               builder.append(c);
               break;
-
             case 'n':
               builder.append('\n');
               break;
@@ -179,7 +184,11 @@ public class ExtendedScanner extends Scanner {
               builder.append('\r');
               break;
             default:
-              throw new ScanException(getPosition(), "invalid escape sequence \\" + c, "\\" + quote + " or \\\\");
+              throw new ScanException(
+                getPosition(),
+                "invalid escape sequence \\" + c,
+                "\\" + quote + " or \\\\"
+              );
           }
         }
       } else if (c == quote) {
@@ -190,5 +199,4 @@ public class ExtendedScanner extends Scanner {
     }
     throw new ScanException(getPosition(), "unterminated string", String.valueOf(quote));
   }
-
 }

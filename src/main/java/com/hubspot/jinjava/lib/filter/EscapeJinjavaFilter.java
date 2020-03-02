@@ -1,4 +1,3 @@
-
 /**********************************************************************
  * Copyright (c) 2017 HubSpot Inc.
  *
@@ -16,39 +15,33 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Objects;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
 @JinjavaDoc(
-    value = "Converts the characters { and } in string s to Jinjava-safe sequences. "
-        + "Use this filter if you need to display text that might contain such characters in Jinjava. "
-        + "Marks return value as markup string.",
-    input = @JinjavaParam(value = "s", desc = "String to escape", required = true),
-    snippets = {
-        @JinjavaSnippet(
-            code = "{% set escape_string = \"{{This markup is printed as text}}\" %}\n" +
-                "{{ escape_string|escapeJinjava }}")
-    })
-
+  value = "Converts the characters { and } in string s to Jinjava-safe sequences. " +
+  "Use this filter if you need to display text that might contain such characters in Jinjava. " +
+  "Marks return value as markup string.",
+  input = @JinjavaParam(value = "s", desc = "String to escape", required = true),
+  snippets = {
+    @JinjavaSnippet(
+      code = "{% set escape_string = \"{{This markup is printed as text}}\" %}\n" +
+      "{{ escape_string|escapeJinjava }}"
+    )
+  }
+)
 public class EscapeJinjavaFilter implements Filter {
-
   private static final String SLBRACE = "{";
   private static final String BLBRACE = "&lbrace;";
   private static final String SRBRACE = "}";
   private static final String BRBRACE = "&rbrace;";
 
-  private static final String[] TO_REPLACE = new String[] {
-      SLBRACE, SRBRACE
-  };
-  private static final String[] REPLACE_WITH = new String[] {
-      BLBRACE, BRBRACE
-  };
+  private static final String[] TO_REPLACE = new String[] { SLBRACE, SRBRACE };
+  private static final String[] REPLACE_WITH = new String[] { BLBRACE, BRBRACE };
 
   public static String escapeJinjavaEntities(String input) {
     return StringUtils.replaceEach(input, TO_REPLACE, REPLACE_WITH);
@@ -63,5 +56,4 @@ public class EscapeJinjavaFilter implements Filter {
   public String getName() {
     return "escape_jinjava";
   }
-
 }

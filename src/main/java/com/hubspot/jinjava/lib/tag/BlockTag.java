@@ -32,19 +32,23 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
  *
  */
 @JinjavaDoc(
-    value = "Blocks are regions in a template which can be overridden by child templates",
-    params = {
-        @JinjavaParam(value = "block_name", desc = "A unique name for the block that should be used in both the parent and child template")
-    },
-    snippets = {
-        @JinjavaSnippet(
-            code = "{% extends \"custom/page/web_page_basic/my_template.html\" %}\n" +
-                "{% block my_sidebar %}\n" +
-                "   <!--Content that will render within a block of the same name in the parent template-->\n" +
-                "{% endblock %}"),
-    })
+  value = "Blocks are regions in a template which can be overridden by child templates",
+  params = {
+    @JinjavaParam(
+      value = "block_name",
+      desc = "A unique name for the block that should be used in both the parent and child template"
+    )
+  },
+  snippets = {
+    @JinjavaSnippet(
+      code = "{% extends \"custom/page/web_page_basic/my_template.html\" %}\n" +
+      "{% block my_sidebar %}\n" +
+      "   <!--Content that will render within a block of the same name in the parent template-->\n" +
+      "{% endblock %}"
+    )
+  }
+)
 public class BlockTag implements Tag {
-
   public static final String TAG_NAME = "block";
 
   private static final long serialVersionUID = -2362317415797088108L;
@@ -53,26 +57,38 @@ public class BlockTag implements Tag {
   public OutputNode interpretOutput(TagNode tagNode, JinjavaInterpreter interpreter) {
     HelperStringTokenizer tagData = new HelperStringTokenizer(tagNode.getHelpers());
     if (!tagData.hasNext()) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'block' expects an identifier", tagNode.getLineNumber(), tagNode.getStartPosition());
+      throw new TemplateSyntaxException(
+        tagNode.getMaster().getImage(),
+        "Tag 'block' expects an identifier",
+        tagNode.getLineNumber(),
+        tagNode.getStartPosition()
+      );
     }
 
     String blockName = WhitespaceUtils.unquote(tagData.next());
 
-    interpreter.addBlock(blockName, new BlockInfo(tagNode.getChildren(), interpreter.getContext().getCurrentPathStack().peek(),
+    interpreter.addBlock(
+      blockName,
+      new BlockInfo(
+        tagNode.getChildren(),
+        interpreter.getContext().getCurrentPathStack().peek(),
         interpreter.getContext().getCurrentPathStack().getTopLineNumber(),
-        interpreter.getContext().getCurrentPathStack().getTopStartPosition()));
+        interpreter.getContext().getCurrentPathStack().getTopStartPosition()
+      )
+    );
 
     return new BlockPlaceholderOutputNode(blockName);
   }
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    throw new UnsupportedOperationException("BlockTag must be rendered directly via interpretOutput() method");
+    throw new UnsupportedOperationException(
+      "BlockTag must be rendered directly via interpretOutput() method"
+    );
   }
 
   @Override
   public String getName() {
     return TAG_NAME;
   }
-
 }

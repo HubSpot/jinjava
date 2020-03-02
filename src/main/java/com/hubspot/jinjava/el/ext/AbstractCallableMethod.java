@@ -1,12 +1,11 @@
 package com.hubspot.jinjava.el.ext;
 
+import com.google.common.base.Throwables;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.base.Throwables;
 
 /**
  * Defines a function which will be called in the context of an interpreter instance. Supports named params with default values, as well as var args.
@@ -15,7 +14,6 @@ import com.google.common.base.Throwables;
  *
  */
 public abstract class AbstractCallableMethod {
-
   public static final Method EVAL_METHOD;
 
   static {
@@ -30,7 +28,10 @@ public abstract class AbstractCallableMethod {
   private final String name;
   private final LinkedHashMap<String, Object> argNamesWithDefaults;
 
-  public AbstractCallableMethod(String name, LinkedHashMap<String, Object> argNamesWithDefaults) {
+  public AbstractCallableMethod(
+    String name,
+    LinkedHashMap<String, Object> argNamesWithDefaults
+  ) {
     this.name = name;
     this.argNamesWithDefaults = argNamesWithDefaults;
   }
@@ -73,7 +74,11 @@ public abstract class AbstractCallableMethod {
     return doEvaluate(argMap, kwargMap, varArgs);
   }
 
-  public abstract Object doEvaluate(Map<String, Object> argMap, Map<String, Object> kwargMap, List<Object> varArgs);
+  public abstract Object doEvaluate(
+    Map<String, Object> argMap,
+    Map<String, Object> kwargMap,
+    List<Object> varArgs
+  );
 
   public String getName() {
     return name;
@@ -86,5 +91,4 @@ public abstract class AbstractCallableMethod {
   public Map<String, Object> getDefaults() {
     return argNamesWithDefaults;
   }
-
 }

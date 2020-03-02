@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface JinjavaDoc {
-
   String value() default "";
 
   JinjavaParam[] input() default {};
@@ -24,5 +23,4 @@ public @interface JinjavaDoc {
   boolean deprecated() default false;
 
   boolean hidden() default false;
-
 }

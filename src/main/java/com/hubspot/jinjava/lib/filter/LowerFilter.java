@@ -21,11 +21,10 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 @JinjavaDoc(
-    value = "Convert a value to lowercase",
-    input = @JinjavaParam(value = "s", desc = "String to make lowercase", required = true),
-    snippets = {
-        @JinjavaSnippet(code = "{{ \"Text to MAKE Lowercase\"|lowercase }}")
-    })
+  value = "Convert a value to lowercase",
+  input = @JinjavaParam(value = "s", desc = "String to make lowercase", required = true),
+  snippets = { @JinjavaSnippet(code = "{{ \"Text to MAKE Lowercase\"|lowercase }}") }
+)
 public class LowerFilter implements Filter {
 
   @Override
@@ -41,5 +40,4 @@ public class LowerFilter implements Filter {
   public String getName() {
     return "lower";
   }
-
 }

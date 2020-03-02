@@ -9,17 +9,16 @@ import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-
 @JinjavaDoc(
-    value = "Writes object as a JSON string",
-    input = @JinjavaParam(value = "object", desc = "Object to write to JSON", required = true),
-    snippets = {
-        @JinjavaSnippet(
-            code = "{{object|tojson}}"
-        )
-    })
+  value = "Writes object as a JSON string",
+  input = @JinjavaParam(
+    value = "object",
+    desc = "Object to write to JSON",
+    required = true
+  ),
+  snippets = { @JinjavaSnippet(code = "{{object|tojson}}") }
+)
 public class ToJsonFilter implements Filter {
-
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   @Override

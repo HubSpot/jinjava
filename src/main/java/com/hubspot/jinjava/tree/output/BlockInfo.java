@@ -1,13 +1,11 @@
 package com.hubspot.jinjava.tree.output;
 
+import com.hubspot.jinjava.tree.Node;
 import java.util.List;
 import java.util.Optional;
 
-import com.hubspot.jinjava.tree.Node;
-
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class BlockInfo {
-
   private final List<? extends Node> nodes;
 
   private final Optional<String> parentPath;
@@ -16,7 +14,12 @@ public class BlockInfo {
 
   private final int parentPosition;
 
-  public BlockInfo(List<? extends Node> nodes, Optional<String> parentPath, int parentLineNo, int parentPosition) {
+  public BlockInfo(
+    List<? extends Node> nodes,
+    Optional<String> parentPath,
+    int parentLineNo,
+    int parentPosition
+  ) {
     this.nodes = nodes;
     this.parentPath = parentPath;
     this.parentLineNo = parentLineNo;

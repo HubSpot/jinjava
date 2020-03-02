@@ -18,7 +18,6 @@ package com.hubspot.jinjava.tree.parse;
 import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
 
 public class NoteToken extends Token {
-
   private static final long serialVersionUID = -3859011447900311329L;
 
   public NoteToken(String image, int lineNumber, int startPosition) {
@@ -42,5 +41,4 @@ public class NoteToken extends Token {
   public String toString() {
     return "{# ----comment---- #}";
   }
-
 }

@@ -1,9 +1,6 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
-
+import ch.obermuhlner.math.big.BigDecimalMath;
 import com.google.common.primitives.Doubles;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -12,29 +9,42 @@ import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-
-import ch.obermuhlner.math.big.BigDecimalMath;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
 
 @JinjavaDoc(
-    value = "Return the square root of the input.",
-    input = @JinjavaParam(value = "number", type = "number", desc = "The number to get the root of", required = true),
-    params = @JinjavaParam(value = "root", type = "number", defaultValue = "2", desc = "The nth root to use for the calculation"),
-    snippets = {
-        @JinjavaSnippet(
-            code = "{{ 125|root(3) }}")
-    })
+  value = "Return the square root of the input.",
+  input = @JinjavaParam(
+    value = "number",
+    type = "number",
+    desc = "The number to get the root of",
+    required = true
+  ),
+  params = @JinjavaParam(
+    value = "root",
+    type = "number",
+    defaultValue = "2",
+    desc = "The nth root to use for the calculation"
+  ),
+  snippets = { @JinjavaSnippet(code = "{{ 125|root(3) }}") }
+)
 public class RootFilter implements Filter {
-
   private static final MathContext PRECISION = new MathContext(50);
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... args) {
-
     double root = 2;
     if (args.length > 0 && args[0] != null) {
       Double tryRoot = Doubles.tryParse(args[0]);
       if (tryRoot == null) {
-        throw new InvalidArgumentException(interpreter, this, InvalidReason.NUMBER_FORMAT, 0, args[0]);
+        throw new InvalidArgumentException(
+          interpreter,
+          this,
+          InvalidReason.NUMBER_FORMAT,
+          0,
+          args[0]
+        );
       }
 
       root = tryRoot;
@@ -68,7 +78,12 @@ public class RootFilter implements Filter {
       try {
         return calculateBigRoot(interpreter, new BigDecimal((String) object), root);
       } catch (NumberFormatException e) {
-        throw new InvalidInputException(interpreter, this, InvalidReason.NUMBER_FORMAT, object.toString());
+        throw new InvalidInputException(
+          interpreter,
+          this,
+          InvalidReason.NUMBER_FORMAT,
+          object.toString()
+        );
       }
     }
 
@@ -81,7 +96,6 @@ public class RootFilter implements Filter {
   }
 
   private double calculateRoot(JinjavaInterpreter interpreter, double num, double root) {
-
     checkArguments(interpreter, num, root);
 
     if (root == 2) {
@@ -90,11 +104,16 @@ public class RootFilter implements Filter {
       return Math.cbrt(num);
     }
 
-    return BigDecimalMath.root(new BigDecimal(num), new BigDecimal(root), PRECISION).doubleValue();
+    return BigDecimalMath
+      .root(new BigDecimal(num), new BigDecimal(root), PRECISION)
+      .doubleValue();
   }
 
-  private BigDecimal calculateBigRoot(JinjavaInterpreter interpreter, BigDecimal num, double root) {
-
+  private BigDecimal calculateBigRoot(
+    JinjavaInterpreter interpreter,
+    BigDecimal num,
+    double root
+  ) {
     checkArguments(interpreter, num.doubleValue(), root);
 
     if (root == 2) {
@@ -106,11 +125,22 @@ public class RootFilter implements Filter {
 
   private void checkArguments(JinjavaInterpreter interpreter, double num, double root) {
     if (num <= 0) {
-      throw new InvalidInputException(interpreter, this, InvalidReason.POSITIVE_NUMBER, num);
+      throw new InvalidInputException(
+        interpreter,
+        this,
+        InvalidReason.POSITIVE_NUMBER,
+        num
+      );
     }
 
     if (root <= 0) {
-      throw new InvalidArgumentException(interpreter, this, InvalidReason.POSITIVE_NUMBER, 0, root);
+      throw new InvalidArgumentException(
+        interpreter,
+        this,
+        InvalidReason.POSITIVE_NUMBER,
+        0,
+        root
+      );
     }
   }
 }

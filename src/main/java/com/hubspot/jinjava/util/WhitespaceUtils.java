@@ -87,6 +87,5 @@ public final class WhitespaceUtils {
     return s.substring(start + prefix.length(), end - suffix.length() + 1);
   }
 
-  private WhitespaceUtils() {
-  }
+  private WhitespaceUtils() {}
 }

@@ -2,9 +2,8 @@ package com.hubspot.jinjava.util;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.junit.Test;
-
 import com.hubspot.jinjava.interpret.OutputTooBigException;
+import org.junit.Test;
 
 public class LengthLimitingStringBuilderTest {
 
@@ -20,5 +19,4 @@ public class LengthLimitingStringBuilderTest {
     LengthLimitingStringBuilder sb = new LengthLimitingStringBuilder(0);
     sb.append("0123456789");
   }
-
 }

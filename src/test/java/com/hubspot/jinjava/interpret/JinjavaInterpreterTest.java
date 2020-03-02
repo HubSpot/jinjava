@@ -2,13 +2,6 @@ package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -17,9 +10,13 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.output.BlockInfo;
 import com.hubspot.jinjava.tree.parse.TextToken;
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Optional;
+import org.junit.Before;
+import org.junit.Test;
 
 public class JinjavaInterpreterTest {
-
   private Jinjava jinjava;
   private JinjavaInterpreter interpreter;
 
@@ -42,23 +39,43 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void resolveBlockStubs() {
-    interpreter.addBlock("foobar", new BlockInfo(Lists.newLinkedList(Lists.newArrayList((new TextNode(new TextToken("sparta", -1, -1))))),
-        Optional.empty(), 0, 0));
+    interpreter.addBlock(
+      "foobar",
+      new BlockInfo(
+        Lists.newLinkedList(
+          Lists.newArrayList((new TextNode(new TextToken("sparta", -1, -1))))
+        ),
+        Optional.empty(),
+        0,
+        0
+      )
+    );
     String content = "this is {% block foobar %}foobar{% endblock %}!";
     assertThat(interpreter.render(content)).isEqualTo("this is sparta!");
   }
 
   @Test
   public void resolveBlockStubsWithSpecialChars() {
-    interpreter.addBlock("foobar", new BlockInfo(Lists.newLinkedList(Lists.newArrayList(new TextNode(new TextToken("$150.00", -1, -1)))),
-        Optional.empty(), 0, 0));
+    interpreter.addBlock(
+      "foobar",
+      new BlockInfo(
+        Lists.newLinkedList(
+          Lists.newArrayList(new TextNode(new TextToken("$150.00", -1, -1)))
+        ),
+        Optional.empty(),
+        0,
+        0
+      )
+    );
     String content = "this is {% block foobar %}foobar{% endblock %}!";
     assertThat(interpreter.render(content)).isEqualTo("this is $150.00!");
   }
 
   @Test
   public void resolveBlockStubsWithCycle() {
-    String content = interpreter.render("{% block foo %}{% block foo %}{% endblock %}{% endblock %}");
+    String content = interpreter.render(
+      "{% block foo %}{% block foo %}{% endblock %}{% endblock %}"
+    );
     assertThat(content).isEmpty();
   }
 
@@ -106,8 +123,12 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void triesBeanMethodFirst() {
-    assertThat(interpreter.resolveProperty(ZonedDateTime.parse("2013-09-19T12:12:12+00:00"), "year")
-        .toString()).isEqualTo("2013");
+    assertThat(
+        interpreter
+          .resolveProperty(ZonedDateTime.parse("2013-09-19T12:12:12+00:00"), "year")
+          .toString()
+      )
+      .isEqualTo("2013");
   }
 
   @Test
@@ -123,7 +144,6 @@ public class JinjavaInterpreterTest {
     }
 
     assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("parent");
-
   }
 
   @Test
@@ -145,10 +165,12 @@ public class JinjavaInterpreterTest {
 
     interpreter.enterScope();
     interpreter.getContext().addDependency(dependencyType, dependencyIdentifier);
-    assertThat(interpreter.getContext().getDependencies().get(dependencyType)).contains(dependencyIdentifier);
+    assertThat(interpreter.getContext().getDependencies().get(dependencyType))
+      .contains(dependencyIdentifier);
     interpreter.leaveScope();
 
-    assertThat(interpreter.getContext().getDependencies().get(dependencyType)).contains(dependencyIdentifier);
+    assertThat(interpreter.getContext().getDependencies().get(dependencyType))
+      .contains(dependencyIdentifier);
   }
 
   @Test
@@ -160,21 +182,28 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itLimitsOutputSize() {
-
-    JinjavaConfig outputSizeLimitedConfig = JinjavaConfig.newBuilder().withMaxOutputSize(20).build();
+    JinjavaConfig outputSizeLimitedConfig = JinjavaConfig
+      .newBuilder()
+      .withMaxOutputSize(20)
+      .build();
     String output = "123456789012345678901234567890";
 
     RenderResult renderResult = new Jinjava().renderForResult(output, new HashMap<>());
     assertThat(renderResult.getOutput()).isEqualTo(output);
     assertThat(renderResult.hasErrors()).isFalse();
 
-    renderResult = new Jinjava(outputSizeLimitedConfig).renderForResult(output, new HashMap<>());
-    assertThat(renderResult.getErrors().get(0).getMessage()).contains("OutputTooBigException");
+    renderResult =
+      new Jinjava(outputSizeLimitedConfig).renderForResult(output, new HashMap<>());
+    assertThat(renderResult.getErrors().get(0).getMessage())
+      .contains("OutputTooBigException");
   }
 
   @Test
   public void itLimitsOutputSizeWhenSumOfNodeSizesExceedsMax() {
-    JinjavaConfig outputSizeLimitedConfig = JinjavaConfig.newBuilder().withMaxOutputSize(19).build();
+    JinjavaConfig outputSizeLimitedConfig = JinjavaConfig
+      .newBuilder()
+      .withMaxOutputSize(19)
+      .build();
     String input = "1234567890{% block testchild %}1234567890{% endblock %}";
     String output = "12345678901234567890"; // Note that this exceeds the max size
 
@@ -182,8 +211,10 @@ public class JinjavaInterpreterTest {
     assertThat(renderResult.getOutput()).isEqualTo(output);
     assertThat(renderResult.hasErrors()).isFalse();
 
-    renderResult = new Jinjava(outputSizeLimitedConfig).renderForResult(input, new HashMap<>());
+    renderResult =
+      new Jinjava(outputSizeLimitedConfig).renderForResult(input, new HashMap<>());
     assertThat(renderResult.hasErrors()).isTrue();
-    assertThat(renderResult.getErrors().get(0).getMessage()).contains("OutputTooBigException");
+    assertThat(renderResult.getErrors().get(0).getMessage())
+      .contains("OutputTooBigException");
   }
 }

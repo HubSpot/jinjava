@@ -1,20 +1,17 @@
 package com.hubspot.jinjava.el;
 
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.el.FunctionMapper;
-
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import javax.el.FunctionMapper;
 
 public class MacroFunctionMapper extends FunctionMapper {
-
   private Map<String, Method> map = Collections.emptyMap();
 
   private static String buildFunctionName(String prefix, String name) {
@@ -49,5 +46,4 @@ public class MacroFunctionMapper extends FunctionMapper {
     }
     map.put(buildFunctionName(prefix, localName), method);
   }
-
 }

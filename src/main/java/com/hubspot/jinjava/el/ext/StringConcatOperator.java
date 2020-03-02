@@ -21,11 +21,13 @@ public class StringConcatOperator extends SimpleOperator {
   public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("~");
   public static final StringConcatOperator OP = new StringConcatOperator();
 
-  public static final ExtensionHandler HANDLER = new ExtensionHandler(ExtensionPoint.ADD) {
+  public static final ExtensionHandler HANDLER = new ExtensionHandler(
+    ExtensionPoint.ADD
+  ) {
+
     @Override
     public AstNode createAstNode(AstNode... children) {
       return new AstBinary(children[0], children[1], OP);
     }
   };
-
 }

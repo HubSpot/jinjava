@@ -19,12 +19,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-
 import org.junit.Before;
 import org.junit.Test;
 
 public class ForLoopTest {
-
   private static final int NULL_VAL = Integer.MIN_VALUE;
 
   public static class AIterator implements Iterator<String> {
@@ -38,8 +36,7 @@ public class ForLoopTest {
     @Override
     public String next() {
       i++;
-      if (i > 6)
-        return null;
+      if (i > 6) return null;
       return "test";
     }
 
@@ -47,7 +44,6 @@ public class ForLoopTest {
     public void remove() {
       // nothing
     }
-
   }
 
   private ForLoop loop;
@@ -206,5 +202,4 @@ public class ForLoopTest {
     assertEquals(NULL_VAL, loop.getLength());
     assertEquals(false, loop.isLast());
   }
-
 }

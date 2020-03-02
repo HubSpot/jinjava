@@ -15,27 +15,26 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Objects;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
 @JinjavaDoc(
-    value = "Converts the characters &, <, >, ‘, and ” in string s to HTML-safe sequences. "
-        + "Use this filter if you need to display text that might contain such characters in HTML. "
-        + "Marks return value as markup string.",
-    input = @JinjavaParam(value = "s", desc = "String to escape", required = true),
-    snippets = {
-        @JinjavaSnippet(
-            code = "{% set escape_string = \"<div>This markup is printed as text</div>\" %}\n" +
-                "{{ escape_string|escape }}")
-    })
+  value = "Converts the characters &, <, >, ‘, and ” in string s to HTML-safe sequences. " +
+  "Use this filter if you need to display text that might contain such characters in HTML. " +
+  "Marks return value as markup string.",
+  input = @JinjavaParam(value = "s", desc = "String to escape", required = true),
+  snippets = {
+    @JinjavaSnippet(
+      code = "{% set escape_string = \"<div>This markup is printed as text</div>\" %}\n" +
+      "{{ escape_string|escape }}"
+    )
+  }
+)
 public class EscapeFilter implements Filter {
-
   private static final String SAMP = "&";
   private static final String BAMP = "&amp;";
   private static final String SGT = ">";
@@ -45,12 +44,8 @@ public class EscapeFilter implements Filter {
   private static final String BSQ = "&#39;";
   private static final String BDQ = "&quot;";
 
-  private static final String[] TO_REPLACE = new String[] {
-      SAMP, SGT, SLT, "'", "\""
-  };
-  private static final String[] REPLACE_WITH = new String[] {
-      BAMP, BGT, BLT, BSQ, BDQ
-  };
+  private static final String[] TO_REPLACE = new String[] { SAMP, SGT, SLT, "'", "\"" };
+  private static final String[] REPLACE_WITH = new String[] { BAMP, BGT, BLT, BSQ, BDQ };
 
   public static String escapeHtmlEntities(String input) {
     return StringUtils.replaceEach(input, TO_REPLACE, REPLACE_WITH);
@@ -65,5 +60,4 @@ public class EscapeFilter implements Filter {
   public String getName() {
     return "escape";
   }
-
 }

@@ -34,5 +34,4 @@ public class RootNode extends Node {
   public String getName() {
     return getClass().getSimpleName();
   }
-
 }

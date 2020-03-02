@@ -6,7 +6,6 @@ import com.hubspot.jinjava.tree.TagNode;
 
 @JinjavaDoc(value = "", hidden = true)
 public final class EndTag implements Tag {
-
   private static final long serialVersionUID = -3309842733119867221L;
   private final String endTagName;
 
@@ -28,5 +27,4 @@ public final class EndTag implements Tag {
   public String getEndTagName() {
     return endTagName;
   }
-
 }

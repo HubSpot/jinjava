@@ -21,7 +21,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 public class HelperStringTokenizerTest {
-
   private HelperStringTokenizer tk;
 
   @Test
@@ -91,7 +90,10 @@ public class HelperStringTokenizerTest {
 
   @Test
   public void test8() {
-    tk = new HelperStringTokenizer("111 ', \"' \"222\"' 	;, ' 333 post.id|add:'444',\"555\",666 		555");
+    tk =
+      new HelperStringTokenizer(
+        "111 ', \"' \"222\"' 	;, ' 333 post.id|add:'444',\"555\",666 		555"
+      );
     tk.next();
     tk.next();
     tk.next();
@@ -101,9 +103,12 @@ public class HelperStringTokenizerTest {
 
   @Test
   public void itDoesntReturnTrailingNull() {
-    assertThat(new HelperStringTokenizer("product in collections.frontpage.products   ").splitComma(true).allTokens())
-        .containsExactly("product", "in", "collections.frontpage.products")
-        .doesNotContainNull();
+    assertThat(
+        new HelperStringTokenizer("product in collections.frontpage.products   ")
+          .splitComma(true)
+          .allTokens()
+      )
+      .containsExactly("product", "in", "collections.frontpage.products")
+      .doesNotContainNull();
   }
-
 }

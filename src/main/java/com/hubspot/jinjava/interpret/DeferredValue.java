@@ -10,7 +10,7 @@ public class DeferredValue {
 
   private Object originalValue;
 
-  private DeferredValue() { }
+  private DeferredValue() {}
 
   private DeferredValue(Object originalValue) {
     this.originalValue = originalValue;

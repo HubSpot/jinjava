@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.Stack;
 
 public class CallStack {
-
   private final CallStack parent;
   private final Class<? extends TagCycleException> exceptionClass;
   private final Stack<String> stack = new Stack<>();
@@ -40,17 +39,32 @@ public class CallStack {
     pushToStack(path, lineNumber, startPosition);
   }
 
-  public void pushWithMaxDepth(String path, int maxDepth, int lineNumber, int startPosition) {
+  public void pushWithMaxDepth(
+    String path,
+    int maxDepth,
+    int lineNumber,
+    int startPosition
+  ) {
     if (depth < maxDepth) {
       pushToStack(path, lineNumber, startPosition);
     } else {
-      throw TagCycleException.create(exceptionClass, path, Optional.of(lineNumber), Optional.of(startPosition));
+      throw TagCycleException.create(
+        exceptionClass,
+        path,
+        Optional.of(lineNumber),
+        Optional.of(startPosition)
+      );
     }
   }
 
   public void push(String path, int lineNumber, int startPosition) {
     if (contains(path)) {
-      throw TagCycleException.create(exceptionClass, path, Optional.of(lineNumber), Optional.of(startPosition));
+      throw TagCycleException.create(
+        exceptionClass,
+        path,
+        Optional.of(lineNumber),
+        Optional.of(startPosition)
+      );
     }
 
     pushToStack(path, lineNumber, startPosition);

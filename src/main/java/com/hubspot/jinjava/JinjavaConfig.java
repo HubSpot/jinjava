@@ -15,6 +15,11 @@
  **********************************************************************/
 package com.hubspot.jinjava;
 
+import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.Context.Library;
+import com.hubspot.jinjava.interpret.InterpreterFactory;
+import com.hubspot.jinjava.interpret.JinjavaInterpreterFactory;
+import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
@@ -24,14 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import com.hubspot.jinjava.interpret.Context;
-import com.hubspot.jinjava.interpret.Context.Library;
-import com.hubspot.jinjava.interpret.InterpreterFactory;
-import com.hubspot.jinjava.interpret.JinjavaInterpreterFactory;
-import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
-
 public class JinjavaConfig {
-
   private final Charset charset;
   private final Locale locale;
   private final ZoneId timeZone;
@@ -62,30 +60,73 @@ public class JinjavaConfig {
   }
 
   public JinjavaConfig(InterpreterFactory interpreterFactory) {
-    this(StandardCharsets.UTF_8, Locale.ENGLISH, ZoneOffset.UTC, 10, new HashMap<>(), false, false, true, false, 0, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, 0, interpreterFactory);
+    this(
+      StandardCharsets.UTF_8,
+      Locale.ENGLISH,
+      ZoneOffset.UTC,
+      10,
+      new HashMap<>(),
+      false,
+      false,
+      true,
+      false,
+      0,
+      false,
+      0,
+      true,
+      RandomNumberGeneratorStrategy.THREAD_LOCAL,
+      false,
+      0,
+      interpreterFactory
+    );
   }
 
-  public JinjavaConfig(Charset charset, Locale locale, ZoneId timeZone, int maxRenderDepth) {
-    this(charset, locale, timeZone, maxRenderDepth, new HashMap<>(), false, false, true, false, 0, false, 0, true, RandomNumberGeneratorStrategy.THREAD_LOCAL, false, 0, new JinjavaInterpreterFactory());
+  public JinjavaConfig(
+    Charset charset,
+    Locale locale,
+    ZoneId timeZone,
+    int maxRenderDepth
+  ) {
+    this(
+      charset,
+      locale,
+      timeZone,
+      maxRenderDepth,
+      new HashMap<>(),
+      false,
+      false,
+      true,
+      false,
+      0,
+      false,
+      0,
+      true,
+      RandomNumberGeneratorStrategy.THREAD_LOCAL,
+      false,
+      0,
+      new JinjavaInterpreterFactory()
+    );
   }
 
-  private JinjavaConfig(Charset charset,
-                        Locale locale,
-                        ZoneId timeZone,
-                        int maxRenderDepth,
-                        Map<Context.Library, Set<String>> disabled,
-                        boolean trimBlocks,
-                        boolean lstripBlocks,
-                        boolean readOnlyResolver,
-                        boolean enableRecursiveMacroCalls,
-                        int maxMacroRecursionDepth,
-                        boolean failOnUnknownTokens,
-                        long maxOutputSize,
-                        boolean nestedInterpretationEnabled,
-                        RandomNumberGeneratorStrategy randomNumberGenerator,
-                        boolean validationMode,
-                        long maxStringLength,
-                        InterpreterFactory interpreterFactory) {
+  private JinjavaConfig(
+    Charset charset,
+    Locale locale,
+    ZoneId timeZone,
+    int maxRenderDepth,
+    Map<Context.Library, Set<String>> disabled,
+    boolean trimBlocks,
+    boolean lstripBlocks,
+    boolean readOnlyResolver,
+    boolean enableRecursiveMacroCalls,
+    int maxMacroRecursionDepth,
+    boolean failOnUnknownTokens,
+    long maxOutputSize,
+    boolean nestedInterpretationEnabled,
+    RandomNumberGeneratorStrategy randomNumberGenerator,
+    boolean validationMode,
+    long maxStringLength,
+    InterpreterFactory interpreterFactory
+  ) {
     this.charset = charset;
     this.locale = locale;
     this.timeZone = timeZone;
@@ -189,13 +230,13 @@ public class JinjavaConfig {
     private int maxMacroRecursionDepth;
     private boolean failOnUnknownTokens;
     private boolean nestedInterpretationEnabled = true;
-    private RandomNumberGeneratorStrategy randomNumberGeneratorStrategy = RandomNumberGeneratorStrategy.THREAD_LOCAL;
+    private RandomNumberGeneratorStrategy randomNumberGeneratorStrategy =
+      RandomNumberGeneratorStrategy.THREAD_LOCAL;
     private boolean validationMode = false;
     private long maxStringLength = 0;
     private InterpreterFactory interpreterFactory = new JinjavaInterpreterFactory();
 
-    private Builder() {
-    }
+    private Builder() {}
 
     public Builder withCharset(Charset charset) {
       this.charset = charset;
@@ -222,11 +263,12 @@ public class JinjavaConfig {
       return this;
     }
 
-    public Builder withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy randomNumberGeneratorStrategy) {
+    public Builder withRandomNumberGeneratorStrategy(
+      RandomNumberGeneratorStrategy randomNumberGeneratorStrategy
+    ) {
       this.randomNumberGeneratorStrategy = randomNumberGeneratorStrategy;
       return this;
     }
-
 
     public Builder withTrimBlocks(boolean trimBlocks) {
       this.trimBlocks = trimBlocks;
@@ -284,25 +326,25 @@ public class JinjavaConfig {
     }
 
     public JinjavaConfig build() {
-      return new JinjavaConfig(charset,
-          locale,
-          timeZone,
-          maxRenderDepth,
-          disabled,
-          trimBlocks,
-          lstripBlocks,
-          readOnlyResolver,
-          enableRecursiveMacroCalls,
-          maxMacroRecursionDepth,
-          failOnUnknownTokens,
-          maxOutputSize,
-          nestedInterpretationEnabled,
-          randomNumberGeneratorStrategy,
-          validationMode,
-          maxStringLength,
-          interpreterFactory);
+      return new JinjavaConfig(
+        charset,
+        locale,
+        timeZone,
+        maxRenderDepth,
+        disabled,
+        trimBlocks,
+        lstripBlocks,
+        readOnlyResolver,
+        enableRecursiveMacroCalls,
+        maxMacroRecursionDepth,
+        failOnUnknownTokens,
+        maxOutputSize,
+        nestedInterpretationEnabled,
+        randomNumberGeneratorStrategy,
+        validationMode,
+        maxStringLength,
+        interpreterFactory
+      );
     }
-
   }
-
 }

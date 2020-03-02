@@ -17,24 +17,42 @@ package com.hubspot.jinjava.lib.filter;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 @JinjavaDoc(
-    value = "Calculates the md5 hash of the given object",
-    input = @JinjavaParam(value = "value", desc = "Value to get MD5 hash of", required = true),
-    snippets = {
-        @JinjavaSnippet(code = "{{ content.absolute_url|md5 }}")
-    })
+  value = "Calculates the md5 hash of the given object",
+  input = @JinjavaParam(
+    value = "value",
+    desc = "Value to get MD5 hash of",
+    required = true
+  ),
+  snippets = { @JinjavaSnippet(code = "{{ content.absolute_url|md5 }}") }
+)
 public class Md5Filter implements Filter {
-
-  private static final String[] NOSTR = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"};
+  private static final String[] NOSTR = {
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f"
+  };
   private static final String MD5 = "MD5";
 
   private String byteToArrayString(byte bByte) {
@@ -85,5 +103,4 @@ public class Md5Filter implements Filter {
   public String getName() {
     return "md5";
   }
-
 }

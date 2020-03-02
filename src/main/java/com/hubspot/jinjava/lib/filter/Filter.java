@@ -15,19 +15,16 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.Importable;
+import com.hubspot.jinjava.objects.SafeString;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.Importable;
-import com.hubspot.jinjava.objects.SafeString;
-
 public interface Filter extends Importable {
-
   /**
    * Filter the specified template variable within the context of a render process. {{ myvar|myfiltername(arg1,arg2) }}
    *
@@ -46,7 +43,12 @@ public interface Filter extends Importable {
    * This default method transforms that call to a simple filter that only receives String positional arguments to
    * maintain backward-compatibility with old filters that don't support named arguments.
    */
-  default Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs) {
+  default Object filter(
+    Object var,
+    JinjavaInterpreter interpreter,
+    Object[] args,
+    Map<String, Object> kwargs
+  ) {
     // We append the named arguments at the end of the positional ones
     Object[] allArgs = ArrayUtils.addAll(args, kwargs.values().toArray());
 
@@ -71,7 +73,6 @@ public interface Filter extends Importable {
   default boolean preserveSafeString() {
     return true;
   }
-
 
   default Object filter(SafeString var, JinjavaInterpreter interpreter, String... args) {
     if (var == null) {

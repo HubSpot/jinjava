@@ -2,16 +2,14 @@ package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
-import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
-
 public class DeferredTest {
-
   private JinjavaInterpreter interpreter;
 
   @Before
@@ -19,9 +17,10 @@ public class DeferredTest {
     Jinjava jinjava = new Jinjava();
 
     Context context = new Context();
-    JinjavaConfig config = JinjavaConfig.newBuilder()
-        .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
-        .build();
+    JinjavaConfig config = JinjavaConfig
+      .newBuilder()
+      .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
+      .build();
     interpreter = new JinjavaInterpreter(jinjava, context, config);
     interpreter.getContext().put("deferred", DeferredValue.instance());
     interpreter.getContext().put("resolved", "resolvedValue");
@@ -70,15 +69,22 @@ public class DeferredTest {
 
   @Test
   public void itPreservesIfTag() {
-    String output = interpreter.render("{% if deferred %}{{resolved}}{% else %}b{% endif %}");
+    String output = interpreter.render(
+      "{% if deferred %}{{resolved}}{% else %}b{% endif %}"
+    );
     assertThat(output).isEqualTo("{% if deferred %}{{resolved}}{% else %}b{% endif %}");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
   @Test
   public void itPreservesNestedIfTag() {
-    String output = interpreter.render("{% if deferred %}{% if resolved %}{{resolved}}{% endif %}{% else %}b{% endif %}");
-    assertThat(output).isEqualTo("{% if deferred %}{% if resolved %}{{resolved}}{% endif %}{% else %}b{% endif %}");
+    String output = interpreter.render(
+      "{% if deferred %}{% if resolved %}{{resolved}}{% endif %}{% else %}b{% endif %}"
+    );
+    assertThat(output)
+      .isEqualTo(
+        "{% if deferred %}{% if resolved %}{{resolved}}{% endif %}{% else %}b{% endif %}"
+      );
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
@@ -92,16 +98,18 @@ public class DeferredTest {
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
- @Test
+  @Test
   public void itResolvesIfTagWherePossible() {
-   String output = interpreter.render("{% if true %}{{deferred}}{% endif %}");
-   assertThat(output).isEqualTo("{{deferred}}");
-   assertThat(interpreter.getErrors()).isEmpty();
- }
+    String output = interpreter.render("{% if true %}{{deferred}}{% endif %}");
+    assertThat(output).isEqualTo("{{deferred}}");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
 
   @Test
   public void itResolvesForTagWherePossible() {
-    String output = interpreter.render("{% for i in [1, 2] %}{{i}}{{deferred}}{% endfor %}");
+    String output = interpreter.render(
+      "{% for i in [1, 2] %}{{i}}{{deferred}}{% endfor %}"
+    );
     assertThat(output).isEqualTo("1{{deferred}}2{{deferred}}");
     assertThat(interpreter.getErrors()).isEmpty();
   }
@@ -116,8 +124,11 @@ public class DeferredTest {
 
   @Test
   public void itPreservesForTag() {
-    String output = interpreter.render("{% for item in deferred %}{{item.name}}{% else %}last{% endfor %}");
-    assertThat(output).isEqualTo("{% for item in deferred %}{{item.name}}{% else %}last{% endfor %}");
+    String output = interpreter.render(
+      "{% for item in deferred %}{{item.name}}{% else %}last{% endfor %}"
+    );
+    assertThat(output)
+      .isEqualTo("{% for item in deferred %}{{item.name}}{% else %}last{% endfor %}");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
@@ -142,28 +153,28 @@ public class DeferredTest {
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
-
   @Test
   public void itDefersMacro() {
     interpreter.getContext().put("padding", 0);
     interpreter.getContext().put("added_padding", 10);
     String deferredOutput = interpreter.render(
-        "{% macro inc_padding(width) %}" +
-            "{% set padding = padding + width %}" +
-            "{{padding}}" +
-            "{% endmacro %}" +
-            "{{ padding }}," +
-            "{% set padding =  inc_padding(added_padding) | int %}" +
-            "{{ padding }}," +
-            "{% set padding = inc_padding(deferred) | int %}" +
-            "{{ padding}}," +
-            "{% set padding = inc_padding(added_padding) | int %}" +
-            "{{ padding }}");
+      "{% macro inc_padding(width) %}" +
+      "{% set padding = padding + width %}" +
+      "{{padding}}" +
+      "{% endmacro %}" +
+      "{{ padding }}," +
+      "{% set padding =  inc_padding(added_padding) | int %}" +
+      "{{ padding }}," +
+      "{% set padding = inc_padding(deferred) | int %}" +
+      "{{ padding}}," +
+      "{% set padding = inc_padding(added_padding) | int %}" +
+      "{{ padding }}"
+    );
     Object padding = interpreter.getContext().get("padding");
     assertThat(padding).isInstanceOf(DeferredValue.class);
-    assertThat(((DeferredValue)padding).getOriginalValue()).isEqualTo(10);
+    assertThat(((DeferredValue) padding).getOriginalValue()).isEqualTo(10);
 
-    interpreter.getContext().put("padding", ((DeferredValue)padding).getOriginalValue());
+    interpreter.getContext().put("padding", ((DeferredValue) padding).getOriginalValue());
     interpreter.getContext().put("added_padding", 10);
     // not deferred anymore
     interpreter.getContext().put("deferred", 5);
@@ -172,5 +183,4 @@ public class DeferredTest {
     String output = interpreter.render(deferredOutput);
     assertThat(output).isEqualTo("0,10,15,25");
   }
-
 }

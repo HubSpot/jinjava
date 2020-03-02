@@ -15,17 +15,14 @@
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
-import java.io.Serializable;
-import java.util.LinkedList;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.parse.Token;
+import java.io.Serializable;
+import java.util.LinkedList;
+import org.apache.commons.lang3.StringUtils;
 
 public abstract class Node implements Serializable {
-
   private static final long serialVersionUID = -6194634312533310816L;
 
   private final Token master;
@@ -99,5 +96,4 @@ public abstract class Node implements Serializable {
 
     return t.toString();
   }
-
 }
