@@ -13,7 +13,9 @@ public class UnixTimestampFunctionTest {
 
   @Test
   public void itGetsUnixTimestamps() {
-    assertThat(Functions.unixtimestamp()).isGreaterThan(0).isLessThanOrEqualTo(System.currentTimeMillis());
+    assertThat(Functions.unixtimestamp())
+      .isGreaterThan(0)
+      .isLessThanOrEqualTo(System.currentTimeMillis());
     assertThat(Functions.unixtimestamp(epochMilliseconds)).isEqualTo(epochMilliseconds);
     assertThat(Functions.unixtimestamp(d)).isEqualTo(epochMilliseconds);
     assertThat(
