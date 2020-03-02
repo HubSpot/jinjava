@@ -15,7 +15,18 @@ public class LazyExpressionTest {
       () -> ImmutableMap.of("test", "hello", "test2", "hello2"),
       "{}"
     );
+    Object evaluated = expression.get();
+    assertThat(evaluated).isNotNull();
     assertThat(new ObjectMapper().writeValueAsString(expression))
       .isEqualTo("{\"test\":\"hello\",\"test2\":\"hello2\"}");
+  }
+
+  @Test
+  public void itSerializesNonEvaluatedValueToEmpty() throws JsonProcessingException {
+    LazyExpression expression = LazyExpression.of(
+      () -> ImmutableMap.of("test", "hello", "test2", "hello2"),
+      "{}"
+    );
+    assertThat(new ObjectMapper().writeValueAsString(expression)).isEqualTo("\"\"");
   }
 }

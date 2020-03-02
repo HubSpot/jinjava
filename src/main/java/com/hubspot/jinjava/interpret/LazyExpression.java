@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 public class LazyExpression implements Supplier {
   private final Supplier supplier;
   private final String image;
+  private Object jsonValue = null;
 
   private LazyExpression(Supplier supplier, String image) {
     this.supplier = supplier;
@@ -17,13 +18,20 @@ public class LazyExpression implements Supplier {
   }
 
   @Override
-  @JsonValue
   public Object get() {
-    return supplier.get();
+    if (jsonValue == null) {
+      jsonValue = supplier.get();
+    }
+    return jsonValue;
   }
 
   @Override
   public String toString() {
     return image;
+  }
+
+  @JsonValue
+  public Object getJsonValue() {
+    return jsonValue == null ? "" : jsonValue;
   }
 }
