@@ -1,5 +1,29 @@
 # Jinjava Releases #
 
+### 2020-03-06 Version 2.5.3 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.3%7Cjar)) ###
+* [Return empty string for un-evaluated lazy expression](https://github.com/HubSpot/jinjava/pull/405)
+* [Add millis precision to unixtimestamp function](https://github.com/HubSpot/jinjava/pull/399)
+* [Fix implementation for slice filter](https://github.com/HubSpot/jinjava/pull/398)
+* [Implement safe filter as SafeString and handle SafeString in filters, functions and expressions](https://github.com/HubSpot/jinjava/pull/394)
+* [Add PyList support to ForTag](https://github.com/HubSpot/jinjava/pull/390)
+* [Change DefaultFilter to implement AdvancedFilter](https://github.com/HubSpot/jinjava/pull/389)
+* [Adds dict support for DefaultFilter](https://github.com/HubSpot/jinjava/pull/386)
+* [Add basic deferred value support for from tag](https://github.com/HubSpot/jinjava/pull/381)
+* [Fix template error line numbers](https://github.com/HubSpot/jinjava/pull/380)
+* [Track dependencies in FromTag](https://github.com/HubSpot/jinjava/pull/375)
+* [Lower logging level for truncate](https://github.com/HubSpot/jinjava/pull/372)
+* [Handling for OutputTooBigException](https://github.com/HubSpot/jinjava/pull/371)
+* [Serialize lazy expression as its underlying value](https://github.com/HubSpot/jinjava/pull/370)
+* [Return image when calling toString for LazyExpression](https://github.com/HubSpot/jinjava/pull/367)
+* [More supplier conversions](https://github.com/HubSpot/jinjava/pull/366)
+* [Avoid tag cycles when keeping track of parent paths for blocks ](https://github.com/HubSpot/jinjava/pull/363)
+* [Add python list operations to PyList](https://github.com/HubSpot/jinjava/pull/362)
+* [Fix NPE with lazy expression in intermediate expression resolution](https://github.com/HubSpot/jinjava/pull/358)
+* [Create new class that lazily resolves](https://github.com/HubSpot/jinjava/pull/357)
+* [Upgrade map filter to advanced filter, improve error messages, and pass through args for filters](https://github.com/HubSpot/jinjava/pull/356)
+* [enable more checkstyle rules](https://github.com/HubSpot/jinjava/pull/355)
+* [Add codeStyleChecker](https://github.com/HubSpot/jinjava/pull/353)
+
 ### 2019-07-11 Version 2.5.2 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.2%7Cjar)) ###
 * [Add type conversion to collection expression tests](https://github.com/HubSpot/jinjava/pull/349)
 * [Change initialization of JinjavaInterpreter to instantiation](https://github.com/HubSpot/jinjava/pull/347)
