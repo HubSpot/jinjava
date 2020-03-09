@@ -60,12 +60,11 @@ public class StrftimeFormatter {
    */
   public static String toJavaDateTimeFormat(String strftime) {
     if (!StringUtils.contains(strftime, '%')) {
-      return replaceL(strftime);
+      return strftime;
     }
 
     StringBuilder result = new StringBuilder();
 
-    boolean replaceL = true;
     for (int i = 0; i < strftime.length(); i++) {
       char c = strftime.charAt(i);
       if (c == '%') {
@@ -81,7 +80,6 @@ public class StrftimeFormatter {
         if (c == 'O') {
           c = strftime.charAt(++i);
           conversions = NOMINATIVE_CONVERSIONS;
-          replaceL = false;
         }
 
         if (stripLeadingZero) {
@@ -106,12 +104,7 @@ public class StrftimeFormatter {
       }
     }
 
-    String formatResult = result.toString();
-    return replaceL ? replaceL(formatResult) : formatResult;
-  }
-
-  private static String replaceL(String s) {
-    return StringUtils.replaceChars(s, 'L', 'M');
+    return result.toString();
   }
 
   public static DateTimeFormatter formatter(String strftime) {
