@@ -15,13 +15,10 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_EXPR_START;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_FIXED;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
+
+import java.io.Serializable;
 
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
-import java.io.Serializable;
 
 public abstract class Token implements Serializable {
   private static final long serialVersionUID = 3359084948763661809L;
@@ -93,22 +90,17 @@ public abstract class Token implements Serializable {
 
   public abstract int getType();
 
-  static Token newToken(int tokenKind, String image, int lineNumber, int startPosition) {
-    switch (tokenKind) {
-      case TOKEN_FIXED:
-        return new TextToken(image, lineNumber, startPosition);
-      case TOKEN_NOTE:
-        return new NoteToken(image, lineNumber, startPosition);
-      case TOKEN_EXPR_START:
-        return new ExpressionToken(image, lineNumber, startPosition);
-      case TOKEN_TAG:
-        return new TagToken(image, lineNumber, startPosition);
-      default:
-        throw new UnexpectedTokenException(
-          String.valueOf((char) tokenKind),
-          lineNumber,
-          startPosition
-        );
-    }
+  static Token newToken(int tokenKind, TokenScannerSymbols symbols, String image, int lineNumber, int startPosition) {
+
+    if (tokenKind == symbols.TOKEN_FIXED())
+      return new TextToken(image, lineNumber, startPosition);
+    else if (tokenKind == symbols.TOKEN_NOTE())
+      return new NoteToken(image, lineNumber, startPosition);
+    else if (tokenKind == symbols.TOKEN_EXPR_START())
+      return new ExpressionToken(image, lineNumber, startPosition);
+    else if (tokenKind == symbols.TOKEN_TAG())
+      return new TagToken(image, lineNumber, startPosition);
+    else 
+      throw new UnexpectedTokenException(String.valueOf((char) tokenKind), lineNumber, startPosition);
   }
 }

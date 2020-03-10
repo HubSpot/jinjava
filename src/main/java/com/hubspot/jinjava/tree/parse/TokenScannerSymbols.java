@@ -15,24 +15,44 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-public interface TokenScannerSymbols {
-  char TOKEN_PREFIX_CHAR = '{';
-  char TOKEN_POSTFIX_CHAR = '}';
-  char TOKEN_FIXED_CHAR = 0;
-  char TOKEN_NOTE_CHAR = '#';
-  char TOKEN_TAG_CHAR = '%';
-  char TOKEN_EXPR_START_CHAR = '{';
-  char TOKEN_EXPR_END_CHAR = '}';
-  char TOKEN_NEWLINE_CHAR = '\n';
-  char TOKEN_TRIM_CHAR = '-';
+public abstract class TokenScannerSymbols {
+  
+  public abstract char TOKEN_PREFIX_CHAR();
+  public abstract char TOKEN_POSTFIX_CHAR();
+  public abstract int TOKEN_FIXED_CHAR();
+  public abstract int TOKEN_NOTE_CHAR();
+  public abstract int TOKEN_TAG_CHAR();
+  public abstract int TOKEN_EXPR_START_CHAR();
+  public abstract int TOKEN_EXPR_END_CHAR();
+  public abstract int TOKEN_NEWLINE_CHAR();
+  public abstract int TOKEN_TRIM_CHAR();
+  
+  public int TOKEN_PREFIX() {
+    return TOKEN_PREFIX_CHAR();
+  }
+  public int TOKEN_POSTFIX() {
+    return TOKEN_POSTFIX_CHAR();
+  }
+  public int TOKEN_FIXED() {
+    return TOKEN_FIXED_CHAR();
+  }
+  public int TOKEN_NOTE() {
+    return TOKEN_NOTE_CHAR();
+  }
+  public int TOKEN_TAG() {
+    return TOKEN_TAG_CHAR();
+  }
+  public int TOKEN_EXPR_START() {
+    return TOKEN_EXPR_START_CHAR();
+  }
+  public int TOKEN_EXPR_END() {
+    return TOKEN_EXPR_END_CHAR();
+  }
+  public int TOKEN_NEWLINE() {
+    return TOKEN_NEWLINE_CHAR();
+  }
+  public int TOKEN_TRIM() {
+    return TOKEN_TRIM_CHAR();
+  }
 
-  int TOKEN_PREFIX = TOKEN_PREFIX_CHAR;
-  int TOKEN_POSTFIX = TOKEN_POSTFIX_CHAR;
-  int TOKEN_FIXED = TOKEN_FIXED_CHAR;
-  int TOKEN_NOTE = TOKEN_NOTE_CHAR;
-  int TOKEN_TAG = TOKEN_TAG_CHAR;
-  int TOKEN_EXPR_START = TOKEN_EXPR_START_CHAR;
-  int TOKEN_EXPR_END = TOKEN_EXPR_END_CHAR;
-  int TOKEN_NEWLINE = TOKEN_NEWLINE_CHAR;
-  int TOKEN_TRIM = TOKEN_TRIM_CHAR;
 }
