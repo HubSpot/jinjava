@@ -26,7 +26,7 @@ public class TextToken extends Token {
   public TextToken(String image, int lineNumber, int startPosition) {
     super(image, lineNumber, startPosition);
     TOKEN_FIXED = JinjavaInterpreter.getCurrent().getConfig()
-        .getTokenScannerSymbols().TOKEN_FIXED();
+        .getTokenScannerSymbols().getTokenFixed();
   }
 
   @Override

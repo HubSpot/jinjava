@@ -44,47 +44,47 @@ public class CustomTokenScannerSymbolsTest {
   class CustomTokens extends TokenScannerSymbols {
 
     @Override
-    public char TOKEN_PREFIX_CHAR() {
+    public char getTokenPrefixChar() {
       return '<';
     }
 
     @Override
-    public char TOKEN_POSTFIX_CHAR() {
+    public char getTokenPostfixChar() {
       return '>';
     }
 
     @Override
-    public int TOKEN_FIXED_CHAR() {
+    public char getTokenFixedChar() {
       return 0;
     }
 
     @Override
-    public int TOKEN_NOTE_CHAR() {
+    public char getTokenNoteChar() {
       return '#';
     }
 
     @Override
-    public int TOKEN_TAG_CHAR() {
+    public char getTokenTagChar() {
       return '%';
     }
 
     @Override
-    public int TOKEN_EXPR_START_CHAR() {
+    public char getTokenExprStartChar() {
       return '<';
     }
 
     @Override
-    public int TOKEN_EXPR_END_CHAR() {
+    public char getTokenExprEndChar() {
       return '>';
     }
 
     @Override
-    public int TOKEN_NEWLINE_CHAR() {
+    public char getTokenNewlineChar() {
       return '\n';
     }
 
     @Override
-    public int TOKEN_TRIM_CHAR() {
+    public char getTokenTrimChar() {
       return '-';
     }
     

@@ -111,23 +111,23 @@ public class TagNode extends Node {
     TokenScannerSymbols symbols = JinjavaInterpreter.getCurrent().getConfig().getTokenScannerSymbols();
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder
-      .append(symbols.TOKEN_EXPR_START_CHAR())
-      .append(symbols.TOKEN_TAG_CHAR());
+      .append(symbols.getTokenExprStartChar())
+      .append(symbols.getTokenTagChar());
     if (
       getChildren() != null &&
       !getChildren().isEmpty() &&
       getChildren().getLast().getMaster().isRightTrim()
     ) {
-      stringBuilder.append(symbols.TOKEN_TRIM_CHAR());
+      stringBuilder.append(symbols.getTokenTrimChar());
     }
     stringBuilder.append(" ").append(getEndName()).append(" ");
     if (getMaster().isRightTrimAfterEnd()) {
-      stringBuilder.append(symbols.TOKEN_TRIM_CHAR());
+      stringBuilder.append(symbols.getTokenTrimChar());
     }
     
     stringBuilder
-      .append(symbols.TOKEN_TAG_CHAR())
-      .append(symbols.TOKEN_EXPR_END_CHAR());
+      .append(symbols.getTokenTagChar())
+      .append(symbols.getTokenExprEndChar());
     return stringBuilder.toString();
   }
 }

@@ -13,39 +13,39 @@ public class DefaultTokenScannerSymbols extends TokenScannerSymbols {
   char TOKEN_TRIM_CHAR = '-';
   
   @Override
-  public char TOKEN_PREFIX_CHAR() {
+  public char getTokenPrefixChar() {
     return TOKEN_PREFIX_CHAR;
   }
   @Override
-  public char TOKEN_POSTFIX_CHAR() {
+  public char getTokenPostfixChar() {
     return TOKEN_POSTFIX_CHAR;
   }
   @Override
-  public int TOKEN_FIXED_CHAR() {
+  public char getTokenFixedChar() {
     return TOKEN_FIXED_CHAR;
   }
   @Override
-  public int TOKEN_NOTE_CHAR() {
+  public char getTokenNoteChar() {
     return TOKEN_NOTE_CHAR;
   }
   @Override
-  public int TOKEN_TAG_CHAR() {
+  public char getTokenTagChar() {
     return TOKEN_TAG_CHAR;
   }
   @Override
-  public int TOKEN_EXPR_START_CHAR() {
+  public char getTokenExprStartChar() {
     return TOKEN_EXPR_START_CHAR;
   }
   @Override
-  public int TOKEN_EXPR_END_CHAR() {
+  public char getTokenExprEndChar() {
     return TOKEN_EXPR_END_CHAR;
   }
   @Override
-  public int TOKEN_NEWLINE_CHAR() {
+  public char getTokenNewlineChar() {
     return TOKEN_NEWLINE_CHAR;
   }
   @Override
-  public int TOKEN_TRIM_CHAR() {
+  public char getTokenTrimChar() {
     return TOKEN_TRIM_CHAR;
   }
 

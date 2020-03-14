@@ -88,17 +88,19 @@ public class TreeParser {
   private Node nextNode() {
     Token token = scanner.next();
 
-    if (token.getType() == symbols.TOKEN_FIXED())
+    if (token.getType() == symbols.getTokenFixed()) {
       return text((TextToken) token);
-
-    else if (token.getType() == symbols.TOKEN_EXPR_START())
+    }
+    else if (token.getType() == symbols.getTokenExprStart()) {
       return expression((ExpressionToken) token);
-
-    else if (token.getType() == symbols.TOKEN_TAG())
+    }
+    else if (token.getType() == symbols.getTokenTag()) {
       return tag((TagToken) token);
-
-    else if (token.getType() == symbols.TOKEN_NOTE()) {
-      if (!token.getImage().endsWith("#}")) {
+    }
+    else if (token.getType() == symbols.getTokenNote()) {
+      String commentClosed = new StringBuilder().append(symbols.getTokenNoteChar())
+                                  .append(symbols.getTokenPostfixChar()).toString();
+      if (!token.getImage().endsWith(commentClosed)) {
         interpreter.addError(new TemplateError(
             ErrorType.WARNING,
             ErrorReason.SYNTAX_ERROR,
@@ -111,9 +113,10 @@ public class TreeParser {
         ));
       }
     }
-    else
+    else {
       interpreter.addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(),
                                                                                       token.getLineNumber(), token.getStartPosition())));
+    }
     return null;
   }
 
@@ -126,7 +129,7 @@ public class TreeParser {
 
   private Node text(TextToken textToken) {
     if (interpreter.getConfig().isLstripBlocks()) {
-      if (scanner.hasNext() && scanner.peek().getType() == symbols.TOKEN_TAG()) {
+      if (scanner.hasNext() && scanner.peek().getType() == symbols.getTokenTag()) {
         textToken = new TextToken(StringUtils.stripEnd(textToken.getImage(), "\t "), textToken.getLineNumber(), textToken.getStartPosition());
       }
     }

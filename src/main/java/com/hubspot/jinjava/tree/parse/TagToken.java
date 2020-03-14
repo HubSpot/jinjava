@@ -15,7 +15,6 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.WhitespaceUtils;
@@ -31,7 +30,7 @@ public class TagToken extends Token {
   public TagToken(String image, int lineNumber, int startPosition) {
     super(image, lineNumber, startPosition);
     TOKEN_TAG = JinjavaInterpreter.getCurrent().getConfig()
-        .getTokenScannerSymbols().TOKEN_TAG();
+        .getTokenScannerSymbols().getTokenTag();
   }
 
   @Override

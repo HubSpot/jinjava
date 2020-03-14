@@ -92,15 +92,20 @@ public abstract class Token implements Serializable {
 
   static Token newToken(int tokenKind, TokenScannerSymbols symbols, String image, int lineNumber, int startPosition) {
 
-    if (tokenKind == symbols.TOKEN_FIXED())
+    if (tokenKind == symbols.getTokenFixed()) {
       return new TextToken(image, lineNumber, startPosition);
-    else if (tokenKind == symbols.TOKEN_NOTE())
+    }
+    else if (tokenKind == symbols.getTokenNote()) {
       return new NoteToken(image, lineNumber, startPosition);
-    else if (tokenKind == symbols.TOKEN_EXPR_START())
+    }
+    else if (tokenKind == symbols.getTokenExprStart()) {
       return new ExpressionToken(image, lineNumber, startPosition);
-    else if (tokenKind == symbols.TOKEN_TAG())
+    }
+    else if (tokenKind == symbols.getTokenTag()) {
       return new TagToken(image, lineNumber, startPosition);
-    else 
+    }
+    else { 
       throw new UnexpectedTokenException(String.valueOf((char) tokenKind), lineNumber, startPosition);
+    }
   }
 }

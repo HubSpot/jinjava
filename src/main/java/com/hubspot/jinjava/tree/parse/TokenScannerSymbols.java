@@ -17,42 +17,42 @@ package com.hubspot.jinjava.tree.parse;
 
 public abstract class TokenScannerSymbols {
   
-  public abstract char TOKEN_PREFIX_CHAR();
-  public abstract char TOKEN_POSTFIX_CHAR();
-  public abstract int TOKEN_FIXED_CHAR();
-  public abstract int TOKEN_NOTE_CHAR();
-  public abstract int TOKEN_TAG_CHAR();
-  public abstract int TOKEN_EXPR_START_CHAR();
-  public abstract int TOKEN_EXPR_END_CHAR();
-  public abstract int TOKEN_NEWLINE_CHAR();
-  public abstract int TOKEN_TRIM_CHAR();
+  public abstract char getTokenPrefixChar();
+  public abstract char getTokenPostfixChar();
+  public abstract char getTokenFixedChar();
+  public abstract char getTokenNoteChar();
+  public abstract char getTokenTagChar();
+  public abstract char getTokenExprStartChar();
+  public abstract char getTokenExprEndChar();
+  public abstract char getTokenNewlineChar();
+  public abstract char getTokenTrimChar();
   
-  public int TOKEN_PREFIX() {
-    return TOKEN_PREFIX_CHAR();
+  public int getTokenPrefix() {
+    return getTokenPrefixChar();
   }
-  public int TOKEN_POSTFIX() {
-    return TOKEN_POSTFIX_CHAR();
+  public int getTokenPostfix() {
+    return getTokenPostfixChar();
   }
-  public int TOKEN_FIXED() {
-    return TOKEN_FIXED_CHAR();
+  public int getTokenFixed() {
+    return getTokenFixedChar();
   }
-  public int TOKEN_NOTE() {
-    return TOKEN_NOTE_CHAR();
+  public int getTokenNote() {
+    return getTokenNoteChar();
   }
-  public int TOKEN_TAG() {
-    return TOKEN_TAG_CHAR();
+  public int getTokenTag() {
+    return getTokenTagChar();
   }
-  public int TOKEN_EXPR_START() {
-    return TOKEN_EXPR_START_CHAR();
+  public int getTokenExprStart() {
+    return getTokenExprStartChar();
   }
-  public int TOKEN_EXPR_END() {
-    return TOKEN_EXPR_END_CHAR();
+  public int getTokenExprEnd() {
+    return getTokenExprEndChar();
   }
-  public int TOKEN_NEWLINE() {
-    return TOKEN_NEWLINE_CHAR();
+  public int getTokenNewline() {
+    return getTokenNewlineChar();
   }
-  public int TOKEN_TRIM() {
-    return TOKEN_TRIM_CHAR();
+  public int getTokenTrim() {
+    return getTokenTrimChar();
   }
 
 }

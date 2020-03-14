@@ -28,7 +28,7 @@ public class ExpressionToken extends Token {
   public ExpressionToken(String image, int lineNumber, int startPosition) {
     super(image, lineNumber, startPosition);
     TOKEN_EXPR_START = JinjavaInterpreter.getCurrent().getConfig()
-        .getTokenScannerSymbols().TOKEN_EXPR_START();
+        .getTokenScannerSymbols().getTokenExprStart();
   }
 
   @Override
