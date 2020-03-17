@@ -257,17 +257,17 @@ public class TokenScannerTest {
       .isEqualTo(
         "widget_block rich_text \"module\" overrideable=True, label='<p>We\\'ve included a great symbol</p>'"
       );
-
   }
 
   @Test
   public void testEscapedBackslashWithinAttrValue() {
     List<Token> tokens = tokens("escape-char-tokens");
 
-    List<String> tagHelpers = tokens.stream()
-        .filter(t -> t.getType() == symbols.getTokenTag())
-        .map(t -> ((TagToken) t).getHelpers().trim().substring(1, 26))
-        .collect(Collectors.toList());
+    List<String> tagHelpers = tokens
+      .stream()
+      .filter(t -> t.getType() == symbols.getTokenTag())
+      .map(t -> ((TagToken) t).getHelpers().trim().substring(1, 26))
+      .collect(Collectors.toList());
 
     assertThat(tagHelpers)
       .containsExactly(

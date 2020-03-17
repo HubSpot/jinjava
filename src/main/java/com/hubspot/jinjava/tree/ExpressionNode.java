@@ -48,17 +48,24 @@ public class ExpressionNode extends Node {
     }
 
     String result = Objects.toString(var, "");
-    
+
     TokenScannerSymbols symbols = interpreter.getConfig().getTokenScannerSymbols();
-    String expressionBegins = new StringBuilder().append(symbols.getTokenPrefixChar())
-                                  .append(symbols.getTokenExprStartChar()).toString();
-    String expressionWithTag = new StringBuilder().append(symbols.getTokenPrefixChar())
-                                  .append(symbols.getTokenTagChar()).toString();
+    String expressionBegins = new StringBuilder()
+      .append(symbols.getTokenPrefixChar())
+      .append(symbols.getTokenExprStartChar())
+      .toString();
+    String expressionWithTag = new StringBuilder()
+      .append(symbols.getTokenPrefixChar())
+      .append(symbols.getTokenTagChar())
+      .toString();
 
     if (interpreter.getConfig().isNestedInterpretationEnabled()) {
       if (
         !StringUtils.equals(result, master.getImage()) &&
-        (StringUtils.contains(result, expressionBegins) || StringUtils.contains(result, expressionWithTag))
+        (
+          StringUtils.contains(result, expressionBegins) ||
+          StringUtils.contains(result, expressionWithTag)
+        )
       ) {
         try {
           result = interpreter.renderFlat(result);

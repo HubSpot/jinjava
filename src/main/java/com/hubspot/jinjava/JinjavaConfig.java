@@ -15,6 +15,13 @@
  **********************************************************************/
 package com.hubspot.jinjava;
 
+import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.Context.Library;
+import com.hubspot.jinjava.interpret.InterpreterFactory;
+import com.hubspot.jinjava.interpret.JinjavaInterpreterFactory;
+import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
+import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
@@ -23,14 +30,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import com.hubspot.jinjava.interpret.Context;
-import com.hubspot.jinjava.interpret.Context.Library;
-import com.hubspot.jinjava.interpret.InterpreterFactory;
-import com.hubspot.jinjava.interpret.JinjavaInterpreterFactory;
-import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
-import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
-import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 
 public class JinjavaConfig {
   private final Charset charset;
@@ -341,7 +340,7 @@ public class JinjavaConfig {
       this.interpreterFactory = interperterFactory;
       return this;
     }
-    
+
     public Builder withTokenScannerSymbols(TokenScannerSymbols tokenScannerSymbols) {
       this.tokenScannerSymbols = tokenScannerSymbols;
       return this;
@@ -349,24 +348,25 @@ public class JinjavaConfig {
 
     public JinjavaConfig build() {
       return new JinjavaConfig(
-          charset,
-          locale,
-          timeZone,
-          maxRenderDepth,
-          disabled,
-          trimBlocks,
-          lstripBlocks,
-          readOnlyResolver,
-          enableRecursiveMacroCalls,
-          maxMacroRecursionDepth,
-          failOnUnknownTokens,
-          maxOutputSize,
-          nestedInterpretationEnabled,
-          randomNumberGeneratorStrategy,
-          validationMode,
-          maxStringLength,
-          interpreterFactory,
-          tokenScannerSymbols);
+        charset,
+        locale,
+        timeZone,
+        maxRenderDepth,
+        disabled,
+        trimBlocks,
+        lstripBlocks,
+        readOnlyResolver,
+        enableRecursiveMacroCalls,
+        maxMacroRecursionDepth,
+        failOnUnknownTokens,
+        maxOutputSize,
+        nestedInterpretationEnabled,
+        randomNumberGeneratorStrategy,
+        validationMode,
+        maxStringLength,
+        interpreterFactory,
+        tokenScannerSymbols
+      );
     }
   }
 }

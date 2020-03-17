@@ -32,7 +32,7 @@ public class DateTimeFormatFilterTest {
   public void clearCurrentInterpreter() {
     JinjavaInterpreter.popCurrent();
   }
-  
+
   @Test
   public void itUsesTodayIfNoDateProvided() throws Exception {
     assertThat(filter.filter(null, interpreter))

@@ -15,10 +15,9 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.WhitespaceUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class ExpressionToken extends Token {
   private static final long serialVersionUID = 6336768632140743908L;
@@ -27,8 +26,12 @@ public class ExpressionToken extends Token {
 
   public ExpressionToken(String image, int lineNumber, int startPosition) {
     super(image, lineNumber, startPosition);
-    TOKEN_EXPR_START = JinjavaInterpreter.getCurrent().getConfig()
-        .getTokenScannerSymbols().getTokenExprStart();
+    TOKEN_EXPR_START =
+      JinjavaInterpreter
+        .getCurrent()
+        .getConfig()
+        .getTokenScannerSymbols()
+        .getTokenExprStart();
   }
 
   @Override

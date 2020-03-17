@@ -16,43 +16,58 @@ limitations under the License.
 package com.hubspot.jinjava.tree.parse;
 
 public abstract class TokenScannerSymbols {
-  
+
   public abstract char getTokenPrefixChar();
+
   public abstract char getTokenPostfixChar();
+
   public abstract char getTokenFixedChar();
+
   public abstract char getTokenNoteChar();
+
   public abstract char getTokenTagChar();
+
   public abstract char getTokenExprStartChar();
+
   public abstract char getTokenExprEndChar();
+
   public abstract char getTokenNewlineChar();
+
   public abstract char getTokenTrimChar();
-  
+
   public int getTokenPrefix() {
     return getTokenPrefixChar();
   }
+
   public int getTokenPostfix() {
     return getTokenPostfixChar();
   }
+
   public int getTokenFixed() {
     return getTokenFixedChar();
   }
+
   public int getTokenNote() {
     return getTokenNoteChar();
   }
+
   public int getTokenTag() {
     return getTokenTagChar();
   }
+
   public int getTokenExprStart() {
     return getTokenExprStartChar();
   }
+
   public int getTokenExprEnd() {
     return getTokenExprEndChar();
   }
+
   public int getTokenNewline() {
     return getTokenNewlineChar();
   }
+
   public int getTokenTrim() {
     return getTokenTrimChar();
   }
-
 }

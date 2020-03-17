@@ -34,9 +34,8 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TextToken;
 import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.tree.parse.TokenScanner;
-
-import org.apache.commons.lang3.StringUtils;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
+import org.apache.commons.lang3.StringUtils;
 
 public class TreeParser {
   private final PeekingIterator<Token> scanner;
@@ -90,18 +89,18 @@ public class TreeParser {
 
     if (token.getType() == symbols.getTokenFixed()) {
       return text((TextToken) token);
-    }
-    else if (token.getType() == symbols.getTokenExprStart()) {
+    } else if (token.getType() == symbols.getTokenExprStart()) {
       return expression((ExpressionToken) token);
-    }
-    else if (token.getType() == symbols.getTokenTag()) {
+    } else if (token.getType() == symbols.getTokenTag()) {
       return tag((TagToken) token);
-    }
-    else if (token.getType() == symbols.getTokenNote()) {
-      String commentClosed = new StringBuilder().append(symbols.getTokenNoteChar())
-                                  .append(symbols.getTokenPostfixChar()).toString();
+    } else if (token.getType() == symbols.getTokenNote()) {
+      String commentClosed = new StringBuilder()
+        .append(symbols.getTokenNoteChar())
+        .append(symbols.getTokenPostfixChar())
+        .toString();
       if (!token.getImage().endsWith(commentClosed)) {
-        interpreter.addError(new TemplateError(
+        interpreter.addError(
+          new TemplateError(
             ErrorType.WARNING,
             ErrorReason.SYNTAX_ERROR,
             ErrorItem.TAG,
@@ -110,12 +109,19 @@ public class TreeParser {
             token.getLineNumber(),
             token.getStartPosition(),
             null
-        ));
+          )
+        );
       }
-    }
-    else {
-      interpreter.addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(),
-                                                                                      token.getLineNumber(), token.getStartPosition())));
+    } else {
+      interpreter.addError(
+        TemplateError.fromException(
+          new UnexpectedTokenException(
+            token.getImage(),
+            token.getLineNumber(),
+            token.getStartPosition()
+          )
+        )
+      );
     }
     return null;
   }
@@ -130,7 +136,12 @@ public class TreeParser {
   private Node text(TextToken textToken) {
     if (interpreter.getConfig().isLstripBlocks()) {
       if (scanner.hasNext() && scanner.peek().getType() == symbols.getTokenTag()) {
-        textToken = new TextToken(StringUtils.stripEnd(textToken.getImage(), "\t "), textToken.getLineNumber(), textToken.getStartPosition());
+        textToken =
+          new TextToken(
+            StringUtils.stripEnd(textToken.getImage(), "\t "),
+            textToken.getLineNumber(),
+            textToken.getStartPosition()
+          );
       }
     }
 

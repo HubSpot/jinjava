@@ -108,7 +108,10 @@ public class TagNode extends Node {
   }
 
   public String reconstructEnd() {
-    TokenScannerSymbols symbols = JinjavaInterpreter.getCurrent().getConfig().getTokenScannerSymbols();
+    TokenScannerSymbols symbols = JinjavaInterpreter
+      .getCurrent()
+      .getConfig()
+      .getTokenScannerSymbols();
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder
       .append(symbols.getTokenExprStartChar())
@@ -124,10 +127,8 @@ public class TagNode extends Node {
     if (getMaster().isRightTrimAfterEnd()) {
       stringBuilder.append(symbols.getTokenTrimChar());
     }
-    
-    stringBuilder
-      .append(symbols.getTokenTagChar())
-      .append(symbols.getTokenExprEndChar());
+
+    stringBuilder.append(symbols.getTokenTagChar()).append(symbols.getTokenExprEndChar());
     return stringBuilder.toString();
   }
 }

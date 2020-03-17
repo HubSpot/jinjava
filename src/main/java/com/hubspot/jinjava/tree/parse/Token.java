@@ -15,10 +15,8 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-
-import java.io.Serializable;
-
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
+import java.io.Serializable;
 
 public abstract class Token implements Serializable {
   private static final long serialVersionUID = 3359084948763661809L;
@@ -90,22 +88,27 @@ public abstract class Token implements Serializable {
 
   public abstract int getType();
 
-  static Token newToken(int tokenKind, TokenScannerSymbols symbols, String image, int lineNumber, int startPosition) {
-
+  static Token newToken(
+    int tokenKind,
+    TokenScannerSymbols symbols,
+    String image,
+    int lineNumber,
+    int startPosition
+  ) {
     if (tokenKind == symbols.getTokenFixed()) {
       return new TextToken(image, lineNumber, startPosition);
-    }
-    else if (tokenKind == symbols.getTokenNote()) {
+    } else if (tokenKind == symbols.getTokenNote()) {
       return new NoteToken(image, lineNumber, startPosition);
-    }
-    else if (tokenKind == symbols.getTokenExprStart()) {
+    } else if (tokenKind == symbols.getTokenExprStart()) {
       return new ExpressionToken(image, lineNumber, startPosition);
-    }
-    else if (tokenKind == symbols.getTokenTag()) {
+    } else if (tokenKind == symbols.getTokenTag()) {
       return new TagToken(image, lineNumber, startPosition);
-    }
-    else { 
-      throw new UnexpectedTokenException(String.valueOf((char) tokenKind), lineNumber, startPosition);
+    } else {
+      throw new UnexpectedTokenException(
+        String.valueOf((char) tokenKind),
+        lineNumber,
+        startPosition
+      );
     }
   }
 }

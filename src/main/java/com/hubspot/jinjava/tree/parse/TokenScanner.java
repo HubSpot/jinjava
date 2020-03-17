@@ -55,7 +55,7 @@ public class TokenScanner extends AbstractIterator<Token> {
     inQuote = 0;
     currLine = 1;
     lastNewlinePos = 0;
-    
+
     symbols = config.getTokenScannerSymbols();
   }
 
@@ -86,12 +86,10 @@ public class TokenScanner extends AbstractIterator<Token> {
 
       // models switch case into if-else blocks
       if (c == symbols.getTokenPrefix()) {
-        
         if (currPost < length) {
           c = is[currPost];
-          
+
           if (c == symbols.getTokenNote()) {
-            
             if (inComment == 1 || inRaw == 1) {
               continue;
             }
@@ -108,10 +106,7 @@ public class TokenScanner extends AbstractIterator<Token> {
             } else {
               tokenKind = c;
             }
-            
-          } else if (c == symbols.getTokenTag() || 
-              c == symbols.getTokenExprStart()) {
-            
+          } else if (c == symbols.getTokenTag() || c == symbols.getTokenExprStart()) {
             if (inComment > 0) {
               continue;
             }
@@ -136,18 +131,13 @@ public class TokenScanner extends AbstractIterator<Token> {
             } else {
               tokenKind = c;
             }
-            
           }
-      
         } else { // reach the stream end
           return getEndToken();
         }
-        
-      }
-      else if (c == symbols.getTokenTag() || 
-          c == symbols.getTokenExprEnd()) {
+      } else if (c == symbols.getTokenTag() || c == symbols.getTokenExprEnd()) {
         // maybe current token is closing
-        
+
         if (inComment > 0) {
           continue;
         }
@@ -172,10 +162,7 @@ public class TokenScanner extends AbstractIterator<Token> {
         } else {
           return getEndToken();
         }
-        
-      }
-      else if (c == symbols.getTokenNote()) { // case 3
-        
+      } else if (c == symbols.getTokenNote()) { // case 3
         if (!matchToken(c)) {
           continue;
         }
@@ -196,10 +183,7 @@ public class TokenScanner extends AbstractIterator<Token> {
         } else {
           return getEndToken();
         }
-        
-      }
-      else if (c == symbols.getTokenNewline()) {
-        
+      } else if (c == symbols.getTokenNewline()) {
         currLine++;
         lastNewlinePos = currPost;
 
@@ -208,15 +192,11 @@ public class TokenScanner extends AbstractIterator<Token> {
         }
 
         tokenKind = symbols.getTokenFixed();
-        
       } else {
-        
         if (tokenKind == -1) {
           tokenKind = symbols.getTokenFixed();
         }
-        
       }
-        
     }
     return null;
   }
@@ -242,11 +222,23 @@ public class TokenScanner extends AbstractIterator<Token> {
     if (inComment > 0) {
       type = symbols.getTokenNote();
     }
-    return Token.newToken(type, symbols, String.valueOf(is, tokenStart, tokenLength), currLine, tokenStart - lastNewlinePos + 1);
+    return Token.newToken(
+      type,
+      symbols,
+      String.valueOf(is, tokenStart, tokenLength),
+      currLine,
+      tokenStart - lastNewlinePos + 1
+    );
   }
 
   private Token newToken(int kind) {
-    Token t = Token.newToken(kind, symbols, String.valueOf(is, lastStart, tokenLength), currLine, lastStart - lastNewlinePos + 1);
+    Token t = Token.newToken(
+      kind,
+      symbols,
+      String.valueOf(is, lastStart, tokenLength),
+      currLine,
+      lastStart - lastNewlinePos + 1
+    );
 
     if (t instanceof TagToken) {
       if (config.isTrimBlocks() && currPost < length && is[currPost] == '\n') {
@@ -266,7 +258,13 @@ public class TokenScanner extends AbstractIterator<Token> {
     }
 
     if (inRaw > 0 && t.getType() != symbols.getTokenFixed()) {
-      return Token.newToken(symbols.getTokenFixed(), symbols, t.image, currLine, tokenStart);
+      return Token.newToken(
+        symbols.getTokenFixed(),
+        symbols,
+        t.image,
+        currLine,
+        tokenStart
+      );
     }
 
     return t;
@@ -275,15 +273,13 @@ public class TokenScanner extends AbstractIterator<Token> {
   private boolean matchToken(char kind) {
     if (kind == symbols.getTokenExprStart()) {
       return tokenKind == symbols.getTokenExprEnd();
-    }
-    else if (kind == symbols.getTokenExprEnd()) {
+    } else if (kind == symbols.getTokenExprEnd()) {
       return tokenKind == symbols.getTokenExprStart();
-    }
-    else {
+    } else {
       return kind == tokenKind;
     }
   }
-  
+
   @Override
   protected Token computeNext() {
     Token t = getNextToken();

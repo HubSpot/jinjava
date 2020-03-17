@@ -3,18 +3,16 @@ package com.hubspot.jinjava.tree;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.nio.charset.StandardCharsets;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
+import java.nio.charset.StandardCharsets;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ExpressionNodeTest {
   private Context context;
@@ -26,7 +24,7 @@ public class ExpressionNodeTest {
     context = interpreter.getContext();
     JinjavaInterpreter.pushCurrent(interpreter);
   }
-  
+
   @After
   public void clearCurrentInterpreter() {
     JinjavaInterpreter.popCurrent();
