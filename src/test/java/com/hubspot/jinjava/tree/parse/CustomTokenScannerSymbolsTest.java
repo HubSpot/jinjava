@@ -1,4 +1,3 @@
-
 package com.hubspot.jinjava.tree.parse;
 
 import static org.assertj.core.api.Assertions.assertThat;
