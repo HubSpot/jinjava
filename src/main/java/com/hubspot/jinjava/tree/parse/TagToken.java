@@ -30,7 +30,7 @@ public class TagToken extends Token {
   public TagToken(String image, int lineNumber, int startPosition) {
     super(image, lineNumber, startPosition);
     TOKEN_TAG =
-      JinjavaInterpreter.getCurrent().getConfig().getTokenScannerSymbols().getTokenTag();
+      JinjavaInterpreter.getCurrent().getConfig().getTokenScannerSymbols().getTag();
   }
 
   @Override

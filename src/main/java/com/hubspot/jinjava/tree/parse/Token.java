@@ -95,13 +95,13 @@ public abstract class Token implements Serializable {
     int lineNumber,
     int startPosition
   ) {
-    if (tokenKind == symbols.getTokenFixed()) {
+    if (tokenKind == symbols.getFixed()) {
       return new TextToken(image, lineNumber, startPosition);
-    } else if (tokenKind == symbols.getTokenNote()) {
+    } else if (tokenKind == symbols.getNote()) {
       return new NoteToken(image, lineNumber, startPosition);
-    } else if (tokenKind == symbols.getTokenExprStart()) {
+    } else if (tokenKind == symbols.getExprStart()) {
       return new ExpressionToken(image, lineNumber, startPosition);
-    } else if (tokenKind == symbols.getTokenTag()) {
+    } else if (tokenKind == symbols.getTag()) {
       return new TagToken(image, lineNumber, startPosition);
     } else {
       throw new UnexpectedTokenException(

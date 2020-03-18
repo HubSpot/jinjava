@@ -44,7 +44,7 @@ public class TokenScannerTest {
     assertEquals("if x", scanner.next().content.trim());
     Token tk = scanner.next();
     assertEquals("{{{abc}}", tk.image);
-    assertEquals(symbols.getTokenExprStart(), tk.getType());
+    assertEquals(symbols.getExprStart(), tk.getType());
     assertEquals("{%endif%}", scanner.next().image);
   }
 
@@ -56,7 +56,7 @@ public class TokenScannerTest {
     assertEquals("if x", scanner.next().content.trim());
     Token tk = scanner.next();
     assertEquals("{{!abc}}", tk.image);
-    assertEquals(symbols.getTokenExprStart(), tk.getType());
+    assertEquals(symbols.getExprStart(), tk.getType());
     assertEquals("{%endif%}", scanner.next().image);
   }
 
@@ -80,7 +80,7 @@ public class TokenScannerTest {
     assertEquals("a", scanner.next().content.trim());
     assertEquals("{{abc!}#}%}}", scanner.next().image);
     assertEquals("}", scanner.next().content.trim());
-    assertEquals(symbols.getTokenFixed(), scanner.next().getType());
+    assertEquals(symbols.getFixed(), scanner.next().getType());
   }
 
   @Test
@@ -91,7 +91,7 @@ public class TokenScannerTest {
     assertEquals("{{abc.b}}", scanner.next().image);
     assertEquals("if x", scanner.next().content.trim());
     assertEquals("a", scanner.next().content.trim());
-    assertEquals(symbols.getTokenExprStart(), scanner.next().getType());
+    assertEquals(symbols.getExprStart(), scanner.next().getType());
     assertEquals("{%endif{{", scanner.next().content.trim());
   }
 
@@ -103,7 +103,7 @@ public class TokenScannerTest {
     assertEquals("{{abc.b}}", scanner.next().image);
     assertEquals("if x", scanner.next().content.trim());
     assertEquals("a", scanner.next().content.trim());
-    assertEquals(symbols.getTokenFixed(), scanner.next().getType());
+    assertEquals(symbols.getFixed(), scanner.next().getType());
   }
 
   @Test
@@ -115,7 +115,7 @@ public class TokenScannerTest {
     assertEquals("if x", scanner.next().content.trim());
     assertEquals("a", scanner.next().content.trim());
     assertEquals("{{abc}\\}{", scanner.next().image);
-    assertEquals(symbols.getTokenNote(), scanner.next().getType());
+    assertEquals(symbols.getNote(), scanner.next().getType());
   }
 
   @Test
@@ -138,7 +138,7 @@ public class TokenScannerTest {
     assertEquals("if x", scanner.next().content.trim());
     assertEquals("a", scanner.next().content.trim());
     assertEquals("{{abc}\\}{{{", scanner.next().content.trim());
-    assertEquals(symbols.getTokenNote(), scanner.next().getType());
+    assertEquals(symbols.getNote(), scanner.next().getType());
   }
 
   @Test
@@ -235,7 +235,7 @@ public class TokenScannerTest {
   public void itProperlyTokenizesTagTokenWithTagTokenCharsWithinString() {
     List<Token> tokens = tokens("tag-with-tag-tokens-within-string");
     assertThat(tokens).hasSize(1);
-    assertThat(tokens.get(0).getType()).isEqualTo(symbols.getTokenTag());
+    assertThat(tokens.get(0).getType()).isEqualTo(symbols.getTag());
     assertThat(tokens.get(0).content).contains("label='Blog Comments'");
   }
 
@@ -243,16 +243,16 @@ public class TokenScannerTest {
   public void testQuotedTag() {
     List<Token> tokens = tokens("html-with-tag-in-attr");
     assertThat(tokens).hasSize(3);
-    assertThat(tokens.get(0).getType()).isEqualTo(symbols.getTokenFixed());
-    assertThat(tokens.get(1).getType()).isEqualTo(symbols.getTokenTag());
-    assertThat(tokens.get(2).getType()).isEqualTo(symbols.getTokenFixed());
+    assertThat(tokens.get(0).getType()).isEqualTo(symbols.getFixed());
+    assertThat(tokens.get(1).getType()).isEqualTo(symbols.getTag());
+    assertThat(tokens.get(2).getType()).isEqualTo(symbols.getFixed());
   }
 
   @Test
   public void testEscapedQuoteWithinAttrValue() {
     List<Token> tokens = tokens("tag-with-quot-in-attr");
     assertThat(tokens).hasSize(1);
-    assertThat(tokens.get(0).getType()).isEqualTo(symbols.getTokenTag());
+    assertThat(tokens.get(0).getType()).isEqualTo(symbols.getTag());
     assertThat(tokens.get(0).content.trim())
       .isEqualTo(
         "widget_block rich_text \"module\" overrideable=True, label='<p>We\\'ve included a great symbol</p>'"
@@ -265,7 +265,7 @@ public class TokenScannerTest {
 
     List<String> tagHelpers = tokens
       .stream()
-      .filter(t -> t.getType() == symbols.getTokenTag())
+      .filter(t -> t.getType() == symbols.getTag())
       .map(t -> ((TagToken) t).getHelpers().trim().substring(1, 26))
       .collect(Collectors.toList());
 

@@ -113,22 +113,20 @@ public class TagNode extends Node {
       .getConfig()
       .getTokenScannerSymbols();
     StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder
-      .append(symbols.getTokenExprStartChar())
-      .append(symbols.getTokenTagChar());
+    stringBuilder.append(symbols.getExprStartChar()).append(symbols.getTagChar());
     if (
       getChildren() != null &&
       !getChildren().isEmpty() &&
       getChildren().getLast().getMaster().isRightTrim()
     ) {
-      stringBuilder.append(symbols.getTokenTrimChar());
+      stringBuilder.append(symbols.getTrimChar());
     }
     stringBuilder.append(" ").append(getEndName()).append(" ");
     if (getMaster().isRightTrimAfterEnd()) {
-      stringBuilder.append(symbols.getTokenTrimChar());
+      stringBuilder.append(symbols.getTrimChar());
     }
 
-    stringBuilder.append(symbols.getTokenTagChar()).append(symbols.getTokenExprEndChar());
+    stringBuilder.append(symbols.getTagChar()).append(symbols.getExprEndChar());
     return stringBuilder.toString();
   }
 }

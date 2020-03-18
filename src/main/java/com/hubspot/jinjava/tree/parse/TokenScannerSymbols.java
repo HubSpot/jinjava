@@ -16,58 +16,85 @@ limitations under the License.
 package com.hubspot.jinjava.tree.parse;
 
 public abstract class TokenScannerSymbols {
+  private String expressionStart = null;
+  private String expressionStartWithTag = null;
+  private String closingComment = null;
 
-  public abstract char getTokenPrefixChar();
+  public abstract char getPrefixChar();
 
-  public abstract char getTokenPostfixChar();
+  public abstract char getPostfixChar();
 
-  public abstract char getTokenFixedChar();
+  public abstract char getFixedChar();
 
-  public abstract char getTokenNoteChar();
+  public abstract char getNoteChar();
 
-  public abstract char getTokenTagChar();
+  public abstract char getTagChar();
 
-  public abstract char getTokenExprStartChar();
+  public abstract char getExprStartChar();
 
-  public abstract char getTokenExprEndChar();
+  public abstract char getExprEndChar();
 
-  public abstract char getTokenNewlineChar();
+  public abstract char getNewlineChar();
 
-  public abstract char getTokenTrimChar();
+  public abstract char getTrimChar();
 
-  public int getTokenPrefix() {
-    return getTokenPrefixChar();
+  public int getPrefix() {
+    return getPrefixChar();
   }
 
-  public int getTokenPostfix() {
-    return getTokenPostfixChar();
+  public int getPostfix() {
+    return getPostfixChar();
   }
 
-  public int getTokenFixed() {
-    return getTokenFixedChar();
+  public int getFixed() {
+    return getFixedChar();
   }
 
-  public int getTokenNote() {
-    return getTokenNoteChar();
+  public int getNote() {
+    return getNoteChar();
   }
 
-  public int getTokenTag() {
-    return getTokenTagChar();
+  public int getTag() {
+    return getTagChar();
   }
 
-  public int getTokenExprStart() {
-    return getTokenExprStartChar();
+  public int getExprStart() {
+    return getExprStartChar();
   }
 
-  public int getTokenExprEnd() {
-    return getTokenExprEndChar();
+  public int getExprEnd() {
+    return getExprEndChar();
   }
 
-  public int getTokenNewline() {
-    return getTokenNewlineChar();
+  public int getNewline() {
+    return getNewlineChar();
   }
 
-  public int getTokenTrim() {
-    return getTokenTrimChar();
+  public int getTrim() {
+    return getTrimChar();
+  }
+
+  public String getExpressionStart() {
+    if (expressionStart == null) {
+      expressionStart =
+        new StringBuilder().append(getPrefixChar()).append(getExprStartChar()).toString();
+    }
+    return expressionStart;
+  }
+
+  public String getExpressionStartWithTag() {
+    if (expressionStartWithTag == null) {
+      expressionStartWithTag =
+        new StringBuilder().append(getPrefixChar()).append(getTagChar()).toString();
+    }
+    return expressionStartWithTag;
+  }
+
+  public String getClosingComment() {
+    if (closingComment == null) {
+      closingComment =
+        new StringBuilder().append(getNoteChar()).append(getPostfixChar()).toString();
+    }
+    return closingComment;
   }
 }

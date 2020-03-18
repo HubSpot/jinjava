@@ -1,3 +1,4 @@
+
 package com.hubspot.jinjava.tree.parse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,47 +59,47 @@ public class CustomTokenScannerSymbolsTest {
   class CustomTokens extends TokenScannerSymbols {
 
     @Override
-    public char getTokenPrefixChar() {
+    public char getPrefixChar() {
       return '<';
     }
 
     @Override
-    public char getTokenPostfixChar() {
+    public char getPostfixChar() {
       return '>';
     }
 
     @Override
-    public char getTokenFixedChar() {
+    public char getFixedChar() {
       return 0;
     }
 
     @Override
-    public char getTokenNoteChar() {
+    public char getNoteChar() {
       return '#';
     }
 
     @Override
-    public char getTokenTagChar() {
+    public char getTagChar() {
       return '%';
     }
 
     @Override
-    public char getTokenExprStartChar() {
+    public char getExprStartChar() {
       return '<';
     }
 
     @Override
-    public char getTokenExprEndChar() {
+    public char getExprEndChar() {
       return '>';
     }
 
     @Override
-    public char getTokenNewlineChar() {
+    public char getNewlineChar() {
       return '\n';
     }
 
     @Override
-    public char getTokenTrimChar() {
+    public char getTrimChar() {
       return '-';
     }
   }

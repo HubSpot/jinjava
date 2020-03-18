@@ -24,7 +24,7 @@ public class NoteToken extends Token {
   public NoteToken(String image, int lineNumber, int startPosition) {
     super(image, lineNumber, startPosition);
     TOKEN_NOTE =
-      JinjavaInterpreter.getCurrent().getConfig().getTokenScannerSymbols().getTokenNote();
+      JinjavaInterpreter.getCurrent().getConfig().getTokenScannerSymbols().getNote();
   }
 
   @Override

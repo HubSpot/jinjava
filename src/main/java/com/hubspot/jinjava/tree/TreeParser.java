@@ -87,17 +87,14 @@ public class TreeParser {
   private Node nextNode() {
     Token token = scanner.next();
 
-    if (token.getType() == symbols.getTokenFixed()) {
+    if (token.getType() == symbols.getFixed()) {
       return text((TextToken) token);
-    } else if (token.getType() == symbols.getTokenExprStart()) {
+    } else if (token.getType() == symbols.getExprStart()) {
       return expression((ExpressionToken) token);
-    } else if (token.getType() == symbols.getTokenTag()) {
+    } else if (token.getType() == symbols.getTag()) {
       return tag((TagToken) token);
-    } else if (token.getType() == symbols.getTokenNote()) {
-      String commentClosed = new StringBuilder()
-        .append(symbols.getTokenNoteChar())
-        .append(symbols.getTokenPostfixChar())
-        .toString();
+    } else if (token.getType() == symbols.getNote()) {
+      String commentClosed = symbols.getClosingComment();
       if (!token.getImage().endsWith(commentClosed)) {
         interpreter.addError(
           new TemplateError(
@@ -135,7 +132,7 @@ public class TreeParser {
 
   private Node text(TextToken textToken) {
     if (interpreter.getConfig().isLstripBlocks()) {
-      if (scanner.hasNext() && scanner.peek().getType() == symbols.getTokenTag()) {
+      if (scanner.hasNext() && scanner.peek().getType() == symbols.getTag()) {
         textToken =
           new TextToken(
             StringUtils.stripEnd(textToken.getImage(), "\t "),
