@@ -30,6 +30,7 @@ public class TemplateError {
     INVALID_ARGUMENT,
     INVALID_INPUT,
     OUTPUT_TOO_BIG,
+    OVER_LIMIT,
     OTHER
   }
 
