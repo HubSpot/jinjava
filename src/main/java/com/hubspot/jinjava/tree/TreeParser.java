@@ -66,18 +66,21 @@ public class TreeParser {
       }
     }
 
-    if (parent != root) {
-      interpreter.addError(
-        TemplateError.fromException(
-          new MissingEndTagException(
-            ((TagNode) parent).getEndName(),
-            parent.getMaster().getImage(),
-            parent.getLineNumber(),
-            parent.getStartPosition()
+    do {
+      if (parent != root) {
+        interpreter.addError(
+          TemplateError.fromException(
+            new MissingEndTagException(
+              ((TagNode) parent).getEndName(),
+              parent.getMaster().getImage(),
+              parent.getLineNumber(),
+              parent.getStartPosition()
+            )
           )
-        )
-      );
-    }
+        );
+        parent = parent.getParent();
+      }
+    } while (parent.getParent() != null);
 
     return root;
   }
