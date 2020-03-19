@@ -108,6 +108,43 @@ public class TreeParserTest {
     assertThat(interpreter.getErrors().get(0).getFieldName()).isEqualTo("comment");
   }
 
+  @Test
+  public void itWarnsTwiceAgainstUnclosedForTag() {
+    String expression = "{% for item in list %}\n{% for elem in items %}";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.getErrors()).hasSize(2);
+    assertThat(interpreter.getErrors().get(0).getFieldName())
+      .isEqualTo("{% for elem in items %}");
+    assertThat(interpreter.getErrors().get(0).getLineno()).isEqualTo(2);
+    assertThat(interpreter.getErrors().get(1).getFieldName())
+      .isEqualTo("{% for item in list %}");
+    assertThat(interpreter.getErrors().get(1).getLineno()).isEqualTo(1);
+  }
+
+  @Test
+  public void itWarnsTwiceAgainstUnclosedIfTag() {
+    String expression = "{% if 1 > 2 %}\n{% if 2 > 1 %}";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.getErrors()).hasSize(2);
+    assertThat(interpreter.getErrors().get(0).getFieldName()).isEqualTo("{% if 2 > 1 %}");
+    assertThat(interpreter.getErrors().get(0).getLineno()).isEqualTo(2);
+    assertThat(interpreter.getErrors().get(1).getFieldName()).isEqualTo("{% if 1 > 2 %}");
+    assertThat(interpreter.getErrors().get(1).getLineno()).isEqualTo(1);
+  }
+
+  @Test
+  public void itWarnsTwiceAgainstUnclosedBlockTag() {
+    String expression = "{% block first %}\n{% block second %}";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.getErrors()).hasSize(2);
+    assertThat(interpreter.getErrors().get(0).getFieldName())
+      .isEqualTo("{% block second %}");
+    assertThat(interpreter.getErrors().get(0).getLineno()).isEqualTo(2);
+    assertThat(interpreter.getErrors().get(1).getFieldName())
+      .isEqualTo("{% block first %}");
+    assertThat(interpreter.getErrors().get(1).getLineno()).isEqualTo(1);
+  }
+
   Node parse(String fixture) {
     try {
       return new TreeParser(
