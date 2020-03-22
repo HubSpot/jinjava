@@ -15,13 +15,12 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 
 public class TagToken extends Token {
   private static final long serialVersionUID = -4927751270481832992L;
-  private final int TOKEN_TAG;
+  private final int tokenTag;
 
   private String tagName;
   private String rawTagName;
@@ -29,13 +28,12 @@ public class TagToken extends Token {
 
   public TagToken(String image, int lineNumber, int startPosition) {
     super(image, lineNumber, startPosition);
-    TOKEN_TAG =
-      JinjavaInterpreter.getCurrent().getConfig().getTokenScannerSymbols().getTag();
+    tokenTag = getOrDefaultTokens().getTag();
   }
 
   @Override
   public int getType() {
-    return TOKEN_TAG;
+    return tokenTag;
   }
 
   /**

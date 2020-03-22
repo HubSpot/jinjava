@@ -113,7 +113,7 @@ public class TagNode extends Node {
       .getConfig()
       .getTokenScannerSymbols();
     StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder.append(symbols.getExprStartChar()).append(symbols.getTagChar());
+    stringBuilder.append(symbols.getExpressionStartWithTag());
     if (
       getChildren() != null &&
       !getChildren().isEmpty() &&
@@ -126,7 +126,7 @@ public class TagNode extends Node {
       stringBuilder.append(symbols.getTrimChar());
     }
 
-    stringBuilder.append(symbols.getTagChar()).append(symbols.getExprEndChar());
+    stringBuilder.append(symbols.getExpressionEndWithTag());
     return stringBuilder.toString();
   }
 }

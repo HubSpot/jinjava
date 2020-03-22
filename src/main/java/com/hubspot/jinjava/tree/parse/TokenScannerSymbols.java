@@ -19,6 +19,7 @@ public abstract class TokenScannerSymbols {
   private String expressionStart = null;
   private String expressionStartWithTag = null;
   private String closingComment = null;
+  private String expressionEndWithTag = null;
 
   public abstract char getPrefixChar();
 
@@ -88,6 +89,14 @@ public abstract class TokenScannerSymbols {
         new StringBuilder().append(getPrefixChar()).append(getTagChar()).toString();
     }
     return expressionStartWithTag;
+  }
+
+  public String getExpressionEndWithTag() {
+    if (expressionEndWithTag == null) {
+      expressionEndWithTag =
+        new StringBuilder().append(getTagChar()).append(getPostfixChar()).toString();
+    }
+    return expressionEndWithTag;
   }
 
   public String getClosingComment() {

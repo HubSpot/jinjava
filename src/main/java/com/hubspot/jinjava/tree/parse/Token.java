@@ -15,6 +15,7 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
 import java.io.Serializable;
 
@@ -87,6 +88,13 @@ public abstract class Token implements Serializable {
   protected abstract void parse();
 
   public abstract int getType();
+
+  public TokenScannerSymbols getOrDefaultTokens() {
+    if (JinjavaInterpreter.getCurrent() == null) {
+      return new DefaultTokenScannerSymbols();
+    }
+    return JinjavaInterpreter.getCurrent().getConfig().getTokenScannerSymbols();
+  }
 
   static Token newToken(
     int tokenKind,

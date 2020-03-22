@@ -24,14 +24,14 @@ public class CustomTokenScannerSymbolsTest {
   }
 
   @Test
-  public void testsThatCustomTokensDoesNotFail() {
+  public void itRendersWithCustomTokens() {
     String template = "jinjava interpreter works correctly";
     assertThat(jinjava.render(template, new HashMap<String, Object>()))
       .isEqualTo(template);
   }
 
   @Test
-  public void testsCustomTokensWithFilters() {
+  public void itRendersFiltersWithCustomTokens() {
     assertThat(
         jinjava.render(
           "<% set d=d | default(\"some random value\") %><< d >>",
