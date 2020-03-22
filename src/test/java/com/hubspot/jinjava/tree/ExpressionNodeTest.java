@@ -10,7 +10,6 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import java.nio.charset.StandardCharsets;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,12 +21,6 @@ public class ExpressionNodeTest {
   public void setup() {
     interpreter = new Jinjava().newInterpreter();
     context = interpreter.getContext();
-    JinjavaInterpreter.pushCurrent(interpreter);
-  }
-
-  @After
-  public void clearCurrentInterpreter() {
-    JinjavaInterpreter.popCurrent();
   }
 
   @Test

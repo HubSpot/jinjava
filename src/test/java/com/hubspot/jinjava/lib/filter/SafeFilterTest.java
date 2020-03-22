@@ -52,13 +52,11 @@ public class SafeFilterTest {
   public void setup() {
     interpreter = new Jinjava().newInterpreter();
     interpreter.getContext().setAutoEscape(true);
-    JinjavaInterpreter.pushCurrent(interpreter);
   }
 
   @After
   public void tearDown() throws Exception {
     assertThat(interpreter.getErrorsCopy()).isEmpty();
-    JinjavaInterpreter.popCurrent();
   }
 
   @Test
