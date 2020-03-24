@@ -1,5 +1,11 @@
 # Jinjava Releases #
 
+### 2019-03-24 Version 2.5.4 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.4%7Cjar)) ###
+* [Remove hacky replaceL behavior](https://github.com/HubSpot/jinjava/pull/407)
+* [Add over limit to template errors](https://github.com/HubSpot/jinjava/pull/412)
+* [Fix several parse errors](https://github.com/HubSpot/jinjava/pull/413)
+* [Add support for Custom Token Scanner Symbols](https://github.com/HubSpot/jinjava/pull/410)
+
 ### 2020-03-06 Version 2.5.3 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.3%7Cjar)) ###
 * [Return empty string for un-evaluated lazy expression](https://github.com/HubSpot/jinjava/pull/405)
 * [Add millis precision to unixtimestamp function](https://github.com/HubSpot/jinjava/pull/399)
