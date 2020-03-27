@@ -15,18 +15,18 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
-
 public class NoteToken extends Token {
   private static final long serialVersionUID = -3859011447900311329L;
+  private final int tokenNote;
 
   public NoteToken(String image, int lineNumber, int startPosition) {
     super(image, lineNumber, startPosition);
+    tokenNote = getOrDefaultTokens().getNote();
   }
 
   @Override
   public int getType() {
-    return TOKEN_NOTE;
+    return tokenNote;
   }
 
   /**

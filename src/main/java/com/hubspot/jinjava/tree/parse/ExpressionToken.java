@@ -15,18 +15,17 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_EXPR_START;
-
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class ExpressionToken extends Token {
   private static final long serialVersionUID = 6336768632140743908L;
-
+  private final int tokenExprStart;
   private String expr;
 
   public ExpressionToken(String image, int lineNumber, int startPosition) {
     super(image, lineNumber, startPosition);
+    tokenExprStart = getOrDefaultTokens().getExprStart();
   }
 
   @Override
@@ -36,7 +35,7 @@ public class ExpressionToken extends Token {
 
   @Override
   public int getType() {
-    return TOKEN_EXPR_START;
+    return tokenExprStart;
   }
 
   @Override

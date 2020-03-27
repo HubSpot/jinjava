@@ -22,6 +22,7 @@ import com.hubspot.jinjava.objects.SafeString;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.util.Logging;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
@@ -48,10 +49,15 @@ public class ExpressionNode extends Node {
 
     String result = Objects.toString(var, "");
 
+    TokenScannerSymbols symbols = interpreter.getConfig().getTokenScannerSymbols();
+
     if (interpreter.getConfig().isNestedInterpretationEnabled()) {
       if (
         !StringUtils.equals(result, master.getImage()) &&
-        (StringUtils.contains(result, "{{") || StringUtils.contains(result, "{%"))
+        (
+          StringUtils.contains(result, symbols.getExpressionStart()) ||
+          StringUtils.contains(result, symbols.getExpressionStartWithTag())
+        )
       ) {
         try {
           result = interpreter.renderFlat(result);

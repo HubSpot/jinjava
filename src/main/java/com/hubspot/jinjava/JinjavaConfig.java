@@ -20,6 +20,8 @@ import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.InterpreterFactory;
 import com.hubspot.jinjava.interpret.JinjavaInterpreterFactory;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
+import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
@@ -50,6 +52,7 @@ public class JinjavaConfig {
   private final boolean validationMode;
   private final long maxStringLength;
   private InterpreterFactory interpreterFactory;
+  private TokenScannerSymbols tokenScannerSymbols;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -77,7 +80,8 @@ public class JinjavaConfig {
       RandomNumberGeneratorStrategy.THREAD_LOCAL,
       false,
       0,
-      interpreterFactory
+      interpreterFactory,
+      new DefaultTokenScannerSymbols()
     );
   }
 
@@ -104,7 +108,8 @@ public class JinjavaConfig {
       RandomNumberGeneratorStrategy.THREAD_LOCAL,
       false,
       0,
-      new JinjavaInterpreterFactory()
+      new JinjavaInterpreterFactory(),
+      new DefaultTokenScannerSymbols()
     );
   }
 
@@ -125,7 +130,8 @@ public class JinjavaConfig {
     RandomNumberGeneratorStrategy randomNumberGenerator,
     boolean validationMode,
     long maxStringLength,
-    InterpreterFactory interpreterFactory
+    InterpreterFactory interpreterFactory,
+    TokenScannerSymbols tokenScannerSymbols
   ) {
     this.charset = charset;
     this.locale = locale;
@@ -144,6 +150,7 @@ public class JinjavaConfig {
     this.validationMode = validationMode;
     this.maxStringLength = maxStringLength;
     this.interpreterFactory = interpreterFactory;
+    this.tokenScannerSymbols = tokenScannerSymbols;
   }
 
   public Charset getCharset() {
@@ -214,6 +221,14 @@ public class JinjavaConfig {
     return interpreterFactory;
   }
 
+  public TokenScannerSymbols getTokenScannerSymbols() {
+    return tokenScannerSymbols;
+  }
+
+  public void setTokenScannerSymbols(TokenScannerSymbols tokenScannerSymbols) {
+    this.tokenScannerSymbols = tokenScannerSymbols;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -235,6 +250,7 @@ public class JinjavaConfig {
     private boolean validationMode = false;
     private long maxStringLength = 0;
     private InterpreterFactory interpreterFactory = new JinjavaInterpreterFactory();
+    private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
 
     private Builder() {}
 
@@ -325,6 +341,11 @@ public class JinjavaConfig {
       return this;
     }
 
+    public Builder withTokenScannerSymbols(TokenScannerSymbols tokenScannerSymbols) {
+      this.tokenScannerSymbols = tokenScannerSymbols;
+      return this;
+    }
+
     public JinjavaConfig build() {
       return new JinjavaConfig(
         charset,
@@ -343,7 +364,8 @@ public class JinjavaConfig {
         randomNumberGeneratorStrategy,
         validationMode,
         maxStringLength,
-        interpreterFactory
+        interpreterFactory,
+        tokenScannerSymbols
       );
     }
   }

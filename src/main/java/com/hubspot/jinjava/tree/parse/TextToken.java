@@ -15,20 +15,20 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_FIXED;
-
 import org.apache.commons.lang3.StringUtils;
 
 public class TextToken extends Token {
   private static final long serialVersionUID = -6168990984496468543L;
+  private final int tokenFixed;
 
   public TextToken(String image, int lineNumber, int startPosition) {
     super(image, lineNumber, startPosition);
+    tokenFixed = getOrDefaultTokens().getFixed();
   }
 
   @Override
   public int getType() {
-    return TOKEN_FIXED;
+    return tokenFixed;
   }
 
   @Override

@@ -15,11 +15,6 @@
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_EXPR_START;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_FIXED;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
-
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 import com.hubspot.jinjava.interpret.DisabledException;
@@ -39,11 +34,13 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TextToken;
 import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.tree.parse.TokenScanner;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import org.apache.commons.lang3.StringUtils;
 
 public class TreeParser {
   private final PeekingIterator<Token> scanner;
   private final JinjavaInterpreter interpreter;
+  private final TokenScannerSymbols symbols;
 
   private Node parent;
 
@@ -51,6 +48,7 @@ public class TreeParser {
     this.scanner =
       Iterators.peekingIterator(new TokenScanner(input, interpreter.getConfig()));
     this.interpreter = interpreter;
+    this.symbols = interpreter.getConfig().getTokenScannerSymbols();
   }
 
   public Node buildTree() {
@@ -92,39 +90,38 @@ public class TreeParser {
   private Node nextNode() {
     Token token = scanner.next();
 
-    switch (token.getType()) {
-      case TOKEN_FIXED:
-        return text((TextToken) token);
-      case TOKEN_EXPR_START:
-        return expression((ExpressionToken) token);
-      case TOKEN_TAG:
-        return tag((TagToken) token);
-      case TOKEN_NOTE:
-        if (!token.getImage().endsWith("#}")) {
-          interpreter.addError(
-            new TemplateError(
-              ErrorType.WARNING,
-              ErrorReason.SYNTAX_ERROR,
-              ErrorItem.TAG,
-              "Unclosed comment",
-              "comment",
-              token.getLineNumber(),
-              token.getStartPosition(),
-              null
-            )
-          );
-        }
-        break;
-      default:
+    if (token.getType() == symbols.getFixed()) {
+      return text((TextToken) token);
+    } else if (token.getType() == symbols.getExprStart()) {
+      return expression((ExpressionToken) token);
+    } else if (token.getType() == symbols.getTag()) {
+      return tag((TagToken) token);
+    } else if (token.getType() == symbols.getNote()) {
+      String commentClosed = symbols.getClosingComment();
+      if (!token.getImage().endsWith(commentClosed)) {
         interpreter.addError(
-          TemplateError.fromException(
-            new UnexpectedTokenException(
-              token.getImage(),
-              token.getLineNumber(),
-              token.getStartPosition()
-            )
+          new TemplateError(
+            ErrorType.WARNING,
+            ErrorReason.SYNTAX_ERROR,
+            ErrorItem.TAG,
+            "Unclosed comment",
+            "comment",
+            token.getLineNumber(),
+            token.getStartPosition(),
+            null
           )
         );
+      }
+    } else {
+      interpreter.addError(
+        TemplateError.fromException(
+          new UnexpectedTokenException(
+            token.getImage(),
+            token.getLineNumber(),
+            token.getStartPosition()
+          )
+        )
+      );
     }
     return null;
   }
@@ -138,7 +135,7 @@ public class TreeParser {
 
   private Node text(TextToken textToken) {
     if (interpreter.getConfig().isLstripBlocks()) {
-      if (scanner.hasNext() && scanner.peek().getType() == TOKEN_TAG) {
+      if (scanner.hasNext() && scanner.peek().getType() == symbols.getTag()) {
         textToken =
           new TextToken(
             StringUtils.stripEnd(textToken.getImage(), "\t "),

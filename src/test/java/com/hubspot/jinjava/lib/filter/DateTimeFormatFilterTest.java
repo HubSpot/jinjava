@@ -9,6 +9,7 @@ import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Locale;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,6 +25,12 @@ public class DateTimeFormatFilterTest {
     interpreter = new Jinjava().newInterpreter();
     filter = new DateTimeFormatFilter();
     d = ZonedDateTime.parse("2013-11-06T14:22:00.000+00:00[UTC]");
+    JinjavaInterpreter.pushCurrent(interpreter);
+  }
+
+  @After
+  public void clearCurrentInterpreter() {
+    JinjavaInterpreter.popCurrent();
   }
 
   @Test

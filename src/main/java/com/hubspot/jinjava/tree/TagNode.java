@@ -108,24 +108,25 @@ public class TagNode extends Node {
   }
 
   public String reconstructEnd() {
+    TokenScannerSymbols symbols = JinjavaInterpreter
+      .getCurrent()
+      .getConfig()
+      .getTokenScannerSymbols();
     StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder
-      .append(TokenScannerSymbols.TOKEN_EXPR_START_CHAR)
-      .append(TokenScannerSymbols.TOKEN_TAG_CHAR);
+    stringBuilder.append(symbols.getExpressionStartWithTag());
     if (
       getChildren() != null &&
       !getChildren().isEmpty() &&
       getChildren().getLast().getMaster().isRightTrim()
     ) {
-      stringBuilder.append(TokenScannerSymbols.TOKEN_TRIM_CHAR);
+      stringBuilder.append(symbols.getTrimChar());
     }
     stringBuilder.append(" ").append(getEndName()).append(" ");
     if (getMaster().isRightTrimAfterEnd()) {
-      stringBuilder.append(TokenScannerSymbols.TOKEN_TRIM_CHAR);
+      stringBuilder.append(symbols.getTrimChar());
     }
-    stringBuilder
-      .append(TokenScannerSymbols.TOKEN_TAG_CHAR)
-      .append(TokenScannerSymbols.TOKEN_EXPR_END_CHAR);
+
+    stringBuilder.append(symbols.getExpressionEndWithTag());
     return stringBuilder.toString();
   }
 }

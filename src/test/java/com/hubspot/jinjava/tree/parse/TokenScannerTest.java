@@ -1,8 +1,5 @@
 package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_EXPR_START;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_FIXED;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
@@ -22,10 +19,12 @@ public class TokenScannerTest {
   private String script;
 
   private TokenScanner scanner;
+  private TokenScannerSymbols symbols;
 
   @Before
   public void setup() {
     config = JinjavaConfig.newBuilder().build();
+    symbols = config.getTokenScannerSymbols();
   }
 
   @Test
@@ -45,7 +44,7 @@ public class TokenScannerTest {
     assertEquals("if x", scanner.next().content.trim());
     Token tk = scanner.next();
     assertEquals("{{{abc}}", tk.image);
-    assertEquals(TOKEN_EXPR_START, tk.getType());
+    assertEquals(symbols.getExprStart(), tk.getType());
     assertEquals("{%endif%}", scanner.next().image);
   }
 
@@ -57,7 +56,7 @@ public class TokenScannerTest {
     assertEquals("if x", scanner.next().content.trim());
     Token tk = scanner.next();
     assertEquals("{{!abc}}", tk.image);
-    assertEquals(TOKEN_EXPR_START, tk.getType());
+    assertEquals(symbols.getExprStart(), tk.getType());
     assertEquals("{%endif%}", scanner.next().image);
   }
 
@@ -81,7 +80,7 @@ public class TokenScannerTest {
     assertEquals("a", scanner.next().content.trim());
     assertEquals("{{abc!}#}%}}", scanner.next().image);
     assertEquals("}", scanner.next().content.trim());
-    assertEquals(TOKEN_FIXED, scanner.next().getType());
+    assertEquals(symbols.getFixed(), scanner.next().getType());
   }
 
   @Test
@@ -92,7 +91,7 @@ public class TokenScannerTest {
     assertEquals("{{abc.b}}", scanner.next().image);
     assertEquals("if x", scanner.next().content.trim());
     assertEquals("a", scanner.next().content.trim());
-    assertEquals(TOKEN_EXPR_START, scanner.next().getType());
+    assertEquals(symbols.getExprStart(), scanner.next().getType());
     assertEquals("{%endif{{", scanner.next().content.trim());
   }
 
@@ -104,7 +103,7 @@ public class TokenScannerTest {
     assertEquals("{{abc.b}}", scanner.next().image);
     assertEquals("if x", scanner.next().content.trim());
     assertEquals("a", scanner.next().content.trim());
-    assertEquals(TOKEN_FIXED, scanner.next().getType());
+    assertEquals(symbols.getFixed(), scanner.next().getType());
   }
 
   @Test
@@ -116,7 +115,7 @@ public class TokenScannerTest {
     assertEquals("if x", scanner.next().content.trim());
     assertEquals("a", scanner.next().content.trim());
     assertEquals("{{abc}\\}{", scanner.next().image);
-    assertEquals(TOKEN_NOTE, scanner.next().getType());
+    assertEquals(symbols.getNote(), scanner.next().getType());
   }
 
   @Test
@@ -139,7 +138,7 @@ public class TokenScannerTest {
     assertEquals("if x", scanner.next().content.trim());
     assertEquals("a", scanner.next().content.trim());
     assertEquals("{{abc}\\}{{{", scanner.next().content.trim());
-    assertEquals(TOKEN_NOTE, scanner.next().getType());
+    assertEquals(symbols.getNote(), scanner.next().getType());
   }
 
   @Test
@@ -236,7 +235,7 @@ public class TokenScannerTest {
   public void itProperlyTokenizesTagTokenWithTagTokenCharsWithinString() {
     List<Token> tokens = tokens("tag-with-tag-tokens-within-string");
     assertThat(tokens).hasSize(1);
-    assertThat(tokens.get(0).getType()).isEqualTo(TokenScannerSymbols.TOKEN_TAG);
+    assertThat(tokens.get(0).getType()).isEqualTo(symbols.getTag());
     assertThat(tokens.get(0).content).contains("label='Blog Comments'");
   }
 
@@ -244,16 +243,16 @@ public class TokenScannerTest {
   public void testQuotedTag() {
     List<Token> tokens = tokens("html-with-tag-in-attr");
     assertThat(tokens).hasSize(3);
-    assertThat(tokens.get(0).getType()).isEqualTo(TokenScannerSymbols.TOKEN_FIXED);
-    assertThat(tokens.get(1).getType()).isEqualTo(TokenScannerSymbols.TOKEN_TAG);
-    assertThat(tokens.get(2).getType()).isEqualTo(TokenScannerSymbols.TOKEN_FIXED);
+    assertThat(tokens.get(0).getType()).isEqualTo(symbols.getFixed());
+    assertThat(tokens.get(1).getType()).isEqualTo(symbols.getTag());
+    assertThat(tokens.get(2).getType()).isEqualTo(symbols.getFixed());
   }
 
   @Test
   public void testEscapedQuoteWithinAttrValue() {
     List<Token> tokens = tokens("tag-with-quot-in-attr");
     assertThat(tokens).hasSize(1);
-    assertThat(tokens.get(0).getType()).isEqualTo(TokenScannerSymbols.TOKEN_TAG);
+    assertThat(tokens.get(0).getType()).isEqualTo(symbols.getTag());
     assertThat(tokens.get(0).content.trim())
       .isEqualTo(
         "widget_block rich_text \"module\" overrideable=True, label='<p>We\\'ve included a great symbol</p>'"
@@ -266,7 +265,7 @@ public class TokenScannerTest {
 
     List<String> tagHelpers = tokens
       .stream()
-      .filter(t -> t.getType() == TokenScannerSymbols.TOKEN_TAG)
+      .filter(t -> t.getType() == symbols.getTag())
       .map(t -> ((TagToken) t).getHelpers().trim().substring(1, 26))
       .collect(Collectors.toList());
 
