@@ -50,15 +50,13 @@ public class ExpressionNode extends Node {
     String result = Objects.toString(var, "");
 
     TokenScannerSymbols symbols = interpreter.getConfig().getTokenScannerSymbols();
-    String expressionBegins = symbols.getExpressionStart();
-    String expressionWithTag = symbols.getExpressionStartWithTag();
 
     if (interpreter.getConfig().isNestedInterpretationEnabled()) {
       if (
         !StringUtils.equals(result, master.getImage()) &&
         (
-          StringUtils.contains(result, expressionBegins) ||
-          StringUtils.contains(result, expressionWithTag)
+          StringUtils.contains(result, symbols.getExpressionStart()) ||
+          StringUtils.contains(result, symbols.getExpressionStartWithTag())
         )
       ) {
         try {
