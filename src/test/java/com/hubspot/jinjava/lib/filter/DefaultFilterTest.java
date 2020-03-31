@@ -29,12 +29,6 @@ public class DefaultFilterTest {
         )
       )
       .isEqualTo("some random value");
-    System.out.println(
-      jinjava.render(
-        "{% set d=d | default(\"some random value\") %}{{ d }}",
-        new HashMap<>()
-      )
-    );
   }
 
   @Test
@@ -46,12 +40,6 @@ public class DefaultFilterTest {
         )
       )
       .isEqualTo("Value = value");
-    System.out.println(
-      jinjava.render(
-        "{% set d=d | default({\"key\": \"value\"}) %}Value = {{ d.key }}",
-        new HashMap<>()
-      )
-    );
   }
 
   @Test
@@ -70,11 +58,5 @@ public class DefaultFilterTest {
         )
       )
       .isEqualTo("str");
-    System.out.println(
-      jinjava.render(
-        "{% set d=d | default(\"some random value\") %}{{ type(d) }}",
-        new HashMap<>()
-      )
-    );
   }
 }
