@@ -90,7 +90,10 @@ public abstract class Token implements Serializable {
   public abstract int getType();
 
   public TokenScannerSymbols getOrDefaultTokens() {
-    if (JinjavaInterpreter.getCurrent() == null) {
+    if (
+      JinjavaInterpreter.getCurrent() == null ||
+      JinjavaInterpreter.getCurrent().getConfig() == null
+    ) {
       return new DefaultTokenScannerSymbols();
     }
     return JinjavaInterpreter.getCurrent().getConfig().getTokenScannerSymbols();
