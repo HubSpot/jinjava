@@ -52,7 +52,7 @@ public class TreeParser {
   }
 
   public Node buildTree() {
-    Node root = new RootNode();
+    Node root = new RootNode(symbols);
 
     parent = root;
 
@@ -166,7 +166,7 @@ public class TreeParser {
   }
 
   private Node expression(ExpressionToken expressionToken) {
-    ExpressionNode n = new ExpressionNode(expressionToken, symbols);
+    ExpressionNode n = new ExpressionNode(expressionToken);
     n.setParent(parent);
     return n;
   }

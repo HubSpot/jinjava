@@ -32,14 +32,12 @@ public class TagNode extends Node {
   private final Tag tag;
   private final TagToken master;
   private final String endName;
-  private final TokenScannerSymbols symbols;
 
   public TagNode(Tag tag, TagToken token, TokenScannerSymbols symbols) {
     super(token, token.getLineNumber(), token.getStartPosition());
     this.master = token;
     this.tag = tag;
     this.endName = tag.getEndTagName();
-    this.symbols = symbols;
   }
 
   @Override
@@ -104,20 +102,20 @@ public class TagNode extends Node {
 
   public String reconstructEnd() {
     StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder.append(symbols.getExpressionStartWithTag());
+    stringBuilder.append(getSymbols().getExpressionStartWithTag());
     if (
       getChildren() != null &&
       !getChildren().isEmpty() &&
       getChildren().getLast().getMaster().isRightTrim()
     ) {
-      stringBuilder.append(symbols.getTrimChar());
+      stringBuilder.append(getSymbols().getTrimChar());
     }
     stringBuilder.append(" ").append(getEndName()).append(" ");
     if (getMaster().isRightTrimAfterEnd()) {
-      stringBuilder.append(symbols.getTrimChar());
+      stringBuilder.append(getSymbols().getTrimChar());
     }
 
-    stringBuilder.append(symbols.getExpressionEndWithTag());
+    stringBuilder.append(getSymbols().getExpressionEndWithTag());
     return stringBuilder.toString();
   }
 }

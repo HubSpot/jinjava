@@ -22,7 +22,6 @@ import com.hubspot.jinjava.objects.SafeString;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
-import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.util.Logging;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
@@ -31,12 +30,10 @@ public class ExpressionNode extends Node {
   private static final long serialVersionUID = -6063173739682221042L;
 
   private final ExpressionToken master;
-  private final TokenScannerSymbols symbols;
 
-  public ExpressionNode(ExpressionToken token, TokenScannerSymbols symbols) {
+  public ExpressionNode(ExpressionToken token) {
     super(token, token.getLineNumber(), token.getStartPosition());
     master = token;
-    this.symbols = symbols;
   }
 
   @Override
@@ -55,8 +52,8 @@ public class ExpressionNode extends Node {
       if (
         !StringUtils.equals(result, master.getImage()) &&
         (
-          StringUtils.contains(result, symbols.getExpressionStart()) ||
-          StringUtils.contains(result, symbols.getExpressionStartWithTag())
+          StringUtils.contains(result, getSymbols().getExpressionStart()) ||
+          StringUtils.contains(result, getSymbols().getExpressionStartWithTag())
         )
       ) {
         try {
