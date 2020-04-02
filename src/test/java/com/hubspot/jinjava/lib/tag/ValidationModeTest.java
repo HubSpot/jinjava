@@ -12,6 +12,7 @@ import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TextNode;
+import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TextToken;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -263,7 +264,9 @@ public class ValidationModeTest {
 
   @Test
   public void itDoesNotExecuteMacrosInValidatedBlocks() {
-    TextNode textNode = new TextNode(new TextToken("hello", 1, 1));
+    TextNode textNode = new TextNode(
+      new TextToken("hello", 1, 1, new DefaultTokenScannerSymbols())
+    );
     InstrumentedMacroFunction macro = new InstrumentedMacroFunction(
       ImmutableList.of(textNode),
       "hello",

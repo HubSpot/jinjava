@@ -20,20 +20,23 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
 
 public class TagToken extends Token {
   private static final long serialVersionUID = -4927751270481832992L;
-  private final int tokenTag;
 
   private String tagName;
   private String rawTagName;
   private String helpers;
 
-  public TagToken(String image, int lineNumber, int startPosition) {
-    super(image, lineNumber, startPosition);
-    tokenTag = getOrDefaultTokens().getTag();
+  public TagToken(
+    String image,
+    int lineNumber,
+    int startPosition,
+    TokenScannerSymbols symbols
+  ) {
+    super(image, lineNumber, startPosition, symbols);
   }
 
   @Override
   public int getType() {
-    return tokenTag;
+    return getSymbols().getTag();
   }
 
   /**

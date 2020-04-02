@@ -52,7 +52,7 @@ public class TreeParser {
   }
 
   public Node buildTree() {
-    Node root = new RootNode();
+    Node root = new RootNode(symbols);
 
     parent = root;
 
@@ -140,7 +140,8 @@ public class TreeParser {
           new TextToken(
             StringUtils.stripEnd(textToken.getImage(), "\t "),
             textToken.getLineNumber(),
-            textToken.getStartPosition()
+            textToken.getStartPosition(),
+            symbols
           );
       }
     }
@@ -209,7 +210,7 @@ public class TreeParser {
       }
     }
 
-    TagNode node = new TagNode(tag, tagToken);
+    TagNode node = new TagNode(tag, tagToken, symbols);
     node.setParent(parent);
 
     if (node.getEndName() != null) {
@@ -227,7 +228,6 @@ public class TreeParser {
     if (
       parent instanceof TagNode &&
       tagToken.isLeftTrim() &&
-      lastSibling != null &&
       lastSibling instanceof TextNode
     ) {
       lastSibling.getMaster().setRightTrim(true);

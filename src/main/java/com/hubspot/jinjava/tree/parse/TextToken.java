@@ -19,16 +19,19 @@ import org.apache.commons.lang3.StringUtils;
 
 public class TextToken extends Token {
   private static final long serialVersionUID = -6168990984496468543L;
-  private final int tokenFixed;
 
-  public TextToken(String image, int lineNumber, int startPosition) {
-    super(image, lineNumber, startPosition);
-    tokenFixed = getOrDefaultTokens().getFixed();
+  public TextToken(
+    String image,
+    int lineNumber,
+    int startPosition,
+    TokenScannerSymbols symbols
+  ) {
+    super(image, lineNumber, startPosition, symbols);
   }
 
   @Override
   public int getType() {
-    return tokenFixed;
+    return getSymbols().getFixed();
   }
 
   @Override

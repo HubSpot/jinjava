@@ -18,6 +18,7 @@ package com.hubspot.jinjava.tree;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.parse.Token;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import java.io.Serializable;
 import java.util.LinkedList;
 import org.apache.commons.lang3.StringUtils;
@@ -30,11 +31,7 @@ public abstract class Node implements Serializable {
   private final int startPosition;
 
   private Node parent = null;
-  private LinkedList<Node> children = new LinkedList<Node>();
-
-  public Node(Token master, int lineNumber) {
-    this(master, lineNumber, -1);
-  }
+  private LinkedList<Node> children = new LinkedList<>();
 
   public Node(Token master, int lineNumber, int startPosition) {
     this.master = master;
@@ -74,6 +71,10 @@ public abstract class Node implements Serializable {
     return master.getImage();
   }
 
+  public TokenScannerSymbols getSymbols() {
+    return master.getSymbols();
+  }
+
   public abstract OutputNode render(JinjavaInterpreter interpreter);
 
   public abstract String getName();
@@ -91,7 +92,7 @@ public abstract class Node implements Serializable {
     }
 
     if (getChildren().size() > 0) {
-      t.append(prefix).append("end :: " + toString()).append('\n');
+      t.append(prefix).append("end :: ").append(toString()).append('\n');
     }
 
     return t.toString();

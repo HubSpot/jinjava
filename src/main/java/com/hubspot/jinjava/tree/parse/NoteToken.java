@@ -17,16 +17,19 @@ package com.hubspot.jinjava.tree.parse;
 
 public class NoteToken extends Token {
   private static final long serialVersionUID = -3859011447900311329L;
-  private final int tokenNote;
 
-  public NoteToken(String image, int lineNumber, int startPosition) {
-    super(image, lineNumber, startPosition);
-    tokenNote = getOrDefaultTokens().getNote();
+  public NoteToken(
+    String image,
+    int lineNumber,
+    int startPosition,
+    TokenScannerSymbols symbols
+  ) {
+    super(image, lineNumber, startPosition, symbols);
   }
 
   @Override
   public int getType() {
-    return tokenNote;
+    return getSymbols().getNote();
   }
 
   /**
