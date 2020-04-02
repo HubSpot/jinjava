@@ -30,7 +30,7 @@ public abstract class Node implements Serializable {
   private final int startPosition;
 
   private Node parent = null;
-  private LinkedList<Node> children = new LinkedList<Node>();
+  private LinkedList<Node> children = new LinkedList<>();
 
   public Node(Token master, int lineNumber) {
     this(master, lineNumber, -1);
@@ -91,7 +91,7 @@ public abstract class Node implements Serializable {
     }
 
     if (getChildren().size() > 0) {
-      t.append(prefix).append("end :: " + toString()).append('\n');
+      t.append(prefix).append("end :: ").append(toString()).append('\n');
     }
 
     return t.toString();

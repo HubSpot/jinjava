@@ -77,32 +77,28 @@ public abstract class TokenScannerSymbols {
 
   public String getExpressionStart() {
     if (expressionStart == null) {
-      expressionStart =
-        new StringBuilder().append(getPrefixChar()).append(getExprStartChar()).toString();
+      expressionStart = String.valueOf(getPrefixChar()) + getExprStartChar();
     }
     return expressionStart;
   }
 
   public String getExpressionStartWithTag() {
     if (expressionStartWithTag == null) {
-      expressionStartWithTag =
-        new StringBuilder().append(getPrefixChar()).append(getTagChar()).toString();
+      expressionStartWithTag = String.valueOf(getPrefixChar()) + getTagChar();
     }
     return expressionStartWithTag;
   }
 
   public String getExpressionEndWithTag() {
     if (expressionEndWithTag == null) {
-      expressionEndWithTag =
-        new StringBuilder().append(getTagChar()).append(getPostfixChar()).toString();
+      expressionEndWithTag = String.valueOf(getTagChar()) + getPostfixChar();
     }
     return expressionEndWithTag;
   }
 
   public String getClosingComment() {
     if (closingComment == null) {
-      closingComment =
-        new StringBuilder().append(getNoteChar()).append(getPostfixChar()).toString();
+      closingComment = String.valueOf(getNoteChar()) + getPostfixChar();
     }
     return closingComment;
   }

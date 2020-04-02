@@ -140,7 +140,8 @@ public class TreeParser {
           new TextToken(
             StringUtils.stripEnd(textToken.getImage(), "\t "),
             textToken.getLineNumber(),
-            textToken.getStartPosition()
+            textToken.getStartPosition(),
+            symbols
           );
       }
     }
@@ -165,7 +166,7 @@ public class TreeParser {
   }
 
   private Node expression(ExpressionToken expressionToken) {
-    ExpressionNode n = new ExpressionNode(expressionToken);
+    ExpressionNode n = new ExpressionNode(expressionToken, symbols);
     n.setParent(parent);
     return n;
   }
@@ -209,7 +210,7 @@ public class TreeParser {
       }
     }
 
-    TagNode node = new TagNode(tag, tagToken);
+    TagNode node = new TagNode(tag, tagToken, symbols);
     node.setParent(parent);
 
     if (node.getEndName() != null) {
@@ -227,7 +228,6 @@ public class TreeParser {
     if (
       parent instanceof TagNode &&
       tagToken.isLeftTrim() &&
-      lastSibling != null &&
       lastSibling instanceof TextNode
     ) {
       lastSibling.getMaster().setRightTrim(true);

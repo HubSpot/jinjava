@@ -31,10 +31,12 @@ public class ExpressionNode extends Node {
   private static final long serialVersionUID = -6063173739682221042L;
 
   private final ExpressionToken master;
+  private final TokenScannerSymbols symbols;
 
-  public ExpressionNode(ExpressionToken token) {
+  public ExpressionNode(ExpressionToken token, TokenScannerSymbols symbols) {
     super(token, token.getLineNumber(), token.getStartPosition());
     master = token;
+    this.symbols = symbols;
   }
 
   @Override
@@ -48,8 +50,6 @@ public class ExpressionNode extends Node {
     }
 
     String result = Objects.toString(var, "");
-
-    TokenScannerSymbols symbols = interpreter.getConfig().getTokenScannerSymbols();
 
     if (interpreter.getConfig().isNestedInterpretationEnabled()) {
       if (

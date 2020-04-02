@@ -10,6 +10,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.output.BlockInfo;
 import com.hubspot.jinjava.tree.parse.TextToken;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Optional;
@@ -19,11 +20,13 @@ import org.junit.Test;
 public class JinjavaInterpreterTest {
   private Jinjava jinjava;
   private JinjavaInterpreter interpreter;
+  private TokenScannerSymbols symbols;
 
   @Before
   public void setup() {
     jinjava = new Jinjava();
     interpreter = jinjava.newInterpreter();
+    symbols = interpreter.getConfig().getTokenScannerSymbols();
   }
 
   @Test
@@ -43,7 +46,7 @@ public class JinjavaInterpreterTest {
       "foobar",
       new BlockInfo(
         Lists.newLinkedList(
-          Lists.newArrayList((new TextNode(new TextToken("sparta", -1, -1))))
+          Lists.newArrayList((new TextNode(new TextToken("sparta", -1, -1, symbols))))
         ),
         Optional.empty(),
         0,
@@ -60,7 +63,7 @@ public class JinjavaInterpreterTest {
       "foobar",
       new BlockInfo(
         Lists.newLinkedList(
-          Lists.newArrayList(new TextNode(new TextToken("$150.00", -1, -1)))
+          Lists.newArrayList(new TextNode(new TextToken("$150.00", -1, -1, symbols)))
         ),
         Optional.empty(),
         0,

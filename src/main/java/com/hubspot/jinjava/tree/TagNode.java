@@ -32,19 +32,14 @@ public class TagNode extends Node {
   private final Tag tag;
   private final TagToken master;
   private final String endName;
+  private final TokenScannerSymbols symbols;
 
-  public TagNode(Tag tag, TagToken token) {
+  public TagNode(Tag tag, TagToken token, TokenScannerSymbols symbols) {
     super(token, token.getLineNumber(), token.getStartPosition());
     this.master = token;
     this.tag = tag;
     this.endName = tag.getEndTagName();
-  }
-
-  private TagNode(TagNode n) {
-    super(n.master, n.getLineNumber(), n.getStartPosition());
-    tag = n.tag;
-    master = n.master;
-    endName = n.endName;
+    this.symbols = symbols;
   }
 
   @Override
@@ -108,10 +103,6 @@ public class TagNode extends Node {
   }
 
   public String reconstructEnd() {
-    TokenScannerSymbols symbols = JinjavaInterpreter
-      .getCurrent()
-      .getConfig()
-      .getTokenScannerSymbols();
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append(symbols.getExpressionStartWithTag());
     if (

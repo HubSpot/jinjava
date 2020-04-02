@@ -15,7 +15,6 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
 import java.io.Serializable;
 
@@ -28,20 +27,23 @@ public abstract class Token implements Serializable {
 
   protected final int lineNumber;
   protected final int startPosition;
+  private final TokenScannerSymbols symbols;
 
   private boolean leftTrim;
   private boolean rightTrim;
   private boolean rightTrimAfterEnd;
 
-  public Token(String image, int lineNumber, int startPosition) {
+  public Token(
+    String image,
+    int lineNumber,
+    int startPosition,
+    TokenScannerSymbols symbols
+  ) {
     this.image = image;
     this.lineNumber = lineNumber;
     this.startPosition = startPosition;
+    this.symbols = symbols;
     parse();
-  }
-
-  public Token(String image, int lineNumber) {
-    this(image, lineNumber, -1);
   }
 
   public String getImage() {
@@ -80,6 +82,10 @@ public abstract class Token implements Serializable {
     return startPosition;
   }
 
+  public TokenScannerSymbols getSymbols() {
+    return symbols;
+  }
+
   @Override
   public String toString() {
     return image;
@@ -89,16 +95,6 @@ public abstract class Token implements Serializable {
 
   public abstract int getType();
 
-  public TokenScannerSymbols getOrDefaultTokens() {
-    if (
-      JinjavaInterpreter.getCurrent() == null ||
-      JinjavaInterpreter.getCurrent().getConfig() == null
-    ) {
-      return new DefaultTokenScannerSymbols();
-    }
-    return JinjavaInterpreter.getCurrent().getConfig().getTokenScannerSymbols();
-  }
-
   static Token newToken(
     int tokenKind,
     TokenScannerSymbols symbols,
@@ -107,13 +103,13 @@ public abstract class Token implements Serializable {
     int startPosition
   ) {
     if (tokenKind == symbols.getFixed()) {
-      return new TextToken(image, lineNumber, startPosition);
+      return new TextToken(image, lineNumber, startPosition, symbols);
     } else if (tokenKind == symbols.getNote()) {
-      return new NoteToken(image, lineNumber, startPosition);
+      return new NoteToken(image, lineNumber, startPosition, symbols);
     } else if (tokenKind == symbols.getExprStart()) {
-      return new ExpressionToken(image, lineNumber, startPosition);
+      return new ExpressionToken(image, lineNumber, startPosition, symbols);
     } else if (tokenKind == symbols.getTag()) {
-      return new TagToken(image, lineNumber, startPosition);
+      return new TagToken(image, lineNumber, startPosition, symbols);
     } else {
       throw new UnexpectedTokenException(
         String.valueOf((char) tokenKind),
