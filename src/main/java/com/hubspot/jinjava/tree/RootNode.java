@@ -21,14 +21,21 @@ import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 
 public class RootNode extends Node {
   private static final long serialVersionUID = 5904181260202954424L;
+  private final TokenScannerSymbols symbols;
 
   RootNode(TokenScannerSymbols symbols) {
     super(null, 0, 0);
+    this.symbols = symbols;
   }
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
     throw new UnsupportedOperationException("Please render RootNode by interpreter");
+  }
+
+  @Override
+  public TokenScannerSymbols getSymbols() {
+    return symbols;
   }
 
   @Override
