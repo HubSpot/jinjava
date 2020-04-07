@@ -2,6 +2,7 @@ package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.base.Joiner;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
@@ -182,5 +183,50 @@ public class DeferredTest {
 
     String output = interpreter.render(deferredOutput);
     assertThat(output).isEqualTo("0,10,15,25");
+  }
+
+  @Test
+  public void itPreservesVariablesUsedInDeferredBlock() {
+    String template = "";
+    template += "{% for item in resolved %}";
+    template += "{% set varUsedInForScope = 'outside if statement' %}";
+    template += "   {% if deferred %}";
+    template += "     {{ varUsedInForScope }}";
+    template += "     {% set varUsedInForScope = 'entered if statement' %}";
+    template += "   {% endif %}";
+    template += "   {{ varUsedInForScope }}";
+    template += "{% endfor %}";
+
+    String desiredDeferredOutput =
+      "   {% if deferred %}     {{ varUsedInForScope }}     {% set varUsedInForScope = 'entered if statement' %}   {% endif %}   {{ varUsedInForScope }}";
+    String output = interpreter.render(template);
+    //No Scope Copying:
+    //Interpreter Scope after render:
+    // deferred=com.hubspot.jinjava.interpret.DeferredValue@1af2d44a
+    // resolved=resolvedValue
+    //Note that varUsedInForScope is lost
+    //Output 1st render: {% if deferred %}     {{ varUsedInForScope }}     {% set varUsedInForScope = 'entered if statement' %}   {% endif %}   outside if statement
+    //Output 2nd render:                   outside if statement
+    //Note the missing first print statement from inside the deferred statement. The printed statement is simply preserved from the 1st render and should have the value "entered if statement"
+
+    //With Scope Copying:
+    // resolved=resolvedValue
+    // loop=com.hubspot.jinjava.util.ForLoop@c88a337
+    // varUsedInForScope=outside if statement
+    // item=resolvedValue
+    // deferred=com.hubspot.jinjava.interpret.DeferredValue@5d0a1059
+    //Output 1st render: {% if deferred %}     {{ varUsedInForScope }}     {% set varUsedInForScope = 'entered if statement' %}   {% endif %}   outside if statement
+    //Output 2nd render:         outside if statement           outside if statement
+    //This result is more functional as it allows the var in the if block to be evaluated but it does not have the expected new value for varUsedInForScope
+
+    Joiner.MapJoiner mapJoiner = Joiner.on(",").withKeyValueSeparator("=");
+
+    System.out.println(mapJoiner.join(interpreter.getContext()));
+    //assertThat(output).isEqualTo(desiredDeferredOutput);
+
+    interpreter.getContext().put("deferred", "resolved");
+    String outputWithNoDeferredValues = interpreter.render(output);
+    String expectedOutputWithNoDeferred = "outside if statement    entered if statement";
+    assertThat(outputWithNoDeferredValues).isEqualTo(expectedOutputWithNoDeferred);
   }
 }
