@@ -18,6 +18,7 @@ package com.hubspot.jinjava.interpret;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
@@ -269,9 +270,21 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public void addDeferredNode(Node node) {
+    addDeferredNodeAndContext(node, 1);
+  }
+
+  //depth is "height" back up the context tree here
+  private void addDeferredNodeAndContext(Node node, int currentDepth) {
     deferredNodes.add(node);
+
+    if (getParent() != null && currentDepth++ == 0) {
+      Map<String, Object> localDifference = Maps
+        .difference(getParent(), this)
+        .entriesOnlyOnRight();
+      getParent().putAll(localDifference);
+    }
     if (getParent() != null) {
-      getParent().addDeferredNode(node);
+      getParent().addDeferredNodeAndContext(node, currentDepth);
     }
   }
 
