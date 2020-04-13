@@ -117,7 +117,10 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     }
 
     if (
-      o.getClass().getPackage().getName().startsWith("java.lang.reflect") ||
+      (
+        o.getClass().getPackage() != null &&
+        o.getClass().getPackage().getName().startsWith("java.lang.reflect")
+      ) ||
       o instanceof Class ||
       o instanceof ClassLoader ||
       o instanceof Thread ||
