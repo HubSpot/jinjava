@@ -2,6 +2,7 @@ package com.hubspot.jinjava.el.ext;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
+import java.lang.reflect.Method;
 import java.util.Set;
 import javax.el.BeanELResolver;
 import javax.el.ELContext;
@@ -111,7 +112,12 @@ public class JinjavaBeanELResolver extends BeanELResolver {
   }
 
   private void checkRestrictedClass(Object o, Object method) {
-    if (o instanceof Class || o instanceof ClassLoader || o instanceof Thread) {
+    if (
+      o instanceof Class ||
+      o instanceof ClassLoader ||
+      o instanceof Thread ||
+      o instanceof Method
+    ) {
       throw new MethodNotFoundException(
         "Cannot find method '" + method + "' in " + o.getClass()
       );
