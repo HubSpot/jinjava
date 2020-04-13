@@ -2,6 +2,8 @@ package com.hubspot.jinjava.el.ext;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Set;
 import javax.el.BeanELResolver;
@@ -112,11 +114,21 @@ public class JinjavaBeanELResolver extends BeanELResolver {
   }
 
   private void checkRestrictedClass(Object o, Object method) {
+    if (o == null) {
+      return;
+    }
+
     if (
+      (
+        o.getClass().getPackage() != null &&
+        o.getClass().getPackage().getName().startsWith("java.lang.reflect")
+      ) ||
       o instanceof Class ||
       o instanceof ClassLoader ||
       o instanceof Thread ||
-      o instanceof Method
+      o instanceof Method ||
+      o instanceof Field ||
+      o instanceof Constructor
     ) {
       throw new MethodNotFoundException(
         "Cannot find method '" + method + "' in " + o.getClass()
