@@ -113,6 +113,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
   private void checkRestrictedClass(Object o, Object method) {
     if (
+      o.getClass().getPackage().getName().startsWith("java.lang.reflect") ||
       o instanceof Class ||
       o instanceof ClassLoader ||
       o instanceof Thread ||
