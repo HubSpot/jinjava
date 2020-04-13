@@ -82,12 +82,6 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
     checkRestrictedClass(result, method);
 
-    if (result instanceof Class) {
-      throw new MethodNotFoundException(
-        "Cannot find method '" + method + "' in " + base.getClass()
-      );
-    }
-
     return result;
   }
 
