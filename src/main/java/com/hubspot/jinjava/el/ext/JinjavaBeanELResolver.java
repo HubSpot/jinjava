@@ -76,7 +76,11 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       );
     }
 
+    checkRestrictedClass(base, method);
+
     Object result = super.invoke(context, base, method, paramTypes, params);
+
+    checkRestrictedClass(result, method);
 
     if (result instanceof Class) {
       throw new MethodNotFoundException(
@@ -110,5 +114,13 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       return propertyStr;
     }
     return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, propertyStr);
+  }
+
+  private void checkRestrictedClass(Object o, Object method) {
+    if (o instanceof Class || o instanceof ClassLoader) {
+      throw new MethodNotFoundException(
+        "Cannot find method '" + method + "' in " + o.getClass()
+      );
+    }
   }
 }
