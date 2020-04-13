@@ -79,11 +79,19 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       );
     }
 
-    checkRestrictedClass(base, method);
+    if (isRestrictedClass(base)) {
+      throw new MethodNotFoundException(
+        "Cannot find method '" + method + "' in " + base.getClass()
+      );
+    }
 
     Object result = super.invoke(context, base, method, paramTypes, params);
 
-    checkRestrictedClass(result, method);
+    if (isRestrictedClass(result)) {
+      throw new MethodNotFoundException(
+        "Cannot find method '" + method + "' in " + base.getClass()
+      );
+    }
 
     return result;
   }
@@ -113,12 +121,12 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, propertyStr);
   }
 
-  private void checkRestrictedClass(Object o, Object method) {
+  private boolean isRestrictedClass(Object o) {
     if (o == null) {
-      return;
+      return false;
     }
 
-    if (
+    return (
       (
         o.getClass().getPackage() != null &&
         o.getClass().getPackage().getName().startsWith("java.lang.reflect")
@@ -129,10 +137,6 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       o instanceof Method ||
       o instanceof Field ||
       o instanceof Constructor
-    ) {
-      throw new MethodNotFoundException(
-        "Cannot find method '" + method + "' in " + o.getClass()
-      );
-    }
+    );
   }
 }
