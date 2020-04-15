@@ -18,6 +18,7 @@ package com.hubspot.jinjava.interpret;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
@@ -47,6 +48,7 @@ public class Context extends ScopeMap<String, Object> {
   public static final String IMPORT_RESOURCE_PATH_KEY = "import_resource_path";
 
   private SetMultimap<String, String> dependencies = HashMultimap.create();
+  private final SetMultimap<String, String> hostExpressions = HashMultimap.create();
   private Map<Library, Set<String>> disabled;
 
   public boolean isValidationMode() {
@@ -514,5 +516,13 @@ public class Context extends ScopeMap<String, Object> {
 
   public SetMultimap<String, String> getDependencies() {
     return this.dependencies;
+  }
+
+  public void addHostExpression(String className, String methodName) {
+    this.hostExpressions.put(className, methodName);
+  }
+
+  public Multimap<String, String> getHostExpressions() {
+    return this.hostExpressions;
   }
 }

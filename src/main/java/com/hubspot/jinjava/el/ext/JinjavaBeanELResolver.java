@@ -2,6 +2,7 @@ package com.hubspot.jinjava.el.ext;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -138,5 +139,18 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       o instanceof Field ||
       o instanceof Constructor
     );
+  }
+
+  private void trackHostUsage(Object o, Object method) {
+    if (o == null || method == null) {
+      return;
+    }
+
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+    if (interpreter != null && interpreter.getContext() != null) {
+      interpreter
+        .getContext()
+        .addHostExpression(o.getClass().getSimpleName(), method.toString());
+    }
   }
 }
