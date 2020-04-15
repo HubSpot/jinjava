@@ -74,6 +74,8 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     Class<?>[] paramTypes,
     Object[] params
   ) {
+    trackHostUsage(base, method);
+
     if (method == null || RESTRICTED_METHODS.contains(method.toString())) {
       throw new MethodNotFoundException(
         "Cannot find method '" + method + "' in " + base.getClass()
@@ -141,8 +143,8 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     );
   }
 
-  private void trackHostUsage(Object o, Object method) {
-    if (o == null || method == null) {
+  private void trackHostUsage(Object base, Object method) {
+    if (base == null || base.getClass() == null || method == null) {
       return;
     }
 
@@ -150,7 +152,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     if (interpreter != null && interpreter.getContext() != null) {
       interpreter
         .getContext()
-        .addHostExpression(o.getClass().getSimpleName(), method.toString());
+        .addHostExpression(base.getClass().getSimpleName(), method.toString());
     }
   }
 }
