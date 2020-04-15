@@ -18,7 +18,6 @@ package com.hubspot.jinjava.interpret;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
@@ -46,6 +45,9 @@ import java.util.stream.Collectors;
 public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
   public static final String IMPORT_RESOURCE_PATH_KEY = "import_resource_path";
+
+  private static final int MAX_TRACKED_CLASSES = 50;
+  private static final int MAX_TRACKED_METHODS = 10;
 
   private SetMultimap<String, String> dependencies = HashMultimap.create();
   private final SetMultimap<String, String> hostExpressions = HashMultimap.create();
@@ -519,10 +521,15 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public void addHostExpression(String className, String methodName) {
-    this.hostExpressions.put(className, methodName);
+    if (
+      this.hostExpressions.size() <= MAX_TRACKED_CLASSES &&
+      this.hostExpressions.get(className).size() <= MAX_TRACKED_METHODS
+    ) {
+      this.hostExpressions.put(className, methodName);
+    }
   }
 
-  public Multimap<String, String> getHostExpressions() {
+  public SetMultimap<String, String> getHostExpressions() {
     return this.hostExpressions;
   }
 }
