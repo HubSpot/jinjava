@@ -33,6 +33,16 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     .add("wait")
     .build();
 
+  private static final Set<String> UNTRACKED_METHODS = ImmutableSet.of(
+    "filter",
+    "evaluate",
+    "evaluateNegated",
+    "append",
+    "cycle",
+    "items",
+    "count"
+  );
+
   /**
    * Creates a new read/write {@link JinjavaBeanELResolver}.
    */
@@ -144,7 +154,12 @@ public class JinjavaBeanELResolver extends BeanELResolver {
   }
 
   private void trackHostUsage(Object base, Object method) {
-    if (base == null || base.getClass() == null || method == null) {
+    if (
+      base == null ||
+      base.getClass() == null ||
+      method == null ||
+      UNTRACKED_METHODS.contains(method.toString())
+    ) {
       return;
     }
 
