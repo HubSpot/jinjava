@@ -522,7 +522,7 @@ public class Context extends ScopeMap<String, Object> {
 
   public void addHostExpression(String className, String methodName) {
     if (
-      this.hostExpressions.size() <= MAX_TRACKED_CLASSES &&
+      this.hostExpressions.keySet().size() <= MAX_TRACKED_CLASSES &&
       this.hostExpressions.get(className).size() <= MAX_TRACKED_METHODS
     ) {
       this.hostExpressions.put(className, methodName);
