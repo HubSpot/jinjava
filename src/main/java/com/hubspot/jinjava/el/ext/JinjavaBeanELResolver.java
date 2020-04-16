@@ -151,14 +151,17 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     if (interpreter != null && interpreter.getConfig() != null) {
       if (!interpreter.getConfig().getAllowedHostClasses().contains(o.getClass())) {
-        //TODO return false
-        Logging.ENGINE_LOG.error(
-          "Warning: Template using method on restricted class '{}'",
-          o.getClass().getSimpleName()
-        );
+        if (interpreter.getConfig().getEnforceHostWhitelist()) {
+          return true;
+        } else {
+          Logging.ENGINE_LOG.error(
+            "Warning: Template using method on restricted class '{}'",
+            o.getClass().getSimpleName()
+          );
+        }
       }
     }
 
-    return true;
+    return false;
   }
 }

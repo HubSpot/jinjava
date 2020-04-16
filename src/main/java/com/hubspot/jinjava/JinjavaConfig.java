@@ -55,7 +55,8 @@ public class JinjavaConfig {
   private final long maxStringLength;
   private InterpreterFactory interpreterFactory;
   private TokenScannerSymbols tokenScannerSymbols;
-  private Set<Class> allowedHostClasses;
+  private final Set<Class> allowedHostClasses;
+  private final boolean enforceHostWhitelist;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -85,7 +86,8 @@ public class JinjavaConfig {
       0,
       interpreterFactory,
       new DefaultTokenScannerSymbols(),
-      Collections.emptySet()
+      Collections.emptySet(),
+      false
     );
   }
 
@@ -114,7 +116,8 @@ public class JinjavaConfig {
       0,
       new JinjavaInterpreterFactory(),
       new DefaultTokenScannerSymbols(),
-      Collections.emptySet()
+      Collections.emptySet(),
+      false
     );
   }
 
@@ -137,7 +140,8 @@ public class JinjavaConfig {
     long maxStringLength,
     InterpreterFactory interpreterFactory,
     TokenScannerSymbols tokenScannerSymbols,
-    Set<Class> allowedHostClasses
+    Set<Class> allowedHostClasses,
+    boolean enforceHostWhitelist
   ) {
     this.charset = charset;
     this.locale = locale;
@@ -158,6 +162,7 @@ public class JinjavaConfig {
     this.interpreterFactory = interpreterFactory;
     this.tokenScannerSymbols = tokenScannerSymbols;
     this.allowedHostClasses = allowedHostClasses;
+    this.enforceHostWhitelist = enforceHostWhitelist;
   }
 
   public Charset getCharset() {
@@ -240,6 +245,10 @@ public class JinjavaConfig {
     return allowedHostClasses;
   }
 
+  public boolean getEnforceHostWhitelist() {
+    return enforceHostWhitelist;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -264,6 +273,7 @@ public class JinjavaConfig {
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
 
     private Set<Class> allowedHostClasses = ImmutableSet.of();
+    private boolean enforceHostWhitelist = false;
 
     private Builder() {}
 
@@ -364,6 +374,11 @@ public class JinjavaConfig {
       return this;
     }
 
+    public Builder withEnforceHostWhitelist(boolean enforceHostWhitelist) {
+      this.enforceHostWhitelist = enforceHostWhitelist;
+      return this;
+    }
+
     public JinjavaConfig build() {
       return new JinjavaConfig(
         charset,
@@ -384,7 +399,8 @@ public class JinjavaConfig {
         maxStringLength,
         interpreterFactory,
         tokenScannerSymbols,
-        allowedHostClasses
+        allowedHostClasses,
+        enforceHostWhitelist
       );
     }
   }
