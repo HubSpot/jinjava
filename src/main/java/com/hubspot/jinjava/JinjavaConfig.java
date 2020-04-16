@@ -15,6 +15,7 @@
  **********************************************************************/
 package com.hubspot.jinjava;
 
+import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.InterpreterFactory;
@@ -26,6 +27,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -53,6 +55,7 @@ public class JinjavaConfig {
   private final long maxStringLength;
   private InterpreterFactory interpreterFactory;
   private TokenScannerSymbols tokenScannerSymbols;
+  private Set<Class> allowedHostClasses;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -81,7 +84,8 @@ public class JinjavaConfig {
       false,
       0,
       interpreterFactory,
-      new DefaultTokenScannerSymbols()
+      new DefaultTokenScannerSymbols(),
+      Collections.emptySet()
     );
   }
 
@@ -109,7 +113,8 @@ public class JinjavaConfig {
       false,
       0,
       new JinjavaInterpreterFactory(),
-      new DefaultTokenScannerSymbols()
+      new DefaultTokenScannerSymbols(),
+      Collections.emptySet()
     );
   }
 
@@ -131,7 +136,8 @@ public class JinjavaConfig {
     boolean validationMode,
     long maxStringLength,
     InterpreterFactory interpreterFactory,
-    TokenScannerSymbols tokenScannerSymbols
+    TokenScannerSymbols tokenScannerSymbols,
+    Set<Class> allowedHostClasses
   ) {
     this.charset = charset;
     this.locale = locale;
@@ -151,6 +157,7 @@ public class JinjavaConfig {
     this.maxStringLength = maxStringLength;
     this.interpreterFactory = interpreterFactory;
     this.tokenScannerSymbols = tokenScannerSymbols;
+    this.allowedHostClasses = allowedHostClasses;
   }
 
   public Charset getCharset() {
@@ -229,6 +236,10 @@ public class JinjavaConfig {
     this.tokenScannerSymbols = tokenScannerSymbols;
   }
 
+  public Set<Class> getAllowedHostClasses() {
+    return allowedHostClasses;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -251,6 +262,8 @@ public class JinjavaConfig {
     private long maxStringLength = 0;
     private InterpreterFactory interpreterFactory = new JinjavaInterpreterFactory();
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
+
+    private Set<Class> allowedHostClasses = ImmutableSet.of();
 
     private Builder() {}
 
@@ -346,6 +359,11 @@ public class JinjavaConfig {
       return this;
     }
 
+    public Builder withAllowedHostClasses(Set<Class> allowedHostClasses) {
+      this.allowedHostClasses = ImmutableSet.copyOf(allowedHostClasses);
+      return this;
+    }
+
     public JinjavaConfig build() {
       return new JinjavaConfig(
         charset,
@@ -365,7 +383,8 @@ public class JinjavaConfig {
         validationMode,
         maxStringLength,
         interpreterFactory,
-        tokenScannerSymbols
+        tokenScannerSymbols,
+        allowedHostClasses
       );
     }
   }
