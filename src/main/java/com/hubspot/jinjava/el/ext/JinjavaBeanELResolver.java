@@ -2,8 +2,6 @@ package com.hubspot.jinjava.el.ext;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.util.Logging;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -128,37 +126,17 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       return false;
     }
 
-    if (
+    return (
+      (
+        o.getClass().getPackage() != null &&
+        o.getClass().getPackage().getName().startsWith("java.lang.reflect")
+      ) ||
       o instanceof Class ||
       o instanceof ClassLoader ||
       o instanceof Thread ||
       o instanceof Method ||
       o instanceof Field ||
-      o instanceof Constructor ||
-      o instanceof JinjavaInterpreter
-    ) {
-      return true;
-    }
-
-    if (o.getClass().getPackage() != null) {
-      if (o.getClass().getPackage().getName().startsWith("java.lang.reflect")) {
-        return true;
-      } else if (o.getClass().getPackage().getName().startsWith("com.hubspot.jinjava")) {
-        return false;
-      }
-    }
-
-    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
-    if (interpreter != null && interpreter.getConfig() != null) {
-      if (!interpreter.getConfig().getAllowedHostClasses().contains(o.getClass())) {
-        //TODO return false
-        Logging.ENGINE_LOG.error(
-          "Warning: Template using method on restricted class '{}'",
-          o.getClass().getSimpleName()
-        );
-      }
-    }
-
-    return true;
+      o instanceof Constructor
+    );
   }
 }
