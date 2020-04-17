@@ -316,6 +316,11 @@ public class JinjavaConfig {
       return this;
     }
 
+    public Builder withElResolver(ELResolver elResolver) {
+      this.elResolver = elResolver;
+      return this;
+    }
+
     public Builder withFailOnUnknownTokens(boolean failOnUnknownTokens) {
       this.failOnUnknownTokens = failOnUnknownTokens;
       return this;
