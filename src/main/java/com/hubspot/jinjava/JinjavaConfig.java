@@ -15,6 +15,7 @@
  **********************************************************************/
 package com.hubspot.jinjava;
 
+import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.InterpreterFactory;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import javax.el.ELResolver;
 
 public class JinjavaConfig {
   private final Charset charset;
@@ -41,7 +43,6 @@ public class JinjavaConfig {
   private final boolean trimBlocks;
   private final boolean lstripBlocks;
 
-  private final boolean readOnlyResolver;
   private final boolean enableRecursiveMacroCalls;
   private final int maxMacroRecursionDepth;
 
@@ -53,6 +54,7 @@ public class JinjavaConfig {
   private final long maxStringLength;
   private InterpreterFactory interpreterFactory;
   private TokenScannerSymbols tokenScannerSymbols;
+  private ELResolver elResolver;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -71,7 +73,6 @@ public class JinjavaConfig {
       new HashMap<>(),
       false,
       false,
-      true,
       false,
       0,
       false,
@@ -81,7 +82,8 @@ public class JinjavaConfig {
       false,
       0,
       interpreterFactory,
-      new DefaultTokenScannerSymbols()
+      new DefaultTokenScannerSymbols(),
+      JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY
     );
   }
 
@@ -99,7 +101,6 @@ public class JinjavaConfig {
       new HashMap<>(),
       false,
       false,
-      true,
       false,
       0,
       false,
@@ -109,7 +110,8 @@ public class JinjavaConfig {
       false,
       0,
       new JinjavaInterpreterFactory(),
-      new DefaultTokenScannerSymbols()
+      new DefaultTokenScannerSymbols(),
+      JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY
     );
   }
 
@@ -121,7 +123,6 @@ public class JinjavaConfig {
     Map<Context.Library, Set<String>> disabled,
     boolean trimBlocks,
     boolean lstripBlocks,
-    boolean readOnlyResolver,
     boolean enableRecursiveMacroCalls,
     int maxMacroRecursionDepth,
     boolean failOnUnknownTokens,
@@ -131,7 +132,8 @@ public class JinjavaConfig {
     boolean validationMode,
     long maxStringLength,
     InterpreterFactory interpreterFactory,
-    TokenScannerSymbols tokenScannerSymbols
+    TokenScannerSymbols tokenScannerSymbols,
+    ELResolver elResolver
   ) {
     this.charset = charset;
     this.locale = locale;
@@ -140,7 +142,6 @@ public class JinjavaConfig {
     this.disabled = disabled;
     this.trimBlocks = trimBlocks;
     this.lstripBlocks = lstripBlocks;
-    this.readOnlyResolver = readOnlyResolver;
     this.enableRecursiveMacroCalls = enableRecursiveMacroCalls;
     this.maxMacroRecursionDepth = maxMacroRecursionDepth;
     this.failOnUnknownTokens = failOnUnknownTokens;
@@ -151,6 +152,7 @@ public class JinjavaConfig {
     this.maxStringLength = maxStringLength;
     this.interpreterFactory = interpreterFactory;
     this.tokenScannerSymbols = tokenScannerSymbols;
+    this.elResolver = elResolver;
   }
 
   public Charset getCharset() {
@@ -183,10 +185,6 @@ public class JinjavaConfig {
 
   public boolean isLstripBlocks() {
     return lstripBlocks;
-  }
-
-  public boolean isReadOnlyResolver() {
-    return readOnlyResolver;
   }
 
   public boolean isEnableRecursiveMacroCalls() {
@@ -229,6 +227,10 @@ public class JinjavaConfig {
     this.tokenScannerSymbols = tokenScannerSymbols;
   }
 
+  public ELResolver getElResolver() {
+    return elResolver;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -240,7 +242,6 @@ public class JinjavaConfig {
     private boolean trimBlocks;
     private boolean lstripBlocks;
 
-    private boolean readOnlyResolver = true;
     private boolean enableRecursiveMacroCalls;
     private int maxMacroRecursionDepth;
     private boolean failOnUnknownTokens;
@@ -251,6 +252,7 @@ public class JinjavaConfig {
     private long maxStringLength = 0;
     private InterpreterFactory interpreterFactory = new JinjavaInterpreterFactory();
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
+    private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
 
     private Builder() {}
 
@@ -307,7 +309,15 @@ public class JinjavaConfig {
     }
 
     public Builder withReadOnlyResolver(boolean readOnlyResolver) {
-      this.readOnlyResolver = readOnlyResolver;
+      this.elResolver =
+        readOnlyResolver
+          ? JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY
+          : JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_WRITE;
+      return this;
+    }
+
+    public Builder withElResolver(ELResolver elResolver) {
+      this.elResolver = elResolver;
       return this;
     }
 
@@ -355,7 +365,6 @@ public class JinjavaConfig {
         disabled,
         trimBlocks,
         lstripBlocks,
-        readOnlyResolver,
         enableRecursiveMacroCalls,
         maxMacroRecursionDepth,
         failOnUnknownTokens,
@@ -365,7 +374,8 @@ public class JinjavaConfig {
         validationMode,
         maxStringLength,
         interpreterFactory,
-        tokenScannerSymbols
+        tokenScannerSymbols,
+        elResolver
       );
     }
   }
