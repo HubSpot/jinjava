@@ -121,7 +121,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, propertyStr);
   }
 
-  private boolean isRestrictedClass(Object o) {
+  protected boolean isRestrictedClass(Object o) {
     if (o == null) {
       return false;
     }
