@@ -30,6 +30,7 @@ import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.TagLibrary;
 import com.hubspot.jinjava.tree.Node;
+import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.ScopeMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -268,10 +269,12 @@ public class Context extends ScopeMap<String, Object> {
     }
   }
 
-  public void addDeferredNode(Node node) {
+  public void handleDeferredNode(Node node) {
     deferredNodes.add(node);
+    DeferredValueUtils.findAndMarkDeferredProperties(this);
+
     if (getParent() != null) {
-      getParent().addDeferredNode(node);
+      getParent().handleDeferredNode(node);
     }
   }
 

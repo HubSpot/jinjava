@@ -150,7 +150,7 @@ public class ImportTag implements Tag {
         node
           .getChildren()
           .forEach(
-            deferredChild -> interpreter.getContext().addDeferredNode(deferredChild)
+            deferredChild -> interpreter.getContext().handleDeferredNode(deferredChild)
           );
         if (StringUtils.isBlank(contextVar)) {
           for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
