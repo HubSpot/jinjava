@@ -173,10 +173,7 @@ public class ImportTag implements Tag {
           }
           childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
           childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
-          for (String key : childBindings.keySet()) {
-            childBindings.put(key, DeferredValue.instance());
-          }
-          interpreter.getContext().put(contextVar, childBindings);
+          interpreter.getContext().put(contextVar, DeferredValue.instance(childBindings));
         }
 
         throw new DeferredValueException(
