@@ -1,5 +1,18 @@
 # Jinjava Releases #
 
+### 2020-05-01 Version 2.5.4 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.4%7Cjar)) ###
+* [Remove hacky replaceL behavior](https://github.com/HubSpot/jinjava/pull/407)
+* [Add over limit to template errors](https://github.com/HubSpot/jinjava/pull/412)
+* [Fix several parse errors](https://github.com/HubSpot/jinjava/pull/413)
+* [Add support for Custom Token Scanner Symbols](https://github.com/HubSpot/jinjava/pull/410)
+* [Remove print statements from test](https://github.com/HubSpot/jinjava/pull/417)
+* [Check for null Config](https://github.com/HubSpot/jinjava/pull/418)
+* [Remove reference to TokenScannerSymbols in Nodes and Tokens](https://github.com/HubSpot/jinjava/pull/419)
+* [Add to host blacklist for security](https://github.com/HubSpot/jinjava/pull/426)
+* [Update blacklist error message copy](https://github.com/HubSpot/jinjava/pull/428)
+* [Allow ELResolver to be configured](https://github.com/HubSpot/jinjava/pull/432)
+* [Add interpreter to blacklist](https://github.com/HubSpot/jinjava/pull/435)
+
 ### 2020-03-06 Version 2.5.3 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.3%7Cjar)) ###
 * [Return empty string for un-evaluated lazy expression](https://github.com/HubSpot/jinjava/pull/405)
 * [Add millis precision to unixtimestamp function](https://github.com/HubSpot/jinjava/pull/399)
