@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
+import com.hubspot.jinjava.util.DeferredValueUtils;
+import java.util.HashMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -182,5 +184,60 @@ public class DeferredTest {
 
     String output = interpreter.render(deferredOutput);
     assertThat(output).isEqualTo("0,10,15,25");
+  }
+
+  @Test
+  public void itDefersAllVariablesUsedInDeferredNode() {
+    String template = "";
+    template += "{% set varUsedInForScope = 'outside if statement' %}";
+    template += "{% for item in resolved %}";
+    template += "   {% if deferredValue %}"; //Deferred Node
+    template += "     {{ varUsedInForScope }}";
+    template += "     {% set varUsedInForScope = 'entered if statement' %}";
+    template += "   {% endif %}"; // end Deferred Node
+    template += "   {{ varUsedInForScope }}";
+    template += "{% endfor %}";
+
+    interpreter.getContext().put("deferredValue", DeferredValue.instance("resolved"));
+    String output = interpreter.render(template);
+    Object varInScope = interpreter.getContext().get("varUsedInForScope");
+    assertThat(varInScope).isInstanceOf(DeferredValue.class);
+    DeferredValue varInScopeDeferred = (DeferredValue) varInScope;
+    assertThat(varInScopeDeferred.getOriginalValue()).isEqualTo("outside if statement");
+
+    JinjavaInterpreter.popCurrent();
+    HashMap<String, Object> deferredContext = DeferredValueUtils.getDeferredContextWithOriginalValues(
+      interpreter.getContext()
+    );
+    deferredContext.forEach(interpreter.getContext()::put);
+    String secondRender = interpreter.render(output);
+    assertThat(secondRender)
+      .isEqualTo("        outside if statement           entered if statement");
+
+    interpreter.getContext().put("deferred", DeferredValue.instance());
+    interpreter.getContext().put("resolved", "resolvedValue");
+  }
+
+  @Test
+  public void itDefersDependantVariables() {
+    String template = "";
+    template +=
+      "{% set resolved_variable = 'resolved' %} {% set deferred_variable = deferred + '-' + resolved_variable %}";
+    template += "{{ deferred_variable }}";
+    interpreter.render(template);
+    interpreter.getContext().get("resolved_variable");
+  }
+
+  @Test
+  public void itDefersVariablesComparedAgainstDeferredVals() {
+    String template = "";
+    template += "{% set testVar = 'testvalue' %}";
+    template += "{% if deferred == testVar %} true {% else %} false {% endif %}";
+
+    interpreter.render(template);
+    Object varInScope = interpreter.getContext().get("testVar");
+    assertThat(varInScope).isInstanceOf(DeferredValue.class);
+    DeferredValue varInScopeDeferred = (DeferredValue) varInScope;
+    assertThat(varInScopeDeferred.getOriginalValue()).isEqualTo("testvalue");
   }
 }
