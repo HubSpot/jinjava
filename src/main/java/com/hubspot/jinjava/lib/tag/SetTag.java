@@ -127,8 +127,8 @@ public class SetTag implements Tag {
         for (int i = 0; i < varTokens.length; i++) {
           String varItem = varTokens[i].trim();
           if (interpreter.getContext().containsKey(varItem)) {
-            if (interpreter.getContext().get(var) instanceof DeferredValue) {
-              throw new DeferredValueException(var);
+            if (interpreter.getContext().get(varItem) instanceof DeferredValue) {
+              throw new DeferredValueException(varItem);
             }
           }
           interpreter.getContext().put(varItem, exprVals.get(i));
