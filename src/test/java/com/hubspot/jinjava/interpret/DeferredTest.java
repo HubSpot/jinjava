@@ -190,7 +190,7 @@ public class DeferredTest {
   public void itDefersAllVariablesUsedInDeferredNode() {
     String template = "";
     template += "{% set varUsedInForScope = 'outside if statement' %}";
-    template += "{% for item in resolved %}";
+    template += "{% for item in resolved %}"; //Creating an inner scope
     template += "   {% if deferredValue %}"; //Deferred Node
     template += "     {{ varUsedInForScope }}";
     template += "     {% set varUsedInForScope = 'entered if statement' %}";
@@ -244,7 +244,7 @@ public class DeferredTest {
   @Test
   public void itPutsDeferredVariablesOnParentScopes() {
     String template = "";
-    template += "{% for item in resolved %}";
+    template += "{% for item in resolved %}"; //Creating an inner scope
     template += "   {% set varSetInside = 'inside first scope' %}";
     template += "   {% if deferredValue %}"; //Deferred Node
     template += "     {{ varSetInside }}";
@@ -258,5 +258,39 @@ public class DeferredTest {
     assertThat(varSetInside).isInstanceOf(DeferredValue.class);
     DeferredValue varSetInsideDeferred = (DeferredValue) varSetInside;
     assertThat(varSetInsideDeferred.getOriginalValue()).isEqualTo("inside first scope");
+  }
+
+  @Test
+  public void puttingDeferredVariablesOnParentScopesDoesNotBreakSetTag() {
+    String template = "";
+    template += "{% for item in resolved %}"; //Creating an inner scope
+    template += "   {% set varSetInside = 'inside first scope' %}";
+    template += "   {% if deferredValue %}"; //Deferred Node
+    template += "     {{ varSetInside }}";
+    template += "   {% endif %}"; // end Deferred Node
+    template += "{% endfor %}";
+    template += "{% for item in resolved %}"; //Creating an inner scope
+    template += "   {% set varSetInside = 'inside first scope2' %}";
+    template += "   {% if deferredValue %}"; //Deferred Node
+    template += "     {{ varSetInside }}";
+    template += "   {% endif %}"; // end Deferred Node
+    template += "{% endfor %}";
+
+    interpreter.getContext().put("deferredValue", DeferredValue.instance("resolved"));
+    String output = interpreter.render(template);
+    assertThat(interpreter.getContext()).containsKey("varSetInside");
+    Object varSetInside = interpreter.getContext().get("varSetInside");
+    assertThat(varSetInside).isInstanceOf(DeferredValue.class);
+    DeferredValue varSetInsideDeferred = (DeferredValue) varSetInside;
+    assertThat(varSetInsideDeferred.getOriginalValue()).isEqualTo("inside first scope");
+
+    JinjavaInterpreter.popCurrent();
+    HashMap<String, Object> deferredContext = DeferredValueUtils.getDeferredContextWithOriginalValues(
+      interpreter.getContext()
+    );
+    deferredContext.forEach(interpreter.getContext()::put);
+    String secondRender = interpreter.render(output);
+    assertThat(secondRender.trim())
+      .isEqualTo("inside first scope              inside first scope2".trim());
   }
 }
