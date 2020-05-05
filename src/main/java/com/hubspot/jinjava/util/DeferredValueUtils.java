@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.util;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -61,15 +60,13 @@ public class DeferredValueUtils {
     return deferredContext;
   }
 
-  public static void findAndMarkDeferredProperties(Context context) {
-    Set<String> props = getPropertiesUsedInDeferredNodes(context);
+  public static void markDeferredProperties(Context context, Set<String> props) {
     props
       .stream()
       .filter(prop -> !(context.get(prop) instanceof DeferredValue))
       .forEach(prop -> context.put(prop, DeferredValue.instance(context.get(prop))));
   }
 
-  @VisibleForTesting
   public static Set<String> getPropertiesUsedInDeferredNodes(Context context) {
     String templateSource = rebuildTemplateForNodes(context.getDeferredNodes());
     Set<String> propertiesUsed = findUsedProperties(templateSource);

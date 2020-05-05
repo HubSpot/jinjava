@@ -240,4 +240,23 @@ public class DeferredTest {
     DeferredValue varInScopeDeferred = (DeferredValue) varInScope;
     assertThat(varInScopeDeferred.getOriginalValue()).isEqualTo("testvalue");
   }
+
+  @Test
+  public void itPutsDeferredVariablesOnParentScopes() {
+    String template = "";
+    template += "{% for item in resolved %}";
+    template += "   {% set varSetInside = 'inside first scope' %}";
+    template += "   {% if deferredValue %}"; //Deferred Node
+    template += "     {{ varSetInside }}";
+    template += "   {% endif %}"; // end Deferred Node
+    template += "{% endfor %}";
+
+    interpreter.getContext().put("deferredValue", DeferredValue.instance("resolved"));
+    interpreter.render(template);
+    assertThat(interpreter.getContext()).containsKey("varSetInside");
+    Object varSetInside = interpreter.getContext().get("varSetInside");
+    assertThat(varSetInside).isInstanceOf(DeferredValue.class);
+    DeferredValue varSetInsideDeferred = (DeferredValue) varSetInside;
+    assertThat(varSetInsideDeferred.getOriginalValue()).isEqualTo("inside first scope");
+  }
 }
