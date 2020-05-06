@@ -32,7 +32,7 @@ public class DeferredValueUtilsTest {
     );
     context.put("java_bean", getPopulatedJavaBean());
 
-    Set<String> deferredProperties = DeferredValueUtils.getPropertiesUsedInDeferredNodes(
+    Set<String> deferredProperties = DeferredValueUtils.findAndMarkDeferredProperties(
       context
     );
 
@@ -46,7 +46,7 @@ public class DeferredValueUtilsTest {
     );
     context.put("array", Lists.newArrayList("a", "b", "c"));
 
-    Set<String> deferredProperties = DeferredValueUtils.getPropertiesUsedInDeferredNodes(
+    Set<String> deferredProperties = DeferredValueUtils.findAndMarkDeferredProperties(
       context
     );
     assertThat(deferredProperties).contains("array");
@@ -59,7 +59,7 @@ public class DeferredValueUtilsTest {
     );
     context.put("dict", Collections.singletonMap("a", "x"));
 
-    Set<String> deferredProperties = DeferredValueUtils.getPropertiesUsedInDeferredNodes(
+    Set<String> deferredProperties = DeferredValueUtils.findAndMarkDeferredProperties(
       context
     );
     assertThat(deferredProperties).contains("dict");
@@ -79,9 +79,7 @@ public class DeferredValueUtilsTest {
     );
     context.put("java_bean", getPopulatedJavaBean());
 
-    Set<String> deferredProps = DeferredValueUtils.getPropertiesUsedInDeferredNodes(
-      context
-    );
+    Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(context);
     DeferredValueUtils.markDeferredProperties(context, deferredProps);
     assertThat(context.containsKey("java_bean")).isTrue();
     assertThat(context.get("java_bean")).isInstanceOf(DeferredValue.class);
@@ -104,9 +102,7 @@ public class DeferredValueUtilsTest {
       )
     );
     context.put("property", null);
-    Set<String> deferredProps = DeferredValueUtils.getPropertiesUsedInDeferredNodes(
-      context
-    );
+    Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(context);
     DeferredValueUtils.markDeferredProperties(context, deferredProps);
 
     assertThat(context.get("property")).isNull();
@@ -127,10 +123,7 @@ public class DeferredValueUtilsTest {
     context.put("deferred", "deferred");
     context.put("not_deferred", "test_value");
 
-    Set<String> deferredProps = DeferredValueUtils.getPropertiesUsedInDeferredNodes(
-      context
-    );
-    DeferredValueUtils.markDeferredProperties(context, deferredProps);
+    DeferredValueUtils.findAndMarkDeferredProperties(context);
     assertThat(context.get("not_deferred")).isEqualTo("test_value");
   }
 

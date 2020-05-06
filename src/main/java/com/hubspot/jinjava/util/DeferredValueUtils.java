@@ -22,8 +22,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class DeferredValueUtils {
-  private static final Pattern TEMPLATE_TAG_PATTERN = Pattern.compile(
-    "(\\w+(?:\\.\\w+)*)"
+  private static final String TEMPLATE_TAG_REGEX = "(\\w+(?:\\.\\w+)*)";
+  private static final Pattern TEMPLATE_TAG_PATTERN = Pattern.compile(TEMPLATE_TAG_REGEX);
+
+  private static final Pattern SET_TAG_PATTERN = Pattern.compile(
+    "set " + TEMPLATE_TAG_REGEX
   );
 
   public static HashMap<String, Object> getDeferredContextWithOriginalValues(
@@ -60,21 +63,66 @@ public class DeferredValueUtils {
     return deferredContext;
   }
 
-  public static void markDeferredProperties(Context context, Set<String> props) {
-    props
-      .stream()
-      .filter(prop -> !(context.get(prop) instanceof DeferredValue))
-      .forEach(prop -> context.put(prop, DeferredValue.instance(context.get(prop))));
+  public static Set<String> findAndMarkDeferredProperties(Context context) {
+    String templateSource = rebuildTemplateForNodes(context.getDeferredNodes());
+    Set<String> deferredProps = getPropertiesUsedInDeferredNodes(context, templateSource);
+    Set<String> setProps = getPropertiesSetInDeferredNodes(templateSource);
+
+    markDeferredProperties(context, Sets.union(deferredProps, setProps));
+
+    return deferredProps;
   }
 
-  public static Set<String> getPropertiesUsedInDeferredNodes(Context context) {
-    String templateSource = rebuildTemplateForNodes(context.getDeferredNodes());
+  public static Set<String> getPropertiesSetInDeferredNodes(String templateSource) {
+    return findSetProperties(templateSource);
+  }
+
+  public static Set<DeferredTag> getDeferredTags(Set<Node> deferredNodes) {
+    return getDeferredTags(new LinkedList<>(deferredNodes), 0);
+  }
+
+  public static Set<String> getPropertiesUsedInDeferredNodes(
+    Context context,
+    String templateSource
+  ) {
     Set<String> propertiesUsed = findUsedProperties(templateSource);
     return propertiesUsed
       .stream()
-      .map(prop -> prop.split("[\\[.]", 2)[0]) // split map accesses on .prop or ['prop']
+      .map(prop -> prop.split("\\[\\.]", 2)[0]) // split map accesses on .prop
       .filter(context::containsKey)
       .collect(Collectors.toSet());
+  }
+
+  private static void markDeferredProperties(Context context, Set<String> props) {
+    props
+      .stream()
+      .filter(prop -> !(context.get(prop) instanceof DeferredValue))
+      .forEach(
+        prop -> {
+          if (context.get(prop) != null) {
+            context.put(prop, DeferredValue.instance(context.get(prop)));
+          } else {
+            //Handle set props
+            context.put(prop, DeferredValue.instance());
+          }
+        }
+      );
+  }
+
+  private static Set<DeferredTag> getDeferredTags(List<Node> nodes, int depth) {
+    // precaution - templates are parsed with this render depth so in theory the depth should never be exceeded
+    Set<DeferredTag> deferredTags = new HashSet<>();
+    int maxRenderDepth = JinjavaInterpreter.getCurrent() == null
+      ? 3
+      : JinjavaInterpreter.getCurrent().getConfig().getMaxRenderDepth();
+    if (depth > maxRenderDepth) {
+      return deferredTags;
+    }
+    for (Node node : nodes) {
+      getDeferredTags(node).ifPresent(deferredTags::addAll);
+      deferredTags.addAll(getDeferredTags(node.getChildren(), depth + 1));
+    }
+    return deferredTags;
   }
 
   private static String rebuildTemplateForNodes(Set<Node> nodes) {
@@ -92,24 +140,13 @@ public class DeferredValueUtils {
     return tags;
   }
 
-  public static Set<DeferredTag> getDeferredTags(Set<Node> deferredNodes) {
-    return getDeferredTags(new LinkedList<>(deferredNodes), 0);
-  }
-
-  private static Set<DeferredTag> getDeferredTags(List<Node> nodes, int depth) {
-    // precaution - templates are parsed with this render depth so in theory the depth should never be exceeded
-    Set<DeferredTag> deferredTags = new HashSet<>();
-    int maxRenderDepth = JinjavaInterpreter.getCurrent() == null
-      ? 3
-      : JinjavaInterpreter.getCurrent().getConfig().getMaxRenderDepth();
-    if (depth > maxRenderDepth) {
-      return deferredTags;
+  private static Set<String> findSetProperties(String templateSource) {
+    Matcher matcher = SET_TAG_PATTERN.matcher(templateSource);
+    Set<String> tags = Sets.newHashSet();
+    while (matcher.find()) {
+      tags.add(matcher.group(1));
     }
-    for (Node node : nodes) {
-      getDeferredTags(node).ifPresent(deferredTags::addAll);
-      deferredTags.addAll(getDeferredTags(node.getChildren(), depth + 1));
-    }
-    return deferredTags;
+    return tags;
   }
 
   private static Optional<Set<DeferredTag>> getDeferredTags(Node deferredNode) {

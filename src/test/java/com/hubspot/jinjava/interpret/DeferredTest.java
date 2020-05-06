@@ -293,4 +293,22 @@ public class DeferredTest {
     assertThat(secondRender.trim())
       .isEqualTo("inside first scope              inside first scope2".trim());
   }
+
+  @Test
+  public void itMarksVariablesSetInDeferredBlockAsDeferred() {
+    String template = "";
+    template += "   {% set reference = deferredValue %}";
+    template += "   {% if reference == 'resolved' %}"; //Deferred Node
+    template += "     {{ set varSetInside = 'set inside' }}";
+    template += "   {% endif %}"; // end Deferred Node
+    template += "{{ varSetInside }}";
+    JinjavaInterpreter.popCurrent();
+
+    interpreter.getContext().put("deferredValue", DeferredValue.instance("resolved"));
+    String output = interpreter.render(template);
+    assertThat(interpreter.getContext()).containsKey("varSetInside");
+    Object varSetInside = interpreter.getContext().get("varSetInside");
+    assertThat(varSetInside).isInstanceOf(DeferredValue.class);
+    assertThat(output).contains("{{ varSetInside }}");
+  }
 }
