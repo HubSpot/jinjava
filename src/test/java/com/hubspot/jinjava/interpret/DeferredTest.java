@@ -2,11 +2,13 @@ package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.util.DeferredValueUtils;
 import java.util.HashMap;
+import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -299,7 +301,7 @@ public class DeferredTest {
     String template = "";
     template += "   {% set reference = deferredValue %}";
     template += "   {% if reference == 'resolved' %}"; //Deferred Node
-    template += "     {{ set varSetInside = 'set inside' }}";
+    template += "     {% set varSetInside = 'set inside' %}";
     template += "   {% endif %}"; // end Deferred Node
     template += "{{ varSetInside }}";
     JinjavaInterpreter.popCurrent();
@@ -308,6 +310,45 @@ public class DeferredTest {
     String output = interpreter.render(template);
     assertThat(interpreter.getContext()).containsKey("varSetInside");
     Object varSetInside = interpreter.getContext().get("varSetInside");
+    assertThat(varSetInside).isInstanceOf(DeferredValue.class);
+    assertThat(output).contains("{{ varSetInside }}");
+  }
+
+  @Test
+  public void itMarksVariablesUsedAsMapKeysAsDeferred() {
+    /*    {% set week_number = contact.MOweekno %}
+
+    {% set header_content = contents.map[contact.blmobase1] %}
+    {% set email_content = contents.map[contact.blmobase1] %}
+    {% set hero_content = heros.map[contact.blmobase1] %}
+    {% set product_content = products.map[contact.blmobase1] %}
+    {% if week_number == "1" %}
+    {% set header_content = contents.map[contact.blmobase1] %}
+    {% set email_content = contents.map[contact.blmobase1] %}
+    {% set hero_content = heros.map[contact.blmobase1] %}
+    {% set product_content = products.map[contact.blmobase1] %}*/
+
+    String template = "";
+    template += "   {% set reference = deferredValue %}";
+    template += "   {% if reference == 'resolved' %}"; //Deferred Node
+    template += "     {% set varSetInside = imported.map[deferredValue2] %}";
+    template += "   {% endif %}"; // end Deferred Node
+    template += "{{ varSetInside }}";
+    JinjavaInterpreter.popCurrent();
+
+    interpreter.getContext().put("deferredValue", DeferredValue.instance("resolved"));
+    interpreter.getContext().put("deferredValue2", DeferredValue.instance("key"));
+    ImmutableMap<String, ImmutableMap<String, String>> map = ImmutableMap.of(
+      "map",
+      ImmutableMap.of("key", "value")
+    );
+    interpreter.getContext().put("imported", map);
+    String output = interpreter.render(template);
+    assertThat(interpreter.getContext()).containsKey("varSetInside");
+    Object varSetInside = interpreter.getContext().get("varSetInside");
+    Set<String> deferredVals = DeferredValueUtils.findAndMarkDeferredProperties(
+      interpreter.getContext()
+    );
     assertThat(varSetInside).isInstanceOf(DeferredValue.class);
     assertThat(output).contains("{{ varSetInside }}");
   }

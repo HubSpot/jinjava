@@ -27,10 +27,14 @@ public class DeferredValueUtilsTest {
 
   @Test
   public void itFindsGlobalProperties() {
-    Context context = getContext(
-      Lists.newArrayList(getNodeForClass(TagNode.class, "{% if java_bean %}"))
-    );
+    Context context = new Context();
     context.put("java_bean", getPopulatedJavaBean());
+
+    context =
+      getContext(
+        Lists.newArrayList(getNodeForClass(TagNode.class, "{% if java_bean %}")),
+        Optional.of(context)
+      );
 
     Set<String> deferredProperties = DeferredValueUtils.findAndMarkDeferredProperties(
       context
@@ -67,20 +71,23 @@ public class DeferredValueUtilsTest {
 
   @Test
   public void itDefersTheCompleteObjectWhenAtLeastOnePropertyIsUsed() {
-    Context context = getContext(
-      Lists.newArrayList(
-        getNodeForClass(
-          TagNode.class,
-          "{% if java_bean.property_one %}",
-          Optional.empty(),
-          Optional.empty()
-        )
-      )
-    );
+    Context context = new Context();
     context.put("java_bean", getPopulatedJavaBean());
 
-    Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(context);
-    DeferredValueUtils.markDeferredProperties(context, deferredProps);
+    context =
+      getContext(
+        Lists.newArrayList(
+          getNodeForClass(
+            TagNode.class,
+            "{% if java_bean.property_one %}",
+            Optional.empty(),
+            Optional.empty()
+          )
+        ),
+        Optional.of(context)
+      );
+
+    DeferredValueUtils.findAndMarkDeferredProperties(context);
     assertThat(context.containsKey("java_bean")).isTrue();
     assertThat(context.get("java_bean")).isInstanceOf(DeferredValue.class);
     DeferredValue deferredValue = (DeferredValue) context.get("java_bean");
@@ -102,8 +109,7 @@ public class DeferredValueUtilsTest {
       )
     );
     context.put("property", null);
-    Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(context);
-    DeferredValueUtils.markDeferredProperties(context, deferredProps);
+    DeferredValueUtils.findAndMarkDeferredProperties(context);
 
     assertThat(context.get("property")).isNull();
   }
@@ -173,7 +179,18 @@ public class DeferredValueUtilsTest {
   }
 
   private Context getContext(List<? extends Node> nodes) {
+    return getContext(nodes, Optional.empty());
+  }
+
+  private Context getContext(
+    List<? extends Node> nodes,
+    Optional<Context> initialContext
+  ) {
     Context context = new Context();
+
+    if (initialContext.isPresent()) {
+      context = initialContext.get();
+    }
     for (Node node : nodes) {
       context.handleDeferredNode(node);
     }

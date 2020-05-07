@@ -88,7 +88,7 @@ public class DeferredValueUtils {
     Set<String> propertiesUsed = findUsedProperties(templateSource);
     return propertiesUsed
       .stream()
-      .map(prop -> prop.split("\\[\\.]", 2)[0]) // split map accesses on .prop
+      .map(prop -> prop.split("\\.", 2)[0]) // split accesses on .prop
       .filter(context::containsKey)
       .collect(Collectors.toSet());
   }
