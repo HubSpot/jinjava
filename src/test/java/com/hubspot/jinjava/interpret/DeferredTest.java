@@ -331,7 +331,9 @@ public class DeferredTest {
     String template = "";
     template += "   {% set reference = deferredValue %}";
     template += "   {% if reference == 'resolved' %}"; //Deferred Node
-    template += "     {% set varSetInside = imported.map[deferredValue2] %}";
+    template +=
+      "     {% set varSetInside = imported.map[deferredValue2.nonexistentprop] %}";
+    template += "   {{ deferredValue2.nonexistentprop }}";
     template += "   {% endif %}"; // end Deferred Node
     template += "{{ varSetInside }}";
     JinjavaInterpreter.popCurrent();
@@ -343,13 +345,14 @@ public class DeferredTest {
       ImmutableMap.of("key", "value")
     );
     interpreter.getContext().put("imported", map);
+
     String output = interpreter.render(template);
-    assertThat(interpreter.getContext()).containsKey("varSetInside");
-    Object varSetInside = interpreter.getContext().get("varSetInside");
+    assertThat(interpreter.getContext()).containsKey("deferredValue2");
+    Object deferredValue2 = interpreter.getContext().get("deferredValue2");
     Set<String> deferredVals = DeferredValueUtils.findAndMarkDeferredProperties(
       interpreter.getContext()
     );
-    assertThat(varSetInside).isInstanceOf(DeferredValue.class);
-    assertThat(output).contains("{{ varSetInside }}");
+    assertThat(deferredValue2).isInstanceOf(DeferredValue.class);
+    assertThat(output).contains("{% set varSetInside = imported.map[deferredValue2] %}");
   }
 }
