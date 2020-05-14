@@ -228,7 +228,7 @@ public class DeferredTest {
 
   @Test
   public void itPutsDeferredVariablesOnParentScopes() {
-    String template = getFixtureTemplate("for-with-if-and-set.jinja");
+    String template = getFixtureTemplate("set-within-lower-scope.jinja");
     interpreter.getContext().put("deferredValue", DeferredValue.instance("resolved"));
     interpreter.render(template);
     assertThat(interpreter.getContext()).containsKey("varSetInside");
@@ -240,7 +240,7 @@ public class DeferredTest {
 
   @Test
   public void puttingDeferredVariablesOnParentScopesDoesNotBreakSetTag() {
-    String template = getFixtureTemplate("set-within-lower-scope.jinja");
+    String template = getFixtureTemplate("set-within-lower-scope-twice.jinja");
 
     interpreter.getContext().put("deferredValue", DeferredValue.instance("resolved"));
     String output = interpreter.render(template);
