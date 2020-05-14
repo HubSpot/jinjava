@@ -161,9 +161,10 @@ public class DeferredValueUtilsTest {
     assertThat(result).contains(entry("simple_map", simpleMap));
     assertThat(result).contains(entry("nested_map", nestedMap));
 
-    assertThat(result).contains(entry("simple_var_undeferred", "SimpleVarUnDeferred"));
-    assertThat(result).contains(entry("java_bean_undeferred", javaBean));
-    assertThat(result).contains(entry("nested_map_undeferred", nestedMap));
+    assertThat(result)
+      .doesNotContain(entry("simple_var_undeferred", "SimpleVarUnDeferred"));
+    assertThat(result).doesNotContain(entry("java_bean_undeferred", javaBean));
+    assertThat(result).doesNotContain(entry("nested_map_undeferred", nestedMap));
   }
 
   @Test
