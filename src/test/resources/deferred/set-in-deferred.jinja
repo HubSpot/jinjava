@@ -1,5 +1,6 @@
 {% set reference = deferredValue %}
 {% if reference == 'resolved' %}
    {% set varSetInside = 'set inside' %}
+   {% set a, b, c = ['x','y','z'] %}
 {% endif %}
 {{ varSetInside }}

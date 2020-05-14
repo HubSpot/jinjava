@@ -3,15 +3,10 @@ package com.hubspot.jinjava.util;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.google.common.collect.Streams;
-import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.exptest.ExpTest;
-import com.hubspot.jinjava.lib.filter.Filter;
-import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
-import com.hubspot.jinjava.lib.tag.Tag;
+import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -26,16 +21,10 @@ import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class DeferredValueUtils {
   private static final String TEMPLATE_TAG_REGEX = "(\\w+(?:\\.\\w+)*)";
   private static final Pattern TEMPLATE_TAG_PATTERN = Pattern.compile(TEMPLATE_TAG_REGEX);
-  private static final Set<String> JINJAVA_KEYWORDS;
-
-  static {
-    JINJAVA_KEYWORDS = getJinJavaKeyWords(new Jinjava());
-  }
 
   public static HashMap<String, Object> getDeferredContextWithOriginalValues(
     Context context
@@ -73,22 +62,31 @@ public class DeferredValueUtils {
 
   public static Set<String> findAndMarkDeferredProperties(Context context) {
     String templateSource = rebuildTemplateForNodes(context.getDeferredNodes());
-    Set<String> deferredProps = getPropertiesUsedInDeferredNodes(templateSource);
+    Set<String> deferredProps = getPropertiesUsedInDeferredNodes(context, templateSource);
+    Set<String> setProps = getPropertiesSetInDeferredNodes(templateSource);
 
-    markDeferredProperties(context, deferredProps);
+    markDeferredProperties(context, Sets.union(deferredProps, setProps));
 
     return deferredProps;
+  }
+
+  public static Set<String> getPropertiesSetInDeferredNodes(String templateSource) {
+    return findSetProperties(templateSource);
   }
 
   public static Set<DeferredTag> getDeferredTags(Set<Node> deferredNodes) {
     return getDeferredTags(new LinkedList<>(deferredNodes), 0);
   }
 
-  public static Set<String> getPropertiesUsedInDeferredNodes(String templateSource) {
+  public static Set<String> getPropertiesUsedInDeferredNodes(
+    Context context,
+    String templateSource
+  ) {
     Set<String> propertiesUsed = findUsedProperties(templateSource);
     return propertiesUsed
       .stream()
       .map(prop -> prop.split("\\.", 2)[0]) // split accesses on .prop
+      .filter(context::containsKey)
       .collect(Collectors.toSet());
   }
 
@@ -134,27 +132,22 @@ public class DeferredValueUtils {
     Matcher matcher = TEMPLATE_TAG_PATTERN.matcher(templateSource);
     Set<String> tags = Sets.newHashSet();
     while (matcher.find()) {
-      String tag = matcher.group(1);
-      if (!JINJAVA_KEYWORDS.contains(tag)) {
-        tags.add(tag);
-      }
+      tags.add(matcher.group(1));
     }
     return tags;
   }
 
-  private static Set<String> getJinJavaKeyWords(Jinjava jinjava) {
-    Stream<Filter> filters = jinjava.getGlobalContext().getAllFilters().stream();
-    Stream<ELFunctionDefinition> functions = (Stream<ELFunctionDefinition>) jinjava
-      .getGlobalContext()
-      .getAllFunctions()
-      .stream();
-    Stream<Tag> tags = jinjava.getGlobalContext().getAllTags().stream();
-    Stream<ExpTest> expTests = jinjava.getGlobalContext().getAllExpTests().stream();
+  private static Set<String> findSetProperties(String templateSource) {
+    Set<String> tags = Sets.newHashSet();
+    String[] lines = templateSource.split("\n");
+    for (String line : lines) {
+      line = line.trim();
+      if (line.contains(SetTag.TAG_NAME + " ")) {
+        tags.addAll(findUsedProperties(line));
+      }
+    }
 
-    return Streams
-      .concat(filters, functions, tags, expTests)
-      .map(keyWord -> keyWord.getName().toLowerCase())
-      .collect(Collectors.toSet());
+    return tags;
   }
 
   private static Optional<Set<DeferredTag>> getDeferredTags(Node deferredNode) {

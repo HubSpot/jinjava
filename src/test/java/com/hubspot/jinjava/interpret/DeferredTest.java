@@ -267,10 +267,14 @@ public class DeferredTest {
 
     interpreter.getContext().put("deferredValue", DeferredValue.instance("resolved"));
     String output = interpreter.render(template);
+    Context context = interpreter.getContext();
     assertThat(interpreter.getContext()).containsKey("varSetInside");
     Object varSetInside = interpreter.getContext().get("varSetInside");
     assertThat(varSetInside).isInstanceOf(DeferredValue.class);
     assertThat(output).contains("{{ varSetInside }}");
+    assertThat(context.get("a")).isInstanceOf(DeferredValue.class);
+    assertThat(context.get("b")).isInstanceOf(DeferredValue.class);
+    assertThat(context.get("c")).isInstanceOf(DeferredValue.class);
   }
 
   @Test
