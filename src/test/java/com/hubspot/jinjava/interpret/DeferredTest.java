@@ -2,13 +2,15 @@ package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.util.DeferredValueUtils;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -162,17 +164,7 @@ public class DeferredTest {
     interpreter.getContext().put("padding", 0);
     interpreter.getContext().put("added_padding", 10);
     String deferredOutput = interpreter.render(
-      "{% macro inc_padding(width) %}" +
-      "{% set padding = padding + width %}" +
-      "{{padding}}" +
-      "{% endmacro %}" +
-      "{{ padding }}," +
-      "{% set padding =  inc_padding(added_padding) | int %}" +
-      "{{ padding }}," +
-      "{% set padding = inc_padding(deferred) | int %}" +
-      "{{ padding}}," +
-      "{% set padding = inc_padding(added_padding) | int %}" +
-      "{{ padding }}"
+      getFixtureTemplate("deferred-macro.jinja")
     );
     Object padding = interpreter.getContext().get("padding");
     assertThat(padding).isInstanceOf(DeferredValue.class);
@@ -185,20 +177,12 @@ public class DeferredTest {
     interpreter.getContext().getGlobalMacro("inc_padding").setDeferred(false);
 
     String output = interpreter.render(deferredOutput);
-    assertThat(output).isEqualTo("0,10,15,25");
+    assertThat(output.replace("\n", "")).isEqualTo("0,10,15,25");
   }
 
   @Test
   public void itDefersAllVariablesUsedInDeferredNode() {
-    String template = "";
-    template += "{% set varUsedInForScope = 'outside if statement' %}";
-    template += "{% for item in resolved %}"; //Creating an inner scope
-    template += "   {% if deferredValue %}"; //Deferred Node
-    template += "     {{ varUsedInForScope }}";
-    template += "     {% set varUsedInForScope = 'entered if statement' %}";
-    template += "   {% endif %}"; // end Deferred Node
-    template += "   {{ varUsedInForScope }}";
-    template += "{% endfor %}";
+    String template = getFixtureTemplate("vars-in-deferred-node.jinja");
 
     interpreter.getContext().put("deferredValue", DeferredValue.instance("resolved"));
     String output = interpreter.render(template);
@@ -213,8 +197,7 @@ public class DeferredTest {
     );
     deferredContext.forEach(interpreter.getContext()::put);
     String secondRender = interpreter.render(output);
-    assertThat(secondRender)
-      .isEqualTo("        outside if statement           entered if statement");
+    assertThat(secondRender).isEqualTo("outside if statement entered if statement");
 
     interpreter.getContext().put("deferred", DeferredValue.instance());
     interpreter.getContext().put("resolved", "resolvedValue");
@@ -245,14 +228,7 @@ public class DeferredTest {
 
   @Test
   public void itPutsDeferredVariablesOnParentScopes() {
-    String template = "";
-    template += "{% for item in resolved %}"; //Creating an inner scope
-    template += "   {% set varSetInside = 'inside first scope' %}";
-    template += "   {% if deferredValue %}"; //Deferred Node
-    template += "     {{ varSetInside }}";
-    template += "   {% endif %}"; // end Deferred Node
-    template += "{% endfor %}";
-
+    String template = getFixtureTemplate("for-with-if-and-set.jinja");
     interpreter.getContext().put("deferredValue", DeferredValue.instance("resolved"));
     interpreter.render(template);
     assertThat(interpreter.getContext()).containsKey("varSetInside");
@@ -264,19 +240,7 @@ public class DeferredTest {
 
   @Test
   public void puttingDeferredVariablesOnParentScopesDoesNotBreakSetTag() {
-    String template = "";
-    template += "{% for item in resolved %}"; //Creating an inner scope
-    template += "   {% set varSetInside = 'inside first scope' %}";
-    template += "   {% if deferredValue %}"; //Deferred Node
-    template += "     {{ varSetInside }}";
-    template += "   {% endif %}"; // end Deferred Node
-    template += "{% endfor %}";
-    template += "{% for item in resolved %}"; //Creating an inner scope
-    template += "   {% set varSetInside = 'inside first scope2' %}";
-    template += "   {% if deferredValue %}"; //Deferred Node
-    template += "     {{ varSetInside }}";
-    template += "   {% endif %}"; // end Deferred Node
-    template += "{% endfor %}";
+    String template = getFixtureTemplate("set-within-lower-scope.jinja");
 
     interpreter.getContext().put("deferredValue", DeferredValue.instance("resolved"));
     String output = interpreter.render(template);
@@ -293,17 +257,12 @@ public class DeferredTest {
     deferredContext.forEach(interpreter.getContext()::put);
     String secondRender = interpreter.render(output);
     assertThat(secondRender.trim())
-      .isEqualTo("inside first scope              inside first scope2".trim());
+      .isEqualTo("inside first scopeinside first scope2".trim());
   }
 
   @Test
   public void itMarksVariablesSetInDeferredBlockAsDeferred() {
-    String template = "";
-    template += "   {% set reference = deferredValue %}";
-    template += "   {% if reference == 'resolved' %}"; //Deferred Node
-    template += "     {% set varSetInside = 'set inside' %}";
-    template += "   {% endif %}"; // end Deferred Node
-    template += "{{ varSetInside }}";
+    String template = getFixtureTemplate("set-in-deferred.jinja");
     JinjavaInterpreter.popCurrent();
 
     interpreter.getContext().put("deferredValue", DeferredValue.instance("resolved"));
@@ -316,26 +275,8 @@ public class DeferredTest {
 
   @Test
   public void itMarksVariablesUsedAsMapKeysAsDeferred() {
-    /*    {% set week_number = contact.MOweekno %}
+    String template = getFixtureTemplate("deferred-map-access.jinja");
 
-    {% set header_content = contents.map[contact.blmobase1] %}
-    {% set email_content = contents.map[contact.blmobase1] %}
-    {% set hero_content = heros.map[contact.blmobase1] %}
-    {% set product_content = products.map[contact.blmobase1] %}
-    {% if week_number == "1" %}
-    {% set header_content = contents.map[contact.blmobase1] %}
-    {% set email_content = contents.map[contact.blmobase1] %}
-    {% set hero_content = heros.map[contact.blmobase1] %}
-    {% set product_content = products.map[contact.blmobase1] %}*/
-
-    String template = "";
-    template += "   {% set reference = deferredValue %}";
-    template += "   {% if reference == 'resolved' %}"; //Deferred Node
-    template +=
-      "     {% set varSetInside = imported.map[deferredValue2.nonexistentprop] %}";
-    template += "   {{ deferredValue2.nonexistentprop }}";
-    template += "   {% endif %}"; // end Deferred Node
-    template += "{{ varSetInside }}";
     JinjavaInterpreter.popCurrent();
 
     interpreter.getContext().put("deferredValue", DeferredValue.instance("resolved"));
@@ -349,10 +290,20 @@ public class DeferredTest {
     String output = interpreter.render(template);
     assertThat(interpreter.getContext()).containsKey("deferredValue2");
     Object deferredValue2 = interpreter.getContext().get("deferredValue2");
-    Set<String> deferredVals = DeferredValueUtils.findAndMarkDeferredProperties(
-      interpreter.getContext()
-    );
+    DeferredValueUtils.findAndMarkDeferredProperties(interpreter.getContext());
     assertThat(deferredValue2).isInstanceOf(DeferredValue.class);
-    assertThat(output).contains("{% set varSetInside = imported.map[deferredValue2] %}");
+    assertThat(output)
+      .contains("{% set varSetInside = imported.map[deferredValue2.nonexistentprop] %}");
+  }
+
+  private String getFixtureTemplate(String templateLocation) {
+    try {
+      return Resources.toString(
+        Resources.getResource("deferred/" + templateLocation),
+        Charsets.UTF_8
+      );
+    } catch (IOException e) {
+      return null;
+    }
   }
 }
