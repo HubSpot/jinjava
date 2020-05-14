@@ -273,15 +273,13 @@ public class Context extends ScopeMap<String, Object> {
     deferredNodes.add(node);
     Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(this);
     if (getParent() != null) {
+      Context parent = getParent();
+      //Place deferred values on the parent context
+      deferredProps
+        .stream()
+        .filter(key -> !parent.containsKey(key))
+        .forEach(key -> parent.put(key, this.get(key)));
       getParent().handleDeferredNode(node);
-      if (this.getParent() != null) {
-        Context parent = this.getParent();
-        //Place deferred values on the parent context
-        deferredProps
-          .stream()
-          .filter(key -> !parent.containsKey(key))
-          .forEach(key -> parent.put(key, this.get(key)));
-      }
     }
   }
 
