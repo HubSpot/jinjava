@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -26,7 +27,7 @@ public class DeferredValueUtils {
   private static final Pattern TEMPLATE_TAG_PATTERN = Pattern.compile(TEMPLATE_TAG_REGEX);
 
   private static final Pattern SET_TAG_PATTERN = Pattern.compile(
-    "set " + TEMPLATE_TAG_REGEX
+    SetTag.TAG_NAME + " " + TEMPLATE_TAG_REGEX
   );
 
   public static HashMap<String, Object> getDeferredContextWithOriginalValues(
