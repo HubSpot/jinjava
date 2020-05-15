@@ -13,9 +13,9 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.Token;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.Test;
@@ -151,7 +151,7 @@ public class DeferredValueUtilsTest {
     context.put("java_bean_undeferred", javaBean);
     context.put("nested_map_undeferred", nestedMap);
 
-    Map<String, Object> result = DeferredValueUtils.getDeferredContextWithOriginalValues(
+    HashMap<String, Object> result = DeferredValueUtils.getDeferredContextWithOriginalValues(
       context
     );
     assertThat(result).contains(entry("simple_var", "SimpleVar"));
@@ -172,7 +172,7 @@ public class DeferredValueUtilsTest {
     context.put("simple_var", DeferredValue.instance());
     context.put("java_bean", DeferredValue.instance());
 
-    Map<String, Object> result = DeferredValueUtils.getDeferredContextWithOriginalValues(
+    HashMap<String, Object> result = DeferredValueUtils.getDeferredContextWithOriginalValues(
       context
     );
     assertThat(result).isEmpty();
