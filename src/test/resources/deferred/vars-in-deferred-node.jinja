@@ -1,9 +1,0 @@
-{%- set varUsedInForScope = 'outside if statement' -%}
-{%- for item in resolved -%}
-   {%- if deferredValue -%}
-{{ varUsedInForScope }}
-{%- set varUsedInForScope = ' entered if statement' -%}
-{%- endif -%}
-
-{{ varUsedInForScope }}
-{%- endfor -%}
