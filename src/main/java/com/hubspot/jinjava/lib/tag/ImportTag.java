@@ -150,7 +150,7 @@ public class ImportTag implements Tag {
         node
           .getChildren()
           .forEach(
-            deferredChild -> interpreter.getContext().handleDeferredNode(deferredChild)
+            deferredChild -> interpreter.getContext().addDeferredNode(deferredChild)
           );
         if (StringUtils.isBlank(contextVar)) {
           for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
@@ -173,7 +173,10 @@ public class ImportTag implements Tag {
           }
           childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
           childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
-          interpreter.getContext().put(contextVar, DeferredValue.instance(childBindings));
+          for (String key : childBindings.keySet()) {
+            childBindings.put(key, DeferredValue.instance());
+          }
+          interpreter.getContext().put(contextVar, childBindings);
         }
 
         throw new DeferredValueException(

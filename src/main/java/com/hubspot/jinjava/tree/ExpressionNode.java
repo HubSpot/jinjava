@@ -42,7 +42,7 @@ public class ExpressionNode extends Node {
     try {
       var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
     } catch (DeferredValueException e) {
-      interpreter.getContext().handleDeferredNode(this);
+      interpreter.getContext().addDeferredNode(this);
       var = master.getImage();
     }
 
