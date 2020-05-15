@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -27,7 +26,7 @@ public class DeferredValueUtils {
   private static final String TEMPLATE_TAG_REGEX = "(\\w+(?:\\.\\w+)*)";
   private static final Pattern TEMPLATE_TAG_PATTERN = Pattern.compile(TEMPLATE_TAG_REGEX);
 
-  public static Map<String, Object> getDeferredContextWithOriginalValues(
+  public static HashMap<String, Object> getDeferredContextWithOriginalValues(
     Context context
   ) {
     return getDeferredContextWithOriginalValues(context, ImmutableSet.of());
@@ -36,7 +35,7 @@ public class DeferredValueUtils {
   //The context needed for a second render
   //Ignores deferred properties with no originalValue
   //Optionally only keep keys in keysToKeep
-  public static Map<String, Object> getDeferredContextWithOriginalValues(
+  public static HashMap<String, Object> getDeferredContextWithOriginalValues(
     Context context,
     Set<String> keysToKeep
   ) {

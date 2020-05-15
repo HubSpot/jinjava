@@ -10,7 +10,7 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.util.DeferredValueUtils;
 import java.io.IOException;
-import java.util.Map;
+import java.util.HashMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -192,7 +192,7 @@ public class DeferredTest {
     assertThat(varInScopeDeferred.getOriginalValue()).isEqualTo("outside if statement");
 
     JinjavaInterpreter.popCurrent();
-    Map<String, Object> deferredContext = DeferredValueUtils.getDeferredContextWithOriginalValues(
+    HashMap<String, Object> deferredContext = DeferredValueUtils.getDeferredContextWithOriginalValues(
       interpreter.getContext()
     );
     deferredContext.forEach(interpreter.getContext()::put);
@@ -251,7 +251,7 @@ public class DeferredTest {
     assertThat(varSetInsideDeferred.getOriginalValue()).isEqualTo("inside first scope");
 
     JinjavaInterpreter.popCurrent();
-    Map<String, Object> deferredContext = DeferredValueUtils.getDeferredContextWithOriginalValues(
+    HashMap<String, Object> deferredContext = DeferredValueUtils.getDeferredContextWithOriginalValues(
       interpreter.getContext()
     );
     deferredContext.forEach(interpreter.getContext()::put);
