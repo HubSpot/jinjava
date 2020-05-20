@@ -123,6 +123,10 @@ public class Jinjava {
     return globalContext;
   }
 
+  public Context getGlobalContextCopy() {
+    return copyGlobalContext();
+  }
+
   public ResourceLocator getResourceLocator() {
     return resourceLocator;
   }
@@ -192,7 +196,11 @@ public class Jinjava {
     Map<String, ?> bindings,
     JinjavaConfig renderConfig
   ) {
-    Context context = new Context(globalContext, bindings, renderConfig.getDisabled());
+    Context context = new Context(
+      copyGlobalContext(),
+      bindings,
+      renderConfig.getDisabled()
+    );
 
     JinjavaInterpreter parentInterpreter = JinjavaInterpreter.getCurrent();
     if (parentInterpreter != null) {
@@ -256,6 +264,16 @@ public class Jinjava {
   public JinjavaInterpreter newInterpreter() {
     return globalConfig
       .getInterpreterFactory()
-      .newInstance(this, this.getGlobalContext(), this.getGlobalConfig());
+      .newInstance(this, copyGlobalContext(), this.getGlobalConfig());
+  }
+
+  private Context copyGlobalContext() {
+    Context context = new Context(null, globalContext);
+    // copy registered.
+    globalContext.getAllExpTests().forEach(context::registerExpTest);
+    globalContext.getAllFilters().forEach(context::registerFilter);
+    globalContext.getAllFunctions().forEach(context::registerFunction);
+    globalContext.getAllTags().forEach(context::registerTag);
+    return context;
   }
 }
