@@ -23,7 +23,7 @@ import de.odysseus.el.misc.TypeConverter;
   snippets = {
     @JinjavaSnippet(
       code = "{% if foo.expression is lt 42 %}\n" +
-      "    the foo attribute evaluates to the constant 42\n" +
+      "    the foo attribute evaluates to the constant 41\n" +
       "{% endif %}\n"
     ),
     @JinjavaSnippet(
