@@ -4,6 +4,7 @@ import static de.odysseus.el.tree.impl.Builder.Feature.METHOD_INVOCATIONS;
 import static de.odysseus.el.tree.impl.Builder.Feature.NULL_PROPERTIES;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.COLON;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.COMMA;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.EQ;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.IDENTIFIER;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.LBRACK;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.LPAREN;
@@ -396,7 +397,7 @@ public class ExtendedParser extends Parser {
           } else if (
             "is".equals(getToken().getImage()) &&
             "not".equals(lookahead(0).getImage()) &&
-            lookahead(1).getSymbol() == IDENTIFIER
+            isPossibleExpTest(lookahead(1).getSymbol())
           ) {
             consumeToken(); // 'is'
             consumeToken(); // 'not'
@@ -416,7 +417,8 @@ public class ExtendedParser extends Parser {
             );
             v = createAstMethod(exptestProperty, new AstParameters(exptestParams));
           } else if (
-            "is".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER
+            "is".equals(getToken().getImage()) &&
+            isPossibleExpTest(lookahead(0).getSymbol())
           ) {
             consumeToken(); // 'is'
             String exptestName = consumeToken().getImage();
@@ -439,6 +441,10 @@ public class ExtendedParser extends Parser {
           return v;
       }
     }
+  }
+
+  private boolean isPossibleExpTest(Scanner.Symbol symbol) {
+    return symbol == IDENTIFIER || symbol == EQ;
   }
 
   @Override
