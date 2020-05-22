@@ -5,6 +5,7 @@ import static de.odysseus.el.tree.impl.Builder.Feature.NULL_PROPERTIES;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.COLON;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.COMMA;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.EQ;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.FALSE;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.GE;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.GT;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.IDENTIFIER;
@@ -16,6 +17,7 @@ import static de.odysseus.el.tree.impl.Scanner.Symbol.NE;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.QUESTION;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.RBRACK;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.RPAREN;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.TRUE;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -68,7 +70,9 @@ public class ExtendedParser extends Parser {
     LT,
     LE,
     GT,
-    GE
+    GE,
+    TRUE,
+    FALSE
   );
 
   static {

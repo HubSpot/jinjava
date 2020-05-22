@@ -7,7 +7,7 @@ import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 
-public class IsBooleanExpTestTest {
+public class BooleanExpTestsTest {
   private Jinjava jinjava;
 
   @Before
@@ -22,5 +22,11 @@ public class IsBooleanExpTestTest {
       .isEqualTo("false");
     assertThat(jinjava.render("{{ true is boolean }}", new HashMap<>()))
       .isEqualTo("true");
+  }
+
+  @Test
+  public void testBooleanExpTests() {
+    assertThat(jinjava.render("{{ true is true }}", new HashMap<>())).isEqualTo("true");
+    assertThat(jinjava.render("{{ true is false }}", new HashMap<>())).isEqualTo("false");
   }
 }

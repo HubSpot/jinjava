@@ -44,6 +44,8 @@ public class ExpTestLibrary extends SimpleLibrary<ExpTest> {
       IsStringExpTest.class,
       IsStringContainingExpTest.class,
       IsStringStartingWithExpTest.class,
+      IsTrueExpTest.class,
+      IsFalseExpTest.class,
       IsTruthyExpTest.class,
       IsUndefinedExpTest.class,
       IsUpperExpTest.class,
