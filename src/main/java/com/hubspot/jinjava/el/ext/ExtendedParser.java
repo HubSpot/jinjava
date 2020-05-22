@@ -5,10 +5,14 @@ import static de.odysseus.el.tree.impl.Builder.Feature.NULL_PROPERTIES;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.COLON;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.COMMA;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.EQ;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.GE;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.GT;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.IDENTIFIER;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.LBRACK;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.LE;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.LPAREN;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.LT;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.NE;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.QUESTION;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.RBRACK;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.RPAREN;
@@ -60,7 +64,11 @@ public class ExtendedParser extends Parser {
   static final Set<Symbol> VALID_SYMBOLS_FOR_EXP_TEST = Sets.newHashSet(
     IDENTIFIER,
     EQ,
-    LT
+    NE,
+    LT,
+    LE,
+    GT,
+    GE
   );
 
   static {

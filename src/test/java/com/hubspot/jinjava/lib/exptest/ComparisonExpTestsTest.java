@@ -22,7 +22,14 @@ public class ComparisonExpTestsTest {
   @Test
   public void itComparesNumbers() {
     assertThat(jinjava.render("{{ 4 is lt 5 }}", new HashMap<>())).isEqualTo("true");
-    assertThat(jinjava.render("{{ 4.1 is lt 5 }}", new HashMap<>())).isEqualTo("true");
+    assertThat(jinjava.render("{{ 5 is le 4 }}", new HashMap<>())).isEqualTo("false");
+    assertThat(jinjava.render("{{ 4 is le 4 }}", new HashMap<>())).isEqualTo("true");
+    assertThat(jinjava.render("{{ 4 is gt 5 }}", new HashMap<>())).isEqualTo("false");
+    assertThat(jinjava.render("{{ 4 is gt 4 }}", new HashMap<>())).isEqualTo("false");
+    assertThat(jinjava.render("{{ 4 is ge 4 }}", new HashMap<>())).isEqualTo("true");
+    assertThat(jinjava.render("{{ 4 is ge 5 }}", new HashMap<>())).isEqualTo("false");
+    assertThat(jinjava.render("{{ 4 is ne 5 }}", new HashMap<>())).isEqualTo("true");
+    assertThat(jinjava.render("{{ 4 is ne 4 }}", new HashMap<>())).isEqualTo("false");
   }
 
   @Test
@@ -42,14 +49,28 @@ public class ComparisonExpTestsTest {
       "then",
       new PyishDate(1490171923745L)
     );
-    assertThat(jinjava.render("{{ now is lt then}}", vars)).isEqualTo("true");
-    assertThat(jinjava.render("{{ then is lt now}}", vars)).isEqualTo("false");
+    assertThat(jinjava.render("{{ now is lt then}}", vars)).isEqualTo("false");
+    assertThat(jinjava.render("{{ then is lt now}}", vars)).isEqualTo("true");
+  }
+
+  @Test
+  public void itComparesAcrossType() {
+    assertThat(jinjava.render("{{ 4.1 is lt 5 }}", new HashMap<>())).isEqualTo("true");
+    assertThat(jinjava.render("{{ true ne 'true' }}", new HashMap<>()))
+      .isEqualTo("false");
+    assertThat(jinjava.render("{{ true ne '' }}", new HashMap<>())).isEqualTo("true");
   }
 
   @Test
   public void testAliases() {
     assertThat(jinjava.render("{{ 4 is lessthan 5 }}", new HashMap<>()))
       .isEqualTo("true");
+    assertThat(jinjava.render("{{ 4 is greaterthan 5 }}", new HashMap<>()))
+      .isEqualTo("false");
     assertThat(jinjava.render("{{ 4 is < 5 }}", new HashMap<>())).isEqualTo("true");
+    assertThat(jinjava.render("{{ 4 is > 5 }}", new HashMap<>())).isEqualTo("false");
+    assertThat(jinjava.render("{{ 4 is <= 5 }}", new HashMap<>())).isEqualTo("true");
+    assertThat(jinjava.render("{{ 4 is >= 5 }}", new HashMap<>())).isEqualTo("false");
+    assertThat(jinjava.render("{{ 4 is != 5 }}", new HashMap<>())).isEqualTo("true");
   }
 }
