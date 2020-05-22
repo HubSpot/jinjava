@@ -50,5 +50,6 @@ public class ComparisonExpTestsTest {
   public void testAliases() {
     assertThat(jinjava.render("{{ 4 is lessthan 5 }}", new HashMap<>()))
       .isEqualTo("true");
+    assertThat(jinjava.render("{{ 4 is < 5 }}", new HashMap<>())).isEqualTo("true");
   }
 }
