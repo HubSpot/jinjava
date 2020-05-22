@@ -8,11 +8,13 @@ import static de.odysseus.el.tree.impl.Scanner.Symbol.EQ;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.IDENTIFIER;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.LBRACK;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.LPAREN;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.LT;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.QUESTION;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.RBRACK;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.RPAREN;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import de.odysseus.el.tree.impl.Builder;
 import de.odysseus.el.tree.impl.Builder.Feature;
 import de.odysseus.el.tree.impl.Parser;
@@ -34,6 +36,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.el.ELException;
 
 public class ExtendedParser extends Parser {
@@ -53,6 +56,12 @@ public class ExtendedParser extends Parser {
 
   static final Scanner.ExtensionToken TRUNC_DIV = TruncDivOperator.TOKEN;
   static final Scanner.ExtensionToken POWER_OF = PowerOfOperator.TOKEN;
+
+  static final Set<Symbol> VALID_SYMBOLS_FOR_EXP_TEST = Sets.newHashSet(
+    IDENTIFIER,
+    EQ,
+    LT
+  );
 
   static {
     ExtendedScanner.addKeyToken(IF);
@@ -443,8 +452,8 @@ public class ExtendedParser extends Parser {
     }
   }
 
-  private boolean isPossibleExpTest(Scanner.Symbol symbol) {
-    return symbol == IDENTIFIER || symbol == EQ;
+  private boolean isPossibleExpTest(Symbol symbol) {
+    return VALID_SYMBOLS_FOR_EXP_TEST.contains(symbol);
   }
 
   @Override
