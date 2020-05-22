@@ -17,6 +17,7 @@ public class ExpTestLibrary extends SimpleLibrary<ExpTest> {
       IsEqualToExpTest.class,
       IsEqExpTest.class,
       IsEqualsSymbolExpTest.class,
+      IsLtTest.class,
       IsEvenExpTest.class,
       IsIterableExpTest.class,
       IsLowerExpTest.class,
