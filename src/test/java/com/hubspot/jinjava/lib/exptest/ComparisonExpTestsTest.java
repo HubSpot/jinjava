@@ -45,4 +45,10 @@ public class ComparisonExpTestsTest {
     assertThat(jinjava.render("{{ now is lt then}}", vars)).isEqualTo("true");
     assertThat(jinjava.render("{{ then is lt now}}", vars)).isEqualTo("false");
   }
+
+  @Test
+  public void testAliases() {
+    assertThat(jinjava.render("{{ 4 is lessthan 5 }}", new HashMap<>()))
+      .isEqualTo("true");
+  }
 }
