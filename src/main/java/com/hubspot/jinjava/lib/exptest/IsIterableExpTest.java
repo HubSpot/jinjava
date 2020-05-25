@@ -29,7 +29,7 @@ public class IsIterableExpTest implements ExpTest {
     return isIterable(var);
   }
 
-  public static boolean isIterable(Object ob) {
+  static boolean isIterable(Object ob) {
     return (
       ob instanceof Object[] ||
       ob instanceof Iterable ||
