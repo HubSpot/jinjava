@@ -20,11 +20,11 @@ public class EscapeFilterTest {
 
   @Test
   public void testEscape() {
-    assertThat(f.filter("", interpreter)).isEqualTo("");
-    assertThat(f.filter("me & you", interpreter)).isEqualTo("me &amp; you");
-    assertThat(f.filter("jared's & ted's bogus journey", interpreter))
+    assertThat(f.filter("", interpreter).toString()).isEqualTo("");
+    assertThat(f.filter("me & you", interpreter).toString()).isEqualTo("me &amp; you");
+    assertThat(f.filter("jared's & ted's bogus journey", interpreter).toString())
       .isEqualTo("jared&#39;s &amp; ted&#39;s bogus journey");
-    assertThat(f.filter(1, interpreter)).isEqualTo("1");
+    assertThat(f.filter(1, interpreter).toString()).isEqualTo("1");
   }
 
   @Test
