@@ -28,23 +28,7 @@ public class CollectionMembershipOperator extends SimpleOperator {
       );
     }
 
-    if (Collection.class.isAssignableFrom(maybeIterable.getClass())) {
-      Collection<?> collection = (Collection<?>) maybeIterable;
-
-      for (Object element : collection) {
-        if (element == null) {
-          if (value == null) {
-            return Boolean.TRUE;
-          }
-        } else {
-          try {
-            return collection.contains(converter.convert(value, element.getClass()));
-          } catch (ELException e) {
-            return Boolean.FALSE;
-          }
-        }
-      }
-    } else if (maybeIterable instanceof Iterable) {
+    if (maybeIterable instanceof Iterable) {
       for (Object element : (Iterable) maybeIterable) {
         if (element == null) {
           if (value == null) {

@@ -30,14 +30,14 @@ public class IsContainingExpTestTest {
   }
 
   @Test
-  public void itFailsOnNullContainedValue() {
+  public void itPassesOnNullContainedValue() {
     assertThat(
         jinjava.render(
           String.format(CONTAINING_TEMPLATE, "[1, 2, null]", "null"),
           new HashMap<>()
         )
       )
-      .isEqualTo("fail");
+      .isEqualTo("pass");
   }
 
   @Test
