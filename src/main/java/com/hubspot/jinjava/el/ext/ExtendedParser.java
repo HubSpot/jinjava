@@ -74,7 +74,7 @@ public class ExtendedParser extends Parser {
     GE,
     TRUE,
     FALSE,
-    EXTENSION
+    CollectionMembershipOperator.TOKEN.getSymbol()
   );
 
   static {
