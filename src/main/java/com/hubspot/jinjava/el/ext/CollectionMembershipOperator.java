@@ -7,8 +7,6 @@ import de.odysseus.el.tree.impl.Scanner;
 import de.odysseus.el.tree.impl.ast.AstBinary;
 import de.odysseus.el.tree.impl.ast.AstBinary.SimpleOperator;
 import de.odysseus.el.tree.impl.ast.AstNode;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Objects;
 import javax.el.ELException;
 import org.apache.commons.lang3.StringUtils;

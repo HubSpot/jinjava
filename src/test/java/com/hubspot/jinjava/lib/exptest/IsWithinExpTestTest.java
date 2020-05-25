@@ -27,14 +27,14 @@ public class IsWithinExpTestTest {
   }
 
   @Test
-  public void itFailsOnNullValueInSequence() {
+  public void itPassesOnNullValueInSequence() {
     assertThat(
         jinjava.render(
           String.format(IN_TEMPLATE, "null", "[1, 2, null]"),
           new HashMap<>()
         )
       )
-      .isEqualTo("fail");
+      .isEqualTo("pass");
   }
 
   @Test
@@ -50,12 +50,6 @@ public class IsWithinExpTestTest {
     assertThat(
         jinjava.render(String.format(IN_TEMPLATE, "null", "[1, 2, 3]"), new HashMap<>())
       )
-      .isEqualTo("fail");
-  }
-
-  @Test
-  public void itFailsOnNullSequence() {
-    assertThat(jinjava.render(String.format(IN_TEMPLATE, "2", "null"), new HashMap<>()))
       .isEqualTo("fail");
   }
 
