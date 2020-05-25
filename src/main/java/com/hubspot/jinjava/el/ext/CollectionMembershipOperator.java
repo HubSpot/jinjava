@@ -15,26 +15,26 @@ import org.apache.commons.lang3.StringUtils;
 public class CollectionMembershipOperator extends SimpleOperator {
 
   @Override
-  public Object apply(TypeConverter converter, Object o1, Object o2) {
-    if (o2 == null) {
+  public Object apply(TypeConverter converter, Object value, Object iterable) {
+    if (iterable == null) {
       return Boolean.FALSE;
     }
 
-    if (CharSequence.class.isAssignableFrom(o2.getClass())) {
-      return StringUtils.contains((CharSequence) o2, Objects.toString(o1, ""));
+    if (CharSequence.class.isAssignableFrom(iterable.getClass())) {
+      return StringUtils.contains((CharSequence) iterable, Objects.toString(value, ""));
     }
 
-    if (Collection.class.isAssignableFrom(o2.getClass())) {
-      Collection<?> collection = (Collection<?>) o2;
+    if (Collection.class.isAssignableFrom(iterable.getClass())) {
+      Collection<?> collection = (Collection<?>) iterable;
 
-      for (Object value : collection) {
-        if (value == null) {
-          if (o1 == null) {
+      for (Object element : collection) {
+        if (element == null) {
+          if (value == null) {
             return Boolean.TRUE;
           }
         } else {
           try {
-            return collection.contains(converter.convert(o1, value.getClass()));
+            return collection.contains(converter.convert(value, element.getClass()));
           } catch (ELException e) {
             return Boolean.FALSE;
           }
