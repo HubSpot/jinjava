@@ -8,6 +8,7 @@ import de.odysseus.el.tree.impl.ast.AstBinary;
 import de.odysseus.el.tree.impl.ast.AstBinary.SimpleOperator;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Objects;
 import javax.el.ELException;
 import org.apache.commons.lang3.StringUtils;
@@ -15,17 +16,20 @@ import org.apache.commons.lang3.StringUtils;
 public class CollectionMembershipOperator extends SimpleOperator {
 
   @Override
-  public Object apply(TypeConverter converter, Object value, Object iterable) {
-    if (iterable == null) {
+  public Object apply(TypeConverter converter, Object value, Object maybeIterable) {
+    if (maybeIterable == null) {
       return Boolean.FALSE;
     }
 
-    if (CharSequence.class.isAssignableFrom(iterable.getClass())) {
-      return StringUtils.contains((CharSequence) iterable, Objects.toString(value, ""));
+    if (CharSequence.class.isAssignableFrom(maybeIterable.getClass())) {
+      return StringUtils.contains(
+        (CharSequence) maybeIterable,
+        Objects.toString(value, "")
+      );
     }
 
-    if (Collection.class.isAssignableFrom(iterable.getClass())) {
-      Collection<?> collection = (Collection<?>) iterable;
+    if (Collection.class.isAssignableFrom(maybeIterable.getClass())) {
+      Collection<?> collection = (Collection<?>) maybeIterable;
 
       for (Object element : collection) {
         if (element == null) {
@@ -40,6 +44,24 @@ public class CollectionMembershipOperator extends SimpleOperator {
           }
         }
       }
+    } else if (maybeIterable instanceof Iterable) {
+      for (Object element : (Iterable) maybeIterable) {
+        if (element == null) {
+          if (value == null) {
+            return true;
+          }
+        } else {
+          try {
+            Object castedValue = converter.convert(value, element.getClass());
+            if (element.equals(castedValue)) {
+              return true;
+            }
+          } catch (ELException e) {
+            return false;
+          }
+        }
+      }
+      return false;
     }
 
     return Boolean.FALSE;
