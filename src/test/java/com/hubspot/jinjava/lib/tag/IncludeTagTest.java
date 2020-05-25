@@ -188,4 +188,16 @@ public class IncludeTagTest {
     assertThat(result.getErrors().get(0).getSourceTemplate().get())
       .isEqualTo("tags/includetag/errors/error.html");
   }
+
+  @Test
+  public void itAvoidsTagCycleExceptionInsideExtendedFiles() throws Exception {
+    String result = jinjava.render(
+      Resources.toString(
+        Resources.getResource("tags/extendstag/tagcycleexception/template-a.jinja"),
+        StandardCharsets.UTF_8
+      ),
+      new HashMap<>()
+    );
+    assertThat(result).isEqualTo("Extended text, will be rendered");
+  }
 }
