@@ -51,6 +51,7 @@ public class ExpTestLibrary extends SimpleLibrary<ExpTest> {
       IsUpperExpTest.class,
       IsContainingAllExpTest.class,
       IsContainingExpTest.class,
+      IsInExpTest.class,
       IsWithinExpTest.class
     );
   }
