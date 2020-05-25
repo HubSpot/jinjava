@@ -25,6 +25,6 @@ public class IsFalseExpTest implements ExpTest {
 
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return var != null && var instanceof Boolean && !(Boolean) var;
+    return var instanceof Boolean && !(Boolean) var;
   }
 }

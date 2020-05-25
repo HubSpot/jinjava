@@ -25,6 +25,6 @@ public class IsIntegerExpTest implements ExpTest {
 
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return var != null && (var instanceof Integer || var instanceof Long);
+    return var instanceof Integer || var instanceof Long;
   }
 }

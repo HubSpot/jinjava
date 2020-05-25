@@ -25,6 +25,6 @@ public class IsFloatExpTest implements ExpTest {
 
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return var != null && (var instanceof Double || var instanceof Float);
+    return var instanceof Double || var instanceof Float;
   }
 }
