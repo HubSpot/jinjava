@@ -29,6 +29,10 @@ import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.lib.exptest.ExpTest;
+import com.hubspot.jinjava.lib.filter.Filter;
+import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
+import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.loader.ClasspathResourceLocator;
 import com.hubspot.jinjava.loader.ResourceLocator;
 import de.odysseus.el.ExpressionFactoryImpl;
@@ -123,7 +127,7 @@ public class Jinjava {
     return globalContext;
   }
 
-  public Context getGlobalContextCopy() {
+  public Context getGlobalContextReadOnly() {
     return copyGlobalContext();
   }
 
@@ -265,6 +269,22 @@ public class Jinjava {
     return globalConfig
       .getInterpreterFactory()
       .newInstance(this, copyGlobalContext(), this.getGlobalConfig());
+  }
+
+  public void registerTag(Tag t) {
+    globalContext.registerTag(t);
+  }
+
+  public void registerFunction(ELFunctionDefinition f) {
+    globalContext.registerFunction(f);
+  }
+
+  public void registerFilter(Filter f) {
+    globalContext.registerFilter(f);
+  }
+
+  public void registerExpTest(ExpTest t) {
+    globalContext.registerExpTest(t);
   }
 
   private Context copyGlobalContext() {
