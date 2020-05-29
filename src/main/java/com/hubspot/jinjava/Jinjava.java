@@ -206,7 +206,9 @@ public class Jinjava {
     if (parentInterpreter != null) {
       renderConfig = parentInterpreter.getConfig();
       Map<String, Object> bindingsWithParentContext = new HashMap<>(bindings);
-      bindingsWithParentContext.putAll(parentInterpreter.getContext());
+      if (parentInterpreter.getContext() != null) {
+        bindingsWithParentContext.putAll(parentInterpreter.getContext());
+      }
       context =
         new Context(
           copyGlobalContext(),
