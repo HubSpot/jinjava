@@ -76,7 +76,7 @@ public class Jinjava {
    */
   public Jinjava(JinjavaConfig globalConfig) {
     this.globalConfig = globalConfig;
-    this.globalContext = new Context(true);
+    this.globalContext = new Context();
 
     Properties expConfig = new Properties();
     expConfig.setProperty(
