@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
   public static final String IMPORT_RESOURCE_PATH_KEY = "import_resource_path";
+  private final boolean global;
 
   private SetMultimap<String, String> dependencies = HashMultimap.create();
   private Map<Library, Set<String>> disabled;
@@ -63,7 +64,7 @@ public class Context extends ScopeMap<String, Object> {
     EXP_TEST,
     FILTER,
     FUNCTION,
-    TAG
+    TAG,
   }
 
   private final CallStack extendPathStack;
@@ -95,15 +96,19 @@ public class Context extends ScopeMap<String, Object> {
   private boolean validationMode = false;
 
   public Context() {
-    this(null, null, null);
+    this(null, null, null, false);
+  }
+
+  public Context(boolean global) {
+    this(null, null, null, global);
   }
 
   public Context(Context parent) {
-    this(parent, null, null);
+    this(parent, null, null, false);
   }
 
   public Context(Context parent, Map<String, ?> bindings) {
-    this(parent, bindings, null);
+    this(parent, bindings, null, false);
   }
 
   public Context(
@@ -111,9 +116,18 @@ public class Context extends ScopeMap<String, Object> {
     Map<String, ?> bindings,
     Map<Library, Set<String>> disabled
   ) {
+    this(parent, bindings, disabled, false);
+  }
+
+  private Context(
+    Context parent,
+    Map<String, ?> bindings,
+    Map<Library, Set<String>> disabled,
+    boolean global
+  ) {
     super(parent);
     this.disabled = disabled;
-
+    this.global = global;
     if (bindings != null) {
       this.putAll(bindings);
     }
@@ -272,7 +286,8 @@ public class Context extends ScopeMap<String, Object> {
   public void handleDeferredNode(Node node) {
     deferredNodes.add(node);
     Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(this);
-    if (getParent() != null) {
+
+    if (getParent() != null && !getParent().isGlobalContext()) {
       Context parent = getParent();
       //Place deferred values on the parent context
       deferredProps
@@ -522,5 +537,9 @@ public class Context extends ScopeMap<String, Object> {
 
   public SetMultimap<String, String> getDependencies() {
     return this.dependencies;
+  }
+
+  public boolean isGlobalContext() {
+    return global;
   }
 }
