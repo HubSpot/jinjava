@@ -38,6 +38,7 @@ import com.hubspot.jinjava.loader.ResourceLocator;
 import de.odysseus.el.ExpressionFactoryImpl;
 import de.odysseus.el.misc.TypeConverter;
 import de.odysseus.el.tree.TreeBuilder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -204,10 +205,12 @@ public class Jinjava {
     JinjavaInterpreter parentInterpreter = JinjavaInterpreter.getCurrent();
     if (parentInterpreter != null) {
       renderConfig = parentInterpreter.getConfig();
+      Map<String, Object> bindingsWithParentContext = new HashMap<>(bindings);
+      bindingsWithParentContext.putAll(parentInterpreter.getContext());
       context =
         new Context(
           copyGlobalContext(),
-          parentInterpreter.getContext(),
+          bindingsWithParentContext,
           renderConfig.getDisabled()
         );
     } else {
