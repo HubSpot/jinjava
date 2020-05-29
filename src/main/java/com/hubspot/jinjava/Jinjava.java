@@ -200,15 +200,18 @@ public class Jinjava {
     Map<String, ?> bindings,
     JinjavaConfig renderConfig
   ) {
-    Context context = new Context(
-      copyGlobalContext(),
-      bindings,
-      renderConfig.getDisabled()
-    );
-
+    Context context;
     JinjavaInterpreter parentInterpreter = JinjavaInterpreter.getCurrent();
     if (parentInterpreter != null) {
       renderConfig = parentInterpreter.getConfig();
+      context =
+        new Context(
+          copyGlobalContext(),
+          parentInterpreter.getContext(),
+          renderConfig.getDisabled()
+        );
+    } else {
+      context = new Context(copyGlobalContext(), bindings, renderConfig.getDisabled());
     }
 
     JinjavaInterpreter interpreter = globalConfig
