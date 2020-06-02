@@ -63,7 +63,7 @@ public class Context extends ScopeMap<String, Object> {
     EXP_TEST,
     FILTER,
     FUNCTION,
-    TAG
+    TAG,
   }
 
   private final CallStack extendPathStack;
@@ -274,12 +274,15 @@ public class Context extends ScopeMap<String, Object> {
     Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(this);
     if (getParent() != null) {
       Context parent = getParent();
-      //Place deferred values on the parent context
-      deferredProps
-        .stream()
-        .filter(key -> !parent.containsKey(key))
-        .forEach(key -> parent.put(key, this.get(key)));
-      getParent().handleDeferredNode(node);
+      //Ignore global context
+      if (parent.getParent() != null) {
+        //Place deferred values on the parent context
+        deferredProps
+          .stream()
+          .filter(key -> !parent.containsKey(key))
+          .forEach(key -> parent.put(key, this.get(key)));
+        getParent().handleDeferredNode(node);
+      }
     }
   }
 
