@@ -52,8 +52,6 @@ public class DeferredValueUtils {
               ((DeferredValue) contextItem).getOriginalValue()
             );
           }
-        } else {
-          deferredContext.put(contextKey, contextItem);
         }
       }
     );
