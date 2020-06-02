@@ -63,7 +63,7 @@ public class Context extends ScopeMap<String, Object> {
     EXP_TEST,
     FILTER,
     FUNCTION,
-    TAG,
+    TAG
   }
 
   private final CallStack extendPathStack;
