@@ -126,6 +126,7 @@ public class SelectAttrFilter implements AdvancedFilter {
         result.add(val);
       }
     }
+    interpreter.getContext().removeResolvedExpression(expression);
 
     return result;
   }
