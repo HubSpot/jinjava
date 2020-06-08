@@ -128,7 +128,7 @@ public class Jinjava {
     return globalContext;
   }
 
-  public Context getGlobalContextReadOnly() {
+  public Context getGlobalContextCopy() {
     return copyGlobalContext();
   }
 

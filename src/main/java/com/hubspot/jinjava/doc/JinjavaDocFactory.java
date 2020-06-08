@@ -42,7 +42,7 @@ public class JinjavaDocFactory {
   }
 
   private void addExpTests(JinjavaDoc doc) {
-    for (ExpTest t : jinjava.getGlobalContextReadOnly().getAllExpTests()) {
+    for (ExpTest t : jinjava.getGlobalContextCopy().getAllExpTests()) {
       com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = t
         .getClass()
         .getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
@@ -83,7 +83,7 @@ public class JinjavaDocFactory {
   }
 
   private void addFilterDocs(JinjavaDoc doc) {
-    for (Filter f : jinjava.getGlobalContextReadOnly().getAllFilters()) {
+    for (Filter f : jinjava.getGlobalContextCopy().getAllFilters()) {
       com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = f
         .getClass()
         .getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
@@ -124,7 +124,7 @@ public class JinjavaDocFactory {
   }
 
   private void addFnDocs(JinjavaDoc doc) {
-    for (ELFunctionDefinition fn : jinjava.getGlobalContextReadOnly().getAllFunctions()) {
+    for (ELFunctionDefinition fn : jinjava.getGlobalContextCopy().getAllFunctions()) {
       if (StringUtils.isBlank(fn.getNamespace())) {
         Method realMethod = fn.getMethod();
         if (
@@ -182,7 +182,7 @@ public class JinjavaDocFactory {
   }
 
   private void addTagDocs(JinjavaDoc doc) {
-    for (Tag t : jinjava.getGlobalContextReadOnly().getAllTags()) {
+    for (Tag t : jinjava.getGlobalContextCopy().getAllTags()) {
       if (t instanceof EndTag) {
         continue;
       }
