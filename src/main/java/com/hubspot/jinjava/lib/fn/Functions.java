@@ -196,7 +196,7 @@ public class Functions {
         value = "var",
         type = "datetimeFormat",
         desc = "format of the datetime string"
-      ),
+      )
     }
   )
   public static PyishDate stringToTime(String datetimeString, String datetimeFormat) {
