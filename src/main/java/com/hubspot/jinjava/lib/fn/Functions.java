@@ -196,7 +196,7 @@ public class Functions {
         value = "var",
         type = "datetimeFormat",
         desc = "format of the datetime string"
-      )
+      ),
     }
   )
   public static PyishDate stringToTime(String datetimeString, String datetimeFormat) {
@@ -331,16 +331,18 @@ public class Functions {
         break;
       case 1:
         start = NumberUtils.toInt(arg1.toString());
-        if (NumberUtils.isNumber(args[0].toString())) {
+        if (args[0] != null && NumberUtils.isNumber(args[0].toString())) {
           end = NumberUtils.toInt(args[0].toString(), start + RANGE_LIMIT);
         }
         break;
       default:
         start = NumberUtils.toInt(arg1.toString());
-        if (NumberUtils.isNumber(args[0].toString())) {
+        if (args[0] != null && NumberUtils.isNumber(args[0].toString())) {
           end = NumberUtils.toInt(args[0].toString(), start + RANGE_LIMIT);
         }
-        step = NumberUtils.toInt(args[1].toString(), 1);
+        if (args[1] != null) {
+          step = NumberUtils.toInt(args[1].toString(), 1);
+        }
     }
 
     if (step == 0) {
