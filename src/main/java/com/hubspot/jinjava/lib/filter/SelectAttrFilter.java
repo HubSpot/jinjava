@@ -10,11 +10,11 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
+import com.hubspot.jinjava.util.Variable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 @JinjavaDoc(
   value = "Filters a sequence of objects by applying a test to an attribute of an object and only selecting the ones with the test succeeding.",
@@ -110,32 +110,20 @@ public class SelectAttrFilter implements AdvancedFilter {
       }
     }
 
-    String tempValue = generateTempVariable();
-    String expression = generateTempVariable(tempValue, attr);
     ForLoop loop = ObjectIterator.getLoop(var);
     while (loop.hasNext()) {
       Object val = loop.next();
-      interpreter.getContext().put(tempValue, val);
 
-      Object attrVal = interpreter.resolveELExpression(
-        expression,
-        interpreter.getLineNumber()
-      );
-
+      Object attrVal = new Variable(
+        interpreter,
+        String.format("%s.%s", "placeholder", attr)
+      )
+      .resolve(val);
       if (acceptObjects == expTest.evaluate(attrVal, interpreter, expArgs)) {
         result.add(val);
       }
     }
-    interpreter.getContext().removeResolvedExpression(expression);
 
     return result;
-  }
-
-  private String generateTempVariable() {
-    return "jj_temp_" + Math.abs(ThreadLocalRandom.current().nextInt());
-  }
-
-  private String generateTempVariable(String tempValue, String expression) {
-    return String.format("%s.%s", tempValue, expression).trim();
   }
 }
