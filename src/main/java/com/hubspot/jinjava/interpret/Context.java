@@ -235,6 +235,13 @@ public class Context extends ScopeMap<String, Object> {
     }
   }
 
+  public void removeResolvedExpression(String expression) {
+    resolvedExpressions.remove(expression);
+    if (getParent() != null) {
+      getParent().removeResolvedExpression(expression);
+    }
+  }
+
   public Set<String> getResolvedExpressions() {
     return ImmutableSet.copyOf(resolvedExpressions);
   }
