@@ -135,6 +135,11 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
+  public void conditionalExprWithOrConditionalAndCustomExpression() {
+    assertThat(val("'a' is equalto 'b' or 'a' is equalto 'a'")).isEqualTo(true);
+  }
+
+  @Test
   public void newlineEscChar() {
     context.put("comment", "foo\nbar");
     assertThat(val("comment|replace('\\n', '<br/>')")).isEqualTo("foo<br/>bar");

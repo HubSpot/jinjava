@@ -120,6 +120,14 @@ public class DeferredTest {
   }
 
   @Test
+  public void itResolveEqualToInOrCondition() {
+    String output = interpreter.render(
+            "{% if 'a' is equalto 'b' or 'a' is equalto 'a' %}{{deferred}}{% endif %}"
+    );
+    assertThat(output).isEqualTo("{{deferred}}");
+  }
+
+  @Test
   public void itResolvesForTagWherePossible() {
     String output = interpreter.render(
       "{% for i in [1, 2] %}{{i}}{{deferred}}{% endfor %}"
