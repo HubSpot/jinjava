@@ -65,7 +65,7 @@ public class ExpressionNode extends Node {
     }
 
     if (interpreter.getContext().isAutoEscape() && !(var instanceof SafeString)) {
-      result = EscapeFilter.escapeHtmlEntities(result).getValue();
+      result = EscapeFilter.escapeHtmlEntities(result);
     }
 
     return new RenderedOutputNode(result);

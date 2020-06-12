@@ -19,7 +19,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.objects.SafeString;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
@@ -45,11 +44,11 @@ public class EscapeFilter implements Filter {
   private static final String BSQ = "&#39;";
   private static final String BDQ = "&quot;";
 
-  public static final String[] TO_REPLACE = new String[] { SAMP, SGT, SLT, "'", "\"" };
+  private static final String[] TO_REPLACE = new String[] { SAMP, SGT, SLT, "'", "\"" };
   private static final String[] REPLACE_WITH = new String[] { BAMP, BGT, BLT, BSQ, BDQ };
 
-  public static SafeString escapeHtmlEntities(String input) {
-    return new SafeString(StringUtils.replaceEach(input, TO_REPLACE, REPLACE_WITH));
+  public static String escapeHtmlEntities(String input) {
+    return StringUtils.replaceEach(input, TO_REPLACE, REPLACE_WITH);
   }
 
   @Override
