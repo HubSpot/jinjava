@@ -5,6 +5,8 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
+import java.math.BigDecimal;
+
 @JinjavaDoc(
   value = "Return true if object is a float",
   input = @JinjavaParam(value = "value", type = "object", required = true),
@@ -25,6 +27,8 @@ public class IsFloatExpTest implements ExpTest {
 
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return var instanceof Double || var instanceof Float;
+    return var instanceof Double ||
+            var instanceof Float ||
+            (var instanceof BigDecimal && ((BigDecimal) var).scale() > 0);
   }
 }
