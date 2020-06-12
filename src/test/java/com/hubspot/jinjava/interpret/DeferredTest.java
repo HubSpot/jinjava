@@ -128,6 +128,16 @@ public class DeferredTest {
   }
 
   @Test
+  public void itPreserveDeferredVariableResolvingEqualToInOrCondition() {
+    String inputOutputExpected =
+      "{% if 'a' is equalto 'b' or 'a' is equalto deferred %}preserved{% endif %}";
+    String output = interpreter.render(inputOutputExpected);
+
+    assertThat(output).isEqualTo(inputOutputExpected);
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
   public void itResolvesForTagWherePossible() {
     String output = interpreter.render(
       "{% for i in [1, 2] %}{{i}}{{deferred}}{% endfor %}"
