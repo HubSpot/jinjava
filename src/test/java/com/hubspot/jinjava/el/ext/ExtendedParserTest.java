@@ -25,7 +25,7 @@ public class ExtendedParserTest {
 
     @Test
     public void itParseBinaryOrEqualCondition() {
-        AstNode astNode = buildExpressionNodes("#{'a' == 'b' or 'c' == 'c'}");
+        AstNode astNode = buildExpressionNodes("#{'a' == 'b' or 'c' == 'd'}");
 
         assertThat(astNode).isInstanceOf(AstBinary.class);
 
@@ -38,7 +38,7 @@ public class ExtendedParserTest {
         assertThat(right).isInstanceOf(AstBinary.class);
 
         assertLeftAndRightByOperator((AstBinary) left, "a", "b", AstBinary.EQ);
-        assertLeftAndRightByOperator((AstBinary) right, "c", "c", AstBinary.EQ);
+        assertLeftAndRightByOperator((AstBinary) right, "c", "d", AstBinary.EQ);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class ExtendedParserTest {
 
     @Test
     public void itParseBinaryOrWithEqualSymbolAndExpressionCondition() {
-        AstNode astNode = buildExpressionNodes("#{'a' == 'b' or 'c' is equalto 'c'}");
+        AstNode astNode = buildExpressionNodes("#{'a' == 'b' or 'c' is equalto 'd'}");
 
         assertThat(astNode).isInstanceOf(AstBinary.class);
 
@@ -64,7 +64,25 @@ public class ExtendedParserTest {
         assertThat(right).isInstanceOf(AstMethod.class);
 
         assertLeftAndRightByOperator((AstBinary) left, "a", "b", AstBinary.EQ);
-        assertForExpression(right, "c", "c", "exptest:equalto");
+        assertForExpression(right, "c", "d", "exptest:equalto");
+    }
+
+    @Test
+    public void itParseBinaryOrWithExpressionsCondition() {
+        AstNode astNode = buildExpressionNodes("#{'a' is equalto 'b' or 'c' is equalto 'd'}");
+
+        assertThat(astNode).isInstanceOf(AstBinary.class);
+
+        AstBinary astBinary = (AstBinary) astNode;
+        AstNode left = astBinary.getChild(0);
+        AstNode right = astBinary.getChild(1);
+
+        assertThat(astBinary.getOperator()).isEqualTo(OrOperator.OP);
+        assertThat(left).isInstanceOf(AstMethod.class);
+        assertThat(right).isInstanceOf(AstMethod.class);
+
+        assertForExpression(left, "a", "b", "exptest:equalto");
+        assertForExpression(right, "c", "d", "exptest:equalto");
     }
 
     private void assertForExpression(AstNode astNode, String leftExpected, String rightExpected, String expression) {
