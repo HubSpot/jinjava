@@ -400,45 +400,36 @@ public class ExtendedParser extends Parser {
           ) {
             consumeToken(); // 'is'
             consumeToken(); // 'not'
-            String exptestName = consumeToken().getImage();
-            List<AstNode> exptestParams = Lists.newArrayList(v, interpreter());
-
-            // optional exptest arg
-            AstNode arg = value();
-            if (arg != null) {
-              exptestParams.add(arg);
-            }
-
-            AstProperty exptestProperty = createAstDot(
-              identifier(EXPTEST_PREFIX + exptestName),
-              "evaluateNegated",
-              true
-            );
-            v = createAstMethod(exptestProperty, new AstParameters(exptestParams));
+            v = buildAstMethodForIdentifier(v, "evaluateNegated");
           } else if (
-            "is".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER
+            "is".equals(getToken().getImage()) &&
+            lookahead(0).getSymbol() == IDENTIFIER
           ) {
             consumeToken(); // 'is'
-            String exptestName = consumeToken().getImage();
-            List<AstNode> exptestParams = Lists.newArrayList(v, interpreter());
-
-            // optional exptest arg
-            AstNode arg = value();
-            if (arg != null) {
-              exptestParams.add(arg);
-            }
-
-            AstProperty exptestProperty = createAstDot(
-              identifier(EXPTEST_PREFIX + exptestName),
-              "evaluate",
-              true
-            );
-            v = createAstMethod(exptestProperty, new AstParameters(exptestParams));
+            v = buildAstMethodForIdentifier(v, "evaluate");
           }
 
           return v;
       }
     }
+  }
+
+  private AstNode buildAstMethodForIdentifier(AstNode astNode, String property) throws ScanException, ParseException {
+    String exptestName = consumeToken().getImage();
+    List<AstNode> exptestParams = Lists.newArrayList(astNode, interpreter());
+
+    // optional exptest arg
+    AstNode arg = value();
+    if (arg != null) {
+      exptestParams.add(arg);
+    }
+
+    AstProperty exptestProperty = createAstDot(
+            identifier(EXPTEST_PREFIX + exptestName),
+            property,
+            true
+    );
+    return createAstMethod(exptestProperty, new AstParameters(exptestParams));
   }
 
   @Override
