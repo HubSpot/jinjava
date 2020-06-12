@@ -6,6 +6,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 @JinjavaDoc(
   value = "Return true if object is an integer or long",
@@ -27,8 +28,11 @@ public class IsIntegerExpTest implements ExpTest {
 
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return var instanceof Integer ||
+    return var instanceof Byte ||
+            var instanceof Short ||
+            var instanceof Integer ||
             var instanceof Long ||
+            var instanceof BigInteger ||
             (var instanceof BigDecimal && ((BigDecimal) var).scale() == 0);
   }
 }
