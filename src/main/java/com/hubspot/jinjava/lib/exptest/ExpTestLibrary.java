@@ -49,7 +49,6 @@ public class ExpTestLibrary extends SimpleLibrary<ExpTest> {
       IsTruthyExpTest.class,
       IsUndefinedExpTest.class,
       IsUpperExpTest.class,
-      IsEscapedExpTest.class,
       IsContainingAllExpTest.class,
       IsContainingExpTest.class,
       IsInExpTest.class,
