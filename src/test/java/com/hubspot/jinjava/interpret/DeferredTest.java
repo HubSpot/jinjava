@@ -122,7 +122,7 @@ public class DeferredTest {
   @Test
   public void itResolveEqualToInOrCondition() {
     String output = interpreter.render(
-            "{% if 'a' is equalto 'b' or 'a' is equalto 'a' %}{{deferred}}{% endif %}"
+      "{% if 'a' is equalto 'b' or 'a' is equalto 'a' %}{{deferred}}{% endif %}"
     );
     assertThat(output).isEqualTo("{{deferred}}");
   }

@@ -402,8 +402,7 @@ public class ExtendedParser extends Parser {
             consumeToken(); // 'not'
             v = buildAstMethodForIdentifier(v, "evaluateNegated");
           } else if (
-            "is".equals(getToken().getImage()) &&
-            lookahead(0).getSymbol() == IDENTIFIER
+            "is".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER
           ) {
             consumeToken(); // 'is'
             v = buildAstMethodForIdentifier(v, "evaluate");
@@ -414,7 +413,8 @@ public class ExtendedParser extends Parser {
     }
   }
 
-  private AstNode buildAstMethodForIdentifier(AstNode astNode, String property) throws ScanException, ParseException {
+  private AstNode buildAstMethodForIdentifier(AstNode astNode, String property)
+    throws ScanException, ParseException {
     String exptestName = consumeToken().getImage();
     List<AstNode> exptestParams = Lists.newArrayList(astNode, interpreter());
 
@@ -425,9 +425,9 @@ public class ExtendedParser extends Parser {
     }
 
     AstProperty exptestProperty = createAstDot(
-            identifier(EXPTEST_PREFIX + exptestName),
-            property,
-            true
+      identifier(EXPTEST_PREFIX + exptestName),
+      property,
+      true
     );
     return createAstMethod(exptestProperty, new AstParameters(exptestParams));
   }
