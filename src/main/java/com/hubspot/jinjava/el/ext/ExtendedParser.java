@@ -404,7 +404,7 @@ public class ExtendedParser extends Parser {
             List<AstNode> exptestParams = Lists.newArrayList(v, interpreter());
 
             // optional exptest arg
-            AstNode arg = expr(false);
+            AstNode arg = value();
             if (arg != null) {
               exptestParams.add(arg);
             }

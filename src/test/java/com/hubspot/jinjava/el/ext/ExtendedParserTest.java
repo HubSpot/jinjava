@@ -85,6 +85,24 @@ public class ExtendedParserTest {
         assertForExpression(right, "c", "d", "exptest:equalto");
     }
 
+    @Test
+    public void itParseBinaryOrWithNegativeExpressionsCondition() {
+        AstNode astNode = buildExpressionNodes("#{'a' is not equalto 'b' or 'c' is not equalto 'd'}");
+
+        assertThat(astNode).isInstanceOf(AstBinary.class);
+
+        AstBinary astBinary = (AstBinary) astNode;
+        AstNode left = astBinary.getChild(0);
+        AstNode right = astBinary.getChild(1);
+
+        assertThat(astBinary.getOperator()).isEqualTo(OrOperator.OP);
+        assertThat(left).isInstanceOf(AstMethod.class);
+        assertThat(right).isInstanceOf(AstMethod.class);
+
+        assertForExpression(left, "a", "b", "exptest:equalto");
+        assertForExpression(right, "c", "d", "exptest:equalto");
+    }
+
     private void assertForExpression(AstNode astNode, String leftExpected, String rightExpected, String expression) {
         AstIdentifier astIdentifier = (AstIdentifier) astNode.getChild(0).getChild(0);
         assertThat(astIdentifier.getName()).isEqualTo(expression);
