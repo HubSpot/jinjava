@@ -1,6 +1,6 @@
 # Jinjava Releases #
 
-### 2020-06-023 Version 2.5.5 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.5%7Cjar)) ###
+### 2020-06-23 Version 2.5.5 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.5%7Cjar)) ###
 * [TagCycleException was thrown when rendering template that doesn't have any cycles](https://github.com/HubSpot/jinjava/pull/445)
 * [Make global context thread-safe](https://github.com/HubSpot/jinjava/pull/445)
 * [Defer variables used in deferred](https://github.com/HubSpot/jinjava/pull/449)
