@@ -1,5 +1,12 @@
 # Jinjava Releases #
 
+### 2020-06-023 Version 2.5.5 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.5%7Cjar)) ###
+* [TagCycleException was thrown when rendering template that doesn't have any cycles](https://github.com/HubSpot/jinjava/pull/445)
+* [Make global context thread-safe](https://github.com/HubSpot/jinjava/pull/445)
+* [Defer variables used in deferred](https://github.com/HubSpot/jinjava/pull/449)
+* [Check for nulls in range function](https://github.com/HubSpot/jinjava/pull/452)
+* [Fix for "Equalto operator doesn't work in "or" statement (== does)"](https://github.com/HubSpot/jinjava/pull/455)
+
 ### 2020-05-01 Version 2.5.4 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.4%7Cjar)) ###
 * [Remove hacky replaceL behavior](https://github.com/HubSpot/jinjava/pull/407)
 * [Add over limit to template errors](https://github.com/HubSpot/jinjava/pull/412)
