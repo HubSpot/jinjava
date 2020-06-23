@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.filter;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -9,7 +8,6 @@ import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.io.IOException;
-import java.util.HashMap;
 
 @JinjavaDoc(
   value = "Converts JSON string to Object",
@@ -33,7 +31,7 @@ public class FromJsonFilter implements Filter {
       throw new InvalidInputException(interpreter, this, InvalidReason.STRING);
     }
     try {
-      return OBJECT_MAPPER.readValue((String) var, JsonNode.class);
+      return OBJECT_MAPPER.readValue((String) var, Object.class);
     } catch (IOException e) {
       throw new InvalidInputException(interpreter, this, InvalidReason.JSON_READ);
     }

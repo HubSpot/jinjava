@@ -1,120 +1,103 @@
 package com.hubspot.jinjava.lib.filter;
 
-import static java.util.Arrays.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.objects.SafeString;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
 public class FromJsonFilterTest {
-  private static final String TRIVIAL_JSON_ARRAY = "[\"one\",\"two\",\"three\"]";
-  private static final String NESTED_JSON =
-    "{\"first\":[1,2,3],\"nested\":{\"second\":\"string\",\"third\":4}}";
-  private static final String DEEPLY_NESTED_ARRAY = "{\"a\":{\"b\":{\"c\": [1,2,3]}}}";
-  private static final String EMPTY_JSON_OBJECT = "{}";
-  private static final String EMPTY_JSON_ARRAY = "[]";
-
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
   private JinjavaInterpreter interpreter;
+  private Jinjava jinjava;
   private FromJsonFilter filter;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
+    jinjava = new Jinjava();
+    interpreter = jinjava.newInterpreter();
     filter = new FromJsonFilter();
   }
 
   @Test(expected = InvalidInputException.class)
   public void itFailsWhenStringIsNotJson() {
-    String nestedJson = "blah";
+    String json = "blah";
 
-    filter.filter(nestedJson, interpreter);
+    filter.filter(json, interpreter);
   }
 
   @Test(expected = InvalidInputException.class)
   public void itFailsWhenParameterIsNotString() {
-    Integer nestedJson = 456;
+    Integer json = 456;
 
-    filter.filter(nestedJson, interpreter);
+    filter.filter(json, interpreter);
+  }
+
+  @Test(expected = InvalidInputException.class)
+  public void itFailsWhenJsonIsInvalid() {
+    String json = "{[ }]";
+
+    filter.filter(json, interpreter);
   }
 
   @Test
-  public void itReadsEmptyJsonObjectString() {
-    JsonNode node = (JsonNode) filter.filter(EMPTY_JSON_OBJECT, interpreter);
-    assertThat(node.elements().hasNext()).isEqualTo(false);
+  public void itRendersTrivialJsonObject() {
+    String trivialJsonObject = "{\"a\":100,\"b\":200}";
+
+    Map<String, Object> vars = ImmutableMap.of("test", trivialJsonObject);
+    String template = "{% set obj = test | fromjson %}{{ obj.a }} {{ obj.b }}";
+    String renderedJinjava = jinjava.render(template, vars);
+
+    assertThat(renderedJinjava).isEqualTo("100 200");
   }
 
   @Test
-  public void itReadsStringAsObject() {
-    JsonNode node = (JsonNode) filter.filter(NESTED_JSON, interpreter);
+  public void itRendersTrivialJsonArray() {
+    String trivialJsonArray = "[\"one\",\"two\",\"three\"]";
 
-    checkNestedJson(node);
+    Map<String, Object> vars = ImmutableMap.of("test", trivialJsonArray);
+    String template =
+      "{% set obj = test | fromjson %}{{ obj[0] }} {{ obj[1] }} {{ obj[2] }}";
+    String renderedJinjava = jinjava.render(template, vars);
+
+    assertThat(renderedJinjava).isEqualTo("one two three");
   }
 
   @Test
-  public void itReadsSafeStringAsObject() {
-    SafeString nestedJson = new SafeString(NESTED_JSON);
-    JsonNode node = (JsonNode) filter.filter(nestedJson, interpreter);
+  public void itRendersNestedObjectJson() {
+    String nestedObject = "{\"first\": 1,\"nested\":{\"second\":\"string\",\"third\":4}}";
 
-    checkNestedJson(node);
+    Map<String, Object> vars = ImmutableMap.of("test", nestedObject);
+    String template =
+      "{% set obj = test | fromjson %}{{ obj.first }} {{ obj.nested.second }} {{ obj.nested.third }}";
+    String renderedJinjava = jinjava.render(template, vars);
+
+    assertThat(renderedJinjava).isEqualTo("1 string 4");
   }
 
   @Test
-  public void itReadsEmptyJsonArrayString() {
-    JsonNode node = (JsonNode) filter.filter(EMPTY_JSON_ARRAY, interpreter);
-    assertThat(node.elements().hasNext()).isEqualTo(false);
+  public void itRendersNestedJsonWithArray() {
+    String nestedObjectWithArray = "{\"a\":{\"b\":{\"c\":[1,2,3]}}}";
+
+    Map<String, Object> vars = ImmutableMap.of("test", nestedObjectWithArray);
+    String template = "{% set obj = test | fromjson %}{{ obj.a.b.c }}";
+    String renderedJinjava = jinjava.render(template, vars);
+
+    assertThat(renderedJinjava).isEqualTo("[1, 2, 3]");
   }
 
   @Test
-  public void itReadsStringAsList() {
-    JsonNode node = (JsonNode) filter.filter(TRIVIAL_JSON_ARRAY, interpreter);
+  public void itRendersArrayOfObjects() {
+    String arrayOfObjects = "[{\"a\":1},{\"a\":2},{\"a\": 3}]";
 
-    List<String> nodeAsList = OBJECT_MAPPER.convertValue(node, List.class);
-    assertThat(nodeAsList.toArray())
-      .containsExactly(Arrays.asList("one", "two", "three").toArray());
-  }
+    Map<String, Object> vars = ImmutableMap.of("test", arrayOfObjects);
+    String template =
+      "{% set obj = test | fromjson %}{{ obj[0].a }} {{ obj[1].a }} {{ obj[2].a }}";
+    String renderedJinjava = jinjava.render(template, vars);
 
-  @Test
-  public void itReadsSafeStringArrayAsObject() {
-    SafeString arrayJson = new SafeString(TRIVIAL_JSON_ARRAY);
-    JsonNode node = (JsonNode) filter.filter(arrayJson, interpreter);
-
-    List<String> nodeAsList = OBJECT_MAPPER.convertValue(node, List.class);
-    assertThat(nodeAsList.toArray())
-      .containsExactly(Arrays.asList("one", "two", "three").toArray());
-  }
-
-  @Test
-  public void itReadsDeeplyNestedArrayString() {
-    JsonNode node = (JsonNode) filter.filter(DEEPLY_NESTED_ARRAY, interpreter);
-    JsonNode target = node.get("a").get("b").get("c");
-
-    List<String> targetAsList = OBJECT_MAPPER.convertValue(target, List.class);
-    assertThat(targetAsList.toArray()).containsExactly(Arrays.asList(1, 2, 3).toArray());
-  }
-
-  private void checkNestedJson(JsonNode node) {
-    assertThat(node.get("first").isArray());
-
-    List<Integer> firstFieldValue = OBJECT_MAPPER.convertValue(
-      node.get("first"),
-      List.class
-    );
-    assertThat(firstFieldValue.toArray())
-      .containsExactly(Arrays.asList(1, 2, 3).toArray());
-
-    JsonNode nested = node.get("nested");
-    assertThat(nested.get("second").asText()).isEqualTo("string");
-    assertThat(nested.get("third").asInt()).isEqualTo(4);
+    assertThat(renderedJinjava).isEqualTo("1 2 3");
   }
 }
