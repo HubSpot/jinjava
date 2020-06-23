@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.filter;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -28,12 +29,11 @@ public class FromJsonFilter implements Filter {
       return null;
     }
 
+    if (!(var instanceof String)) {
+      throw new InvalidInputException(interpreter, this, InvalidReason.STRING);
+    }
     try {
-      if (var instanceof String) {
-        return OBJECT_MAPPER.readValue((String) var, HashMap.class);
-      } else {
-        throw new InvalidInputException(interpreter, this, InvalidReason.STRING);
-      }
+      return OBJECT_MAPPER.readValue((String) var, JsonNode.class);
     } catch (IOException e) {
       throw new InvalidInputException(interpreter, this, InvalidReason.JSON_READ);
     }
