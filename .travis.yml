@@ -21,6 +21,6 @@ notifications:
 before_install:
   - pip install --user codecov
 after_success:
-  - mvn validate -e
+  - travis_wait mvn validate -e
   - codecov
 

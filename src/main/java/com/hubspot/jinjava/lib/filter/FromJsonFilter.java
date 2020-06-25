@@ -8,7 +8,6 @@ import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.io.IOException;
-import java.util.HashMap;
 
 @JinjavaDoc(
   value = "Converts JSON string to Object",
@@ -28,12 +27,11 @@ public class FromJsonFilter implements Filter {
       return null;
     }
 
+    if (!(var instanceof String)) {
+      throw new InvalidInputException(interpreter, this, InvalidReason.STRING);
+    }
     try {
-      if (var instanceof String) {
-        return OBJECT_MAPPER.readValue((String) var, HashMap.class);
-      } else {
-        throw new InvalidInputException(interpreter, this, InvalidReason.STRING);
-      }
+      return OBJECT_MAPPER.readValue((String) var, Object.class);
     } catch (IOException e) {
       throw new InvalidInputException(interpreter, this, InvalidReason.JSON_READ);
     }
