@@ -2,17 +2,16 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.RenderResult;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import com.hubspot.jinjava.Jinjava;
-
 public class SortFilterTest {
-
   Jinjava jinjava;
 
   @Before
@@ -38,8 +37,15 @@ public class SortFilterTest {
   @Test
   public void sortWithNamedAttributes() throws Exception {
     // even if named attributes were never supported for this filter, ensure parameters are passed in order and it works
-    assertThat(render("(reverse=false, case_sensitive=false, attribute='foo.date')",
-        new MyBar(new MyFoo(new Date(250L))), new MyBar(new MyFoo(new Date(0L))), new MyBar(new MyFoo(new Date(100000000L))))).isEqualTo("0250100000000");
+    assertThat(
+        render(
+          "(reverse=false, case_sensitive=false, attribute='foo.date')",
+          new MyBar(new MyFoo(new Date(250L))),
+          new MyBar(new MyFoo(new Date(0L))),
+          new MyBar(new MyFoo(new Date(100000000L)))
+        )
+      )
+      .isEqualTo("0250100000000");
   }
 
   @Test
@@ -49,13 +55,73 @@ public class SortFilterTest {
 
   @Test
   public void sortWithAttr() {
-    assertThat(render("(false, false, 'date')", new MyFoo(new Date(250L)), new MyFoo(new Date(0L)), new MyFoo(new Date(100000000L)))).isEqualTo("0250100000000");
+    assertThat(
+        render(
+          "(false, false, 'date')",
+          new MyFoo(new Date(250L)),
+          new MyFoo(new Date(0L)),
+          new MyFoo(new Date(100000000L))
+        )
+      )
+      .isEqualTo("0250100000000");
   }
 
   @Test
   public void sortWithNestedAttr() {
-    assertThat(render("(false, false, 'foo.date')",
-        new MyBar(new MyFoo(new Date(250L))), new MyBar(new MyFoo(new Date(0L))), new MyBar(new MyFoo(new Date(100000000L))))).isEqualTo("0250100000000");
+    assertThat(
+        render(
+          "(false, false, 'foo.date')",
+          new MyBar(new MyFoo(new Date(250L))),
+          new MyBar(new MyFoo(new Date(0L))),
+          new MyBar(new MyFoo(new Date(100000000L)))
+        )
+      )
+      .isEqualTo("0250100000000");
+  }
+
+  @Test
+  public void itThrowsInvalidArgumentExceptionOnNullAttribute() {
+    RenderResult result = renderForResult(
+      "(false, false, null)",
+      new MyFoo(new Date(250L)),
+      new MyFoo(new Date(0L)),
+      new MyFoo(new Date(100000000L))
+    );
+    assertThat(result.getOutput()).isEmpty();
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getSeverity()).isEqualTo(ErrorType.FATAL);
+    assertThat(result.getErrors().get(0).getMessage()).contains("cannot be null");
+  }
+
+  @Test
+  public void itThrowsInvalidArgumentWhenObjectAttributeIsNull() {
+    RenderResult result = renderForResult(
+      "(false, false, 'doesNotResolve')",
+      new MyFoo(new Date(250L)),
+      new MyFoo(new Date(0L)),
+      new MyFoo(new Date(100000000L))
+    );
+    assertThat(result.getOutput()).isEmpty();
+    assertThat(result.getErrors()).hasSize(2);
+    assertThat(result.getErrors().get(1).getSeverity()).isEqualTo(ErrorType.FATAL);
+    assertThat(result.getErrors().get(1).getMessage())
+      .contains("must be a valid attribute of every item in the list");
+  }
+
+  @Test
+  public void itThrowsInvalidInputWhenListContainsNull() {
+    RenderResult result = renderForResult(
+      "(false, false)",
+      new MyFoo(new Date(250L)),
+      new MyFoo(new Date(0L)),
+      null,
+      new MyFoo(new Date(100000000L))
+    );
+    assertThat(result.getOutput()).isEmpty();
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getSeverity()).isEqualTo(ErrorType.FATAL);
+    assertThat(result.getErrors().get(0).getMessage())
+      .contains("cannot contain a null item");
   }
 
   String render(Object... items) {
@@ -63,10 +129,17 @@ public class SortFilterTest {
   }
 
   String render(String sortExtra, Object... items) {
+    return renderForResult(sortExtra, items).getOutput();
+  }
+
+  RenderResult renderForResult(String sortExtra, Object... items) {
     Map<String, Object> context = new HashMap<>();
     context.put("iterable", items);
 
-    return jinjava.render("{% for item in iterable|sort" + sortExtra + " %}{{ item }}{% endfor %}", context);
+    return jinjava.renderForResult(
+      "{% for item in iterable|sort" + sortExtra + " %}{{ item }}{% endfor %}",
+      context
+    );
   }
 
   public static class MyFoo {

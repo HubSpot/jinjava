@@ -15,21 +15,12 @@
  */
 package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_EXPR_END;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_EXPR_START;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_FIXED;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NEWLINE;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_POSTFIX;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_PREFIX;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
 import static com.hubspot.jinjava.util.CharArrayUtils.charArrayRegionMatches;
 
 import com.google.common.collect.AbstractIterator;
 import com.hubspot.jinjava.JinjavaConfig;
 
 public class TokenScanner extends AbstractIterator<Token> {
-
   private final JinjavaConfig config;
 
   private final char[] is;
@@ -46,6 +37,7 @@ public class TokenScanner extends AbstractIterator<Token> {
   private char inQuote = 0;
   private int currLine = 1;
   private int lastNewlinePos = 0;
+  private TokenScannerSymbols symbols;
 
   public TokenScanner(String input, JinjavaConfig config) {
     this.config = config;
@@ -63,6 +55,8 @@ public class TokenScanner extends AbstractIterator<Token> {
     inQuote = 0;
     currLine = 1;
     lastNewlinePos = 0;
+
+    symbols = config.getTokenScannerSymbols();
   }
 
   private Token getNextToken() {
@@ -90,12 +84,12 @@ public class TokenScanner extends AbstractIterator<Token> {
         }
       }
 
-      switch (c) {
-      case TOKEN_PREFIX:
+      // models switch case into if-else blocks
+      if (c == symbols.getPrefix()) {
         if (currPost < length) {
           c = is[currPost];
-          switch (c) {
-          case TOKEN_NOTE:
+
+          if (c == symbols.getNote()) {
             if (inComment == 1 || inRaw == 1) {
               continue;
             }
@@ -108,17 +102,15 @@ public class TokenScanner extends AbstractIterator<Token> {
               tokenStart = --currPost;
               tokenKind = c;
               inComment = 0;
-              return newToken(TOKEN_FIXED);
+              return newToken(symbols.getFixed());
             } else {
               tokenKind = c;
             }
-            break;
-          case TOKEN_TAG:
-          case TOKEN_EXPR_START:
+          } else if (c == symbols.getTag() || c == symbols.getExprStart()) {
             if (inComment > 0) {
               continue;
             }
-            if (inRaw > 0 && (c == TOKEN_EXPR_START || !isEndRaw())) {
+            if (inRaw > 0 && (c == symbols.getExprStart() || !isEndRaw())) {
               continue;
             }
             // match token two ends
@@ -135,24 +127,17 @@ public class TokenScanner extends AbstractIterator<Token> {
               lastStart = tokenStart;
               tokenStart = --currPost;
               tokenKind = c;
-              return newToken(TOKEN_FIXED);
+              return newToken(symbols.getFixed());
             } else {
               tokenKind = c;
             }
-            break;
-          default:
-            break;
           }
-        }
-        // reach the stream end
-        else {
+        } else { // reach the stream end
           return getEndToken();
         }
-        break;
+      } else if (c == symbols.getTag() || c == symbols.getExprEnd()) {
+        // maybe current token is closing
 
-      // maybe current token is closing
-      case TOKEN_TAG:
-      case TOKEN_EXPR_END:
         if (inComment > 0) {
           continue;
         }
@@ -161,7 +146,7 @@ public class TokenScanner extends AbstractIterator<Token> {
         }
         if (currPost < length) {
           c = is[currPost];
-          if (c == TOKEN_POSTFIX) {
+          if (c == symbols.getPostfix()) {
             inBlock = 0;
 
             tokenLength = currPost - tokenStart + 1;
@@ -170,21 +155,20 @@ public class TokenScanner extends AbstractIterator<Token> {
               lastStart = tokenStart;
               tokenStart = ++currPost;
               int kind = tokenKind;
-              tokenKind = TOKEN_FIXED;
+              tokenKind = symbols.getFixed();
               return newToken(kind);
             }
           }
         } else {
           return getEndToken();
         }
-        break;
-      case TOKEN_NOTE:
+      } else if (c == symbols.getNote()) { // case 3
         if (!matchToken(c)) {
           continue;
         }
         if (currPost < length) {
           c = is[currPost];
-          if (c == TOKEN_POSTFIX) {
+          if (c == symbols.getPostfix()) {
             inComment = 0;
 
             tokenLength = currPost - tokenStart + 1;
@@ -192,15 +176,14 @@ public class TokenScanner extends AbstractIterator<Token> {
               // start a new token
               lastStart = tokenStart;
               tokenStart = ++currPost;
-              tokenKind = TOKEN_FIXED;
-              return newToken(TOKEN_NOTE);
+              tokenKind = symbols.getFixed();
+              return newToken(symbols.getNote());
             }
           }
         } else {
           return getEndToken();
         }
-        break;
-      case TOKEN_NEWLINE:
+      } else if (c == symbols.getNewline()) {
         currLine++;
         lastNewlinePos = currPost;
 
@@ -208,11 +191,10 @@ public class TokenScanner extends AbstractIterator<Token> {
           continue;
         }
 
-        tokenKind = TOKEN_FIXED;
-        break;
-      default:
+        tokenKind = symbols.getFixed();
+      } else {
         if (tokenKind == -1) {
-          tokenKind = TOKEN_FIXED;
+          tokenKind = symbols.getFixed();
         }
       }
     }
@@ -236,15 +218,27 @@ public class TokenScanner extends AbstractIterator<Token> {
 
   private Token getEndToken() {
     tokenLength = currPost - tokenStart;
-    int type = TOKEN_FIXED;
+    int type = symbols.getFixed();
     if (inComment > 0) {
-      type = TOKEN_NOTE;
+      type = symbols.getNote();
     }
-    return Token.newToken(type, String.valueOf(is, tokenStart, tokenLength), currLine, tokenStart - lastNewlinePos + 1);
+    return Token.newToken(
+      type,
+      symbols,
+      String.valueOf(is, tokenStart, tokenLength),
+      currLine,
+      tokenStart - lastNewlinePos + 1
+    );
   }
 
   private Token newToken(int kind) {
-    Token t = Token.newToken(kind, String.valueOf(is, lastStart, tokenLength), currLine, lastStart - lastNewlinePos + 1);
+    Token t = Token.newToken(
+      kind,
+      symbols,
+      String.valueOf(is, lastStart, tokenLength),
+      currLine,
+      lastStart - lastNewlinePos + 1
+    );
 
     if (t instanceof TagToken) {
       if (config.isTrimBlocks() && currPost < length && is[currPost] == '\n') {
@@ -263,18 +257,18 @@ public class TokenScanner extends AbstractIterator<Token> {
       }
     }
 
-    if (inRaw > 0 && t.getType() != TOKEN_FIXED) {
-      return Token.newToken(TOKEN_FIXED, t.image, currLine, tokenStart);
+    if (inRaw > 0 && t.getType() != symbols.getFixed()) {
+      return Token.newToken(symbols.getFixed(), symbols, t.image, currLine, tokenStart);
     }
 
     return t;
   }
 
   private boolean matchToken(char kind) {
-    if (kind == TOKEN_EXPR_START) {
-      return tokenKind == TOKEN_EXPR_END;
-    } else if (kind == TOKEN_EXPR_END) {
-      return tokenKind == TOKEN_EXPR_START;
+    if (kind == symbols.getExprStart()) {
+      return tokenKind == symbols.getExprEnd();
+    } else if (kind == symbols.getExprEnd()) {
+      return tokenKind == symbols.getExprStart();
     } else {
       return kind == tokenKind;
     }
@@ -290,5 +284,4 @@ public class TokenScanner extends AbstractIterator<Token> {
 
     return t;
   }
-
 }

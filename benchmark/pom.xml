@@ -26,16 +26,11 @@
   <groupId>com.hubspot.content</groupId>
   <artifactId>jinjava-benchmark</artifactId>
   <version>1.0</version>
-  <packaging>jar</packaging>
 
   <name>JMH benchmark sample: Java</name>
 
   <!-- This is the demo/sample template build script for building Java benchmarks 
     with JMH. Edit as needed. -->
-
-  <prerequisites>
-    <maven>3.0</maven>
-  </prerequisites>
 
   <dependencies>
     <dependency>
@@ -51,7 +46,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.6</version>
+      <version>1.7.25</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -84,7 +79,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <jmh.version>1.10.3</jmh.version>
+    <jmh.version>1.21</jmh.version>
     <javac.target>1.8</javac.target>
     <uberjar.name>benchmarks</uberjar.name>
   </properties>

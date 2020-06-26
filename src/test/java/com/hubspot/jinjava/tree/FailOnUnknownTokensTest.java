@@ -1,16 +1,17 @@
 package com.hubspot.jinjava.tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.UnknownTokenException;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.Before;
+import org.junit.Test;
 
 public class FailOnUnknownTokensTest {
   private static Jinjava jinjava;
@@ -23,14 +24,6 @@ public class FailOnUnknownTokensTest {
     jinjava = new Jinjava(config);
   }
 
-  @Test(expected = FatalTemplateErrorsException.class)
-  public void itThrowsExceptionOnUnknownToken() {
-    Map<String, String> context = new HashMap<>();
-    context.put("token1", "test");
-    String template = "hello {{ token1 }} and {{ token2 }}";
-    jinjava.render(template, context);
-  }
-
   @Test
   public void itReplaceTokensWithoutException() {
     Map<String, String> context = new HashMap<>();
@@ -39,5 +32,32 @@ public class FailOnUnknownTokensTest {
     String template = "hello {{ token1 }} and {{ token2 }}";
     String renderedTemplate = jinjava.render(template, context);
     assertThat(renderedTemplate).isEqualTo("hello test and test1");
+  }
+
+  @Test
+  public void itReplacesTokensWithDefaultValues() {
+    Map<String, String> context = new HashMap<>();
+    context.put("animal", "lamb");
+    context.put("fruit", "apple");
+
+    String template =
+      "{{ name | default('mary') }} has a {{ animal }} and eats {{ fruit | default('mango')}}";
+    assertThat(jinjava.render(template, context))
+      .isEqualTo("mary has a lamb and eats apple");
+  }
+
+  @Test
+  public void itReplacesTokensInContextButThrowsExceptionForOthers() {
+    final JinjavaConfig config = JinjavaConfig
+      .newBuilder()
+      .withFailOnUnknownTokens(true)
+      .build();
+    JinjavaInterpreter jinjavaInterpreter = new Jinjava(config).newInterpreter();
+
+    String template = "{{ name }} has a {{ animal }}";
+    Node node = new TreeParser(jinjavaInterpreter, template).buildTree();
+    assertThatThrownBy(() -> jinjavaInterpreter.render(node))
+      .isInstanceOf(UnknownTokenException.class)
+      .hasMessageContaining("Unknown token found: name");
   }
 }

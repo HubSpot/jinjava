@@ -17,12 +17,15 @@ package com.hubspot.jinjava.tree;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.output.OutputNode;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 
 public class RootNode extends Node {
   private static final long serialVersionUID = 5904181260202954424L;
+  private final TokenScannerSymbols symbols;
 
-  RootNode() {
+  RootNode(TokenScannerSymbols symbols) {
     super(null, 0, 0);
+    this.symbols = symbols;
   }
 
   @Override
@@ -31,8 +34,12 @@ public class RootNode extends Node {
   }
 
   @Override
+  public TokenScannerSymbols getSymbols() {
+    return symbols;
+  }
+
+  @Override
   public String getName() {
     return getClass().getSimpleName();
   }
-
 }

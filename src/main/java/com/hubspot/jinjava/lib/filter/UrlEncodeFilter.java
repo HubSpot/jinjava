@@ -1,23 +1,29 @@
 package com.hubspot.jinjava.lib.filter;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import org.apache.commons.lang3.StringUtils;
 
-import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
-import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-
 @JinjavaDoc(
-    value = "Escape strings for use in URLs (uses UTF-8 encoding). It accepts both dictionaries and regular strings as well as pairwise iterables.",
-    snippets = {
-        @JinjavaSnippet(code = "{{ \"Escape & URL encode this string\"|urlencode }}")
-    })
+  value = "Escape strings for use in URLs (uses UTF-8 encoding). It accepts both dictionaries and regular strings as well as pairwise iterables.",
+  input = @JinjavaParam(
+    value = "url",
+    type = "string",
+    desc = "the url to escape",
+    required = true
+  ),
+  snippets = {
+    @JinjavaSnippet(code = "{{ \"Escape & URL encode this string\"|urlencode }}")
+  }
+)
 public class UrlEncodeFilter implements Filter {
 
   @Override
@@ -63,5 +69,4 @@ public class UrlEncodeFilter implements Filter {
       throw new RuntimeException(e);
     }
   }
-
 }

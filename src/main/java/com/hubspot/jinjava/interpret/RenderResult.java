@@ -1,12 +1,10 @@
 package com.hubspot.jinjava.interpret;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-
 public class RenderResult {
-
   private final String output;
   private final Context context;
   private final List<TemplateError> errors;
@@ -17,10 +15,15 @@ public class RenderResult {
     this.errors = errors;
   }
 
-  public RenderResult(TemplateError fromException, Context context, List<TemplateError> errors) {
+  public RenderResult(
+    TemplateError fromException,
+    Context context,
+    List<TemplateError> errors
+  ) {
     this.output = "";
     this.context = context;
-    this.errors = ImmutableList.<TemplateError>builder().add(fromException).addAll(errors).build();
+    this.errors =
+      ImmutableList.<TemplateError>builder().add(fromException).addAll(errors).build();
   }
 
   public RenderResult(String result) {
@@ -48,5 +51,4 @@ public class RenderResult {
   public RenderResult withOutput(String newOutput) {
     return new RenderResult(newOutput, getContext(), getErrors());
   }
-
 }

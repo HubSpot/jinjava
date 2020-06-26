@@ -15,13 +15,6 @@
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_EXPR_START;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_FIXED;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_NOTE;
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 import com.hubspot.jinjava.interpret.DisabledException;
@@ -41,21 +34,25 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TextToken;
 import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.tree.parse.TokenScanner;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
+import org.apache.commons.lang3.StringUtils;
 
 public class TreeParser {
-
   private final PeekingIterator<Token> scanner;
   private final JinjavaInterpreter interpreter;
+  private final TokenScannerSymbols symbols;
 
   private Node parent;
 
   public TreeParser(JinjavaInterpreter interpreter, String input) {
-    this.scanner = Iterators.peekingIterator(new TokenScanner(input, interpreter.getConfig()));
+    this.scanner =
+      Iterators.peekingIterator(new TokenScanner(input, interpreter.getConfig()));
     this.interpreter = interpreter;
+    this.symbols = interpreter.getConfig().getTokenScannerSymbols();
   }
 
   public Node buildTree() {
-    Node root = new RootNode();
+    Node root = new RootNode(symbols);
 
     parent = root;
 
@@ -67,12 +64,21 @@ public class TreeParser {
       }
     }
 
-    if (parent != root) {
-      interpreter.addError(TemplateError.fromException(
-          new MissingEndTagException(((TagNode) parent).getEndName(),
-                                     parent.getMaster().getImage(),
-                                     parent.getLineNumber(), parent.getStartPosition())));
-    }
+    do {
+      if (parent != root) {
+        interpreter.addError(
+          TemplateError.fromException(
+            new MissingEndTagException(
+              ((TagNode) parent).getEndName(),
+              parent.getMaster().getImage(),
+              parent.getLineNumber(),
+              parent.getStartPosition()
+            )
+          )
+        );
+        parent = parent.getParent();
+      }
+    } while (parent.getParent() != null);
 
     return root;
   }
@@ -84,22 +90,38 @@ public class TreeParser {
   private Node nextNode() {
     Token token = scanner.next();
 
-    switch (token.getType()) {
-      case TOKEN_FIXED:
-        return text((TextToken) token);
-
-      case TOKEN_EXPR_START:
-        return expression((ExpressionToken) token);
-
-      case TOKEN_TAG:
-        return tag((TagToken) token);
-
-      case TOKEN_NOTE:
-        break;
-
-      default:
-        interpreter.addError(TemplateError.fromException(new UnexpectedTokenException(token.getImage(),
-                                                                                      token.getLineNumber(), token.getStartPosition())));
+    if (token.getType() == symbols.getFixed()) {
+      return text((TextToken) token);
+    } else if (token.getType() == symbols.getExprStart()) {
+      return expression((ExpressionToken) token);
+    } else if (token.getType() == symbols.getTag()) {
+      return tag((TagToken) token);
+    } else if (token.getType() == symbols.getNote()) {
+      String commentClosed = symbols.getClosingComment();
+      if (!token.getImage().endsWith(commentClosed)) {
+        interpreter.addError(
+          new TemplateError(
+            ErrorType.WARNING,
+            ErrorReason.SYNTAX_ERROR,
+            ErrorItem.TAG,
+            "Unclosed comment",
+            "comment",
+            token.getLineNumber(),
+            token.getStartPosition(),
+            null
+          )
+        );
+      }
+    } else {
+      interpreter.addError(
+        TemplateError.fromException(
+          new UnexpectedTokenException(
+            token.getImage(),
+            token.getLineNumber(),
+            token.getStartPosition()
+          )
+        )
+      );
     }
     return null;
   }
@@ -113,23 +135,28 @@ public class TreeParser {
 
   private Node text(TextToken textToken) {
     if (interpreter.getConfig().isLstripBlocks()) {
-      if (scanner.hasNext() && scanner.peek().getType() == TOKEN_TAG) {
-        textToken = new TextToken(StringUtils.stripEnd(textToken.getImage(), "\t "), textToken.getLineNumber(), textToken.getStartPosition());
+      if (scanner.hasNext() && scanner.peek().getType() == symbols.getTag()) {
+        textToken =
+          new TextToken(
+            StringUtils.stripEnd(textToken.getImage(), "\t "),
+            textToken.getLineNumber(),
+            textToken.getStartPosition(),
+            symbols
+          );
       }
     }
 
     final Node lastSibling = getLastSibling();
 
     // if last sibling was a tag and has rightTrimAfterEnd, strip whitespace
-    if (lastSibling instanceof TagNode
-        && lastSibling.getMaster().isRightTrimAfterEnd()) {
+    if (lastSibling instanceof TagNode && lastSibling.getMaster().isRightTrimAfterEnd()) {
       textToken.setLeftTrim(true);
     }
 
     // for first TextNode child of TagNode where rightTrim is enabled, mark it for left trim
-    if (parent instanceof TagNode
-        && lastSibling == null
-        && parent.getMaster().isRightTrim()) {
+    if (
+      parent instanceof TagNode && lastSibling == null && parent.getMaster().isRightTrim()
+    ) {
       textToken.setLeftTrim(true);
     }
 
@@ -145,17 +172,28 @@ public class TreeParser {
   }
 
   private Node tag(TagToken tagToken) {
-
     Tag tag;
     try {
       tag = interpreter.getContext().getTag(tagToken.getTagName());
       if (tag == null) {
-        interpreter.addError(TemplateError.fromException(new UnknownTagException(tagToken)));
+        interpreter.addError(
+          TemplateError.fromException(new UnknownTagException(tagToken))
+        );
         return null;
       }
     } catch (DisabledException e) {
-      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, ErrorItem.TAG,
-          e.getMessage(), tagToken.getTagName(), interpreter.getLineNumber(), tagToken.getStartPosition(), e));
+      interpreter.addError(
+        new TemplateError(
+          ErrorType.FATAL,
+          ErrorReason.DISABLED,
+          ErrorItem.TAG,
+          e.getMessage(),
+          tagToken.getTagName(),
+          interpreter.getLineNumber(),
+          tagToken.getStartPosition(),
+          e
+        )
+      );
       return null;
     }
 
@@ -172,7 +210,7 @@ public class TreeParser {
       }
     }
 
-    TagNode node = new TagNode(tag, tagToken);
+    TagNode node = new TagNode(tag, tagToken, symbols);
     node.setParent(parent);
 
     if (node.getEndName() != null) {
@@ -185,13 +223,13 @@ public class TreeParser {
   }
 
   private void endTag(Tag tag, TagToken tagToken) {
-
     final Node lastSibling = getLastSibling();
 
-    if (parent instanceof TagNode
-        && tagToken.isLeftTrim()
-        && lastSibling != null
-        && lastSibling instanceof TextNode) {
+    if (
+      parent instanceof TagNode &&
+      tagToken.isLeftTrim() &&
+      lastSibling instanceof TextNode
+    ) {
       lastSibling.getMaster().setRightTrim(true);
     }
 
@@ -199,18 +237,40 @@ public class TreeParser {
       parent.getMaster().setRightTrimAfterEnd(tagToken.isRightTrim());
     }
 
+    boolean hasMatchingStartTag = false;
     while (!(parent instanceof RootNode)) {
       TagNode parentTag = (TagNode) parent;
       parent = parent.getParent();
 
       if (parentTag.getEndName().equals(tag.getEndTagName())) {
+        hasMatchingStartTag = true;
         break;
       } else {
-        interpreter.addError(TemplateError.fromException(
-            new TemplateSyntaxException(tagToken.getImage(),
-                                        "Mismatched end tag, expected: " + parentTag.getEndName(),
-                                        tagToken.getLineNumber(), tagToken.getStartPosition())));
+        interpreter.addError(
+          TemplateError.fromException(
+            new TemplateSyntaxException(
+              tagToken.getImage(),
+              "Mismatched end tag, expected: " + parentTag.getEndName(),
+              tagToken.getLineNumber(),
+              tagToken.getStartPosition()
+            )
+          )
+        );
       }
+    }
+    if (!hasMatchingStartTag) {
+      interpreter.addError(
+        new TemplateError(
+          ErrorType.WARNING,
+          ErrorReason.SYNTAX_ERROR,
+          ErrorItem.TAG,
+          "Missing start tag",
+          tag.getName(),
+          tagToken.getLineNumber(),
+          tagToken.getStartPosition(),
+          null
+        )
+      );
     }
   }
 }

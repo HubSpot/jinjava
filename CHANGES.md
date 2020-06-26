@@ -1,5 +1,83 @@
 # Jinjava Releases #
 
+### 2020-06-23 Version 2.5.5 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.5%7Cjar)) ###
+* [TagCycleException was thrown when rendering template that doesn't have any cycles](https://github.com/HubSpot/jinjava/pull/445)
+* [Make global context thread-safe](https://github.com/HubSpot/jinjava/pull/445)
+* [Defer variables used in deferred](https://github.com/HubSpot/jinjava/pull/449)
+* [Check for nulls in range function](https://github.com/HubSpot/jinjava/pull/452)
+* [Fix for "Equalto operator doesn't work in "or" statement (== does)"](https://github.com/HubSpot/jinjava/pull/455)
+
+### 2020-05-01 Version 2.5.4 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.4%7Cjar)) ###
+* [Remove hacky replaceL behavior](https://github.com/HubSpot/jinjava/pull/407)
+* [Add over limit to template errors](https://github.com/HubSpot/jinjava/pull/412)
+* [Fix several parse errors](https://github.com/HubSpot/jinjava/pull/413)
+* [Add support for Custom Token Scanner Symbols](https://github.com/HubSpot/jinjava/pull/410)
+* [Remove print statements from test](https://github.com/HubSpot/jinjava/pull/417)
+* [Check for null Config](https://github.com/HubSpot/jinjava/pull/418)
+* [Remove reference to TokenScannerSymbols in Nodes and Tokens](https://github.com/HubSpot/jinjava/pull/419)
+* [Add to host blacklist for security](https://github.com/HubSpot/jinjava/pull/426)
+* [Update blacklist error message copy](https://github.com/HubSpot/jinjava/pull/428)
+* [Allow ELResolver to be configured](https://github.com/HubSpot/jinjava/pull/432)
+* [Add interpreter to blacklist](https://github.com/HubSpot/jinjava/pull/435)
+
+### 2020-03-06 Version 2.5.3 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.3%7Cjar)) ###
+* [Return empty string for un-evaluated lazy expression](https://github.com/HubSpot/jinjava/pull/405)
+* [Add millis precision to unixtimestamp function](https://github.com/HubSpot/jinjava/pull/399)
+* [Fix implementation for slice filter](https://github.com/HubSpot/jinjava/pull/398)
+* [Implement safe filter as SafeString and handle SafeString in filters, functions and expressions](https://github.com/HubSpot/jinjava/pull/394)
+* [Add PyList support to ForTag](https://github.com/HubSpot/jinjava/pull/390)
+* [Change DefaultFilter to implement AdvancedFilter](https://github.com/HubSpot/jinjava/pull/389)
+* [Adds dict support for DefaultFilter](https://github.com/HubSpot/jinjava/pull/386)
+* [Add basic deferred value support for from tag](https://github.com/HubSpot/jinjava/pull/381)
+* [Fix template error line numbers](https://github.com/HubSpot/jinjava/pull/380)
+* [Track dependencies in FromTag](https://github.com/HubSpot/jinjava/pull/375)
+* [Lower logging level for truncate](https://github.com/HubSpot/jinjava/pull/372)
+* [Handling for OutputTooBigException](https://github.com/HubSpot/jinjava/pull/371)
+* [Serialize lazy expression as its underlying value](https://github.com/HubSpot/jinjava/pull/370)
+* [Return image when calling toString for LazyExpression](https://github.com/HubSpot/jinjava/pull/367)
+* [More supplier conversions](https://github.com/HubSpot/jinjava/pull/366)
+* [Avoid tag cycles when keeping track of parent paths for blocks ](https://github.com/HubSpot/jinjava/pull/363)
+* [Add python list operations to PyList](https://github.com/HubSpot/jinjava/pull/362)
+* [Fix NPE with lazy expression in intermediate expression resolution](https://github.com/HubSpot/jinjava/pull/358)
+* [Create new class that lazily resolves](https://github.com/HubSpot/jinjava/pull/357)
+* [Upgrade map filter to advanced filter, improve error messages, and pass through args for filters](https://github.com/HubSpot/jinjava/pull/356)
+* [enable more checkstyle rules](https://github.com/HubSpot/jinjava/pull/355)
+* [Add codeStyleChecker](https://github.com/HubSpot/jinjava/pull/353)
+
+### 2019-07-11 Version 2.5.2 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.2%7Cjar)) ###
+* [Add type conversion to collection expression tests](https://github.com/HubSpot/jinjava/pull/349)
+* [Change initialization of JinjavaInterpreter to instantiation](https://github.com/HubSpot/jinjava/pull/347)
+* [Resolve Failure on Unknown Incompatible with default filter](https://github.com/HubSpot/jinjava/pull/345)
+* [Add initial support for resolving relative paths](https://github.com/HubSpot/jinjava/pull/343)
+* [Add dummy object for validation mode](https://github.com/HubSpot/jinjava/pull/341)
+* [Implements equals() and hashCode() methods for TemplateError](https://github.com/HubSpot/jinjava/pull/340)
+
+### 2019-06-07 Version 2.5.1 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.1%7Cjar)) ###
+* [Support more ipaddr filters](https://github.com/HubSpot/jinjava/pull/338)
+* [Upgrade to newer basepom](https://github.com/HubSpot/jinjava/pull/334)
+* [Support empty bracket implicit index syntax](https://github.com/HubSpot/jinjava/pull/331)
+* [Support nominative date formats](https://github.com/HubSpot/jinjava/pull/330)
+* [Add a warning for unclosed comments](https://github.com/HubSpot/jinjava/pull/329)
+* [Add a warning when there is no matching start tag for an end tag](https://github.com/HubSpot/jinjava/pull/326)
+* [Add child dependency to parent dependencies](https://github.com/HubSpot/jinjava/pull/325)
+* [Rewrite sort filter to address several problems](https://github.com/HubSpot/jinjava/pull/323)
+* [Fix cycle reference during serialization](https://github.com/HubSpot/jinjava/pull/319)
+* [Add support for resolving relative paths in separate files](https://github.com/HubSpot/jinjava/pull/316)
+* [Return long value from int filter if over max int length](https://github.com/HubSpot/jinjava/pull/315)
+* [Use type converter when evaulting 'in'](https://github.com/HubSpot/jinjava/pull/314)
+* [Only add max depth error when not in validation mode](https://github.com/HubSpot/jinjava/pull/310)
+* [Expand documentation factory with new fields](https://github.com/HubSpot/jinjava/pull/309)
+* [Allow ability to set a max recursion depth in config](https://github.com/HubSpot/jinjava/pull/308)
+
+### 2019-02-05 Version 2.5.0 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.0%7Cjar)) ###
+* [Render node in include tag in the same interpreter scopes](https://github.com/HubSpot/jinjava/pull/301)
+* [Fix expression resolver in include and from tag](https://github.com/HubSpot/jinjava/pull/300)
+* [Add root and log filters](https://github.com/HubSpot/jinjava/pull/299)
+* [Update expression resolver to return null instead of blank string](https://github.com/HubSpot/jinjava/pull/296)
+* [Expression resolver fixed in import tag](https://github.com/HubSpot/jinjava/pull/290)
+* [Error and documentation overhaul](https://github.com/HubSpot/jinjava/pull/289)
+* [Allow partial evalutation of templates](https://github.com/HubSpot/jinjava/pull/282)
+
 ### 2019-02-05 Version 2.4.15 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.4.15%7Cjar)) ###
 * [Upgrade format filter to advanced filter](https://github.com/HubSpot/jinjava/pull/279)
 * [Allow null in string expression tests](https://github.com/HubSpot/jinjava/pull/278)

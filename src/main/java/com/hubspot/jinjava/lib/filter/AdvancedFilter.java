@@ -17,12 +17,10 @@ package com.hubspot.jinjava.lib.filter;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.Importable;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public interface AdvancedFilter extends Importable, Filter {
-
   /**
    * Filter the specified template variable within the context of a render process. {{ myvar|myfiltername(arg1,arg2) }}
    *
@@ -36,10 +34,15 @@ public interface AdvancedFilter extends Importable, Filter {
    *          any named arguments passed to this filter invocation
    * @return the filtered form of the given variable
    */
-   Object filter(Object var, JinjavaInterpreter interpreter, Object[] args, Map<String, Object> kwargs);
+  Object filter(
+    Object var,
+    JinjavaInterpreter interpreter,
+    Object[] args,
+    Map<String, Object> kwargs
+  );
 
-   // Default implementation to maintain backward-compatibility with old Filters
-   default Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-       return filter(var, interpreter, (Object[]) args, new HashMap<>());
-   }
+  // Default implementation to maintain backward-compatibility with old Filters
+  default Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    return filter(var, interpreter, (Object[]) args, new HashMap<>());
+  }
 }

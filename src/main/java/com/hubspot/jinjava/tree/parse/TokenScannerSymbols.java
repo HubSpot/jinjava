@@ -15,15 +15,95 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-public interface TokenScannerSymbols {
+import java.io.Serializable;
 
-  int TOKEN_PREFIX = '{';
-  int TOKEN_POSTFIX = '}';
-  int TOKEN_FIXED = 0;
-  int TOKEN_NOTE = '#';
-  int TOKEN_TAG = '%';
-  int TOKEN_EXPR_START = '{';
-  int TOKEN_EXPR_END = '}';
-  int TOKEN_NEWLINE = '\n';
+public abstract class TokenScannerSymbols implements Serializable {
+  private static final long serialVersionUID = -4810220023023256534L;
 
+  private String expressionStart = null;
+  private String expressionStartWithTag = null;
+  private String closingComment = null;
+  private String expressionEndWithTag = null;
+
+  public abstract char getPrefixChar();
+
+  public abstract char getPostfixChar();
+
+  public abstract char getFixedChar();
+
+  public abstract char getNoteChar();
+
+  public abstract char getTagChar();
+
+  public abstract char getExprStartChar();
+
+  public abstract char getExprEndChar();
+
+  public abstract char getNewlineChar();
+
+  public abstract char getTrimChar();
+
+  public int getPrefix() {
+    return getPrefixChar();
+  }
+
+  public int getPostfix() {
+    return getPostfixChar();
+  }
+
+  public int getFixed() {
+    return getFixedChar();
+  }
+
+  public int getNote() {
+    return getNoteChar();
+  }
+
+  public int getTag() {
+    return getTagChar();
+  }
+
+  public int getExprStart() {
+    return getExprStartChar();
+  }
+
+  public int getExprEnd() {
+    return getExprEndChar();
+  }
+
+  public int getNewline() {
+    return getNewlineChar();
+  }
+
+  public int getTrim() {
+    return getTrimChar();
+  }
+
+  public String getExpressionStart() {
+    if (expressionStart == null) {
+      expressionStart = String.valueOf(getPrefixChar()) + getExprStartChar();
+    }
+    return expressionStart;
+  }
+
+  public String getExpressionStartWithTag() {
+    if (expressionStartWithTag == null) {
+      expressionStartWithTag = String.valueOf(getPrefixChar()) + getTagChar();
+    }
+    return expressionStartWithTag;
+  }
+
+  public String getExpressionEndWithTag() {
+    if (expressionEndWithTag == null) {
+      expressionEndWithTag = String.valueOf(getTagChar()) + getPostfixChar();
+    }
+    return expressionEndWithTag;
+  }
+
+  public String getClosingComment() {
+    if (closingComment == null) {
+      closingComment = String.valueOf(getNoteChar()) + getPostfixChar();
+    }
+    return closingComment;
+  }
 }

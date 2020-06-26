@@ -16,17 +16,6 @@
 
 package com.hubspot.jinjava.interpret;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.stream.Collectors;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
@@ -41,12 +30,24 @@ import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.TagLibrary;
 import com.hubspot.jinjava.tree.Node;
+import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.ScopeMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+import java.util.stream.Collectors;
 
 public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
+  public static final String IMPORT_RESOURCE_PATH_KEY = "import_resource_path";
 
-  private final SetMultimap<String, String> dependencies = HashMultimap.create();
+  private SetMultimap<String, String> dependencies = HashMultimap.create();
   private Map<Library, Set<String>> disabled;
 
   public boolean isValidationMode() {
@@ -70,10 +71,13 @@ public class Context extends ScopeMap<String, Object> {
   private final CallStack includePathStack;
   private final CallStack macroStack;
   private final CallStack fromStack;
+  private final CallStack currentPathStack;
 
   private final Set<String> resolvedExpressions = new HashSet<>();
   private final Set<String> resolvedValues = new HashSet<>();
   private final Set<String> resolvedFunctions = new HashSet<>();
+
+  private Set<Node> deferredNodes = new HashSet<>();
 
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
@@ -102,7 +106,11 @@ public class Context extends ScopeMap<String, Object> {
     this(parent, bindings, null);
   }
 
-  public Context(Context parent, Map<String, ?> bindings, Map<Library, Set<String>> disabled) {
+  public Context(
+    Context parent,
+    Map<String, ?> bindings,
+    Map<Library, Set<String>> disabled
+  ) {
     super(parent);
     this.disabled = disabled;
 
@@ -112,24 +120,47 @@ public class Context extends ScopeMap<String, Object> {
 
     this.parent = parent;
 
-    this.extendPathStack = new CallStack(parent == null ? null : parent.getExtendPathStack(),
-                                         ExtendsTagCycleException.class);
-    this.importPathStack = new CallStack(parent == null ? null : parent.getImportPathStack(),
-                                         ImportTagCycleException.class);
-    this.includePathStack = new CallStack(parent == null ? null : parent.getIncludePathStack(),
-                                          IncludeTagCycleException.class);
-    this.macroStack = new CallStack(parent == null ? null : parent.getMacroStack(), MacroTagCycleException.class);
-    this.fromStack = new CallStack(parent == null ? null : parent.getFromStack(),
-        FromTagCycleException.class);
+    this.extendPathStack =
+      new CallStack(
+        parent == null ? null : parent.getExtendPathStack(),
+        ExtendsTagCycleException.class
+      );
+    this.importPathStack =
+      new CallStack(
+        parent == null ? null : parent.getImportPathStack(),
+        ImportTagCycleException.class
+      );
+    this.includePathStack =
+      new CallStack(
+        parent == null ? null : parent.getIncludePathStack(),
+        IncludeTagCycleException.class
+      );
+    this.macroStack =
+      new CallStack(
+        parent == null ? null : parent.getMacroStack(),
+        MacroTagCycleException.class
+      );
+    this.fromStack =
+      new CallStack(
+        parent == null ? null : parent.getFromStack(),
+        FromTagCycleException.class
+      );
+    this.currentPathStack =
+      new CallStack(
+        parent == null ? null : parent.getCurrentPathStack(),
+        TagCycleException.class
+      );
 
     if (disabled == null) {
       disabled = new HashMap<>();
     }
 
-    this.expTestLibrary = new ExpTestLibrary(parent == null, disabled.get(Library.EXP_TEST));
+    this.expTestLibrary =
+      new ExpTestLibrary(parent == null, disabled.get(Library.EXP_TEST));
     this.filterLibrary = new FilterLibrary(parent == null, disabled.get(Library.FILTER));
     this.tagLibrary = new TagLibrary(parent == null, disabled.get(Library.TAG));
-    this.functionLibrary = new FunctionLibrary(parent == null, disabled.get(Library.FUNCTION));
+    this.functionLibrary =
+      new FunctionLibrary(parent == null, disabled.get(Library.FUNCTION));
   }
 
   public void reset() {
@@ -137,6 +168,8 @@ public class Context extends ScopeMap<String, Object> {
     resolvedExpressions.clear();
     resolvedValues.clear();
     resolvedFunctions.clear();
+    dependencies = HashMultimap.create();
+    deferredNodes = new HashSet<>();
   }
 
   @Override
@@ -150,7 +183,8 @@ public class Context extends ScopeMap<String, Object> {
 
   @SuppressWarnings("unchecked")
   public Map<String, MacroFunction> getGlobalMacros() {
-    Map<String, MacroFunction> macros = (Map<String, MacroFunction>) getScope().get(GLOBAL_MACROS_SCOPE_KEY);
+    Map<String, MacroFunction> macros = (Map<String, MacroFunction>) getScope()
+      .get(GLOBAL_MACROS_SCOPE_KEY);
 
     if (macros == null) {
       macros = new HashMap<>();
@@ -233,6 +267,27 @@ public class Context extends ScopeMap<String, Object> {
     if (getParent() != null) {
       getParent().addResolvedFunction(function);
     }
+  }
+
+  public void handleDeferredNode(Node node) {
+    deferredNodes.add(node);
+    Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(this);
+    if (getParent() != null) {
+      Context parent = getParent();
+      //Ignore global context
+      if (parent.getParent() != null) {
+        //Place deferred values on the parent context
+        deferredProps
+          .stream()
+          .filter(key -> !parent.containsKey(key))
+          .forEach(key -> parent.put(key, this.get(key)));
+        getParent().handleDeferredNode(node);
+      }
+    }
+  }
+
+  public Set<Node> getDeferredNodes() {
+    return ImmutableSet.copyOf(deferredNodes);
   }
 
   public List<? extends Node> getSuperBlock() {
@@ -332,7 +387,10 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public boolean isFunctionDisabled(String name) {
-    return disabled != null && disabled.getOrDefault(Library.FUNCTION, Collections.emptySet()).contains(name);
+    return (
+      disabled != null &&
+      disabled.getOrDefault(Library.FUNCTION, Collections.emptySet()).contains(name)
+    );
   }
 
   public ELFunctionDefinition getFunction(String name) {
@@ -353,9 +411,13 @@ public class Context extends ScopeMap<String, Object> {
       fns.addAll(parent.getAllFunctions());
     }
 
-    final Set<String> disabledFunctions = disabled == null ? new HashSet<>() : disabled.getOrDefault(Library.FUNCTION,
-                                                                                                     new HashSet<>());
-    return fns.stream().filter(f -> !disabledFunctions.contains(f.getName())).collect(Collectors.toList());
+    final Set<String> disabledFunctions = disabled == null
+      ? new HashSet<>()
+      : disabled.getOrDefault(Library.FUNCTION, new HashSet<>());
+    return fns
+      .stream()
+      .filter(f -> !disabledFunctions.contains(f.getName()))
+      .collect(Collectors.toList());
   }
 
   public void registerFunction(ELFunctionDefinition f) {
@@ -407,6 +469,10 @@ public class Context extends ScopeMap<String, Object> {
     return macroStack;
   }
 
+  public CallStack getCurrentPathStack() {
+    return currentPathStack;
+  }
+
   public void pushFromStack(String path, int lineNumber, int startPosition) {
     fromStack.push(path, lineNumber, startPosition);
   }
@@ -445,14 +511,19 @@ public class Context extends ScopeMap<String, Object> {
 
   public void addDependency(String type, String identification) {
     this.dependencies.get(type).add(identification);
+    if (parent != null) {
+      parent.addDependency(type, identification);
+    }
   }
 
   public void addDependencies(SetMultimap<String, String> dependencies) {
     this.dependencies.putAll(dependencies);
+    if (parent != null) {
+      parent.addDependencies(dependencies);
+    }
   }
 
   public SetMultimap<String, String> getDependencies() {
     return this.dependencies;
   }
-
 }

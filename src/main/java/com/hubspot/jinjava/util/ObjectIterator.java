@@ -15,12 +15,11 @@
  **********************************************************************/
 package com.hubspot.jinjava.util;
 
+import com.google.common.collect.Iterators;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-
-import com.google.common.collect.Iterators;
 
 public final class ObjectIterator {
 
@@ -56,5 +55,4 @@ public final class ObjectIterator {
     // others
     return new ForLoop(Iterators.singletonIterator(obj), 1);
   }
-
 }

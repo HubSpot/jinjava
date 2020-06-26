@@ -15,13 +15,6 @@
  **********************************************************************/
 package com.hubspot.jinjava;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.stream.Collectors;
-
-import javax.el.ExpressionFactory;
-
 import com.hubspot.jinjava.doc.JinjavaDoc;
 import com.hubspot.jinjava.doc.JinjavaDocFactory;
 import com.hubspot.jinjava.el.ExtendedSyntaxBuilder;
@@ -29,17 +22,28 @@ import com.hubspot.jinjava.el.TruthyTypeConverter;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
 import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.lib.exptest.ExpTest;
+import com.hubspot.jinjava.lib.filter.Filter;
+import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
+import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.loader.ClasspathResourceLocator;
 import com.hubspot.jinjava.loader.ResourceLocator;
-
 import de.odysseus.el.ExpressionFactoryImpl;
 import de.odysseus.el.misc.TypeConverter;
 import de.odysseus.el.tree.TreeBuilder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import javax.el.ExpressionFactory;
 
 /**
  * The main client API for the Jinjava library, instances of this class can be used to render jinja templates with a given map of context values. Example use:
@@ -56,7 +60,6 @@ import de.odysseus.el.tree.TreeBuilder;
  * @author jstehler
  */
 public class Jinjava {
-
   private ExpressionFactory expressionFactory;
   private ResourceLocator resourceLocator;
 
@@ -81,7 +84,10 @@ public class Jinjava {
     this.globalContext = new Context();
 
     Properties expConfig = new Properties();
-    expConfig.setProperty(TreeBuilder.class.getName(), ExtendedSyntaxBuilder.class.getName());
+    expConfig.setProperty(
+      TreeBuilder.class.getName(),
+      ExtendedSyntaxBuilder.class.getName()
+    );
 
     TypeConverter converter = new TruthyTypeConverter();
     this.expressionFactory = new ExpressionFactoryImpl(expConfig, converter);
@@ -122,6 +128,10 @@ public class Jinjava {
     return globalContext;
   }
 
+  public Context getGlobalContextCopy() {
+    return copyGlobalContext();
+  }
+
   public ResourceLocator getResourceLocator() {
     return resourceLocator;
   }
@@ -147,9 +157,11 @@ public class Jinjava {
   public String render(String template, Map<String, ?> bindings) {
     RenderResult result = renderForResult(template, bindings);
 
-    List<TemplateError> fatalErrors = result.getErrors().stream()
-        .filter(error -> error.getSeverity() == ErrorType.FATAL)
-        .collect(Collectors.toList());
+    List<TemplateError> fatalErrors = result
+      .getErrors()
+      .stream()
+      .filter(error -> error.getSeverity() == ErrorType.FATAL)
+      .collect(Collectors.toList());
 
     if (!fatalErrors.isEmpty()) {
       throw new FatalTemplateErrorsException(template, fatalErrors);
@@ -184,27 +196,72 @@ public class Jinjava {
    *          used to override specific config values for this render operation
    * @return result object containing rendered output, render context, and any encountered errors
    */
-  public RenderResult renderForResult(String template, Map<String, ?> bindings, JinjavaConfig renderConfig) {
-    Context context = new Context(globalContext, bindings, renderConfig.getDisabled());
-
+  public RenderResult renderForResult(
+    String template,
+    Map<String, ?> bindings,
+    JinjavaConfig renderConfig
+  ) {
+    Context context;
     JinjavaInterpreter parentInterpreter = JinjavaInterpreter.getCurrent();
     if (parentInterpreter != null) {
       renderConfig = parentInterpreter.getConfig();
+      Map<String, Object> bindingsWithParentContext = new HashMap<>(bindings);
+      if (parentInterpreter.getContext() != null) {
+        bindingsWithParentContext.putAll(parentInterpreter.getContext());
+      }
+      context =
+        new Context(
+          copyGlobalContext(),
+          bindingsWithParentContext,
+          renderConfig.getDisabled()
+        );
+    } else {
+      context = new Context(copyGlobalContext(), bindings, renderConfig.getDisabled());
     }
 
-    JinjavaInterpreter interpreter = new JinjavaInterpreter(this, context, renderConfig);
+    JinjavaInterpreter interpreter = globalConfig
+      .getInterpreterFactory()
+      .newInstance(this, context, renderConfig);
     JinjavaInterpreter.pushCurrent(interpreter);
 
     try {
       String result = interpreter.render(template);
-      return new RenderResult(result, interpreter.getContext(), interpreter.getErrorsCopy());
+      return new RenderResult(
+        result,
+        interpreter.getContext(),
+        interpreter.getErrorsCopy()
+      );
     } catch (InterpretException e) {
       if (e instanceof TemplateSyntaxException) {
-        return new RenderResult(TemplateError.fromException((TemplateSyntaxException) e), interpreter.getContext(), interpreter.getErrorsCopy());
+        return new RenderResult(
+          TemplateError.fromException((TemplateSyntaxException) e),
+          interpreter.getContext(),
+          interpreter.getErrorsCopy()
+        );
       }
-      return new RenderResult(TemplateError.fromSyntaxError(e), interpreter.getContext(), interpreter.getErrorsCopy());
+      return new RenderResult(
+        TemplateError.fromSyntaxError(e),
+        interpreter.getContext(),
+        interpreter.getErrorsCopy()
+      );
+    } catch (InvalidArgumentException e) {
+      return new RenderResult(
+        TemplateError.fromInvalidArgumentException(e),
+        interpreter.getContext(),
+        interpreter.getErrorsCopy()
+      );
+    } catch (InvalidInputException e) {
+      return new RenderResult(
+        TemplateError.fromInvalidInputException(e),
+        interpreter.getContext(),
+        interpreter.getErrorsCopy()
+      );
     } catch (Exception e) {
-      return new RenderResult(TemplateError.fromException(e), interpreter.getContext(), interpreter.getErrorsCopy());
+      return new RenderResult(
+        TemplateError.fromException(e),
+        interpreter.getContext(),
+        interpreter.getErrorsCopy()
+      );
     } finally {
       globalContext.reset();
       JinjavaInterpreter.popCurrent();
@@ -217,7 +274,34 @@ public class Jinjava {
    * @return a new interpreter instance
    */
   public JinjavaInterpreter newInterpreter() {
-    return new JinjavaInterpreter(this, this.getGlobalContext(), this.getGlobalConfig());
+    return globalConfig
+      .getInterpreterFactory()
+      .newInstance(this, copyGlobalContext(), this.getGlobalConfig());
   }
 
+  public void registerTag(Tag t) {
+    globalContext.registerTag(t);
+  }
+
+  public void registerFunction(ELFunctionDefinition f) {
+    globalContext.registerFunction(f);
+  }
+
+  public void registerFilter(Filter f) {
+    globalContext.registerFilter(f);
+  }
+
+  public void registerExpTest(ExpTest t) {
+    globalContext.registerExpTest(t);
+  }
+
+  private Context copyGlobalContext() {
+    Context context = new Context(null, globalContext);
+    // copy registered.
+    globalContext.getAllExpTests().forEach(context::registerExpTest);
+    globalContext.getAllFilters().forEach(context::registerFilter);
+    globalContext.getAllFunctions().forEach(context::registerFunction);
+    globalContext.getAllTags().forEach(context::registerTag);
+    return context;
+  }
 }

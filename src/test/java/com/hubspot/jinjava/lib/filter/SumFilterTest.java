@@ -2,18 +2,15 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.Lists;
+import com.hubspot.jinjava.Jinjava;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-import com.hubspot.jinjava.Jinjava;
-
 @SuppressWarnings("unchecked")
 public class SumFilterTest {
-
   Jinjava jinjava;
 
   @Before
@@ -26,7 +23,8 @@ public class SumFilterTest {
     Map<String, Object> context = new HashMap<>();
     context.put("items", Lists.newArrayList(new Item(12), new Item(30.50)));
 
-    assertThat(jinjava.render("{{ items|sum(attribute='price') }}", context)).isEqualTo("42.5");
+    assertThat(jinjava.render("{{ items|sum(attribute='price') }}", context))
+      .isEqualTo("42.5");
   }
 
   @Test
@@ -34,7 +32,8 @@ public class SumFilterTest {
     Map<String, Object> context = new HashMap<>();
     context.put("items", Lists.newArrayList(new Item(12), new Item(30.50)));
 
-    assertThat(jinjava.render("{{ items|sum(attribute='price', 10) }}", context)).isEqualTo("52.5");
+    assertThat(jinjava.render("{{ items|sum(attribute='price', 10) }}", context))
+      .isEqualTo("52.5");
   }
 
   @Test

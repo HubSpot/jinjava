@@ -15,13 +15,16 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.loader;
 
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.io.IOException;
 import java.nio.charset.Charset;
-
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.util.Optional;
 
 public interface ResourceLocator {
+  String getString(String fullName, Charset encoding, JinjavaInterpreter interpreter)
+    throws IOException;
 
-  String getString(String fullName, Charset encoding, JinjavaInterpreter interpreter) throws IOException;
-
+  default Optional<LocationResolver> getLocationResolver() {
+    return Optional.empty();
+  }
 }

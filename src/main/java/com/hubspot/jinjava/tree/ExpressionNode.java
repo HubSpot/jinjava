@@ -15,19 +15,18 @@
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
-import java.util.Objects;
-
-import org.apache.commons.lang3.StringUtils;
-
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
+import com.hubspot.jinjava.objects.SafeString;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.util.Logging;
+import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
 public class ExpressionNode extends Node {
-
   private static final long serialVersionUID = -6063173739682221042L;
 
   private final ExpressionToken master;
@@ -39,13 +38,24 @@ public class ExpressionNode extends Node {
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
-    Object var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
+    Object var;
+    try {
+      var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
+    } catch (DeferredValueException e) {
+      interpreter.getContext().handleDeferredNode(this);
+      var = master.getImage();
+    }
 
     String result = Objects.toString(var, "");
 
     if (interpreter.getConfig().isNestedInterpretationEnabled()) {
-      if (!StringUtils.equals(result, master.getImage()) &&
-          (StringUtils.contains(result, "{{") || StringUtils.contains(result, "{%"))) {
+      if (
+        !StringUtils.equals(result, master.getImage()) &&
+        (
+          StringUtils.contains(result, getSymbols().getExpressionStart()) ||
+          StringUtils.contains(result, getSymbols().getExpressionStartWithTag())
+        )
+      ) {
         try {
           result = interpreter.renderFlat(result);
         } catch (Exception e) {
@@ -54,7 +64,7 @@ public class ExpressionNode extends Node {
       }
     }
 
-    if (interpreter.getContext().isAutoEscape()) {
+    if (interpreter.getContext().isAutoEscape() && !(var instanceof SafeString)) {
       result = EscapeFilter.escapeHtmlEntities(result);
     }
 
@@ -70,5 +80,4 @@ public class ExpressionNode extends Node {
   public String getName() {
     return getClass().getSimpleName();
   }
-
 }

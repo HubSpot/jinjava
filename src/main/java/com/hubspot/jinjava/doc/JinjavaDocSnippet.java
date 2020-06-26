@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.doc;
 
 public class JinjavaDocSnippet {
-
   private final String desc;
   private final String code;
   private final String output;
@@ -23,5 +22,4 @@ public class JinjavaDocSnippet {
   public String getOutput() {
     return output;
   }
-
 }

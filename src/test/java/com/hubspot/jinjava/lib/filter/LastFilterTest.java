@@ -4,12 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import org.junit.Before;
 import org.junit.Test;
 
 public class LastFilterTest {
-
   LastFilter filter;
 
   @Before
@@ -31,5 +29,4 @@ public class LastFilterTest {
   public void lastForSeq() {
     assertThat(filter.filter(Arrays.asList(1, 2, 3), null)).isEqualTo(3);
   }
-
 }

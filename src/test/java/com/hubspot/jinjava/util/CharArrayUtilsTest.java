@@ -16,5 +16,4 @@ public class CharArrayUtilsTest {
     assertThat(CharArrayUtils.charArrayRegionMatches(s, 25, "endraw")).isTrue();
     assertThat(CharArrayUtils.charArrayRegionMatches(s, 29, "endraw")).isFalse();
   }
-
 }

@@ -3,18 +3,6 @@ package com.hubspot.jinjava.el;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -25,16 +13,27 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.LazyExpression;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.date.PyishDate;
+import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
+import org.junit.Before;
+import org.junit.Test;
 
 @SuppressWarnings("unchecked")
 public class ExpressionResolverTest {
-
   private JinjavaInterpreter interpreter;
   private Context context;
   private Jinjava jinjava;
@@ -70,9 +69,15 @@ public class ExpressionResolverTest {
   @Test
   public void itCanCompareStrings() {
     context.put("foo", "white");
-    assertThat(interpreter.resolveELExpression("'2013-12-08 16:00:00+00:00' > '2013-12-08 13:00:00+00:00'",
-                                               -1)).isEqualTo(Boolean.TRUE);
-    assertThat(interpreter.resolveELExpression("foo == \"white\"", -1)).isEqualTo(Boolean.TRUE);
+    assertThat(
+        interpreter.resolveELExpression(
+          "'2013-12-08 16:00:00+00:00' > '2013-12-08 13:00:00+00:00'",
+          -1
+        )
+      )
+      .isEqualTo(Boolean.TRUE);
+    assertThat(interpreter.resolveELExpression("foo == \"white\"", -1))
+      .isEqualTo(Boolean.TRUE);
   }
 
   @Test
@@ -157,7 +162,6 @@ public class ExpressionResolverTest {
 
   @Test
   public void itResolvesMapValOnCustomObject() {
-
     MyCustomMap dict = new MyCustomMap();
     context.put("thedict", dict);
 
@@ -172,7 +176,6 @@ public class ExpressionResolverTest {
 
   @Test
   public void itResolvesOtherMethodsOnCustomMapObject() {
-
     MyCustomMap dict = new MyCustomMap();
     context.put("thedict", dict);
 
@@ -187,7 +190,6 @@ public class ExpressionResolverTest {
   }
 
   public static final class MyCustomMap implements Map<String, String> {
-
     Map<String, String> data = ImmutableMap.of("foo", "bar", "two", "2", "size", "777");
 
     @Override
@@ -226,14 +228,10 @@ public class ExpressionResolverTest {
     }
 
     @Override
-    public void putAll(Map<? extends String, ? extends String> m) {
-
-    }
+    public void putAll(Map<? extends String, ? extends String> m) {}
 
     @Override
-    public void clear() {
-
-    }
+    public void clear() {}
 
     @Override
     public Set<String> keySet() {
@@ -312,9 +310,14 @@ public class ExpressionResolverTest {
     context.put("foo", "this is<hr>something");
     context.put("bar", "this is<hr/>something");
 
-    assertThat(interpreter.resolveELExpression("\"<hr>\" in foo or \"<hr/>\" in foo", -1)).isEqualTo(true);
-    assertThat(interpreter.resolveELExpression("\"<hr>\" in bar or \"<hr/>\" in bar", -1)).isEqualTo(true);
-    assertThat(interpreter.resolveELExpression("\"<har>\" in foo or \"<har/>\" in foo", -1)).isEqualTo(false);
+    assertThat(interpreter.resolveELExpression("\"<hr>\" in foo or \"<hr/>\" in foo", -1))
+      .isEqualTo(true);
+    assertThat(interpreter.resolveELExpression("\"<hr>\" in bar or \"<hr/>\" in bar", -1))
+      .isEqualTo(true);
+    assertThat(
+        interpreter.resolveELExpression("\"<har>\" in foo or \"<har/>\" in foo", -1)
+      )
+      .isEqualTo(false);
   }
 
   @Test
@@ -392,14 +395,17 @@ public class ExpressionResolverTest {
     assertThat(e.getMessage()).contains("Cannot find method 'getClass'");
   }
 
-
   @Test
   public void itBlocksDisabledTags() {
-
-    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(Context.Library.TAG, ImmutableSet.of("raw"));
+    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(
+      Context.Library.TAG,
+      ImmutableSet.of("raw")
+    );
     assertThat(interpreter.render("{% raw %}foo{% endraw %}")).isEqualTo("foo");
 
-    try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
+    try (
+      JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)
+    ) {
       interpreter.render("{% raw %} foo {% endraw %}");
     }
 
@@ -411,13 +417,17 @@ public class ExpressionResolverTest {
 
   @Test
   public void itBlocksDisabledTagsInIncludes() {
-
     final String jinja = "top {% include \"tags/includetag/raw.html\" %}";
 
-    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(Context.Library.TAG, ImmutableSet.of("raw"));
+    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(
+      Context.Library.TAG,
+      ImmutableSet.of("raw")
+    );
     assertThat(interpreter.render(jinja)).isEqualTo("top before raw after\n");
 
-    try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
+    try (
+      JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)
+    ) {
       interpreter.render(jinja);
     }
     TemplateError e = interpreter.getErrorsCopy().get(0);
@@ -428,11 +438,16 @@ public class ExpressionResolverTest {
 
   @Test
   public void itBlocksDisabledFilters() {
+    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(
+      Context.Library.FILTER,
+      ImmutableSet.of("truncate")
+    );
+    assertThat(interpreter.resolveELExpression("\"hey\"|truncate(2)", -1))
+      .isEqualTo("h...");
 
-    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(Context.Library.FILTER, ImmutableSet.of("truncate"));
-    assertThat(interpreter.resolveELExpression("\"hey\"|truncate(2)", -1)).isEqualTo("h...");
-
-    try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
+    try (
+      JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)
+    ) {
       interpreter.resolveELExpression("\"hey\"|truncate(2)", -1);
       TemplateError e = interpreter.getErrorsCopy().get(0);
       assertThat(e.getItem()).isEqualTo(ErrorItem.FILTER);
@@ -443,18 +458,23 @@ public class ExpressionResolverTest {
 
   @Test
   public void itBlocksDisabledFunctions() {
-
-    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(Library.FUNCTION, ImmutableSet.of(":range"));
+    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(
+      Library.FUNCTION,
+      ImmutableSet.of(":range")
+    );
 
     String template = "hi {% for i in range(1, 3) %}{{i}} {% endfor %}";
 
     String rendered = jinjava.render(template, context);
     assertEquals("hi 1 2 ", rendered);
 
-    final JinjavaConfig config = JinjavaConfig.newBuilder().withDisabled(disabled).build();
+    final JinjavaConfig config = JinjavaConfig
+      .newBuilder()
+      .withDisabled(disabled)
+      .build();
 
     final RenderResult renderResult = jinjava.renderForResult(template, context, config);
-    assertEquals("hi  ", renderResult.getOutput());
+    assertEquals("hi ", renderResult.getOutput());
     TemplateError e = renderResult.getErrors().get(0);
     assertThat(e.getItem()).isEqualTo(ErrorItem.FUNCTION);
     assertThat(e.getReason()).isEqualTo(ErrorReason.DISABLED);
@@ -463,11 +483,15 @@ public class ExpressionResolverTest {
 
   @Test
   public void itBlocksDisabledExpTests() {
-
-    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(Context.Library.EXP_TEST, ImmutableSet.of("even"));
+    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(
+      Context.Library.EXP_TEST,
+      ImmutableSet.of("even")
+    );
     assertThat(interpreter.render("{% if 2 is even %}yes{% endif %}")).isEqualTo("yes");
 
-    try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)) {
+    try (
+      JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope(disabled)
+    ) {
       interpreter.render("{% if 2 is even %}yes{% endif %}");
       TemplateError e = interpreter.getErrorsCopy().get(0);
       assertThat(e.getItem()).isEqualTo(ErrorItem.EXPRESSION_TEST);
@@ -480,10 +504,12 @@ public class ExpressionResolverTest {
   public void itStoresResolvedFunctions() {
     context.put("datetime", 12345);
     final JinjavaConfig config = JinjavaConfig.newBuilder().build();
-    String template = "{% for i in range(1, 5) %}{{i}} {% endfor %}\n{{ unixtimestamp(datetime) }}";
+    String template =
+      "{% for i in range(1, 5) %}{{i}} {% endfor %}\n{{ unixtimestamp(datetime) }}";
     final RenderResult renderResult = jinjava.renderForResult(template, context, config);
-    assertThat(renderResult.getOutput()).isEqualTo("1 2 3 4 \n12000");
-    assertThat(renderResult.getContext().getResolvedFunctions()).hasSameElementsAs(ImmutableSet.of(":range", ":unixtimestamp"));
+    assertThat(renderResult.getOutput()).isEqualTo("1 2 3 4 \n12345");
+    assertThat(renderResult.getContext().getResolvedFunctions())
+      .hasSameElementsAs(ImmutableSet.of(":range", ":unixtimestamp"));
   }
 
   @Test
@@ -503,8 +529,8 @@ public class ExpressionResolverTest {
   @Test
   public void presentNestedOptionalProperty() {
     context.put("myobj", new OptionalProperty(new MyClass(new Date(0)), "foo"));
-    assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nested.date", -1))).isEqualTo(
-        "1970-01-01 00:00:00");
+    assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nested.date", -1)))
+      .isEqualTo("1970-01-01 00:00:00");
     assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
@@ -517,10 +543,77 @@ public class ExpressionResolverTest {
 
   @Test
   public void presentNestedNestedOptionalProperty() {
-    context.put("myobj", new NestedOptionalProperty(new OptionalProperty(new MyClass(new Date(0)), "foo")));
-    assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nested.nested.date", -1))).isEqualTo(
-        "1970-01-01 00:00:00");
+    context.put(
+      "myobj",
+      new NestedOptionalProperty(new OptionalProperty(new MyClass(new Date(0)), "foo"))
+    );
+    assertThat(
+        Objects.toString(interpreter.resolveELExpression("myobj.nested.nested.date", -1))
+      )
+      .isEqualTo("1970-01-01 00:00:00");
     assertThat(interpreter.getErrorsCopy()).isEmpty();
+  }
+
+  @Test
+  public void itResolvesLazyExpressionsToTheirUnderlyingValue() {
+    TestClass testClass = new TestClass();
+    Supplier<String> lazyString = () -> result("hallelujah", testClass);
+
+    context.put("myobj", ImmutableMap.of("test", LazyExpression.of(lazyString, "")));
+
+    assertThat(Objects.toString(interpreter.resolveELExpression("myobj.test", -1)))
+      .isEqualTo("hallelujah");
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
+    assertThat(testClass.isTouched()).isTrue();
+  }
+
+  @Test
+  public void itResolvesSuppliersOnlyIfResolved() {
+    TestClass testClass = new TestClass();
+    Supplier<String> lazyString = () -> result("hallelujah", testClass);
+
+    context.put(
+      "myobj",
+      ImmutableMap.of("test", LazyExpression.of(lazyString, ""), "nope", "test")
+    );
+
+    assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nope", -1)))
+      .isEqualTo("test");
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
+    assertThat(testClass.isTouched()).isFalse();
+  }
+
+  @Test
+  public void itResolvesLazyExpressionsInNested() {
+    Supplier<TestClass> lazyObject = TestClass::new;
+
+    context.put("myobj", ImmutableMap.of("test", LazyExpression.of(lazyObject, "")));
+
+    assertThat(Objects.toString(interpreter.resolveELExpression("myobj.test.name", -1)))
+      .isEqualTo("Amazing test class");
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
+  }
+
+  public String result(String value, TestClass testClass) {
+    testClass.touch();
+    return value;
+  }
+
+  public static class TestClass {
+    private boolean touched = false;
+    private String name = "Amazing test class";
+
+    public boolean isTouched() {
+      return touched;
+    }
+
+    public void touch() {
+      this.touched = true;
+    }
+
+    public String getName() {
+      return name;
+    }
   }
 
   public static final class MyClass {
@@ -530,7 +623,9 @@ public class ExpressionResolverTest {
       this.date = date;
     }
 
-    public Class getClazz() { return this.getClass(); }
+    public Class getClazz() {
+      return this.getClass();
+    }
 
     public Date getDate() {
       return date;

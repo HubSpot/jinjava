@@ -4,18 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.ZonedDateTime;
 import java.util.Locale;
-
 import org.junit.Before;
 import org.junit.Test;
 
 public class StrftimeFormatterTest {
-
   ZonedDateTime d;
 
   @Before
   public void setup() {
     Locale.setDefault(Locale.ENGLISH);
-    d = ZonedDateTime.parse("2013-11-06T14:22:00.000+00:00");
+    d = ZonedDateTime.parse("2013-11-06T14:22:00.123+00:00");
   }
 
   @Test
@@ -31,7 +29,7 @@ public class StrftimeFormatterTest {
   @Test
   public void testCommentsFormat() {
     assertThat(StrftimeFormatter.format(d, "%B %d, %Y, at %I:%M %p"))
-        .isEqualTo("November 06, 2013, at 02:22 PM");
+      .isEqualTo("November 06, 2013, at 02:22 PM");
   }
 
   @Test
@@ -65,8 +63,14 @@ public class StrftimeFormatterTest {
   }
 
   @Test
+  public void testMicrosecs() {
+    assertThat(StrftimeFormatter.format(d, "%X %f")).isEqualTo("14:22:00 123000");
+  }
+
+  @Test
   public void testWithLL() {
-    assertThat(StrftimeFormatter.format(d, "yyyy/LL/dd HH:mm")).isEqualTo("2013/11/06 14:22");
+    assertThat(StrftimeFormatter.format(d, "yyyy/LL/dd HH:mm"))
+      .isEqualTo("2013/11/06 14:22");
   }
 
   @Test
@@ -79,13 +83,31 @@ public class StrftimeFormatterTest {
 
   @Test
   public void testFinnishMonths() {
-    assertThat(StrftimeFormatter.formatter("long").withLocale(Locale.forLanguageTag("fi")).format(d))
-        .startsWith("6. marraskuuta 2013 klo 14.22.00");
+    assertThat(
+        StrftimeFormatter
+          .formatter("long")
+          .withLocale(Locale.forLanguageTag("fi"))
+          .format(d)
+      )
+      .startsWith("6. marraskuuta 2013 klo 14.22.00");
   }
 
   @Test
   public void testZoneOutput() {
     assertThat(StrftimeFormatter.format(d, "%z")).isEqualTo("+0000");
     assertThat(StrftimeFormatter.format(d, "%Z")).isEqualTo("GMT");
+  }
+
+  @Test
+  public void itConvertsNominativeFormats() {
+    ZonedDateTime zonedDateTime = ZonedDateTime.parse("2019-06-06T14:22:00.000+00:00");
+
+    assertThat(
+        StrftimeFormatter
+          .formatter("%OB")
+          .withLocale(Locale.forLanguageTag("ru"))
+          .format(zonedDateTime)
+      )
+      .isIn("Июнь", "июнь");
   }
 }

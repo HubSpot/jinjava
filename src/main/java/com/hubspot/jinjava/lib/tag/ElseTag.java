@@ -21,9 +21,9 @@ import com.hubspot.jinjava.tree.TagNode;
 
 @JinjavaDoc(value = "", hidden = true)
 public class ElseTag implements Tag {
+  public static final String TAG_NAME = "else";
 
   private static final long serialVersionUID = 1082768429113702148L;
-  static final String ELSE = "else";
 
   @Override
   public boolean isRenderedInValidationMode() {
@@ -42,7 +42,6 @@ public class ElseTag implements Tag {
 
   @Override
   public String getName() {
-    return ELSE;
+    return TAG_NAME;
   }
-
 }

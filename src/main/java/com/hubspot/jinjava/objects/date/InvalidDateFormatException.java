@@ -13,5 +13,4 @@ public class InvalidDateFormatException extends IllegalArgumentException {
   public String getFormat() {
     return format;
   }
-
 }

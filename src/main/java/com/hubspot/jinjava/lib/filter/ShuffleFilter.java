@@ -1,23 +1,31 @@
 package com.hubspot.jinjava.lib.filter;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
-import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-
 @JinjavaDoc(
-    value = "Randomly shuffle a given list, returning a new list with all of the items of the original list in a random order",
-    snippets = {
-        @JinjavaSnippet(
-            desc = "The example below is a standard blog loop that's order is randomized on page load",
-            code = "{% for content in contents|shuffle %}\n" +
-                "    <div class=\"post-item\">Markup of each post</div>\n" +
-                "{% endfor %}")
-    })
+  value = "Randomly shuffle a given list, returning a new list with all of the items of the original list in a random order",
+  input = @JinjavaParam(
+    value = "sequence",
+    type = "sequence",
+    desc = "Sequence to shuffle",
+    required = true
+  ),
+  snippets = {
+    @JinjavaSnippet(
+      desc = "The example below is a standard blog loop that's order is randomized on page load",
+      code = "{% for content in contents|shuffle %}\n" +
+      "    <div class=\"post-item\">Markup of each post</div>\n" +
+      "{% endfor %}"
+    )
+  }
+)
 public class ShuffleFilter implements Filter {
 
   @Override
@@ -36,5 +44,4 @@ public class ShuffleFilter implements Filter {
 
     return var;
   }
-
 }

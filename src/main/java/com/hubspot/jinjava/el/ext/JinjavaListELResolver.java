@@ -64,32 +64,32 @@ public class JinjavaListELResolver extends ListELResolver {
    *             if property cannot be coerced to an integer.
    */
   private static int toIndex(Object property) {
-     int index = 0;
-     if (property instanceof Number) {
-       index = ((Number) property).intValue();
-     } else if (property instanceof String) {
-       try {
-         // ListELResolver uses valueOf, but findbugs complains.
-         index = Integer.parseInt((String) property);
-       } catch (NumberFormatException e) {
-         throw new IllegalArgumentException("Cannot parse list index: " + property);
-       }
-     } else if (property instanceof Character) {
-       index = ((Character) property).charValue();
-     } else if (property instanceof Boolean) {
-       index = ((Boolean) property).booleanValue() ? 1 : 0;
-     } else {
-       throw new IllegalArgumentException("Cannot coerce property to list index: " + property);
-     }
-     return index;
-   }
+    int index = 0;
+    if (property instanceof Number) {
+      index = ((Number) property).intValue();
+    } else if (property instanceof String) {
+      try {
+        // ListELResolver uses valueOf, but findbugs complains.
+        index = Integer.parseInt((String) property);
+      } catch (NumberFormatException e) {
+        throw new IllegalArgumentException("Cannot parse list index: " + property);
+      }
+    } else if (property instanceof Character) {
+      index = ((Character) property).charValue();
+    } else if (property instanceof Boolean) {
+      index = ((Boolean) property).booleanValue() ? 1 : 0;
+    } else {
+      throw new IllegalArgumentException(
+        "Cannot coerce property to list index: " + property
+      );
+    }
+    return index;
+  }
 
   @Override
   public void setValue(ELContext context, Object base, Object property, Object value) {
     try {
       super.setValue(context, base, property, value);
-    } catch (IllegalArgumentException e) {
-      /* */ }
+    } catch (IllegalArgumentException ignored) {}
   }
-
 }

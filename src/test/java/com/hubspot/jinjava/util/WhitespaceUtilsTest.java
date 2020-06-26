@@ -34,5 +34,4 @@ public class WhitespaceUtilsTest {
     assertThat(unwrap("  'foobar' ", "'", "'")).isEqualTo("foobar");
     assertThat(unwrap("\t  <b>foobar</b>\n", "<b>", "</b>")).isEqualTo("foobar");
   }
-
 }

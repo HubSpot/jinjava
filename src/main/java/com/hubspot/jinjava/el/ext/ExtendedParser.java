@@ -11,16 +11,7 @@ import static de.odysseus.el.tree.impl.Scanner.Symbol.QUESTION;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.RBRACK;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.RPAREN;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.el.ELException;
-
 import com.google.common.collect.Lists;
-
 import de.odysseus.el.tree.impl.Builder;
 import de.odysseus.el.tree.impl.Builder.Feature;
 import de.odysseus.el.tree.impl.Parser;
@@ -37,9 +28,14 @@ import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstNull;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import de.odysseus.el.tree.impl.ast.AstProperty;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.el.ELException;
 
 public class ExtendedParser extends Parser {
-
   public static final String INTERPRETER = "____int3rpr3t3r____";
   public static final String FILTER_PREFIX = "filter:";
   public static final String EXPTEST_PREFIX = "exptest:";
@@ -49,11 +45,13 @@ public class ExtendedParser extends Parser {
   static final Token IF = new Scanner.Token(Symbol.QUESTION, "if");
   static final Token ELSE = new Scanner.Token(Symbol.COLON, "else");
 
-  static final Scanner.ExtensionToken LITERAL_DICT_START = new Scanner.ExtensionToken("{");
+  static final Scanner.ExtensionToken LITERAL_DICT_START = new Scanner.ExtensionToken(
+    "{"
+  );
   static final Scanner.ExtensionToken LITERAL_DICT_END = new Scanner.ExtensionToken("}");
 
   static final Scanner.ExtensionToken TRUNC_DIV = TruncDivOperator.TOKEN;
-  static final Scanner.ExtensionToken POWER_OF  = PowerOfOperator.TOKEN;
+  static final Scanner.ExtensionToken POWER_OF = PowerOfOperator.TOKEN;
 
   static {
     ExtendedScanner.addKeyToken(IF);
@@ -67,21 +65,27 @@ public class ExtendedParser extends Parser {
 
   public ExtendedParser(Builder context, String input) {
     super(context, input);
-
     putExtensionHandler(AbsOperator.TOKEN, AbsOperator.HANDLER);
     putExtensionHandler(NamedParameterOperator.TOKEN, NamedParameterOperator.HANDLER);
     putExtensionHandler(StringConcatOperator.TOKEN, StringConcatOperator.HANDLER);
     putExtensionHandler(TruncDivOperator.TOKEN, TruncDivOperator.HANDLER);
     putExtensionHandler(PowerOfOperator.TOKEN, PowerOfOperator.HANDLER);
 
-    putExtensionHandler(CollectionMembershipOperator.TOKEN, CollectionMembershipOperator.HANDLER);
+    putExtensionHandler(
+      CollectionMembershipOperator.TOKEN,
+      CollectionMembershipOperator.HANDLER
+    );
 
-    putExtensionHandler(PIPE, new ExtensionHandler(ExtensionPoint.AND) {
-      @Override
-      public AstNode createAstNode(AstNode... children) {
-        throw new ELException("Illegal use of '|' operator");
+    putExtensionHandler(
+      PIPE,
+      new ExtensionHandler(ExtensionPoint.AND) {
+
+        @Override
+        public AstNode createAstNode(AstNode... children) {
+          throw new ELException("Illegal use of '|' operator");
+        }
       }
-    });
+    );
 
     putExtensionHandler(LITERAL_DICT_START, NULL_EXT_HANDLER);
     putExtensionHandler(LITERAL_DICT_END, NULL_EXT_HANDLER);
@@ -129,17 +133,17 @@ public class ExtendedParser extends Parser {
     }
     while (true) {
       switch (getToken().getSymbol()) {
-      case OR:
-        consumeToken();
-        v = createAstBinary(v, and(true), OrOperator.OP);
-        break;
-      case EXTENSION:
-        if (getExtensionHandler(getToken()).getExtensionPoint() == ExtensionPoint.OR) {
-          v = getExtensionHandler(consumeToken()).createAstNode(v, and(true));
+        case OR:
+          consumeToken();
+          v = createAstBinary(v, and(true), OrOperator.OP);
           break;
-        }
-      default:
-        return v;
+        case EXTENSION:
+          if (getExtensionHandler(getToken()).getExtensionPoint() == ExtensionPoint.OR) {
+            v = getExtensionHandler(consumeToken()).createAstNode(v, and(true));
+            break;
+          }
+        default:
+          return v;
       }
     }
   }
@@ -152,21 +156,21 @@ public class ExtendedParser extends Parser {
     }
     while (true) {
       switch (getToken().getSymbol()) {
-      case PLUS:
-        consumeToken();
-        v = createAstBinary(v, mul(true), AdditionOperator.OP);
-        break;
-      case MINUS:
-        consumeToken();
-        v = createAstBinary(v, mul(true), AstBinary.SUB);
-        break;
-      case EXTENSION:
-        if (getExtensionHandler(getToken()).getExtensionPoint() == ExtensionPoint.ADD) {
-          v = getExtensionHandler(consumeToken()).createAstNode(v, mul(true));
+        case PLUS:
+          consumeToken();
+          v = createAstBinary(v, mul(true), AdditionOperator.OP);
           break;
-        }
-      default:
-        return v;
+        case MINUS:
+          consumeToken();
+          v = createAstBinary(v, mul(true), AstBinary.SUB);
+          break;
+        case EXTENSION:
+          if (getExtensionHandler(getToken()).getExtensionPoint() == ExtensionPoint.ADD) {
+            v = getExtensionHandler(consumeToken()).createAstNode(v, mul(true));
+            break;
+          }
+        default:
+          return v;
       }
     }
   }
@@ -176,7 +180,8 @@ public class ExtendedParser extends Parser {
     return params(LPAREN, RPAREN);
   }
 
-  protected AstParameters params(Symbol left, Symbol right) throws ScanException, ParseException {
+  protected AstParameters params(Symbol left, Symbol right)
+    throws ScanException, ParseException {
     consumeToken(left);
     List<AstNode> l = Collections.emptyList();
     AstNode v = expr(false);
@@ -232,37 +237,40 @@ public class ExtendedParser extends Parser {
   protected AstNode nonliteral() throws ScanException, ParseException {
     AstNode v = null;
     switch (getToken().getSymbol()) {
-    case IDENTIFIER:
-      String name = consumeToken().getImage();
-      if (getToken().getSymbol() == COLON && lookahead(0).getSymbol() == IDENTIFIER && lookahead(1).getSymbol() == LPAREN) { // ns:f(...)
-        consumeToken();
-        name += ":" + getToken().getImage();
-        consumeToken();
-      }
-      if (getToken().getSymbol() == LPAREN) { // function
-        v = function(name, params());
-      } else { // identifier
-        v = identifier(name);
-      }
-      break;
-    case LPAREN:
-      int i = 0;
-      Symbol s;
-      do {
-        s = lookahead(i++).getSymbol();
-        if (s == Symbol.COMMA) {
-          return new AstTuple(params());
+      case IDENTIFIER:
+        String name = consumeToken().getImage();
+        if (
+          getToken().getSymbol() == COLON &&
+          lookahead(0).getSymbol() == IDENTIFIER &&
+          lookahead(1).getSymbol() == LPAREN
+        ) { // ns:f(...)
+          consumeToken();
+          name += ":" + getToken().getImage();
+          consumeToken();
         }
-      } while (s != Symbol.RPAREN && s != Symbol.EOF);
+        if (getToken().getSymbol() == LPAREN) { // function
+          v = function(name, params());
+        } else { // identifier
+          v = identifier(name);
+        }
+        break;
+      case LPAREN:
+        int i = 0;
+        Symbol s;
+        do {
+          s = lookahead(i++).getSymbol();
+          if (s == Symbol.COMMA) {
+            return new AstTuple(params());
+          }
+        } while (s != Symbol.RPAREN && s != Symbol.EOF);
 
-      consumeToken();
-      v = expr(true);
-      consumeToken(RPAREN);
-      v = new AstNested(v);
-      break;
-
-    default:
-      break;
+        consumeToken();
+        v = expr(true);
+        consumeToken(RPAREN);
+        v = new AstNested(v);
+        break;
+      default:
+        break;
     }
     return v;
   }
@@ -271,22 +279,22 @@ public class ExtendedParser extends Parser {
   protected AstNode literal() throws ScanException, ParseException {
     AstNode v = null;
     switch (getToken().getSymbol()) {
-    case LBRACK:
-      v = new AstList(params(LBRACK, RBRACK));
+      case LBRACK:
+        v = new AstList(params(LBRACK, RBRACK));
 
-      break;
-    case LPAREN:
-      v = new AstTuple(params());
-      break;
-    case EXTENSION:
-      if (getToken() == LITERAL_DICT_START) {
-        v = dict();
-      } else if (getToken() == LITERAL_DICT_END) {
-        return null;
-      }
-      break;
-    default:
-      break;
+        break;
+      case LPAREN:
+        v = new AstTuple(params());
+        break;
+      case EXTENSION:
+        if (getToken() == LITERAL_DICT_START) {
+          v = dict();
+        } else if (getToken() == LITERAL_DICT_END) {
+          return null;
+        }
+        break;
+      default:
+        break;
     }
 
     if (v != null) {
@@ -296,8 +304,21 @@ public class ExtendedParser extends Parser {
     return super.literal();
   }
 
-  protected AstRangeBracket createAstRangeBracket(AstNode base, AstNode rangeStart, AstNode rangeMax, boolean lvalue, boolean strict) {
-    return new AstRangeBracket(base, rangeStart, rangeMax, lvalue, strict, context.isEnabled(Feature.IGNORE_RETURN_TYPE));
+  protected AstRangeBracket createAstRangeBracket(
+    AstNode base,
+    AstNode rangeStart,
+    AstNode rangeMax,
+    boolean lvalue,
+    boolean strict
+  ) {
+    return new AstRangeBracket(
+      base,
+      rangeStart,
+      rangeMax,
+      lvalue,
+      strict,
+      context.isEnabled(Feature.IGNORE_RETURN_TYPE)
+    );
   }
 
   @Override
@@ -313,91 +334,102 @@ public class ExtendedParser extends Parser {
     }
     while (true) {
       switch (getToken().getSymbol()) {
-      case DOT:
-        consumeToken();
-        String name = consumeToken(IDENTIFIER).getImage();
-        AstDot dot = createAstDot(v, name, lvalue);
-        if (getToken().getSymbol() == LPAREN && context.isEnabled(METHOD_INVOCATIONS)) {
-          v = createAstMethod(dot, params());
-        } else {
-          v = dot;
-        }
-        break;
-      case LBRACK:
-        consumeToken();
-        AstNode property = expr(false);
-        boolean strict = !context.isEnabled(NULL_PROPERTIES);
-
-        Token nextToken = consumeToken();
-
-        if (nextToken.getSymbol() == COLON) {
-          AstNode rangeMax = expr(false);
-          consumeToken(RBRACK);
-          v = createAstRangeBracket(v, property, rangeMax, lvalue, strict);
-        } else if (nextToken.getSymbol() == RBRACK) {
-          AstBracket bracket = createAstBracket(v, property, lvalue, strict);
+        case DOT:
+          consumeToken();
+          String name = consumeToken(IDENTIFIER).getImage();
+          AstDot dot = createAstDot(v, name, lvalue);
           if (getToken().getSymbol() == LPAREN && context.isEnabled(METHOD_INVOCATIONS)) {
-            v = createAstMethod(bracket, params());
+            v = createAstMethod(dot, params());
           } else {
-            v = bracket;
+            v = dot;
           }
-        } else {
-          fail(RBRACK);
-        }
+          break;
+        case LBRACK:
+          consumeToken();
+          AstNode property = expr(false);
+          boolean strict = !context.isEnabled(NULL_PROPERTIES);
 
-        break;
-      default:
-        if ("|".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
-          do {
-            consumeToken(); // '|'
-            String filterName = consumeToken().getImage();
-            List<AstNode> filterParams = Lists.newArrayList(v, interpreter());
+          Token nextToken = consumeToken();
 
-            // optional filter args
-            if (getToken().getSymbol() == Symbol.LPAREN) {
-              AstParameters astParameters = params();
-              for (int i = 0; i < astParameters.getCardinality(); i++) {
-                filterParams.add(astParameters.getChild(i));
-              }
+          if (nextToken.getSymbol() == COLON) {
+            AstNode rangeMax = expr(false);
+            consumeToken(RBRACK);
+            v = createAstRangeBracket(v, property, rangeMax, lvalue, strict);
+          } else if (nextToken.getSymbol() == RBRACK) {
+            AstBracket bracket = createAstBracket(v, property, lvalue, strict);
+            if (
+              getToken().getSymbol() == LPAREN && context.isEnabled(METHOD_INVOCATIONS)
+            ) {
+              v = createAstMethod(bracket, params());
+            } else {
+              v = bracket;
             }
+          } else {
+            fail(RBRACK);
+          }
 
-            AstProperty filterProperty = createAstDot(identifier(FILTER_PREFIX + filterName), "filter", true);
-            v = createAstMethod(filterProperty, new AstParameters(filterParams)); // function("filter:" + filterName, new AstParameters(filterParams));
-          } while ("|".equals(getToken().getImage()));
-        } else if ("is".equals(getToken().getImage()) &&
+          break;
+        default:
+          if (
+            "|".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER
+          ) {
+            do {
+              consumeToken(); // '|'
+              String filterName = consumeToken().getImage();
+              List<AstNode> filterParams = Lists.newArrayList(v, interpreter());
+
+              // optional filter args
+              if (getToken().getSymbol() == Symbol.LPAREN) {
+                AstParameters astParameters = params();
+                for (int i = 0; i < astParameters.getCardinality(); i++) {
+                  filterParams.add(astParameters.getChild(i));
+                }
+              }
+
+              AstProperty filterProperty = createAstDot(
+                identifier(FILTER_PREFIX + filterName),
+                "filter",
+                true
+              );
+              v = createAstMethod(filterProperty, new AstParameters(filterParams)); // function("filter:" + filterName, new AstParameters(filterParams));
+            } while ("|".equals(getToken().getImage()));
+          } else if (
+            "is".equals(getToken().getImage()) &&
             "not".equals(lookahead(0).getImage()) &&
-            lookahead(1).getSymbol() == IDENTIFIER) {
-          consumeToken(); // 'is'
-          consumeToken(); // 'not'
-          String exptestName = consumeToken().getImage();
-          List<AstNode> exptestParams = Lists.newArrayList(v, interpreter());
-
-          // optional exptest arg
-          AstNode arg = expr(false);
-          if (arg != null) {
-            exptestParams.add(arg);
+            lookahead(1).getSymbol() == IDENTIFIER
+          ) {
+            consumeToken(); // 'is'
+            consumeToken(); // 'not'
+            v = buildAstMethodForIdentifier(v, "evaluateNegated");
+          } else if (
+            "is".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER
+          ) {
+            consumeToken(); // 'is'
+            v = buildAstMethodForIdentifier(v, "evaluate");
           }
 
-          AstProperty exptestProperty = createAstDot(identifier(EXPTEST_PREFIX + exptestName), "evaluateNegated", true);
-          v = createAstMethod(exptestProperty, new AstParameters(exptestParams));
-        } else if ("is".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
-          consumeToken(); // 'is'
-          String exptestName = consumeToken().getImage();
-          List<AstNode> exptestParams = Lists.newArrayList(v, interpreter());
-
-          // optional exptest arg
-          AstNode arg = expr(false);
-          if (arg != null) {
-            exptestParams.add(arg);
-          }
-
-          AstProperty exptestProperty = createAstDot(identifier(EXPTEST_PREFIX + exptestName), "evaluate", true);
-          v = createAstMethod(exptestProperty, new AstParameters(exptestParams));
-        }
-
-        return v;
+          return v;
       }
     }
+  }
+
+  private AstNode buildAstMethodForIdentifier(AstNode astNode, String property)
+    throws ScanException, ParseException {
+    String exptestName = consumeToken().getImage();
+    List<AstNode> exptestParams = Lists.newArrayList(astNode, interpreter());
+
+    // optional exptest arg
+    AstNode arg = value();
+    if (arg != null) {
+      exptestParams.add(arg);
+    }
+
+    AstProperty exptestProperty = createAstDot(
+      identifier(EXPTEST_PREFIX + exptestName),
+      property,
+      true
+    );
+    return createAstMethod(exptestProperty, new AstParameters(exptestParams));
   }
 
   @Override
@@ -406,10 +438,10 @@ public class ExtendedParser extends Parser {
   }
 
   private static final ExtensionHandler NULL_EXT_HANDLER = new ExtensionHandler(null) {
+
     @Override
     public AstNode createAstNode(AstNode... children) {
       return null;
     }
   };
-
 }

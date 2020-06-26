@@ -9,7 +9,6 @@ import de.odysseus.el.tree.impl.ast.AstBinary.SimpleOperator;
 import de.odysseus.el.tree.impl.ast.AstNode;
 
 public class PowerOfOperator extends SimpleOperator {
-
   public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("**");
   public static final PowerOfOperator OP = new PowerOfOperator();
 
@@ -30,22 +29,24 @@ public class PowerOfOperator extends SimpleOperator {
       Double e = converter.convert(b, Double.class);
       return Math.pow(d, e);
     }
-    throw new IllegalArgumentException(String.format("Unsupported operand type(s) for **: '%s' (%s) and '%s' (%s)",
-                                                     a,
-                                                     (a == null ? "null" : a.getClass().getSimpleName()),
-                                                     b,
-                                                     (b == null ? "null" : b.getClass().getSimpleName())
-    )
+    throw new IllegalArgumentException(
+      String.format(
+        "Unsupported operand type(s) for **: '%s' (%s) and '%s' (%s)",
+        a,
+        (a == null ? "null" : a.getClass().getSimpleName()),
+        b,
+        (b == null ? "null" : b.getClass().getSimpleName())
+      )
     );
   }
 
-  public static final ExtensionHandler HANDLER = new ExtensionHandler(ExtensionPoint.MUL) {
+  public static final ExtensionHandler HANDLER = new ExtensionHandler(
+    ExtensionPoint.MUL
+  ) {
+
     @Override
     public AstNode createAstNode(AstNode... children) {
       return new AstBinary(children[0], children[1], OP);
     }
   };
-
 }
-
-

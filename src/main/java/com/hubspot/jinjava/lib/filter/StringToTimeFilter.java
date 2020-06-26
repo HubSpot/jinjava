@@ -3,30 +3,46 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.Functions;
 
 @JinjavaDoc(
-    value = "Converts a datetime string and datetime format to a datetime object",
-    params = {
-        @JinjavaParam(value = "datetimeString", desc = "Datetime string"),
-        @JinjavaParam(value = "datetimeFormat", desc = "Format of the datetime string"),
-    },
-    snippets = {
-        @JinjavaSnippet(code = "{% mydatetime|unixtimestamp %}"),
-    })
+  value = "Converts a datetime string and datetime format to a datetime object",
+  input = @JinjavaParam(
+    value = "datetimeString",
+    desc = "Datetime string",
+    required = true
+  ),
+  params = {
+    @JinjavaParam(
+      value = "datetimeFormat",
+      desc = "Format of the datetime string",
+      required = true
+    )
+  },
+  snippets = { @JinjavaSnippet(code = "{% mydatetime|unixtimestamp %}") }
+)
 public class StringToTimeFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-
-    if (!(var instanceof String)) {
-      throw new InterpretException(String.format("%s filter requires a string as input", getName()));
+    if (args.length < 1) {
+      throw new TemplateSyntaxException(
+        interpreter,
+        getName(),
+        "requires 1 argument (datetime format string)"
+      );
     }
 
-    if (args.length < 1) {
-      throw new InterpretException(String.format("%s filter requires a datetime format parameter", getName()));
+    if (var == null) {
+      return null;
+    }
+
+    if (!(var instanceof String)) {
+      throw new InvalidInputException(interpreter, this, InvalidReason.STRING);
     }
 
     return Functions.stringToTime((String) var, args[0]);

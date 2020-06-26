@@ -8,14 +8,24 @@ public class UnknownTagException extends TemplateSyntaxException {
   private final String tag;
   private final String definition;
 
-  public UnknownTagException(String tag, String definition, int lineNumber, int startPosition) {
+  public UnknownTagException(
+    String tag,
+    String definition,
+    int lineNumber,
+    int startPosition
+  ) {
     super(definition, "Unknown tag: " + tag, lineNumber, startPosition);
     this.tag = tag;
     this.definition = definition;
   }
 
   public UnknownTagException(TagToken tagToken) {
-    this(tagToken.getRawTagName(), tagToken.getImage(), tagToken.getLineNumber(), tagToken.getStartPosition());
+    this(
+      tagToken.getRawTagName(),
+      tagToken.getImage(),
+      tagToken.getLineNumber(),
+      tagToken.getStartPosition()
+    );
   }
 
   public String getTag() {
@@ -33,5 +43,4 @@ public class UnknownTagException extends TemplateSyntaxException {
   public String getDefinition() {
     return definition;
   }
-
 }

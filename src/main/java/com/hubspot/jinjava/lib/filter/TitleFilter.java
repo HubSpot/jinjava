@@ -1,10 +1,10 @@
 package com.hubspot.jinjava.lib.filter;
 
-import org.apache.commons.lang3.text.WordUtils;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import org.apache.commons.lang3.text.WordUtils;
 
 /**
  * Return a titlecased version of the value. I.e. words will start with uppercase letters, all remaining characters are lowercase.
@@ -12,12 +12,15 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
  * @author jstehler
  */
 @JinjavaDoc(
-    value = "Return a titlecased version of the value. I.e. words will start with uppercase letters, all remaining characters are lowercase.",
-    snippets = {
-        @JinjavaSnippet(
-            code = "{{ \"My title should be titlecase\"|title }} "
-        )
-    })
+  value = "Return a titlecased version of the value. I.e. words will start with uppercase letters, all remaining characters are lowercase.",
+  input = @JinjavaParam(
+    value = "string",
+    type = "string",
+    desc = "the string to titlecase",
+    required = true
+  ),
+  snippets = { @JinjavaSnippet(code = "{{ \"My title should be titlecase\"|title }} ") }
+)
 public class TitleFilter implements Filter {
 
   @Override
@@ -33,5 +36,4 @@ public class TitleFilter implements Filter {
     }
     return var;
   }
-
 }
