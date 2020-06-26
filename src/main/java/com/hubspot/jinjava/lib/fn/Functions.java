@@ -129,11 +129,17 @@ public class Functions {
       return "";
     }
 
-    Locale locale = JinjavaInterpreter
-      .getCurrentMaybe()
-      .map(JinjavaInterpreter::getConfig)
-      .map(JinjavaConfig::getLocale)
-      .orElse(Locale.ENGLISH);
+    Locale locale;
+    if (format.length > 2 && format[2] != null) {
+      locale = Locale.forLanguageTag(format[2]);
+    } else {
+      locale =
+        JinjavaInterpreter
+          .getCurrentMaybe()
+          .map(JinjavaInterpreter::getConfig)
+          .map(JinjavaConfig::getLocale)
+          .orElse(Locale.ENGLISH);
+    }
 
     if (format.length > 0) {
       return StrftimeFormatter.format(d, format[0], locale);

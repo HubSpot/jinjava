@@ -100,4 +100,24 @@ public class DateTimeFormatFilterTest {
   public void itThrowsExceptionOnInvalidDateformat() throws Exception {
     filter.filter(1539277785000L, interpreter, "Not a format");
   }
+
+  @Test
+  public void itConvertsDatetimesByLocales() {
+    interpreter.getContext().put("d", d);
+
+    assertThat(interpreter.renderFlat("{{ d|datetimeformat('%A, %e %B', 'UTC', 'sv') }}"))
+      .isEqualTo("onsdag, 6 november");
+  }
+
+  @Test
+  public void itDefaultsToEnglishForBadLocaleValues() {
+    interpreter.getContext().put("d", d);
+
+    assertThat(
+        interpreter.renderFlat(
+          "{{ d|datetimeformat('%A, %e %B', 'UTC', 'not_a_locale') }}"
+        )
+      )
+      .isEqualTo("Wed, 6 Nov");
+  }
 }
