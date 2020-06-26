@@ -27,7 +27,7 @@ import com.hubspot.jinjava.objects.date.StrftimeFormatter;
       desc = "Time zone of output date"
     ),
     @JinjavaParam(
-      value = "language",
+      value = "locale",
       type = "string",
       defaultValue = "us",
       desc = "The language code to use when formatting the datetime"
