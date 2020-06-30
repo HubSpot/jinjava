@@ -40,7 +40,7 @@ import java.math.BigInteger;
       type = "number",
       desc = "The multiplier",
       required = true
-    ),
+    )
   },
   snippets = { @JinjavaSnippet(code = "{% set n = 20 %}\n" + "{{ n|multiply(3) }}") }
 )
