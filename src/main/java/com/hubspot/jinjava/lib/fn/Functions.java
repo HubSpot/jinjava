@@ -44,7 +44,7 @@ public class Functions {
         "    ...\n" +
         "    {{ super() }}\n" +
         "{% endblock %}"
-      )
+      ),
     }
   )
   public static String renderSuperBlock() {
@@ -75,7 +75,7 @@ public class Functions {
         type = "string",
         defaultValue = "utc",
         desc = "timezone"
-      )
+      ),
     }
   )
   public static ZonedDateTime today(String... var) {
@@ -105,7 +105,7 @@ public class Functions {
         value = "timezone",
         defaultValue = "utc",
         desc = "Time zone of output date"
-      )
+      ),
     }
   )
   public static String dateTimeFormat(Object var, String... format) {
@@ -178,7 +178,7 @@ public class Functions {
   @JinjavaDoc(
     value = "gets the unix timestamp milliseconds value of a datetime",
     params = {
-      @JinjavaParam(value = "var", type = "date", defaultValue = "current time")
+      @JinjavaParam(value = "var", type = "date", defaultValue = "current time"),
     }
   )
   public static long unixtimestamp(Object... var) {
@@ -249,7 +249,7 @@ public class Functions {
     params = {
       @JinjavaParam("s"),
       @JinjavaParam(value = "length", type = "number", defaultValue = "255"),
-      @JinjavaParam(value = "end", defaultValue = "...")
+      @JinjavaParam(value = "end", defaultValue = "..."),
     }
   )
   public static Object truncate(Object var, Object... arg) {
@@ -319,7 +319,7 @@ public class Functions {
     params = {
       @JinjavaParam(value = "start", type = "number", defaultValue = "0"),
       @JinjavaParam(value = "end", type = "number"),
-      @JinjavaParam(value = "step", type = "number", defaultValue = "1")
+      @JinjavaParam(value = "step", type = "number", defaultValue = "1"),
     }
   )
   public static List<Integer> range(Object arg1, Object... args) {
