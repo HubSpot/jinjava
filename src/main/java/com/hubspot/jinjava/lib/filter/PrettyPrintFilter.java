@@ -31,7 +31,7 @@ import org.apache.commons.lang3.StringUtils;
     @JinjavaSnippet(
       code = "{% set this_var =\"Variable that I want to debug\" %}\n" +
       "{{ this_var|pprint }}"
-    )
+    ),
   }
 )
 public class PrettyPrintFilter implements Filter {
@@ -47,7 +47,7 @@ public class PrettyPrintFilter implements Filter {
       return "null";
     }
 
-    String varStr = null;
+    String varStr;
 
     if (
       var instanceof String ||

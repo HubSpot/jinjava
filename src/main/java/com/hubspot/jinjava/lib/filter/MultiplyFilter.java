@@ -40,7 +40,7 @@ import java.math.BigInteger;
       type = "number",
       desc = "The multiplier",
       required = true
-    )
+    ),
   },
   snippets = { @JinjavaSnippet(code = "{% set n = 20 %}\n" + "{{ n|multiply(3) }}") }
 )
@@ -79,7 +79,7 @@ public class MultiplyFilter implements Filter {
       return num.longValue() * (Long) object;
     }
     if (object instanceof Short) {
-      return 0 + num.shortValue() * (Short) object;
+      return num.shortValue() * (Short) object;
     }
     if (object instanceof Double) {
       return num.doubleValue() * (Double) object;

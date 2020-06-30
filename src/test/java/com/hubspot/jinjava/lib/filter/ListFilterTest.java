@@ -35,7 +35,7 @@ public class ListFilterTest {
 
   @Test
   public void itConvertsStringToListOfChars() {
-    List o = (List) filter.filter("hello", null);
+    List<?> o = (List<?>) filter.filter("hello", null);
     assertThat(o).isEqualTo(Lists.newArrayList('h', 'e', 'l', 'l', 'o'));
     assertThat(o.get(0)).isEqualTo('h');
   }
@@ -43,13 +43,19 @@ public class ListFilterTest {
   @Test
   public void itConvertsSetsToLists() {
     Set<Integer> ints = Sets.newHashSet(1, 2, 3);
-    List o = (List) filter.filter(ints, null);
+    List<?> o = (List<?>) filter.filter(ints, null);
     assertThat(o).isEqualTo(Lists.newArrayList(1, 2, 3));
   }
 
   @Test
   public void itWrapsNonCollectionNonStringsInLists() {
-    List o = (List) filter.filter(BigDecimal.ONE, null);
+    List<?> o = (List<?>) filter.filter(BigDecimal.ONE, null);
     assertThat(o).isEqualTo(Lists.newArrayList(BigDecimal.ONE));
+  }
+
+  @Test
+  public void itHandlesNullListParams() {
+    List<?> o = (List<?>) filter.filter(null, null);
+    assertThat(o).isNull();
   }
 }

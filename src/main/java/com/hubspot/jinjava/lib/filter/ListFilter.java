@@ -23,7 +23,7 @@ import java.util.List;
       "{% set three = 3 %}\n" +
       "{% set list_num = one|list + two|list + three|list %}\n" +
       "{{ list_num|list }}"
-    )
+    ),
   }
 )
 public class ListFilter implements Filter {
@@ -36,6 +36,10 @@ public class ListFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     List<?> result;
+
+    if (var == null) {
+      return null;
+    }
 
     if (var instanceof String) {
       result = Chars.asList(((String) var).toCharArray());
