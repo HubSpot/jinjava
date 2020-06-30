@@ -29,11 +29,16 @@ import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.lib.exptest.ExpTest;
+import com.hubspot.jinjava.lib.filter.Filter;
+import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
+import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.loader.ClasspathResourceLocator;
 import com.hubspot.jinjava.loader.ResourceLocator;
 import de.odysseus.el.ExpressionFactoryImpl;
 import de.odysseus.el.misc.TypeConverter;
 import de.odysseus.el.tree.TreeBuilder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -123,6 +128,10 @@ public class Jinjava {
     return globalContext;
   }
 
+  public Context getGlobalContextCopy() {
+    return copyGlobalContext();
+  }
+
   public ResourceLocator getResourceLocator() {
     return resourceLocator;
   }
@@ -192,11 +201,22 @@ public class Jinjava {
     Map<String, ?> bindings,
     JinjavaConfig renderConfig
   ) {
-    Context context = new Context(globalContext, bindings, renderConfig.getDisabled());
-
+    Context context;
     JinjavaInterpreter parentInterpreter = JinjavaInterpreter.getCurrent();
     if (parentInterpreter != null) {
       renderConfig = parentInterpreter.getConfig();
+      Map<String, Object> bindingsWithParentContext = new HashMap<>(bindings);
+      if (parentInterpreter.getContext() != null) {
+        bindingsWithParentContext.putAll(parentInterpreter.getContext());
+      }
+      context =
+        new Context(
+          copyGlobalContext(),
+          bindingsWithParentContext,
+          renderConfig.getDisabled()
+        );
+    } else {
+      context = new Context(copyGlobalContext(), bindings, renderConfig.getDisabled());
     }
 
     JinjavaInterpreter interpreter = globalConfig
@@ -256,6 +276,32 @@ public class Jinjava {
   public JinjavaInterpreter newInterpreter() {
     return globalConfig
       .getInterpreterFactory()
-      .newInstance(this, this.getGlobalContext(), this.getGlobalConfig());
+      .newInstance(this, copyGlobalContext(), this.getGlobalConfig());
+  }
+
+  public void registerTag(Tag t) {
+    globalContext.registerTag(t);
+  }
+
+  public void registerFunction(ELFunctionDefinition f) {
+    globalContext.registerFunction(f);
+  }
+
+  public void registerFilter(Filter f) {
+    globalContext.registerFilter(f);
+  }
+
+  public void registerExpTest(ExpTest t) {
+    globalContext.registerExpTest(t);
+  }
+
+  private Context copyGlobalContext() {
+    Context context = new Context(null, globalContext);
+    // copy registered.
+    globalContext.getAllExpTests().forEach(context::registerExpTest);
+    globalContext.getAllFilters().forEach(context::registerFilter);
+    globalContext.getAllFunctions().forEach(context::registerFunction);
+    globalContext.getAllTags().forEach(context::registerTag);
+    return context;
   }
 }

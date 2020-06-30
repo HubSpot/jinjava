@@ -50,7 +50,7 @@ import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class JinjavaInterpreterResolver extends SimpleResolver {
-  private static final ELResolver DEFAULT_RESOLVER_READ_ONLY = new CompositeELResolver() {
+  public static final ELResolver DEFAULT_RESOLVER_READ_ONLY = new CompositeELResolver() {
 
     {
       add(new ArrayELResolver(true));
@@ -61,7 +61,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     }
   };
 
-  private static final ELResolver DEFAULT_RESOLVER_READ_WRITE = new CompositeELResolver() {
+  public static final ELResolver DEFAULT_RESOLVER_READ_WRITE = new CompositeELResolver() {
 
     {
       add(new ArrayELResolver(false));
@@ -75,11 +75,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
   private final JinjavaInterpreter interpreter;
 
   public JinjavaInterpreterResolver(JinjavaInterpreter interpreter) {
-    super(
-      interpreter.getConfig().isReadOnlyResolver()
-        ? DEFAULT_RESOLVER_READ_ONLY
-        : DEFAULT_RESOLVER_READ_WRITE
-    );
+    super(interpreter.getConfig().getElResolver());
     this.interpreter = interpreter;
   }
 

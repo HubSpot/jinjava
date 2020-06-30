@@ -25,6 +25,12 @@ import com.hubspot.jinjava.objects.date.StrftimeFormatter;
       value = "timezone",
       defaultValue = "utc",
       desc = "Time zone of output date"
+    ),
+    @JinjavaParam(
+      value = "locale",
+      type = "string",
+      defaultValue = "us",
+      desc = "The language code to use when formatting the datetime"
     )
   },
   snippets = {

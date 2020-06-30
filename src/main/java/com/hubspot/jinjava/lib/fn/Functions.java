@@ -129,11 +129,17 @@ public class Functions {
       return "";
     }
 
-    Locale locale = JinjavaInterpreter
-      .getCurrentMaybe()
-      .map(JinjavaInterpreter::getConfig)
-      .map(JinjavaConfig::getLocale)
-      .orElse(Locale.ENGLISH);
+    Locale locale;
+    if (format.length > 2 && format[2] != null) {
+      locale = Locale.forLanguageTag(format[2]);
+    } else {
+      locale =
+        JinjavaInterpreter
+          .getCurrentMaybe()
+          .map(JinjavaInterpreter::getConfig)
+          .map(JinjavaConfig::getLocale)
+          .orElse(Locale.ENGLISH);
+    }
 
     if (format.length > 0) {
       return StrftimeFormatter.format(d, format[0], locale);
@@ -331,16 +337,18 @@ public class Functions {
         break;
       case 1:
         start = NumberUtils.toInt(arg1.toString());
-        if (NumberUtils.isNumber(args[0].toString())) {
+        if (args[0] != null && NumberUtils.isNumber(args[0].toString())) {
           end = NumberUtils.toInt(args[0].toString(), start + RANGE_LIMIT);
         }
         break;
       default:
         start = NumberUtils.toInt(arg1.toString());
-        if (NumberUtils.isNumber(args[0].toString())) {
+        if (args[0] != null && NumberUtils.isNumber(args[0].toString())) {
           end = NumberUtils.toInt(args[0].toString(), start + RANGE_LIMIT);
         }
-        step = NumberUtils.toInt(args[1].toString(), 1);
+        if (args[1] != null) {
+          step = NumberUtils.toInt(args[1].toString(), 1);
+        }
     }
 
     if (step == 0) {

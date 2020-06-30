@@ -2,6 +2,10 @@ package com.hubspot.jinjava.el.ext;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Set;
 import javax.el.BeanELResolver;
 import javax.el.ELContext;
@@ -76,9 +80,15 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       );
     }
 
+    if (isRestrictedClass(base)) {
+      throw new MethodNotFoundException(
+        "Cannot find method '" + method + "' in " + base.getClass()
+      );
+    }
+
     Object result = super.invoke(context, base, method, paramTypes, params);
 
-    if (result instanceof Class) {
+    if (isRestrictedClass(result)) {
       throw new MethodNotFoundException(
         "Cannot find method '" + method + "' in " + base.getClass()
       );
@@ -110,5 +120,25 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       return propertyStr;
     }
     return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, propertyStr);
+  }
+
+  protected boolean isRestrictedClass(Object o) {
+    if (o == null) {
+      return false;
+    }
+
+    return (
+      (
+        o.getClass().getPackage() != null &&
+        o.getClass().getPackage().getName().startsWith("java.lang.reflect")
+      ) ||
+      o instanceof Class ||
+      o instanceof ClassLoader ||
+      o instanceof Thread ||
+      o instanceof Method ||
+      o instanceof Field ||
+      o instanceof Constructor ||
+      o instanceof JinjavaInterpreter
+    );
   }
 }
