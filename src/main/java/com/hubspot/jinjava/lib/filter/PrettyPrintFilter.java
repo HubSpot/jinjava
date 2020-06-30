@@ -47,7 +47,7 @@ public class PrettyPrintFilter implements Filter {
       return "null";
     }
 
-    String varStr = null;
+    String varStr;
 
     if (
       var instanceof String ||

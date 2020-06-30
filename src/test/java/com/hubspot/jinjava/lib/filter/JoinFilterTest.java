@@ -23,17 +23,14 @@ public class JoinFilterTest {
 
   @Test
   public void testJoinVals() {
-    assertThat(jinjava.render("{{ [1, 2, 3]|join('|') }}", new HashMap<String, Object>()))
+    assertThat(jinjava.render("{{ [1, 2, 3]|join('|') }}", new HashMap<>()))
       .isEqualTo("1|2|3");
   }
 
   @Test
   public void testJoinAttrs() {
     assertThat(
-        jinjava.render(
-          "{{ users|join(', ', attribute='username') }}",
-          new HashMap<String, Object>()
-        )
+        jinjava.render("{{ users|join(', ', attribute='username') }}", new HashMap<>())
       )
       .isEqualTo("foo, bar");
   }
@@ -44,7 +41,7 @@ public class JoinFilterTest {
 
     RenderResult result = jinjava.renderForResult(
       "{{ [1, 2, 3, 4, 5]|join('|') }}",
-      new HashMap<String, Object>()
+      new HashMap<>()
     );
     assertThat(result.getOutput()).isEqualTo("1|2|3");
     assertThat(result.getErrors().size()).isEqualTo(1);

@@ -37,6 +37,10 @@ public class ListFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     List<?> result;
 
+    if (var == null) {
+      return null;
+    }
+
     if (var instanceof String) {
       result = Chars.asList(((String) var).toCharArray());
     } else if (Collection.class.isAssignableFrom(var.getClass())) {

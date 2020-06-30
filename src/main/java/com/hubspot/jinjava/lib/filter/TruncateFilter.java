@@ -65,7 +65,7 @@ public class TruncateFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-    return Functions.truncate(object, (Object[]) arg);
+    return Functions.truncate(object, arg);
   }
 
   @Override
