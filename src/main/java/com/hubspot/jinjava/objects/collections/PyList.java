@@ -28,7 +28,7 @@ public class PyList extends ForwardingList<Object> implements PyWrapper {
   }
 
   public void insert(int i, Object e) {
-    add(i, e);
+    add(Math.min(list.size(), i), e);
   }
 
   public boolean extend(PyList e) {
@@ -36,11 +36,11 @@ public class PyList extends ForwardingList<Object> implements PyWrapper {
   }
 
   public Object pop() {
-    return remove(list.size() - 1);
+    return list.size() == 0 ? null : remove(list.size() - 1);
   }
 
   public Object pop(int index) {
-    return remove(index);
+    return index >= list.size() ? null : remove(index);
   }
 
   public long count(Object o) {

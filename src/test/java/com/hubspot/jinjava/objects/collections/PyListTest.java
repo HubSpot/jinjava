@@ -49,6 +49,17 @@ public class PyListTest {
   }
 
   @Test
+  public void itHandlesInsertOperationOutOfRange() {
+    assertThat(
+        jinjava.render(
+          "{% set test = [1, 2, 3] %}" + "{% do test.insert(99, 4) %}" + "{{ test }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo("[1, 2, 3, 4]");
+  }
+
+  @Test
   public void itSupportsPopOperation() {
     assertThat(
         jinjava.render(
@@ -68,6 +79,26 @@ public class PyListTest {
         )
       )
       .isEqualTo("2[1, 3]");
+  }
+
+  @Test
+  public void itReturnsNullForPopOfEmptyList() {
+    assertThat(
+        jinjava.render("{% set test = [] %}" + "{{ test.pop() }}", Collections.emptyMap())
+      )
+      .isEqualTo("");
+  }
+
+  @Test
+  public void itReturnsNullForPopOutOfRange() {
+    assertThat(
+        jinjava.render(
+          "{% set test = [1] %}" +
+          "{{ test.pop(1) }},{{ test.pop(0) }},{{ test.pop(0) }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo(",1,");
   }
 
   @Test
