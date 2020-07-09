@@ -2,13 +2,19 @@ package com.hubspot.jinjava.util;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScopeMap<K, V> implements Map<K, V> {
+  private static final Logger LOG = LoggerFactory.getLogger(ScopeMap.class);
+
   private final Map<K, V> scope;
   private final ScopeMap<K, V> parent;
 
@@ -19,6 +25,23 @@ public class ScopeMap<K, V> implements Map<K, V> {
   public ScopeMap(ScopeMap<K, V> parent) {
     this.scope = new HashMap<K, V>();
     this.parent = parent;
+
+    Set<ScopeMap<K, V>> parents = new HashSet<>();
+    ScopeMap<K, V> p = parent;
+    while (p != null) {
+      if (parents.contains(p)) {
+        LOG.error(
+          "Parent loop detected:\n{}",
+          Arrays
+            .stream(Thread.currentThread().getStackTrace())
+            .map(StackTraceElement::toString)
+            .collect(Collectors.joining("\n"))
+        );
+        break;
+      }
+      parents.add(p);
+      p = p.getParent();
+    }
   }
 
   public ScopeMap(ScopeMap<K, V> parent, Map<K, V> scope) {
