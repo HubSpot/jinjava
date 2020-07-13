@@ -11,14 +11,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ScopeMap<K, V> implements Map<K, V> {
-
   private final Map<K, V> scope;
   private final ScopeMap<K, V> parent;
-  private final Set<ScopeMap<K, V>> parents;
 
   public ScopeMap() {
     this(null);
@@ -27,23 +23,24 @@ public class ScopeMap<K, V> implements Map<K, V> {
   public ScopeMap(ScopeMap<K, V> parent) {
     this.scope = new HashMap<K, V>();
     this.parent = parent;
-    this.parents =
 
     Set<ScopeMap<K, V>> parents = new HashSet<>();
-    ScopeMap<K, V> p = parent;
-    while (p != null) {
-      if (parents.contains(p)) {
-        ENGINE_LOG.error(
-          "Parent loop detected:\n{}",
-          Arrays
-            .stream(Thread.currentThread().getStackTrace())
-            .map(StackTraceElement::toString)
-            .collect(Collectors.joining("\n"))
-        );
-        break;
+    if (parent != null) {
+      ScopeMap<K, V> p = parent.getParent();
+      while (p != null) {
+        parents.add(p);
+        if (parents.contains(parent)) {
+          ENGINE_LOG.error(
+            "Parent loop detected:\n{}",
+            Arrays
+              .stream(Thread.currentThread().getStackTrace())
+              .map(StackTraceElement::toString)
+              .collect(Collectors.joining("\n"))
+          );
+          break;
+        }
+        p = p.getParent();
       }
-      parents.add(p);
-      p = p.getParent();
     }
   }
 
