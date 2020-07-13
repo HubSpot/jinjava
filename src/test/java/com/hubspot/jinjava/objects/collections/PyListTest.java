@@ -3,6 +3,9 @@ package com.hubspot.jinjava.objects.collections;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
+import com.hubspot.jinjava.interpret.RenderResult;
+import com.hubspot.jinjava.interpret.TemplateError;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,13 +53,15 @@ public class PyListTest {
 
   @Test
   public void itHandlesInsertOperationOutOfRange() {
-    assertThat(
-        jinjava.render(
-          "{% set test = [1, 2, 3] %}" + "{% do test.insert(99, 4) %}" + "{{ test }}",
-          Collections.emptyMap()
-        )
-      )
-      .isEqualTo("[1, 2, 3, 4]");
+    RenderResult renderResult = jinjava.renderForResult(
+      "{% set test = [1, 2, 3] %}" + "{% do test.insert(99, 4) %}" + "{{ test }}",
+      Collections.emptyMap()
+    );
+
+    assertThat(renderResult.getOutput()).isEqualTo("[1, 2, 3]");
+    assertThat(renderResult.getErrors().get(0)).isInstanceOf(TemplateError.class);
+    assertThat(renderResult.getErrors().get(0).getException().getCause())
+      .isInstanceOf(IndexOutOfRangeException.class);
   }
 
   @Test
@@ -82,23 +87,29 @@ public class PyListTest {
   }
 
   @Test
-  public void itReturnsNullForPopOfEmptyList() {
-    assertThat(
-        jinjava.render("{% set test = [] %}" + "{{ test.pop() }}", Collections.emptyMap())
-      )
-      .isEqualTo("");
+  public void itThrowsIndexOutOfRangeForPopOfEmptyList() {
+    RenderResult renderResult = jinjava.renderForResult(
+      "{% set test = [] %}" + "{{ test.pop() }}",
+      Collections.emptyMap()
+    );
+
+    assertThat(renderResult.getOutput()).isEqualTo("");
+    assertThat(renderResult.getErrors().get(0)).isInstanceOf(TemplateError.class);
+    assertThat(renderResult.getErrors().get(0).getException().getCause())
+      .isInstanceOf(IndexOutOfRangeException.class);
   }
 
   @Test
-  public void itReturnsNullForPopOutOfRange() {
-    assertThat(
-        jinjava.render(
-          "{% set test = [1] %}" +
-          "{{ test.pop(1) }},{{ test.pop(0) }},{{ test.pop(0) }}",
-          Collections.emptyMap()
-        )
-      )
-      .isEqualTo(",1,");
+  public void itThrowsIndexOutOfRangeForPopOutOfRange() {
+    RenderResult renderResult = jinjava.renderForResult(
+      "{% set test = [1] %}" + "{{ test.pop(1) }},{{ test.pop(0) }},{{ test.pop(0) }}",
+      Collections.emptyMap()
+    );
+
+    assertThat(renderResult.getOutput()).isEqualTo(",1,");
+    assertThat(renderResult.getErrors().get(0)).isInstanceOf(TemplateError.class);
+    assertThat(renderResult.getErrors().get(0).getException().getCause())
+      .isInstanceOf(IndexOutOfRangeException.class);
   }
 
   @Test
