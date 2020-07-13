@@ -1,12 +1,16 @@
 package com.hubspot.jinjava.util;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ScopeMap<K, V> implements Map<K, V> {
   private final Map<K, V> scope;
@@ -19,6 +23,25 @@ public class ScopeMap<K, V> implements Map<K, V> {
   public ScopeMap(ScopeMap<K, V> parent) {
     this.scope = new HashMap<K, V>();
     this.parent = parent;
+
+    Set<ScopeMap<K, V>> parents = new HashSet<>();
+    if (parent != null) {
+      ScopeMap<K, V> p = parent.getParent();
+      while (p != null) {
+        parents.add(p);
+        if (parents.contains(parent)) {
+          ENGINE_LOG.error(
+            "Parent loop detected:\n{}",
+            Arrays
+              .stream(Thread.currentThread().getStackTrace())
+              .map(StackTraceElement::toString)
+              .collect(Collectors.joining("\n"))
+          );
+          break;
+        }
+        p = p.getParent();
+      }
+    }
   }
 
   public ScopeMap(ScopeMap<K, V> parent, Map<K, V> scope) {
