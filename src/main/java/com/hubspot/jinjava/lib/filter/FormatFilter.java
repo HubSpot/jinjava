@@ -78,7 +78,7 @@ public class FormatFilter implements AdvancedFilter {
           "' is missing a width"
         );
       }
-      // TODO: possibly handle other subclasses of IllegalFormatException if they come up
+      // could possibly handle other subclasses of IllegalFormatException here if they come up
       throw new InvalidArgumentException(interpreter, NAME, e.getMessage());
     }
   }
