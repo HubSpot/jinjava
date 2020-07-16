@@ -24,6 +24,8 @@ public class JinjavaDocFactory {
   private static final Class JINJAVA_DOC_CLASS =
     com.hubspot.jinjava.doc.annotations.JinjavaDoc.class;
 
+  private static final String GUICE_CLASS_INDICATOR = "$$EnhancerByGuice$$";
+
   private final Jinjava jinjava;
 
   public JinjavaDocFactory(Jinjava jinjava) {
@@ -43,9 +45,9 @@ public class JinjavaDocFactory {
 
   private void addExpTests(JinjavaDoc doc) {
     for (ExpTest t : jinjava.getGlobalContextCopy().getAllExpTests()) {
-      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = t
-        .getClass()
-        .getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
+      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
+        t.getClass()
+      );
 
       if (docAnnotation == null) {
         LOG.warn(
@@ -84,9 +86,9 @@ public class JinjavaDocFactory {
 
   private void addFilterDocs(JinjavaDoc doc) {
     for (Filter f : jinjava.getGlobalContextCopy().getAllFilters()) {
-      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = f
-        .getClass()
-        .getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
+      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
+        f.getClass()
+      );
 
       if (docAnnotation == null) {
         LOG.warn(
@@ -186,9 +188,9 @@ public class JinjavaDocFactory {
       if (t instanceof EndTag) {
         continue;
       }
-      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = t
-        .getClass()
-        .getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
+      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
+        t.getClass()
+      );
 
       if (docAnnotation == null) {
         LOG.warn(
@@ -264,5 +266,15 @@ public class JinjavaDocFactory {
     }
 
     return meta;
+  }
+
+  private com.hubspot.jinjava.doc.annotations.JinjavaDoc getJinjavaDocAnnotation(
+    Class<?> clazz
+  ) {
+    if (clazz.getName().contains(GUICE_CLASS_INDICATOR)) {
+      clazz = clazz.getSuperclass();
+    }
+
+    return clazz.getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
   }
 }
