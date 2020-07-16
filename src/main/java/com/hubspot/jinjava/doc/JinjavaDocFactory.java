@@ -271,7 +271,9 @@ public class JinjavaDocFactory {
   private com.hubspot.jinjava.doc.annotations.JinjavaDoc getJinjavaDocAnnotation(
     Class<?> clazz
   ) {
-    if (clazz.getName().contains(GUICE_CLASS_INDICATOR)) {
+    if (
+      clazz.getName().contains(GUICE_CLASS_INDICATOR) && clazz.getSuperclass() != null
+    ) {
       clazz = clazz.getSuperclass();
     }
 
