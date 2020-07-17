@@ -29,8 +29,12 @@ public class PyList extends ForwardingList<Object> implements PyWrapper {
   }
 
   public void insert(int i, Object e) {
-    if (i < 0 || i >= list.size()) {
+    if (i >= list.size()) {
       throw createOutOfRangeException(i);
+    }
+
+    if (i < 0) {
+      i = Math.max(0, list.size() + i);
     }
 
     add(i, e);
@@ -48,8 +52,12 @@ public class PyList extends ForwardingList<Object> implements PyWrapper {
   }
 
   public Object pop(int index) {
-    if (index < 0 || index >= list.size()) {
+    if (Math.abs(index) >= list.size()) {
       throw createOutOfRangeException(index);
+    }
+
+    if (index < 0) {
+      index = list.size() + index;
     }
 
     return remove(index);

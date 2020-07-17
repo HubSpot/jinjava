@@ -52,6 +52,28 @@ public class PyListTest {
   }
 
   @Test
+  public void itSupportsInsertOperationWithNegativeIndex() {
+    assertThat(
+        jinjava.render(
+          "{% set test = [1, 2, 3] %}" + "{% do test.insert(-1, 4) %}" + "{{ test }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo("[1, 2, 4, 3]");
+  }
+
+  @Test
+  public void itSupportsInsertOperationWithLargeNegativeIndex() {
+    assertThat(
+        jinjava.render(
+          "{% set test = [1, 2, 3] %}" + "{% do test.insert(-99, 4) %}" + "{{ test }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo("[4, 1, 2, 3]");
+  }
+
+  @Test
   public void itHandlesInsertOperationOutOfRange() {
     RenderResult renderResult = jinjava.renderForResult(
       "{% set test = [1, 2, 3] %}" + "{% do test.insert(99, 4) %}" + "{{ test }}",
@@ -84,6 +106,17 @@ public class PyListTest {
         )
       )
       .isEqualTo("2[1, 3]");
+  }
+
+  @Test
+  public void itSupportsPopAtNegativeIndexOperation() {
+    assertThat(
+        jinjava.render(
+          "{% set test = [1, 2, 3] %}" + "{{ test.pop(-1) }}" + "{{ test }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo("3[1, 2]");
   }
 
   @Test
