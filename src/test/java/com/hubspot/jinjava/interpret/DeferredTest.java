@@ -38,6 +38,7 @@ public class DeferredTest {
     localContext.put("deferred", DeferredValue.instance());
     localContext.put("resolved", "resolvedValue");
     localContext.put("dict", ImmutableSet.of("a", "b", "c"));
+    localContext.put("dict2", ImmutableSet.of("e", "f", "g"));
     JinjavaInterpreter.pushCurrent(interpreter);
   }
 
@@ -159,6 +160,18 @@ public class DeferredTest {
     assertThat(output)
       .isEqualTo(
         "{% for item in dict %} {% if item == 'a' %} equal {% if item == deferred %} {% endif %} {% else %} not equal {% endif %} {% endfor %}"
+      );
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itDoesNotResolveNestedForTags() {
+    String output = interpreter.render(
+      "{% for item in dict %} {% for item2 in dict2 %} {% if item2 == 'e' %} equal {% if item2 == deferred %} {% endif %} {% else %} not equal {% endif %} {% endfor %} {% endfor %}"
+    );
+    assertThat(output)
+      .isEqualTo(
+        "{% for item in dict %} {% for item2 in dict2 %} {% if item2 == 'e' %} equal {% if item2 == deferred %} {% endif %} {% else %} not equal {% endif %} {% endfor %} {% endfor %}"
       );
     assertThat(interpreter.getErrors()).isEmpty();
   }
