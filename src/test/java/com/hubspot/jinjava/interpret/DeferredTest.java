@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -36,6 +37,7 @@ public class DeferredTest {
     localContext = interpreter.getContext();
     localContext.put("deferred", DeferredValue.instance());
     localContext.put("resolved", "resolvedValue");
+    localContext.put("dict", ImmutableSet.of("a", "b", "c"));
     JinjavaInterpreter.pushCurrent(interpreter);
   }
 
@@ -138,11 +140,26 @@ public class DeferredTest {
   }
 
   @Test
-  public void itResolvesForTagWherePossible() {
+  public void itDoesNotResolveForTagDeferredBlockInside() {
     String output = interpreter.render(
-      "{% for i in [1, 2] %}{{i}}{{deferred}}{% endfor %}"
+      "{% for item in dict %} {% if item == deferred %} equal {% else %} not equal {% endif %} {% endfor %}"
     );
-    assertThat(output).isEqualTo("1{{deferred}}2{{deferred}}");
+    assertThat(output)
+      .isEqualTo(
+        "{% for item in dict %} {% if item == deferred %} equal {% else %} not equal {% endif %} {% endfor %}"
+      );
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itDoesNotResolveForTagDeferredBlockNestedInside() {
+    String output = interpreter.render(
+      "{% for item in dict %} {% if item == 'a' %} equal {% if item == deferred %} {% endif %} {% else %} not equal {% endif %} {% endfor %}"
+    );
+    assertThat(output)
+      .isEqualTo(
+        "{% for item in dict %} {% if item == 'a' %} equal {% if item == deferred %} {% endif %} {% else %} not equal {% endif %} {% endfor %}"
+      );
     assertThat(interpreter.getErrors()).isEmpty();
   }
 

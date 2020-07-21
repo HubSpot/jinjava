@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
@@ -201,11 +202,21 @@ public class ForTag implements Tag {
           }
         }
 
+        int numDeferredNodesBefore = interpreter.getContext().getDeferredNodes().size();
         for (Node node : tagNode.getChildren()) {
           if (interpreter.getContext().isValidationMode()) {
             node.render(interpreter);
           } else {
             buff.append(node.render(interpreter));
+            if (
+              interpreter.getContext().getDeferredNodes().size() > numDeferredNodesBefore
+            ) {
+              throw new DeferredValueException(
+                "for loop",
+                interpreter.getLineNumber(),
+                interpreter.getPosition()
+              );
+            }
           }
         }
       }
