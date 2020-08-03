@@ -57,6 +57,14 @@ public class RegexReplaceFilter implements Filter {
       );
     }
 
+    if (args[0] == null || args[1] == null) {
+      throw new TemplateSyntaxException(
+        interpreter,
+        getName(),
+        "requires both a valid regex and new params (not null)"
+      );
+    }
+
     if (var == null) {
       return null;
     }

@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.InterpretException;
@@ -20,9 +21,18 @@ public class RegexReplaceFilterTest {
     filter = new RegexReplaceFilter();
   }
 
-  @Test(expected = InterpretException.class)
+  @Test
   public void expects2Args() {
-    filter.filter("foo", interpreter);
+    assertThatThrownBy(() -> filter.filter("foo", interpreter))
+      .hasMessageContaining("requires 2 arguments");
+  }
+
+  @Test
+  public void expectsNotNullArgs() {
+    assertThatThrownBy(
+        () -> filter.filter("foo", interpreter, new String[] { null, null })
+      )
+      .hasMessageContaining("both a valid regex");
   }
 
   public void noopOnNullExpr() {
