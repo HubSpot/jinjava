@@ -19,7 +19,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
   ),
   snippets = {
     @JinjavaSnippet(
-      code = "{[[[[[[% if variable is divisibleby 5 %}]]]]]]\n" +
+      code = "% if variable is divisibleby 5 %\n" +
       "   <!--code to render if variable can be divided by 5-->\n" +
       "{% else %}\n" +
       "   <!--code to render if variable cannot be divided by 5-->\n" +
