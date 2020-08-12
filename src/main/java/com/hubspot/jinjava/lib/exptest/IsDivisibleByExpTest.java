@@ -74,8 +74,6 @@ public class IsDivisibleByExpTest implements ExpTest {
     }
 
     Number freeFormDivisor = (Number) args[0];
-    double floor = Math.floor(freeFormDivisor.doubleValue());
-    double ceiling = Math.ceil(freeFormDivisor.doubleValue());
     if (
       Math.floor(freeFormDivisor.doubleValue()) !=
       Math.ceil(freeFormDivisor.doubleValue())
