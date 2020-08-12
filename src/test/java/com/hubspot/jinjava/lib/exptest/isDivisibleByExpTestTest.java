@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.exptest;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 
 import com.hubspot.jinjava.Jinjava;
@@ -8,10 +7,7 @@ import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
-import java.util.Date;
 import java.util.HashMap;
-import org.assertj.core.api.Assertions;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,6 +30,25 @@ public class isDivisibleByExpTestTest {
   }
 
   @Test
+  public void itRequiresNumericalDividend() {
+    assertEquals(
+      jinjava.render(String.format(DIVISIBLE_BY_TEMPLATE, "'foo'", "3"), new HashMap<>()),
+      "false"
+    );
+  }
+
+  @Test
+  public void itReturnsFalseForFractionalDividend() {
+    assertEquals(
+      jinjava.render(
+        String.format(DIVISIBLE_BY_TEMPLATE, "10.00001", "5"),
+        new HashMap<>()
+      ),
+      "false"
+    );
+  }
+
+  @Test
   public void itRequiresDivisor() {
     assertEquals(
       jinjava.render(String.format(DIVISIBLE_BY_TEMPLATE, "10", "null"), new HashMap<>()),
@@ -42,19 +57,12 @@ public class isDivisibleByExpTestTest {
   }
 
   @Test
-  public void itPassesWhenDividendIsDivisibleByDivisor() {
-    assertEquals(
-      jinjava.render(String.format(DIVISIBLE_BY_TEMPLATE, "10", "5"), new HashMap<>()),
-      "true"
+  public void itRequiresNumericalDivisor() {
+    RenderResult result = jinjava.renderForResult(
+      String.format(DIVISIBLE_BY_TEMPLATE, "10", "'foo'"),
+      new HashMap<>()
     );
-  }
-
-  @Test
-  public void itFailsWhenDividendIsNotMultipleOfDivisor() {
-    assertEquals(
-      jinjava.render(String.format(DIVISIBLE_BY_TEMPLATE, "10", "3"), new HashMap<>()),
-      "false"
-    );
+    assertOnInvalidArgument(result, "must be a number");
   }
 
   @Test
@@ -63,13 +71,64 @@ public class isDivisibleByExpTestTest {
       String.format(DIVISIBLE_BY_TEMPLATE, "10", "0"),
       new HashMap<>()
     );
+    assertOnInvalidArgument(result, "1st argument with value 0 must be non-zero");
+  }
+
+  @Test
+  public void itReturnsTrueWhenDividendIsDivisibleByDivisor() {
+    assertEquals(
+      jinjava.render(String.format(DIVISIBLE_BY_TEMPLATE, "10", "5"), new HashMap<>()),
+      "true"
+    );
+  }
+
+  @Test
+  public void itReturnsTrueForDecimalDividendWithNoFractionalPart() {
+    assertEquals(
+      jinjava.render(
+        String.format(DIVISIBLE_BY_TEMPLATE, "10.00000", "5"),
+        new HashMap<>()
+      ),
+      "true"
+    );
+  }
+
+  @Test
+  public void itReturnsFalseWhenDividendIsNotMultipleOfDivisor() {
+    assertEquals(
+      jinjava.render(String.format(DIVISIBLE_BY_TEMPLATE, "10", "3"), new HashMap<>()),
+      "false"
+    );
+  }
+
+  @Test
+  public void itReturnsFalseForFractionalDivisor() {
+    RenderResult result = jinjava.renderForResult(
+      String.format(DIVISIBLE_BY_TEMPLATE, "10", "5.00001"),
+      new HashMap<>()
+    );
+    assertOnInvalidArgument(result, "must be non-zero");
+  }
+
+  @Test
+  public void itReturnsTrueForDecimalDivisorWithNoFractionalPart() {
+    assertEquals(
+      jinjava.render(
+        String.format(DIVISIBLE_BY_TEMPLATE, "10", "5.00000"),
+        new HashMap<>()
+      ),
+      "true"
+    );
+  }
+
+  private void assertOnInvalidArgument(
+    RenderResult result,
+    String expectedMessageIfInvalid
+  ) {
     assertEquals(result.getErrors().size(), 1);
     TemplateError error = result.getErrors().get(0);
     assertEquals(error.getSeverity(), ErrorType.FATAL);
     assertEquals(error.getReason(), ErrorReason.INVALID_ARGUMENT);
-    assertEquals(
-      error.getMessage().contains("1st argument with value 0 must be non-zero"),
-      true
-    );
+    assertEquals(error.getMessage().contains(expectedMessageIfInvalid), true);
   }
 }
