@@ -4,28 +4,27 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.util.ObjectTruthValue;
 
 @JinjavaDoc(
-  value = "Return true if object is 'truthy'",
+  value = "Return true if object is a boolean and true",
   input = @JinjavaParam(value = "value", type = "object", required = true),
   snippets = {
     @JinjavaSnippet(
-      code = "{% if variable is truthy %}\n" +
-      "      <!--code to render a boolean variable is True-->\n" +
+      code = "{% if false is true %}\n" +
+      "      <!--this code will never render-->\n" +
       "{% endif %}"
     )
   }
 )
-public class IsTruthyExpTest implements ExpTest {
+public class IsTrueExpTest implements ExpTest {
 
   @Override
   public String getName() {
-    return "truthy";
+    return "true";
   }
 
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return ObjectTruthValue.evaluate(var);
+    return var instanceof Boolean && (Boolean) var;
   }
 }
