@@ -4,7 +4,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-
 import java.math.BigDecimal;
 
 @JinjavaDoc(
@@ -27,8 +26,10 @@ public class IsFloatExpTest implements ExpTest {
 
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return var instanceof Double ||
-            var instanceof Float ||
-            (var instanceof BigDecimal && ((BigDecimal) var).scale() > 0);
+    return (
+      var instanceof Double ||
+      var instanceof Float ||
+      (var instanceof BigDecimal && ((BigDecimal) var).scale() > 0)
+    );
   }
 }

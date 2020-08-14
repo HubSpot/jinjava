@@ -41,16 +41,23 @@ public class IsIntegerExpTestTest {
   @Test
   public void testWithAddFilter() {
     assertThat(jinjava.render("{{ (4|add(4)) is integer }}", new HashMap<>()))
-            .isEqualTo("true");
+      .isEqualTo("true");
     assertThat(jinjava.render("{{ (4|add(4.5)) is integer }}", new HashMap<>()))
-            .isEqualTo("false");
+      .isEqualTo("false");
     assertThat(jinjava.render("{{ (4|add(-4.5)) is integer }}", new HashMap<>()))
-            .isEqualTo("false");
-    assertThat(jinjava.render("{{ (4|add(4.0000000000000000000001)) is integer }}", new HashMap<>()))
-            .isEqualTo("false");
+      .isEqualTo("false");
+    assertThat(
+        jinjava.render(
+          "{{ (4|add(4.0000000000000000000001)) is integer }}",
+          new HashMap<>()
+        )
+      )
+      .isEqualTo("false");
     assertThat(jinjava.render("{{ (4|add(40.0)) is integer }}", new HashMap<>()))
-            .isEqualTo("false");
-    assertThat(jinjava.render("{{ (4|add(1000000000000000000)) is integer }}", new HashMap<>()))
-            .isEqualTo("true");
+      .isEqualTo("false");
+    assertThat(
+        jinjava.render("{{ (4|add(1000000000000000000)) is integer }}", new HashMap<>())
+      )
+      .isEqualTo("true");
   }
 }
