@@ -105,14 +105,23 @@ public class ImportTagTest {
       .contains("wrap-padding: padding-left:42px;padding-right:42px");
   }
 
+  // Properties from within the import are deferred too.
+  // The main concern is that the key is deferred so that any
+  // subsequent uses of any variables defined in the imported template are marked as deferred
   @Test
-  public void itDefersImportedVariable() {
+  public void itDefersImportedVariableKey() {
     Jinjava jinjava = new Jinjava();
     interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
     interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
     fixture("import-property");
-    assertThat(((Map) interpreter.getContext().get("pegasus")).get("primary_line_height"))
+    assertThat(interpreter.getContext().get("pegasus")).isInstanceOf(DeferredValue.class);
+
+    //If pegasus was deferred at the key.prop level instead of key this would resolve to a value
+    assertThat(interpreter.getContext().get("expected_to_be_deferred"))
       .isInstanceOf(DeferredValue.class);
+    DeferredValue deferredValue = (DeferredValue) interpreter.getContext().get("pegasus");
+    Map originalValue = (Map) deferredValue.getOriginalValue();
+    assertThat(originalValue.get("primary_line_height")).isNotNull();
   }
 
   @Test

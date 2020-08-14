@@ -1,0 +1,12 @@
+{%- for item in resolved -%}
+   {%- set varSetInside = 'inside first scope' -%}
+   {%- if deferredValue -%}
+     {{ varSetInside }}
+   {%- endif -%}
+{%- endfor -%}
+{%- for item in resolved -%}
+   {%- set varSetInside = 'inside first scope2' -%}
+   {%- if deferredValue -%}
+     {{ varSetInside }}
+   {%- endif -%}
+{%- endfor -%}

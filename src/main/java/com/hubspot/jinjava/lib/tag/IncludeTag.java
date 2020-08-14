@@ -106,7 +106,7 @@ public class IncludeTag implements Tag {
         .getCurrentPathStack()
         .push(templateFile, interpreter.getLineNumber(), interpreter.getPosition());
 
-      return interpreter.render(node);
+      return interpreter.render(node, false);
     } catch (IOException e) {
       throw new InterpretException(
         e.getMessage(),

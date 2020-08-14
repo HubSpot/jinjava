@@ -64,7 +64,7 @@ public class SumFilter implements AdvancedFilter {
     if (args.length > 0) {
       try {
         sum = sum.add(new BigDecimal(args[0].toString()));
-      } catch (NumberFormatException e) {}
+      } catch (NumberFormatException ignored) {}
     }
 
     while (loop.hasNext()) {

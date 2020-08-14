@@ -51,7 +51,7 @@ public class TagNode extends Node {
     try {
       return tag.interpretOutput(this, interpreter);
     } catch (DeferredValueException e) {
-      interpreter.getContext().addDeferredNode(this);
+      interpreter.getContext().handleDeferredNode(this);
       return new RenderedOutputNode(reconstructImage());
     } catch (InterpretException | InvalidInputException | InvalidArgumentException e) {
       throw e;

@@ -38,6 +38,8 @@ public class RangeFunctionTest {
   public void itHandlesBadValues() {
     assertThat(Functions.range("f")).isEmpty();
     assertThat(Functions.range(2, "f")).isEmpty();
+    assertThat(Functions.range(2, new Object[] { null })).isEmpty();
+    assertThat(Functions.range(2, 4, null)).isEqualTo(Arrays.asList(2, 3));
   }
 
   @Test

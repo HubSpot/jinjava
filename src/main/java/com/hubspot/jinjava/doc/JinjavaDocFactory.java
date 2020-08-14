@@ -24,6 +24,8 @@ public class JinjavaDocFactory {
   private static final Class JINJAVA_DOC_CLASS =
     com.hubspot.jinjava.doc.annotations.JinjavaDoc.class;
 
+  private static final String GUICE_CLASS_INDICATOR = "$$EnhancerByGuice$$";
+
   private final Jinjava jinjava;
 
   public JinjavaDocFactory(Jinjava jinjava) {
@@ -42,10 +44,10 @@ public class JinjavaDocFactory {
   }
 
   private void addExpTests(JinjavaDoc doc) {
-    for (ExpTest t : jinjava.getGlobalContext().getAllExpTests()) {
-      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = t
-        .getClass()
-        .getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
+    for (ExpTest t : jinjava.getGlobalContextCopy().getAllExpTests()) {
+      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
+        t.getClass()
+      );
 
       if (docAnnotation == null) {
         LOG.warn(
@@ -83,10 +85,10 @@ public class JinjavaDocFactory {
   }
 
   private void addFilterDocs(JinjavaDoc doc) {
-    for (Filter f : jinjava.getGlobalContext().getAllFilters()) {
-      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = f
-        .getClass()
-        .getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
+    for (Filter f : jinjava.getGlobalContextCopy().getAllFilters()) {
+      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
+        f.getClass()
+      );
 
       if (docAnnotation == null) {
         LOG.warn(
@@ -124,7 +126,7 @@ public class JinjavaDocFactory {
   }
 
   private void addFnDocs(JinjavaDoc doc) {
-    for (ELFunctionDefinition fn : jinjava.getGlobalContext().getAllFunctions()) {
+    for (ELFunctionDefinition fn : jinjava.getGlobalContextCopy().getAllFunctions()) {
       if (StringUtils.isBlank(fn.getNamespace())) {
         Method realMethod = fn.getMethod();
         if (
@@ -182,13 +184,13 @@ public class JinjavaDocFactory {
   }
 
   private void addTagDocs(JinjavaDoc doc) {
-    for (Tag t : jinjava.getGlobalContext().getAllTags()) {
+    for (Tag t : jinjava.getGlobalContextCopy().getAllTags()) {
       if (t instanceof EndTag) {
         continue;
       }
-      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = t
-        .getClass()
-        .getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
+      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
+        t.getClass()
+      );
 
       if (docAnnotation == null) {
         LOG.warn(
@@ -264,5 +266,17 @@ public class JinjavaDocFactory {
     }
 
     return meta;
+  }
+
+  private com.hubspot.jinjava.doc.annotations.JinjavaDoc getJinjavaDocAnnotation(
+    Class<?> clazz
+  ) {
+    if (
+      clazz.getName().contains(GUICE_CLASS_INDICATOR) && clazz.getSuperclass() != null
+    ) {
+      clazz = clazz.getSuperclass();
+    }
+
+    return clazz.getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
   }
 }

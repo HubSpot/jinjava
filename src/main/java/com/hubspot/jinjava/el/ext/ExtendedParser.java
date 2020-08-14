@@ -424,41 +424,13 @@ public class ExtendedParser extends Parser {
           ) {
             consumeToken(); // 'is'
             consumeToken(); // 'not'
-            String exptestName = consumeToken().getImage();
-            List<AstNode> exptestParams = Lists.newArrayList(v, interpreter());
-
-            // optional exptest arg
-            AstNode arg = expr(false);
-            if (arg != null) {
-              exptestParams.add(arg);
-            }
-
-            AstProperty exptestProperty = createAstDot(
-              identifier(EXPTEST_PREFIX + exptestName),
-              "evaluateNegated",
-              true
-            );
-            v = createAstMethod(exptestProperty, new AstParameters(exptestParams));
+            v = buildAstMethodForIdentifier(v, "evaluateNegated");
           } else if (
             "is".equals(getToken().getImage()) &&
             isPossibleExpTest(lookahead(0).getSymbol())
           ) {
             consumeToken(); // 'is'
-            String exptestName = consumeToken().getImage();
-            List<AstNode> exptestParams = Lists.newArrayList(v, interpreter());
-
-            // optional exptest arg
-            AstNode arg = expr(false);
-            if (arg != null) {
-              exptestParams.add(arg);
-            }
-
-            AstProperty exptestProperty = createAstDot(
-              identifier(EXPTEST_PREFIX + exptestName),
-              "evaluate",
-              true
-            );
-            v = createAstMethod(exptestProperty, new AstParameters(exptestParams));
+            v = buildAstMethodForIdentifier(v, "evaluate");
           }
 
           return v;
@@ -466,8 +438,28 @@ public class ExtendedParser extends Parser {
     }
   }
 
+
   private boolean isPossibleExpTest(Symbol symbol) {
     return VALID_SYMBOLS_FOR_EXP_TEST.contains(symbol);
+  }
+  private AstNode buildAstMethodForIdentifier(AstNode astNode, String property)
+    throws ScanException, ParseException {
+    String exptestName = consumeToken().getImage();
+    List<AstNode> exptestParams = Lists.newArrayList(astNode, interpreter());
+
+    // optional exptest arg
+    AstNode arg = value();
+    if (arg != null) {
+      exptestParams.add(arg);
+    }
+
+    AstProperty exptestProperty = createAstDot(
+      identifier(EXPTEST_PREFIX + exptestName),
+      property,
+      true
+    );
+    return createAstMethod(exptestProperty, new AstParameters(exptestParams));
+
   }
 
   @Override

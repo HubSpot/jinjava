@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.NamedParameter;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
+import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
@@ -141,6 +142,21 @@ public class ExpressionResolver {
         interpreter.addError(
           TemplateError.fromInvalidArgumentException(
             (InvalidArgumentException) e.getCause()
+          )
+        );
+      } else if (
+        e.getCause() != null && e.getCause() instanceof IndexOutOfRangeException
+      ) {
+        interpreter.addError(
+          new TemplateError(
+            ErrorType.WARNING,
+            ErrorReason.EXCEPTION,
+            ErrorItem.FUNCTION,
+            e.getMessage(),
+            null,
+            interpreter.getLineNumber(),
+            interpreter.getPosition(),
+            e
           )
         );
       } else {
