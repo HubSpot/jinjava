@@ -74,10 +74,4 @@ public class IsEqualToExpTestTest {
       )
       .isEqualTo("false");
   }
-
-  @Test
-  public void testAliases() {
-    assertThat(jinjava.render("{{ 4 is eq 4 }}", new HashMap<>())).isEqualTo("true");
-    assertThat(jinjava.render("{{ 4 is == 4 }}", new HashMap<>())).isEqualTo("true");
-  }
 }

@@ -2,13 +2,10 @@ package com.hubspot.jinjava.objects.collections;
 
 import com.google.common.collect.ForwardingMap;
 import com.hubspot.jinjava.objects.PyWrapper;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class PyMap
-  extends ForwardingMap<String, Object>
-  implements PyWrapper, Iterable<String> {
+public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
   private Map<String, Object> map;
 
   public PyMap(Map<String, Object> map) {
@@ -35,10 +32,5 @@ public class PyMap
 
   public void update(Map<? extends String, ? extends Object> m) {
     putAll(m);
-  }
-
-  @Override
-  public Iterator<String> iterator() {
-    return keySet().iterator();
   }
 }
