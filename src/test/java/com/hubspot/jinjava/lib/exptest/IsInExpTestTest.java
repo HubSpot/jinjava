@@ -20,7 +20,7 @@ public class IsInExpTestTest {
   @Test
   public void testIsInList() {
     assertThat(jinjava.render("{{ 2 is in [1, 2] }}", new HashMap<>())).isEqualTo("true");
-    //    TODO: Uncomment out when ColectionMemberShipOperator.java changes get approved
+    //    TODO: Uncomment out when CollectionMemberShipOperator.java changes get approved
     //    assertThat(jinjava.render("{{ 2 is in ['one', 2] }}", new HashMap<>()))
     //      .isEqualTo("true");
     assertThat(jinjava.render("{{ 2 is in [1] }}", new HashMap<>())).isEqualTo("false");
@@ -34,7 +34,7 @@ public class IsInExpTestTest {
 
   @Test
   public void testIsInDict() {
-    //    TODO: Uncomment out when ColectionMemberShipOperator.java changes get approved
+    //    TODO: Uncomment out when CollectionMemberShipOperator.java changes get approved
     //    assertThat(jinjava.render("{{ 'k2' is in {'k1':'v1', 'k2':'v2'} }}", new HashMap<>()))
     //      .isEqualTo("true");
     assertThat(jinjava.render("{{ 'k2' is in {'k1':'v1'} }}", new HashMap<>()))

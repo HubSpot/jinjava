@@ -438,10 +438,10 @@ public class ExtendedParser extends Parser {
     }
   }
 
-
   private boolean isPossibleExpTest(Symbol symbol) {
     return VALID_SYMBOLS_FOR_EXP_TEST.contains(symbol);
   }
+
   private AstNode buildAstMethodForIdentifier(AstNode astNode, String property)
     throws ScanException, ParseException {
     String exptestName = consumeToken().getImage();
@@ -459,7 +459,6 @@ public class ExtendedParser extends Parser {
       true
     );
     return createAstMethod(exptestProperty, new AstParameters(exptestParams));
-
   }
 
   @Override
