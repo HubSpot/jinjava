@@ -8,9 +8,13 @@ import de.odysseus.el.tree.impl.ast.AstBinary;
 import de.odysseus.el.tree.impl.ast.AstBinary.SimpleOperator;
 import de.odysseus.el.tree.impl.ast.AstNode;
 
-public class RegularDivOperator extends SimpleOperator {
+/**
+ * Created to allow for the detection and handling of divide-by-zero requests in EL expressions
+ * (see PR 473 @ https://github.com/HubSpot/jinjava/pull/473)
+ */
+public class DivOperator extends SimpleOperator {
   public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("/");
-  public static final RegularDivOperator OP = new RegularDivOperator();
+  public static final DivOperator OP = new DivOperator();
 
   @Override
   protected Object apply(TypeConverter converter, Object a, Object b) {
