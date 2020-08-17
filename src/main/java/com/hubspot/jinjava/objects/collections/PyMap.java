@@ -37,7 +37,6 @@ public class PyMap
     putAll(m);
   }
 
-  @Override
   public Iterator<String> iterator() {
     return keySet().iterator();
   }
