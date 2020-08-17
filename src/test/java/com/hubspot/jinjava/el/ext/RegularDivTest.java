@@ -16,12 +16,12 @@ public class RegularDivTest {
   }
 
   @Test
-  public void okOnLongDivisionWithNonZeroDivisor() {
+  public void itDividesWithNonZeroLongDivisor() {
     assertEquals(jinja.render("{% set x = 10 / 2%}{{x}}", new HashMap<>()), "5.0");
   }
 
   @Test
-  public void okOnDoubleDivisionWithNonZeroDivisor() {
+  public void itDividesWithNonZeroDoubleDivisor() {
     assertEquals(jinja.render("{% set x = 10.0 / 2.0%}{{x}}", new HashMap<>()), "5.0");
   }
 }

@@ -18,16 +18,9 @@ public class RegularDivOperator extends SimpleOperator {
       throw new IllegalArgumentException("Division argument may not be null");
     }
 
-    // Debugging support only -- Delete me
-    //    Type typeA = a.getClass();
-    //    String typeNameA = typeA.getTypeName();
-    //    Type typeB = b.getClass();
-    //    String typeNameB = typeB.getTypeName();
-    // End of debugging support
-
     Number numA = (Number) a;
     Number numB = (Number) b;
-    if (numB.longValue() == 0 || numB.doubleValue() == 0.0) {
+    if (numB.doubleValue() == 0.0) {
       throw new IllegalArgumentException("Divisor may not be zero");
     }
 
