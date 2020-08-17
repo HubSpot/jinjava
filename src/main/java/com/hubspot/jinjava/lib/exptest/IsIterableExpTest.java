@@ -5,6 +5,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.SafeString;
+import com.hubspot.jinjava.objects.collections.PyMap;
 
 @JinjavaDoc(
   value = "Return true if the object is iterable (sequence, dict, etc)",
@@ -33,6 +34,7 @@ public class IsIterableExpTest implements ExpTest {
     return (
       ob instanceof Object[] ||
       ob instanceof Iterable ||
+      ob instanceof PyMap ||
       ob instanceof String ||
       ob instanceof SafeString
     );
