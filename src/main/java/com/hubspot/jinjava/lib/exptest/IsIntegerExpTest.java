@@ -4,28 +4,36 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.util.ObjectTruthValue;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 @JinjavaDoc(
-  value = "Return true if object is 'truthy'",
+  value = "Return true if object is an integer or long",
   input = @JinjavaParam(value = "value", type = "object", required = true),
   snippets = {
     @JinjavaSnippet(
-      code = "{% if variable is truthy %}\n" +
-      "      <!--code to render a boolean variable is True-->\n" +
+      code = "{% if num is integer %}\n" +
+      "      <!--code to render if num contains an integral value-->\n" +
       "{% endif %}"
     )
   }
 )
-public class IsTruthyExpTest implements ExpTest {
+public class IsIntegerExpTest implements ExpTest {
 
   @Override
   public String getName() {
-    return "truthy";
+    return "integer";
   }
 
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return ObjectTruthValue.evaluate(var);
+    return (
+      var instanceof Byte ||
+      var instanceof Short ||
+      var instanceof Integer ||
+      var instanceof Long ||
+      var instanceof BigInteger ||
+      (var instanceof BigDecimal && ((BigDecimal) var).scale() == 0)
+    );
   }
 }
