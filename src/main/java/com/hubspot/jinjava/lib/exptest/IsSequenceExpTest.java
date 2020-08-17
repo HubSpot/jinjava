@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.exptest;
 
+import static com.hubspot.jinjava.lib.exptest.IsIterableExpTest.isIterable;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -25,9 +27,6 @@ public class IsSequenceExpTest implements ExpTest {
 
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
-    return (
-      var != null &&
-      (var.getClass().isArray() || Iterable.class.isAssignableFrom(var.getClass()))
-    );
+    return isIterable(var);
   }
 }
