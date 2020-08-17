@@ -4,24 +4,14 @@ import static de.odysseus.el.tree.impl.Builder.Feature.METHOD_INVOCATIONS;
 import static de.odysseus.el.tree.impl.Builder.Feature.NULL_PROPERTIES;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.COLON;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.COMMA;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.EQ;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.EXTENSION;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.FALSE;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.GE;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.GT;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.IDENTIFIER;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.LBRACK;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.LE;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.LPAREN;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.LT;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.NE;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.QUESTION;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.RBRACK;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.RPAREN;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.TRUE;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import de.odysseus.el.tree.impl.Builder;
 import de.odysseus.el.tree.impl.Builder.Feature;
 import de.odysseus.el.tree.impl.Parser;
@@ -43,7 +33,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.el.ELException;
 
 public class ExtendedParser extends Parser {
@@ -63,19 +52,6 @@ public class ExtendedParser extends Parser {
 
   static final Scanner.ExtensionToken TRUNC_DIV = TruncDivOperator.TOKEN;
   static final Scanner.ExtensionToken POWER_OF = PowerOfOperator.TOKEN;
-
-  static final Set<Symbol> VALID_SYMBOLS_FOR_EXP_TEST = Sets.newHashSet(
-    IDENTIFIER,
-    EQ,
-    NE,
-    LT,
-    LE,
-    GT,
-    GE,
-    TRUE,
-    FALSE,
-    CollectionMembershipOperator.TOKEN.getSymbol()
-  );
 
   static {
     ExtendedScanner.addKeyToken(IF);
@@ -420,14 +396,13 @@ public class ExtendedParser extends Parser {
           } else if (
             "is".equals(getToken().getImage()) &&
             "not".equals(lookahead(0).getImage()) &&
-            isPossibleExpTest(lookahead(1).getSymbol())
+            lookahead(1).getSymbol() == IDENTIFIER
           ) {
             consumeToken(); // 'is'
             consumeToken(); // 'not'
             v = buildAstMethodForIdentifier(v, "evaluateNegated");
           } else if (
-            "is".equals(getToken().getImage()) &&
-            isPossibleExpTest(lookahead(0).getSymbol())
+            "is".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER
           ) {
             consumeToken(); // 'is'
             v = buildAstMethodForIdentifier(v, "evaluate");
@@ -436,10 +411,6 @@ public class ExtendedParser extends Parser {
           return v;
       }
     }
-  }
-
-  private boolean isPossibleExpTest(Symbol symbol) {
-    return VALID_SYMBOLS_FOR_EXP_TEST.contains(symbol);
   }
 
   private AstNode buildAstMethodForIdentifier(AstNode astNode, String property)

@@ -12,7 +12,7 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
   snippets = {
     @JinjavaSnippet(
       code = "{% if variable is truthy %}\n" +
-      "      <!--code to render a boolean variable is True-->\n" +
+      "      <!--code to render a  boolean variable is True-->\n" +
       "{% endif %}"
     )
   }
