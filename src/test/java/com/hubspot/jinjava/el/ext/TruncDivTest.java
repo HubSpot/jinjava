@@ -6,11 +6,6 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.collect.Maps;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
-import com.hubspot.jinjava.interpret.RenderResult;
-import com.hubspot.jinjava.interpret.TemplateError;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
-import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +28,6 @@ public class TruncDivTest {
     context.put("divisor", 2);
     context.put("negativeDividend", -5);
     context.put("negativeDivisor", -2);
-    context.put("zeroDivisor", 0);
 
     String[][] testCases = {
       { "{% set x = dividend // divisor %}{{x}}", "2" },
@@ -53,29 +47,6 @@ public class TruncDivTest {
       String expected = testCase[1];
       String rendered = jinja.render(template, context);
       assertEquals(expected, rendered);
-    }
-  }
-
-  /**
-   * Test the truncated division operator "//" with divisor equal to zero
-   */
-  @Test
-  public void testTruncDivZeroDivisor() {
-    final String intTestCase = "{% set x = 10 // 0%}{{x}}";
-    final String doubleTestCase = "{% set x = 10 // 0.0%}{{x}}";
-    final String[] testCases = { intTestCase, doubleTestCase };
-
-    for (String testCase : testCases) {
-      RenderResult result = jinja.renderForResult(testCase, new HashMap<>());
-
-      assertEquals(result.getErrors().size(), 1);
-      TemplateError error = result.getErrors().get(0);
-      assertEquals(error.getSeverity(), ErrorType.FATAL);
-      assertEquals(error.getReason(), ErrorReason.EXCEPTION);
-      assertEquals(
-        error.getMessage().contains("Divisor for // (truncated division) cannot be zero"),
-        true
-      );
     }
   }
 
