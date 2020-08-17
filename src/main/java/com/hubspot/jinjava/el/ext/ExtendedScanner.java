@@ -145,6 +145,10 @@ public class ExtendedScanner extends Scanner {
     if (c1 == '~') {
       return StringConcatOperator.TOKEN;
     }
+    // Keep this comparison below that of all other tokens whose symbols begin with '/'
+    if (c1 == '/' && c2 != '/') {
+      return ExtendedParser.REGULAR_DIV;
+    }
 
     return super.nextEval();
   }
