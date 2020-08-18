@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.el.ext;
 
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import de.odysseus.el.misc.TypeConverter;
 import de.odysseus.el.tree.impl.Parser.ExtensionHandler;
 import de.odysseus.el.tree.impl.Parser.ExtensionPoint;
@@ -19,13 +21,23 @@ public class DivOperator extends SimpleOperator {
   @Override
   protected Object apply(TypeConverter converter, Object a, Object b) {
     if (a == null || b == null) {
-      throw new IllegalArgumentException("Division argument may not be null");
+      JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+      throw new InvalidArgumentException(
+        interpreter,
+        OP.toString(),
+        "Division operator argument may not be null"
+      );
     }
 
     Number numA = (Number) a;
     Number numB = (Number) b;
     if (numB.doubleValue() == 0.0) {
-      throw new IllegalArgumentException("Divisor may not be zero");
+      JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+      throw new InvalidArgumentException(
+        interpreter,
+        OP.toString(),
+        "Divisor may not be zero"
+      );
     }
 
     return numA.doubleValue() / numB.doubleValue();
