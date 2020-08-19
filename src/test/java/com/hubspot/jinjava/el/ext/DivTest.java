@@ -32,14 +32,15 @@ public class DivTest {
   @Test
   public void itErrorsOutWithZeroDivisor() {
     RenderResult result = jinja.renderForResult(
-      "{% set x = 10.0 / 0.0%}{{x}}",
+      "{% set x = (10.0 + 2.0 - 3.0/1.5) / 0.0%}{{x}}",
       new HashMap<>()
     );
 
     assertEquals(result.getErrors().size(), 1);
     TemplateError error = result.getErrors().get(0);
     assertEquals(error.getSeverity(), ErrorType.FATAL);
-    assertEquals(error.getReason(), ErrorReason.INVALID_ARGUMENT);
-    assertEquals(error.getMessage().contains("Divisor may not be zero"), true);
+    assertEquals(error.getReason(), ErrorReason.EXCEPTION);
+    assertEquals(error.getMessage().contains("10.0 + 2.0 - 3.0/1.5"), true);
+    assertEquals(error.getMessage().contains("divisor may not be zero"), true);
   }
 }

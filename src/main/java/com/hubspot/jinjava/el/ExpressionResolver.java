@@ -93,20 +93,36 @@ public class ExpressionResolver {
 
       return result;
     } catch (PropertyNotFoundException e) {
-      interpreter.addError(
-        new TemplateError(
-          ErrorType.WARNING,
-          ErrorReason.UNKNOWN,
-          ErrorItem.PROPERTY,
-          e.getMessage(),
-          "",
-          interpreter.getLineNumber(),
-          interpreter.getPosition(),
-          e,
-          BasicTemplateErrorCategory.UNKNOWN,
-          ImmutableMap.of("exception", e.getMessage())
-        )
-      );
+      Throwable cause = e.getCause();
+      if (
+        cause != null &&
+        cause instanceof IllegalArgumentException &&
+        cause.getMessage().contains("DivOperator")
+      ) {
+        // DivOperator lacks access to the interpreter, so couldn't generate an exception message that would
+        // be meaningful to the end-user. As there's no good way to get an interpreter down to DivOperator,
+        // generate a user-friendly TemplateError here.
+        TemplateError zeroDivisorError = TemplateError.fromException((Exception) cause);
+        zeroDivisorError.setMessage(String.format("%s : %s", expression, e.getMessage()));
+        zeroDivisorError.setLineno(interpreter.getLineNumber());
+        zeroDivisorError.setStartPosition(interpreter.getPosition());
+        interpreter.addError(zeroDivisorError);
+      } else {
+        interpreter.addError(
+          new TemplateError(
+            ErrorType.WARNING,
+            ErrorReason.UNKNOWN,
+            ErrorItem.PROPERTY,
+            e.getMessage(),
+            "",
+            interpreter.getLineNumber(),
+            interpreter.getPosition(),
+            e,
+            BasicTemplateErrorCategory.UNKNOWN,
+            ImmutableMap.of("exception", e.getMessage())
+          )
+        );
+      }
     } catch (TreeBuilderException e) {
       int position = interpreter.getPosition() + e.getPosition();
       // replacing the position in the string like this isn't great, but JUEL's parser does not allow passing in a starting position
