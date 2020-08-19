@@ -26,9 +26,7 @@ public class DivOperator extends SimpleOperator {
     Number numA = (Number) a;
     Number numB = (Number) b;
     if (numB.doubleValue() == 0.0) {
-      throw new DivideByZeroException(
-        String.format("Division operator divisor may not be zero")
-      );
+      throw new DivideByZeroException("Division operator divisor may not be zero");
     }
 
     return numA.doubleValue() / numB.doubleValue();
