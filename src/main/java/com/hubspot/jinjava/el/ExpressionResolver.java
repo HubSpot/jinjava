@@ -19,6 +19,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.interpret.errorcategory.DivideByZeroException;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import de.odysseus.el.tree.TreeBuilderException;
 import java.util.List;
@@ -92,37 +93,30 @@ public class ExpressionResolver {
       validateResult(result);
 
       return result;
+    } catch (DivideByZeroException e) {
+      // DivOperator lacks access to the interpreter, so couldn't generate an exception message that would
+      // be meaningful to the end-user. As there's no good way to get an interpreter down to DivOperator,
+      // generate a user-friendly TemplateError here.
+      TemplateError zeroDivisorError = TemplateError.fromException(e);
+      zeroDivisorError.setMessage(String.format("%s : %s", expression, e.getMessage()));
+      zeroDivisorError.setLineno(interpreter.getLineNumber());
+      zeroDivisorError.setStartPosition(interpreter.getPosition());
+      interpreter.addError(zeroDivisorError);
     } catch (PropertyNotFoundException e) {
-      Throwable cause = e.getCause();
-      if (
-        cause != null &&
-        cause instanceof IllegalArgumentException &&
-        cause.getMessage().contains("DivOperator")
-      ) {
-        // DivOperator lacks access to the interpreter, so couldn't generate an exception message that would
-        // be meaningful to the end-user. As there's no good way to get an interpreter down to DivOperator,
-        // generate a user-friendly TemplateError here.
-        TemplateError zeroDivisorError = TemplateError.fromException((Exception) cause);
-        zeroDivisorError.setMessage(String.format("%s : %s", expression, e.getMessage()));
-        zeroDivisorError.setLineno(interpreter.getLineNumber());
-        zeroDivisorError.setStartPosition(interpreter.getPosition());
-        interpreter.addError(zeroDivisorError);
-      } else {
-        interpreter.addError(
-          new TemplateError(
-            ErrorType.WARNING,
-            ErrorReason.UNKNOWN,
-            ErrorItem.PROPERTY,
-            e.getMessage(),
-            "",
-            interpreter.getLineNumber(),
-            interpreter.getPosition(),
-            e,
-            BasicTemplateErrorCategory.UNKNOWN,
-            ImmutableMap.of("exception", e.getMessage())
-          )
-        );
-      }
+      interpreter.addError(
+        new TemplateError(
+          ErrorType.WARNING,
+          ErrorReason.UNKNOWN,
+          ErrorItem.PROPERTY,
+          e.getMessage(),
+          "",
+          interpreter.getLineNumber(),
+          interpreter.getPosition(),
+          e,
+          BasicTemplateErrorCategory.UNKNOWN,
+          ImmutableMap.of("exception", e.getMessage())
+        )
+      );
     } catch (TreeBuilderException e) {
       int position = interpreter.getPosition() + e.getPosition();
       // replacing the position in the string like this isn't great, but JUEL's parser does not allow passing in a starting position
