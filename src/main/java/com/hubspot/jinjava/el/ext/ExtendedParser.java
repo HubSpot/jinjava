@@ -62,6 +62,7 @@ public class ExtendedParser extends Parser {
   static final Scanner.ExtensionToken LITERAL_DICT_END = new Scanner.ExtensionToken("}");
 
   static final Scanner.ExtensionToken TRUNC_DIV = TruncDivOperator.TOKEN;
+  static final Scanner.ExtensionToken REGULAR_DIV = DivOperator.TOKEN;
   static final Scanner.ExtensionToken POWER_OF = PowerOfOperator.TOKEN;
 
   static final Set<Symbol> VALID_SYMBOLS_FOR_EXP_TEST = Sets.newHashSet(
@@ -82,6 +83,7 @@ public class ExtendedParser extends Parser {
     ExtendedScanner.addKeyToken(ELSE);
 
     ExtendedScanner.addKeyToken(TruncDivOperator.TOKEN);
+    ExtendedScanner.addKeyToken(DivOperator.TOKEN);
     ExtendedScanner.addKeyToken(PowerOfOperator.TOKEN);
 
     ExtendedScanner.addKeyToken(CollectionMembershipOperator.TOKEN);
@@ -93,6 +95,7 @@ public class ExtendedParser extends Parser {
     putExtensionHandler(NamedParameterOperator.TOKEN, NamedParameterOperator.HANDLER);
     putExtensionHandler(StringConcatOperator.TOKEN, StringConcatOperator.HANDLER);
     putExtensionHandler(TruncDivOperator.TOKEN, TruncDivOperator.HANDLER);
+    putExtensionHandler(DivOperator.TOKEN, DivOperator.HANDLER);
     putExtensionHandler(PowerOfOperator.TOKEN, PowerOfOperator.HANDLER);
 
     putExtensionHandler(
