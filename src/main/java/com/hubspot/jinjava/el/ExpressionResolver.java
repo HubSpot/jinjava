@@ -75,7 +75,26 @@ public class ExpressionResolver {
         elExpression,
         Object.class
       );
-      Object result = valueExp.getValue(elContext);
+      Object result = null;
+      try {
+        result = valueExp.getValue(elContext);
+      } catch (NullPointerException e) {
+        interpreter.addError(
+          new TemplateError(
+            ErrorType.FATAL,
+            ErrorReason.EXCEPTION,
+            ErrorItem.PROPERTY,
+            String.format(
+              "Error resolving expression [%s]: is likely missing index",
+              expression
+            ),
+            "",
+            interpreter.getLineNumber(),
+            interpreter.getPosition(),
+            e
+          )
+        );
+      }
       if (result == null && interpreter.getConfig().isFailOnUnknownTokens()) {
         throw new UnknownTokenException(
           expression,

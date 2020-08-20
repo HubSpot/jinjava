@@ -18,11 +18,13 @@ import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -136,6 +138,18 @@ public class ExpressionResolverTest {
     context.put("thelist", Lists.newArrayList("foo", "bar", "blah"));
     Object val = interpreter.resolveELExpression("thelist[-4]", -1);
     assertThat(val).isEqualTo(null);
+  }
+
+  @Test
+  public void itRejectsListStringNoIndex() {
+    context.put("thelist", Lists.newArrayList("foo", "bar", "blah"));
+    Object result = interpreter.resolveELExpression("thelist[]", -1);
+    assertThat(result).isEqualTo(null);
+    assertEquals(interpreter.getErrors().size(), 1);
+    TemplateError error = interpreter.getErrors().get(0);
+    assertEquals(error.getSeverity(), ErrorType.FATAL);
+    assertEquals(error.getReason(), ErrorReason.EXCEPTION);
+    assertEquals(error.getMessage().contains("is likely missing index"), true);
   }
 
   @Test
