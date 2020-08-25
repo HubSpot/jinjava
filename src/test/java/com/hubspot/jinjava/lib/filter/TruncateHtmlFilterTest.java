@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.io.IOException;
@@ -60,12 +61,12 @@ public class TruncateHtmlFilterTest {
   }
 
   @Test
-  public void itDeducesArgumentTypes() {
+  public void itTakesKwargs() {
     String result = (String) filter.filter(
       fixture("filter/truncatehtml/long-content-with-tags.html"),
       interpreter,
-      "35",
-      "false"
+      new Object[] { "35" },
+      ImmutableMap.of("breakwords", false)
     );
     assertThat(result)
       .isEqualTo(
@@ -76,8 +77,8 @@ public class TruncateHtmlFilterTest {
       (String) filter.filter(
         fixture("filter/truncatehtml/long-content-with-tags.html"),
         interpreter,
-        "35",
-        "TEST"
+        new Object[] { "35" },
+        ImmutableMap.of("end", "TEST")
       );
     assertThat(result)
       .isEqualTo(

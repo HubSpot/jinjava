@@ -7,6 +7,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
+import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,22 +38,63 @@ import org.jsoup.select.NodeVisitor;
       type = "boolean",
       defaultValue = "false",
       desc = "If set to true, text will be truncated in the middle of words"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
       code = "{{ \"<p>I want to truncate this text without breaking my HTML<p>\"|truncatehtml(28, '..', false) }}",
       output = "<p>I want to truncate this text without breaking my HTML</p>"
-    )
+    ),
   }
 )
-public class TruncateHtmlFilter implements Filter {
+public class TruncateHtmlFilter implements AdvancedFilter {
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
   private static final String DEFAULT_END = "...";
 
   @Override
   public String getName() {
     return "truncatehtml";
+  }
+
+  @Override
+  public Object filter(
+    Object var,
+    JinjavaInterpreter interpreter,
+    Object[] args,
+    Map<String, Object> kwargs
+  ) {
+    String length = null;
+    if (kwargs.containsKey(("length"))) {
+      length = Objects.toString(kwargs.get("length"));
+    }
+    String end = null;
+    if (kwargs.containsKey("end")) {
+      end = Objects.toString(kwargs.get("end"));
+    }
+    String breakword = null;
+    if (kwargs.containsKey("breakword")) {
+      breakword = Objects.toString(kwargs.get("breakword"));
+    }
+
+    String[] newArgs = new String[3];
+    for (int i = 0; i < args.length; i++) {
+      if (i >= newArgs.length) {
+        break;
+      }
+      newArgs[i] = Objects.toString(args[i]);
+    }
+
+    if (length != null) {
+      newArgs[0] = length;
+    }
+    if (end != null) {
+      newArgs[1] = end;
+    }
+    if (breakword != null) {
+      newArgs[2] = breakword;
+    }
+
+    return filter(var, interpreter, newArgs);
   }
 
   @Override
@@ -73,18 +115,12 @@ public class TruncateHtmlFilter implements Filter {
         }
       }
 
-      boolean killwords = false;
-      if (args.length == 2) {
-        Boolean obj = BooleanUtils.toBooleanObject(args[1]);
-        if (obj == null) {
-          ends = Objects.toString(args[1]);
-        } else {
-          killwords = BooleanUtils.toBoolean(args[1]);
-        }
+      if (args.length > 1) {
+        ends = Objects.toString(args[1]);
       }
 
-      if (args.length == 3) {
-        ends = Objects.toString(args[1]);
+      boolean killwords = false;
+      if (args.length > 2) {
         killwords = BooleanUtils.toBoolean(args[2]);
       }
 
