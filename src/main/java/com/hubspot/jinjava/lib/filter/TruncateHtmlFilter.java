@@ -79,7 +79,7 @@ public class TruncateHtmlFilter implements Filter {
         if (obj == null) {
           ends = Objects.toString(args[1]);
         } else {
-          killwords = BooleanUtils.toBoolean(args[2]);
+          killwords = BooleanUtils.toBoolean(args[1]);
         }
       }
 
