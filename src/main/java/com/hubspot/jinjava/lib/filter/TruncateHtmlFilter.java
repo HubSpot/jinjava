@@ -50,6 +50,9 @@ import org.jsoup.select.NodeVisitor;
 public class TruncateHtmlFilter implements AdvancedFilter {
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
   private static final String DEFAULT_END = "...";
+  private static final String LENGTH_KEY = "length";
+  private static final String END_KEY = "end";
+  private static final String BREAKWORD_KEY = "breakword";
 
   @Override
   public String getName() {
@@ -64,16 +67,16 @@ public class TruncateHtmlFilter implements AdvancedFilter {
     Map<String, Object> kwargs
   ) {
     String length = null;
-    if (kwargs.containsKey(("length"))) {
-      length = Objects.toString(kwargs.get("length"));
+    if (kwargs.containsKey((LENGTH_KEY)) {
+      length = Objects.toString(kwargs.get(LENGTH_KEY));
     }
     String end = null;
-    if (kwargs.containsKey("end")) {
-      end = Objects.toString(kwargs.get("end"));
+    if (kwargs.containsKey(END_KEY)) {
+      end = Objects.toString(kwargs.get(END_KEY));
     }
     String breakword = null;
-    if (kwargs.containsKey("breakword")) {
-      breakword = Objects.toString(kwargs.get("breakword"));
+    if (kwargs.containsKey(BREAKWORD_KEY)) {
+      breakword = Objects.toString(kwargs.get(BREAKWORD_KEY));
     }
 
     String[] newArgs = new String[3];

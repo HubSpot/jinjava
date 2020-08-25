@@ -210,16 +210,6 @@
                   <include>de.odysseus.juel:juel-impl</include>
                 </includes>
               </artifactSet>
-              <relocations>
-                <relocation>
-                  <pattern>javax.el</pattern>
-                  <shadedPattern>jinjava.javax.el</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>de.odysseus.el</pattern>
-                  <shadedPattern>jinjava.de.odysseus.el</shadedPattern>
-                </relocation>
-              </relocations>
             </configuration>
           </execution>
         </executions>
