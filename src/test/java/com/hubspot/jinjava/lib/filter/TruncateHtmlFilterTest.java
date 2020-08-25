@@ -81,7 +81,7 @@ public class TruncateHtmlFilterTest {
       );
     assertThat(result)
       .isEqualTo(
-        "<h1>HTML Ipsum Presents</h1> \n<p><strong>Pellentesque haTEST</strong></p>"
+        "<h1>HTML Ipsum Presents</h1> \n<p><strong>PellentesqueTEST</strong></p>"
       );
   }
 
