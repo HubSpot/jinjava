@@ -23,10 +23,13 @@ public class PyMapTest {
 
   @Test
   public void itSupportsAppendOperation() {
-    RenderResult result = jinjava.renderForResult(
-      "{% set mymap = {} %} {% do mymap.put('map', mymap) %} {{ mymap }}",
-      Collections.emptyMap()
-    );
+    assertThat(
+        jinjava.render(
+          "{% set test = [1, 2, 3] %}" + "{% do test.append(4) %}" + "{{ test }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo("[1, 2, 3, 4]");
   }
 
   @Test
