@@ -59,6 +59,32 @@ public class TruncateHtmlFilterTest {
       );
   }
 
+  @Test
+  public void itDeducesArgumentTypes() {
+    String result = (String) filter.filter(
+      fixture("filter/truncatehtml/long-content-with-tags.html"),
+      interpreter,
+      "35",
+      "false"
+    );
+    assertThat(result)
+      .isEqualTo(
+        "<h1>HTML Ipsum Presents</h1> \n<p><strong>Pellentesque...</strong></p>"
+      );
+
+    result =
+      (String) filter.filter(
+        fixture("filter/truncatehtml/long-content-with-tags.html"),
+        interpreter,
+        "35",
+        "TEST"
+      );
+    assertThat(result)
+      .isEqualTo(
+        "<h1>HTML Ipsum Presents</h1> \n<p><strong>Pellentesque haTEST</strong></p>"
+      );
+  }
+
   private static String fixture(String name) {
     try {
       return Resources.toString(Resources.getResource(name), StandardCharsets.UTF_8);
