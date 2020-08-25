@@ -18,6 +18,14 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
   }
 
   @Override
+  public Object put(String s, Object o) {
+    if (o == this) {
+      throw new IllegalArgumentException("Can't add map object to itself");
+    }
+    return delegate().put(s, o);
+  }
+
+  @Override
   public String toString() {
     return delegate().toString();
   }
@@ -31,6 +39,19 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
   }
 
   public void update(Map<? extends String, ? extends Object> m) {
+    if (m == this) {
+      throw new IllegalArgumentException("Can't update map object with itself");
+    }
     putAll(m);
+  }
+
+  @Override
+  public void putAll(Map<? extends String, ? extends Object> m) {
+    if (m == this) {
+      throw new IllegalArgumentException(
+        "Map putAll() operation can't be used to add map to itself"
+      );
+    }
+    super.putAll(m);
   }
 }
