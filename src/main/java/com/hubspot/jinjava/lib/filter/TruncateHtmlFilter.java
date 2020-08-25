@@ -115,12 +115,12 @@ public class TruncateHtmlFilter implements AdvancedFilter {
         }
       }
 
-      if (args.length > 1) {
+      if (args.length > 1 && args[1] != null) {
         ends = Objects.toString(args[1]);
       }
 
       boolean killwords = false;
-      if (args.length > 2) {
+      if (args.length > 2 && args[2] != null) {
         killwords = BooleanUtils.toBoolean(args[2]);
       }
 
