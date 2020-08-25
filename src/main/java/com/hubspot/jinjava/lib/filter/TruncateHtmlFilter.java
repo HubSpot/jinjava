@@ -67,7 +67,7 @@ public class TruncateHtmlFilter implements AdvancedFilter {
     Map<String, Object> kwargs
   ) {
     String length = null;
-    if (kwargs.containsKey((LENGTH_KEY)) {
+    if (kwargs.containsKey(LENGTH_KEY)) {
       length = Objects.toString(kwargs.get(LENGTH_KEY));
     }
     String end = null;
