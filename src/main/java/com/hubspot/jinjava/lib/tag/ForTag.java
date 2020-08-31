@@ -15,6 +15,7 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -140,7 +141,7 @@ public class ForTag implements Tag {
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       if (interpreter.isValidationMode() && !loop.hasNext()) {
-        loop = ObjectIterator.getLoop(new DummyObject());
+        loop = ObjectIterator.getLoop(ImmutableList.of(new DummyObject()));
         interpreter.getContext().setValidationMode(true);
       }
 

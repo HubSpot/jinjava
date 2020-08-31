@@ -42,7 +42,7 @@ public final class ObjectIterator {
     }
     // map
     if (obj instanceof Map) {
-      Collection<Object> clt = ((Map<Object, Object>) obj).values();
+      Collection<Object> clt = ((Map<Object, Object>) obj).keySet();
       return new ForLoop(clt.iterator(), clt.size());
     }
     // iterable,iterator

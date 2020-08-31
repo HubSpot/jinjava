@@ -318,7 +318,7 @@ public class MacroTagTest {
   public void itPreventsRecursionForMacroWithVar() {
     String jinja =
       "{%- macro func(var) %}" +
-      "{%- for f in var %}" +
+      "{%- for f in var.values() %}" +
       "{{ f.val }}" +
       "{%- endfor %}" +
       "{%- endmacro %}" +
