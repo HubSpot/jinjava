@@ -16,6 +16,7 @@ limitations under the License.
 package com.hubspot.jinjava.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,5 +89,16 @@ public class ObjectIteratorTest {
     items.put("test", new ObjectIteratorTest());
     loop = ObjectIterator.getLoop(items);
     assertEquals(5, loop.getLength());
+  }
+
+  @Test
+  public void testItIteratesOverKeys() throws Exception {
+    Map<Object, Object> items = new HashMap<>();
+    items.put("hello", "ok");
+    items.put("world", 2);
+    items.put("jinjava", "ko");
+    items.put("asfun", new ObjectIteratorTest());
+    loop = ObjectIterator.getLoop(items);
+    assertTrue(items.containsKey(loop.next()));
   }
 }
