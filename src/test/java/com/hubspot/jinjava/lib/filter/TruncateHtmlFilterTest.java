@@ -3,7 +3,6 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.io.IOException;
@@ -57,32 +56,6 @@ public class TruncateHtmlFilterTest {
     assertThat(result)
       .isEqualTo(
         "<h1>HTML Ipsum Presents</h1> \n<p><strong>Pellentesque ha...</strong></p>"
-      );
-  }
-
-  @Test
-  public void itTakesKwargs() {
-    String result = (String) filter.filter(
-      fixture("filter/truncatehtml/long-content-with-tags.html"),
-      interpreter,
-      new Object[] { "35" },
-      ImmutableMap.of("breakwords", false)
-    );
-    assertThat(result)
-      .isEqualTo(
-        "<h1>HTML Ipsum Presents</h1> \n<p><strong>Pellentesque...</strong></p>"
-      );
-
-    result =
-      (String) filter.filter(
-        fixture("filter/truncatehtml/long-content-with-tags.html"),
-        interpreter,
-        new Object[] { "35" },
-        ImmutableMap.of("end", "TEST")
-      );
-    assertThat(result)
-      .isEqualTo(
-        "<h1>HTML Ipsum Presents</h1> \n<p><strong>PellentesqueTEST</strong></p>"
       );
   }
 
