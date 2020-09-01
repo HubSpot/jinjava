@@ -7,7 +7,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
-import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,57 +46,13 @@ import org.jsoup.select.NodeVisitor;
     )
   }
 )
-public class TruncateHtmlFilter implements AdvancedFilter {
+public class TruncateHtmlFilter implements Filter {
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
   private static final String DEFAULT_END = "...";
-  private static final String LENGTH_KEY = "length";
-  private static final String END_KEY = "end";
-  private static final String BREAKWORD_KEY = "breakword";
 
   @Override
   public String getName() {
     return "truncatehtml";
-  }
-
-  @Override
-  public Object filter(
-    Object var,
-    JinjavaInterpreter interpreter,
-    Object[] args,
-    Map<String, Object> kwargs
-  ) {
-    String length = null;
-    if (kwargs.containsKey(LENGTH_KEY)) {
-      length = Objects.toString(kwargs.get(LENGTH_KEY));
-    }
-    String end = null;
-    if (kwargs.containsKey(END_KEY)) {
-      end = Objects.toString(kwargs.get(END_KEY));
-    }
-    String breakword = null;
-    if (kwargs.containsKey(BREAKWORD_KEY)) {
-      breakword = Objects.toString(kwargs.get(BREAKWORD_KEY));
-    }
-
-    String[] newArgs = new String[3];
-    for (int i = 0; i < args.length; i++) {
-      if (i >= newArgs.length) {
-        break;
-      }
-      newArgs[i] = Objects.toString(args[i]);
-    }
-
-    if (length != null) {
-      newArgs[0] = length;
-    }
-    if (end != null) {
-      newArgs[1] = end;
-    }
-    if (breakword != null) {
-      newArgs[2] = breakword;
-    }
-
-    return filter(var, interpreter, newArgs);
   }
 
   @Override
@@ -118,12 +73,12 @@ public class TruncateHtmlFilter implements AdvancedFilter {
         }
       }
 
-      if (args.length > 1 && args[1] != null) {
+      if (args.length > 1) {
         ends = Objects.toString(args[1]);
       }
 
       boolean killwords = false;
-      if (args.length > 2 && args[2] != null) {
+      if (args.length > 2) {
         killwords = BooleanUtils.toBoolean(args[2]);
       }
 
