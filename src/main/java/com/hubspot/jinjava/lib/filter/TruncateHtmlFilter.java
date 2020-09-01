@@ -7,6 +7,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
+import com.hubspot.jinjava.objects.SafeString;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.BooleanUtils;
@@ -95,6 +96,10 @@ public class TruncateHtmlFilter implements AdvancedFilter {
     }
     if (breakword != null) {
       newArgs[2] = breakword;
+    }
+
+    if (var instanceof SafeString) {
+      return filter((SafeString) var, interpreter, newArgs);
     }
 
     return filter(var, interpreter, newArgs);
