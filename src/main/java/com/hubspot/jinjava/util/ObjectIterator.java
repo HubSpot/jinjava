@@ -16,6 +16,7 @@
 package com.hubspot.jinjava.util;
 
 import com.google.common.collect.Iterators;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -42,7 +43,12 @@ public final class ObjectIterator {
     }
     // map
     if (obj instanceof Map) {
-      Collection<Object> clt = ((Map<Object, Object>) obj).values();
+      boolean iterateOverMapKeys =
+        JinjavaInterpreter.getCurrent() != null &&
+        JinjavaInterpreter.getCurrent().getConfig().isIterateOverMapKeys();
+      Collection<Object> clt = iterateOverMapKeys
+        ? ((Map<Object, Object>) obj).keySet()
+        : ((Map<Object, Object>) obj).values();
       return new ForLoop(clt.iterator(), clt.size());
     }
     // iterable,iterator
