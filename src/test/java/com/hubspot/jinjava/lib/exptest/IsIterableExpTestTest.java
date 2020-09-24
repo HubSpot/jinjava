@@ -24,9 +24,7 @@ public class IsIterableExpTestTest {
       .isEqualTo("true");
     assertThat(jinjava.render("{{ [4, 'four'] is iterable }}", new HashMap<>()))
       .isEqualTo("true");
-    assertThat(jinjava.render("{{ {'k1': 'v2'} is iterable }}", new HashMap<>()))
-      .isEqualTo("true");
     assertThat(jinjava.render("{{ 'this string' is iterable }}", new HashMap<>()))
-      .isEqualTo("true");
+      .isEqualTo("false");
   }
 }

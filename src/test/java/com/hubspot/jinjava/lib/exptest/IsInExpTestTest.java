@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.Jinjava;
 import java.util.HashMap;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,21 +23,6 @@ public class IsInExpTestTest {
     //    assertThat(jinjava.render("{{ 2 is in ['one', 2] }}", new HashMap<>()))
     //      .isEqualTo("true");
     assertThat(jinjava.render("{{ 2 is in [1] }}", new HashMap<>())).isEqualTo("false");
-  }
-
-  @Test
-  public void testIsInString() {
-    assertThat(jinjava.render("{{ 'b' is in 'ab' }}", new HashMap<>())).isEqualTo("true");
-    assertThat(jinjava.render("{{ 'b' is in 'a' }}", new HashMap<>())).isEqualTo("false");
-  }
-
-  @Test
-  public void testIsInDict() {
-    //    TODO: Uncomment out when CollectionMemberShipOperator.java changes get approved
-    //    assertThat(jinjava.render("{{ 'k2' is in {'k1':'v1', 'k2':'v2'} }}", new HashMap<>()))
-    //      .isEqualTo("true");
-    assertThat(jinjava.render("{{ 'k2' is in {'k1':'v1'} }}", new HashMap<>()))
-      .isEqualTo("false");
   }
 
   @Test
