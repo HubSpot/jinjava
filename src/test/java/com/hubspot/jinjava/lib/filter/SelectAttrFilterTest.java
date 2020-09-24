@@ -49,6 +49,17 @@ public class SelectAttrFilterTest {
   }
 
   @Test
+  public void selectAttrWithSymbolicExp() {
+    assertThat(
+        jinjava.render(
+          "{{ users|selectattr('isActive', '==', 'true') }}",
+          new HashMap<String, Object>()
+        )
+      )
+      .isEqualTo("[1]");
+  }
+
+  @Test
   public void selectAttrWithIsEqualToExp() {
     assertThat(
         jinjava.render(

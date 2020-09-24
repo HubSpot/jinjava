@@ -10,6 +10,7 @@ public enum InvalidReason {
   JSON_WRITE("object could not be written as a string"),
   REGEX("with value %s must be valid regex"),
   POSITIVE_NUMBER("with value %s must be a positive number"),
+  NOT_ITERABLE("with value '%s' must be iterable"),
   NON_ZERO_NUMBER("with value %s must be non-zero"),
   NULL_IN_LIST("of type 'list' cannot contain a null item"),
   NULL_ATTRIBUTE_IN_LIST(
