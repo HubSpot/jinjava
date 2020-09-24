@@ -4,6 +4,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.SafeString;
 
 @JinjavaDoc(
   value = "Return true if the object is iterable (sequence, dict, etc)",
@@ -25,9 +26,15 @@ public class IsIterableExpTest implements ExpTest {
 
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return isIterable(var);
+  }
+
+  static boolean isIterable(Object ob) {
     return (
-      var != null &&
-      (var.getClass().isArray() || Iterable.class.isAssignableFrom(var.getClass()))
+      ob instanceof Object[] ||
+      ob instanceof Iterable ||
+      ob instanceof String ||
+      ob instanceof SafeString
     );
   }
 }
