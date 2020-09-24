@@ -67,6 +67,7 @@ public class ExtendedSyntaxBuilderTest {
   @Test
   public void stringExpTestOps() {
     assertThat(val("'football' is string_startingwith 'foot'")).isEqualTo(true);
+    assertThat(val("'football' is string_startingwith 'foot'~'ba'")).isEqualTo(true);
     assertThat(val("'football' is string_startingwith 'ball'")).isEqualTo(false);
 
     assertThat(val("'football' is string_containing 'tb'")).isEqualTo(true);
