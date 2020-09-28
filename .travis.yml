@@ -1,7 +1,7 @@
 sudo: false
 language: java
 jdk:
-  - oraclejdk8
+  - oraclejdk11
 
 # https://travis-ci.community/t/error-installing-oraclejdk8-expected-feature-release-number-in-range-of-9-to-14-but-got-8/3766
 dist: trusty
