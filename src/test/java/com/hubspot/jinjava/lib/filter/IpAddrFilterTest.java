@@ -134,6 +134,8 @@ public class IpAddrFilterTest {
   public void itReturnsIpv4AddressAddress() {
     assertThat(ipAddrFilter.filter("192.168.0.1/20", interpreter, "address"))
       .isEqualTo("192.168.0.1");
+    assertThat(ipAddrFilter.filter("192.168.0.2", interpreter, "address"))
+      .isEqualTo("192.168.0.2");
   }
 
   @Test
@@ -146,6 +148,14 @@ public class IpAddrFilterTest {
         )
       )
       .isEqualTo("1200:0000:AB00:1234:0000:2552:7777:1313");
+    assertThat(
+        ipAddrFilter.filter(
+          "1200:0000:AB00:1234:0000:2552:7777:1314",
+          interpreter,
+          "address"
+        )
+      )
+      .isEqualTo("1200:0000:AB00:1234:0000:2552:7777:1314");
   }
 
   @Test
@@ -275,7 +285,12 @@ public class IpAddrFilterTest {
       null,
       13
     );
-    List<Object> expectedAddresses = Arrays.asList("192.168.32.0", "fe80::100");
+    List<Object> expectedAddresses = Arrays.asList(
+      "192.24.2.1",
+      "::1",
+      "192.168.32.0",
+      "fe80::100"
+    );
     assertThat(ipAddrFilter.filter(inputAddresses, interpreter, "address"))
       .isEqualTo(expectedAddresses);
   }
