@@ -119,6 +119,6 @@ public class DateTimeFormatFilterTest {
           "{{ d|datetimeformat('%A, %e %B', 'UTC', 'not_a_locale') }}"
         )
       )
-      .isEqualTo(Functions.dateTimeFormat(d, "%A, %e %B", "UTC", "english"));
+      .isEqualTo(Functions.dateTimeFormat(d, "%A, %e %B", "UTC", "America/Los_Angeles"));
   }
 }
