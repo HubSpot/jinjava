@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import java.time.ZoneOffset;
@@ -118,6 +119,6 @@ public class DateTimeFormatFilterTest {
           "{{ d|datetimeformat('%A, %e %B', 'UTC', 'not_a_locale') }}"
         )
       )
-      .isEqualTo("Wed, 6 Nov");
+      .isEqualTo(Functions.dateTimeFormat(d, "%A, %e %B", "UTC", "America/Los_Angeles"));
   }
 }
