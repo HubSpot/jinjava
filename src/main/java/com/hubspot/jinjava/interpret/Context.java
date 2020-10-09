@@ -78,6 +78,7 @@ public class Context extends ScopeMap<String, Object> {
   private final Set<String> resolvedFunctions = new HashSet<>();
 
   private Set<Node> deferredNodes = new HashSet<>();
+  private boolean hasPreservedRawTags = false;
 
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
@@ -288,6 +289,21 @@ public class Context extends ScopeMap<String, Object> {
 
   public Set<Node> getDeferredNodes() {
     return ImmutableSet.copyOf(deferredNodes);
+  }
+
+  public void handlePreservedRawTag() {
+    hasPreservedRawTags = true;
+    if (getParent() != null) {
+      Context parent = getParent();
+      //Ignore global context
+      if (parent.getParent() != null) {
+        getParent().handlePreservedRawTag();
+      }
+    }
+  }
+
+  public boolean getHasPreservedRawTags() {
+    return hasPreservedRawTags;
   }
 
   public List<? extends Node> getSuperBlock() {

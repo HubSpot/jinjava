@@ -269,6 +269,9 @@ public class JinjavaInterpreter {
         } catch (DeferredValueException e) {
           context.handleDeferredNode(node);
           out = new RenderedOutputNode(node.getMaster().getImage());
+        } catch (PreservedRawTagException e) {
+          context.handlePreservedRawTag();
+          out = new RenderedOutputNode(node.getMaster().getImage());
         }
         context.popRenderStack();
         try {
