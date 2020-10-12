@@ -220,4 +220,24 @@ public class JinjavaInterpreterTest {
     assertThat(renderResult.getErrors().get(0).getMessage())
       .contains("OutputTooBigException");
   }
+
+  @Test
+  public void itCanPreserveRawTags() {
+    JinjavaConfig preserveRawTagsConfig = JinjavaConfig
+      .newBuilder()
+      .withPreserveRawTags(true)
+      .build();
+    String input = "1{% raw %}2{% endraw %}3";
+    String normalOutput = "123";
+    String preservedOutput = "1{% raw %}2{% endraw %}3";
+
+    RenderResult renderResult = new Jinjava().renderForResult(input, new HashMap<>());
+    assertThat(renderResult.getOutput()).isEqualTo(normalOutput);
+    assertThat(renderResult.hasErrors()).isFalse();
+
+    renderResult =
+      new Jinjava(preserveRawTagsConfig).renderForResult(input, new HashMap<>());
+    assertThat(renderResult.getOutput()).isEqualTo(preservedOutput);
+    assertThat(renderResult.hasErrors()).isFalse();
+  }
 }
