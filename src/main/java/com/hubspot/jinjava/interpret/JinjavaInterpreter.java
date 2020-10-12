@@ -271,7 +271,7 @@ public class JinjavaInterpreter {
           out = new RenderedOutputNode(node.getMaster().getImage());
         } catch (PreservedRawTagException e) {
           context.handlePreservedRawTag();
-          out = new RenderedOutputNode(node.getMaster().getImage());
+          out = new RenderedOutputNode(e.getPreservedImage());
         }
         context.popRenderStack();
         try {

@@ -31,15 +31,17 @@ public class RawTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
+      interpreter.getConfig().getMaxOutputSize()
+    );
     if (interpreter.getConfig().isPreserveRawTags()) {
+      result.append(renderNodeRaw(tagNode));
       throw new PreservedRawTagException(
+        result.toString(),
         tagNode.getLineNumber(),
         tagNode.getStartPosition()
       );
     }
-    LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
-      interpreter.getConfig().getMaxOutputSize()
-    );
 
     for (Node n : tagNode.getChildren()) {
       result.append(renderNodeRaw(n));
