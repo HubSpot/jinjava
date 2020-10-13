@@ -52,7 +52,6 @@ public class TagNode extends Node {
     try {
       return tag.interpretOutput(this, interpreter);
     } catch (EagerValueException e) {
-      interpreter.getContext().handleDeferredNode(this);
       return new RenderedOutputNode(e.getEagerImage());
     } catch (DeferredValueException e) {
       interpreter.getContext().handleDeferredNode(this);
