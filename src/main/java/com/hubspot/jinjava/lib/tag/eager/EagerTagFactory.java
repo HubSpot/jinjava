@@ -5,10 +5,10 @@ import com.hubspot.jinjava.lib.tag.Tag;
 
 public class EagerTagFactory {
 
-  public <T extends Tag> EagerTag getEagerTag(Class<T> clazz) {
+  public <T extends Tag> EagerTagDecorator<T> getEagerTagDecorator(Class<T> clazz) {
     try {
       T tag = clazz.getDeclaredConstructor().newInstance();
-      return new EagerTagDecorator<>(tag);
+      return new EagerGenericTagDecorator<>(tag);
     } catch (Exception e) {
       Throwables.throwIfUnchecked(e);
       throw new RuntimeException(e);
