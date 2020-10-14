@@ -5,6 +5,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.parse.TagToken;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerGenericTagDecorator<T extends Tag>
@@ -17,7 +18,9 @@ public class EagerGenericTagDecorator<T extends Tag>
 
   @Override
   public String eagerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    StringBuilder result = new StringBuilder(tagNode.getMaster().getImage());
+    StringBuilder result = new StringBuilder(
+      getEagerImage((TagToken) tagNode.getMaster(), interpreter)
+    );
 
     for (Node child : tagNode.getChildren()) {
       result.append(interpreter.render(child));
@@ -28,14 +31,5 @@ public class EagerGenericTagDecorator<T extends Tag>
     }
 
     return result.toString();
-  }
-
-  @Override
-  public void handleEagerValueException(
-    EagerValueException e,
-    TagNode tagNode,
-    JinjavaInterpreter interpreter
-  ) {
-    interpreter.getContext().handleDeferredNode(tagNode);
   }
 }

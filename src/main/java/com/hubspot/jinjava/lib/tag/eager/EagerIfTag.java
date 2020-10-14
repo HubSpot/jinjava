@@ -8,6 +8,7 @@ import com.hubspot.jinjava.lib.tag.ElseTag;
 import com.hubspot.jinjava.lib.tag.IfTag;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
@@ -28,48 +29,31 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       );
     }
 
-    LengthLimitingStringBuilder eagerImage = new LengthLimitingStringBuilder(
+    LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxOutputSize()
     );
 
-    eagerImage.append(tagNode.getMaster().getImage());
+    result.append(getEagerImage((TagToken) tagNode.getMaster(), interpreter));
 
     Iterator<Node> nodeIterator = tagNode.getChildren().iterator();
 
-    boolean parentValidationMode = interpreter.getContext().isValidationMode();
-
-    try {
-      while (nodeIterator.hasNext()) {
-        if (interpreter.isValidationMode() && !parentValidationMode) {
-          interpreter.getContext().setValidationMode(false);
+    while (nodeIterator.hasNext()) {
+      Node node = nodeIterator.next();
+      if (TagNode.class.isAssignableFrom(node.getClass())) {
+        TagNode tag = (TagNode) node;
+        if (
+          tag.getName().equals(ElseIfTag.TAG_NAME) ||
+          tag.getName().equals(ElseTag.TAG_NAME)
+        ) {
+          result.append(getEagerImage((TagToken) tag.getMaster(), interpreter));
+          continue;
         }
-
-        Node node = nodeIterator.next();
-        if (TagNode.class.isAssignableFrom(node.getClass())) {
-          TagNode tag = (TagNode) node;
-          if (
-            tag.getName().equals(ElseIfTag.TAG_NAME) ||
-            tag.getName().equals(ElseTag.TAG_NAME)
-          ) {
-            eagerImage.append(tag.getMaster().getImage());
-            continue;
-          }
-        }
-        eagerImage.append(node.render(interpreter));
       }
-    } finally {
-      interpreter.getContext().setValidationMode(parentValidationMode);
+      result.append(node.render(interpreter));
     }
 
-    eagerImage.append(String.format("{%% %s %%}", tagNode.getEndName()));
+    result.append(String.format("{%% %s %%}", tagNode.getEndName()));
 
-    return eagerImage.toString();
+    return result.toString();
   }
-
-  @Override
-  public void handleEagerValueException(
-    EagerValueException e,
-    TagNode tagNode,
-    JinjavaInterpreter interpreter
-  ) {}
 }

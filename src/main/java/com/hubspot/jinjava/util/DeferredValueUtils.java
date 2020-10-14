@@ -7,6 +7,7 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
+import com.hubspot.jinjava.lib.tag.eager.EagerTagToken;
 import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -59,7 +60,9 @@ public class DeferredValueUtils {
   }
 
   public static Set<String> findAndMarkDeferredProperties(Context context) {
-    String templateSource = rebuildTemplateForNodes(context.getDeferredNodes());
+    String templateSource =
+      rebuildTemplateForNodes(context.getDeferredNodes()) +
+      rebuildTemplateForEagerTagTokens(context.getEagerTagTokens());
     Set<String> deferredProps = getPropertiesUsedInDeferredNodes(context, templateSource);
     Set<String> setProps = getPropertiesSetInDeferredNodes(templateSource);
 
@@ -88,7 +91,7 @@ public class DeferredValueUtils {
       .collect(Collectors.toSet());
   }
 
-  private static void markDeferredProperties(Context context, Set<String> props) {
+  public static void markDeferredProperties(Context context, Set<String> props) {
     props
       .stream()
       .filter(prop -> !(context.get(prop) instanceof DeferredValue))
@@ -123,6 +126,17 @@ public class DeferredValueUtils {
   private static String rebuildTemplateForNodes(Set<Node> nodes) {
     StringJoiner joiner = new StringJoiner(" ");
     getDeferredTags(nodes).stream().map(DeferredTag::getTag).forEach(joiner::add);
+    return joiner.toString();
+  }
+
+  private static String rebuildTemplateForEagerTagTokens(
+    Set<EagerTagToken> eagerTagTokens
+  ) {
+    StringJoiner joiner = new StringJoiner(" ");
+    eagerTagTokens
+      .stream()
+      .flatMap(e -> e.getDeferredHelpers().stream())
+      .forEach(joiner::add);
     return joiner.toString();
   }
 
