@@ -19,7 +19,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
 
   public abstract String eagerInterpret(TagNode tagNode, JinjavaInterpreter interpreter);
 
-  public static String getEagerImage(TagToken tagToken, JinjavaInterpreter interpreter) {
+  public String getEagerImage(TagToken tagToken, JinjavaInterpreter interpreter) {
     HelperStringTokenizer tokenizer = new HelperStringTokenizer(tagToken.getHelpers());
     Set<String> deferredHelpers = new HashSet<>();
     StringJoiner joiner = new StringJoiner(" ");
@@ -35,11 +35,12 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         );
       } catch (DeferredValueException e) {
         deferredHelpers.add(token);
+        joiner.add(token);
       }
     }
     interpreter
       .getContext()
-      .handleDeferredTagToken(new EagerTagToken(tagToken, deferredHelpers));
+      .handleEagerTagToken(new EagerTagToken(tagToken, deferredHelpers));
 
     joiner.add("%}");
     return joiner.toString();

@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import com.hubspot.jinjava.interpret.EagerValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.ElseIfTag;
@@ -19,6 +18,10 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     super(new IfTag());
   }
 
+  public EagerIfTag(IfTag ifTag) {
+    super(ifTag);
+  }
+
   @Override
   public String eagerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     if (StringUtils.isBlank(tagNode.getHelpers())) {
@@ -34,6 +37,11 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     );
 
     result.append(getEagerImage((TagToken) tagNode.getMaster(), interpreter));
+    JinjavaInterpreter eagerInterpreter = interpreter
+      .getConfig()
+      .getInterpreterFactory()
+      .newInstance(interpreter);
+    eagerInterpreter.getContext().setEagerMode(true);
 
     Iterator<Node> nodeIterator = tagNode.getChildren().iterator();
 
@@ -45,11 +53,11 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
           tag.getName().equals(ElseIfTag.TAG_NAME) ||
           tag.getName().equals(ElseTag.TAG_NAME)
         ) {
-          result.append(getEagerImage((TagToken) tag.getMaster(), interpreter));
+          result.append(getEagerImage((TagToken) tag.getMaster(), eagerInterpreter));
           continue;
         }
       }
-      result.append(node.render(interpreter));
+      result.append(node.render(eagerInterpreter));
     }
 
     result.append(String.format("{%% %s %%}", tagNode.getEndName()));

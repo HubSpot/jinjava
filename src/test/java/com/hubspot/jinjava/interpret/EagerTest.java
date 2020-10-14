@@ -12,6 +12,7 @@ import com.hubspot.jinjava.lib.tag.EndTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerGenericTagDecorator;
 import com.hubspot.jinjava.lib.tag.eager.EagerIfTag;
+import com.hubspot.jinjava.lib.tag.eager.EagerSetTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerTagFactory;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.util.DeferredValueUtils;
@@ -25,7 +26,10 @@ import org.junit.Test;
 public class EagerTest {
   private JinjavaInterpreter interpreter;
   private Jinjava jinjava = new Jinjava();
-  private EagerTagFactory eagerTagFactory = new EagerTagFactory(EndTag.class);
+  private EagerTagFactory eagerTagFactory = new EagerTagFactory(
+    EndTag.class,
+    SetTag.class
+  );
   Context globalContext = new Context();
   Context localContext; // ref to context created with global as parent
 
@@ -51,6 +55,7 @@ public class EagerTest {
       .forEach(maybeEagerTag -> localContext.registerTag(maybeEagerTag.get()));
 
     localContext.registerTag(new EagerIfTag());
+    //localContext.registerTag(new EagerSetTag());
     localContext.put("deferred", DeferredValue.instance());
     localContext.put("resolved", "resolvedValue");
     localContext.put("dict", ImmutableSet.of("a", "b", "c"));
@@ -308,7 +313,7 @@ public class EagerTest {
   public void itPutsDeferredVariablesOnParentScopes() {
     String template = getFixtureTemplate("set-within-lower-scope.jinja");
     localContext.put("deferredValue", DeferredValue.instance("resolved"));
-    interpreter.render(template);
+    String output = interpreter.render(template);
     assertThat(localContext).containsKey("varSetInside");
     Object varSetInside = localContext.get("varSetInside");
     assertThat(varSetInside).isInstanceOf(DeferredValue.class);

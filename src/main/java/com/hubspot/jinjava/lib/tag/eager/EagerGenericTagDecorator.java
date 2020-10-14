@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import com.hubspot.jinjava.interpret.EagerValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.Node;
@@ -22,8 +21,14 @@ public class EagerGenericTagDecorator<T extends Tag>
       getEagerImage((TagToken) tagNode.getMaster(), interpreter)
     );
 
+    JinjavaInterpreter eagerInterpreter = interpreter
+      .getConfig()
+      .getInterpreterFactory()
+      .newInstance(interpreter);
+    eagerInterpreter.getContext().setEagerMode(true);
+
     for (Node child : tagNode.getChildren()) {
-      result.append(interpreter.render(child));
+      result.append(eagerInterpreter.render(child));
     }
 
     if (StringUtils.isNotBlank(tagNode.getEndName())) {

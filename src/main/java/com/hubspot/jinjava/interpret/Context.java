@@ -95,6 +95,7 @@ public class Context extends ScopeMap<String, Object> {
   private final Stack<String> renderStack = new Stack<>();
 
   private boolean validationMode = false;
+  private boolean eagerMode = false;
 
   public Context() {
     this(null, null, null);
@@ -293,7 +294,7 @@ public class Context extends ScopeMap<String, Object> {
     return ImmutableSet.copyOf(deferredNodes);
   }
 
-  public void handleDeferredTagToken(EagerTagToken eagerTagToken) {
+  public void handleEagerTagToken(EagerTagToken eagerTagToken) {
     eagerTagTokens.add(eagerTagToken);
     Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(this);
     if (getParent() != null) {
@@ -305,7 +306,7 @@ public class Context extends ScopeMap<String, Object> {
           .stream()
           .filter(key -> !parent.containsKey(key))
           .forEach(key -> parent.put(key, this.get(key)));
-        getParent().handleDeferredTagToken(eagerTagToken);
+        getParent().handleEagerTagToken(eagerTagToken);
       }
     }
   }
@@ -549,5 +550,23 @@ public class Context extends ScopeMap<String, Object> {
 
   public SetMultimap<String, String> getDependencies() {
     return this.dependencies;
+  }
+
+  public boolean isEagerMode() {
+    return eagerMode;
+  }
+
+  public Context setEagerMode(boolean eagerMode) {
+    this.eagerMode = eagerMode;
+    return this;
+  }
+
+  @Override
+  public Object put(String key, Object value) {
+    if (!isEagerMode() || value instanceof DeferredValue) {
+      return super.put(key, value);
+    } else {
+      throw new DeferredValueException(key);
+    }
   }
 }
