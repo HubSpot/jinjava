@@ -33,4 +33,17 @@ public class EagerForTagTest extends ForTagTest {
     assertThat(maybeEagerTagToken).isPresent();
     assertThat(maybeEagerTagToken.get().getDeferredHelpers()).containsExactly("item");
   }
+
+  @Test
+  public void itHandlesMultipleLoopVars() {
+    expectedNodeInterpreter.assertExpectedOutput("handles-multiple-loop-vars");
+    Optional<EagerTagToken> maybeEagerTagToken = context
+      .getEagerTagTokens()
+      .stream()
+      .filter(e -> e.getTagToken().getTagName().equals(tag.getName()))
+      .findAny();
+    assertThat(maybeEagerTagToken).isPresent();
+    assertThat(maybeEagerTagToken.get().getDeferredHelpers())
+      .containsExactlyInAnyOrder("item", "item2");
+  }
 }

@@ -25,7 +25,7 @@ public class ExpectedNodeInterpreter {
   public String assertExpectedOutput(String name) {
     TagNode tagNode = (TagNode) fixture(name);
     String output = tag.interpret(tagNode, interpreter);
-    assertThat(output.trim()).isEqualTo(expected(name));
+    assertThat(output.trim()).isEqualTo(expected(name).trim());
     return output;
   }
 

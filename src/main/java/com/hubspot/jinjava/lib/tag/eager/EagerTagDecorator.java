@@ -9,7 +9,6 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +36,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     eagerInterpreter.getContext().setEagerMode(true);
 
     for (Node child : tagNode.getChildren()) {
-      result.append(child.render(eagerInterpreter));
+      result.append(renderChild(child, eagerInterpreter));
     }
 
     if (StringUtils.isNotBlank(tagNode.getEndName())) {
@@ -45,6 +44,15 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     }
 
     return result.toString();
+  }
+
+  public final Object renderChild(Node child, JinjavaInterpreter interpreter) {
+    try {
+      return child.render(interpreter);
+    } catch (DeferredValueException e) {
+      interpreter.getContext().handleDeferredNode(child);
+      return child.reconstructImage();
+    }
   }
 
   public String getEagerImage(TagToken tagToken, JinjavaInterpreter interpreter) {
@@ -67,7 +75,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           if (val == null) {
             resolvedToken = token;
           } else {
-            resolvedToken = String.format("'%s'", Objects.toString(val));
+            resolvedToken = String.format("'%s'", val);
           }
         }
         joiner.add(resolvedToken);

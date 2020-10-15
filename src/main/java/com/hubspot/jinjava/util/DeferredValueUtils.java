@@ -68,7 +68,7 @@ public class DeferredValueUtils {
       getPropertiesUsedInDeferredNodes(
         context,
         rebuildTemplateForEagerTagTokens(context.getEagerTagTokens()),
-        true
+        false
       )
     );
 

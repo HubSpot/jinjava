@@ -43,12 +43,9 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       .newInstance(interpreter);
     eagerInterpreter.getContext().setEagerMode(true);
 
-    Iterator<Node> nodeIterator = tagNode.getChildren().iterator();
-
-    while (nodeIterator.hasNext()) {
-      Node node = nodeIterator.next();
-      if (TagNode.class.isAssignableFrom(node.getClass())) {
-        TagNode tag = (TagNode) node;
+    for (Node child : tagNode.getChildren()) {
+      if (TagNode.class.isAssignableFrom(child.getClass())) {
+        TagNode tag = (TagNode) child;
         if (
           tag.getName().equals(ElseIfTag.TAG_NAME) ||
           tag.getName().equals(ElseTag.TAG_NAME)
@@ -57,7 +54,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
           continue;
         }
       }
-      result.append(node.render(eagerInterpreter));
+      result.append(renderChild(child, eagerInterpreter));
     }
 
     result.append(String.format("{%% %s %%}", tagNode.getEndName()));

@@ -224,10 +224,10 @@ public class EagerTest {
   @Test
   public void itPreservesForTag() {
     String output = interpreter.render(
-      "{% for item in deferred %}{{item.name}}{% else %}last{% endfor %}"
+      "{% for item in deferred %}{{item.name}}last{% endfor %}"
     );
     assertThat(output)
-      .isEqualTo("{% for item in deferred %}{{item.name}}{% else %}last{% endfor %}");
+      .isEqualTo("{% for item in deferred %}{{item.name}}last{% endfor %}");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
