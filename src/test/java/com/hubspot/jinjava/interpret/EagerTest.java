@@ -10,6 +10,7 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.lib.tag.EndTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
+import com.hubspot.jinjava.lib.tag.eager.EagerForTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerGenericTagDecorator;
 import com.hubspot.jinjava.lib.tag.eager.EagerIfTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerSetTag;
@@ -55,6 +56,7 @@ public class EagerTest {
       .forEach(maybeEagerTag -> localContext.registerTag(maybeEagerTag.get()));
 
     localContext.registerTag(new EagerIfTag());
+    localContext.registerTag(new EagerForTag());
     //localContext.registerTag(new EagerSetTag());
     localContext.put("deferred", DeferredValue.instance());
     localContext.put("resolved", "resolvedValue");
@@ -164,7 +166,7 @@ public class EagerTest {
   @Test
   public void itDoesNotResolveForTagDeferredBlockInside() {
     String output = interpreter.render(
-      "{% for item in dict %} {% if item == deferred %} equal {% else %} not equal {% endif %} {% endfor %}"
+      "{% for item in dict %}{% if item == deferred %} equal {% else %} not equal {% endif %}{% endfor %}"
     );
     assertThat(output)
       .isEqualTo(

@@ -22,6 +22,7 @@ import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DeferredValueUtils {
   private static final String TEMPLATE_TAG_REGEX = "(\\w+(?:\\.\\w+)*)";
@@ -60,11 +61,16 @@ public class DeferredValueUtils {
   }
 
   public static Set<String> findAndMarkDeferredProperties(Context context) {
-    String templateSource =
-      rebuildTemplateForNodes(context.getDeferredNodes()) +
-      rebuildTemplateForEagerTagTokens(context.getEagerTagTokens());
+    String templateSource = rebuildTemplateForNodes(context.getDeferredNodes());
     Set<String> deferredProps = getPropertiesUsedInDeferredNodes(context, templateSource);
     Set<String> setProps = getPropertiesSetInDeferredNodes(templateSource);
+    deferredProps.addAll(
+      getPropertiesUsedInDeferredNodes(
+        context,
+        rebuildTemplateForEagerTagTokens(context.getEagerTagTokens()),
+        true
+      )
+    );
 
     markDeferredProperties(context, Sets.union(deferredProps, setProps));
 
@@ -83,12 +89,21 @@ public class DeferredValueUtils {
     Context context,
     String templateSource
   ) {
-    Set<String> propertiesUsed = findUsedProperties(templateSource);
-    return propertiesUsed
+    return getPropertiesUsedInDeferredNodes(context, templateSource, true);
+  }
+
+  public static Set<String> getPropertiesUsedInDeferredNodes(
+    Context context,
+    String templateSource,
+    boolean onlyAlreadyInContext
+  ) {
+    Stream<String> propertiesUsed = findUsedProperties(templateSource)
       .stream()
-      .map(prop -> prop.split("\\.", 2)[0]) // split accesses on .prop
-      .filter(context::containsKey)
-      .collect(Collectors.toSet());
+      .map(prop -> prop.split("\\.", 2)[0]); // split accesses on .prop
+    if (onlyAlreadyInContext) {
+      propertiesUsed = propertiesUsed.filter(context::containsKey);
+    }
+    return propertiesUsed.collect(Collectors.toSet());
   }
 
   public static void markDeferredProperties(Context context, Set<String> props) {
@@ -136,6 +151,7 @@ public class DeferredValueUtils {
     eagerTagTokens
       .stream()
       .flatMap(e -> e.getDeferredHelpers().stream())
+      .map(h -> h + ".dummy")
       .forEach(joiner::add);
     return joiner.toString();
   }

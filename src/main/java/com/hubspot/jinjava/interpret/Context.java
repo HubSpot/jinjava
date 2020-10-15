@@ -569,4 +569,14 @@ public class Context extends ScopeMap<String, Object> {
       throw new DeferredValueException(key);
     }
   }
+
+  @Override
+  public Object get(Object key) {
+    Object result = super.get(key);
+    if (!isEagerMode() || result != null) {
+      return result;
+    } else {
+      throw new DeferredValueException(key.toString());
+    }
+  }
 }

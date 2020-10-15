@@ -109,20 +109,9 @@ public class ForTag implements Tag {
     }
     List<String> helper = new HelperStringTokenizer(helpers).splitComma(true).allTokens();
 
-    List<String> loopVars = Lists.newArrayList();
-    int inPos = 0;
-    while (inPos < helper.size()) {
-      String val = helper.get(inPos);
+    List<String> loopVars = getLoopVars(helper);
 
-      if ("in".equals(val)) {
-        break;
-      } else {
-        loopVars.add(val);
-        inPos++;
-      }
-    }
-
-    if (inPos >= helper.size()) {
+    if (loopVars.size() >= helper.size()) {
       throw new TemplateSyntaxException(
         tagNode.getHelpers().trim(),
         "Tag 'for' expects valid 'in' clause, got: " + tagNode.getHelpers(),
@@ -131,7 +120,7 @@ public class ForTag implements Tag {
       );
     }
 
-    String loopExpr = StringUtils.join(helper.subList(inPos + 1, helper.size()), ",");
+    String loopExpr = getLoopExpression(helper, loopVars);
     Object collection = interpreter.resolveELExpression(
       loopExpr,
       tagNode.getLineNumber()
@@ -223,6 +212,28 @@ public class ForTag implements Tag {
 
       return buff.toString();
     }
+  }
+
+  public String getLoopExpression(List<String> helper, List<String> loopVars) {
+    String loopExpr = StringUtils.join(
+      helper.subList(loopVars.size() + 1, helper.size()),
+      ","
+    );
+    return loopExpr;
+  }
+
+  public List<String> getLoopVars(List<String> helper) {
+    List<String> loopVars = Lists.newArrayList();
+    while (loopVars.size() < helper.size()) {
+      String val = helper.get(loopVars.size());
+
+      if ("in".equals(val)) {
+        break;
+      } else {
+        loopVars.add(val);
+      }
+    }
+    return loopVars;
   }
 
   @Override
