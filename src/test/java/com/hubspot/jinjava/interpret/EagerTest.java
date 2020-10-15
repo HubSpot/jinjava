@@ -411,6 +411,15 @@ public class EagerTest {
       .contains("{% set varSetInside = imported.map[deferredValue2.nonexistentprop] %}");
   }
 
+  @Test
+  public void itEagerlyDefersImport() {}
+
+  @Test
+  public void itEagerlyDefersMacro() {}
+
+  @Test
+  public void itEagerlyDefersFrom() {}
+
   private String getFixtureTemplate(String templateLocation) {
     try {
       try {

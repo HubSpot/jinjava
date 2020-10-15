@@ -29,11 +29,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ForTagTest {
-  ForTag tag;
+  public Tag tag;
 
-  private Context context;
-  JinjavaInterpreter interpreter;
-  Jinjava jinjava;
+  public Context context;
+  public JinjavaInterpreter interpreter;
+  public Jinjava jinjava;
 
   @Before
   public void setup() {
