@@ -151,7 +151,7 @@ public class DeferredValueUtils {
     eagerTagTokens
       .stream()
       .flatMap(e -> e.getDeferredHelpers().stream())
-      .map(h -> h + ".dummy")
+      .map(h -> h + ".eager.helper")
       .forEach(joiner::add);
     return joiner.toString();
   }

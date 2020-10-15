@@ -38,7 +38,7 @@ public class ForTagTest {
   @Before
   public void setup() {
     jinjava = new Jinjava();
-    interpreter = jinjava.newInterpreter();
+    interpreter = new JinjavaInterpreter(jinjava.newInterpreter());
     context = interpreter.getContext();
 
     tag = new ForTag();

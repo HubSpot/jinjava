@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.ExpectedNodeInterpreter;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.lib.tag.ForTagTest;
@@ -45,5 +46,11 @@ public class EagerForTagTest extends ForTagTest {
     assertThat(maybeEagerTagToken).isPresent();
     assertThat(maybeEagerTagToken.get().getDeferredHelpers())
       .containsExactlyInAnyOrder("item", "item2");
+  }
+
+  @Test
+  public void itHandlesNestedDeferredForLoop() {
+    context.put("food_types", ImmutableList.of("sandwich", "salad", "smoothie"));
+    expectedNodeInterpreter.assertExpectedOutput("handles-nested-deferred-for-loop");
   }
 }
