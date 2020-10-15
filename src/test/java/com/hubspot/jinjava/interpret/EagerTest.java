@@ -11,15 +11,14 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.lib.tag.EndTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerForTag;
-import com.hubspot.jinjava.lib.tag.eager.EagerGenericTagDecorator;
 import com.hubspot.jinjava.lib.tag.eager.EagerIfTag;
-import com.hubspot.jinjava.lib.tag.eager.EagerSetTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerTagFactory;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.util.DeferredValueUtils;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +56,6 @@ public class EagerTest {
 
     localContext.registerTag(new EagerIfTag());
     localContext.registerTag(new EagerForTag());
-    //localContext.registerTag(new EagerSetTag());
     localContext.put("deferred", DeferredValue.instance());
     localContext.put("resolved", "resolvedValue");
     localContext.put("dict", ImmutableSet.of("a", "b", "c"));
@@ -112,19 +110,16 @@ public class EagerTest {
     String output = interpreter.render(
       "{% if deferred %}{{resolved}}{% else %}b{% endif %}"
     );
-    assertThat(output).isEqualTo("{% if deferred %}{{resolved}}{% else %}b{% endif %}");
+    assertThat(output).isEqualTo("{% if deferred %}resolvedValue{% else %}b{% endif %}");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
   @Test
-  public void itPreservesNestedIfTag() {
+  public void itEagerlyResolvesNestedIfTag() {
     String output = interpreter.render(
       "{% if deferred %}{% if resolved %}{{resolved}}{% endif %}{% else %}b{% endif %}"
     );
-    assertThat(output)
-      .isEqualTo(
-        "{% if deferred %}{% if resolved %}{{resolved}}{% endif %}{% else %}b{% endif %}"
-      );
+    assertThat(output).isEqualTo("{% if deferred %}resolvedValue{% else %}b{% endif %}");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
@@ -164,38 +159,57 @@ public class EagerTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void itDoesNotResolveForTagDeferredBlockInside() {
     String output = interpreter.render(
       "{% for item in dict %}{% if item == deferred %} equal {% else %} not equal {% endif %}{% endfor %}"
     );
-    assertThat(output)
-      .isEqualTo(
-        "{% for item in dict %} {% if item == deferred %} equal {% else %} not equal {% endif %} {% endfor %}"
-      );
+    StringBuilder expected = new StringBuilder();
+    for (String item : (Set<String>) localContext.get("dict")) {
+      expected
+        .append(String.format("{%% if '%s' == deferred %%}", item))
+        .append(" equal {% else %} not equal {% endif %}");
+    }
+    assertThat(output).isEqualTo(expected.toString());
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void itDoesNotResolveForTagDeferredBlockNestedInside() {
     String output = interpreter.render(
-      "{% for item in dict %} {% if item == 'a' %} equal {% if item == deferred %} {% endif %} {% else %} not equal {% endif %} {% endfor %}"
+      "{% for item in dict %}{% if item == 'a' %} equal {% if item == deferred %}{% endif %}{% else %} not equal {% endif %}{% endfor %}"
     );
-    assertThat(output)
-      .isEqualTo(
-        "{% for item in dict %} {% if item == 'a' %} equal {% if item == deferred %} {% endif %} {% else %} not equal {% endif %} {% endfor %}"
-      );
+    StringBuilder expected = new StringBuilder();
+    for (String item : (Set<String>) localContext.get("dict")) {
+      if (item.equals("a")) {
+        expected.append(" equal {% if 'a' == deferred %}{% endif %}");
+      } else {
+        expected.append(" not equal ");
+      }
+    }
+    assertThat(output).isEqualTo(expected.toString());
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void itDoesNotResolveNestedForTags() {
     String output = interpreter.render(
-      "{% for item in dict %} {% for item2 in dict2 %} {% if item2 == 'e' %} equal {% if item2 == deferred %} {% endif %} {% else %} not equal {% endif %} {% endfor %} {% endfor %}"
+      "{% for item in dict %}{% for item2 in dict2 %}{% if item2 == 'e' %} equal {% if item2 == deferred %}{% endif %}{% else %} not equal {% endif %}{% endfor %}{% endfor %}"
     );
-    assertThat(output)
-      .isEqualTo(
-        "{% for item in dict %} {% for item2 in dict2 %} {% if item2 == 'e' %} equal {% if item2 == deferred %} {% endif %} {% else %} not equal {% endif %} {% endfor %} {% endfor %}"
-      );
+
+    StringBuilder expected = new StringBuilder();
+    for (String item : (Set<String>) localContext.get("dict")) {
+      for (String item2 : (Set<String>) localContext.get("dict2")) {
+        if (item2.equals("e")) {
+          expected.append(" equal {% if 'e' == deferred %}{% endif %}");
+        } else {
+          expected.append(" not equal ");
+        }
+      }
+    }
+    assertThat(output).isEqualTo(expected.toString());
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
@@ -296,11 +310,21 @@ public class EagerTest {
     template += "{% set testVar = 'testvalue' %}";
     template += "{% if deferred == testVar %} true {% else %} false {% endif %}";
 
-    interpreter.render(template);
-    Object varInScope = localContext.get("testVar");
-    assertThat(varInScope).isInstanceOf(DeferredValue.class);
-    DeferredValue varInScopeDeferred = (DeferredValue) varInScope;
-    assertThat(varInScopeDeferred.getOriginalValue()).isEqualTo("testvalue");
+    localContext.put("deferred", DeferredValue.instance("testvalue"));
+    String output = interpreter.render(template);
+    assertThat(output.trim())
+      .isEqualTo("{% if deferred == 'testvalue' %} true {% else %} false {% endif %}");
+
+    //    Object varInScope = localContext.get("testVar");
+    //    assertThat(varInScope).isInstanceOf(DeferredValue.class);
+    //    DeferredValue varInScopeDeferred = (DeferredValue) varInScope;
+    //    assertThat(varInScopeDeferred.getOriginalValue()).isEqualTo("testvalue");
+    HashMap<String, Object> deferredContext = DeferredValueUtils.getDeferredContextWithOriginalValues(
+      localContext
+    );
+    deferredContext.forEach(localContext::put);
+    String secondRender = interpreter.render(output);
+    assertThat(secondRender.trim()).isEqualTo("true");
   }
 
   @Test
@@ -316,11 +340,17 @@ public class EagerTest {
     String template = getFixtureTemplate("set-within-lower-scope.jinja");
     localContext.put("deferredValue", DeferredValue.instance("resolved"));
     String output = interpreter.render(template);
-    assertThat(localContext).containsKey("varSetInside");
-    Object varSetInside = localContext.get("varSetInside");
-    assertThat(varSetInside).isInstanceOf(DeferredValue.class);
-    DeferredValue varSetInsideDeferred = (DeferredValue) varSetInside;
-    assertThat(varSetInsideDeferred.getOriginalValue()).isEqualTo("inside first scope");
+    //    assertThat(localContext).containsKey("varSetInside");
+    //    Object varSetInside = localContext.get("varSetInside");
+    //    assertThat(varSetInside).isInstanceOf(DeferredValue.class);
+    //    DeferredValue varSetInsideDeferred = (DeferredValue) varSetInside;
+    //    assertThat(varSetInsideDeferred.getOriginalValue()).isEqualTo("inside first scope");
+    HashMap<String, Object> deferredContext = DeferredValueUtils.getDeferredContextWithOriginalValues(
+      localContext
+    );
+    deferredContext.forEach(localContext::put);
+    String secondRender = interpreter.render(output);
+    assertThat(secondRender.trim()).isEqualTo("inside first scope".trim());
   }
 
   @Test
@@ -329,11 +359,11 @@ public class EagerTest {
 
     localContext.put("deferredValue", DeferredValue.instance("resolved"));
     String output = interpreter.render(template);
-    assertThat(localContext).containsKey("varSetInside");
-    Object varSetInside = localContext.get("varSetInside");
-    assertThat(varSetInside).isInstanceOf(DeferredValue.class);
-    DeferredValue varSetInsideDeferred = (DeferredValue) varSetInside;
-    assertThat(varSetInsideDeferred.getOriginalValue()).isEqualTo("inside first scope");
+    //    assertThat(localContext).containsKey("varSetInside");
+    //    Object varSetInside = localContext.get("varSetInside");
+    //    assertThat(varSetInside).isInstanceOf(DeferredValue.class);
+    //    DeferredValue varSetInsideDeferred = (DeferredValue) varSetInside;
+    //    assertThat(varSetInsideDeferred.getOriginalValue()).isEqualTo("inside first scope");
 
     HashMap<String, Object> deferredContext = DeferredValueUtils.getDeferredContextWithOriginalValues(
       localContext
@@ -383,10 +413,17 @@ public class EagerTest {
 
   private String getFixtureTemplate(String templateLocation) {
     try {
-      return Resources.toString(
-        Resources.getResource("deferred/" + templateLocation),
-        Charsets.UTF_8
-      );
+      try {
+        return Resources.toString(
+          Resources.getResource("deferred/" + templateLocation),
+          Charsets.UTF_8
+        );
+      } catch (IllegalArgumentException e) {
+        return Resources.toString(
+          Resources.getResource("eager/" + templateLocation),
+          Charsets.UTF_8
+        );
+      }
     } catch (IOException e) {
       return null;
     }

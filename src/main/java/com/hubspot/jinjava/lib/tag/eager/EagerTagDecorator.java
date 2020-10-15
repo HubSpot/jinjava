@@ -9,6 +9,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import org.apache.commons.lang3.StringUtils;
@@ -54,17 +55,22 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     joiner.add("{%").add(tagToken.getTagName());
     for (String token : tokenizer.allTokens()) {
       try {
+        String resolvedToken;
         if (WhitespaceUtils.isQuoted(token)) {
-          joiner.add(token);
+          resolvedToken = token;
         } else {
-          joiner.add(
-            interpreter.resolveString(
-              token,
-              tagToken.getLineNumber(),
-              tagToken.getStartPosition()
-            )
+          Object val = interpreter.retraceVariable(
+            token,
+            tagToken.getLineNumber(),
+            tagToken.getStartPosition()
           );
+          if (val == null) {
+            resolvedToken = token;
+          } else {
+            resolvedToken = String.format("'%s'", Objects.toString(val));
+          }
         }
+        joiner.add(resolvedToken);
       } catch (DeferredValueException e) {
         deferredHelpers.add(token);
         joiner.add(token);
