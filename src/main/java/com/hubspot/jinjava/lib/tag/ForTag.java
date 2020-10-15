@@ -102,6 +102,19 @@ public class ForTag implements Tag {
      * contain spaces in the arguments.
      * TODO A somewhat more sophisticated tokenizing/parsing of the for-loop expression.
      */
+    int numDeferredNodesBefore = interpreter.getContext().getDeferredNodes().size();
+    String result = interpretUnchecked(tagNode, interpreter);
+    if (interpreter.getContext().getDeferredNodes().size() > numDeferredNodesBefore) {
+      throw new DeferredValueException(
+        "for loop",
+        interpreter.getLineNumber(),
+        interpreter.getPosition()
+      );
+    }
+    return result;
+  }
+
+  public String interpretUnchecked(TagNode tagNode, JinjavaInterpreter interpreter) {
     String helpers = tagNode.getHelpers();
     String[] parts = helpers.split("\\s+in\\s+");
     if (parts.length == 2 && !parts[1].contains("'") && !parts[1].contains("\"")) {
@@ -191,21 +204,11 @@ public class ForTag implements Tag {
           }
         }
 
-        int numDeferredNodesBefore = interpreter.getContext().getDeferredNodes().size();
         for (Node node : tagNode.getChildren()) {
           if (interpreter.getContext().isValidationMode()) {
             node.render(interpreter);
           } else {
             buff.append(node.render(interpreter));
-            if (
-              interpreter.getContext().getDeferredNodes().size() > numDeferredNodesBefore
-            ) {
-              throw new DeferredValueException(
-                "for loop",
-                interpreter.getLineNumber(),
-                interpreter.getPosition()
-              );
-            }
           }
         }
       }
