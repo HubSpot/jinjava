@@ -29,7 +29,7 @@ import com.hubspot.jinjava.lib.fn.FunctionLibrary;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.TagLibrary;
-import com.hubspot.jinjava.lib.tag.eager.EagerTagToken;
+import com.hubspot.jinjava.lib.tag.eager.EagerToken;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.ScopeMap;
@@ -79,7 +79,7 @@ public class Context extends ScopeMap<String, Object> {
   private final Set<String> resolvedFunctions = new HashSet<>();
 
   private Set<Node> deferredNodes = new HashSet<>();
-  private Set<EagerTagToken> eagerTagTokens = new HashSet<>();
+  private Set<EagerToken> eagerTokens = new HashSet<>();
 
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
@@ -173,7 +173,7 @@ public class Context extends ScopeMap<String, Object> {
     resolvedFunctions.clear();
     dependencies = HashMultimap.create();
     deferredNodes = new HashSet<>();
-    eagerTagTokens = new HashSet<>();
+    eagerTokens = new HashSet<>();
   }
 
   @Override
@@ -294,8 +294,8 @@ public class Context extends ScopeMap<String, Object> {
     return ImmutableSet.copyOf(deferredNodes);
   }
 
-  public void handleEagerTagToken(EagerTagToken eagerTagToken) {
-    eagerTagTokens.add(eagerTagToken);
+  public void handleEagerTagToken(EagerToken eagerToken) {
+    eagerTokens.add(eagerToken);
     Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(this);
     if (getParent() != null) {
       Context parent = getParent();
@@ -306,13 +306,13 @@ public class Context extends ScopeMap<String, Object> {
           .stream()
           .filter(key -> !parent.containsKey(key))
           .forEach(key -> parent.put(key, this.get(key)));
-        getParent().handleEagerTagToken(eagerTagToken);
+        getParent().handleEagerTagToken(eagerToken);
       }
     }
   }
 
-  public Set<EagerTagToken> getEagerTagTokens() {
-    return eagerTagTokens;
+  public Set<EagerToken> getEagerTagTokens() {
+    return eagerTokens;
   }
 
   public List<? extends Node> getSuperBlock() {

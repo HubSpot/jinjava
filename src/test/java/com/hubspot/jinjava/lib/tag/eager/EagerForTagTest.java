@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.ExpectedNodeInterpreter;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.lib.tag.ForTagTest;
+import com.hubspot.jinjava.tree.parse.TagToken;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,10 +27,10 @@ public class EagerForTagTest extends ForTagTest {
   @Test
   public void itRegistersEagerToken() {
     expectedNodeInterpreter.assertExpectedOutput("registers-eager-token");
-    Optional<EagerTagToken> maybeEagerTagToken = context
+    Optional<EagerToken> maybeEagerTagToken = context
       .getEagerTagTokens()
       .stream()
-      .filter(e -> e.getTagToken().getTagName().equals(tag.getName()))
+      .filter(e -> ((TagToken) e.getToken()).getTagName().equals(tag.getName()))
       .findAny();
     assertThat(maybeEagerTagToken).isPresent();
     assertThat(maybeEagerTagToken.get().getDeferredHelpers()).containsExactly("item");
@@ -38,10 +39,10 @@ public class EagerForTagTest extends ForTagTest {
   @Test
   public void itHandlesMultipleLoopVars() {
     expectedNodeInterpreter.assertExpectedOutput("handles-multiple-loop-vars");
-    Optional<EagerTagToken> maybeEagerTagToken = context
+    Optional<EagerToken> maybeEagerTagToken = context
       .getEagerTagTokens()
       .stream()
-      .filter(e -> e.getTagToken().getTagName().equals(tag.getName()))
+      .filter(e -> ((TagToken) e.getToken()).getTagName().equals(tag.getName()))
       .findAny();
     assertThat(maybeEagerTagToken).isPresent();
     assertThat(maybeEagerTagToken.get().getDeferredHelpers())

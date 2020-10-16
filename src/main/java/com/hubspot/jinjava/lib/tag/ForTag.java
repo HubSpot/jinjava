@@ -26,6 +26,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.objects.DummyObject;
 import com.hubspot.jinjava.objects.collections.PyList;
+import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.ForLoop;
@@ -102,9 +103,22 @@ public class ForTag implements Tag {
      * contain spaces in the arguments.
      * TODO A somewhat more sophisticated tokenizing/parsing of the for-loop expression.
      */
-    int numDeferredNodesBefore = interpreter.getContext().getDeferredNodes().size();
+    long numDeferredNodesBefore = interpreter
+      .getContext()
+      .getDeferredNodes()
+      .stream()
+      .filter(n -> !(n instanceof ExpressionNode))
+      .count();
     String result = interpretUnchecked(tagNode, interpreter);
-    if (interpreter.getContext().getDeferredNodes().size() > numDeferredNodesBefore) {
+    if (
+      interpreter
+        .getContext()
+        .getDeferredNodes()
+        .stream()
+        .filter(n -> !(n instanceof ExpressionNode))
+        .count() >
+      numDeferredNodesBefore
+    ) {
       throw new DeferredValueException(
         "for loop",
         interpreter.getLineNumber(),

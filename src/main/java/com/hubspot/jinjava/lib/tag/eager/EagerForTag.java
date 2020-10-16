@@ -22,16 +22,14 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     try {
-      // We don't want ForTag to throw DeferredValueException
-      // when rendering its children increases deferredNodes count.
-      return getTag().interpretUnchecked(tagNode, interpreter);
+      return getTag().interpret(tagNode, interpreter);
     } catch (DeferredValueException e) {
       return eagerInterpret(tagNode, interpreter);
     }
   }
 
   @Override
-  public String getEagerImage(TagToken tagToken, JinjavaInterpreter interpreter) {
+  public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
     HelperStringTokenizer tokenizer = new HelperStringTokenizer(tagToken.getHelpers())
     .splitComma(true);
     Set<String> deferredHelpers = new HashSet<>(
@@ -39,7 +37,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     );
     interpreter
       .getContext()
-      .handleEagerTagToken(new EagerTagToken(tagToken, deferredHelpers));
+      .handleEagerTagToken(new EagerToken(tagToken, deferredHelpers));
 
     return tagToken.getImage();
   }

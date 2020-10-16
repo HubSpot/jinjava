@@ -7,9 +7,7 @@ import com.hubspot.jinjava.lib.tag.ElseTag;
 import com.hubspot.jinjava.lib.tag.IfTag;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
-import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
-import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerIfTag extends EagerTagDecorator<IfTag> {
@@ -36,7 +34,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       interpreter.getConfig().getMaxOutputSize()
     );
 
-    result.append(getEagerImage((TagToken) tagNode.getMaster(), interpreter));
+    result.append(getEagerImage(tagNode.getMaster(), interpreter));
     JinjavaInterpreter eagerInterpreter = interpreter
       .getConfig()
       .getInterpreterFactory()
@@ -50,13 +48,12 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
           tag.getName().equals(ElseIfTag.TAG_NAME) ||
           tag.getName().equals(ElseTag.TAG_NAME)
         ) {
-          result.append(getEagerImage((TagToken) tag.getMaster(), eagerInterpreter));
+          result.append(getEagerImage(tag.getMaster(), eagerInterpreter));
           continue;
         }
       }
       result.append(renderChild(child, eagerInterpreter));
     }
-
     result.append(String.format("{%% %s %%}", tagNode.getEndName()));
 
     return result.toString();

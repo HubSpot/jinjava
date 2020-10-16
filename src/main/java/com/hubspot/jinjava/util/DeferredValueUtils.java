@@ -7,7 +7,7 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
-import com.hubspot.jinjava.lib.tag.eager.EagerTagToken;
+import com.hubspot.jinjava.lib.tag.eager.EagerToken;
 import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -144,11 +144,9 @@ public class DeferredValueUtils {
     return joiner.toString();
   }
 
-  private static String rebuildTemplateForEagerTagTokens(
-    Set<EagerTagToken> eagerTagTokens
-  ) {
+  private static String rebuildTemplateForEagerTagTokens(Set<EagerToken> eagerTokens) {
     StringJoiner joiner = new StringJoiner(" ");
-    eagerTagTokens
+    eagerTokens
       .stream()
       .flatMap(e -> e.getDeferredHelpers().stream())
       .map(h -> h + ".eager.helper")
