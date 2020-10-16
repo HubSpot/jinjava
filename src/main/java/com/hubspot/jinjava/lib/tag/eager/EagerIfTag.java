@@ -54,7 +54,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       }
       result.append(renderChild(child, eagerInterpreter));
     }
-    result.append(String.format("{%% %s %%}", tagNode.getEndName()));
+    result.append(tagNode.reconstructEnd());
 
     return result.toString();
   }

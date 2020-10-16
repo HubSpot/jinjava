@@ -45,7 +45,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     }
 
     if (StringUtils.isNotBlank(tagNode.getEndName())) {
-      result.append("{% ").append(tagNode.getEndName()).append(" %}");
+      result.append(tagNode.reconstructEnd());
     }
 
     return result.toString();
@@ -77,7 +77,9 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     .splitComma(true);
     Set<String> deferredHelpers = new HashSet<>();
     StringJoiner joiner = new StringJoiner(" ");
-    joiner.add("{%").add(tagToken.getTagName());
+    joiner
+      .add(tagToken.getSymbols().getExpressionStartWithTag())
+      .add(tagToken.getTagName());
     for (String helper : tokenizer.allTokens()) {
       try {
         String resolvedToken;
@@ -105,7 +107,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       .getContext()
       .handleEagerTagToken(new EagerToken(tagToken, deferredHelpers));
 
-    joiner.add("%}");
+    joiner.add(tagToken.getSymbols().getExpressionEndWithTag());
     return joiner.toString();
   }
 
