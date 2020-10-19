@@ -17,6 +17,7 @@ package com.hubspot.jinjava.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
@@ -33,6 +34,7 @@ import org.junit.Test;
 
 public class ChunkResolverTest {
   private static final TokenScannerSymbols SYMBOLS = new DefaultTokenScannerSymbols();
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private JinjavaInterpreter interpreter;
   private TagToken tagToken;
@@ -57,6 +59,8 @@ public class ChunkResolverTest {
     ChunkResolver chunkResolver = makeChunkResolver("(111 == 112) || (foo == deferred)");
     String partiallyResolved = chunkResolver.resolveChunks();
     assertThat(partiallyResolved).isEqualTo("false || ('foo_val' == deferred)");
+    assertThat(chunkResolver.getDeferredVariables()).containsExactly("deferred");
+
     context.put("deferred", "foo_val");
     assertThat(makeChunkResolver(partiallyResolved).resolveChunks()).isEqualTo("true");
     assertThat(interpreter.resolveELExpression(partiallyResolved, 1)).isEqualTo(true);
@@ -89,8 +93,28 @@ public class ChunkResolverTest {
     String partiallyResolved = chunkResolver.resolveChunks();
     assertThat(partiallyResolved).isEqualTo("[0,1]");
     assertThat(chunkResolver.getDeferredVariables()).isEmpty();
+    // I don't know why this is a list of longs?
     assertThat((List<Long>) interpreter.resolveELExpression(partiallyResolved, 1))
       .contains(0L, 1L);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void itResolvesDeferredRange() throws Exception {
+    List<Integer> expectedList = ImmutableList.of(1, 2, 3);
+    context.put("foo", 1);
+    context.put("bar", 3);
+    ChunkResolver chunkResolver = makeChunkResolver("range(deferred, foo + bar)");
+    String partiallyResolved = chunkResolver.resolveChunks();
+    assertThat(partiallyResolved).isEqualTo("range(deferred,4)");
+    assertThat(chunkResolver.getDeferredVariables()).containsExactly("deferred");
+
+    context.put("deferred", 1);
+    assertThat(makeChunkResolver(partiallyResolved).resolveChunks())
+      .isEqualTo(OBJECT_MAPPER.writeValueAsString(expectedList));
+    // But this is a list of integers
+    assertThat((List<Integer>) interpreter.resolveELExpression(partiallyResolved, 1))
+      .isEqualTo(expectedList);
   }
 
   @Test
@@ -104,5 +128,22 @@ public class ChunkResolverTest {
     assertThat(chunkResolver.getDeferredVariables()).isEmpty();
     assertThat(interpreter.resolveELExpression(partiallyResolved, 1))
       .isEqualTo(ImmutableList.of(dict, 1L));
+  }
+
+  @Test
+  public void itResolvesNested() {
+    context.put("foo", 1);
+    context.put("bar", 3);
+    ChunkResolver chunkResolver = makeChunkResolver(
+      "[foo, range(deferred, bar), range(foo, bar)][0:2]"
+    );
+    String partiallyResolved = chunkResolver.resolveChunks();
+    assertThat(partiallyResolved).isEqualTo("[1,range(deferred,3),[1,2]][0:2]");
+    assertThat(chunkResolver.getDeferredVariables()).containsExactly("deferred");
+
+    context.put("deferred", 2);
+    assertThat(makeChunkResolver(partiallyResolved).resolveChunks()).isEqualTo("[1,[2]]");
+    assertThat(interpreter.resolveELExpression(partiallyResolved, 1))
+      .isEqualTo(ImmutableList.of(1L, ImmutableList.of(2)));
   }
 }

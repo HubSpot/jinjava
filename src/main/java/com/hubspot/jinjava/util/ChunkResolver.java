@@ -83,7 +83,6 @@ public class ChunkResolver {
    */
   public String resolveChunks() {
     curPos = 0;
-    deferredVariables.clear();
     return getChunk(null);
   }
 
