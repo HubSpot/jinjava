@@ -91,18 +91,6 @@ public class ForTag implements Tag {
   @SuppressWarnings("unchecked")
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    /* apdlv72@gmail.com
-     * Fix for issues with for-loops that contain whitespace in their range, e.g.
-     * "{% for i in range(1 * 1, 2 * 2) %}"
-     * This is because HelperStringTokenizer will split the range expressions also
-     * at white spaces and end up with [i, in, range(1, *, 1, 2, *, 2)].
-     * To avoid this, the below fix will remove white space from the expression
-     * on the right side of the keyword "in". It will do so however only if there
-     * are no characters in this expression that indicate strings - namely ' and ".
-     * This avoids messing up expressions like {% for i in ['a ','b'] %} that
-     * contain spaces in the arguments.
-     * TODO A somewhat more sophisticated tokenizing/parsing of the for-loop expression.
-     */
     long numDeferredNodesBefore = interpreter
       .getContext()
       .getDeferredNodes()
@@ -129,11 +117,7 @@ public class ForTag implements Tag {
   }
 
   public String interpretUnchecked(TagNode tagNode, JinjavaInterpreter interpreter) {
-    String helpers = tagNode.getHelpers();
-    String[] parts = helpers.split("\\s+in\\s+");
-    if (parts.length == 2 && !parts[1].contains("'") && !parts[1].contains("\"")) {
-      helpers = parts[0] + " in " + parts[1].replace(" ", "");
-    }
+    String helpers = getWhitespaceAdjustedHelpers(tagNode.getHelpers());
     List<String> helper = new HelperStringTokenizer(helpers).splitComma(true).allTokens();
 
     List<String> loopVars = getLoopVars(helper);
@@ -229,6 +213,26 @@ public class ForTag implements Tag {
 
       return buff.toString();
     }
+  }
+
+  public static String getWhitespaceAdjustedHelpers(String helpers) {
+    /* apdlv72@gmail.com
+     * Fix for issues with for-loops that contain whitespace in their range, e.g.
+     * "{% for i in range(1 * 1, 2 * 2) %}"
+     * This is because HelperStringTokenizer will split the range expressions also
+     * at white spaces and end up with [i, in, range(1, *, 1, 2, *, 2)].
+     * To avoid this, the below fix will remove white space from the expression
+     * on the right side of the keyword "in". It will do so however only if there
+     * are no characters in this expression that indicate strings - namely ' and ".
+     * This avoids messing up expressions like {% for i in ['a ','b'] %} that
+     * contain spaces in the arguments.
+     * TODO A somewhat more sophisticated tokenizing/parsing of the for-loop expression.
+     */
+    String[] parts = helpers.split("\\s+in\\s+");
+    if (parts.length == 2 && !parts[1].contains("'") && !parts[1].contains("\"")) {
+      helpers = parts[0] + " in " + parts[1].replace(" ", "");
+    }
+    return helpers;
   }
 
   public String getLoopExpression(List<String> helper, List<String> loopVars) {

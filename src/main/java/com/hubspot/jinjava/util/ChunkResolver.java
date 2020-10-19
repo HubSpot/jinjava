@@ -1,0 +1,217 @@
+package com.hubspot.jinjava.util;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.interpret.DeferredValueException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.UnknownTokenException;
+import com.hubspot.jinjava.tree.parse.TagToken;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
+
+/**
+ * This class is not thread-safe. Do not reuse between threads.
+ */
+public class ChunkResolver {
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+  // ( -> )
+  // { -> }
+  // [ -> ]
+  private static final Map<Character, Character> CHUNK_LEVEL_MARKER_MAP = ImmutableMap.of(
+    '(',
+    ')',
+    '{',
+    '}',
+    '[',
+    ']'
+  );
+
+  private final char[] value;
+  private final int length;
+  private final TagToken tagToken;
+  private final JinjavaInterpreter interpreter;
+  private final Set<String> deferredVariables;
+
+  private boolean useMiniChunks = false;
+  private int curPos = 0;
+  private char prevChar = 0;
+  private boolean inQuote = false;
+  private char quoteChar = 0;
+
+  public ChunkResolver(String s, TagToken tagToken, JinjavaInterpreter interpreter) {
+    value = s.toCharArray();
+    length = value.length;
+    this.tagToken = tagToken;
+    this.interpreter = interpreter;
+    deferredVariables = new HashSet<>();
+  }
+
+  /**
+   * use Comma as token/mini chunk split or not true use it; false don't use it.
+   *
+   * @param onOrOff
+   *          flag to indicate whether or not to split on commas
+   * @return this instance for method chaining
+   */
+  public ChunkResolver useMiniChunks(boolean onOrOff) {
+    useMiniChunks = onOrOff;
+    return this;
+  }
+
+  /**
+   * @return Any deferred variables that were encountered.
+   */
+  public Set<String> getDeferredVariables() {
+    return deferredVariables;
+  }
+
+  /**
+   * Chunkify and resolve variables and expressions within the string.
+   * Tokens are resolved within "chunks" where a chunk is surrounded by a markers
+   * of {}, [], (). The contents inside of a chunk are split by whitespace
+   * and/or comma, and these "tokens" resolved individually.
+   *
+   * The main chunk itself does not get resolved.
+   * e.g.
+   *  `false || (foo), 'bar'` -> `true, 'bar'`
+   *  `[(foo == bar), deferred, bar]` -> `[true,deferred,'hello']`
+   * @return String with chunk layers within it being partially or fully resolved.
+   */
+  public String resolveChunks() {
+    curPos = 0;
+    deferredVariables.clear();
+    return getChunk(null);
+  }
+
+  /**
+   *  e.g. `[0, foo + bar]`:
+   *     `0, foo + bar` is a chunk
+   *     `0` and `foo + bar` are mini chunks
+   *     `0`, `,`, ` `, `foo`, ` `, `+`, ` `, and `bar` are the tokens
+   * @param chunkLevelMarker the marker `(`, `[`, `{` that started this chunk
+   * @return the resolved chunk
+   */
+  private String getChunk(Character chunkLevelMarker) {
+    StringBuilder chunkBuilder = new StringBuilder();
+    // Mini chunks are split by commas.
+    StringBuilder miniChunkBuilder = new StringBuilder();
+    StringBuilder tokenBuilder = new StringBuilder();
+    while (curPos < length) {
+      char c = value[curPos++];
+      if (inQuote) {
+        if (c == quoteChar) {
+          inQuote = false;
+        }
+      } else if (c == '\'' || c == '"') {
+        inQuote = true;
+        quoteChar = c;
+      } else if (
+        chunkLevelMarker != null &&
+        CHUNK_LEVEL_MARKER_MAP.get(chunkLevelMarker) == c &&
+        prevChar != '\\'
+      ) {
+        prevChar = c;
+        break;
+      } else if (CHUNK_LEVEL_MARKER_MAP.containsKey(c) && prevChar != '\\') {
+        prevChar = c;
+        tokenBuilder.append(c);
+        tokenBuilder.append(resolveChunk(getChunk(c)));
+        tokenBuilder.append(prevChar);
+        continue;
+      } else if (isTokenSplitter(c)) {
+        prevChar = c;
+
+        miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
+        tokenBuilder = new StringBuilder();
+        if (isMiniChunkSplitter(c)) {
+          chunkBuilder.append(resolveChunk(miniChunkBuilder.toString()));
+          chunkBuilder.append(c);
+          miniChunkBuilder = new StringBuilder();
+        } else {
+          miniChunkBuilder.append(c);
+        }
+        continue;
+      }
+      prevChar = c;
+      tokenBuilder.append(c);
+    }
+    miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
+    chunkBuilder.append(resolveChunk(miniChunkBuilder.toString()));
+    return chunkBuilder.toString();
+  }
+
+  private boolean isTokenSplitter(char c) {
+    return Character.isWhitespace(c) || (useMiniChunks && c == ',');
+  }
+
+  private boolean isMiniChunkSplitter(char c) {
+    return useMiniChunks && c == ',';
+  }
+
+  private String resolveToken(String token) {
+    if (StringUtils.isBlank(token)) {
+      return "";
+    }
+    try {
+      String resolvedToken;
+      if (WhitespaceUtils.isQuoted(token)) {
+        resolvedToken = token;
+      } else {
+        Object val = interpreter.retraceVariable(
+          token,
+          tagToken.getLineNumber(),
+          tagToken.getStartPosition()
+        );
+        if (val == null) {
+          try {
+            val = interpreter.resolveELExpression(token, tagToken.getLineNumber());
+          } catch (UnknownTokenException e) {
+            // val is still null
+          }
+        }
+        if (val == null) {
+          resolvedToken = token;
+        } else {
+          if (val instanceof String) {
+            resolvedToken = String.format("'%s'", val);
+          } else {
+            return OBJECT_MAPPER.writeValueAsString(val);
+          }
+        }
+      }
+      return resolvedToken.trim();
+    } catch (DeferredValueException | JsonProcessingException e) {
+      if (interpreter.getContext().containsKey(token)) {
+        // Don't add expressions to deferred variables
+        deferredVariables.add(token);
+      }
+      return token.trim();
+    }
+  }
+
+  private String resolveChunk(String token) {
+    if (StringUtils.isBlank(token)) {
+      return "";
+    }
+    try {
+      String resolvedToken;
+      Object val = interpreter.resolveELExpression(token, tagToken.getLineNumber());
+      if (val == null) {
+        resolvedToken = token;
+      } else {
+        if (val instanceof String) {
+          resolvedToken = String.format("'%s'", val);
+        } else {
+          return OBJECT_MAPPER.writeValueAsString(val);
+        }
+      }
+      return resolvedToken.trim();
+    } catch (Exception e) {
+      return token.trim();
+    }
+  }
+}

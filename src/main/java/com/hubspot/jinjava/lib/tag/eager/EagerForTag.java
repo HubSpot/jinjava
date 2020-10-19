@@ -30,7 +30,9 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
 
   @Override
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
-    HelperStringTokenizer tokenizer = new HelperStringTokenizer(tagToken.getHelpers())
+    HelperStringTokenizer tokenizer = new HelperStringTokenizer(
+      ForTag.getWhitespaceAdjustedHelpers(tagToken.getHelpers())
+    )
     .splitComma(true);
     Set<String> deferredHelpers = new HashSet<>(
       getTag().getLoopVars(tokenizer.allTokens())

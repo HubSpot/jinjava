@@ -34,11 +34,12 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       interpreter.getConfig().getMaxOutputSize()
     );
 
-    result.append(getEagerImage(tagNode.getMaster(), interpreter));
     JinjavaInterpreter eagerInterpreter = interpreter
       .getConfig()
       .getInterpreterFactory()
       .newInstance(interpreter);
+    result.append(getEagerImage(tagNode.getMaster(), eagerInterpreter));
+    // start eager mode after we have the image
     eagerInterpreter.getContext().setEagerMode(true);
 
     for (Node child : tagNode.getChildren()) {

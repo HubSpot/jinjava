@@ -10,11 +10,8 @@ import com.hubspot.jinjava.tree.parse.NoteToken;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TextToken;
 import com.hubspot.jinjava.tree.parse.Token;
-import com.hubspot.jinjava.util.HelperStringTokenizer;
-import com.hubspot.jinjava.util.WhitespaceUtils;
+import com.hubspot.jinjava.util.ChunkResolver;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.StringJoiner;
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,14 +27,15 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   }
 
   public String eagerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    StringBuilder result = new StringBuilder(
-      getEagerImage(tagNode.getMaster(), interpreter)
-    );
-
     JinjavaInterpreter eagerInterpreter = interpreter
       .getConfig()
       .getInterpreterFactory()
       .newInstance(interpreter);
+
+    StringBuilder result = new StringBuilder(
+      getEagerImage(tagNode.getMaster(), eagerInterpreter)
+    );
+    // start eager mode after we have the image
     eagerInterpreter.getContext().setEagerMode(true);
 
     for (Node child : tagNode.getChildren()) {
@@ -73,39 +71,51 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   }
 
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
-    HelperStringTokenizer tokenizer = new HelperStringTokenizer(tagToken.getHelpers())
-    .splitComma(true);
-    Set<String> deferredHelpers = new HashSet<>();
+    //    HelperStringTokenizer tokenizer = new HelperStringTokenizer(tagToken.getHelpers())
+    //    .splitComma(true);
+    //    Set<String> deferredHelpers = new HashSet<>();
     StringJoiner joiner = new StringJoiner(" ");
     joiner
       .add(tagToken.getSymbols().getExpressionStartWithTag())
       .add(tagToken.getTagName());
-    for (String helper : tokenizer.allTokens()) {
-      try {
-        String resolvedToken;
-        if (WhitespaceUtils.isQuoted(helper)) {
-          resolvedToken = helper;
-        } else {
-          Object val = interpreter.retraceVariable(
-            helper,
-            tagToken.getLineNumber(),
-            tagToken.getStartPosition()
-          );
-          if (val == null) {
-            resolvedToken = helper;
-          } else {
-            resolvedToken = String.format("'%s'", val);
-          }
-        }
-        joiner.add(resolvedToken);
-      } catch (DeferredValueException e) {
-        deferredHelpers.add(helper);
-        joiner.add(helper);
-      }
+    //    for (String helper : tokenizer.allTokens()) {
+    //      try {
+    //        String resolvedToken;
+    //        if (WhitespaceUtils.isQuoted(helper)) {
+    //          resolvedToken = helper;
+    //        } else {
+    //          Object val = interpreter.retraceVariable(
+    //            helper,
+    //            tagToken.getLineNumber(),
+    //            tagToken.getStartPosition()
+    //          );
+    //          if (val == null) {
+    //            resolvedToken = helper;
+    //          } else {
+    //            resolvedToken = String.format("'%s'", val);
+    //          }
+    //        }
+    //        joiner.add(resolvedToken);
+    //      } catch (DeferredValueException e) {
+    //        deferredHelpers.add(helper);
+    //        joiner.add(helper);
+    //      }
+    //    }
+    ChunkResolver chunkResolver = new ChunkResolver(
+      tagToken.getHelpers().trim(),
+      tagToken,
+      interpreter
+    )
+    .useMiniChunks(true);
+    String resolvedChunks = chunkResolver.resolveChunks();
+    if (StringUtils.isNotBlank(resolvedChunks)) {
+      joiner.add(resolvedChunks);
     }
     interpreter
       .getContext()
-      .handleEagerTagToken(new EagerToken(tagToken, deferredHelpers));
+      .handleEagerTagToken(
+        new EagerToken(tagToken, chunkResolver.getDeferredVariables())
+      );
 
     joiner.add(tagToken.getSymbols().getExpressionEndWithTag());
     return joiner.toString();
