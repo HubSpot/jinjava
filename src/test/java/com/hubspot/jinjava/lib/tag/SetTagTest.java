@@ -23,22 +23,21 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)
 public class SetTagTest {
-  @InjectMocks
-  SetTag tag;
+  public Tag tag;
 
-  Context context;
-  JinjavaInterpreter interpreter;
+  public Context context;
+  public JinjavaInterpreter interpreter;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
+    interpreter = new JinjavaInterpreter(new Jinjava().newInterpreter());
     context = interpreter.getContext();
+    tag = new SetTag();
   }
 
   @Test

@@ -38,25 +38,28 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       .getConfig()
       .getInterpreterFactory()
       .newInstance(interpreter);
-    result.append(getEagerImage(tagNode.getMaster(), eagerInterpreter));
-    // start eager mode after we have the image
-    eagerInterpreter.getContext().setEagerMode(true);
+    JinjavaInterpreter.pushCurrent(eagerInterpreter);
+    try {
+      result.append(getEagerImage(tagNode.getMaster(), eagerInterpreter));
 
-    for (Node child : tagNode.getChildren()) {
-      if (TagNode.class.isAssignableFrom(child.getClass())) {
-        TagNode tag = (TagNode) child;
-        if (
-          tag.getName().equals(ElseIfTag.TAG_NAME) ||
-          tag.getName().equals(ElseTag.TAG_NAME)
-        ) {
-          result.append(getEagerImage(tag.getMaster(), eagerInterpreter));
-          continue;
+      for (Node child : tagNode.getChildren()) {
+        if (TagNode.class.isAssignableFrom(child.getClass())) {
+          TagNode tag = (TagNode) child;
+          if (
+            tag.getName().equals(ElseIfTag.TAG_NAME) ||
+            tag.getName().equals(ElseTag.TAG_NAME)
+          ) {
+            result.append(getEagerImage(tag.getMaster(), eagerInterpreter));
+            continue;
+          }
         }
+        result.append(renderChild(child, eagerInterpreter));
       }
-      result.append(renderChild(child, eagerInterpreter));
-    }
-    result.append(tagNode.reconstructEnd());
+      result.append(tagNode.reconstructEnd());
 
-    return result.toString();
+      return result.toString();
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
   }
 }

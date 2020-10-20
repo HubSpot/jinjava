@@ -294,7 +294,7 @@ public class Context extends ScopeMap<String, Object> {
     return ImmutableSet.copyOf(deferredNodes);
   }
 
-  public void handleEagerTagToken(EagerToken eagerToken) {
+  public void handleEagerToken(EagerToken eagerToken) {
     eagerTokens.add(eagerToken);
     Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(this);
     if (getParent() != null) {
@@ -306,12 +306,12 @@ public class Context extends ScopeMap<String, Object> {
           .stream()
           .filter(key -> !parent.containsKey(key))
           .forEach(key -> parent.put(key, this.get(key)));
-        getParent().handleEagerTagToken(eagerToken);
+        getParent().handleEagerToken(eagerToken);
       }
     }
   }
 
-  public Set<EagerToken> getEagerTagTokens() {
+  public Set<EagerToken> getEagerTokens() {
     return eagerTokens;
   }
 
@@ -573,10 +573,6 @@ public class Context extends ScopeMap<String, Object> {
   @Override
   public Object get(Object key) {
     Object result = super.get(key);
-    if (!isEagerMode() || result != null) {
-      return result;
-    } else {
-      throw new DeferredValueException(key.toString());
-    }
+    return result;
   }
 }

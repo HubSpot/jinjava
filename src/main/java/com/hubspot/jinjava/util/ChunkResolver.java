@@ -36,7 +36,7 @@ public class ChunkResolver {
   private final JinjavaInterpreter interpreter;
   private final Set<String> deferredVariables;
 
-  private boolean useMiniChunks = false;
+  private boolean useMiniChunks = true;
   private int curPos = 0;
   private char prevChar = 0;
   private boolean inQuote = false;

@@ -29,6 +29,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import java.util.List;
 import java.util.Map;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -47,6 +48,11 @@ public class ChunkResolverTest {
     context.put("deferred", DeferredValue.instance());
     tagToken = new TagToken("{% foo %}", 1, 2, SYMBOLS);
     JinjavaInterpreter.pushCurrent(interpreter);
+  }
+
+  @After
+  public void cleanup() {
+    JinjavaInterpreter.popCurrent();
   }
 
   private ChunkResolver makeChunkResolver(String string) {

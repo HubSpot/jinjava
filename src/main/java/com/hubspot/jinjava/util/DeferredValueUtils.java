@@ -67,7 +67,7 @@ public class DeferredValueUtils {
     deferredProps.addAll(
       getPropertiesUsedInDeferredNodes(
         context,
-        rebuildTemplateForEagerTagTokens(context.getEagerTagTokens()),
+        rebuildTemplateForEagerTagTokens(context.getEagerTokens()),
         false
       )
     );

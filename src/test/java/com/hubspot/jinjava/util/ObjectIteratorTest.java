@@ -115,5 +115,6 @@ public class ObjectIteratorTest {
 
     assertEquals(4, loop.getLength());
     assertTrue(items.containsKey(loop.next()));
+    JinjavaInterpreter.popCurrent();
   }
 }

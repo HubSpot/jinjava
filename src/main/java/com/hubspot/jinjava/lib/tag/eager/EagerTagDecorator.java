@@ -31,22 +31,24 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       .getConfig()
       .getInterpreterFactory()
       .newInstance(interpreter);
+    JinjavaInterpreter.pushCurrent(eagerInterpreter);
+    try {
+      StringBuilder result = new StringBuilder(
+        getEagerImage(tagNode.getMaster(), eagerInterpreter)
+      );
 
-    StringBuilder result = new StringBuilder(
-      getEagerImage(tagNode.getMaster(), eagerInterpreter)
-    );
-    // start eager mode after we have the image
-    eagerInterpreter.getContext().setEagerMode(true);
+      for (Node child : tagNode.getChildren()) {
+        result.append(renderChild(child, eagerInterpreter));
+      }
 
-    for (Node child : tagNode.getChildren()) {
-      result.append(renderChild(child, eagerInterpreter));
+      if (StringUtils.isNotBlank(tagNode.getEndName())) {
+        result.append(tagNode.reconstructEnd());
+      }
+
+      return result.toString();
+    } finally {
+      JinjavaInterpreter.popCurrent();
     }
-
-    if (StringUtils.isNotBlank(tagNode.getEndName())) {
-      result.append(tagNode.reconstructEnd());
-    }
-
-    return result.toString();
   }
 
   public final Object renderChild(Node child, JinjavaInterpreter interpreter) {
@@ -57,50 +59,35 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     }
   }
 
-  public String getEagerImage(Token token, JinjavaInterpreter interpreter) {
-    if (token instanceof TagToken) {
-      return getEagerTagImage((TagToken) token, interpreter);
-    } else if (token instanceof ExpressionToken) {
-      return getEagerExpressionImage((ExpressionToken) token, interpreter);
-    } else if (token instanceof TextToken) {
-      return getEagerTextImage((TextToken) token, interpreter);
-    } else if (token instanceof NoteToken) {
-      return getEagerNoteImage((NoteToken) token, interpreter);
+  public final String getEagerImage(Token token, JinjavaInterpreter interpreter) {
+    String eagerImage;
+    try {
+      //Turn off eager mode because we aren't executing, just building the image.
+      interpreter.getContext().setEagerMode(false);
+      if (token instanceof TagToken) {
+        eagerImage = getEagerTagImage((TagToken) token, interpreter);
+      } else if (token instanceof ExpressionToken) {
+        eagerImage = getEagerExpressionImage((ExpressionToken) token, interpreter);
+      } else if (token instanceof TextToken) {
+        eagerImage = getEagerTextImage((TextToken) token, interpreter);
+      } else if (token instanceof NoteToken) {
+        eagerImage = getEagerNoteImage((NoteToken) token, interpreter);
+      } else {
+        throw new DeferredValueException("Unsupported Token type");
+      }
+      return eagerImage;
+    } finally {
+      // Start eager mode after we have the image
+      interpreter.getContext().setEagerMode(true);
     }
-    throw new DeferredValueException("Unsupported Token type");
   }
 
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
-    //    HelperStringTokenizer tokenizer = new HelperStringTokenizer(tagToken.getHelpers())
-    //    .splitComma(true);
-    //    Set<String> deferredHelpers = new HashSet<>();
     StringJoiner joiner = new StringJoiner(" ");
     joiner
       .add(tagToken.getSymbols().getExpressionStartWithTag())
       .add(tagToken.getTagName());
-    //    for (String helper : tokenizer.allTokens()) {
-    //      try {
-    //        String resolvedToken;
-    //        if (WhitespaceUtils.isQuoted(helper)) {
-    //          resolvedToken = helper;
-    //        } else {
-    //          Object val = interpreter.retraceVariable(
-    //            helper,
-    //            tagToken.getLineNumber(),
-    //            tagToken.getStartPosition()
-    //          );
-    //          if (val == null) {
-    //            resolvedToken = helper;
-    //          } else {
-    //            resolvedToken = String.format("'%s'", val);
-    //          }
-    //        }
-    //        joiner.add(resolvedToken);
-    //      } catch (DeferredValueException e) {
-    //        deferredHelpers.add(helper);
-    //        joiner.add(helper);
-    //      }
-    //    }
+
     ChunkResolver chunkResolver = new ChunkResolver(
       tagToken.getHelpers().trim(),
       tagToken,
@@ -113,9 +100,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     }
     interpreter
       .getContext()
-      .handleEagerTagToken(
-        new EagerToken(tagToken, chunkResolver.getDeferredVariables())
-      );
+      .handleEagerToken(new EagerToken(tagToken, chunkResolver.getDeferredVariables()));
 
     joiner.add(tagToken.getSymbols().getExpressionEndWithTag());
     return joiner.toString();
@@ -127,7 +112,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   ) {
     interpreter
       .getContext()
-      .handleEagerTagToken(
+      .handleEagerToken(
         new EagerToken(expressionToken, Collections.singleton(expressionToken.getExpr()))
       );
     return expressionToken.getImage();
@@ -136,7 +121,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   public String getEagerTextImage(TextToken textToken, JinjavaInterpreter interpreter) {
     interpreter
       .getContext()
-      .handleEagerTagToken(
+      .handleEagerToken(
         new EagerToken(textToken, Collections.singleton(textToken.output()))
       );
     return textToken.getImage();

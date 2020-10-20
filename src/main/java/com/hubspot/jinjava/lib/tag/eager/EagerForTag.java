@@ -37,9 +37,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     Set<String> deferredHelpers = new HashSet<>(
       getTag().getLoopVars(tokenizer.allTokens())
     );
-    interpreter
-      .getContext()
-      .handleEagerTagToken(new EagerToken(tagToken, deferredHelpers));
+    interpreter.getContext().handleEagerToken(new EagerToken(tagToken, deferredHelpers));
 
     return tagToken.getImage();
   }
