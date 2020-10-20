@@ -79,7 +79,8 @@ public class ChunkResolverTest {
     context.put("bar", "bar_val");
     ChunkResolver chunkResolver = makeChunkResolver("[foo == bar, deferred, bar]");
     assertThat(chunkResolver.resolveChunks()).isEqualTo("[false,deferred,'bar_val']");
-    assertThat(chunkResolver.getDeferredVariables()).containsExactly("deferred");
+    assertThat(chunkResolver.getDeferredVariables())
+      .containsExactlyInAnyOrder("deferred");
     context.put("bar", "foo_val");
     assertThat(chunkResolver.resolveChunks()).isEqualTo("[true,deferred,'foo_val']");
   }
@@ -114,7 +115,8 @@ public class ChunkResolverTest {
     ChunkResolver chunkResolver = makeChunkResolver("range(deferred, foo + bar)");
     String partiallyResolved = chunkResolver.resolveChunks();
     assertThat(partiallyResolved).isEqualTo("range(deferred,4)");
-    assertThat(chunkResolver.getDeferredVariables()).containsExactly("deferred");
+    assertThat(chunkResolver.getDeferredVariables())
+      .containsExactlyInAnyOrder("deferred", "range");
 
     context.put("deferred", 1);
     assertThat(makeChunkResolver(partiallyResolved).resolveChunks())
@@ -146,7 +148,8 @@ public class ChunkResolverTest {
     );
     String partiallyResolved = chunkResolver.resolveChunks();
     assertThat(partiallyResolved).isEqualTo("[1,range(deferred,3),[1,2]][0:2]");
-    assertThat(chunkResolver.getDeferredVariables()).containsExactly("deferred");
+    assertThat(chunkResolver.getDeferredVariables())
+      .containsExactlyInAnyOrder("deferred", "range");
 
     context.put("deferred", 2);
     assertThat(makeChunkResolver(partiallyResolved).resolveChunks()).isEqualTo("[1,[2]]");
@@ -189,7 +192,8 @@ public class ChunkResolverTest {
   public void itCatchesDeferredVariables() {
     ChunkResolver chunkResolver = makeChunkResolver("range(0, deferred)");
     String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("range(0, deferred)");
-    assertThat(chunkResolver.getDeferredVariables()).containsExactly("range", "deferred");
+    assertThat(partiallyResolved).isEqualTo("range(0,deferred)");
+    assertThat(chunkResolver.getDeferredVariables())
+      .containsExactlyInAnyOrder("range", "deferred");
   }
 }
