@@ -79,8 +79,10 @@ public class DeferredTest {
 
   @Test
   public void itDefersAsLittleAsPossible() {
-    String output = interpreter.render("a {{deferred}} {{resolved}} b");
+    String output = interpreter.render("a {%raw%}{{deferred}}{%endraw%} {{resolved}} b");
     assertThat(output).isEqualTo("a {{deferred}} resolvedValue b");
+    String output2 = interpreter.render(output);
+    assertThat(output2).isEqualTo("a {{deferred}} resolvedValue b");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
