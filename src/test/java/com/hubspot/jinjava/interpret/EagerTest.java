@@ -14,11 +14,15 @@ import com.hubspot.jinjava.lib.tag.eager.EagerForTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerIfTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerTagFactory;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
+import com.hubspot.jinjava.tree.Node;
+import com.hubspot.jinjava.tree.TreeParser;
 import com.hubspot.jinjava.util.DeferredValueUtils;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -257,7 +261,7 @@ public class EagerTest {
     localContext.put("padding", 0);
     localContext.put("added_padding", 10);
     String deferredOutput = interpreter.render(
-      getFixtureTemplate("deferred-macro.jinja")
+      getDeferredFixtureTemplate("deferred-macro.jinja")
     );
     Object padding = localContext.get("padding");
     assertThat(padding).isInstanceOf(DeferredValue.class);
@@ -275,7 +279,7 @@ public class EagerTest {
 
   @Test
   public void itDefersAllVariablesUsedInDeferredNode() {
-    String template = getFixtureTemplate("vars-in-deferred-node.jinja");
+    String template = getDeferredFixtureTemplate("vars-in-deferred-node.jinja");
     localContext.put("deferredValue", DeferredValue.instance("resolved"));
     String output = interpreter.render(template);
     Object varInScope = localContext.get("varUsedInForScope");
@@ -329,7 +333,7 @@ public class EagerTest {
 
   @Test
   public void itDoesNotPutDeferredVariablesOnGlobalContext() {
-    String template = getFixtureTemplate("set-within-lower-scope.jinja");
+    String template = getDeferredFixtureTemplate("set-within-lower-scope.jinja");
     localContext.put("deferredValue", DeferredValue.instance("resolved"));
     interpreter.render(template);
     assertThat(globalContext).isEmpty();
@@ -337,7 +341,7 @@ public class EagerTest {
 
   @Test
   public void itPutsDeferredVariablesOnParentScopes() {
-    String template = getFixtureTemplate("set-within-lower-scope.jinja");
+    String template = getDeferredFixtureTemplate("set-within-lower-scope.jinja");
     localContext.put("deferredValue", DeferredValue.instance("resolved"));
     String output = interpreter.render(template);
     //    assertThat(localContext).containsKey("varSetInside");
@@ -355,7 +359,7 @@ public class EagerTest {
 
   @Test
   public void puttingDeferredVariablesOnParentScopesDoesNotBreakSetTag() {
-    String template = getFixtureTemplate("set-within-lower-scope-twice.jinja");
+    String template = getDeferredFixtureTemplate("set-within-lower-scope-twice.jinja");
 
     localContext.put("deferredValue", DeferredValue.instance("resolved"));
     String output = interpreter.render(template);
@@ -376,7 +380,7 @@ public class EagerTest {
 
   @Test
   public void itMarksVariablesSetInDeferredBlockAsDeferred() {
-    String template = getFixtureTemplate("set-in-deferred.jinja");
+    String template = getDeferredFixtureTemplate("set-in-deferred.jinja");
 
     localContext.put("deferredValue", DeferredValue.instance("resolved"));
     String output = interpreter.render(template);
@@ -392,7 +396,7 @@ public class EagerTest {
 
   @Test
   public void itMarksVariablesUsedAsMapKeysAsDeferred() {
-    String template = getFixtureTemplate("deferred-map-access.jinja");
+    String template = getDeferredFixtureTemplate("deferred-map-access.jinja");
 
     localContext.put("deferredValue", DeferredValue.instance("resolved"));
     localContext.put("deferredValue2", DeferredValue.instance("key"));
@@ -412,6 +416,25 @@ public class EagerTest {
   }
 
   @Test
+  public void itEagerlyDefersSet() {
+    localContext.put("bar", true);
+    assertExpectedOutput("eagerly-defers-set");
+  }
+
+  @Test
+  public void itEvaluatesNonEagerSet() {
+    assertExpectedOutput("evaluates-non-eager-set");
+    assertThat(
+        localContext
+          .getEagerTokens()
+          .stream()
+          .flatMap(eagerToken -> eagerToken.getDeferredHelpers().stream())
+          .collect(Collectors.toSet())
+      )
+      .containsExactlyInAnyOrder("item", "deferred");
+  }
+
+  @Test
   public void itEagerlyDefersImport() {}
 
   @Test
@@ -420,19 +443,41 @@ public class EagerTest {
   @Test
   public void itEagerlyDefersFrom() {}
 
-  private String getFixtureTemplate(String templateLocation) {
+  public String assertExpectedOutput(String name) {
+    String template = getFixtureTemplate(name);
+    String output = interpreter.render(template);
+    assertThat(output.trim()).isEqualTo(expected(name).trim());
+    return output;
+  }
+
+  public String getFixtureTemplate(String name) {
     try {
-      try {
-        return Resources.toString(
-          Resources.getResource("deferred/" + templateLocation),
-          Charsets.UTF_8
-        );
-      } catch (IllegalArgumentException e) {
-        return Resources.toString(
-          Resources.getResource("eager/" + templateLocation),
-          Charsets.UTF_8
-        );
-      }
+      return Resources.toString(
+        Resources.getResource(String.format("%s/%s.jinja", "eager", name)),
+        StandardCharsets.UTF_8
+      );
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public String expected(String name) {
+    try {
+      return Resources.toString(
+        Resources.getResource(String.format("%s/%s.expected.jinja", "eager", name)),
+        StandardCharsets.UTF_8
+      );
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private String getDeferredFixtureTemplate(String templateLocation) {
+    try {
+      return Resources.toString(
+        Resources.getResource("deferred/" + templateLocation),
+        Charsets.UTF_8
+      );
     } catch (IOException e) {
       return null;
     }

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ChunkResolverTest {
@@ -151,5 +152,44 @@ public class ChunkResolverTest {
     assertThat(makeChunkResolver(partiallyResolved).resolveChunks()).isEqualTo("[1,[2]]");
     assertThat(interpreter.resolveELExpression(partiallyResolved, 1))
       .isEqualTo(ImmutableList.of(1L, ImmutableList.of(2)));
+  }
+
+  @Test
+  public void itSplitsOnNonWords() {
+    context.put("foo", 1);
+    context.put("bar", 4);
+    ChunkResolver chunkResolver = makeChunkResolver("range(0,foo) + -deferred/bar");
+    String partiallyResolved = chunkResolver.resolveChunks();
+    assertThat(partiallyResolved).isEqualTo("[0] + -deferred/4");
+    assertThat(chunkResolver.getDeferredVariables()).containsExactly("deferred");
+
+    context.put("deferred", 2);
+    assertThat(makeChunkResolver(partiallyResolved).resolveChunks())
+      .isEqualTo("[0,-0.5]");
+    assertThat(interpreter.resolveELExpression(partiallyResolved, 1))
+      .isEqualTo(ImmutableList.of(0L, -0.5));
+  }
+
+  @Test
+  @Ignore
+  // TODO support order of operations
+  public void itSupportsOrderOfOperations() {
+    ChunkResolver chunkResolver = makeChunkResolver("[0,1]|reverse + deferred");
+    String partiallyResolved = chunkResolver.resolveChunks();
+    assertThat(partiallyResolved).isEqualTo("[1,0] + deferred");
+    assertThat(chunkResolver.getDeferredVariables()).containsExactly("deferred");
+
+    context.put("deferred", 2);
+    assertThat(makeChunkResolver(partiallyResolved).resolveChunks()).isEqualTo("[1,0,2]");
+    assertThat(interpreter.resolveELExpression(partiallyResolved, 1))
+      .isEqualTo(ImmutableList.of(1L, 0L, 2L));
+  }
+
+  @Test
+  public void itCatchesDeferredVariables() {
+    ChunkResolver chunkResolver = makeChunkResolver("range(0, deferred)");
+    String partiallyResolved = chunkResolver.resolveChunks();
+    assertThat(partiallyResolved).isEqualTo("range(0, deferred)");
+    assertThat(chunkResolver.getDeferredVariables()).containsExactly("range", "deferred");
   }
 }

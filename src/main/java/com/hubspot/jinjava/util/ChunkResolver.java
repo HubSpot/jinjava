@@ -10,6 +10,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -144,7 +145,9 @@ public class ChunkResolver {
   }
 
   private boolean isTokenSplitter(char c) {
-    return Character.isWhitespace(c) || (useMiniChunks && c == ',');
+    //    return Character.isWhitespace(c) || (useMiniChunks && c == ',');
+    // regex \w
+    return !(Character.isLetterOrDigit(c) || c == '_' || c == '.');
   }
 
   private boolean isMiniChunkSplitter(char c) {

@@ -1,0 +1,16 @@
+{% set foo = range(0, deferred) %}
+{% for item in foo %}
+{{ item }}
+{% if bar %}
+Yes bar
+{% else %}
+No bar
+{% endif %}
+{% if item == 0 %}
+At least one: {{ bar }}
+{% else if item == 1 %}
+Exactly one: {{ bar }}
+{% else %}
+More than one: {{ bar }}
+{% endif %}
+{% endfor %}
