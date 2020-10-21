@@ -3,7 +3,6 @@ package com.hubspot.jinjava.lib.tag;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.PreservedRawTagException;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
@@ -31,17 +30,14 @@ public class RawTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    if (interpreter.getConfig().isPreserveRawTags()) {
+      interpreter.getContext().handlePreservedRawTag();
+      return renderNodeRaw(tagNode);
+    }
+
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxOutputSize()
     );
-    if (interpreter.getConfig().isPreserveRawTags()) {
-      result.append(renderNodeRaw(tagNode));
-      throw new PreservedRawTagException(
-        result.toString(),
-        tagNode.getLineNumber(),
-        tagNode.getStartPosition()
-      );
-    }
 
     for (Node n : tagNode.getChildren()) {
       result.append(renderNodeRaw(n));
