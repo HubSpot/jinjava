@@ -133,10 +133,12 @@ public class RawTagTest {
     try {
       assertThat(preservedResult)
         .isEqualTo(
-          Resources.toString(
-            Resources.getResource("tags/rawtag/deferred.jinja"),
-            StandardCharsets.UTF_8
-          )
+          Resources
+            .toString(
+              Resources.getResource("tags/rawtag/deferred.jinja"),
+              StandardCharsets.UTF_8
+            )
+            .trim()
         );
     } catch (IOException e) {
       throw new RuntimeException(e);
