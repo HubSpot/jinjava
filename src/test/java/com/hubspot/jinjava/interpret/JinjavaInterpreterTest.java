@@ -223,9 +223,9 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itCanPreserveRawTags() {
-    JinjavaConfig preserveRawTagsConfig = JinjavaConfig
+    JinjavaConfig preserveConfig = JinjavaConfig
       .newBuilder()
-      .withPreserveRawTags(true)
+      .withPreserveForSecondPass(true)
       .build();
     String input = "1{% raw %}2{% endraw %}3";
     String normalOutput = "123";
@@ -235,8 +235,7 @@ public class JinjavaInterpreterTest {
     assertThat(renderResult.getOutput()).isEqualTo(normalOutput);
     assertThat(renderResult.hasErrors()).isFalse();
 
-    renderResult =
-      new Jinjava(preserveRawTagsConfig).renderForResult(input, new HashMap<>());
+    renderResult = new Jinjava(preserveConfig).renderForResult(input, new HashMap<>());
     assertThat(renderResult.getOutput()).isEqualTo(preservedOutput);
     assertThat(renderResult.hasErrors()).isFalse();
   }

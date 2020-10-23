@@ -56,7 +56,7 @@ public class JinjavaConfig {
   private TokenScannerSymbols tokenScannerSymbols;
   private ELResolver elResolver;
   private final boolean iterateOverMapKeys;
-  private final boolean preserveRawTags;
+  private final boolean preserveForSecondPass;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -141,7 +141,7 @@ public class JinjavaConfig {
     TokenScannerSymbols tokenScannerSymbols,
     ELResolver elResolver,
     boolean iterateOverMapKeys,
-    boolean preserveRawTags
+    boolean preserveForSecondPass
   ) {
     this.charset = charset;
     this.locale = locale;
@@ -162,7 +162,7 @@ public class JinjavaConfig {
     this.tokenScannerSymbols = tokenScannerSymbols;
     this.elResolver = elResolver;
     this.iterateOverMapKeys = iterateOverMapKeys;
-    this.preserveRawTags = preserveRawTags;
+    this.preserveForSecondPass = preserveForSecondPass;
   }
 
   public Charset getCharset() {
@@ -245,8 +245,8 @@ public class JinjavaConfig {
     return iterateOverMapKeys;
   }
 
-  public boolean isPreserveRawTags() {
-    return preserveRawTags;
+  public boolean isPreserveForSecondPass() {
+    return preserveForSecondPass;
   }
 
   public static class Builder {
@@ -272,7 +272,7 @@ public class JinjavaConfig {
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
     private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
     private boolean iterateOverMapKeys;
-    private boolean preserveRawTags;
+    private boolean preserveForSecondPass;
 
     private Builder() {}
 
@@ -381,8 +381,8 @@ public class JinjavaConfig {
       return this;
     }
 
-    public Builder withPreserveRawTags(boolean preserveRawTags) {
-      this.preserveRawTags = preserveRawTags;
+    public Builder withPreserveForSecondPass(boolean preserveForSecondPass) {
+      this.preserveForSecondPass = preserveForSecondPass;
       return this;
     }
 
@@ -407,7 +407,7 @@ public class JinjavaConfig {
         tokenScannerSymbols,
         elResolver,
         iterateOverMapKeys,
-        preserveRawTags
+        preserveForSecondPass
       );
     }
   }

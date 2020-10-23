@@ -101,7 +101,7 @@ public class RawTagTest {
     JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContextCopy(),
-      JinjavaConfig.newBuilder().withPreserveRawTags(true).build()
+      JinjavaConfig.newBuilder().withPreserveForSecondPass(true).build()
     );
     String result = tag.interpret(tagNode, preserveInterpreter);
     try {
@@ -123,7 +123,7 @@ public class RawTagTest {
     JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContextCopy(),
-      JinjavaConfig.newBuilder().withPreserveRawTags(true).build()
+      JinjavaConfig.newBuilder().withPreserveForSecondPass(true).build()
     );
     preserveInterpreter.getContext().put("deferred", DeferredValue.instance());
     interpreter.getContext().put("deferred", DeferredValue.instance());
