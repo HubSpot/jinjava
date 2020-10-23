@@ -31,7 +31,6 @@ public class RawTag implements Tag {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     if (interpreter.getConfig().isPreserveRawTags()) {
-      interpreter.getContext().handlePreservedRawTag();
       return renderNodeRaw(tagNode);
     }
 
