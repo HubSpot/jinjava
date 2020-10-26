@@ -30,7 +30,7 @@ public class RawTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    if (interpreter.getConfig().isPreserveForSecondPass()) {
+    if (interpreter.getConfig().isPreserveForFinalPass()) {
       return renderNodeRaw(tagNode);
     }
 
