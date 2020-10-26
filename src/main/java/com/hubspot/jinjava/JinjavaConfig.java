@@ -56,6 +56,7 @@ public class JinjavaConfig {
   private TokenScannerSymbols tokenScannerSymbols;
   private ELResolver elResolver;
   private final boolean iterateOverMapKeys;
+  private final boolean preserveForSecondPass;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -85,6 +86,7 @@ public class JinjavaConfig {
       interpreterFactory,
       new DefaultTokenScannerSymbols(),
       JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY,
+      false,
       false
     );
   }
@@ -114,6 +116,7 @@ public class JinjavaConfig {
       new JinjavaInterpreterFactory(),
       new DefaultTokenScannerSymbols(),
       JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY,
+      false,
       false
     );
   }
@@ -137,7 +140,8 @@ public class JinjavaConfig {
     InterpreterFactory interpreterFactory,
     TokenScannerSymbols tokenScannerSymbols,
     ELResolver elResolver,
-    boolean iterateOverMapKeys
+    boolean iterateOverMapKeys,
+    boolean preserveForSecondPass
   ) {
     this.charset = charset;
     this.locale = locale;
@@ -158,6 +162,7 @@ public class JinjavaConfig {
     this.tokenScannerSymbols = tokenScannerSymbols;
     this.elResolver = elResolver;
     this.iterateOverMapKeys = iterateOverMapKeys;
+    this.preserveForSecondPass = preserveForSecondPass;
   }
 
   public Charset getCharset() {
@@ -240,6 +245,10 @@ public class JinjavaConfig {
     return iterateOverMapKeys;
   }
 
+  public boolean isPreserveForSecondPass() {
+    return preserveForSecondPass;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -263,6 +272,7 @@ public class JinjavaConfig {
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
     private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
     private boolean iterateOverMapKeys;
+    private boolean preserveForSecondPass;
 
     private Builder() {}
 
@@ -371,6 +381,11 @@ public class JinjavaConfig {
       return this;
     }
 
+    public Builder withPreserveForSecondPass(boolean preserveForSecondPass) {
+      this.preserveForSecondPass = preserveForSecondPass;
+      return this;
+    }
+
     public JinjavaConfig build() {
       return new JinjavaConfig(
         charset,
@@ -391,7 +406,8 @@ public class JinjavaConfig {
         interpreterFactory,
         tokenScannerSymbols,
         elResolver,
-        iterateOverMapKeys
+        iterateOverMapKeys,
+        preserveForSecondPass
       );
     }
   }
