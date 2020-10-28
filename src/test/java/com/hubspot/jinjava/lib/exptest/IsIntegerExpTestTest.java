@@ -2,18 +2,11 @@ package com.hubspot.jinjava.lib.exptest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import java.util.HashMap;
-import org.junit.Before;
 import org.junit.Test;
 
-public class IsIntegerExpTestTest {
-  private Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
+public class IsIntegerExpTestTest extends BaseJinjavaTest {
 
   @Test
   public void testValidIntegers() {

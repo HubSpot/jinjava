@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.entry;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -21,7 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 @SuppressWarnings("unchecked")
-public class SetTagTest extends BaseTagTest {
+public class SetTagTest extends BaseInterpretingTest {
   public Tag tag;
 
   @Before

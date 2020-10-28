@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.tree.Node;
@@ -25,7 +26,7 @@ import org.jsoup.select.Elements;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ForTagTest extends BaseTagTest {
+public class ForTagTest extends BaseInterpretingTest {
   public Tag tag;
 
   @Before

@@ -2,21 +2,18 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.math.BigDecimal;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RootFilterTest {
-  JinjavaInterpreter interpreter;
+public class RootFilterTest extends BaseInterpretingTest {
   RootFilter filter;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
     filter = new RootFilter();
   }
 

@@ -1,20 +1,25 @@
-package com.hubspot.jinjava.lib.tag;
+package com.hubspot.jinjava;
 
-import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import org.junit.After;
 import org.junit.Before;
 
-public abstract class BaseTagTest {
-  public Jinjava jinjava;
+public abstract class BaseInterpretingTest extends BaseJinjavaTest {
   public JinjavaInterpreter interpreter;
-
   public Context context;
 
   @Before
+  @Override
   public void baseSetup() {
-    jinjava = new Jinjava();
+    super.baseSetup();
     interpreter = new JinjavaInterpreter(jinjava.newInterpreter());
     context = interpreter.getContext();
+    JinjavaInterpreter.pushCurrent(interpreter);
+  }
+
+  @After
+  public void baseTeardown() {
+    JinjavaInterpreter.popCurrent();
   }
 }

@@ -1,19 +1,16 @@
 package com.hubspot.jinjava.lib.filter;
 
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.objects.SafeString;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
-public class UpperFilterTest {
+public class UpperFilterTest extends BaseInterpretingTest {
   private UpperFilter filter;
-  private JinjavaInterpreter interpreter;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
     filter = new UpperFilter();
   }
 

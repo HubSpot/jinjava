@@ -3,21 +3,14 @@ package com.hubspot.jinjava.lib.exptest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Before;
 import org.junit.Test;
 
-public class ComparisonExpTestsTest {
-  private Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
+public class ComparisonExpTestsTest extends BaseJinjavaTest {
 
   @Test
   public void itComparesNumbers() {

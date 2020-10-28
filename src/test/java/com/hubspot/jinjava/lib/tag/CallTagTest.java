@@ -3,26 +3,14 @@ package com.hubspot.jinjava.lib.tag;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-public class CallTagTest extends BaseTagTest {
-
-  @Before
-  public void setup() {
-    JinjavaInterpreter.pushCurrent(interpreter);
-  }
-
-  @After
-  public void cleanup() {
-    JinjavaInterpreter.popCurrent();
-  }
+public class CallTagTest extends BaseInterpretingTest {
 
   @Test
   public void testSimpleFn() {

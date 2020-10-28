@@ -2,19 +2,17 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import java.util.HashMap;
 import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FileSizeFormatFilterTest {
-  Jinjava jinjava;
+public class FileSizeFormatFilterTest extends BaseJinjavaTest {
 
   @Before
   public void setup() {
     Locale.setDefault(Locale.ENGLISH);
-    jinjava = new Jinjava();
   }
 
   @Test

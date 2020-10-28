@@ -2,23 +2,15 @@ package com.hubspot.jinjava.lib.exptest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import java.util.HashMap;
-import org.junit.Before;
 import org.junit.Test;
 
-public class NegatedExpTestTest {
+public class NegatedExpTestTest extends BaseJinjavaTest {
   private static final String TEMPLATE =
     "{%% if %s is %s %s %%}pass{%% else %%}fail{%% endif %%}";
   private static final String CONTAINING_TEMPLATE =
     "{%% if %s is not containing %s %%}pass{%% else %%}fail{%% endif %%}";
-
-  private Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
 
   @Test
   public void itNegatesDefined() {

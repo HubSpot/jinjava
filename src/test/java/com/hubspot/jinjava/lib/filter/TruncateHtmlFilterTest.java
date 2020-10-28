@@ -1,24 +1,21 @@
 package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TruncateHtmlFilterTest {
+public class TruncateHtmlFilterTest extends BaseInterpretingTest {
   TruncateHtmlFilter filter;
-  JinjavaInterpreter interpreter;
 
   @Before
   public void setup() {
     filter = new TruncateHtmlFilter();
-    interpreter = mock(JinjavaInterpreter.class);
   }
 
   @Test

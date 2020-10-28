@@ -3,7 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import org.jsoup.Jsoup;
@@ -11,12 +11,10 @@ import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 
-public class UrlizeFilterTest {
-  Jinjava jinjava;
+public class UrlizeFilterTest extends BaseJinjavaTest {
 
   @Before
   public void setup() throws Exception {
-    jinjava = new Jinjava();
     jinjava
       .getGlobalContext()
       .put(

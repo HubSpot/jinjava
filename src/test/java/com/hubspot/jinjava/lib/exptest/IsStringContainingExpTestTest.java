@@ -3,20 +3,12 @@ package com.hubspot.jinjava.lib.exptest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.objects.SafeString;
-import org.junit.Before;
 import org.junit.Test;
 
-public class IsStringContainingExpTestTest {
+public class IsStringContainingExpTestTest extends BaseJinjavaTest {
   private static final String CONTAINING_TEMPLATE = "{{ var is string_containing arg }}";
-
-  private Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
 
   @Test
   public void itReturnsTrueForContainedString() {

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
@@ -16,11 +17,10 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FromTagTest extends BaseTagTest {
+public class FromTagTest extends BaseInterpretingTest {
 
   @Before
   public void setup() {
@@ -47,15 +47,7 @@ public class FromTagTest extends BaseTagTest {
         }
       }
     );
-
-    JinjavaInterpreter.pushCurrent(interpreter);
-
     context.put("padding", 42);
-  }
-
-  @After
-  public void cleanup() {
-    JinjavaInterpreter.popCurrent();
   }
 
   @Test

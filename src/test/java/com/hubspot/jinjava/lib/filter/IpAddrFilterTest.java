@@ -3,8 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.objects.SafeString;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,18 +14,16 @@ import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
 
-public class IpAddrFilterTest {
+public class IpAddrFilterTest extends BaseInterpretingTest {
   private IpAddrFilter ipAddrFilter;
   private Ipv4Filter ipv4Filter;
   private Ipv6Filter ipv6Filter;
-  private JinjavaInterpreter interpreter;
 
   @Before
   public void setup() {
     ipAddrFilter = new IpAddrFilter();
     ipv4Filter = new Ipv4Filter();
     ipv6Filter = new Ipv6Filter();
-    interpreter = new Jinjava().newInterpreter();
   }
 
   @Test

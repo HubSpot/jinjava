@@ -4,27 +4,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class IfTagTest extends BaseTagTest {
+public class IfTagTest extends BaseInterpretingTest {
   public Tag tag;
 
   @Before
   public void setup() {
     tag = new IfTag();
-    JinjavaInterpreter.pushCurrent(interpreter);
-  }
-
-  @After
-  public void tearDown() {
-    JinjavaInterpreter.popCurrent();
   }
 
   @Test

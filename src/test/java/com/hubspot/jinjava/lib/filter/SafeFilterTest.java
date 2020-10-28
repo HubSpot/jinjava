@@ -3,14 +3,13 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SafeFilterTest {
+public class SafeFilterTest extends BaseInterpretingTest {
   private static final String HTML = "<a>Link</a>";
   private static final List<Integer> TEST_NUMBERS = ImmutableList.of(43, 1, 24);
   private static final List<String> TEST_STRINGS = ImmutableList.of(
@@ -46,11 +45,8 @@ public class SafeFilterTest {
     "root"
   );
 
-  private JinjavaInterpreter interpreter;
-
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
     interpreter.getContext().setAutoEscape(true);
   }
 

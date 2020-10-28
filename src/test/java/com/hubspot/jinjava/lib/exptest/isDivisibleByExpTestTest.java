@@ -2,24 +2,16 @@ package com.hubspot.jinjava.lib.exptest;
 
 import static org.junit.Assert.assertEquals;
 
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import java.util.HashMap;
-import org.junit.Before;
 import org.junit.Test;
 
-public class isDivisibleByExpTestTest {
+public class isDivisibleByExpTestTest extends BaseJinjavaTest {
   private static final String DIVISIBLE_BY_TEMPLATE = "{{ %s is divisibleby %s }}";
-
-  private Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
 
   @Test
   public void itRequiresDividend() {

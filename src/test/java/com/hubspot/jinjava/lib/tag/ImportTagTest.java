@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -22,11 +23,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ImportTagTest extends BaseTagTest {
+public class ImportTagTest extends BaseInterpretingTest {
 
   @Before
   public void setup() {
@@ -38,14 +38,7 @@ public class ImportTagTest extends BaseTagTest {
         )
     );
 
-    JinjavaInterpreter.pushCurrent(interpreter);
-
     context.put("padding", 42);
-  }
-
-  @After
-  public void cleanup() {
-    JinjavaInterpreter.popCurrent();
   }
 
   @Test
