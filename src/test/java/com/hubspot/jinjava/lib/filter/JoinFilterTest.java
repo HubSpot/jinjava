@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.RenderResult;
@@ -10,12 +11,10 @@ import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JoinFilterTest {
-  Jinjava jinjava;
+public class JoinFilterTest extends BaseJinjavaTest {
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
     jinjava
       .getGlobalContext()
       .put("users", Lists.newArrayList(new User("foo"), new User("bar")));

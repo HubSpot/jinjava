@@ -3,18 +3,11 @@ package com.hubspot.jinjava.lib.exptest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import java.util.HashMap;
-import org.junit.Before;
 import org.junit.Test;
 
-public class IsInExpTestTest {
-  private Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
+public class IsInExpTestTest extends BaseJinjavaTest {
 
   @Test
   public void testIsInList() {

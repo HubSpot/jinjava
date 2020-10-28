@@ -2,20 +2,12 @@ package com.hubspot.jinjava.lib.exptest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import java.util.HashMap;
-import org.junit.Before;
 import org.junit.Test;
 
-public class IsEqualToExpTestTest {
+public class IsEqualToExpTestTest extends BaseJinjavaTest {
   private static final String EQUAL_TEMPLATE = "{{ %s is equalto %s }}";
-
-  private Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
 
   @Test
   public void itEquatesNumbers() {

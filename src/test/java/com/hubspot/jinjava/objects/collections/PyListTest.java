@@ -2,21 +2,14 @@ package com.hubspot.jinjava.objects.collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import java.util.Collections;
-import org.junit.Before;
 import org.junit.Test;
 
-public class PyListTest {
-  private Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
+public class PyListTest extends BaseJinjavaTest {
 
   @Test
   public void itSupportsAppendOperation() {

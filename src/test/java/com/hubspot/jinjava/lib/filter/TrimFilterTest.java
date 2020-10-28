@@ -2,19 +2,16 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.objects.SafeString;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TrimFilterTest {
-  JinjavaInterpreter interpreter;
+public class TrimFilterTest extends BaseInterpretingTest {
   TrimFilter filter;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
     filter = new TrimFilter();
   }
 

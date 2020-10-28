@@ -2,17 +2,15 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 
-public class UnionFilterTest {
-  Jinjava jinjava;
+public class UnionFilterTest extends BaseJinjavaTest {
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
     jinjava.getGlobalContext().registerClasses(EscapeJsFilter.class);
   }
 

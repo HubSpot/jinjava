@@ -2,7 +2,7 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,12 +11,10 @@ import org.junit.Test;
  * Created by manishdevgan on 25/06/19.
  */
 
-public class DefaultFilterTest {
-  Jinjava jinjava;
+public class DefaultFilterTest extends BaseJinjavaTest {
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
     jinjava.getGlobalContext().registerClasses(DefaultFilter.class);
   }
 

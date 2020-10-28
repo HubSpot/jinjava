@@ -4,24 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import java.nio.charset.StandardCharsets;
-import org.junit.Before;
 import org.junit.Test;
 
-public class ExpressionNodeTest {
-  private Context context;
-  private JinjavaInterpreter interpreter;
-
-  @Before
-  public void setup() {
-    interpreter = new Jinjava().newInterpreter();
-    context = interpreter.getContext();
-  }
+public class ExpressionNodeTest extends BaseInterpretingTest {
 
   @Test
   public void itRendersResultAsTemplateWhenContainingVarBlocks() throws Exception {

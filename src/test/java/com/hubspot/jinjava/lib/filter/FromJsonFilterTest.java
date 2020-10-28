@@ -3,22 +3,17 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.interpret.InvalidInputException;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FromJsonFilterTest {
-  private JinjavaInterpreter interpreter;
-  private Jinjava jinjava;
+public class FromJsonFilterTest extends BaseInterpretingTest {
   private FromJsonFilter filter;
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
-    interpreter = jinjava.newInterpreter();
     filter = new FromJsonFilter();
   }
 

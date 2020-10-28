@@ -3,6 +3,7 @@ package com.hubspot.jinjava.loader;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Files;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.io.File;
@@ -11,9 +12,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FileLocatorTest {
-  JinjavaInterpreter interpreter;
-
+public class FileLocatorTest extends BaseInterpretingTest {
   FileLocator locatorWorkingDir;
   FileLocator locatorTmpDir;
 
@@ -22,8 +21,6 @@ public class FileLocatorTest {
 
   @Before
   public void setUp() throws Exception {
-    interpreter = new Jinjava().newInterpreter();
-
     locatorWorkingDir = new FileLocator();
 
     File tmpDir = java

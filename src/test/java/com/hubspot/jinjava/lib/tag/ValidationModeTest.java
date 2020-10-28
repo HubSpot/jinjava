@@ -337,5 +337,6 @@ public class ValidationModeTest {
     assertThat(validatingInterpreter.getErrors().get(0).getMessage()).contains("hey(");
     assertThat(result).isEqualTo("10");
     assertThat(validationFilter.getExecutionCount()).isEqualTo(2);
+    JinjavaInterpreter.popCurrent();
   }
 }

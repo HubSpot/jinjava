@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
@@ -23,45 +23,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ImportTagTest {
-  private Context context;
-  private JinjavaInterpreter interpreter;
+public class ImportTagTest extends BaseInterpretingTest {
 
   @Before
   public void setup() {
-    Jinjava jinjava = new Jinjava();
     jinjava.setResourceLocator(
-      new ResourceLocator() {
-
-        @Override
-        public String getString(
-          String fullName,
-          Charset encoding,
-          JinjavaInterpreter interpreter
+      (fullName, encoding, interpreter) ->
+        Resources.toString(
+          Resources.getResource(String.format("tags/macrotag/%s", fullName)),
+          StandardCharsets.UTF_8
         )
-          throws IOException {
-          return Resources.toString(
-            Resources.getResource(String.format("tags/macrotag/%s", fullName)),
-            StandardCharsets.UTF_8
-          );
-        }
-      }
     );
 
-    context = new Context();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
-    JinjavaInterpreter.pushCurrent(interpreter);
-
     context.put("padding", 42);
-  }
-
-  @After
-  public void cleanup() {
-    JinjavaInterpreter.popCurrent();
   }
 
   @Test

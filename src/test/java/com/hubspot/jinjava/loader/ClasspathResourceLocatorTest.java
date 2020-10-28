@@ -2,19 +2,11 @@ package com.hubspot.jinjava.loader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import java.nio.charset.StandardCharsets;
-import org.junit.Before;
 import org.junit.Test;
 
-public class ClasspathResourceLocatorTest {
-  JinjavaInterpreter interpreter;
-
-  @Before
-  public void setup() {
-    interpreter = new Jinjava().newInterpreter();
-  }
+public class ClasspathResourceLocatorTest extends BaseInterpretingTest {
 
   @Test
   public void testLoadFromClasspath() throws Exception {

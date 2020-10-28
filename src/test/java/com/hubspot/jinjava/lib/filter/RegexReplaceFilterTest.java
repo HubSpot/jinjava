@@ -3,21 +3,17 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.SafeString;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RegexReplaceFilterTest {
-  JinjavaInterpreter interpreter;
+public class RegexReplaceFilterTest extends BaseInterpretingTest {
   RegexReplaceFilter filter;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
     filter = new RegexReplaceFilter();
   }
 

@@ -3,7 +3,7 @@ package com.hubspot.jinjava.lib.tag;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -18,15 +18,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RawTagTest {
-  Jinjava jinjava;
-  JinjavaInterpreter interpreter;
-  RawTag tag;
+public class RawTagTest extends BaseInterpretingTest {
+  Tag tag;
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
-    interpreter = jinjava.newInterpreter();
     tag = new RawTag();
   }
 

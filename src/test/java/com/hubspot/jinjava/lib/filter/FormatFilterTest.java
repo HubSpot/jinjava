@@ -3,19 +3,12 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
 import java.util.HashMap;
-import org.junit.Before;
 import org.junit.Test;
 
-public class FormatFilterTest {
-  Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
+public class FormatFilterTest extends BaseJinjavaTest {
 
   @Test
   public void testFormatFilter() {
