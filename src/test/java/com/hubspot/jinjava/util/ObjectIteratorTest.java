@@ -111,9 +111,13 @@ public class ObjectIteratorTest {
     items.put("world", 2);
     items.put("jinjava", "ko");
     items.put("asfun", new ObjectIteratorTest());
-    loop = ObjectIterator.getLoop(items);
+    try {
+      loop = ObjectIterator.getLoop(items);
 
-    assertEquals(4, loop.getLength());
-    assertTrue(items.containsKey(loop.next()));
+      assertEquals(4, loop.getLength());
+      assertTrue(items.containsKey(loop.next()));
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
   }
 }
