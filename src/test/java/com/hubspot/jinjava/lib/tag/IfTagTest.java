@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
@@ -14,25 +12,13 @@ import java.nio.charset.StandardCharsets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
-public class IfTagTest {
-  JinjavaInterpreter interpreter;
-
-  @InjectMocks
-  IfTag tag;
-
-  Jinjava jinjava;
-  private Context context;
+public class IfTagTest extends BaseTagTest {
+  public Tag tag;
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
-    interpreter = jinjava.newInterpreter();
-    context = interpreter.getContext();
+    tag = new IfTag();
     JinjavaInterpreter.pushCurrent(interpreter);
   }
 

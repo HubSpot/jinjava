@@ -9,10 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.InterpretException;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -28,19 +25,11 @@ import org.jsoup.select.Elements;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ForTagTest {
-  ForTag tag;
-
-  private Context context;
-  JinjavaInterpreter interpreter;
-  Jinjava jinjava;
+public class ForTagTest extends BaseTagTest {
+  public Tag tag;
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
-    interpreter = jinjava.newInterpreter();
-    context = interpreter.getContext();
-
     tag = new ForTag();
   }
 

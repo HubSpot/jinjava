@@ -3,7 +3,6 @@ package com.hubspot.jinjava.lib.tag;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -13,12 +12,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class CallTagTest {
-  JinjavaInterpreter interpreter;
+public class CallTagTest extends BaseTagTest {
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
   }
 

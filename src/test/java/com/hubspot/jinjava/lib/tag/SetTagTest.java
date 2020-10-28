@@ -6,11 +6,8 @@ import static org.assertj.core.api.Assertions.entry;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -22,23 +19,14 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.runners.MockitoJUnitRunner;
 
 @SuppressWarnings("unchecked")
-@RunWith(MockitoJUnitRunner.class)
-public class SetTagTest {
-  @InjectMocks
-  SetTag tag;
-
-  Context context;
-  JinjavaInterpreter interpreter;
+public class SetTagTest extends BaseTagTest {
+  public Tag tag;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
-    context = interpreter.getContext();
+    tag = new SetTag();
   }
 
   @Test

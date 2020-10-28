@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
-import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
@@ -26,16 +25,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MacroTagTest {
-  Context context;
-  JinjavaInterpreter interpreter;
+public class MacroTagTest extends BaseTagTest {
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
-
-    context = interpreter.getContext();
   }
 
   @After

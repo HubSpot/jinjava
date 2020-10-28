@@ -6,8 +6,6 @@ import static org.assertj.core.api.Assertions.fail;
 
 import com.google.common.collect.SetMultimap;
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
@@ -25,16 +23,13 @@ import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ExtendsTagTest {
+public class ExtendsTagTest extends BaseTagTest {
   private ExtendsTagTestResourceLocator locator;
-  private Jinjava jinjava;
 
   @Before
   public void setup() {
     locator = new ExtendsTagTestResourceLocator();
 
-    JinjavaConfig conf = new JinjavaConfig();
-    jinjava = new Jinjava(conf);
     jinjava.setResourceLocator(locator);
   }
 

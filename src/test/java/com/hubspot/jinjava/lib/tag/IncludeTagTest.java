@@ -17,16 +17,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Optional;
-import org.junit.Before;
 import org.junit.Test;
 
-public class IncludeTagTest {
-  Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
+public class IncludeTagTest extends BaseTagTest {
 
   @Test
   public void itAvoidsSimpleIncludeCycles() throws IOException {

@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
@@ -22,13 +20,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FromTagTest {
-  private Context context;
-  private JinjavaInterpreter interpreter;
+public class FromTagTest extends BaseTagTest {
 
   @Before
   public void setup() {
-    Jinjava jinjava = new Jinjava();
     jinjava.setResourceLocator(
       new ResourceLocator() {
         private RelativePathResolver relativePathResolver = new RelativePathResolver();
@@ -53,10 +48,8 @@ public class FromTagTest {
       }
     );
 
-    interpreter = jinjava.newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
 
-    context = interpreter.getContext();
     context.put("padding", 42);
   }
 
