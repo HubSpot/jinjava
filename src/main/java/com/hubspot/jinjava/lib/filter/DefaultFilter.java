@@ -36,11 +36,12 @@ import org.apache.commons.lang3.BooleanUtils;
   params = {
     @JinjavaParam(
       value = "default_value",
+      type = "object",
       desc = "Value to print when variable is not defined",
       required = true
     ),
     @JinjavaParam(
-      value = "boolean",
+      value = "truthy",
       type = "boolean",
       defaultValue = "False",
       desc = "Set to True to use with variables which evaluate to false"
@@ -57,18 +58,15 @@ import org.apache.commons.lang3.BooleanUtils;
     )
   }
 )
-public class DefaultFilter implements AdvancedFilter {
+public class DefaultFilter extends AbstractFilter implements AdvancedFilter {
 
   @Override
   public Object filter(
     Object object,
     JinjavaInterpreter interpreter,
-    Object[] args,
-    Map<String, Object> kwargs
+    Map<String, Object> parsedArgs
   ) {
-    boolean truthy = false;
-
-    if (args.length < 1) {
+    if (parsedArgs.size() < 1) {
       throw new TemplateSyntaxException(
         interpreter,
         getName(),
@@ -76,9 +74,8 @@ public class DefaultFilter implements AdvancedFilter {
       );
     }
 
-    if (args.length > 1) {
-      truthy = BooleanUtils.toBoolean(Objects.toString(args[1]));
-    }
+    boolean truthy = (boolean) parsedArgs.get("truthy");
+    Object defaultValue = parsedArgs.get("default_value");
 
     if (truthy) {
       if (ObjectTruthValue.evaluate(object)) {
@@ -88,7 +85,7 @@ public class DefaultFilter implements AdvancedFilter {
       return object;
     }
 
-    return args[0] instanceof PyWrapper ? args[0] : Objects.toString(args[0]);
+    return defaultValue instanceof PyWrapper ? defaultValue : Objects.toString(defaultValue);
   }
 
   @Override

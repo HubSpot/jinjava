@@ -8,6 +8,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +41,7 @@ import org.apache.commons.lang3.math.NumberUtils;
     )
   }
 )
-public class IndentFilter implements Filter {
+public class IndentFilter extends AbstractFilter {
 
   @Override
   public String getName() {
@@ -48,16 +49,12 @@ public class IndentFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    int width = 4;
-    if (args.length > 0) {
-      width = NumberUtils.toInt(args[0], 4);
-    }
+  public Object filter(Object var,
+                       JinjavaInterpreter interpreter,
+                       Map<String, Object> parsedArgs) {
+    int width = ((Number)parsedArgs.get("width")).intValue();
 
-    boolean indentFirst = false;
-    if (args.length > 1) {
-      indentFirst = BooleanUtils.toBoolean(args[1]);
-    }
+    boolean indentFirst = (boolean)parsedArgs.get("indentfirst");
 
     List<String> indentedLines = new ArrayList<>();
     for (String line : NEWLINE_SPLITTER.split(Objects.toString(var, ""))) {

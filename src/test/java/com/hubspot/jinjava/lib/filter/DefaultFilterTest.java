@@ -57,4 +57,15 @@ public class DefaultFilterTest extends BaseJinjavaTest {
       )
       .isEqualTo("str");
   }
+
+  @Test
+  public void itCorrectlyProcessesNamedParameters() {
+    assertThat(
+            jinjava.render(
+                    "{% set d=d | default(truthy=False, default_value={\"key\": \"value\"}) %}Type = {{ type(d.key) }}",
+                    new HashMap<>()
+                          )
+              )
+            .isEqualTo("Type = str");
+  }
 }
