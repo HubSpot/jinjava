@@ -21,9 +21,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -43,8 +43,11 @@ import org.apache.commons.lang3.math.NumberUtils;
  */
 public abstract class AbstractFilter implements Filter {
 
-  private Map<String, JinjavaParam> namedArguments;
-  private boolean isNamedArgumentCheckDone;
+  private final Map<String, JinjavaParam> NAMED_ARGUMENTS;
+
+  public AbstractFilter() {
+    NAMED_ARGUMENTS = initNamedArguments();
+  }
 
   abstract Object filter(
           Object var,
@@ -60,25 +63,26 @@ public abstract class AbstractFilter implements Filter {
           JinjavaInterpreter interpreter,
           Object[] args,
           Map<String, Object> kwargs) {
-    Map<String, JinjavaParam> validNamedArgs = getNamedArguments();
     Map<String, Object> namedArgs = new HashMap<>();
     //Set defaults
-    validNamedArgs.forEach((k, v) -> {
+    NAMED_ARGUMENTS.forEach((k, v) -> {
       if (StringUtils.isNotEmpty(v.defaultValue())) {
         namedArgs.put(k, v.defaultValue());
       }
     });
     //Process named params
-    for (String passedNamedArg : kwargs.keySet()) {
-      int argPosition = getNamedArgumentPosition(passedNamedArg);
+    for (Map.Entry<String, Object> passedNamedArgEntry : kwargs.entrySet()) {
+      String argName = passedNamedArgEntry.getKey();
+      Object argValue = passedNamedArgEntry.getValue();
+      int argPosition = getNamedArgumentPosition(argName);
       if (argPosition == -1) {
         throw new InvalidInputException(
                 interpreter,
                 "INVALID_ARG_NAME",
-                String.format("Argument named '%s' is invalid for filter %s", passedNamedArg, getName())
+                String.format("Argument named '%s' is invalid for filter %s", argName, getName())
         );
       }
-      namedArgs.put(passedNamedArg, kwargs.get(passedNamedArg));
+      namedArgs.put(argName, argValue);
     }
 
     //Process indexed params, as declared
@@ -97,52 +101,54 @@ public abstract class AbstractFilter implements Filter {
 
     //Parse args based on their declared types
     Map<String, Object> parsedArgs = new HashMap<>();
-    namedArgs.forEach((k, v) -> parsedArgs.put(k, parseArg(interpreter, validNamedArgs.get(k), v)));
+    namedArgs.forEach((k, v) -> parsedArgs.put(k, parseArg(interpreter, NAMED_ARGUMENTS.get(k), v)));
 
     validateArgs(interpreter, parsedArgs);
 
     return filter(var, interpreter, parsedArgs);
   }
 
-  public Object parseArg(JinjavaInterpreter interpreter, JinjavaParam jinjavaParamMetadata, Object value) {
-    if (jinjavaParamMetadata.type() == null ||
+  protected Object parseArg(JinjavaInterpreter interpreter, JinjavaParam jinjavaParamMetadata, Object value) {
+    if (jinjavaParamMetadata.type() == null || value == null ||
         Arrays.asList("object", "dict", "sequence").contains(jinjavaParamMetadata.type())) {
       return value;
     }
     String valueString = Objects.toString(value, null);
     switch (jinjavaParamMetadata.type().toLowerCase()) {
-      case "boolean": {
-        return BooleanUtils.toBoolean(valueString);
-      }
-      case "int": {
-        return NumberUtils.toInt(valueString);
-      }
-      case "long": {
-        return NumberUtils.toLong(valueString);
-      }
-      case "float": {
-        return NumberUtils.toFloat(valueString);
-      }
-      case "double": {
-        return NumberUtils.toDouble(valueString);
-      }
-      case "number": {
-        return new BigDecimal(valueString);
-      }
-      case "string": {
+      case "boolean":
+        return value instanceof Boolean ? (Boolean) value : BooleanUtils.toBooleanObject(valueString);
+
+      case "int":
+        return value instanceof Integer ? (Integer) value : NumberUtils.toInt(valueString);
+
+      case "long":
+        return value instanceof Long ? (Long) value : NumberUtils.toLong(valueString);
+
+      case "float":
+        return value instanceof Float ? (Float) value : NumberUtils.toFloat(valueString);
+
+      case "double":
+        return value instanceof Double ? (Double) value : NumberUtils.toDouble(valueString);
+
+      case "number":
+        return value instanceof Number ? (Number) value : new BigDecimal(valueString);
+
+      case "string":
         return valueString;
-      }
+
+      default:
+        throw new InvalidInputException(
+                interpreter,
+                "INVALID_ARG_NAME",
+                String.format("Argument named '%s' with value '%s' cannot be parsed for filter %s", jinjavaParamMetadata.value(), value, getName())
+        );
+
     }
-    throw new InvalidInputException(
-            interpreter,
-            "INVALID_ARG_NAME",
-            String.format("Argument named '%s' with value '%s' cannot be parsed for filter %s", jinjavaParamMetadata.value(), getName())
-    );
   }
 
   public void validateArgs(JinjavaInterpreter interpreter, Map<String, Object> parsedArgs) {
-    for(JinjavaParam jinjavaParam: getNamedArguments().values()) {
-      if(jinjavaParam.required() && !parsedArgs.containsKey(jinjavaParam.value())) {
+    for (JinjavaParam jinjavaParam : NAMED_ARGUMENTS.values()) {
+      if (jinjavaParam.required() && !parsedArgs.containsKey(jinjavaParam.value())) {
         throw new InvalidInputException(
                 interpreter,
                 "MISSING_REQUIRED_ARG",
@@ -152,38 +158,35 @@ public abstract class AbstractFilter implements Filter {
     }
   }
 
-  public Map<String, JinjavaParam> getNamedArguments() {
-    if (isNamedArgumentCheckDone) {
-      return namedArguments;
-    }
-    JinjavaDoc jinjavaDoc = this.getClass().getAnnotation(JinjavaDoc.class);
-    if (jinjavaDoc != null) {
-      namedArguments = new LinkedHashMap<>();
-      for (JinjavaParam jinjavaParam: jinjavaDoc.params()) {
-        namedArguments.put(jinjavaParam.value(), jinjavaParam);
-      }
-      namedArguments = Collections.unmodifiableMap(namedArguments);
-    }
-    isNamedArgumentCheckDone = true;
-    return namedArguments;
-  }
-
   public int getNamedArgumentPosition(String argName) {
-    getNamedArguments();
-    if (namedArguments != null) {
-      List<String> argNames = new ArrayList<>(namedArguments.keySet());
-      return argNames.contains(argName) ? argNames.indexOf(argName) : -1;
-    }
-    return -1;
+    return Optional.ofNullable(NAMED_ARGUMENTS)
+                   .map(Map::keySet)
+                   .map(ArrayList::new)
+                   .flatMap(argNames -> Optional.of(argNames.indexOf(argName)))
+            .orElse(-1);
   }
 
   public String getIndexedArgumentName(int position) {
-    getNamedArguments();
-    if (namedArguments != null) {
-      List<String> argNames = new ArrayList<>(namedArguments.keySet());
-      return argNames.size() > position ? argNames.get(position) : null;
+    return Optional.ofNullable(NAMED_ARGUMENTS)
+                   .map(Map::keySet)
+                   .map(ArrayList::new)
+                   .flatMap(argNames -> Optional.ofNullable(argNames.size() > position ? argNames.get(position) : null))
+                   .orElse(null);
+  }
+
+
+
+  public Map<String, JinjavaParam> initNamedArguments() {
+    JinjavaDoc jinjavaDoc = this.getClass().getAnnotation(JinjavaDoc.class);
+    if (jinjavaDoc != null) {
+      Map<String, JinjavaParam> namedArgs = new LinkedHashMap<>();
+      for (JinjavaParam jinjavaParam : jinjavaDoc.params()) {
+        namedArgs.put(jinjavaParam.value(), jinjavaParam);
+      }
+      return Collections.unmodifiableMap(namedArgs);
+    } else {
+      throw new UnsupportedOperationException(String.format("%s: @JinjavaDoc must be configured for filter %s to function", getClass(), getName()));
     }
-    return null;
   }
 
 }

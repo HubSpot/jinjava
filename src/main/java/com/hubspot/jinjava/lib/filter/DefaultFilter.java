@@ -15,6 +15,9 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.Map;
+import java.util.Objects;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -22,9 +25,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.util.ObjectTruthValue;
-import java.util.Map;
-import java.util.Objects;
-import org.apache.commons.lang3.BooleanUtils;
 
 @JinjavaDoc(
   value = "If the value is undefined it will return the passed default value, otherwise the value of the variable",

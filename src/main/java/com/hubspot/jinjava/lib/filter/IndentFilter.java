@@ -1,18 +1,17 @@
 package com.hubspot.jinjava.lib.filter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 @JinjavaDoc(
   value = "Uses whitespace to indent a string.",
@@ -52,9 +51,9 @@ public class IndentFilter extends AbstractFilter {
   public Object filter(Object var,
                        JinjavaInterpreter interpreter,
                        Map<String, Object> parsedArgs) {
-    int width = ((Number)parsedArgs.get("width")).intValue();
+    int width = ((Number) parsedArgs.get("width")).intValue();
 
-    boolean indentFirst = (boolean)parsedArgs.get("indentfirst");
+    boolean indentFirst = (boolean) parsedArgs.get("indentfirst");
 
     List<String> indentedLines = new ArrayList<>();
     for (String line : NEWLINE_SPLITTER.split(Objects.toString(var, ""))) {
