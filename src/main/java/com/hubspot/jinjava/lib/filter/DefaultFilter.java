@@ -15,9 +15,6 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Map;
-import java.util.Objects;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -25,6 +22,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.util.ObjectTruthValue;
+import java.util.Map;
+import java.util.Objects;
 
 @JinjavaDoc(
   value = "If the value is undefined it will return the passed default value, otherwise the value of the variable",
@@ -85,7 +84,9 @@ public class DefaultFilter extends AbstractFilter implements AdvancedFilter {
       return object;
     }
 
-    return defaultValue instanceof PyWrapper ? defaultValue : Objects.toString(defaultValue);
+    return defaultValue instanceof PyWrapper
+      ? defaultValue
+      : Objects.toString(defaultValue);
   }
 
   @Override

@@ -61,11 +61,11 @@ public class DefaultFilterTest extends BaseJinjavaTest {
   @Test
   public void itCorrectlyProcessesNamedParameters() {
     assertThat(
-            jinjava.render(
-                    "{% set d=d | default(truthy=False, default_value={\"key\": \"value\"}) %}Type = {{ type(d.key) }}",
-                    new HashMap<>()
-                          )
-              )
-            .isEqualTo("Type = str");
+        jinjava.render(
+          "{% set d=d | default(truthy=False, default_value={\"key\": \"value\"}) %}Type = {{ type(d.key) }}",
+          new HashMap<>()
+        )
+      )
+      .isEqualTo("Type = str");
   }
 }

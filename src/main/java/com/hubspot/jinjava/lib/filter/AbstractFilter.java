@@ -15,6 +15,10 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.interpret.InvalidInputException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,11 +28,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-
-import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
-import com.hubspot.jinjava.doc.annotations.JinjavaParam;
-import com.hubspot.jinjava.interpret.InvalidInputException;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +41,6 @@ import org.apache.commons.lang3.math.NumberUtils;
  * @see JinjavaParam
  */
 public abstract class AbstractFilter implements Filter {
-
   private final Map<String, JinjavaParam> NAMED_ARGUMENTS;
 
   public AbstractFilter() {
@@ -50,26 +48,30 @@ public abstract class AbstractFilter implements Filter {
   }
 
   abstract Object filter(
-          Object var,
-          JinjavaInterpreter interpreter,
-          Map<String, Object> parsedArgs);
+    Object var,
+    JinjavaInterpreter interpreter,
+    Map<String, Object> parsedArgs
+  );
 
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     throw new NotImplementedException("Not implemented");
   }
 
   public Object filter(
-          Object var,
-          JinjavaInterpreter interpreter,
-          Object[] args,
-          Map<String, Object> kwargs) {
+    Object var,
+    JinjavaInterpreter interpreter,
+    Object[] args,
+    Map<String, Object> kwargs
+  ) {
     Map<String, Object> namedArgs = new HashMap<>();
     //Set defaults
-    NAMED_ARGUMENTS.forEach((k, v) -> {
-      if (StringUtils.isNotEmpty(v.defaultValue())) {
-        namedArgs.put(k, v.defaultValue());
+    NAMED_ARGUMENTS.forEach(
+      (k, v) -> {
+        if (StringUtils.isNotEmpty(v.defaultValue())) {
+          namedArgs.put(k, v.defaultValue());
+        }
       }
-    });
+    );
     //Process named params
     for (Map.Entry<String, Object> passedNamedArgEntry : kwargs.entrySet()) {
       String argName = passedNamedArgEntry.getKey();
@@ -77,9 +79,13 @@ public abstract class AbstractFilter implements Filter {
       int argPosition = getNamedArgumentPosition(argName);
       if (argPosition == -1) {
         throw new InvalidInputException(
-                interpreter,
-                "INVALID_ARG_NAME",
-                String.format("Argument named '%s' is invalid for filter %s", argName, getName())
+          interpreter,
+          "INVALID_ARG_NAME",
+          String.format(
+            "Argument named '%s' is invalid for filter %s",
+            argName,
+            getName()
+          )
         );
       }
       namedArgs.put(argName, argValue);
@@ -91,9 +97,9 @@ public abstract class AbstractFilter implements Filter {
       String argName = getIndexedArgumentName(i);
       if (argName == null) {
         throw new InvalidInputException(
-                interpreter,
-                "INVALID_ARG_NAME",
-                String.format("Argument at index '%s' is invalid for filter %s", i, getName())
+          interpreter,
+          "INVALID_ARG_NAME",
+          String.format("Argument at index '%s' is invalid for filter %s", i, getName())
         );
       }
       namedArgs.put(argName, arg);
@@ -101,80 +107,102 @@ public abstract class AbstractFilter implements Filter {
 
     //Parse args based on their declared types
     Map<String, Object> parsedArgs = new HashMap<>();
-    namedArgs.forEach((k, v) -> parsedArgs.put(k, parseArg(interpreter, NAMED_ARGUMENTS.get(k), v)));
+    namedArgs.forEach(
+      (k, v) -> parsedArgs.put(k, parseArg(interpreter, NAMED_ARGUMENTS.get(k), v))
+    );
 
     validateArgs(interpreter, parsedArgs);
 
     return filter(var, interpreter, parsedArgs);
   }
 
-  protected Object parseArg(JinjavaInterpreter interpreter, JinjavaParam jinjavaParamMetadata, Object value) {
-    if (jinjavaParamMetadata.type() == null || value == null ||
-        Arrays.asList("object", "dict", "sequence").contains(jinjavaParamMetadata.type())) {
+  protected Object parseArg(
+    JinjavaInterpreter interpreter,
+    JinjavaParam jinjavaParamMetadata,
+    Object value
+  ) {
+    if (
+      jinjavaParamMetadata.type() == null ||
+      value == null ||
+      Arrays.asList("object", "dict", "sequence").contains(jinjavaParamMetadata.type())
+    ) {
       return value;
     }
     String valueString = Objects.toString(value, null);
     switch (jinjavaParamMetadata.type().toLowerCase()) {
       case "boolean":
-        return value instanceof Boolean ? (Boolean) value : BooleanUtils.toBooleanObject(valueString);
-
+        return value instanceof Boolean
+          ? (Boolean) value
+          : BooleanUtils.toBooleanObject(valueString);
       case "int":
-        return value instanceof Integer ? (Integer) value : NumberUtils.toInt(valueString);
-
+        return value instanceof Integer
+          ? (Integer) value
+          : NumberUtils.toInt(valueString);
       case "long":
         return value instanceof Long ? (Long) value : NumberUtils.toLong(valueString);
-
       case "float":
         return value instanceof Float ? (Float) value : NumberUtils.toFloat(valueString);
-
       case "double":
-        return value instanceof Double ? (Double) value : NumberUtils.toDouble(valueString);
-
+        return value instanceof Double
+          ? (Double) value
+          : NumberUtils.toDouble(valueString);
       case "number":
         return value instanceof Number ? (Number) value : new BigDecimal(valueString);
-
       case "string":
         return valueString;
-
       default:
         throw new InvalidInputException(
-                interpreter,
-                "INVALID_ARG_NAME",
-                String.format("Argument named '%s' with value '%s' cannot be parsed for filter %s", jinjavaParamMetadata.value(), value, getName())
+          interpreter,
+          "INVALID_ARG_NAME",
+          String.format(
+            "Argument named '%s' with value '%s' cannot be parsed for filter %s",
+            jinjavaParamMetadata.value(),
+            value,
+            getName()
+          )
         );
-
     }
   }
 
-  public void validateArgs(JinjavaInterpreter interpreter, Map<String, Object> parsedArgs) {
+  public void validateArgs(
+    JinjavaInterpreter interpreter,
+    Map<String, Object> parsedArgs
+  ) {
     for (JinjavaParam jinjavaParam : NAMED_ARGUMENTS.values()) {
       if (jinjavaParam.required() && !parsedArgs.containsKey(jinjavaParam.value())) {
         throw new InvalidInputException(
-                interpreter,
-                "MISSING_REQUIRED_ARG",
-                String.format("Argument named '%s' is required but missing for filter %s", jinjavaParam.value(), getName())
+          interpreter,
+          "MISSING_REQUIRED_ARG",
+          String.format(
+            "Argument named '%s' is required but missing for filter %s",
+            jinjavaParam.value(),
+            getName()
+          )
         );
       }
     }
   }
 
   public int getNamedArgumentPosition(String argName) {
-    return Optional.ofNullable(NAMED_ARGUMENTS)
-                   .map(Map::keySet)
-                   .map(ArrayList::new)
-                   .flatMap(argNames -> Optional.of(argNames.indexOf(argName)))
-            .orElse(-1);
+    return Optional
+      .ofNullable(NAMED_ARGUMENTS)
+      .map(Map::keySet)
+      .map(ArrayList::new)
+      .flatMap(argNames -> Optional.of(argNames.indexOf(argName)))
+      .orElse(-1);
   }
 
   public String getIndexedArgumentName(int position) {
-    return Optional.ofNullable(NAMED_ARGUMENTS)
-                   .map(Map::keySet)
-                   .map(ArrayList::new)
-                   .flatMap(argNames -> Optional.ofNullable(argNames.size() > position ? argNames.get(position) : null))
-                   .orElse(null);
+    return Optional
+      .ofNullable(NAMED_ARGUMENTS)
+      .map(Map::keySet)
+      .map(ArrayList::new)
+      .flatMap(
+        argNames ->
+          Optional.ofNullable(argNames.size() > position ? argNames.get(position) : null)
+      )
+      .orElse(null);
   }
-
-
 
   public Map<String, JinjavaParam> initNamedArguments() {
     JinjavaDoc jinjavaDoc = this.getClass().getAnnotation(JinjavaDoc.class);
@@ -185,8 +213,13 @@ public abstract class AbstractFilter implements Filter {
       }
       return Collections.unmodifiableMap(namedArgs);
     } else {
-      throw new UnsupportedOperationException(String.format("%s: @JinjavaDoc must be configured for filter %s to function", getClass(), getName()));
+      throw new UnsupportedOperationException(
+        String.format(
+          "%s: @JinjavaDoc must be configured for filter %s to function",
+          getClass(),
+          getName()
+        )
+      );
     }
   }
-
 }
