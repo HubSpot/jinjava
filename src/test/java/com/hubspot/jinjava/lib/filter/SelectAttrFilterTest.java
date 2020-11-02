@@ -3,17 +3,15 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.Lists;
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SelectAttrFilterTest {
-  Jinjava jinjava;
+public class SelectAttrFilterTest extends BaseJinjavaTest {
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
     jinjava
       .getGlobalContext()
       .put(
@@ -46,6 +44,17 @@ public class SelectAttrFilterTest {
         )
       )
       .isEqualTo("[2]");
+  }
+
+  @Test
+  public void selectAttrWithSymbolicExp() {
+    assertThat(
+        jinjava.render(
+          "{{ users|selectattr('isActive', '==', 'true') }}",
+          new HashMap<String, Object>()
+        )
+      )
+      .isEqualTo("[1]");
   }
 
   @Test

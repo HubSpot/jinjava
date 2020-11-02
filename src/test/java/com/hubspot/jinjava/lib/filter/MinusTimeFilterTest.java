@@ -3,7 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -12,12 +12,10 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MinusTimeFilterTest {
-  Jinjava jinjava;
+public class MinusTimeFilterTest extends BaseJinjavaTest {
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
     jinjava.getGlobalContext().registerClasses(EscapeJsFilter.class);
   }
 

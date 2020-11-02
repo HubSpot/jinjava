@@ -3,9 +3,7 @@ package com.hubspot.jinjava.lib.tag;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.Context;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
 import java.io.IOException;
@@ -13,17 +11,11 @@ import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Test;
 
-public class UnlessTagTest {
-  JinjavaInterpreter interpreter;
-  UnlessTag tag;
-
-  Context context;
+public class UnlessTagTest extends BaseInterpretingTest {
+  public Tag tag;
 
   @Before
-  public void setup() {
-    interpreter = new Jinjava().newInterpreter();
-    context = interpreter.getContext();
-
+  public void setupTag() {
     tag = new UnlessTag();
   }
 

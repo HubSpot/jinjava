@@ -3,17 +3,15 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.Lists;
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SelectFilterTest {
-  Jinjava jinjava;
+public class SelectFilterTest extends BaseJinjavaTest {
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
     jinjava.getGlobalContext().put("numbers", Lists.newArrayList(1L, 2L, 3L, 4L, 5L));
   }
 

@@ -15,18 +15,15 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import org.junit.Before;
 import org.junit.Test;
 
-public class BoolFilterTest {
+public class BoolFilterTest extends BaseInterpretingTest {
   BoolFilter filter;
-  JinjavaInterpreter interpreter;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
     filter = new BoolFilter();
   }
 

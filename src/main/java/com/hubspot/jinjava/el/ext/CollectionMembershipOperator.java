@@ -8,6 +8,7 @@ import de.odysseus.el.tree.impl.ast.AstBinary;
 import de.odysseus.el.tree.impl.ast.AstBinary.SimpleOperator;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 import javax.el.ELException;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +39,18 @@ public class CollectionMembershipOperator extends SimpleOperator {
           } catch (ELException e) {
             return Boolean.FALSE;
           }
+        }
+      }
+    }
+
+    if (Map.class.isAssignableFrom(o2.getClass())) {
+      Map map = (Map) o2;
+      if (!map.isEmpty()) {
+        try {
+          Class<?> keyClass = map.keySet().iterator().next().getClass();
+          return map.containsKey(converter.convert(o1, keyClass));
+        } catch (ELException e) {
+          return Boolean.FALSE;
         }
       }
     }

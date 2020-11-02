@@ -2,20 +2,13 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
 import org.junit.Test;
 
-public class UniqueFilterTest {
-  Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
+public class UniqueFilterTest extends BaseJinjavaTest {
 
   @Test
   public void itDoesntFilterWhenNoDuplicateItemsInSeq() {

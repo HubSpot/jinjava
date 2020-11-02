@@ -25,9 +25,13 @@ public class IsIterableExpTest implements ExpTest {
 
   @Override
   public boolean evaluate(Object var, JinjavaInterpreter interpreter, Object... args) {
+    return isIterable(var);
+  }
+
+  static boolean isIterable(Object ob) {
     return (
-      var != null &&
-      (var.getClass().isArray() || Iterable.class.isAssignableFrom(var.getClass()))
+      ob != null &&
+      (ob.getClass().isArray() || Iterable.class.isAssignableFrom(ob.getClass()))
     );
   }
 }

@@ -19,7 +19,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
   ),
   snippets = {
     @JinjavaSnippet(
-      code = "{% if variable is divisbleby 5 %}\n" +
+      code = "{% if variable is divisibleby 5 %}\n" +
       "   <!--code to render if variable can be divided by 5-->\n" +
       "{% else %}\n" +
       "   <!--code to render if variable cannot be divided by 5-->\n" +
@@ -42,6 +42,14 @@ public class IsDivisibleByExpTest implements ExpTest {
     if (!Number.class.isAssignableFrom(var.getClass())) {
       return false;
     }
+    Number freeFormDividend = (Number) var;
+    if (
+      Math.ceil(freeFormDividend.doubleValue()) !=
+      Math.floor(freeFormDividend.doubleValue())
+    ) {
+      return false;
+    }
+    int dividend = freeFormDividend.intValue();
 
     if (args.length == 0) {
       throw new TemplateSyntaxException(
@@ -65,6 +73,31 @@ public class IsDivisibleByExpTest implements ExpTest {
       );
     }
 
-    return ((Number) var).intValue() % ((Number) args[0]).intValue() == 0;
+    Number freeFormDivisor = (Number) args[0];
+    if (
+      Math.floor(freeFormDivisor.doubleValue()) !=
+      Math.ceil(freeFormDivisor.doubleValue())
+    ) {
+      throw new InvalidArgumentException(
+        interpreter,
+        this,
+        InvalidReason.NON_ZERO_NUMBER,
+        0,
+        args[0].toString()
+      );
+    }
+
+    int divisor = ((Number) args[0]).intValue();
+    if (divisor == 0) {
+      throw new InvalidArgumentException(
+        interpreter,
+        this,
+        InvalidReason.NON_ZERO_NUMBER,
+        0,
+        args[0].toString()
+      );
+    }
+
+    return (dividend % divisor) == 0;
   }
 }

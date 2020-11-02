@@ -5,18 +5,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.lib.filter.JoinFilterTest.User;
-import org.junit.Before;
 import org.junit.Test;
 
-public class MapFilterTest {
-  Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
+public class MapFilterTest extends BaseJinjavaTest {
 
   @Test
   public void mapAttr() {

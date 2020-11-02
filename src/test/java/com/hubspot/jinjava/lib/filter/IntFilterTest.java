@@ -2,16 +2,16 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
 
-public class IntFilterTest {
+public class IntFilterTest extends BaseInterpretingTest {
   private static final Locale FRENCH_LOCALE = new Locale("fr", "FR");
   private static final JinjavaConfig FRENCH_LOCALE_CONFIG = new JinjavaConfig(
     StandardCharsets.UTF_8,
@@ -21,11 +21,9 @@ public class IntFilterTest {
   );
 
   IntFilter filter;
-  JinjavaInterpreter interpreter;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
     filter = new IntFilter();
   }
 

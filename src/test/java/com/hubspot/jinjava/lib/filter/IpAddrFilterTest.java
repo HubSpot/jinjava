@@ -3,8 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.objects.SafeString;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,18 +14,16 @@ import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
 
-public class IpAddrFilterTest {
+public class IpAddrFilterTest extends BaseInterpretingTest {
   private IpAddrFilter ipAddrFilter;
   private Ipv4Filter ipv4Filter;
   private Ipv6Filter ipv6Filter;
-  private JinjavaInterpreter interpreter;
 
   @Before
   public void setup() {
     ipAddrFilter = new IpAddrFilter();
     ipv4Filter = new Ipv4Filter();
     ipv6Filter = new Ipv6Filter();
-    interpreter = new Jinjava().newInterpreter();
   }
 
   @Test
@@ -134,6 +131,8 @@ public class IpAddrFilterTest {
   public void itReturnsIpv4AddressAddress() {
     assertThat(ipAddrFilter.filter("192.168.0.1/20", interpreter, "address"))
       .isEqualTo("192.168.0.1");
+    assertThat(ipAddrFilter.filter("192.168.0.2", interpreter, "address"))
+      .isEqualTo("192.168.0.2");
   }
 
   @Test
@@ -146,6 +145,14 @@ public class IpAddrFilterTest {
         )
       )
       .isEqualTo("1200:0000:AB00:1234:0000:2552:7777:1313");
+    assertThat(
+        ipAddrFilter.filter(
+          "1200:0000:AB00:1234:0000:2552:7777:1314",
+          interpreter,
+          "address"
+        )
+      )
+      .isEqualTo("1200:0000:AB00:1234:0000:2552:7777:1314");
   }
 
   @Test
@@ -275,7 +282,12 @@ public class IpAddrFilterTest {
       null,
       13
     );
-    List<Object> expectedAddresses = Arrays.asList("192.168.32.0", "fe80::100");
+    List<Object> expectedAddresses = Arrays.asList(
+      "192.24.2.1",
+      "::1",
+      "192.168.32.0",
+      "fe80::100"
+    );
     assertThat(ipAddrFilter.filter(inputAddresses, interpreter, "address"))
       .isEqualTo(expectedAddresses);
   }

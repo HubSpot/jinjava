@@ -3,21 +3,14 @@ package com.hubspot.jinjava.lib.tag;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Before;
 import org.junit.Test;
 
-public class AutoEscapeTagTest {
-  private Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
+public class AutoEscapeTagTest extends BaseJinjavaTest {
 
   @Test
   public void itEscapesVarsInScope() throws IOException {

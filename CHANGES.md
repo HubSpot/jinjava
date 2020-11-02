@@ -1,4 +1,10 @@
 # Jinjava Releases #
+### 2020-10-07 Version 2.5.6 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.6%7Cjar)) ###
+* [Accept ip address without network prefix in ipaddr('address') filter](https://github.com/HubSpot/jinjava/pull/512)
+* [Expression test parity with jinja including isIterable](https://github.com/HubSpot/jinjava/pull/510)
+* [Support IN operator for dictionaries](https://github.com/HubSpot/jinjava/pull/493)
+* [Disallow adding a pyMap to itself](https://github.com/HubSpot/jinjava/pull/489)
+* [Disallow adding a map to itself](https://github.com/HubSpot/jinjava/pull/474)
 
 ### 2020-06-23 Version 2.5.5 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.5%7Cjar)) ###
 * [TagCycleException was thrown when rendering template that doesn't have any cycles](https://github.com/HubSpot/jinjava/pull/445)

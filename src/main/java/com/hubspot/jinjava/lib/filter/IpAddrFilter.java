@@ -202,7 +202,7 @@ public class IpAddrFilter implements Filter {
       parts.add("0");
     }
 
-    if (parts.size() != 2) {
+    if (parts.size() > 2) {
       return null;
     }
 
@@ -213,6 +213,10 @@ public class IpAddrFilter implements Filter {
 
     if (parameter.equalsIgnoreCase(ADDRESS_STRING)) {
       return ipAddress;
+    }
+
+    if (parts.size() != 2) {
+      return null;
     }
 
     String prefixString = parts.get(1);

@@ -2,21 +2,14 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import java.util.HashMap;
 import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.junit.Before;
 import org.junit.Test;
 
-public class XmlAttrFilterTest {
-  Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
+public class XmlAttrFilterTest extends BaseJinjavaTest {
 
   @Test
   public void testXmlAttr() {

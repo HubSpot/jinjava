@@ -1,20 +1,17 @@
 package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.objects.SafeString;
 import org.junit.Before;
 import org.junit.Test;
 
-public class EscapeJinjavaFilterTest {
-  JinjavaInterpreter interpreter;
+public class EscapeJinjavaFilterTest extends BaseInterpretingTest {
   EscapeJinjavaFilter f;
 
   @Before
   public void setup() {
-    interpreter = mock(JinjavaInterpreter.class);
     f = new EscapeJinjavaFilter();
   }
 

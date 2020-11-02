@@ -2,22 +2,13 @@ package com.hubspot.jinjava.lib.fn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.SafeString;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.junit.Before;
 import org.junit.Test;
 
 public class TypeFunctionTest {
-  private JinjavaInterpreter interpreter;
-
-  @Before
-  public void setup() {
-    interpreter = new Jinjava().newInterpreter();
-  }
 
   @Test
   public void testString() {

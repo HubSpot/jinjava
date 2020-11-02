@@ -55,6 +55,8 @@ public class JinjavaConfig {
   private InterpreterFactory interpreterFactory;
   private TokenScannerSymbols tokenScannerSymbols;
   private ELResolver elResolver;
+  private final boolean iterateOverMapKeys;
+  private final boolean preserveForFinalPass;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -83,7 +85,9 @@ public class JinjavaConfig {
       0,
       interpreterFactory,
       new DefaultTokenScannerSymbols(),
-      JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY
+      JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY,
+      false,
+      false
     );
   }
 
@@ -111,7 +115,9 @@ public class JinjavaConfig {
       0,
       new JinjavaInterpreterFactory(),
       new DefaultTokenScannerSymbols(),
-      JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY
+      JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY,
+      false,
+      false
     );
   }
 
@@ -133,7 +139,9 @@ public class JinjavaConfig {
     long maxStringLength,
     InterpreterFactory interpreterFactory,
     TokenScannerSymbols tokenScannerSymbols,
-    ELResolver elResolver
+    ELResolver elResolver,
+    boolean iterateOverMapKeys,
+    boolean preserveForFinalPass
   ) {
     this.charset = charset;
     this.locale = locale;
@@ -153,6 +161,8 @@ public class JinjavaConfig {
     this.interpreterFactory = interpreterFactory;
     this.tokenScannerSymbols = tokenScannerSymbols;
     this.elResolver = elResolver;
+    this.iterateOverMapKeys = iterateOverMapKeys;
+    this.preserveForFinalPass = preserveForFinalPass;
   }
 
   public Charset getCharset() {
@@ -231,6 +241,14 @@ public class JinjavaConfig {
     return elResolver;
   }
 
+  public boolean isIterateOverMapKeys() {
+    return iterateOverMapKeys;
+  }
+
+  public boolean isPreserveForFinalPass() {
+    return preserveForFinalPass;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -253,6 +271,8 @@ public class JinjavaConfig {
     private InterpreterFactory interpreterFactory = new JinjavaInterpreterFactory();
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
     private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
+    private boolean iterateOverMapKeys;
+    private boolean preserveForFinalPass;
 
     private Builder() {}
 
@@ -356,6 +376,16 @@ public class JinjavaConfig {
       return this;
     }
 
+    public Builder withIterateOverMapKeys(boolean iterateOverMapKeys) {
+      this.iterateOverMapKeys = iterateOverMapKeys;
+      return this;
+    }
+
+    public Builder withPreserveForFinalPass(boolean preserveForFinalPass) {
+      this.preserveForFinalPass = preserveForFinalPass;
+      return this;
+    }
+
     public JinjavaConfig build() {
       return new JinjavaConfig(
         charset,
@@ -375,7 +405,9 @@ public class JinjavaConfig {
         maxStringLength,
         interpreterFactory,
         tokenScannerSymbols,
-        elResolver
+        elResolver,
+        iterateOverMapKeys,
+        preserveForFinalPass
       );
     }
   }

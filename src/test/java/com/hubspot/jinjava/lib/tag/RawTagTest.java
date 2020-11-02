@@ -3,7 +3,9 @@ package com.hubspot.jinjava.lib.tag;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -16,13 +18,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RawTagTest {
-  JinjavaInterpreter interpreter;
-  RawTag tag;
+public class RawTagTest extends BaseInterpretingTest {
+  Tag tag;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
     tag = new RawTag();
   }
 
@@ -89,6 +89,79 @@ public class RawTagTest {
     TagNode tagNode = fixture("comment");
     assertThat(StringUtils.normalizeSpace(tag.interpret(tagNode, interpreter)))
       .contains("{{#each people}}");
+  }
+
+  @Test
+  public void itPreservesRawTags() {
+    TagNode tagNode = fixture("hubl");
+    JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
+      jinjava,
+      jinjava.getGlobalContextCopy(),
+      JinjavaConfig.newBuilder().withPreserveForFinalPass(true).build()
+    );
+    String result = tag.interpret(tagNode, preserveInterpreter);
+    try {
+      assertThat(result)
+        .isEqualTo(
+          Resources.toString(
+            Resources.getResource("tags/rawtag/hubl.jinja"),
+            StandardCharsets.UTF_8
+          )
+        );
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Test
+  public void itPreservesDeferredWhilePreservingRawTags() {
+    TagNode tagNode = fixture("deferred");
+    JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
+      jinjava,
+      jinjava.getGlobalContextCopy(),
+      JinjavaConfig.newBuilder().withPreserveForFinalPass(true).build()
+    );
+    preserveInterpreter.getContext().put("deferred", DeferredValue.instance());
+    interpreter.getContext().put("deferred", DeferredValue.instance());
+
+    String preservedResult = tag.interpret(tagNode, preserveInterpreter);
+    String nonPreservedResult = tag.interpret(tagNode, interpreter);
+    try {
+      assertThat(preservedResult)
+        .isEqualTo(
+          Resources
+            .toString(
+              Resources.getResource("tags/rawtag/deferred.jinja"),
+              StandardCharsets.UTF_8
+            )
+            .trim()
+        );
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    assertThat(nonPreservedResult).isEqualTo("{{ deferred }}");
+
+    // Should not get evaluated because it's wrapped in a raw tag.
+    String deferredRealValue = "Resolved value.";
+    preserveInterpreter.getContext().put("deferred", deferredRealValue);
+    interpreter.getContext().put("deferred", deferredRealValue);
+    String preservedIdempotent = tag.interpret(
+      (TagNode) new TreeParser(preserveInterpreter, preservedResult)
+        .buildTree()
+        .getChildren()
+        .getFirst(),
+      preserveInterpreter
+    );
+    String secondPass = tag.interpret(
+      (TagNode) new TreeParser(interpreter, preservedResult)
+        .buildTree()
+        .getChildren()
+        .getFirst(),
+      interpreter
+    );
+
+    assertThat(preservedIdempotent).isEqualTo(preservedResult);
+    assertThat(secondPass).isEqualTo("{{ deferred }}");
   }
 
   private TagNode fixture(String name) {

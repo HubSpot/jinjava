@@ -2,20 +2,17 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ToJsonFilterTest {
-  private JinjavaInterpreter interpreter;
+public class ToJsonFilterTest extends BaseInterpretingTest {
   private ToJsonFilter filter;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
     filter = new ToJsonFilter();
   }
 

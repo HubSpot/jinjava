@@ -2,20 +2,17 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-public class UrlEncodeFilterTest {
-  JinjavaInterpreter interpreter;
+public class UrlEncodeFilterTest extends BaseInterpretingTest {
   UrlEncodeFilter filter;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
     filter = new UrlEncodeFilter();
   }
 

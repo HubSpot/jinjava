@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.base.Splitter;
 import com.google.common.collect.SetMultimap;
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
@@ -17,16 +18,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Optional;
-import org.junit.Before;
 import org.junit.Test;
 
-public class IncludeTagTest {
-  Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
+public class IncludeTagTest extends BaseJinjavaTest {
 
   @Test
   public void itAvoidsSimpleIncludeCycles() throws IOException {

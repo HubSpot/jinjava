@@ -3,21 +3,13 @@ package com.hubspot.jinjava.lib.exptest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.objects.SafeString;
-import org.junit.Before;
 import org.junit.Test;
 
-public class IsUpperExpTestTest {
+public class IsUpperExpTestTest extends BaseJinjavaTest {
   private static final String STARTING_TEMPLATE = "{{ var is upper }}";
   private static final String SAFE_TEMPLATE = "{{ (var|safe) is upper }}";
-
-  private Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
 
   @Test
   public void itReturnsTrueForUpperString() {

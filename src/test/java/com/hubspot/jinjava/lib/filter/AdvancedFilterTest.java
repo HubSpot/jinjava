@@ -2,20 +2,17 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
 
-public class AdvancedFilterTest {
-  Jinjava jinjava;
+public class AdvancedFilterTest extends BaseJinjavaTest {
 
   @Test
   public void testOnlyArgs() {
-    jinjava = new Jinjava();
-
     Object[] expectedArgs = new Object[] { 3L, 1L };
     Map<String, Object> expectedKwargs = new HashMap<>();
 
@@ -29,8 +26,6 @@ public class AdvancedFilterTest {
 
   @Test
   public void testOnlyKwargs() {
-    jinjava = new Jinjava();
-
     Object[] expectedArgs = new Object[] {};
     Map<String, Object> expectedKwargs = new HashMap<String, Object>() {
 
@@ -56,8 +51,6 @@ public class AdvancedFilterTest {
 
   @Test
   public void itTestsNullKwargs() {
-    jinjava = new Jinjava();
-
     Object[] expectedArgs = new Object[] {};
     Map<String, Object> expectedKwargs = new HashMap<String, Object>() {
 
@@ -76,8 +69,6 @@ public class AdvancedFilterTest {
 
   @Test
   public void testMixedArgsAndKwargs() {
-    jinjava = new Jinjava();
-
     Object[] expectedArgs = new Object[] { 1L, 2L };
     Map<String, Object> expectedKwargs = new HashMap<String, Object>() {
 
@@ -96,8 +87,6 @@ public class AdvancedFilterTest {
 
   @Test
   public void testUnorderedArgsAndKwargs() {
-    jinjava = new Jinjava();
-
     Object[] expectedArgs = new Object[] { "1", 2L };
     Map<String, Object> expectedKwargs = new HashMap<String, Object>() {
 
@@ -118,8 +107,6 @@ public class AdvancedFilterTest {
 
   @Test
   public void testRepeatedKwargs() {
-    jinjava = new Jinjava();
-
     Object[] expectedArgs = new Object[] { true };
     Map<String, Object> expectedKwargs = new HashMap<String, Object>() {
 

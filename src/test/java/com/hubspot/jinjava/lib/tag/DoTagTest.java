@@ -3,25 +3,12 @@ package com.hubspot.jinjava.lib.tag;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.Maps;
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.Context;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
-import org.junit.Before;
 import org.junit.Test;
 
-public class DoTagTest {
-  private Context context;
-  private JinjavaInterpreter interpreter;
-  private Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-    interpreter = jinjava.newInterpreter();
-    context = interpreter.getContext();
-  }
+public class DoTagTest extends BaseJinjavaTest {
 
   @Test
   public void itResolvesExpressions() {

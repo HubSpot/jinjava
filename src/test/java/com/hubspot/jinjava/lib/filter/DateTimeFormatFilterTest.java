@@ -2,19 +2,17 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Locale;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DateTimeFormatFilterTest {
-  JinjavaInterpreter interpreter;
+public class DateTimeFormatFilterTest extends BaseInterpretingTest {
   DateTimeFormatFilter filter;
 
   ZonedDateTime d;
@@ -22,15 +20,8 @@ public class DateTimeFormatFilterTest {
   @Before
   public void setup() {
     Locale.setDefault(Locale.ENGLISH);
-    interpreter = new Jinjava().newInterpreter();
     filter = new DateTimeFormatFilter();
     d = ZonedDateTime.parse("2013-11-06T14:22:00.000+00:00[UTC]");
-    JinjavaInterpreter.pushCurrent(interpreter);
-  }
-
-  @After
-  public void clearCurrentInterpreter() {
-    JinjavaInterpreter.popCurrent();
   }
 
   @Test
@@ -118,6 +109,6 @@ public class DateTimeFormatFilterTest {
           "{{ d|datetimeformat('%A, %e %B', 'UTC', 'not_a_locale') }}"
         )
       )
-      .isEqualTo("Wed, 6 Nov");
+      .isEqualTo(Functions.dateTimeFormat(d, "%A, %e %B", "UTC", "America/Los_Angeles"));
   }
 }
