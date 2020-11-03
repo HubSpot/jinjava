@@ -10,10 +10,10 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.io.IOException;
 
 @JinjavaDoc(
-  value = "Converts YAML string to Object",
+  value = "Converts a YAML string to an object",
   input = @JinjavaParam(
     value = "string",
-    desc = "YAML String to write to object",
+    desc = "YAML String to convert to an object",
     required = true
   ),
   snippets = { @JinjavaSnippet(code = "{{object|fromYaml}}") }
