@@ -34,13 +34,13 @@ import java.util.Objects;
   ),
   params = {
     @JinjavaParam(
-      value = "default_value",
+      value = DefaultFilter.DEFAULT_VALUE_PARAM,
       type = "object",
       desc = "Value to print when variable is not defined",
       required = true
     ),
     @JinjavaParam(
-      value = "truthy",
+      value = DefaultFilter.TRUTHY_PARAM,
       type = "boolean",
       defaultValue = "False",
       desc = "Set to True to use with variables which evaluate to false"
@@ -58,6 +58,8 @@ import java.util.Objects;
   }
 )
 public class DefaultFilter extends AbstractFilter implements AdvancedFilter {
+  public static final String DEFAULT_VALUE_PARAM = "default_value";
+  public static final String TRUTHY_PARAM = "truthy";
 
   @Override
   public Object filter(
@@ -73,8 +75,8 @@ public class DefaultFilter extends AbstractFilter implements AdvancedFilter {
       );
     }
 
-    boolean truthy = (boolean) parsedArgs.get("truthy");
-    Object defaultValue = parsedArgs.get("default_value");
+    boolean truthy = (boolean) parsedArgs.get(TRUTHY_PARAM);
+    Object defaultValue = parsedArgs.get(DEFAULT_VALUE_PARAM);
 
     if (truthy) {
       if (ObjectTruthValue.evaluate(object)) {

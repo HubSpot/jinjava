@@ -17,13 +17,13 @@ import org.apache.commons.lang3.StringUtils;
   input = @JinjavaParam(value = "string", desc = "The string to indent", required = true),
   params = {
     @JinjavaParam(
-      value = "width",
+      value = IndentFilter.WIDTH_PARAM,
       type = "number",
       defaultValue = "4",
       desc = "Amount of whitespace to indent"
     ),
     @JinjavaParam(
-      value = "indentfirst",
+      value = IndentFilter.INDENT_FIRST_PARAM,
       type = "boolean",
       defaultValue = "False",
       desc = "If True, first line will be indented"
@@ -40,6 +40,8 @@ import org.apache.commons.lang3.StringUtils;
   }
 )
 public class IndentFilter extends AbstractFilter {
+  public static final String INDENT_FIRST_PARAM = "indentfirst";
+  public static final String WIDTH_PARAM = "width";
 
   @Override
   public String getName() {
@@ -52,9 +54,9 @@ public class IndentFilter extends AbstractFilter {
     JinjavaInterpreter interpreter,
     Map<String, Object> parsedArgs
   ) {
-    int width = ((Number) parsedArgs.get("width")).intValue();
+    int width = ((Number) parsedArgs.get(WIDTH_PARAM)).intValue();
 
-    boolean indentFirst = (boolean) parsedArgs.get("indentfirst");
+    boolean indentFirst = (boolean) parsedArgs.get(INDENT_FIRST_PARAM);
 
     List<String> indentedLines = new ArrayList<>();
     for (String line : NEWLINE_SPLITTER.split(Objects.toString(var, ""))) {

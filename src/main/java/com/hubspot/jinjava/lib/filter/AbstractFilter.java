@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
@@ -41,10 +42,12 @@ import org.apache.commons.lang3.math.NumberUtils;
  * @see JinjavaParam
  */
 public abstract class AbstractFilter implements Filter {
-  private final Map<String, JinjavaParam> NAMED_ARGUMENTS;
+  private final Map<String, JinjavaParam> namedArguments;
+  private final Map<String, Object> defaultValues;
 
   public AbstractFilter() {
-    NAMED_ARGUMENTS = initNamedArguments();
+    namedArguments = initNamedArguments();
+    defaultValues = initDefaultValues();
   }
 
   abstract Object filter(
@@ -65,13 +68,8 @@ public abstract class AbstractFilter implements Filter {
   ) {
     Map<String, Object> namedArgs = new HashMap<>();
     //Set defaults
-    NAMED_ARGUMENTS.forEach(
-      (k, v) -> {
-        if (StringUtils.isNotEmpty(v.defaultValue())) {
-          namedArgs.put(k, v.defaultValue());
-        }
-      }
-    );
+    namedArgs.putAll(defaultValues);
+
     //Process named params
     for (Map.Entry<String, Object> passedNamedArgEntry : kwargs.entrySet()) {
       String argName = passedNamedArgEntry.getKey();
@@ -108,7 +106,7 @@ public abstract class AbstractFilter implements Filter {
     //Parse args based on their declared types
     Map<String, Object> parsedArgs = new HashMap<>();
     namedArgs.forEach(
-      (k, v) -> parsedArgs.put(k, parseArg(interpreter, NAMED_ARGUMENTS.get(k), v))
+      (k, v) -> parsedArgs.put(k, parseArg(interpreter, namedArguments.get(k), v))
     );
 
     validateArgs(interpreter, parsedArgs);
@@ -168,7 +166,7 @@ public abstract class AbstractFilter implements Filter {
     JinjavaInterpreter interpreter,
     Map<String, Object> parsedArgs
   ) {
-    for (JinjavaParam jinjavaParam : NAMED_ARGUMENTS.values()) {
+    for (JinjavaParam jinjavaParam : namedArguments.values()) {
       if (jinjavaParam.required() && !parsedArgs.containsKey(jinjavaParam.value())) {
         throw new InvalidInputException(
           interpreter,
@@ -185,7 +183,7 @@ public abstract class AbstractFilter implements Filter {
 
   public int getNamedArgumentPosition(String argName) {
     return Optional
-      .ofNullable(NAMED_ARGUMENTS)
+      .ofNullable(namedArguments)
       .map(Map::keySet)
       .map(ArrayList::new)
       .flatMap(argNames -> Optional.of(argNames.indexOf(argName)))
@@ -194,7 +192,7 @@ public abstract class AbstractFilter implements Filter {
 
   public String getIndexedArgumentName(int position) {
     return Optional
-      .ofNullable(NAMED_ARGUMENTS)
+      .ofNullable(namedArguments)
       .map(Map::keySet)
       .map(ArrayList::new)
       .flatMap(
@@ -221,5 +219,14 @@ public abstract class AbstractFilter implements Filter {
         )
       );
     }
+  }
+
+  public Map<String, Object> initDefaultValues() {
+    Map<String, Object> defaultValues = namedArguments
+      .entrySet()
+      .stream()
+      .filter(e -> StringUtils.isNotEmpty(e.getValue().defaultValue()))
+      .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().defaultValue()));
+    return Collections.unmodifiableMap(defaultValues);
   }
 }
