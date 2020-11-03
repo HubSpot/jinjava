@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.NotImplementedException;
@@ -42,12 +43,17 @@ import org.apache.commons.lang3.math.NumberUtils;
  * @see JinjavaParam
  */
 public abstract class AbstractFilter implements Filter {
+  private final Map<Class, Map<String, JinjavaParam>> NAMED_ARGUMENTS_CACHE = new ConcurrentHashMap<>();
+  private final Map<Class, Map<String, Object>> DEFAULT_VALUES_CACHE = new ConcurrentHashMap<>();
+
   private final Map<String, JinjavaParam> namedArguments;
   private final Map<String, Object> defaultValues;
 
   public AbstractFilter() {
-    namedArguments = initNamedArguments();
-    defaultValues = initDefaultValues();
+    namedArguments =
+      NAMED_ARGUMENTS_CACHE.computeIfAbsent(getClass(), cls -> initNamedArguments());
+    defaultValues =
+      DEFAULT_VALUES_CACHE.computeIfAbsent(getClass(), cls -> initDefaultValues());
   }
 
   abstract Object filter(
