@@ -43,8 +43,8 @@ import org.apache.commons.lang3.math.NumberUtils;
  * @see JinjavaParam
  */
 public abstract class AbstractFilter implements Filter {
-  private final Map<Class, Map<String, JinjavaParam>> NAMED_ARGUMENTS_CACHE = new ConcurrentHashMap<>();
-  private final Map<Class, Map<String, Object>> DEFAULT_VALUES_CACHE = new ConcurrentHashMap<>();
+  private static final Map<Class, Map<String, JinjavaParam>> NAMED_ARGUMENTS_CACHE = new ConcurrentHashMap<>();
+  private static final Map<Class, Map<String, Object>> DEFAULT_VALUES_CACHE = new ConcurrentHashMap<>();
 
   private final Map<String, JinjavaParam> namedArguments;
   private final Map<String, Object> defaultValues;
