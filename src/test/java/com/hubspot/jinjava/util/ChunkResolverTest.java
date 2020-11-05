@@ -58,7 +58,7 @@ public class ChunkResolverTest {
   }
 
   private ChunkResolver makeChunkResolver(String string) {
-    return new ChunkResolver(string, tagToken, interpreter).useMiniChunks(true);
+    return new ChunkResolver(string, tagToken, interpreter);
   }
 
   @Test
@@ -229,16 +229,6 @@ public class ChunkResolverTest {
     assertThat(miniChunks).containsExactly("[5,7]", "2", "1 + range(1,deferred)");
     assertThat(chunkResolver.getDeferredWords())
       .containsExactlyInAnyOrder("range", "deferred");
-  }
-
-  @Test
-  public void itRespectsNoMiniChunksFlag() {
-    context.put("foo", 9);
-    ChunkResolver chunkResolver = makeChunkResolver("foo, 1 + 1, 1 + 2")
-      .useMiniChunks(false);
-    List<String> miniChunks = chunkResolver.splitChunks();
-    assertThat(miniChunks).containsExactly("9, 1 + 1, 1 + 2");
-    assertThat(chunkResolver.getDeferredWords()).isEmpty();
   }
 
   @Test

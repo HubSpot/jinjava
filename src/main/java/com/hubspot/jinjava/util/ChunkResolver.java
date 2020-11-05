@@ -13,7 +13,6 @@ import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.tree.parse.Token;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +86,6 @@ public class ChunkResolver {
   private final JinjavaInterpreter interpreter;
   private final Set<String> deferredWords;
 
-  private boolean useMiniChunks = true;
   private int nextPos = 0;
   private char prevChar = 0;
   private boolean inQuote = false;
@@ -99,18 +97,6 @@ public class ChunkResolver {
     this.token = token;
     this.interpreter = interpreter;
     deferredWords = new HashSet<>();
-  }
-
-  /**
-   * use Comma as token/mini chunk split or not true use it; false don't use it.
-   *
-   * @param onOrOff
-   *          flag to indicate whether or not to split on commas
-   * @return this instance for method chaining
-   */
-  public ChunkResolver useMiniChunks(boolean onOrOff) {
-    useMiniChunks = onOrOff;
-    return this;
   }
 
   /**
@@ -168,14 +154,10 @@ public class ChunkResolver {
     try {
       interpreter.getContext().setHideInterpreterErrors(true);
       List<String> miniChunks = getChunk(null);
-      if (useMiniChunks) {
-        return miniChunks
-          .stream()
-          .filter(s -> s.length() > 1 || !isMiniChunkSplitter(s.charAt(0)))
-          .collect(Collectors.toList());
-      } else {
-        return Collections.singletonList(String.join("", miniChunks));
-      }
+      return miniChunks
+        .stream()
+        .filter(s -> s.length() > 1 || !isMiniChunkSplitter(s.charAt(0)))
+        .collect(Collectors.toList());
     } finally {
       interpreter.getContext().setHideInterpreterErrors(isHideInterpreterErrorsStart);
     }
@@ -241,7 +223,7 @@ public class ChunkResolver {
   }
 
   private boolean isMiniChunkSplitter(char c) {
-    return useMiniChunks && c == ',';
+    return c == ',';
   }
 
   private String resolveToken(String token) {
