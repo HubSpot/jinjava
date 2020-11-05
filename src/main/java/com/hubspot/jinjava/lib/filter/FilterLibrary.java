@@ -108,7 +108,9 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
       WordCountFilter.class,
       WordWrapFilter.class,
       ToJsonFilter.class,
-      FromJsonFilter.class
+      FromJsonFilter.class,
+      ToYamlFilter.class,
+      FromYamlFilter.class
     );
   }
 
