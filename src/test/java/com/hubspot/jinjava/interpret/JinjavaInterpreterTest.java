@@ -220,6 +220,8 @@ public class JinjavaInterpreterTest {
       new Jinjava(outputSizeLimitedConfig).renderForResult(output, new HashMap<>());
     assertThat(renderResult.getErrors().get(0).getMessage())
       .contains("OutputTooBigException");
+
+    assertThat(renderResult.getOutput()).isEqualTo(" 0  1  2  ");
   }
 
   @Test

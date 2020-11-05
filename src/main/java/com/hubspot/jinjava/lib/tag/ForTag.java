@@ -23,6 +23,8 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.objects.DummyObject;
 import com.hubspot.jinjava.objects.collections.PyList;
@@ -207,7 +209,12 @@ public class ForTag implements Tag {
           if (interpreter.getContext().isValidationMode()) {
             node.render(interpreter);
           } else {
-            buff.append(node.render(interpreter));
+            try {
+              buff.append(node.render(interpreter));
+            } catch (OutputTooBigException e) {
+              interpreter.addError(TemplateError.fromOutputTooBigException(e));
+              return buff.toString();
+            }
             if (
               interpreter.getContext().getDeferredNodes().size() > numDeferredNodesBefore
             ) {
