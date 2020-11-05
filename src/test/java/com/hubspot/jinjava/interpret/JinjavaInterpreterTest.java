@@ -202,6 +202,29 @@ public class JinjavaInterpreterTest {
   }
 
   @Test
+  public void itLimitsOutputSizeOnTagNode() {
+    JinjavaConfig outputSizeLimitedConfig = JinjavaConfig
+      .newBuilder()
+      .withMaxOutputSize(10)
+      .build();
+    String output = "{% for i in range(20) %} {{ i }} {% endfor %}";
+
+    RenderResult renderResult = new Jinjava().renderForResult(output, new HashMap<>());
+    assertThat(renderResult.getOutput())
+      .isEqualTo(
+        " 0  1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18  19 "
+      );
+    assertThat(renderResult.hasErrors()).isFalse();
+
+    renderResult =
+      new Jinjava(outputSizeLimitedConfig).renderForResult(output, new HashMap<>());
+    assertThat(renderResult.getErrors().get(0).getMessage())
+      .contains("OutputTooBigException");
+
+    assertThat(renderResult.getOutput()).isEqualTo(" 0  1  2  ");
+  }
+
+  @Test
   public void itLimitsOutputSizeWhenSumOfNodeSizesExceedsMax() {
     JinjavaConfig outputSizeLimitedConfig = JinjavaConfig
       .newBuilder()

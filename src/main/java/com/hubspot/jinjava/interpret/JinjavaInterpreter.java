@@ -269,6 +269,9 @@ public class JinjavaInterpreter {
         } catch (DeferredValueException e) {
           context.handleDeferredNode(node);
           out = new RenderedOutputNode(node.getMaster().getImage());
+        } catch (OutputTooBigException e) {
+          addError(TemplateError.fromOutputTooBigException(e));
+          return output.getValue();
         }
         context.popRenderStack();
         try {
@@ -296,8 +299,8 @@ public class JinjavaInterpreter {
         for (Node node : parentRoot.getChildren()) {
           lineNumber = node.getLineNumber() - 1; // The line number is off by one when rendering the extend parent
           position = node.getStartPosition();
-          OutputNode out = node.render(this);
           try {
+            OutputNode out = node.render(this);
             output.addNode(out);
           } catch (OutputTooBigException e) {
             addError(TemplateError.fromOutputTooBigException(e));
