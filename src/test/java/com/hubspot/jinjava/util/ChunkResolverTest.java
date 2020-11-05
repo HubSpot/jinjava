@@ -24,6 +24,7 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
@@ -250,5 +251,15 @@ public class ChunkResolverTest {
     assertThat(partiallyResolved).isEqualTo("[false or deferred,deferred].append(1)");
     assertThat(chunkResolver.getDeferredWords()).doesNotContain("false", "or");
     assertThat(chunkResolver.getDeferredWords()).contains("deferred", ".append");
+  }
+
+  @Test
+  public void itEvaluatesDict() {
+    context.put("foo", new PyMap(ImmutableMap.of("bar", 99)));
+    ChunkResolver chunkResolver = makeChunkResolver("foo.bar == deferred.bar");
+    String partiallyResolved = chunkResolver.resolveChunks();
+    assertThat(partiallyResolved).isEqualTo("99 == deferred.bar");
+    assertThat(chunkResolver.getDeferredWords())
+      .containsExactlyInAnyOrder("deferred.bar");
   }
 }
