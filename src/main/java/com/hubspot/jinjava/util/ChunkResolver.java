@@ -136,15 +136,8 @@ public class ChunkResolver {
    * Rather than concatenating the chunks, they are split by mini-chunks,
    * with the comma splitter ommitted from the list of results.
    * Therefore an expression of "1, 1 + 1, 1 + range(deferred)" becomes a List of ["1", "2", "1 + range(deferred)"].
-   * Tokens are resolved within "chunks" where a chunk is surrounded by a markers
-   * of {}, [], (). The contents inside of a chunk are split by whitespace
-   * and/or comma, and these "tokens" resolved individually.
    *
-   * The main chunk itself does not get resolved.
-   * e.g.
-   *  `false || (foo), 'bar'` -> `true, 'bar'`
-   *  `[(foo == bar), deferred, bar]` -> `[true,deferred,'hello']`
-   * @return String with chunk layers within it being partially or fully resolved.
+   * @return List of the expression chunk which is split into mini-chunks.
    */
   public List<String> splitChunks() {
     nextPos = 0;
