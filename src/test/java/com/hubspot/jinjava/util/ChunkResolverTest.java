@@ -25,9 +25,13 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.collections.PyMap;
+import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import org.junit.After;
@@ -251,5 +255,16 @@ public class ChunkResolverTest {
     assertThat(partiallyResolved).isEqualTo("99 == deferred.bar");
     assertThat(chunkResolver.getDeferredWords())
       .containsExactlyInAnyOrder("deferred.bar");
+  }
+
+  @Test
+  public void itSerializesDateProperly() {
+    PyishDate date = new PyishDate(
+      ZonedDateTime.ofInstant(Instant.ofEpochMilli(1234567890L), ZoneId.systemDefault())
+    );
+    context.put("date", date);
+    ChunkResolver chunkResolver = makeChunkResolver("date");
+    assertThat(WhitespaceUtils.unquote(chunkResolver.resolveChunks()))
+      .isEqualTo(date.toString());
   }
 }
