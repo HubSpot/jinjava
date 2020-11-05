@@ -93,6 +93,7 @@ public class Context extends ScopeMap<String, Object> {
   private final Stack<String> renderStack = new Stack<>();
 
   private boolean validationMode = false;
+  private boolean isHideInterpreterErrors = false;
 
   public Context() {
     this(null, null, null);
@@ -525,5 +526,13 @@ public class Context extends ScopeMap<String, Object> {
 
   public SetMultimap<String, String> getDependencies() {
     return this.dependencies;
+  }
+
+  public boolean isHideInterpreterErrors() {
+    return isHideInterpreterErrors;
+  }
+
+  public void setHideInterpreterErrors(boolean hideInterpreterErrors) {
+    isHideInterpreterErrors = hideInterpreterErrors;
   }
 }
