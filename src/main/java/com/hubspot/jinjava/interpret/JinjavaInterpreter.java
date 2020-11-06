@@ -402,6 +402,7 @@ public class JinjavaInterpreter {
     Object obj = context.get(varName);
     if (obj != null) {
       if (obj instanceof DeferredValue) {
+        // TODO add a flag to toggle which is thrown
         throw new DeferredParsingException(variable);
         //        throw new DeferredValueException(variable, lineNumber, startPosition);
       }

@@ -242,6 +242,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
             }
 
             if (value instanceof DeferredValue) {
+              // TODO add a flag to toggle which is thrown
               throw new DeferredParsingException(propertyName);
               //              throw new DeferredValueException(
               //                propertyName,
