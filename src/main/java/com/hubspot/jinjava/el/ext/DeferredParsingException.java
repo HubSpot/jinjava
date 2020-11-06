@@ -1,6 +1,8 @@
 package com.hubspot.jinjava.el.ext;
 
-public class DeferredParsingException extends RuntimeException {
+import com.hubspot.jinjava.interpret.DeferredValueException;
+
+public class DeferredParsingException extends DeferredValueException {
   private final String deferredEvalResult;
 
   public DeferredParsingException(String deferredEvalResult) {

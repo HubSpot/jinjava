@@ -1,3 +1,29 @@
 package com.hubspot.jinjava.el.ext.eager;
 
-public class EagerAstIdentifierDecorator {}
+import de.odysseus.el.tree.Bindings;
+import de.odysseus.el.tree.impl.ast.AstIdentifier;
+import javax.el.ELContext;
+
+public class EagerAstIdentifierDecorator
+  extends AstIdentifier
+  implements EvalResultHolder {
+  private Object evalResult;
+
+  public EagerAstIdentifierDecorator(String name, int index, boolean ignoreReturnType) {
+    super(name, index, ignoreReturnType);
+  }
+
+  @Override
+  public Object eval(Bindings bindings, ELContext context) {
+    if (evalResult != null) {
+      return evalResult;
+    }
+    evalResult = super.eval(bindings, context);
+    return evalResult;
+  }
+
+  @Override
+  public Object getEvalResult() {
+    return evalResult;
+  }
+}

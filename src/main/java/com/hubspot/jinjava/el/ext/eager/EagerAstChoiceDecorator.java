@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.util.ChunkResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstChoice;
 import de.odysseus.el.tree.impl.ast.AstNode;
@@ -8,11 +9,10 @@ import javax.el.ELContext;
 import javax.el.ELException;
 
 public class EagerAstChoiceDecorator extends AstChoice implements EvalResultHolder {
-  private Object evalResult;
-
-  private final EvalResultHolder question;
-  private final EvalResultHolder yes;
-  private final EvalResultHolder no;
+  protected Object evalResult;
+  protected final EvalResultHolder question;
+  protected final EvalResultHolder yes;
+  protected final EvalResultHolder no;
 
   public EagerAstChoiceDecorator(AstNode question, AstNode yes, AstNode no) {
     this(
@@ -50,20 +50,28 @@ public class EagerAstChoiceDecorator extends AstChoice implements EvalResultHold
       }
       sb.append(" ? ");
       if (yes.getEvalResult() != null) {
-        sb.append(yes.getEvalResult());
+        sb.append(ChunkResolver.getValueAsJinjavaStringSafe(yes.getEvalResult()));
       } else {
         try {
-          sb.append(((AstNode) yes).eval(bindings, context));
+          sb.append(
+            ChunkResolver.getValueAsJinjavaStringSafe(
+              ((AstNode) yes).eval(bindings, context)
+            )
+          );
         } catch (DeferredParsingException e1) {
           sb.append(e1.getDeferredEvalResult());
         }
       }
       sb.append(" : ");
       if (no.getEvalResult() != null) {
-        sb.append(no.getEvalResult());
+        sb.append(ChunkResolver.getValueAsJinjavaStringSafe(no.getEvalResult()));
       } else {
         try {
-          sb.append(((AstNode) no).eval(bindings, context));
+          sb.append(
+            ChunkResolver.getValueAsJinjavaStringSafe(
+              ((AstNode) no).eval(bindings, context)
+            )
+          );
         } catch (DeferredParsingException e1) {
           sb.append(e1.getDeferredEvalResult());
         }

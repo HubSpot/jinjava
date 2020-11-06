@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -272,6 +273,14 @@ public class ChunkResolver {
     } catch (Exception e) {
       deferredWords.addAll(findDeferredWords(chunk));
       return chunk.trim();
+    }
+  }
+
+  public static String getValueAsJinjavaStringSafe(Object val) {
+    try {
+      return getValueAsJinjavaString(val);
+    } catch (JsonProcessingException e) {
+      return Objects.toString(val, "");
     }
   }
 

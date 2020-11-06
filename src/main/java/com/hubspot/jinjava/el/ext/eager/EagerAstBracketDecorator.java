@@ -1,16 +1,14 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.util.ChunkResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBracket;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
 
 public class EagerAstBracketDecorator extends AstBracket implements EvalResultHolder {
-  private Object evalResult;
-  private final EvalResultHolder base;
-  private final EvalResultHolder property;
-  private final boolean lvalue;
+  protected Object evalResult;
 
   public EagerAstBracketDecorator(
     AstNode base,
@@ -19,26 +17,13 @@ public class EagerAstBracketDecorator extends AstBracket implements EvalResultHo
     boolean strict,
     boolean ignoreReturnType
   ) {
-    this(
-      EagerAstNodeDecorator.getAsEvalResultHolder(base),
-      EagerAstNodeDecorator.getAsEvalResultHolder(property),
+    super(
+      (AstNode) EagerAstNodeDecorator.getAsEvalResultHolder(base),
+      (AstNode) EagerAstNodeDecorator.getAsEvalResultHolder(property),
       lvalue,
       strict,
       ignoreReturnType
     );
-  }
-
-  private EagerAstBracketDecorator(
-    EvalResultHolder base,
-    EvalResultHolder property,
-    boolean lvalue,
-    boolean strict,
-    boolean ignoreReturnType
-  ) {
-    super((AstNode) base, (AstNode) property, lvalue, strict, ignoreReturnType);
-    this.base = base;
-    this.property = property;
-    this.lvalue = lvalue;
   }
 
   @Override
@@ -50,13 +35,22 @@ public class EagerAstBracketDecorator extends AstBracket implements EvalResultHo
       evalResult = super.eval(bindings, context);
     } catch (DeferredParsingException e) {
       StringBuilder sb = new StringBuilder();
-      if (base.getEvalResult() != null) {
-        sb.append(base.getEvalResult());
+      if (((EvalResultHolder) prefix).getEvalResult() != null) {
+        sb.append(
+          ChunkResolver.getValueAsJinjavaStringSafe(
+            ((EvalResultHolder) prefix).getEvalResult()
+          )
+        );
         sb.append(String.format("[%s]", e.getDeferredEvalResult()));
       } else {
         sb.append(e.getDeferredEvalResult());
         try {
-          sb.append(String.format("[%s]", ((AstNode) property).eval(bindings, context)));
+          sb.append(
+            String.format(
+              "[%s]",
+              ChunkResolver.getValueAsJinjavaStringSafe(property.eval(bindings, context))
+            )
+          );
         } catch (DeferredParsingException e1) {
           sb.append(String.format("[%s]", e1.getDeferredEvalResult()));
         }

@@ -260,7 +260,7 @@ public class ChunkResolverTest {
       "foo == deferred and (foo is not equalto 5)"
     );
     interpreter.getContext().setHideInterpreterErrors(true);
-    interpreter.resolveELExpression("1, deferred, 'hee'", 1);
+    Object bee = interpreter.resolveELExpression("[1, range(foo,deferred), 'hee'][2]", 1);
     Object baz = interpreter.resolveELExpression("deferred || (foo + deferred[2])", 1);
     Object bar = interpreter.resolveELExpression(
       "foo == deferred and (foo is not equalto 5)",

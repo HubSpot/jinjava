@@ -9,7 +9,7 @@ import javax.el.ValueReference;
 
 public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
   private final AstNode astNode;
-  private Object eagerResult;
+  private Object evalResult;
 
   public static EvalResultHolder getAsEvalResultHolder(AstNode astNode) {
     if (astNode instanceof EvalResultHolder) {
@@ -24,7 +24,7 @@ public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
 
   @Override
   public Object getEvalResult() {
-    return eagerResult;
+    return evalResult;
   }
 
   @Override
@@ -34,11 +34,11 @@ public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
 
   @Override
   public Object eval(Bindings bindings, ELContext elContext) {
-    if (eagerResult != null) {
-      return eagerResult;
+    if (evalResult != null) {
+      return evalResult;
     }
-    eagerResult = astNode.eval(bindings, elContext);
-    return eagerResult;
+    evalResult = astNode.eval(bindings, elContext);
+    return evalResult;
   }
 
   @Override
@@ -94,11 +94,11 @@ public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
     Class<?>[] classes,
     Object[] objects
   ) {
-    if (eagerResult != null) {
-      return eagerResult;
+    if (evalResult != null) {
+      return evalResult;
     }
-    eagerResult = astNode.invoke(bindings, elContext, aClass, classes, objects);
-    return eagerResult;
+    evalResult = astNode.invoke(bindings, elContext, aClass, classes, objects);
+    return evalResult;
   }
 
   @Override

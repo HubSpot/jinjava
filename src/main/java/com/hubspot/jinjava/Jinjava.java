@@ -19,6 +19,7 @@ import com.hubspot.jinjava.doc.JinjavaDoc;
 import com.hubspot.jinjava.doc.JinjavaDocFactory;
 import com.hubspot.jinjava.el.ExtendedSyntaxBuilder;
 import com.hubspot.jinjava.el.TruthyTypeConverter;
+import com.hubspot.jinjava.el.ext.eager.EagerExtendedSyntaxBuilder;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
 import com.hubspot.jinjava.interpret.InterpretException;
@@ -84,10 +85,18 @@ public class Jinjava {
     this.globalContext = new Context();
 
     Properties expConfig = new Properties();
+    // TODO add config flag
+    //    if (globalConfig.isEagerExecutionEnabled()) {
     expConfig.setProperty(
       TreeBuilder.class.getName(),
-      ExtendedSyntaxBuilder.class.getName()
+      EagerExtendedSyntaxBuilder.class.getName()
     );
+    //    } else {
+    //      expConfig.setProperty(
+    //        TreeBuilder.class.getName(),
+    //        ExtendedSyntaxBuilder.class.getName()
+    //      );
+    //    }
 
     TypeConverter converter = new TruthyTypeConverter();
     this.expressionFactory = new ExpressionFactoryImpl(expConfig, converter);
