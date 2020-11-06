@@ -26,36 +26,44 @@ public class EagerAstDictDecorator extends AstDict implements EvalResultHolder {
       dict.forEach(
         (key, value) -> {
           StringJoiner kvJoiner = new StringJoiner(":");
-          if (((EvalResultHolder) key).hasEvalResult()) {
-            kvJoiner.add(
-              ChunkResolver.getValueAsJinjavaStringSafe(
-                ((EvalResultHolder) key).getAndClearEvalResult()
-              )
-            );
-          } else {
-            try {
+          if (key instanceof EvalResultHolder) {
+            if (((EvalResultHolder) key).hasEvalResult()) {
               kvJoiner.add(
-                ChunkResolver.getValueAsJinjavaStringSafe(key.eval(bindings, context))
+                ChunkResolver.getValueAsJinjavaStringSafe(
+                  ((EvalResultHolder) key).getAndClearEvalResult()
+                )
               );
-            } catch (DeferredParsingException e1) {
-              kvJoiner.add(e1.getDeferredEvalResult());
+            } else {
+              try {
+                kvJoiner.add(
+                  ChunkResolver.getValueAsJinjavaStringSafe(key.eval(bindings, context))
+                );
+              } catch (DeferredParsingException e1) {
+                kvJoiner.add(e1.getDeferredEvalResult());
+              }
             }
+          } else {
+            kvJoiner.add(key.toString());
           }
 
-          if (((EvalResultHolder) value).hasEvalResult()) {
-            kvJoiner.add(
-              ChunkResolver.getValueAsJinjavaStringSafe(
-                ((EvalResultHolder) value).getAndClearEvalResult()
-              )
-            );
-          } else {
-            try {
+          if (value instanceof EvalResultHolder) {
+            if (((EvalResultHolder) value).hasEvalResult()) {
               kvJoiner.add(
-                ChunkResolver.getValueAsJinjavaStringSafe(value.eval(bindings, context))
+                ChunkResolver.getValueAsJinjavaStringSafe(
+                  ((EvalResultHolder) value).getAndClearEvalResult()
+                )
               );
-            } catch (DeferredParsingException e1) {
-              kvJoiner.add(e1.getDeferredEvalResult());
+            } else {
+              try {
+                kvJoiner.add(
+                  ChunkResolver.getValueAsJinjavaStringSafe(value.eval(bindings, context))
+                );
+              } catch (DeferredParsingException e1) {
+                kvJoiner.add(e1.getDeferredEvalResult());
+              }
             }
+          } else {
+            kvJoiner.add(value.toString());
           }
           joiner.add(kvJoiner.toString());
         }
@@ -64,8 +72,12 @@ public class EagerAstDictDecorator extends AstDict implements EvalResultHolder {
     } finally {
       dict.forEach(
         (key, value) -> {
-          ((EvalResultHolder) key).getAndClearEvalResult();
-          ((EvalResultHolder) value).getAndClearEvalResult();
+          if (key instanceof EvalResultHolder) {
+            ((EvalResultHolder) key).getAndClearEvalResult();
+          }
+          if (value instanceof EvalResultHolder) {
+            ((EvalResultHolder) value).getAndClearEvalResult();
+          }
         }
       );
     }

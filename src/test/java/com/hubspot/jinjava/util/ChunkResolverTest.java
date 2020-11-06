@@ -152,7 +152,7 @@ public class ChunkResolverTest {
     context.put("bar", 4);
     ChunkResolver chunkResolver = makeChunkResolver("range(0,foo) + -deferred/bar");
     String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("[0] + -deferred/4");
+    assertThat(partiallyResolved).isEqualTo("[0] + -deferred / 4");
     assertThat(chunkResolver.getDeferredWords()).containsExactly("deferred");
 
     context.put("deferred", 2);
@@ -168,7 +168,7 @@ public class ChunkResolverTest {
     context.put("bar", 4);
     ChunkResolver chunkResolver = makeChunkResolver("range(-2,foo)[-1] + -deferred/bar");
     String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("2 + -deferred/4");
+    assertThat(partiallyResolved).isEqualTo("2 + -deferred / 4");
     assertThat(chunkResolver.getDeferredWords()).containsExactly("deferred");
 
     context.put("deferred", 2);
@@ -227,7 +227,7 @@ public class ChunkResolverTest {
       "[(foo > 1) or deferred, deferred].append(1)"
     );
     String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("[false or deferred,deferred].append(1)");
+    assertThat(partiallyResolved).isEqualTo("[false || deferred,deferred].append(1)");
     assertThat(chunkResolver.getDeferredWords()).doesNotContain("false", "or");
     assertThat(chunkResolver.getDeferredWords()).contains("deferred", ".append");
   }

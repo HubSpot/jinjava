@@ -10,6 +10,7 @@ import javax.el.ELException;
 public class EagerAstDotDecorator extends AstDot implements EvalResultHolder {
   private Object evalResult;
   private final EvalResultHolder base;
+  private final String property;
 
   public EagerAstDotDecorator(
     AstNode base,
@@ -33,6 +34,7 @@ public class EagerAstDotDecorator extends AstDot implements EvalResultHolder {
   ) {
     super((AstNode) base, property, lvalue, ignoreReturnType);
     this.base = base;
+    this.property = property;
   }
 
   @Override
@@ -59,5 +61,9 @@ public class EagerAstDotDecorator extends AstDot implements EvalResultHolder {
   @Override
   public boolean hasEvalResult() {
     return evalResult != null;
+  }
+
+  public String getProperty() {
+    return property;
   }
 }

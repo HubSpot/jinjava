@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el.ext.eager;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.util.ChunkResolver;
 import de.odysseus.el.tree.Bindings;
+import de.odysseus.el.tree.impl.ast.AstDot;
 import de.odysseus.el.tree.impl.ast.AstMethod;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import de.odysseus.el.tree.impl.ast.AstProperty;
@@ -42,7 +43,17 @@ public class EagerAstMethodDecorator extends AstMethod implements EvalResultHold
           ChunkResolver.getValueAsJinjavaStringSafe(property.getAndClearEvalResult())
         );
       } else {
-        sb.append(e.getDeferredEvalResult());
+        if (property instanceof EagerAstDotDecorator) {
+          sb.append(
+            String.format(
+              "%s.%s",
+              e.getDeferredEvalResult(),
+              ((EagerAstDotDecorator) property).getProperty()
+            )
+          );
+        } else {
+          sb.append(e.getDeferredEvalResult());
+        }
         e = null;
       }
       String paramString;
