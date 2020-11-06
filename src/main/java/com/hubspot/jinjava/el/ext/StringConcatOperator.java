@@ -18,6 +18,11 @@ public class StringConcatOperator extends SimpleOperator {
     return new StringBuilder(o1s).append(o2s).toString();
   }
 
+  @Override
+  public String toString() {
+    return TOKEN.getImage();
+  }
+
   public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("~");
   public static final StringConcatOperator OP = new StringConcatOperator();
 

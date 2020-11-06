@@ -58,6 +58,11 @@ public class CollectionMembershipOperator extends SimpleOperator {
     return Boolean.FALSE;
   }
 
+  @Override
+  public String toString() {
+    return TOKEN.getImage();
+  }
+
   public static final CollectionMembershipOperator OP = new CollectionMembershipOperator();
   public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("in");
 

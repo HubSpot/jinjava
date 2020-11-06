@@ -21,6 +21,8 @@ import static de.odysseus.el.tree.impl.Scanner.Symbol.TRUE;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.hubspot.jinjava.el.ext.eager.EagerAstBinaryDecorator;
+import com.hubspot.jinjava.el.ext.eager.EagerAstBracketDecorator;
 import de.odysseus.el.tree.impl.Builder;
 import de.odysseus.el.tree.impl.Builder.Feature;
 import de.odysseus.el.tree.impl.Parser;
@@ -29,14 +31,20 @@ import de.odysseus.el.tree.impl.Scanner.ScanException;
 import de.odysseus.el.tree.impl.Scanner.Symbol;
 import de.odysseus.el.tree.impl.Scanner.Token;
 import de.odysseus.el.tree.impl.ast.AstBinary;
+import de.odysseus.el.tree.impl.ast.AstBinary.Operator;
 import de.odysseus.el.tree.impl.ast.AstBracket;
+import de.odysseus.el.tree.impl.ast.AstChoice;
+import de.odysseus.el.tree.impl.ast.AstComposite;
 import de.odysseus.el.tree.impl.ast.AstDot;
 import de.odysseus.el.tree.impl.ast.AstFunction;
+import de.odysseus.el.tree.impl.ast.AstIdentifier;
+import de.odysseus.el.tree.impl.ast.AstMethod;
 import de.odysseus.el.tree.impl.ast.AstNested;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstNull;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import de.odysseus.el.tree.impl.ast.AstProperty;
+import de.odysseus.el.tree.impl.ast.AstUnary;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -472,4 +480,59 @@ public class ExtendedParser extends Parser {
       return null;
     }
   };
+
+  protected AstBinary createAstBinary(AstNode left, AstNode right, Operator operator) {
+    return new EagerAstBinaryDecorator(left, right, operator);
+  }
+
+  protected AstBracket createAstBracket(
+    AstNode base,
+    AstNode property,
+    boolean lvalue,
+    boolean strict
+  ) {
+    return new EagerAstBracketDecorator(
+      base,
+      property,
+      lvalue,
+      strict,
+      this.context.isEnabled(Feature.IGNORE_RETURN_TYPE)
+    );
+  }
+
+  protected AstChoice createAstChoice(AstNode question, AstNode yes, AstNode no) {
+    return new AstChoice(question, yes, no);
+  }
+
+  protected AstComposite createAstComposite(List<AstNode> nodes) {
+    return new AstComposite(nodes);
+  }
+
+  protected AstDot createAstDot(AstNode base, String property, boolean lvalue) {
+    return new AstDot(
+      base,
+      property,
+      lvalue,
+      this.context.isEnabled(Feature.IGNORE_RETURN_TYPE)
+    );
+  }
+
+  protected AstIdentifier createAstIdentifier(String name, int index) {
+    return new AstIdentifier(
+      name,
+      index,
+      this.context.isEnabled(Feature.IGNORE_RETURN_TYPE)
+    );
+  }
+
+  protected AstMethod createAstMethod(AstProperty property, AstParameters params) {
+    return new AstMethod(property, params);
+  }
+
+  protected AstUnary createAstUnary(
+    AstNode child,
+    de.odysseus.el.tree.impl.ast.AstUnary.Operator operator
+  ) {
+    return new AstUnary(child, operator);
+  }
 }

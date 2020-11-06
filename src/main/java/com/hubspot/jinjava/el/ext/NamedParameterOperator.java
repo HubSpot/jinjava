@@ -15,6 +15,11 @@ public class NamedParameterOperator {
   ) {
 
     @Override
+    public String toString() {
+      return TOKEN.getImage();
+    }
+
+    @Override
     public AstNode createAstNode(AstNode... children) {
       if (!(children[0] instanceof AstIdentifier)) {
         throw new ELException("Expected IDENTIFIER, found " + children[0].toString());

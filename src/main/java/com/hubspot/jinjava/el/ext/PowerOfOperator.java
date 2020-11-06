@@ -40,6 +40,11 @@ public class PowerOfOperator extends SimpleOperator {
     );
   }
 
+  @Override
+  public String toString() {
+    return TOKEN.getImage();
+  }
+
   public static final ExtensionHandler HANDLER = new ExtensionHandler(
     ExtensionPoint.MUL
   ) {

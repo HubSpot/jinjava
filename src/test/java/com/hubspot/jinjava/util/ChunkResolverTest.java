@@ -252,4 +252,23 @@ public class ChunkResolverTest {
     assertThat(WhitespaceUtils.unquote(chunkResolver.resolveChunks()))
       .isEqualTo(date.toString());
   }
+
+  @Test
+  public void itDoesIsNotEqual() {
+    context.put("foo", 4);
+    ChunkResolver chunkResolver = makeChunkResolver(
+      "foo == deferred and (foo is not equalto 5)"
+    );
+    interpreter.getContext().setHideInterpreterErrors(true);
+    interpreter.resolveELExpression("1, deferred, 'hee'", 1);
+    Object baz = interpreter.resolveELExpression("deferred || (foo + deferred[2])", 1);
+    Object bar = interpreter.resolveELExpression(
+      "foo == deferred and (foo is not equalto 5)",
+      1
+    );
+    String partiallyResolved = chunkResolver.resolveChunks();
+    assertThat(partiallyResolved).isEqualTo("99 == deferred.bar");
+    assertThat(chunkResolver.getDeferredWords())
+      .containsExactlyInAnyOrder("deferred.bar");
+  }
 }
