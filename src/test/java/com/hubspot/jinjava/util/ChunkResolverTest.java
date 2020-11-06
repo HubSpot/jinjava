@@ -257,17 +257,17 @@ public class ChunkResolverTest {
   public void itDoesIsNotEqual() {
     context.put("foo", 4);
     ChunkResolver chunkResolver = makeChunkResolver(
-      "foo == deferred and (foo is not equalto 5)"
+      "foo == deferred.bar and (foo is not equalto 5)"
     );
     interpreter.getContext().setHideInterpreterErrors(true);
-    Object bee = interpreter.resolveELExpression("[1, range(foo,deferred), 'hee'][2]", 1);
-    Object baz = interpreter.resolveELExpression("deferred || (foo + deferred[2])", 1);
-    Object bar = interpreter.resolveELExpression(
-      "foo == deferred and (foo is not equalto 5)",
-      1
-    );
+    //    Object bee = interpreter.resolveELExpression("[1, range(foo,deferred), 'hee'][2]", 1);
+    //    Object baz = interpreter.resolveELExpression("deferred || (foo + deferred[2])", 1);
+    //    Object bar = interpreter.resolveELExpression(
+    //      "foo == deferred and (foo is not equalto 5)",
+    //      1
+    //    );
     String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("99 == deferred.bar");
+    assertThat(partiallyResolved).isEqualTo("4 == deferred.bar && true");
     assertThat(chunkResolver.getDeferredWords())
       .containsExactlyInAnyOrder("deferred.bar");
   }

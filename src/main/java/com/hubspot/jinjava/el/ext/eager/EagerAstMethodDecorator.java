@@ -31,28 +31,24 @@ public class EagerAstMethodDecorator extends AstMethod implements EvalResultHold
   }
 
   @Override
-  protected Object eval(
-    Bindings bindings,
-    ELContext context,
-    boolean answerNullIfBaseIsNull
-  ) {
-    if (evalResult != null) {
-      return evalResult;
-    }
+  public Object eval(Bindings bindings, ELContext context) {
     try {
       evalResult = super.eval(bindings, context);
       return evalResult;
     } catch (DeferredParsingException e) {
       StringBuilder sb = new StringBuilder();
-      if (property.getEvalResult() != null) {
-        sb.append(ChunkResolver.getValueAsJinjavaStringSafe(property.getEvalResult()));
+      if (property.hasEvalResult()) {
+        sb.append(
+          ChunkResolver.getValueAsJinjavaStringSafe(property.getAndClearEvalResult())
+        );
       } else {
         sb.append(e.getDeferredEvalResult());
         e = null;
       }
       String paramString;
-      if (params.getEvalResult() != null) {
-        paramString = ChunkResolver.getValueAsJinjavaStringSafe(params.getEvalResult());
+      if (params.hasEvalResult()) {
+        paramString =
+          ChunkResolver.getValueAsJinjavaStringSafe(params.getAndClearEvalResult());
       } else if (e != null) {
         paramString = e.getDeferredEvalResult();
       } else {
@@ -68,11 +64,21 @@ public class EagerAstMethodDecorator extends AstMethod implements EvalResultHold
       }
       sb.append(String.format("(%s)", paramString));
       throw new DeferredParsingException(sb.toString());
+    } finally {
+      property.getAndClearEvalResult();
+      params.getAndClearEvalResult();
     }
   }
 
   @Override
-  public Object getEvalResult() {
-    return evalResult;
+  public Object getAndClearEvalResult() {
+    Object temp = evalResult;
+    evalResult = null;
+    return temp;
+  }
+
+  @Override
+  public boolean hasEvalResult() {
+    return evalResult != null;
   }
 }

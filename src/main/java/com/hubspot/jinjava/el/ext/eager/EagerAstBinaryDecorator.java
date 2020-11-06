@@ -34,16 +34,15 @@ public class EagerAstBinaryDecorator extends AstBinary implements EvalResultHold
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    if (evalResult != null) {
-      return evalResult;
-    }
     try {
       evalResult = super.eval(bindings, context);
       return evalResult;
     } catch (DeferredParsingException e) {
       StringBuilder sb = new StringBuilder();
-      if (left.getEvalResult() != null) {
-        sb.append(ChunkResolver.getValueAsJinjavaStringSafe(left.getEvalResult()));
+      if (left.hasEvalResult()) {
+        sb.append(
+          ChunkResolver.getValueAsJinjavaStringSafe(left.getAndClearEvalResult())
+        );
         sb.append(String.format(" %s ", operator.toString()));
         sb.append(e.getDeferredEvalResult());
       } else {
@@ -60,11 +59,21 @@ public class EagerAstBinaryDecorator extends AstBinary implements EvalResultHold
         }
       }
       throw new DeferredParsingException(sb.toString());
+    } finally {
+      left.getAndClearEvalResult();
+      right.getAndClearEvalResult();
     }
   }
 
   @Override
-  public Object getEvalResult() {
-    return evalResult;
+  public Object getAndClearEvalResult() {
+    Object temp = evalResult;
+    evalResult = null;
+    return temp;
+  }
+
+  @Override
+  public boolean hasEvalResult() {
+    return evalResult != null;
   }
 }

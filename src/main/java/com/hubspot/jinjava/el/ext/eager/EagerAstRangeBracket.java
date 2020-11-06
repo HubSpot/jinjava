@@ -30,18 +30,15 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    if (evalResult != null) {
-      return evalResult;
-    }
     try {
       evalResult = super.eval(bindings, context);
       return evalResult;
     } catch (DeferredParsingException e) {
       StringBuilder sb = new StringBuilder();
-      if (((EvalResultHolder) prefix).getEvalResult() != null) {
+      if (((EvalResultHolder) prefix).hasEvalResult()) {
         sb.append(
           ChunkResolver.getValueAsJinjavaStringSafe(
-            ((EvalResultHolder) prefix).getEvalResult()
+            ((EvalResultHolder) prefix).getAndClearEvalResult()
           )
         );
       } else {
@@ -49,10 +46,10 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
         e = null;
       }
       sb.append("[");
-      if (((EvalResultHolder) property).getEvalResult() != null) {
+      if (((EvalResultHolder) property).hasEvalResult()) {
         sb.append(
           ChunkResolver.getValueAsJinjavaStringSafe(
-            ((EvalResultHolder) property).getEvalResult()
+            ((EvalResultHolder) property).getAndClearEvalResult()
           )
         );
       } else if (e != null) {
@@ -68,10 +65,10 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
         }
       }
       sb.append(":");
-      if (((EvalResultHolder) rangeMax).getEvalResult() != null) {
+      if (((EvalResultHolder) rangeMax).hasEvalResult()) {
         sb.append(
           ChunkResolver.getValueAsJinjavaStringSafe(
-            ((EvalResultHolder) rangeMax).getEvalResult()
+            ((EvalResultHolder) rangeMax).getAndClearEvalResult()
           )
         );
       } else if (e != null) {
@@ -87,11 +84,21 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
       }
       sb.append("]");
       throw new DeferredParsingException(sb.toString());
+    } finally {
+      ((EvalResultHolder) prefix).getAndClearEvalResult();
+      ((EvalResultHolder) property).getAndClearEvalResult();
     }
   }
 
   @Override
-  public Object getEvalResult() {
-    return evalResult;
+  public Object getAndClearEvalResult() {
+    Object temp = evalResult;
+    evalResult = null;
+    return temp;
+  }
+
+  @Override
+  public boolean hasEvalResult() {
+    return evalResult != null;
   }
 }

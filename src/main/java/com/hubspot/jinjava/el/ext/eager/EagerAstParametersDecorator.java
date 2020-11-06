@@ -51,9 +51,6 @@ public class EagerAstParametersDecorator
 
   @Override
   public Object[] eval(Bindings bindings, ELContext context) {
-    if (evalResult != null) {
-      return evalResult;
-    }
     try {
       evalResult = super.eval(bindings, context);
       return evalResult;
@@ -64,8 +61,10 @@ public class EagerAstParametersDecorator
         .map(node -> (EvalResultHolder) node)
         .forEach(
           node -> {
-            if (node.getEvalResult() != null) {
-              joiner.add(ChunkResolver.getValueAsJinjavaStringSafe(node.getEvalResult()));
+            if (node.hasEvalResult()) {
+              joiner.add(
+                ChunkResolver.getValueAsJinjavaStringSafe(node.getAndClearEvalResult())
+              );
             } else {
               try {
                 joiner.add(
@@ -80,11 +79,20 @@ public class EagerAstParametersDecorator
           }
         );
       throw new DeferredParsingException(joiner.toString());
+    } finally {
+      nodes.forEach(node -> ((EvalResultHolder) node).getAndClearEvalResult());
     }
   }
 
   @Override
-  public Object[] getEvalResult() {
-    return evalResult;
+  public Object[] getAndClearEvalResult() {
+    Object[] temp = evalResult;
+    evalResult = null;
+    return temp;
+  }
+
+  @Override
+  public boolean hasEvalResult() {
+    return evalResult != null;
   }
 }

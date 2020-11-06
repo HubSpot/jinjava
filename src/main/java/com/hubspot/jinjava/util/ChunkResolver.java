@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
@@ -120,16 +121,32 @@ public class ChunkResolver {
    * @return String with chunk layers within it being partially or fully resolved.
    */
   public String resolveChunks() {
-    nextPos = 0;
-    boolean isHideInterpreterErrorsStart = interpreter
-      .getContext()
-      .isHideInterpreterErrors();
+    interpreter.getContext().setHideInterpreterErrors(true);
+    String bracketedResult;
     try {
-      interpreter.getContext().setHideInterpreterErrors(true);
-      return String.join("", getChunk(null));
-    } finally {
-      interpreter.getContext().setHideInterpreterErrors(isHideInterpreterErrorsStart);
+      bracketedResult =
+        getValueAsJinjavaStringSafe(
+          interpreter.resolveELExpression(
+            String.format("[%s]", String.copyValueOf(value)),
+            interpreter.getLineNumber()
+          )
+        );
+    } catch (DeferredParsingException e) {
+      deferredWords.addAll(findDeferredWords(e.getDeferredEvalResult()));
+      bracketedResult = e.getDeferredEvalResult().trim();
     }
+    // remove brackets
+    return bracketedResult.substring(1, bracketedResult.length() - 1);
+    //    nextPos = 0;
+    //    boolean isHideInterpreterErrorsStart = interpreter
+    //      .getContext()
+    //      .isHideInterpreterErrors();
+    //    try {
+    //      interpreter.getContext().setHideInterpreterErrors(true);
+    //      return String.join("", getChunk(null));
+    //    } finally {
+    //      interpreter.getContext().setHideInterpreterErrors(isHideInterpreterErrorsStart);
+    //    }
   }
 
   /**

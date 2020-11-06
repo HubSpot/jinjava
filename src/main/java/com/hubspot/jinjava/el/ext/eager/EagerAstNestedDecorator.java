@@ -27,9 +27,6 @@ public class EagerAstNestedDecorator extends AstRightValue implements EvalResult
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    if (evalResult != null) {
-      return evalResult;
-    }
     try {
       evalResult = child.eval(bindings, context);
       return evalResult;
@@ -37,6 +34,8 @@ public class EagerAstNestedDecorator extends AstRightValue implements EvalResult
       throw new DeferredParsingException(
         String.format("(%s)", e.getDeferredEvalResult())
       );
+    } finally {
+      ((EvalResultHolder) child).getAndClearEvalResult();
     }
   }
 
@@ -46,8 +45,15 @@ public class EagerAstNestedDecorator extends AstRightValue implements EvalResult
   }
 
   @Override
-  public Object getEvalResult() {
-    return evalResult;
+  public Object getAndClearEvalResult() {
+    Object temp = evalResult;
+    evalResult = null;
+    return temp;
+  }
+
+  @Override
+  public boolean hasEvalResult() {
+    return evalResult != null;
   }
 
   @Override

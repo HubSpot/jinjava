@@ -37,9 +37,6 @@ public class EagerAstDotDecorator extends AstDot implements EvalResultHolder {
 
   @Override
   public Object eval(Bindings bindings, ELContext context) throws ELException {
-    if (evalResult != null) {
-      return evalResult;
-    }
     try {
       evalResult = super.eval(bindings, context);
       return evalResult;
@@ -47,11 +44,20 @@ public class EagerAstDotDecorator extends AstDot implements EvalResultHolder {
       throw new DeferredParsingException(
         String.format("%s.%s", e.getDeferredEvalResult(), this.property)
       );
+    } finally {
+      base.getAndClearEvalResult();
     }
   }
 
   @Override
-  public Object getEvalResult() {
-    return evalResult;
+  public Object getAndClearEvalResult() {
+    Object temp = evalResult;
+    evalResult = null;
+    return temp;
+  }
+
+  @Override
+  public boolean hasEvalResult() {
+    return evalResult != null;
   }
 }

@@ -35,22 +35,19 @@ public class EagerAstChoiceDecorator extends AstChoice implements EvalResultHold
 
   @Override
   public Object eval(Bindings bindings, ELContext context) throws ELException {
-    if (evalResult != null) {
-      return evalResult;
-    }
     try {
       evalResult = super.eval(bindings, context);
       return evalResult;
     } catch (DeferredParsingException e) {
       StringBuilder sb = new StringBuilder();
       sb.append(e.getDeferredEvalResult());
-      if (question.getEvalResult() != null) {
+      if (question.getAndClearEvalResult() != null) {
         // the question was evaluated so jump to either yes or no
         throw new DeferredParsingException(sb.toString());
       }
       sb.append(" ? ");
-      if (yes.getEvalResult() != null) {
-        sb.append(ChunkResolver.getValueAsJinjavaStringSafe(yes.getEvalResult()));
+      if (yes.hasEvalResult()) {
+        sb.append(ChunkResolver.getValueAsJinjavaStringSafe(yes.getAndClearEvalResult()));
       } else {
         try {
           sb.append(
@@ -63,8 +60,8 @@ public class EagerAstChoiceDecorator extends AstChoice implements EvalResultHold
         }
       }
       sb.append(" : ");
-      if (no.getEvalResult() != null) {
-        sb.append(ChunkResolver.getValueAsJinjavaStringSafe(no.getEvalResult()));
+      if (no.hasEvalResult()) {
+        sb.append(ChunkResolver.getValueAsJinjavaStringSafe(no.getAndClearEvalResult()));
       } else {
         try {
           sb.append(
@@ -77,11 +74,22 @@ public class EagerAstChoiceDecorator extends AstChoice implements EvalResultHold
         }
       }
       throw new DeferredParsingException(sb.toString());
+    } finally {
+      question.getAndClearEvalResult();
+      yes.getAndClearEvalResult();
+      no.getAndClearEvalResult();
     }
   }
 
   @Override
-  public Object getEvalResult() {
-    return evalResult;
+  public Object getAndClearEvalResult() {
+    Object temp = evalResult;
+    evalResult = null;
+    return temp;
+  }
+
+  @Override
+  public boolean hasEvalResult() {
+    return evalResult != null;
   }
 }

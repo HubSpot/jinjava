@@ -38,9 +38,6 @@ public class EagerAstMacroFunctionDecorator
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    if (evalResult != null) {
-      return evalResult;
-    }
     try {
       evalResult = super.eval(bindings, context);
       return evalResult;
@@ -59,11 +56,20 @@ public class EagerAstMacroFunctionDecorator
       }
       sb.append(String.format("(%s)", paramString));
       throw new DeferredParsingException(sb.toString());
+    } finally {
+      params.getAndClearEvalResult();
     }
   }
 
   @Override
-  public Object getEvalResult() {
-    return evalResult;
+  public Object getAndClearEvalResult() {
+    Object temp = evalResult;
+    evalResult = null;
+    return temp;
+  }
+
+  @Override
+  public boolean hasEvalResult() {
+    return evalResult != null;
   }
 }

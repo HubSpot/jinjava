@@ -24,26 +24,34 @@ public class EagerAstUnaryDecorator extends AstUnary implements EvalResultHolder
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    if (evalResult != null) {
-      return evalResult;
-    }
     try {
       evalResult = super.eval(bindings, context);
+      return evalResult;
     } catch (DeferredParsingException e) {
       StringBuilder sb = new StringBuilder();
       sb.append(operator.toString());
-      if (child.getEvalResult() != null) {
-        sb.append(ChunkResolver.getValueAsJinjavaStringSafe(child.getEvalResult()));
+      if (child.hasEvalResult()) {
+        sb.append(
+          ChunkResolver.getValueAsJinjavaStringSafe(child.getAndClearEvalResult())
+        );
       } else {
         sb.append(e.getDeferredEvalResult());
       }
       throw new DeferredParsingException(sb.toString());
+    } finally {
+      child.getAndClearEvalResult();
     }
-    return evalResult;
   }
 
   @Override
-  public Object getEvalResult() {
-    return evalResult;
+  public Object getAndClearEvalResult() {
+    Object temp = evalResult;
+    evalResult = null;
+    return temp;
+  }
+
+  @Override
+  public boolean hasEvalResult() {
+    return evalResult != null;
   }
 }

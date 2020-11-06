@@ -28,17 +28,15 @@ public class EagerAstBracketDecorator extends AstBracket implements EvalResultHo
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    if (evalResult != null) {
-      return evalResult;
-    }
     try {
       evalResult = super.eval(bindings, context);
+      return evalResult;
     } catch (DeferredParsingException e) {
       StringBuilder sb = new StringBuilder();
-      if (((EvalResultHolder) prefix).getEvalResult() != null) {
+      if (((EvalResultHolder) prefix).hasEvalResult()) {
         sb.append(
           ChunkResolver.getValueAsJinjavaStringSafe(
-            ((EvalResultHolder) prefix).getEvalResult()
+            ((EvalResultHolder) prefix).getAndClearEvalResult()
           )
         );
         sb.append(String.format("[%s]", e.getDeferredEvalResult()));
@@ -56,12 +54,21 @@ public class EagerAstBracketDecorator extends AstBracket implements EvalResultHo
         }
       }
       throw new DeferredParsingException(sb.toString());
+    } finally {
+      ((EvalResultHolder) prefix).getAndClearEvalResult();
+      ((EvalResultHolder) property).getAndClearEvalResult();
     }
-    return evalResult;
   }
 
   @Override
-  public Object getEvalResult() {
-    return evalResult;
+  public Object getAndClearEvalResult() {
+    Object temp = evalResult;
+    evalResult = null;
+    return temp;
+  }
+
+  @Override
+  public boolean hasEvalResult() {
+    return evalResult != null;
   }
 }

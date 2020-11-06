@@ -15,9 +15,6 @@ public class EagerAstListDecorator extends AstList implements EvalResultHolder {
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    if (evalResult != null) {
-      return evalResult;
-    }
     try {
       evalResult = super.eval(bindings, context);
       return evalResult;
@@ -32,11 +29,20 @@ public class EagerAstListDecorator extends AstList implements EvalResultHolder {
       throw new DeferredParsingException(
         String.format("[%s]", e.getDeferredEvalResult())
       );
+    } finally {
+      ((EvalResultHolder) elements).getAndClearEvalResult();
     }
   }
 
   @Override
-  public Object getEvalResult() {
-    return evalResult;
+  public Object getAndClearEvalResult() {
+    Object temp = evalResult;
+    evalResult = null;
+    return temp;
+  }
+
+  @Override
+  public boolean hasEvalResult() {
+    return evalResult != null;
   }
 }

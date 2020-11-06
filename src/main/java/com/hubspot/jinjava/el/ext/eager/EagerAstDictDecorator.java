@@ -18,9 +18,6 @@ public class EagerAstDictDecorator extends AstDict implements EvalResultHolder {
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    if (evalResult != null) {
-      return evalResult;
-    }
     try {
       evalResult = super.eval(bindings, context);
       return evalResult;
@@ -29,10 +26,10 @@ public class EagerAstDictDecorator extends AstDict implements EvalResultHolder {
       dict.forEach(
         (key, value) -> {
           StringJoiner kvJoiner = new StringJoiner(":");
-          if (((EvalResultHolder) key).getEvalResult() != null) {
+          if (((EvalResultHolder) key).hasEvalResult()) {
             kvJoiner.add(
               ChunkResolver.getValueAsJinjavaStringSafe(
-                ((EvalResultHolder) key).getEvalResult()
+                ((EvalResultHolder) key).getAndClearEvalResult()
               )
             );
           } else {
@@ -45,10 +42,10 @@ public class EagerAstDictDecorator extends AstDict implements EvalResultHolder {
             }
           }
 
-          if (((EvalResultHolder) value).getEvalResult() != null) {
+          if (((EvalResultHolder) value).hasEvalResult()) {
             kvJoiner.add(
               ChunkResolver.getValueAsJinjavaStringSafe(
-                ((EvalResultHolder) value).getEvalResult()
+                ((EvalResultHolder) value).getAndClearEvalResult()
               )
             );
           } else {
@@ -64,11 +61,25 @@ public class EagerAstDictDecorator extends AstDict implements EvalResultHolder {
         }
       );
       throw new DeferredParsingException(String.format("{%s}", joiner.toString()));
+    } finally {
+      dict.forEach(
+        (key, value) -> {
+          ((EvalResultHolder) key).getAndClearEvalResult();
+          ((EvalResultHolder) value).getAndClearEvalResult();
+        }
+      );
     }
   }
 
   @Override
-  public Object getEvalResult() {
-    return evalResult;
+  public Object getAndClearEvalResult() {
+    Object temp = evalResult;
+    evalResult = null;
+    return temp;
+  }
+
+  @Override
+  public boolean hasEvalResult() {
+    return evalResult != null;
   }
 }
