@@ -279,8 +279,12 @@ public class ChunkResolver {
     throws JsonProcessingException {
     return OBJECT_MAPPER
       .writeValueAsString(val)
+      // Replace `\n` with a newline character
       .replaceAll("(?<!\\\\)(?:\\\\\\\\)*(\\\\n)", "\n")
+      // Replace double-quotes with single quote as they are preferred in Jinja
       .replaceAll("(?<!\\\\)(?:\\\\\\\\)*(\")", "'")
+      // Replace escaped double-quote with double quote character
+      // Allows `"foo"` -> `"foo"` rather than `\"foo\"`
       .replaceAll("(?<!\\\\)(?:\\\\\\\\)*(\\\\\")", "\"");
   }
 
