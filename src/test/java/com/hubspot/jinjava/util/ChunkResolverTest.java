@@ -202,25 +202,6 @@ public class ChunkResolverTest {
   }
 
   @Test
-  public void itSplitsChunks() {
-    ChunkResolver chunkResolver = makeChunkResolver("1, 1 + 1, 1 + 2");
-    List<String> miniChunks = chunkResolver.splitChunks();
-    assertThat(miniChunks).containsExactly("1", "2", "3");
-    assertThat(chunkResolver.getDeferredWords()).isEmpty();
-  }
-
-  @Test
-  public void itProperlySplitsMultiLevelChunks() {
-    ChunkResolver chunkResolver = makeChunkResolver(
-      "[5,7], 1 + 1, 1 + range(0 + 1, deferred)"
-    );
-    List<String> miniChunks = chunkResolver.splitChunks();
-    assertThat(miniChunks).containsExactly("[5,7]", "2", "1 + range(1,deferred)");
-    assertThat(chunkResolver.getDeferredWords())
-      .containsExactlyInAnyOrder("range", "deferred");
-  }
-
-  @Test
   public void itDoesntDeferReservedWords() {
     context.put("foo", 0);
     ChunkResolver chunkResolver = makeChunkResolver(

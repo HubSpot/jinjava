@@ -3,7 +3,6 @@ package com.hubspot.jinjava.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -12,11 +11,8 @@ import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.objects.date.JsonPyishDateSerializer;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.tree.parse.Token;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -70,32 +66,13 @@ public class ChunkResolver {
     "__macros__"
   );
 
-  // ( -> )
-  // { -> }
-  // [ -> ]
-  private static final Map<Character, Character> CHUNK_LEVEL_MARKER_MAP = ImmutableMap.of(
-    '(',
-    ')',
-    '{',
-    '}',
-    '[',
-    ']'
-  );
-
-  private final char[] value;
-  private final int length;
+  private final String value;
   private final Token token;
   private final JinjavaInterpreter interpreter;
   private final Set<String> deferredWords;
 
-  private int nextPos = 0;
-  private char prevChar = 0;
-  private boolean inQuote = false;
-  private char quoteChar = 0;
-
   public ChunkResolver(String s, Token token, JinjavaInterpreter interpreter) {
-    value = s.toCharArray();
-    length = value.length;
+    value = s;
     this.token = token;
     this.interpreter = interpreter;
     deferredWords = new HashSet<>();
@@ -127,7 +104,7 @@ public class ChunkResolver {
       bracketedResult =
         getValueAsJinjavaStringSafe(
           interpreter.resolveELExpression(
-            String.format("[%s]", String.copyValueOf(value)),
+            String.format("[%s]", value),
             interpreter.getLineNumber()
           )
         );
@@ -137,160 +114,6 @@ public class ChunkResolver {
     }
     // remove brackets
     return bracketedResult.substring(1, bracketedResult.length() - 1);
-    //    nextPos = 0;
-    //    boolean isHideInterpreterErrorsStart = interpreter
-    //      .getContext()
-    //      .isHideInterpreterErrors();
-    //    try {
-    //      interpreter.getContext().setHideInterpreterErrors(true);
-    //      return String.join("", getChunk(null));
-    //    } finally {
-    //      interpreter.getContext().setHideInterpreterErrors(isHideInterpreterErrorsStart);
-    //    }
-  }
-
-  /**
-   * Chunkify and resolve variables and expressions within the string.
-   * Rather than concatenating the chunks, they are split by mini-chunks,
-   * with the comma splitter ommitted from the list of results.
-   * Therefore an expression of "1, 1 + 1, 1 + range(deferred)" becomes a List of ["1", "2", "1 + range(deferred)"].
-   *
-   * @return List of the expression chunk which is split into mini-chunks.
-   */
-  public List<String> splitChunks() {
-    nextPos = 0;
-    boolean isHideInterpreterErrorsStart = interpreter
-      .getContext()
-      .isHideInterpreterErrors();
-    try {
-      interpreter.getContext().setHideInterpreterErrors(true);
-      List<String> miniChunks = getChunk(null);
-      return miniChunks
-        .stream()
-        .filter(s -> s.length() > 1 || !isMiniChunkSplitter(s.charAt(0)))
-        .collect(Collectors.toList());
-    } finally {
-      interpreter.getContext().setHideInterpreterErrors(isHideInterpreterErrorsStart);
-    }
-  }
-
-  /**
-   *  e.g. `[0, foo + bar]`:
-   *     `0, foo + bar` is a chunk
-   *     `0` and `foo + bar` are mini chunks
-   *     `0`, `,`, ` `, `foo`, ` `, `+`, ` `, and `bar` are the tokens
-   * @param chunkLevelMarker the marker `(`, `[`, `{` that started this chunk
-   * @return the resolved chunk
-   */
-  private List<String> getChunk(Character chunkLevelMarker) {
-    List<String> chunks = new ArrayList<>();
-    // Mini chunks are split by commas.
-    StringBuilder miniChunkBuilder = new StringBuilder();
-    StringBuilder tokenBuilder = new StringBuilder();
-    while (nextPos < length) {
-      char c = value[nextPos++];
-      if (inQuote) {
-        if (c == quoteChar && prevChar != '\\') {
-          inQuote = false;
-        }
-      } else if ((c == '\'' || c == '"') && prevChar != '\\') {
-        inQuote = true;
-        quoteChar = c;
-      } else if (
-        chunkLevelMarker != null && CHUNK_LEVEL_MARKER_MAP.get(chunkLevelMarker) == c
-      ) {
-        prevChar = c;
-        break;
-      } else if (CHUNK_LEVEL_MARKER_MAP.containsKey(c)) {
-        prevChar = c;
-        tokenBuilder.append(c);
-        tokenBuilder.append(resolveChunk(String.join("", getChunk(c))));
-        tokenBuilder.append(prevChar);
-        continue;
-      } else if (isTokenSplitter(c)) {
-        prevChar = c;
-
-        miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
-        tokenBuilder = new StringBuilder();
-        if (isMiniChunkSplitter(c)) {
-          chunks.add(resolveChunk(miniChunkBuilder.toString()));
-          chunks.add(String.valueOf(c));
-          miniChunkBuilder = new StringBuilder();
-        } else {
-          miniChunkBuilder.append(c);
-        }
-        continue;
-      }
-      prevChar = c;
-      tokenBuilder.append(c);
-    }
-    miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
-    chunks.add(resolveChunk(miniChunkBuilder.toString()));
-    return chunks;
-  }
-
-  private boolean isTokenSplitter(char c) {
-    return (!Character.isLetterOrDigit(c) && c != '_' && c != '.');
-  }
-
-  private boolean isMiniChunkSplitter(char c) {
-    return c == ',';
-  }
-
-  private String resolveToken(String token) {
-    if (StringUtils.isBlank(token)) {
-      return "";
-    }
-    try {
-      String resolvedToken;
-      if (WhitespaceUtils.isQuoted(token) || RESERVED_KEYWORDS.contains(token)) {
-        resolvedToken = token;
-      } else {
-        Object val = interpreter.retraceVariable(
-          token,
-          this.token.getLineNumber(),
-          this.token.getStartPosition()
-        );
-        if (val == null) {
-          try {
-            val = interpreter.resolveELExpression(token, this.token.getLineNumber());
-          } catch (UnknownTokenException e) {
-            // val is still null
-          }
-        }
-        if (val == null) {
-          resolvedToken = token;
-        } else {
-          resolvedToken = getValueAsJinjavaString(val);
-        }
-      }
-      return resolvedToken.trim();
-    } catch (DeferredValueException | JsonProcessingException e) {
-      deferredWords.addAll(findDeferredWords(token));
-      return token.trim();
-    }
-  }
-
-  // Try resolving the chunk/mini chunk as an ELExpression
-  private String resolveChunk(String chunk) {
-    if (StringUtils.isBlank(chunk)) {
-      return "";
-    } else if (RESERVED_KEYWORDS.contains(chunk)) {
-      return chunk;
-    }
-    try {
-      String resolvedChunk;
-      Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
-      if (val == null) {
-        resolvedChunk = chunk;
-      } else {
-        resolvedChunk = getValueAsJinjavaString(val);
-      }
-      return resolvedChunk.trim();
-    } catch (Exception e) {
-      deferredWords.addAll(findDeferredWords(chunk));
-      return chunk.trim();
-    }
   }
 
   public static String getValueAsJinjavaStringSafe(Object val) {
