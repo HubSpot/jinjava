@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.el.ext.NamedParameter;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
@@ -40,16 +41,13 @@ public class ExpressionResolver {
   private static final String EXPRESSION_START_TOKEN = "#{";
   private static final String EXPRESSION_END_TOKEN = "}";
 
-  public ExpressionResolver(
-    JinjavaInterpreter interpreter,
-    ExpressionFactory expressionFactory
-  ) {
+  public ExpressionResolver(JinjavaInterpreter interpreter, Jinjava jinjava) {
     this.interpreter = interpreter;
-    this.expressionFactory = expressionFactory;
+    this.expressionFactory = jinjava.getExpressionFactory();
 
     this.resolver = new JinjavaInterpreterResolver(interpreter);
-    this.elContext = new JinjavaELContext(resolver);
-    for (ELFunctionDefinition fn : interpreter.getContext().getAllFunctions()) {
+    this.elContext = new JinjavaELContext(interpreter, resolver);
+    for (ELFunctionDefinition fn : jinjava.getGlobalContext().getAllFunctions()) {
       this.elContext.setFunction(fn.getNamespace(), fn.getLocalName(), fn.getMethod());
     }
   }

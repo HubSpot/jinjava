@@ -100,8 +100,7 @@ public class JinjavaInterpreter {
         );
     }
 
-    this.expressionResolver =
-      new ExpressionResolver(this, application.getExpressionFactory());
+    this.expressionResolver = new ExpressionResolver(this, application);
   }
 
   public JinjavaInterpreter(JinjavaInterpreter orig) {
