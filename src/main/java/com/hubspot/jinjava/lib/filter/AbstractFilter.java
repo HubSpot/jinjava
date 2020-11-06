@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -231,11 +230,12 @@ public abstract class AbstractFilter implements Filter {
   }
 
   public Map<String, Object> initDefaultValues() {
-    Map<String, Object> defaultValues = namedArguments
+    return namedArguments
       .entrySet()
       .stream()
       .filter(e -> StringUtils.isNotEmpty(e.getValue().defaultValue()))
-      .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().defaultValue()));
-    return ImmutableMap.copyOf(defaultValues);
+      .collect(
+        ImmutableMap.toImmutableMap(Map.Entry::getKey, e -> e.getValue().defaultValue())
+      );
   }
 }
