@@ -74,27 +74,31 @@ public class AbstractFilterTest extends BaseInterpretingTest {
   public void itParsesNumericAndBooleanInput() {
     filter = new AllParamTypesFilter();
 
-    Map<String, Object> kwArgs = new HashMap<>();
-    kwArgs.put("boolean", "true");
-    kwArgs.put("int", "1");
-    kwArgs.put("long", "2");
-    kwArgs.put("double", "3");
-    kwArgs.put("float", "4");
-    kwArgs.put("number", "5");
-    kwArgs.put("object", new Object());
-    kwArgs.put("dict", new Object());
+    Map<String, Object> kwArgs = ImmutableMap
+      .<String, Object>builder()
+      .put("boolean", "true")
+      .put("int", "1")
+      .put("long", "2")
+      .put("double", "3")
+      .put("float", "4")
+      .put("number", "5")
+      .put("object", new Object())
+      .put("dict", new Object())
+      .build();
 
     filter.filter(null, interpreter, new Object[] {}, kwArgs);
 
-    Map<String, Object> expected = new HashMap<>();
-    expected.put("boolean", true);
-    expected.put("int", 1);
-    expected.put("long", 2L);
-    expected.put("double", 3.0);
-    expected.put("float", 4.0f);
-    expected.put("number", new BigDecimal(5));
-    expected.put("object", kwArgs.get("object"));
-    expected.put("dict", kwArgs.get("dict"));
+    Map<String, Object> expected = ImmutableMap
+      .<String, Object>builder()
+      .put("boolean", true)
+      .put("int", 1)
+      .put("long", 2L)
+      .put("double", 3.0)
+      .put("float", 4.0f)
+      .put("number", new BigDecimal(5))
+      .put("object", kwArgs.get("object"))
+      .put("dict", kwArgs.get("dict"))
+      .build();
 
     assertThat(filter.parsedArgs).isEqualTo(expected);
   }

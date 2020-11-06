@@ -1,5 +1,5 @@
 /**********************************************************************
- Copyright (c) 2014 HubSpot Inc.
+ Copyright (c) 2020 HubSpot Inc.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InvalidInputException;
@@ -24,14 +25,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -63,7 +62,7 @@ public abstract class AbstractFilter implements Filter {
   );
 
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    throw new NotImplementedException("Not implemented");
+    return filter(var, interpreter, args, Collections.emptyMap());
   }
 
   public Object filter(
@@ -211,11 +210,15 @@ public abstract class AbstractFilter implements Filter {
   public Map<String, JinjavaParam> initNamedArguments() {
     JinjavaDoc jinjavaDoc = this.getClass().getAnnotation(JinjavaDoc.class);
     if (jinjavaDoc != null) {
-      Map<String, JinjavaParam> namedArgs = new LinkedHashMap<>();
-      for (JinjavaParam jinjavaParam : jinjavaDoc.params()) {
-        namedArgs.put(jinjavaParam.value(), jinjavaParam);
-      }
-      return Collections.unmodifiableMap(namedArgs);
+      ImmutableMap.Builder<String, JinjavaParam> namedArgsBuilder = ImmutableMap.builder();
+
+      Arrays
+        .stream(jinjavaDoc.params())
+        .forEachOrdered(
+          jinjavaParam -> namedArgsBuilder.put(jinjavaParam.value(), jinjavaParam)
+        );
+
+      return namedArgsBuilder.build();
     } else {
       throw new UnsupportedOperationException(
         String.format(
@@ -233,6 +236,6 @@ public abstract class AbstractFilter implements Filter {
       .stream()
       .filter(e -> StringUtils.isNotEmpty(e.getValue().defaultValue()))
       .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().defaultValue()));
-    return Collections.unmodifiableMap(defaultValues);
+    return ImmutableMap.copyOf(defaultValues);
   }
 }
