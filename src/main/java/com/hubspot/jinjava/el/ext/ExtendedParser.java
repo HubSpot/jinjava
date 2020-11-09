@@ -54,6 +54,8 @@ public class ExtendedParser extends Parser {
   static final Scanner.ExtensionToken IS = new Scanner.ExtensionToken("is");
   static final Token IF = new Scanner.Token(Symbol.QUESTION, "if");
   static final Token ELSE = new Scanner.Token(Symbol.COLON, "else");
+  static final Token PYTRUE = new Scanner.Token(Symbol.TRUE, "True");
+  static final Token PYFALSE = new Scanner.Token(Symbol.FALSE, "False");
 
   static final Scanner.ExtensionToken LITERAL_DICT_START = new Scanner.ExtensionToken(
     "{"
@@ -79,6 +81,8 @@ public class ExtendedParser extends Parser {
   static {
     ExtendedScanner.addKeyToken(IF);
     ExtendedScanner.addKeyToken(ELSE);
+    ExtendedScanner.addKeyToken(PYTRUE);
+    ExtendedScanner.addKeyToken(PYFALSE);
 
     ExtendedScanner.addKeyToken(TruncDivOperator.TOKEN);
     ExtendedScanner.addKeyToken(PowerOfOperator.TOKEN);
