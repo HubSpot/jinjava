@@ -118,7 +118,6 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
     </dependency>
-
     <dependency>
       <groupId>ch.obermuhlner</groupId>
       <artifactId>big-math</artifactId>
