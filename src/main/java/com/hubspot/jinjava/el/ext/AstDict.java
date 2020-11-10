@@ -1,7 +1,8 @@
 package com.hubspot.jinjava.el.ext;
 
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateStateException;
-import com.hubspot.jinjava.objects.collections.PyMap;
+import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstLiteral;
@@ -39,7 +40,11 @@ public class AstDict extends AstLiteral {
       resolved.put(key, entry.getValue().eval(bindings, context));
     }
 
-    return new PyMap(resolved);
+    JinjavaInterpreter interpreter = (JinjavaInterpreter) context
+      .getELResolver()
+      .getValue(context, null, ExtendedParser.INTERPRETER);
+
+    return new SizeLimitingPyMap(resolved, interpreter.getConfig().getMaxMapSize());
   }
 
   @Override
@@ -54,10 +59,7 @@ public class AstDict extends AstLiteral {
     StringBuilder s = new StringBuilder("{");
 
     for (Map.Entry<AstNode, AstNode> entry : dict.entrySet()) {
-      s
-        .append(Objects.toString(entry.getKey()))
-        .append(":")
-        .append(Objects.toString(entry.getValue()));
+      s.append(entry.getKey()).append(":").append(entry.getValue());
     }
 
     return s.append("}").toString();

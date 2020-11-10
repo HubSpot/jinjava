@@ -308,7 +308,6 @@ public class ExtendedParser extends Parser {
     switch (getToken().getSymbol()) {
       case LBRACK:
         v = new AstList(params(LBRACK, RBRACK));
-
         break;
       case LPAREN:
         v = new AstTuple(params());
