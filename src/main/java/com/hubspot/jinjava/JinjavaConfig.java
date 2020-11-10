@@ -57,6 +57,7 @@ public class JinjavaConfig {
   private ELResolver elResolver;
   private final boolean iterateOverMapKeys;
   private final boolean preserveForFinalPass;
+  private final boolean eagerExecutionEnabled;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -106,6 +107,7 @@ public class JinjavaConfig {
     elResolver = builder.elResolver;
     iterateOverMapKeys = builder.iterateOverMapKeys;
     preserveForFinalPass = builder.preserveForFinalPass;
+    eagerExecutionEnabled = builder.eagerExecutionEnabled;
   }
 
   public Charset getCharset() {
@@ -192,6 +194,10 @@ public class JinjavaConfig {
     return preserveForFinalPass;
   }
 
+  public boolean isEagerExecutionEnabled() {
+    return eagerExecutionEnabled;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -216,6 +222,7 @@ public class JinjavaConfig {
     private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
     private boolean iterateOverMapKeys;
     private boolean preserveForFinalPass;
+    private boolean eagerExecutionEnabled;
 
     private Builder() {}
 
@@ -326,6 +333,11 @@ public class JinjavaConfig {
 
     public Builder withPreserveForFinalPass(boolean preserveForFinalPass) {
       this.preserveForFinalPass = preserveForFinalPass;
+      return this;
+    }
+
+    public Builder withEagerExecutionEnabled(boolean eagerExecutionEnabled) {
+      this.eagerExecutionEnabled = eagerExecutionEnabled;
       return this;
     }
 

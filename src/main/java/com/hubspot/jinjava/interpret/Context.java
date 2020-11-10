@@ -29,6 +29,7 @@ import com.hubspot.jinjava.lib.fn.FunctionLibrary;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.TagLibrary;
+import com.hubspot.jinjava.lib.tag.eager.EagerToken;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.ScopeMap;
@@ -78,6 +79,7 @@ public class Context extends ScopeMap<String, Object> {
   private final Set<String> resolvedFunctions = new HashSet<>();
 
   private Set<Node> deferredNodes = new HashSet<>();
+  private Set<EagerToken> eagerTokens = new HashSet<>();
 
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
@@ -93,6 +95,7 @@ public class Context extends ScopeMap<String, Object> {
   private final Stack<String> renderStack = new Stack<>();
 
   private boolean validationMode = false;
+  private boolean protectedMode = false;
 
   public Context() {
     this(null, null, null);
@@ -170,6 +173,7 @@ public class Context extends ScopeMap<String, Object> {
     resolvedFunctions.clear();
     dependencies = HashMultimap.create();
     deferredNodes = new HashSet<>();
+    eagerTokens = new HashSet<>();
   }
 
   @Override
@@ -288,6 +292,27 @@ public class Context extends ScopeMap<String, Object> {
 
   public Set<Node> getDeferredNodes() {
     return ImmutableSet.copyOf(deferredNodes);
+  }
+
+  public void handleEagerToken(EagerToken eagerToken) {
+    eagerTokens.add(eagerToken);
+    Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(this);
+    if (getParent() != null) {
+      Context parent = getParent();
+      //Ignore global context
+      if (parent.getParent() != null) {
+        //Place deferred values on the parent context
+        deferredProps
+          .stream()
+          .filter(key -> !parent.containsKey(key))
+          .forEach(key -> parent.put(key, this.get(key)));
+        parent.handleEagerToken(eagerToken);
+      }
+    }
+  }
+
+  public Set<EagerToken> getEagerTokens() {
+    return eagerTokens;
   }
 
   public List<? extends Node> getSuperBlock() {
@@ -525,5 +550,14 @@ public class Context extends ScopeMap<String, Object> {
 
   public SetMultimap<String, String> getDependencies() {
     return this.dependencies;
+  }
+
+  public boolean isProtectedMode() {
+    return protectedMode;
+  }
+
+  public Context setProtectedMode(boolean protectedMode) {
+    this.protectedMode = protectedMode;
+    return this;
   }
 }

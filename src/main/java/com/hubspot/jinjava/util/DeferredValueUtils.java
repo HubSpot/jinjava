@@ -7,6 +7,7 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
+import com.hubspot.jinjava.lib.tag.eager.EagerToken;
 import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -21,6 +22,7 @@ import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DeferredValueUtils {
   private static final String TEMPLATE_TAG_REGEX = "(\\w+(?:\\.\\w+)*)";
@@ -62,6 +64,13 @@ public class DeferredValueUtils {
     String templateSource = rebuildTemplateForNodes(context.getDeferredNodes());
     Set<String> deferredProps = getPropertiesUsedInDeferredNodes(context, templateSource);
     Set<String> setProps = getPropertiesSetInDeferredNodes(templateSource);
+    deferredProps.addAll(
+      getPropertiesUsedInDeferredNodes(
+        context,
+        rebuildTemplateForEagerTagTokens(context.getEagerTokens()),
+        false
+      )
+    );
 
     markDeferredProperties(context, Sets.union(deferredProps, setProps));
 
@@ -80,12 +89,21 @@ public class DeferredValueUtils {
     Context context,
     String templateSource
   ) {
-    Set<String> propertiesUsed = findUsedProperties(templateSource);
-    return propertiesUsed
+    return getPropertiesUsedInDeferredNodes(context, templateSource, true);
+  }
+
+  public static Set<String> getPropertiesUsedInDeferredNodes(
+    Context context,
+    String templateSource,
+    boolean onlyAlreadyInContext
+  ) {
+    Stream<String> propertiesUsed = findUsedProperties(templateSource)
       .stream()
-      .map(prop -> prop.split("\\.", 2)[0]) // split accesses on .prop
-      .filter(context::containsKey)
-      .collect(Collectors.toSet());
+      .map(prop -> prop.split("\\.", 2)[0]); // split accesses on .prop
+    if (onlyAlreadyInContext) {
+      propertiesUsed = propertiesUsed.filter(context::containsKey);
+    }
+    return propertiesUsed.collect(Collectors.toSet());
   }
 
   private static void markDeferredProperties(Context context, Set<String> props) {
@@ -123,6 +141,22 @@ public class DeferredValueUtils {
   private static String rebuildTemplateForNodes(Set<Node> nodes) {
     StringJoiner joiner = new StringJoiner(" ");
     getDeferredTags(nodes).stream().map(DeferredTag::getTag).forEach(joiner::add);
+    return joiner.toString();
+  }
+
+  private static String rebuildTemplateForEagerTagTokens(Set<EagerToken> eagerTokens) {
+    StringJoiner joiner = new StringJoiner(" ");
+    eagerTokens
+      .stream()
+      .flatMap(
+        e ->
+          Stream.concat(
+            e.getSetDeferredWords().stream(),
+            e.getUsedDeferredWords().stream()
+          )
+      )
+      .map(h -> h + ".eager.helper")
+      .forEach(joiner::add);
     return joiner.toString();
   }
 
