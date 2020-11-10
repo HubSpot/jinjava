@@ -67,8 +67,15 @@ public class DeferredValueUtils {
     deferredProps.addAll(
       getPropertiesUsedInDeferredNodes(
         context,
-        rebuildTemplateForEagerTagTokens(context.getEagerTokens()),
+        rebuildTemplateForEagerTagTokens(context.getEagerTokens(), true),
         false
+      )
+    );
+    deferredProps.addAll(
+      getPropertiesUsedInDeferredNodes(
+        context,
+        rebuildTemplateForEagerTagTokens(context.getEagerTokens(), false),
+        true
       )
     );
 
@@ -144,16 +151,18 @@ public class DeferredValueUtils {
     return joiner.toString();
   }
 
-  private static String rebuildTemplateForEagerTagTokens(Set<EagerToken> eagerTokens) {
+  private static String rebuildTemplateForEagerTagTokens(
+    Set<EagerToken> eagerTokens,
+    boolean fromSetWords
+  ) {
     StringJoiner joiner = new StringJoiner(" ");
     eagerTokens
       .stream()
       .flatMap(
         e ->
-          Stream.concat(
-            e.getSetDeferredWords().stream(),
-            e.getUsedDeferredWords().stream()
-          )
+          fromSetWords
+            ? e.getSetDeferredWords().stream()
+            : e.getUsedDeferredWords().stream()
       )
       .map(h -> h + ".eager.helper")
       .forEach(joiner::add);
