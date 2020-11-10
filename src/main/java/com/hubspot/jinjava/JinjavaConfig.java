@@ -63,32 +63,11 @@ public class JinjavaConfig {
   }
 
   public JinjavaConfig() {
-    this(new JinjavaInterpreterFactory());
+    this(newBuilder());
   }
 
   public JinjavaConfig(InterpreterFactory interpreterFactory) {
-    this(
-      StandardCharsets.UTF_8,
-      Locale.ENGLISH,
-      ZoneOffset.UTC,
-      10,
-      new HashMap<>(),
-      false,
-      false,
-      false,
-      0,
-      false,
-      0,
-      true,
-      RandomNumberGeneratorStrategy.THREAD_LOCAL,
-      false,
-      0,
-      interpreterFactory,
-      new DefaultTokenScannerSymbols(),
-      JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY,
-      false,
-      false
-    );
+    this(newBuilder().withInterperterFactory(interpreterFactory));
   }
 
   public JinjavaConfig(
@@ -98,71 +77,35 @@ public class JinjavaConfig {
     int maxRenderDepth
   ) {
     this(
-      charset,
-      locale,
-      timeZone,
-      maxRenderDepth,
-      new HashMap<>(),
-      false,
-      false,
-      false,
-      0,
-      false,
-      0,
-      true,
-      RandomNumberGeneratorStrategy.THREAD_LOCAL,
-      false,
-      0,
-      new JinjavaInterpreterFactory(),
-      new DefaultTokenScannerSymbols(),
-      JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY,
-      false,
-      false
+      newBuilder()
+        .withCharset(charset)
+        .withLocale(locale)
+        .withTimeZone(timeZone)
+        .withMaxRenderDepth(maxRenderDepth)
     );
   }
 
-  private JinjavaConfig(
-    Charset charset,
-    Locale locale,
-    ZoneId timeZone,
-    int maxRenderDepth,
-    Map<Context.Library, Set<String>> disabled,
-    boolean trimBlocks,
-    boolean lstripBlocks,
-    boolean enableRecursiveMacroCalls,
-    int maxMacroRecursionDepth,
-    boolean failOnUnknownTokens,
-    long maxOutputSize,
-    boolean nestedInterpretationEnabled,
-    RandomNumberGeneratorStrategy randomNumberGenerator,
-    boolean validationMode,
-    long maxStringLength,
-    InterpreterFactory interpreterFactory,
-    TokenScannerSymbols tokenScannerSymbols,
-    ELResolver elResolver,
-    boolean iterateOverMapKeys,
-    boolean preserveForFinalPass
-  ) {
-    this.charset = charset;
-    this.locale = locale;
-    this.timeZone = timeZone;
-    this.maxRenderDepth = maxRenderDepth;
-    this.disabled = disabled;
-    this.trimBlocks = trimBlocks;
-    this.lstripBlocks = lstripBlocks;
-    this.enableRecursiveMacroCalls = enableRecursiveMacroCalls;
-    this.maxMacroRecursionDepth = maxMacroRecursionDepth;
-    this.failOnUnknownTokens = failOnUnknownTokens;
-    this.maxOutputSize = maxOutputSize;
-    this.nestedInterpretationEnabled = nestedInterpretationEnabled;
-    this.randomNumberGenerator = randomNumberGenerator;
-    this.validationMode = validationMode;
-    this.maxStringLength = maxStringLength;
-    this.interpreterFactory = interpreterFactory;
-    this.tokenScannerSymbols = tokenScannerSymbols;
-    this.elResolver = elResolver;
-    this.iterateOverMapKeys = iterateOverMapKeys;
-    this.preserveForFinalPass = preserveForFinalPass;
+  private JinjavaConfig(Builder builder) {
+    charset = builder.charset;
+    locale = builder.locale;
+    timeZone = builder.timeZone;
+    maxRenderDepth = builder.maxRenderDepth;
+    disabled = builder.disabled;
+    trimBlocks = builder.trimBlocks;
+    lstripBlocks = builder.lstripBlocks;
+    enableRecursiveMacroCalls = builder.enableRecursiveMacroCalls;
+    maxMacroRecursionDepth = builder.maxMacroRecursionDepth;
+    failOnUnknownTokens = builder.failOnUnknownTokens;
+    maxOutputSize = builder.maxOutputSize;
+    nestedInterpretationEnabled = builder.nestedInterpretationEnabled;
+    randomNumberGenerator = builder.randomNumberGeneratorStrategy;
+    validationMode = builder.validationMode;
+    maxStringLength = builder.maxStringLength;
+    interpreterFactory = builder.interpreterFactory;
+    tokenScannerSymbols = builder.tokenScannerSymbols;
+    elResolver = builder.elResolver;
+    iterateOverMapKeys = builder.iterateOverMapKeys;
+    preserveForFinalPass = builder.preserveForFinalPass;
   }
 
   public Charset getCharset() {
@@ -387,28 +330,7 @@ public class JinjavaConfig {
     }
 
     public JinjavaConfig build() {
-      return new JinjavaConfig(
-        charset,
-        locale,
-        timeZone,
-        maxRenderDepth,
-        disabled,
-        trimBlocks,
-        lstripBlocks,
-        enableRecursiveMacroCalls,
-        maxMacroRecursionDepth,
-        failOnUnknownTokens,
-        maxOutputSize,
-        nestedInterpretationEnabled,
-        randomNumberGeneratorStrategy,
-        validationMode,
-        maxStringLength,
-        interpreterFactory,
-        tokenScannerSymbols,
-        elResolver,
-        iterateOverMapKeys,
-        preserveForFinalPass
-      );
+      return new JinjavaConfig(this);
     }
   }
 }
