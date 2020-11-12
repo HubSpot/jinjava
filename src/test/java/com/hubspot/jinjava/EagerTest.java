@@ -26,8 +26,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore // TODO remove
 public class EagerTest {
   private JinjavaInterpreter interpreter;
   private final Jinjava jinjava = new Jinjava();

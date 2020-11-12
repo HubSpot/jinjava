@@ -1,0 +1,8 @@
+{% set foo = ['1','2','3','4','5'] %}
+{% for item in foo %}
+start: {% cycle 'start' %}
+foo: {% cycle foo %}
+one/two: {% cycle 'one','two' %}
+{%- cycle 'a','b','c' as letter -%}
+letter: {% cycle letter %}
+{%- endfor -%}

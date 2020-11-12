@@ -1,0 +1,7 @@
+{%- macro says_something(person) -%}
+{{ person }} says:
+{{ caller() }}
+{%- endmacro -%}
+{%- call says_something('Jack') -%}
+How do I get a {{ deferred }}?
+{%- endcall -%}
