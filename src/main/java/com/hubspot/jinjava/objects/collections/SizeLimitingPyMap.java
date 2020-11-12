@@ -26,7 +26,7 @@ public class SizeLimitingPyMap extends PyMap implements PyWrapper {
 
   @Override
   public Object put(String s, Object o) {
-    if (delegate().size() >= maxSize && !delegate().containsKey(s)) {
+    if (delegate().size() + 1 > maxSize && !delegate().containsKey(s)) {
       throw createOutOfRangeException(delegate().size() + 1);
     }
 

@@ -20,14 +20,14 @@ public class SizeLimitingPyList extends PyList implements PyWrapper {
     }
 
     this.maxSize = maxSize;
-    if (list.size() >= maxSize) {
+    if (list.size() > maxSize) {
       throw createOutOfRangeException(list.size());
     }
   }
 
   @Override
   public boolean append(Object e) {
-    if (size() >= maxSize) {
+    if (size() + 1 > maxSize) {
       throw createOutOfRangeException(size() + 1);
     }
     return super.append(e);
@@ -35,7 +35,7 @@ public class SizeLimitingPyList extends PyList implements PyWrapper {
 
   @Override
   public void insert(int i, Object e) {
-    if (size() >= maxSize) {
+    if (size() + 1 > maxSize) {
       throw createOutOfRangeException(size() + 1);
     }
     super.insert(i, e);
@@ -43,7 +43,7 @@ public class SizeLimitingPyList extends PyList implements PyWrapper {
 
   @Override
   public boolean add(Object element) {
-    if (size() >= maxSize) {
+    if (size() + 1 > maxSize) {
       throw createOutOfRangeException(size() + 1);
     }
     return super.add(element);
@@ -51,7 +51,7 @@ public class SizeLimitingPyList extends PyList implements PyWrapper {
 
   @Override
   public void add(int index, Object element) {
-    if (size() >= maxSize) {
+    if (size() + 1 > maxSize) {
       throw createOutOfRangeException(size() + 1);
     }
     super.add(index, element);
@@ -59,7 +59,7 @@ public class SizeLimitingPyList extends PyList implements PyWrapper {
 
   @Override
   public boolean addAll(int index, Collection<?> elements) {
-    if (size() + elements.size() >= maxSize) {
+    if (size() + elements.size() > maxSize) {
       throw createOutOfRangeException(size() + elements.size());
     }
     return super.addAll(index, elements);
@@ -67,7 +67,7 @@ public class SizeLimitingPyList extends PyList implements PyWrapper {
 
   @Override
   public boolean addAll(Collection<?> collection) {
-    if (size() + collection.size() >= maxSize) {
+    if (size() + collection.size() > maxSize) {
       throw createOutOfRangeException(size() + collection.size());
     }
     return super.addAll(collection);
