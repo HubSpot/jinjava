@@ -63,7 +63,7 @@ public class TruncateHtmlFilterTest extends BaseInterpretingTest {
       fixture("filter/truncatehtml/long-content-with-tags.html"),
       interpreter,
       new Object[] { "35" },
-      ImmutableMap.of("breakwords", false)
+      ImmutableMap.of(TruncateHtmlFilter.BREAKWORD_KEY, false)
     );
     assertThat(result)
       .isEqualTo(
@@ -75,7 +75,7 @@ public class TruncateHtmlFilterTest extends BaseInterpretingTest {
         fixture("filter/truncatehtml/long-content-with-tags.html"),
         interpreter,
         new Object[] { "35" },
-        ImmutableMap.of("end", "TEST")
+        ImmutableMap.of(TruncateHtmlFilter.END_KEY, "TEST")
       );
     assertThat(result)
       .isEqualTo(
