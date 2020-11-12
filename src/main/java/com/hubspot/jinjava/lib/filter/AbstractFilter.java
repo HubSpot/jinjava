@@ -40,7 +40,7 @@ import org.apache.commons.lang3.math.NumberUtils;
  * @see JinjavaDoc
  * @see JinjavaParam
  */
-public abstract class AbstractFilter implements Filter {
+public abstract class AbstractFilter implements Filter, AdvancedFilter {
   private static final Map<Class, Map<String, JinjavaParam>> NAMED_ARGUMENTS_CACHE = new ConcurrentHashMap<>();
   private static final Map<Class, Map<String, Object>> DEFAULT_VALUES_CACHE = new ConcurrentHashMap<>();
 
@@ -130,28 +130,33 @@ public abstract class AbstractFilter implements Filter {
     ) {
       return value;
     }
-    String valueString = Objects.toString(value, null);
     switch (jinjavaParamMetadata.type().toLowerCase()) {
       case "boolean":
         return value instanceof Boolean
           ? (Boolean) value
-          : BooleanUtils.toBooleanObject(valueString);
+          : BooleanUtils.toBooleanObject(value.toString());
       case "int":
-        return value instanceof Integer
-          ? (Integer) value
-          : NumberUtils.toInt(valueString);
+        return value instanceof Number
+          ? ((Number) value).intValue()
+          : NumberUtils.toInt(value.toString());
       case "long":
-        return value instanceof Long ? (Long) value : NumberUtils.toLong(valueString);
+        return value instanceof Number
+          ? ((Number) value).longValue()
+          : NumberUtils.toLong(value.toString());
       case "float":
-        return value instanceof Float ? (Float) value : NumberUtils.toFloat(valueString);
+        return value instanceof Number
+          ? ((Number) value).floatValue()
+          : NumberUtils.toFloat(value.toString());
       case "double":
-        return value instanceof Double
-          ? (Double) value
-          : NumberUtils.toDouble(valueString);
+        return value instanceof Number
+          ? ((Number) value).doubleValue()
+          : NumberUtils.toDouble(value.toString());
       case "number":
-        return value instanceof Number ? (Number) value : new BigDecimal(valueString);
+        return value instanceof Number
+          ? (Number) value
+          : new BigDecimal(value.toString());
       case "string":
-        return valueString;
+        return value.toString();
       default:
         throw new InvalidInputException(
           interpreter,
@@ -171,7 +176,13 @@ public abstract class AbstractFilter implements Filter {
     Map<String, Object> parsedArgs
   ) {
     for (JinjavaParam jinjavaParam : namedArguments.values()) {
-      if (jinjavaParam.required() && !parsedArgs.containsKey(jinjavaParam.value())) {
+      if (
+        jinjavaParam.required() &&
+        (
+          !parsedArgs.containsKey(jinjavaParam.value()) ||
+          parsedArgs.get(jinjavaParam.value()) == null
+        )
+      ) {
         throw new InvalidInputException(
           interpreter,
           "MISSING_REQUIRED_ARG",
