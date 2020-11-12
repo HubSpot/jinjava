@@ -56,8 +56,7 @@ public class JinjavaConfig {
   private TokenScannerSymbols tokenScannerSymbols;
   private ELResolver elResolver;
   private final boolean iterateOverMapKeys;
-  private final boolean preserveForFinalPass;
-  private final boolean eagerExecutionEnabled;
+  private final ExecutionMode executionMode;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -106,8 +105,7 @@ public class JinjavaConfig {
     tokenScannerSymbols = builder.tokenScannerSymbols;
     elResolver = builder.elResolver;
     iterateOverMapKeys = builder.iterateOverMapKeys;
-    preserveForFinalPass = builder.preserveForFinalPass;
-    eagerExecutionEnabled = builder.eagerExecutionEnabled;
+    executionMode = builder.executionMode;
   }
 
   public Charset getCharset() {
@@ -190,12 +188,8 @@ public class JinjavaConfig {
     return iterateOverMapKeys;
   }
 
-  public boolean isPreserveForFinalPass() {
-    return preserveForFinalPass;
-  }
-
-  public boolean isEagerExecutionEnabled() {
-    return eagerExecutionEnabled;
+  public ExecutionMode getExecutionMode() {
+    return executionMode;
   }
 
   public static class Builder {
@@ -221,8 +215,7 @@ public class JinjavaConfig {
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
     private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
     private boolean iterateOverMapKeys;
-    private boolean preserveForFinalPass;
-    private boolean eagerExecutionEnabled;
+    private ExecutionMode executionMode;
 
     private Builder() {}
 
@@ -331,13 +324,8 @@ public class JinjavaConfig {
       return this;
     }
 
-    public Builder withPreserveForFinalPass(boolean preserveForFinalPass) {
-      this.preserveForFinalPass = preserveForFinalPass;
-      return this;
-    }
-
-    public Builder withEagerExecutionEnabled(boolean eagerExecutionEnabled) {
-      this.eagerExecutionEnabled = eagerExecutionEnabled;
+    public Builder withExecutionMode(ExecutionMode executionMode) {
+      this.executionMode = executionMode;
       return this;
     }
 
