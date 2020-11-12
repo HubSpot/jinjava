@@ -5,12 +5,17 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.*;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.lib.tag.eager.EagerToken;
 import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
+import com.hubspot.jinjava.tree.parse.ExpressionToken;
+import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.Token;
 import java.util.Collections;
 import java.util.HashMap;
@@ -177,6 +182,43 @@ public class DeferredValueUtilsTest {
       context
     );
     assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void itDefersSetWordsInEagerTokens() {
+    Context context = new Context();
+    context.put("var_a", "a");
+    EagerToken eagerToken = new EagerToken(
+      new TagToken(
+        "{% set var_a, var_b = deferred, deferred %}",
+        1,
+        1,
+        new DefaultTokenScannerSymbols()
+      ),
+      ImmutableSet.of("deferred"),
+      ImmutableSet.of("var_a", "var_b")
+    );
+    context.handleEagerToken(eagerToken);
+    assertThat(context.get("var_a")).isInstanceOf(DeferredValue.class);
+    assertThat(context.get("var_b")).isInstanceOf(DeferredValue.class);
+  }
+
+  @Test
+  public void itDefersUsedWordsInEagerTokens() {
+    Context context = new Context();
+    context.put("var_a", "a");
+    EagerToken eagerToken = new EagerToken(
+      new ExpressionToken(
+        "{{ var_a.append(deferred|int)}}",
+        1,
+        1,
+        new DefaultTokenScannerSymbols()
+      ),
+      ImmutableSet.of("var_a", "deferred", "int")
+    );
+    context.handleEagerToken(eagerToken);
+    assertThat(context.get("var_a")).isInstanceOf(DeferredValue.class);
+    assertThat(context.containsKey("int")).isFalse();
   }
 
   private Context getContext(List<? extends Node> nodes) {
