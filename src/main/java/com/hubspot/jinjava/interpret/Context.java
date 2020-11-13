@@ -30,6 +30,7 @@ import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.TagLibrary;
 import com.hubspot.jinjava.lib.tag.eager.EagerToken;
+import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.ScopeMap;
@@ -85,6 +86,7 @@ public class Context extends ScopeMap<String, Object> {
   private final FilterLibrary filterLibrary;
   private final FunctionLibrary functionLibrary;
   private final TagLibrary tagLibrary;
+  private Class<? extends ExpressionNode> expressionNodeClass = ExpressionNode.class;
 
   private final Context parent;
 
@@ -164,6 +166,8 @@ public class Context extends ScopeMap<String, Object> {
     this.tagLibrary = new TagLibrary(parent == null, disabled.get(Library.TAG));
     this.functionLibrary =
       new FunctionLibrary(parent == null, disabled.get(Library.FUNCTION));
+    this.expressionNodeClass =
+      parent == null ? ExpressionNode.class : parent.expressionNodeClass;
   }
 
   public void reset() {
@@ -472,6 +476,16 @@ public class Context extends ScopeMap<String, Object> {
 
   public void registerTag(Tag t) {
     tagLibrary.addTag(t);
+  }
+
+  public Class<? extends ExpressionNode> getExpressionNodeClass() {
+    return expressionNodeClass;
+  }
+
+  public void setExpressionNodeClass(
+    Class<? extends ExpressionNode> expressionNodeClass
+  ) {
+    this.expressionNodeClass = expressionNodeClass;
   }
 
   public CallStack getExtendPathStack() {
