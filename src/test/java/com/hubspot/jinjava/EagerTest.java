@@ -13,6 +13,7 @@ import com.hubspot.jinjava.lib.tag.eager.EagerTagFactory;
 import com.hubspot.jinjava.loader.LocationResolver;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
+import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.util.DeferredValueUtils;
@@ -65,8 +66,7 @@ public class EagerTest {
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
-      .withPreserveForFinalPass(true)
-      .withEagerExecutionEnabled(true)
+      .withExecutionMode(new EagerExecutionMode())
       .withNestedInterpretationEnabled(true)
       .build();
     JinjavaInterpreter parentInterpreter = new JinjavaInterpreter(
@@ -714,8 +714,7 @@ public class EagerTest {
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
-      .withPreserveForFinalPass(true)
-      .withEagerExecutionEnabled(true)
+      .withExecutionMode(new EagerExecutionMode())
       .withNestedInterpretationEnabled(false)
       .build();
     JinjavaInterpreter parentInterpreter = new JinjavaInterpreter(
