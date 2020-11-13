@@ -22,14 +22,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     try {
       return tag.interpret(tagNode, interpreter);
     } catch (DeferredValueException e) {
-      if (interpreter.getConfig().isEagerExecutionEnabled()) {
-        return wrapInAutoEscapeIfNeeded(
-          eagerInterpret(tagNode, interpreter),
-          interpreter
-        );
-      } else {
-        throw e;
-      }
+      return wrapInAutoEscapeIfNeeded(eagerInterpret(tagNode, interpreter), interpreter);
     }
   }
 
