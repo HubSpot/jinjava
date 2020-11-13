@@ -20,6 +20,8 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.InterpreterFactory;
 import com.hubspot.jinjava.interpret.JinjavaInterpreterFactory;
+import com.hubspot.jinjava.mode.DefaultExecutionMode;
+import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
@@ -215,7 +217,7 @@ public class JinjavaConfig {
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
     private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
     private boolean iterateOverMapKeys;
-    private ExecutionMode executionMode;
+    private ExecutionMode executionMode = new DefaultExecutionMode();
 
     private Builder() {}
 
