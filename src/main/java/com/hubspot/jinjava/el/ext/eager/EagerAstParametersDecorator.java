@@ -1,8 +1,10 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.util.ChunkResolver;
 import de.odysseus.el.tree.Bindings;
+import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import java.util.ArrayList;
@@ -61,7 +63,12 @@ public class EagerAstParametersDecorator
         .map(node -> (EvalResultHolder) node)
         .forEach(
           node -> {
-            if (node.hasEvalResult()) {
+            if (
+              node instanceof AstIdentifier &&
+              ExtendedParser.INTERPRETER.equals(((AstIdentifier) node).getName())
+            ) {
+              joiner.add(ExtendedParser.INTERPRETER);
+            } else if (node.hasEvalResult()) {
               joiner.add(
                 ChunkResolver.getValueAsJinjavaStringSafe(node.getAndClearEvalResult())
               );

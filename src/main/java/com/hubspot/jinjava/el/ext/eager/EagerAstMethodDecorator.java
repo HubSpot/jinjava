@@ -38,41 +38,39 @@ public class EagerAstMethodDecorator extends AstMethod implements EvalResultHold
       return evalResult;
     } catch (DeferredParsingException e) {
       StringBuilder sb = new StringBuilder();
-      if (property.hasEvalResult()) {
-        sb.append(
-          ChunkResolver.getValueAsJinjavaStringSafe(property.getAndClearEvalResult())
-        );
+
+      String paramString;
+      // params get evaluated first
+      if (params.hasEvalResult()) {
+        paramString =
+          ChunkResolver.getValueAsJinjavaStringSafe(params.getAndClearEvalResult());
       } else {
+        paramString = e.getDeferredEvalResult();
+        e = null;
+      }
+      String propertyString = "";
+      if (property.hasEvalResult()) {
+        propertyString =
+          ChunkResolver.getValueAsJinjavaStringSafe(property.getAndClearEvalResult());
+      } else if (e != null) {
         if (property instanceof EagerAstDotDecorator) {
-          sb.append(
+          propertyString =
             String.format(
               "%s.%s",
               e.getDeferredEvalResult(),
               ((EagerAstDotDecorator) property).getProperty()
-            )
-          );
+            );
         } else {
-          sb.append(e.getDeferredEvalResult());
+          propertyString = e.getDeferredEvalResult();
         }
-        e = null;
-      }
-      String paramString;
-      if (params.hasEvalResult()) {
-        paramString =
-          ChunkResolver.getValueAsJinjavaStringSafe(params.getAndClearEvalResult());
-      } else if (e != null) {
-        paramString = e.getDeferredEvalResult();
       } else {
         try {
-          paramString =
-            Arrays
-              .stream(((AstParameters) params).eval(bindings, context))
-              .map(ChunkResolver::getValueAsJinjavaStringSafe)
-              .collect(Collectors.joining(","));
+          ((AstProperty) property).appendStructure(sb, bindings);
         } catch (DeferredParsingException e1) {
-          paramString = e1.getDeferredEvalResult();
+          propertyString = e1.getDeferredEvalResult();
         }
       }
+      sb.append(propertyString);
       sb.append(String.format("(%s)", paramString));
       throw new DeferredParsingException(sb.toString());
     } finally {

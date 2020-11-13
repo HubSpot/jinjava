@@ -238,7 +238,7 @@ public class ChunkResolverTest {
   public void itDoesIsNotEqual() {
     context.put("foo", 4);
     ChunkResolver chunkResolver = makeChunkResolver(
-      "foo == deferred.bar and (foo is not equalto 5)"
+      "foo == deferred.bar and (foo is not equalto deferred)"
     );
     interpreter.getContext().setHideInterpreterErrors(true);
     //    Object bee = interpreter.resolveELExpression("[1, range(foo,deferred), 'hee'][2]", 1);
@@ -248,6 +248,11 @@ public class ChunkResolverTest {
     //      1
     //    );
     String partiallyResolved = chunkResolver.resolveChunks();
+    context.put("deferred", 1);
+    Object foo = interpreter.resolveELExpression(
+      "(exptest:equalto.evaluateNegated(4,____int3rpr3t3r____,deferred))",
+      1
+    );
     assertThat(partiallyResolved).isEqualTo("4 == deferred.bar && true");
     assertThat(chunkResolver.getDeferredWords())
       .containsExactlyInAnyOrder("deferred.bar");
