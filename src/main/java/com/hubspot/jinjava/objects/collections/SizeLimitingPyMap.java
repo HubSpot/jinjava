@@ -1,12 +1,17 @@
 package com.hubspot.jinjava.objects.collections;
 
 import com.hubspot.jinjava.interpret.CollectionTooBigException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.objects.PyWrapper;
 import java.util.HashSet;
 import java.util.Map;
 
 public class SizeLimitingPyMap extends PyMap implements PyWrapper {
   private int maxSize;
+  private boolean hasWarned;
 
   private SizeLimitingPyMap(Map<String, Object> map) {
     super(map);
@@ -43,6 +48,21 @@ public class SizeLimitingPyMap extends PyMap implements PyWrapper {
   private void checkSize(int newSize) {
     if (newSize > maxSize) {
       throw new CollectionTooBigException(newSize, maxSize);
+    } else if (!hasWarned && newSize >= maxSize * 0.9) {
+      hasWarned = true;
+      JinjavaInterpreter
+        .getCurrent()
+        .addError(
+          new TemplateError(
+            ErrorType.WARNING,
+            ErrorReason.COLLECTION_TOO_BIG,
+            String.format("Map is at 90%% of max size (%d of %d)", newSize, maxSize),
+            null,
+            -1,
+            -1,
+            new CollectionTooBigException(newSize, maxSize)
+          )
+        );
     }
   }
 }
