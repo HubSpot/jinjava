@@ -7,6 +7,7 @@ import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
@@ -97,7 +98,7 @@ public class RawTagTest extends BaseInterpretingTest {
     JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContextCopy(),
-      JinjavaConfig.newBuilder().withPreserveForFinalPass(true).build()
+      JinjavaConfig.newBuilder().withExecutionMode(new PreserveRawExecutionMode()).build()
     );
     String result = tag.interpret(tagNode, preserveInterpreter);
     try {
@@ -119,7 +120,7 @@ public class RawTagTest extends BaseInterpretingTest {
     JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContextCopy(),
-      JinjavaConfig.newBuilder().withPreserveForFinalPass(true).build()
+      JinjavaConfig.newBuilder().withExecutionMode(new PreserveRawExecutionMode()).build()
     );
     preserveInterpreter.getContext().put("deferred", DeferredValue.instance());
     interpreter.getContext().put("deferred", DeferredValue.instance());

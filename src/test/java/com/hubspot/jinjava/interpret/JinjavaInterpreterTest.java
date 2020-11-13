@@ -7,6 +7,7 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.output.BlockInfo;
 import com.hubspot.jinjava.tree.parse.TextToken;
@@ -248,7 +249,7 @@ public class JinjavaInterpreterTest {
   public void itCanPreserveRawTags() {
     JinjavaConfig preserveConfig = JinjavaConfig
       .newBuilder()
-      .withPreserveForFinalPass(true)
+      .withExecutionMode(new PreserveRawExecutionMode())
       .build();
     String input = "1{% raw %}2{% endraw %}3";
     String normalOutput = "123";
