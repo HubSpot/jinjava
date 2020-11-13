@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.BaseJinjavaTest;
-import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
+import com.hubspot.jinjava.interpret.CollectionTooBigException;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
@@ -17,7 +17,7 @@ public class SizeLimitingPyMapTest extends BaseJinjavaTest {
     assertThat(objects.size()).isEqualTo(10);
   }
 
-  @Test(expected = IndexOutOfRangeException.class)
+  @Test(expected = CollectionTooBigException.class)
   public void itLimitsOnCreate() {
     new SizeLimitingPyMap(createMap(3), 2);
   }
@@ -32,14 +32,14 @@ public class SizeLimitingPyMapTest extends BaseJinjavaTest {
     objects.put("2", "foo");
     objects.put("2", "foo");
     assertThatThrownBy(() -> objects.put("3", "foo"))
-      .isInstanceOf(IndexOutOfRangeException.class);
+      .isInstanceOf(CollectionTooBigException.class);
   }
 
   @Test
   public void itLimitsOnAddAll() {
     SizeLimitingPyMap objects = new SizeLimitingPyMap(new HashMap<>(), 2);
     assertThatThrownBy(() -> objects.putAll(createMap(3)))
-      .isInstanceOf(IndexOutOfRangeException.class);
+      .isInstanceOf(CollectionTooBigException.class);
   }
 
   @Test

@@ -56,6 +56,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class JinjavaInterpreter {
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
@@ -270,6 +271,22 @@ public class JinjavaInterpreter {
         }
       } catch (OutputTooBigException e) {
         addError(TemplateError.fromOutputTooBigException(e));
+        return output.getValue();
+      } catch (CollectionTooBigException e) {
+        addError(
+          new TemplateError(
+            ErrorType.FATAL,
+            ErrorReason.COLLECTION_TOO_BIG,
+            ErrorItem.OTHER,
+            ExceptionUtils.getMessage(e),
+            null,
+            -1,
+            -1,
+            e,
+            BasicTemplateErrorCategory.UNKNOWN,
+            ImmutableMap.of()
+          )
+        );
         return output.getValue();
       }
     }

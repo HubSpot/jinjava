@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.objects.collections;
 
-import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
+import com.hubspot.jinjava.interpret.CollectionTooBigException;
 import com.hubspot.jinjava.objects.PyWrapper;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,56 +21,44 @@ public class SizeLimitingPyList extends PyList implements PyWrapper {
 
     this.maxSize = maxSize;
     if (list.size() > maxSize) {
-      throw createOutOfRangeException(list.size());
+      throw new CollectionTooBigException(list.size(), maxSize);
     }
   }
 
   @Override
   public boolean append(Object e) {
-    if (size() + 1 > maxSize) {
-      throw createOutOfRangeException(size() + 1);
-    }
+    checkSize(size() + 1);
     return super.append(e);
   }
 
   @Override
   public void insert(int i, Object e) {
-    if (size() + 1 > maxSize) {
-      throw createOutOfRangeException(size() + 1);
-    }
+    checkSize(size() + 1);
     super.insert(i, e);
   }
 
   @Override
   public boolean add(Object element) {
-    if (size() + 1 > maxSize) {
-      throw createOutOfRangeException(size() + 1);
-    }
+    checkSize(size() + 1);
     return super.add(element);
   }
 
   @Override
   public void add(int index, Object element) {
-    if (size() + 1 > maxSize) {
-      throw createOutOfRangeException(size() + 1);
-    }
+    checkSize(size() + 1);
     super.add(index, element);
   }
 
   @Override
   public boolean addAll(int index, Collection<?> elements) {
-    if (size() + elements.size() > maxSize) {
-      throw createOutOfRangeException(size() + elements.size());
-    }
+    checkSize(size() + elements.size());
     return super.addAll(index, elements);
   }
 
   @Override
-  public boolean addAll(Collection<?> collection) {
-    if (size() + collection.size() > maxSize) {
-      throw createOutOfRangeException(size() + collection.size());
-    }
-    return super.addAll(collection);
+  public boolean addAll(Collection<?> elements) {
+    checkSize(size() + elements.size());
+    return super.addAll(elements);
   }
 
   @Override
@@ -78,13 +66,9 @@ public class SizeLimitingPyList extends PyList implements PyWrapper {
     return new SizeLimitingPyList(new ArrayList<>(delegate()));
   }
 
-  IndexOutOfRangeException createOutOfRangeException(int index) {
-    return new IndexOutOfRangeException(
-      String.format(
-        "Index %d is out of range for list of maximum size %d",
-        index,
-        maxSize
-      )
-    );
+  private void checkSize(int newSize) {
+    if (newSize > maxSize) {
+      throw new CollectionTooBigException(newSize, maxSize);
+    }
   }
 }

@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.objects.collections;
 
-import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
+import com.hubspot.jinjava.interpret.CollectionTooBigException;
 import com.hubspot.jinjava.objects.PyWrapper;
 import java.util.HashSet;
 import java.util.Map;
@@ -19,15 +19,13 @@ public class SizeLimitingPyMap extends PyMap implements PyWrapper {
     }
 
     this.maxSize = maxSize;
-    if (map.size() > maxSize) {
-      throw createOutOfRangeException(map.size());
-    }
+    checkSize(map.size());
   }
 
   @Override
   public Object put(String s, Object o) {
-    if (delegate().size() + 1 > maxSize && !delegate().containsKey(s)) {
-      throw createOutOfRangeException(delegate().size() + 1);
+    if (!delegate().containsKey(s)) {
+      checkSize(delegate().size() + 1);
     }
 
     return super.put(s, o);
@@ -36,18 +34,15 @@ public class SizeLimitingPyMap extends PyMap implements PyWrapper {
   @Override
   public void putAll(Map<? extends String, ?> m) {
     HashSet<String> keys = new HashSet<>(delegate().keySet());
-    int newKeys = (int) m.keySet().stream().filter(k -> !keys.contains(k)).count();
-
-    if (newKeys + delegate().size() > maxSize) {
-      throw createOutOfRangeException(newKeys + delegate().size());
-    }
-
+    checkSize(
+      (int) m.keySet().stream().filter(k -> !keys.contains(k)).count() + delegate().size()
+    );
     super.putAll(m);
   }
 
-  IndexOutOfRangeException createOutOfRangeException(int index) {
-    return new IndexOutOfRangeException(
-      String.format("%d is out of range for map of maximum size %d", index, maxSize)
-    );
+  private void checkSize(int newSize) {
+    if (newSize > maxSize) {
+      throw new CollectionTooBigException(newSize, maxSize);
+    }
   }
 }

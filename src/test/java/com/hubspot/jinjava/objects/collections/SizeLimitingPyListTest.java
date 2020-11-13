@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.BaseJinjavaTest;
-import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
+import com.hubspot.jinjava.interpret.CollectionTooBigException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -20,7 +20,7 @@ public class SizeLimitingPyListTest extends BaseJinjavaTest {
     assertThat(objects.size()).isEqualTo(10);
   }
 
-  @Test(expected = IndexOutOfRangeException.class)
+  @Test(expected = CollectionTooBigException.class)
   public void itLimitsOnCreate() {
     new SizeLimitingPyList(createList(4), 2);
   }
@@ -32,7 +32,7 @@ public class SizeLimitingPyListTest extends BaseJinjavaTest {
     objects.add(list.get(0));
     objects.add(list.get(1));
     assertThatThrownBy(() -> objects.add(list.get(2)))
-      .isInstanceOf(IndexOutOfRangeException.class);
+      .isInstanceOf(CollectionTooBigException.class);
   }
 
   @Test
@@ -42,7 +42,7 @@ public class SizeLimitingPyListTest extends BaseJinjavaTest {
     objects.append(list.get(0));
     objects.append(list.get(1));
     assertThatThrownBy(() -> objects.append(list.get(2)))
-      .isInstanceOf(IndexOutOfRangeException.class);
+      .isInstanceOf(CollectionTooBigException.class);
   }
 
   @Test
@@ -52,7 +52,7 @@ public class SizeLimitingPyListTest extends BaseJinjavaTest {
     objects.add(list.get(0));
     objects.add(list.get(1));
     assertThatThrownBy(() -> objects.insert(1, list.get(2)))
-      .isInstanceOf(IndexOutOfRangeException.class);
+      .isInstanceOf(CollectionTooBigException.class);
   }
 
   @Test
@@ -60,7 +60,7 @@ public class SizeLimitingPyListTest extends BaseJinjavaTest {
     List<Object> list = createList(3);
     SizeLimitingPyList objects = new SizeLimitingPyList(new ArrayList<>(), 2);
     assertThatThrownBy(() -> objects.addAll(list))
-      .isInstanceOf(IndexOutOfRangeException.class);
+      .isInstanceOf(CollectionTooBigException.class);
   }
 
   public static List<Object> createList(int size) {

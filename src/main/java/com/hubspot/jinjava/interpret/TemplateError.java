@@ -17,7 +17,7 @@ public class TemplateError {
 
   public enum ErrorType {
     FATAL,
-    WARNING
+    WARNING,
   }
 
   public enum ErrorReason {
@@ -31,7 +31,8 @@ public class TemplateError {
     INVALID_INPUT,
     OUTPUT_TOO_BIG,
     OVER_LIMIT,
-    OTHER
+    COLLECTION_TOO_BIG,
+    OTHER,
   }
 
   public enum ErrorItem {
@@ -42,7 +43,7 @@ public class TemplateError {
     PROPERTY,
     FILTER,
     EXPRESSION_TEST,
-    OTHER
+    OTHER,
   }
 
   private final ErrorType severity;
