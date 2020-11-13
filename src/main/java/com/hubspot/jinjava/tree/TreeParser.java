@@ -172,16 +172,10 @@ public class TreeParser {
   }
 
   private ExpressionNode createExpressionNode(ExpressionToken expressionToken) {
-    try {
-      return interpreter
-        .getContext()
-        .getExpressionNodeClass()
-        .getDeclaredConstructor(ExpressionToken.class)
-        .newInstance(expressionToken);
-    } catch (ReflectiveOperationException e) {
-      interpreter.addError(TemplateError.fromException(e));
-      return new ExpressionNode(expressionToken);
-    }
+    return new ExpressionNode(
+      interpreter.getContext().getExpressionStrategy(),
+      expressionToken
+    );
   }
 
   private Node tag(TagToken tagToken) {
