@@ -1,6 +1,9 @@
 package com.hubspot.jinjava.mode;
 
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.lib.tag.eager.EagerTagDecorator;
+import com.hubspot.jinjava.lib.tag.eager.EagerTagFactory;
+import java.util.Optional;
 
 public class EagerExecutionMode implements ExecutionMode {
 
@@ -11,6 +14,13 @@ public class EagerExecutionMode implements ExecutionMode {
 
   @Override
   public void prepareContext(Context context) {
-    // TODO register eager tags & expression node
+    context
+      .getAllTags()
+      .stream()
+      .filter(tag -> !(tag instanceof EagerTagDecorator))
+      .map(tag -> EagerTagFactory.getEagerTagDecorator(tag.getClass()))
+      .filter(Optional::isPresent)
+      .forEach(maybeEagerTag -> context.registerTag(maybeEagerTag.get()));
+    // TODO prepare expression node
   }
 }
