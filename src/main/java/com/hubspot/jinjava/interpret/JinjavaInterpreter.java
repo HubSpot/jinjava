@@ -238,47 +238,39 @@ public class JinjavaInterpreter {
       lineNumber = node.getLineNumber();
       position = node.getStartPosition();
       String renderStr = node.getMaster().getImage();
-      if (context.doesRenderStackContain(renderStr)) {
-        // This is a circular rendering. Stop rendering it here.
-        addError(
-          new TemplateError(
-            ErrorType.WARNING,
-            ErrorReason.EXCEPTION,
-            ErrorItem.TAG,
-            "Rendering cycle detected: '" + renderStr + "'",
-            null,
-            getLineNumber(),
-            node.getStartPosition(),
-            null,
-            BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
-            ImmutableMap.of("string", renderStr)
-          )
-        );
-        try {
+      try {
+        if (context.doesRenderStackContain(renderStr)) {
+          // This is a circular rendering. Stop rendering it here.
+          addError(
+            new TemplateError(
+              ErrorType.WARNING,
+              ErrorReason.EXCEPTION,
+              ErrorItem.TAG,
+              "Rendering cycle detected: '" + renderStr + "'",
+              null,
+              getLineNumber(),
+              node.getStartPosition(),
+              null,
+              BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
+              ImmutableMap.of("string", renderStr)
+            )
+          );
           output.addNode(new RenderedOutputNode(renderStr));
-        } catch (OutputTooBigException e) {
-          addError(TemplateError.fromOutputTooBigException(e));
-          return output.getValue();
-        }
-      } else {
-        OutputNode out;
-        context.pushRenderStack(renderStr);
-        try {
-          out = node.render(this);
-        } catch (DeferredValueException e) {
-          context.handleDeferredNode(node);
-          out = new RenderedOutputNode(node.getMaster().getImage());
-        } catch (OutputTooBigException e) {
-          addError(TemplateError.fromOutputTooBigException(e));
-          return output.getValue();
-        }
-        context.popRenderStack();
-        try {
+        } else {
+          OutputNode out;
+          context.pushRenderStack(renderStr);
+          try {
+            out = node.render(this);
+          } catch (DeferredValueException e) {
+            context.handleDeferredNode(node);
+            out = new RenderedOutputNode(node.getMaster().getImage());
+          }
+          context.popRenderStack();
           output.addNode(out);
-        } catch (OutputTooBigException e) {
-          addError(TemplateError.fromOutputTooBigException(e));
-          return output.getValue();
         }
+      } catch (OutputTooBigException e) {
+        addError(TemplateError.fromOutputTooBigException(e));
+        return output.getValue();
       }
     }
 
