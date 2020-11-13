@@ -2,24 +2,24 @@ package com.hubspot.jinjava;
 
 public enum ExecutionMode {
   DEFAULT,
-  PRE_RENDER(true, false),
-  EAGER_PRE_RENDER(true, true);
+  PRESERVE_RAW(true, false),
+  EAGER_EXECUTION(true, true);
 
-  private final boolean preserveForFinalPass;
+  private final boolean preserveRawTags;
   private final boolean eagerExecutionEnabled;
 
   ExecutionMode() {
-    this.preserveForFinalPass = false;
+    this.preserveRawTags = false;
     this.eagerExecutionEnabled = false;
   }
 
-  ExecutionMode(boolean preserveForFinalPass, boolean eagerExecutionEnabled) {
-    this.preserveForFinalPass = preserveForFinalPass;
+  ExecutionMode(boolean preserveRawTags, boolean eagerExecutionEnabled) {
+    this.preserveRawTags = preserveRawTags;
     this.eagerExecutionEnabled = eagerExecutionEnabled;
   }
 
-  public boolean isPreserveForFinalPass() {
-    return preserveForFinalPass;
+  public boolean isPreserveRawTags() {
+    return preserveRawTags;
   }
 
   public boolean isEagerExecutionEnabled() {
