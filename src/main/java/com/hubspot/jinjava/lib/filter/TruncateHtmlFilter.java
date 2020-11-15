@@ -74,6 +74,22 @@ public class TruncateHtmlFilter extends AbstractFilter implements AdvancedFilter
     return dom.select("body").html();
   }
 
+  @Override
+  protected Object parseArg(
+    JinjavaInterpreter interpreter,
+    JinjavaParam jinjavaParamMetadata,
+    Object value
+  ) {
+    if (jinjavaParamMetadata.value().equals(LENGTH_KEY) && interpreter != null) {
+      try {
+        return super.parseArg(interpreter, jinjavaParamMetadata, value);
+      } catch (Exception e) {
+        return getDefaultValue(LENGTH_KEY);
+      }
+    }
+    return super.parseArg(interpreter, jinjavaParamMetadata, value);
+  }
+
   private static class ContentTruncatingNodeVisitor implements NodeVisitor {
     private int maxTextLen;
     private int textLen;

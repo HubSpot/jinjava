@@ -83,6 +83,21 @@ public class TruncateHtmlFilterTest extends BaseInterpretingTest {
       );
   }
 
+  @Test
+  public void itDefaultsLengthWhenCannotBeParsed() {
+    String result = (String) filter.filter(
+      fixture("filter/truncatehtml/long-content-with-tags.html"),
+      interpreter,
+      new Object[] { "?" },
+      ImmutableMap.of(TruncateHtmlFilter.BREAKWORD_KEY, false)
+    );
+    assertThat(result)
+      .isEqualTo(
+        "<h1>HTML Ipsum Presents</h1> \n" +
+        "<p><strong>Pellentesque habitant morbi tristique</strong> senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. <em>Aenean ultricies...</em></p>"
+      );
+  }
+
   private static String fixture(String name) {
     try {
       return Resources.toString(Resources.getResource(name), StandardCharsets.UTF_8);
