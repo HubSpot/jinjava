@@ -239,6 +239,10 @@ public abstract class AbstractFilter implements Filter, AdvancedFilter {
       .orElse(null);
   }
 
+  public Object getDefaultValue(String argName) {
+    return defaultValues.get(argName);
+  }
+
   public Map<String, JinjavaParam> initNamedArguments() {
     JinjavaDoc jinjavaDoc = this.getClass().getAnnotation(JinjavaDoc.class);
     if (jinjavaDoc != null) {
