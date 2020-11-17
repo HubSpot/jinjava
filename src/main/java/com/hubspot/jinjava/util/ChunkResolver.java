@@ -101,7 +101,7 @@ public class ChunkResolver {
     nextPos = 0;
     boolean isHideInterpreterErrorsStart = interpreter
       .getContext()
-      .isHideInterpreterErrors();
+      .getHideInterpreterErrors();
     try {
       interpreter.getContext().setHideInterpreterErrors(true);
       return String.join("", getChunk(null));
@@ -122,7 +122,7 @@ public class ChunkResolver {
     nextPos = 0;
     boolean isHideInterpreterErrorsStart = interpreter
       .getContext()
-      .isHideInterpreterErrors();
+      .getHideInterpreterErrors();
     try {
       interpreter.getContext().setHideInterpreterErrors(true);
       List<String> miniChunks = getChunk(null);
