@@ -19,6 +19,7 @@ import org.apache.commons.lang3.math.NumberUtils;
  */
 public final class PyishDate extends Date implements Serializable, PyWrapper {
   private static final long serialVersionUID = 1L;
+  public static final String PYISH_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
   private final ZonedDateTime date;
 
@@ -102,7 +103,7 @@ public final class PyishDate extends Date implements Serializable, PyWrapper {
 
   @Override
   public String toString() {
-    return strftime("yyyy-MM-dd HH:mm:ss");
+    return strftime(PYISH_DATE_FORMAT);
   }
 
   @Override
