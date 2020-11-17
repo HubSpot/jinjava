@@ -15,8 +15,9 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 
 @JinjavaDoc(
   value = "Sort an iterable.",
@@ -28,18 +29,21 @@ import org.apache.commons.lang3.BooleanUtils;
   ),
   params = {
     @JinjavaParam(
-      value = "reverse",
+      value = SortFilter.REVERSE_PARAM,
       type = "boolean",
       defaultValue = "False",
       desc = "Boolean to reverse the sort order"
     ),
     @JinjavaParam(
-      value = "case_sensitive",
+      value = SortFilter.CASE_SENSITIVE_PARAM,
       type = "boolean",
       defaultValue = "False",
       desc = "Determines whether or not the sorting is case sensitive"
     ),
-    @JinjavaParam(value = "attribute", desc = "Specifies an attribute to sort by")
+    @JinjavaParam(
+      value = SortFilter.ATTRIBUTE_PARAM,
+      desc = "Specifies an attribute to sort by"
+    )
   },
   snippets = {
     @JinjavaSnippet(
@@ -54,9 +58,12 @@ import org.apache.commons.lang3.BooleanUtils;
     )
   }
 )
-public class SortFilter implements Filter {
+public class SortFilter extends AbstractFilter implements Filter {
   private static final Splitter DOT_SPLITTER = Splitter.on('.').omitEmptyStrings();
   private static final Joiner DOT_JOINER = Joiner.on('.');
+  public static final String REVERSE_PARAM = "reverse";
+  public static final String CASE_SENSITIVE_PARAM = "case_sensitive";
+  public static final String ATTRIBUTE_PARAM = "attribute";
 
   @Override
   public String getName() {
@@ -64,20 +71,25 @@ public class SortFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(
+    Object var,
+    JinjavaInterpreter interpreter,
+    Map<String, Object> parsedArgs
+  ) {
     if (var == null) {
       return null;
     }
 
-    boolean reverse = args.length > 0 && BooleanUtils.toBoolean(args[0]);
-    boolean caseSensitive = args.length > 1 && BooleanUtils.toBoolean(args[1]);
+    boolean reverse = (boolean) parsedArgs.get(REVERSE_PARAM);
+    boolean caseSensitive = (boolean) parsedArgs.get(CASE_SENSITIVE_PARAM);
+    String attribute = (String) parsedArgs.get(ATTRIBUTE_PARAM);
 
-    if (args.length > 2 && args[2] == null) {
+    if (parsedArgs.containsKey(ATTRIBUTE_PARAM) && attribute == null) {
       throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 2);
     }
 
-    List<String> attr = args.length > 2
-      ? DOT_SPLITTER.splitToList(args[2])
+    List<String> attr = StringUtils.isNotEmpty(attribute)
+      ? DOT_SPLITTER.splitToList(attribute)
       : Collections.emptyList();
     return Lists
       .newArrayList(ObjectIterator.getLoop(var))

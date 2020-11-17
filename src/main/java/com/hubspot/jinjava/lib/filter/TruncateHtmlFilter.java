@@ -1,16 +1,11 @@
 package com.hubspot.jinjava.lib.filter;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
-import com.hubspot.jinjava.objects.SafeString;
 import java.util.Map;
-import java.util.Objects;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,18 +19,18 @@ import org.jsoup.select.NodeVisitor;
   input = @JinjavaParam(value = "html", desc = "HTML to truncate", required = true),
   params = {
     @JinjavaParam(
-      value = "length",
-      type = "number",
+      value = TruncateHtmlFilter.LENGTH_KEY,
+      type = "int",
       defaultValue = "255",
       desc = "Length at which to truncate text (HTML characters not included)"
     ),
     @JinjavaParam(
-      value = "end",
+      value = TruncateHtmlFilter.END_KEY,
       defaultValue = "...",
       desc = "The characters that will be added to indicate where the text was truncated"
     ),
     @JinjavaParam(
-      value = "breakword",
+      value = TruncateHtmlFilter.BREAKWORD_KEY,
       type = "boolean",
       defaultValue = "false",
       desc = "If set to true, text will be truncated in the middle of words"
@@ -48,12 +43,10 @@ import org.jsoup.select.NodeVisitor;
     )
   }
 )
-public class TruncateHtmlFilter implements AdvancedFilter {
-  private static final int DEFAULT_TRUNCATE_LENGTH = 255;
-  private static final String DEFAULT_END = "...";
-  private static final String LENGTH_KEY = "length";
-  private static final String END_KEY = "end";
-  private static final String BREAKWORD_KEY = "breakword";
+public class TruncateHtmlFilter extends AbstractFilter implements AdvancedFilter {
+  public static final String LENGTH_KEY = "length";
+  public static final String END_KEY = "end";
+  public static final String BREAKWORD_KEY = "breakword";
 
   @Override
   public String getName() {
@@ -64,87 +57,37 @@ public class TruncateHtmlFilter implements AdvancedFilter {
   public Object filter(
     Object var,
     JinjavaInterpreter interpreter,
-    Object[] args,
-    Map<String, Object> kwargs
+    Map<String, Object> parsedArgs
   ) {
-    String length = null;
-    if (kwargs.containsKey(LENGTH_KEY)) {
-      length = Objects.toString(kwargs.get(LENGTH_KEY));
-    }
-    String end = null;
-    if (kwargs.containsKey(END_KEY)) {
-      end = Objects.toString(kwargs.get(END_KEY));
-    }
-    String breakword = null;
-    if (kwargs.containsKey(BREAKWORD_KEY)) {
-      breakword = Objects.toString(kwargs.get(BREAKWORD_KEY));
-    }
+    int length = ((int) parsedArgs.get(LENGTH_KEY));
+    String end = (String) parsedArgs.get(END_KEY);
+    boolean breakword = (boolean) parsedArgs.get(BREAKWORD_KEY);
+    Document dom = Jsoup.parseBodyFragment((String) var);
 
-    String[] newArgs = new String[3];
-    for (int i = 0; i < args.length; i++) {
-      if (i >= newArgs.length) {
-        break;
-      }
-      newArgs[i] = Objects.toString(args[i]);
-    }
-
-    if (length != null) {
-      newArgs[0] = length;
-    }
-    if (end != null) {
-      newArgs[1] = end;
-    }
-    if (breakword != null) {
-      newArgs[2] = breakword;
-    }
-
-    if (var instanceof SafeString) {
-      return filter((SafeString) var, interpreter, newArgs);
-    }
-
-    return filter(var, interpreter, newArgs);
+    ContentTruncatingNodeVisitor visitor = new ContentTruncatingNodeVisitor(
+      length,
+      end,
+      breakword
+    );
+    dom.select("body").traverse(visitor);
+    dom.select(".__deleteme").remove();
+    return dom.select("body").html();
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if (var instanceof String) {
-      int length = DEFAULT_TRUNCATE_LENGTH;
-      String ends = DEFAULT_END;
-
-      if (args.length > 0) {
-        try {
-          length = Integer.parseInt(Objects.toString(args[0]));
-        } catch (Exception e) {
-          ENGINE_LOG.warn(
-            "truncatehtml(): error setting length for {}, using default {}",
-            args[0],
-            DEFAULT_TRUNCATE_LENGTH
-          );
-        }
+  protected Object parseArg(
+    JinjavaInterpreter interpreter,
+    JinjavaParam jinjavaParamMetadata,
+    Object value
+  ) {
+    if (jinjavaParamMetadata.value().equals(LENGTH_KEY) && interpreter != null) {
+      try {
+        return super.parseArg(interpreter, jinjavaParamMetadata, value);
+      } catch (Exception e) {
+        return getDefaultValue(LENGTH_KEY);
       }
-
-      if (args.length > 1 && args[1] != null) {
-        ends = Objects.toString(args[1]);
-      }
-
-      boolean killwords = false;
-      if (args.length > 2 && args[2] != null) {
-        killwords = BooleanUtils.toBoolean(args[2]);
-      }
-
-      Document dom = Jsoup.parseBodyFragment((String) var);
-      ContentTruncatingNodeVisitor visitor = new ContentTruncatingNodeVisitor(
-        length,
-        ends,
-        killwords
-      );
-      dom.select("body").traverse(visitor);
-      dom.select(".__deleteme").remove();
-
-      return dom.select("body").html();
     }
-
-    return var;
+    return super.parseArg(interpreter, jinjavaParamMetadata, value);
   }
 
   private static class ContentTruncatingNodeVisitor implements NodeVisitor {
