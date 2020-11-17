@@ -7,8 +7,8 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import java.util.Map;
 import java.util.Objects;
+import org.apache.commons.lang3.math.NumberUtils;
 
 /**
  * split(separator=' ', limit=0)
@@ -24,13 +24,13 @@ import java.util.Objects;
   input = @JinjavaParam(value = "string", desc = "The string to split", required = true),
   params = {
     @JinjavaParam(
-      value = SplitFilter.SEPARATOR_PARAM,
+      value = "separator",
       defaultValue = " ",
       desc = "Specifies the separator to split the variable by"
     ),
     @JinjavaParam(
-      value = SplitFilter.LIMIT_PARAM,
-      type = "int",
+      value = "limit",
+      type = "number",
       defaultValue = "0",
       desc = "Limits resulting list by putting remainder of string into last list item"
     )
@@ -47,9 +47,7 @@ import java.util.Objects;
     )
   }
 )
-public class SplitFilter extends AbstractFilter implements Filter {
-  public static final String SEPARATOR_PARAM = "separator";
-  public static final String LIMIT_PARAM = "limit";
+public class SplitFilter implements Filter {
 
   @Override
   public String getName() {
@@ -57,22 +55,20 @@ public class SplitFilter extends AbstractFilter implements Filter {
   }
 
   @Override
-  public Object filter(
-    Object var,
-    JinjavaInterpreter interpreter,
-    Map<String, Object> parsedArgs
-  ) {
-    String separator = (String) parsedArgs.get(SEPARATOR_PARAM);
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     Splitter splitter;
-    if (separator != null) {
-      splitter = Splitter.on(separator);
+
+    if (args.length > 0) {
+      splitter = Splitter.on(args[0]);
     } else {
       splitter = Splitter.on(CharMatcher.whitespace());
     }
 
-    int limit = (Integer) parsedArgs.get(LIMIT_PARAM);
-    if (limit > 0) {
-      splitter = splitter.limit(limit);
+    if (args.length > 1) {
+      int limit = NumberUtils.toInt(args[1], 0);
+      if (limit > 0) {
+        splitter = splitter.limit(limit);
+      }
     }
 
     return Lists.newArrayList(
