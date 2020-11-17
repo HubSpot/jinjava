@@ -4,8 +4,9 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import java.util.Map;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 @JinjavaDoc(
   value = "Return a copy of the value with all occurrences of a substring replaced with a new one. " +
@@ -18,18 +19,18 @@ import org.apache.commons.lang3.StringUtils;
   ),
   params = {
     @JinjavaParam(
-      value = ReplaceFilter.OLD_KEY,
+      value = "old",
       desc = "The old substring that you want to match and replace",
       required = true
     ),
     @JinjavaParam(
-      value = ReplaceFilter.REPLACE_WITH_KEY,
+      value = "new",
       desc = "The new string that you replace the matched substring",
       required = true
     ),
     @JinjavaParam(
-      value = ReplaceFilter.COUNT_KEY,
-      type = "int",
+      value = "count",
+      type = "number",
       desc = "Replace only the first N occurrences"
     )
   },
@@ -44,10 +45,7 @@ import org.apache.commons.lang3.StringUtils;
     )
   }
 )
-public class ReplaceFilter extends AbstractFilter {
-  public static final String OLD_KEY = "old";
-  public static final String REPLACE_WITH_KEY = "new";
-  public static final String COUNT_KEY = "count";
+public class ReplaceFilter implements Filter {
 
   @Override
   public String getName() {
@@ -55,19 +53,26 @@ public class ReplaceFilter extends AbstractFilter {
   }
 
   @Override
-  public Object filter(
-    Object var,
-    JinjavaInterpreter interpreter,
-    Map<String, Object> parsedArgs
-  ) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     if (var == null) {
       return null;
     }
+    if (args.length < 2) {
+      throw new TemplateSyntaxException(
+        interpreter,
+        getName(),
+        "requires 2 arguments (substring to replace, replacement string) or 3 arguments (substring to replace, replacement string, number of occurrences to replace)"
+      );
+    }
 
     String s = (String) var;
-    String toReplace = (String) parsedArgs.get(OLD_KEY);
-    String replaceWith = (String) parsedArgs.get(REPLACE_WITH_KEY);
-    Integer count = (Integer) (parsedArgs.get(COUNT_KEY));
+    String toReplace = args[0];
+    String replaceWith = args[1];
+    Integer count = null;
+
+    if (args.length > 2) {
+      count = NumberUtils.createInteger(args[2]);
+    }
 
     if (count == null) {
       return StringUtils.replace(s, toReplace, replaceWith);

@@ -4,11 +4,12 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 @JinjavaDoc(
   value = "Converts URLs in plain text into clickable links.",
@@ -20,21 +21,17 @@ import org.apache.commons.lang3.StringUtils;
   ),
   params = {
     @JinjavaParam(
-      value = UrlizeFilter.TRIM_URL_LIMIT_KEY,
-      type = "int",
-      desc = "Sets a character limit",
-      defaultValue = "2147483647"
+      value = "trim_url_limit",
+      type = "number",
+      desc = "Sets a character limit"
     ),
     @JinjavaParam(
-      value = UrlizeFilter.NO_FOLLOW_KEY,
+      value = "nofollow",
       type = "boolean",
       defaultValue = "False",
       desc = "Adds nofollow to generated link tag"
     ),
-    @JinjavaParam(
-      value = UrlizeFilter.TARGET_KEY,
-      desc = "Adds target attr to generated link tag"
-    )
+    @JinjavaParam(value = "target", desc = "Adds target attr to generated link tag")
   },
   snippets = {
     @JinjavaSnippet(
@@ -47,10 +44,7 @@ import org.apache.commons.lang3.StringUtils;
     )
   }
 )
-public class UrlizeFilter extends AbstractFilter implements Filter {
-  public static final String TRIM_URL_LIMIT_KEY = "trim_url_limit";
-  public static final String NO_FOLLOW_KEY = "nofollow";
-  public static final String TARGET_KEY = "target";
+public class UrlizeFilter implements Filter {
 
   @Override
   public String getName() {
@@ -58,21 +52,26 @@ public class UrlizeFilter extends AbstractFilter implements Filter {
   }
 
   @Override
-  public Object filter(
-    Object var,
-    JinjavaInterpreter interpreter,
-    Map<String, Object> parsedArgs
-  ) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     Matcher m = URL_RE.matcher(Objects.toString(var, ""));
     StringBuffer result = new StringBuffer();
 
-    int trimUrlLimit = ((int) parsedArgs.get(TRIM_URL_LIMIT_KEY));
+    int trimUrlLimit = Integer.MAX_VALUE;
+    if (args.length > 0) {
+      trimUrlLimit = NumberUtils.toInt(args[0], Integer.MAX_VALUE);
+    }
 
     String fmt = "<a href=\"%s\"";
 
-    boolean nofollow = (boolean) parsedArgs.get(NO_FOLLOW_KEY);
+    boolean nofollow = false;
+    if (args.length > 1) {
+      nofollow = BooleanUtils.toBoolean(args[1]);
+    }
 
-    String target = (String) parsedArgs.get(TARGET_KEY);
+    String target = "";
+    if (args.length > 2) {
+      target = args[2];
+    }
 
     if (nofollow) {
       fmt += " rel=\"nofollow\"";

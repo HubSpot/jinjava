@@ -20,6 +20,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,7 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -40,7 +40,7 @@ import org.apache.commons.lang3.math.NumberUtils;
  * @see JinjavaDoc
  * @see JinjavaParam
  */
-public abstract class AbstractFilter implements Filter, AdvancedFilter {
+public abstract class AbstractFilter implements Filter {
   private static final Map<Class, Map<String, JinjavaParam>> NAMED_ARGUMENTS_CACHE = new ConcurrentHashMap<>();
   private static final Map<Class, Map<String, Object>> DEFAULT_VALUES_CACHE = new ConcurrentHashMap<>();
 
@@ -119,77 +119,50 @@ public abstract class AbstractFilter implements Filter, AdvancedFilter {
   }
 
   protected Object parseArg(
-    @Nullable JinjavaInterpreter interpreter,
+    JinjavaInterpreter interpreter,
     JinjavaParam jinjavaParamMetadata,
     Object value
   ) {
-    if (jinjavaParamMetadata.type() == null || value == null) {
+    if (
+      jinjavaParamMetadata.type() == null ||
+      value == null ||
+      Arrays.asList("object", "dict", "sequence").contains(jinjavaParamMetadata.type())
+    ) {
       return value;
     }
+    String valueString = Objects.toString(value, null);
     switch (jinjavaParamMetadata.type().toLowerCase()) {
       case "boolean":
         return value instanceof Boolean
           ? (Boolean) value
-          : BooleanUtils.toBooleanObject(value.toString());
+          : BooleanUtils.toBooleanObject(valueString);
       case "int":
-        return parseNumber(value, int.class);
+        return value instanceof Integer
+          ? (Integer) value
+          : NumberUtils.toInt(valueString);
       case "long":
-        return parseNumber(value, long.class);
+        return value instanceof Long ? (Long) value : NumberUtils.toLong(valueString);
       case "float":
-        return parseNumber(value, float.class);
+        return value instanceof Float ? (Float) value : NumberUtils.toFloat(valueString);
       case "double":
-        return parseNumber(value, double.class);
+        return value instanceof Double
+          ? (Double) value
+          : NumberUtils.toDouble(valueString);
       case "number":
-        return parseNumber(value, Number.class);
+        return value instanceof Number ? (Number) value : new BigDecimal(valueString);
       case "string":
-        return value.toString();
-      case "object":
-      case "dict":
-      case "sequence":
-        return value;
+        return valueString;
       default:
-        String errorMessage = String.format(
-          "Argument named '%s' with value '%s' cannot be parsed for filter '%s'",
-          jinjavaParamMetadata.value(),
-          value,
-          getName()
-        );
-        if (interpreter != null) { //Filter runtime vs init
-          throw new InvalidInputException(interpreter, "INVALID_ARG_NAME", errorMessage);
-        } else {
-          throw new IllegalArgumentException(errorMessage);
-        }
-    }
-  }
-
-  public <N extends Number> Number parseNumber(Object value, Class<N> numberClass) {
-    //check if needs to be parsed to number first, and then convert to required type
-    if (!(value instanceof Number)) {
-      String str = Objects.toString(value, null);
-      if (NumberUtils.isCreatable(str)) {
-        value = NumberUtils.createNumber(str);
-      } else {
-        throw new IllegalArgumentException(
+        throw new InvalidInputException(
+          interpreter,
+          "INVALID_ARG_NAME",
           String.format(
-            "Input '%s' is not parsable type of '%s' for filter '%s'",
+            "Argument named '%s' with value '%s' cannot be parsed for filter %s",
+            jinjavaParamMetadata.value(),
             value,
-            numberClass,
             getName()
           )
         );
-      }
-    }
-    Number n = (Number) value;
-    if (numberClass == int.class || numberClass == Integer.class) {
-      return n.intValue();
-    } else if (numberClass == long.class || numberClass == Long.class) {
-      return n.longValue();
-    } else if (numberClass == float.class || numberClass == Float.class) {
-      return n.floatValue();
-    } else if (numberClass == double.class || numberClass == Double.class) {
-      return n.doubleValue();
-    } else { //if nclass == Number.class
-      return n;
     }
   }
 
@@ -198,13 +171,7 @@ public abstract class AbstractFilter implements Filter, AdvancedFilter {
     Map<String, Object> parsedArgs
   ) {
     for (JinjavaParam jinjavaParam : namedArguments.values()) {
-      if (
-        jinjavaParam.required() &&
-        (
-          !parsedArgs.containsKey(jinjavaParam.value()) ||
-          parsedArgs.get(jinjavaParam.value()) == null
-        )
-      ) {
+      if (jinjavaParam.required() && !parsedArgs.containsKey(jinjavaParam.value())) {
         throw new InvalidInputException(
           interpreter,
           "MISSING_REQUIRED_ARG",
@@ -239,10 +206,6 @@ public abstract class AbstractFilter implements Filter, AdvancedFilter {
       .orElse(null);
   }
 
-  public Object getDefaultValue(String argName) {
-    return defaultValues.get(argName);
-  }
-
   public Map<String, JinjavaParam> initNamedArguments() {
     JinjavaDoc jinjavaDoc = this.getClass().getAnnotation(JinjavaDoc.class);
     if (jinjavaDoc != null) {
@@ -272,11 +235,7 @@ public abstract class AbstractFilter implements Filter, AdvancedFilter {
       .stream()
       .filter(e -> StringUtils.isNotEmpty(e.getValue().defaultValue()))
       .collect(
-        //              ImmutableMap.toImmutableMap(Map.Entry::getKey, e -> e.getValue().defaultValue())
-        ImmutableMap.toImmutableMap(
-          Map.Entry::getKey,
-          e -> parseArg(null, e.getValue(), e.getValue().defaultValue())
-        )
+        ImmutableMap.toImmutableMap(Map.Entry::getKey, e -> e.getValue().defaultValue())
       );
   }
 }
