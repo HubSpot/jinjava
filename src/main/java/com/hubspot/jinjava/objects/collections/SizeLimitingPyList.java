@@ -31,18 +31,6 @@ public class SizeLimitingPyList extends PyList implements PyWrapper {
   }
 
   @Override
-  public boolean append(Object e) {
-    checkSize(size() + 1);
-    return super.append(e);
-  }
-
-  @Override
-  public void insert(int i, Object e) {
-    checkSize(size() + 1);
-    super.insert(i, e);
-  }
-
-  @Override
   public boolean add(Object element) {
     checkSize(size() + 1);
     return super.add(element);
