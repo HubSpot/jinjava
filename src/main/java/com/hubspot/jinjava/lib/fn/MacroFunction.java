@@ -19,7 +19,7 @@ import java.util.Optional;
  *
  */
 public class MacroFunction extends AbstractCallableMethod {
-  protected final List<Node> content;
+  private final List<Node> content;
 
   private final boolean caller;
 

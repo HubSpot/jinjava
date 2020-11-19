@@ -95,7 +95,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
       deferredWords,
       interpreter
     );
-    assertThat(result).isEqualTo(image);
+    assertThat(result).isEqualTo("{% macro local.foo(bar) %}something{% endmacro %}");
     assertThat(deferredWords).isEmpty();
   }
 
@@ -217,8 +217,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     when(mockMacroFunction.getName()).thenReturn("foo");
     when(mockMacroFunction.getArguments()).thenReturn(ImmutableList.of("bar"));
     when(mockMacroFunction.getEvaluationResult(anyMap(), anyMap(), anyList(), any()))
-      .thenThrow(new DeferredValueException(""));
-    when(mockMacroFunction.reconstructImage()).thenReturn(image);
+      .thenReturn(image.substring(image.indexOf("%}") + 2, image.lastIndexOf("{%")));
     return mockMacroFunction;
   }
 
