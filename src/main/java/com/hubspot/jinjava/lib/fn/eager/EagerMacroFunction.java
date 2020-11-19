@@ -102,7 +102,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
             .map(arg -> DeferredValue.instance())
             .toArray()
         );
-    } catch (DeferredValueException ignored) {
+    } catch (DeferredValueException e) {
       return macroFunction.reconstructImage();
     }
 
