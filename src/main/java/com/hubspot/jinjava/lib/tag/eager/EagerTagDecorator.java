@@ -315,12 +315,6 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     String eagerImage;
     if (token instanceof TagToken) {
       eagerImage = getEagerTagImage((TagToken) token, interpreter);
-    } else if (token instanceof ExpressionToken) {
-      eagerImage = getEagerExpressionImage((ExpressionToken) token, interpreter);
-    } else if (token instanceof TextToken) {
-      eagerImage = getEagerTextImage((TextToken) token, interpreter);
-    } else if (token instanceof NoteToken) {
-      eagerImage = getEagerNoteImage((NoteToken) token, interpreter);
     } else {
       throw new DeferredValueException("Unsupported Token type");
     }
@@ -363,32 +357,6 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       );
 
     return (newlyDeferredFunctionImages + joiner.toString());
-  }
-
-  public String getEagerExpressionImage(
-    ExpressionToken expressionToken,
-    JinjavaInterpreter interpreter
-  ) {
-    interpreter
-      .getContext()
-      .handleEagerToken(
-        new EagerToken(expressionToken, Collections.singleton(expressionToken.getExpr()))
-      );
-    return expressionToken.getImage();
-  }
-
-  public String getEagerTextImage(TextToken textToken, JinjavaInterpreter interpreter) {
-    interpreter
-      .getContext()
-      .handleEagerToken(
-        new EagerToken(textToken, Collections.singleton(textToken.output()))
-      );
-    return textToken.getImage();
-  }
-
-  public String getEagerNoteImage(NoteToken noteToken, JinjavaInterpreter interpreter) {
-    // Notes should not throw DeferredValueExceptions, but this will handle it anyway
-    return "";
   }
 
   public static String reconstructEnd(TagNode tagNode) {
