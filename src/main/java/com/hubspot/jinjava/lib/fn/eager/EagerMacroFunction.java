@@ -93,19 +93,14 @@ public class EagerMacroFunction extends AbstractCallableMethod {
 
   public String reconstructImage() {
     String result;
-    try {
-      result =
-        (String) evaluate(
-          macroFunction
-            .getArguments()
-            .stream()
-            .map(arg -> DeferredValue.instance())
-            .toArray()
-        );
-    } catch (DeferredValueException e) {
-      return macroFunction.reconstructImage();
-    }
-
+    result =
+      (String) evaluate(
+        macroFunction
+          .getArguments()
+          .stream()
+          .map(arg -> DeferredValue.instance())
+          .toArray()
+      );
     return (getStartTag(interpreter) + result + getEndTag(interpreter));
   }
 }
