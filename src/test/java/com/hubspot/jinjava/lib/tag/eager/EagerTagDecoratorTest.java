@@ -8,13 +8,18 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
+import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -61,6 +66,37 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     assertThat(result.getPrefixToPreserveState()).isEqualTo("{% set foo = [] %}");
     assertThat(context.get("foo")).isInstanceOf(DeferredValue.class);
     assertThat(context.getEagerTokens()).isNotEmpty();
+  }
+
+  @Test
+  public void itGetsNewlyDeferredFunctionImagesFromGlobal() {
+    Set<String> deferredWords = new HashSet<>();
+    deferredWords.add("foo");
+    String image = "{% macro foo(bar) %}something{% endmacro %}";
+    MacroFunction mockMacroFunction = getMockMacroFunction(image);
+    context.addGlobalMacro(mockMacroFunction);
+    String result = EagerTagDecorator.getNewlyDeferredFunctionImages(
+      deferredWords,
+      interpreter
+    );
+    assertThat(result).isEqualTo(image);
+    assertThat(deferredWords).isEmpty();
+  }
+
+  @Test
+  public void itGetsNewlyDeferredFunctionImagesFromLocal() {
+    Set<String> deferredWords = new HashSet<>();
+    deferredWords.add("local.foo");
+    String image = "{% macro foo(bar) %}something{% endmacro %}";
+    MacroFunction mockMacroFunction = getMockMacroFunction(image);
+    Map<String, Object> localAlias = new PyMap(ImmutableMap.of("foo", mockMacroFunction));
+    context.put("local", localAlias);
+    String result = EagerTagDecorator.getNewlyDeferredFunctionImages(
+      deferredWords,
+      interpreter
+    );
+    assertThat(result).isEqualTo(image);
+    assertThat(deferredWords).isEmpty();
   }
 
   @Test
@@ -174,6 +210,16 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     assertThat(EagerTagDecorator.reconstructEnd(tagNode)).isEqualTo("{% endif %}");
     tagNode = getMockTagNode("endfor");
     assertThat(EagerTagDecorator.reconstructEnd(tagNode)).isEqualTo("{% endfor %}");
+  }
+
+  private static MacroFunction getMockMacroFunction(String image) {
+    MacroFunction mockMacroFunction = mock(MacroFunction.class);
+    when(mockMacroFunction.getName()).thenReturn("foo");
+    when(mockMacroFunction.getArguments()).thenReturn(ImmutableList.of("bar"));
+    when(mockMacroFunction.getEvaluationResult(anyMap(), anyMap(), anyList(), any()))
+      .thenThrow(new DeferredValueException(""));
+    when(mockMacroFunction.reconstructImage()).thenReturn(image);
+    return mockMacroFunction;
   }
 
   private static TagNode getMockTagNode(String endName) {
