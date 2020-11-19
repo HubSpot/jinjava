@@ -91,16 +91,31 @@ public class EagerMacroFunction extends AbstractCallableMethod {
       .toString();
   }
 
+  /**
+   * Reconstruct the image of the macro function, @see MacroFunction#reconstructImage()
+   * This image, however, may be partially or fully resolved depending on the
+   * usage of the arguments, which are filled in as deferred values, and any values on
+   * this interpreter's context.
+   * @return An image of the macro function that's body is resolved as much as possible.
+   *  This image allows for the macro function to be recreated during a later
+   *  rendering pass.
+   */
   public String reconstructImage() {
     String result;
-    result =
-      (String) evaluate(
-        macroFunction
-          .getArguments()
-          .stream()
-          .map(arg -> DeferredValue.instance())
-          .toArray()
-      );
+    try {
+      result =
+        (String) evaluate(
+          macroFunction
+            .getArguments()
+            .stream()
+            .map(arg -> DeferredValue.instance())
+            .toArray()
+        );
+    } catch (DeferredValueException e) {
+      // In case something not eager-supported encountered a deferred value
+      return macroFunction.reconstructImage();
+    }
+
     return (getStartTag(interpreter) + result + getEndTag(interpreter));
   }
 }

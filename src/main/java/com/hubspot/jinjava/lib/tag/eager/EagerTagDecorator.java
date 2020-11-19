@@ -20,10 +20,7 @@ import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
-import com.hubspot.jinjava.tree.parse.ExpressionToken;
-import com.hubspot.jinjava.tree.parse.NoteToken;
 import com.hubspot.jinjava.tree.parse.TagToken;
-import com.hubspot.jinjava.tree.parse.TextToken;
 import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.util.ChunkResolver;
 import java.util.Collections;
@@ -100,10 +97,16 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     return result.toString();
   }
 
-  public String renderChildren(TagNode tagNode, JinjavaInterpreter eagerInterpreter) {
+  /**
+   * Render all children of this TagNode.
+   * @param tagNode TagNode to render the children of.
+   * @param interpreter The JinjavaInterpreter.
+   * @return
+   */
+  public String renderChildren(TagNode tagNode, JinjavaInterpreter interpreter) {
     StringBuilder sb = new StringBuilder();
     for (Node child : tagNode.getChildren()) {
-      sb.append(renderChild(child, eagerInterpreter));
+      sb.append(child.render(interpreter).getValue());
     }
     return sb.toString();
   }
@@ -211,6 +214,17 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     return new EagerStringResult(result.toString());
   }
 
+  /**
+   * Build macro tag images for any macro functions that are included in deferredWords
+   * and remove those macro functions from the deferredWords set.
+   * These macro functions are either global or local macro functions, with local
+   * meaning they've been imported under an alias such as "simple.multiply()".
+   * @param deferredWords Set of words that were encountered and their evaluation has
+   *                      to be deferred for a later render.
+   * @param interpreter The Jinjava interpreter.
+   * @return A jinjava-syntax string that is the images of any macro functions that must
+   *  be evaluated at a later time.
+   */
   public static String getNewlyDeferredFunctionImages(
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
@@ -252,6 +266,18 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     return result;
   }
 
+  /**
+   * Build the image for a set tag which preserves the values of objects on the context
+   * for a later rendering pass. The set tag will set the keys to the values within
+   * the {@code deferredValuesToSet} Map.
+   * @param deferredValuesToSet Map that specifies what the context objects should be set
+   *                            to in the returned image.
+   * @param interpreter The Jinjava interpreter.
+   * @param registerEagerToken Whether or not to register the returned {@link SetTag}
+   *                           image as an {@link EagerToken}.
+   * @return A jinjava-syntax string that is the image of a set tag that will
+   *  be executed at a later time.
+   */
   public static String buildSetTagForDeferredInChildContext(
     Map<String, String> deferredValuesToSet,
     JinjavaInterpreter interpreter,
@@ -303,14 +329,13 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     return image;
   }
 
-  public final Object renderChild(Node child, JinjavaInterpreter interpreter) {
-    try {
-      return child.render(interpreter);
-    } catch (DeferredValueException e) {
-      return getEagerImage(child.getMaster(), interpreter);
-    }
-  }
-
+  /**
+   * Casts token to TagToken if possible to get the eager image of the token.
+   * @see #getEagerTagImage(TagToken, JinjavaInterpreter)
+   * @param token Token to cast.
+   * @param interpreter The Jinjava interpreter.
+   * @return The image of the token which has been evaluated as much as possible.
+   */
   public final String getEagerImage(Token token, JinjavaInterpreter interpreter) {
     String eagerImage;
     if (token instanceof TagToken) {
@@ -321,6 +346,16 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     return eagerImage;
   }
 
+  /**
+   * Uses the {@link ChunkResolver} to partially evaluate any expression within
+   * the tagToken's helpers. If there are any macro functions that must be deferred,
+   * then their images are pre-pended to the result, which is the partial image
+   * of the {@link TagToken}.
+   * @param tagToken TagToken to get the eager image of.
+   * @param interpreter The Jinjava interpreter.
+   * @return A new image of the tagToken, which may have expressions that are further
+   *  resolved than in the original {@link TagToken#getImage()}.
+   */
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
     StringJoiner joiner = new StringJoiner(" ");
     joiner
