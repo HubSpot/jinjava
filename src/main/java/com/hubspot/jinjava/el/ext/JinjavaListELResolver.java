@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el.ext;
 import java.util.List;
 import javax.el.ELContext;
 import javax.el.ListELResolver;
+import org.apache.commons.lang3.StringUtils;
 
 public class JinjavaListELResolver extends ListELResolver {
 
@@ -64,10 +65,13 @@ public class JinjavaListELResolver extends ListELResolver {
    *             if property cannot be coerced to an integer.
    */
   private static int toIndex(Object property) {
-    int index = 0;
+    int index;
     if (property instanceof Number) {
       index = ((Number) property).intValue();
     } else if (property instanceof String) {
+      if (!StringUtils.isNumeric((String) property)) {
+        throw new IllegalArgumentException("Cannot parse list index: " + property);
+      }
       try {
         // ListELResolver uses valueOf, but findbugs complains.
         index = Integer.parseInt((String) property);
