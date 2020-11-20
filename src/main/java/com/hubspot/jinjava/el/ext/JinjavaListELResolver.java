@@ -3,7 +3,6 @@ package com.hubspot.jinjava.el.ext;
 import java.util.List;
 import javax.el.ELContext;
 import javax.el.ListELResolver;
-import org.apache.commons.lang3.StringUtils;
 
 public class JinjavaListELResolver extends ListELResolver {
 
@@ -69,7 +68,7 @@ public class JinjavaListELResolver extends ListELResolver {
     if (property instanceof Number) {
       index = ((Number) property).intValue();
     } else if (property instanceof String) {
-      if (!StringUtils.isNumeric((String) property)) {
+      if (!isNumeric((String) property)) {
         throw new IllegalArgumentException("Cannot parse list index: " + property);
       }
       try {
@@ -95,5 +94,18 @@ public class JinjavaListELResolver extends ListELResolver {
     try {
       super.setValue(context, base, property, value);
     } catch (IllegalArgumentException ignored) {}
+  }
+
+  public static boolean isNumeric(final CharSequence cs) {
+    if (cs == null || cs.length() == 0) {
+      return false;
+    }
+    final int sz = cs.length();
+    for (int i = 0; i < sz; i++) {
+      if (!Character.isDigit(cs.charAt(i)) && cs.charAt(i) != '-') {
+        return false;
+      }
+    }
+    return true;
   }
 }
