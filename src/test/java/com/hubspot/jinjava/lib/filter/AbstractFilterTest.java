@@ -155,7 +155,8 @@ public class AbstractFilterTest extends BaseInterpretingTest {
   @Test
   public void itErrorsInitOnInvalidDefaultValue() {
     assertThatThrownBy(() -> new InvalidDefaultValueFilter())
-      .hasMessageContaining("Input '?' is not parsable type of 'int' for filter");
+      .hasMessageContaining("Cannot coerce '?'")
+      .hasMessageContaining("to class java.lang.Integer");
   }
 
   public static class ArgCapturingFilter extends AbstractFilter {

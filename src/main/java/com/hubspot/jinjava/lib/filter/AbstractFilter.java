@@ -18,20 +18,18 @@ package com.hubspot.jinjava.lib.filter;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.el.TruthyTypeConverter;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Nullable;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 /***
  * Filter base that uses Filter Jinjavadoc to construct named argument parameters.
@@ -43,6 +41,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 public abstract class AbstractFilter implements Filter, AdvancedFilter {
   private static final Map<Class, Map<String, JinjavaParam>> NAMED_ARGUMENTS_CACHE = new ConcurrentHashMap<>();
   private static final Map<Class, Map<String, Object>> DEFAULT_VALUES_CACHE = new ConcurrentHashMap<>();
+  protected static final TruthyTypeConverter TYPE_CONVERTER = new TruthyTypeConverter();
 
   private final Map<String, JinjavaParam> namedArguments;
   private final Map<String, Object> defaultValues;
@@ -119,7 +118,7 @@ public abstract class AbstractFilter implements Filter, AdvancedFilter {
   }
 
   protected Object parseArg(
-    @Nullable JinjavaInterpreter interpreter,
+    JinjavaInterpreter interpreter,
     JinjavaParam jinjavaParamMetadata,
     Object value
   ) {
@@ -128,21 +127,19 @@ public abstract class AbstractFilter implements Filter, AdvancedFilter {
     }
     switch (jinjavaParamMetadata.type().toLowerCase()) {
       case "boolean":
-        return value instanceof Boolean
-          ? (Boolean) value
-          : BooleanUtils.toBooleanObject(value.toString());
+        return TYPE_CONVERTER.convert(value, Boolean.class);
       case "int":
-        return parseNumber(value, int.class);
+        return TYPE_CONVERTER.convert(value, Integer.class);
       case "long":
-        return parseNumber(value, long.class);
+        return TYPE_CONVERTER.convert(value, Long.class);
       case "float":
-        return parseNumber(value, float.class);
+        return TYPE_CONVERTER.convert(value, Float.class);
       case "double":
-        return parseNumber(value, double.class);
+        return TYPE_CONVERTER.convert(value, Double.class);
       case "number":
-        return parseNumber(value, Number.class);
+        return TYPE_CONVERTER.convert(value, BigDecimal.class);
       case "string":
-        return value.toString();
+        return TYPE_CONVERTER.convert(value, String.class);
       case "object":
       case "dict":
       case "sequence":
@@ -159,37 +156,6 @@ public abstract class AbstractFilter implements Filter, AdvancedFilter {
         } else {
           throw new IllegalArgumentException(errorMessage);
         }
-    }
-  }
-
-  public <N extends Number> Number parseNumber(Object value, Class<N> numberClass) {
-    //check if needs to be parsed to number first, and then convert to required type
-    if (!(value instanceof Number)) {
-      String str = Objects.toString(value, null);
-      if (NumberUtils.isCreatable(str)) {
-        value = NumberUtils.createNumber(str);
-      } else {
-        throw new IllegalArgumentException(
-          String.format(
-            "Input '%s' is not parsable type of '%s' for filter '%s'",
-            value,
-            numberClass,
-            getName()
-          )
-        );
-      }
-    }
-    Number n = (Number) value;
-    if (numberClass == int.class || numberClass == Integer.class) {
-      return n.intValue();
-    } else if (numberClass == long.class || numberClass == Long.class) {
-      return n.longValue();
-    } else if (numberClass == float.class || numberClass == Float.class) {
-      return n.floatValue();
-    } else if (numberClass == double.class || numberClass == Double.class) {
-      return n.doubleValue();
-    } else { //if nclass == Number.class
-      return n;
     }
   }
 
@@ -272,7 +238,6 @@ public abstract class AbstractFilter implements Filter, AdvancedFilter {
       .stream()
       .filter(e -> StringUtils.isNotEmpty(e.getValue().defaultValue()))
       .collect(
-        //              ImmutableMap.toImmutableMap(Map.Entry::getKey, e -> e.getValue().defaultValue())
         ImmutableMap.toImmutableMap(
           Map.Entry::getKey,
           e -> parseArg(null, e.getValue(), e.getValue().defaultValue())
