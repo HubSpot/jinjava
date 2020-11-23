@@ -20,7 +20,7 @@ public class RegexReplaceFilterTest extends BaseInterpretingTest {
   @Test
   public void expects2Args() {
     assertThatThrownBy(() -> filter.filter("foo", interpreter))
-      .hasMessageContaining("Argument named 'regex' is required but missing");
+      .hasMessageContaining("requires 2 arguments");
   }
 
   @Test
@@ -28,7 +28,7 @@ public class RegexReplaceFilterTest extends BaseInterpretingTest {
     assertThatThrownBy(
         () -> filter.filter("foo", interpreter, new String[] { null, null })
       )
-      .hasMessageContaining("Argument named 'regex' is required but missing");
+      .hasMessageContaining("both a valid regex");
   }
 
   public void noopOnNullExpr() {

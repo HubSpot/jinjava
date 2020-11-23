@@ -3,7 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
-import com.hubspot.jinjava.interpret.InvalidInputException;
+import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.objects.SafeString;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +16,7 @@ public class ReplaceFilterTest extends BaseInterpretingTest {
     filter = new ReplaceFilter();
   }
 
-  @Test(expected = InvalidInputException.class)
+  @Test(expected = InterpretException.class)
   public void expectsAtLeast2Args() {
     filter.filter("foo", interpreter);
   }
