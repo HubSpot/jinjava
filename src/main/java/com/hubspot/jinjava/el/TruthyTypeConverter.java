@@ -93,6 +93,7 @@ public class TruthyTypeConverter extends TypeConverterImpl {
       return "";
     }
 
+    // super() behavior breaks equality between enums and strings so removed here.
     if (value instanceof String) {
       return (String) value;
     }
