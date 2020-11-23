@@ -10,7 +10,7 @@ import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import java.util.Map;
 
 @JinjavaDoc(
   value = "Return a copy of the value with all occurrences of a matched regular expression (Java RE2 syntax) " +
@@ -23,12 +23,12 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
   ),
   params = {
     @JinjavaParam(
-      value = "regex",
+      value = RegexReplaceFilter.REGEX_KEY,
       desc = "The regular expression that you want to match and replace",
       required = true
     ),
     @JinjavaParam(
-      value = "new",
+      value = RegexReplaceFilter.REPLACE_WITH,
       desc = "The new string that you replace the matched substring",
       required = true
     )
@@ -40,7 +40,9 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
     )
   }
 )
-public class RegexReplaceFilter implements Filter {
+public class RegexReplaceFilter extends AbstractFilter {
+  public static final String REGEX_KEY = "regex";
+  public static final String REPLACE_WITH = "new";
 
   @Override
   public String getName() {
@@ -48,31 +50,19 @@ public class RegexReplaceFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if (args.length < 2) {
-      throw new TemplateSyntaxException(
-        interpreter,
-        getName(),
-        "requires 2 arguments (regex string, replacement string)"
-      );
-    }
-
-    if (args[0] == null || args[1] == null) {
-      throw new TemplateSyntaxException(
-        interpreter,
-        getName(),
-        "requires both a valid regex and new params (not null)"
-      );
-    }
-
+  public Object filter(
+    Object var,
+    JinjavaInterpreter interpreter,
+    Map<String, Object> parsedArgs
+  ) {
     if (var == null) {
       return null;
     }
 
     if (var instanceof String) {
       String s = (String) var;
-      String toReplace = args[0];
-      String replaceWith = args[1];
+      String toReplace = (String) parsedArgs.get(REGEX_KEY);
+      String replaceWith = (String) parsedArgs.get(REPLACE_WITH);
 
       try {
         Pattern p = Pattern.compile(toReplace);

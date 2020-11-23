@@ -12,6 +12,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.ObjectIterator;
+import java.util.Map;
 import java.util.Objects;
 
 @JinjavaDoc(
@@ -19,12 +20,12 @@ import java.util.Objects;
   input = @JinjavaParam(value = "value", desc = "The values to join", required = true),
   params = {
     @JinjavaParam(
-      value = "d",
+      value = JoinFilter.SEPARATOR_PARAM,
       desc = "The separator string used to join the items",
       defaultValue = "(empty String)"
     ),
     @JinjavaParam(
-      value = "attr",
+      value = JoinFilter.ATTRIBUTE_PARAM,
       desc = "Optional dict object attribute to use in joining"
     )
   },
@@ -37,7 +38,9 @@ import java.util.Objects;
     )
   }
 )
-public class JoinFilter implements Filter {
+public class JoinFilter extends AbstractFilter implements Filter {
+  public static final String SEPARATOR_PARAM = "d";
+  public static final String ATTRIBUTE_PARAM = "attribute";
 
   @Override
   public String getName() {
@@ -45,20 +48,18 @@ public class JoinFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(
+    Object var,
+    JinjavaInterpreter interpreter,
+    Map<String, Object> parsedArgs
+  ) {
     LengthLimitingStringBuilder stringBuilder = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxStringLength()
     );
 
-    String separator = "";
-    if (args.length > 0) {
-      separator = args[0];
-    }
+    String separator = (String) parsedArgs.get(SEPARATOR_PARAM);
 
-    String attr = null;
-    if (args.length > 1) {
-      attr = args[1];
-    }
+    String attr = (String) parsedArgs.get(ATTRIBUTE_PARAM);
 
     ForLoop loop = ObjectIterator.getLoop(var);
     boolean first = true;

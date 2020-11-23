@@ -105,6 +105,11 @@ public class Functions {
         value = "timezone",
         defaultValue = "utc",
         desc = "Time zone of output date"
+      ),
+      @JinjavaParam(
+        value = "locale",
+        defaultValue = "us",
+        desc = "The language code to use when formatting the datetime"
       )
     }
   )
