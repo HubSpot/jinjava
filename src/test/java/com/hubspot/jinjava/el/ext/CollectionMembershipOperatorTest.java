@@ -7,7 +7,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import org.junit.Before;
 import org.junit.Test;
 
-@SuppressWarnings("unchecked")
 public class CollectionMembershipOperatorTest {
   private JinjavaInterpreter interpreter;
 

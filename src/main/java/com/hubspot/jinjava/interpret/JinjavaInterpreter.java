@@ -56,6 +56,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class JinjavaInterpreter {
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
@@ -238,47 +239,55 @@ public class JinjavaInterpreter {
       lineNumber = node.getLineNumber();
       position = node.getStartPosition();
       String renderStr = node.getMaster().getImage();
-      if (context.doesRenderStackContain(renderStr)) {
-        // This is a circular rendering. Stop rendering it here.
+      try {
+        if (context.doesRenderStackContain(renderStr)) {
+          // This is a circular rendering. Stop rendering it here.
+          addError(
+            new TemplateError(
+              ErrorType.WARNING,
+              ErrorReason.EXCEPTION,
+              ErrorItem.TAG,
+              "Rendering cycle detected: '" + renderStr + "'",
+              null,
+              getLineNumber(),
+              node.getStartPosition(),
+              null,
+              BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
+              ImmutableMap.of("string", renderStr)
+            )
+          );
+          output.addNode(new RenderedOutputNode(renderStr));
+        } else {
+          OutputNode out;
+          context.pushRenderStack(renderStr);
+          try {
+            out = node.render(this);
+          } catch (DeferredValueException e) {
+            context.handleDeferredNode(node);
+            out = new RenderedOutputNode(node.getMaster().getImage());
+          }
+          context.popRenderStack();
+          output.addNode(out);
+        }
+      } catch (OutputTooBigException e) {
+        addError(TemplateError.fromOutputTooBigException(e));
+        return output.getValue();
+      } catch (CollectionTooBigException e) {
         addError(
           new TemplateError(
-            ErrorType.WARNING,
-            ErrorReason.EXCEPTION,
-            ErrorItem.TAG,
-            "Rendering cycle detected: '" + renderStr + "'",
+            ErrorType.FATAL,
+            ErrorReason.COLLECTION_TOO_BIG,
+            ErrorItem.OTHER,
+            ExceptionUtils.getMessage(e),
             null,
-            getLineNumber(),
-            node.getStartPosition(),
-            null,
-            BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
-            ImmutableMap.of("string", renderStr)
+            -1,
+            -1,
+            e,
+            BasicTemplateErrorCategory.UNKNOWN,
+            ImmutableMap.of()
           )
         );
-        try {
-          output.addNode(new RenderedOutputNode(renderStr));
-        } catch (OutputTooBigException e) {
-          addError(TemplateError.fromOutputTooBigException(e));
-          return output.getValue();
-        }
-      } else {
-        OutputNode out;
-        context.pushRenderStack(renderStr);
-        try {
-          out = node.render(this);
-        } catch (DeferredValueException e) {
-          context.handleDeferredNode(node);
-          out = new RenderedOutputNode(node.getMaster().getImage());
-        } catch (OutputTooBigException e) {
-          addError(TemplateError.fromOutputTooBigException(e));
-          return output.getValue();
-        }
-        context.popRenderStack();
-        try {
-          output.addNode(out);
-        } catch (OutputTooBigException e) {
-          addError(TemplateError.fromOutputTooBigException(e));
-          return output.getValue();
-        }
+        return output.getValue();
       }
     }
 
