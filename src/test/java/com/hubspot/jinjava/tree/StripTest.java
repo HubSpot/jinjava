@@ -12,6 +12,6 @@ public class StripTest extends BaseInterpretingTest {
     String expression =
       "{% for i in range(10) -%}\r\n{% for j in range(10) -%}\r\n{% endfor %}";
     String render = interpreter.render(expression);
-    assertThat(render).isEqualTo("i");
+    assertThat(render).isEqualTo("");
   }
 }
