@@ -10,6 +10,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
 
@@ -80,7 +81,7 @@ public class AbstractFilterTest extends BaseInterpretingTest {
       .put("long", "2")
       .put("double", "3")
       .put("float", "4")
-      .put("number", "55555555555555555555.555555555555555555")
+      .put("number", "5")
       .put("object", new Object())
       .put("dict", new Object())
       .build();
@@ -94,7 +95,7 @@ public class AbstractFilterTest extends BaseInterpretingTest {
       .put("long", 2L)
       .put("double", 3.0)
       .put("float", 4.0f)
-      .put("number", new BigDecimal("55555555555555555555.555555555555555555"))
+      .put("number", new BigDecimal(5))
       .put("object", kwArgs.get("object"))
       .put("dict", kwArgs.get("dict"))
       .build();
@@ -143,20 +144,6 @@ public class AbstractFilterTest extends BaseInterpretingTest {
           )
       )
       .hasMessageContaining("Argument named 'unknown' is invalid");
-  }
-
-  @JinjavaDoc(
-    params = {
-      @JinjavaParam(value = "int", type = "int", desc = "int", defaultValue = "?")
-    }
-  )
-  public static class InvalidDefaultValueFilter extends ArgCapturingFilter {}
-
-  @Test
-  public void itErrorsInitOnInvalidDefaultValue() {
-    assertThatThrownBy(() -> new InvalidDefaultValueFilter())
-      .hasMessageContaining("Cannot coerce '?'")
-      .hasMessageContaining("to class java.lang.Integer");
   }
 
   public static class ArgCapturingFilter extends AbstractFilter {
