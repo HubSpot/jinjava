@@ -20,6 +20,8 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.InterpreterFactory;
 import com.hubspot.jinjava.interpret.JinjavaInterpreterFactory;
+import com.hubspot.jinjava.mode.DefaultExecutionMode;
+import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
@@ -58,7 +60,7 @@ public class JinjavaConfig {
   private TokenScannerSymbols tokenScannerSymbols;
   private final ELResolver elResolver;
   private final boolean iterateOverMapKeys;
-  private final boolean preserveForFinalPass;
+  private final ExecutionMode executionMode;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -109,7 +111,7 @@ public class JinjavaConfig {
     tokenScannerSymbols = builder.tokenScannerSymbols;
     elResolver = builder.elResolver;
     iterateOverMapKeys = builder.iterateOverMapKeys;
-    preserveForFinalPass = builder.preserveForFinalPass;
+    executionMode = builder.executionMode;
   }
 
   public Charset getCharset() {
@@ -200,8 +202,8 @@ public class JinjavaConfig {
     return iterateOverMapKeys;
   }
 
-  public boolean isPreserveForFinalPass() {
-    return preserveForFinalPass;
+  public ExecutionMode getExecutionMode() {
+    return executionMode;
   }
 
   public static class Builder {
@@ -227,9 +229,9 @@ public class JinjavaConfig {
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
     private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
     private boolean iterateOverMapKeys;
-    private boolean preserveForFinalPass;
     private int maxListSize = Integer.MAX_VALUE;
     private int maxMapSize = Integer.MAX_VALUE;
+    private ExecutionMode executionMode = new DefaultExecutionMode();
 
     private Builder() {}
 
@@ -348,8 +350,8 @@ public class JinjavaConfig {
       return this;
     }
 
-    public Builder withPreserveForFinalPass(boolean preserveForFinalPass) {
-      this.preserveForFinalPass = preserveForFinalPass;
+    public Builder withExecutionMode(ExecutionMode executionMode) {
+      this.executionMode = executionMode;
       return this;
     }
 
