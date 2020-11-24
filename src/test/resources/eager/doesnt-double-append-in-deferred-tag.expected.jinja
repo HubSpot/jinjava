@@ -1,0 +1,6 @@
+{% set foo = [0] %}{% if deferred == true %}
+[0,1]
+{% set foo = [0,1,2] %}
+{% endif %}
+{{ foo }}
+

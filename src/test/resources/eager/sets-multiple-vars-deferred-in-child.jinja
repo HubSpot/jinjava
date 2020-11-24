@@ -1,0 +1,9 @@
+{%- set foo, bar = 1, 2 -%}
+{{ foo }} & {{ bar }}
+{%- set foo = 3 -%}
+{%- if deferred -%}
+{%- set bar = 4 -%}
+{%- else -%}
+{%- set foo = 5 -%}
+{%- endif %}
+{{ foo }} & {{ bar }}

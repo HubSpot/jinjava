@@ -1,0 +1,7 @@
+{% for item in [0,1,2,3,4]+deferred %}
+{% if item == 5 %}
+It is foo!
+{% else %}
+It is not foo!
+{% endif %}
+{% endfor %}

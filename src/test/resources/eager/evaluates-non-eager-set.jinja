@@ -1,0 +1,8 @@
+{% set foo = 5.5|int %}
+{% for item in range(0, foo) + deferred %}
+{% if item == foo %}
+It is foo!
+{% else %}
+It is not foo!
+{% endif %}
+{% endfor %}

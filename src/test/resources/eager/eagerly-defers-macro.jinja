@@ -1,0 +1,16 @@
+{%- macro foo_macro() -%}
+{{ foo }}
+{%- endmacro -%}
+{%- macro bar_macro() -%}
+{{ bar }}
+{%- endmacro -%}
+{% macro big_guy() %}
+{% if deferred %}
+{%- print foo_macro() -%}
+{% else %}
+{%- print bar_macro() -%}
+{% endif %}
+{% endmacro %}
+{% print big_guy() %}
+{%- set foo = 'No more foo' -%}
+{% print big_guy() %}

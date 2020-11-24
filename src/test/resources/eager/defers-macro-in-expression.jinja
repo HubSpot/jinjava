@@ -1,0 +1,7 @@
+{%- macro plus(foo, add) -%}
+{{ foo + (add|int) }}
+{%- endmacro -%}
+{{ plus(1, 1) }}
+{{ plus(deferred, 1.1) }}
+{%- set deferred = deferred + 2 %}
+{{ plus(deferred, 3.1) }}

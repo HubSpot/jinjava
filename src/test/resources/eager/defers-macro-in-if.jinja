@@ -1,0 +1,6 @@
+{%- macro macro_append(num) -%}
+{%- do my_list.append(num) -%}{{ my_list }}{# is a string #}
+{%- endmacro -%}
+{% if my_list == macro_append(deferred)|split(',',2) %}
+{{ my_list }}
+{% endif %}
