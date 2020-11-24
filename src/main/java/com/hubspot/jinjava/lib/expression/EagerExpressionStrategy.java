@@ -11,6 +11,6 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     ExpressionToken master,
     JinjavaInterpreter interpreter
   ) {
-    return null; // TODO replace with actual functionality
+    return new DefaultExpressionStrategy().interpretOutput(master, interpreter); // TODO replace with actual functionality
   }
 }
