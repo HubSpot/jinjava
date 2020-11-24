@@ -31,6 +31,7 @@ public class TemplateError {
     INVALID_INPUT,
     OUTPUT_TOO_BIG,
     OVER_LIMIT,
+    COLLECTION_TOO_BIG,
     OTHER
   }
 

@@ -22,12 +22,7 @@ public class EagerTagFactory {
           .getDeclaredConstructor()
           .newInstance();
         if (decorator.getTag().getClass() == clazz) {
-          return Optional.of(
-            (EagerTagDecorator<T>) EAGER_TAG_OVERRIDES
-              .get(clazz)
-              .getDeclaredConstructor()
-              .newInstance()
-          );
+          return Optional.of((EagerTagDecorator<T>) decorator);
         }
       }
       T tag = clazz.getDeclaredConstructor().newInstance();

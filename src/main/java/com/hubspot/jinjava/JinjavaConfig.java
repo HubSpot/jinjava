@@ -48,15 +48,17 @@ public class JinjavaConfig {
   private final boolean enableRecursiveMacroCalls;
   private final int maxMacroRecursionDepth;
 
-  private Map<Context.Library, Set<String>> disabled;
+  private final Map<Context.Library, Set<String>> disabled;
   private final boolean failOnUnknownTokens;
   private final boolean nestedInterpretationEnabled;
   private final RandomNumberGeneratorStrategy randomNumberGenerator;
   private final boolean validationMode;
   private final long maxStringLength;
-  private InterpreterFactory interpreterFactory;
+  private final int maxListSize;
+  private final int maxMapSize;
+  private final InterpreterFactory interpreterFactory;
   private TokenScannerSymbols tokenScannerSymbols;
-  private ELResolver elResolver;
+  private final ELResolver elResolver;
   private final boolean iterateOverMapKeys;
   private final ExecutionMode executionMode;
 
@@ -103,6 +105,8 @@ public class JinjavaConfig {
     randomNumberGenerator = builder.randomNumberGeneratorStrategy;
     validationMode = builder.validationMode;
     maxStringLength = builder.maxStringLength;
+    maxListSize = builder.maxListSize;
+    maxMapSize = builder.maxMapSize;
     interpreterFactory = builder.interpreterFactory;
     tokenScannerSymbols = builder.tokenScannerSymbols;
     elResolver = builder.elResolver;
@@ -128,6 +132,14 @@ public class JinjavaConfig {
 
   public long getMaxOutputSize() {
     return maxOutputSize;
+  }
+
+  public int getMaxListSize() {
+    return maxListSize;
+  }
+
+  public int getMaxMapSize() {
+    return maxMapSize;
   }
 
   public RandomNumberGeneratorStrategy getRandomNumberGeneratorStrategy() {
@@ -217,6 +229,8 @@ public class JinjavaConfig {
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
     private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
     private boolean iterateOverMapKeys;
+    private int maxListSize = Integer.MAX_VALUE;
+    private int maxMapSize = Integer.MAX_VALUE;
     private ExecutionMode executionMode = new DefaultExecutionMode();
 
     private Builder() {}
@@ -308,6 +322,16 @@ public class JinjavaConfig {
 
     public Builder withMaxStringLength(long maxStringLength) {
       this.maxStringLength = maxStringLength;
+      return this;
+    }
+
+    public Builder withMaxListSize(int maxListSize) {
+      this.maxListSize = maxListSize;
+      return this;
+    }
+
+    public Builder withMaxMapSize(int maxMapSize) {
+      this.maxMapSize = maxMapSize;
       return this;
     }
 

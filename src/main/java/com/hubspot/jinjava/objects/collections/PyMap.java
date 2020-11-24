@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
-  private Map<String, Object> map;
+  private final Map<String, Object> map;
 
   public PyMap(Map<String, Object> map) {
     this.map = map;

@@ -99,6 +99,7 @@ public class Context extends ScopeMap<String, Object> {
 
   private boolean validationMode = false;
   private boolean protectedMode = false;
+  private boolean hideInterpreterErrors = false;
 
   public Context() {
     this(null, null, null);
@@ -573,5 +574,13 @@ public class Context extends ScopeMap<String, Object> {
   public Context setProtectedMode(boolean protectedMode) {
     this.protectedMode = protectedMode;
     return this;
+  }
+
+  public boolean getHideInterpreterErrors() {
+    return hideInterpreterErrors;
+  }
+
+  public void setHideInterpreterErrors(boolean hideInterpreterErrors) {
+    this.hideInterpreterErrors = hideInterpreterErrors;
   }
 }

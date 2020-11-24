@@ -64,10 +64,13 @@ public class JinjavaListELResolver extends ListELResolver {
    *             if property cannot be coerced to an integer.
    */
   private static int toIndex(Object property) {
-    int index = 0;
+    int index;
     if (property instanceof Number) {
       index = ((Number) property).intValue();
     } else if (property instanceof String) {
+      if (!isNumeric((String) property)) {
+        throw new IllegalArgumentException("Cannot parse list index: " + property);
+      }
       try {
         // ListELResolver uses valueOf, but findbugs complains.
         index = Integer.parseInt((String) property);
@@ -91,5 +94,18 @@ public class JinjavaListELResolver extends ListELResolver {
     try {
       super.setValue(context, base, property, value);
     } catch (IllegalArgumentException ignored) {}
+  }
+
+  public static boolean isNumeric(final CharSequence cs) {
+    if (cs == null || cs.length() == 0) {
+      return false;
+    }
+    final int sz = cs.length();
+    for (int i = 0; i < sz; i++) {
+      if (!Character.isDigit(cs.charAt(i)) && cs.charAt(i) != '-') {
+        return false;
+      }
+    }
+    return true;
   }
 }
