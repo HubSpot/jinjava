@@ -40,9 +40,7 @@ public class ExpressionResolverPerformanceTest {
     }
 
     public void stopTimer() {
-      System.out.println(
-        String.format("%d msec", System.currentTimeMillis() - startTime)
-      );
+      System.out.printf("%d msec%n", System.currentTimeMillis() - startTime);
     }
 
     public void testMapResolver(int iterations) {
