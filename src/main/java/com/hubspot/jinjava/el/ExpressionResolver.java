@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMess
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.el.ext.NamedParameter;
+import com.hubspot.jinjava.interpret.CollectionTooBigException;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
@@ -142,6 +143,11 @@ public class ExpressionResolver {
             (InvalidArgumentException) e.getCause()
           )
         );
+      } else if (
+        e.getCause() != null && e.getCause() instanceof CollectionTooBigException
+      ) {
+        // rethrow because this is a hard limit and it will likely only happen in loops that we need to terminate
+        throw e;
       } else if (
         e.getCause() != null && e.getCause() instanceof IndexOutOfRangeException
       ) {
