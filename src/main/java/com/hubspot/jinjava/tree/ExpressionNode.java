@@ -17,58 +17,31 @@ package com.hubspot.jinjava.tree;
 
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.filter.EscapeFilter;
-import com.hubspot.jinjava.objects.SafeString;
+import com.hubspot.jinjava.lib.expression.ExpressionStrategy;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
-import com.hubspot.jinjava.util.Logging;
-import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
 
 public class ExpressionNode extends Node {
   private static final long serialVersionUID = -6063173739682221042L;
 
+  private final ExpressionStrategy expressionStrategy;
   private final ExpressionToken master;
 
-  public ExpressionNode(ExpressionToken token) {
+  public ExpressionNode(ExpressionStrategy expressionStrategy, ExpressionToken token) {
     super(token, token.getLineNumber(), token.getStartPosition());
+    this.expressionStrategy = expressionStrategy;
     master = token;
   }
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
-    Object var;
     try {
-      var = interpreter.resolveELExpression(master.getExpr(), getLineNumber());
+      return expressionStrategy.interpretOutput(master, interpreter);
     } catch (DeferredValueException e) {
       interpreter.getContext().handleDeferredNode(this);
-      var = master.getImage();
+      return new RenderedOutputNode(master.getImage());
     }
-
-    String result = Objects.toString(var, "");
-
-    if (interpreter.getConfig().isNestedInterpretationEnabled()) {
-      if (
-        !StringUtils.equals(result, master.getImage()) &&
-        (
-          StringUtils.contains(result, getSymbols().getExpressionStart()) ||
-          StringUtils.contains(result, getSymbols().getExpressionStartWithTag())
-        )
-      ) {
-        try {
-          result = interpreter.renderFlat(result);
-        } catch (Exception e) {
-          Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
-        }
-      }
-    }
-
-    if (interpreter.getContext().isAutoEscape() && !(var instanceof SafeString)) {
-      result = EscapeFilter.escapeHtmlEntities(result);
-    }
-
-    return new RenderedOutputNode(result);
   }
 
   @Override

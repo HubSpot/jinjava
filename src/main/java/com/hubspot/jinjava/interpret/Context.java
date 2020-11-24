@@ -20,6 +20,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import com.hubspot.jinjava.lib.Importable;
+import com.hubspot.jinjava.lib.expression.DefaultExpressionStrategy;
+import com.hubspot.jinjava.lib.expression.ExpressionStrategy;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.lib.exptest.ExpTestLibrary;
 import com.hubspot.jinjava.lib.filter.Filter;
@@ -86,6 +88,7 @@ public class Context extends ScopeMap<String, Object> {
   private final FilterLibrary filterLibrary;
   private final FunctionLibrary functionLibrary;
   private final TagLibrary tagLibrary;
+  private ExpressionStrategy expressionStrategy = new DefaultExpressionStrategy();
 
   private final Context parent;
 
@@ -166,6 +169,9 @@ public class Context extends ScopeMap<String, Object> {
     this.tagLibrary = new TagLibrary(parent == null, disabled.get(Library.TAG));
     this.functionLibrary =
       new FunctionLibrary(parent == null, disabled.get(Library.FUNCTION));
+    if (parent != null) {
+      this.expressionStrategy = parent.expressionStrategy;
+    }
   }
 
   public void reset() {
@@ -495,6 +501,14 @@ public class Context extends ScopeMap<String, Object> {
 
   public void registerTag(Tag t) {
     tagLibrary.addTag(t);
+  }
+
+  public ExpressionStrategy getExpressionStrategy() {
+    return expressionStrategy;
+  }
+
+  public void setExpressionStrategy(ExpressionStrategy expressionStrategy) {
+    this.expressionStrategy = expressionStrategy;
   }
 
   public CallStack getExtendPathStack() {
