@@ -229,6 +229,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
+    // TODO reconstructForNewlyDeferred() -> this + set words on context
     Set<String> toRemove = new HashSet<>();
     Map<String, MacroFunction> macroFunctions = deferredWords
       .stream()
