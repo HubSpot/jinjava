@@ -84,6 +84,8 @@ public class JinjavaInterpreter {
     this.config = renderConfig;
     this.application = application;
 
+    this.config.getExecutionMode().prepareContext(this.context);
+
     switch (config.getRandomNumberGeneratorStrategy()) {
       case THREAD_LOCAL:
         random = ThreadLocalRandom.current();

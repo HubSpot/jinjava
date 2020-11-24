@@ -79,13 +79,6 @@ public class EagerTest {
       new ExpectedTemplateInterpreter(jinjava, interpreter, "eager");
     localContext = interpreter.getContext();
 
-    localContext
-      .getAllTags()
-      .stream()
-      .map(tag -> EagerTagFactory.getEagerTagDecorator(tag.getClass()))
-      .filter(Optional::isPresent)
-      .forEach(maybeEagerTag -> localContext.registerTag(maybeEagerTag.get()));
-
     localContext.put("deferred", DeferredValue.instance());
     localContext.put("resolved", "resolvedValue");
     localContext.put("dict", ImmutableSet.of("a", "b", "c"));
@@ -723,15 +716,6 @@ public class EagerTest {
       config
     );
     JinjavaInterpreter noNestedInterpreter = new JinjavaInterpreter(parentInterpreter);
-    noNestedInterpreter
-      .getContext()
-      .getAllTags()
-      .stream()
-      .map(tag -> EagerTagFactory.getEagerTagDecorator(tag.getClass()))
-      .filter(Optional::isPresent)
-      .forEach(
-        maybeEagerTag -> noNestedInterpreter.getContext().registerTag(maybeEagerTag.get())
-      );
 
     JinjavaInterpreter.pushCurrent(noNestedInterpreter);
     try {
