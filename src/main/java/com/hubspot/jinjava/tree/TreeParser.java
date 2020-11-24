@@ -166,9 +166,16 @@ public class TreeParser {
   }
 
   private Node expression(ExpressionToken expressionToken) {
-    ExpressionNode n = new ExpressionNode(expressionToken);
+    ExpressionNode n = createExpressionNode(expressionToken);
     n.setParent(parent);
     return n;
+  }
+
+  private ExpressionNode createExpressionNode(ExpressionToken expressionToken) {
+    return new ExpressionNode(
+      interpreter.getContext().getExpressionStrategy(),
+      expressionToken
+    );
   }
 
   private Node tag(TagToken tagToken) {
