@@ -15,6 +15,7 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -208,6 +209,12 @@ public abstract class AbstractFilter implements Filter {
 
   public Map<String, JinjavaParam> initNamedArguments() {
     JinjavaDoc jinjavaDoc = this.getClass().getAnnotation(JinjavaDoc.class);
+
+    if (jinjavaDoc != null && !Strings.isNullOrEmpty(jinjavaDoc.aliasOf())) {
+      // aliased functions extend the base function. We need to get the annotations on the base
+      jinjavaDoc = this.getClass().getSuperclass().getAnnotation(JinjavaDoc.class);
+    }
+
     if (jinjavaDoc != null) {
       ImmutableMap.Builder<String, JinjavaParam> namedArgsBuilder = ImmutableMap.builder();
 
