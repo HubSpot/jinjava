@@ -187,7 +187,6 @@ public class EagerTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  @Ignore
   public void itDoesNotResolveForTagDeferredBlockInside() {
     String output = interpreter.render(
       "{% for item in dict %}{% if item == deferred %} equal {% else %} not equal {% endif %}{% endfor %}"
@@ -282,7 +281,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersMacro() {
     localContext.put("padding", 0);
     localContext.put("added_padding", 10);
@@ -305,7 +303,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersAllVariablesUsedInDeferredNode() {
     String template = expectedTemplateInterpreter.getDeferredFixtureTemplate(
       "vars-in-deferred-node.jinja"
@@ -402,7 +399,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itMarksVariablesSetInDeferredBlockAsDeferred() {
     String template = expectedTemplateInterpreter.getDeferredFixtureTemplate(
       "set-in-deferred.jinja"
@@ -444,14 +440,12 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itEagerlyDefersSet() {
     localContext.put("bar", true);
     expectedTemplateInterpreter.assertExpectedOutput("eagerly-defers-set");
   }
 
   @Test
-  @Ignore
   public void itEvaluatesNonEagerSet() {
     expectedTemplateInterpreter.assertExpectedOutput("evaluates-non-eager-set");
     assertThat(
@@ -487,13 +481,11 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersEagerChildScopedVars() {
     expectedTemplateInterpreter.assertExpectedOutput("defers-eager-child-scoped-vars");
   }
 
   @Test
-  @Ignore
   public void itSetsMultipleVarsDeferredInChild() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "sets-multiple-vars-deferred-in-child"
@@ -517,7 +509,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itPrependsSetIfStateChanges() {
     expectedTemplateInterpreter.assertExpectedOutput("prepends-set-if-state-changes");
   }
@@ -725,7 +716,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itWrapsCertainOutputInRaw() {
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
@@ -778,7 +768,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itPreservesValueSetInIf() {
     expectedTemplateInterpreter.assertExpectedOutput("preserves-value-set-in-if");
   }
