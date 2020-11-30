@@ -9,7 +9,6 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.tag.eager.EagerTagFactory;
 import com.hubspot.jinjava.loader.LocationResolver;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
@@ -30,7 +29,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore // TODO remove
 public class EagerTest {
   private JinjavaInterpreter interpreter;
   private final Jinjava jinjava = new Jinjava();
@@ -113,14 +111,14 @@ public class EagerTest {
 
   @Test
   public void itDefersSimpleExpressions() {
-    String output = interpreter.render("a {{deferred}} b");
+    String output = interpreter.render("a {{ deferred }} b");
     assertThat(output).isEqualTo("a {{ deferred }} b");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
   @Test
   public void itDefersWholeNestedExpressions() {
-    String output = interpreter.render("a {{deferred.nested}} b");
+    String output = interpreter.render("a {{ deferred.nested }} b");
     assertThat(output).isEqualTo("a {{ deferred.nested }} b");
     assertThat(interpreter.getErrors()).isEmpty();
   }
@@ -133,6 +131,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itPreservesIfTag() {
     String output = interpreter.render(
       "{% if deferred %}{{resolved}}{% else %}b{% endif %}"
@@ -142,6 +141,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itEagerlyResolvesNestedIfTag() {
     String output = interpreter.render(
       "{% if deferred %}{% if resolved %}{{resolved}}{% endif %}{% else %}b{% endif %}"
@@ -187,6 +187,7 @@ public class EagerTest {
 
   @Test
   @SuppressWarnings("unchecked")
+  @Ignore
   public void itDoesNotResolveForTagDeferredBlockInside() {
     String output = interpreter.render(
       "{% for item in dict %}{% if item == deferred %} equal {% else %} not equal {% endif %}{% endfor %}"
@@ -249,6 +250,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itPreservesForTag() {
     String output = interpreter.render(
       "{% for item in deferred %}{{ item.name }}last{% endfor %}"
@@ -280,6 +282,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itDefersMacro() {
     localContext.put("padding", 0);
     localContext.put("added_padding", 10);
@@ -302,6 +305,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itDefersAllVariablesUsedInDeferredNode() {
     String template = expectedTemplateInterpreter.getDeferredFixtureTemplate(
       "vars-in-deferred-node.jinja"
@@ -335,6 +339,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itDefersVariablesComparedAgainstDeferredVals() {
     String template = "";
     template += "{% set testVar = 'testvalue' %}";
@@ -397,6 +402,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itMarksVariablesSetInDeferredBlockAsDeferred() {
     String template = expectedTemplateInterpreter.getDeferredFixtureTemplate(
       "set-in-deferred.jinja"
@@ -438,12 +444,14 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itEagerlyDefersSet() {
     localContext.put("bar", true);
     expectedTemplateInterpreter.assertExpectedOutput("eagerly-defers-set");
   }
 
   @Test
+  @Ignore
   public void itEvaluatesNonEagerSet() {
     expectedTemplateInterpreter.assertExpectedOutput("evaluates-non-eager-set");
     assertThat(
@@ -465,11 +473,13 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itDefersOnImmutableMode() {
     expectedTemplateInterpreter.assertExpectedOutput("defers-on-immutable-mode");
   }
 
   @Test
+  @Ignore
   public void itDoesntAffectParentFromEagerIf() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "doesnt-affect-parent-from-eager-if"
@@ -477,11 +487,13 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itDefersEagerChildScopedVars() {
     expectedTemplateInterpreter.assertExpectedOutput("defers-eager-child-scoped-vars");
   }
 
   @Test
+  @Ignore
   public void itSetsMultipleVarsDeferredInChild() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "sets-multiple-vars-deferred-in-child"
@@ -497,6 +509,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itDoesntDoubleAppendInDeferredTag() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "doesnt-double-append-in-deferred-tag"
@@ -504,11 +517,13 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itPrependsSetIfStateChanges() {
     expectedTemplateInterpreter.assertExpectedOutput("prepends-set-if-state-changes");
   }
 
   @Test
+  @Ignore
   public void itHandlesLoopVarAgainstDeferredInLoop() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "handles-loop-var-against-deferred-in-loop"
@@ -527,6 +542,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itDefersMacroForDoAndPrint() {
     localContext.put("my_list", new PyList(new ArrayList<>()));
     localContext.put("first", 10);
@@ -555,18 +571,21 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itDefersMacroInFor() {
     localContext.put("my_list", new PyList(new ArrayList<>()));
     expectedTemplateInterpreter.assertExpectedOutput("defers-macro-in-for");
   }
 
   @Test
+  @Ignore
   public void itDefersMacroInIf() {
     localContext.put("my_list", new PyList(new ArrayList<>()));
     expectedTemplateInterpreter.assertExpectedOutput("defers-macro-in-if");
   }
 
   @Test
+  @Ignore
   public void itPutsDeferredImportedMacroInOutput() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "puts-deferred-imported-macro-in-output"
@@ -574,6 +593,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itPutsDeferredImportedMacroInOutputSecondPass() {
     localContext.put("deferred", 1);
     expectedTemplateInterpreter.assertExpectedOutput(
@@ -585,6 +605,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itPutsDeferredFromedMacroInOutput() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "puts-deferred-fromed-macro-in-output"
@@ -592,6 +613,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itEagerlyDefersMacro() {
     localContext.put("foo", "I am foo");
     localContext.put("bar", "I am bar");
@@ -608,11 +630,13 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itLoadsImportedMacroSyntax() {
     expectedTemplateInterpreter.assertExpectedOutput("loads-imported-macro-syntax");
   }
 
   @Test
+  @Ignore
   public void itDefersCaller() {
     expectedTemplateInterpreter.assertExpectedOutput("defers-caller");
   }
@@ -625,6 +649,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itDefersMacroInExpression() {
     expectedTemplateInterpreter.assertExpectedOutput("defers-macro-in-expression");
   }
@@ -642,16 +667,19 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itHandlesDeferredInIfchanged() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-in-ifchanged");
   }
 
   @Test
+  @Ignore
   public void itDefersIfchanged() {
     expectedTemplateInterpreter.assertExpectedOutput("defers-ifchanged");
   }
 
   @Test
+  @Ignore
   public void itHandlesCycleInDeferredFor() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-cycle-in-deferred-for");
   }
@@ -668,11 +696,13 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itHandlesDeferredInCycle() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-in-cycle");
   }
 
   @Test
+  @Ignore
   public void itHandlesDeferredCycleAs() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-cycle-as");
   }
@@ -697,12 +727,14 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itHandlesAutoEscape() {
     localContext.put("myvar", "foo < bar");
     expectedTemplateInterpreter.assertExpectedOutput("handles-auto-escape");
   }
 
   @Test
+  @Ignore
   public void itWrapsCertainOutputInRaw() {
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
@@ -727,11 +759,13 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itHandlesDeferredImportVars() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-import-vars");
   }
 
   @Test
+  @Ignore
   public void itHandlesDeferredImportVarsSecondPass() {
     localContext.put("deferred", 1);
     expectedTemplateInterpreter.assertExpectedOutput(
@@ -740,6 +774,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itHandlesDeferredFromImportAs() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-from-import-as");
   }
@@ -753,6 +788,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itPreservesValueSetInIf() {
     expectedTemplateInterpreter.assertExpectedOutput("preserves-value-set-in-if");
   }
