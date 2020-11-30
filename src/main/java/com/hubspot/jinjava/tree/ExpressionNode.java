@@ -17,6 +17,7 @@ package com.hubspot.jinjava.tree;
 
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.expression.DefaultExpressionStrategy;
 import com.hubspot.jinjava.lib.expression.ExpressionStrategy;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
@@ -27,6 +28,12 @@ public class ExpressionNode extends Node {
 
   private final ExpressionStrategy expressionStrategy;
   private final ExpressionToken master;
+
+  public ExpressionNode(ExpressionToken token) {
+    super(token, token.getLineNumber(), token.getStartPosition());
+    this.expressionStrategy = new DefaultExpressionStrategy();
+    master = token;
+  }
 
   public ExpressionNode(ExpressionStrategy expressionStrategy, ExpressionToken token) {
     super(token, token.getLineNumber(), token.getStartPosition());

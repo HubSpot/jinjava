@@ -154,10 +154,6 @@ public class MacroFunction extends AbstractCallableMethod {
     return caller;
   }
 
-  public Context getLocalContextScope() {
-    return localContextScope;
-  }
-
   public String reconstructImage() {
     if (content != null && !content.isEmpty()) {
       return content.get(0).getParent().reconstructImage();

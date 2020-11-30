@@ -146,6 +146,17 @@ public class ExpressionResolver {
       } else if (
         e.getCause() != null && e.getCause() instanceof CollectionTooBigException
       ) {
+        interpreter.addError(
+          new TemplateError(
+            ErrorType.FATAL,
+            ErrorReason.COLLECTION_TOO_BIG,
+            e.getCause().getMessage(),
+            null,
+            interpreter.getLineNumber(),
+            interpreter.getPosition(),
+            e
+          )
+        );
         // rethrow because this is a hard limit and it will likely only happen in loops that we need to terminate
         throw e;
       } else if (
