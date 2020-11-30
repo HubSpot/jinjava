@@ -1,10 +1,12 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.ChunkResolver;
 import java.util.StringJoiner;
+import org.apache.commons.lang3.StringUtils;
 
 public class EagerDoTag extends EagerStateChangingTag<DoTag> {
 
@@ -19,6 +21,13 @@ public class EagerDoTag extends EagerStateChangingTag<DoTag> {
   @Override
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
     String expr = tagToken.getHelpers();
+    if (StringUtils.isBlank(expr)) {
+      throw new TemplateSyntaxException(
+        interpreter,
+        tagToken.getImage(),
+        "Tag 'print' expects expression"
+      );
+    }
     ChunkResolver chunkResolver = new ChunkResolver(expr, tagToken, interpreter);
     EagerStringResult resolvedExpression = executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),

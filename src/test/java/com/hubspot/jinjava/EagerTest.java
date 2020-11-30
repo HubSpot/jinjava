@@ -505,7 +505,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDoesntDoubleAppendInDeferredTag() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "doesnt-double-append-in-deferred-tag"
@@ -536,7 +535,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersMacroForDoAndPrint() {
     localContext.put("my_list", new PyList(new ArrayList<>()));
     localContext.put("first", 10);
@@ -572,7 +570,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersMacroInIf() {
     localContext.put("my_list", new PyList(new ArrayList<>()));
     expectedTemplateInterpreter.assertExpectedOutput("defers-macro-in-if");

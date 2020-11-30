@@ -2,7 +2,6 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.Maps;
 import com.hubspot.jinjava.ExpectedNodeInterpreter;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -53,6 +52,6 @@ public class EagerDoTagTest extends DoTagTest {
   @Override
   public void itResolvesExpressions() {
     String template = "{% set output = [] %}{% do output.append('hey') %}{{ output }}";
-    assertThat(jinjava.render(template, Maps.newHashMap())).isEqualTo("['hey']");
+    assertThat(interpreter.render(template)).isEqualTo("['hey']");
   }
 }
