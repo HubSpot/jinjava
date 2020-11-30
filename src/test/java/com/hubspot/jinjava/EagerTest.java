@@ -669,7 +669,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itHandlesCycleInDeferredFor() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-cycle-in-deferred-for");
   }
@@ -686,13 +685,12 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itHandlesDeferredInCycle() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-in-cycle");
   }
 
   @Test
-  @Ignore
+  @Ignore // requires EagerIfTag to be idempotent
   public void itHandlesDeferredCycleAs() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-cycle-as");
   }
