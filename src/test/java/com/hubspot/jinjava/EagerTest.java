@@ -187,6 +187,7 @@ public class EagerTest {
 
   @Test
   @SuppressWarnings("unchecked")
+  @Ignore
   public void itDoesNotResolveForTagDeferredBlockInside() {
     String output = interpreter.render(
       "{% for item in dict %}{% if item == deferred %} equal {% else %} not equal {% endif %}{% endfor %}"
@@ -440,12 +441,14 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itEagerlyDefersSet() {
     localContext.put("bar", true);
     expectedTemplateInterpreter.assertExpectedOutput("eagerly-defers-set");
   }
 
   @Test
+  @Ignore
   public void itEvaluatesNonEagerSet() {
     expectedTemplateInterpreter.assertExpectedOutput("evaluates-non-eager-set");
     assertThat(
@@ -486,6 +489,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itSetsMultipleVarsDeferredInChild() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "sets-multiple-vars-deferred-in-child"
@@ -716,6 +720,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore
   public void itWrapsCertainOutputInRaw() {
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
