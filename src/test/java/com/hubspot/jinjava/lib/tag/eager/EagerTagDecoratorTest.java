@@ -75,7 +75,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     String image = "{% macro foo(bar) %}something{% endmacro %}";
     MacroFunction mockMacroFunction = getMockMacroFunction(image);
     context.addGlobalMacro(mockMacroFunction);
-    String result = EagerTagDecorator.getNewlyDeferredFunctionImages(
+    String result = EagerTagDecorator.reconstructForNewlyDeferred(
       deferredWords,
       interpreter
     );
@@ -91,7 +91,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     MacroFunction mockMacroFunction = getMockMacroFunction(image);
     Map<String, Object> localAlias = new PyMap(ImmutableMap.of("foo", mockMacroFunction));
     context.put("local", localAlias);
-    String result = EagerTagDecorator.getNewlyDeferredFunctionImages(
+    String result = EagerTagDecorator.reconstructForNewlyDeferred(
       deferredWords,
       interpreter
     );

@@ -73,7 +73,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       return new EagerStringResult(result, prefixToPreserveState.toString());
     }
     prefixToPreserveState.append(
-      EagerTagDecorator.getNewlyDeferredFunctionImages(
+      EagerTagDecorator.reconstructForNewlyDeferred(
         chunkResolver.getDeferredWords(),
         interpreter
       )

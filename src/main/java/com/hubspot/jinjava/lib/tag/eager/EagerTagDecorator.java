@@ -214,6 +214,44 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     return new EagerStringResult(result.toString());
   }
 
+  public static String reconstructForNewlyDeferred(
+    Set<String> deferredWords,
+    JinjavaInterpreter interpreter
+  ) {
+    return (
+      getNewlyDeferredFunctionImages(deferredWords, interpreter) +
+      setNewlyDeferredVariables(deferredWords, interpreter)
+    );
+  }
+
+  private static String setNewlyDeferredVariables(
+    Set<String> deferredWords,
+    JinjavaInterpreter interpreter
+  ) {
+    Map<String, String> deferredMap = new HashMap<>();
+    deferredWords
+      .stream()
+      .map(w -> w.split("\\.", 2)[0])
+      .filter(
+        w ->
+          interpreter.getContext().containsKey(w) &&
+          !(interpreter.getContext().get(w) instanceof DeferredValue)
+      )
+      .forEach(
+        w -> {
+          try {
+            deferredMap.put(
+              w,
+              ChunkResolver.getValueAsJinjavaString(interpreter.getContext().get(w))
+            );
+          } catch (JsonProcessingException ignored) {}
+        }
+      );
+    String result = buildSetTagForDeferredInChildContext(deferredMap, interpreter, true);
+    deferredWords.removeAll(deferredMap.keySet());
+    return result;
+  }
+
   /**
    * Build macro tag images for any macro functions that are included in deferredWords
    * and remove those macro functions from the deferredWords set.
@@ -225,11 +263,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    * @return A jinjava-syntax string that is the images of any macro functions that must
    *  be evaluated at a later time.
    */
-  public static String getNewlyDeferredFunctionImages(
+  private static String getNewlyDeferredFunctionImages(
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
-    // TODO reconstructForNewlyDeferred() -> this + set words on context
     Set<String> toRemove = new HashSet<>();
     Map<String, MacroFunction> macroFunctions = deferredWords
       .stream()
@@ -284,6 +321,9 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     JinjavaInterpreter interpreter,
     boolean registerEagerToken
   ) {
+    if (deferredValuesToSet.size() == 0) {
+      return "";
+    }
     if (
       interpreter.getConfig().getDisabled().containsKey(Library.TAG) &&
       interpreter.getConfig().getDisabled().get(Library.TAG).contains(SetTag.TAG_NAME)
