@@ -427,7 +427,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       joiner.add(resolvedChunks);
     }
     joiner.add(tagToken.getSymbols().getExpressionEndWithTag());
-    String newlyDeferredFunctionImages = reconstructMacroFunctionsBeforeDeferring(
+    String reconstructedFromContext = reconstructFromContextBeforeDeferring(
       chunkResolver.getDeferredWords(),
       interpreter
     );
@@ -446,7 +446,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         )
       );
 
-    return (newlyDeferredFunctionImages + joiner.toString());
+    return (reconstructedFromContext + joiner.toString());
   }
 
   public static String reconstructEnd(TagNode tagNode) {
