@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
-import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
@@ -75,7 +74,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     String image = "{% macro foo(bar) %}something{% endmacro %}";
     MacroFunction mockMacroFunction = getMockMacroFunction(image);
     context.addGlobalMacro(mockMacroFunction);
-    String result = EagerTagDecorator.reconstructForNewlyDeferred(
+    String result = EagerTagDecorator.reconstructFromContextBeforeDeferring(
       deferredWords,
       interpreter
     );
@@ -91,7 +90,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     MacroFunction mockMacroFunction = getMockMacroFunction(image);
     Map<String, Object> localAlias = new PyMap(ImmutableMap.of("foo", mockMacroFunction));
     context.put("local", localAlias);
-    String result = EagerTagDecorator.reconstructForNewlyDeferred(
+    String result = EagerTagDecorator.reconstructFromContextBeforeDeferring(
       deferredWords,
       interpreter
     );
