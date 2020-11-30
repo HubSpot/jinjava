@@ -284,6 +284,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       )
       .map(EagerStringResult::toString)
       .collect(Collectors.joining());
+    // Remove macro functions from the set because they've been fully processed now.
     deferredWords.removeAll(toRemove);
     return result;
   }
@@ -314,9 +315,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           } catch (JsonProcessingException ignored) {}
         }
       );
-    String result = buildSetTagForDeferredInChildContext(deferredMap, interpreter, true);
-    deferredWords.removeAll(deferredMap.keySet());
-    return result;
+    return buildSetTagForDeferredInChildContext(deferredMap, interpreter, true);
   }
 
   /**
