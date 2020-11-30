@@ -717,7 +717,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itWrapsCertainOutputInRaw() {
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
