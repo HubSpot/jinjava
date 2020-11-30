@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -221,6 +222,27 @@ public class Context extends ScopeMap<String, Object> {
 
   public boolean isGlobalMacro(String identifier) {
     return getGlobalMacro(identifier) != null;
+  }
+
+  public Optional<MacroFunction> getLocalMacro(String fullName) {
+    String[] nameArray = fullName.split("\\.", 2);
+    if (nameArray.length != 2) {
+      return Optional.empty();
+    }
+    String localKey = nameArray[0];
+    String macroName = nameArray[1];
+    Object localValue = get(localKey);
+    if (localValue instanceof DeferredValue) {
+      localValue = ((DeferredValue) localValue).getOriginalValue();
+    }
+    if (!(localValue instanceof Map)) {
+      return Optional.empty();
+    }
+    Object possibleMacroFunction = ((Map<String, Object>) localValue).get(macroName);
+    if (possibleMacroFunction instanceof MacroFunction) {
+      return Optional.of((MacroFunction) possibleMacroFunction);
+    }
+    return Optional.empty();
   }
 
   public boolean isAutoEscape() {

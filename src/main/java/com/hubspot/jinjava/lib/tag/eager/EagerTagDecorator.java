@@ -4,6 +4,7 @@ import static com.hubspot.jinjava.interpret.Context.GLOBAL_MACROS_SCOPE_KEY;
 import static com.hubspot.jinjava.interpret.Context.IMPORT_RESOURCE_PATH_KEY;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -11,6 +12,8 @@ import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.AutoEscapeTag;
 import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
@@ -22,8 +25,10 @@ import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.util.ChunkResolver;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
@@ -224,7 +229,41 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
-    return ""; // TODO un-stub
+    Set<String> toRemove = new HashSet<>();
+    Map<String, MacroFunction> macroFunctions = deferredWords
+      .stream()
+      .filter(w -> !interpreter.getContext().containsKey(w))
+      .map(w -> interpreter.getContext().getGlobalMacro(w))
+      .filter(Objects::nonNull)
+      .collect(Collectors.toMap(AbstractCallableMethod::getName, Function.identity()));
+    for (String word : deferredWords) {
+      if (word.contains(".")) {
+        interpreter
+          .getContext()
+          .getLocalMacro(word)
+          .ifPresent(macroFunction -> macroFunctions.put(word, macroFunction));
+      }
+    }
+
+    String result = macroFunctions
+      .entrySet()
+      .stream()
+      .peek(entry -> toRemove.add(entry.getKey()))
+      .peek(entry -> entry.getValue().setDeferred(true))
+      .map(
+        entry ->
+          executeInChildContext(
+            eagerInterpreter ->
+              new EagerMacroFunction(entry.getKey(), entry.getValue(), interpreter)
+              .reconstructImage(),
+            interpreter,
+            false
+          )
+      )
+      .map(EagerStringResult::toString)
+      .collect(Collectors.joining());
+    deferredWords.removeAll(toRemove);
+    return result;
   }
 
   /**
