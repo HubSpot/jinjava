@@ -19,7 +19,6 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
   @SuppressWarnings("unchecked")
   @Override
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
-    List<String> values = null;
     HelperStringTokenizer tk = new HelperStringTokenizer(tagToken.getHelpers());
 
     List<String> helper = tk.allTokens();
@@ -39,7 +38,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
         : ""
     );
     HelperStringTokenizer items = new HelperStringTokenizer(expression).splitComma(true);
-    values = items.allTokens();
+    List<String> values = items.allTokens();
     if (!chunkResolver.getDeferredWords().isEmpty()) {
       prefixToPreserveState.append(
         reconstructFromContextBeforeDeferring(
@@ -152,6 +151,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     String tokenEnd = tagToken.getSymbols().getExpressionEndWithTag();
     return (
       String.format("%s if %s is iterable %s", tokenStart, var, tokenEnd) +
+      // modulo indexing
       String.format("{{ %s[%d %% %s|length] }}", var, forIndex, var) +
       String.format("%s else %s", tokenStart, tokenEnd) +
       String.format("{{ %s }}", var) +
