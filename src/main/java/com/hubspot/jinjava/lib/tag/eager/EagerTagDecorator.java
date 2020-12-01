@@ -11,6 +11,8 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
@@ -23,6 +25,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.util.ChunkResolver;
+import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,7 +54,17 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     try {
       return tag.interpret(tagNode, interpreter);
     } catch (DeferredValueException | TemplateSyntaxException e) {
-      return wrapInAutoEscapeIfNeeded(eagerInterpret(tagNode, interpreter), interpreter);
+      try {
+        return wrapInAutoEscapeIfNeeded(
+          eagerInterpret(tagNode, interpreter),
+          interpreter
+        );
+      } catch (OutputTooBigException e1) {
+        interpreter.addError(TemplateError.fromOutputTooBigException(e));
+        throw new DeferredValueException(
+          String.format("Output too big for eager execution: %s", e1.getMessage())
+        );
+      }
     }
   }
 
@@ -79,7 +92,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    * @return The string result of performing an eager interpretation of the TagNode
    */
   public String eagerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    StringBuilder result = new StringBuilder(
+    LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
+      interpreter.getConfig().getMaxOutputSize()
+    );
+    result.append(
       executeInChildContext(
           eagerInterpreter ->
             getEagerImage(tagNode.getMaster(), eagerInterpreter) +
@@ -104,7 +120,9 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    * @return
    */
   public String renderChildren(TagNode tagNode, JinjavaInterpreter interpreter) {
-    StringBuilder sb = new StringBuilder();
+    LengthLimitingStringBuilder sb = new LengthLimitingStringBuilder(
+      interpreter.getConfig().getMaxStringLength()
+    );
     for (Node child : tagNode.getChildren()) {
       sb.append(child.render(interpreter).getValue());
     }
