@@ -31,4 +31,9 @@ public class LengthLimitingStringJoiner {
     joiner.add(newElement);
     return this;
   }
+
+  @Override
+  public String toString() {
+    return joiner.toString();
+  }
 }

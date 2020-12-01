@@ -21,11 +21,13 @@ import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
+import com.hubspot.jinjava.tree.parse.TagToken;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +58,11 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     eagerTagDecorator = new EagerGenericTag<>(mockTag);
 
     JinjavaInterpreter.pushCurrent(interpreter);
+  }
+
+  @After
+  public void teardown() {
+    JinjavaInterpreter.popCurrent();
   }
 
   @Test
@@ -178,6 +185,24 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itLimitsSetTagConstruction() {
+    StringBuilder tooLong = new StringBuilder();
+    for (int i = 0; i < MAX_OUTPUT_SIZE; i++) {
+      tooLong.append(i);
+    }
+    Map<String, String> deferredValuesToSet = ImmutableMap.of("foo", tooLong.toString());
+    assertThatThrownBy(
+        () ->
+          EagerTagDecorator.buildSetTagForDeferredInChildContext(
+            deferredValuesToSet,
+            interpreter,
+            true
+          )
+      )
+      .isInstanceOf(OutputTooBigException.class);
+  }
+
+  @Test
   public void itWrapsInRawTag() {
     String toWrap = "{{ foo }}";
     JinjavaConfig preserveRawConfig = JinjavaConfig
@@ -293,6 +318,18 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     assertThat(interpreter.getErrors()).hasSize(1);
     assertThat(interpreter.getErrors().get(0).getReason())
       .isEqualTo(ErrorReason.OUTPUT_TOO_BIG);
+  }
+
+  @Test
+  public void itLimitsTagLength() {
+    TagNode tagNode = (TagNode) (
+      interpreter.parse("{% print range(0, 50) %}").getChildren().get(0)
+    );
+    assertThatThrownBy(
+        () ->
+          eagerTagDecorator.getEagerTagImage((TagToken) tagNode.getMaster(), interpreter)
+      )
+      .isInstanceOf(OutputTooBigException.class);
   }
 
   private static MacroFunction getMockMacroFunction(String image) {

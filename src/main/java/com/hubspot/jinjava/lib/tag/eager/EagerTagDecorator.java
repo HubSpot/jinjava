@@ -316,7 +316,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         values.add(value);
       }
     );
-    StringJoiner result = new StringJoiner(" ");
+    LengthLimitingStringJoiner result = new LengthLimitingStringJoiner(
+      interpreter.getConfig().getMaxOutputSize(),
+      " "
+    );
     result
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
       .add(SetTag.TAG_NAME)
