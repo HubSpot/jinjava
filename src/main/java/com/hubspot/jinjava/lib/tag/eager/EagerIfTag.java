@@ -53,11 +53,12 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
 
   @Override
   public String renderChildren(TagNode tagNode, JinjavaInterpreter interpreter) {
-    // If the branch is impossible, it should be removed
+    // If the branch is impossible, it should be removed.
     boolean definitelyDrop = shouldDropBranch(tagNode, interpreter);
-    // If the branch would definitely get executed, change it to and else
-    // and drop subsequent branches.
-    // We know this has to be false otherwise IfTag would have chosen the first branch.
+    // If an ("elseif") branch would definitely get executed,
+    // change it to an "else" tag and drop all the subsequent branches.
+    // We know this has to start as false otherwise IfTag would have chosen
+    // the first branch.
     boolean definitelyExecuted = false;
     StringBuilder sb = new StringBuilder();
     for (Node child : tagNode.getChildren()) {
