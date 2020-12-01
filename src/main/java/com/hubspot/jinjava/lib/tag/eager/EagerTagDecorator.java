@@ -26,6 +26,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.util.ChunkResolver;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
+import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -373,7 +374,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    *  resolved than in the original {@link TagToken#getImage()}.
    */
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
-    StringJoiner joiner = new StringJoiner(" ");
+    LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
+      interpreter.getConfig().getMaxOutputSize(),
+      " "
+    );
     joiner
       .add(tagToken.getSymbols().getExpressionStartWithTag())
       .add(tagToken.getTagName());
