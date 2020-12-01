@@ -708,10 +708,10 @@ public class EagerTest {
 
   @Test
   public void itHandlesNonDeferringCycles() {
+    expectedTemplateInterpreter.assertExpectedOutput("handles-non-deferring-cycles");
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "handles-non-deferring-cycles"
     );
-    expectedTemplateInterpreter.assertExpectedOutput("handles-non-deferring-cycles");
   }
 
   @Test

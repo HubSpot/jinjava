@@ -87,8 +87,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     ChunkResolver chunkResolver,
     String resolvedExpression
   ) {
-    String var;
-    var = helper.get(2);
+    String var = helper.get(2);
     if (!chunkResolver.getDeferredWords().isEmpty()) {
       return EagerTagDecorator.buildSetTagForDeferredInChildContext(
         ImmutableMap.of(var, String.format("[%s]", resolvedExpression)),
@@ -107,7 +106,6 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     ChunkResolver chunkResolver,
     String resolvedExpression
   ) {
-    String var;
     if (interpreter.getContext().isProtectedMode()) {
       return reconstructCycleTag(resolvedExpression, tagToken);
     }
@@ -120,7 +118,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       forindex = 0;
     }
     if (values.size() == 1) {
-      var = values.get(0);
+      String var = values.get(0);
       if (!chunkResolver.getDeferredWords().isEmpty()) {
         return getIsIterable(var, forindex, tagToken);
       } else {
