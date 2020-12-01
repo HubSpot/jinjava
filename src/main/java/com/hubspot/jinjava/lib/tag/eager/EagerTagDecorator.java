@@ -120,9 +120,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    * @return
    */
   public String renderChildren(TagNode tagNode, JinjavaInterpreter interpreter) {
-    LengthLimitingStringBuilder sb = new LengthLimitingStringBuilder(
-      interpreter.getConfig().getMaxStringLength()
-    );
+    StringBuilder sb = new StringBuilder();
     for (Node child : tagNode.getChildren()) {
       sb.append(child.render(interpreter).getValue());
     }
