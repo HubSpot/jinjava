@@ -9,6 +9,7 @@ import com.hubspot.jinjava.lib.tag.ElseIfTag;
 import com.hubspot.jinjava.lib.tag.ElseTag;
 import com.hubspot.jinjava.lib.tag.EndTag;
 import com.hubspot.jinjava.lib.tag.PrintTag;
+import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import java.util.Map;
@@ -29,6 +30,7 @@ public class EagerTagFactory {
     .add(EndTag.class)
     .add(ElseIfTag.class)
     .add(ElseTag.class)
+    .add(RawTag.class)
     .build();
 
   @SuppressWarnings("unchecked")

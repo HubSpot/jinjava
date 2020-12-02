@@ -4,9 +4,7 @@ import com.hubspot.jinjava.ExpectedTemplateInterpreter;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.tag.ExtendsTag;
 import com.hubspot.jinjava.lib.tag.ExtendsTagTest;
-import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import java.io.IOException;
 import org.junit.After;
@@ -25,8 +23,6 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
         context,
         JinjavaConfig.newBuilder().withExecutionMode(new EagerExecutionMode()).build()
       );
-    Tag tag = EagerTagFactory.getEagerTagDecorator(ExtendsTag.class).get();
-    context.registerTag(tag);
     context.put("deferred", DeferredValue.instance());
     expectedTemplateInterpreter =
       new ExpectedTemplateInterpreter(jinjava, interpreter, "tags/eager/extendstag");

@@ -9,7 +9,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.IncludeTagTest;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
@@ -27,12 +26,6 @@ public class EagerIncludeTagTest extends IncludeTagTest {
         context,
         JinjavaConfig.newBuilder().withExecutionMode(new EagerExecutionMode()).build()
       );
-    context
-      .getAllTags()
-      .stream()
-      .map(tag -> EagerTagFactory.getEagerTagDecorator(tag.getClass()))
-      .filter(Optional::isPresent)
-      .forEach(maybeEagerTag -> context.registerTag(maybeEagerTag.get()));
     context.put("deferred", DeferredValue.instance());
     expectedTemplateInterpreter =
       new ExpectedTemplateInterpreter(jinjava, interpreter, "tags/eager/includetag");
