@@ -3,6 +3,8 @@ package com.hubspot.jinjava.lib.tag.eager;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.lib.tag.DoTag;
+import com.hubspot.jinjava.lib.tag.FromTag;
+import com.hubspot.jinjava.lib.tag.ImportTag;
 import com.hubspot.jinjava.lib.tag.PrintTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.Tag;
@@ -15,6 +17,8 @@ public class EagerTagFactory {
     .put(SetTag.class, EagerSetTag.class)
     .put(DoTag.class, EagerDoTag.class)
     .put(PrintTag.class, EagerPrintTag.class)
+    .put(FromTag.class, EagerFromTag.class)
+    .put(ImportTag.class, EagerImportTag.class)
     .build();
 
   @SuppressWarnings("unchecked")
