@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hubspot.jinjava.lib.tag.IncludeTag;
 import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import java.util.Optional;
@@ -33,7 +34,7 @@ public class EagerTagFactoryTest {
 
   @Test
   public void itGetsEagerTagDecoratorForNonOverride() {
-    Class<? extends Tag> clazz = RawTag.class;
+    Class<? extends Tag> clazz = IncludeTag.class;
     Optional<? extends EagerTagDecorator<? extends Tag>> maybeEagerGenericTag = EagerTagFactory.getEagerTagDecorator(
       clazz
     );
