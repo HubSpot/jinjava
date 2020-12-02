@@ -61,7 +61,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           interpreter
         );
       } catch (OutputTooBigException e1) {
-        interpreter.addError(TemplateError.fromOutputTooBigException(e));
+        interpreter.addError(TemplateError.fromOutputTooBigException(e1));
         throw new DeferredValueException(
           String.format("Output too big for eager execution: %s", e1.getMessage())
         );
