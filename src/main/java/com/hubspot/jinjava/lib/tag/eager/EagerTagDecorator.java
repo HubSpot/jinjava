@@ -147,7 +147,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           !e.getKey().equals(GLOBAL_MACROS_SCOPE_KEY) &&
           !e.getKey().equals(IMPORT_RESOURCE_PATH_KEY)
       )
-      .filter(e -> !(e.getValue() instanceof DeferredValue))
+      .filter(e -> !(e.getValue() instanceof DeferredValue) && e.getValue() != null)
       .forEach(
         entry -> {
           initiallyResolvedHashes.put(entry.getKey(), entry.getValue().hashCode());
