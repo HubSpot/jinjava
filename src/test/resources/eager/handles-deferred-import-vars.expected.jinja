@@ -4,8 +4,8 @@
 
 foo: {% macro foo() %}Hello {{ myname }}{% endmacro %}{{ foo() }}
 bar: {{ bar }}
----{% set myname = deferred + 7 %}{% set simple = {} %}
-{% do simple.update({'bar': myname + 19}) %}
+---{% set myname = deferred + 7 %}
+{% set simple = {} %}{% do simple.update({'bar': myname + 19}) %}
 {% macro foo() %}Hello {{ myname }}{% endmacro %}{{ foo() }}
 
 simple.foo: {% macro simple.foo() %}Hello {{ myname }}{% endmacro %}{{ simple.foo() }}
