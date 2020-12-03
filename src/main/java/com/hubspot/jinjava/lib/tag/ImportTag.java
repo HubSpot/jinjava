@@ -19,10 +19,12 @@ import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -71,68 +73,28 @@ public class ImportTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    List<String> helper = new HelperStringTokenizer(tagNode.getHelpers()).allTokens();
-    if (helper.isEmpty()) {
-      throw new TemplateSyntaxException(
-        tagNode.getMaster().getImage(),
-        "Tag 'import' expects 1 helper, was: " + helper.size(),
-        tagNode.getLineNumber(),
-        tagNode.getStartPosition()
-      );
-    }
+    List<String> helper = getHelpers((TagToken) tagNode.getMaster());
 
-    String contextVar = "";
+    String contextVar = getContextVar(helper);
 
-    if (helper.size() > 2 && "as".equals(helper.get(1))) {
-      contextVar = helper.get(2);
-    }
-
-    String path = StringUtils.trimToEmpty(helper.get(0));
-
-    try {
+    Optional<String> maybeTemplateFile = getTemplateFile(
+      helper,
+      (TagToken) tagNode.getMaster(),
       interpreter
-        .getContext()
-        .getImportPathStack()
-        .push(path, tagNode.getLineNumber(), tagNode.getStartPosition());
-    } catch (ImportTagCycleException e) {
-      interpreter.addError(
-        new TemplateError(
-          ErrorType.WARNING,
-          ErrorReason.EXCEPTION,
-          ErrorItem.TAG,
-          "Import cycle detected for path: '" + path + "'",
-          null,
-          tagNode.getLineNumber(),
-          tagNode.getStartPosition(),
-          e,
-          BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
-          ImmutableMap.of("path", path)
-        )
-      );
+    );
+    if (!maybeTemplateFile.isPresent()) {
       return "";
     }
-
-    String templateFile = interpreter.resolveString(
-      path,
-      tagNode.getLineNumber(),
-      tagNode.getStartPosition()
-    );
-    templateFile = interpreter.resolveResourceLocation(templateFile);
-    interpreter.getContext().addDependency("coded_files", templateFile);
+    String templateFile = maybeTemplateFile.get();
     try {
-      interpreter
-        .getContext()
-        .getCurrentPathStack()
-        .push(templateFile, interpreter.getLineNumber(), interpreter.getPosition());
-
-      String template = interpreter.getResource(templateFile);
-      Node node = interpreter.parse(template);
+      Node node = parseTemplateAsNode(interpreter, templateFile);
 
       JinjavaInterpreter child = interpreter
         .getConfig()
         .getInterpreterFactory()
         .newInstance(interpreter);
       child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
+
       JinjavaInterpreter.pushCurrent(child);
 
       try {
@@ -147,59 +109,18 @@ public class ImportTag implements Tag {
 
       // If the template depends on deferred values it should not be rendered and all defined variables and macros should be deferred too
       if (!child.getContext().getDeferredNodes().isEmpty()) {
-        node
-          .getChildren()
-          .forEach(
-            deferredChild -> interpreter.getContext().handleDeferredNode(deferredChild)
-          );
-        if (StringUtils.isBlank(contextVar)) {
-          for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
-            macro.setDeferred(true);
-            interpreter.getContext().addGlobalMacro(macro);
-          }
-          childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-          childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
-          childBindings
-            .keySet()
-            .forEach(key -> interpreter.getContext().put(key, DeferredValue.instance()));
-        } else {
-          for (Map.Entry<String, MacroFunction> macroEntry : child
-            .getContext()
-            .getGlobalMacros()
-            .entrySet()) {
-            MacroFunction macro = macroEntry.getValue();
-            macro.setDeferred(true);
-            childBindings.put(macroEntry.getKey(), macro);
-          }
-          childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-          childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
-          interpreter.getContext().put(contextVar, DeferredValue.instance(childBindings));
-        }
-
-        throw new DeferredValueException(
+        handleDeferredNodesDuringImport(
+          (TagToken) tagNode.getMaster(),
+          node,
+          contextVar,
           templateFile,
-          tagNode.getLineNumber(),
-          tagNode.getStartPosition()
+          childBindings,
+          child,
+          interpreter
         );
       }
 
-      if (StringUtils.isBlank(contextVar)) {
-        for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
-          interpreter.getContext().addGlobalMacro(macro);
-        }
-        childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-        interpreter.getContext().putAll(childBindings);
-      } else {
-        for (Map.Entry<String, MacroFunction> macro : child
-          .getContext()
-          .getGlobalMacros()
-          .entrySet()) {
-          childBindings.put(macro.getKey(), macro.getValue());
-        }
-        childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-        interpreter.getContext().put(contextVar, childBindings);
-      }
-
+      integrateChild(contextVar, childBindings, child, interpreter);
       return "";
     } catch (IOException e) {
       throw new InterpretException(
@@ -211,6 +132,150 @@ public class ImportTag implements Tag {
     } finally {
       interpreter.getContext().getCurrentPathStack().pop();
     }
+  }
+
+  public static void integrateChild(
+    String contextVar,
+    Map<String, Object> childBindings,
+    JinjavaInterpreter child,
+    JinjavaInterpreter parent
+  ) {
+    if (StringUtils.isBlank(contextVar)) {
+      for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
+        parent.getContext().addGlobalMacro(macro);
+      }
+      childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
+      parent.getContext().putAll(childBindings);
+    } else {
+      for (Map.Entry<String, MacroFunction> macro : child
+        .getContext()
+        .getGlobalMacros()
+        .entrySet()) {
+        childBindings.put(macro.getKey(), macro.getValue());
+      }
+      childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
+      parent.getContext().put(contextVar, childBindings);
+    }
+  }
+
+  public static void handleDeferredNodesDuringImport(
+    TagToken tagToken,
+    Node node,
+    String contextVar,
+    String templateFile,
+    Map<String, Object> childBindings,
+    JinjavaInterpreter child,
+    JinjavaInterpreter interpreter
+  ) {
+    node
+      .getChildren()
+      .forEach(
+        deferredChild -> interpreter.getContext().handleDeferredNode(deferredChild)
+      );
+    if (StringUtils.isBlank(contextVar)) {
+      for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
+        macro.setDeferred(true);
+        interpreter.getContext().addGlobalMacro(macro);
+      }
+      childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
+      childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
+      childBindings
+        .keySet()
+        .forEach(key -> interpreter.getContext().put(key, DeferredValue.instance()));
+    } else {
+      for (Map.Entry<String, MacroFunction> macroEntry : child
+        .getContext()
+        .getGlobalMacros()
+        .entrySet()) {
+        MacroFunction macro = macroEntry.getValue();
+        macro.setDeferred(true);
+        childBindings.put(macroEntry.getKey(), macro);
+      }
+      childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
+      childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
+      interpreter.getContext().put(contextVar, DeferredValue.instance(childBindings));
+    }
+
+    throw new DeferredValueException(
+      templateFile,
+      tagToken.getLineNumber(),
+      tagToken.getStartPosition()
+    );
+  }
+
+  public static Node parseTemplateAsNode(
+    JinjavaInterpreter interpreter,
+    String templateFile
+  )
+    throws IOException {
+    interpreter
+      .getContext()
+      .getCurrentPathStack()
+      .push(templateFile, interpreter.getLineNumber(), interpreter.getPosition());
+
+    String template = interpreter.getResource(templateFile);
+    return interpreter.parse(template);
+  }
+
+  public static Optional<String> getTemplateFile(
+    List<String> helper,
+    TagToken tagToken,
+    JinjavaInterpreter interpreter
+  ) {
+    String path = StringUtils.trimToEmpty(helper.get(0));
+    try {
+      interpreter
+        .getContext()
+        .getImportPathStack()
+        .push(path, tagToken.getLineNumber(), tagToken.getStartPosition());
+    } catch (ImportTagCycleException e) {
+      interpreter.addError(
+        new TemplateError(
+          ErrorType.WARNING,
+          ErrorReason.EXCEPTION,
+          ErrorItem.TAG,
+          "Import cycle detected for path: '" + path + "'",
+          null,
+          tagToken.getLineNumber(),
+          tagToken.getStartPosition(),
+          e,
+          BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
+          ImmutableMap.of("path", path)
+        )
+      );
+      return Optional.empty();
+    }
+
+    String templateFile = interpreter.resolveString(
+      path,
+      tagToken.getLineNumber(),
+      tagToken.getStartPosition()
+    );
+    templateFile = interpreter.resolveResourceLocation(templateFile);
+    interpreter.getContext().addDependency("coded_files", templateFile);
+    return Optional.of(templateFile);
+  }
+
+  public static String getContextVar(List<String> helper) {
+    String contextVar = "";
+
+    if (helper.size() > 2 && "as".equals(helper.get(1))) {
+      contextVar = helper.get(2);
+    }
+    return contextVar;
+  }
+
+  public static List<String> getHelpers(TagToken tagToken) {
+    List<String> helper = new HelperStringTokenizer(tagToken.getHelpers()).allTokens();
+    if (helper.isEmpty()) {
+      throw new TemplateSyntaxException(
+        tagToken.getImage(),
+        "Tag 'import' expects 1 helper, was: " + helper.size(),
+        tagToken.getLineNumber(),
+        tagToken.getStartPosition()
+      );
+    }
+    return helper;
   }
 
   @Override
