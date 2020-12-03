@@ -6,9 +6,9 @@ import com.hubspot.jinjava.lib.tag.ForTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.ChunkResolver;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
+import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.HashSet;
 import java.util.List;
-import java.util.StringJoiner;
 
 public class EagerForTag extends EagerTagDecorator<ForTag> {
 
@@ -44,7 +44,10 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       interpreter
     );
 
-    StringJoiner joiner = new StringJoiner(" ");
+    LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
+      interpreter.getConfig().getMaxOutputSize(),
+      " "
+    );
     joiner
       .add(tagToken.getSymbols().getExpressionStartWithTag())
       .add(tagToken.getTagName())

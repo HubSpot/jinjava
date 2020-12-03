@@ -7,6 +7,7 @@ import com.hubspot.jinjava.ExpectedNodeInterpreter;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.lib.tag.ForTagTest;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -16,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class EagerForTagTest extends ForTagTest {
+  private static final long MAX_OUTPUT_SIZE = 5000L;
   private ExpectedNodeInterpreter expectedNodeInterpreter;
 
   @Before
@@ -24,7 +26,11 @@ public class EagerForTagTest extends ForTagTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig.newBuilder().withExecutionMode(new EagerExecutionMode()).build()
+        JinjavaConfig
+          .newBuilder()
+          .withMaxOutputSize(MAX_OUTPUT_SIZE)
+          .withExecutionMode(new EagerExecutionMode())
+          .build()
       );
     tag = new EagerForTag();
     context.registerTag(tag);
@@ -74,5 +80,18 @@ public class EagerForTagTest extends ForTagTest {
   public void itHandlesNestedDeferredForLoop() {
     context.put("food_types", ImmutableList.of("sandwich", "salad", "smoothie"));
     expectedNodeInterpreter.assertExpectedOutput("handles-nested-deferred-for-loop");
+  }
+
+  @Test
+  public void itLimitsLength() {
+    interpreter.render(
+      String.format(
+        "{%% for item in (range(1000, %s)) + deferred %%}{%% endfor %%}",
+        MAX_OUTPUT_SIZE
+      )
+    );
+    assertThat(interpreter.getErrors()).hasSize(1);
+    assertThat(interpreter.getErrors().get(0).getReason())
+      .isEqualTo(ErrorReason.OUTPUT_TOO_BIG);
   }
 }

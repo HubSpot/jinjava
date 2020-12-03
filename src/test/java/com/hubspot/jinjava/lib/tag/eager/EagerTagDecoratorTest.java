@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 import com.google.common.collect.ImmutableList;
@@ -8,18 +9,27 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.lib.tag.Tag;
+import com.hubspot.jinjava.mode.DefaultExecutionMode;
+import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
+import com.hubspot.jinjava.tree.parse.TagToken;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -29,6 +39,32 @@ import org.mockito.junit.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class EagerTagDecoratorTest extends BaseInterpretingTest {
+  private static final long MAX_OUTPUT_SIZE = 50L;
+  private Tag mockTag;
+  private EagerGenericTag<Tag> eagerTagDecorator;
+
+  @Before
+  public void eagerSetup() {
+    interpreter =
+      new JinjavaInterpreter(
+        jinjava,
+        context,
+        JinjavaConfig
+          .newBuilder()
+          .withMaxOutputSize(MAX_OUTPUT_SIZE)
+          .withExecutionMode(new EagerExecutionMode())
+          .build()
+      );
+    mockTag = mock(Tag.class);
+    eagerTagDecorator = new EagerGenericTag<>(mockTag);
+
+    JinjavaInterpreter.pushCurrent(interpreter);
+  }
+
+  @After
+  public void teardown() {
+    JinjavaInterpreter.popCurrent();
+  }
 
   @Test
   public void itExecutesInChildContextAndTakesNewValue() {
@@ -192,6 +228,24 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itLimitsSetTagConstruction() {
+    StringBuilder tooLong = new StringBuilder();
+    for (int i = 0; i < MAX_OUTPUT_SIZE; i++) {
+      tooLong.append(i);
+    }
+    Map<String, String> deferredValuesToSet = ImmutableMap.of("foo", tooLong.toString());
+    assertThatThrownBy(
+        () ->
+          EagerTagDecorator.buildSetTagForDeferredInChildContext(
+            deferredValuesToSet,
+            interpreter,
+            true
+          )
+      )
+      .isInstanceOf(OutputTooBigException.class);
+  }
+
+  @Test
   public void itWrapsInRawTag() {
     String toWrap = "{{ foo }}";
     JinjavaConfig preserveRawConfig = JinjavaConfig
@@ -225,8 +279,17 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
 
   @Test
   public void itDoesntWrapInRawTagForDefaultConfig() {
+    JinjavaConfig defaultConfig = JinjavaConfig
+      .newBuilder()
+      .withExecutionMode(new DefaultExecutionMode())
+      .build();
     String toWrap = "{{ foo }}";
-    assertThat(EagerTagDecorator.wrapInRawIfNeeded(toWrap, interpreter))
+    assertThat(
+        EagerTagDecorator.wrapInRawIfNeeded(
+          toWrap,
+          new JinjavaInterpreter(jinjava, context, defaultConfig)
+        )
+      )
       .isEqualTo(toWrap);
   }
 
@@ -252,6 +315,64 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     assertThat(EagerTagDecorator.reconstructEnd(tagNode)).isEqualTo("{% endif %}");
     tagNode = getMockTagNode("endfor");
     assertThat(EagerTagDecorator.reconstructEnd(tagNode)).isEqualTo("{% endfor %}");
+  }
+
+  @Test
+  public void itDoesntLimitShortString() {
+    String template = "{% raw %}abc{% endraw %}";
+
+    TagNode tagNode = (TagNode) (interpreter.parse(template).getChildren().get(0));
+    assertThat(eagerTagDecorator.eagerInterpret(tagNode, interpreter))
+      .isEqualTo(template);
+    assertThat(interpreter.getErrors()).hasSize(0);
+  }
+
+  @Test
+  public void itLimitsEagerInterpretLength() {
+    StringBuilder tooLong = new StringBuilder();
+    for (int i = 0; i < MAX_OUTPUT_SIZE; i++) {
+      tooLong.append(i);
+    }
+    TagNode tagNode = (TagNode) (
+      interpreter
+        .parse(String.format("{%% raw %%}%s{%% endraw %%}", tooLong.toString()))
+        .getChildren()
+        .get(0)
+    );
+    assertThatThrownBy(() -> eagerTagDecorator.eagerInterpret(tagNode, interpreter))
+      .isInstanceOf(OutputTooBigException.class);
+  }
+
+  @Test
+  public void itLimitsInterpretLength() {
+    when(mockTag.interpret(any(), any())).thenThrow(new DeferredValueException(""));
+    StringBuilder tooLong = new StringBuilder();
+    for (int i = 0; i < MAX_OUTPUT_SIZE; i++) {
+      tooLong.append(i);
+    }
+    TagNode tagNode = (TagNode) (
+      interpreter
+        .parse(String.format("{%% raw %%}%s{%% endraw %%}", tooLong.toString()))
+        .getChildren()
+        .get(0)
+    );
+    assertThatThrownBy(() -> eagerTagDecorator.interpret(tagNode, interpreter))
+      .isInstanceOf(DeferredValueException.class);
+    assertThat(interpreter.getErrors()).hasSize(1);
+    assertThat(interpreter.getErrors().get(0).getReason())
+      .isEqualTo(ErrorReason.OUTPUT_TOO_BIG);
+  }
+
+  @Test
+  public void itLimitsTagLength() {
+    TagNode tagNode = (TagNode) (
+      interpreter.parse("{% print range(0, 50) %}").getChildren().get(0)
+    );
+    assertThatThrownBy(
+        () ->
+          eagerTagDecorator.getEagerTagImage((TagToken) tagNode.getMaster(), interpreter)
+      )
+      .isInstanceOf(OutputTooBigException.class);
   }
 
   private static MacroFunction getMockMacroFunction(String image) {
