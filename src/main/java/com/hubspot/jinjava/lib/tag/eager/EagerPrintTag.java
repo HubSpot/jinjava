@@ -5,6 +5,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.PrintTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.ChunkResolver;
+import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.StringJoiner;
 import org.apache.commons.lang3.StringUtils;
@@ -56,7 +57,10 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
       interpreter,
       true
     );
-    StringJoiner joiner = new StringJoiner(" ");
+    LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
+      interpreter.getConfig().getMaxOutputSize(),
+      " "
+    );
     joiner
       .add(tagToken.getSymbols().getExpressionStartWithTag())
       .add(tagToken.getTagName())
