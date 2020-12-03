@@ -29,6 +29,27 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
         "Tag 'print' expects expression"
       );
     }
+    return interpretExpression(expr, tagToken, interpreter, true);
+  }
+
+  /**
+   * Interprets the expression, which may depend on deferred values.
+   * If the expression can be entirely evaluated, return the result only if
+   * {@code includeExpressionResult} is true.
+   * When the expression depends on deferred values, then reconstruct the tag.
+   * @param expr Expression to interpret.
+   * @param tagToken TagToken which is calling the expression.
+   * @param interpreter The Jinjava interpreter.
+   * @param includeExpressionResult Whether to include the result of the expression in
+   *                                the output.
+   * @return The result of the expression, if requested. OR a reconstruction of the calling tag.
+   */
+  public static String interpretExpression(
+    String expr,
+    TagToken tagToken,
+    JinjavaInterpreter interpreter,
+    boolean includeExpressionResult
+  ) {
     ChunkResolver chunkResolver = new ChunkResolver(expr, tagToken, interpreter);
     EagerStringResult resolvedExpression = executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
@@ -47,12 +68,16 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
         : ""
     );
     if (chunkResolver.getDeferredWords().isEmpty()) {
-      // Possible macro/set tag in front of this one. Includes result
+      // Possible macro/set tag in front of this one.
       return (
         prefixToPreserveState.toString() +
-        wrapInRawIfNeeded(
-          WhitespaceUtils.unquote(resolvedExpression.getResult()),
-          interpreter
+        (
+          includeExpressionResult
+            ? wrapInRawIfNeeded(
+              WhitespaceUtils.unquote(resolvedExpression.getResult()),
+              interpreter
+            )
+            : ""
         )
       );
     }
