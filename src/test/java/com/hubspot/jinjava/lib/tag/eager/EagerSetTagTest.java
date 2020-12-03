@@ -17,7 +17,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class EagerSetTagTest extends SetTagTest {
-  private static final long MAX_OUTPUT_SIZE = 50L;
+  private static final long MAX_OUTPUT_SIZE = 500L;
   private ExpectedNodeInterpreter expectedNodeInterpreter;
 
   @Before
