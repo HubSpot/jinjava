@@ -8,6 +8,7 @@ import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.ChunkResolver;
+import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
@@ -49,7 +50,10 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
       interpreter,
       true
     );
-    StringJoiner joiner = new StringJoiner(" ");
+    LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
+      interpreter.getConfig().getMaxOutputSize(),
+      " "
+    );
     joiner
       .add(tagToken.getSymbols().getExpressionStartWithTag())
       .add(tagToken.getTagName())
@@ -105,7 +109,10 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     TagToken tagToken,
     JinjavaInterpreter interpreter
   ) {
-    StringJoiner joiner = new StringJoiner(" ")
+    LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
+      interpreter.getConfig().getMaxOutputSize(),
+      " "
+    )
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
       .add(DoTag.TAG_NAME);
     List<String> varList = Arrays

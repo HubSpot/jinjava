@@ -6,6 +6,7 @@ import com.hubspot.jinjava.ExpectedNodeInterpreter;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.lib.tag.SetTagTest;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -16,6 +17,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class EagerSetTagTest extends SetTagTest {
+  private static final long MAX_OUTPUT_SIZE = 50L;
   private ExpectedNodeInterpreter expectedNodeInterpreter;
 
   @Before
@@ -24,7 +26,11 @@ public class EagerSetTagTest extends SetTagTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig.newBuilder().withExecutionMode(new EagerExecutionMode()).build()
+        JinjavaConfig
+          .newBuilder()
+          .withMaxOutputSize(MAX_OUTPUT_SIZE)
+          .withExecutionMode(new EagerExecutionMode())
+          .build()
       );
     tag = new EagerSetTag();
     context.registerTag(tag);
@@ -88,6 +94,19 @@ public class EagerSetTagTest extends SetTagTest {
       .containsExactlyInAnyOrder("foo", "foobar");
     assertThat(maybeEagerToken.get().getUsedDeferredWords())
       .containsExactlyInAnyOrder("deferred", "range");
+  }
+
+  @Test
+  public void itLimitsLength() {
+    StringBuilder tooLong = new StringBuilder();
+    for (int i = 0; i < MAX_OUTPUT_SIZE; i++) {
+      tooLong.append(i);
+    }
+    context.setProtectedMode(true);
+    interpreter.render(String.format("{%% set deferred = %s %%}", tooLong));
+    assertThat(interpreter.getErrors()).hasSize(1);
+    assertThat(interpreter.getErrors().get(0).getReason())
+      .isEqualTo(ErrorReason.OUTPUT_TOO_BIG);
   }
 
   @Test
