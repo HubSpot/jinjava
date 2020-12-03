@@ -39,7 +39,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     String variables = tagToken.getHelpers().substring(0, eqPos).trim();
 
     String expression = tagToken.getHelpers().substring(eqPos + 1);
-    if (interpreter.getContext().containsKey(Context.IMPORT_RESOURCE_ALIAS)) {
+    if (interpreter.getContext().containsKey(Context.IMPORT_RESOURCE_ALIAS_KEY)) {
       return interpreter.render(
         convertSetToUpdate(variables, expression, tagToken, interpreter)
       );
@@ -128,7 +128,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     joiner.add(
       String.format(
         "%s.update({%s})",
-        interpreter.getContext().get(Context.IMPORT_RESOURCE_ALIAS),
+        interpreter.getContext().get(Context.IMPORT_RESOURCE_ALIAS_KEY),
         updateString.toString()
       )
     );

@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.Context;
@@ -49,30 +50,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
 
       JinjavaInterpreter.pushCurrent(child);
-      if (!Strings.isNullOrEmpty(contextVar)) {
-        if (interpreter.getContext().containsKey(Context.IMPORT_RESOURCE_ALIAS)) {
-          child
-            .getContext()
-            .getScope()
-            .put(
-              Context.IMPORT_RESOURCE_ALIAS,
-              String.format(
-                "%s.%s",
-                interpreter.getContext().get(Context.IMPORT_RESOURCE_ALIAS),
-                contextVar
-              )
-            );
-        } else {
-          child.getContext().getScope().put(Context.IMPORT_RESOURCE_ALIAS, contextVar);
-        }
-        child
-          .getContext()
-          .getScope()
-          .put(
-            String.valueOf(child.getContext().get(Context.IMPORT_RESOURCE_ALIAS)),
-            new PyMap(new HashMap<>())
-          );
-      }
+      setupImportAlias(contextVar, child, interpreter);
       String output;
       try {
         output = child.render(node);
@@ -96,24 +74,20 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
           interpreter
         );
       }
-
+      Optional<String> maybeImportAlias = child.getContext().getImportResourceAlias();
       integrateChild(contextVar, childBindings, child, interpreter);
       if (child.getContext().getEagerTokens().isEmpty() || output == null) {
         output = "";
-      } else if (child.getContext().containsKey(Context.IMPORT_RESOURCE_ALIAS)) {
+      } else if (maybeImportAlias.isPresent()) {
         // Start it as a new dictionary before output
         output =
           buildSetTagForDeferredInChildContext(
-            ImmutableMap.of(
-              (String) child.getContext().get(Context.IMPORT_RESOURCE_ALIAS),
-              "{}"
-            ),
+            ImmutableMap.of(maybeImportAlias.get(), "{}"),
             interpreter,
             true
           ) +
           output;
       }
-      child.getContext().getScope().remove(Context.IMPORT_RESOURCE_ALIAS);
       return output;
     } catch (IOException e) {
       throw new InterpretException(
@@ -127,7 +101,40 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     }
   }
 
-  private static void integrateChild(
+  @VisibleForTesting
+  public static void setupImportAlias(
+    String contextVar,
+    JinjavaInterpreter child,
+    JinjavaInterpreter parent
+  ) {
+    if (!Strings.isNullOrEmpty(contextVar)) {
+      Optional<String> maybeParentImportAlias = parent
+        .getContext()
+        .getImportResourceAlias();
+      if (maybeParentImportAlias.isPresent()) {
+        child
+          .getContext()
+          .getScope()
+          .put(
+            Context.IMPORT_RESOURCE_ALIAS_KEY,
+            String.format("%s.%s", maybeParentImportAlias.get(), contextVar)
+          );
+      } else {
+        child.getContext().getScope().put(Context.IMPORT_RESOURCE_ALIAS_KEY, contextVar);
+      }
+      child
+        .getContext()
+        .getScope()
+        .put(
+          String.valueOf(child.getContext().get(Context.IMPORT_RESOURCE_ALIAS_KEY)),
+          new PyMap(new HashMap<>())
+        );
+    }
+  }
+
+  @VisibleForTesting
+  @SuppressWarnings("unchecked")
+  public static void integrateChild(
     String contextVar,
     Map<String, Object> childBindings,
     JinjavaInterpreter child,
@@ -140,6 +147,11 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
       parent.getContext().putAll(childBindings);
     } else {
+      // Since we might be multiple layers deep of importing, we need the full name.
+      String fullImportAlias = child
+        .getContext()
+        .getImportResourceAlias()
+        .orElse(contextVar);
       for (Map.Entry<String, MacroFunction> macro : child
         .getContext()
         .getGlobalMacros()
@@ -147,46 +159,114 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         childBindings.put(macro.getKey(), macro.getValue());
       }
 
-      if (childBindings.get(contextVar) instanceof DeferredValue) {
-        flattenDeferredContextVar(contextVar, childBindings);
+      if (childBindings.get(fullImportAlias) instanceof DeferredValue) {
+        flattenDeferredContextVar(fullImportAlias, childBindings);
       } else {
         for (Map.Entry<String, Object> aliasBinding : (
-          (PyMap) childBindings.get(contextVar)
+          (Map<String, Object>) childBindings.get(fullImportAlias)
         ).entrySet()) {
           childBindings.put(aliasBinding.getKey(), aliasBinding.getValue());
         }
       }
-      childBindings.remove(contextVar);
+      childBindings.remove(fullImportAlias);
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-      childBindings.remove(Context.IMPORT_RESOURCE_ALIAS);
+      childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
       putBindingsOnContext(contextVar, childBindings, parent);
     }
   }
 
+  @SuppressWarnings("unchecked")
   private static void putBindingsOnContext(
     String contextVar,
     Map<String, Object> childBindings,
     JinjavaInterpreter parent
   ) {
-    Object parentContextVarValue = parent.getContext().getScope().get(contextVar);
-    if (parentContextVarValue instanceof DeferredValue) {
-      Object originalValue = ((DeferredValue) parentContextVarValue).getOriginalValue();
-      if (originalValue instanceof PyMap) {
-        ((PyMap) originalValue).putAll(childBindings);
-        return;
-      }
+    Optional<String> maybeParentImportAlias = parent
+      .getContext()
+      .getImportResourceAlias();
+    if (maybeParentImportAlias.isPresent()) {
+      putOntoAliasedParentContext(
+        contextVar,
+        childBindings,
+        parent,
+        maybeParentImportAlias.get()
+      );
+    } else {
+      putOntoParentContext(contextVar, childBindings, parent);
     }
-    parent.getContext().put(contextVar, childBindings);
   }
 
+  private static void putOntoParentContext(
+    String contextVar,
+    Map<String, Object> childBindings,
+    JinjavaInterpreter parent
+  ) {
+    Map<String, Object> mapToFlattenOnto;
+    Object existingValueForContextVar = parent.getContext().getScope().get(contextVar);
+    if (existingValueForContextVar instanceof DeferredValue) {
+      Object originalValue =
+        ((DeferredValue) existingValueForContextVar).getOriginalValue();
+      if (originalValue instanceof Map) {
+        mapToFlattenOnto = ((Map<String, Object>) originalValue);
+      } else {
+        mapToFlattenOnto = new PyMap(new HashMap<>());
+        parent.getContext().put(contextVar, DeferredValue.instance(mapToFlattenOnto));
+      }
+    } else {
+      if (existingValueForContextVar == null) {
+        // If it is, make it a new map instead.
+        mapToFlattenOnto = new PyMap(new HashMap<>());
+        parent.getContext().put(contextVar, mapToFlattenOnto);
+      } else {
+        mapToFlattenOnto = ((Map<String, Object>) existingValueForContextVar);
+      }
+    }
+    mapToFlattenOnto.putAll(childBindings);
+  }
+
+  private static void putOntoAliasedParentContext(
+    String contextVar,
+    Map<String, Object> childBindings,
+    JinjavaInterpreter parent,
+    String parentImportAlias
+  ) {
+    Map<String, Object> mapToPutOnDirectly;
+    // More than one level deep
+    Object parentAliasBindings = parent.getContext().get(parentImportAlias);
+    if (parentAliasBindings instanceof DeferredValue) {
+      // This has already been deferred
+      Object originalValue = ((DeferredValue) parentAliasBindings).getOriginalValue();
+      if (originalValue instanceof Map) {
+        // Since the original is a map, we can add the child bindings to it.
+        mapToPutOnDirectly = ((Map<String, Object>) originalValue);
+      } else {
+        // Otherwise we need to make it a map that we can add the child bindings to.
+        mapToPutOnDirectly = new PyMap(new HashMap<>());
+        parent
+          .getContext()
+          .put(parentImportAlias, DeferredValue.instance(mapToPutOnDirectly));
+      }
+    } else {
+      if (parentAliasBindings == null) {
+        // If somehow it's null, make it a new map instead.
+        mapToPutOnDirectly = new PyMap(new HashMap<>());
+        parent.getContext().put(parentImportAlias, mapToPutOnDirectly);
+      } else {
+        mapToPutOnDirectly = ((Map<String, Object>) parentAliasBindings);
+      }
+    }
+    mapToPutOnDirectly.put(contextVar, childBindings);
+  }
+
+  @SuppressWarnings("unchecked")
   private static void flattenDeferredContextVar(
     String contextVar,
     Map<String, Object> childBindings
   ) {
     DeferredValue contextVarMap = (DeferredValue) childBindings.get(contextVar);
-    if (contextVarMap.getOriginalValue() instanceof PyMap) {
+    if (contextVarMap.getOriginalValue() instanceof Map) {
       for (Map.Entry<String, Object> deferredBinding : (
-        (PyMap) contextVarMap.getOriginalValue()
+        (Map<String, Object>) contextVarMap.getOriginalValue()
       ).entrySet()) {
         childBindings.put(
           deferredBinding.getKey(),
