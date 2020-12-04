@@ -100,13 +100,6 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
           buildDoUpdateTag(currentImportAlias, updateString, interpreter)
         )
       );
-      //      return wrapInAutoEscapeIfNeeded(
-      //        prefixToPreserveState.toString() +
-      //        interpreter.render(
-      //          buildDoUpdateTag(currentImportAlias, updateString, interpreter)
-      //        ),
-      //        interpreter
-      //      );
     }
 
     interpreter

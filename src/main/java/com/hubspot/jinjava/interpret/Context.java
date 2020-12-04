@@ -326,16 +326,11 @@ public class Context extends ScopeMap<String, Object> {
 
   public void handleEagerToken(EagerToken eagerToken) {
     eagerTokens.add(eagerToken);
-    Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(this);
+    DeferredValueUtils.findAndMarkDeferredProperties(this);
     if (getParent() != null) {
       Context parent = getParent();
       //Ignore global context
       if (parent.getParent() != null) {
-        //Place deferred values on the parent context
-        //        deferredProps
-        //          .stream()
-        //          .filter(key -> !parent.containsKey(key))
-        //          .forEach(key -> parent.put(key, this.get(key)));
         parent.handleEagerToken(eagerToken);
       }
     }
