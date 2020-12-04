@@ -156,15 +156,9 @@ public class EagerImportTagTest extends ImportTagTest {
       child,
       interpreter
     );
-    // TODO allow only certain keys to be deferred
-    assertThat(interpreter.getContext().get(CONTEXT_VAR))
-      .isInstanceOf(DeferredValue.class);
+    assertThat(interpreter.getContext().get(CONTEXT_VAR)).isInstanceOf(PyMap.class);
     assertThat(
-        (
-          (Map<String, Object>) (
-            (DeferredValue) interpreter.getContext().get(CONTEXT_VAR)
-          ).getOriginalValue()
-        ).get(child2Alias)
+        ((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get(child2Alias)
       )
       .isInstanceOf(DeferredValue.class);
     assertThat(
@@ -172,9 +166,7 @@ public class EagerImportTagTest extends ImportTagTest {
           (
             (Map<String, Object>) (
               (DeferredValue) (
-                (Map<String, Object>) (
-                  (DeferredValue) (interpreter.getContext().get(CONTEXT_VAR))
-                ).getOriginalValue()
+                (Map<String, Object>) (interpreter.getContext().get(CONTEXT_VAR))
               ).get(child2Alias)
             ).getOriginalValue()
           ).get("foo")
@@ -183,13 +175,7 @@ public class EagerImportTagTest extends ImportTagTest {
       .isEqualTo("foo val");
 
     assertThat(
-        (
-          (
-            (Map<String, Object>) (
-              (DeferredValue) interpreter.getContext().get(CONTEXT_VAR)
-            ).getOriginalValue()
-          ).get("bar")
-        )
+        (((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get("bar"))
       )
       .isEqualTo("bar val");
   }
@@ -217,14 +203,9 @@ public class EagerImportTagTest extends ImportTagTest {
       child,
       interpreter
     );
-    assertThat(interpreter.getContext().get(CONTEXT_VAR))
-      .isInstanceOf(DeferredValue.class);
+    assertThat(interpreter.getContext().get(CONTEXT_VAR)).isInstanceOf(PyMap.class);
     assertThat(
-        (
-          (Map<String, Object>) (
-            (DeferredValue) interpreter.getContext().get(CONTEXT_VAR)
-          ).getOriginalValue()
-        ).get(child2Alias)
+        ((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get(child2Alias)
       )
       .isInstanceOf(DeferredValue.class);
     assertThat(
@@ -232,9 +213,7 @@ public class EagerImportTagTest extends ImportTagTest {
           (
             (Map<String, Object>) (
               (DeferredValue) (
-                (Map<String, Object>) (
-                  (DeferredValue) interpreter.getContext().get(CONTEXT_VAR)
-                ).getOriginalValue()
+                (Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)
               ).get(child2Alias)
             ).getOriginalValue()
           ).get("foo")
@@ -243,13 +222,7 @@ public class EagerImportTagTest extends ImportTagTest {
       .isEqualTo("foo val");
 
     assertThat(
-        (
-          (
-            (Map<String, Object>) (
-              (DeferredValue) interpreter.getContext().get(CONTEXT_VAR)
-            ).getOriginalValue()
-          ).get("bar")
-        )
+        (((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get("bar"))
       )
       .isEqualTo("bar val");
   }

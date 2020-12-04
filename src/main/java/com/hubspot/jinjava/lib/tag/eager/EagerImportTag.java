@@ -123,7 +123,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     ).entrySet()) {
       if (entry.getValue() instanceof DeferredValue) {
         joiner.add(String.format("'%s': %s", entry.getKey(), entry.getKey()));
-      } else {
+      } else if (!(entry.getValue() instanceof MacroFunction)) {
         joiner.add(
           String.format(
             "'%s': %s",
@@ -133,8 +133,10 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         );
       }
     }
-
-    return String.format("{%% do %s.update({%s}) %%}", contextVar, joiner.toString());
+    if (joiner.length() > 0) {
+      return String.format("{%% do %s.update({%s}) %%}", contextVar, joiner.toString());
+    }
+    return "";
   }
 
   @VisibleForTesting
