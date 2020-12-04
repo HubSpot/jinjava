@@ -17,6 +17,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.AutoEscapeTag;
+import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.MacroTag;
 import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
@@ -402,6 +403,19 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         );
     }
     return image;
+  }
+
+  public static String buildDoUpdateTag(
+    String currentImportAlias,
+    String updateString,
+    JinjavaInterpreter interpreter
+  ) {
+    return new LengthLimitingStringJoiner(interpreter.getConfig().getMaxOutputSize(), " ")
+      .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
+      .add(DoTag.TAG_NAME)
+      .add(String.format("%s.update({%s})", currentImportAlias, updateString))
+      .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag())
+      .toString();
   }
 
   /**

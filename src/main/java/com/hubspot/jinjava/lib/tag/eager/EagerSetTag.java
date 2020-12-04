@@ -1,19 +1,15 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.Context;
-import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
-import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.ChunkResolver;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -85,38 +81,20 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
         .getContext()
         .getImportResourceAlias()
         .orElseThrow(RuntimeException::new);
-      String currentAlias = fullImportAlias.substring(
+      String currentImportAlias = fullImportAlias.substring(
         fullImportAlias.lastIndexOf(".") + 1
       );
-      //      if ((interpreter.getContext().get(currentAlias) instanceof Map)) {
-      //        prefixToPreserveState.append(
-      //          buildSetTagForDeferredInChildContext(
-      //            ImmutableMap.of(
-      //              currentAlias,
-      //              String.format(
-      //                "{%s}",
-      //                (
-      //                  (Map<String, Object>) interpreter.getContext().get(currentAlias)
-      //                ).keySet()
-      //                  .stream()
-      //                  .map(key -> String.format("'%s': %s", key, key))
-      //                  .collect(Collectors.joining(","))
-      //              )
-      //            ),
-      //            interpreter,
-      //            true
-      //          )
-      //        );
-      //      }
+      String updateStringX = getUpdateString(
+        variables,
+        resolvedExpression.getResult(),
+        tagToken,
+        interpreter
+      );
+
       return wrapInAutoEscapeIfNeeded(
         prefixToPreserveState.toString() +
         interpreter.render(
-          convertSetToUpdate(
-            variables,
-            resolvedExpression.getResult(),
-            tagToken,
-            interpreter
-          )
+          buildDoUpdateTag(currentImportAlias, updateStringX, interpreter)
         ),
         interpreter
       );
@@ -143,24 +121,12 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     );
   }
 
-  private static String convertSetToUpdate(
+  private static String getUpdateString(
     String variables,
     String expression,
     TagToken tagToken,
     JinjavaInterpreter interpreter
   ) {
-    String fullImportAlias = interpreter
-      .getContext()
-      .getImportResourceAlias()
-      .orElseThrow(RuntimeException::new);
-    String currentAlias = fullImportAlias.substring(fullImportAlias.lastIndexOf(".") + 1);
-
-    LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
-      interpreter.getConfig().getMaxOutputSize(),
-      " "
-    )
-      .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
-      .add(DoTag.TAG_NAME);
     List<String> varList = Arrays
       .stream(variables.split(","))
       .map(String::trim)
@@ -171,17 +137,6 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     for (int i = 0; i < varList.size() && i < expressionList.size(); i++) {
       updateString.add(String.format("'%s': %s", varList.get(i), expressionList.get(i)));
     }
-
-    joiner.add(
-      String.format(
-        "%s.update({%s})",
-        fullImportAlias.substring(fullImportAlias.lastIndexOf(".") + 1),
-        updateString.toString()
-      )
-    );
-    joiner.add(
-      interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag()
-    );
-    return joiner.toString();
+    return updateString.toString();
   }
 }
