@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -12,11 +13,13 @@ import com.hubspot.jinjava.lib.tag.ImportTag;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.ChunkResolver;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
@@ -78,15 +81,20 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       integrateChild(contextVar, childBindings, child, interpreter);
       if (child.getContext().getEagerTokens().isEmpty() || output == null) {
         output = "";
-      } else if (maybeImportAlias.isPresent()) {
+      } else if (!Strings.isNullOrEmpty(contextVar)) {
         // Start it as a new dictionary before output
-        output =
-          buildSetTagForDeferredInChildContext(
-            ImmutableMap.of(maybeImportAlias.get(), "{}"),
-            interpreter,
-            true
-          ) +
-          output;
+        output += getDoTagToPreserve(interpreter, contextVar);
+        //          buildSetTagForDeferredInChildContext(
+        //            ImmutableMap.of(
+        //              contextVar,
+        //              ChunkResolver.getValueAsJinjavaString(
+        //                (
+        //                  (DeferredValue) interpreter.getContext().get(contextVar)
+        //                ).getOriginalValue()
+        //              )
+        //            ),
+        //            interpreter,
+        //            true
       }
       return output;
     } catch (IOException e) {
@@ -99,6 +107,34 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     } finally {
       interpreter.getContext().getCurrentPathStack().pop();
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static String getDoTagToPreserve(
+    JinjavaInterpreter interpreter,
+    String contextVar
+  )
+    throws JsonProcessingException {
+    StringJoiner joiner = new StringJoiner(",");
+    for (Map.Entry<String, Object> entry : (
+      (Map<String, Object>) (
+        (DeferredValue) interpreter.getContext().get(contextVar)
+      ).getOriginalValue()
+    ).entrySet()) {
+      if (entry.getValue() instanceof DeferredValue) {
+        joiner.add(String.format("'%s': %s", entry.getKey(), entry.getKey()));
+      } else {
+        joiner.add(
+          String.format(
+            "'%s': %s",
+            entry.getKey(),
+            ChunkResolver.getValueAsJinjavaString(entry.getValue())
+          )
+        );
+      }
+    }
+
+    return String.format("{%% do %s.update({%s}) %%}", contextVar, joiner.toString());
   }
 
   @VisibleForTesting
@@ -122,14 +158,104 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       } else {
         child.getContext().getScope().put(Context.IMPORT_RESOURCE_ALIAS_KEY, contextVar);
       }
-      child
-        .getContext()
-        .getScope()
-        .put(
-          String.valueOf(child.getContext().get(Context.IMPORT_RESOURCE_ALIAS_KEY)),
-          new PyMap(new HashMap<>())
-        );
+      putNewMapForAlias(contextVar, child);
+      getMapForAlias(contextVar, child, false);
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static void putNewMapForAlias(String contextVar, JinjavaInterpreter child) {
+    String fullImportAlias = child
+      .getContext()
+      .getImportResourceAlias()
+      .orElse(contextVar);
+    String[] allAliases = fullImportAlias.split("\\.");
+    Map<String, Object> currentMap = child.getContext().getParent();
+    for (int i = 0; i < allAliases.length - 1; i++) {
+      Object maybeNextMap = currentMap.get(allAliases[i]);
+      if (maybeNextMap instanceof Map) {
+        currentMap = (Map<String, Object>) maybeNextMap;
+      } else if (
+        maybeNextMap instanceof DeferredValue &&
+        ((DeferredValue) maybeNextMap).getOriginalValue() instanceof Map
+      ) {
+        currentMap =
+          (Map<String, Object>) ((DeferredValue) maybeNextMap).getOriginalValue();
+      } else {
+        return;
+      }
+    }
+    currentMap.put(allAliases[allAliases.length - 1], new PyMap(new HashMap<>()));
+    //    Object parentValueForChild = child.getContext().getParent().get(contextVar);
+    //    if (parentValueForChild instanceof Map) {
+    //      return;
+    //    } else if (parentValueForChild instanceof DeferredValue) {
+    //      if (((DeferredValue) parentValueForChild).getOriginalValue() instanceof Map) {
+    //        return;
+    //      }
+    //      child
+    //        .getContext()
+    //        .getParent()
+    //        .put(contextVar, DeferredValue.instance(new PyMap(new HashMap<>())));
+    //    } else {
+    //      child.getContext().getParent().put(contextVar, new PyMap(new HashMap<>()));
+    //    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Optional<Map<String, Object>> getMapForAlias(
+    String contextVar,
+    JinjavaInterpreter child,
+    boolean convertToDeferredValue
+  ) {
+    //    String fullImportAlias = child
+    //      .getContext()
+    //      .getImportResourceAlias()
+    //      .orElse(contextVar);
+    //    String[] allAliases = fullImportAlias.split("\\.");
+    //    Map<String, Object> currentMap = child.getContext();
+    //    for (int i = 0; i < allAliases.length; i++) {
+    //      Object maybeNextMap = currentMap.get(allAliases[i]);
+    //      if (maybeNextMap instanceof Map) {
+    //        currentMap = (Map<String, Object>) maybeNextMap;
+    //      } else if (
+    //        maybeNextMap instanceof DeferredValue &&
+    //        ((DeferredValue) maybeNextMap).getOriginalValue() instanceof Map
+    //      ) {
+    //        currentMap =
+    //          (Map<String, Object>) ((DeferredValue) maybeNextMap).getOriginalValue();
+    //      } else {
+    //        return Optional.empty();
+    //      }
+    //    }
+    Object parentValueForChild = child.getContext().getParent().get(contextVar);
+    if (parentValueForChild instanceof Map) {
+      if (convertToDeferredValue) {
+        child
+          .getContext()
+          .getParent()
+          .put(contextVar, DeferredValue.instance(parentValueForChild));
+      }
+      return Optional.of((Map<String, Object>) parentValueForChild);
+    } else if (parentValueForChild instanceof DeferredValue) {
+      if (((DeferredValue) parentValueForChild).getOriginalValue() instanceof Map) {
+        return Optional.of(
+          (Map<String, Object>) ((DeferredValue) parentValueForChild).getOriginalValue()
+        );
+      }
+      Map<String, Object> newMap = new PyMap(new HashMap<>());
+      child.getContext().getParent().put(contextVar, DeferredValue.instance(newMap));
+      return Optional.of(newMap);
+    } else {
+      Map<String, Object> newMap = new PyMap(new HashMap<>());
+      if (convertToDeferredValue) {
+        child.getContext().getParent().put(contextVar, DeferredValue.instance(newMap));
+      } else {
+        child.getContext().getParent().put(contextVar, newMap);
+      }
+      return Optional.of(newMap);
+    }
+    //    return Optional.of(currentMap);
   }
 
   @VisibleForTesting
@@ -146,32 +272,60 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
       parent.getContext().putAll(childBindings);
+      //      putBindingsOnContext("", childBindings, parent);
     } else {
       // Since we might be multiple layers deep of importing, we need the full name.
       String fullImportAlias = child
         .getContext()
         .getImportResourceAlias()
         .orElse(contextVar);
-      for (Map.Entry<String, MacroFunction> macro : child
-        .getContext()
-        .getGlobalMacros()
-        .entrySet()) {
+      //      Object aliasMap = childBindings.get(fullImportAlias);
+      Map<String, MacroFunction> globalMacros = child.getContext().getGlobalMacros();
+      for (Map.Entry<String, MacroFunction> macro : globalMacros.entrySet()) {
         childBindings.put(macro.getKey(), macro.getValue());
       }
 
-      if (childBindings.get(fullImportAlias) instanceof DeferredValue) {
-        flattenDeferredContextVar(fullImportAlias, childBindings);
-      } else {
-        for (Map.Entry<String, Object> aliasBinding : (
-          (Map<String, Object>) childBindings.get(fullImportAlias)
-        ).entrySet()) {
-          childBindings.put(aliasBinding.getKey(), aliasBinding.getValue());
-        }
-      }
-      childBindings.remove(fullImportAlias);
+      //      if (aliasMap instanceof DeferredValue) {
+      //        childBindings.putAll(getDeferredAliasMap((DeferredValue) aliasMap));
+      //        //        putBindingsOnContext(
+      //        //          contextVar,
+      //        //          getDeferredAliasMap(fullImportAlias, childBindings),
+      //        //          parent
+      //        //        );
+      //      } else {
+      //        //        putBindingsOnContext(
+      //        //          contextVar,
+      //        //          (Map<String, Object>) childBindings.get(fullImportAlias),
+      //        //          parent
+      //        //        );
+      //        for (Map.Entry<String, Object> aliasBinding : (
+      //          (Map<String, Object>) aliasMap
+      //        ).entrySet()) {
+      //          childBindings.put(aliasBinding.getKey(), aliasBinding.getValue());
+      //        }
+      //      }
+      //      childBindings.remove(fullImportAlias);
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-      childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
-      putBindingsOnContext(contextVar, childBindings, parent);
+      //      childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
+      childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
+      getMapForAlias(
+          contextVar,
+          child,
+          childBindings.get(fullImportAlias.split("\\.", 2)[0]) instanceof DeferredValue
+        )
+        .ifPresent(
+          map -> {
+            //
+            childBindings.remove(fullImportAlias.split("\\.", 2)[0]);
+            childBindings.remove(contextVar);
+
+            childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
+            map.putAll(childBindings);
+            //            parent.getContext().put(contextVar, childBindings);
+          }
+        );
+      //      putBindingsOnContext(contextVar, childBindings, parent);
+      //      parent.getContext().putAll(childBindings);
     }
   }
 
@@ -202,7 +356,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     JinjavaInterpreter parent
   ) {
     Map<String, Object> mapToFlattenOnto;
-    Object existingValueForContextVar = parent.getContext().getScope().get(contextVar);
+    Object existingValueForContextVar = parent.getContext().get(contextVar);
     if (existingValueForContextVar instanceof DeferredValue) {
       Object originalValue =
         ((DeferredValue) existingValueForContextVar).getOriginalValue();
@@ -213,7 +367,9 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         parent.getContext().put(contextVar, DeferredValue.instance(mapToFlattenOnto));
       }
     } else {
-      if (existingValueForContextVar == null) {
+      if (Strings.isNullOrEmpty(contextVar)) {
+        mapToFlattenOnto = parent.getContext();
+      } else if (existingValueForContextVar == null) {
         // If it is, make it a new map instead.
         mapToFlattenOnto = new PyMap(new HashMap<>());
         parent.getContext().put(contextVar, mapToFlattenOnto);
@@ -255,20 +411,21 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         mapToPutOnDirectly = ((Map<String, Object>) parentAliasBindings);
       }
     }
-    mapToPutOnDirectly.put(contextVar, childBindings);
+    if (!Strings.isNullOrEmpty(contextVar)) {
+      mapToPutOnDirectly.put(contextVar, childBindings);
+    } else {
+      mapToPutOnDirectly.putAll(childBindings);
+    }
   }
 
   @SuppressWarnings("unchecked")
-  private static void flattenDeferredContextVar(
-    String contextVar,
-    Map<String, Object> childBindings
-  ) {
-    DeferredValue contextVarMap = (DeferredValue) childBindings.get(contextVar);
-    if (contextVarMap.getOriginalValue() instanceof Map) {
+  private static Map<String, Object> getDeferredAliasMap(DeferredValue aliasMap) {
+    Map<String, Object> allDeferred = new HashMap<>();
+    if (aliasMap.getOriginalValue() instanceof Map) {
       for (Map.Entry<String, Object> deferredBinding : (
-        (Map<String, Object>) contextVarMap.getOriginalValue()
+        (Map<String, Object>) aliasMap.getOriginalValue()
       ).entrySet()) {
-        childBindings.put(
+        allDeferred.put(
           deferredBinding.getKey(),
           deferredBinding.getValue() instanceof DeferredValue
             ? deferredBinding.getValue()
@@ -276,5 +433,6 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         );
       }
     }
+    return allDeferred;
   }
 }

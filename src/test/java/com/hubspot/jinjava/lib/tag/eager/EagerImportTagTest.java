@@ -34,29 +34,6 @@ public class EagerImportTagTest extends ImportTagTest {
 
   @Before
   public void eagerSetup() {
-    jinjava.setResourceLocator(
-      new ResourceLocator() {
-        private RelativePathResolver relativePathResolver = new RelativePathResolver();
-
-        @Override
-        public String getString(
-          String fullName,
-          Charset encoding,
-          JinjavaInterpreter interpreter
-        )
-          throws IOException {
-          return Resources.toString(
-            Resources.getResource(String.format("tags/macrotag/%s", fullName)),
-            StandardCharsets.UTF_8
-          );
-        }
-
-        @Override
-        public Optional<LocationResolver> getLocationResolver() {
-          return Optional.of(relativePathResolver);
-        }
-      }
-    );
     context.put("padding", 42);
     interpreter =
       new JinjavaInterpreter(
@@ -120,11 +97,9 @@ public class EagerImportTagTest extends ImportTagTest {
     String child2Alias = "double_child";
     JinjavaInterpreter child = getChildInterpreter(interpreter, CONTEXT_VAR);
     JinjavaInterpreter child2 = getChildInterpreter(child, child2Alias);
-    String fullImportAlias = String.format("%s.%s", CONTEXT_VAR, child2Alias);
-    child2.getContext().put(fullImportAlias, new PyMap(new HashMap<>()));
-    child.getContext().put(CONTEXT_VAR, new PyMap(new HashMap<>()));
-    ((PyMap) child2.getContext().get(fullImportAlias)).put("foo", "foo val");
-    ((PyMap) child.getContext().get(CONTEXT_VAR)).put("bar", "bar val");
+
+    child2.render("{% set foo = 'foo val' %}");
+    child.render("{% set bar = 'bar val' %}");
 
     EagerImportTag.integrateChild(
       child2Alias,
@@ -164,13 +139,10 @@ public class EagerImportTagTest extends ImportTagTest {
     String child2Alias = "double_child";
     JinjavaInterpreter child = getChildInterpreter(interpreter, CONTEXT_VAR);
     JinjavaInterpreter child2 = getChildInterpreter(child, child2Alias);
-    String fullImportAlias = String.format("%s.%s", CONTEXT_VAR, child2Alias);
-    PyMap child2OriginalMap = new PyMap(new HashMap<>());
-    child2OriginalMap.put("foo", "foo val");
-    PyMap childOriginalMap = new PyMap(new HashMap<>());
-    childOriginalMap.put("bar", "bar val");
-    child2.getContext().put(fullImportAlias, DeferredValue.instance(child2OriginalMap));
-    child.getContext().put(CONTEXT_VAR, DeferredValue.instance(childOriginalMap));
+
+    child2.render("{% set foo = 'foo val' %}");
+    child.render("{% set bar = 'bar val' %}");
+    child2.render("{% set foo_d = deferred %}");
 
     EagerImportTag.integrateChild(
       child2Alias,
@@ -184,22 +156,28 @@ public class EagerImportTagTest extends ImportTagTest {
       child,
       interpreter
     );
-    assertThat(interpreter.getContext().get(CONTEXT_VAR)).isInstanceOf(PyMap.class);
+    // TODO allow only certain keys to be deferred
+    assertThat(interpreter.getContext().get(CONTEXT_VAR))
+      .isInstanceOf(DeferredValue.class);
     assertThat(
-        ((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get(child2Alias)
+        (
+          (Map<String, Object>) (
+            (DeferredValue) interpreter.getContext().get(CONTEXT_VAR)
+          ).getOriginalValue()
+        ).get(child2Alias)
       )
       .isInstanceOf(DeferredValue.class);
     assertThat(
         (
           (
-            (DeferredValue) (
-              (Map<String, Object>) (
-                (DeferredValue) (
-                  (Map<String, Object>) (interpreter.getContext().get(CONTEXT_VAR))
-                ).get(child2Alias)
-              ).getOriginalValue()
-            ).get("foo")
-          ).getOriginalValue()
+            (Map<String, Object>) (
+              (DeferredValue) (
+                (Map<String, Object>) (
+                  (DeferredValue) (interpreter.getContext().get(CONTEXT_VAR))
+                ).getOriginalValue()
+              ).get(child2Alias)
+            ).getOriginalValue()
+          ).get("foo")
         )
       )
       .isEqualTo("foo val");
@@ -207,10 +185,10 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(
         (
           (
-            (DeferredValue) (
-              (Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)
-            ).get("bar")
-          ).getOriginalValue()
+            (Map<String, Object>) (
+              (DeferredValue) interpreter.getContext().get(CONTEXT_VAR)
+            ).getOriginalValue()
+          ).get("bar")
         )
       )
       .isEqualTo("bar val");
@@ -222,11 +200,10 @@ public class EagerImportTagTest extends ImportTagTest {
     String child2Alias = "double_child";
     JinjavaInterpreter child = getChildInterpreter(interpreter, CONTEXT_VAR);
     JinjavaInterpreter child2 = getChildInterpreter(child, child2Alias);
-    String fullImportAlias = String.format("%s.%s", CONTEXT_VAR, child2Alias);
-    child2.getContext().put("foo", "foo val");
-    child.getContext().put("bar", "bar val");
-    child2.getContext().put(fullImportAlias, DeferredValue.instance());
-    child.getContext().put(CONTEXT_VAR, DeferredValue.instance());
+
+    child2.render("{% set foo = 'foo val' %}");
+    child.render("{% set bar = 'bar val' %}");
+    child2.render("{% set foo_d = deferred %}");
 
     EagerImportTag.integrateChild(
       child2Alias,
@@ -240,9 +217,14 @@ public class EagerImportTagTest extends ImportTagTest {
       child,
       interpreter
     );
-    assertThat(interpreter.getContext().get(CONTEXT_VAR)).isInstanceOf(PyMap.class);
+    assertThat(interpreter.getContext().get(CONTEXT_VAR))
+      .isInstanceOf(DeferredValue.class);
     assertThat(
-        ((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get(child2Alias)
+        (
+          (Map<String, Object>) (
+            (DeferredValue) interpreter.getContext().get(CONTEXT_VAR)
+          ).getOriginalValue()
+        ).get(child2Alias)
       )
       .isInstanceOf(DeferredValue.class);
     assertThat(
@@ -250,7 +232,9 @@ public class EagerImportTagTest extends ImportTagTest {
           (
             (Map<String, Object>) (
               (DeferredValue) (
-                (Map<String, Object>) (interpreter.getContext().get(CONTEXT_VAR))
+                (Map<String, Object>) (
+                  (DeferredValue) interpreter.getContext().get(CONTEXT_VAR)
+                ).getOriginalValue()
               ).get(child2Alias)
             ).getOriginalValue()
           ).get("foo")
@@ -259,7 +243,13 @@ public class EagerImportTagTest extends ImportTagTest {
       .isEqualTo("foo val");
 
     assertThat(
-        (((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get("bar"))
+        (
+          (
+            (Map<String, Object>) (
+              (DeferredValue) interpreter.getContext().get(CONTEXT_VAR)
+            ).getOriginalValue()
+          ).get("bar")
+        )
       )
       .isEqualTo("bar val");
   }
@@ -305,12 +295,10 @@ public class EagerImportTagTest extends ImportTagTest {
     JinjavaInterpreter child = getChildInterpreter(interpreter, CONTEXT_VAR);
     JinjavaInterpreter child2 = getChildInterpreter(child, child2Alias);
     JinjavaInterpreter child3 = getChildInterpreter(child2, child3Alias);
-    String child3ImportAlias = String.format("%s.%s", CONTEXT_VAR, child3Alias);
-    child.getContext().put(CONTEXT_VAR, new PyMap(new HashMap<>()));
 
-    ((PyMap) child3.getContext().get(child3ImportAlias)).put("foobar", "foobar val");
-    child2.getContext().put("foo", "foo val");
-    ((PyMap) child.getContext().get(CONTEXT_VAR)).put("bar", "bar val");
+    child2.render("{% set foo = 'foo val' %}");
+    child.render("{% set bar = 'bar val' %}");
+    child3.render("{% set foobar = 'foobar val' %}");
 
     EagerImportTag.integrateChild(
       child3Alias,
@@ -363,14 +351,10 @@ public class EagerImportTagTest extends ImportTagTest {
     JinjavaInterpreter child = getChildInterpreter(interpreter, CONTEXT_VAR);
     JinjavaInterpreter child2 = getChildInterpreter(child, child2Alias);
     JinjavaInterpreter child2B = getChildInterpreter(child, child2BAlias);
-    String child2FullAlias = String.format("%s.%s", CONTEXT_VAR, child2Alias);
-    child2.getContext().put(child2FullAlias, new PyMap(new HashMap<>()));
-    String child2BFullAlias = String.format("%s.%s", CONTEXT_VAR, child2BAlias);
-    child2B.getContext().put(child2BFullAlias, new PyMap(new HashMap<>()));
-    child.getContext().put(CONTEXT_VAR, new PyMap(new HashMap<>()));
-    ((PyMap) child2.getContext().get(child2FullAlias)).put("foo", "foo val");
-    ((PyMap) child2B.getContext().get(child2BFullAlias)).put("foo_b", "foo_b val");
-    ((PyMap) child.getContext().get(CONTEXT_VAR)).put("bar", "bar val");
+
+    child2.render("{% set foo = 'foo val' %}");
+    child.render("{% set bar = 'bar val' %}");
+    child2B.render("{% set foo_b = 'foo_b val' %}");
 
     EagerImportTag.integrateChild(
       child2Alias,
@@ -424,6 +408,39 @@ public class EagerImportTagTest extends ImportTagTest {
       .isEqualTo("bar val");
   }
 
+  @Test
+  public void itHandlesTripleLayer() {
+    setupResourceLocator();
+    context.put("a_val", "a");
+    context.put("b_val", "b");
+    context.put("c_val", "c");
+    interpreter.render("{% import 'import-tree-c.jinja' as c %}");
+    assertThat(interpreter.render("{{ c.b.a.foo_a }}")).isEqualTo("a");
+    assertThat(interpreter.render("{{ c.b.foo_b }}")).isEqualTo("ba");
+    assertThat(interpreter.render("{{ c.foo_c }}")).isEqualTo("cbaa");
+  }
+
+  @Test
+  public void itDefersTripleLayer() {
+    setupResourceLocator();
+    context.put("a_val", DeferredValue.instance("a"));
+    context.put("b_val", "b");
+    context.put("c_val", "c");
+    String result = interpreter.render("{% import 'import-tree-c.jinja' as c %}{{ c }}");
+    assertThat(interpreter.render("{{ c.b.a.foo_a }}")).isEqualTo("{{ c.b.a.foo_a }}");
+    assertThat(interpreter.render("{{ c.b.foo_b }}")).isEqualTo("{{ c.b.foo_b }}");
+    assertThat(interpreter.render("{{ c.foo_c }}")).isEqualTo("{{ c.foo_c }}");
+    context.put("a_val", "a");
+    context.remove("a");
+    context.remove("b");
+    context.remove("c");
+    assertThat(interpreter.render(result).trim())
+      .isEqualTo(
+        "{'b':{'foo_b':'ba','a':{'foo_a':'a','something':'somn'}}," +
+        "'foo_c':'cbaa','a':{'foo_a':'a','something':'somn'}}"
+      );
+  }
+
   private static JinjavaInterpreter getChildInterpreter(
     JinjavaInterpreter interpreter,
     String alias
@@ -435,6 +452,32 @@ public class EagerImportTagTest extends ImportTagTest {
     child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, TEMPLATE_FILE);
     EagerImportTag.setupImportAlias(alias, child, interpreter);
     return child;
+  }
+
+  private void setupResourceLocator() {
+    jinjava.setResourceLocator(
+      new ResourceLocator() {
+        private RelativePathResolver relativePathResolver = new RelativePathResolver();
+
+        @Override
+        public String getString(
+          String fullName,
+          Charset encoding,
+          JinjavaInterpreter interpreter
+        )
+          throws IOException {
+          return Resources.toString(
+            Resources.getResource(String.format("tags/eager/importtag/%s", fullName)),
+            StandardCharsets.UTF_8
+          );
+        }
+
+        @Override
+        public Optional<LocationResolver> getLocationResolver() {
+          return Optional.of(relativePathResolver);
+        }
+      }
+    );
   }
 
   @Test

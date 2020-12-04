@@ -1,6 +1,8 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -11,6 +13,7 @@ import com.hubspot.jinjava.util.ChunkResolver;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -39,11 +42,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     String variables = tagToken.getHelpers().substring(0, eqPos).trim();
 
     String expression = tagToken.getHelpers().substring(eqPos + 1);
-    if (interpreter.getContext().containsKey(Context.IMPORT_RESOURCE_ALIAS_KEY)) {
-      return interpreter.render(
-        convertSetToUpdate(variables, expression, tagToken, interpreter)
-      );
-    }
+
     ChunkResolver chunkResolver = new ChunkResolver(expression, tagToken, interpreter);
     EagerStringResult resolvedExpression = executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
@@ -81,6 +80,47 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     prefixToPreserveState.append(
       reconstructFromContextBeforeDeferring(chunkResolver.getDeferredWords(), interpreter)
     );
+    if (interpreter.getContext().containsKey(Context.IMPORT_RESOURCE_ALIAS_KEY)) {
+      String fullImportAlias = interpreter
+        .getContext()
+        .getImportResourceAlias()
+        .orElseThrow(RuntimeException::new);
+      String currentAlias = fullImportAlias.substring(
+        fullImportAlias.lastIndexOf(".") + 1
+      );
+      //      if ((interpreter.getContext().get(currentAlias) instanceof Map)) {
+      //        prefixToPreserveState.append(
+      //          buildSetTagForDeferredInChildContext(
+      //            ImmutableMap.of(
+      //              currentAlias,
+      //              String.format(
+      //                "{%s}",
+      //                (
+      //                  (Map<String, Object>) interpreter.getContext().get(currentAlias)
+      //                ).keySet()
+      //                  .stream()
+      //                  .map(key -> String.format("'%s': %s", key, key))
+      //                  .collect(Collectors.joining(","))
+      //              )
+      //            ),
+      //            interpreter,
+      //            true
+      //          )
+      //        );
+      //      }
+      return wrapInAutoEscapeIfNeeded(
+        prefixToPreserveState.toString() +
+        interpreter.render(
+          convertSetToUpdate(
+            variables,
+            resolvedExpression.getResult(),
+            tagToken,
+            interpreter
+          )
+        ),
+        interpreter
+      );
+    }
 
     interpreter
       .getContext()
@@ -109,6 +149,12 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     TagToken tagToken,
     JinjavaInterpreter interpreter
   ) {
+    String fullImportAlias = interpreter
+      .getContext()
+      .getImportResourceAlias()
+      .orElseThrow(RuntimeException::new);
+    String currentAlias = fullImportAlias.substring(fullImportAlias.lastIndexOf(".") + 1);
+
     LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
       interpreter.getConfig().getMaxOutputSize(),
       " "
@@ -125,10 +171,11 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     for (int i = 0; i < varList.size() && i < expressionList.size(); i++) {
       updateString.add(String.format("'%s': %s", varList.get(i), expressionList.get(i)));
     }
+
     joiner.add(
       String.format(
         "%s.update({%s})",
-        interpreter.getContext().get(Context.IMPORT_RESOURCE_ALIAS_KEY),
+        fullImportAlias.substring(fullImportAlias.lastIndexOf(".") + 1),
         updateString.toString()
       )
     );
