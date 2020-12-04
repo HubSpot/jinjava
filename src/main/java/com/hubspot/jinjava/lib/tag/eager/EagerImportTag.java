@@ -96,6 +96,31 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     }
   }
 
+  private static String getRevertContextSuffix(
+    String currentImportAlias,
+    Map<String, Object> childBindings,
+    JinjavaInterpreter parent
+  )
+    throws JsonProcessingException {
+    Map<String, String> revertContextMap = new HashMap<>();
+    for (Map.Entry<String, Object> binding : childBindings.entrySet()) {
+      if (
+        !binding.getKey().equals(currentImportAlias) &&
+        binding.getValue() instanceof DeferredValue &&
+        ((DeferredValue) binding.getValue()).getOriginalValue() != null &&
+        parent.getContext().containsKey(binding.getKey())
+      ) {
+        revertContextMap.put(
+          binding.getKey(),
+          ChunkResolver.getValueAsJinjavaString(
+            ((DeferredValue) binding.getValue()).getOriginalValue()
+          )
+        );
+      }
+    }
+    return buildSetTagForDeferredInChildContext(revertContextMap, parent, false);
+  }
+
   @SuppressWarnings("unchecked")
   private static String getDoTagToPreserve(
     JinjavaInterpreter interpreter,

@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -10,6 +9,7 @@ import com.hubspot.jinjava.util.ChunkResolver;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -69,35 +69,44 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     ) {
       try {
         getTag()
-          .executeSet(tagToken, interpreter, varTokens, resolvedExpression.getResult());
+          .executeSet(
+            tagToken,
+            interpreter,
+            varTokens,
+            resolvedExpression.getResult(),
+            true
+          );
         return "";
       } catch (DeferredValueException ignored) {}
     }
     prefixToPreserveState.append(
       reconstructFromContextBeforeDeferring(chunkResolver.getDeferredWords(), interpreter)
     );
-    if (interpreter.getContext().containsKey(Context.IMPORT_RESOURCE_ALIAS_KEY)) {
-      String fullImportAlias = interpreter
-        .getContext()
-        .getImportResourceAlias()
-        .orElseThrow(RuntimeException::new);
-      String currentImportAlias = fullImportAlias.substring(
-        fullImportAlias.lastIndexOf(".") + 1
-      );
-      String updateStringX = getUpdateString(
+    Optional<String> maybeFullImportAlias = interpreter
+      .getContext()
+      .getImportResourceAlias();
+    if (maybeFullImportAlias.isPresent()) {
+      String currentImportAlias = maybeFullImportAlias
+        .get()
+        .substring(maybeFullImportAlias.get().lastIndexOf(".") + 1);
+      String updateString = getUpdateString(
         variables,
         resolvedExpression.getResult(),
         tagToken,
         interpreter
       );
-
-      return wrapInAutoEscapeIfNeeded(
-        prefixToPreserveState.toString() +
+      prefixToPreserveState.append(
         interpreter.render(
-          buildDoUpdateTag(currentImportAlias, updateStringX, interpreter)
-        ),
-        interpreter
+          buildDoUpdateTag(currentImportAlias, updateString, interpreter)
+        )
       );
+      //      return wrapInAutoEscapeIfNeeded(
+      //        prefixToPreserveState.toString() +
+      //        interpreter.render(
+      //          buildDoUpdateTag(currentImportAlias, updateString, interpreter)
+      //        ),
+      //        interpreter
+      //      );
     }
 
     interpreter

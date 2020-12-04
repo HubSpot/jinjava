@@ -19,7 +19,6 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.After;
@@ -404,14 +403,37 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(interpreter.render("{{ c.b.foo_b }}")).isEqualTo("{{ c.b.foo_b }}");
     assertThat(interpreter.render("{{ c.foo_c }}")).isEqualTo("{{ c.foo_c }}");
     context.put("a_val", "a");
-    context.remove("a");
-    context.remove("b");
-    context.remove("c");
+    // There are some extras due to deferred values copying up the context stack.
     assertThat(interpreter.render(result).trim())
       .isEqualTo(
-        "{'b':{'foo_b':'ba','a':{'foo_a':'a','something':'somn'}}," +
-        "'foo_c':'cbaa','a':{'foo_a':'a','something':'somn'}}"
+        "{'b':{'foo_b':'ba','a':{'foo_a':'a','something':'somn'},'foo_a':'a'}" +
+        ",'foo_c':'cbaa','a':{'foo_a':'a','something':'somn'},'foo_b':'ba','foo_a':'a'}"
       );
+  }
+
+  @Test
+  public void itHandlesQuadLayer() {
+    setupResourceLocator();
+    context.put("a_val", "a");
+    context.put("b_val", "b");
+    context.put("c_val", "c");
+    interpreter.render("{% import 'import-tree-d.jinja' as d %}");
+    assertThat(interpreter.render("{{ d.foo_d }}")).isEqualTo("cbaabaa");
+    assertThat(interpreter.render("{{ d.resolvable }}")).isEqualTo("12345");
+    assertThat(interpreter.render("{{ d.bar }}")).isEqualTo("cbaabaaba");
+  }
+
+  @Test
+  public void itDefersQuadLayer() {
+    setupResourceLocator();
+    context.put("a_val", DeferredValue.instance("a"));
+    context.put("b_val", "b");
+    context.put("c_val", "c");
+    String result = interpreter.render(
+      "{% import 'import-tree-d.jinja' as d %}{{ d.resolvable }} {{ d.bar }}"
+    );
+    context.put("a_val", "a");
+    assertThat(interpreter.render(result).trim()).isEqualTo("12345 cbaabaaba");
   }
 
   private static JinjavaInterpreter getChildInterpreter(
