@@ -107,6 +107,16 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
   )
     throws JsonProcessingException {
     StringJoiner keyValueJoiner = new StringJoiner(",");
+    Object currentAliasMap = interpreter.getContext().get(currentImportAlias);
+    if ((!(currentAliasMap instanceof DeferredValue))) {
+      // Make sure that the map is deferred.
+      if (!(currentAliasMap instanceof Map)) {
+        currentAliasMap = new PyMap(new HashMap<>());
+      }
+      interpreter
+        .getContext()
+        .put(currentImportAlias, DeferredValue.instance(currentAliasMap));
+    }
     for (Map.Entry<String, Object> entry : (
       (Map<String, Object>) (
         (DeferredValue) interpreter.getContext().get(currentImportAlias)

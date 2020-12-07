@@ -82,25 +82,6 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     prefixToPreserveState.append(
       reconstructFromContextBeforeDeferring(chunkResolver.getDeferredWords(), interpreter)
     );
-    Optional<String> maybeFullImportAlias = interpreter
-      .getContext()
-      .getImportResourceAlias();
-    if (maybeFullImportAlias.isPresent()) {
-      String currentImportAlias = maybeFullImportAlias
-        .get()
-        .substring(maybeFullImportAlias.get().lastIndexOf(".") + 1);
-      String updateString = getUpdateString(
-        variables,
-        resolvedExpression.getResult(),
-        tagToken,
-        interpreter
-      );
-      prefixToPreserveState.append(
-        interpreter.render(
-          buildDoUpdateTag(currentImportAlias, updateString, interpreter)
-        )
-      );
-    }
 
     interpreter
       .getContext()
@@ -116,29 +97,38 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
           Arrays.stream(varTokens).map(String::trim).collect(Collectors.toSet())
         )
       );
-    // Possible macro/set tag in front of this one.
+
+    StringBuilder suffixToPreserveState = new StringBuilder();
+    Optional<String> maybeFullImportAlias = interpreter
+      .getContext()
+      .getImportResourceAlias();
+    if (maybeFullImportAlias.isPresent()) {
+      String currentImportAlias = maybeFullImportAlias
+        .get()
+        .substring(maybeFullImportAlias.get().lastIndexOf(".") + 1);
+      String updateString = getUpdateString(variables);
+      suffixToPreserveState.append(
+        interpreter.render(
+          buildDoUpdateTag(currentImportAlias, updateString, interpreter)
+        )
+      );
+    }
     return wrapInAutoEscapeIfNeeded(
-      prefixToPreserveState.toString() + joiner.toString(),
+      prefixToPreserveState.toString() +
+      joiner.toString() +
+      suffixToPreserveState.toString(),
       interpreter
     );
   }
 
-  private static String getUpdateString(
-    String variables,
-    String expression,
-    TagToken tagToken,
-    JinjavaInterpreter interpreter
-  ) {
+  private static String getUpdateString(String variables) {
     List<String> varList = Arrays
       .stream(variables.split(","))
       .map(String::trim)
       .collect(Collectors.toList());
-    ChunkResolver chunkResolver = new ChunkResolver(expression, tagToken, interpreter);
-    List<String> expressionList = chunkResolver.splitChunks();
     StringJoiner updateString = new StringJoiner(",");
-    for (int i = 0; i < varList.size() && i < expressionList.size(); i++) {
-      updateString.add(String.format("'%s': %s", varList.get(i), expressionList.get(i)));
-    }
+    // Update the alias map to the value of the set variable.
+    varList.forEach(var -> updateString.add(String.format("'%s': %s", var, var)));
     return updateString.toString();
   }
 }
