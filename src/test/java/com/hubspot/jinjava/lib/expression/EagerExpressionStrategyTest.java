@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.expression;
 
-import com.hubspot.jinjava.ExpectedTemplateInterpreter;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -13,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class EagerExpressionStrategyTest extends ExpressionNodeTest {
-  private ExpectedTemplateInterpreter expectedTemplateInterpreter;
 
   @Before
   public void eagerSetup() {
@@ -24,8 +24,6 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
         JinjavaConfig.newBuilder().withExecutionMode(new EagerExecutionMode()).build()
       );
     JinjavaInterpreter.pushCurrent(interpreter);
-    expectedTemplateInterpreter =
-      new ExpectedTemplateInterpreter(jinjava, interpreter, "expression");
     context.put("deferred", DeferredValue.instance());
   }
 
@@ -48,7 +46,10 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
       );
     JinjavaInterpreter.pushCurrent(interpreter);
     try {
-      expectedTemplateInterpreter.assertExpectedOutput("preserves-raw-tags");
+      assertExpectedOutput(
+        "{{ '{{ foo }}' }} {{ '{% something %}' }} {{ 'not needed' }}",
+        "{% raw %}{{ foo }}{% endraw %} {% raw %}{% something %}{% endraw %} not needed"
+      );
     } finally {
       JinjavaInterpreter.popCurrent();
     }
@@ -56,19 +57,30 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
 
   @Test
   public void itPreservesRawTagsNestedInterpretation() {
-    expectedTemplateInterpreter.assertExpectedOutput(
-      "preserves-raw-tags-nested-interpretation"
+    assertExpectedOutput(
+      "{{ '{{ 12345 }}' }} {{ '{% print 'bar' %}' }} {{ 'not needed' }}",
+      "12345 bar not needed"
     );
   }
 
   @Test
   public void itPrependsMacro() {
-    expectedTemplateInterpreter.assertExpectedOutput("prepends-macro");
+    assertExpectedOutput(
+      "{% macro foo(bar) %} {{ bar }} {% endmacro %}{{ foo(deferred) }}",
+      "{% macro foo(bar) %} {{ bar }} {% endmacro %}{{ foo(deferred) }}"
+    );
   }
 
   @Test
   public void itPrependsSet() {
     context.put("foo", new PyList(new ArrayList<>()));
-    expectedTemplateInterpreter.assertExpectedOutput("prepends-set");
+    assertExpectedOutput(
+      "{{ foo.append(deferred) }}",
+      "{% set foo = [] %}{{ foo.append(deferred) }}"
+    );
+  }
+
+  private void assertExpectedOutput(String inputTemplate, String expectedOutput) {
+    assertThat(interpreter.render(inputTemplate)).isEqualTo(expectedOutput);
   }
 }
