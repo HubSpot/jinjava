@@ -5,6 +5,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
@@ -14,6 +15,7 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.ChunkResolver;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,30 +52,32 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         .getInterpreterFactory()
         .newInstance(interpreter);
       child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
-
       JinjavaInterpreter.pushCurrent(child);
       setupImportAlias(currentImportAlias, child, interpreter);
+
       String output;
       try {
         output = child.render(node);
       } finally {
         JinjavaInterpreter.popCurrent();
       }
-
       interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
-
       Map<String, Object> childBindings = child.getContext().getSessionBindings();
 
-      // If the template depends on deferred values it should not be rendered and all defined variables and macros should be deferred too
+      // If the template depends on deferred values it should not be rendered,
+      // and all defined variables and macros should be deferred too.
       if (!child.getContext().getDeferredNodes().isEmpty()) {
         ImportTag.handleDeferredNodesDuringImport(
-          tagToken,
           node,
           currentImportAlias,
-          templateFile,
           childBindings,
           child,
           interpreter
+        );
+        throw new DeferredValueException(
+          templateFile,
+          tagToken.getLineNumber(),
+          tagToken.getStartPosition()
         );
       }
       integrateChild(currentImportAlias, childBindings, child, interpreter);
@@ -177,41 +181,40 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         currentMap =
           (Map<String, Object>) ((DeferredValue) maybeNextMap).getOriginalValue();
       } else {
-        return;
+        throw new InterpretException("Encountered a problem with import alias maps");
       }
     }
     currentMap.put(allAliases[allAliases.length - 1], new PyMap(new HashMap<>()));
   }
 
   @SuppressWarnings("unchecked")
-  private static Optional<Map<String, Object>> getMapForCurrentContextAlias(
+  private static Map<String, Object> getMapForCurrentContextAlias(
     String currentImportAlias,
     JinjavaInterpreter child
   ) {
     Object parentValueForChild = child.getContext().getParent().get(currentImportAlias);
     if (parentValueForChild instanceof Map) {
-      return Optional.of((Map<String, Object>) parentValueForChild);
+      return (Map<String, Object>) parentValueForChild;
     } else if (parentValueForChild instanceof DeferredValue) {
       if (((DeferredValue) parentValueForChild).getOriginalValue() instanceof Map) {
-        return Optional.of(
-          (Map<String, Object>) ((DeferredValue) parentValueForChild).getOriginalValue()
-        );
+        return (Map<String, Object>) (
+          (DeferredValue) parentValueForChild
+        ).getOriginalValue();
       }
       Map<String, Object> newMap = new PyMap(new HashMap<>());
       child
         .getContext()
         .getParent()
         .put(currentImportAlias, DeferredValue.instance(newMap));
-      return Optional.of(newMap);
+      return newMap;
     } else {
       Map<String, Object> newMap = new PyMap(new HashMap<>());
       child.getContext().getParent().put(currentImportAlias, newMap);
-      return Optional.of(newMap);
+      return newMap;
     }
   }
 
   @VisibleForTesting
-  @SuppressWarnings("unchecked")
   public static void integrateChild(
     String currentImportAlias,
     Map<String, Object> childBindings,
@@ -223,30 +226,33 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         parent.getContext().addGlobalMacro(macro);
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
+      childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
+      childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
       parent.getContext().putAll(childBindings);
     } else {
-      // Since we might be multiple layers deep of importing, we need the full name.
-      String fullImportAlias = child
-        .getContext()
-        .getImportResourceAlias()
-        .orElse(currentImportAlias);
       Map<String, MacroFunction> globalMacros = child.getContext().getGlobalMacros();
       for (Map.Entry<String, MacroFunction> macro : globalMacros.entrySet()) {
         childBindings.put(macro.getKey(), macro.getValue());
       }
-
+      Map<String, Object> mapForCurrentContextAlias = getMapForCurrentContextAlias(
+        currentImportAlias,
+        child
+      );
+      // Remove layers from self down to original import alias to prevent reference loops
+      Arrays
+        .stream(
+          child
+            .getContext()
+            .getImportResourceAlias()
+            .orElse(currentImportAlias)
+            .split("\\.")
+        )
+        .forEach(childBindings::remove);
+      // Remove meta keys
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
       childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
-      getMapForCurrentContextAlias(currentImportAlias, child)
-        .ifPresent(
-          map -> {
-            childBindings.remove(fullImportAlias.split("\\.", 2)[0]);
-            childBindings.remove(currentImportAlias);
-
-            childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
-            map.putAll(childBindings);
-          }
-        );
+      childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
+      mapForCurrentContextAlias.putAll(childBindings);
     }
   }
 }
