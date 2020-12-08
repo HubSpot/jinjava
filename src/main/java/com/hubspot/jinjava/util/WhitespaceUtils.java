@@ -67,6 +67,18 @@ public final class WhitespaceUtils {
     return s.trim();
   }
 
+  public static String unquoteAndUnescape(String s) {
+    if (s == null) {
+      return "";
+    }
+    if (startsWith(s, "'")) {
+      return unwrap(s, "'", "'").replaceAll("\\\\\"", "\"").replaceAll("\\\\'", "'");
+    } else if (startsWith(s, "\"")) {
+      return unwrap(s, "\"", "\"").replaceAll("\\\\\"", "\"").replaceAll("\\\\'", "'");
+    }
+    return s.trim();
+  }
+
   public static String unwrap(String s, String prefix, String suffix) {
     int start = 0, end = s.length() - 1;
 

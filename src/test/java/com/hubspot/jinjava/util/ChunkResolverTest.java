@@ -252,4 +252,15 @@ public class ChunkResolverTest {
     assertThat(WhitespaceUtils.unquote(chunkResolver.resolveChunks()))
       .isEqualTo(date.toString());
   }
+
+  @Test
+  public void itHandlesSingleQuotes() {
+    context.put("foo", "'");
+    context.put("bar", '\'');
+    ChunkResolver chunkResolver = makeChunkResolver(
+      "foo ~ ' & ' ~ bar ~ ' & ' ~ '\\'\\\"'"
+    );
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("' & ' & '\"");
+  }
 }

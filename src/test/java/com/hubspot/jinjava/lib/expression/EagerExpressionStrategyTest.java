@@ -80,6 +80,15 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
     );
   }
 
+  @Test
+  public void itDoesConcatenation() {
+    context.put("foo", "y'all");
+    assertExpectedOutput(
+      "{{ 'oh, ' ~ foo ~ foo ~ ' toaster' }}",
+      "oh, y'ally'all toaster"
+    );
+  }
+
   private void assertExpectedOutput(String inputTemplate, String expectedOutput) {
     assertThat(interpreter.render(inputTemplate)).isEqualTo(expectedOutput);
   }
