@@ -51,7 +51,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
         JinjavaConfig
           .newBuilder()
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
-          .withExecutionMode(new EagerExecutionMode())
+          .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );
     mockTag = mock(Tag.class);
@@ -207,7 +207,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     String toWrap = "{{ foo }}";
     JinjavaConfig preserveRawConfig = JinjavaConfig
       .newBuilder()
-      .withExecutionMode(new PreserveRawExecutionMode())
+      .withExecutionMode(PreserveRawExecutionMode.instance())
       .build();
     assertThat(
         EagerTagDecorator.wrapInRawIfNeeded(
@@ -223,7 +223,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     String toWrap = "foo";
     JinjavaConfig preserveRawConfig = JinjavaConfig
       .newBuilder()
-      .withExecutionMode(new PreserveRawExecutionMode())
+      .withExecutionMode(PreserveRawExecutionMode.instance())
       .build();
     assertThat(
         EagerTagDecorator.wrapInRawIfNeeded(
@@ -238,7 +238,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
   public void itDoesntWrapInRawTagForDefaultConfig() {
     JinjavaConfig defaultConfig = JinjavaConfig
       .newBuilder()
-      .withExecutionMode(new DefaultExecutionMode())
+      .withExecutionMode(DefaultExecutionMode.instance())
       .build();
     String toWrap = "{{ foo }}";
     assertThat(
