@@ -8,8 +8,7 @@ import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Map;
-import java.util.Objects;
+import org.apache.commons.lang3.math.NumberUtils;
 
 @JinjavaDoc(
   value = "Round the number to a given precision.",
@@ -21,13 +20,13 @@ import java.util.Objects;
   ),
   params = {
     @JinjavaParam(
-      value = RoundFilter.PRECISION_KEY,
-      type = "int",
+      value = "precision",
+      type = "number",
       defaultValue = "0",
       desc = "Specifies the precision of rounding"
     ),
     @JinjavaParam(
-      value = RoundFilter.METHOD_KEY,
+      value = "method",
       type = "enum common|ceil|floor",
       defaultValue = "common",
       desc = "Method of rounding: 'common' rounds either up or down, 'ceil' always rounds up, and 'floor' always rounds down."
@@ -47,9 +46,7 @@ import java.util.Objects;
     )
   }
 )
-public class RoundFilter extends AbstractFilter {
-  public static final String PRECISION_KEY = "precision";
-  public static final String METHOD_KEY = "method";
+public class RoundFilter implements Filter {
 
   @Override
   public String getName() {
@@ -57,11 +54,7 @@ public class RoundFilter extends AbstractFilter {
   }
 
   @Override
-  public Object filter(
-    Object var,
-    JinjavaInterpreter interpreter,
-    Map<String, Object> parsedArgs
-  ) {
+  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     if (var == null) {
       return null;
     }
@@ -78,30 +71,30 @@ public class RoundFilter extends AbstractFilter {
       );
     }
 
-    int precision = (int) parsedArgs.get(PRECISION_KEY);
+    int precision = 0;
+    if (args.length > 0) {
+      precision = NumberUtils.toInt(args[0]);
+    }
 
-    RoundingMode roundingMode = (RoundingMode) parsedArgs.get(METHOD_KEY);
+    String method = "common";
+    if (args.length > 1) {
+      method = args[1];
+    }
+
+    RoundingMode roundingMode;
+
+    switch (method) {
+      case "ceil":
+        roundingMode = RoundingMode.CEILING;
+        break;
+      case "floor":
+        roundingMode = RoundingMode.FLOOR;
+        break;
+      case "common":
+      default:
+        roundingMode = RoundingMode.HALF_UP;
+    }
 
     return result.setScale(precision, roundingMode);
-  }
-
-  @Override
-  protected Object parseArg(
-    JinjavaInterpreter interpreter,
-    JinjavaParam jinjavaParamMetadata,
-    Object value
-  ) {
-    if (jinjavaParamMetadata.value().equals(METHOD_KEY)) {
-      switch (Objects.toString(value, null)) {
-        case "ceil":
-          return RoundingMode.CEILING;
-        case "floor":
-          return RoundingMode.FLOOR;
-        case "common":
-        default:
-          return RoundingMode.HALF_UP;
-      }
-    }
-    return super.parseArg(interpreter, jinjavaParamMetadata, value);
   }
 }
