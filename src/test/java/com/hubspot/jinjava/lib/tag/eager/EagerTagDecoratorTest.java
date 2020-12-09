@@ -148,11 +148,11 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itDoesntReconstructVariablesInProtectedMode() {
+  public void itDoesntReconstructVariablesInDeferredExecutionMode() {
     Set<String> deferredWords = new HashSet<>();
     deferredWords.add("foo.append");
     context.put("foo", new PyList(new ArrayList<>()));
-    context.setProtectedMode(true);
+    context.setDeferredExecutionMode(true);
     String result = EagerTagDecorator.reconstructFromContextBeforeDeferring(
       deferredWords,
       interpreter

@@ -43,7 +43,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       true
     );
     StringBuilder prefixToPreserveState = new StringBuilder(
-      interpreter.getContext().isProtectedMode()
+      interpreter.getContext().isDeferredExecutionMode()
         ? resolvedExpression.getPrefixToPreserveState()
         : ""
     );
