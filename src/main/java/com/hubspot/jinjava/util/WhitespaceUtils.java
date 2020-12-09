@@ -67,16 +67,21 @@ public final class WhitespaceUtils {
     return s.trim();
   }
 
+  // TODO see if all usages of unquote can use this method instead
   public static String unquoteAndUnescape(String s) {
     if (s == null) {
       return "";
     }
+
     if (startsWith(s, "'")) {
-      return unwrap(s, "'", "'").replaceAll("\\\\\"", "\"").replaceAll("\\\\'", "'");
+      s = unwrap(s, "'", "'");
     } else if (startsWith(s, "\"")) {
-      return unwrap(s, "\"", "\"").replaceAll("\\\\\"", "\"").replaceAll("\\\\'", "'");
+      s = unwrap(s, "\"", "\"");
+    } else {
+      return s.trim();
     }
-    return s.trim();
+    // Since we're unquoting, we can unescape the quote characters in the string.
+    return s.replaceAll("\\\\\"", "\"").replaceAll("\\\\'", "'");
   }
 
   public static String unwrap(String s, String prefix, String suffix) {

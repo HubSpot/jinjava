@@ -249,7 +249,7 @@ public class ChunkResolverTest {
     );
     context.put("date", date);
     ChunkResolver chunkResolver = makeChunkResolver("date");
-    assertThat(WhitespaceUtils.unquote(chunkResolver.resolveChunks()))
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
       .isEqualTo(date.toString());
   }
 
