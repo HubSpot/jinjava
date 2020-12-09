@@ -62,7 +62,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
       .add(resolvedExpression.getResult())
       .add(tagToken.getSymbols().getExpressionEndWithTag());
     StringBuilder prefixToPreserveState = new StringBuilder(
-      interpreter.getContext().isProtectedMode()
+      interpreter.getContext().isDeferredExecutionMode()
         ? resolvedExpression.getPrefixToPreserveState()
         : ""
     );
@@ -70,7 +70,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
 
     if (
       chunkResolver.getDeferredWords().isEmpty() &&
-      !interpreter.getContext().isProtectedMode()
+      !interpreter.getContext().isDeferredExecutionMode()
     ) {
       try {
         getTag()
