@@ -134,7 +134,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    * Additionally, if the execution causes existing values on the context to become
    *   deferred, then their previous values will wrapped in a <code>set</code>
    *   tag that gets prepended to the returned result.
-   * The <code>function</code> is run in protectedMode=true, where the context needs to
+   * The <code>function</code> is run in deferredExecutionMode=true, where the context needs to
    *   be protected from having values updated or set,
    *   such as when evaluating both the positive and negative nodes in an if statement.
    * @param function Function to run within a "protected" child context
@@ -180,7 +180,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       );
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
-      interpreter.getContext().setProtectedMode(true);
+      interpreter.getContext().setDeferredExecutionMode(true);
       result.append(function.apply(interpreter));
     }
     Map<String, String> deferredValuesToSet = interpreter
@@ -310,8 +310,8 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
-    if (interpreter.getContext().isProtectedMode()) {
-      return ""; // This will be handled outside of the protected mode.
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      return ""; // This will be handled outside of the deferred execution mode.
     }
     Map<String, String> deferredMap = new HashMap<>();
     deferredWords
