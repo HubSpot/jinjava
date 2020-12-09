@@ -28,7 +28,7 @@ public class EagerDoTagTest extends DoTagTest {
         JinjavaConfig
           .newBuilder()
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
-          .withExecutionMode(new EagerExecutionMode())
+          .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );
 
@@ -48,7 +48,8 @@ public class EagerDoTagTest extends DoTagTest {
   @Test
   public void itHandlesDeferredDo() {
     context.put("foo", 2);
-    expectedNodeInterpreter.assertExpectedOutput("handles-deferred-do");
+    String template = "{% do deferred.append(foo*2) %}";
+    assertThat(interpreter.render(template)).isEqualTo("{% do deferred.append(4) %}");
   }
 
   @Test
@@ -57,7 +58,7 @@ public class EagerDoTagTest extends DoTagTest {
     for (int i = 0; i < MAX_OUTPUT_SIZE; i++) {
       tooLong.append(i);
     }
-    context.setProtectedMode(true);
+    context.setDeferredExecutionMode(true);
     interpreter.render(String.format("{%% do deferred.append(%s) %%}", tooLong));
     assertThat(interpreter.getErrors()).hasSize(1);
     assertThat(interpreter.getErrors().get(0).getReason())
