@@ -247,7 +247,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itPreservesForTag() {
     String output = interpreter.render(
       "{% for item in deferred %}{{ item.name }}last{% endfor %}"
@@ -660,7 +659,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersIfchanged() {
     expectedTemplateInterpreter.assertExpectedOutput("defers-ifchanged");
   }
