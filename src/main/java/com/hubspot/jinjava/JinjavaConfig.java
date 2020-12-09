@@ -231,7 +231,7 @@ public class JinjavaConfig {
     private boolean iterateOverMapKeys;
     private int maxListSize = Integer.MAX_VALUE;
     private int maxMapSize = Integer.MAX_VALUE;
-    private ExecutionMode executionMode = new DefaultExecutionMode();
+    private ExecutionMode executionMode = DefaultExecutionMode.instance();
 
     private Builder() {}
 

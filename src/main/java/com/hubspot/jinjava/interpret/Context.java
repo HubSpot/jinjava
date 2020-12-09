@@ -50,6 +50,7 @@ import java.util.stream.Collectors;
 public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
   public static final String IMPORT_RESOURCE_PATH_KEY = "import_resource_path";
+  public static final String IMPORT_RESOURCE_ALIAS = "import_resource_alias";
 
   private SetMultimap<String, String> dependencies = HashMultimap.create();
   private Map<Library, Set<String>> disabled;
@@ -99,7 +100,7 @@ public class Context extends ScopeMap<String, Object> {
   private final Stack<String> renderStack = new Stack<>();
 
   private boolean validationMode = false;
-  private boolean protectedMode = false;
+  private boolean deferredExecutionMode = false;
   private boolean hideInterpreterErrors = false;
 
   public Context() {
@@ -589,12 +590,12 @@ public class Context extends ScopeMap<String, Object> {
     return this.dependencies;
   }
 
-  public boolean isProtectedMode() {
-    return protectedMode;
+  public boolean isDeferredExecutionMode() {
+    return deferredExecutionMode;
   }
 
-  public Context setProtectedMode(boolean protectedMode) {
-    this.protectedMode = protectedMode;
+  public Context setDeferredExecutionMode(boolean deferredExecutionMode) {
+    this.deferredExecutionMode = deferredExecutionMode;
     return this;
   }
 

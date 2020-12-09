@@ -249,7 +249,7 @@ public class JinjavaInterpreterTest {
   public void itCanPreserveRawTags() {
     JinjavaConfig preserveConfig = JinjavaConfig
       .newBuilder()
-      .withExecutionMode(new PreserveRawExecutionMode())
+      .withExecutionMode(PreserveRawExecutionMode.instance())
       .build();
     String input = "1{% raw %}2{% endraw %}3";
     String normalOutput = "123";
