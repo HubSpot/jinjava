@@ -131,7 +131,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itPreservesIfTag() {
     String output = interpreter.render(
       "{% if deferred %}{{resolved}}{% else %}b{% endif %}"
@@ -141,7 +140,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itEagerlyResolvesNestedIfTag() {
     String output = interpreter.render(
       "{% if deferred %}{% if resolved %}{{resolved}}{% endif %}{% else %}b{% endif %}"
@@ -187,7 +185,6 @@ public class EagerTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  @Ignore
   public void itDoesNotResolveForTagDeferredBlockInside() {
     String output = interpreter.render(
       "{% for item in dict %}{% if item == deferred %} equal {% else %} not equal {% endif %}{% endfor %}"
@@ -338,7 +335,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersVariablesComparedAgainstDeferredVals() {
     String template = "";
     template += "{% set testVar = 'testvalue' %}";
@@ -608,7 +604,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itEagerlyDefersMacro() {
     localContext.put("foo", "I am foo");
     localContext.put("bar", "I am bar");
