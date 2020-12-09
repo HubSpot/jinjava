@@ -50,6 +50,7 @@ import java.util.stream.Collectors;
 public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
   public static final String IMPORT_RESOURCE_PATH_KEY = "import_resource_path";
+  public static final String IMPORT_RESOURCE_ALIAS = "import_resource_alias";
 
   private SetMultimap<String, String> dependencies = HashMultimap.create();
   private Map<Library, Set<String>> disabled;

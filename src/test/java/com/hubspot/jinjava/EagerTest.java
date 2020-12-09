@@ -278,7 +278,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersMacro() {
     localContext.put("padding", 0);
     localContext.put("added_padding", 10);
@@ -301,7 +300,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersAllVariablesUsedInDeferredNode() {
     String template = expectedTemplateInterpreter.getDeferredFixtureTemplate(
       "vars-in-deferred-node.jinja"
@@ -397,7 +395,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itMarksVariablesSetInDeferredBlockAsDeferred() {
     String template = expectedTemplateInterpreter.getDeferredFixtureTemplate(
       "set-in-deferred.jinja"
@@ -482,7 +479,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersEagerChildScopedVars() {
     expectedTemplateInterpreter.assertExpectedOutput("defers-eager-child-scoped-vars");
   }
@@ -512,7 +508,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itPrependsSetIfStateChanges() {
     expectedTemplateInterpreter.assertExpectedOutput("prepends-set-if-state-changes");
   }
