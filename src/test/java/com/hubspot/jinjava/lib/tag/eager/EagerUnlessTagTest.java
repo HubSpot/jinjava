@@ -23,7 +23,10 @@ public class EagerUnlessTagTest extends UnlessTagTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig.newBuilder().withExecutionMode(new EagerExecutionMode()).build()
+        JinjavaConfig
+          .newBuilder()
+          .withExecutionMode(EagerExecutionMode.instance())
+          .build()
       );
     tag = new EagerUnlessTag();
     context.registerTag(tag);

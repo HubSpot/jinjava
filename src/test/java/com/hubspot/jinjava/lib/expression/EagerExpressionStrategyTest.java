@@ -21,7 +21,10 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig.newBuilder().withExecutionMode(new EagerExecutionMode()).build()
+        JinjavaConfig
+          .newBuilder()
+          .withExecutionMode(EagerExecutionMode.instance())
+          .build()
       );
     JinjavaInterpreter.pushCurrent(interpreter);
     context.put("deferred", DeferredValue.instance());
@@ -41,7 +44,7 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
         JinjavaConfig
           .newBuilder()
           .withNestedInterpretationEnabled(false)
-          .withExecutionMode(new EagerExecutionMode())
+          .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );
     JinjavaInterpreter.pushCurrent(interpreter);
