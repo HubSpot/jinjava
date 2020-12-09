@@ -91,6 +91,8 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
 
   @Test
   public void itHandlesQuotesLikeJinja() {
+    // {{ 'a|\'|\\\'|\\\\\'|"|\"|\\"|\\\\"|a ' ~ " b|\"|\\\"|\\\\\"|'|\'|\\'|\\\\'|b" }}
+    // --> a|'|\'|\\'|"|"|\"|\\"|a  b|"|\"|\\"|'|'|\'|\\'|b
     assertExpectedOutput(
       "{{ 'a|\\'|\\\\\\'|\\\\\\\\\\'|\"|\\\"|\\\\\"|\\\\\\\\\"|a ' " +
       "~ \" b|\\\"|\\\\\\\"|\\\\\\\\\\\"|'|\\'|\\\\'|\\\\\\\\'|b\" }}",
