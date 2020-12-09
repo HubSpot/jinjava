@@ -89,10 +89,16 @@ public class TruthyTypeConverter extends TypeConverterImpl {
 
   @Override
   protected String coerceToString(Object value) {
-    if (value instanceof DummyObject) {
+    if (value instanceof DummyObject || value == null) {
       return "";
     }
-    return super.coerceToString(value);
+
+    // super() behavior breaks equality between enums and strings so removed here.
+    if (value instanceof String) {
+      return (String) value;
+    }
+
+    return value.toString();
   }
 
   @Override

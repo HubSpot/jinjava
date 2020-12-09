@@ -20,13 +20,13 @@ import java.util.Objects;
   ),
   params = {
     @JinjavaParam(
-      value = "start",
+      value = SumFilter.START_PARAM,
       type = "number",
       defaultValue = "0",
       desc = "Sets a value to return, if there is nothing in the variable to sum"
     ),
     @JinjavaParam(
-      value = "attribute",
+      value = SumFilter.ATTRIBUTE_PARAM,
       desc = "Specify an optional attribute of dict to sum"
     )
   },
@@ -40,7 +40,9 @@ import java.util.Objects;
     )
   }
 )
-public class SumFilter implements AdvancedFilter {
+public class SumFilter extends AbstractFilter implements AdvancedFilter {
+  public static final String START_PARAM = "start";
+  public static final String ATTRIBUTE_PARAM = "attribute";
 
   @Override
   public String getName() {
@@ -51,21 +53,16 @@ public class SumFilter implements AdvancedFilter {
   public Object filter(
     Object var,
     JinjavaInterpreter interpreter,
-    Object[] args,
-    Map<String, Object> kwargs
+    Map<String, Object> parsedArgs
   ) {
     ForLoop loop = ObjectIterator.getLoop(var);
 
-    BigDecimal sum = BigDecimal.ZERO;
-    String attr = kwargs.containsKey("attribute")
-      ? kwargs.get("attribute").toString()
-      : null;
+    Number start = (Number) parsedArgs.get(START_PARAM);
+    String attr = (String) parsedArgs.get(ATTRIBUTE_PARAM);
 
-    if (args.length > 0) {
-      try {
-        sum = sum.add(new BigDecimal(args[0].toString()));
-      } catch (NumberFormatException ignored) {}
-    }
+    BigDecimal sum = start instanceof BigDecimal
+      ? (BigDecimal) start
+      : new BigDecimal(Objects.toString(start.toString(), "0"));
 
     while (loop.hasNext()) {
       Object val = loop.next();
