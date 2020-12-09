@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.expression;
 
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
 import com.hubspot.jinjava.lib.tag.RawTag;
@@ -106,15 +107,12 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     String output,
     JinjavaInterpreter interpreter
   ) {
+    JinjavaConfig config = interpreter.getConfig();
     if (
-      interpreter.getConfig().getExecutionMode().isPreserveRawTags() &&
+      config.getExecutionMode().isPreserveRawTags() &&
       (
-        output.contains(
-          interpreter.getConfig().getTokenScannerSymbols().getExpressionStart()
-        ) ||
-        output.contains(
-          interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag()
-        )
+        output.contains(config.getTokenScannerSymbols().getExpressionStart()) ||
+        output.contains(config.getTokenScannerSymbols().getExpressionStartWithTag())
       )
     ) {
       return EagerTagDecorator.wrapInTag(output, RawTag.TAG_NAME, interpreter);
@@ -123,11 +121,12 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
   }
 
   private static String wrapInExpression(String output, JinjavaInterpreter interpreter) {
+    JinjavaConfig config = interpreter.getConfig();
     return String.format(
       "%s %s %s",
-      interpreter.getConfig().getTokenScannerSymbols().getExpressionStart(),
+      config.getTokenScannerSymbols().getExpressionStart(),
       output,
-      interpreter.getConfig().getTokenScannerSymbols().getExpressionEnd()
+      config.getTokenScannerSymbols().getExpressionEnd()
     );
   }
 }
