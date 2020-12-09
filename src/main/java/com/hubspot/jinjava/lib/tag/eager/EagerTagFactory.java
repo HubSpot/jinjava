@@ -2,8 +2,10 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.ForTag;
 import com.hubspot.jinjava.lib.tag.IfTag;
+import com.hubspot.jinjava.lib.tag.PrintTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.UnlessTag;
@@ -14,6 +16,8 @@ public class EagerTagFactory {
   public static final Map<Class<? extends Tag>, Class<? extends EagerTagDecorator<? extends Tag>>> EAGER_TAG_OVERRIDES = ImmutableMap
     .<Class<? extends Tag>, Class<? extends EagerTagDecorator<?>>>builder()
     .put(SetTag.class, EagerSetTag.class)
+    .put(DoTag.class, EagerDoTag.class)
+    .put(PrintTag.class, EagerPrintTag.class)
     .put(ForTag.class, EagerForTag.class)
     .put(IfTag.class, EagerIfTag.class)
     .put(UnlessTag.class, EagerUnlessTag.class)
