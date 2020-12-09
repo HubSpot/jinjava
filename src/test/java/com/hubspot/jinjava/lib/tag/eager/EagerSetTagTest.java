@@ -29,7 +29,7 @@ public class EagerSetTagTest extends SetTagTest {
         JinjavaConfig
           .newBuilder()
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
-          .withExecutionMode(new EagerExecutionMode())
+          .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );
     tag = new EagerSetTag();
@@ -48,7 +48,7 @@ public class EagerSetTagTest extends SetTagTest {
   @Test
   public void itEvaluatesExpression() {
     context.put("bar", 3);
-    context.setProtectedMode(true);
+    context.setDeferredExecutionMode(true);
     expectedNodeInterpreter.assertExpectedOutput("evaluates-expression");
     Optional<EagerToken> maybeEagerToken = context
       .getEagerTokens()
@@ -62,7 +62,7 @@ public class EagerSetTagTest extends SetTagTest {
   @Test
   public void itPartiallyEvaluatesDeferredExpression() {
     context.put("bar", 3);
-    context.setProtectedMode(true);
+    context.setDeferredExecutionMode(true);
     expectedNodeInterpreter.assertExpectedOutput(
       "partially-evaluates-deferred-expression"
     );
@@ -82,7 +82,7 @@ public class EagerSetTagTest extends SetTagTest {
   public void itHandlesMultipleVars() {
     context.put("bar", 3);
     context.put("baz", 6);
-    context.setProtectedMode(true);
+    context.setDeferredExecutionMode(true);
     expectedNodeInterpreter.assertExpectedOutput("handles-multiple-vars");
     Optional<EagerToken> maybeEagerToken = context
       .getEagerTokens()
@@ -102,7 +102,7 @@ public class EagerSetTagTest extends SetTagTest {
     for (int i = 0; i < MAX_OUTPUT_SIZE; i++) {
       tooLong.append(i);
     }
-    context.setProtectedMode(true);
+    context.setDeferredExecutionMode(true);
     interpreter.render(String.format("{%% set deferred = %s %%}", tooLong));
     assertThat(interpreter.getErrors()).hasSize(1);
     assertThat(interpreter.getErrors().get(0).getReason())
