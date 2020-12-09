@@ -6,12 +6,11 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.math.NumberUtils;
+import java.util.Map;
 
 @JinjavaDoc(
   value = "Slice an iterator and return a list of lists containing those items.",
@@ -23,13 +22,13 @@ import org.apache.commons.lang3.math.NumberUtils;
   ),
   params = {
     @JinjavaParam(
-      value = "slices",
-      type = "number",
+      value = SliceFilter.SLICES_PARAM,
+      type = "int",
       desc = "Specifies how many items will be sliced",
       required = true
     ),
     @JinjavaParam(
-      value = "fillWith",
+      value = SliceFilter.FILL_WITH_PARAM,
       type = "object",
       desc = "Specifies which object to use to fill missing values on final iteration",
       required = false
@@ -51,7 +50,9 @@ import org.apache.commons.lang3.math.NumberUtils;
     )
   }
 )
-public class SliceFilter implements Filter {
+public class SliceFilter extends AbstractFilter implements Filter {
+  public static final String SLICES_PARAM = "slices";
+  public static final String FILL_WITH_PARAM = "fillWith";
 
   @Override
   public String getName() {
@@ -59,25 +60,22 @@ public class SliceFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(
+    Object var,
+    JinjavaInterpreter interpreter,
+    Map<String, Object> parsedArgs
+  ) {
     ForLoop loop = ObjectIterator.getLoop(var);
 
-    if (args.length < 1) {
-      throw new TemplateSyntaxException(
-        interpreter,
-        getName(),
-        "requires 1 argument (number of slices)"
-      );
-    }
-
-    int slices = NumberUtils.toInt(args[0], 3);
+    int slices = (int) parsedArgs.get(SLICES_PARAM);
+    Object fillWith = parsedArgs.get(FILL_WITH_PARAM);
     if (slices <= 0) {
       throw new InvalidArgumentException(
         interpreter,
         this,
         InvalidReason.POSITIVE_NUMBER,
         0,
-        args[0]
+        slices
       );
     }
     List<List<Object>> result = new ArrayList<>();
@@ -94,8 +92,7 @@ public class SliceFilter implements Filter {
       i++;
     }
 
-    if (args.length > 1 && currentList != null) {
-      Object fillWith = args[1];
+    if (fillWith != null && currentList != null) {
       while (currentList.size() < slices) {
         currentList.add(fillWith);
       }
