@@ -523,7 +523,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itHandlesLoopVarAgainstDeferredInLoop() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "handles-loop-var-against-deferred-in-loop"
@@ -585,7 +584,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itPutsDeferredImportedMacroInOutput() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "puts-deferred-imported-macro-in-output"
@@ -593,7 +591,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itPutsDeferredImportedMacroInOutputSecondPass() {
     localContext.put("deferred", 1);
     expectedTemplateInterpreter.assertExpectedOutput(
@@ -605,7 +602,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itPutsDeferredFromedMacroInOutput() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "puts-deferred-fromed-macro-in-output"
@@ -630,13 +626,11 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itLoadsImportedMacroSyntax() {
     expectedTemplateInterpreter.assertExpectedOutput("loads-imported-macro-syntax");
   }
 
   @Test
-  @Ignore
   public void itDefersCaller() {
     expectedTemplateInterpreter.assertExpectedOutput("defers-caller");
   }
@@ -649,7 +643,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersMacroInExpression() {
     expectedTemplateInterpreter.assertExpectedOutput("defers-macro-in-expression");
   }
@@ -667,7 +660,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itHandlesDeferredInIfchanged() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-in-ifchanged");
   }
@@ -727,7 +719,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itHandlesAutoEscape() {
     localContext.put("myvar", "foo < bar");
     expectedTemplateInterpreter.assertExpectedOutput("handles-auto-escape");
@@ -765,7 +756,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itHandlesDeferredImportVarsSecondPass() {
     localContext.put("deferred", 1);
     expectedTemplateInterpreter.assertExpectedOutput(

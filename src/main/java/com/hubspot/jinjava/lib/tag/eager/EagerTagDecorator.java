@@ -17,6 +17,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.AutoEscapeTag;
+import com.hubspot.jinjava.lib.tag.MacroTag;
 import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.Tag;
@@ -118,7 +119,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    * Render all children of this TagNode.
    * @param tagNode TagNode to render the children of.
    * @param interpreter The JinjavaInterpreter.
-   * @return
+   * @return the string output of this tag node's children.
    */
   public String renderChildren(TagNode tagNode, JinjavaInterpreter interpreter) {
     StringBuilder sb = new StringBuilder();
@@ -232,6 +233,27 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   }
 
   /**
+   * Reconstruct the macro functions and variables from the context before they
+   * get deferred.
+   * Those macro functions and variables found within {@code deferredWords} are
+   * reconstructed with {@link MacroTag}(s) and a {@link SetTag}, respectively to
+   * preserve the context within the Jinjava template itself.
+   * @param deferredWords set of words that will need to be deferred based on the
+   *                      previously performed operation.
+   * @param interpreter the Jinjava interpreter.
+   * @return a Jinjava-syntax string of 0 or more macro tags and 0 or 1 set tags.
+   */
+  public static String reconstructFromContextBeforeDeferring(
+    Set<String> deferredWords,
+    JinjavaInterpreter interpreter
+  ) {
+    return (
+      reconstructMacroFunctionsBeforeDeferring(deferredWords, interpreter) +
+      reconstructVariablesBeforeDeferring(deferredWords, interpreter)
+    );
+  }
+
+  /**
    * Build macro tag images for any macro functions that are included in deferredWords
    * and remove those macro functions from the deferredWords set.
    * These macro functions are either global or local macro functions, with local
@@ -242,7 +264,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    * @return A jinjava-syntax string that is the images of any macro functions that must
    *  be evaluated at a later time.
    */
-  public static String getNewlyDeferredFunctionImages(
+  private static String reconstructMacroFunctionsBeforeDeferring(
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
@@ -279,12 +301,42 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       )
       .map(EagerStringResult::toString)
       .collect(Collectors.joining());
+    // Remove macro functions from the set because they've been fully processed now.
     deferredWords.removeAll(toRemove);
     return result;
   }
 
+  private static String reconstructVariablesBeforeDeferring(
+    Set<String> deferredWords,
+    JinjavaInterpreter interpreter
+  ) {
+    if (interpreter.getContext().isProtectedMode()) {
+      return ""; // This will be handled outside of the protected mode.
+    }
+    Map<String, String> deferredMap = new HashMap<>();
+    deferredWords
+      .stream()
+      .map(w -> w.split("\\.", 2)[0]) // get base prop
+      .filter(
+        w ->
+          interpreter.getContext().containsKey(w) &&
+          !(interpreter.getContext().get(w) instanceof DeferredValue)
+      )
+      .forEach(
+        w -> {
+          try {
+            deferredMap.put(
+              w,
+              ChunkResolver.getValueAsJinjavaString(interpreter.getContext().get(w))
+            );
+          } catch (JsonProcessingException ignored) {}
+        }
+      );
+    return buildSetTagForDeferredInChildContext(deferredMap, interpreter, true);
+  }
+
   /**
-   * Build the image for a set tag which preserves the values of objects on the context
+   * Build the image for a {@link SetTag} which preserves the values of objects on the context
    * for a later rendering pass. The set tag will set the keys to the values within
    * the {@code deferredValuesToSet} Map.
    * @param deferredValuesToSet Map that specifies what the context objects should be set
@@ -300,6 +352,9 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     JinjavaInterpreter interpreter,
     boolean registerEagerToken
   ) {
+    if (deferredValuesToSet.size() == 0) {
+      return "";
+    }
     if (
       interpreter.getConfig().getDisabled().containsKey(Library.TAG) &&
       interpreter.getConfig().getDisabled().get(Library.TAG).contains(SetTag.TAG_NAME)
@@ -395,7 +450,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       joiner.add(resolvedChunks);
     }
     joiner.add(tagToken.getSymbols().getExpressionEndWithTag());
-    String newlyDeferredFunctionImages = getNewlyDeferredFunctionImages(
+    String reconstructedFromContext = reconstructFromContextBeforeDeferring(
       chunkResolver.getDeferredWords(),
       interpreter
     );
@@ -414,7 +469,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         )
       );
 
-    return (newlyDeferredFunctionImages + joiner.toString());
+    return (reconstructedFromContext + joiner.toString());
   }
 
   public static String reconstructEnd(TagNode tagNode) {

@@ -18,6 +18,7 @@ import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.mode.DefaultExecutionMode;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
+import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
@@ -104,13 +105,13 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itGetsNewlyDeferredFunctionImagesFromGlobal() {
+  public void itReconstructsMacroFunctionsFromGlobal() {
     Set<String> deferredWords = new HashSet<>();
     deferredWords.add("foo");
     String image = "{% macro foo(bar) %}something{% endmacro %}";
     MacroFunction mockMacroFunction = getMockMacroFunction(image);
     context.addGlobalMacro(mockMacroFunction);
-    String result = EagerTagDecorator.getNewlyDeferredFunctionImages(
+    String result = EagerTagDecorator.reconstructFromContextBeforeDeferring(
       deferredWords,
       interpreter
     );
@@ -119,19 +120,61 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itGetsNewlyDeferredFunctionImagesFromLocal() {
+  public void itReconstructsMacroFunctionsFromLocal() {
     Set<String> deferredWords = new HashSet<>();
     deferredWords.add("local.foo");
     String image = "{% macro foo(bar) %}something{% endmacro %}";
     MacroFunction mockMacroFunction = getMockMacroFunction(image);
     Map<String, Object> localAlias = new PyMap(ImmutableMap.of("foo", mockMacroFunction));
     context.put("local", localAlias);
-    String result = EagerTagDecorator.getNewlyDeferredFunctionImages(
+    String result = EagerTagDecorator.reconstructFromContextBeforeDeferring(
       deferredWords,
       interpreter
     );
     assertThat(result).isEqualTo("{% macro local.foo(bar) %}something{% endmacro %}");
     assertThat(deferredWords).isEmpty();
+  }
+
+  @Test
+  public void itReconstructsVariables() {
+    Set<String> deferredWords = new HashSet<>();
+    deferredWords.add("foo.append");
+    context.put("foo", new PyList(new ArrayList<>()));
+    String result = EagerTagDecorator.reconstructFromContextBeforeDeferring(
+      deferredWords,
+      interpreter
+    );
+    assertThat(result).isEqualTo("{% set foo = [] %}");
+  }
+
+  @Test
+  public void itDoesntReconstructVariablesInProtectedMode() {
+    Set<String> deferredWords = new HashSet<>();
+    deferredWords.add("foo.append");
+    context.put("foo", new PyList(new ArrayList<>()));
+    context.setProtectedMode(true);
+    String result = EagerTagDecorator.reconstructFromContextBeforeDeferring(
+      deferredWords,
+      interpreter
+    );
+    assertThat(result).isEqualTo("");
+  }
+
+  @Test
+  public void itReconstructsVariablesAndMacroFunctions() {
+    Set<String> deferredWords = new HashSet<>();
+    deferredWords.add("bar.append");
+    deferredWords.add("foo");
+    String image = "{% macro foo(bar) %}something{% endmacro %}";
+    MacroFunction mockMacroFunction = getMockMacroFunction(image);
+    context.addGlobalMacro(mockMacroFunction);
+    context.put("bar", new PyList(new ArrayList<>()));
+    String result = EagerTagDecorator.reconstructFromContextBeforeDeferring(
+      deferredWords,
+      interpreter
+    );
+    assertThat(result)
+      .isEqualTo("{% macro foo(bar) %}something{% endmacro %}{% set bar = [] %}");
   }
 
   @Test

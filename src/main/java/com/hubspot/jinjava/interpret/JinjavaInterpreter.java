@@ -564,6 +564,10 @@ public class JinjavaInterpreter {
   }
 
   public void addError(TemplateError templateError) {
+    if (context.getHideInterpreterErrors()) {
+      // Hiding errors when resolving chunks.
+      return;
+    }
     // fix line numbers not matching up with source template
     if (!context.getCurrentPathStack().isEmpty()) {
       if (!templateError.getSourceTemplate().isPresent()) {
