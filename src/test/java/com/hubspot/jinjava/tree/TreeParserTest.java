@@ -27,7 +27,7 @@ public class TreeParserTest extends BaseInterpretingTest {
 
   @Test
   public void itStripsLeftWhiteSpace() throws Exception {
-    String expression = "{% for foo in [1,2,3] %}\n{{ foo }}. \n\r\n {%- endfor %}";
+    String expression = "{% for foo in [1,2,3] %}\n{{ foo }}. \n {%- endfor %}";
     final Node tree = new TreeParser(interpreter, expression).buildTree();
     assertThat(interpreter.render(tree)).isEqualTo("\n1.\n2.\n3.");
   }
