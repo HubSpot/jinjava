@@ -64,7 +64,7 @@ public class EagerTest {
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
-      .withExecutionMode(new EagerExecutionMode())
+      .withExecutionMode(EagerExecutionMode.instance())
       .withNestedInterpretationEnabled(true)
       .build();
     JinjavaInterpreter parentInterpreter = new JinjavaInterpreter(
@@ -728,7 +728,7 @@ public class EagerTest {
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
-      .withExecutionMode(new EagerExecutionMode())
+      .withExecutionMode(EagerExecutionMode.instance())
       .withNestedInterpretationEnabled(false)
       .build();
     JinjavaInterpreter parentInterpreter = new JinjavaInterpreter(
