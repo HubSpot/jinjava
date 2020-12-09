@@ -263,4 +263,15 @@ public class ChunkResolverTest {
     assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
       .isEqualTo("' & ' & '\"");
   }
+
+  @Test
+  public void itHandlesNewlines() {
+    context.put("foo", "\n");
+    context.put("bar", "\\" + "n");
+    ChunkResolver chunkResolver = makeChunkResolver(
+      "foo ~ ' & ' ~ bar ~ ' & ' ~ '\\\\' ~ 'n' ~ ' & \\\\n'"
+    );
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("\n & \n & \\n & \\n");
+  }
 }

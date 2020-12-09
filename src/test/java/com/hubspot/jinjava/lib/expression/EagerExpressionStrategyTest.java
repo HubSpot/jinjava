@@ -89,6 +89,15 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
     );
   }
 
+  @Test
+  public void itHandlesQuotesLikeJinja() {
+    assertExpectedOutput(
+      "{{ 'a|\\'|\\\\\\'|\\\\\\\\\\'|\"|\\\"|\\\\\"|\\\\\\\\\"|a ' " +
+      "~ \" b|\\\"|\\\\\\\"|\\\\\\\\\\\"|'|\\'|\\\\'|\\\\\\\\'|b\" }}",
+      "a|'|\\'|\\\\'|\"|\"|\\\"|\\\\\"|a  b|\"|\\\"|\\\\\"|'|'|\\'|\\\\'|b"
+    );
+  }
+
   private void assertExpectedOutput(String inputTemplate, String expectedOutput) {
     assertThat(interpreter.render(inputTemplate)).isEqualTo(expectedOutput);
   }
