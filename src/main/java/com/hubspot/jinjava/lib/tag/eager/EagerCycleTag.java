@@ -33,7 +33,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       expression = expression.substring(1, expression.length() - 1);
     }
     StringBuilder prefixToPreserveState = new StringBuilder(
-      interpreter.getContext().isProtectedMode()
+      interpreter.getContext().isDeferredExecutionMode()
         ? resolvedExpression.getPrefixToPreserveState()
         : ""
     );
@@ -106,7 +106,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     ChunkResolver chunkResolver,
     String resolvedExpression
   ) {
-    if (interpreter.getContext().isProtectedMode()) {
+    if (interpreter.getContext().isDeferredExecutionMode()) {
       return reconstructCycleTag(resolvedExpression, tagToken);
     }
     Integer forindex = (Integer) interpreter.retraceVariable(
