@@ -29,7 +29,7 @@ public class EagerForTagTest extends ForTagTest {
         JinjavaConfig
           .newBuilder()
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
-          .withExecutionMode(new EagerExecutionMode())
+          .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );
     tag = new EagerForTag();

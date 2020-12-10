@@ -64,7 +64,7 @@ public class EagerTest {
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
-      .withExecutionMode(new EagerExecutionMode())
+      .withExecutionMode(EagerExecutionMode.instance())
       .withNestedInterpretationEnabled(true)
       .build();
     JinjavaInterpreter parentInterpreter = new JinjavaInterpreter(
@@ -131,7 +131,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itPreservesIfTag() {
     String output = interpreter.render(
       "{% if deferred %}{{resolved}}{% else %}b{% endif %}"
@@ -141,7 +140,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itEagerlyResolvesNestedIfTag() {
     String output = interpreter.render(
       "{% if deferred %}{% if resolved %}{{resolved}}{% endif %}{% else %}b{% endif %}"
@@ -187,7 +185,6 @@ public class EagerTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  @Ignore
   public void itDoesNotResolveForTagDeferredBlockInside() {
     String output = interpreter.render(
       "{% for item in dict %}{% if item == deferred %} equal {% else %} not equal {% endif %}{% endfor %}"
@@ -281,7 +278,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersMacro() {
     localContext.put("padding", 0);
     localContext.put("added_padding", 10);
@@ -304,7 +300,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersAllVariablesUsedInDeferredNode() {
     String template = expectedTemplateInterpreter.getDeferredFixtureTemplate(
       "vars-in-deferred-node.jinja"
@@ -338,7 +333,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersVariablesComparedAgainstDeferredVals() {
     String template = "";
     template += "{% set testVar = 'testvalue' %}";
@@ -401,7 +395,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itMarksVariablesSetInDeferredBlockAsDeferred() {
     String template = expectedTemplateInterpreter.getDeferredFixtureTemplate(
       "set-in-deferred.jinja"
@@ -486,7 +479,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersEagerChildScopedVars() {
     expectedTemplateInterpreter.assertExpectedOutput("defers-eager-child-scoped-vars");
   }
@@ -508,7 +500,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDoesntDoubleAppendInDeferredTag() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "doesnt-double-append-in-deferred-tag"
@@ -516,7 +507,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itPrependsSetIfStateChanges() {
     expectedTemplateInterpreter.assertExpectedOutput("prepends-set-if-state-changes");
   }
@@ -540,7 +530,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersMacroForDoAndPrint() {
     localContext.put("my_list", new PyList(new ArrayList<>()));
     localContext.put("first", 10);
@@ -576,7 +565,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersMacroInIf() {
     localContext.put("my_list", new PyList(new ArrayList<>()));
     expectedTemplateInterpreter.assertExpectedOutput("defers-macro-in-if");
@@ -608,7 +596,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itEagerlyDefersMacro() {
     localContext.put("foo", "I am foo");
     localContext.put("bar", "I am bar");
@@ -721,12 +708,11 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itWrapsCertainOutputInRaw() {
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
-      .withExecutionMode(new EagerExecutionMode())
+      .withExecutionMode(EagerExecutionMode.instance())
       .withNestedInterpretationEnabled(false)
       .build();
     JinjavaInterpreter parentInterpreter = new JinjavaInterpreter(
