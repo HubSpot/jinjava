@@ -436,14 +436,12 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itEagerlyDefersSet() {
     localContext.put("bar", true);
     expectedTemplateInterpreter.assertExpectedOutput("eagerly-defers-set");
   }
 
   @Test
-  @Ignore
   public void itEvaluatesNonEagerSet() {
     expectedTemplateInterpreter.assertExpectedOutput("evaluates-non-eager-set");
     assertThat(
@@ -465,13 +463,11 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersOnImmutableMode() {
     expectedTemplateInterpreter.assertExpectedOutput("defers-on-immutable-mode");
   }
 
   @Test
-  @Ignore
   public void itDoesntAffectParentFromEagerIf() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "doesnt-affect-parent-from-eager-if"
@@ -484,7 +480,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itSetsMultipleVarsDeferredInChild() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "sets-multiple-vars-deferred-in-child"
@@ -558,7 +553,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itDefersMacroInFor() {
     localContext.put("my_list", new PyList(new ArrayList<>()));
     expectedTemplateInterpreter.assertExpectedOutput("defers-macro-in-for");
@@ -656,7 +650,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itHandlesCycleInDeferredFor() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-cycle-in-deferred-for");
   }
@@ -673,13 +666,11 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itHandlesDeferredInCycle() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-in-cycle");
   }
 
   @Test
-  @Ignore
   public void itHandlesDeferredCycleAs() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-cycle-as");
   }
@@ -697,10 +688,10 @@ public class EagerTest {
 
   @Test
   public void itHandlesNonDeferringCycles() {
+    expectedTemplateInterpreter.assertExpectedOutput("handles-non-deferring-cycles");
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "handles-non-deferring-cycles"
     );
-    expectedTemplateInterpreter.assertExpectedOutput("handles-non-deferring-cycles");
   }
 
   @Test

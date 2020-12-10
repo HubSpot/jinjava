@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.lib.tag.CycleTag;
 import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.ForTag;
 import com.hubspot.jinjava.lib.tag.IfTag;
@@ -19,6 +20,7 @@ public class EagerTagFactory {
     .put(DoTag.class, EagerDoTag.class)
     .put(PrintTag.class, EagerPrintTag.class)
     .put(ForTag.class, EagerForTag.class)
+    .put(CycleTag.class, EagerCycleTag.class)
     .put(IfTag.class, EagerIfTag.class)
     .put(UnlessTag.class, EagerUnlessTag.class)
     .build();
