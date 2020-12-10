@@ -37,7 +37,10 @@ public class ExpectedTemplateInterpreter {
     JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContextCopy(),
-      JinjavaConfig.newBuilder().withExecutionMode(new DefaultExecutionMode()).build()
+      JinjavaConfig
+        .newBuilder()
+        .withExecutionMode(DefaultExecutionMode.instance())
+        .build()
     );
     try {
       JinjavaInterpreter.pushCurrent(preserveInterpreter);

@@ -100,7 +100,7 @@ public class Context extends ScopeMap<String, Object> {
   private final Stack<String> renderStack = new Stack<>();
 
   private boolean validationMode = false;
-  private boolean protectedMode = false;
+  private boolean deferredExecutionMode = false;
   private boolean hideInterpreterErrors = false;
 
   public Context() {
@@ -589,12 +589,12 @@ public class Context extends ScopeMap<String, Object> {
     return this.dependencies;
   }
 
-  public boolean isProtectedMode() {
-    return protectedMode;
+  public boolean isDeferredExecutionMode() {
+    return deferredExecutionMode;
   }
 
-  public Context setProtectedMode(boolean protectedMode) {
-    this.protectedMode = protectedMode;
+  public Context setDeferredExecutionMode(boolean deferredExecutionMode) {
+    this.deferredExecutionMode = deferredExecutionMode;
     return this;
   }
 
