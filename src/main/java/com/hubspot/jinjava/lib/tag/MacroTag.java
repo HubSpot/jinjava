@@ -12,6 +12,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.util.ChunkResolver;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -167,7 +168,7 @@ public class MacroTag implements Tag {
     String args,
     LinkedHashMap<String, Object> argNamesWithDefaults
   ) {
-    List<String> argList = Lists.newArrayList(ARGS_SPLITTER.split(args));
+    List<String> argList = new ChunkResolver(args).splitChunks(); //Lists.newArrayList(ARGS_SPLITTER.split(args));
     boolean deferred = false;
     for (int i = 0; i < argList.size(); i++) {
       String arg = argList.get(i);

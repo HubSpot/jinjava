@@ -61,9 +61,10 @@ public class ChunkResolver {
 
   private final char[] value;
   private final int length;
-  private final Token token;
-  private final JinjavaInterpreter interpreter;
+  private Token token;
+  private JinjavaInterpreter interpreter;
   private final Set<String> deferredWords;
+  private boolean doInterpret = false;
 
   private int nextPos = 0;
   private char prevChar = 0;
@@ -75,6 +76,13 @@ public class ChunkResolver {
     length = value.length;
     this.token = token;
     this.interpreter = interpreter;
+    deferredWords = new HashSet<>();
+    doInterpret = true;
+  }
+
+  public ChunkResolver(String s) {
+    value = s.toCharArray();
+    length = value.length;
     deferredWords = new HashSet<>();
   }
 
@@ -99,6 +107,9 @@ public class ChunkResolver {
    */
   public String resolveChunks() {
     nextPos = 0;
+    if (!doInterpret) {
+      return String.join("", getChunk(null));
+    }
     boolean isHideInterpreterErrorsStart = interpreter
       .getContext()
       .getHideInterpreterErrors();
@@ -120,19 +131,28 @@ public class ChunkResolver {
    */
   public List<String> splitChunks() {
     nextPos = 0;
+    if (!doInterpret) {
+      return innerSplitChunks();
+    }
     boolean isHideInterpreterErrorsStart = interpreter
       .getContext()
       .getHideInterpreterErrors();
     try {
       interpreter.getContext().setHideInterpreterErrors(true);
-      List<String> miniChunks = getChunk(null);
-      return miniChunks
-        .stream()
-        .filter(s -> s.length() > 1 || !isMiniChunkSplitter(s.charAt(0)))
-        .collect(Collectors.toList());
+      return innerSplitChunks();
     } finally {
       interpreter.getContext().setHideInterpreterErrors(isHideInterpreterErrorsStart);
     }
+  }
+
+  private List<String> innerSplitChunks() {
+    return getChunk(null)
+      .stream()
+      .filter(
+        s -> s.length() > 1 || (s.length() > 0 && !isMiniChunkSplitter(s.charAt(0)))
+      )
+      .map(String::trim)
+      .collect(Collectors.toList());
   }
 
   /**
@@ -199,6 +219,9 @@ public class ChunkResolver {
   }
 
   private String resolveToken(String token) {
+    if (!doInterpret) {
+      return token;
+    }
     if (StringUtils.isBlank(token)) {
       return "";
     }
@@ -236,7 +259,7 @@ public class ChunkResolver {
   private String resolveChunk(String chunk) {
     if (StringUtils.isBlank(chunk)) {
       return "";
-    } else if (RESERVED_KEYWORDS.contains(chunk)) {
+    } else if (!doInterpret || RESERVED_KEYWORDS.contains(chunk)) {
       return chunk;
     }
     try {
