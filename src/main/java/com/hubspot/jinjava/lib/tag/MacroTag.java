@@ -2,7 +2,6 @@ package com.hubspot.jinjava.lib.tag;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -168,7 +167,7 @@ public class MacroTag implements Tag {
     String args,
     LinkedHashMap<String, Object> argNamesWithDefaults
   ) {
-    List<String> argList = new ChunkResolver(args).splitChunks(); //Lists.newArrayList(ARGS_SPLITTER.split(args));
+    List<String> argList = new ChunkResolver(args).splitChunks();
     boolean deferred = false;
     for (int i = 0; i < argList.size(); i++) {
       String arg = argList.get(i);

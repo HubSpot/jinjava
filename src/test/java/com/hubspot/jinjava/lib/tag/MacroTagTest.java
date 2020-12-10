@@ -105,6 +105,18 @@ public class MacroTagTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itAllowsCommasInKwargs() {
+    TagNode t = fixture("allows-commas-in-kwargs");
+    assertThat(t.render(interpreter).getValue()).isEmpty();
+
+    String out = snippet("{{ separate('foo', 'bar') }}")
+      .render(interpreter)
+      .getValue()
+      .trim();
+    assertThat(out).isEqualTo("foo,bar");
+  }
+
+  @Test
   public void testFnWithArgsWithDefVals() {
     TagNode t = fixture("def-vals");
     assertThat(t.render(interpreter).getValue()).isEmpty();
