@@ -4,8 +4,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
-import com.hubspot.jinjava.util.ChunkResolver;
-import java.util.StringJoiner;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerDoTag extends EagerStateChangingTag<DoTag> {
@@ -25,50 +23,9 @@ public class EagerDoTag extends EagerStateChangingTag<DoTag> {
       throw new TemplateSyntaxException(
         interpreter,
         tagToken.getImage(),
-        "Tag 'print' expects expression"
+        "Tag 'do' expects expression"
       );
     }
-    ChunkResolver chunkResolver = new ChunkResolver(expr, tagToken, interpreter);
-    EagerStringResult resolvedExpression = executeInChildContext(
-      eagerInterpreter -> chunkResolver.resolveChunks(),
-      interpreter,
-      true
-    );
-    StringJoiner joiner = new StringJoiner(" ");
-    joiner
-      .add(tagToken.getSymbols().getExpressionStartWithTag())
-      .add(tagToken.getTagName())
-      .add(resolvedExpression.getResult())
-      .add(tagToken.getSymbols().getExpressionEndWithTag());
-    StringBuilder prefixToPreserveState = new StringBuilder(
-      interpreter.getContext().isProtectedMode()
-        ? resolvedExpression.getPrefixToPreserveState()
-        : ""
-    );
-    if (chunkResolver.getDeferredWords().isEmpty()) {
-      // Possible macro/set tag in front of this one. Omits result
-      return prefixToPreserveState.toString();
-    }
-    prefixToPreserveState.append(
-      reconstructFromContextBeforeDeferring(chunkResolver.getDeferredWords(), interpreter)
-    );
-    interpreter
-      .getContext()
-      .handleEagerToken(
-        new EagerToken(
-          new TagToken(
-            joiner.toString(),
-            tagToken.getLineNumber(),
-            tagToken.getStartPosition(),
-            tagToken.getSymbols()
-          ),
-          chunkResolver.getDeferredWords()
-        )
-      );
-    // Possible set tag in front of this one.
-    return wrapInAutoEscapeIfNeeded(
-      prefixToPreserveState.toString() + joiner.toString(),
-      interpreter
-    );
+    return EagerPrintTag.interpretExpression(expr, tagToken, interpreter, false);
   }
 }

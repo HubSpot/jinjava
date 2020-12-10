@@ -52,7 +52,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
   ) {
     Optional<String> importFile = macroFunction.getImportFile(interpreter);
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
-      interpreter.getContext().setProtectedMode(true);
+      interpreter.getContext().setDeferredExecutionMode(true);
       return macroFunction.getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
     } finally {
       importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop());
