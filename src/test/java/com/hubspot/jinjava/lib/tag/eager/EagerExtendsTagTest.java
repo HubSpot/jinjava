@@ -21,7 +21,10 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig.newBuilder().withExecutionMode(new EagerExecutionMode()).build()
+        JinjavaConfig
+          .newBuilder()
+          .withExecutionMode(EagerExecutionMode.instance())
+          .build()
       );
     context.put("deferred", DeferredValue.instance());
     expectedTemplateInterpreter =
