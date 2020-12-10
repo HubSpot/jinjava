@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.ExpectedNodeInterpreter;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -22,7 +21,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class EagerFromTagTest extends FromTagTest {
-  private ExpectedNodeInterpreter expectedNodeInterpreter;
 
   @Before
   public void eagerSetup() {
@@ -54,15 +52,16 @@ public class EagerFromTagTest extends FromTagTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig.newBuilder().withExecutionMode(new EagerExecutionMode()).build()
+        JinjavaConfig
+          .newBuilder()
+          .withExecutionMode(EagerExecutionMode.instance())
+          .build()
       );
     Tag tag = EagerTagFactory
       .getEagerTagDecorator(FromTag.class)
       .orElseThrow(RuntimeException::new);
     context.registerTag(tag);
     context.put("deferred", DeferredValue.instance());
-    expectedNodeInterpreter =
-      new ExpectedNodeInterpreter(interpreter, tag, "tags/eager/fromtag");
     JinjavaInterpreter.pushCurrent(interpreter);
   }
 

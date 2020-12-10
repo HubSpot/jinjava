@@ -3,7 +3,6 @@ package com.hubspot.jinjava.lib.tag.eager;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.ExpectedNodeInterpreter;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -29,7 +28,6 @@ import org.junit.Test;
 public class EagerImportTagTest extends ImportTagTest {
   private static final String CONTEXT_VAR = "context_var";
   private static final String TEMPLATE_FILE = "template.jinja";
-  private ExpectedNodeInterpreter expectedNodeInterpreter;
 
   @Before
   public void eagerSetup() {
@@ -38,15 +36,16 @@ public class EagerImportTagTest extends ImportTagTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig.newBuilder().withExecutionMode(new EagerExecutionMode()).build()
+        JinjavaConfig
+          .newBuilder()
+          .withExecutionMode(EagerExecutionMode.instance())
+          .build()
       );
     Tag tag = EagerTagFactory
       .getEagerTagDecorator(FromTag.class)
       .orElseThrow(RuntimeException::new);
     context.registerTag(tag);
     context.put("deferred", DeferredValue.instance());
-    expectedNodeInterpreter =
-      new ExpectedNodeInterpreter(interpreter, tag, "tags/eager/importtag");
     JinjavaInterpreter.pushCurrent(interpreter);
   }
 
