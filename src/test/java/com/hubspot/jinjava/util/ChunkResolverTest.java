@@ -249,7 +249,29 @@ public class ChunkResolverTest {
     );
     context.put("date", date);
     ChunkResolver chunkResolver = makeChunkResolver("date");
-    assertThat(WhitespaceUtils.unquote(chunkResolver.resolveChunks()))
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
       .isEqualTo(date.toString());
+  }
+
+  @Test
+  public void itHandlesSingleQuotes() {
+    context.put("foo", "'");
+    context.put("bar", '\'');
+    ChunkResolver chunkResolver = makeChunkResolver(
+      "foo ~ ' & ' ~ bar ~ ' & ' ~ '\\'\\\"'"
+    );
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("' & ' & '\"");
+  }
+
+  @Test
+  public void itHandlesNewlines() {
+    context.put("foo", "\n");
+    context.put("bar", "\\" + "n");
+    ChunkResolver chunkResolver = makeChunkResolver(
+      "foo ~ ' & ' ~ bar ~ ' & ' ~ '\\\\' ~ 'n' ~ ' & \\\\n'"
+    );
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("\n & \n & \\n & \\n");
   }
 }
