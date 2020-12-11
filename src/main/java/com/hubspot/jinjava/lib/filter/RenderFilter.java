@@ -12,7 +12,7 @@ import java.util.Objects;
   snippets = {
     @JinjavaSnippet(
       code = "{{ \"{% if my_val %} Hello {% else %} world {% endif %}\"|render }}"
-    ),
+    )
   }
 )
 public class RenderFilter implements Filter {
