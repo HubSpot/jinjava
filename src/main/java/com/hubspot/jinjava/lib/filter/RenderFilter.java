@@ -11,8 +11,8 @@ import java.util.Objects;
   input = @JinjavaParam(value = "s", desc = "String to render", required = true),
   snippets = {
     @JinjavaSnippet(
-      code = "{{ \"{% if my_val %}} Hello {% else %} world {% endif %}\"|render }}"
-    )
+      code = "{{ \"{% if my_val %} Hello {% else %} world {% endif %}\"|render }}"
+    ),
   }
 )
 public class RenderFilter implements Filter {

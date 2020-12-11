@@ -15,8 +15,8 @@ public class RenderFilterTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itWritesObjectAsString() {
-    String stringToRender = "{% if null %}}Hello{% else %}world{% endif %}";
+  public void itRendersObject() {
+    String stringToRender = "{% if null %}Hello{% else %}world{% endif %}";
 
     assertThat(filter.filter(stringToRender, interpreter)).isEqualTo("world");
   }
