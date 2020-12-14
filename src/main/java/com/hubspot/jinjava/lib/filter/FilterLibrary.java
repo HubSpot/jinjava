@@ -110,7 +110,8 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
       ToJsonFilter.class,
       FromJsonFilter.class,
       ToYamlFilter.class,
-      FromYamlFilter.class
+      FromYamlFilter.class,
+      RenderFilter.class
     );
   }
 
