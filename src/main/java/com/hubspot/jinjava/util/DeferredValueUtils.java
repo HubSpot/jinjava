@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -29,7 +30,7 @@ public class DeferredValueUtils {
   private static final Pattern TEMPLATE_TAG_PATTERN = Pattern.compile(TEMPLATE_TAG_REGEX);
 
   public static HashMap<String, Object> getDeferredContextWithOriginalValues(
-    Context context
+    Map<String, Object> context
   ) {
     return getDeferredContextWithOriginalValues(context, ImmutableSet.of());
   }
@@ -38,7 +39,7 @@ public class DeferredValueUtils {
   //Ignores deferred properties with no originalValue
   //Optionally only keep keys in keysToKeep
   public static HashMap<String, Object> getDeferredContextWithOriginalValues(
-    Context context,
+    Map<String, Object> context,
     Set<String> keysToKeep
   ) {
     HashMap<String, Object> deferredContext = new HashMap<>(context.size());
