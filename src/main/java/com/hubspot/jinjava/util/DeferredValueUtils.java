@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -58,6 +59,22 @@ public class DeferredValueUtils {
       }
     );
     return deferredContext;
+  }
+
+  public static void deferVariables(String[] varTokens, Map<String, Object> context) {
+    for (String varToken : varTokens) {
+      String key = varToken.trim();
+      Object originalValue = context.get(key);
+      if (originalValue != null) {
+        if (originalValue instanceof DeferredValue) {
+          context.put(key, originalValue);
+        } else {
+          context.put(key, DeferredValue.instance(originalValue));
+        }
+      } else {
+        context.put(key, DeferredValue.instance());
+      }
+    }
   }
 
   public static Set<String> findAndMarkDeferredProperties(Context context) {

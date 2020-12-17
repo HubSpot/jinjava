@@ -24,6 +24,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.DeferredValueUtils;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
@@ -110,27 +111,11 @@ public class SetTag implements Tag {
     try {
       executeSet((TagToken) tagNode.getMaster(), interpreter, varTokens, expr, false);
     } catch (DeferredValueException e) {
-      deferVariables(varTokens, interpreter);
+      DeferredValueUtils.deferVariables(varTokens, interpreter.getContext());
       throw e;
     }
 
     return "";
-  }
-
-  public static void deferVariables(String[] varTokens, JinjavaInterpreter interpreter) {
-    for (String varToken : varTokens) {
-      String key = varToken.trim();
-      Object originalValue = interpreter.getContext().get(key);
-      if (originalValue != null) {
-        if (originalValue instanceof DeferredValue) {
-          interpreter.getContext().put(key, originalValue);
-        } else {
-          interpreter.getContext().put(key, DeferredValue.instance(originalValue));
-        }
-      } else {
-        interpreter.getContext().put(key, DeferredValue.instance());
-      }
-    }
   }
 
   public void executeSet(
