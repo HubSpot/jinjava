@@ -1,0 +1,5 @@
+{% import 'import-tree-c.jinja' as c %}
+{% set foo_d = c.foo_c + c.b.foo_b + c.b.a.foo_a %}
+{% import 'import-tree-b.jinja' as b2 %}
+{% set resolvable = 12345 %}
+{% set bar = foo_d + b2.foo_b %}

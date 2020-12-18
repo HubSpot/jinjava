@@ -129,13 +129,27 @@ public class MacroTag implements Tag {
 
     if (StringUtils.isNotEmpty(parentName)) {
       try {
+        Map<String, Object> macroOfParent;
         if (!(interpreter.getContext().get(parentName) instanceof DeferredValue)) {
-          Map<String, Object> macroOfParent = (Map<String, Object>) interpreter
-            .getContext()
-            .getOrDefault(parentName, new HashMap<>());
+          macroOfParent =
+            (Map<String, Object>) interpreter
+              .getContext()
+              .getOrDefault(parentName, new HashMap<>());
           macroOfParent.put(macro.getName(), macro);
           if (!interpreter.getContext().containsKey(parentName)) {
             interpreter.getContext().put(parentName, macroOfParent);
+          }
+        } else {
+          Object originalValue =
+            ((DeferredValue) interpreter.getContext().get(parentName)).getOriginalValue();
+          if (originalValue instanceof Map) {
+            ((Map<String, Object>) originalValue).put(macro.getName(), macro);
+          } else {
+            macroOfParent = new HashMap<>();
+            macroOfParent.put(macro.getName(), macro);
+            interpreter
+              .getContext()
+              .put(parentName, DeferredValue.instance(macroOfParent));
           }
         }
       } catch (ClassCastException e) {

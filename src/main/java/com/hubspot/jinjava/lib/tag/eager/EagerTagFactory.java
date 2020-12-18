@@ -10,7 +10,9 @@ import com.hubspot.jinjava.lib.tag.ElseIfTag;
 import com.hubspot.jinjava.lib.tag.ElseTag;
 import com.hubspot.jinjava.lib.tag.EndTag;
 import com.hubspot.jinjava.lib.tag.ForTag;
+import com.hubspot.jinjava.lib.tag.FromTag;
 import com.hubspot.jinjava.lib.tag.IfTag;
+import com.hubspot.jinjava.lib.tag.ImportTag;
 import com.hubspot.jinjava.lib.tag.PrintTag;
 import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
@@ -26,6 +28,8 @@ public class EagerTagFactory {
     .put(SetTag.class, EagerSetTag.class)
     .put(DoTag.class, EagerDoTag.class)
     .put(PrintTag.class, EagerPrintTag.class)
+    .put(FromTag.class, EagerFromTag.class)
+    .put(ImportTag.class, EagerImportTag.class)
     .put(ForTag.class, EagerForTag.class)
     .put(CycleTag.class, EagerCycleTag.class)
     .put(IfTag.class, EagerIfTag.class)

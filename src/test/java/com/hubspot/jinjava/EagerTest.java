@@ -725,7 +725,6 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
   public void itHandlesDeferredImportVars() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-import-vars");
   }
@@ -739,7 +738,14 @@ public class EagerTest {
   }
 
   @Test
-  @Ignore
+  public void itHandlesNonDeferredImportVars() {
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-non-deferred-import-vars"
+    );
+    expectedTemplateInterpreter.assertExpectedOutput("handles-non-deferred-import-vars");
+  }
+
+  @Test
   public void itHandlesDeferredFromImportAs() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-from-import-as");
   }

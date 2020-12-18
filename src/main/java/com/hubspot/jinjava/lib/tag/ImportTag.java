@@ -110,13 +110,16 @@ public class ImportTag implements Tag {
       // If the template depends on deferred values it should not be rendered and all defined variables and macros should be deferred too
       if (!child.getContext().getDeferredNodes().isEmpty()) {
         handleDeferredNodesDuringImport(
-          (TagToken) tagNode.getMaster(),
           node,
           contextVar,
-          templateFile,
           childBindings,
           child,
           interpreter
+        );
+        throw new DeferredValueException(
+          templateFile,
+          tagNode.getLineNumber(),
+          tagNode.getStartPosition()
         );
       }
 
@@ -159,10 +162,8 @@ public class ImportTag implements Tag {
   }
 
   public static void handleDeferredNodesDuringImport(
-    TagToken tagToken,
     Node node,
     String contextVar,
-    String templateFile,
     Map<String, Object> childBindings,
     JinjavaInterpreter child,
     JinjavaInterpreter interpreter
@@ -195,12 +196,6 @@ public class ImportTag implements Tag {
       childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
       interpreter.getContext().put(contextVar, DeferredValue.instance(childBindings));
     }
-
-    throw new DeferredValueException(
-      templateFile,
-      tagToken.getLineNumber(),
-      tagToken.getStartPosition()
-    );
   }
 
   public static Node parseTemplateAsNode(
