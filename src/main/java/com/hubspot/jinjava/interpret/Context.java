@@ -106,6 +106,7 @@ public class Context extends ScopeMap<String, Object> {
   private boolean deferredExecutionMode = false;
   private boolean throwInterpreterErrors = false;
   private boolean partialMacroEvaluation = false;
+  private DynamicVariableResolver dynamicVariableResolver = null;
 
   public Context() {
     this(null, null, null);
@@ -179,6 +180,7 @@ public class Context extends ScopeMap<String, Object> {
     if (parent != null) {
       this.expressionStrategy = parent.expressionStrategy;
       this.partialMacroEvaluation = parent.partialMacroEvaluation;
+      this.dynamicVariableResolver = parent.dynamicVariableResolver;
     }
   }
 
@@ -504,6 +506,16 @@ public class Context extends ScopeMap<String, Object> {
 
   public void registerTag(Tag t) {
     tagLibrary.addTag(t);
+  }
+
+  public DynamicVariableResolver getDynamicVariableResolver() {
+    return dynamicVariableResolver;
+  }
+
+  public void setDynamicVariableResolver(
+    final DynamicVariableResolver dynamicVariableResolver
+  ) {
+    this.dynamicVariableResolver = dynamicVariableResolver;
   }
 
   public void registerNonPyishClasses(Class<?>... classes) {
