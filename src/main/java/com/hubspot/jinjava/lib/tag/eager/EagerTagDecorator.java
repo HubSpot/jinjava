@@ -356,6 +356,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       return "";
     }
     if (
+      interpreter.getConfig().getDisabled() != null &&
       interpreter.getConfig().getDisabled().containsKey(Library.TAG) &&
       interpreter.getConfig().getDisabled().get(Library.TAG).contains(SetTag.TAG_NAME)
     ) {
