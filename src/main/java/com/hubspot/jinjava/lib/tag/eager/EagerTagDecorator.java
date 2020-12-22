@@ -356,9 +356,11 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     if (deferredValuesToSet.size() == 0) {
       return "";
     }
+    Map<Library, Set<String>> disabled = interpreter.getConfig().getDisabled();
     if (
-      interpreter.getConfig().getDisabled().containsKey(Library.TAG) &&
-      interpreter.getConfig().getDisabled().get(Library.TAG).contains(SetTag.TAG_NAME)
+      disabled != null &&
+      disabled.containsKey(Library.TAG) &&
+      disabled.get(Library.TAG).contains(SetTag.TAG_NAME)
     ) {
       throw new DisabledException("set tag disabled");
     }
