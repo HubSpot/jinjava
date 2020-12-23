@@ -160,16 +160,16 @@ public class ChunkResolver {
       } else if (
         chunkLevelMarker != null && CHUNK_LEVEL_MARKER_MAP.get(chunkLevelMarker) == c
       ) {
-        prevChar = c;
+        setPrevChar(c);
         break;
       } else if (CHUNK_LEVEL_MARKER_MAP.containsKey(c)) {
-        prevChar = c;
+        setPrevChar(c);
         tokenBuilder.append(c);
         tokenBuilder.append(resolveChunk(String.join("", getChunk(c))));
         tokenBuilder.append(prevChar);
         continue;
       } else if (isTokenSplitter(c)) {
-        prevChar = c;
+        setPrevChar(c);
 
         miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
         tokenBuilder = new StringBuilder();
@@ -182,12 +182,21 @@ public class ChunkResolver {
         }
         continue;
       }
-      prevChar = c;
+      setPrevChar(c);
       tokenBuilder.append(c);
     }
     miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
     chunks.add(resolveChunk(miniChunkBuilder.toString()));
     return chunks;
+  }
+
+  private void setPrevChar(char c) {
+    if (c == '\\' && prevChar == '\\') {
+      // Backslashes cancel each other out for escaping when there's an even number.
+      prevChar = '\0';
+    } else {
+      prevChar = c;
+    }
   }
 
   private boolean isTokenSplitter(char c) {
