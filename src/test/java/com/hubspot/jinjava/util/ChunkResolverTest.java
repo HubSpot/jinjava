@@ -281,4 +281,12 @@ public class ChunkResolverTest {
     assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
       .isEqualTo("");
   }
+
+  @Test
+  public void itHandlesCancellingSlashes() {
+    context.put("foo", "bar");
+    ChunkResolver chunkResolver = makeChunkResolver("foo ~ 'foo\\\\' ~ foo ~ 'foo'");
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("barfoo\\barfoo");
+  }
 }
