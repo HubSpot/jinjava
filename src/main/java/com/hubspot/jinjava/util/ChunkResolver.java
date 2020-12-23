@@ -59,6 +59,8 @@ public class ChunkResolver {
     ']'
   );
 
+  private static final String VARIABLE_REGEX = "[A-Za-z_][\\w.]*";
+
   private final char[] value;
   private final int length;
   private final Token token;
@@ -252,6 +254,10 @@ public class ChunkResolver {
       String resolvedChunk;
       Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
       if (val == null) {
+        if (chunk.matches(VARIABLE_REGEX)) {
+          // Non-existent variable
+          return "";
+        }
         resolvedChunk = chunk;
       } else {
         resolvedChunk = getValueAsJinjavaString(val);

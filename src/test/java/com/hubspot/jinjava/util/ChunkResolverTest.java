@@ -274,4 +274,11 @@ public class ChunkResolverTest {
     assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
       .isEqualTo("\n & \n & \\n & \\n");
   }
+
+  @Test
+  public void itOutputsUnknownVariablesAsEmpty() {
+    ChunkResolver chunkResolver = makeChunkResolver("contact.some_odd_property");
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("");
+  }
 }
