@@ -9,7 +9,6 @@ import com.hubspot.jinjava.lib.tag.eager.EagerTagDecorator;
 import com.hubspot.jinjava.lib.tag.eager.EagerToken;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
-import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.ChunkResolver;
 import com.hubspot.jinjava.util.Logging;
 import com.hubspot.jinjava.util.WhitespaceUtils;
@@ -84,7 +83,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       .getContext()
       .handleEagerToken(
         new EagerToken(
-          new TagToken(
+          new ExpressionToken(
             helpers,
             master.getLineNumber(),
             master.getStartPosition(),
