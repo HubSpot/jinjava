@@ -60,8 +60,6 @@ public class ChunkResolver {
     ']'
   );
 
-  private static final String VARIABLE_REGEX = "[A-Za-z_][\\w.]*";
-
   private final char[] value;
   private final int length;
   private final Token token;
