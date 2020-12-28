@@ -60,8 +60,9 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
 
   @Test
   public void itPreservesRawTagsNestedInterpretation() {
+    context.put("bar", "bar");
     assertExpectedOutput(
-      "{{ '{{ 12345 }}' }} {{ '{% print 'bar' %}' }} {{ 'not needed' }}",
+      "{{ '{{ 12345 }}' }} {{ '{% print bar %}' }} {{ 'not needed' }}",
       "12345 bar not needed"
     );
   }
