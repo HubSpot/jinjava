@@ -564,7 +564,7 @@ public class JinjavaInterpreter {
   }
 
   public void addError(TemplateError templateError) {
-    if (context.getHideInterpreterErrors()) {
+    if (context.getThrowInterpreterErrors()) {
       // Hiding errors when resolving chunks.
       throw new TemplateSyntaxException(
         this,

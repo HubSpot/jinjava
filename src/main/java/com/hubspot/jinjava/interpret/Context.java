@@ -101,7 +101,7 @@ public class Context extends ScopeMap<String, Object> {
 
   private boolean validationMode = false;
   private boolean deferredExecutionMode = false;
-  private boolean hideInterpreterErrors = false;
+  private boolean throwInterpreterErrors = false;
 
   public Context() {
     this(null, null, null);
@@ -599,11 +599,11 @@ public class Context extends ScopeMap<String, Object> {
     return this;
   }
 
-  public boolean getHideInterpreterErrors() {
-    return hideInterpreterErrors;
+  public boolean getThrowInterpreterErrors() {
+    return throwInterpreterErrors;
   }
 
-  public void setHideInterpreterErrors(boolean hideInterpreterErrors) {
-    this.hideInterpreterErrors = hideInterpreterErrors;
+  public void setThrowInterpreterErrors(boolean throwInterpreterErrors) {
+    this.throwInterpreterErrors = throwInterpreterErrors;
   }
 }

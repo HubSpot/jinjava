@@ -104,12 +104,12 @@ public class ChunkResolver {
     nextPos = 0;
     boolean isHideInterpreterErrorsStart = interpreter
       .getContext()
-      .getHideInterpreterErrors();
+      .getThrowInterpreterErrors();
     try {
-      interpreter.getContext().setHideInterpreterErrors(true);
+      interpreter.getContext().setThrowInterpreterErrors(true);
       return String.join("", getChunk(null));
     } finally {
-      interpreter.getContext().setHideInterpreterErrors(isHideInterpreterErrorsStart);
+      interpreter.getContext().setThrowInterpreterErrors(isHideInterpreterErrorsStart);
     }
   }
 
@@ -125,16 +125,16 @@ public class ChunkResolver {
     nextPos = 0;
     boolean isHideInterpreterErrorsStart = interpreter
       .getContext()
-      .getHideInterpreterErrors();
+      .getThrowInterpreterErrors();
     try {
-      interpreter.getContext().setHideInterpreterErrors(true);
+      interpreter.getContext().setThrowInterpreterErrors(true);
       List<String> miniChunks = getChunk(null);
       return miniChunks
         .stream()
         .filter(s -> s.length() > 1 || !isMiniChunkSplitter(s.charAt(0)))
         .collect(Collectors.toList());
     } finally {
-      interpreter.getContext().setHideInterpreterErrors(isHideInterpreterErrorsStart);
+      interpreter.getContext().setThrowInterpreterErrors(isHideInterpreterErrorsStart);
     }
   }
 
