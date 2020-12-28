@@ -102,14 +102,14 @@ public class ChunkResolver {
    */
   public String resolveChunks() {
     nextPos = 0;
-    boolean isHideInterpreterErrorsStart = interpreter
+    boolean isThrowInterpreterErrorsStart = interpreter
       .getContext()
       .getThrowInterpreterErrors();
     try {
       interpreter.getContext().setThrowInterpreterErrors(true);
       return String.join("", getChunk(null));
     } finally {
-      interpreter.getContext().setThrowInterpreterErrors(isHideInterpreterErrorsStart);
+      interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);
     }
   }
 
@@ -352,9 +352,7 @@ public class ChunkResolver {
       }
       // don't defer numbers, values such as true/false, etc.
       return interpreter.resolveELExpression(w, token.getLineNumber()) == null;
-    } catch (DeferredValueException e) {
-      return true;
-    } catch (TemplateSyntaxException e) {
+    } catch (DeferredValueException | TemplateSyntaxException e) {
       return true;
     }
   }
