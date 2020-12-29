@@ -259,7 +259,7 @@ public class ChunkResolver {
       String resolvedChunk;
       Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
       if (val == null) {
-        return "";
+        return "''";
       } else {
         resolvedChunk = getValueAsJinjavaString(val);
       }

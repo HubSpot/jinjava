@@ -315,5 +315,12 @@ public class ChunkResolverTest {
       .isEmpty();
   }
 
+  @Test
+  public void itOutputsNullAsEmptyString() {
+    assertThat(makeChunkResolver("void_function(nothing)").resolveChunks())
+      .isEqualTo("''");
+    assertThat(makeChunkResolver("nothing").resolveChunks()).isEqualTo("''");
+  }
+
   public static void voidFunction(int nothing) {}
 }
