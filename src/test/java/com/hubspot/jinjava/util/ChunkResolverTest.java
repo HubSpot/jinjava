@@ -332,11 +332,11 @@ public class ChunkResolverTest {
 
   @Test
   public void itInterpretsNullAsNull() {
-    assertThat(makeChunkResolver("is_null(nothing, nothing)").resolveChunks())
+    assertThat(makeChunkResolver("is_null(nothing, null)").resolveChunks())
       .isEqualTo("true");
     assertThat(makeChunkResolver("is_null(void_function(2), nothing)").resolveChunks())
       .isEqualTo("true");
-    assertThat(makeChunkResolver("is_null('a', nothing)").resolveChunks())
+    assertThat(makeChunkResolver("is_null('', nothing)").resolveChunks())
       .isEqualTo("false");
   }
 
