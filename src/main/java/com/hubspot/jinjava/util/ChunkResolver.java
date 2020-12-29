@@ -121,7 +121,7 @@ public class ChunkResolver {
    */
   public List<String> splitChunks() {
     nextPos = 0;
-    boolean isHideInterpreterErrorsStart = interpreter
+    boolean isThrowInterpreterErrorsStart = interpreter
       .getContext()
       .getThrowInterpreterErrors();
     try {
@@ -132,7 +132,7 @@ public class ChunkResolver {
         .filter(s -> s.length() > 1 || !isMiniChunkSplitter(s.charAt(0)))
         .collect(Collectors.toList());
     } finally {
-      interpreter.getContext().setThrowInterpreterErrors(isHideInterpreterErrorsStart);
+      interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);
     }
   }
 
