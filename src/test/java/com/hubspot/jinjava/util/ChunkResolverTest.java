@@ -9,6 +9,7 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
@@ -33,8 +34,18 @@ public class ChunkResolverTest {
   private Context context;
 
   @Before
-  public void setUp() {
-    interpreter = new JinjavaInterpreter(new Jinjava().newInterpreter());
+  public void setUp() throws Exception {
+    Jinjava jinjava = new Jinjava();
+    jinjava
+      .getGlobalContext()
+      .registerFunction(
+        new ELFunctionDefinition(
+          "",
+          "void_function",
+          this.getClass().getDeclaredMethod("voidFunction", int.class)
+        )
+      );
+    interpreter = new JinjavaInterpreter(jinjava.newInterpreter());
     context = interpreter.getContext();
     context.put("deferred", DeferredValue.instance());
     tagToken = new TagToken("{% foo %}", 1, 2, SYMBOLS);
@@ -289,4 +300,20 @@ public class ChunkResolverTest {
     assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
       .isEqualTo("barfoo\\barfoo");
   }
+
+  @Test
+  public void itOutputsEmptyForVoidFunctions() throws Exception {
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(interpreter.render("{{ void_function(2) }}"))
+      )
+      .isEmpty();
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(
+          makeChunkResolver("void_function(2)").resolveChunks()
+        )
+      )
+      .isEmpty();
+  }
+
+  public static void voidFunction(int nothing) {}
 }

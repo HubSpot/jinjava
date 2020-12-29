@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.objects.date.JsonPyishDateSerializer;
 import com.hubspot.jinjava.objects.date.PyishDate;
@@ -59,8 +60,6 @@ public class ChunkResolver {
     ']'
   );
 
-  private static final String VARIABLE_REGEX = "[A-Za-z_][\\w.]*";
-
   private final char[] value;
   private final int length;
   private final Token token;
@@ -101,14 +100,14 @@ public class ChunkResolver {
    */
   public String resolveChunks() {
     nextPos = 0;
-    boolean isHideInterpreterErrorsStart = interpreter
+    boolean isThrowInterpreterErrorsStart = interpreter
       .getContext()
-      .getHideInterpreterErrors();
+      .getThrowInterpreterErrors();
     try {
-      interpreter.getContext().setHideInterpreterErrors(true);
+      interpreter.getContext().setThrowInterpreterErrors(true);
       return String.join("", getChunk(null));
     } finally {
-      interpreter.getContext().setHideInterpreterErrors(isHideInterpreterErrorsStart);
+      interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);
     }
   }
 
@@ -122,18 +121,18 @@ public class ChunkResolver {
    */
   public List<String> splitChunks() {
     nextPos = 0;
-    boolean isHideInterpreterErrorsStart = interpreter
+    boolean isThrowInterpreterErrorsStart = interpreter
       .getContext()
-      .getHideInterpreterErrors();
+      .getThrowInterpreterErrors();
     try {
-      interpreter.getContext().setHideInterpreterErrors(true);
+      interpreter.getContext().setThrowInterpreterErrors(true);
       List<String> miniChunks = getChunk(null);
       return miniChunks
         .stream()
         .filter(s -> s.length() > 1 || !isMiniChunkSplitter(s.charAt(0)))
         .collect(Collectors.toList());
     } finally {
-      interpreter.getContext().setHideInterpreterErrors(isHideInterpreterErrorsStart);
+      interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);
     }
   }
 
@@ -218,11 +217,15 @@ public class ChunkResolver {
       if (WhitespaceUtils.isQuoted(token) || RESERVED_KEYWORDS.contains(token)) {
         resolvedToken = token;
       } else {
-        Object val = interpreter.retraceVariable(
-          token,
-          this.token.getLineNumber(),
-          this.token.getStartPosition()
-        );
+        Object val = null;
+        try {
+          val =
+            interpreter.retraceVariable(
+              token,
+              this.token.getLineNumber(),
+              this.token.getStartPosition()
+            );
+        } catch (TemplateSyntaxException ignored) {}
         if (val == null) {
           try {
             val = interpreter.resolveELExpression(token, this.token.getLineNumber());
@@ -240,6 +243,8 @@ public class ChunkResolver {
     } catch (DeferredValueException | JsonProcessingException e) {
       deferredWords.addAll(findDeferredWords(token));
       return token.trim();
+    } catch (TemplateSyntaxException e) {
+      return token.trim();
     }
   }
 
@@ -254,15 +259,13 @@ public class ChunkResolver {
       String resolvedChunk;
       Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
       if (val == null) {
-        if (chunk.matches(VARIABLE_REGEX)) {
-          // Non-existent variable
-          return "";
-        }
-        resolvedChunk = chunk;
+        return "";
       } else {
         resolvedChunk = getValueAsJinjavaString(val);
       }
       return resolvedChunk.trim();
+    } catch (TemplateSyntaxException e) {
+      return chunk.trim();
     } catch (Exception e) {
       deferredWords.addAll(findDeferredWords(chunk));
       return chunk.trim();
@@ -347,7 +350,7 @@ public class ChunkResolver {
       }
       // don't defer numbers, values such as true/false, etc.
       return interpreter.resolveELExpression(w, token.getLineNumber()) == null;
-    } catch (DeferredValueException e) {
+    } catch (DeferredValueException | TemplateSyntaxException e) {
       return true;
     }
   }
