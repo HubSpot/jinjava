@@ -1,16 +1,15 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
-import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.ChunkResolver;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -39,11 +38,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     String variables = tagToken.getHelpers().substring(0, eqPos).trim();
 
     String expression = tagToken.getHelpers().substring(eqPos + 1);
-    if (interpreter.getContext().containsKey(Context.IMPORT_RESOURCE_ALIAS)) {
-      return interpreter.render(
-        convertSetToUpdate(variables, expression, tagToken, interpreter)
-      );
-    }
+
     ChunkResolver chunkResolver = new ChunkResolver(expression, tagToken, interpreter);
     EagerStringResult resolvedExpression = executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
@@ -74,7 +69,13 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     ) {
       try {
         getTag()
-          .executeSet(tagToken, interpreter, varTokens, resolvedExpression.getResult());
+          .executeSet(
+            tagToken,
+            interpreter,
+            varTokens,
+            resolvedExpression.getResult(),
+            true
+          );
         return "";
       } catch (DeferredValueException ignored) {}
     }
@@ -96,45 +97,38 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
           Arrays.stream(varTokens).map(String::trim).collect(Collectors.toSet())
         )
       );
-    // Possible macro/set tag in front of this one.
+
+    StringBuilder suffixToPreserveState = new StringBuilder();
+    Optional<String> maybeFullImportAlias = interpreter
+      .getContext()
+      .getImportResourceAlias();
+    if (maybeFullImportAlias.isPresent()) {
+      String currentImportAlias = maybeFullImportAlias
+        .get()
+        .substring(maybeFullImportAlias.get().lastIndexOf(".") + 1);
+      String updateString = getUpdateString(variables);
+      suffixToPreserveState.append(
+        interpreter.render(
+          buildDoUpdateTag(currentImportAlias, updateString, interpreter)
+        )
+      );
+    }
     return wrapInAutoEscapeIfNeeded(
-      prefixToPreserveState.toString() + joiner.toString(),
+      prefixToPreserveState.toString() +
+      joiner.toString() +
+      suffixToPreserveState.toString(),
       interpreter
     );
   }
 
-  private static String convertSetToUpdate(
-    String variables,
-    String expression,
-    TagToken tagToken,
-    JinjavaInterpreter interpreter
-  ) {
-    LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
-      interpreter.getConfig().getMaxOutputSize(),
-      " "
-    )
-      .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
-      .add(DoTag.TAG_NAME);
+  private static String getUpdateString(String variables) {
     List<String> varList = Arrays
       .stream(variables.split(","))
       .map(String::trim)
       .collect(Collectors.toList());
-    ChunkResolver chunkResolver = new ChunkResolver(expression, tagToken, interpreter);
-    List<String> expressionList = chunkResolver.splitChunks();
     StringJoiner updateString = new StringJoiner(",");
-    for (int i = 0; i < varList.size() && i < expressionList.size(); i++) {
-      updateString.add(String.format("'%s': %s", varList.get(i), expressionList.get(i)));
-    }
-    joiner.add(
-      String.format(
-        "%s.update({%s})",
-        interpreter.getContext().get(Context.IMPORT_RESOURCE_ALIAS),
-        updateString.toString()
-      )
-    );
-    joiner.add(
-      interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag()
-    );
-    return joiner.toString();
+    // Update the alias map to the value of the set variable.
+    varList.forEach(var -> updateString.add(String.format("'%s': %s", var, var)));
+    return updateString.toString();
   }
 }

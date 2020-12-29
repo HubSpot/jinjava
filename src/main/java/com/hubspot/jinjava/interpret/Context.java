@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 public class Context extends ScopeMap<String, Object> {
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
   public static final String IMPORT_RESOURCE_PATH_KEY = "import_resource_path";
-  public static final String IMPORT_RESOURCE_ALIAS = "import_resource_alias";
+  public static final String IMPORT_RESOURCE_ALIAS_KEY = "import_resource_alias";
 
   private SetMultimap<String, String> dependencies = HashMultimap.create();
   private Map<Library, Set<String>> disabled;
@@ -326,16 +326,11 @@ public class Context extends ScopeMap<String, Object> {
 
   public void handleEagerToken(EagerToken eagerToken) {
     eagerTokens.add(eagerToken);
-    Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(this);
+    DeferredValueUtils.findAndMarkDeferredProperties(this);
     if (getParent() != null) {
       Context parent = getParent();
       //Ignore global context
       if (parent.getParent() != null) {
-        //Place deferred values on the parent context
-        deferredProps
-          .stream()
-          .filter(key -> !parent.containsKey(key))
-          .forEach(key -> parent.put(key, this.get(key)));
         parent.handleEagerToken(eagerToken);
       }
     }
@@ -510,6 +505,10 @@ public class Context extends ScopeMap<String, Object> {
 
   public void setExpressionStrategy(ExpressionStrategy expressionStrategy) {
     this.expressionStrategy = expressionStrategy;
+  }
+
+  public Optional<String> getImportResourceAlias() {
+    return Optional.ofNullable(get(IMPORT_RESOURCE_ALIAS_KEY)).map(Object::toString);
   }
 
   public CallStack getExtendPathStack() {

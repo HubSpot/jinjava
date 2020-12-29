@@ -24,6 +24,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.DeferredValueUtils;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
@@ -108,21 +109,9 @@ public class SetTag implements Tag {
     String[] varTokens = var.split(",");
 
     try {
-      executeSet((TagToken) tagNode.getMaster(), interpreter, varTokens, expr);
+      executeSet((TagToken) tagNode.getMaster(), interpreter, varTokens, expr, false);
     } catch (DeferredValueException e) {
-      for (String varToken : varTokens) {
-        String key = varToken.trim();
-        Object originalValue = interpreter.getContext().get(key);
-        if (originalValue != null) {
-          if (originalValue instanceof DeferredValue) {
-            interpreter.getContext().put(key, originalValue);
-          } else {
-            interpreter.getContext().put(key, DeferredValue.instance(originalValue));
-          }
-        } else {
-          interpreter.getContext().put(key, DeferredValue.instance());
-        }
-      }
+      DeferredValueUtils.deferVariables(varTokens, interpreter.getContext());
       throw e;
     }
 
@@ -133,7 +122,8 @@ public class SetTag implements Tag {
     TagToken tagToken,
     JinjavaInterpreter interpreter,
     String[] varTokens,
-    String expr
+    String expr,
+    boolean allowDeferredValueOverride
   ) {
     if (varTokens.length > 1) {
       // handle multi-variable assignment
@@ -155,7 +145,10 @@ public class SetTag implements Tag {
       for (int i = 0; i < varTokens.length; i++) {
         String varItem = varTokens[i].trim();
         if (interpreter.getContext().containsKey(varItem)) {
-          if (interpreter.getContext().get(varItem) instanceof DeferredValue) {
+          if (
+            !allowDeferredValueOverride &&
+            interpreter.getContext().get(varItem) instanceof DeferredValue
+          ) {
             throw new DeferredValueException(varItem);
           }
         }
@@ -164,7 +157,10 @@ public class SetTag implements Tag {
     } else {
       // handle single variable assignment
       if (interpreter.getContext().containsKey(varTokens[0])) {
-        if (interpreter.getContext().get(varTokens[0]) instanceof DeferredValue) {
+        if (
+          !allowDeferredValueOverride &&
+          interpreter.getContext().get(varTokens[0]) instanceof DeferredValue
+        ) {
           throw new DeferredValueException(varTokens[0]);
         }
       }
