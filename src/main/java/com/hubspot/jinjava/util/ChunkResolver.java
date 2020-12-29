@@ -105,7 +105,12 @@ public class ChunkResolver {
       .getThrowInterpreterErrors();
     try {
       interpreter.getContext().setThrowInterpreterErrors(true);
-      return String.join("", getChunk(null));
+      String expression = String.join("", getChunk(null));
+      if ("null".equals(expression)) {
+        // Resolved value of null as a string is ''.
+        return "''";
+      }
+      return expression;
     } finally {
       interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);
     }
@@ -259,7 +264,7 @@ public class ChunkResolver {
       String resolvedChunk;
       Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
       if (val == null) {
-        return "''";
+        return "null";
       } else {
         resolvedChunk = getValueAsJinjavaString(val);
       }
