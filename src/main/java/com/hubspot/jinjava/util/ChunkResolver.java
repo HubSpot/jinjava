@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ChunkResolver {
   private static final String JINJAVA_NULL = "null";
+  private static final String JINJAVA_EMPTY_STRING = "''";
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
   .registerModule(
       new SimpleModule().addSerializer(PyishDate.class, new JsonPyishDateSerializer())
@@ -109,7 +110,7 @@ public class ChunkResolver {
       String expression = String.join("", getChunk(null));
       if (JINJAVA_NULL.equals(expression)) {
         // Resolved value of null as a string is ''.
-        return "''";
+        return JINJAVA_EMPTY_STRING;
       }
       return expression;
     } finally {
