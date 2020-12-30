@@ -45,6 +45,15 @@ public class ChunkResolverTest {
           this.getClass().getDeclaredMethod("voidFunction", int.class)
         )
       );
+    jinjava
+      .getGlobalContext()
+      .registerFunction(
+        new ELFunctionDefinition(
+          "",
+          "is_null",
+          this.getClass().getDeclaredMethod("isNull", Object.class, Object.class)
+        )
+      );
     interpreter = new JinjavaInterpreter(jinjava.newInterpreter());
     context = interpreter.getContext();
     context.put("deferred", DeferredValue.instance());
@@ -315,5 +324,25 @@ public class ChunkResolverTest {
       .isEmpty();
   }
 
+  @Test
+  public void itOutputsNullAsEmptyString() {
+    assertThat(makeChunkResolver("void_function(2)").resolveChunks()).isEqualTo("''");
+    assertThat(makeChunkResolver("nothing").resolveChunks()).isEqualTo("''");
+  }
+
+  @Test
+  public void itInterpretsNullAsNull() {
+    assertThat(makeChunkResolver("is_null(nothing, null)").resolveChunks())
+      .isEqualTo("true");
+    assertThat(makeChunkResolver("is_null(void_function(2), nothing)").resolveChunks())
+      .isEqualTo("true");
+    assertThat(makeChunkResolver("is_null('', nothing)").resolveChunks())
+      .isEqualTo("false");
+  }
+
   public static void voidFunction(int nothing) {}
+
+  public static boolean isNull(Object foo, Object bar) {
+    return foo == null && bar == null;
+  }
 }

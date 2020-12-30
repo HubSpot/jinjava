@@ -30,6 +30,8 @@ import org.apache.commons.lang3.StringUtils;
  * This class is not thread-safe. Do not reuse between threads.
  */
 public class ChunkResolver {
+  private static final String JINJAVA_NULL = "null";
+  private static final String JINJAVA_EMPTY_STRING = "''";
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
   .registerModule(
       new SimpleModule().addSerializer(PyishDate.class, new JsonPyishDateSerializer())
@@ -105,7 +107,12 @@ public class ChunkResolver {
       .getThrowInterpreterErrors();
     try {
       interpreter.getContext().setThrowInterpreterErrors(true);
-      return String.join("", getChunk(null));
+      String expression = String.join("", getChunk(null));
+      if (JINJAVA_NULL.equals(expression)) {
+        // Resolved value of null as a string is ''.
+        return JINJAVA_EMPTY_STRING;
+      }
+      return expression;
     } finally {
       interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);
     }
@@ -259,7 +266,7 @@ public class ChunkResolver {
       String resolvedChunk;
       Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
       if (val == null) {
-        return "";
+        return JINJAVA_NULL;
       } else {
         resolvedChunk = getValueAsJinjavaString(val);
       }
