@@ -39,7 +39,8 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     EagerStringResult resolvedExpression = EagerTagDecorator.executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
       interpreter,
-      true
+      true,
+      interpreter.getConfig().isNestedInterpretationEnabled()
     );
     StringBuilder prefixToPreserveState = new StringBuilder(
       interpreter.getContext().isDeferredExecutionMode()

@@ -26,7 +26,8 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     EagerStringResult resolvedExpression = executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
       interpreter,
-      true
+      true,
+      false
     );
     String expression = resolvedExpression.getResult();
     if (WhitespaceUtils.isWrappedWith(expression, "[", "]")) {

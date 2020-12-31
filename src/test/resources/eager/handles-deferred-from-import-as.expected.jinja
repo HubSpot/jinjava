@@ -1,6 +1,6 @@
 {% set myname = deferred + 7 %}
 {% set bar = myname + 19 %}
-{% macro foo() %}Hello {{ myname }}{% endmacro %}{{ foo() }}
+Hello {{ myname }}
 {% set from_bar = bar %}
-from_foo: {% macro from_foo() %}Hello {{ myname }}{% endmacro %}{{ from_foo() }}
+from_foo: Hello {{ myname }}
 from_bar: {{ from_bar }}

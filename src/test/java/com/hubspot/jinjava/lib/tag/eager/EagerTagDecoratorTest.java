@@ -77,7 +77,8 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
         }
       ),
       interpreter,
-      true
+      true,
+      false
     );
     assertThat(result.getResult()).isEqualTo("function return");
     assertThat(result.getPrefixToPreserveState()).isEqualTo("{% set foo = [1] %}");
@@ -96,6 +97,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
         }
       ),
       interpreter,
+      false,
       false
     );
     assertThat(result.getResult()).isEqualTo("function return");

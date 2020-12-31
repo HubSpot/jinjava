@@ -28,6 +28,7 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
         executeInChildContext(
           eagerInterpreter -> renderChildren(tagNode, eagerInterpreter),
           interpreter,
+          false,
           false
         )
       );

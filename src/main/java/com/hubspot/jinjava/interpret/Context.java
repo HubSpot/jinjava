@@ -102,6 +102,7 @@ public class Context extends ScopeMap<String, Object> {
   private boolean validationMode = false;
   private boolean deferredExecutionMode = false;
   private boolean throwInterpreterErrors = false;
+  private boolean partialMacroEvaluation = false;
 
   public Context() {
     this(null, null, null);
@@ -172,6 +173,7 @@ public class Context extends ScopeMap<String, Object> {
       new FunctionLibrary(parent == null, disabled.get(Library.FUNCTION));
     if (parent != null) {
       this.expressionStrategy = parent.expressionStrategy;
+      this.partialMacroEvaluation = parent.partialMacroEvaluation;
     }
   }
 
@@ -604,5 +606,34 @@ public class Context extends ScopeMap<String, Object> {
 
   public void setThrowInterpreterErrors(boolean throwInterpreterErrors) {
     this.throwInterpreterErrors = throwInterpreterErrors;
+  }
+
+  public boolean isPartialMacroEvaluation() {
+    return partialMacroEvaluation;
+  }
+
+  public void setPartialMacroEvaluation(boolean partialMacroEvaluation) {
+    this.partialMacroEvaluation = partialMacroEvaluation;
+  }
+
+  public PartialMacroEvaluationClosable withPartialMacroEvaluation() {
+    PartialMacroEvaluationClosable partialMacroEvaluationClosable = new PartialMacroEvaluationClosable(
+      this.partialMacroEvaluation
+    );
+    this.partialMacroEvaluation = true;
+    return partialMacroEvaluationClosable;
+  }
+
+  public class PartialMacroEvaluationClosable implements AutoCloseable {
+    private final boolean previousPartialMacroEvaluation;
+
+    private PartialMacroEvaluationClosable(boolean previousPartialMacroEvaluation) {
+      this.previousPartialMacroEvaluation = previousPartialMacroEvaluation;
+    }
+
+    @Override
+    public void close() {
+      setPartialMacroEvaluation(previousPartialMacroEvaluation);
+    }
   }
 }
