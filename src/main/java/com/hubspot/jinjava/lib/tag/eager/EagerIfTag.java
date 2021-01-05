@@ -42,6 +42,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
           getEagerImage(tagNode.getMaster(), eagerInterpreter) +
           renderChildren(tagNode, eagerInterpreter),
         interpreter,
+        false,
         false
       )
     );

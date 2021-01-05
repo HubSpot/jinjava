@@ -71,9 +71,13 @@ public class MacroFunction extends AbstractCallableMethod {
       String result = getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
 
       if (
-        !interpreter.getContext().getDeferredNodes().isEmpty() ||
-        !interpreter.getContext().getEagerTokens().isEmpty()
+        !interpreter.getContext().isPartialMacroEvaluation() &&
+        (
+          !interpreter.getContext().getDeferredNodes().isEmpty() ||
+          !interpreter.getContext().getEagerTokens().isEmpty()
+        )
       ) {
+        // If the macro function could not be fully evaluated, throw a DeferredValueException.
         throw new DeferredValueException(
           getName(),
           interpreter.getLineNumber(),

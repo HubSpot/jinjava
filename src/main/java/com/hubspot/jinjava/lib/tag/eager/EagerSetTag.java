@@ -43,7 +43,8 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     EagerStringResult resolvedExpression = executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
       interpreter,
-      true
+      true,
+      false
     );
     LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
       interpreter.getConfig().getMaxOutputSize(),

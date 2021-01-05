@@ -1,9 +1,12 @@
 package com.hubspot.jinjava.lib.fn.eager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.interpret.Context.PartialMacroEvaluationClosable;
 import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import org.junit.Test;
 
@@ -66,6 +69,21 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
       interpreter
     );
     assertThat(eagerMacroFunction.reconstructImage()).isEqualTo(code);
+  }
+
+  @Test
+  public void itPartiallyEvaluatesMacroFunction() {
+    // Put this test here because it's only used in eager execution
+    context.put("deferred", DeferredValue.instance());
+    MacroFunction macroFunction = makeMacroFunction(
+      "foo",
+      "{% macro foo(bar) %}It's: {{ bar }}, {{ deferred }}{% endmacro %}"
+    );
+    assertThatThrownBy(() -> macroFunction.evaluate("Bar"))
+      .isInstanceOf(DeferredValueException.class);
+    try (PartialMacroEvaluationClosable ignored = context.withPartialMacroEvaluation()) {
+      assertThat(macroFunction.evaluate("Bar")).isEqualTo("It's: Bar, {{ deferred }}");
+    }
   }
 
   private MacroFunction makeMacroFunction(String name, String code) {

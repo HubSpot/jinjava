@@ -104,6 +104,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
             getEagerImage(tagNode.getMaster(), eagerInterpreter) +
             renderChildren(tagNode, eagerInterpreter),
           interpreter,
+          false,
           false
         )
         .toString()
@@ -143,6 +144,8 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    * @param takeNewValue If a value is updated (not replaced) either take the new value or
    *                     take the previous value and put it into the
    *                     <code>EagerStringResult.prefixToPreserveState</code>.
+   * @param partialMacroEvaluation Allow macro functions to be partially evaluated rather than
+   *                               needing an explicit result during this render.
    * @return An <code>EagerStringResult</code> where:
    *  <code>result</code> is the string result of <code>function</code>.
    *  <code>prefixToPreserveState</code> is either blank or a <code>set</code> tag
@@ -151,7 +154,8 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   public static EagerStringResult executeInChildContext(
     Function<JinjavaInterpreter, String> function,
     JinjavaInterpreter interpreter,
-    boolean takeNewValue
+    boolean takeNewValue,
+    boolean partialMacroEvaluation
   ) {
     StringBuilder result = new StringBuilder();
     Map<String, Integer> initiallyResolvedHashes = new HashMap<>();
@@ -182,6 +186,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       interpreter.getContext().setDeferredExecutionMode(true);
+      interpreter.getContext().setPartialMacroEvaluation(partialMacroEvaluation);
       result.append(function.apply(interpreter));
     }
     Map<String, String> deferredValuesToSet = interpreter
@@ -297,6 +302,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
               new EagerMacroFunction(entry.getKey(), entry.getValue(), interpreter)
               .reconstructImage(),
             interpreter,
+            false,
             false
           )
       )

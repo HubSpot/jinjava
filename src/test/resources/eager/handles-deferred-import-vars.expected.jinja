@@ -1,12 +1,12 @@
 {% set myname = deferred + 3 %}
 {% set bar = myname + 19 %}
-{% macro foo() %}Hello {{ myname }}{% endmacro %}{{ foo() }}
+Hello {{ myname }}
 
-foo: {% macro foo() %}Hello {{ myname }}{% endmacro %}{{ foo() }}
+foo: Hello {{ myname }}
 bar: {{ bar }}
 ---{% set myname = deferred + 7 %}
 {% set bar = myname + 19 %}{% set simple = {} %}{% do simple.update({'bar': bar}) %}
-{% macro foo() %}Hello {{ myname }}{% endmacro %}{{ foo() }}
+Hello {{ myname }}
 
 simple.foo: {% macro simple.foo() %}Hello {{ myname }}{% endmacro %}{{ simple.foo() }}
 simple.bar: {{ simple.bar }}
