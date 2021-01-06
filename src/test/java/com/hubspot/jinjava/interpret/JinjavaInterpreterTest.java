@@ -1,12 +1,15 @@
 package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.output.BlockInfo;
@@ -262,5 +265,45 @@ public class JinjavaInterpreterTest {
     renderResult = new Jinjava(preserveConfig).renderForResult(input, new HashMap<>());
     assertThat(renderResult.getOutput()).isEqualTo(preservedOutput);
     assertThat(renderResult.hasErrors()).isFalse();
+  }
+
+  @Test
+  public void itThrowsFatalErrors() {
+    interpreter.getContext().setThrowInterpreterErrors(true);
+    assertThatThrownBy(
+        () ->
+          interpreter.addError(
+            new TemplateError(
+              ErrorType.FATAL,
+              ErrorReason.UNKNOWN,
+              ErrorItem.PROPERTY,
+              "",
+              "",
+              interpreter.getLineNumber(),
+              interpreter.getPosition(),
+              new RuntimeException()
+            )
+          )
+      )
+      .isInstanceOf(TemplateSyntaxException.class);
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itHidesWarningErrors() {
+    interpreter.getContext().setThrowInterpreterErrors(true);
+    interpreter.addError(
+      new TemplateError(
+        ErrorType.WARNING,
+        ErrorReason.UNKNOWN,
+        ErrorItem.PROPERTY,
+        "",
+        "",
+        interpreter.getLineNumber(),
+        interpreter.getPosition(),
+        new RuntimeException()
+      )
+    );
+    assertThat(interpreter.getErrors()).isEmpty();
   }
 }

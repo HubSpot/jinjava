@@ -565,12 +565,17 @@ public class JinjavaInterpreter {
 
   public void addError(TemplateError templateError) {
     if (context.getThrowInterpreterErrors()) {
-      // Hiding errors when resolving chunks.
-      throw new TemplateSyntaxException(
-        this,
-        templateError.getFieldName(),
-        templateError.getMessage()
-      );
+      if (templateError.getSeverity() == ErrorType.FATAL) {
+        // Throw fatal errors when resolving chunks.
+        throw new TemplateSyntaxException(
+          this,
+          templateError.getFieldName(),
+          templateError.getMessage()
+        );
+      } else {
+        // Hide warning errors when resolving chunks.
+        return;
+      }
     }
     // fix line numbers not matching up with source template
     if (!context.getCurrentPathStack().isEmpty()) {
