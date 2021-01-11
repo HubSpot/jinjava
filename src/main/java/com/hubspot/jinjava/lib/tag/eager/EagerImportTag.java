@@ -53,10 +53,9 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         .newInstance(interpreter);
       child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
       JinjavaInterpreter.pushCurrent(child);
-      setupImportAlias(currentImportAlias, child, interpreter);
-
       String output;
       try {
+        setupImportAlias(currentImportAlias, child, interpreter);
         output = child.render(node);
       } finally {
         JinjavaInterpreter.popCurrent();
