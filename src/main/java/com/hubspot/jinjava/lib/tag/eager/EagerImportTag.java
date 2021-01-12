@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.hubspot.jinjava.interpret.Context;
@@ -10,11 +9,10 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.ImportTag;
-import com.hubspot.jinjava.objects.PyishClassMapper;
+import com.hubspot.jinjava.objects.PyishObjectMapper;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
-import com.hubspot.jinjava.util.ChunkResolver;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -105,8 +103,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
   private static String getDoTagToPreserve(
     JinjavaInterpreter interpreter,
     String currentImportAlias
-  )
-    throws JsonProcessingException {
+  ) {
     StringJoiner keyValueJoiner = new StringJoiner(",");
     Object currentAliasMap = interpreter.getContext().get(currentImportAlias);
     if ((!(currentAliasMap instanceof DeferredValue))) {
@@ -118,7 +115,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         .getContext()
         .put(currentImportAlias, DeferredValue.instance(currentAliasMap));
     }
-    PyishClassMapper pyishClassMapper = interpreter.getContext().getPyishClassMapper();
+    PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishClassMapper();
     for (Map.Entry<String, Object> entry : (
       (Map<String, Object>) (
         (DeferredValue) interpreter.getContext().get(currentImportAlias)
@@ -131,7 +128,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
           String.format(
             "'%s': %s",
             entry.getKey(),
-            ChunkResolver.getValueAsJinjavaString(entry.getValue(), pyishClassMapper)
+            pyishObjectMapper.getAsPyishString(entry.getValue())
           )
         );
       }

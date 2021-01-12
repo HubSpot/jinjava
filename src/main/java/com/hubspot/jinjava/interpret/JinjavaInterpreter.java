@@ -40,7 +40,6 @@ import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
 import com.hubspot.jinjava.tree.output.OutputList;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
-import com.hubspot.jinjava.util.ChunkResolver;
 import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -467,10 +466,9 @@ public class JinjavaInterpreter {
    * @return resolved value for variable
    */
   public String resolveString(String variable, int lineNumber, int startPosition) {
-    return ChunkResolver.getAsUnquotedString(
-      resolveObject(variable, lineNumber, startPosition),
-      context.getPyishClassMapper()
-    );
+    return context
+      .getPyishClassMapper()
+      .getAsUnquotedPyishString(resolveObject(variable, lineNumber, startPosition));
   }
 
   public String resolveString(String variable, int lineNumber) {
