@@ -5,8 +5,8 @@ import com.hubspot.jinjava.lib.filter.EscapeFilter;
 import com.hubspot.jinjava.objects.SafeString;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
+import com.hubspot.jinjava.util.ChunkResolver;
 import com.hubspot.jinjava.util.Logging;
-import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 public class DefaultExpressionStrategy implements ExpressionStrategy {
@@ -19,7 +19,10 @@ public class DefaultExpressionStrategy implements ExpressionStrategy {
       master.getExpr(),
       master.getLineNumber()
     );
-    String result = Objects.toString(var, "");
+    String result = ChunkResolver.getAsUnquotedString(
+      var,
+      interpreter.getContext().getPyishClassMapper()
+    );
 
     if (interpreter.getConfig().isNestedInterpretationEnabled()) {
       if (

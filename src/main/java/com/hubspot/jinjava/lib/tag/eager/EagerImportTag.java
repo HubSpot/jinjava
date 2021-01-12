@@ -10,6 +10,7 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.ImportTag;
+import com.hubspot.jinjava.objects.PyishClassMapper;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -117,6 +118,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         .getContext()
         .put(currentImportAlias, DeferredValue.instance(currentAliasMap));
     }
+    PyishClassMapper pyishClassMapper = interpreter.getContext().getPyishClassMapper();
     for (Map.Entry<String, Object> entry : (
       (Map<String, Object>) (
         (DeferredValue) interpreter.getContext().get(currentImportAlias)
@@ -129,7 +131,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
           String.format(
             "'%s': %s",
             entry.getKey(),
-            ChunkResolver.getValueAsJinjavaString(entry.getValue())
+            ChunkResolver.getValueAsJinjavaString(entry.getValue(), pyishClassMapper)
           )
         );
       }

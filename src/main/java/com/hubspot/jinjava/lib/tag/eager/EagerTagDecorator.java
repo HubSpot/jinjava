@@ -22,6 +22,7 @@ import com.hubspot.jinjava.lib.tag.MacroTag;
 import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.Tag;
+import com.hubspot.jinjava.objects.PyishClassMapper;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -160,6 +161,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     StringBuilder result = new StringBuilder();
     Map<String, Integer> initiallyResolvedHashes = new HashMap<>();
     Map<String, String> initiallyResolvedAsStrings = new HashMap<>();
+    PyishClassMapper pyishClassMapper = interpreter.getContext().getPyishClassMapper();
     interpreter
       .getContext()
       .entrySet()
@@ -176,7 +178,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           try {
             initiallyResolvedAsStrings.put(
               entry.getKey(),
-              ChunkResolver.getValueAsJinjavaString(entry.getValue())
+              ChunkResolver.getValueAsJinjavaString(entry.getValue(), pyishClassMapper)
             );
           } catch (JsonProcessingException jsonProcessingException) {
             // do nothing
@@ -204,11 +206,15 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
             try {
               if (e instanceof DeferredValue) {
                 return ChunkResolver.getValueAsJinjavaString(
-                  ((DeferredValue) e.getValue()).getOriginalValue()
+                  ((DeferredValue) e.getValue()).getOriginalValue(),
+                  pyishClassMapper
                 );
               }
               if (takeNewValue) {
-                return ChunkResolver.getValueAsJinjavaString(e.getValue());
+                return ChunkResolver.getValueAsJinjavaString(
+                  e.getValue(),
+                  pyishClassMapper
+                );
               }
 
               // This is necessary if a state-changing function, such as .update()
@@ -321,6 +327,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       return ""; // This will be handled outside of the deferred execution mode.
     }
     Map<String, String> deferredMap = new HashMap<>();
+    PyishClassMapper pyishClassMapper = interpreter.getContext().getPyishClassMapper();
     deferredWords
       .stream()
       .map(w -> w.split("\\.", 2)[0]) // get base prop
@@ -334,7 +341,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           try {
             deferredMap.put(
               w,
-              ChunkResolver.getValueAsJinjavaString(interpreter.getContext().get(w))
+              ChunkResolver.getValueAsJinjavaString(
+                interpreter.getContext().get(w),
+                pyishClassMapper
+              )
             );
           } catch (JsonProcessingException ignored) {}
         }

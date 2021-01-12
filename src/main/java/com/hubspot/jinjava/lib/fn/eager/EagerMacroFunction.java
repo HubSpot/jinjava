@@ -8,6 +8,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.MacroTag;
+import com.hubspot.jinjava.objects.PyishClassMapper;
 import com.hubspot.jinjava.util.ChunkResolver;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -61,6 +62,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
 
   public String getStartTag(JinjavaInterpreter interpreter) {
     StringJoiner argJoiner = new StringJoiner(", ");
+    PyishClassMapper pyishClassMapper = interpreter.getContext().getPyishClassMapper();
     for (String arg : macroFunction.getArguments()) {
       try {
         if (macroFunction.getDefaults().get(arg) != null) {
@@ -68,7 +70,10 @@ public class EagerMacroFunction extends AbstractCallableMethod {
             String.format(
               "%s=%s",
               arg,
-              ChunkResolver.getValueAsJinjavaString(macroFunction.getDefaults().get(arg))
+              ChunkResolver.getValueAsJinjavaString(
+                macroFunction.getDefaults().get(arg),
+                pyishClassMapper
+              )
             )
           );
           continue;

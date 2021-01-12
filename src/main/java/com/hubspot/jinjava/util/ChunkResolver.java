@@ -1,22 +1,20 @@
 package com.hubspot.jinjava.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
-import com.hubspot.jinjava.objects.date.JsonPyishDateSerializer;
-import com.hubspot.jinjava.objects.date.PyishDate;
+import com.hubspot.jinjava.objects.PyishClassMapper;
 import com.hubspot.jinjava.tree.parse.Token;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -32,10 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 public class ChunkResolver {
   private static final String JINJAVA_NULL = "null";
   private static final String JINJAVA_EMPTY_STRING = "''";
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-  .registerModule(
-      new SimpleModule().addSerializer(PyishDate.class, new JsonPyishDateSerializer())
-    );
 
   private static final Set<String> RESERVED_KEYWORDS = ImmutableSet.of(
     "and",
@@ -67,6 +61,7 @@ public class ChunkResolver {
   private final Token token;
   private final JinjavaInterpreter interpreter;
   private final Set<String> deferredWords;
+  private final PyishClassMapper pyishClassMapper;
 
   private int nextPos = 0;
   private char prevChar = 0;
@@ -79,6 +74,7 @@ public class ChunkResolver {
     this.token = token;
     this.interpreter = interpreter;
     deferredWords = new HashSet<>();
+    pyishClassMapper = interpreter.getContext().getPyishClassMapper();
   }
 
   /**
@@ -243,7 +239,7 @@ public class ChunkResolver {
         if (val == null) {
           resolvedToken = token;
         } else {
-          resolvedToken = getValueAsJinjavaString(val);
+          resolvedToken = getValueAsJinjavaString(val, pyishClassMapper);
         }
       }
       return resolvedToken.trim();
@@ -268,7 +264,7 @@ public class ChunkResolver {
       if (val == null) {
         return JINJAVA_NULL;
       } else {
-        resolvedChunk = getValueAsJinjavaString(val);
+        resolvedChunk = getValueAsJinjavaString(val, pyishClassMapper);
       }
       return resolvedChunk.trim();
     } catch (TemplateSyntaxException e) {
@@ -279,9 +275,27 @@ public class ChunkResolver {
     }
   }
 
-  public static String getValueAsJinjavaString(Object val)
+  public static String getAsUnquotedString(
+    Object val,
+    PyishClassMapper pyishClassMapper
+  ) {
+    if (val != null) {
+      try {
+        return WhitespaceUtils.unquoteAndUnescape(
+          getValueAsJinjavaString(val, pyishClassMapper)
+        );
+      } catch (JsonProcessingException ignored) {}
+    }
+    return Objects.toString(val, "");
+  }
+
+  public static String getValueAsJinjavaString(
+    Object val,
+    PyishClassMapper pyishClassMapper
+  )
     throws JsonProcessingException {
-    return OBJECT_MAPPER
+    return pyishClassMapper
+      .getObjectMapper()
       .writeValueAsString(val)
       .replace("'", "\\'")
       // Replace `\n` with a newline character
