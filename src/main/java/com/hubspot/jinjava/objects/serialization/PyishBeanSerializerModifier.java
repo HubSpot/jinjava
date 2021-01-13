@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import java.util.Set;
 
 public class PyishBeanSerializerModifier extends BeanSerializerModifier {
-  private static final JsonSerializer<?> PYISH_JSON_SERIALIZER = new PyishSerializer();
   private final Set<Class<?>> nonPyishClasses;
 
   public PyishBeanSerializerModifier(Set<Class<?>> nonPyishClasses) {
@@ -31,6 +30,6 @@ public class PyishBeanSerializerModifier extends BeanSerializerModifier {
         return serializer;
       }
     }
-    return PYISH_JSON_SERIALIZER;
+    return PyishSerializer.INSTANCE;
   }
 }
