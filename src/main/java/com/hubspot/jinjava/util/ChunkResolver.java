@@ -72,7 +72,7 @@ public class ChunkResolver {
     this.token = token;
     this.interpreter = interpreter;
     deferredWords = new HashSet<>();
-    pyishObjectMapper = interpreter.getContext().getPyishClassMapper();
+    pyishObjectMapper = interpreter.getContext().getPyishObjectMapper();
   }
 
   /**

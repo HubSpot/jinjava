@@ -160,7 +160,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     StringBuilder result = new StringBuilder();
     Map<String, Integer> initiallyResolvedHashes = new HashMap<>();
     Map<String, String> initiallyResolvedAsStrings = new HashMap<>();
-    PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishClassMapper();
+    PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishObjectMapper();
     interpreter
       .getContext()
       .entrySet()
@@ -314,7 +314,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       return ""; // This will be handled outside of the deferred execution mode.
     }
     Map<String, String> deferredMap = new HashMap<>();
-    PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishClassMapper();
+    PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishObjectMapper();
     deferredWords
       .stream()
       .map(w -> w.split("\\.", 2)[0]) // get base prop

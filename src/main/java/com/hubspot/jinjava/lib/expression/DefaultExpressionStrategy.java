@@ -20,7 +20,7 @@ public class DefaultExpressionStrategy implements ExpressionStrategy {
     );
     String result = interpreter
       .getContext()
-      .getPyishClassMapper()
+      .getPyishObjectMapper()
       .getAsUnquotedPyishString(var);
 
     if (interpreter.getConfig().isNestedInterpretationEnabled()) {

@@ -467,7 +467,7 @@ public class JinjavaInterpreter {
    */
   public String resolveString(String variable, int lineNumber, int startPosition) {
     return context
-      .getPyishClassMapper()
+      .getPyishObjectMapper()
       .getAsUnquotedPyishString(resolveObject(variable, lineNumber, startPosition));
   }
 
