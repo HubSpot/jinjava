@@ -17,6 +17,7 @@ public class PyishJsonSerializer extends JsonSerializer<Object> {
     SerializerProvider serializerProvider
   )
     throws IOException {
+    jsonGenerator.setPrettyPrinter(PyishPrettyPrinter.INSTANCE);
     String string = Objects.toString(object, "");
     try {
       Double.parseDouble(string);

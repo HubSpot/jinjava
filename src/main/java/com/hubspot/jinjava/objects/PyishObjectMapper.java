@@ -2,6 +2,7 @@ package com.hubspot.jinjava.objects;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.Arrays;
@@ -14,19 +15,24 @@ import java.util.Set;
 public class PyishObjectMapper {
   private final PyishObjectMapper parent;
   private Set<Class<?>> defaultJsonClasses;
-  private ObjectMapper objectMapper;
+  private ObjectWriter objectWriter;
+
+  public PyishObjectMapper() {
+    this(null);
+  }
 
   public PyishObjectMapper(PyishObjectMapper parent) {
     this.parent = parent;
     if (parent == null) {
       this.defaultJsonClasses = new HashSet<>();
       registerDefaults();
-      objectMapper =
+      objectWriter =
         new ObjectMapper()
-        .registerModule(
+          .registerModule(
             new SimpleModule()
             .setSerializerModifier(new PyishBeanSerializerModifier(defaultJsonClasses))
-          );
+          )
+          .writer(PyishPrettyPrinter.INSTANCE);
     }
   }
 
@@ -41,11 +47,11 @@ public class PyishObjectMapper {
     defaultJsonClasses.addAll(Arrays.asList(classes));
   }
 
-  public ObjectMapper getObjectMapper() {
+  public ObjectWriter getObjectWriter() {
     if (parent != null) {
-      return parent.getObjectMapper();
+      return parent.getObjectWriter();
     }
-    return objectMapper;
+    return objectWriter;
   }
 
   public String getAsUnquotedPyishString(Object val) {
@@ -57,7 +63,7 @@ public class PyishObjectMapper {
 
   public String getAsPyishString(Object val) {
     try {
-      return getObjectMapper()
+      return getObjectWriter()
         .writeValueAsString(val)
         .replace("'", "\\'")
         // Replace `\n` with a newline character

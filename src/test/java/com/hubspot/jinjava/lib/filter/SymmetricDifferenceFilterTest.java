@@ -29,7 +29,7 @@ public class SymmetricDifferenceFilterTest extends BaseJinjavaTest {
           new HashMap<>()
         )
       )
-      .isEqualTo("[do, me]");
+      .isEqualTo("['do', 'me']");
   }
 
   @Test

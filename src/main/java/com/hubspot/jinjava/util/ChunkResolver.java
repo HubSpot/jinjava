@@ -106,7 +106,7 @@ public class ChunkResolver {
         // Resolved value of null as a string is ''.
         return JINJAVA_EMPTY_STRING;
       }
-      return expression;
+      return expression.trim();
     } finally {
       interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);
     }
@@ -131,6 +131,7 @@ public class ChunkResolver {
       return miniChunks
         .stream()
         .filter(s -> s.length() > 1 || !isMiniChunkSplitter(s.charAt(0)))
+        .map(String::trim)
         .collect(Collectors.toList());
     } finally {
       interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);
@@ -240,12 +241,15 @@ public class ChunkResolver {
           resolvedToken = pyishObjectMapper.getAsPyishString(val);
         }
       }
-      return resolvedToken.trim();
+      if (token.charAt(0) == ' ') {
+        token = ' ' + token;
+      }
+      return resolvedToken;
     } catch (DeferredValueException e) {
       deferredWords.addAll(findDeferredWords(token));
-      return token.trim();
+      return token;
     } catch (TemplateSyntaxException e) {
-      return token.trim();
+      return token;
     }
   }
 
@@ -256,6 +260,7 @@ public class ChunkResolver {
     } else if (RESERVED_KEYWORDS.contains(chunk)) {
       return chunk;
     }
+
     try {
       String resolvedChunk;
       Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
@@ -264,12 +269,15 @@ public class ChunkResolver {
       } else {
         resolvedChunk = pyishObjectMapper.getAsPyishString(val);
       }
-      return resolvedChunk.trim();
+      if (chunk.charAt(0) == ' ') {
+        resolvedChunk = ' ' + resolvedChunk;
+      }
+      return resolvedChunk;
     } catch (TemplateSyntaxException e) {
-      return chunk.trim();
+      return chunk;
     } catch (Exception e) {
       deferredWords.addAll(findDeferredWords(chunk));
-      return chunk.trim();
+      return chunk;
     }
   }
 

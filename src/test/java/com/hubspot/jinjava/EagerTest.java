@@ -271,8 +271,8 @@ public class EagerTest {
 
   @Test
   public void itPreservesRandomness() {
-    String output = interpreter.render("{{ [1,2,3]|shuffle }}");
-    assertThat(output).isEqualTo("{{ [1,2,3]|shuffle }}");
+    String output = interpreter.render("{{ [1, 2, 3]|shuffle }}");
+    assertThat(output).isEqualTo("{{ [1, 2, 3]|shuffle }}");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
@@ -548,7 +548,7 @@ public class EagerTest {
 
     String output = interpreter.render(deferredOutput);
     assertThat(output.replace("\n", ""))
-      .isEqualTo("Is ([]),Macro: [10]Is ([10]),Is ([10,5]),Macro: [10,5,10]");
+      .isEqualTo("Is ([]),Macro: [10]Is ([10]),Is ([10, 5]),Macro: [10, 5, 10]");
   }
 
   @Test
