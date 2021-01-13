@@ -1,4 +1,4 @@
-package com.hubspot.jinjava.objects;
+package com.hubspot.jinjava.objects.serialization;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class PyishSerializer extends JsonSerializer<Object> {
-
-  public PyishSerializer() {}
 
   @Override
   public void serialize(

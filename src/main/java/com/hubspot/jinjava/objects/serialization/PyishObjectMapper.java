@@ -1,4 +1,4 @@
-package com.hubspot.jinjava.objects;
+package com.hubspot.jinjava.objects.serialization;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

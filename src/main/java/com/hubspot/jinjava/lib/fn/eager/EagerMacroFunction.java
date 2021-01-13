@@ -7,7 +7,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.MacroTag;
-import com.hubspot.jinjava.objects.PyishObjectMapper;
+import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

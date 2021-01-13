@@ -1,4 +1,4 @@
-package com.hubspot.jinjava.objects;
+package com.hubspot.jinjava.objects.serialization;
 
 public interface PyishSerializable {
   /**
