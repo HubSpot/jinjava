@@ -7,11 +7,11 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import java.util.Set;
 
 public class PyishBeanSerializerModifier extends BeanSerializerModifier {
-  private static final JsonSerializer<?> PYISH_JSON_SERIALIZER = new PyishJsonSerializer();
-  private final Set<Class<?>> defaultClasses;
+  private static final JsonSerializer<?> PYISH_JSON_SERIALIZER = new PyishSerializer();
+  private final Set<Class<?>> nonPyishClasses;
 
-  public PyishBeanSerializerModifier(Set<Class<?>> defaultClasses) {
-    this.defaultClasses = defaultClasses;
+  public PyishBeanSerializerModifier(Set<Class<?>> nonPyishClasses) {
+    this.nonPyishClasses = nonPyishClasses;
   }
 
   @Override
@@ -21,11 +21,15 @@ public class PyishBeanSerializerModifier extends BeanSerializerModifier {
     JsonSerializer<?> serializer
   ) {
     if (
-      defaultClasses
+      nonPyishClasses
         .stream()
         .anyMatch(clazz -> (clazz.isAssignableFrom(beanDesc.getBeanClass())))
     ) {
-      return serializer;
+      // We can use the PyishSerializer if it extends the PyishSerializable class.
+      // For example, a Map implementation could then have custom string serialization.
+      if (!(PyishSerializable.class.isAssignableFrom(beanDesc.getBeanClass()))) {
+        return serializer;
+      }
     }
     return PYISH_JSON_SERIALIZER;
   }

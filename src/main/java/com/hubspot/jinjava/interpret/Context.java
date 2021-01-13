@@ -507,7 +507,7 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public void registerPyishClasses(Class<?>... classes) {
-    pyishObjectMapper.registerClasses(classes);
+    pyishObjectMapper.registerNonPyishClasses(classes);
   }
 
   public PyishObjectMapper getPyishObjectMapper() {

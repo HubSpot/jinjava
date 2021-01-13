@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.Objects;
 
-public class PyishJsonSerializer extends JsonSerializer<Object> {
+public class PyishSerializer extends JsonSerializer<Object> {
 
-  public PyishJsonSerializer() {}
+  public PyishSerializer() {}
 
   @Override
   public void serialize(
@@ -18,7 +18,12 @@ public class PyishJsonSerializer extends JsonSerializer<Object> {
   )
     throws IOException {
     jsonGenerator.setPrettyPrinter(PyishPrettyPrinter.INSTANCE);
-    String string = Objects.toString(object, "");
+    String string;
+    if (object instanceof PyishSerializable) {
+      string = ((PyishSerializable) object).toPyishString();
+    } else {
+      string = Objects.toString(object, "");
+    }
     try {
       Double.parseDouble(string);
       jsonGenerator.writeNumber(string);

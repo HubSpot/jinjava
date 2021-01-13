@@ -241,9 +241,6 @@ public class ChunkResolver {
           resolvedToken = pyishObjectMapper.getAsPyishString(val);
         }
       }
-      if (token.charAt(0) == ' ') {
-        token = ' ' + token;
-      }
       return resolvedToken;
     } catch (DeferredValueException e) {
       deferredWords.addAll(findDeferredWords(token));

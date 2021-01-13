@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -14,7 +13,7 @@ import java.util.Set;
 
 public class PyishObjectMapper {
   private final PyishObjectMapper parent;
-  private Set<Class<?>> defaultJsonClasses;
+  private Set<Class<?>> nonPyishClasses;
   private ObjectWriter objectWriter;
 
   public PyishObjectMapper() {
@@ -24,27 +23,32 @@ public class PyishObjectMapper {
   public PyishObjectMapper(PyishObjectMapper parent) {
     this.parent = parent;
     if (parent == null) {
-      this.defaultJsonClasses = new HashSet<>();
+      this.nonPyishClasses = new HashSet<>();
       registerDefaults();
       objectWriter =
         new ObjectMapper()
           .registerModule(
             new SimpleModule()
-            .setSerializerModifier(new PyishBeanSerializerModifier(defaultJsonClasses))
+            .setSerializerModifier(new PyishBeanSerializerModifier(nonPyishClasses))
           )
           .writer(PyishPrettyPrinter.INSTANCE);
     }
   }
 
   private void registerDefaults() {
-    registerClasses(Map.class, Collection.class);
+    registerNonPyishClasses(Map.class);
   }
 
-  public void registerClasses(Class<?>... classes) {
+  /**
+   * Reigisters classes that are serialized to a string using jackson's default
+   * json serialization rather than calling toString on the object.
+   * @param classes Classes that don't have a pythonic <code>toString()</code> implementation
+   */
+  public void registerNonPyishClasses(Class<?>... classes) {
     if (parent != null) {
       throw new UnsupportedOperationException();
     }
-    defaultJsonClasses.addAll(Arrays.asList(classes));
+    nonPyishClasses.addAll(Arrays.asList(classes));
   }
 
   public ObjectWriter getObjectWriter() {

@@ -31,6 +31,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.objects.PyishObjectMapper;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
 import com.hubspot.jinjava.random.DeferredRandomNumberGenerator;
 import com.hubspot.jinjava.tree.Node;
@@ -67,6 +68,7 @@ public class JinjavaInterpreter {
   private final ExpressionResolver expressionResolver;
   private final Jinjava application;
   private final Random random;
+  private final PyishObjectMapper pyishObjectMapper;
 
   private int lineNumber = -1;
   private int position = 0;
@@ -82,6 +84,7 @@ public class JinjavaInterpreter {
     this.context = context;
     this.config = renderConfig;
     this.application = application;
+    pyishObjectMapper = new PyishObjectMapper();
 
     this.config.getExecutionMode().prepareContext(this.context);
 
@@ -466,9 +469,9 @@ public class JinjavaInterpreter {
    * @return resolved value for variable
    */
   public String resolveString(String variable, int lineNumber, int startPosition) {
-    return context
-      .getPyishObjectMapper()
-      .getAsUnquotedPyishString(resolveObject(variable, lineNumber, startPosition));
+    return pyishObjectMapper.getAsUnquotedPyishString(
+      resolveObject(variable, lineNumber, startPosition)
+    );
   }
 
   public String resolveString(String variable, int lineNumber) {
@@ -495,6 +498,14 @@ public class JinjavaInterpreter {
 
   public JinjavaConfig getConfig() {
     return config;
+  }
+
+  public PyishObjectMapper getPyishObjectMapper() {
+    return pyishObjectMapper;
+  }
+
+  public void registerNonPyishClasses(Class<?>... classes) {
+    pyishObjectMapper.registerNonPyishClasses(classes);
   }
 
   /**
