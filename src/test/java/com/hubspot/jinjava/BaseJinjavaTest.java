@@ -7,6 +7,7 @@ public abstract class BaseJinjavaTest {
 
   @Before
   public void baseSetup() {
-    jinjava = new Jinjava();
+    jinjava =
+      new Jinjava(JinjavaConfig.newBuilder().withUsePyishObjectMapper(true).build());
   }
 }

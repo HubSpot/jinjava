@@ -18,10 +18,7 @@ public class DefaultExpressionStrategy implements ExpressionStrategy {
       master.getExpr(),
       master.getLineNumber()
     );
-    String result = interpreter
-      .getContext()
-      .getPyishObjectMapper()
-      .getAsUnquotedPyishString(var);
+    String result = interpreter.getAsString(var);
 
     if (interpreter.getConfig().isNestedInterpretationEnabled()) {
       if (

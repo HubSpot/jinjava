@@ -44,6 +44,7 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
         JinjavaConfig
           .newBuilder()
           .withNestedInterpretationEnabled(false)
+          .withUsePyishObjectMapper(true)
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );

@@ -295,10 +295,6 @@ public class Jinjava {
     globalContext.registerExpTest(t);
   }
 
-  public void registerPyishClasses(Class<Object> c) {
-    globalContext.registerPyishClasses(c);
-  }
-
   private Context copyGlobalContext() {
     Context context = new Context(null, globalContext);
     // copy registered.

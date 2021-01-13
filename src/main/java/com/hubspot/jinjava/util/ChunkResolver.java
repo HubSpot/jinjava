@@ -6,7 +6,6 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
-import com.hubspot.jinjava.objects.PyishObjectMapper;
 import com.hubspot.jinjava.tree.parse.Token;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +58,6 @@ public class ChunkResolver {
   private final Token token;
   private final JinjavaInterpreter interpreter;
   private final Set<String> deferredWords;
-  private final PyishObjectMapper pyishObjectMapper;
 
   private int nextPos = 0;
   private char prevChar = 0;
@@ -72,7 +70,6 @@ public class ChunkResolver {
     this.token = token;
     this.interpreter = interpreter;
     deferredWords = new HashSet<>();
-    pyishObjectMapper = interpreter.getContext().getPyishObjectMapper();
   }
 
   /**
@@ -238,7 +235,8 @@ public class ChunkResolver {
         if (val == null) {
           resolvedToken = token;
         } else {
-          resolvedToken = pyishObjectMapper.getAsPyishString(val);
+          resolvedToken =
+            interpreter.getContext().getPyishObjectMapper().getAsPyishString(val);
         }
       }
       return resolvedToken;
@@ -264,7 +262,8 @@ public class ChunkResolver {
       if (val == null) {
         return JINJAVA_NULL;
       } else {
-        resolvedChunk = pyishObjectMapper.getAsPyishString(val);
+        resolvedChunk =
+          interpreter.getContext().getPyishObjectMapper().getAsPyishString(val);
       }
       if (chunk.charAt(0) == ' ') {
         resolvedChunk = ' ' + resolvedChunk;

@@ -506,7 +506,7 @@ public class Context extends ScopeMap<String, Object> {
     tagLibrary.addTag(t);
   }
 
-  public void registerPyishClasses(Class<?>... classes) {
+  public void registerNonPyishClasses(Class<?>... classes) {
     pyishObjectMapper.registerNonPyishClasses(classes);
   }
 

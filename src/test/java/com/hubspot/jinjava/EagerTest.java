@@ -65,6 +65,7 @@ public class EagerTest {
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
       .withExecutionMode(EagerExecutionMode.instance())
       .withNestedInterpretationEnabled(true)
+      .withUsePyishObjectMapper(true)
       .build();
     JinjavaInterpreter parentInterpreter = new JinjavaInterpreter(
       jinjava,
@@ -706,6 +707,7 @@ public class EagerTest {
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
       .withExecutionMode(EagerExecutionMode.instance())
       .withNestedInterpretationEnabled(false)
+      .withUsePyishObjectMapper(true)
       .build();
     JinjavaInterpreter parentInterpreter = new JinjavaInterpreter(
       jinjava,

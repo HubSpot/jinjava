@@ -31,7 +31,6 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
-import com.hubspot.jinjava.objects.PyishObjectMapper;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
 import com.hubspot.jinjava.random.DeferredRandomNumberGenerator;
 import com.hubspot.jinjava.tree.Node;
@@ -50,6 +49,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -68,7 +68,6 @@ public class JinjavaInterpreter {
   private final ExpressionResolver expressionResolver;
   private final Jinjava application;
   private final Random random;
-  private final PyishObjectMapper pyishObjectMapper;
 
   private int lineNumber = -1;
   private int position = 0;
@@ -84,7 +83,6 @@ public class JinjavaInterpreter {
     this.context = context;
     this.config = renderConfig;
     this.application = application;
-    pyishObjectMapper = new PyishObjectMapper();
 
     this.config.getExecutionMode().prepareContext(this.context);
 
@@ -469,9 +467,15 @@ public class JinjavaInterpreter {
    * @return resolved value for variable
    */
   public String resolveString(String variable, int lineNumber, int startPosition) {
-    return pyishObjectMapper.getAsUnquotedPyishString(
-      resolveObject(variable, lineNumber, startPosition)
-    );
+    Object object = resolveObject(variable, lineNumber, startPosition);
+    return getAsString(object);
+  }
+
+  public String getAsString(Object object) {
+    if (config.isUsePyishObjectMapper()) {
+      return context.getPyishObjectMapper().getAsUnquotedPyishString(object);
+    }
+    return Objects.toString(object, "");
   }
 
   public String resolveString(String variable, int lineNumber) {
@@ -498,14 +502,6 @@ public class JinjavaInterpreter {
 
   public JinjavaConfig getConfig() {
     return config;
-  }
-
-  public PyishObjectMapper getPyishObjectMapper() {
-    return pyishObjectMapper;
-  }
-
-  public void registerNonPyishClasses(Class<?>... classes) {
-    pyishObjectMapper.registerNonPyishClasses(classes);
   }
 
   /**
