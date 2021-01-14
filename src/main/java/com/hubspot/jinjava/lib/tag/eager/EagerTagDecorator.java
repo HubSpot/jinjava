@@ -172,12 +172,12 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       .filter(e -> !(e.getValue() instanceof DeferredValue) && e.getValue() != null)
       .forEach(
         entry -> {
-          initiallyResolvedHashes.put(entry.getKey(), entry.getValue().hashCode());
           try {
             initiallyResolvedAsStrings.put(
               entry.getKey(),
               ChunkResolver.getValueAsJinjavaString(entry.getValue())
             );
+            initiallyResolvedHashes.put(entry.getKey(), entry.getValue().hashCode());
           } catch (JsonProcessingException jsonProcessingException) {
             // do nothing
           }
