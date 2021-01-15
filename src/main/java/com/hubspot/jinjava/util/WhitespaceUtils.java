@@ -1,6 +1,8 @@
 package com.hubspot.jinjava.util;
 
+import com.google.common.base.Strings;
 import com.hubspot.jinjava.interpret.InterpretException;
+import org.apache.commons.lang3.StringUtils;
 
 public final class WhitespaceUtils {
   private static final char[] QUOTE_CHARS = new char[] { '\'', '"' };
@@ -57,6 +59,9 @@ public final class WhitespaceUtils {
   }
 
   public static boolean isExpressionQuoted(String s) {
+    if (Strings.isNullOrEmpty(s)) {
+      return false;
+    }
     char[] charArray = s.toCharArray();
     char quoteChar = 0;
     for (char c : QUOTE_CHARS) {
@@ -97,7 +102,7 @@ public final class WhitespaceUtils {
 
   // TODO see if all usages of unquote can use this method instead
   public static String unquoteAndUnescape(String s) {
-    if (s == null) {
+    if (Strings.isNullOrEmpty(s)) {
       return "";
     }
     if (!isExpressionQuoted(s)) {
@@ -112,7 +117,7 @@ public final class WhitespaceUtils {
       return s.trim();
     }
     // Since we're unquoting, we can unescape the quote characters in the string.
-    return s.replaceAll("\\\\\"", "\"").replaceAll("\\\\'", "'");
+    return s.replace("\\\"", "\"").replace("\\'", "'").replace("\\\\", "\\");
   }
 
   public static String unwrap(String s, String prefix, String suffix) {
