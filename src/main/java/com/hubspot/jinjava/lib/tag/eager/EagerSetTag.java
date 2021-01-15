@@ -74,7 +74,9 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
             tagToken,
             interpreter,
             varTokens,
-            resolvedExpression.getResult(),
+            resolvedExpression.getPrefixToPreserveState().isEmpty()
+              ? expression
+              : resolvedExpression.getResult(),
             true
           );
         return "";

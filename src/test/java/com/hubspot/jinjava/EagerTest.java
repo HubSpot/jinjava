@@ -286,7 +286,7 @@ public class EagerTest {
     );
     Object padding = localContext.get("padding");
     assertThat(padding).isInstanceOf(DeferredValue.class);
-    assertThat(((DeferredValue) padding).getOriginalValue()).isEqualTo(10L);
+    assertThat(((DeferredValue) padding).getOriginalValue()).isEqualTo(10);
 
     localContext.put("padding", ((DeferredValue) padding).getOriginalValue());
     localContext.put("added_padding", 10);
