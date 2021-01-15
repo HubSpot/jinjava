@@ -3,6 +3,7 @@ package com.hubspot.jinjava.util;
 import com.hubspot.jinjava.interpret.InterpretException;
 
 public final class WhitespaceUtils {
+  private static final char[] QUOTE_CHARS = new char[] { '\'', '"' };
 
   public static boolean startsWith(String s, String prefix) {
     if (s == null) {
@@ -55,6 +56,33 @@ public final class WhitespaceUtils {
     return false;
   }
 
+  public static boolean isExpressionQuoted(String s) {
+    char[] charArray = s.toCharArray();
+    char quoteChar = 0;
+    for (char c : QUOTE_CHARS) {
+      if (charArray[0] == c) {
+        quoteChar = c;
+        break;
+      }
+    }
+    if (charArray[charArray.length - 1] != quoteChar) {
+      return false;
+    }
+    char prevChar = 0;
+    for (int i = 1; i < charArray.length - 1; i++) {
+      if (charArray[i] == quoteChar && prevChar != '\\') {
+        return false;
+      }
+      if (prevChar == '\\') {
+        // Double escapes cancel out.
+        prevChar = 0;
+      } else {
+        prevChar = charArray[i];
+      }
+    }
+    return true;
+  }
+
   public static String unquote(String s) {
     if (s == null) {
       return "";
@@ -71,6 +99,9 @@ public final class WhitespaceUtils {
   public static String unquoteAndUnescape(String s) {
     if (s == null) {
       return "";
+    }
+    if (!isExpressionQuoted(s)) {
+      return s.trim();
     }
 
     if (startsWith(s, "'")) {
