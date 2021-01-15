@@ -172,27 +172,20 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       .filter(
         entry -> !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
       )
-      .filter(
-        entry -> {
-          try {
-            return (
-              entry.getValue().getClass().getMethod("toString").getDeclaringClass() !=
-              Object.class
-            );
-          } catch (NoSuchMethodException e) {
-            return false; // Will never happen.
-          }
-        }
-      )
       .forEach(
         entry -> {
           try {
-            initiallyResolvedAsStrings.put(
-              entry.getKey(),
-              ChunkResolver.getValueAsJinjavaString(entry.getValue())
-            );
+            if (
+              entry.getValue().getClass().getMethod("toString").getDeclaringClass() !=
+              Object.class
+            ) {
+              initiallyResolvedAsStrings.put(
+                entry.getKey(),
+                ChunkResolver.getValueAsJinjavaString(entry.getValue())
+              );
+            }
             initiallyResolvedHashes.put(entry.getKey(), entry.getValue().hashCode());
-          } catch (JsonProcessingException jsonProcessingException) {
+          } catch (JsonProcessingException | NoSuchMethodException ignored) {
             // do nothing
           }
         }
