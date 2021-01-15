@@ -169,7 +169,21 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           !e.getKey().equals(GLOBAL_MACROS_SCOPE_KEY) &&
           !e.getKey().equals(IMPORT_RESOURCE_PATH_KEY)
       )
-      .filter(e -> !(e.getValue() instanceof DeferredValue) && e.getValue() != null)
+      .filter(
+        entry -> !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
+      )
+      .filter(
+        entry -> {
+          try {
+            return (
+              entry.getValue().getClass().getMethod("toString").getDeclaringClass() !=
+              Object.class
+            );
+          } catch (NoSuchMethodException e) {
+            return false; // Will never happen.
+          }
+        }
+      )
       .forEach(
         entry -> {
           try {
