@@ -80,7 +80,7 @@ public final class WhitespaceUtils {
         prevChar = charArray[i];
       }
     }
-    return true;
+    return prevChar != '\\';
   }
 
   public static String unquote(String s) {
