@@ -43,7 +43,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     );
     String expression = resolvedExpression.getResult();
     if (WhitespaceUtils.isWrappedWith(expression, "[", "]")) {
-      expression = expression.substring(1, expression.length() - 1).replaceAll(", ", ",");
+      expression = expression.substring(1, expression.length() - 1).replace(", ", ",");
     }
     StringBuilder prefixToPreserveState = new StringBuilder(
       interpreter.getContext().isDeferredExecutionMode()
