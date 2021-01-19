@@ -2,7 +2,6 @@ package com.hubspot.jinjava.util;
 
 import com.google.common.base.Strings;
 import com.hubspot.jinjava.interpret.InterpretException;
-import org.apache.commons.lang3.StringUtils;
 
 public final class WhitespaceUtils {
   private static final char[] QUOTE_CHARS = new char[] { '\'', '"' };

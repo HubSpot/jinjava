@@ -313,14 +313,14 @@ public class ChunkResolverTest {
   @Test
   public void itOutputsEmptyForVoidFunctions() throws Exception {
     assertThat(
-      WhitespaceUtils.unquoteAndUnescape(interpreter.render("{{ void_function(2) }}"))
-    )
+        WhitespaceUtils.unquoteAndUnescape(interpreter.render("{{ void_function(2) }}"))
+      )
       .isEmpty();
     assertThat(
-      WhitespaceUtils.unquoteAndUnescape(
-        makeChunkResolver("void_function(2)").resolveChunks()
+        WhitespaceUtils.unquoteAndUnescape(
+          makeChunkResolver("void_function(2)").resolveChunks()
+        )
       )
-    )
       .isEmpty();
   }
 
