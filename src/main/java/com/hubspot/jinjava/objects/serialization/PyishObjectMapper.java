@@ -73,10 +73,7 @@ public class PyishObjectMapper {
         // Replace `\n` with a newline character
         .replaceAll("(?<!\\\\)(\\\\\\\\)*(?:\\\\n)", "$1\n")
         // Replace double-quotes with single quote as they are preferred in Jinja
-        .replaceAll("(?<!\\\\)(\\\\\\\\)*(?:\")", "$1'")
-        // Replace escaped backslash with backslash character
-        // because object mapper escapes slashes.
-        .replace("\\\\", "\\");
+        .replaceAll("(?<!\\\\)(\\\\\\\\)*(?:\")", "$1'");
     } catch (JsonProcessingException e) {
       return Objects.toString(val, "");
     }
