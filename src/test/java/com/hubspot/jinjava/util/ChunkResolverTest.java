@@ -287,12 +287,12 @@ public class ChunkResolverTest {
   @Test
   public void itHandlesNewlines() {
     context.put("foo", "\n");
-    context.put("bar", "\\" + "n");
+    context.put("bar", "\\" + "n"); // Jinja doesn't see this as a newline.
     ChunkResolver chunkResolver = makeChunkResolver(
       "foo ~ ' & ' ~ bar ~ ' & ' ~ '\\\\' ~ 'n' ~ ' & \\\\n'"
     );
     assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
-      .isEqualTo("\n & \n & \\n & \\n");
+      .isEqualTo("\n & \\n & \\n & \\n");
   }
 
   @Test

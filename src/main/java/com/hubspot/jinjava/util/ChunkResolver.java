@@ -99,6 +99,9 @@ public class ChunkResolver {
     try {
       interpreter.getContext().setThrowInterpreterErrors(true);
       String expression = String.join("", getChunk(null));
+      if (deferredWords.isEmpty()) {
+        expression = resolveChunk(expression);
+      }
       if (JINJAVA_NULL.equals(expression)) {
         // Resolved value of null as a string is ''.
         return JINJAVA_EMPTY_STRING;
@@ -252,7 +255,9 @@ public class ChunkResolver {
   private String resolveChunk(String chunk) {
     if (StringUtils.isBlank(chunk)) {
       return "";
-    } else if (RESERVED_KEYWORDS.contains(chunk)) {
+    } else if (
+      WhitespaceUtils.isExpressionQuoted(chunk) || RESERVED_KEYWORDS.contains(chunk)
+    ) {
       return chunk;
     }
 
