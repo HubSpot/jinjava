@@ -23,7 +23,7 @@ public class IntersectFilterTest extends BaseJinjavaTest {
     assertThat(
         jinjava.render("{{ ['do', 'ray']|intersect(['ray', 'me']) }}", new HashMap<>())
       )
-      .isEqualTo("[ray]");
+      .isEqualTo("['ray']");
   }
 
   @Test

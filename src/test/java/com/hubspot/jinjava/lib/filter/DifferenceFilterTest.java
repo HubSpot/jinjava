@@ -23,7 +23,7 @@ public class DifferenceFilterTest extends BaseJinjavaTest {
     assertThat(
         jinjava.render("{{ ['do', 'ray']|difference(['ray', 'me']) }}", new HashMap<>())
       )
-      .isEqualTo("[do]");
+      .isEqualTo("['do']");
   }
 
   @Test

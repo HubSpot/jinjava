@@ -467,7 +467,15 @@ public class JinjavaInterpreter {
    * @return resolved value for variable
    */
   public String resolveString(String variable, int lineNumber, int startPosition) {
-    return Objects.toString(resolveObject(variable, lineNumber, startPosition), "");
+    Object object = resolveObject(variable, lineNumber, startPosition);
+    return getAsString(object);
+  }
+
+  public String getAsString(Object object) {
+    if (config.isUsePyishObjectMapper()) {
+      return context.getPyishObjectMapper().getAsUnquotedPyishString(object);
+    }
+    return Objects.toString(object, "");
   }
 
   public String resolveString(String variable, int lineNumber) {

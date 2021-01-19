@@ -2,7 +2,6 @@ package com.hubspot.jinjava.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
@@ -12,6 +11,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.PyishDate;
+import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
@@ -27,7 +27,6 @@ import org.junit.Test;
 
 public class ChunkResolverTest {
   private static final TokenScannerSymbols SYMBOLS = new DefaultTokenScannerSymbols();
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private JinjavaInterpreter interpreter;
   private TagToken tagToken;
@@ -88,10 +87,10 @@ public class ChunkResolverTest {
     context.put("foo", "foo_val");
     context.put("bar", "bar_val");
     ChunkResolver chunkResolver = makeChunkResolver("[foo == bar, deferred, bar]");
-    assertThat(chunkResolver.resolveChunks()).isEqualTo("[false,deferred,'bar_val']");
+    assertThat(chunkResolver.resolveChunks()).isEqualTo("[false, deferred, 'bar_val']");
     assertThat(chunkResolver.getDeferredWords()).containsExactlyInAnyOrder("deferred");
     context.put("bar", "foo_val");
-    assertThat(chunkResolver.resolveChunks()).isEqualTo("[true,deferred,'foo_val']");
+    assertThat(chunkResolver.resolveChunks()).isEqualTo("[true, deferred, 'foo_val']");
   }
 
   @Test
@@ -99,7 +98,7 @@ public class ChunkResolverTest {
     context.put("foo", true);
     ChunkResolver chunkResolver = makeChunkResolver("false || (foo), 'bar'");
     String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("true,'bar'");
+    assertThat(partiallyResolved).isEqualTo("true, 'bar'");
     assertThat(chunkResolver.getDeferredWords()).isEmpty();
   }
 
@@ -108,7 +107,7 @@ public class ChunkResolverTest {
   public void itResolvesRange() {
     ChunkResolver chunkResolver = makeChunkResolver("range(0,2)");
     String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("[0,1]");
+    assertThat(partiallyResolved).isEqualTo("[0, 1]");
     assertThat(chunkResolver.getDeferredWords()).isEmpty();
     // I don't know why this is a list of longs?
     assertThat((List<Long>) interpreter.resolveELExpression(partiallyResolved, 1))
@@ -123,13 +122,13 @@ public class ChunkResolverTest {
     context.put("bar", 3);
     ChunkResolver chunkResolver = makeChunkResolver("range(deferred, foo + bar)");
     String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("range(deferred,4)");
+    assertThat(partiallyResolved).isEqualTo("range(deferred, 4)");
     assertThat(chunkResolver.getDeferredWords())
       .containsExactlyInAnyOrder("deferred", "range");
 
     context.put("deferred", 1);
     assertThat(makeChunkResolver(partiallyResolved).resolveChunks())
-      .isEqualTo(OBJECT_MAPPER.writeValueAsString(expectedList));
+      .isEqualTo(new PyishObjectMapper().getAsPyishString(expectedList));
     // But this is a list of integers
     assertThat((List<Integer>) interpreter.resolveELExpression(partiallyResolved, 1))
       .isEqualTo(expectedList);
@@ -156,12 +155,13 @@ public class ChunkResolverTest {
       "[foo, range(deferred, bar), range(foo, bar)][0:2]"
     );
     String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("[1,range(deferred,3),[1,2]][0:2]");
+    assertThat(partiallyResolved).isEqualTo("[1, range(deferred, 3), [1, 2]][0:2]");
     assertThat(chunkResolver.getDeferredWords())
       .containsExactlyInAnyOrder("deferred", "range");
 
     context.put("deferred", 2);
-    assertThat(makeChunkResolver(partiallyResolved).resolveChunks()).isEqualTo("[1,[2]]");
+    assertThat(makeChunkResolver(partiallyResolved).resolveChunks())
+      .isEqualTo("[1, [2]]");
     assertThat(interpreter.resolveELExpression(partiallyResolved, 1))
       .isEqualTo(ImmutableList.of(1L, ImmutableList.of(2)));
   }
@@ -177,7 +177,7 @@ public class ChunkResolverTest {
 
     context.put("deferred", 2);
     assertThat(makeChunkResolver(partiallyResolved).resolveChunks())
-      .isEqualTo("[0,-0.5]");
+      .isEqualTo("[0, -0.5]");
     assertThat(interpreter.resolveELExpression(partiallyResolved, 1))
       .isEqualTo(ImmutableList.of(0L, -0.5));
   }
@@ -215,7 +215,7 @@ public class ChunkResolverTest {
   public void itCatchesDeferredVariables() {
     ChunkResolver chunkResolver = makeChunkResolver("range(0, deferred)");
     String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("range(0,deferred)");
+    assertThat(partiallyResolved).isEqualTo("range(0, deferred)");
     // Since the range function is deferred, it is added to deferredWords.
     assertThat(chunkResolver.getDeferredWords())
       .containsExactlyInAnyOrder("range", "deferred");
@@ -235,7 +235,7 @@ public class ChunkResolverTest {
       "[5,7], 1 + 1, 1 + range(0 + 1, deferred)"
     );
     List<String> miniChunks = chunkResolver.splitChunks();
-    assertThat(miniChunks).containsExactly("[5,7]", "2", "1 + range(1,deferred)");
+    assertThat(miniChunks).containsExactly("[5, 7]", "2", "1 + range(1, deferred)");
     assertThat(chunkResolver.getDeferredWords())
       .containsExactlyInAnyOrder("range", "deferred");
   }
@@ -247,7 +247,7 @@ public class ChunkResolverTest {
       "[(foo > 1) or deferred, deferred].append(1)"
     );
     String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("[false or deferred,deferred].append(1)");
+    assertThat(partiallyResolved).isEqualTo("[false or deferred, deferred].append(1)");
     assertThat(chunkResolver.getDeferredWords()).doesNotContain("false", "or");
     assertThat(chunkResolver.getDeferredWords()).contains("deferred", ".append");
   }

@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.fn.eager;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -8,7 +7,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.MacroTag;
-import com.hubspot.jinjava.util.ChunkResolver;
+import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,19 +60,18 @@ public class EagerMacroFunction extends AbstractCallableMethod {
 
   public String getStartTag(JinjavaInterpreter interpreter) {
     StringJoiner argJoiner = new StringJoiner(", ");
+    PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishObjectMapper();
     for (String arg : macroFunction.getArguments()) {
-      try {
-        if (macroFunction.getDefaults().get(arg) != null) {
-          argJoiner.add(
-            String.format(
-              "%s=%s",
-              arg,
-              ChunkResolver.getValueAsJinjavaString(macroFunction.getDefaults().get(arg))
-            )
-          );
-          continue;
-        }
-      } catch (JsonProcessingException ignored) {}
+      if (macroFunction.getDefaults().get(arg) != null) {
+        argJoiner.add(
+          String.format(
+            "%s=%s",
+            arg,
+            pyishObjectMapper.getAsPyishString(macroFunction.getDefaults().get(arg))
+          )
+        );
+        continue;
+      }
       argJoiner.add(arg);
     }
     return new StringJoiner(" ")

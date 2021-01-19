@@ -13,7 +13,7 @@ public class DoTagTest extends BaseInterpretingTest {
   @Test
   public void itResolvesExpressions() {
     String template = "{% set output = [] %}{% do output.append('hey') %}{{ output }}";
-    assertThat(jinjava.render(template, Maps.newHashMap())).isEqualTo("[hey]");
+    assertThat(jinjava.render(template, Maps.newHashMap())).isEqualTo("['hey']");
   }
 
   @Test
