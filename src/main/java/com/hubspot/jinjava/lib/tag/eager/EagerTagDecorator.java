@@ -170,14 +170,25 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           !e.getKey().equals(GLOBAL_MACROS_SCOPE_KEY) &&
           !e.getKey().equals(IMPORT_RESOURCE_PATH_KEY)
       )
-      .filter(e -> !(e.getValue() instanceof DeferredValue) && e.getValue() != null)
+      .filter(
+        entry -> !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
+      )
       .forEach(
         entry -> {
-          initiallyResolvedHashes.put(entry.getKey(), entry.getValue().hashCode());
-          initiallyResolvedAsStrings.put(
-            entry.getKey(),
-            pyishObjectMapper.getAsPyishString(entry.getValue())
-          );
+          try {
+            if (
+              entry.getValue().getClass().getMethod("toString").getDeclaringClass() !=
+              Object.class
+            ) {
+              initiallyResolvedAsStrings.put(
+                entry.getKey(),
+                pyishObjectMapper.getAsPyishString(entry.getValue())
+              );
+            }
+            initiallyResolvedHashes.put(entry.getKey(), entry.getValue().hashCode());
+          } catch (NoSuchMethodException ignored) {
+            // do nothing
+          }
         }
       );
 
