@@ -22,6 +22,7 @@ import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
+import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -178,7 +179,8 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           try {
             if (
               entry.getValue().getClass().getMethod("toString").getDeclaringClass() !=
-              Object.class
+              Object.class ||
+              entry.getValue() instanceof PyishSerializable
             ) {
               initiallyResolvedAsStrings.put(
                 entry.getKey(),
