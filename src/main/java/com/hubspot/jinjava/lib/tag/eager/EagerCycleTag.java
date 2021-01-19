@@ -8,6 +8,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.ChunkResolver;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.WhitespaceUtils;
+import java.util.ArrayList;
 import java.util.List;
 
 public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
@@ -21,7 +22,18 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
     HelperStringTokenizer tk = new HelperStringTokenizer(tagToken.getHelpers());
 
-    List<String> helper = tk.allTokens();
+    List<String> helper = new ArrayList<>();
+    StringBuilder sb = new StringBuilder();
+    for (String token : tk.allTokens()) {
+      sb.append(token);
+      if (!token.endsWith(",")) {
+        helper.add(sb.toString());
+        sb = new StringBuilder();
+      }
+    }
+    if (sb.length() > 0) {
+      helper.add(sb.toString());
+    }
     ChunkResolver chunkResolver = new ChunkResolver(helper.get(0), tagToken, interpreter);
     EagerStringResult resolvedExpression = executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
@@ -31,7 +43,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     );
     String expression = resolvedExpression.getResult();
     if (WhitespaceUtils.isWrappedWith(expression, "[", "]")) {
-      expression = expression.substring(1, expression.length() - 1);
+      expression = expression.substring(1, expression.length() - 1).replace(", ", ",");
     }
     StringBuilder prefixToPreserveState = new StringBuilder(
       interpreter.getContext().isDeferredExecutionMode()

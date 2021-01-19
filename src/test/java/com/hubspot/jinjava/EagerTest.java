@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class EagerTest {
@@ -66,6 +65,7 @@ public class EagerTest {
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
       .withExecutionMode(EagerExecutionMode.instance())
       .withNestedInterpretationEnabled(true)
+      .withUsePyishObjectMapper(true)
       .build();
     JinjavaInterpreter parentInterpreter = new JinjavaInterpreter(
       jinjava,
@@ -272,8 +272,8 @@ public class EagerTest {
 
   @Test
   public void itPreservesRandomness() {
-    String output = interpreter.render("{{ [1,2,3]|shuffle }}");
-    assertThat(output).isEqualTo("{{ [1,2,3]|shuffle }}");
+    String output = interpreter.render("{{ [1, 2, 3]|shuffle }}");
+    assertThat(output).isEqualTo("{{ [1, 2, 3]|shuffle }}");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
@@ -549,7 +549,7 @@ public class EagerTest {
 
     String output = interpreter.render(deferredOutput);
     assertThat(output.replace("\n", ""))
-      .isEqualTo("Is ([]),Macro: [10]Is ([10]),Is ([10,5]),Macro: [10,5,10]");
+      .isEqualTo("Is ([]),Macro: [10]Is ([10]),Is ([10, 5]),Macro: [10, 5, 10]");
   }
 
   @Test
@@ -707,6 +707,7 @@ public class EagerTest {
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
       .withExecutionMode(EagerExecutionMode.instance())
       .withNestedInterpretationEnabled(false)
+      .withUsePyishObjectMapper(true)
       .build();
     JinjavaInterpreter parentInterpreter = new JinjavaInterpreter(
       jinjava,

@@ -51,6 +51,7 @@ public class JinjavaConfig {
   private final Map<Context.Library, Set<String>> disabled;
   private final boolean failOnUnknownTokens;
   private final boolean nestedInterpretationEnabled;
+  private final boolean usePyishObjectMapper;
   private final RandomNumberGeneratorStrategy randomNumberGenerator;
   private final boolean validationMode;
   private final long maxStringLength;
@@ -102,6 +103,7 @@ public class JinjavaConfig {
     failOnUnknownTokens = builder.failOnUnknownTokens;
     maxOutputSize = builder.maxOutputSize;
     nestedInterpretationEnabled = builder.nestedInterpretationEnabled;
+    usePyishObjectMapper = builder.usePyishObjectMapper;
     randomNumberGenerator = builder.randomNumberGeneratorStrategy;
     validationMode = builder.validationMode;
     maxStringLength = builder.maxStringLength;
@@ -174,6 +176,10 @@ public class JinjavaConfig {
     return nestedInterpretationEnabled;
   }
 
+  public boolean isUsePyishObjectMapper() {
+    return usePyishObjectMapper;
+  }
+
   public boolean isValidationMode() {
     return validationMode;
   }
@@ -221,6 +227,7 @@ public class JinjavaConfig {
     private int maxMacroRecursionDepth;
     private boolean failOnUnknownTokens;
     private boolean nestedInterpretationEnabled = true;
+    private boolean usePyishObjectMapper = false;
     private RandomNumberGeneratorStrategy randomNumberGeneratorStrategy =
       RandomNumberGeneratorStrategy.THREAD_LOCAL;
     private boolean validationMode = false;
@@ -312,6 +319,11 @@ public class JinjavaConfig {
 
     public Builder withNestedInterpretationEnabled(boolean nestedInterpretationEnabled) {
       this.nestedInterpretationEnabled = nestedInterpretationEnabled;
+      return this;
+    }
+
+    public Builder withUsePyishObjectMapper(boolean usePyishObjectMapper) {
+      this.usePyishObjectMapper = usePyishObjectMapper;
       return this;
     }
 
