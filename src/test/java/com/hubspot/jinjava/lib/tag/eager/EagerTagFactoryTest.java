@@ -15,8 +15,8 @@ public class EagerTagFactoryTest {
 
   @Test
   public void itGetsEagerTagDecoratorForOverrides() {
-    Set<EagerTagDecorator<?>> eagerTagDecoratorSet = EagerTagFactory.EAGER_TAG_OVERRIDES
-      .keySet()
+    Set<EagerTagDecorator<?>> eagerTagDecoratorSet = EagerTagFactory
+      .EAGER_TAG_OVERRIDES.keySet()
       .stream()
       .map(
         clazz -> {
@@ -35,11 +35,11 @@ public class EagerTagFactoryTest {
     assertThat(eagerTagDecoratorSet.size())
       .isEqualTo(EagerTagFactory.EAGER_TAG_OVERRIDES.keySet().size());
     assertThat(
-      eagerTagDecoratorSet
-        .stream()
-        .map(e -> e.getTag().getClass())
-        .collect(Collectors.toSet())
-    )
+        eagerTagDecoratorSet
+          .stream()
+          .map(e -> e.getTag().getClass())
+          .collect(Collectors.toSet())
+      )
       .isEqualTo(EagerTagFactory.EAGER_TAG_OVERRIDES.keySet());
   }
 
