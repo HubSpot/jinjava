@@ -26,7 +26,7 @@ public class EagerExecutionMode implements ExecutionMode {
       .getAllTags()
       .stream()
       .filter(tag -> !(tag instanceof EagerTagDecorator))
-      .map(tag -> EagerTagFactory.getEagerTagDecorator(tag.getClass()))
+      .map(EagerTagFactory::getEagerTagDecorator)
       .filter(Optional::isPresent)
       .forEach(maybeEagerTag -> context.registerTag(maybeEagerTag.get()));
     context.setExpressionStrategy(new EagerExpressionStrategy());

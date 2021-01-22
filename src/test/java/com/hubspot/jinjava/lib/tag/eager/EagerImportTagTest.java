@@ -7,7 +7,7 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.tag.FromTag;
+import com.hubspot.jinjava.lib.tag.ImportTag;
 import com.hubspot.jinjava.lib.tag.ImportTagTest;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.loader.LocationResolver;
@@ -42,7 +42,7 @@ public class EagerImportTagTest extends ImportTagTest {
           .build()
       );
     Tag tag = EagerTagFactory
-      .getEagerTagDecorator(FromTag.class)
+      .getEagerTagDecorator(new ImportTag())
       .orElseThrow(RuntimeException::new);
     context.registerTag(tag);
     context.put("deferred", DeferredValue.instance());

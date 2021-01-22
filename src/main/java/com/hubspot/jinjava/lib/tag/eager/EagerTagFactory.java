@@ -47,8 +47,9 @@ public class EagerTagFactory {
 
   @SuppressWarnings("unchecked")
   public static <T extends Tag> Optional<EagerTagDecorator<T>> getEagerTagDecorator(
-    Class<T> clazz
+    T tag
   ) {
+    Class<? extends Tag> clazz = tag.getClass();
     try {
       if (TAG_CLASSES_TO_SKIP.contains(clazz)) {
         return Optional.empty();
@@ -56,13 +57,12 @@ public class EagerTagFactory {
       if (EAGER_TAG_OVERRIDES.containsKey(clazz)) {
         EagerTagDecorator<?> decorator = EAGER_TAG_OVERRIDES
           .get(clazz)
-          .getDeclaredConstructor()
-          .newInstance();
+          .getDeclaredConstructor(clazz)
+          .newInstance(tag);
         if (decorator.getTag().getClass() == clazz) {
           return Optional.of((EagerTagDecorator<T>) decorator);
         }
       }
-      T tag = clazz.getDeclaredConstructor().newInstance();
       return Optional.of(new EagerGenericTag<>(tag));
     } catch (NoSuchMethodException e) {
       return Optional.empty();

@@ -58,7 +58,7 @@ public class EagerFromTagTest extends FromTagTest {
           .build()
       );
     Tag tag = EagerTagFactory
-      .getEagerTagDecorator(FromTag.class)
+      .getEagerTagDecorator(new FromTag())
       .orElseThrow(RuntimeException::new);
     context.registerTag(tag);
     context.put("deferred", DeferredValue.instance());
