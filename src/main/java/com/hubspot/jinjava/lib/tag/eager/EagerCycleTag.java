@@ -17,6 +17,10 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     super(new CycleTag());
   }
 
+  public EagerCycleTag(CycleTag cycleTag) {
+    super(cycleTag);
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {

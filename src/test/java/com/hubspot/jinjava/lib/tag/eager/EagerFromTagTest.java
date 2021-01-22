@@ -33,8 +33,7 @@ public class EagerFromTagTest extends FromTagTest {
           String fullName,
           Charset encoding,
           JinjavaInterpreter interpreter
-        )
-          throws IOException {
+        ) throws IOException {
           return Resources.toString(
             Resources.getResource(String.format("tags/macrotag/%s", fullName)),
             StandardCharsets.UTF_8
@@ -58,7 +57,7 @@ public class EagerFromTagTest extends FromTagTest {
           .build()
       );
     Tag tag = EagerTagFactory
-      .getEagerTagDecorator(FromTag.class)
+      .getEagerTagDecorator(new FromTag())
       .orElseThrow(RuntimeException::new);
     context.registerTag(tag);
     context.put("deferred", DeferredValue.instance());

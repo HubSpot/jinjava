@@ -28,6 +28,10 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     super(new ImportTag());
   }
 
+  public EagerImportTag(ImportTag importTag) {
+    super(importTag);
+  }
+
   @Override
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
     List<String> helper = ImportTag.getHelpers(tagToken);
