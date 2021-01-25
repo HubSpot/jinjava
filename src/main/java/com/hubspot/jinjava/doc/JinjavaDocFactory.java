@@ -43,6 +43,18 @@ public class JinjavaDocFactory {
     return doc;
   }
 
+  public String getVSCodeTagSnippets() {
+    StringBuffer snippets = new StringBuffer();
+    for (Tag tag : jinjava.getGlobalContextCopy().getAllTags()) {
+      if (tag instanceof EndTag) {
+        continue;
+      }
+      snippets.append(getTagSnippet(tag));
+      snippets.append("\n\n");
+    }
+    return snippets.toString();
+  }
+
   private void addExpTests(JinjavaDoc doc) {
     for (ExpTest t : jinjava.getGlobalContextCopy().getAllExpTests()) {
       com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
@@ -278,5 +290,31 @@ public class JinjavaDocFactory {
     }
 
     return clazz.getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
+  }
+
+  private String getTagSnippet(Tag tag) {
+    com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
+      tag.getClass()
+    );
+    StringBuilder snippet = new StringBuilder("{% ");
+    snippet.append(tag.getName());
+    int i = 1;
+    for (JinjavaParam param : docAnnotation.input()) {
+      snippet.append(" ${" + i + ":" + param.value() + "}");
+      i++;
+    }
+
+    for (JinjavaParam param : docAnnotation.params()) {
+      snippet.append(" ${" + i + ":" + param.value() + "}");
+      i++;
+    }
+
+    snippet.append(" %}");
+
+    if (tag.getEndTagName() != null) {
+      snippet.append("\n{% " + tag.getEndTagName() + " %}");
+    }
+
+    return snippet.toString();
   }
 }
