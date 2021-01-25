@@ -25,13 +25,6 @@ public class PyishObjectMapper {
     if (parent == null) {
       this.nonPyishClasses = new HashSet<>();
       registerDefaults();
-      objectWriter =
-        new ObjectMapper()
-          .registerModule(
-            new SimpleModule()
-            .setSerializerModifier(new PyishBeanSerializerModifier(nonPyishClasses))
-          )
-          .writer(PyishPrettyPrinter.INSTANCE);
     }
   }
 
@@ -49,13 +42,7 @@ public class PyishObjectMapper {
       throw new UnsupportedOperationException();
     }
     nonPyishClasses.addAll(Arrays.asList(classes));
-  }
-
-  public ObjectWriter getObjectWriter() {
-    if (parent != null) {
-      return parent.getObjectWriter();
-    }
-    return objectWriter;
+    updateObjectWriter();
   }
 
   public String getAsUnquotedPyishString(Object val) {
@@ -77,5 +64,22 @@ public class PyishObjectMapper {
     } catch (JsonProcessingException e) {
       return Objects.toString(val, "");
     }
+  }
+
+  private void updateObjectWriter() {
+    objectWriter =
+      new ObjectMapper()
+        .registerModule(
+          new SimpleModule()
+          .setSerializerModifier(new PyishBeanSerializerModifier(nonPyishClasses))
+        )
+        .writer(PyishPrettyPrinter.INSTANCE);
+  }
+
+  private ObjectWriter getObjectWriter() {
+    if (parent != null) {
+      return parent.getObjectWriter();
+    }
+    return objectWriter;
   }
 }
