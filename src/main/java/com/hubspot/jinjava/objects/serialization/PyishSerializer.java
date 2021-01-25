@@ -19,6 +19,7 @@ public class PyishSerializer extends JsonSerializer<Object> {
   )
     throws IOException {
     jsonGenerator.setPrettyPrinter(PyishPrettyPrinter.INSTANCE);
+    jsonGenerator.setCharacterEscapes(PyishCharacterEscapes.INSTANCE);
     String string;
     if (object instanceof PyishSerializable) {
       string = ((PyishSerializable) object).toPyishString();

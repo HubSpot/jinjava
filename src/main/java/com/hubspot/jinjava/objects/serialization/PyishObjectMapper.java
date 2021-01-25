@@ -57,8 +57,6 @@ public class PyishObjectMapper {
       return getObjectWriter()
         .writeValueAsString(val)
         .replace("'", "\\'")
-        // Replace `\n` with a newline character
-        .replaceAll("(?<!\\\\)(\\\\\\\\)*(?:\\\\n)", "$1\n")
         // Replace double-quotes with single quote as they are preferred in Jinja
         .replaceAll("(?<!\\\\)(\\\\\\\\)*(?:\")", "$1'");
     } catch (JsonProcessingException e) {
