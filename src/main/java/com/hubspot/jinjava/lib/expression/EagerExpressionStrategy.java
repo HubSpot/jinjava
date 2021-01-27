@@ -48,7 +48,11 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         : ""
     );
     if (chunkResolver.getDeferredWords().isEmpty()) {
-      String result = WhitespaceUtils.unquoteAndUnescape(resolvedExpression.getResult());
+      String fullyResolved = chunkResolver.resolveChunk(
+        resolvedExpression.getResult(),
+        ""
+      );
+      String result = WhitespaceUtils.unquoteAndUnescape(fullyResolved);
       if (
         !StringUtils.equals(result, master.getImage()) &&
         (

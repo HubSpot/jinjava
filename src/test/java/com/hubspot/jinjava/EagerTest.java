@@ -12,6 +12,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.loader.LocationResolver;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
+import com.hubspot.jinjava.mode.DefaultExecutionMode;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
@@ -720,6 +721,7 @@ public class EagerTest {
     try {
       new ExpectedTemplateInterpreter(jinjava, noNestedInterpreter, "eager")
       .assertExpectedOutput("wraps-certain-output-in-raw");
+      assertThat(noNestedInterpreter.getErrors()).isEmpty();
     } finally {
       JinjavaInterpreter.popCurrent();
     }
@@ -762,5 +764,40 @@ public class EagerTest {
   @Test
   public void itPreservesValueSetInIf() {
     expectedTemplateInterpreter.assertExpectedOutput("preserves-value-set-in-if");
+  }
+
+  @Test
+  public void itHandlesUnknownFunctionErrors() {
+    JinjavaInterpreter eagerInterpreter = new JinjavaInterpreter(
+      jinjava,
+      jinjava.getGlobalContextCopy(),
+      JinjavaConfig.newBuilder().withExecutionMode(EagerExecutionMode.instance()).build()
+    );
+    JinjavaInterpreter defaultInterpreter = new JinjavaInterpreter(
+      jinjava,
+      jinjava.getGlobalContextCopy(),
+      JinjavaConfig
+        .newBuilder()
+        .withExecutionMode(DefaultExecutionMode.instance())
+        .build()
+    );
+    try {
+      JinjavaInterpreter.pushCurrent(eagerInterpreter);
+      new ExpectedTemplateInterpreter(jinjava, eagerInterpreter, "eager")
+      .assertExpectedOutput("handles-unknown-function-errors");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
+    try {
+      JinjavaInterpreter.pushCurrent(defaultInterpreter);
+
+      new ExpectedTemplateInterpreter(jinjava, defaultInterpreter, "eager")
+      .assertExpectedOutput("handles-unknown-function-errors");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
+    assertThat(eagerInterpreter.getErrors()).hasSize(2);
+    assertThat(defaultInterpreter.getErrors()).hasSize(2);
+    assertThat(eagerInterpreter.getErrors()).isEqualTo(defaultInterpreter.getErrors());
   }
 }

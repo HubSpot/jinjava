@@ -96,12 +96,10 @@ public class ChunkResolver {
     boolean isThrowInterpreterErrorsStart = interpreter
       .getContext()
       .getThrowInterpreterErrors();
+    String expression;
     try {
       interpreter.getContext().setThrowInterpreterErrors(true);
-      String expression = String.join("", getChunk(null));
-      if (deferredWords.isEmpty()) {
-        expression = resolveChunk(expression);
-      }
+      expression = String.join("", getChunk(null));
       if (JINJAVA_NULL.equals(expression)) {
         // Resolved value of null as a string is ''.
         return JINJAVA_EMPTY_STRING;
@@ -168,7 +166,7 @@ public class ChunkResolver {
       } else if (CHUNK_LEVEL_MARKER_MAP.containsKey(c)) {
         setPrevChar(c);
         tokenBuilder.append(c);
-        tokenBuilder.append(resolveChunk(String.join("", getChunk(c))));
+        tokenBuilder.append(resolveChunk(String.join("", getChunk(c)), JINJAVA_NULL));
         tokenBuilder.append(prevChar);
         continue;
       } else if (isTokenSplitter(c)) {
@@ -177,7 +175,7 @@ public class ChunkResolver {
         miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
         tokenBuilder = new StringBuilder();
         if (isMiniChunkSplitter(c)) {
-          chunks.add(resolveChunk(miniChunkBuilder.toString()));
+          chunks.add(resolveChunk(miniChunkBuilder.toString(), JINJAVA_NULL));
           chunks.add(String.valueOf(c));
           miniChunkBuilder = new StringBuilder();
         } else {
@@ -189,7 +187,7 @@ public class ChunkResolver {
       tokenBuilder.append(c);
     }
     miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
-    chunks.add(resolveChunk(miniChunkBuilder.toString()));
+    chunks.add(resolveChunk(miniChunkBuilder.toString(), JINJAVA_NULL));
     return chunks;
   }
 
@@ -252,7 +250,7 @@ public class ChunkResolver {
   }
 
   // Try resolving the chunk/mini chunk as an ELExpression
-  private String resolveChunk(String chunk) {
+  public String resolveChunk(String chunk, String nullDefault) {
     if (StringUtils.isBlank(chunk)) {
       return "";
     } else if (
@@ -265,7 +263,7 @@ public class ChunkResolver {
       String resolvedChunk;
       Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
       if (val == null) {
-        return JINJAVA_NULL;
+        return nullDefault;
       } else {
         resolvedChunk =
           interpreter.getContext().getPyishObjectMapper().getAsPyishString(val);
