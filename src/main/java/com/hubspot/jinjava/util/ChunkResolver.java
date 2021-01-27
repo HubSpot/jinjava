@@ -38,6 +38,9 @@ public class ChunkResolver {
     "pluralize",
     "recursive",
     "trans",
+    "null",
+    "true",
+    "false",
     "__macros__"
   );
 
