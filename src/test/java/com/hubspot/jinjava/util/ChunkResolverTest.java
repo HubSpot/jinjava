@@ -340,6 +340,14 @@ public class ChunkResolverTest {
       .isEqualTo("false");
   }
 
+  @Test
+  public void itDoesntDeferNull() {
+    ChunkResolver chunkResolver = makeChunkResolver("range(deferred, nothing)");
+    assertThat(chunkResolver.resolveChunks()).isEqualTo("range(deferred, null)");
+    assertThat(chunkResolver.getDeferredWords())
+      .containsExactlyInAnyOrder("range", "deferred");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {

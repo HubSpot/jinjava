@@ -38,6 +38,9 @@ public class ChunkResolver {
     "pluralize",
     "recursive",
     "trans",
+    "null",
+    "true",
+    "false",
     "__macros__"
   );
 
@@ -265,7 +268,7 @@ public class ChunkResolver {
       String resolvedChunk;
       Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
       if (val == null) {
-        return JINJAVA_NULL;
+        resolvedChunk = JINJAVA_NULL;
       } else {
         resolvedChunk =
           interpreter.getContext().getPyishObjectMapper().getAsPyishString(val);
