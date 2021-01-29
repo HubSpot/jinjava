@@ -4,6 +4,7 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.doc.annotations.JinjavaMetaValue;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaVSCodeSnippet;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.lib.filter.Filter;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
@@ -293,6 +294,12 @@ public class JinjavaDocFactory {
   }
 
   private String getTagSnippet(Tag tag) {
+    JinjavaVSCodeSnippet annotation = tag
+      .getClass()
+      .getAnnotation(JinjavaVSCodeSnippet.class);
+    if (annotation != null) {
+      return annotation.code();
+    }
     com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
       tag.getClass()
     );
