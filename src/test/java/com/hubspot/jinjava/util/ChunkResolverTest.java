@@ -348,6 +348,13 @@ public class ChunkResolverTest {
       .containsExactlyInAnyOrder("range", "deferred");
   }
 
+  @Test
+  public void itDoesntSplitOnBar() {
+    context.put("date", new PyishDate(0L));
+    ChunkResolver chunkResolver = makeChunkResolver("date|datetimeformat('%Y')");
+    assertThat(chunkResolver.resolveChunks()).isEqualTo("1970");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {

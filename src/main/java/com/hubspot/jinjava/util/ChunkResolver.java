@@ -206,7 +206,7 @@ public class ChunkResolver {
   }
 
   private boolean isTokenSplitter(char c) {
-    return (!Character.isLetterOrDigit(c) && c != '_' && c != '.');
+    return (!Character.isLetterOrDigit(c) && c != '_' && c != '.' && c != '|');
   }
 
   private boolean isMiniChunkSplitter(char c) {
