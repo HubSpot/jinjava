@@ -38,6 +38,9 @@ public class ChunkResolver {
     "pluralize",
     "recursive",
     "trans",
+    "null",
+    "true",
+    "false",
     "__macros__"
   );
 
@@ -96,10 +99,9 @@ public class ChunkResolver {
     boolean isThrowInterpreterErrorsStart = interpreter
       .getContext()
       .getThrowInterpreterErrors();
-    String expression;
     try {
       interpreter.getContext().setThrowInterpreterErrors(true);
-      expression = String.join("", getChunk(null));
+      String expression = String.join("", getChunk(null));
       if (JINJAVA_NULL.equals(expression)) {
         // Resolved value of null as a string is ''.
         return JINJAVA_EMPTY_STRING;
@@ -201,7 +203,7 @@ public class ChunkResolver {
   }
 
   private boolean isTokenSplitter(char c) {
-    return (!Character.isLetterOrDigit(c) && c != '_' && c != '.');
+    return (!Character.isLetterOrDigit(c) && c != '_' && c != '.' && c != '|');
   }
 
   private boolean isMiniChunkSplitter(char c) {
@@ -263,7 +265,7 @@ public class ChunkResolver {
       String resolvedChunk;
       Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
       if (val == null) {
-        return nullDefault;
+        resolvedChunk = nullDefault;
       } else {
         resolvedChunk =
           interpreter.getContext().getPyishObjectMapper().getAsPyishString(val);
