@@ -158,9 +158,8 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     boolean partialMacroEvaluation
   ) {
     StringBuilder result = new StringBuilder();
-    Map<String, Integer> initiallyResolvedHashes = new HashMap<>();
     PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishObjectMapper();
-    interpreter
+    Map<String, Integer> initiallyResolvedHashes = interpreter
       .getContext()
       .entrySet()
       .stream()
@@ -172,9 +171,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       .filter(
         entry -> !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
       )
-      .forEach(
-        entry -> initiallyResolvedHashes.put(entry.getKey(), entry.getValue().hashCode())
-      );
+      .collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue().hashCode()));
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       interpreter.getContext().setDeferredExecutionMode(true);
