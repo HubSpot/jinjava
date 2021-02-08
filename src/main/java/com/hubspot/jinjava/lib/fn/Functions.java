@@ -247,9 +247,29 @@ public class Functions {
   @JinjavaDoc(
     value = "truncates a given string to a specified length",
     params = {
-      @JinjavaParam("s"),
-      @JinjavaParam(value = "length", type = "number", defaultValue = "255"),
-      @JinjavaParam(value = "end", defaultValue = "...")
+      @JinjavaParam(
+        value = "string",
+        type = "string",
+        desc = "String to be truncated",
+        required = true
+      ),
+      @JinjavaParam(
+        value = "length",
+        type = "number",
+        defaultValue = "255",
+        desc = "Specifies the length at which to truncate the text (includes HTML characters)"
+      ),
+      @JinjavaParam(
+        value = "killwords",
+        type = "boolean",
+        defaultValue = "False",
+        desc = "If true, the string will cut text at length"
+      ),
+      @JinjavaParam(
+        value = "end",
+        defaultValue = "...",
+        desc = "The characters that will be added to indicate where the text was truncated"
+      )
     }
   )
   public static Object truncate(Object var, Object... arg) {
