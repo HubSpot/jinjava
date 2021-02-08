@@ -3,6 +3,7 @@ package com.hubspot.jinjava.interpret;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -106,6 +107,11 @@ public class JinjavaInterpreterTest {
     public String getBarFoo1() {
       return bar;
     }
+
+    @JsonIgnore
+    public String getBarHidden() {
+      return bar;
+    }
   }
 
   @Test
@@ -126,6 +132,11 @@ public class JinjavaInterpreterTest {
   @Test
   public void multiWordNumberSnakeCase() {
     assertThat(interpreter.resolveProperty(new Foo("a"), "bar_foo_1")).isEqualTo("a");
+  }
+
+  @Test
+  public void jsonIgnore() {
+    assertThat(interpreter.resolveProperty(new Foo("a"), "barHidden")).isEqualTo("a");
   }
 
   @Test
