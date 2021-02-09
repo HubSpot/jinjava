@@ -384,6 +384,13 @@ public class ChunkResolver {
       return true;
     }
     if (val instanceof Collection || val instanceof Map) {
+      if (
+        val instanceof Collection
+          ? ((Collection<?>) val).isEmpty()
+          : ((Map<?, ?>) val).isEmpty()
+      ) {
+        return true;
+      }
       // Naively check if any element within val is resolvable,
       // rather than checking all of them, which may be costly.
       Optional<?> item =
