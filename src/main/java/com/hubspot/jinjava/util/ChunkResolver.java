@@ -6,6 +6,7 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
+import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.tree.parse.Token;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +43,13 @@ public class ChunkResolver {
     "true",
     "false",
     "__macros__"
+  );
+
+  private static final Set<Class<?>> RESOLVABLE_CLASSES = ImmutableSet.of(
+    String.class,
+    Boolean.class,
+    Number.class,
+    PyishSerializable.class
   );
 
   // ( -> )
@@ -228,7 +236,11 @@ public class ChunkResolver {
               this.token.getStartPosition()
             );
         } catch (TemplateSyntaxException ignored) {}
-        if (val == null) {
+        if (val != null) {
+          if (!isResolvableObject(val)) {
+            return token;
+          }
+        } else {
           try {
             val = interpreter.resolveELExpression(token, this.token.getLineNumber());
           } catch (UnknownTokenException e) {
@@ -349,5 +361,11 @@ public class ChunkResolver {
     } catch (DeferredValueException | TemplateSyntaxException e) {
       return true;
     }
+  }
+
+  private static boolean isResolvableObject(Object val) {
+    return RESOLVABLE_CLASSES
+      .stream()
+      .anyMatch(clazz -> clazz.isAssignableFrom(val.getClass()));
   }
 }
