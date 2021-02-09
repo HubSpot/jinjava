@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.objects.date;
 
 import com.hubspot.jinjava.objects.PyWrapper;
+import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -17,7 +18,9 @@ import org.apache.commons.lang3.math.NumberUtils;
  * @author jstehler
  *
  */
-public final class PyishDate extends Date implements Serializable, PyWrapper {
+public final class PyishDate
+  extends Date
+  implements Serializable, PyWrapper, PyishSerializable {
   private static final long serialVersionUID = 1L;
   public static final String PYISH_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
