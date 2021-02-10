@@ -6,12 +6,15 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
+import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.tree.parse.Token;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +45,13 @@ public class ChunkResolver {
     "true",
     "false",
     "__macros__"
+  );
+
+  private static final Set<Class<?>> RESOLVABLE_CLASSES = ImmutableSet.of(
+    String.class,
+    Boolean.class,
+    Number.class,
+    PyishSerializable.class
   );
 
   // ( -> )
@@ -235,7 +245,7 @@ public class ChunkResolver {
             // val is still null
           }
         }
-        if (val == null) {
+        if (val == null || !isResolvableObject(val)) {
           resolvedToken = token;
         } else {
           resolvedToken =
@@ -260,12 +270,27 @@ public class ChunkResolver {
     ) {
       return chunk;
     }
-
     try {
+      try {
+        Object val = interpreter.retraceVariable(
+          chunk.trim(),
+          this.token.getLineNumber(),
+          this.token.getStartPosition()
+        );
+        if (val != null) {
+          // If this isn't the final call, don't prematurely resolve complex objects.
+          if (JINJAVA_NULL.equals(nullDefault) && !isResolvableObject(val)) {
+            return chunk;
+          }
+        }
+      } catch (TemplateSyntaxException ignored) {}
+
       String resolvedChunk;
       Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
       if (val == null) {
         resolvedChunk = nullDefault;
+      } else if (JINJAVA_NULL.equals(nullDefault) && !isResolvableObject(val)) {
+        return chunk;
       } else {
         resolvedChunk =
           interpreter.getContext().getPyishObjectMapper().getAsPyishString(val);
@@ -349,5 +374,36 @@ public class ChunkResolver {
     } catch (DeferredValueException | TemplateSyntaxException e) {
       return true;
     }
+  }
+
+  private static boolean isResolvableObject(Object val) {
+    boolean isResolvable = RESOLVABLE_CLASSES
+      .stream()
+      .anyMatch(clazz -> clazz.isAssignableFrom(val.getClass()));
+    if (isResolvable) {
+      return true;
+    }
+    if (val instanceof Collection || val instanceof Map) {
+      if (
+        val instanceof Collection
+          ? ((Collection<?>) val).isEmpty()
+          : ((Map<?, ?>) val).isEmpty()
+      ) {
+        return true;
+      }
+      // Naively check if any element within val is resolvable,
+      // rather than checking all of them, which may be costly.
+      Optional<?> item =
+        (
+          val instanceof Collection ? (Collection<?>) val : ((Map<?, ?>) val).values()
+        ).stream()
+          .findAny();
+      if (item.isPresent()) {
+        return RESOLVABLE_CLASSES
+          .stream()
+          .anyMatch(clazz -> clazz.isAssignableFrom(item.get().getClass()));
+      }
+    }
+    return false;
   }
 }

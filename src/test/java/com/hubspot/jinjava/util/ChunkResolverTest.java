@@ -18,6 +18,7 @@ import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.After;
@@ -355,9 +356,34 @@ public class ChunkResolverTest {
     assertThat(chunkResolver.resolveChunks()).isEqualTo("1970");
   }
 
+  @Test
+  public void itDoesntResolveNonPyishSerializable() {
+    PyMap dict = new PyMap(new HashMap<>());
+    context.put("dict", dict);
+    context.put("foo", new Foo("bar"));
+    context.put("mark", "!");
+    ChunkResolver chunkResolver = makeChunkResolver("(dict.update({'foo': foo})");
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("");
+    assertThat(dict.get("foo")).isInstanceOf(Foo.class);
+    assertThat(((Foo) dict.get("foo")).bar()).isEqualTo("bar");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {
     return foo == null && bar == null;
+  }
+
+  private class Foo {
+    private String bar;
+
+    Foo(String bar) {
+      this.bar = bar;
+    }
+
+    String bar() {
+      return bar;
+    }
   }
 }

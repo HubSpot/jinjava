@@ -78,23 +78,32 @@ public class DeferredValueUtils {
   }
 
   public static Set<String> findAndMarkDeferredProperties(Context context) {
+    return findAndMarkDeferredProperties(context, null);
+  }
+
+  public static Set<String> findAndMarkDeferredProperties(
+    Context context,
+    EagerToken eagerToken
+  ) {
     String templateSource = rebuildTemplateForNodes(context.getDeferredNodes());
     Set<String> deferredProps = getPropertiesUsedInDeferredNodes(context, templateSource);
     Set<String> setProps = getPropertiesSetInDeferredNodes(templateSource);
-    deferredProps.addAll(
-      getPropertiesUsedInDeferredNodes(
-        context,
-        rebuildTemplateForEagerTagTokens(context.getEagerTokens(), true),
-        false
-      )
-    );
-    deferredProps.addAll(
-      getPropertiesUsedInDeferredNodes(
-        context,
-        rebuildTemplateForEagerTagTokens(context.getEagerTokens(), false),
-        true
-      )
-    );
+    if (eagerToken != null) {
+      deferredProps.addAll(
+        getPropertiesUsedInDeferredNodes(
+          context,
+          rebuildTemplateForEagerTagTokens(eagerToken, true),
+          false
+        )
+      );
+      deferredProps.addAll(
+        getPropertiesUsedInDeferredNodes(
+          context,
+          rebuildTemplateForEagerTagTokens(eagerToken, false),
+          true
+        )
+      );
+    }
 
     markDeferredProperties(context, Sets.union(deferredProps, setProps));
 
@@ -169,19 +178,16 @@ public class DeferredValueUtils {
   }
 
   private static String rebuildTemplateForEagerTagTokens(
-    Set<EagerToken> eagerTokens,
+    EagerToken eagerToken,
     boolean fromSetWords
   ) {
     StringJoiner joiner = new StringJoiner(" ");
-    eagerTokens
-      .stream()
-      .flatMap(
-        e ->
-          fromSetWords
-            ? e.getSetDeferredWords().stream()
-            : e.getUsedDeferredWords().stream()
-      )
-      .map(h -> h + ".eager.helper")
+
+    (
+      fromSetWords
+        ? eagerToken.getSetDeferredWords().stream()
+        : eagerToken.getUsedDeferredWords().stream()
+    ).map(h -> h + ".eager.helper")
       .forEach(joiner::add);
     return joiner.toString();
   }
