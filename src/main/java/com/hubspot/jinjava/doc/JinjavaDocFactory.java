@@ -1,10 +1,11 @@
 package com.hubspot.jinjava.doc;
 
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaMetaValue;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.doc.annotations.JinjavaVSCodeSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.lib.filter.Filter;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
@@ -294,9 +295,9 @@ public class JinjavaDocFactory {
   }
 
   private String getTagSnippet(Tag tag) {
-    JinjavaVSCodeSnippet annotation = tag
+    JinjavaTextMateSnippet annotation = tag
       .getClass()
-      .getAnnotation(JinjavaVSCodeSnippet.class);
+      .getAnnotation(JinjavaTextMateSnippet.class);
     if (annotation != null) {
       return annotation.code();
     }
@@ -318,6 +319,9 @@ public class JinjavaDocFactory {
 
     snippet.append(" %}");
 
+    if (tag.getClass().getAnnotation(JinjavaHasCodeBody.class) != null) {
+      snippet.append("\n${" + i + ":Code}");
+    }
     if (tag.getEndTagName() != null) {
       snippet.append("\n{% " + tag.getEndTagName() + " %}");
     }

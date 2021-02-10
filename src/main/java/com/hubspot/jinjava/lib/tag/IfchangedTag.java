@@ -16,6 +16,7 @@
 package com.hubspot.jinjava.lib.tag;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -34,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
     )
   }
 )
+@JinjavaHasCodeBody
 public class IfchangedTag implements Tag {
   public static final String TAG_NAME = "ifchanged";
 

@@ -17,6 +17,7 @@ package com.hubspot.jinjava.lib.tag;
 
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -79,6 +80,7 @@ import org.apache.commons.lang3.StringUtils;
     )
   }
 )
+@JinjavaHasCodeBody
 public class ForTag implements Tag {
   public static final String TAG_NAME = "for";
 

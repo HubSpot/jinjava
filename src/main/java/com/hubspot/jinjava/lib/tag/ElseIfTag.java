@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.TagNode;
@@ -16,6 +17,7 @@ import com.hubspot.jinjava.tree.TagNode;
   },
   hidden = true
 )
+@JinjavaHasCodeBody
 public class ElseIfTag implements Tag {
   public static final String TAG_NAME = "elif";
 

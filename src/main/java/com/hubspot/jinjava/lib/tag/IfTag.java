@@ -16,6 +16,7 @@
 package com.hubspot.jinjava.lib.tag;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -57,6 +58,7 @@ import org.apache.commons.lang3.StringUtils;
     )
   }
 )
+@JinjavaHasCodeBody
 public class IfTag implements Tag {
   public static final String TAG_NAME = "if";
 

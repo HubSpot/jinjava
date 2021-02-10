@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface JinjavaVSCodeSnippet {
+public @interface JinjavaTextMateSnippet {
   String desc() default "";
 
   String code();

@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -27,6 +28,7 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
     code = "{% unless x < 0 %} x is greater than zero {% endunless %}"
   )
 )
+@JinjavaHasCodeBody
 public class UnlessTag extends IfTag {
   public static final String TAG_NAME = "unless";
 
