@@ -388,7 +388,8 @@ public class ChunkResolverTest {
 
   @Test
   public void itHandlesWhitespaceAroundPipe() {
-    String lowerFilterString = "'A' | lower ~ 'B' |lower ~ 'C'| lower";
+    String lowerFilterString =
+      "'AB' | truncate(1) ~ 'BC' |truncate(1) ~ 'CD'| truncate(1)";
     ChunkResolver chunkResolver = makeChunkResolver(lowerFilterString);
     assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
       .isEqualTo(interpreter.resolveELExpression(lowerFilterString, 0));
@@ -396,7 +397,7 @@ public class ChunkResolverTest {
 
   @Test
   public void itHandlesMultipleWhitespaceAroundPipe() {
-    String lowerFilterString = "'A'   |   lower";
+    String lowerFilterString = "'AB'   |   truncate(1)";
     ChunkResolver chunkResolver = makeChunkResolver(lowerFilterString);
     assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
       .isEqualTo(interpreter.resolveELExpression(lowerFilterString, 0));
