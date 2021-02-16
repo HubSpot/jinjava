@@ -217,12 +217,12 @@ public class ChunkResolver {
   }
 
   private boolean isFilterWhitespace(char c) {
+    // If a pipe character is surrounded by whitespace on either side,
+    // we don't want to split those tokens
     int curPos = nextPos - 1;
     boolean isFilterWhitespace = false;
     if (c == ' ') {
       if (curPos + 2 < length) {
-        // If a pipe character is surrounded by whitespace on either side,
-        // we don't want to split those tokens
         isFilterWhitespace = (value[curPos + 1] == '|' && value[curPos + 2] != '|');
       }
       if (curPos >= 2) {
