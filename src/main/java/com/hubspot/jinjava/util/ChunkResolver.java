@@ -219,19 +219,15 @@ public class ChunkResolver {
   private boolean isFilterWhitespace(char c) {
     // If a pipe character is surrounded by whitespace on either side,
     // we don't want to split those tokens
-    int curPos = nextPos - 1;
     boolean isFilterWhitespace = false;
     if (c == ' ') {
-      if (curPos + 2 < length) {
-        isFilterWhitespace =
-          value[curPos + 1] == ' ' ||
-          (value[curPos + 1] == '|' && value[curPos + 2] != '|');
+      int prevPos = nextPos - 2;
+      if (nextPos < length) {
+        isFilterWhitespace = value[nextPos] == ' ' || value[nextPos] == '|';
       }
-      if (curPos >= 2) {
+      if (prevPos >= 0) {
         isFilterWhitespace =
-          isFilterWhitespace ||
-          value[curPos - 1] == ' ' ||
-          (value[curPos - 1] == '|' && value[curPos - 2] != '|');
+          isFilterWhitespace || value[prevPos] == ' ' || value[prevPos] == '|';
       }
     }
     return isFilterWhitespace;

@@ -73,9 +73,9 @@ public class ChunkResolverTest {
   @Test
   public void itResolvesDeferredBoolean() {
     context.put("foo", "foo_val");
-    ChunkResolver chunkResolver = makeChunkResolver("(111 == 112) || (foo == deferred)");
+    ChunkResolver chunkResolver = makeChunkResolver("(111 == 112) or (foo == deferred)");
     String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("false || ('foo_val' == deferred)");
+    assertThat(partiallyResolved).isEqualTo("false or ('foo_val' == deferred)");
     assertThat(chunkResolver.getDeferredWords()).containsExactly("deferred");
 
     context.put("deferred", "foo_val");
