@@ -386,6 +386,14 @@ public class ChunkResolverTest {
     assertThat(chunkResolver.resolveChunks()).isEqualTo("0.5");
   }
 
+  @Test
+  public void itHandlesWhitespaceAroundPipe() {
+    String lowerFilterString = "'A' | lower ~ 'B' |lower ~ 'C'| lower";
+    ChunkResolver chunkResolver = makeChunkResolver(lowerFilterString);
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo(interpreter.resolveELExpression(lowerFilterString, 0));
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {
