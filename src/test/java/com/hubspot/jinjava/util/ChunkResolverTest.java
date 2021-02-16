@@ -369,6 +369,23 @@ public class ChunkResolverTest {
     assertThat(((Foo) dict.get("foo")).bar()).isEqualTo("bar");
   }
 
+  @Test
+  public void itLeavesPaddedZeros() {
+    context.put(
+      "zero_date",
+      ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneId.systemDefault())
+    );
+    ChunkResolver chunkResolver = makeChunkResolver("zero_date.strftime('%d')");
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("01");
+  }
+
+  @Test
+  public void itDoesntQuoteFloats() {
+    ChunkResolver chunkResolver = makeChunkResolver("0.4 + 0.1");
+    assertThat(chunkResolver.resolveChunks()).isEqualTo("0.5");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {
