@@ -223,11 +223,15 @@ public class ChunkResolver {
     boolean isFilterWhitespace = false;
     if (c == ' ') {
       if (curPos + 2 < length) {
-        isFilterWhitespace = (value[curPos + 1] == '|' && value[curPos + 2] != '|');
+        isFilterWhitespace =
+          value[curPos + 1] == ' ' ||
+          (value[curPos + 1] == '|' && value[curPos + 2] != '|');
       }
       if (curPos >= 2) {
         isFilterWhitespace =
-          isFilterWhitespace || (value[curPos - 1] == '|' && value[curPos - 2] != '|');
+          isFilterWhitespace ||
+          value[curPos - 1] == ' ' ||
+          (value[curPos - 1] == '|' && value[curPos - 2] != '|');
       }
     }
     return isFilterWhitespace;

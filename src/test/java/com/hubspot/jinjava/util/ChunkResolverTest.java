@@ -394,6 +394,14 @@ public class ChunkResolverTest {
       .isEqualTo(interpreter.resolveELExpression(lowerFilterString, 0));
   }
 
+  @Test
+  public void itHandlesMultipleWhitespaceAroundPipe() {
+    String lowerFilterString = "'A'   |   lower";
+    ChunkResolver chunkResolver = makeChunkResolver(lowerFilterString);
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo(interpreter.resolveELExpression(lowerFilterString, 0));
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {
