@@ -50,7 +50,7 @@ public abstract class Token implements Serializable {
     return image;
   }
 
-  public void mergeImage(Token otherToken) {
+  public void mergeImageAndContent(Token otherToken) {
     this.image = image + otherToken.image;
     this.content = content + otherToken.content;
   }

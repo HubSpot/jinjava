@@ -62,7 +62,7 @@ public class TreeParser {
       if (node != null) {
         if (node instanceof TextNode && getLastSibling() instanceof TextNode) {
           // merge adjacent text nodes so whitespace control properly applies
-          getLastSibling().getMaster().mergeImage(node.getMaster());
+          getLastSibling().getMaster().mergeImageAndContent(node.getMaster());
         } else {
           parent.getChildren().add(node);
         }
