@@ -26,8 +26,24 @@ public class TreeParserTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itStripsRightWhiteSpaceWithComment() throws Exception {
+    String expression =
+      "{% for foo in [1,2,3] -%} \n {#- comment -#} \n {#- comment -#} .{{ foo }}\n{% endfor %}";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo(".1\n.2\n.3\n");
+  }
+
+  @Test
   public void itStripsLeftWhiteSpace() throws Exception {
     String expression = "{% for foo in [1,2,3] %}\n{{ foo }}. \n {%- endfor %}";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo("\n1.\n2.\n3.");
+  }
+
+  @Test
+  public void itStripsLeftWhiteSpaceWithComment() throws Exception {
+    String expression =
+      "{% for foo in [1,2,3] %}\n{{ foo }}. \n {#- comment -#} {%- endfor %}";
     final Node tree = new TreeParser(interpreter, expression).buildTree();
     assertThat(interpreter.render(tree)).isEqualTo("\n1.\n2.\n3.");
   }
@@ -42,7 +58,7 @@ public class TreeParserTest extends BaseInterpretingTest {
   @Test
   public void itStripsLeftAndRightWhiteSpaceWithComment() throws Exception {
     String expression =
-      "{% for foo in [1,2,3] -%} \n {#- comment -#} \n {#- comment -#} .{{ foo }}. \n {%- endfor %}";
+      "{% for foo in [1,2,3] -%} \n {#- comment -#} \n {#- comment -#} .{{ foo }}. \n {#- comment -#} \n {#- comment -#} {%- endfor %}";
     final Node tree = new TreeParser(interpreter, expression).buildTree();
     assertThat(interpreter.render(tree)).isEqualTo(".1..2..3.");
   }
@@ -56,8 +72,24 @@ public class TreeParserTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itPreservesInnerWhiteSpaceWithComment() throws Exception {
+    String expression =
+      "{% for foo in [1,2,3] -%}\n {#- comment -#} \n {#- comment -#}L{% if true %}\n{{ foo }}\n{% endif %}R\n {#- comment -#} \n {#- comment -#}{%- endfor %}";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo("L\n1\nRL\n2\nRL\n3\nR");
+  }
+
+  @Test
   public void itStripsLeftWhiteSpaceBeforeTag() throws Exception {
     String expression = ".\n {%- for foo in [1,2,3] %} {{ foo }} {% endfor %} \n.";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo(". 1  2  3  \n.");
+  }
+
+  @Test
+  public void itStripsLeftWhiteSpaceBeforeTagWithComment() throws Exception {
+    String expression =
+      ".\n {#- comment -#} \n {#- comment -#} {%- for foo in [1,2,3] %} {{ foo }} {% endfor %} \n.";
     final Node tree = new TreeParser(interpreter, expression).buildTree();
     assertThat(interpreter.render(tree)).isEqualTo(". 1  2  3  \n.");
   }
@@ -70,8 +102,24 @@ public class TreeParserTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itStripsRightWhiteSpaceAfterTagWithComment() throws Exception {
+    String expression =
+      ".\n {% for foo in [1,2,3] %} {{ foo }} {% endfor -%} \n {#- comment -#} \n {#- comment -#}.";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo(".\n  1  2  3 .");
+  }
+
+  @Test
   public void itStripsAllOuterWhiteSpace() throws Exception {
     String expression = ".\n {%- for foo in [1,2,3] -%} {{ foo }} {%- endfor -%} \n.";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo(".123.");
+  }
+
+  @Test
+  public void itStripsAllOuterWhiteSpaceWithComment() throws Exception {
+    String expression =
+      ".\n {#- comment -#} \n {#- comment -#} {%- for foo in [1,2,3] -%} {{ foo }} {%- endfor -%} \n {#- comment -#} \n {#- comment -#}.";
     final Node tree = new TreeParser(interpreter, expression).buildTree();
     assertThat(interpreter.render(tree)).isEqualTo(".123.");
   }

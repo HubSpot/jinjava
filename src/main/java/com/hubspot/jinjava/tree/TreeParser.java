@@ -17,6 +17,7 @@ package com.hubspot.jinjava.tree;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
+import com.google.common.collect.Streams;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MissingEndTagException;
@@ -36,6 +37,7 @@ import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.tree.parse.TokenScanner;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Text;
 
 public class TreeParser {
   private final PeekingIterator<Token> scanner;
@@ -60,7 +62,11 @@ public class TreeParser {
       Node node = nextNode();
 
       if (node != null) {
-        parent.getChildren().add(node);
+        if (node instanceof TextNode && getLastSibling() instanceof TextNode) {
+          getLastSibling().getMaster().mergeImage(node.getMaster());
+        } else {
+          parent.getChildren().add(node);
+        }
       }
     }
 
@@ -89,6 +95,9 @@ public class TreeParser {
 
   private Node nextNode() {
     Token token = scanner.next();
+    if (token.getImage().isEmpty()) {
+      return null;
+    }
 
     if (token.getType() == symbols.getFixed()) {
       return text((TextToken) token);
@@ -155,9 +164,7 @@ public class TreeParser {
 
     // for first TextNode child of TagNode where rightTrim is enabled, mark it for left trim
     if (
-      parent instanceof TagNode &&
-      (lastSibling == null || lastSibling instanceof TextNode) &&
-      parent.getMaster().isRightTrim()
+      parent instanceof TagNode && lastSibling == null && parent.getMaster().isRightTrim()
     ) {
       textToken.setLeftTrim(true);
     }
