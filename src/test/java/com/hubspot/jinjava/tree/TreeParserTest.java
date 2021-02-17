@@ -40,6 +40,14 @@ public class TreeParserTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itStripsLeftAndRightWhiteSpaceWithComment() throws Exception {
+    String expression =
+      "{% for foo in [1,2,3] -%} \n {#- comment -#} \n {#- comment -#} .{{ foo }}. \n {%- endfor %}";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo(".1..2..3.");
+  }
+
+  @Test
   public void itPreservesInnerWhiteSpace() throws Exception {
     String expression =
       "{% for foo in [1,2,3] -%}\nL{% if true %}\n{{ foo }}\n{% endif %}R\n{%- endfor %}";
