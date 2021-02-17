@@ -94,9 +94,6 @@ public class TreeParser {
 
   private Node nextNode() {
     Token token = scanner.next();
-    if (token.getImage().isEmpty()) {
-      return null;
-    }
 
     if (token.getType() == symbols.getFixed()) {
       return text((TextToken) token);
@@ -154,7 +151,7 @@ public class TreeParser {
       }
     }
 
-    Node lastSibling = getLastSibling();
+    final Node lastSibling = getLastSibling();
 
     // if last sibling was a tag and has rightTrimAfterEnd, strip whitespace
     if (lastSibling instanceof TagNode && lastSibling.getMaster().isRightTrimAfterEnd()) {
