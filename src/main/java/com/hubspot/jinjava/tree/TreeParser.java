@@ -17,7 +17,6 @@ package com.hubspot.jinjava.tree;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
-import com.google.common.collect.Streams;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MissingEndTagException;
@@ -37,7 +36,6 @@ import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.tree.parse.TokenScanner;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.Text;
 
 public class TreeParser {
   private final PeekingIterator<Token> scanner;
@@ -63,6 +61,7 @@ public class TreeParser {
 
       if (node != null) {
         if (node instanceof TextNode && getLastSibling() instanceof TextNode) {
+          // merge adjacent text nodes so whitespace control properly applies
           getLastSibling().getMaster().mergeImage(node.getMaster());
         } else {
           parent.getChildren().add(node);
