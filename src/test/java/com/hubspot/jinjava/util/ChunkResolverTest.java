@@ -73,9 +73,9 @@ public class ChunkResolverTest {
   @Test
   public void itResolvesDeferredBoolean() {
     context.put("foo", "foo_val");
-    ChunkResolver chunkResolver = makeChunkResolver("(111 == 112) || (foo == deferred)");
+    ChunkResolver chunkResolver = makeChunkResolver("(111 == 112) or (foo == deferred)");
     String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("false || ('foo_val' == deferred)");
+    assertThat(partiallyResolved).isEqualTo("false or ('foo_val' == deferred)");
     assertThat(chunkResolver.getDeferredWords()).containsExactly("deferred");
 
     context.put("deferred", "foo_val");
@@ -384,6 +384,23 @@ public class ChunkResolverTest {
   public void itDoesntQuoteFloats() {
     ChunkResolver chunkResolver = makeChunkResolver("0.4 + 0.1");
     assertThat(chunkResolver.resolveChunks()).isEqualTo("0.5");
+  }
+
+  @Test
+  public void itHandlesWhitespaceAroundPipe() {
+    String lowerFilterString =
+      "'AB' | truncate(1) ~ 'BC' |truncate(1) ~ 'CD'| truncate(1)";
+    ChunkResolver chunkResolver = makeChunkResolver(lowerFilterString);
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo(interpreter.resolveELExpression(lowerFilterString, 0));
+  }
+
+  @Test
+  public void itHandlesMultipleWhitespaceAroundPipe() {
+    String lowerFilterString = "'AB'   |   truncate(1)";
+    ChunkResolver chunkResolver = makeChunkResolver(lowerFilterString);
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo(interpreter.resolveELExpression(lowerFilterString, 0));
   }
 
   public static void voidFunction(int nothing) {}

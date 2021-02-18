@@ -182,7 +182,7 @@ public class ChunkResolver {
         tokenBuilder.append(resolveChunk(String.join("", getChunk(c)), JINJAVA_NULL));
         tokenBuilder.append(prevChar);
         continue;
-      } else if (isTokenSplitter(c)) {
+      } else if (!isFilterWhitespace(c) && isTokenSplitter(c)) {
         setPrevChar(c);
 
         miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
@@ -217,6 +217,23 @@ public class ChunkResolver {
     return (!Character.isLetterOrDigit(c) && c != '_' && c != '.' && c != '|');
   }
 
+  private boolean isFilterWhitespace(char c) {
+    // If a pipe character is surrounded by whitespace on either side,
+    // we don't want to split those tokens
+    boolean isFilterWhitespace = false;
+    if (c == ' ') {
+      int prevPos = nextPos - 2;
+      if (nextPos < length) {
+        isFilterWhitespace = value[nextPos] == ' ' || value[nextPos] == '|';
+      }
+      if (prevPos >= 0) {
+        isFilterWhitespace =
+          isFilterWhitespace || value[prevPos] == ' ' || value[prevPos] == '|';
+      }
+    }
+    return isFilterWhitespace;
+  }
+
   private boolean isMiniChunkSplitter(char c) {
     return c == ',';
   }
@@ -227,7 +244,9 @@ public class ChunkResolver {
     }
     try {
       String resolvedToken;
-      if (WhitespaceUtils.isQuoted(token) || RESERVED_KEYWORDS.contains(token)) {
+      if (
+        WhitespaceUtils.isExpressionQuoted(token) || RESERVED_KEYWORDS.contains(token)
+      ) {
         resolvedToken = token;
       } else {
         Object val = null;
