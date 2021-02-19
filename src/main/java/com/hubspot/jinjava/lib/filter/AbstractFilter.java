@@ -19,6 +19,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.el.TruthyTypeConverter;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.math.BigDecimal;
@@ -27,12 +28,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 /***
  * Filter base that uses Filter Jinjavadoc to construct named argument parameters.
@@ -41,9 +39,10 @@ import org.apache.commons.lang3.math.NumberUtils;
  * @see JinjavaDoc
  * @see JinjavaParam
  */
-public abstract class AbstractFilter implements Filter {
+public abstract class AbstractFilter implements Filter, AdvancedFilter {
   private static final Map<Class, Map<String, JinjavaParam>> NAMED_ARGUMENTS_CACHE = new ConcurrentHashMap<>();
   private static final Map<Class, Map<String, Object>> DEFAULT_VALUES_CACHE = new ConcurrentHashMap<>();
+  protected static final TruthyTypeConverter TYPE_CONVERTER = new TruthyTypeConverter();
 
   private final Map<String, JinjavaParam> namedArguments;
   private final Map<String, Object> defaultValues;
@@ -124,46 +123,40 @@ public abstract class AbstractFilter implements Filter {
     JinjavaParam jinjavaParamMetadata,
     Object value
   ) {
-    if (
-      jinjavaParamMetadata.type() == null ||
-      value == null ||
-      Arrays.asList("object", "dict", "sequence").contains(jinjavaParamMetadata.type())
-    ) {
+    if (jinjavaParamMetadata.type() == null || value == null) {
       return value;
     }
-    String valueString = Objects.toString(value, null);
     switch (jinjavaParamMetadata.type().toLowerCase()) {
       case "boolean":
-        return value instanceof Boolean
-          ? (Boolean) value
-          : BooleanUtils.toBooleanObject(valueString);
+        return TYPE_CONVERTER.convert(value, Boolean.class);
       case "int":
-        return value instanceof Integer
-          ? (Integer) value
-          : NumberUtils.toInt(valueString);
+        return TYPE_CONVERTER.convert(value, Integer.class);
       case "long":
-        return value instanceof Long ? (Long) value : NumberUtils.toLong(valueString);
+        return TYPE_CONVERTER.convert(value, Long.class);
       case "float":
-        return value instanceof Float ? (Float) value : NumberUtils.toFloat(valueString);
+        return TYPE_CONVERTER.convert(value, Float.class);
       case "double":
-        return value instanceof Double
-          ? (Double) value
-          : NumberUtils.toDouble(valueString);
+        return TYPE_CONVERTER.convert(value, Double.class);
       case "number":
-        return value instanceof Number ? (Number) value : new BigDecimal(valueString);
+        return TYPE_CONVERTER.convert(value, BigDecimal.class);
       case "string":
-        return valueString;
+        return TYPE_CONVERTER.convert(value, String.class);
+      case "object":
+      case "dict":
+      case "sequence":
+        return value;
       default:
-        throw new InvalidInputException(
-          interpreter,
-          "INVALID_ARG_NAME",
-          String.format(
-            "Argument named '%s' with value '%s' cannot be parsed for filter %s",
-            jinjavaParamMetadata.value(),
-            value,
-            getName()
-          )
+        String errorMessage = String.format(
+          "Argument named '%s' with value '%s' cannot be parsed for filter '%s'",
+          jinjavaParamMetadata.value(),
+          value,
+          getName()
         );
+        if (interpreter != null) { //Filter runtime vs init
+          throw new InvalidInputException(interpreter, "INVALID_ARG_NAME", errorMessage);
+        } else {
+          throw new IllegalArgumentException(errorMessage);
+        }
     }
   }
 
@@ -172,7 +165,13 @@ public abstract class AbstractFilter implements Filter {
     Map<String, Object> parsedArgs
   ) {
     for (JinjavaParam jinjavaParam : namedArguments.values()) {
-      if (jinjavaParam.required() && !parsedArgs.containsKey(jinjavaParam.value())) {
+      if (
+        jinjavaParam.required() &&
+        (
+          !parsedArgs.containsKey(jinjavaParam.value()) ||
+          parsedArgs.get(jinjavaParam.value()) == null
+        )
+      ) {
         throw new InvalidInputException(
           interpreter,
           "MISSING_REQUIRED_ARG",
@@ -205,6 +204,10 @@ public abstract class AbstractFilter implements Filter {
           Optional.ofNullable(argNames.size() > position ? argNames.get(position) : null)
       )
       .orElse(null);
+  }
+
+  public Object getDefaultValue(String argName) {
+    return defaultValues.get(argName);
   }
 
   public Map<String, JinjavaParam> initNamedArguments() {
@@ -242,7 +245,10 @@ public abstract class AbstractFilter implements Filter {
       .stream()
       .filter(e -> StringUtils.isNotEmpty(e.getValue().defaultValue()))
       .collect(
-        ImmutableMap.toImmutableMap(Map.Entry::getKey, e -> e.getValue().defaultValue())
+        ImmutableMap.toImmutableMap(
+          Map.Entry::getKey,
+          e -> parseArg(null, e.getValue(), e.getValue().defaultValue())
+        )
       );
   }
 }
