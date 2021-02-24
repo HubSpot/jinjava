@@ -270,7 +270,11 @@ public class ChunkResolverTest {
     );
     context.put("date", date);
     ChunkResolver chunkResolver = makeChunkResolver("date");
+
+    // don't prematurely resolve date because of datetime functions.
     assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("date");
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunk("date", "")))
       .isEqualTo(date.toString());
   }
 
