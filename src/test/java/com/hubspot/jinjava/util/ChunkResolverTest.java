@@ -407,6 +407,14 @@ public class ChunkResolverTest {
       .isEqualTo(interpreter.resolveELExpression(lowerFilterString, 0));
   }
 
+  @Test
+  public void itEscapesFormFeed() {
+    context.put("foo", "Form feed\f");
+    ChunkResolver chunkResolver = makeChunkResolver("foo");
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("Form feed\f");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {

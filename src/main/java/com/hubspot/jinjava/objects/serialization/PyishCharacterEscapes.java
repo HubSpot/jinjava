@@ -13,6 +13,7 @@ public class PyishCharacterEscapes extends CharacterEscapes {
     escapes['\n'] = CharacterEscapes.ESCAPE_NONE;
     escapes['\t'] = CharacterEscapes.ESCAPE_NONE;
     escapes['\r'] = CharacterEscapes.ESCAPE_NONE;
+    escapes['\f'] = CharacterEscapes.ESCAPE_NONE;
     asciiEscapes = escapes;
   }
 
