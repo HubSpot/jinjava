@@ -1,18 +1,24 @@
 package com.hubspot.jinjava.lib.fn.eager;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
+import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.MacroTag;
+import com.hubspot.jinjava.lib.tag.eager.EagerTagDecorator;
+import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
+import org.apache.commons.lang3.StringUtils;
 
 public class EagerMacroFunction extends AbstractCallableMethod {
   private String fullName;
@@ -100,21 +106,72 @@ public class EagerMacroFunction extends AbstractCallableMethod {
    *  rendering pass.
    */
   public String reconstructImage() {
+    String prefix = "";
+    if (fullName.indexOf('.') > 0) {
+      prefix = getImportResourcePrefix(prefix);
+    }
     String result;
     try {
-      result =
-        (String) evaluate(
-          macroFunction
-            .getArguments()
-            .stream()
-            .map(arg -> DeferredValue.instance())
-            .toArray()
-        );
+      String evaluation = (String) evaluate(
+        macroFunction
+          .getArguments()
+          .stream()
+          .map(arg -> DeferredValue.instance())
+          .toArray()
+      );
+      result = (getStartTag(interpreter) + evaluation + getEndTag(interpreter));
     } catch (DeferredValueException e) {
       // In case something not eager-supported encountered a deferred value
-      return macroFunction.reconstructImage();
+      result = macroFunction.reconstructImage();
     }
+    return prefix + result;
+  }
 
-    return (getStartTag(interpreter) + result + getEndTag(interpreter));
+  private String getImportResourcePrefix(String prefix) {
+    String importAlias = fullName.split("\\.", 2)[0];
+    String importResourceKey;
+
+    Object aliasMap = interpreter.getContext().get(importAlias);
+    if (aliasMap instanceof DeferredValue) {
+      importResourceKey =
+        (String) (
+          (Map<String, Object>) ((DeferredValue) aliasMap).getOriginalValue()
+        ).get(Context.IMPORT_RESOURCE_PATH_KEY);
+      if (StringUtils.isEmpty(importResourceKey)) {
+        return "";
+      }
+      PyMap deferredAliasMap = new PyMap(new HashMap<>());
+      deferredAliasMap.put(Context.IMPORT_RESOURCE_PATH_KEY, importResourceKey);
+      prefix =
+        EagerTagDecorator.buildDoUpdateTag(
+          importAlias,
+          interpreter
+            .getContext()
+            .getPyishObjectMapper()
+            .getAsPyishString(deferredAliasMap),
+          interpreter
+        );
+    } else if (aliasMap instanceof Map) {
+      importResourceKey =
+        (String) ((Map<String, Object>) aliasMap).get(Context.IMPORT_RESOURCE_PATH_KEY);
+      if (StringUtils.isEmpty(importResourceKey)) {
+        return "";
+      }
+      PyMap deferredAliasMap = new PyMap(new HashMap<>());
+      deferredAliasMap.put(Context.IMPORT_RESOURCE_PATH_KEY, importResourceKey);
+      prefix =
+        EagerTagDecorator.buildSetTagForDeferredInChildContext(
+          ImmutableMap.of(
+            importAlias,
+            interpreter
+              .getContext()
+              .getPyishObjectMapper()
+              .getAsPyishString(deferredAliasMap)
+          ),
+          interpreter,
+          false
+        );
+    }
+    return prefix;
   }
 }

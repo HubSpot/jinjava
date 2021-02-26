@@ -137,7 +137,11 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       }
     }
     if (keyValueJoiner.length() > 0) {
-      return buildDoUpdateTag(currentImportAlias, keyValueJoiner.toString(), interpreter);
+      return buildDoUpdateTag(
+        currentImportAlias,
+        "{" + keyValueJoiner.toString() + "}",
+        interpreter
+      );
     }
     return "";
   }
