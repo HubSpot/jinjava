@@ -405,9 +405,12 @@ public class EagerImportTagTest extends ImportTagTest {
     // There are some extras due to deferred values copying up the context stack.
     assertThat(interpreter.render(result).trim())
       .isEqualTo(
-        "{'b': {'foo_b': 'ba', 'a': {'foo_a': 'a', 'something': 'somn'}, 'foo_a': 'a'}, " +
-        "'foo_c': 'cbaa', " +
-        "'a': {'foo_a': 'a', 'something': 'somn'}, 'foo_b': 'ba', 'foo_a': 'a'}"
+        "{'b': {'foo_b': 'ba', 'a': " +
+        "{'foo_a': 'a', 'import_resource_path': 'import-tree-a.jinja', 'something': 'somn'}, " +
+        "'foo_a': 'a', 'import_resource_path': 'import-tree-b.jinja'}, " +
+        "'foo_c': 'cbaa', 'a': {'foo_a': 'a', 'import_resource_path': " +
+        "'import-tree-a.jinja', 'something': 'somn'}, " +
+        "'foo_b': 'ba', 'foo_a': 'a', 'import_resource_path': 'import-tree-c.jinja'}"
       );
   }
 
