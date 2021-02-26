@@ -4,6 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -54,6 +55,7 @@ import org.apache.commons.lang3.StringUtils;
     )
   }
 )
+@JinjavaHasCodeBody
 public class MacroTag implements Tag {
   public static final String TAG_NAME = "macro";
 

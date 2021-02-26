@@ -16,6 +16,8 @@
 package com.hubspot.jinjava.lib.tag;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
@@ -30,6 +32,13 @@ import org.apache.commons.lang3.StringUtils;
 
 @JinjavaDoc(
   value = "Outputs inner content if expression evaluates to true, otherwise evaluates any elif blocks, finally outputting content of any else block present",
+  params = {
+    @JinjavaParam(
+      value = "condition",
+      type = "conditional expression",
+      desc = "An expression that evaluates to either true or false"
+    )
+  },
   snippets = {
     @JinjavaSnippet(
       code = "{% if condition %}\n" +
@@ -49,6 +58,7 @@ import org.apache.commons.lang3.StringUtils;
     )
   }
 )
+@JinjavaHasCodeBody
 public class IfTag implements Tag {
   public static final String TAG_NAME = "if";
 

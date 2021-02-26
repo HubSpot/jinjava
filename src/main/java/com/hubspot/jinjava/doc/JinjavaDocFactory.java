@@ -1,9 +1,11 @@
 package com.hubspot.jinjava.doc;
 
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaMetaValue;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.lib.filter.Filter;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
@@ -41,6 +43,18 @@ public class JinjavaDocFactory {
     addTagDocs(doc);
 
     return doc;
+  }
+
+  public String getVSCodeTagSnippets() {
+    StringBuffer snippets = new StringBuffer();
+    for (Tag tag : jinjava.getGlobalContextCopy().getAllTags()) {
+      if (tag instanceof EndTag) {
+        continue;
+      }
+      snippets.append(getTagSnippet(tag));
+      snippets.append("\n\n");
+    }
+    return snippets.toString();
   }
 
   private void addExpTests(JinjavaDoc doc) {
@@ -278,5 +292,52 @@ public class JinjavaDocFactory {
     }
 
     return clazz.getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
+  }
+
+  private String getTagSnippet(Tag tag) {
+    JinjavaTextMateSnippet annotation = tag
+      .getClass()
+      .getAnnotation(JinjavaTextMateSnippet.class);
+    if (annotation != null) {
+      return annotation.code();
+    }
+    com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
+      tag.getClass()
+    );
+    StringBuilder snippet = new StringBuilder("{% ");
+    snippet.append(tag.getName());
+    int i = 1;
+    for (JinjavaParam param : docAnnotation.input()) {
+      String inputValue = "${" + i + ":" + param.value() + "}";
+      if (param.value().equalsIgnoreCase("path")) {
+        inputValue = "'" + inputValue + "'";
+      } else if (param.value().equalsIgnoreCase("argument_names")) {
+        inputValue = "(" + inputValue + ")";
+      }
+      snippet.append(" " + inputValue);
+      i++;
+    }
+
+    for (JinjavaParam param : docAnnotation.params()) {
+      String paramValue = "${" + i + ":" + param.value() + "}";
+      if (param.value().equalsIgnoreCase("path")) {
+        paramValue = "'" + paramValue + "'";
+      } else if (param.value().equalsIgnoreCase("argument_names")) {
+        paramValue = "(" + paramValue + ")";
+      }
+      snippet.append(" " + paramValue);
+      i++;
+    }
+
+    snippet.append(" %}");
+
+    if (tag.getClass().getAnnotation(JinjavaHasCodeBody.class) != null) {
+      snippet.append("\n$0");
+    }
+    if (tag.getEndTagName() != null) {
+      snippet.append("\n{% " + tag.getEndTagName() + " %}");
+    }
+
+    return snippet.toString();
   }
 }
