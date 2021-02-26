@@ -308,19 +308,31 @@ public class JinjavaDocFactory {
     snippet.append(tag.getName());
     int i = 1;
     for (JinjavaParam param : docAnnotation.input()) {
-      snippet.append(" ${" + i + ":" + param.value() + "}");
+      String inputValue = "${" + i + ":" + param.value() + "}";
+      if (param.value().equalsIgnoreCase("path")) {
+        inputValue = "'" + inputValue + "'";
+      } else if (param.value().equalsIgnoreCase("argument_names")) {
+        inputValue = "(" + inputValue + ")";
+      }
+      snippet.append(" " + inputValue);
       i++;
     }
 
     for (JinjavaParam param : docAnnotation.params()) {
-      snippet.append(" ${" + i + ":" + param.value() + "}");
+      String paramValue = "${" + i + ":" + param.value() + "}";
+      if (param.value().equalsIgnoreCase("path")) {
+        paramValue = "'" + paramValue + "'";
+      } else if (param.value().equalsIgnoreCase("argument_names")) {
+        paramValue = "(" + paramValue + ")";
+      }
+      snippet.append(" " + paramValue);
       i++;
     }
 
     snippet.append(" %}");
 
     if (tag.getClass().getAnnotation(JinjavaHasCodeBody.class) != null) {
-      snippet.append("\n${" + i + ":Code}");
+      snippet.append("\n$0");
     }
     if (tag.getEndTagName() != null) {
       snippet.append("\n{% " + tag.getEndTagName() + " %}");

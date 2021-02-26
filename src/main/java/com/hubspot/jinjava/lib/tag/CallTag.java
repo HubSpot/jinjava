@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.tag;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
@@ -47,6 +48,9 @@ import java.util.LinkedHashMap;
       " {% endcall %}"
     )
   }
+)
+@JinjavaTextMateSnippet(
+  code = "{% call ${1:macro_name}(${2:argument_names}) %}\n" + "$0\n" + "{% endcall %}"
 )
 public class CallTag implements Tag {
   public static final String TAG_NAME = "call";

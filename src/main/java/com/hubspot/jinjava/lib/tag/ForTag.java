@@ -20,6 +20,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -81,6 +82,9 @@ import org.apache.commons.lang3.StringUtils;
   }
 )
 @JinjavaHasCodeBody
+@JinjavaTextMateSnippet(
+  code = "{% for ${1:items} in ${2:list} %}\n" + "{{ ${1} }}$0\n" + "{% endfor %}"
+)
 public class ForTag implements Tag {
   public static final String TAG_NAME = "for";
 
