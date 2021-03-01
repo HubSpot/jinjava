@@ -487,13 +487,13 @@ public class EagerImportTagTest extends ImportTagTest {
     String firstPassResult = interpreter.render(
       "{% import 'import-macro.jinja' %}{{ print_path_macro(foo) }}"
     );
-    //    assertThat(firstPassResult)
-    //      .isEqualTo(
-    //        "{% set import_resource_path = 'import-macro.jinja' %}{% macro print_path_macro(var) %}\n" +
-    //        "{{ var|print_path }}\n" +
-    //        "{{ var }}\n" +
-    //        "{% endmacro %}{% set import_resource_path = '' %}{{ print_path_macro(foo) }}"
-    //      );
+    assertThat(firstPassResult)
+      .isEqualTo(
+        "{% set import_resource_path = 'import-macro.jinja' %}{% macro print_path_macro(var) %}\n" +
+        "{{ var|print_path }}\n" +
+        "{{ var }}\n" +
+        "{% endmacro %}{% set import_resource_path = '' %}{{ print_path_macro(foo) }}"
+      );
     context.put("foo", "foo");
     assertThat(interpreter.render(firstPassResult).trim())
       .isEqualTo("import-macro.jinja\nfoo");
