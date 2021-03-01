@@ -259,6 +259,14 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
             .orElse(currentImportAlias)
             .split("\\.")
         )
+        .filter(
+          key ->
+            mapForCurrentContextAlias.equals(
+              childBindings.get(key) instanceof DeferredValue
+                ? ((DeferredValue) childBindings.get(key)).getOriginalValue()
+                : childBindings.get(key)
+            )
+        )
         .forEach(childBindings::remove);
       // Remove meta keys
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
