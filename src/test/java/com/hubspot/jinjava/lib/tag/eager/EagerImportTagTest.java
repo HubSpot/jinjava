@@ -442,7 +442,7 @@ public class EagerImportTagTest extends ImportTagTest {
   }
 
   @Test
-  public void itCorrectlySetsPath() {
+  public void itCorrectlySetsAliasedPath() {
     setupResourceLocator();
     context.put("foo", "foo");
     String result = interpreter.render(
@@ -452,7 +452,17 @@ public class EagerImportTagTest extends ImportTagTest {
   }
 
   @Test
-  public void itCorrectlySetsPathForSecondPass() {
+  public void itCorrectlySetsPath() {
+    setupResourceLocator();
+    context.put("foo", "foo");
+    String result = interpreter.render(
+      "{% import 'import-macro.jinja' %}{{ print_path_macro(foo) }}"
+    );
+    assertThat(result.trim()).isEqualTo("import-macro.jinja\nfoo");
+  }
+
+  @Test
+  public void itCorrectlySetsAliasedPathForSecondPass() {
     setupResourceLocator();
     context.put("foo", DeferredValue.instance());
     String firstPassResult = interpreter.render(
@@ -465,6 +475,25 @@ public class EagerImportTagTest extends ImportTagTest {
         "{{ var }}\n" +
         "{% endmacro %}{{ m.print_path_macro(foo) }}"
       );
+    context.put("foo", "foo");
+    assertThat(interpreter.render(firstPassResult).trim())
+      .isEqualTo("import-macro.jinja\nfoo");
+  }
+
+  @Test
+  public void itCorrectlySetsPathForSecondPass() {
+    setupResourceLocator();
+    context.put("foo", DeferredValue.instance());
+    String firstPassResult = interpreter.render(
+      "{% import 'import-macro.jinja' %}{{ print_path_macro(foo) }}"
+    );
+    //    assertThat(firstPassResult)
+    //      .isEqualTo(
+    //        "{% set import_resource_path = 'import-macro.jinja' %}{% macro print_path_macro(var) %}\n" +
+    //        "{{ var|print_path }}\n" +
+    //        "{{ var }}\n" +
+    //        "{% endmacro %}{% set import_resource_path = '' %}{{ print_path_macro(foo) }}"
+    //      );
     context.put("foo", "foo");
     assertThat(interpreter.render(firstPassResult).trim())
       .isEqualTo("import-macro.jinja\nfoo");

@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
-import org.apache.commons.lang3.StringUtils;
 
 public class EagerMacroFunction extends AbstractCallableMethod {
   private String fullName;
@@ -107,9 +106,45 @@ public class EagerMacroFunction extends AbstractCallableMethod {
    */
   public String reconstructImage() {
     String prefix = "";
-    if (fullName.indexOf('.') > 0) {
-      prefix = getImportResourcePrefix(prefix);
+    String suffix = "";
+    Optional<String> importFile = macroFunction.getImportFile(interpreter);
+    if (importFile.isPresent()) {
+      interpreter.getContext().getCurrentPathStack().pop();
+      if (fullName.indexOf('.') >= 0) {
+        prefix = getAliasedImportResourcePrefix(importFile.get());
+      } else {
+        prefix =
+          EagerTagDecorator.buildSetTagForDeferredInChildContext(
+            ImmutableMap.of(
+              Context.IMPORT_RESOURCE_PATH_KEY,
+              interpreter
+                .getContext()
+                .getPyishObjectMapper()
+                .getAsPyishString(importFile.get())
+            ),
+            interpreter,
+            false
+          );
+        String currentImportResource = interpreter
+          .getContext()
+          .getCurrentPathStack()
+          .peek()
+          .orElse("");
+        suffix =
+          EagerTagDecorator.buildSetTagForDeferredInChildContext(
+            ImmutableMap.of(
+              Context.IMPORT_RESOURCE_PATH_KEY,
+              interpreter
+                .getContext()
+                .getPyishObjectMapper()
+                .getAsPyishString(currentImportResource)
+            ),
+            interpreter,
+            false
+          );
+      }
     }
+
     String result;
     try {
       String evaluation = (String) evaluate(
@@ -124,24 +159,16 @@ public class EagerMacroFunction extends AbstractCallableMethod {
       // In case something not eager-supported encountered a deferred value
       result = macroFunction.reconstructImage();
     }
-    return prefix + result;
+    return prefix + result + suffix;
   }
 
-  private String getImportResourcePrefix(String prefix) {
+  private String getAliasedImportResourcePrefix(String importResourcePath) {
+    String prefix = "";
     String importAlias = fullName.split("\\.", 2)[0];
-    String importResourceKey;
-
     Object aliasMap = interpreter.getContext().get(importAlias);
     if (aliasMap instanceof DeferredValue) {
-      importResourceKey =
-        (String) (
-          (Map<String, Object>) ((DeferredValue) aliasMap).getOriginalValue()
-        ).get(Context.IMPORT_RESOURCE_PATH_KEY);
-      if (StringUtils.isEmpty(importResourceKey)) {
-        return "";
-      }
       PyMap deferredAliasMap = new PyMap(new HashMap<>());
-      deferredAliasMap.put(Context.IMPORT_RESOURCE_PATH_KEY, importResourceKey);
+      deferredAliasMap.put(Context.IMPORT_RESOURCE_PATH_KEY, importResourcePath);
       prefix =
         EagerTagDecorator.buildDoUpdateTag(
           importAlias,
@@ -152,13 +179,8 @@ public class EagerMacroFunction extends AbstractCallableMethod {
           interpreter
         );
     } else if (aliasMap instanceof Map) {
-      importResourceKey =
-        (String) ((Map<String, Object>) aliasMap).get(Context.IMPORT_RESOURCE_PATH_KEY);
-      if (StringUtils.isEmpty(importResourceKey)) {
-        return "";
-      }
       PyMap deferredAliasMap = new PyMap(new HashMap<>());
-      deferredAliasMap.put(Context.IMPORT_RESOURCE_PATH_KEY, importResourceKey);
+      deferredAliasMap.put(Context.IMPORT_RESOURCE_PATH_KEY, importResourcePath);
       prefix =
         EagerTagDecorator.buildSetTagForDeferredInChildContext(
           ImmutableMap.of(

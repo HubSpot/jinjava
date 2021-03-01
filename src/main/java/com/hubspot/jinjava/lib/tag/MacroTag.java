@@ -121,7 +121,21 @@ public class MacroTag implements Tag {
       argNamesWithDefaults
     );
     MacroFunction macro;
+    String contextImportResourcePath = (String) interpreter
+      .getContext()
+      .get(Context.IMPORT_RESOURCE_PATH_KEY, "");
+    String stackImportResourcePath = interpreter
+      .getContext()
+      .getCurrentPathStack()
+      .peek()
+      .orElse("");
     try {
+      if (!contextImportResourcePath.equals(stackImportResourcePath)) {
+        interpreter.enterScope();
+        interpreter
+          .getContext()
+          .put(Context.IMPORT_RESOURCE_PATH_KEY, contextImportResourcePath);
+      }
       if (StringUtils.isNotEmpty(parentName)) {
         interpreter.enterScope();
         Object parentAliasMap = interpreter
@@ -148,7 +162,10 @@ public class MacroTag implements Tag {
           interpreter.getPosition()
         );
     } finally {
-      if (StringUtils.isNotEmpty(parentName)) {
+      if (
+        StringUtils.isNotEmpty(parentName) ||
+        !contextImportResourcePath.equals(stackImportResourcePath)
+      ) {
         interpreter.leaveScope();
       }
     }
