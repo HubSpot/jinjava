@@ -261,7 +261,8 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         )
         .filter(
           key ->
-            mapForCurrentContextAlias.equals(
+            mapForCurrentContextAlias ==
+            (
               childBindings.get(key) instanceof DeferredValue
                 ? ((DeferredValue) childBindings.get(key)).getOriginalValue()
                 : childBindings.get(key)
