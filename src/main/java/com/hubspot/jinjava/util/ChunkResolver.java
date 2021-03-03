@@ -396,6 +396,13 @@ public class ChunkResolver {
   }
 
   private static boolean isResolvableObject(Object val) {
+    return isResolvableObjectRec(val, 0);
+  }
+
+  private static boolean isResolvableObjectRec(Object val, int depth) {
+    if (depth > 10) {
+      return false;
+    }
     boolean isResolvable = RESOLVABLE_CLASSES
       .stream()
       .anyMatch(clazz -> clazz.isAssignableFrom(val.getClass()));
@@ -414,12 +421,7 @@ public class ChunkResolver {
         val instanceof Collection ? (Collection<?>) val : ((Map<?, ?>) val).values()
       ).stream()
         .filter(Objects::nonNull)
-        .allMatch(
-          item ->
-            RESOLVABLE_CLASSES
-              .stream()
-              .anyMatch(clazz -> clazz.isAssignableFrom(item.getClass()))
-        );
+        .allMatch(item -> isResolvableObjectRec(item, depth + 1));
     }
     return false;
   }
