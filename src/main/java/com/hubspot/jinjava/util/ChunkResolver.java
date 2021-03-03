@@ -322,9 +322,6 @@ public class ChunkResolver {
           resolvedChunk =
             interpreter.getContext().getPyishObjectMapper().getAsPyishString(val);
         }
-        //      if (chunk.charAt(0) == ' ') {
-        //        resolvedChunk = ' ' + resolvedChunk;
-        //      }
       }
     } catch (TemplateSyntaxException ignored) {} catch (Exception e) {
       deferredWords.addAll(findDeferredWords(chunk));
