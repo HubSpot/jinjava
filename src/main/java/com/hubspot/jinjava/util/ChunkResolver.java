@@ -77,6 +77,7 @@ public class ChunkResolver {
   private char prevChar = 0;
   private boolean inQuote = false;
   private char quoteChar = 0;
+  private boolean isAfterWhitespace = false;
 
   public ChunkResolver(String s, Token token, JinjavaInterpreter interpreter) {
     value = s.toCharArray();
@@ -163,6 +164,7 @@ public class ChunkResolver {
     StringBuilder miniChunkBuilder = new StringBuilder();
     StringBuilder tokenBuilder = new StringBuilder();
     while (nextPos < length) {
+      isAfterWhitespace = prevChar == ' ' && !isFilterWhitespace(prevChar);
       char c = value[nextPos++];
       if (inQuote) {
         if (c == quoteChar && prevChar != '\\') {
@@ -197,6 +199,13 @@ public class ChunkResolver {
         }
         setPrevChar(c);
         continue;
+      } else if (isAfterWhitespace) {
+        // In case there is whitespace between words: `foo or bar`
+        String resolvedToken = resolveToken(tokenBuilder.toString());
+        if (StringUtils.isNotEmpty(resolvedToken)) {
+          miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
+        }
+        tokenBuilder = new StringBuilder();
       }
       setPrevChar(c);
       tokenBuilder.append(c);
