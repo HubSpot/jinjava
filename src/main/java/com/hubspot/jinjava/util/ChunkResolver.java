@@ -112,12 +112,12 @@ public class ChunkResolver {
       .getThrowInterpreterErrors();
     try {
       interpreter.getContext().setThrowInterpreterErrors(true);
-      String expression = String.join("", getChunk(null));
+      String expression = String.join("", getChunk(null)).trim();
       if (JINJAVA_NULL.equals(expression)) {
         // Resolved value of null as a string is ''.
         return JINJAVA_EMPTY_STRING;
       }
-      return expression.trim();
+      return expression;
     } finally {
       interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);
     }
@@ -183,21 +183,34 @@ public class ChunkResolver {
         tokenBuilder.append(prevChar);
         continue;
       } else if (!isFilterWhitespace(c) && isTokenSplitter(c)) {
-        setPrevChar(c);
-
-        miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
+        String resolvedToken = resolveToken(tokenBuilder.toString());
+        if (StringUtils.isNotEmpty(resolvedToken)) {
+          if (miniChunkBuilder.length() > 0) {
+            miniChunkBuilder.append(' ');
+          }
+          miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
+        }
         tokenBuilder = new StringBuilder();
         if (isMiniChunkSplitter(c)) {
           chunks.add(resolveChunk(miniChunkBuilder.toString(), JINJAVA_NULL));
           chunks.add(String.valueOf(c));
           miniChunkBuilder = new StringBuilder();
         } else {
+          if (
+            !isTokenSplitter(prevChar) || CHUNK_LEVEL_MARKER_MAP.containsValue(prevChar)
+          ) {
+            miniChunkBuilder.append(' ');
+          }
           miniChunkBuilder.append(c);
         }
+        setPrevChar(c);
         continue;
       }
       setPrevChar(c);
       tokenBuilder.append(c);
+    }
+    if (miniChunkBuilder.length() > 0) {
+      miniChunkBuilder.append(' ');
     }
     miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
     chunks.add(resolveChunk(miniChunkBuilder.toString(), JINJAVA_NULL));
@@ -214,7 +227,9 @@ public class ChunkResolver {
   }
 
   private boolean isTokenSplitter(char c) {
-    return (!Character.isLetterOrDigit(c) && c != '_' && c != '.' && c != '|');
+    return (
+      !Character.isLetterOrDigit(c) && c != '_' && c != '.' && c != '|' && c != ' '
+    );
   }
 
   private boolean isFilterWhitespace(char c) {
@@ -275,16 +290,16 @@ public class ChunkResolver {
       return resolvedToken;
     } catch (DeferredValueException e) {
       deferredWords.addAll(findDeferredWords(token));
-      return token;
+      return token.trim();
     } catch (TemplateSyntaxException e) {
-      return token;
+      return token.trim();
     }
   }
 
   // Try resolving the chunk/mini chunk as an ELExpression
   public String resolveChunk(String chunk, String nullDefault) {
     if (StringUtils.isBlank(chunk)) {
-      return "";
+      return chunk;
     } else if (
       WhitespaceUtils.isExpressionQuoted(chunk) || RESERVED_KEYWORDS.contains(chunk)
     ) {
@@ -426,5 +441,9 @@ public class ChunkResolver {
       }
     }
     return false;
+  }
+
+  private static String spaced(String toSpaceOut) {
+    return toSpaceOut.trim();
   }
 }

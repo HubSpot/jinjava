@@ -275,7 +275,7 @@ public class EagerTest {
   @Test
   public void itPreservesRandomness() {
     String output = interpreter.render("{{ [1, 2, 3]|shuffle }}");
-    assertThat(output).isEqualTo("{{ [1, 2, 3]|shuffle }}");
+    assertThat(output).isEqualTo("{{ [1,2,3]|shuffle }}");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
