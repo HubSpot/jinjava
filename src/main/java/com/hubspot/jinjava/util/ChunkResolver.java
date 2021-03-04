@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -397,6 +396,13 @@ public class ChunkResolver {
   }
 
   private static boolean isResolvableObject(Object val) {
+    return isResolvableObjectRec(val, 0);
+  }
+
+  private static boolean isResolvableObjectRec(Object val, int depth) {
+    if (depth > 10) {
+      return false;
+    }
     boolean isResolvable = RESOLVABLE_CLASSES
       .stream()
       .anyMatch(clazz -> clazz.isAssignableFrom(val.getClass()));
@@ -411,19 +417,11 @@ public class ChunkResolver {
       ) {
         return true;
       }
-      // Naively check if any element within val is resolvable,
-      // rather than checking all of them, which may be costly.
-      Optional<?> item =
-        (
-          val instanceof Collection ? (Collection<?>) val : ((Map<?, ?>) val).values()
-        ).stream()
-          .filter(Objects::nonNull)
-          .findAny();
-      if (item.isPresent()) {
-        return RESOLVABLE_CLASSES
-          .stream()
-          .anyMatch(clazz -> clazz.isAssignableFrom(item.get().getClass()));
-      }
+      return (
+        val instanceof Collection ? (Collection<?>) val : ((Map<?, ?>) val).values()
+      ).stream()
+        .filter(Objects::nonNull)
+        .allMatch(item -> isResolvableObjectRec(item, depth + 1));
     }
     return false;
   }
