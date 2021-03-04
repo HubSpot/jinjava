@@ -3,8 +3,6 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InvalidInputException;
-import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.Functions;
@@ -38,7 +36,7 @@ public class StringToDateFilter implements Filter {
     }
 
     if (!(var instanceof String)) {
-      throw new InvalidInputException(interpreter, this, InvalidReason.STRING);
+      var = String.valueOf(var);
     }
 
     return Functions.stringToDate((String) var, args[0]);
