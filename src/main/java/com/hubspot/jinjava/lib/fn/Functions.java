@@ -32,6 +32,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 public class Functions {
   public static final String STRING_TO_TIME_FUNCTION = "stringToTime";
+  public static final String STRING_TO_DATE_FUNCTION = "stringToDate";
 
   public static final int RANGE_LIMIT = 1000;
 
@@ -243,13 +244,13 @@ public class Functions {
   }
 
   @JinjavaDoc(
-    value = "converts a string and datetime format into a datetime object",
+    value = "converts a string and date format into a date object",
     params = {
-      @JinjavaParam(value = "var", type = "datetimeString", desc = "datetime as string"),
+      @JinjavaParam(value = "dateString", type = "string", desc = "date as string"),
       @JinjavaParam(
-        value = "var",
-        type = "datetimeFormat",
-        desc = "format of the datetime string"
+        value = "dateFormat",
+        type = "string",
+        desc = "format of the date string"
       ),
     }
   )
@@ -260,7 +261,7 @@ public class Functions {
 
     if (dateFormat == null) {
       throw new InterpretException(
-        String.format("%s() requires non-null datetime format", STRING_TO_TIME_FUNCTION)
+        String.format("%s() requires non-null date format", STRING_TO_DATE_FUNCTION)
       );
     }
 
@@ -275,8 +276,8 @@ public class Functions {
     } catch (DateTimeParseException e) {
       throw new InterpretException(
         String.format(
-          "%s() could not match datetime input %s with datetime format %s",
-          STRING_TO_TIME_FUNCTION,
+          "%s() could not match date input %s with date format %s",
+          STRING_TO_DATE_FUNCTION,
           dateString,
           dateFormat
         )
@@ -284,8 +285,8 @@ public class Functions {
     } catch (IllegalArgumentException e) {
       throw new InterpretException(
         String.format(
-          "%s() requires valid datetime format, was %s",
-          STRING_TO_TIME_FUNCTION,
+          "%s() requires valid date format, was %s",
+          STRING_TO_DATE_FUNCTION,
           dateFormat
         )
       );
