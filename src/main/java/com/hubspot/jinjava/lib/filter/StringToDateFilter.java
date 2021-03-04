@@ -17,7 +17,7 @@ import com.hubspot.jinjava.lib.fn.Functions;
       value = "dateFormat",
       desc = "Format of the date string",
       required = true
-    ),
+    )
   },
   snippets = { @JinjavaSnippet(code = "{{ '3/3/21'|strtodate('M/d/yy') }}") }
 )
