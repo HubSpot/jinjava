@@ -62,6 +62,7 @@ public class JinjavaConfig {
   private final ELResolver elResolver;
   private final boolean iterateOverMapKeys;
   private final ExecutionMode executionMode;
+  private final boolean legacyFunctionality;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -114,6 +115,7 @@ public class JinjavaConfig {
     elResolver = builder.elResolver;
     iterateOverMapKeys = builder.iterateOverMapKeys;
     executionMode = builder.executionMode;
+    legacyFunctionality = builder.legacyFunctionality;
   }
 
   public Charset getCharset() {
@@ -212,6 +214,10 @@ public class JinjavaConfig {
     return executionMode;
   }
 
+  public boolean isLegacyFunctionality() {
+    return legacyFunctionality;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -239,6 +245,7 @@ public class JinjavaConfig {
     private int maxListSize = Integer.MAX_VALUE;
     private int maxMapSize = Integer.MAX_VALUE;
     private ExecutionMode executionMode = DefaultExecutionMode.instance();
+    private boolean legacyFunctionality = true;
 
     private Builder() {}
 
@@ -364,6 +371,11 @@ public class JinjavaConfig {
 
     public Builder withExecutionMode(ExecutionMode executionMode) {
       this.executionMode = executionMode;
+      return this;
+    }
+
+    public Builder withLegacyFunctionality(boolean legacyFunctionality) {
+      this.legacyFunctionality = legacyFunctionality;
       return this;
     }
 

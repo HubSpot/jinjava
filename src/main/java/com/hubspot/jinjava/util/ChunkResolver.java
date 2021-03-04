@@ -183,7 +183,18 @@ public class ChunkResolver {
         tokenBuilder.append(prevChar);
         continue;
       } else if (isTokenSplitter(c)) {
-        String resolvedToken = resolveToken(tokenBuilder.toString());
+        String resolvedToken;
+        if (
+          c == ':' &&
+          chunkLevelMarker != null &&
+          '{' == chunkLevelMarker &&
+          interpreter.getConfig().isLegacyFunctionality()
+        ) {
+          resolvedToken =
+            '\'' + WhitespaceUtils.unquoteAndUnescape(tokenBuilder.toString()) + '\'';
+        } else {
+          resolvedToken = resolveToken(tokenBuilder.toString());
+        }
         if (StringUtils.isNotEmpty(resolvedToken)) {
           miniChunkBuilder.append(resolvedToken);
         }
