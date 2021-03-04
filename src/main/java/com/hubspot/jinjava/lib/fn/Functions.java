@@ -16,6 +16,7 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.time.DateTimeException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -31,6 +32,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 public class Functions {
   public static final String STRING_TO_TIME_FUNCTION = "stringToTime";
+  public static final String STRING_TO_DATE_FUNCTION = "stringToDate";
 
   public static final int RANGE_LIMIT = 1000;
 
@@ -236,6 +238,56 @@ public class Functions {
           "%s() requires valid datetime format, was %s",
           STRING_TO_TIME_FUNCTION,
           datetimeFormat
+        )
+      );
+    }
+  }
+
+  @JinjavaDoc(
+    value = "converts a string and date format into a date object",
+    params = {
+      @JinjavaParam(value = "dateString", type = "string", desc = "date as string"),
+      @JinjavaParam(
+        value = "dateFormat",
+        type = "string",
+        desc = "format of the date string"
+      )
+    }
+  )
+  public static PyishDate stringToDate(String dateString, String dateFormat) {
+    if (dateString == null) {
+      return null;
+    }
+
+    if (dateFormat == null) {
+      throw new InterpretException(
+        String.format("%s() requires non-null date format", STRING_TO_DATE_FUNCTION)
+      );
+    }
+
+    try {
+      String convertedFormat = StrftimeFormatter.toJavaDateTimeFormat(dateFormat);
+      return new PyishDate(
+        LocalDate
+          .parse(dateString, DateTimeFormatter.ofPattern(convertedFormat))
+          .atTime(0, 0)
+          .toInstant(ZoneOffset.UTC)
+      );
+    } catch (DateTimeParseException e) {
+      throw new InterpretException(
+        String.format(
+          "%s() could not match date input %s with date format %s",
+          STRING_TO_DATE_FUNCTION,
+          dateString,
+          dateFormat
+        )
+      );
+    } catch (IllegalArgumentException e) {
+      throw new InterpretException(
+        String.format(
+          "%s() requires valid date format, was %s",
+          STRING_TO_DATE_FUNCTION,
+          dateFormat
         )
       );
     }

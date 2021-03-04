@@ -67,6 +67,16 @@ public class FunctionLibrary extends SimpleLibrary<ELFunctionDefinition> {
         String.class
       )
     );
+    register(
+      new ELFunctionDefinition(
+        "",
+        "strtodate",
+        Functions.class,
+        Functions.STRING_TO_DATE_FUNCTION,
+        String.class,
+        String.class
+      )
+    );
 
     register(new ELFunctionDefinition("", "super", Functions.class, "renderSuperBlock"));
 
