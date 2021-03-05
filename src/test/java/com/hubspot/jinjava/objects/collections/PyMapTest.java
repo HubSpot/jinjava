@@ -272,7 +272,7 @@ public class PyMapTest extends BaseJinjavaTest {
   }
 
   @Test
-  public void itSetsKeysWithVariableName() {
+  public void itDoesntSetKeysWithVariableNameByDefault() {
     assertThat(
         jinjava.render(
           "{% set keyName = \"key1\" %}" +
@@ -282,6 +282,10 @@ public class PyMapTest extends BaseJinjavaTest {
         )
       )
       .isEqualTo("value1");
+  }
+
+  @Test
+  public void itSetsKeysWithVariableName() {
     jinjava =
       new Jinjava(
         JinjavaConfig
@@ -328,7 +332,30 @@ public class PyMapTest extends BaseJinjavaTest {
   }
 
   @Test
+  public void itDoesntUpdateKeysWithVariableNameByDefault() {
+    assertThat(
+        jinjava.render(
+          "{% set test = {\"key1\": \"value1\"} %}" +
+          "{% set keyName = \"key1\" %}" +
+          "{% do test.update({keyName: \"value2\"}) %}" +
+          "{{ test['key1'] }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo("value1");
+  }
+
+  @Test
   public void itUpdatesKeysWithVariableName() {
+    jinjava =
+      new Jinjava(
+        JinjavaConfig
+          .newBuilder()
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withEvaluateMapKeys(true).build()
+          )
+          .build()
+      );
     assertThat(
         jinjava.render(
           "{% set test = {\"key1\": \"value1\"} %}" +
