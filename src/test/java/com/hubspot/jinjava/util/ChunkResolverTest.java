@@ -415,6 +415,17 @@ public class ChunkResolverTest {
       .isEqualTo("Form feed\f");
   }
 
+  @Test
+  public void itHandlesUnconventionalSpacing() {
+    ChunkResolver chunkResolver = makeChunkResolver(
+      "(  range (0 , 3 ) [1] + deferred) ~ 'YES'| lower"
+    );
+    String result = WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks());
+    assertThat(result).isEqualTo("( 1 + deferred) ~ 'yes'");
+    context.put("deferred", 2);
+    assertThat(interpreter.resolveELExpression(result, 0)).isEqualTo("3yes");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {

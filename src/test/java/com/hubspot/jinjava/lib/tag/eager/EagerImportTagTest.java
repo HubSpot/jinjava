@@ -499,6 +499,15 @@ public class EagerImportTagTest extends ImportTagTest {
       .isEqualTo("import-macro.jinja\nfoo");
   }
 
+  @Test
+  public void itImportsDoublyNamed() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% import 'variables.jinja' as foo %}{{ foo.foo['foo'].bar }}"
+    );
+    assertThat(result).isEqualTo("here");
+  }
+
   private static JinjavaInterpreter getChildInterpreter(
     JinjavaInterpreter interpreter,
     String alias

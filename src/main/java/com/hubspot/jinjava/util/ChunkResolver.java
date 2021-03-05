@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -112,12 +111,12 @@ public class ChunkResolver {
       .getThrowInterpreterErrors();
     try {
       interpreter.getContext().setThrowInterpreterErrors(true);
-      String expression = String.join("", getChunk(null));
+      String expression = String.join("", getChunk(null)).trim();
       if (JINJAVA_NULL.equals(expression)) {
         // Resolved value of null as a string is ''.
         return JINJAVA_EMPTY_STRING;
       }
-      return expression.trim();
+      return expression;
     } finally {
       interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);
     }
@@ -163,6 +162,7 @@ public class ChunkResolver {
     StringBuilder miniChunkBuilder = new StringBuilder();
     StringBuilder tokenBuilder = new StringBuilder();
     while (nextPos < length) {
+      boolean isAfterWhitespace = prevChar == ' ' && !isFilterWhitespace(prevChar);
       char c = value[nextPos++];
       if (inQuote) {
         if (c == quoteChar && prevChar != '\\') {
@@ -182,10 +182,11 @@ public class ChunkResolver {
         tokenBuilder.append(resolveChunk(String.join("", getChunk(c)), JINJAVA_NULL));
         tokenBuilder.append(prevChar);
         continue;
-      } else if (!isFilterWhitespace(c) && isTokenSplitter(c)) {
-        setPrevChar(c);
-
-        miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
+      } else if (isTokenSplitter(c)) {
+        String resolvedToken = resolveToken(tokenBuilder.toString());
+        if (StringUtils.isNotEmpty(resolvedToken)) {
+          miniChunkBuilder.append(resolvedToken);
+        }
         tokenBuilder = new StringBuilder();
         if (isMiniChunkSplitter(c)) {
           chunks.add(resolveChunk(miniChunkBuilder.toString(), JINJAVA_NULL));
@@ -194,7 +195,15 @@ public class ChunkResolver {
         } else {
           miniChunkBuilder.append(c);
         }
+        setPrevChar(c);
         continue;
+      } else if (isAfterWhitespace) {
+        // In case there is whitespace between words: `foo or bar`
+        String resolvedToken = resolveToken(tokenBuilder.toString());
+        if (StringUtils.isNotEmpty(resolvedToken)) {
+          miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
+        }
+        tokenBuilder = new StringBuilder();
       }
       setPrevChar(c);
       tokenBuilder.append(c);
@@ -214,7 +223,9 @@ public class ChunkResolver {
   }
 
   private boolean isTokenSplitter(char c) {
-    return (!Character.isLetterOrDigit(c) && c != '_' && c != '.' && c != '|');
+    return (
+      !Character.isLetterOrDigit(c) && c != '_' && c != '.' && c != '|' && c != ' '
+    );
   }
 
   private boolean isFilterWhitespace(char c) {
@@ -240,15 +251,13 @@ public class ChunkResolver {
 
   private String resolveToken(String token) {
     if (StringUtils.isBlank(token)) {
-      return "";
+      return token;
     }
+    String resolvedToken = token;
     try {
-      String resolvedToken;
       if (
-        WhitespaceUtils.isExpressionQuoted(token) || RESERVED_KEYWORDS.contains(token)
+        !WhitespaceUtils.isExpressionQuoted(token) && !RESERVED_KEYWORDS.contains(token)
       ) {
-        resolvedToken = token;
-      } else {
         Object val = null;
         try {
           val =
@@ -272,59 +281,50 @@ public class ChunkResolver {
             interpreter.getContext().getPyishObjectMapper().getAsPyishString(val);
         }
       }
-      return resolvedToken;
     } catch (DeferredValueException e) {
       deferredWords.addAll(findDeferredWords(token));
-      return token;
-    } catch (TemplateSyntaxException e) {
-      return token;
-    }
+    } catch (TemplateSyntaxException ignored) {}
+    return spaced(resolvedToken, token);
   }
 
   // Try resolving the chunk/mini chunk as an ELExpression
   public String resolveChunk(String chunk, String nullDefault) {
     if (StringUtils.isBlank(chunk)) {
-      return "";
-    } else if (
-      WhitespaceUtils.isExpressionQuoted(chunk) || RESERVED_KEYWORDS.contains(chunk)
-    ) {
       return chunk;
     }
+    String resolvedChunk = chunk;
     try {
-      try {
-        Object val = interpreter.retraceVariable(
-          chunk.trim(),
-          this.token.getLineNumber(),
-          this.token.getStartPosition()
-        );
-        if (val != null) {
-          // If this isn't the final call, don't prematurely resolve complex objects.
-          if (JINJAVA_NULL.equals(nullDefault) && !isResolvableObject(val)) {
-            return chunk;
+      if (
+        !WhitespaceUtils.isExpressionQuoted(chunk) && !RESERVED_KEYWORDS.contains(chunk)
+      ) {
+        try {
+          Object val = interpreter.retraceVariable(
+            chunk.trim(),
+            this.token.getLineNumber(),
+            this.token.getStartPosition()
+          );
+          if (val != null) {
+            // If this isn't the final call, don't prematurely resolve complex objects.
+            if (JINJAVA_NULL.equals(nullDefault) && !isResolvableObject(val)) {
+              return chunk;
+            }
           }
-        }
-      } catch (TemplateSyntaxException ignored) {}
+        } catch (TemplateSyntaxException ignored) {}
 
-      String resolvedChunk;
-      Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
-      if (val == null) {
-        resolvedChunk = nullDefault;
-      } else if (JINJAVA_NULL.equals(nullDefault) && !isResolvableObject(val)) {
-        return chunk;
-      } else {
-        resolvedChunk =
-          interpreter.getContext().getPyishObjectMapper().getAsPyishString(val);
+        Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
+        if (val == null) {
+          resolvedChunk = nullDefault;
+        } else if (JINJAVA_NULL.equals(nullDefault) && !isResolvableObject(val)) {
+          resolvedChunk = chunk;
+        } else {
+          resolvedChunk =
+            interpreter.getContext().getPyishObjectMapper().getAsPyishString(val);
+        }
       }
-      if (chunk.charAt(0) == ' ') {
-        resolvedChunk = ' ' + resolvedChunk;
-      }
-      return resolvedChunk;
-    } catch (TemplateSyntaxException e) {
-      return chunk;
-    } catch (Exception e) {
+    } catch (TemplateSyntaxException ignored) {} catch (Exception e) {
       deferredWords.addAll(findDeferredWords(chunk));
-      return chunk;
     }
+    return spaced(resolvedChunk, chunk);
   }
 
   // Find any variables, functions, etc in this chunk to mark as deferred.
@@ -397,6 +397,13 @@ public class ChunkResolver {
   }
 
   private static boolean isResolvableObject(Object val) {
+    return isResolvableObjectRec(val, 0);
+  }
+
+  private static boolean isResolvableObjectRec(Object val, int depth) {
+    if (depth > 10) {
+      return false;
+    }
     boolean isResolvable = RESOLVABLE_CLASSES
       .stream()
       .anyMatch(clazz -> clazz.isAssignableFrom(val.getClass()));
@@ -411,20 +418,18 @@ public class ChunkResolver {
       ) {
         return true;
       }
-      // Naively check if any element within val is resolvable,
-      // rather than checking all of them, which may be costly.
-      Optional<?> item =
-        (
-          val instanceof Collection ? (Collection<?>) val : ((Map<?, ?>) val).values()
-        ).stream()
-          .filter(Objects::nonNull)
-          .findAny();
-      if (item.isPresent()) {
-        return RESOLVABLE_CLASSES
-          .stream()
-          .anyMatch(clazz -> clazz.isAssignableFrom(item.get().getClass()));
-      }
+      return (
+        val instanceof Collection ? (Collection<?>) val : ((Map<?, ?>) val).values()
+      ).stream()
+        .filter(Objects::nonNull)
+        .allMatch(item -> isResolvableObjectRec(item, depth + 1));
     }
     return false;
+  }
+
+  private static String spaced(String toSpaceOut, String reference) {
+    String prefix = reference.startsWith(" ") ? " " : "";
+    String suffix = reference.endsWith(" ") ? " " : "";
+    return prefix + toSpaceOut.trim() + suffix;
   }
 }
