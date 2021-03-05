@@ -24,25 +24,34 @@ public class AstDict extends AstLiteral {
   public Object eval(Bindings bindings, ELContext context) {
     Map<String, Object> resolved = new LinkedHashMap<>();
 
+    JinjavaInterpreter interpreter = (JinjavaInterpreter) context
+      .getELResolver()
+      .getValue(context, null, ExtendedParser.INTERPRETER);
+
     for (Map.Entry<AstNode, AstNode> entry : dict.entrySet()) {
       String key;
+      AstNode entryKey = entry.getKey();
 
-      if (entry.getKey() instanceof AstString) {
-        key = Objects.toString(entry.getKey().eval(bindings, context));
-      } else if (entry.getKey() instanceof AstIdentifier) {
-        key = ((AstIdentifier) entry.getKey()).getName();
+      if (entryKey instanceof AstString) {
+        key = Objects.toString(entryKey.eval(bindings, context));
+      } else if (entryKey instanceof AstIdentifier) {
+        if (interpreter.getConfig().getLegacyOverrides().isEvaluateMapKeys()) {
+          Object result = entryKey.eval(bindings, context);
+          key =
+            result == null
+              ? ((AstIdentifier) entryKey).getName() // this is for compatibility with the previous behavior
+              : result.toString();
+        } else {
+          key = ((AstIdentifier) entryKey).getName();
+        }
       } else {
         throw new TemplateStateException(
-          "Dict key must be a string or identifier, was: " + entry.getKey()
+          "Dict key must be a string or identifier, was: " + entryKey
         );
       }
 
       resolved.put(key, entry.getValue().eval(bindings, context));
     }
-
-    JinjavaInterpreter interpreter = (JinjavaInterpreter) context
-      .getELResolver()
-      .getValue(context, null, ExtendedParser.INTERPRETER);
 
     return new SizeLimitingPyMap(resolved, interpreter.getConfig().getMaxMapSize());
   }

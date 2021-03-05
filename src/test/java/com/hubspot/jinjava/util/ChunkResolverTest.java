@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -35,7 +37,18 @@ public class ChunkResolverTest {
 
   @Before
   public void setUp() throws Exception {
-    Jinjava jinjava = new Jinjava();
+    JinjavaInterpreter.pushCurrent(getInterpreter(false));
+  }
+
+  private JinjavaInterpreter getInterpreter(boolean evaluateMapKeys) throws Exception {
+    Jinjava jinjava = new Jinjava(
+      JinjavaConfig
+        .newBuilder()
+        .withLegacyOverrides(
+          LegacyOverrides.newBuilder().withEvaluateMapKeys(evaluateMapKeys).build()
+        )
+        .build()
+    );
     jinjava
       .getGlobalContext()
       .registerFunction(
@@ -58,7 +71,7 @@ public class ChunkResolverTest {
     context = interpreter.getContext();
     context.put("deferred", DeferredValue.instance());
     tagToken = new TagToken("{% foo %}", 1, 2, SYMBOLS);
-    JinjavaInterpreter.pushCurrent(interpreter);
+    return interpreter;
   }
 
   @After
@@ -424,6 +437,27 @@ public class ChunkResolverTest {
     assertThat(result).isEqualTo("( 1 + deferred) ~ 'yes'");
     context.put("deferred", 2);
     assertThat(interpreter.resolveELExpression(result, 0)).isEqualTo("3yes");
+  }
+
+  @Test
+  public void itPreservesLegacyDictionaryCreation() {
+    context.put("foo", "not_foo");
+    ChunkResolver chunkResolver = makeChunkResolver("{foo: 'bar'}");
+    String result = WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks());
+    assertThat(result).isEqualTo("{'foo': 'bar'}");
+  }
+
+  @Test
+  public void itHandlesPythonicDictionaryCreation() throws Exception {
+    JinjavaInterpreter.pushCurrent(getInterpreter(true));
+    try {
+      context.put("foo", "not_foo");
+      ChunkResolver chunkResolver = makeChunkResolver("{foo: 'bar'}");
+      String result = WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks());
+      assertThat(result).isEqualTo("{'not_foo': 'bar'}");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
   }
 
   public static void voidFunction(int nothing) {}
