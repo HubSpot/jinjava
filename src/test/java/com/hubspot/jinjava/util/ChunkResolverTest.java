@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -36,12 +37,17 @@ public class ChunkResolverTest {
 
   @Before
   public void setUp() throws Exception {
-    setUp(true);
+    JinjavaInterpreter.pushCurrent(getInterpreter(false));
   }
 
-  private void setUp(boolean legacyFunctionality) throws Exception {
+  private JinjavaInterpreter getInterpreter(boolean evaluateMapKeys) throws Exception {
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig.newBuilder().withLegacyFunctionality(legacyFunctionality).build()
+      JinjavaConfig
+        .newBuilder()
+        .withLegacyOverrides(
+          LegacyOverrides.newBuilder().withEvaluateMapKeys(evaluateMapKeys).build()
+        )
+        .build()
     );
     jinjava
       .getGlobalContext()
@@ -65,7 +71,7 @@ public class ChunkResolverTest {
     context = interpreter.getContext();
     context.put("deferred", DeferredValue.instance());
     tagToken = new TagToken("{% foo %}", 1, 2, SYMBOLS);
-    JinjavaInterpreter.pushCurrent(interpreter);
+    return interpreter;
   }
 
   @After
@@ -443,11 +449,15 @@ public class ChunkResolverTest {
 
   @Test
   public void itHandlesPythonicDictionaryCreation() throws Exception {
-    setUp(false);
-    context.put("foo", "not_foo");
-    ChunkResolver chunkResolver = makeChunkResolver("{foo: 'bar'}");
-    String result = WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks());
-    assertThat(result).isEqualTo("{'not_foo': 'bar'}");
+    JinjavaInterpreter.pushCurrent(getInterpreter(true));
+    try {
+      context.put("foo", "not_foo");
+      ChunkResolver chunkResolver = makeChunkResolver("{foo: 'bar'}");
+      String result = WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks());
+      assertThat(result).isEqualTo("{'not_foo': 'bar'}");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
   }
 
   public static void voidFunction(int nothing) {}

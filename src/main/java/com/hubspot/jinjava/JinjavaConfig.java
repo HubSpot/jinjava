@@ -60,9 +60,8 @@ public class JinjavaConfig {
   private final InterpreterFactory interpreterFactory;
   private TokenScannerSymbols tokenScannerSymbols;
   private final ELResolver elResolver;
-  private final boolean iterateOverMapKeys;
   private final ExecutionMode executionMode;
-  private final boolean legacyFunctionality;
+  private final LegacyOverrides legacyOverrides;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -113,9 +112,8 @@ public class JinjavaConfig {
     interpreterFactory = builder.interpreterFactory;
     tokenScannerSymbols = builder.tokenScannerSymbols;
     elResolver = builder.elResolver;
-    iterateOverMapKeys = builder.iterateOverMapKeys;
     executionMode = builder.executionMode;
-    legacyFunctionality = builder.legacyFunctionality;
+    legacyOverrides = builder.legacyOverrides;
   }
 
   public Charset getCharset() {
@@ -206,16 +204,20 @@ public class JinjavaConfig {
     return elResolver;
   }
 
+  /**
+   * @deprecated  Replaced by {@link LegacyOverrides#isIterateOverMapKeys()}
+   */
+  @Deprecated
   public boolean isIterateOverMapKeys() {
-    return iterateOverMapKeys;
+    return legacyOverrides.isIterateOverMapKeys();
   }
 
   public ExecutionMode getExecutionMode() {
     return executionMode;
   }
 
-  public boolean isLegacyFunctionality() {
-    return legacyFunctionality;
+  public LegacyOverrides getLegacyOverrides() {
+    return legacyOverrides;
   }
 
   public static class Builder {
@@ -241,11 +243,10 @@ public class JinjavaConfig {
     private InterpreterFactory interpreterFactory = new JinjavaInterpreterFactory();
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
     private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
-    private boolean iterateOverMapKeys;
     private int maxListSize = Integer.MAX_VALUE;
     private int maxMapSize = Integer.MAX_VALUE;
     private ExecutionMode executionMode = DefaultExecutionMode.instance();
-    private boolean legacyFunctionality = true;
+    private LegacyOverrides legacyOverrides = LegacyOverrides.NONE;
 
     private Builder() {}
 
@@ -364,9 +365,17 @@ public class JinjavaConfig {
       return this;
     }
 
+    /**
+     * @deprecated  Replaced by {@link LegacyOverrides.Builder#withIterateOverMapKeys(boolean)} ()}
+     */
+    @Deprecated
     public Builder withIterateOverMapKeys(boolean iterateOverMapKeys) {
-      this.iterateOverMapKeys = iterateOverMapKeys;
-      return this;
+      return withLegacyOverrides(
+        LegacyOverrides
+          .Builder.from(legacyOverrides)
+          .withIterateOverMapKeys(iterateOverMapKeys)
+          .build()
+      );
     }
 
     public Builder withExecutionMode(ExecutionMode executionMode) {
@@ -374,8 +383,8 @@ public class JinjavaConfig {
       return this;
     }
 
-    public Builder withLegacyFunctionality(boolean legacyFunctionality) {
-      this.legacyFunctionality = legacyFunctionality;
+    public Builder withLegacyOverrides(LegacyOverrides legacyOverrides) {
+      this.legacyOverrides = legacyOverrides;
       return this;
     }
 

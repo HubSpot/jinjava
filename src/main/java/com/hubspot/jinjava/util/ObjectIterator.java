@@ -45,7 +45,11 @@ public final class ObjectIterator {
     if (obj instanceof Map) {
       boolean iterateOverMapKeys =
         JinjavaInterpreter.getCurrent() != null &&
-        JinjavaInterpreter.getCurrent().getConfig().isIterateOverMapKeys();
+        JinjavaInterpreter
+          .getCurrent()
+          .getConfig()
+          .getLegacyOverrides()
+          .isIterateOverMapKeys();
       Collection<Object> clt = iterateOverMapKeys
         ? ((Map<Object, Object>) obj).keySet()
         : ((Map<Object, Object>) obj).values();

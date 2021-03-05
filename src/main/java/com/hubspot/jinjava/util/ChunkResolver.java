@@ -188,7 +188,7 @@ public class ChunkResolver {
           c == ':' &&
           chunkLevelMarker != null &&
           '{' == chunkLevelMarker &&
-          interpreter.getConfig().isLegacyFunctionality()
+          !interpreter.getConfig().getLegacyOverrides().isEvaluateMapKeys()
         ) {
           resolvedToken =
             '\'' + WhitespaceUtils.unquoteAndUnescape(tokenBuilder.toString()) + '\'';
