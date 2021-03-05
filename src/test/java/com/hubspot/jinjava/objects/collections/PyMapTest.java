@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.BaseJinjavaTest;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
@@ -253,5 +256,88 @@ public class PyMapTest extends BaseJinjavaTest {
     assertThatThrownBy(() -> pyMap.putAll(pyMap))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Map putAll() operation can't be used to add map to itself");
+  }
+
+  @Test
+  public void itUpdatesKeysWithStaticName() {
+    assertThat(
+        jinjava.render(
+          "{% set test = {\"key1\": \"value1\"} %}" +
+          "{% do test.update({\"key1\": \"value2\"}) %}" +
+          "{{ test[\"key1\"] }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo("value2");
+  }
+
+  @Test
+  public void itSetsKeysWithVariableName() {
+    assertThat(
+        jinjava.render(
+          "{% set keyName = \"key1\" %}" +
+          "{% set test = {keyName: \"value1\"} %}" +
+          "{{ test['keyName'] }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo("value1");
+    jinjava =
+      new Jinjava(
+        JinjavaConfig
+          .newBuilder()
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withEvaluateMapKeys(true).build()
+          )
+          .build()
+      );
+
+    assertThat(
+        jinjava.render(
+          "{% set keyName = \"key1\" %}" +
+          "{% set test = {keyName: \"value1\"} %}" +
+          "{{ test[keyName] }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo("value1");
+  }
+
+  @Test
+  public void itGetsKeysWithVariableName() {
+    assertThat(
+        jinjava.render(
+          "{% set test = {\"key1\": \"value1\"} %}" +
+          "{% set keyName = \"key1\" %}" +
+          "{{ test[keyName] }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo("value1");
+  }
+
+  @Test
+  public void itFallsBackUnknownVariableNameToString() {
+    assertThat(
+        jinjava.render(
+          "{% set test = {keyName: \"value1\"} %}" + "{{ test[\"keyName\"] }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo("value1");
+  }
+
+  @Test
+  public void itUpdatesKeysWithVariableName() {
+    assertThat(
+        jinjava.render(
+          "{% set test = {\"key1\": \"value1\"} %}" +
+          "{% set keyName = \"key1\" %}" +
+          "{% do test.update({keyName: \"value2\"}) %}" +
+          "{{ test[keyName] }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo("value2");
   }
 }
