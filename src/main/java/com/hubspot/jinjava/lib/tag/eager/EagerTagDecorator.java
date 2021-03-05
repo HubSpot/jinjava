@@ -176,7 +176,8 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         entry -> initiallyResolvedHashes.put(entry.getKey(), entry.getValue().hashCode())
       );
 
-    try (InterpreterScopeClosable c = interpreter.enterScope()) {
+    // Don't create new call stacks to prevent hitting max recursion with this silent new scope
+    try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
       interpreter.getContext().setDeferredExecutionMode(true);
       interpreter.getContext().setPartialMacroEvaluation(partialMacroEvaluation);
       result.append(function.apply(interpreter));

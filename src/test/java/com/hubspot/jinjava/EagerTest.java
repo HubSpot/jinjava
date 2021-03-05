@@ -68,6 +68,8 @@ public class EagerTest {
       .withExecutionMode(EagerExecutionMode.instance())
       .withNestedInterpretationEnabled(true)
       .withUsePyishObjectMapper(true)
+      .withMaxMacroRecursionDepth(5)
+      .withEnableRecursiveMacroCalls(true)
       .build();
     JinjavaInterpreter parentInterpreter = new JinjavaInterpreter(
       jinjava,
@@ -801,5 +803,10 @@ public class EagerTest {
     assertThat(eagerInterpreter.getErrors()).hasSize(2);
     assertThat(defaultInterpreter.getErrors()).hasSize(2);
     assertThat(eagerInterpreter.getErrors()).isEqualTo(defaultInterpreter.getErrors());
+  }
+
+  @Test
+  public void itKeepsMaxMacroRecursionDepth() {
+    expectedTemplateInterpreter.assertExpectedOutput("keeps-max-macro-recursion-depth");
   }
 }
