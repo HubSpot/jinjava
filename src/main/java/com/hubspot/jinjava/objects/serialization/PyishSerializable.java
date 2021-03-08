@@ -1,6 +1,8 @@
 package com.hubspot.jinjava.objects.serialization;
 
-public interface PyishSerializable {
+import com.hubspot.jinjava.objects.PyWrapper;
+
+public interface PyishSerializable extends PyWrapper {
   /**
    * Allows for a class to specify a custom string representation in Jinjava.
    * By default, this will refer to the <code>toString()</code> method,
