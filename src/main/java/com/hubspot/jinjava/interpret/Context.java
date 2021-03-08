@@ -108,21 +108,30 @@ public class Context extends ScopeMap<String, Object> {
   private boolean partialMacroEvaluation = false;
 
   public Context() {
-    this(null, null, null);
+    this(null, null, null, true);
   }
 
   public Context(Context parent) {
-    this(parent, null, null);
+    this(parent, null, null, true);
   }
 
   public Context(Context parent, Map<String, ?> bindings) {
-    this(parent, bindings, null);
+    this(parent, bindings, null, true);
   }
 
   public Context(
     Context parent,
     Map<String, ?> bindings,
     Map<Library, Set<String>> disabled
+  ) {
+    this(parent, bindings, disabled, true);
+  }
+
+  public Context(
+    Context parent,
+    Map<String, ?> bindings,
+    Map<Library, Set<String>> disabled,
+    boolean makeNewCallStacks
   ) {
     super(parent);
     this.disabled = disabled;
@@ -134,35 +143,47 @@ public class Context extends ScopeMap<String, Object> {
     this.parent = parent;
 
     this.extendPathStack =
-      new CallStack(
-        parent == null ? null : parent.getExtendPathStack(),
-        ExtendsTagCycleException.class
-      );
+      makeNewCallStacks
+        ? new CallStack(
+          parent == null ? null : parent.getExtendPathStack(),
+          ExtendsTagCycleException.class
+        )
+        : parent == null ? null : parent.getExtendPathStack();
     this.importPathStack =
-      new CallStack(
-        parent == null ? null : parent.getImportPathStack(),
-        ImportTagCycleException.class
-      );
+      makeNewCallStacks
+        ? new CallStack(
+          parent == null ? null : parent.getImportPathStack(),
+          ImportTagCycleException.class
+        )
+        : parent == null ? null : parent.getImportPathStack();
     this.includePathStack =
-      new CallStack(
-        parent == null ? null : parent.getIncludePathStack(),
-        IncludeTagCycleException.class
-      );
+      makeNewCallStacks
+        ? new CallStack(
+          parent == null ? null : parent.getIncludePathStack(),
+          IncludeTagCycleException.class
+        )
+        : parent == null ? null : parent.getIncludePathStack();
     this.macroStack =
-      new CallStack(
-        parent == null ? null : parent.getMacroStack(),
-        MacroTagCycleException.class
-      );
+      makeNewCallStacks
+        ? new CallStack(
+          parent == null ? null : parent.getMacroStack(),
+          MacroTagCycleException.class
+        )
+        : parent == null ? null : parent.getMacroStack();
     this.fromStack =
-      new CallStack(
-        parent == null ? null : parent.getFromStack(),
-        FromTagCycleException.class
-      );
+      makeNewCallStacks
+        ? new CallStack(
+          parent == null ? null : parent.getFromStack(),
+          FromTagCycleException.class
+        )
+        : parent == null ? null : parent.getFromStack();
     this.currentPathStack =
-      new CallStack(
-        parent == null ? null : parent.getCurrentPathStack(),
-        TagCycleException.class
-      );
+      makeNewCallStacks
+        ? new CallStack(
+          parent == null ? null : parent.getCurrentPathStack(),
+          TagCycleException.class
+        )
+        : parent == null ? null : parent.getCurrentPathStack();
 
     if (disabled == null) {
       disabled = new HashMap<>();
