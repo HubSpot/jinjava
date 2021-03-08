@@ -181,7 +181,6 @@ public class ImportTag implements Tag {
         interpreter.getContext().addGlobalMacro(macro);
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-      childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
       childBindings
         .keySet()
         .forEach(key -> interpreter.getContext().put(key, DeferredValue.instance()));
@@ -195,7 +194,6 @@ public class ImportTag implements Tag {
         childBindings.put(macroEntry.getKey(), macro);
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-      childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
       interpreter.getContext().put(contextVar, DeferredValue.instance(childBindings));
     }
   }

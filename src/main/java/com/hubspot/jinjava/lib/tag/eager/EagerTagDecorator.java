@@ -402,7 +402,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     return new LengthLimitingStringJoiner(interpreter.getConfig().getMaxOutputSize(), " ")
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
       .add(DoTag.TAG_NAME)
-      .add(String.format("%s.update({%s})", currentImportAlias, updateString))
+      .add(String.format("%s.update(%s)", currentImportAlias, updateString))
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag())
       .toString();
   }
