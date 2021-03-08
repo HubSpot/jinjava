@@ -460,6 +460,22 @@ public class ChunkResolverTest {
     }
   }
 
+  @Test
+  public void itKeepsPlusSignPrefix() {
+    context.put("foo", "+12223334444");
+    ChunkResolver chunkResolver = makeChunkResolver("foo");
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("+12223334444");
+  }
+
+  @Test
+  public void itHandlesPhoneNumbers() {
+    context.put("foo", "+1(123)456-7890");
+    ChunkResolver chunkResolver = makeChunkResolver("foo");
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("+1(123)456-7890");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {
