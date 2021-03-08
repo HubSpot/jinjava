@@ -28,7 +28,10 @@ public class PyishSerializer extends JsonSerializer<Object> {
     }
     try {
       Double.parseDouble(string);
-      if (string.length() > 1 && string.charAt(0) == '0' && string.indexOf('.') != 1) {
+      if (
+        string.length() > 1 &&
+        ((string.charAt(0) == '0' && string.indexOf('.') != 1) || string.charAt(0) == '+')
+      ) {
         jsonGenerator.writeString(string);
       } else {
         jsonGenerator.writeNumber(string);

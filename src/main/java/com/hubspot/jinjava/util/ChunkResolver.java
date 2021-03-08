@@ -331,10 +331,6 @@ public class ChunkResolver {
           resolvedChunk =
             interpreter.getContext().getPyishObjectMapper().getAsPyishString(val);
         }
-        if (val instanceof Number && chunk.trim().charAt(0) == '+') {
-          // Resolving a phone number without dashes strips the leading plus sign
-          resolvedChunk = '+' + resolvedChunk;
-        }
       }
     } catch (TemplateSyntaxException ignored) {} catch (Exception e) {
       deferredWords.addAll(findDeferredWords(chunk));
