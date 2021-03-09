@@ -476,6 +476,14 @@ public class ChunkResolverTest {
       .isEqualTo("+1(123)456-7890");
   }
 
+  @Test
+  public void itHandlesNegativeZero() {
+    context.put("foo", "-0");
+    ChunkResolver chunkResolver = makeChunkResolver("foo");
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("-0");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {
