@@ -22,22 +22,22 @@ public class PyishSerializer extends JsonSerializer<Object> {
     jsonGenerator.setCharacterEscapes(PyishCharacterEscapes.INSTANCE);
     String string;
     if (object instanceof PyishSerializable) {
-      string = ((PyishSerializable) object).toPyishString();
+      jsonGenerator.writeRaw(((PyishSerializable) object).toPyishString());
     } else {
       string = Objects.toString(object, "");
-    }
-    try {
-      Double.parseDouble(string);
-      if (string.length() > 1 && string.charAt(0) == '0' && string.indexOf('.') != 1) {
-        jsonGenerator.writeString(string);
-      } else {
-        jsonGenerator.writeNumber(string);
-      }
-    } catch (NumberFormatException e) {
-      if ("true".equalsIgnoreCase(string) || "false".equalsIgnoreCase(string)) {
-        jsonGenerator.writeBoolean(Boolean.parseBoolean(string));
-      } else {
-        jsonGenerator.writeString(string);
+      try {
+        Double.parseDouble(string);
+        if (string.length() > 1 && string.charAt(0) == '0' && string.indexOf('.') != 1) {
+          jsonGenerator.writeString(string);
+        } else {
+          jsonGenerator.writeNumber(string);
+        }
+      } catch (NumberFormatException e) {
+        if ("true".equalsIgnoreCase(string) || "false".equalsIgnoreCase(string)) {
+          jsonGenerator.writeBoolean(Boolean.parseBoolean(string));
+        } else {
+          jsonGenerator.writeString(string);
+        }
       }
     }
   }

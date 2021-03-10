@@ -69,7 +69,8 @@ public class PyishObjectMapper {
       new ObjectMapper()
         .registerModule(
           new SimpleModule()
-          .setSerializerModifier(new PyishBeanSerializerModifier(nonPyishClasses))
+            .setSerializerModifier(new PyishBeanSerializerModifier(nonPyishClasses))
+            .addSerializer(PyishSerializable.class, PyishSerializer.INSTANCE)
         )
         .writer(PyishPrettyPrinter.INSTANCE);
   }

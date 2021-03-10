@@ -11,6 +11,6 @@ public interface PyishSerializable extends PyWrapper {
    * @return A pythonic/json string representation of the object
    */
   default String toPyishString() {
-    return toString();
+    return '"' + toString() + '"';
   }
 }
