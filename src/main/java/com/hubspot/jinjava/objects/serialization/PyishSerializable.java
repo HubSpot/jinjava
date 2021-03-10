@@ -8,6 +8,7 @@ public interface PyishSerializable extends PyWrapper {
    * By default, this will refer to the <code>toString()</code> method,
    * but this method can be overriden to provide a representation separate from the
    * normal <code>toString()</code> result.
+   * This should use double quotes to wrap json keys/values.
    * @return A pythonic/json string representation of the object
    */
   default String toPyishString() {
