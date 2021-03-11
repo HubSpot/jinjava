@@ -3,28 +3,22 @@ package com.hubspot.jinjava.objects.serialization;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.hubspot.jinjava.objects.PyWrapper;
 import java.util.Objects;
 
 public interface PyishSerializable extends PyWrapper {
-  ObjectWriter PYISH_OBJECT_WRITER = new ObjectMapper()
-    .registerModule(
-      new SimpleModule()
-        .setSerializerModifier(PyishBeanSerializerModifier.INSTANCE)
-        .addSerializer(PyishSerializable.class, PyishSerializer.INSTANCE)
-    )
-    .writer(PyishPrettyPrinter.INSTANCE);
+  ObjectWriter SELF_WRITER = new ObjectMapper()
+    .writer(PyishPrettyPrinter.INSTANCE)
+    .with(PyishCharacterEscapes.INSTANCE);
   /**
    * Allows for a class to specify a custom string representation in Jinjava.
-   * By default, this will refer to the <code>toString()</code> method,
-   * but this method can be overriden to provide a representation separate from the
-   * normal <code>toString()</code> result.
+   * By default, this will get a json representation of the object,
+   * but this method can be overridden to provide a custom representation.
    * This should use double quotes to wrap json keys/values.
-   * @return A pythonic/json string representation of the object
+   * @return A pyish/json string representation of the object
    */
   default String toPyishString() {
-    return '"' + writeValueAsString(this) + '"';
+    return writeValueAsString(this);
   }
 
   /**
@@ -35,9 +29,9 @@ public interface PyishSerializable extends PyWrapper {
    */
   static String writeValueAsString(Object value) {
     try {
-      return PYISH_OBJECT_WRITER.writeValueAsString(value);
+      return SELF_WRITER.writeValueAsString(value);
     } catch (JsonProcessingException e) {
-      return Objects.toString(value);
+      return '"' + Objects.toString(value) + '"';
     }
   }
 }

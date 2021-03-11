@@ -463,19 +463,10 @@ public class ChunkResolverTest {
 
   @Test
   public void itHandlesPyishSerializable() {
-    context.put(
-      "foo",
-      new PyishSerializable() {
-
-        @Override
-        public String toPyishString() {
-          return "[\"yes\"]";
-        }
-      }
-    );
+    context.put("foo", new SomethingPyish("yes"));
     assertThat(
         interpreter.render(
-          String.format("{{ %s[0] }}", makeChunkResolver("foo").resolveChunks())
+          String.format("{{ %s.name }}", makeChunkResolver("foo").resolveChunks())
         )
       )
       .isEqualTo("yes");
@@ -496,6 +487,18 @@ public class ChunkResolverTest {
 
     String bar() {
       return bar;
+    }
+  }
+
+  public class SomethingPyish implements PyishSerializable {
+    private String name;
+
+    public SomethingPyish(String name) {
+      this.name = name;
+    }
+
+    public String getName() {
+      return name;
     }
   }
 }
