@@ -125,7 +125,7 @@ public class ChunkResolver {
   /**
    * Chunkify and resolve variables and expressions within the string.
    * Rather than concatenating the chunks, they are split by mini-chunks,
-   * with the comma splitter ommitted from the list of results.
+   * with the comma splitter omitted from the list of results.
    * Therefore an expression of "1, 1 + 1, 1 + range(deferred)" becomes a List of ["1", "2", "1 + range(deferred)"].
    *
    * @return List of the expression chunk which is split into mini-chunks.
