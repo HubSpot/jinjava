@@ -137,7 +137,11 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       }
     }
     if (keyValueJoiner.length() > 0) {
-      return buildDoUpdateTag(currentImportAlias, keyValueJoiner.toString(), interpreter);
+      return buildDoUpdateTag(
+        currentImportAlias,
+        "{" + keyValueJoiner.toString() + "}",
+        interpreter
+      );
     }
     return "";
   }
@@ -238,7 +242,6 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         parent.getContext().addGlobalMacro(macro);
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-      childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
       childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
       parent.getContext().putAll(childBindings);
     } else {
@@ -271,7 +274,6 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         .forEach(childBindings::remove);
       // Remove meta keys
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-      childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
       childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
       mapForCurrentContextAlias.putAll(childBindings);
     }

@@ -1,2 +1,2 @@
 {% set myname = deferred + 3 %}
-{% macro getPath() %}Hello {{ myname }}{% endmacro %}{% print getPath() %}
+{% set import_resource_path = 'simple-with-call.jinja' %}{% macro getPath() %}Hello {{ myname }}{% endmacro %}{% set import_resource_path = '' %}{% print getPath() %}

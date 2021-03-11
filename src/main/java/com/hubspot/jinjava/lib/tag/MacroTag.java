@@ -7,12 +7,14 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.TagNode;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -88,13 +90,14 @@ public class MacroTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     String name;
     String args;
-    String parentName = "";
+    final String parentName;
     Matcher childMatcher = CHILD_MACRO_PATTERN.matcher(tagNode.getHelpers());
     if (childMatcher.find()) {
       parentName = childMatcher.group(1);
       name = childMatcher.group(2);
       args = Strings.nullToEmpty(childMatcher.group(3));
     } else {
+      parentName = "";
       Matcher matcher = MACRO_PATTERN.matcher(tagNode.getHelpers());
       if (!matcher.find()) {
         throw new TemplateSyntaxException(
@@ -117,16 +120,55 @@ public class MacroTag implements Tag {
       args,
       argNamesWithDefaults
     );
-
-    MacroFunction macro = new MacroFunction(
-      tagNode.getChildren(),
-      name,
-      argNamesWithDefaults,
-      false,
-      interpreter.getContext(),
-      interpreter.getLineNumber(),
-      interpreter.getPosition()
-    );
+    MacroFunction macro;
+    String contextImportResourcePath = (String) interpreter
+      .getContext()
+      .get(Context.IMPORT_RESOURCE_PATH_KEY, "");
+    String stackImportResourcePath = interpreter
+      .getContext()
+      .getCurrentPathStack()
+      .peek()
+      .orElse("");
+    try {
+      if (!contextImportResourcePath.equals(stackImportResourcePath)) {
+        interpreter.enterScope();
+        interpreter
+          .getContext()
+          .put(Context.IMPORT_RESOURCE_PATH_KEY, contextImportResourcePath);
+      }
+      if (StringUtils.isNotEmpty(parentName)) {
+        interpreter.enterScope();
+        Object parentAliasMap = interpreter
+          .getContext()
+          .get(parentName, Collections.emptyMap());
+        if (parentAliasMap instanceof DeferredValue) {
+          parentAliasMap = ((DeferredValue) parentAliasMap).getOriginalValue();
+        }
+        String parentImportResourcePath = (String) (
+          (Map<String, Object>) parentAliasMap
+        ).get(Context.IMPORT_RESOURCE_PATH_KEY);
+        interpreter
+          .getContext()
+          .put(Context.IMPORT_RESOURCE_PATH_KEY, parentImportResourcePath);
+      }
+      macro =
+        new MacroFunction(
+          tagNode.getChildren(),
+          name,
+          argNamesWithDefaults,
+          false,
+          interpreter.getContext(),
+          interpreter.getLineNumber(),
+          interpreter.getPosition()
+        );
+    } finally {
+      if (
+        StringUtils.isNotEmpty(parentName) ||
+        !contextImportResourcePath.equals(stackImportResourcePath)
+      ) {
+        interpreter.leaveScope();
+      }
+    }
     macro.setDeferred(deferred);
 
     if (StringUtils.isNotEmpty(parentName)) {

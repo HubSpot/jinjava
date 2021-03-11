@@ -102,19 +102,6 @@ public class IncludeTagTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itIncludesFileWithInternalMacroCall() throws IOException {
-    RenderResult result = jinjava.renderForResult(
-      Resources.toString(
-        Resources.getResource("tags/macrotag/include-two-macros.jinja"),
-        StandardCharsets.UTF_8
-      ),
-      new HashMap<>()
-    );
-
-    assertThat(result.getErrors()).isEmpty();
-  }
-
-  @Test
   public void itIncludesFileViaRelativePath() throws IOException {
     jinjava = new Jinjava();
     jinjava.setResourceLocator(
