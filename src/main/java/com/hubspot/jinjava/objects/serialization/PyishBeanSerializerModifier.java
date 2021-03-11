@@ -4,14 +4,11 @@ import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
-import java.util.Set;
 
 public class PyishBeanSerializerModifier extends BeanSerializerModifier {
-  private final Set<Class<?>> nonPyishClasses;
+  public static final PyishBeanSerializerModifier INSTANCE = new PyishBeanSerializerModifier();
 
-  public PyishBeanSerializerModifier(Set<Class<?>> nonPyishClasses) {
-    this.nonPyishClasses = nonPyishClasses;
-  }
+  private PyishBeanSerializerModifier() {}
 
   @Override
   public JsonSerializer<?> modifySerializer(
@@ -21,9 +18,6 @@ public class PyishBeanSerializerModifier extends BeanSerializerModifier {
   ) {
     try {
       if (
-        nonPyishClasses
-          .stream()
-          .anyMatch(clazz -> (clazz.isAssignableFrom(beanDesc.getBeanClass()))) ||
         beanDesc.getBeanClass().getMethod("toString").getDeclaringClass() == Object.class
       ) {
         // Use the PyishSerializer if it extends the PyishSerializable class.

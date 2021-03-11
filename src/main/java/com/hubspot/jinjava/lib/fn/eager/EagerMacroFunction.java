@@ -65,14 +65,13 @@ public class EagerMacroFunction extends AbstractCallableMethod {
 
   public String getStartTag(JinjavaInterpreter interpreter) {
     StringJoiner argJoiner = new StringJoiner(", ");
-    PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishObjectMapper();
     for (String arg : macroFunction.getArguments()) {
       if (macroFunction.getDefaults().get(arg) != null) {
         argJoiner.add(
           String.format(
             "%s=%s",
             arg,
-            pyishObjectMapper.getAsPyishString(macroFunction.getDefaults().get(arg))
+            PyishObjectMapper.getAsPyishString(macroFunction.getDefaults().get(arg))
           )
         );
         continue;
@@ -117,10 +116,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
           EagerTagDecorator.buildSetTagForDeferredInChildContext(
             ImmutableMap.of(
               Context.IMPORT_RESOURCE_PATH_KEY,
-              interpreter
-                .getContext()
-                .getPyishObjectMapper()
-                .getAsPyishString(importFile.get())
+              PyishObjectMapper.getAsPyishString(importFile.get())
             ),
             interpreter,
             false
@@ -134,10 +130,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
           EagerTagDecorator.buildSetTagForDeferredInChildContext(
             ImmutableMap.of(
               Context.IMPORT_RESOURCE_PATH_KEY,
-              interpreter
-                .getContext()
-                .getPyishObjectMapper()
-                .getAsPyishString(currentImportResource)
+              PyishObjectMapper.getAsPyishString(currentImportResource)
             ),
             interpreter,
             false
@@ -172,10 +165,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
       prefix =
         EagerTagDecorator.buildDoUpdateTag(
           importAlias,
-          interpreter
-            .getContext()
-            .getPyishObjectMapper()
-            .getAsPyishString(deferredAliasMap),
+          PyishObjectMapper.getAsPyishString(deferredAliasMap),
           interpreter
         );
     } else if (aliasMap instanceof Map) {
@@ -185,10 +175,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
         EagerTagDecorator.buildSetTagForDeferredInChildContext(
           ImmutableMap.of(
             importAlias,
-            interpreter
-              .getContext()
-              .getPyishObjectMapper()
-              .getAsPyishString(deferredAliasMap)
+            PyishObjectMapper.getAsPyishString(deferredAliasMap)
           ),
           interpreter,
           false
