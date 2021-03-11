@@ -150,12 +150,6 @@ public class JinjavaInterpreter {
     return new InterpreterScopeClosable();
   }
 
-  public InterpreterScopeClosable enterNonStackingScope() {
-    context = new Context(context, null, null, false);
-    scopeDepth++;
-    return new InterpreterScopeClosable();
-  }
-
   public void leaveScope() {
     Context parent = context.getParent();
     scopeDepth--;
