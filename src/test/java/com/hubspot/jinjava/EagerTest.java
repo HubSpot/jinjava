@@ -809,4 +809,9 @@ public class EagerTest {
   public void itKeepsMaxMacroRecursionDepth() {
     expectedTemplateInterpreter.assertExpectedOutput("keeps-max-macro-recursion-depth");
   }
+
+  @Test
+  public void itHandlesComplexRaw() {
+    expectedTemplateInterpreter.assertExpectedOutput("handles-complex-raw");
+  }
 }
