@@ -114,6 +114,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     JinjavaConfig config = interpreter.getConfig();
     if (
       config.getExecutionMode().isPreserveRawTags() &&
+      !interpreter.getContext().isUnwrapRawOverride() &&
       (
         output.contains(config.getTokenScannerSymbols().getExpressionStart()) ||
         output.contains(config.getTokenScannerSymbols().getExpressionStartWithTag())

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
@@ -115,6 +116,31 @@ public class RawTagTest extends BaseInterpretingTest {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Test
+  public void itOverridesRawTagPreservation() {
+    TagNode tagNode = fixture("hubl");
+    JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
+      jinjava,
+      jinjava.getGlobalContextCopy(),
+      JinjavaConfig
+        .newBuilder()
+        .withExecutionMode(PreserveRawExecutionMode.instance())
+        .build()
+    );
+    String result;
+    try (
+      TemporaryValueClosable<Boolean> c = preserveInterpreter
+        .getContext()
+        .withUnwrapRawOverride()
+    ) {
+      result = tag.interpret(tagNode, preserveInterpreter);
+    }
+    assertThat(StringUtils.normalizeSpace(result))
+      .isEqualTo(
+        "<h1>Blog Posts</h1> <ul> {% for content in contents %} <li>{{ content.name|title }}</li> {% endfor %} </ul>"
+      );
   }
 
   @Test

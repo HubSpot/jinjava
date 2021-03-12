@@ -484,7 +484,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   }
 
   public static String wrapInRawIfNeeded(String output, JinjavaInterpreter interpreter) {
-    if (interpreter.getConfig().getExecutionMode().isPreserveRawTags()) {
+    if (
+      interpreter.getConfig().getExecutionMode().isPreserveRawTags() &&
+      !interpreter.getContext().isUnwrapRawOverride()
+    ) {
       if (
         output.contains(
           interpreter.getConfig().getTokenScannerSymbols().getExpressionStart()
