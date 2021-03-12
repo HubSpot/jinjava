@@ -163,7 +163,7 @@ public class ChunkResolver {
     StringBuilder miniChunkBuilder = new StringBuilder();
     StringBuilder tokenBuilder = new StringBuilder();
     while (nextPos < length) {
-      boolean isAfterWhitespace = prevChar == ' ' && !isFilterWhitespace(prevChar);
+      boolean isAfterWhitespace = prevChar == ' ' && !isOpWhitespace(prevChar);
       char c = value[nextPos++];
       if (inQuote) {
         if (c == quoteChar && prevChar != '\\') {
@@ -240,18 +240,22 @@ public class ChunkResolver {
     );
   }
 
-  private boolean isFilterWhitespace(char c) {
-    // If a pipe character is surrounded by whitespace on either side,
+  private boolean isOpWhitespace(char c) {
+    // If a pipe or full stop character is surrounded by whitespace on either side,
     // we don't want to split those tokens
     boolean isFilterWhitespace = false;
     if (c == ' ') {
       int prevPos = nextPos - 2;
       if (nextPos < length) {
-        isFilterWhitespace = value[nextPos] == ' ' || value[nextPos] == '|';
+        isFilterWhitespace =
+          value[nextPos] == ' ' || value[nextPos] == '|' || value[nextPos] == '.';
       }
       if (prevPos >= 0) {
         isFilterWhitespace =
-          isFilterWhitespace || value[prevPos] == ' ' || value[prevPos] == '|';
+          isFilterWhitespace ||
+          value[prevPos] == ' ' ||
+          value[prevPos] == '|' ||
+          value[prevPos] == '.';
       }
     }
     return isFilterWhitespace;
