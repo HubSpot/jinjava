@@ -432,12 +432,21 @@ public class ChunkResolverTest {
   @Test
   public void itHandlesUnconventionalSpacing() {
     ChunkResolver chunkResolver = makeChunkResolver(
-      "(  range (0 , 3 ) [1] + deferred) ~ 'YES'| lower"
+      "(  range (0 , 3 ) [ 1] + deferred) ~ 'YES'| lower"
     );
     String result = WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks());
     assertThat(result).isEqualTo("( 1 + deferred) ~ 'yes'");
     context.put("deferred", 2);
     assertThat(interpreter.resolveELExpression(result, 0)).isEqualTo("3yes");
+  }
+
+  @Test
+  public void itHandlesDotSpacing() {
+    context.put("bar", "fake");
+    context.put("foo", ImmutableMap.of("bar", "foobar"));
+    ChunkResolver chunkResolver = makeChunkResolver("foo . bar");
+    String result = WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks());
+    assertThat(result).isEqualTo("foobar");
   }
 
   @Test
