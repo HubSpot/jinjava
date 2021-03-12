@@ -118,7 +118,6 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         .getContext()
         .put(currentImportAlias, DeferredValue.instance(currentAliasMap));
     }
-    PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishObjectMapper();
     for (Map.Entry<String, Object> entry : (
       (Map<String, Object>) (
         (DeferredValue) interpreter.getContext().get(currentImportAlias)
@@ -131,7 +130,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
           String.format(
             "'%s': %s",
             entry.getKey(),
-            pyishObjectMapper.getAsPyishString(entry.getValue())
+            PyishObjectMapper.getAsPyishString(entry.getValue())
           )
         );
       }

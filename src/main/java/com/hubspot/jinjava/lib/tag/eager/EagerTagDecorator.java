@@ -159,7 +159,6 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   ) {
     StringBuilder result = new StringBuilder();
     Map<String, Integer> initiallyResolvedHashes = new HashMap<>();
-    PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishObjectMapper();
     interpreter
       .getContext()
       .entrySet()
@@ -195,12 +194,12 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           Entry::getKey,
           e -> {
             if (e.getValue() instanceof DeferredValue) {
-              return pyishObjectMapper.getAsPyishString(
+              return PyishObjectMapper.getAsPyishString(
                 ((DeferredValue) e.getValue()).getOriginalValue()
               );
             }
             if (takeNewValue) {
-              return pyishObjectMapper.getAsPyishString(e.getValue());
+              return PyishObjectMapper.getAsPyishString(e.getValue());
             }
 
             // Previous value could not be mapped to a string
@@ -304,7 +303,6 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       return ""; // This will be handled outside of the deferred execution mode.
     }
     Map<String, String> deferredMap = new HashMap<>();
-    PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishObjectMapper();
     deferredWords
       .stream()
       .map(w -> w.split("\\.", 2)[0]) // get base prop
@@ -317,7 +315,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         w -> {
           deferredMap.put(
             w,
-            pyishObjectMapper.getAsPyishString(interpreter.getContext().get(w))
+            PyishObjectMapper.getAsPyishString(interpreter.getContext().get(w))
           );
         }
       );

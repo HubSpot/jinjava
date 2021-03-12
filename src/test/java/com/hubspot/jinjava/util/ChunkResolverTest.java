@@ -14,6 +14,7 @@ import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
+import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
@@ -484,6 +485,17 @@ public class ChunkResolverTest {
       .isEqualTo("-0");
   }
 
+  @Test
+  public void itHandlesPyishSerializable() {
+    context.put("foo", new SomethingPyish("yes"));
+    assertThat(
+        interpreter.render(
+          String.format("{{ %s.name }}", makeChunkResolver("foo").resolveChunks())
+        )
+      )
+      .isEqualTo("yes");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {
@@ -499,6 +511,18 @@ public class ChunkResolverTest {
 
     String bar() {
       return bar;
+    }
+  }
+
+  public class SomethingPyish implements PyishSerializable {
+    private String name;
+
+    public SomethingPyish(String name) {
+      this.name = name;
+    }
+
+    public String getName() {
+      return name;
     }
   }
 }

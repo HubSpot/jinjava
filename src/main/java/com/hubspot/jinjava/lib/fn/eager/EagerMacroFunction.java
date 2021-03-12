@@ -60,14 +60,13 @@ public class EagerMacroFunction extends AbstractCallableMethod {
 
   public String getStartTag(JinjavaInterpreter interpreter) {
     StringJoiner argJoiner = new StringJoiner(", ");
-    PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishObjectMapper();
     for (String arg : macroFunction.getArguments()) {
       if (macroFunction.getDefaults().get(arg) != null) {
         argJoiner.add(
           String.format(
             "%s=%s",
             arg,
-            pyishObjectMapper.getAsPyishString(macroFunction.getDefaults().get(arg))
+            PyishObjectMapper.getAsPyishString(macroFunction.getDefaults().get(arg))
           )
         );
         continue;

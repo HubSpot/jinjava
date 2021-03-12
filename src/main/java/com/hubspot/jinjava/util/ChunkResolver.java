@@ -6,6 +6,7 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
+import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.tree.parse.Token;
 import java.util.ArrayList;
@@ -288,8 +289,7 @@ public class ChunkResolver {
         if (val == null || !isResolvableObject(val)) {
           resolvedToken = token;
         } else {
-          resolvedToken =
-            interpreter.getContext().getPyishObjectMapper().getAsPyishString(val);
+          resolvedToken = PyishObjectMapper.getAsPyishString(val);
         }
       }
     } catch (DeferredValueException e) {
@@ -328,8 +328,7 @@ public class ChunkResolver {
         } else if (JINJAVA_NULL.equals(nullDefault) && !isResolvableObject(val)) {
           resolvedChunk = chunk;
         } else {
-          resolvedChunk =
-            interpreter.getContext().getPyishObjectMapper().getAsPyishString(val);
+          resolvedChunk = PyishObjectMapper.getAsPyishString(val);
         }
       }
     } catch (TemplateSyntaxException ignored) {} catch (Exception e) {

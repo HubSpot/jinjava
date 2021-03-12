@@ -32,7 +32,6 @@ import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.TagLibrary;
 import com.hubspot.jinjava.lib.tag.eager.EagerToken;
-import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.ScopeMap;
@@ -90,7 +89,6 @@ public class Context extends ScopeMap<String, Object> {
   private final FilterLibrary filterLibrary;
   private final FunctionLibrary functionLibrary;
   private final TagLibrary tagLibrary;
-  private final PyishObjectMapper pyishObjectMapper;
 
   private ExpressionStrategy expressionStrategy = new DefaultExpressionStrategy();
 
@@ -195,8 +193,6 @@ public class Context extends ScopeMap<String, Object> {
     this.tagLibrary = new TagLibrary(parent == null, disabled.get(Library.TAG));
     this.functionLibrary =
       new FunctionLibrary(parent == null, disabled.get(Library.FUNCTION));
-    this.pyishObjectMapper =
-      new PyishObjectMapper(parent != null ? parent.pyishObjectMapper : null);
     if (parent != null) {
       this.expressionStrategy = parent.expressionStrategy;
       this.partialMacroEvaluation = parent.partialMacroEvaluation;
@@ -525,14 +521,6 @@ public class Context extends ScopeMap<String, Object> {
 
   public void registerTag(Tag t) {
     tagLibrary.addTag(t);
-  }
-
-  public void registerNonPyishClasses(Class<?>... classes) {
-    pyishObjectMapper.registerNonPyishClasses(classes);
-  }
-
-  public PyishObjectMapper getPyishObjectMapper() {
-    return pyishObjectMapper;
   }
 
   public ExpressionStrategy getExpressionStrategy() {

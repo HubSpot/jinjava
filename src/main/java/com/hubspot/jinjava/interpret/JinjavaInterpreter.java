@@ -31,6 +31,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
 import com.hubspot.jinjava.random.DeferredRandomNumberGenerator;
 import com.hubspot.jinjava.tree.Node;
@@ -479,7 +480,7 @@ public class JinjavaInterpreter {
 
   public String getAsString(Object object) {
     if (config.isUsePyishObjectMapper()) {
-      return context.getPyishObjectMapper().getAsUnquotedPyishString(object);
+      return PyishObjectMapper.getAsUnquotedPyishString(object);
     }
     return Objects.toString(object, "");
   }
