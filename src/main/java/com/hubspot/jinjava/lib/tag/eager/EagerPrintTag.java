@@ -71,16 +71,22 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
         : ""
     );
     if (chunkResolver.getDeferredWords().isEmpty()) {
-      String result = interpreter.getAsString(
-        interpreter.resolveELExpression(
-          resolvedExpression.getResult(),
-          interpreter.getLineNumber()
-        )
-      );
       // Possible macro/set tag in front of this one.
       return (
         prefixToPreserveState.toString() +
-        (includeExpressionResult ? wrapInRawIfNeeded(result, interpreter) : "")
+        (
+          includeExpressionResult
+            ? wrapInRawIfNeeded(
+              interpreter.getAsString(
+                interpreter.resolveELExpression(
+                  resolvedExpression.getResult(),
+                  interpreter.getLineNumber()
+                )
+              ),
+              interpreter
+            )
+            : ""
+        )
       );
     }
     prefixToPreserveState.append(
