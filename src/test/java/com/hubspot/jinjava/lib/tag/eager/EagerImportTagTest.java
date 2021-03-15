@@ -39,6 +39,7 @@ public class EagerImportTagTest extends ImportTagTest {
         JinjavaConfig
           .newBuilder()
           .withExecutionMode(EagerExecutionMode.instance())
+          .withUsePyishObjectMapper(true)
           .build()
       );
     Tag tag = EagerTagFactory

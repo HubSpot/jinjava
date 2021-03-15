@@ -6,7 +6,6 @@ import com.hubspot.jinjava.lib.tag.PrintTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.ChunkResolver;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
-import com.hubspot.jinjava.util.WhitespaceUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
@@ -72,17 +71,16 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
         : ""
     );
     if (chunkResolver.getDeferredWords().isEmpty()) {
+      String result = interpreter.getAsString(
+        interpreter.resolveELExpression(
+          resolvedExpression.getResult(),
+          interpreter.getLineNumber()
+        )
+      );
       // Possible macro/set tag in front of this one.
       return (
         prefixToPreserveState.toString() +
-        (
-          includeExpressionResult
-            ? wrapInRawIfNeeded(
-              WhitespaceUtils.unquote(resolvedExpression.getResult()),
-              interpreter
-            )
-            : ""
-        )
+        (includeExpressionResult ? wrapInRawIfNeeded(result, interpreter) : "")
       );
     }
     prefixToPreserveState.append(
