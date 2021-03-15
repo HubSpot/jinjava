@@ -67,7 +67,9 @@ public class EagerTest {
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
       .withExecutionMode(EagerExecutionMode.instance())
       .withNestedInterpretationEnabled(true)
-      .withUsePyishObjectMapper(true)
+      .withLegacyOverrides(
+        LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+      )
       .withMaxMacroRecursionDepth(5)
       .withEnableRecursiveMacroCalls(true)
       .build();
@@ -712,7 +714,9 @@ public class EagerTest {
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
       .withExecutionMode(EagerExecutionMode.instance())
       .withNestedInterpretationEnabled(false)
-      .withUsePyishObjectMapper(true)
+      .withLegacyOverrides(
+        LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+      )
       .build();
     JinjavaInterpreter parentInterpreter = new JinjavaInterpreter(
       jinjava,

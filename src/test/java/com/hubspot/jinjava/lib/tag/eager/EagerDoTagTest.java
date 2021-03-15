@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.ExpectedNodeInterpreter;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -29,7 +30,9 @@ public class EagerDoTagTest extends DoTagTest {
           .newBuilder()
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
           .withExecutionMode(EagerExecutionMode.instance())
-          .withUsePyishObjectMapper(true)
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+          )
           .build()
       );
 

@@ -8,10 +8,12 @@ public class LegacyOverrides {
   public static final LegacyOverrides NONE = new LegacyOverrides.Builder().build();
   private final boolean evaluateMapKeys;
   private final boolean iterateOverMapKeys;
+  private final boolean usePyishObjectMapper;
 
   private LegacyOverrides(Builder builder) {
     evaluateMapKeys = builder.evaluateMapKeys;
     iterateOverMapKeys = builder.iterateOverMapKeys;
+    usePyishObjectMapper = builder.usePyishObjectMapper;
   }
 
   public static Builder newBuilder() {
@@ -26,9 +28,14 @@ public class LegacyOverrides {
     return iterateOverMapKeys;
   }
 
+  public boolean isUsePyishObjectMapper() {
+    return usePyishObjectMapper;
+  }
+
   public static class Builder {
     private boolean evaluateMapKeys = false;
     private boolean iterateOverMapKeys = false;
+    private boolean usePyishObjectMapper = false;
 
     private Builder() {}
 
@@ -39,7 +46,8 @@ public class LegacyOverrides {
     public static Builder from(LegacyOverrides legacyOverrides) {
       return new Builder()
         .withEvaluateMapKeys(legacyOverrides.evaluateMapKeys)
-        .withIterateOverMapKeys(legacyOverrides.iterateOverMapKeys);
+        .withIterateOverMapKeys(legacyOverrides.iterateOverMapKeys)
+        .withUsePyishObjectMapper(legacyOverrides.usePyishObjectMapper);
     }
 
     public Builder withEvaluateMapKeys(boolean evaluateMapKeys) {
@@ -49,6 +57,11 @@ public class LegacyOverrides {
 
     public Builder withIterateOverMapKeys(boolean iterateOverMapKeys) {
       this.iterateOverMapKeys = iterateOverMapKeys;
+      return this;
+    }
+
+    public Builder withUsePyishObjectMapper(boolean usePyishObjectMapper) {
+      this.usePyishObjectMapper = usePyishObjectMapper;
       return this;
     }
   }

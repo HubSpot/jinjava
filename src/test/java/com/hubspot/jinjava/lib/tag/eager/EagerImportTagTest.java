@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -39,7 +40,9 @@ public class EagerImportTagTest extends ImportTagTest {
         JinjavaConfig
           .newBuilder()
           .withExecutionMode(EagerExecutionMode.instance())
-          .withUsePyishObjectMapper(true)
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+          )
           .build()
       );
     Tag tag = EagerTagFactory
