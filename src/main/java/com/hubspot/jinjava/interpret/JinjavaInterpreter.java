@@ -479,7 +479,7 @@ public class JinjavaInterpreter {
   }
 
   public String getAsString(Object object) {
-    if (config.isUsePyishObjectMapper()) {
+    if (config.getLegacyOverrides().isUsePyishObjectMapper()) {
       return PyishObjectMapper.getAsUnquotedPyishString(object);
     }
     return Objects.toString(object, "");

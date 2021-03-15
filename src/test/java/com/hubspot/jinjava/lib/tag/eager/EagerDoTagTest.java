@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.ExpectedNodeInterpreter;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -29,6 +30,9 @@ public class EagerDoTagTest extends DoTagTest {
           .newBuilder()
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
           .withExecutionMode(EagerExecutionMode.instance())
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+          )
           .build()
       );
 
@@ -63,15 +67,5 @@ public class EagerDoTagTest extends DoTagTest {
     assertThat(interpreter.getErrors()).hasSize(1);
     assertThat(interpreter.getErrors().get(0).getReason())
       .isEqualTo(ErrorReason.OUTPUT_TOO_BIG);
-  }
-
-  /** This is broken in normal Jinjava as <code>hey</code> does not get output in quotes.
-   * It works in Eager Jinjava as <code>hey</code> is quoted properly.
-   */
-  @Test
-  @Override
-  public void itResolvesExpressions() {
-    String template = "{% set output = [] %}{% do output.append('hey') %}{{ output }}";
-    assertThat(interpreter.render(template)).isEqualTo("['hey']");
   }
 }

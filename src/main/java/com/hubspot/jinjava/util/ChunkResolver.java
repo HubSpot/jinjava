@@ -180,7 +180,7 @@ public class ChunkResolver {
       } else if (CHUNK_LEVEL_MARKER_MAP.containsKey(c)) {
         setPrevChar(c);
         tokenBuilder.append(c);
-        tokenBuilder.append(resolveChunk(String.join("", getChunk(c)), JINJAVA_NULL));
+        tokenBuilder.append(resolveChunk(String.join("", getChunk(c))));
         tokenBuilder.append(prevChar);
         continue;
       } else if (isTokenSplitter(c)) {
@@ -201,7 +201,7 @@ public class ChunkResolver {
         }
         tokenBuilder = new StringBuilder();
         if (isMiniChunkSplitter(c)) {
-          chunks.add(resolveChunk(miniChunkBuilder.toString(), JINJAVA_NULL));
+          chunks.add(resolveChunk(miniChunkBuilder.toString()));
           chunks.add(String.valueOf(c));
           miniChunkBuilder = new StringBuilder();
         } else {
@@ -221,7 +221,7 @@ public class ChunkResolver {
       tokenBuilder.append(c);
     }
     miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
-    chunks.add(resolveChunk(miniChunkBuilder.toString(), JINJAVA_NULL));
+    chunks.add(resolveChunk(miniChunkBuilder.toString()));
     return chunks;
   }
 
@@ -290,9 +290,7 @@ public class ChunkResolver {
             // val is still null
           }
         }
-        if (val == null || !isResolvableObject(val)) {
-          resolvedToken = token;
-        } else {
+        if (val != null && isResolvableObject(val)) {
           resolvedToken = PyishObjectMapper.getAsPyishString(val);
         }
       }
@@ -303,7 +301,7 @@ public class ChunkResolver {
   }
 
   // Try resolving the chunk/mini chunk as an ELExpression
-  public String resolveChunk(String chunk, String nullDefault) {
+  private String resolveChunk(String chunk) {
     if (StringUtils.isBlank(chunk)) {
       return chunk;
     }
@@ -320,7 +318,7 @@ public class ChunkResolver {
           );
           if (val != null) {
             // If this isn't the final call, don't prematurely resolve complex objects.
-            if (JINJAVA_NULL.equals(nullDefault) && !isResolvableObject(val)) {
+            if (!isResolvableObject(val)) {
               return chunk;
             }
           }
@@ -328,10 +326,8 @@ public class ChunkResolver {
 
         Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
         if (val == null) {
-          resolvedChunk = nullDefault;
-        } else if (JINJAVA_NULL.equals(nullDefault) && !isResolvableObject(val)) {
-          resolvedChunk = chunk;
-        } else {
+          resolvedChunk = ChunkResolver.JINJAVA_NULL;
+        } else if (isResolvableObject(val)) {
           resolvedChunk = PyishObjectMapper.getAsPyishString(val);
         }
       }
