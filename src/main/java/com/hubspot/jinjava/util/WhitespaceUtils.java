@@ -79,12 +79,12 @@ public final class WhitespaceUtils {
       }
       if (prevChar == '\\') {
         // Double escapes cancel out.
-        prevChar = 0;
+        prevChar = 1;
       } else {
         prevChar = charArray[i];
       }
     }
-    return prevChar != '\\';
+    return prevChar != '\\' && prevChar != 0;
   }
 
   public static String unquote(String s) {

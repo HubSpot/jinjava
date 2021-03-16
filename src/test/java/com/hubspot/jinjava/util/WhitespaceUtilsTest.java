@@ -56,4 +56,10 @@ public class WhitespaceUtilsTest {
     assertThat(isExpressionQuoted("'foo' ")).isTrue();
     assertThat(isExpressionQuoted(" 'foo' ")).isTrue();
   }
+
+  @Test
+  public void itDoesntCountSingleQuoteChar() {
+    assertThat(isExpressionQuoted("'")).isFalse();
+    assertThat(isExpressionQuoted("\" ")).isFalse();
+  }
 }
