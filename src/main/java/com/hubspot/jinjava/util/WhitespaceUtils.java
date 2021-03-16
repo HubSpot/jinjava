@@ -61,7 +61,7 @@ public final class WhitespaceUtils {
     if (Strings.isNullOrEmpty(s)) {
       return false;
     }
-    char[] charArray = s.toCharArray();
+    char[] charArray = s.trim().toCharArray();
     char quoteChar = 0;
     for (char c : QUOTE_CHARS) {
       if (charArray[0] == c) {
