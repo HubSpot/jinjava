@@ -62,6 +62,9 @@ public final class WhitespaceUtils {
       return false;
     }
     char[] charArray = s.trim().toCharArray();
+    if (charArray.length == 1) {
+      return false;
+    }
     char quoteChar = 0;
     for (char c : QUOTE_CHARS) {
       if (charArray[0] == c) {
@@ -79,12 +82,12 @@ public final class WhitespaceUtils {
       }
       if (prevChar == '\\') {
         // Double escapes cancel out.
-        prevChar = 1;
+        prevChar = 0;
       } else {
         prevChar = charArray[i];
       }
     }
-    return prevChar != '\\' && prevChar != 0;
+    return prevChar != '\\';
   }
 
   public static String unquote(String s) {
