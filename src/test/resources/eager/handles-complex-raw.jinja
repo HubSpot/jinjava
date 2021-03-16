@@ -1,0 +1,10 @@
+{%- macro raw_exp(var) -%}
+{{ '{% raw %}}} ' ~ var ~ ' {{{% endraw %}' }}
+{%- endmacro -%}
+{%- macro raw_print(var) -%}
+{% print '}} ' ~ var ~ ' {{' %}
+{%- endmacro -%}
+{{ raw_exp(1)|reverse }}
+{% print raw_print(2)|reverse %}
+{{ raw_print(3)|reverse }}
+{% print raw_exp(4)|reverse %}

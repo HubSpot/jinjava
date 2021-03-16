@@ -27,6 +27,7 @@ import com.google.common.collect.Multimap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
@@ -203,7 +204,9 @@ public class JinjavaInterpreter {
         return template;
       } else {
         context.setRenderDepth(depth + 1);
-        return render(parse(template), false);
+        try (TemporaryValueClosable<Boolean> c = context.withUnwrapRawOverride()) {
+          return render(parse(template), false);
+        }
       }
     } finally {
       context.setRenderDepth(depth);

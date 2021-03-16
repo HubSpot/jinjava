@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
-import com.hubspot.jinjava.interpret.Context.PartialMacroEvaluationClosable;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
@@ -81,7 +81,7 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
     );
     assertThatThrownBy(() -> macroFunction.evaluate("Bar"))
       .isInstanceOf(DeferredValueException.class);
-    try (PartialMacroEvaluationClosable ignored = context.withPartialMacroEvaluation()) {
+    try (TemporaryValueClosable<Boolean> ignored = context.withPartialMacroEvaluation()) {
       assertThat(macroFunction.evaluate("Bar")).isEqualTo("It's: Bar, {{ deferred }}");
     }
   }
