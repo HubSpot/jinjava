@@ -89,14 +89,13 @@ public class MacroTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     String name;
     String args;
-    final String parentName;
+    String parentName = "";
     Matcher childMatcher = CHILD_MACRO_PATTERN.matcher(tagNode.getHelpers());
     if (childMatcher.find()) {
       parentName = childMatcher.group(1);
       name = childMatcher.group(2);
       args = Strings.nullToEmpty(childMatcher.group(3));
     } else {
-      parentName = "";
       Matcher matcher = MACRO_PATTERN.matcher(tagNode.getHelpers());
       if (!matcher.find()) {
         throw new TemplateSyntaxException(
