@@ -114,10 +114,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
         EagerTagDecorator.buildSetTagForDeferredInChildContext(
           ImmutableMap.of(
             Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
-            interpreter
-              .getContext()
-              .getPyishObjectMapper()
-              .getAsPyishString(importFile.get())
+            PyishObjectMapper.getAsPyishString(importFile.get())
           ),
           interpreter,
           false
@@ -126,10 +123,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
         EagerTagDecorator.buildSetTagForDeferredInChildContext(
           ImmutableMap.of(
             Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
-            interpreter
-              .getContext()
-              .getPyishObjectMapper()
-              .getAsPyishString(currentDeferredImportResource)
+            PyishObjectMapper.getAsPyishString(currentDeferredImportResource)
           ),
           interpreter,
           false
