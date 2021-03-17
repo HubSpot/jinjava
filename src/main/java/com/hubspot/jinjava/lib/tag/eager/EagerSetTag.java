@@ -132,6 +132,6 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     StringJoiner updateString = new StringJoiner(",");
     // Update the alias map to the value of the set variable.
     varList.forEach(var -> updateString.add(String.format("'%s': %s", var, var)));
-    return updateString.toString();
+    return "{" + updateString.toString() + "}";
   }
 }

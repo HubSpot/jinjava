@@ -7,6 +7,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -117,16 +118,34 @@ public class MacroTag implements Tag {
       args,
       argNamesWithDefaults
     );
-
-    MacroFunction macro = new MacroFunction(
-      tagNode.getChildren(),
-      name,
-      argNamesWithDefaults,
-      false,
-      interpreter.getContext(),
-      interpreter.getLineNumber(),
-      interpreter.getPosition()
-    );
+    MacroFunction macro;
+    String contextImportResourcePath = (String) interpreter
+      .getContext()
+      .get(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY, "");
+    boolean scopeEntered = false;
+    try {
+      if (StringUtils.isNotEmpty(contextImportResourcePath)) {
+        scopeEntered = true;
+        interpreter.enterScope();
+        interpreter
+          .getContext()
+          .put(Context.IMPORT_RESOURCE_PATH_KEY, contextImportResourcePath);
+      }
+      macro =
+        new MacroFunction(
+          tagNode.getChildren(),
+          name,
+          argNamesWithDefaults,
+          false,
+          interpreter.getContext(),
+          interpreter.getLineNumber(),
+          interpreter.getPosition()
+        );
+    } finally {
+      if (scopeEntered) {
+        interpreter.leaveScope();
+      }
+    }
     macro.setDeferred(deferred);
 
     if (StringUtils.isNotEmpty(parentName)) {
