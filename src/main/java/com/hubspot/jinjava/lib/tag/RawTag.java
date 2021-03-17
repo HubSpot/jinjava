@@ -30,7 +30,10 @@ public class RawTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    if (interpreter.getConfig().getExecutionMode().isPreserveRawTags()) {
+    if (
+      interpreter.getConfig().getExecutionMode().isPreserveRawTags() &&
+      !interpreter.getContext().isUnwrapRawOverride()
+    ) {
       return renderNodeRaw(tagNode);
     }
 

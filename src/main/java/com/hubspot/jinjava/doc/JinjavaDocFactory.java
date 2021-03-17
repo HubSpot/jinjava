@@ -45,7 +45,7 @@ public class JinjavaDocFactory {
     return doc;
   }
 
-  public String getVSCodeTagSnippets() {
+  public String getCodeEditorTagSnippets() {
     StringBuffer snippets = new StringBuffer();
     for (Tag tag : jinjava.getGlobalContextCopy().getAllTags()) {
       if (tag instanceof EndTag) {

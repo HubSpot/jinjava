@@ -6,6 +6,7 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
+import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.tree.parse.Token;
 import java.util.ArrayList;
@@ -125,7 +126,7 @@ public class ChunkResolver {
   /**
    * Chunkify and resolve variables and expressions within the string.
    * Rather than concatenating the chunks, they are split by mini-chunks,
-   * with the comma splitter ommitted from the list of results.
+   * with the comma splitter omitted from the list of results.
    * Therefore an expression of "1, 1 + 1, 1 + range(deferred)" becomes a List of ["1", "2", "1 + range(deferred)"].
    *
    * @return List of the expression chunk which is split into mini-chunks.
@@ -162,7 +163,7 @@ public class ChunkResolver {
     StringBuilder miniChunkBuilder = new StringBuilder();
     StringBuilder tokenBuilder = new StringBuilder();
     while (nextPos < length) {
-      boolean isAfterWhitespace = prevChar == ' ' && !isFilterWhitespace(prevChar);
+      boolean isAfterWhitespace = prevChar == ' ' && !isOpWhitespace(prevChar);
       char c = value[nextPos++];
       if (inQuote) {
         if (c == quoteChar && prevChar != '\\') {
@@ -179,7 +180,7 @@ public class ChunkResolver {
       } else if (CHUNK_LEVEL_MARKER_MAP.containsKey(c)) {
         setPrevChar(c);
         tokenBuilder.append(c);
-        tokenBuilder.append(resolveChunk(String.join("", getChunk(c)), JINJAVA_NULL));
+        tokenBuilder.append(resolveChunk(String.join("", getChunk(c))));
         tokenBuilder.append(prevChar);
         continue;
       } else if (isTokenSplitter(c)) {
@@ -200,7 +201,7 @@ public class ChunkResolver {
         }
         tokenBuilder = new StringBuilder();
         if (isMiniChunkSplitter(c)) {
-          chunks.add(resolveChunk(miniChunkBuilder.toString(), JINJAVA_NULL));
+          chunks.add(resolveChunk(miniChunkBuilder.toString()));
           chunks.add(String.valueOf(c));
           miniChunkBuilder = new StringBuilder();
         } else {
@@ -220,7 +221,7 @@ public class ChunkResolver {
       tokenBuilder.append(c);
     }
     miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
-    chunks.add(resolveChunk(miniChunkBuilder.toString(), JINJAVA_NULL));
+    chunks.add(resolveChunk(miniChunkBuilder.toString()));
     return chunks;
   }
 
@@ -239,18 +240,22 @@ public class ChunkResolver {
     );
   }
 
-  private boolean isFilterWhitespace(char c) {
-    // If a pipe character is surrounded by whitespace on either side,
+  private boolean isOpWhitespace(char c) {
+    // If a pipe or full stop character is surrounded by whitespace on either side,
     // we don't want to split those tokens
     boolean isFilterWhitespace = false;
     if (c == ' ') {
       int prevPos = nextPos - 2;
       if (nextPos < length) {
-        isFilterWhitespace = value[nextPos] == ' ' || value[nextPos] == '|';
+        isFilterWhitespace =
+          value[nextPos] == ' ' || value[nextPos] == '|' || value[nextPos] == '.';
       }
       if (prevPos >= 0) {
         isFilterWhitespace =
-          isFilterWhitespace || value[prevPos] == ' ' || value[prevPos] == '|';
+          isFilterWhitespace ||
+          value[prevPos] == ' ' ||
+          value[prevPos] == '|' ||
+          value[prevPos] == '.';
       }
     }
     return isFilterWhitespace;
@@ -285,11 +290,8 @@ public class ChunkResolver {
             // val is still null
           }
         }
-        if (val == null || !isResolvableObject(val)) {
-          resolvedToken = token;
-        } else {
-          resolvedToken =
-            interpreter.getContext().getPyishObjectMapper().getAsPyishString(val);
+        if (val != null && isResolvableObject(val)) {
+          resolvedToken = PyishObjectMapper.getAsPyishString(val);
         }
       }
     } catch (DeferredValueException e) {
@@ -299,7 +301,7 @@ public class ChunkResolver {
   }
 
   // Try resolving the chunk/mini chunk as an ELExpression
-  public String resolveChunk(String chunk, String nullDefault) {
+  private String resolveChunk(String chunk) {
     if (StringUtils.isBlank(chunk)) {
       return chunk;
     }
@@ -316,7 +318,7 @@ public class ChunkResolver {
           );
           if (val != null) {
             // If this isn't the final call, don't prematurely resolve complex objects.
-            if (JINJAVA_NULL.equals(nullDefault) && !isResolvableObject(val)) {
+            if (!isResolvableObject(val)) {
               return chunk;
             }
           }
@@ -324,12 +326,9 @@ public class ChunkResolver {
 
         Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
         if (val == null) {
-          resolvedChunk = nullDefault;
-        } else if (JINJAVA_NULL.equals(nullDefault) && !isResolvableObject(val)) {
-          resolvedChunk = chunk;
-        } else {
-          resolvedChunk =
-            interpreter.getContext().getPyishObjectMapper().getAsPyishString(val);
+          resolvedChunk = ChunkResolver.JINJAVA_NULL;
+        } else if (isResolvableObject(val)) {
+          resolvedChunk = PyishObjectMapper.getAsPyishString(val);
         }
       }
     } catch (TemplateSyntaxException ignored) {} catch (Exception e) {

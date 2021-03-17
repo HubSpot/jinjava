@@ -14,6 +14,7 @@ import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
+import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
@@ -287,7 +288,7 @@ public class ChunkResolverTest {
     // don't prematurely resolve date because of datetime functions.
     assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
       .isEqualTo("date");
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunk("date", "")))
+    assertThat(WhitespaceUtils.unquoteAndUnescape(interpreter.resolveString("date", -1)))
       .isEqualTo(date.toString());
   }
 
@@ -431,12 +432,21 @@ public class ChunkResolverTest {
   @Test
   public void itHandlesUnconventionalSpacing() {
     ChunkResolver chunkResolver = makeChunkResolver(
-      "(  range (0 , 3 ) [1] + deferred) ~ 'YES'| lower"
+      "(  range (0 , 3 ) [ 1] + deferred) ~ 'YES'| lower"
     );
     String result = WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks());
     assertThat(result).isEqualTo("( 1 + deferred) ~ 'yes'");
     context.put("deferred", 2);
     assertThat(interpreter.resolveELExpression(result, 0)).isEqualTo("3yes");
+  }
+
+  @Test
+  public void itHandlesDotSpacing() {
+    context.put("bar", "fake");
+    context.put("foo", ImmutableMap.of("bar", "foobar"));
+    ChunkResolver chunkResolver = makeChunkResolver("foo . bar");
+    String result = WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks());
+    assertThat(result).isEqualTo("foobar");
   }
 
   @Test
@@ -460,6 +470,41 @@ public class ChunkResolverTest {
     }
   }
 
+  @Test
+  public void itKeepsPlusSignPrefix() {
+    context.put("foo", "+12223334444");
+    ChunkResolver chunkResolver = makeChunkResolver("foo");
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("+12223334444");
+  }
+
+  @Test
+  public void itHandlesPhoneNumbers() {
+    context.put("foo", "+1(123)456-7890");
+    ChunkResolver chunkResolver = makeChunkResolver("foo");
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("+1(123)456-7890");
+  }
+
+  @Test
+  public void itHandlesNegativeZero() {
+    context.put("foo", "-0");
+    ChunkResolver chunkResolver = makeChunkResolver("foo");
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("-0");
+  }
+
+  @Test
+  public void itHandlesPyishSerializable() {
+    context.put("foo", new SomethingPyish("yes"));
+    assertThat(
+        interpreter.render(
+          String.format("{{ %s.name }}", makeChunkResolver("foo").resolveChunks())
+        )
+      )
+      .isEqualTo("yes");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {
@@ -475,6 +520,18 @@ public class ChunkResolverTest {
 
     String bar() {
       return bar;
+    }
+  }
+
+  public class SomethingPyish implements PyishSerializable {
+    private String name;
+
+    public SomethingPyish(String name) {
+      this.name = name;
+    }
+
+    public String getName() {
+      return name;
     }
   }
 }
