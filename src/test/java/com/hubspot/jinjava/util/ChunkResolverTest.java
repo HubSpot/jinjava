@@ -399,12 +399,21 @@ public class ChunkResolverTest {
   }
 
   @Test
-  public void itPreservesLengthyDoubles() {
+  public void itPreservesLengthyDoubleStrings() {
     // does not convert to scientific notation
     context.put("small", "0.0000000001");
     ChunkResolver chunkResolver = makeChunkResolver("small");
     assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
       .isEqualTo("0.0000000001");
+  }
+
+  @Test
+  public void itConvertsDoubles() {
+    // does convert to scientific notation
+    context.put("small", 0.0000000001);
+    ChunkResolver chunkResolver = makeChunkResolver("small");
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("1.0E-10");
   }
 
   @Test
