@@ -236,7 +236,7 @@ public class ChunkResolverTest {
       .containsExactlyInAnyOrder("range", "deferred");
   }
 
-  @Test
+  /*@Test
   public void itSplitsChunks() {
     ChunkResolver chunkResolver = makeChunkResolver("1, 1 + 1, 1 + 2");
     List<String> miniChunks = chunkResolver.splitChunks();
@@ -253,7 +253,7 @@ public class ChunkResolverTest {
     assertThat(miniChunks).containsExactly("[5, 7]", "2", "1 + range(1, deferred)");
     assertThat(chunkResolver.getDeferredWords())
       .containsExactlyInAnyOrder("range", "deferred");
-  }
+  }*/
 
   @Test
   public void itDoesntDeferReservedWords() {
@@ -293,27 +293,19 @@ public class ChunkResolverTest {
   }
 
   @Test
-  public void itDoesIsNotEqual() {
+  public void itGracefullyFailsExpressionTest() {
+    String input = "foo == deferred.bar and (foo is not equalto deferred)";
     context.put("foo", 4);
-    ChunkResolver chunkResolver = makeChunkResolver(
-      "foo == deferred.bar and (foo is not equalto deferred)"
-    );
-    interpreter.getContext().setHideInterpreterErrors(true);
-    //    Object bee = interpreter.resolveELExpression("[1, range(foo,deferred), 'hee'][2]", 1);
-    //    Object baz = interpreter.resolveELExpression("deferred || (foo + deferred[2])", 1);
-    //    Object bar = interpreter.resolveELExpression(
-    //      "foo == deferred and (foo is not equalto 5)",
-    //      1
-    //    );
+    ChunkResolver chunkResolver = makeChunkResolver(input);
+    interpreter.getContext().setThrowInterpreterErrors(true);
+
     String partiallyResolved = chunkResolver.resolveChunks();
-    context.put("deferred", 1);
-    Object foo = interpreter.resolveELExpression(
-      "(exptest:equalto.evaluateNegated(4,____int3rpr3t3r____,deferred))",
-      1
-    );
-    assertThat(partiallyResolved).isEqualTo("4 == deferred.bar && true");
+
+    interpreter.getContext().setThrowInterpreterErrors(false);
+
+    assertThat(partiallyResolved).isEqualTo(input);
     assertThat(chunkResolver.getDeferredWords())
-      .containsExactlyInAnyOrder("deferred.bar");
+      .containsExactlyInAnyOrder("deferred.bar", "foo", "equalto", "deferred");
   }
 
   @Test
@@ -404,7 +396,7 @@ public class ChunkResolverTest {
     context.put("dict", dict);
     context.put("foo", new Foo("bar"));
     context.put("mark", "!");
-    ChunkResolver chunkResolver = makeChunkResolver("(dict.update({'foo': foo})");
+    ChunkResolver chunkResolver = makeChunkResolver("dict.update({'foo': foo})");
     assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
       .isEqualTo("");
     assertThat(dict.get("foo")).isInstanceOf(Foo.class);

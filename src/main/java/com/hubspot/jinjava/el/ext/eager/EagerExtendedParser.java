@@ -1,10 +1,16 @@
 package com.hubspot.jinjava.el.ext.eager;
 
+import com.hubspot.jinjava.el.ext.AbsOperator;
 import com.hubspot.jinjava.el.ext.AstDict;
 import com.hubspot.jinjava.el.ext.AstList;
 import com.hubspot.jinjava.el.ext.AstRangeBracket;
 import com.hubspot.jinjava.el.ext.AstTuple;
+import com.hubspot.jinjava.el.ext.CollectionMembershipOperator;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.el.ext.NamedParameterOperator;
+import com.hubspot.jinjava.el.ext.PowerOfOperator;
+import com.hubspot.jinjava.el.ext.StringConcatOperator;
+import com.hubspot.jinjava.el.ext.TruncDivOperator;
 import de.odysseus.el.tree.impl.Builder;
 import de.odysseus.el.tree.impl.Builder.Feature;
 import de.odysseus.el.tree.impl.Scanner.ScanException;
@@ -28,6 +34,22 @@ public class EagerExtendedParser extends ExtendedParser {
 
   public EagerExtendedParser(Builder context, String input) {
     super(context, input);
+    putExtensionHandler(AbsOperator.TOKEN, AbsOperator.getHandler(true));
+    putExtensionHandler(
+      NamedParameterOperator.TOKEN,
+      NamedParameterOperator.getHandler(true)
+    );
+    putExtensionHandler(
+      StringConcatOperator.TOKEN,
+      StringConcatOperator.getHandler(true)
+    );
+    putExtensionHandler(TruncDivOperator.TOKEN, TruncDivOperator.getHandler(true));
+    putExtensionHandler(PowerOfOperator.TOKEN, PowerOfOperator.getHandler(true));
+
+    putExtensionHandler(
+      CollectionMembershipOperator.TOKEN,
+      CollectionMembershipOperator.getHandler(true)
+    );
   }
 
   @Override

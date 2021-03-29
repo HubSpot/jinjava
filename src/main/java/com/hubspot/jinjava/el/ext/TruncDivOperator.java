@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.el.ext;
 
+import com.hubspot.jinjava.el.ext.eager.EagerAstBinaryDecorator;
 import de.odysseus.el.misc.TypeConverter;
 import de.odysseus.el.tree.impl.Parser.ExtensionHandler;
 import de.odysseus.el.tree.impl.Parser.ExtensionPoint;
@@ -45,13 +46,22 @@ public class TruncDivOperator extends SimpleOperator {
     return TOKEN.getImage();
   }
 
-  public static final ExtensionHandler HANDLER = new ExtensionHandler(
-    ExtensionPoint.MUL
-  ) {
+  public static final ExtensionHandler HANDLER = getHandler(false);
 
-    @Override
-    public AstNode createAstNode(AstNode... children) {
-      return new AstBinary(children[0], children[1], OP);
-    }
-  };
+  public static ExtensionHandler getHandler(boolean eager) {
+    return new ExtensionHandler(ExtensionPoint.MUL) {
+
+      @Override
+      public String toString() {
+        return TOKEN.getImage();
+      }
+
+      @Override
+      public AstNode createAstNode(AstNode... children) {
+        return eager
+          ? new EagerAstBinaryDecorator(children[0], children[1], OP)
+          : new AstBinary(children[0], children[1], OP);
+      }
+    };
+  }
 }

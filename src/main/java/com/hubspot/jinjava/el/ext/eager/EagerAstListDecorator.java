@@ -2,8 +2,10 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.AstList;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.util.ChunkResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstParameters;
+import java.util.StringJoiner;
 import javax.el.ELContext;
 
 public class EagerAstListDecorator extends AstList implements EvalResultHolder {
@@ -19,16 +21,22 @@ public class EagerAstListDecorator extends AstList implements EvalResultHolder {
       evalResult = super.eval(bindings, context);
       return evalResult;
     } catch (DeferredParsingException e) {
-      try {
-        elements.eval(bindings, context);
-      } catch (DeferredParsingException e1) {
-        throw new DeferredParsingException(
-          String.format("[%s]", e1.getDeferredEvalResult())
-        );
+      StringJoiner joiner = new StringJoiner(",");
+      for (int i = 0; i < elements.getCardinality(); i++) {
+        EvalResultHolder node = (EvalResultHolder) elements.getChild(i);
+        try {
+          Object result;
+          if ((node).hasEvalResult()) {
+            result = node.getAndClearEvalResult();
+          } else {
+            result = node.eval(bindings, context);
+          }
+          joiner.add(ChunkResolver.getValueAsJinjavaStringSafe(result));
+        } catch (DeferredParsingException e1) {
+          joiner.add(e1.getDeferredEvalResult());
+        }
       }
-      throw new DeferredParsingException(
-        String.format("[%s]", e.getDeferredEvalResult())
-      );
+      throw new DeferredParsingException(String.format("[%s]", joiner.toString()));
     } finally {
       ((EvalResultHolder) elements).getAndClearEvalResult();
     }

@@ -98,9 +98,12 @@ public class ChunkResolver {
    * @return String with chunk layers within it being partially or fully resolved.
    */
   public String resolveChunks() {
-    interpreter.getContext().setHideInterpreterErrors(true);
+    boolean isThrowInterpreterErrorsStart = interpreter
+      .getContext()
+      .getThrowInterpreterErrors();
     String bracketedResult;
     try {
+      interpreter.getContext().setThrowInterpreterErrors(true);
       bracketedResult =
         getValueAsJinjavaStringSafe(
           interpreter.resolveELExpression(
@@ -111,17 +114,28 @@ public class ChunkResolver {
     } catch (DeferredParsingException e) {
       deferredWords.addAll(findDeferredWords(e.getDeferredEvalResult()));
       bracketedResult = e.getDeferredEvalResult().trim();
+    } catch (DeferredValueException e) {
+      deferredWords.addAll(findDeferredWords(value));
+      return value;
+    } finally {
+      interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);
     }
     // remove brackets
-    return bracketedResult.substring(1, bracketedResult.length() - 1);
+    String result = bracketedResult.substring(1, bracketedResult.length() - 1);
+    if (JINJAVA_NULL.equals(result)) {
+      // Resolved value of null as a string is ''.
+      return JINJAVA_EMPTY_STRING;
+    }
+    return result;
   }
 
-  public static String getValueAsJinjavaStringSafe(Object val, String reference) {
-    String resolved;
-    if (val != null && isResolvableObject(val)) {
-      resolved = PyishObjectMapper.getAsPyishString(val);
+  public static String getValueAsJinjavaStringSafe(Object val) {
+    if (val == null) {
+      return JINJAVA_NULL;
+    } else if (isResolvableObject(val)) {
+      return PyishObjectMapper.getAsPyishString(val);
     }
-    return spaced(resolved, reference);
+    throw new DeferredValueException("Can not convert deferred result to string");
   }
 
   // Find any variables, functions, etc in this chunk to mark as deferred.
