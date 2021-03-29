@@ -13,27 +13,22 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import javax.el.ELContext;
 
-public class EagerAstParametersDecorator
-  extends AstParameters
-  implements EvalResultHolder {
+public class EagerAstParameters extends AstParameters implements EvalResultHolder {
   private Object[] evalResult;
   private final List<AstNode> nodes;
 
-  public EagerAstParametersDecorator(List<AstNode> nodes) {
+  public EagerAstParameters(List<AstNode> nodes) {
     this(
       nodes
         .stream()
-        .map(EagerAstNodeDecorator::getAsEvalResultHolder)
+        .map(EagerAstNode::getAsEvalResultHolder)
         .map(e -> (AstNode) e)
         .collect(Collectors.toList()),
       true
     );
   }
 
-  private EagerAstParametersDecorator(
-    List<AstNode> nodes,
-    boolean convertedToEvalResultHolder
-  ) {
+  private EagerAstParameters(List<AstNode> nodes, boolean convertedToEvalResultHolder) {
     super(nodes);
     this.nodes = nodes;
   }
@@ -44,11 +39,9 @@ public class EagerAstParametersDecorator
     }
     List<AstNode> nodes = new ArrayList<>();
     for (int i = 0; i < astParameters.getCardinality(); i++) {
-      nodes.add(
-        (AstNode) EagerAstNodeDecorator.getAsEvalResultHolder(astParameters.getChild(i))
-      );
+      nodes.add((AstNode) EagerAstNode.getAsEvalResultHolder(astParameters.getChild(i)));
     }
-    return new EagerAstParametersDecorator(nodes, true);
+    return new EagerAstParameters(nodes, true);
   }
 
   @Override

@@ -6,14 +6,14 @@ import de.odysseus.el.tree.impl.ast.AstProperty;
 import javax.el.ELContext;
 import javax.el.ELException;
 
-public class EagerAstPropertyDecorator extends AstProperty implements EvalResultHolder {
+public class EagerAstProperty extends AstProperty implements EvalResultHolder {
   private Object evalResult;
   private AstProperty astProperty;
   protected final AstNode prefix;
 
-  private EagerAstPropertyDecorator(AstProperty astProperty) {
+  private EagerAstProperty(AstProperty astProperty) {
     this(
-      (AstNode) EagerAstNodeDecorator.getAsEvalResultHolder(astProperty.getChild(0)),
+      (AstNode) EagerAstNode.getAsEvalResultHolder(astProperty.getChild(0)),
       astProperty.isLeftValue(),
       false,
       false
@@ -21,7 +21,7 @@ public class EagerAstPropertyDecorator extends AstProperty implements EvalResult
     this.astProperty = astProperty;
   }
 
-  private EagerAstPropertyDecorator(
+  private EagerAstProperty(
     AstNode prefix,
     boolean lvalue,
     boolean strict,
@@ -35,7 +35,7 @@ public class EagerAstPropertyDecorator extends AstProperty implements EvalResult
     if (astProperty instanceof EvalResultHolder) {
       return (EvalResultHolder) astProperty;
     }
-    return new EagerAstPropertyDecorator(astProperty);
+    return new EagerAstProperty(astProperty);
   }
 
   @Override

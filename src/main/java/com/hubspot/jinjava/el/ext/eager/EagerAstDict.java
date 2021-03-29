@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.StringJoiner;
 import javax.el.ELContext;
 
-public class EagerAstDictDecorator extends AstDict implements EvalResultHolder {
+public class EagerAstDict extends AstDict implements EvalResultHolder {
   private Object evalResult;
 
-  public EagerAstDictDecorator(Map<AstNode, AstNode> dict) {
+  public EagerAstDict(Map<AstNode, AstNode> dict) {
     super(dict);
   }
 

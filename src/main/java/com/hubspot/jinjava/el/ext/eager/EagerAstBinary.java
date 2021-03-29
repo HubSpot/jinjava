@@ -7,21 +7,21 @@ import de.odysseus.el.tree.impl.ast.AstBinary;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
 
-public class EagerAstBinaryDecorator extends AstBinary implements EvalResultHolder {
+public class EagerAstBinary extends AstBinary implements EvalResultHolder {
   protected Object evalResult;
   protected final EvalResultHolder left;
   protected final EvalResultHolder right;
   protected final Operator operator;
 
-  public EagerAstBinaryDecorator(AstNode left, AstNode right, Operator operator) {
+  public EagerAstBinary(AstNode left, AstNode right, Operator operator) {
     this(
-      EagerAstNodeDecorator.getAsEvalResultHolder(left),
-      EagerAstNodeDecorator.getAsEvalResultHolder(right),
+      EagerAstNode.getAsEvalResultHolder(left),
+      EagerAstNode.getAsEvalResultHolder(right),
       operator
     );
   }
 
-  private EagerAstBinaryDecorator(
+  private EagerAstBinary(
     EvalResultHolder left,
     EvalResultHolder right,
     Operator operator

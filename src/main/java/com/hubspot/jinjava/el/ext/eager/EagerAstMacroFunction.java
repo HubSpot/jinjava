@@ -10,23 +10,21 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import javax.el.ELContext;
 
-public class EagerAstMacroFunctionDecorator
-  extends AstMacroFunction
-  implements EvalResultHolder {
+public class EagerAstMacroFunction extends AstMacroFunction implements EvalResultHolder {
   protected Object evalResult;
   // instanceof AstParameters
   protected EvalResultHolder params;
 
-  public EagerAstMacroFunctionDecorator(
+  public EagerAstMacroFunction(
     String name,
     int index,
     AstParameters params,
     boolean varargs
   ) {
-    this(name, index, EagerAstParametersDecorator.getAsEvalResultHolder(params), varargs);
+    this(name, index, EagerAstParameters.getAsEvalResultHolder(params), varargs);
   }
 
-  private EagerAstMacroFunctionDecorator(
+  private EagerAstMacroFunction(
     String name,
     int index,
     EvalResultHolder params,

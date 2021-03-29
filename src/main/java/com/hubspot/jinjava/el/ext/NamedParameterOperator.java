@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.el.ext;
 
-import com.hubspot.jinjava.el.ext.eager.EagerAstNamedParameterDecorator;
+import com.hubspot.jinjava.el.ext.eager.EagerAstNamedParameter;
 import de.odysseus.el.tree.impl.Parser.ExtensionHandler;
 import de.odysseus.el.tree.impl.Parser.ExtensionPoint;
 import de.odysseus.el.tree.impl.Scanner;
@@ -28,7 +28,7 @@ public class NamedParameterOperator {
         }
         AstIdentifier name = (AstIdentifier) children[0];
         return eager
-          ? new EagerAstNamedParameterDecorator(name, children[1])
+          ? new EagerAstNamedParameter(name, children[1])
           : new AstNamedParameter(name, children[1]);
       }
     };

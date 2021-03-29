@@ -7,18 +7,18 @@ import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
 
-public class EagerAstNamedParameterDecorator
+public class EagerAstNamedParameter
   extends AstNamedParameter
   implements EvalResultHolder {
   private Object evalResult;
   private final AstIdentifier name;
   private final EvalResultHolder value;
 
-  public EagerAstNamedParameterDecorator(AstIdentifier name, AstNode value) {
-    this(name, EagerAstNodeDecorator.getAsEvalResultHolder(value));
+  public EagerAstNamedParameter(AstIdentifier name, AstNode value) {
+    this(name, EagerAstNode.getAsEvalResultHolder(value));
   }
 
-  private EagerAstNamedParameterDecorator(AstIdentifier name, EvalResultHolder value) {
+  private EagerAstNamedParameter(AstIdentifier name, EvalResultHolder value) {
     super(name, (AstNode) value);
     this.name = name;
     this.value = value;

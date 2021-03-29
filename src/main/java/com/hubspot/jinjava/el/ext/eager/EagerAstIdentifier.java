@@ -4,12 +4,10 @@ import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import javax.el.ELContext;
 
-public class EagerAstIdentifierDecorator
-  extends AstIdentifier
-  implements EvalResultHolder {
+public class EagerAstIdentifier extends AstIdentifier implements EvalResultHolder {
   private Object evalResult;
 
-  public EagerAstIdentifierDecorator(String name, int index, boolean ignoreReturnType) {
+  public EagerAstIdentifier(String name, int index, boolean ignoreReturnType) {
     super(name, index, ignoreReturnType);
   }
 

@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.el.ext;
 
-import com.hubspot.jinjava.el.ext.eager.EagerAstBinaryDecorator;
+import com.hubspot.jinjava.el.ext.eager.EagerAstBinary;
 import de.odysseus.el.misc.TypeConverter;
 import de.odysseus.el.tree.impl.Parser.ExtensionHandler;
 import de.odysseus.el.tree.impl.Parser.ExtensionPoint;
@@ -59,7 +59,7 @@ public class TruncDivOperator extends SimpleOperator {
       @Override
       public AstNode createAstNode(AstNode... children) {
         return eager
-          ? new EagerAstBinaryDecorator(children[0], children[1], OP)
+          ? new EagerAstBinary(children[0], children[1], OP)
           : new AstBinary(children[0], children[1], OP);
       }
     };

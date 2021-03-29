@@ -10,11 +10,11 @@ import javax.el.ELContext;
 /**
  * AstNested is final so this decorates AstRightValue.
  */
-public class EagerAstNestedDecorator extends AstRightValue implements EvalResultHolder {
+public class EagerAstNested extends AstRightValue implements EvalResultHolder {
   private Object evalResult;
   private final AstNode child;
 
-  public EagerAstNestedDecorator(AstNode child) {
+  public EagerAstNested(AstNode child) {
     this.child = child;
   }
 

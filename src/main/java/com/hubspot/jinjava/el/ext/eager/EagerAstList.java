@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.el.ext.eager;
 
-import com.hubspot.jinjava.el.ext.AstTuple;
+import com.hubspot.jinjava.el.ext.AstList;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.util.ChunkResolver;
 import de.odysseus.el.tree.Bindings;
@@ -8,10 +8,10 @@ import de.odysseus.el.tree.impl.ast.AstParameters;
 import java.util.StringJoiner;
 import javax.el.ELContext;
 
-public class EagerAstTupleDecorator extends AstTuple implements EvalResultHolder {
+public class EagerAstList extends AstList implements EvalResultHolder {
   private Object evalResult;
 
-  public EagerAstTupleDecorator(AstParameters elements) {
+  public EagerAstList(AstParameters elements) {
     super(elements);
   }
 
@@ -36,7 +36,7 @@ public class EagerAstTupleDecorator extends AstTuple implements EvalResultHolder
           joiner.add(e1.getDeferredEvalResult());
         }
       }
-      throw new DeferredParsingException(String.format("(%s)", joiner.toString()));
+      throw new DeferredParsingException(String.format("[%s]", joiner.toString()));
     } finally {
       ((EvalResultHolder) elements).getAndClearEvalResult();
     }

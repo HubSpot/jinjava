@@ -7,26 +7,21 @@ import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
 import javax.el.ELException;
 
-public class EagerAstDotDecorator extends AstDot implements EvalResultHolder {
+public class EagerAstDot extends AstDot implements EvalResultHolder {
   private Object evalResult;
   private final EvalResultHolder base;
   private final String property;
 
-  public EagerAstDotDecorator(
+  public EagerAstDot(
     AstNode base,
     String property,
     boolean lvalue,
     boolean ignoreReturnType
   ) {
-    this(
-      EagerAstNodeDecorator.getAsEvalResultHolder(base),
-      property,
-      lvalue,
-      ignoreReturnType
-    );
+    this(EagerAstNode.getAsEvalResultHolder(base), property, lvalue, ignoreReturnType);
   }
 
-  public EagerAstDotDecorator(
+  public EagerAstDot(
     EvalResultHolder base,
     String property,
     boolean lvalue,

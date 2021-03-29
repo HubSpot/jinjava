@@ -12,21 +12,21 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import javax.el.ELContext;
 
-public class EagerAstMethodDecorator extends AstMethod implements EvalResultHolder {
+public class EagerAstMethod extends AstMethod implements EvalResultHolder {
   private Object evalResult;
   // instanceof AstProperty
   protected final EvalResultHolder property;
   // instanceof AstParameters
   protected final EvalResultHolder params;
 
-  public EagerAstMethodDecorator(AstProperty property, AstParameters params) {
+  public EagerAstMethod(AstProperty property, AstParameters params) {
     this(
-      EagerAstNodeDecorator.getAsEvalResultHolder(property),
-      EagerAstParametersDecorator.getAsEvalResultHolder(params)
+      EagerAstNode.getAsEvalResultHolder(property),
+      EagerAstParameters.getAsEvalResultHolder(params)
     );
   }
 
-  private EagerAstMethodDecorator(EvalResultHolder property, EvalResultHolder params) {
+  private EagerAstMethod(EvalResultHolder property, EvalResultHolder params) {
     super((AstProperty) property, (AstParameters) params);
     this.property = property;
     this.params = params;
@@ -47,12 +47,12 @@ public class EagerAstMethodDecorator extends AstMethod implements EvalResultHold
           ChunkResolver.getValueAsJinjavaStringSafe(property.getAndClearEvalResult())
         );
       } else {
-        if (property instanceof EagerAstDotDecorator) {
+        if (property instanceof EagerAstDot) {
           sb.append(
             String.format(
               "%s.%s",
               e.getDeferredEvalResult(),
-              ((EagerAstDotDecorator) property).getProperty()
+              ((EagerAstDot) property).getProperty()
             )
           );
         } else {

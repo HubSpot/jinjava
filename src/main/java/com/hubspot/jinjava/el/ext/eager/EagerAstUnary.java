@@ -7,16 +7,16 @@ import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstUnary;
 import javax.el.ELContext;
 
-public class EagerAstUnaryDecorator extends AstUnary implements EvalResultHolder {
+public class EagerAstUnary extends AstUnary implements EvalResultHolder {
   private Object evalResult;
   protected final EvalResultHolder child;
   protected final Operator operator;
 
-  public EagerAstUnaryDecorator(AstNode child, Operator operator) {
-    this(EagerAstNodeDecorator.getAsEvalResultHolder(child), operator);
+  public EagerAstUnary(AstNode child, Operator operator) {
+    this(EagerAstNode.getAsEvalResultHolder(child), operator);
   }
 
-  private EagerAstUnaryDecorator(EvalResultHolder child, Operator operator) {
+  private EagerAstUnary(EvalResultHolder child, Operator operator) {
     super((AstNode) child, operator);
     this.child = child;
     this.operator = operator;

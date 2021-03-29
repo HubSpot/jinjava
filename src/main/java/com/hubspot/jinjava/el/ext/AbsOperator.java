@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.el.ext;
 
-import com.hubspot.jinjava.el.ext.eager.EagerAstUnaryDecorator;
+import com.hubspot.jinjava.el.ext.eager.EagerAstUnary;
 import de.odysseus.el.misc.TypeConverter;
 import de.odysseus.el.tree.impl.Parser.ExtensionHandler;
 import de.odysseus.el.tree.impl.Parser.ExtensionPoint;
@@ -46,9 +46,7 @@ public class AbsOperator extends SimpleOperator {
 
       @Override
       public AstNode createAstNode(AstNode... children) {
-        return eager
-          ? new EagerAstUnaryDecorator(children[0], OP)
-          : new AstUnary(children[0], OP);
+        return eager ? new EagerAstUnary(children[0], OP) : new AstUnary(children[0], OP);
       }
     };
   }

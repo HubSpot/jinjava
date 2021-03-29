@@ -7,10 +7,10 @@ import de.odysseus.el.tree.impl.ast.AstBracket;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
 
-public class EagerAstBracketDecorator extends AstBracket implements EvalResultHolder {
+public class EagerAstBracket extends AstBracket implements EvalResultHolder {
   protected Object evalResult;
 
-  public EagerAstBracketDecorator(
+  public EagerAstBracket(
     AstNode base,
     AstNode property,
     boolean lvalue,
@@ -18,8 +18,8 @@ public class EagerAstBracketDecorator extends AstBracket implements EvalResultHo
     boolean ignoreReturnType
   ) {
     super(
-      (AstNode) EagerAstNodeDecorator.getAsEvalResultHolder(base),
-      (AstNode) EagerAstNodeDecorator.getAsEvalResultHolder(property),
+      (AstNode) EagerAstNode.getAsEvalResultHolder(base),
+      (AstNode) EagerAstNode.getAsEvalResultHolder(property),
       lvalue,
       strict,
       ignoreReturnType

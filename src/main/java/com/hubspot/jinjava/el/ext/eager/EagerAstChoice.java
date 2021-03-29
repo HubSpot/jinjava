@@ -8,21 +8,21 @@ import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
 import javax.el.ELException;
 
-public class EagerAstChoiceDecorator extends AstChoice implements EvalResultHolder {
+public class EagerAstChoice extends AstChoice implements EvalResultHolder {
   protected Object evalResult;
   protected final EvalResultHolder question;
   protected final EvalResultHolder yes;
   protected final EvalResultHolder no;
 
-  public EagerAstChoiceDecorator(AstNode question, AstNode yes, AstNode no) {
+  public EagerAstChoice(AstNode question, AstNode yes, AstNode no) {
     this(
-      EagerAstNodeDecorator.getAsEvalResultHolder(question),
-      EagerAstNodeDecorator.getAsEvalResultHolder(yes),
-      EagerAstNodeDecorator.getAsEvalResultHolder(no)
+      EagerAstNode.getAsEvalResultHolder(question),
+      EagerAstNode.getAsEvalResultHolder(yes),
+      EagerAstNode.getAsEvalResultHolder(no)
     );
   }
 
-  private EagerAstChoiceDecorator(
+  private EagerAstChoice(
     EvalResultHolder question,
     EvalResultHolder yes,
     EvalResultHolder no

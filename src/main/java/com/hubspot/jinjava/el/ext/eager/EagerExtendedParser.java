@@ -54,7 +54,7 @@ public class EagerExtendedParser extends ExtendedParser {
 
   @Override
   protected AstBinary createAstBinary(AstNode left, AstNode right, Operator operator) {
-    return new EagerAstBinaryDecorator(left, right, operator);
+    return new EagerAstBinary(left, right, operator);
   }
 
   @Override
@@ -64,7 +64,7 @@ public class EagerExtendedParser extends ExtendedParser {
     boolean lvalue,
     boolean strict
   ) {
-    return new EagerAstBracketDecorator(
+    return new EagerAstBracket(
       base,
       property,
       lvalue,
@@ -75,7 +75,7 @@ public class EagerExtendedParser extends ExtendedParser {
 
   @Override
   protected AstFunction createAstFunction(String name, int index, AstParameters params) {
-    return new EagerAstMacroFunctionDecorator(
+    return new EagerAstMacroFunction(
       name,
       index,
       params,
@@ -85,7 +85,7 @@ public class EagerExtendedParser extends ExtendedParser {
 
   @Override
   protected AstChoice createAstChoice(AstNode question, AstNode yes, AstNode no) {
-    return new EagerAstChoiceDecorator(question, yes, no);
+    return new EagerAstChoice(question, yes, no);
   }
 
   //  @Override
@@ -95,7 +95,7 @@ public class EagerExtendedParser extends ExtendedParser {
 
   @Override
   protected AstDot createAstDot(AstNode base, String property, boolean lvalue) {
-    return new EagerAstDotDecorator(
+    return new EagerAstDot(
       base,
       property,
       lvalue,
@@ -105,7 +105,7 @@ public class EagerExtendedParser extends ExtendedParser {
 
   @Override
   protected AstIdentifier createAstIdentifier(String name, int index) {
-    return new EagerAstIdentifierDecorator(
+    return new EagerAstIdentifier(
       name,
       index,
       this.context.isEnabled(Feature.IGNORE_RETURN_TYPE)
@@ -114,7 +114,7 @@ public class EagerExtendedParser extends ExtendedParser {
 
   @Override
   protected AstMethod createAstMethod(AstProperty property, AstParameters params) {
-    return new EagerAstMethodDecorator(property, params);
+    return new EagerAstMethod(property, params);
   }
 
   @Override
@@ -122,7 +122,7 @@ public class EagerExtendedParser extends ExtendedParser {
     AstNode child,
     de.odysseus.el.tree.impl.ast.AstUnary.Operator operator
   ) {
-    return new EagerAstUnaryDecorator(child, operator);
+    return new EagerAstUnary(child, operator);
   }
 
   @Override
@@ -145,28 +145,28 @@ public class EagerExtendedParser extends ExtendedParser {
 
   @Override
   protected AstDict createAstDict(Map<AstNode, AstNode> dict) {
-    return new EagerAstDictDecorator(dict);
+    return new EagerAstDict(dict);
   }
 
   @Override
   protected AstRightValue createAstNested(AstNode node) {
-    return new EagerAstNestedDecorator(node);
+    return new EagerAstNested(node);
   }
 
   @Override
   protected AstTuple createAstTuple(AstParameters parameters)
     throws ScanException, ParseException {
-    return new EagerAstTupleDecorator(parameters);
+    return new EagerAstTuple(parameters);
   }
 
   @Override
   protected AstList createAstList(AstParameters parameters)
     throws ScanException, ParseException {
-    return new EagerAstListDecorator(parameters);
+    return new EagerAstList(parameters);
   }
 
   @Override
   protected AstParameters createAstParameters(List<AstNode> nodes) {
-    return new EagerAstParametersDecorator(nodes);
+    return new EagerAstParameters(nodes);
   }
 }
