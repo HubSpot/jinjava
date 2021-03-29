@@ -8,9 +8,6 @@ import java.util.Objects;
 
 public class PyishSerializer extends JsonSerializer<Object> {
   public static final PyishSerializer INSTANCE = new PyishSerializer();
-  // Excludes things like "-0", "+5", "02"
-  private static final String STRICT_NUMBER_REGEX =
-    "^0|((-?[1-9][0-9]*)(\\.[0-9]+)?)|(-?0(\\.[0-9]+))$";
 
   private PyishSerializer() {}
 
@@ -29,8 +26,11 @@ public class PyishSerializer extends JsonSerializer<Object> {
     } else {
       string = Objects.toString(object, "");
       try {
-        Double.parseDouble(string);
-        if (string.matches(STRICT_NUMBER_REGEX)) {
+        double number = Double.parseDouble(string);
+        if (
+          string.equals(String.valueOf(number)) ||
+          string.equals(String.valueOf((long) number))
+        ) {
           jsonGenerator.writeNumber(string);
         } else {
           jsonGenerator.writeString(string);
