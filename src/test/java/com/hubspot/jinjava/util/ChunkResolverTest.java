@@ -399,6 +399,15 @@ public class ChunkResolverTest {
   }
 
   @Test
+  public void itPreservesLengthyDoubles() {
+    // does not convert to scientific notation
+    context.put("small", "0.0000000001");
+    ChunkResolver chunkResolver = makeChunkResolver("small");
+    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+      .isEqualTo("0.0000000001");
+  }
+
+  @Test
   public void itDoesntQuoteFloats() {
     ChunkResolver chunkResolver = makeChunkResolver("0.4 + 0.1");
     assertThat(chunkResolver.resolveChunks()).isEqualTo("0.5");
