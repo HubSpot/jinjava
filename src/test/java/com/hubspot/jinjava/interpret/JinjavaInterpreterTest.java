@@ -1,12 +1,17 @@
 package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.output.BlockInfo;
 import com.hubspot.jinjava.tree.parse.TextToken;
@@ -102,6 +107,11 @@ public class JinjavaInterpreterTest {
     public String getBarFoo1() {
       return bar;
     }
+
+    @JsonIgnore
+    public String getBarHidden() {
+      return bar;
+    }
   }
 
   @Test
@@ -122,6 +132,11 @@ public class JinjavaInterpreterTest {
   @Test
   public void multiWordNumberSnakeCase() {
     assertThat(interpreter.resolveProperty(new Foo("a"), "bar_foo_1")).isEqualTo("a");
+  }
+
+  @Test
+  public void jsonIgnore() {
+    assertThat(interpreter.resolveProperty(new Foo("a"), "barHidden")).isEqualTo("a");
   }
 
   @Test
@@ -202,6 +217,29 @@ public class JinjavaInterpreterTest {
   }
 
   @Test
+  public void itLimitsOutputSizeOnTagNode() {
+    JinjavaConfig outputSizeLimitedConfig = JinjavaConfig
+      .newBuilder()
+      .withMaxOutputSize(10)
+      .build();
+    String output = "{% for i in range(20) %} {{ i }} {% endfor %}";
+
+    RenderResult renderResult = new Jinjava().renderForResult(output, new HashMap<>());
+    assertThat(renderResult.getOutput())
+      .isEqualTo(
+        " 0  1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18  19 "
+      );
+    assertThat(renderResult.hasErrors()).isFalse();
+
+    renderResult =
+      new Jinjava(outputSizeLimitedConfig).renderForResult(output, new HashMap<>());
+    assertThat(renderResult.getErrors().get(0).getMessage())
+      .contains("OutputTooBigException");
+
+    assertThat(renderResult.getOutput()).isEqualTo(" 0  1  2  ");
+  }
+
+  @Test
   public void itLimitsOutputSizeWhenSumOfNodeSizesExceedsMax() {
     JinjavaConfig outputSizeLimitedConfig = JinjavaConfig
       .newBuilder()
@@ -225,7 +263,7 @@ public class JinjavaInterpreterTest {
   public void itCanPreserveRawTags() {
     JinjavaConfig preserveConfig = JinjavaConfig
       .newBuilder()
-      .withPreserveForFinalPass(true)
+      .withExecutionMode(PreserveRawExecutionMode.instance())
       .build();
     String input = "1{% raw %}2{% endraw %}3";
     String normalOutput = "123";
@@ -238,5 +276,45 @@ public class JinjavaInterpreterTest {
     renderResult = new Jinjava(preserveConfig).renderForResult(input, new HashMap<>());
     assertThat(renderResult.getOutput()).isEqualTo(preservedOutput);
     assertThat(renderResult.hasErrors()).isFalse();
+  }
+
+  @Test
+  public void itThrowsFatalErrors() {
+    interpreter.getContext().setThrowInterpreterErrors(true);
+    assertThatThrownBy(
+        () ->
+          interpreter.addError(
+            new TemplateError(
+              ErrorType.FATAL,
+              ErrorReason.UNKNOWN,
+              ErrorItem.PROPERTY,
+              "",
+              "",
+              interpreter.getLineNumber(),
+              interpreter.getPosition(),
+              new RuntimeException()
+            )
+          )
+      )
+      .isInstanceOf(TemplateSyntaxException.class);
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itHidesWarningErrors() {
+    interpreter.getContext().setThrowInterpreterErrors(true);
+    interpreter.addError(
+      new TemplateError(
+        ErrorType.WARNING,
+        ErrorReason.UNKNOWN,
+        ErrorItem.PROPERTY,
+        "",
+        "",
+        interpreter.getLineNumber(),
+        interpreter.getPosition(),
+        new RuntimeException()
+      )
+    );
+    assertThat(interpreter.getErrors()).isEmpty();
   }
 }

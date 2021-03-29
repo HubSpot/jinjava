@@ -1,8 +1,10 @@
 package com.hubspot.jinjava.util;
 
+import com.google.common.base.Strings;
 import com.hubspot.jinjava.interpret.InterpretException;
 
 public final class WhitespaceUtils {
+  private static final char[] QUOTE_CHARS = new char[] { '\'', '"' };
 
   public static boolean startsWith(String s, String prefix) {
     if (s == null) {
@@ -55,6 +57,39 @@ public final class WhitespaceUtils {
     return false;
   }
 
+  public static boolean isExpressionQuoted(String s) {
+    if (Strings.isNullOrEmpty(s)) {
+      return false;
+    }
+    char[] charArray = s.trim().toCharArray();
+    if (charArray.length == 1) {
+      return false;
+    }
+    char quoteChar = 0;
+    for (char c : QUOTE_CHARS) {
+      if (charArray[0] == c) {
+        quoteChar = c;
+        break;
+      }
+    }
+    if (charArray[charArray.length - 1] != quoteChar) {
+      return false;
+    }
+    char prevChar = 0;
+    for (int i = 1; i < charArray.length - 1; i++) {
+      if (charArray[i] == quoteChar && prevChar != '\\') {
+        return false;
+      }
+      if (prevChar == '\\') {
+        // Double escapes cancel out.
+        prevChar = 0;
+      } else {
+        prevChar = charArray[i];
+      }
+    }
+    return prevChar != '\\';
+  }
+
   public static String unquote(String s) {
     if (s == null) {
       return "";
@@ -65,6 +100,26 @@ public final class WhitespaceUtils {
       return unwrap(s, "\"", "\"");
     }
     return s.trim();
+  }
+
+  // TODO see if all usages of unquote can use this method instead
+  public static String unquoteAndUnescape(String s) {
+    if (Strings.isNullOrEmpty(s)) {
+      return "";
+    }
+    if (!isExpressionQuoted(s)) {
+      return s.trim();
+    }
+
+    if (startsWith(s, "'")) {
+      s = unwrap(s, "'", "'");
+    } else if (startsWith(s, "\"")) {
+      s = unwrap(s, "\"", "\"");
+    } else {
+      return s.trim();
+    }
+    // Since we're unquoting, we can unescape the quote characters in the string.
+    return s.replace("\\\"", "\"").replace("\\'", "'").replace("\\\\", "\\");
   }
 
   public static String unwrap(String s, String prefix, String suffix) {

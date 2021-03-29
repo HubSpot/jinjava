@@ -8,23 +8,22 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 @JinjavaDoc(
   value = "Uses whitespace to indent a string.",
   input = @JinjavaParam(value = "string", desc = "The string to indent", required = true),
   params = {
     @JinjavaParam(
-      value = "width",
+      value = IndentFilter.WIDTH_PARAM,
       type = "number",
       defaultValue = "4",
       desc = "Amount of whitespace to indent"
     ),
     @JinjavaParam(
-      value = "indentfirst",
+      value = IndentFilter.INDENT_FIRST_PARAM,
       type = "boolean",
       defaultValue = "False",
       desc = "If True, first line will be indented"
@@ -40,7 +39,9 @@ import org.apache.commons.lang3.math.NumberUtils;
     )
   }
 )
-public class IndentFilter implements Filter {
+public class IndentFilter extends AbstractFilter {
+  public static final String INDENT_FIRST_PARAM = "indentfirst";
+  public static final String WIDTH_PARAM = "width";
 
   @Override
   public String getName() {
@@ -48,16 +49,14 @@ public class IndentFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    int width = 4;
-    if (args.length > 0) {
-      width = NumberUtils.toInt(args[0], 4);
-    }
+  public Object filter(
+    Object var,
+    JinjavaInterpreter interpreter,
+    Map<String, Object> parsedArgs
+  ) {
+    int width = ((Number) parsedArgs.get(WIDTH_PARAM)).intValue();
 
-    boolean indentFirst = false;
-    if (args.length > 1) {
-      indentFirst = BooleanUtils.toBoolean(args[1]);
-    }
+    boolean indentFirst = (boolean) parsedArgs.get(INDENT_FIRST_PARAM);
 
     List<String> indentedLines = new ArrayList<>();
     for (String line : NEWLINE_SPLITTER.split(Objects.toString(var, ""))) {

@@ -1,0 +1,5 @@
+{% for item in deferred %}
+{% ifchanged item %}
+{{ item + 42 }}
+{% endifchanged %}
+{% endfor %}

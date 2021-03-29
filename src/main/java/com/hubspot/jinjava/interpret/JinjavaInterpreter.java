@@ -28,10 +28,12 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
 import com.hubspot.jinjava.random.DeferredRandomNumberGenerator;
 import com.hubspot.jinjava.tree.Node;
@@ -57,6 +59,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class JinjavaInterpreter {
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
@@ -84,6 +87,8 @@ public class JinjavaInterpreter {
     this.config = renderConfig;
     this.application = application;
 
+    this.config.getExecutionMode().prepareContext(this.context);
+
     switch (config.getRandomNumberGeneratorStrategy()) {
       case THREAD_LOCAL:
         random = ThreadLocalRandom.current();
@@ -101,8 +106,7 @@ public class JinjavaInterpreter {
         );
     }
 
-    this.expressionResolver =
-      new ExpressionResolver(this, application.getExpressionFactory());
+    this.expressionResolver = new ExpressionResolver(this, application);
   }
 
   public JinjavaInterpreter(JinjavaInterpreter orig) {
@@ -145,6 +149,12 @@ public class JinjavaInterpreter {
 
   public InterpreterScopeClosable enterScope(Map<Context.Library, Set<String>> disabled) {
     context = new Context(context, null, disabled);
+    scopeDepth++;
+    return new InterpreterScopeClosable();
+  }
+
+  public InterpreterScopeClosable enterNonStackingScope() {
+    context = new Context(context, null, null, false);
     scopeDepth++;
     return new InterpreterScopeClosable();
   }
@@ -195,7 +205,9 @@ public class JinjavaInterpreter {
         return template;
       } else {
         context.setRenderDepth(depth + 1);
-        return render(parse(template), false);
+        try (TemporaryValueClosable<Boolean> c = context.withUnwrapRawOverride()) {
+          return render(parse(template), false);
+        }
       }
     } finally {
       context.setRenderDepth(depth);
@@ -240,44 +252,55 @@ public class JinjavaInterpreter {
       lineNumber = node.getLineNumber();
       position = node.getStartPosition();
       String renderStr = node.getMaster().getImage();
-      if (context.doesRenderStackContain(renderStr)) {
-        // This is a circular rendering. Stop rendering it here.
+      try {
+        if (context.doesRenderStackContain(renderStr)) {
+          // This is a circular rendering. Stop rendering it here.
+          addError(
+            new TemplateError(
+              ErrorType.WARNING,
+              ErrorReason.EXCEPTION,
+              ErrorItem.TAG,
+              "Rendering cycle detected: '" + renderStr + "'",
+              null,
+              getLineNumber(),
+              node.getStartPosition(),
+              null,
+              BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
+              ImmutableMap.of("string", renderStr)
+            )
+          );
+          output.addNode(new RenderedOutputNode(renderStr));
+        } else {
+          OutputNode out;
+          context.pushRenderStack(renderStr);
+          try {
+            out = node.render(this);
+          } catch (DeferredValueException e) {
+            context.handleDeferredNode(node);
+            out = new RenderedOutputNode(node.getMaster().getImage());
+          }
+          context.popRenderStack();
+          output.addNode(out);
+        }
+      } catch (OutputTooBigException e) {
+        addError(TemplateError.fromOutputTooBigException(e));
+        return output.getValue();
+      } catch (CollectionTooBigException e) {
         addError(
           new TemplateError(
-            ErrorType.WARNING,
-            ErrorReason.EXCEPTION,
-            ErrorItem.TAG,
-            "Rendering cycle detected: '" + renderStr + "'",
+            ErrorType.FATAL,
+            ErrorReason.COLLECTION_TOO_BIG,
+            ErrorItem.OTHER,
+            ExceptionUtils.getMessage(e),
             null,
-            getLineNumber(),
-            node.getStartPosition(),
-            null,
-            BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
-            ImmutableMap.of("string", renderStr)
+            -1,
+            -1,
+            e,
+            BasicTemplateErrorCategory.UNKNOWN,
+            ImmutableMap.of()
           )
         );
-        try {
-          output.addNode(new RenderedOutputNode(renderStr));
-        } catch (OutputTooBigException e) {
-          addError(TemplateError.fromOutputTooBigException(e));
-          return output.getValue();
-        }
-      } else {
-        OutputNode out;
-        context.pushRenderStack(renderStr);
-        try {
-          out = node.render(this);
-        } catch (DeferredValueException e) {
-          context.handleDeferredNode(node);
-          out = new RenderedOutputNode(node.getMaster().getImage());
-        }
-        context.popRenderStack();
-        try {
-          output.addNode(out);
-        } catch (OutputTooBigException e) {
-          addError(TemplateError.fromOutputTooBigException(e));
-          return output.getValue();
-        }
+        return output.getValue();
       }
     }
 
@@ -297,8 +320,8 @@ public class JinjavaInterpreter {
         for (Node node : parentRoot.getChildren()) {
           lineNumber = node.getLineNumber() - 1; // The line number is off by one when rendering the extend parent
           position = node.getStartPosition();
-          OutputNode out = node.render(this);
           try {
+            OutputNode out = node.render(this);
             output.addNode(out);
           } catch (OutputTooBigException e) {
             addError(TemplateError.fromOutputTooBigException(e));
@@ -457,7 +480,15 @@ public class JinjavaInterpreter {
    * @return resolved value for variable
    */
   public String resolveString(String variable, int lineNumber, int startPosition) {
-    return Objects.toString(resolveObject(variable, lineNumber, startPosition), "");
+    Object object = resolveObject(variable, lineNumber, startPosition);
+    return getAsString(object);
+  }
+
+  public String getAsString(Object object) {
+    if (config.getLegacyOverrides().isUsePyishObjectMapper()) {
+      return PyishObjectMapper.getAsUnquotedPyishString(object);
+    }
+    return Objects.toString(object, "");
   }
 
   public String resolveString(String variable, int lineNumber) {
@@ -554,6 +585,19 @@ public class JinjavaInterpreter {
   }
 
   public void addError(TemplateError templateError) {
+    if (context.getThrowInterpreterErrors()) {
+      if (templateError.getSeverity() == ErrorType.FATAL) {
+        // Throw fatal errors when resolving chunks.
+        throw new TemplateSyntaxException(
+          this,
+          templateError.getFieldName(),
+          templateError.getMessage()
+        );
+      } else {
+        // Hide warning errors when resolving chunks.
+        return;
+      }
+    }
     // fix line numbers not matching up with source template
     if (!context.getCurrentPathStack().isEmpty()) {
       if (!templateError.getSourceTemplate().isPresent()) {

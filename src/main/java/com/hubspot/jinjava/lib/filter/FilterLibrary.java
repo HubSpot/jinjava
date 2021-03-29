@@ -58,6 +58,7 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
       MinusTimeFilter.class,
       BetweenTimesFilter.class,
       StringToTimeFilter.class,
+      StringToDateFilter.class,
       UnionFilter.class,
       IntersectFilter.class,
       DifferenceFilter.class,
@@ -108,7 +109,10 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
       WordCountFilter.class,
       WordWrapFilter.class,
       ToJsonFilter.class,
-      FromJsonFilter.class
+      FromJsonFilter.class,
+      ToYamlFilter.class,
+      FromYamlFilter.class,
+      RenderFilter.class
     );
   }
 

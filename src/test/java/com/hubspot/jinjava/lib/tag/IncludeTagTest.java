@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.base.Splitter;
 import com.google.common.collect.SetMultimap;
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.BaseJinjavaTest;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import org.junit.Test;
 
-public class IncludeTagTest extends BaseJinjavaTest {
+public class IncludeTagTest extends BaseInterpretingTest {
 
   @Test
   public void itAvoidsSimpleIncludeCycles() throws IOException {
@@ -93,6 +93,19 @@ public class IncludeTagTest extends BaseJinjavaTest {
     RenderResult result = jinjava.renderForResult(
       Resources.toString(
         Resources.getResource("tags/includetag/include-with-import.jinja"),
+        StandardCharsets.UTF_8
+      ),
+      new HashMap<>()
+    );
+
+    assertThat(result.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itIncludesFileWithInternalMacroCall() throws IOException {
+    RenderResult result = jinjava.renderForResult(
+      Resources.toString(
+        Resources.getResource("tags/macrotag/include-two-macros.jinja"),
         StandardCharsets.UTF_8
       ),
       new HashMap<>()

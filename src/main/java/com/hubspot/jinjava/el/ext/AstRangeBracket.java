@@ -1,7 +1,9 @@
 package com.hubspot.jinjava.el.ext;
 
 import com.google.common.collect.Iterables;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.collections.PyList;
+import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
 import de.odysseus.el.misc.LocalMessages;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBracket;
@@ -76,7 +78,14 @@ public class AstRangeBracket extends AstBracket {
     int startNum = ((Number) start).intValue();
     int endNum = ((Number) end).intValue();
 
-    PyList result = new PyList(new ArrayList<>());
+    JinjavaInterpreter interpreter = (JinjavaInterpreter) context
+      .getELResolver()
+      .getValue(context, null, ExtendedParser.INTERPRETER);
+
+    PyList result = new SizeLimitingPyList(
+      new ArrayList<>(),
+      interpreter.getConfig().getMaxListSize()
+    );
     int index = 0;
 
     // Handle negative indices.

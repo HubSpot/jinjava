@@ -17,15 +17,20 @@ package com.hubspot.jinjava.lib.tag;
 
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.objects.DummyObject;
 import com.hubspot.jinjava.objects.collections.PyList;
+import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.ForLoop;
@@ -76,6 +81,10 @@ import org.apache.commons.lang3.StringUtils;
     )
   }
 )
+@JinjavaHasCodeBody
+@JinjavaTextMateSnippet(
+  code = "{% for ${1:items} in ${2:list} %}\n" + "{{ ${1} }}$0\n" + "{% endfor %}"
+)
 public class ForTag implements Tag {
   public static final String TAG_NAME = "for";
 
@@ -90,39 +99,38 @@ public class ForTag implements Tag {
   @SuppressWarnings("unchecked")
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    /* apdlv72@gmail.com
-     * Fix for issues with for-loops that contain whitespace in their range, e.g.
-     * "{% for i in range(1 * 1, 2 * 2) %}"
-     * This is because HelperStringTokenizer will split the range expressions also
-     * at white spaces and end up with [i, in, range(1, *, 1, 2, *, 2)].
-     * To avoid this, the below fix will remove white space from the expression
-     * on the right side of the keyword "in". It will do so however only if there
-     * are no characters in this expression that indicate strings - namely ' and ".
-     * This avoids messing up expressions like {% for i in ['a ','b'] %} that
-     * contain spaces in the arguments.
-     * TODO A somewhat more sophisticated tokenizing/parsing of the for-loop expression.
-     */
-    String helpers = tagNode.getHelpers();
-    String[] parts = helpers.split("\\s+in\\s+");
-    if (parts.length == 2 && !parts[1].contains("'") && !parts[1].contains("\"")) {
-      helpers = parts[0] + " in " + parts[1].replace(" ", "");
+    long numDeferredNodesBefore = interpreter
+      .getContext()
+      .getDeferredNodes()
+      .stream()
+      .filter(n -> !(n instanceof ExpressionNode))
+      .count();
+    String result = interpretUnchecked(tagNode, interpreter);
+    if (
+      interpreter
+        .getContext()
+        .getDeferredNodes()
+        .stream()
+        .filter(n -> !(n instanceof ExpressionNode))
+        .count() >
+      numDeferredNodesBefore
+    ) {
+      throw new DeferredValueException(
+        "for loop",
+        interpreter.getLineNumber(),
+        interpreter.getPosition()
+      );
     }
+    return result;
+  }
+
+  public String interpretUnchecked(TagNode tagNode, JinjavaInterpreter interpreter) {
+    String helpers = getWhitespaceAdjustedHelpers(tagNode.getHelpers());
     List<String> helper = new HelperStringTokenizer(helpers).splitComma(true).allTokens();
 
-    List<String> loopVars = Lists.newArrayList();
-    int inPos = 0;
-    while (inPos < helper.size()) {
-      String val = helper.get(inPos);
+    List<String> loopVars = getLoopVars(helper);
 
-      if ("in".equals(val)) {
-        break;
-      } else {
-        loopVars.add(val);
-        inPos++;
-      }
-    }
-
-    if (inPos >= helper.size()) {
+    if (loopVars.size() >= helper.size()) {
       throw new TemplateSyntaxException(
         tagNode.getHelpers().trim(),
         "Tag 'for' expects valid 'in' clause, got: " + tagNode.getHelpers(),
@@ -131,7 +139,7 @@ public class ForTag implements Tag {
       );
     }
 
-    String loopExpr = StringUtils.join(helper.subList(inPos + 1, helper.size()), ",");
+    String loopExpr = getLoopExpression(helper, loopVars);
     Object collection = interpreter.resolveELExpression(
       loopExpr,
       tagNode.getLineNumber()
@@ -202,20 +210,15 @@ public class ForTag implements Tag {
           }
         }
 
-        int numDeferredNodesBefore = interpreter.getContext().getDeferredNodes().size();
         for (Node node : tagNode.getChildren()) {
           if (interpreter.getContext().isValidationMode()) {
             node.render(interpreter);
           } else {
-            buff.append(node.render(interpreter));
-            if (
-              interpreter.getContext().getDeferredNodes().size() > numDeferredNodesBefore
-            ) {
-              throw new DeferredValueException(
-                "for loop",
-                interpreter.getLineNumber(),
-                interpreter.getPosition()
-              );
+            try {
+              buff.append(node.render(interpreter));
+            } catch (OutputTooBigException e) {
+              interpreter.addError(TemplateError.fromOutputTooBigException(e));
+              return buff.toString();
             }
           }
         }
@@ -223,6 +226,48 @@ public class ForTag implements Tag {
 
       return buff.toString();
     }
+  }
+
+  public static String getWhitespaceAdjustedHelpers(String helpers) {
+    /* apdlv72@gmail.com
+     * Fix for issues with for-loops that contain whitespace in their range, e.g.
+     * "{% for i in range(1 * 1, 2 * 2) %}"
+     * This is because HelperStringTokenizer will split the range expressions also
+     * at white spaces and end up with [i, in, range(1, *, 1, 2, *, 2)].
+     * To avoid this, the below fix will remove white space from the expression
+     * on the right side of the keyword "in". It will do so however only if there
+     * are no characters in this expression that indicate strings - namely ' and ".
+     * This avoids messing up expressions like {% for i in ['a ','b'] %} that
+     * contain spaces in the arguments.
+     * TODO A somewhat more sophisticated tokenizing/parsing of the for-loop expression.
+     */
+    String[] parts = helpers.split("\\s+in\\s+");
+    if (parts.length == 2 && !parts[1].contains("'") && !parts[1].contains("\"")) {
+      helpers = parts[0] + " in " + parts[1].replace(" ", "");
+    }
+    return helpers;
+  }
+
+  public String getLoopExpression(List<String> helper, List<String> loopVars) {
+    String loopExpr = StringUtils.join(
+      helper.subList(loopVars.size() + 1, helper.size()),
+      ","
+    );
+    return loopExpr;
+  }
+
+  public List<String> getLoopVars(List<String> helper) {
+    List<String> loopVars = Lists.newArrayList();
+    while (loopVars.size() < helper.size()) {
+      String val = helper.get(loopVars.size());
+
+      if ("in".equals(val)) {
+        break;
+      } else {
+        loopVars.add(val);
+      }
+    }
+    return loopVars;
   }
 
   @Override

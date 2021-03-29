@@ -1,0 +1,4 @@
+{%- set foo = [1,2,3] -%}
+{%- for item in foo %}
+{% cycle item,deferred %}
+{%- endfor -%}

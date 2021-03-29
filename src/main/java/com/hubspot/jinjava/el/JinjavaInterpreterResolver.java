@@ -20,8 +20,8 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.objects.PyWrapper;
-import com.hubspot.jinjava.objects.collections.PyList;
-import com.hubspot.jinjava.objects.collections.PyMap;
+import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
+import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
 import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
@@ -298,11 +298,17 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     }
 
     if (List.class.isAssignableFrom(value.getClass())) {
-      return new PyList((List<Object>) value);
+      return new SizeLimitingPyList(
+        (List<Object>) value,
+        interpreter.getConfig().getMaxListSize()
+      );
     }
     if (Map.class.isAssignableFrom(value.getClass())) {
       // FIXME: ensure keys are actually strings, if not, convert them
-      return new PyMap((Map<String, Object>) value);
+      return new SizeLimitingPyMap(
+        (Map<String, Object>) value,
+        interpreter.getConfig().getMaxMapSize()
+      );
     }
 
     if (Date.class.isAssignableFrom(value.getClass())) {

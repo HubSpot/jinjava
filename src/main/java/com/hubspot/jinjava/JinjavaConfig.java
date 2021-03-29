@@ -20,6 +20,8 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.InterpreterFactory;
 import com.hubspot.jinjava.interpret.JinjavaInterpreterFactory;
+import com.hubspot.jinjava.mode.DefaultExecutionMode;
+import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
@@ -46,49 +48,30 @@ public class JinjavaConfig {
   private final boolean enableRecursiveMacroCalls;
   private final int maxMacroRecursionDepth;
 
-  private Map<Context.Library, Set<String>> disabled;
+  private final Map<Context.Library, Set<String>> disabled;
   private final boolean failOnUnknownTokens;
   private final boolean nestedInterpretationEnabled;
   private final RandomNumberGeneratorStrategy randomNumberGenerator;
   private final boolean validationMode;
   private final long maxStringLength;
-  private InterpreterFactory interpreterFactory;
+  private final int maxListSize;
+  private final int maxMapSize;
+  private final InterpreterFactory interpreterFactory;
   private TokenScannerSymbols tokenScannerSymbols;
-  private ELResolver elResolver;
-  private final boolean iterateOverMapKeys;
-  private final boolean preserveForFinalPass;
+  private final ELResolver elResolver;
+  private final ExecutionMode executionMode;
+  private final LegacyOverrides legacyOverrides;
 
   public static Builder newBuilder() {
     return new Builder();
   }
 
   public JinjavaConfig() {
-    this(new JinjavaInterpreterFactory());
+    this(newBuilder());
   }
 
   public JinjavaConfig(InterpreterFactory interpreterFactory) {
-    this(
-      StandardCharsets.UTF_8,
-      Locale.ENGLISH,
-      ZoneOffset.UTC,
-      10,
-      new HashMap<>(),
-      false,
-      false,
-      false,
-      0,
-      false,
-      0,
-      true,
-      RandomNumberGeneratorStrategy.THREAD_LOCAL,
-      false,
-      0,
-      interpreterFactory,
-      new DefaultTokenScannerSymbols(),
-      JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY,
-      false,
-      false
-    );
+    this(newBuilder().withInterperterFactory(interpreterFactory));
   }
 
   public JinjavaConfig(
@@ -98,71 +81,37 @@ public class JinjavaConfig {
     int maxRenderDepth
   ) {
     this(
-      charset,
-      locale,
-      timeZone,
-      maxRenderDepth,
-      new HashMap<>(),
-      false,
-      false,
-      false,
-      0,
-      false,
-      0,
-      true,
-      RandomNumberGeneratorStrategy.THREAD_LOCAL,
-      false,
-      0,
-      new JinjavaInterpreterFactory(),
-      new DefaultTokenScannerSymbols(),
-      JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY,
-      false,
-      false
+      newBuilder()
+        .withCharset(charset)
+        .withLocale(locale)
+        .withTimeZone(timeZone)
+        .withMaxRenderDepth(maxRenderDepth)
     );
   }
 
-  private JinjavaConfig(
-    Charset charset,
-    Locale locale,
-    ZoneId timeZone,
-    int maxRenderDepth,
-    Map<Context.Library, Set<String>> disabled,
-    boolean trimBlocks,
-    boolean lstripBlocks,
-    boolean enableRecursiveMacroCalls,
-    int maxMacroRecursionDepth,
-    boolean failOnUnknownTokens,
-    long maxOutputSize,
-    boolean nestedInterpretationEnabled,
-    RandomNumberGeneratorStrategy randomNumberGenerator,
-    boolean validationMode,
-    long maxStringLength,
-    InterpreterFactory interpreterFactory,
-    TokenScannerSymbols tokenScannerSymbols,
-    ELResolver elResolver,
-    boolean iterateOverMapKeys,
-    boolean preserveForFinalPass
-  ) {
-    this.charset = charset;
-    this.locale = locale;
-    this.timeZone = timeZone;
-    this.maxRenderDepth = maxRenderDepth;
-    this.disabled = disabled;
-    this.trimBlocks = trimBlocks;
-    this.lstripBlocks = lstripBlocks;
-    this.enableRecursiveMacroCalls = enableRecursiveMacroCalls;
-    this.maxMacroRecursionDepth = maxMacroRecursionDepth;
-    this.failOnUnknownTokens = failOnUnknownTokens;
-    this.maxOutputSize = maxOutputSize;
-    this.nestedInterpretationEnabled = nestedInterpretationEnabled;
-    this.randomNumberGenerator = randomNumberGenerator;
-    this.validationMode = validationMode;
-    this.maxStringLength = maxStringLength;
-    this.interpreterFactory = interpreterFactory;
-    this.tokenScannerSymbols = tokenScannerSymbols;
-    this.elResolver = elResolver;
-    this.iterateOverMapKeys = iterateOverMapKeys;
-    this.preserveForFinalPass = preserveForFinalPass;
+  private JinjavaConfig(Builder builder) {
+    charset = builder.charset;
+    locale = builder.locale;
+    timeZone = builder.timeZone;
+    maxRenderDepth = builder.maxRenderDepth;
+    disabled = builder.disabled;
+    trimBlocks = builder.trimBlocks;
+    lstripBlocks = builder.lstripBlocks;
+    enableRecursiveMacroCalls = builder.enableRecursiveMacroCalls;
+    maxMacroRecursionDepth = builder.maxMacroRecursionDepth;
+    failOnUnknownTokens = builder.failOnUnknownTokens;
+    maxOutputSize = builder.maxOutputSize;
+    nestedInterpretationEnabled = builder.nestedInterpretationEnabled;
+    randomNumberGenerator = builder.randomNumberGeneratorStrategy;
+    validationMode = builder.validationMode;
+    maxStringLength = builder.maxStringLength;
+    maxListSize = builder.maxListSize;
+    maxMapSize = builder.maxMapSize;
+    interpreterFactory = builder.interpreterFactory;
+    tokenScannerSymbols = builder.tokenScannerSymbols;
+    elResolver = builder.elResolver;
+    executionMode = builder.executionMode;
+    legacyOverrides = builder.legacyOverrides;
   }
 
   public Charset getCharset() {
@@ -183,6 +132,14 @@ public class JinjavaConfig {
 
   public long getMaxOutputSize() {
     return maxOutputSize;
+  }
+
+  public int getMaxListSize() {
+    return maxListSize;
+  }
+
+  public int getMaxMapSize() {
+    return maxMapSize;
   }
 
   public RandomNumberGeneratorStrategy getRandomNumberGeneratorStrategy() {
@@ -241,12 +198,20 @@ public class JinjavaConfig {
     return elResolver;
   }
 
+  /**
+   * @deprecated  Replaced by {@link LegacyOverrides#isIterateOverMapKeys()}
+   */
+  @Deprecated
   public boolean isIterateOverMapKeys() {
-    return iterateOverMapKeys;
+    return legacyOverrides.isIterateOverMapKeys();
   }
 
-  public boolean isPreserveForFinalPass() {
-    return preserveForFinalPass;
+  public ExecutionMode getExecutionMode() {
+    return executionMode;
+  }
+
+  public LegacyOverrides getLegacyOverrides() {
+    return legacyOverrides;
   }
 
   public static class Builder {
@@ -271,8 +236,10 @@ public class JinjavaConfig {
     private InterpreterFactory interpreterFactory = new JinjavaInterpreterFactory();
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
     private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
-    private boolean iterateOverMapKeys;
-    private boolean preserveForFinalPass;
+    private int maxListSize = Integer.MAX_VALUE;
+    private int maxMapSize = Integer.MAX_VALUE;
+    private ExecutionMode executionMode = DefaultExecutionMode.instance();
+    private LegacyOverrides legacyOverrides = LegacyOverrides.NONE;
 
     private Builder() {}
 
@@ -366,6 +333,16 @@ public class JinjavaConfig {
       return this;
     }
 
+    public Builder withMaxListSize(int maxListSize) {
+      this.maxListSize = maxListSize;
+      return this;
+    }
+
+    public Builder withMaxMapSize(int maxMapSize) {
+      this.maxMapSize = maxMapSize;
+      return this;
+    }
+
     public Builder withInterperterFactory(InterpreterFactory interperterFactory) {
       this.interpreterFactory = interperterFactory;
       return this;
@@ -376,39 +353,31 @@ public class JinjavaConfig {
       return this;
     }
 
+    /**
+     * @deprecated  Replaced by {@link LegacyOverrides.Builder#withIterateOverMapKeys(boolean)}}
+     */
+    @Deprecated
     public Builder withIterateOverMapKeys(boolean iterateOverMapKeys) {
-      this.iterateOverMapKeys = iterateOverMapKeys;
+      return withLegacyOverrides(
+        LegacyOverrides
+          .Builder.from(legacyOverrides)
+          .withIterateOverMapKeys(iterateOverMapKeys)
+          .build()
+      );
+    }
+
+    public Builder withExecutionMode(ExecutionMode executionMode) {
+      this.executionMode = executionMode;
       return this;
     }
 
-    public Builder withPreserveForFinalPass(boolean preserveForFinalPass) {
-      this.preserveForFinalPass = preserveForFinalPass;
+    public Builder withLegacyOverrides(LegacyOverrides legacyOverrides) {
+      this.legacyOverrides = legacyOverrides;
       return this;
     }
 
     public JinjavaConfig build() {
-      return new JinjavaConfig(
-        charset,
-        locale,
-        timeZone,
-        maxRenderDepth,
-        disabled,
-        trimBlocks,
-        lstripBlocks,
-        enableRecursiveMacroCalls,
-        maxMacroRecursionDepth,
-        failOnUnknownTokens,
-        maxOutputSize,
-        nestedInterpretationEnabled,
-        randomNumberGeneratorStrategy,
-        validationMode,
-        maxStringLength,
-        interpreterFactory,
-        tokenScannerSymbols,
-        elResolver,
-        iterateOverMapKeys,
-        preserveForFinalPass
-      );
+      return new JinjavaConfig(this);
     }
   }
 }

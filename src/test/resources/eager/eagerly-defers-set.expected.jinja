@@ -1,0 +1,14 @@
+{% set foo = range(0, deferred) %}
+{% for item in foo %}
+{{ item }}
+
+Yes bar
+
+{% if item == 0 %}
+At least one: true
+{% elif item == 1 %}
+Exactly one: true
+{% else %}
+More than one: true
+{% endif %}
+{% endfor %}

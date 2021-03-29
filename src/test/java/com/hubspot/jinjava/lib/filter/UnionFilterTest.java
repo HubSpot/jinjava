@@ -21,7 +21,7 @@ public class UnionFilterTest extends BaseJinjavaTest {
     assertThat(
         jinjava.render("{{ ['do', 'ray']|union(['ray', 'me']) }}", new HashMap<>())
       )
-      .isEqualTo("[do, ray, me]");
+      .isEqualTo("['do', 'ray', 'me']");
   }
 
   @Test

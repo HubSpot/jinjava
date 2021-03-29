@@ -1,0 +1,3 @@
+2
+{% macro plus(foo, add) %}{{ foo + (add|int) }}{% endmacro %}{{ plus(deferred, 1.1) }}{% set deferred = deferred + 2 %}
+{% macro plus(foo, add) %}{{ foo + (add|int) }}{% endmacro %}{{ plus(deferred, 3.1) }}

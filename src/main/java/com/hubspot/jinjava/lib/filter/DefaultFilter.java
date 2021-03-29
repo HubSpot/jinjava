@@ -24,7 +24,6 @@ import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.util.ObjectTruthValue;
 import java.util.Map;
 import java.util.Objects;
-import org.apache.commons.lang3.BooleanUtils;
 
 @JinjavaDoc(
   value = "If the value is undefined it will return the passed default value, otherwise the value of the variable",
@@ -35,12 +34,13 @@ import org.apache.commons.lang3.BooleanUtils;
   ),
   params = {
     @JinjavaParam(
-      value = "default_value",
+      value = DefaultFilter.DEFAULT_VALUE_PARAM,
+      type = "object",
       desc = "Value to print when variable is not defined",
       required = true
     ),
     @JinjavaParam(
-      value = "boolean",
+      value = DefaultFilter.TRUTHY_PARAM,
       type = "boolean",
       defaultValue = "False",
       desc = "Set to True to use with variables which evaluate to false"
@@ -57,18 +57,17 @@ import org.apache.commons.lang3.BooleanUtils;
     )
   }
 )
-public class DefaultFilter implements AdvancedFilter {
+public class DefaultFilter extends AbstractFilter implements AdvancedFilter {
+  public static final String DEFAULT_VALUE_PARAM = "default_value";
+  public static final String TRUTHY_PARAM = "truthy";
 
   @Override
   public Object filter(
     Object object,
     JinjavaInterpreter interpreter,
-    Object[] args,
-    Map<String, Object> kwargs
+    Map<String, Object> parsedArgs
   ) {
-    boolean truthy = false;
-
-    if (args.length < 1) {
+    if (parsedArgs.size() < 1) {
       throw new TemplateSyntaxException(
         interpreter,
         getName(),
@@ -76,9 +75,8 @@ public class DefaultFilter implements AdvancedFilter {
       );
     }
 
-    if (args.length > 1) {
-      truthy = BooleanUtils.toBoolean(Objects.toString(args[1]));
-    }
+    boolean truthy = (boolean) parsedArgs.get(TRUTHY_PARAM);
+    Object defaultValue = parsedArgs.get(DEFAULT_VALUE_PARAM);
 
     if (truthy) {
       if (ObjectTruthValue.evaluate(object)) {
@@ -88,7 +86,9 @@ public class DefaultFilter implements AdvancedFilter {
       return object;
     }
 
-    return args[0] instanceof PyWrapper ? args[0] : Objects.toString(args[0]);
+    return defaultValue instanceof PyWrapper
+      ? defaultValue
+      : Objects.toString(defaultValue);
   }
 
   @Override

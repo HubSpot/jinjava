@@ -5,8 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
@@ -97,7 +99,10 @@ public class RawTagTest extends BaseInterpretingTest {
     JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContextCopy(),
-      JinjavaConfig.newBuilder().withPreserveForFinalPass(true).build()
+      JinjavaConfig
+        .newBuilder()
+        .withExecutionMode(PreserveRawExecutionMode.instance())
+        .build()
     );
     String result = tag.interpret(tagNode, preserveInterpreter);
     try {
@@ -114,12 +119,40 @@ public class RawTagTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itOverridesRawTagPreservation() {
+    TagNode tagNode = fixture("hubl");
+    JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
+      jinjava,
+      jinjava.getGlobalContextCopy(),
+      JinjavaConfig
+        .newBuilder()
+        .withExecutionMode(PreserveRawExecutionMode.instance())
+        .build()
+    );
+    String result;
+    try (
+      TemporaryValueClosable<Boolean> c = preserveInterpreter
+        .getContext()
+        .withUnwrapRawOverride()
+    ) {
+      result = tag.interpret(tagNode, preserveInterpreter);
+    }
+    assertThat(StringUtils.normalizeSpace(result))
+      .isEqualTo(
+        "<h1>Blog Posts</h1> <ul> {% for content in contents %} <li>{{ content.name|title }}</li> {% endfor %} </ul>"
+      );
+  }
+
+  @Test
   public void itPreservesDeferredWhilePreservingRawTags() {
     TagNode tagNode = fixture("deferred");
     JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContextCopy(),
-      JinjavaConfig.newBuilder().withPreserveForFinalPass(true).build()
+      JinjavaConfig
+        .newBuilder()
+        .withExecutionMode(PreserveRawExecutionMode.instance())
+        .build()
     );
     preserveInterpreter.getContext().put("deferred", DeferredValue.instance());
     interpreter.getContext().put("deferred", DeferredValue.instance());

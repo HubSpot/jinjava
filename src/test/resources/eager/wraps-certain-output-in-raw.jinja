@@ -1,0 +1,9 @@
+{% set foo = '{{ bar }}' %}
+{% set bar = '{% print foo %}' %}
+{% set foobar = '{% baz %}' %}
+{% set baz = 'No raw' %}
+{% set vars = [foo, bar, foobar, baz] %}
+{%- for var in vars %}
+{{ var }}
+{% print var %}
+{%- endfor -%}

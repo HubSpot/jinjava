@@ -314,7 +314,8 @@ public class MacroTagTest extends BaseInterpretingTest {
       "{{ func(var) }}" +
       "";
     Node node = new TreeParser(interpreter, jinja).buildTree();
-    assertThat(interpreter.render(node)).isEqualTo("{f={val={f={val={{ self }}}}}}");
+    assertThat(interpreter.render(node))
+      .isEqualTo("{'f': {'val': '{'f': {'val': '{{ self }}'}}'}}");
   }
 
   @Test

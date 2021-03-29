@@ -1,0 +1,10 @@
+{% macro big_guy() %}
+{% if deferred %}I am foo
+{% else %}I am bar
+{% endif %}
+{% endmacro %}{% print big_guy() %}
+{% macro big_guy() %}
+{% if deferred %}No more foo
+{% else %}I am bar
+{% endif %}
+{% endmacro %}{% print big_guy() %}

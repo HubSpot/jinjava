@@ -50,9 +50,9 @@ import java.util.List;
 )
 public class CycleTag implements Tag {
   public static final String TAG_NAME = "cycle";
+  public static final String LOOP_INDEX = "loop.index0";
 
   private static final long serialVersionUID = 9145890505287556784L;
-  private static final String LOOP_INDEX = "loop.index0";
 
   @Override
   public boolean isRenderedInValidationMode() {

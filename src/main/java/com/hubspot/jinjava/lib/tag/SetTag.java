@@ -18,11 +18,14 @@ package com.hubspot.jinjava.lib.tag;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.DeferredValueUtils;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
@@ -61,6 +64,7 @@ import org.apache.commons.lang3.StringUtils;
     )
   }
 )
+@JinjavaTextMateSnippet(code = "{% set ${1:var} = ${2:expr} %}")
 public class SetTag implements Tag {
   public static final String TAG_NAME = "set";
 
@@ -107,61 +111,68 @@ public class SetTag implements Tag {
     String[] varTokens = var.split(",");
 
     try {
-      if (varTokens.length > 1) {
-        // handle multi-variable assignment
-        @SuppressWarnings("unchecked")
-        List<Object> exprVals = (List<Object>) interpreter.resolveELExpression(
-          "[" + expr + "]",
-          tagNode.getLineNumber()
-        );
-
-        if (varTokens.length != exprVals.size()) {
-          throw new TemplateSyntaxException(
-            tagNode.getMaster().getImage(),
-            "Tag 'set' declares an uneven number of variables and assigned values",
-            tagNode.getLineNumber(),
-            tagNode.getStartPosition()
-          );
-        }
-
-        for (int i = 0; i < varTokens.length; i++) {
-          String varItem = varTokens[i].trim();
-          if (interpreter.getContext().containsKey(varItem)) {
-            if (interpreter.getContext().get(varItem) instanceof DeferredValue) {
-              throw new DeferredValueException(varItem);
-            }
-          }
-          interpreter.getContext().put(varItem, exprVals.get(i));
-        }
-      } else {
-        // handle single variable assignment
-        if (interpreter.getContext().containsKey(var)) {
-          if (interpreter.getContext().get(var) instanceof DeferredValue) {
-            throw new DeferredValueException(var);
-          }
-        }
-        interpreter
-          .getContext()
-          .put(var, interpreter.resolveELExpression(expr, tagNode.getLineNumber()));
-      }
+      executeSet((TagToken) tagNode.getMaster(), interpreter, varTokens, expr, false);
     } catch (DeferredValueException e) {
-      for (String varToken : varTokens) {
-        String key = varToken.trim();
-        Object originalValue = interpreter.getContext().get(key);
-        if (originalValue != null) {
-          if (originalValue instanceof DeferredValue) {
-            interpreter.getContext().put(key, originalValue);
-          } else {
-            interpreter.getContext().put(key, DeferredValue.instance(originalValue));
-          }
-        } else {
-          interpreter.getContext().put(key, DeferredValue.instance());
-        }
-      }
+      DeferredValueUtils.deferVariables(varTokens, interpreter.getContext());
       throw e;
     }
 
     return "";
+  }
+
+  public void executeSet(
+    TagToken tagToken,
+    JinjavaInterpreter interpreter,
+    String[] varTokens,
+    String expr,
+    boolean allowDeferredValueOverride
+  ) {
+    if (varTokens.length > 1) {
+      // handle multi-variable assignment
+      @SuppressWarnings("unchecked")
+      List<Object> exprVals = (List<Object>) interpreter.resolveELExpression(
+        "[" + expr + "]",
+        tagToken.getLineNumber()
+      );
+
+      if (varTokens.length != exprVals.size()) {
+        throw new TemplateSyntaxException(
+          tagToken.getImage(),
+          "Tag 'set' declares an uneven number of variables and assigned values",
+          tagToken.getLineNumber(),
+          tagToken.getStartPosition()
+        );
+      }
+
+      for (int i = 0; i < varTokens.length; i++) {
+        String varItem = varTokens[i].trim();
+        if (interpreter.getContext().containsKey(varItem)) {
+          if (
+            !allowDeferredValueOverride &&
+            interpreter.getContext().get(varItem) instanceof DeferredValue
+          ) {
+            throw new DeferredValueException(varItem);
+          }
+        }
+        interpreter.getContext().put(varItem, exprVals.get(i));
+      }
+    } else {
+      // handle single variable assignment
+      if (interpreter.getContext().containsKey(varTokens[0])) {
+        if (
+          !allowDeferredValueOverride &&
+          interpreter.getContext().get(varTokens[0]) instanceof DeferredValue
+        ) {
+          throw new DeferredValueException(varTokens[0]);
+        }
+      }
+      interpreter
+        .getContext()
+        .put(
+          varTokens[0],
+          interpreter.resolveELExpression(expr, tagToken.getLineNumber())
+        );
+    }
   }
 
   @Override

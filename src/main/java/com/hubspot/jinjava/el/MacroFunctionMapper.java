@@ -12,7 +12,12 @@ import java.util.Map;
 import javax.el.FunctionMapper;
 
 public class MacroFunctionMapper extends FunctionMapper {
+  private final JinjavaInterpreter interpreter;
   private Map<String, Method> map = Collections.emptyMap();
+
+  public MacroFunctionMapper(JinjavaInterpreter interpreter) {
+    this.interpreter = interpreter;
+  }
 
   private static String buildFunctionName(String prefix, String name) {
     return prefix + ":" + name;
@@ -20,7 +25,7 @@ public class MacroFunctionMapper extends FunctionMapper {
 
   @Override
   public Method resolveFunction(String prefix, String localName) {
-    final Context context = JinjavaInterpreter.getCurrent().getContext();
+    final Context context = interpreter.getContext();
     MacroFunction macroFunction = context.getGlobalMacro(localName);
 
     if (macroFunction != null) {

@@ -1,0 +1,10 @@
+{% set foo = 1 %}{% if deferred %}
+{% set foo = 2 %}
+{% else %}
+{% set foo = foo + 2 %}//best we can do
+{% endif %}
+{{ foo }}
+
+{% set bar = 1 + deferred %}
+{% set bar = bar + deferred %}
+{{ bar }}

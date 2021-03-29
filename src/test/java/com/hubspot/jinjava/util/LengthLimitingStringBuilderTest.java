@@ -8,14 +8,14 @@ import org.junit.Test;
 public class LengthLimitingStringBuilderTest {
 
   @Test
-  public void itLimitsStringLength() throws Exception {
+  public void itLimitsStringLength() {
     LengthLimitingStringBuilder sb = new LengthLimitingStringBuilder(10);
     sb.append("0123456789");
     assertThatThrownBy(() -> sb.append("1")).isInstanceOf(OutputTooBigException.class);
   }
 
   @Test
-  public void itDoesNotLimitWithZeroLength() throws Exception {
+  public void itDoesNotLimitWithZeroLength() {
     LengthLimitingStringBuilder sb = new LengthLimitingStringBuilder(0);
     sb.append("0123456789");
   }

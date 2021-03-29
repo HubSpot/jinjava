@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.el.ext;
 
-import com.hubspot.jinjava.objects.collections.PyList;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstLiteral;
 import de.odysseus.el.tree.impl.ast.AstParameters;
@@ -24,7 +25,11 @@ public class AstList extends AstLiteral {
       list.add(elements.getChild(i).eval(bindings, context));
     }
 
-    return new PyList(list);
+    JinjavaInterpreter interpreter = (JinjavaInterpreter) context
+      .getELResolver()
+      .getValue(context, null, ExtendedParser.INTERPRETER);
+
+    return new SizeLimitingPyList(list, interpreter.getConfig().getMaxListSize());
   }
 
   @Override

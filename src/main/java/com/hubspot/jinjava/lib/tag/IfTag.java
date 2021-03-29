@@ -16,8 +16,12 @@
 package com.hubspot.jinjava.lib.tag;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
+import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -28,6 +32,13 @@ import org.apache.commons.lang3.StringUtils;
 
 @JinjavaDoc(
   value = "Outputs inner content if expression evaluates to true, otherwise evaluates any elif blocks, finally outputting content of any else block present",
+  params = {
+    @JinjavaParam(
+      value = "condition",
+      type = "conditional expression",
+      desc = "An expression that evaluates to either true or false"
+    )
+  },
   snippets = {
     @JinjavaSnippet(
       code = "{% if condition %}\n" +
@@ -47,6 +58,7 @@ import org.apache.commons.lang3.StringUtils;
     )
   }
 )
+@JinjavaHasCodeBody
 public class IfTag implements Tag {
   public static final String TAG_NAME = "if";
 
@@ -99,7 +111,12 @@ public class IfTag implements Tag {
         }
 
         if (execute) {
-          sb.append(node.render(interpreter));
+          try {
+            sb.append(node.render(interpreter));
+          } catch (OutputTooBigException e) {
+            interpreter.addError(TemplateError.fromOutputTooBigException(e));
+            return sb.toString();
+          }
         } else if (interpreter.getContext().isValidationMode()) {
           node.render(interpreter);
         }
