@@ -7,6 +7,7 @@ import de.odysseus.el.tree.impl.Builder;
 import de.odysseus.el.tree.impl.ast.AstBinary;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstMethod;
+import de.odysseus.el.tree.impl.ast.AstNested;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import de.odysseus.el.tree.impl.ast.AstString;
@@ -103,6 +104,18 @@ public class ExtendedParserTest {
 
     assertForExpression(left, "a", "b", "exptest:equalto");
     assertForExpression(right, "c", "d", "exptest:equalto");
+  }
+
+  @Test
+  public void itParsesNestedCommasNotAsTuple() {
+    AstNode astNode = buildExpressionNodes("#{(range(0,range(0,2)[1]))}");
+    assertThat(astNode).isInstanceOf(AstNested.class);
+  }
+
+  @Test
+  public void itChecksForTupleUntilFinalParentheses() {
+    AstNode astNode = buildExpressionNodes("#{((0),2)}");
+    assertThat(astNode).isInstanceOf(AstTuple.class);
   }
 
   private void assertForExpression(
