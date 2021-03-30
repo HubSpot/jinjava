@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.util.ChunkResolver;
 import de.odysseus.el.tree.Bindings;
@@ -39,9 +38,9 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
       evalResult = super.eval(bindings, context);
       return evalResult;
     } catch (DeferredParsingException e) {
-      if (e.getDeferredEvalResult().contains(ExtendedParser.INTERPRETER)) {
-        throw new DeferredValueException("Cannot partially resolve");
-      }
+      //      if (e.getDeferredEvalResult().contains(ExtendedParser.INTERPRETER)) {
+      //        throw new DeferredValueException("Cannot partially resolve");
+      //      }
       StringBuilder sb = new StringBuilder();
       String paramString;
       if (property.hasEvalResult()) {

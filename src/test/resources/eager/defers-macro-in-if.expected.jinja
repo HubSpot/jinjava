@@ -1,3 +1,3 @@
-{% set my_list = [] %}{% set my_list = [] %}{% macro macro_append(num) %}{% do my_list.append(num) %}{{ my_list }}{% endmacro %}{% if [] == macro_append(deferred)|split(',',2) %}
+{% set my_list = [] %}{% set my_list = [] %}{% macro macro_append(num) %}{% do my_list.append(num) %}{{ my_list }}{% endmacro %}{% if [] == filter:split.filter(macro_append(deferred), ____int3rpr3t3r____, ',', 2) %}
 {{ my_list }}
 {% endif %}

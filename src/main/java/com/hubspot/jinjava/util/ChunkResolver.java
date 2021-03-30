@@ -2,6 +2,7 @@ package com.hubspot.jinjava.util;
 
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -45,7 +46,10 @@ public class ChunkResolver {
     "null",
     "true",
     "false",
-    "__macros__"
+    "__macros__",
+    ExtendedParser.INTERPRETER,
+    "exptest",
+    "filter"
   );
 
   private static final Set<Class<?>> RESOLVABLE_CLASSES = ImmutableSet.of(

@@ -594,6 +594,24 @@ public class ChunkResolverTest {
       .isEqualTo("[1, deferred, 3]");
   }
 
+  @Test
+  public void itHandlesDeferredExpTests() {
+    context.put("foo", 4);
+    ChunkResolver chunkResolver = makeChunkResolver("foo is not equalto deferred");
+    interpreter.getContext().setThrowInterpreterErrors(true);
+    String partiallyResolved = chunkResolver.resolveChunks().toString();
+    assertThat(partiallyResolved)
+      .isEqualTo("exptest:equalto.evaluateNegated(4, ____int3rpr3t3r____, deferred)");
+    assertThat(chunkResolver.getDeferredWords())
+      .containsExactlyInAnyOrder("deferred", "equalto.evaluateNegated");
+    context.put("deferred", 4);
+    assertThat(makeChunkResolver(partiallyResolved).resolveChunks().toString())
+      .isEqualTo("false");
+    context.put("deferred", 1);
+    assertThat(makeChunkResolver(partiallyResolved).resolveChunks().toString())
+      .isEqualTo("true");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {

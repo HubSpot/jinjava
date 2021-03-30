@@ -4,6 +4,7 @@ import static de.odysseus.el.tree.impl.Builder.Feature.METHOD_INVOCATIONS;
 import static de.odysseus.el.tree.impl.Builder.Feature.NULL_PROPERTIES;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.COLON;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.COMMA;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.DOT;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.EQ;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.FALSE;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.GE;
@@ -274,7 +275,7 @@ public class ExtendedParser extends Parser {
         if (
           getToken().getSymbol() == COLON &&
           lookahead(0).getSymbol() == IDENTIFIER &&
-          lookahead(1).getSymbol() == LPAREN
+          (lookahead(1).getSymbol() == LPAREN || lookahead(1).getSymbol() == DOT)
         ) { // ns:f(...)
           consumeToken();
           name += ":" + getToken().getImage();
