@@ -105,7 +105,7 @@ public class ChunkResolver {
     try {
       interpreter.getContext().setThrowInterpreterErrors(true);
       bracketedResult =
-        getValueAsJinjavaStringSafe(
+        interpreter.getAsString(
           interpreter.resolveELExpression(
             String.format("[%s]", value),
             interpreter.getLineNumber()
@@ -116,6 +116,8 @@ public class ChunkResolver {
       bracketedResult = e.getDeferredEvalResult().trim();
     } catch (DeferredValueException e) {
       deferredWords.addAll(findDeferredWords(value));
+      return value;
+    } catch (TemplateSyntaxException ignored) {
       return value;
     } finally {
       interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);

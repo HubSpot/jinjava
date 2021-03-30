@@ -6,6 +6,7 @@ import com.hubspot.jinjava.lib.tag.PrintTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.ChunkResolver;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
+import com.hubspot.jinjava.util.WhitespaceUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
@@ -77,12 +78,7 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
         (
           includeExpressionResult
             ? wrapInRawIfNeeded(
-              interpreter.getAsString(
-                interpreter.resolveELExpression(
-                  resolvedExpression.getResult(),
-                  interpreter.getLineNumber()
-                )
-              ),
+              WhitespaceUtils.unquoteAndUnescape(resolvedExpression.getResult()),
               interpreter
             )
             : ""

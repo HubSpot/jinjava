@@ -62,7 +62,8 @@ public class EagerAstList extends AstList implements EvalResultHolder {
       .getELResolver()
       .getValue(context, null, ExtendedParser.INTERPRETER);
 
-    return new SizeLimitingPyList(list, interpreter.getConfig().getMaxListSize());
+    evalResult = new SizeLimitingPyList(list, interpreter.getConfig().getMaxListSize());
+    return evalResult;
   }
 
   @Override

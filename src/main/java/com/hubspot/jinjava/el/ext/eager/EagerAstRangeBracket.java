@@ -85,8 +85,12 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
       sb.append("]");
       throw new DeferredParsingException(AstRangeBracket.class, sb.toString());
     } finally {
-      ((EvalResultHolder) prefix).getAndClearEvalResult();
-      ((EvalResultHolder) property).getAndClearEvalResult();
+      if (prefix != null) {
+        ((EvalResultHolder) prefix).getAndClearEvalResult();
+      }
+      if (property != null) {
+        ((EvalResultHolder) property).getAndClearEvalResult();
+      }
     }
   }
 

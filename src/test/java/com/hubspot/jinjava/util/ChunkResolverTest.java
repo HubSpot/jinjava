@@ -46,7 +46,11 @@ public class ChunkResolverTest {
       JinjavaConfig
         .newBuilder()
         .withLegacyOverrides(
-          LegacyOverrides.newBuilder().withEvaluateMapKeys(evaluateMapKeys).build()
+          LegacyOverrides
+            .newBuilder()
+            .withEvaluateMapKeys(evaluateMapKeys)
+            .withUsePyishObjectMapper(true)
+            .build()
         )
         .build()
     );
@@ -285,10 +289,7 @@ public class ChunkResolverTest {
     context.put("date", date);
     ChunkResolver chunkResolver = makeChunkResolver("date");
 
-    // don't prematurely resolve date because of datetime functions.
     assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
-      .isEqualTo("date");
-    assertThat(WhitespaceUtils.unquoteAndUnescape(interpreter.resolveString("date", -1)))
       .isEqualTo(date.toString());
   }
 

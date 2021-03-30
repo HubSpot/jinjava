@@ -63,10 +63,12 @@ public class EagerAstTuple extends AstTuple implements EvalResultHolder {
       .getELResolver()
       .getValue(context, null, ExtendedParser.INTERPRETER);
 
-    return new SizeLimitingPyList(
-      Collections.unmodifiableList(list),
-      interpreter.getConfig().getMaxListSize()
-    );
+    evalResult =
+      new SizeLimitingPyList(
+        Collections.unmodifiableList(list),
+        interpreter.getConfig().getMaxListSize()
+      );
+    return evalResult;
   }
 
   @Override

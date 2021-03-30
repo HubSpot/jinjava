@@ -150,7 +150,7 @@ public class EagerExtendedParser extends ExtendedParser {
 
   @Override
   protected AstRightValue createAstNested(AstNode node) {
-    return new EagerAstNested(node);
+    return new EagerAstNested((AstNode) EagerAstNode.getAsEvalResultHolder(node));
   }
 
   @Override

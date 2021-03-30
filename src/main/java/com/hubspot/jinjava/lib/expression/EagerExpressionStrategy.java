@@ -11,6 +11,7 @@ import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.util.ChunkResolver;
 import com.hubspot.jinjava.util.Logging;
+import com.hubspot.jinjava.util.WhitespaceUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerExpressionStrategy implements ExpressionStrategy {
@@ -47,12 +48,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         : ""
     );
     if (chunkResolver.getDeferredWords().isEmpty()) {
-      String result = interpreter.getAsString(
-        interpreter.resolveELExpression(
-          resolvedExpression.getResult(),
-          interpreter.getLineNumber()
-        )
-      );
+      String result = WhitespaceUtils.unquoteAndUnescape(resolvedExpression.getResult());
       if (
         !StringUtils.equals(result, master.getImage()) &&
         (

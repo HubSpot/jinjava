@@ -15,7 +15,10 @@ public class EagerAstNode extends AstNode implements EvalResultHolder {
     if (astNode instanceof EvalResultHolder) {
       return (EvalResultHolder) astNode;
     }
-    return new EagerAstNode(astNode);
+    if (astNode != null) {
+      return new EagerAstNode(astNode);
+    }
+    return null;
   }
 
   private EagerAstNode(AstNode astNode) {
