@@ -62,6 +62,7 @@ import javax.el.ExpressionFactory;
  */
 public class Jinjava {
   private ExpressionFactory expressionFactory;
+  private ExpressionFactory eagerExpressionFactory;
   private ResourceLocator resourceLocator;
 
   private Context globalContext;
@@ -85,20 +86,21 @@ public class Jinjava {
     this.globalContext = new Context();
 
     Properties expConfig = new Properties();
-    if (globalConfig.getExecutionMode().useEagerParser()) {
-      expConfig.setProperty(
-        TreeBuilder.class.getName(),
-        EagerExtendedSyntaxBuilder.class.getName()
-      );
-    } else {
-      expConfig.setProperty(
-        TreeBuilder.class.getName(),
-        ExtendedSyntaxBuilder.class.getName()
-      );
-    }
+
+    expConfig.setProperty(
+      TreeBuilder.class.getName(),
+      ExtendedSyntaxBuilder.class.getName()
+    );
+    Properties eagerExpConfig = new Properties();
+
+    eagerExpConfig.setProperty(
+      TreeBuilder.class.getName(),
+      EagerExtendedSyntaxBuilder.class.getName()
+    );
 
     TypeConverter converter = new TruthyTypeConverter();
     this.expressionFactory = new ExpressionFactoryImpl(expConfig, converter);
+    this.eagerExpressionFactory = new ExpressionFactoryImpl(eagerExpConfig, converter);
 
     this.resourceLocator = new ClasspathResourceLocator();
   }
@@ -118,6 +120,13 @@ public class Jinjava {
    */
   public ExpressionFactory getExpressionFactory() {
     return expressionFactory;
+  }
+
+  /**
+   * @return The EL factory used to eagerly process expressions in templates by this instance.
+   */
+  public ExpressionFactory getEagerExpressionFactory() {
+    return eagerExpressionFactory;
   }
 
   /**

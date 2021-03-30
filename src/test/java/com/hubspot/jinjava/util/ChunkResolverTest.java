@@ -11,6 +11,7 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
+import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
@@ -44,6 +45,7 @@ public class ChunkResolverTest {
     Jinjava jinjava = new Jinjava(
       JinjavaConfig
         .newBuilder()
+        .withExecutionMode(EagerExecutionMode.instance())
         .withLegacyOverrides(
           LegacyOverrides
             .newBuilder()
