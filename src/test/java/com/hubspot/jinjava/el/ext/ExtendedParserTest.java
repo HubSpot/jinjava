@@ -113,8 +113,8 @@ public class ExtendedParserTest {
   }
 
   @Test
-  public void itParsesTupleCommasAsTuple() {
-    AstNode astNode = buildExpressionNodes("#{(range(0,1),2)}");
+  public void itChecksForTupleUntilFinalParentheses() {
+    AstNode astNode = buildExpressionNodes("#{((0),2)}");
     assertThat(astNode).isInstanceOf(AstTuple.class);
   }
 
