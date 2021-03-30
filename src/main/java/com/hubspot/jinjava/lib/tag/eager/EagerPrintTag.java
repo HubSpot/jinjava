@@ -78,7 +78,9 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
         (
           includeExpressionResult
             ? wrapInRawIfNeeded(
-              WhitespaceUtils.unquoteAndUnescape(resolvedExpression.getResult()),
+              WhitespaceUtils.unquoteAndUnescape(
+                resolvedExpression.getResult().toString()
+              ),
               interpreter
             )
             : ""

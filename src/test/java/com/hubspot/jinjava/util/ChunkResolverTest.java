@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ChunkResolverTest {
@@ -92,12 +91,13 @@ public class ChunkResolverTest {
   public void itResolvesDeferredBoolean() {
     context.put("foo", "foo_val");
     ChunkResolver chunkResolver = makeChunkResolver("(111 == 112) or (foo == deferred)");
-    String partiallyResolved = chunkResolver.resolveChunks();
+    String partiallyResolved = chunkResolver.resolveChunks().toString();
     assertThat(partiallyResolved).isEqualTo("false || ('foo_val' == deferred)");
     assertThat(chunkResolver.getDeferredWords()).containsExactly("deferred");
 
     context.put("deferred", "foo_val");
-    assertThat(makeChunkResolver(partiallyResolved).resolveChunks()).isEqualTo("true");
+    assertThat(makeChunkResolver(partiallyResolved).resolveChunks().toString())
+      .isEqualTo("true");
     assertThat(interpreter.resolveELExpression(partiallyResolved, 1)).isEqualTo(true);
   }
 
@@ -106,17 +106,19 @@ public class ChunkResolverTest {
     context.put("foo", "foo_val");
     context.put("bar", "bar_val");
     ChunkResolver chunkResolver = makeChunkResolver("[foo == bar, deferred, bar]");
-    assertThat(chunkResolver.resolveChunks()).isEqualTo("[false, deferred, 'bar_val']");
+    assertThat(chunkResolver.resolveChunks().toString())
+      .isEqualTo("[false, deferred, 'bar_val']");
     assertThat(chunkResolver.getDeferredWords()).containsExactlyInAnyOrder("deferred");
     context.put("bar", "foo_val");
-    assertThat(chunkResolver.resolveChunks()).isEqualTo("[true, deferred, 'foo_val']");
+    assertThat(chunkResolver.resolveChunks().toString())
+      .isEqualTo("[true, deferred, 'foo_val']");
   }
 
   @Test
   public void itResolvesSimpleBoolean() {
     context.put("foo", true);
     ChunkResolver chunkResolver = makeChunkResolver("false || (foo), 'bar'");
-    String partiallyResolved = chunkResolver.resolveChunks();
+    String partiallyResolved = chunkResolver.resolveChunks().toString();
     assertThat(partiallyResolved).isEqualTo("true, 'bar'");
     assertThat(chunkResolver.getDeferredWords()).isEmpty();
   }
@@ -125,7 +127,7 @@ public class ChunkResolverTest {
   @SuppressWarnings("unchecked")
   public void itResolvesRange() {
     ChunkResolver chunkResolver = makeChunkResolver("range(0,2)");
-    String partiallyResolved = chunkResolver.resolveChunks();
+    String partiallyResolved = chunkResolver.resolveChunks().toString();
     assertThat(partiallyResolved).isEqualTo("[0, 1]");
     assertThat(chunkResolver.getDeferredWords()).isEmpty();
     // I don't know why this is a list of longs?
@@ -140,14 +142,14 @@ public class ChunkResolverTest {
     context.put("foo", 1);
     context.put("bar", 3);
     ChunkResolver chunkResolver = makeChunkResolver("range(deferred, foo + bar)");
-    String partiallyResolved = chunkResolver.resolveChunks();
+    String partiallyResolved = chunkResolver.resolveChunks().toString();
     assertThat(partiallyResolved).isEqualTo("range(deferred, 4)");
     assertThat(chunkResolver.getDeferredWords())
       .containsExactlyInAnyOrder("deferred", "range");
 
     context.put("deferred", 1);
-    assertThat(makeChunkResolver(partiallyResolved).resolveChunks())
-      .isEqualTo(new PyishObjectMapper().getAsPyishString(expectedList));
+    assertThat(makeChunkResolver(partiallyResolved).resolveChunks().toString())
+      .isEqualTo(PyishObjectMapper.getAsPyishString(expectedList));
     // But this is a list of integers
     assertThat((List<Integer>) interpreter.resolveELExpression(partiallyResolved, 1))
       .isEqualTo(expectedList);
@@ -160,7 +162,7 @@ public class ChunkResolverTest {
     context.put("the_dictionary", dict);
 
     ChunkResolver chunkResolver = makeChunkResolver("[the_dictionary, 1]");
-    String partiallyResolved = chunkResolver.resolveChunks();
+    String partiallyResolved = chunkResolver.resolveChunks().toString();
     assertThat(chunkResolver.getDeferredWords()).isEmpty();
     assertThat(interpreter.resolveELExpression(partiallyResolved, 1))
       .isEqualTo(ImmutableList.of(dict, 1L));
@@ -173,13 +175,13 @@ public class ChunkResolverTest {
     ChunkResolver chunkResolver = makeChunkResolver(
       "[foo, range(deferred, bar), range(foo, bar)][0:2]"
     );
-    String partiallyResolved = chunkResolver.resolveChunks();
+    String partiallyResolved = chunkResolver.resolveChunks().toString();
     assertThat(partiallyResolved).isEqualTo("[1, range(deferred, 3), [1, 2]][0:2]");
     assertThat(chunkResolver.getDeferredWords())
       .containsExactlyInAnyOrder("deferred", "range");
 
     context.put("deferred", 2);
-    assertThat(makeChunkResolver(partiallyResolved).resolveChunks())
+    assertThat(makeChunkResolver(partiallyResolved).resolveChunks().toString())
       .isEqualTo("[1, [2]]");
     assertThat(interpreter.resolveELExpression(partiallyResolved, 1))
       .isEqualTo(ImmutableList.of(1L, ImmutableList.of(2)));
@@ -190,12 +192,12 @@ public class ChunkResolverTest {
     context.put("foo", 1);
     context.put("bar", 4);
     ChunkResolver chunkResolver = makeChunkResolver("range(0,foo) + -deferred/bar");
-    String partiallyResolved = chunkResolver.resolveChunks();
+    String partiallyResolved = chunkResolver.resolveChunks().toString();
     assertThat(partiallyResolved).isEqualTo("[0] + -deferred / 4");
     assertThat(chunkResolver.getDeferredWords()).containsExactly("deferred");
 
     context.put("deferred", 2);
-    assertThat(makeChunkResolver(partiallyResolved).resolveChunks())
+    assertThat(makeChunkResolver(partiallyResolved).resolveChunks().toString())
       .isEqualTo("[0, -0.5]");
     assertThat(interpreter.resolveELExpression(partiallyResolved, 1))
       .isEqualTo(ImmutableList.of(0L, -0.5));
@@ -206,26 +208,27 @@ public class ChunkResolverTest {
     context.put("foo", 3);
     context.put("bar", 4);
     ChunkResolver chunkResolver = makeChunkResolver("range(-2,foo)[-1] + -deferred/bar");
-    String partiallyResolved = chunkResolver.resolveChunks();
+    String partiallyResolved = chunkResolver.resolveChunks().toString();
     assertThat(partiallyResolved).isEqualTo("2 + -deferred / 4");
     assertThat(chunkResolver.getDeferredWords()).containsExactly("deferred");
 
     context.put("deferred", 2);
-    assertThat(makeChunkResolver(partiallyResolved).resolveChunks()).isEqualTo("1.5");
+    assertThat(makeChunkResolver(partiallyResolved).resolveChunks().toString())
+      .isEqualTo("1.5");
     assertThat(interpreter.resolveELExpression(partiallyResolved, 1)).isEqualTo(1.5);
   }
 
   @Test
-  @Ignore
   // TODO support order of operations
   public void itSupportsOrderOfOperations() {
     ChunkResolver chunkResolver = makeChunkResolver("[0,1]|reverse + deferred");
-    String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("[1,0] + deferred");
+    String partiallyResolved = chunkResolver.resolveChunks().toString();
+    assertThat(partiallyResolved).isEqualTo("[1, 0] + deferred");
     assertThat(chunkResolver.getDeferredWords()).containsExactly("deferred");
 
-    context.put("deferred", 2);
-    assertThat(makeChunkResolver(partiallyResolved).resolveChunks()).isEqualTo("[1,0,2]");
+    context.put("deferred", 2L);
+    assertThat(makeChunkResolver(partiallyResolved).resolveChunks().toString())
+      .isEqualTo("[1, 0, 2]");
     assertThat(interpreter.resolveELExpression(partiallyResolved, 1))
       .isEqualTo(ImmutableList.of(1L, 0L, 2L));
   }
@@ -233,7 +236,7 @@ public class ChunkResolverTest {
   @Test
   public void itCatchesDeferredVariables() {
     ChunkResolver chunkResolver = makeChunkResolver("range(0, deferred)");
-    String partiallyResolved = chunkResolver.resolveChunks();
+    String partiallyResolved = chunkResolver.resolveChunks().toString();
     assertThat(partiallyResolved).isEqualTo("range(0, deferred)");
     // Since the range function is deferred, it is added to deferredWords.
     assertThat(chunkResolver.getDeferredWords())
@@ -265,7 +268,7 @@ public class ChunkResolverTest {
     ChunkResolver chunkResolver = makeChunkResolver(
       "[(foo > 1) || deferred, deferred].append(1)"
     );
-    String partiallyResolved = chunkResolver.resolveChunks();
+    String partiallyResolved = chunkResolver.resolveChunks().toString();
     assertThat(partiallyResolved).isEqualTo("[false || deferred, deferred].append(1)");
     assertThat(chunkResolver.getDeferredWords()).doesNotContain("false", "or");
     assertThat(chunkResolver.getDeferredWords()).contains("deferred", ".append");
@@ -275,7 +278,7 @@ public class ChunkResolverTest {
   public void itEvaluatesDict() {
     context.put("foo", new PyMap(ImmutableMap.of("bar", 99)));
     ChunkResolver chunkResolver = makeChunkResolver("foo.bar == deferred.bar");
-    String partiallyResolved = chunkResolver.resolveChunks();
+    String partiallyResolved = chunkResolver.resolveChunks().toString();
     assertThat(partiallyResolved).isEqualTo("99 == deferred.bar");
     assertThat(chunkResolver.getDeferredWords())
       .containsExactlyInAnyOrder("deferred.bar");
@@ -289,7 +292,9 @@ public class ChunkResolverTest {
     context.put("date", date);
     ChunkResolver chunkResolver = makeChunkResolver("date");
 
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks().toString())
+      )
       .isEqualTo(date.toString());
   }
 
@@ -300,7 +305,7 @@ public class ChunkResolverTest {
     ChunkResolver chunkResolver = makeChunkResolver(input);
     interpreter.getContext().setThrowInterpreterErrors(true);
 
-    String partiallyResolved = chunkResolver.resolveChunks();
+    String partiallyResolved = chunkResolver.resolveChunks().toString();
 
     interpreter.getContext().setThrowInterpreterErrors(false);
 
@@ -316,7 +321,9 @@ public class ChunkResolverTest {
     ChunkResolver chunkResolver = makeChunkResolver(
       "foo ~ ' & ' ~ bar ~ ' & ' ~ '\\'\\\"'"
     );
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks().toString())
+      )
       .isEqualTo("' & ' & '\"");
   }
 
@@ -327,14 +334,18 @@ public class ChunkResolverTest {
     ChunkResolver chunkResolver = makeChunkResolver(
       "foo ~ ' & ' ~ bar ~ ' & ' ~ '\\\\' ~ 'n' ~ ' & \\\\n'"
     );
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks().toString())
+      )
       .isEqualTo("\n & \\n & \\n & \\n");
   }
 
   @Test
   public void itOutputsUnknownVariablesAsEmpty() {
     ChunkResolver chunkResolver = makeChunkResolver("contact.some_odd_property");
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks().toString())
+      )
       .isEqualTo("");
   }
 
@@ -342,7 +353,9 @@ public class ChunkResolverTest {
   public void itHandlesCancellingSlashes() {
     context.put("foo", "bar");
     ChunkResolver chunkResolver = makeChunkResolver("foo ~ 'foo\\\\' ~ foo ~ 'foo'");
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks().toString())
+      )
       .isEqualTo("barfoo\\barfoo");
   }
 
@@ -354,7 +367,7 @@ public class ChunkResolverTest {
       .isEmpty();
     assertThat(
         WhitespaceUtils.unquoteAndUnescape(
-          makeChunkResolver("void_function(2)").resolveChunks()
+          makeChunkResolver("void_function(2)").resolveChunks().toString()
         )
       )
       .isEmpty();
@@ -362,24 +375,28 @@ public class ChunkResolverTest {
 
   @Test
   public void itOutputsNullAsEmptyString() {
-    assertThat(makeChunkResolver("void_function(2)").resolveChunks()).isEqualTo("''");
-    assertThat(makeChunkResolver("nothing").resolveChunks()).isEqualTo("''");
+    assertThat(makeChunkResolver("void_function(2)").resolveChunks().toString())
+      .isEqualTo("''");
+    assertThat(makeChunkResolver("nothing").resolveChunks().toString()).isEqualTo("''");
   }
 
   @Test
   public void itInterpretsNullAsNull() {
-    assertThat(makeChunkResolver("is_null(nothing, null)").resolveChunks())
+    assertThat(makeChunkResolver("is_null(nothing, null)").resolveChunks().toString())
       .isEqualTo("true");
-    assertThat(makeChunkResolver("is_null(void_function(2), nothing)").resolveChunks())
+    assertThat(
+        makeChunkResolver("is_null(void_function(2), nothing)").resolveChunks().toString()
+      )
       .isEqualTo("true");
-    assertThat(makeChunkResolver("is_null('', nothing)").resolveChunks())
+    assertThat(makeChunkResolver("is_null('', nothing)").resolveChunks().toString())
       .isEqualTo("false");
   }
 
   @Test
   public void itDoesntDeferNull() {
     ChunkResolver chunkResolver = makeChunkResolver("range(deferred, nothing)");
-    assertThat(chunkResolver.resolveChunks()).isEqualTo("range(deferred, null)");
+    assertThat(chunkResolver.resolveChunks().toString())
+      .isEqualTo("range(deferred, null)");
     assertThat(chunkResolver.getDeferredWords())
       .containsExactlyInAnyOrder("range", "deferred");
   }
@@ -388,7 +405,7 @@ public class ChunkResolverTest {
   public void itDoesntSplitOnBar() {
     context.put("date", new PyishDate(0L));
     ChunkResolver chunkResolver = makeChunkResolver("date|datetimeformat('%Y')");
-    assertThat(chunkResolver.resolveChunks()).isEqualTo("1970");
+    assertThat(chunkResolver.resolveChunks().toString()).isEqualTo("1970");
   }
 
   @Test
@@ -398,7 +415,9 @@ public class ChunkResolverTest {
     context.put("foo", new Foo("bar"));
     context.put("mark", "!");
     ChunkResolver chunkResolver = makeChunkResolver("dict.update({'foo': foo})");
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks().toString())
+      )
       .isEqualTo("");
     assertThat(dict.get("foo")).isInstanceOf(Foo.class);
     assertThat(((Foo) dict.get("foo")).bar()).isEqualTo("bar");
@@ -411,7 +430,9 @@ public class ChunkResolverTest {
       ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneId.systemDefault())
     );
     ChunkResolver chunkResolver = makeChunkResolver("zero_date.strftime('%d')");
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks().toString())
+      )
       .isEqualTo("01");
   }
 
@@ -420,7 +441,9 @@ public class ChunkResolverTest {
     // does not convert to scientific notation
     context.put("small", "0.0000000001");
     ChunkResolver chunkResolver = makeChunkResolver("small");
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks().toString())
+      )
       .isEqualTo("0.0000000001");
   }
 
@@ -429,14 +452,16 @@ public class ChunkResolverTest {
     // does convert to scientific notation
     context.put("small", 0.0000000001);
     ChunkResolver chunkResolver = makeChunkResolver("small");
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks().toString())
+      )
       .isEqualTo("1.0E-10");
   }
 
   @Test
   public void itDoesntQuoteFloats() {
     ChunkResolver chunkResolver = makeChunkResolver("0.4 + 0.1");
-    assertThat(chunkResolver.resolveChunks()).isEqualTo("0.5");
+    assertThat(chunkResolver.resolveChunks().toString()).isEqualTo("0.5");
   }
 
   @Test
@@ -444,7 +469,9 @@ public class ChunkResolverTest {
     String lowerFilterString =
       "'AB' | truncate(1) ~ 'BC' |truncate(1) ~ 'CD'| truncate(1)";
     ChunkResolver chunkResolver = makeChunkResolver(lowerFilterString);
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks().toString())
+      )
       .isEqualTo(interpreter.resolveELExpression(lowerFilterString, 0));
   }
 
@@ -452,7 +479,9 @@ public class ChunkResolverTest {
   public void itHandlesMultipleWhitespaceAroundPipe() {
     String lowerFilterString = "'AB'   |   truncate(1)";
     ChunkResolver chunkResolver = makeChunkResolver(lowerFilterString);
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks().toString())
+      )
       .isEqualTo(interpreter.resolveELExpression(lowerFilterString, 0));
   }
 
@@ -460,7 +489,9 @@ public class ChunkResolverTest {
   public void itEscapesFormFeed() {
     context.put("foo", "Form feed\f");
     ChunkResolver chunkResolver = makeChunkResolver("foo");
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks().toString())
+      )
       .isEqualTo("Form feed\f");
   }
 
@@ -469,7 +500,9 @@ public class ChunkResolverTest {
     ChunkResolver chunkResolver = makeChunkResolver(
       "(  range (0 , 3 ) [ 1] + deferred) ~ 'YES'| lower"
     );
-    String result = WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks());
+    String result = WhitespaceUtils.unquoteAndUnescape(
+      chunkResolver.resolveChunks().toString()
+    );
     assertThat(result).isEqualTo("(1 + deferred) ~ 'yes'");
     context.put("deferred", 2);
     assertThat(interpreter.resolveELExpression(result, 0)).isEqualTo("3yes");
@@ -480,7 +513,9 @@ public class ChunkResolverTest {
     context.put("bar", "fake");
     context.put("foo", ImmutableMap.of("bar", "foobar"));
     ChunkResolver chunkResolver = makeChunkResolver("foo . bar");
-    String result = WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks());
+    String result = WhitespaceUtils.unquoteAndUnescape(
+      chunkResolver.resolveChunks().toString()
+    );
     assertThat(result).isEqualTo("foobar");
   }
 
@@ -488,7 +523,9 @@ public class ChunkResolverTest {
   public void itPreservesLegacyDictionaryCreation() {
     context.put("foo", "not_foo");
     ChunkResolver chunkResolver = makeChunkResolver("{foo: 'bar'}");
-    String result = WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks());
+    String result = WhitespaceUtils.unquoteAndUnescape(
+      chunkResolver.resolveChunks().toString()
+    );
     assertThat(result).isEqualTo("{'foo': 'bar'}");
   }
 
@@ -498,7 +535,9 @@ public class ChunkResolverTest {
     try {
       context.put("foo", "not_foo");
       ChunkResolver chunkResolver = makeChunkResolver("{foo: 'bar'}");
-      String result = WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks());
+      String result = WhitespaceUtils.unquoteAndUnescape(
+        chunkResolver.resolveChunks().toString()
+      );
       assertThat(result).isEqualTo("{'not_foo': 'bar'}");
     } finally {
       JinjavaInterpreter.popCurrent();
@@ -509,7 +548,9 @@ public class ChunkResolverTest {
   public void itKeepsPlusSignPrefix() {
     context.put("foo", "+12223334444");
     ChunkResolver chunkResolver = makeChunkResolver("foo");
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks().toString())
+      )
       .isEqualTo("+12223334444");
   }
 
@@ -517,7 +558,9 @@ public class ChunkResolverTest {
   public void itHandlesPhoneNumbers() {
     context.put("foo", "+1(123)456-7890");
     ChunkResolver chunkResolver = makeChunkResolver("foo");
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks().toString())
+      )
       .isEqualTo("+1(123)456-7890");
   }
 
@@ -525,7 +568,9 @@ public class ChunkResolverTest {
   public void itHandlesNegativeZero() {
     context.put("foo", "-0");
     ChunkResolver chunkResolver = makeChunkResolver("foo");
-    assertThat(WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks()))
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks().toString())
+      )
       .isEqualTo("-0");
   }
 
@@ -534,7 +579,10 @@ public class ChunkResolverTest {
     context.put("foo", new SomethingPyish("yes"));
     assertThat(
         interpreter.render(
-          String.format("{{ %s.name }}", makeChunkResolver("foo").resolveChunks())
+          String.format(
+            "{{ %s.name }}",
+            makeChunkResolver("foo").resolveChunks().toString()
+          )
         )
       )
       .isEqualTo("yes");
@@ -542,7 +590,7 @@ public class ChunkResolverTest {
 
   @Test
   public void itFinishesResolvingList() {
-    assertThat(makeChunkResolver("[0 + 1, deferred, 2 + 1]").resolveChunks())
+    assertThat(makeChunkResolver("[0 + 1, deferred, 2 + 1]").resolveChunks().toString())
       .isEqualTo("[1, deferred, 3]");
   }
 

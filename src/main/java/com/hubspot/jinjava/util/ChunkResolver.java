@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.util;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -13,6 +12,7 @@ import com.hubspot.jinjava.tree.parse.Token;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -54,18 +54,6 @@ public class ChunkResolver {
     PyishSerializable.class
   );
 
-  // ( -> )
-  // { -> }
-  // [ -> ]
-  private static final Map<Character, Character> CHUNK_LEVEL_MARKER_MAP = ImmutableMap.of(
-    '(',
-    ')',
-    '{',
-    '}',
-    '[',
-    ']'
-  );
-
   private final String value;
   private final Token token;
   private final JinjavaInterpreter interpreter;
@@ -97,38 +85,30 @@ public class ChunkResolver {
    *  `[(foo == bar), deferred, bar]` -> `[true,deferred,'hello']`
    * @return String with chunk layers within it being partially or fully resolved.
    */
-  public String resolveChunks() {
+  public ResolvedExpression resolveChunks() {
+    boolean fullyResolved = false;
     boolean isThrowInterpreterErrorsStart = interpreter
       .getContext()
       .getThrowInterpreterErrors();
-    String bracketedResult;
+    Object result;
     try {
-      interpreter.getContext().setThrowInterpreterErrors(true);
-      bracketedResult =
-        interpreter.getAsString(
-          interpreter.resolveELExpression(
-            String.format("[%s]", value),
-            interpreter.getLineNumber()
-          )
+      result =
+        interpreter.resolveELExpression(
+          String.format("[%s]", value),
+          interpreter.getLineNumber()
         );
+      fullyResolved = true;
     } catch (DeferredParsingException e) {
       deferredWords.addAll(findDeferredWords(e.getDeferredEvalResult()));
-      bracketedResult = e.getDeferredEvalResult().trim();
+      String bracketedResult = e.getDeferredEvalResult().trim();
+      result = bracketedResult.substring(1, bracketedResult.length() - 1);
     } catch (DeferredValueException e) {
       deferredWords.addAll(findDeferredWords(value));
-      return value;
-    } catch (TemplateSyntaxException ignored) {
-      return value;
+      result = value;
     } finally {
       interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);
     }
-    // remove brackets
-    String result = bracketedResult.substring(1, bracketedResult.length() - 1);
-    if (JINJAVA_NULL.equals(result)) {
-      // Resolved value of null as a string is ''.
-      return JINJAVA_EMPTY_STRING;
-    }
-    return result;
+    return new ResolvedExpression(result, fullyResolved, interpreter);
   }
 
   public static String getValueAsJinjavaStringSafe(Object val) {
@@ -246,9 +226,53 @@ public class ChunkResolver {
     return false;
   }
 
-  private static String spaced(String toSpaceOut, String reference) {
-    String prefix = reference.startsWith(" ") ? " " : "";
-    String suffix = reference.endsWith(" ") ? " " : "";
-    return prefix + toSpaceOut.trim() + suffix;
+  public static class ResolvedExpression {
+    private final Object resolvedObject;
+    private final boolean fullyResolved;
+    private final JinjavaInterpreter interpreter;
+
+    private ResolvedExpression(
+      Object resolvedObject,
+      boolean fullyResolved,
+      JinjavaInterpreter interpreter
+    ) {
+      this.resolvedObject = resolvedObject;
+      this.fullyResolved = fullyResolved;
+      this.interpreter = interpreter;
+    }
+
+    @Override
+    public String toString() {
+      if (resolvedObject instanceof String) {
+        return (String) resolvedObject;
+      }
+      if (resolvedObject == null) {
+        return JINJAVA_EMPTY_STRING;
+      }
+      String asString = PyishObjectMapper.getAsPyishString(resolvedObject);
+      if (fullyResolved && StringUtils.isNotEmpty(asString)) {
+        // Removes surrounding brackets.
+        asString = asString.substring(1, asString.length() - 1);
+      }
+      if (JINJAVA_NULL.equals(asString)) {
+        return JINJAVA_EMPTY_STRING;
+      }
+      return asString;
+    }
+
+    public List<?> toList() {
+      if (fullyResolved && resolvedObject instanceof List) {
+        return (List<?>) resolvedObject;
+      }
+      throw new DeferredValueException("Object is not resolved");
+    }
+
+    public static ResolvedExpression fromString(String resolvedString) {
+      return new ResolvedExpression(
+        resolvedString,
+        false,
+        JinjavaInterpreter.getCurrent()
+      );
+    }
   }
 }

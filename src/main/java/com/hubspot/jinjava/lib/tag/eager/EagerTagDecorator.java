@@ -27,6 +27,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.util.ChunkResolver;
+import com.hubspot.jinjava.util.ChunkResolver.ResolvedExpression;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.Collections;
@@ -101,8 +102,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     result.append(
       executeInChildContext(
           eagerInterpreter ->
-            getEagerImage(tagNode.getMaster(), eagerInterpreter) +
-            renderChildren(tagNode, eagerInterpreter),
+            ResolvedExpression.fromString(
+              getEagerImage(tagNode.getMaster(), eagerInterpreter) +
+              renderChildren(tagNode, eagerInterpreter)
+            ),
           interpreter,
           false,
           false
@@ -152,12 +155,12 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    *    that preserves the state within the output for a second rendering pass.
    */
   public static EagerStringResult executeInChildContext(
-    Function<JinjavaInterpreter, String> function,
+    Function<JinjavaInterpreter, ResolvedExpression> function,
     JinjavaInterpreter interpreter,
     boolean takeNewValue,
     boolean partialMacroEvaluation
   ) {
-    StringBuilder result = new StringBuilder();
+    ResolvedExpression result;
     Map<String, Integer> initiallyResolvedHashes = new HashMap<>();
     interpreter
       .getContext()
@@ -179,7 +182,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
       interpreter.getContext().setDeferredExecutionMode(true);
       interpreter.getContext().setPartialMacroEvaluation(partialMacroEvaluation);
-      result.append(function.apply(interpreter));
+      result = function.apply(interpreter);
     }
     Map<String, String> deferredValuesToSet = interpreter
       .getContext()
@@ -209,7 +212,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       );
     if (deferredValuesToSet.size() > 0) {
       return new EagerStringResult(
-        result.toString(),
+        result,
         buildSetTagForDeferredInChildContext(
           deferredValuesToSet,
           interpreter,
@@ -217,7 +220,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         )
       );
     }
-    return new EagerStringResult(result.toString());
+    return new EagerStringResult(result);
   }
 
   /**
@@ -281,8 +284,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         entry ->
           executeInChildContext(
             eagerInterpreter ->
-              new EagerMacroFunction(entry.getKey(), entry.getValue(), interpreter)
-              .reconstructImage(),
+              ResolvedExpression.fromString(
+                new EagerMacroFunction(entry.getKey(), entry.getValue(), interpreter)
+                .reconstructImage()
+              ),
             interpreter,
             false,
             false
@@ -447,7 +452,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       tagToken,
       interpreter
     );
-    String resolvedChunks = chunkResolver.resolveChunks();
+    String resolvedChunks = chunkResolver.resolveChunks().toString();
     if (StringUtils.isNotBlank(resolvedChunks)) {
       joiner.add(resolvedChunks);
     }

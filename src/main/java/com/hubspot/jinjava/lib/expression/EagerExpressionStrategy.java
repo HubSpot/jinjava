@@ -21,13 +21,10 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     ExpressionToken master,
     JinjavaInterpreter interpreter
   ) {
-    EagerStringResult eagerStringResult = eagerResolveExpression(master, interpreter);
-    return new RenderedOutputNode(
-      eagerStringResult.getPrefixToPreserveState() + eagerStringResult.getResult()
-    );
+    return new RenderedOutputNode(eagerResolveExpression(master, interpreter));
   }
 
-  private EagerStringResult eagerResolveExpression(
+  private String eagerResolveExpression(
     ExpressionToken master,
     JinjavaInterpreter interpreter
   ) {
@@ -36,7 +33,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       master,
       interpreter
     );
-    EagerStringResult resolvedExpression = EagerTagDecorator.executeInChildContext(
+    EagerStringResult eagerStringResult = EagerTagDecorator.executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
       interpreter,
       true,
@@ -44,11 +41,13 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     );
     StringBuilder prefixToPreserveState = new StringBuilder(
       interpreter.getContext().isDeferredExecutionMode()
-        ? resolvedExpression.getPrefixToPreserveState()
+        ? eagerStringResult.getPrefixToPreserveState()
         : ""
     );
     if (chunkResolver.getDeferredWords().isEmpty()) {
-      String result = WhitespaceUtils.unquoteAndUnescape(resolvedExpression.getResult());
+      String result = WhitespaceUtils.unquoteAndUnescape(
+        eagerStringResult.getResult().toString()
+      );
       if (
         !StringUtils.equals(result, master.getImage()) &&
         (
@@ -71,7 +70,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       if (interpreter.getContext().isAutoEscape()) {
         result = EscapeFilter.escapeHtmlEntities(result);
       }
-      return new EagerStringResult(result, prefixToPreserveState.toString());
+      return prefixToPreserveState.toString() + result;
     }
     prefixToPreserveState.append(
       EagerTagDecorator.reconstructFromContextBeforeDeferring(
@@ -79,7 +78,10 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         interpreter
       )
     );
-    String helpers = wrapInExpression(resolvedExpression.getResult(), interpreter);
+    String helpers = wrapInExpression(
+      eagerStringResult.getResult().toString(),
+      interpreter
+    );
     interpreter
       .getContext()
       .handleEagerToken(
@@ -93,13 +95,10 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
           chunkResolver.getDeferredWords()
         )
       );
-    // There is no result because it couldn't be entirely evaluated.
-    return new EagerStringResult(
-      "",
-      EagerTagDecorator.wrapInAutoEscapeIfNeeded(
-        prefixToPreserveState.toString() + helpers,
-        interpreter
-      )
+    // There is no only a preserving prefix because it couldn't be entirely evaluated.
+    return EagerTagDecorator.wrapInAutoEscapeIfNeeded(
+      prefixToPreserveState.toString() + helpers,
+      interpreter
     );
   }
 

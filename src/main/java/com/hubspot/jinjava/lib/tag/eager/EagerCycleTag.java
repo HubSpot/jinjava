@@ -39,19 +39,19 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       helper.add(sb.toString());
     }
     ChunkResolver chunkResolver = new ChunkResolver(helper.get(0), tagToken, interpreter);
-    EagerStringResult resolvedExpression = executeInChildContext(
+    EagerStringResult eagerStringResult = executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
       interpreter,
       true,
       false
     );
-    String expression = resolvedExpression.getResult();
+    String expression = eagerStringResult.getResult().toString();
     if (WhitespaceUtils.isWrappedWith(expression, "[", "]")) {
       expression = expression.substring(1, expression.length() - 1).replace(", ", ",");
     }
     StringBuilder prefixToPreserveState = new StringBuilder(
       interpreter.getContext().isDeferredExecutionMode()
-        ? resolvedExpression.getPrefixToPreserveState()
+        ? eagerStringResult.getPrefixToPreserveState()
         : ""
     );
     HelperStringTokenizer items = new HelperStringTokenizer(expression).splitComma(true);
