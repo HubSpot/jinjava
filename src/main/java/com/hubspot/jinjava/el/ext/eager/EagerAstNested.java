@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el.ext.eager;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.Node;
+import de.odysseus.el.tree.impl.ast.AstNested;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstRightValue;
 import javax.el.ELContext;
@@ -32,6 +33,7 @@ public class EagerAstNested extends AstRightValue implements EvalResultHolder {
       return evalResult;
     } catch (DeferredParsingException e) {
       throw new DeferredParsingException(
+        AstNested.class,
         String.format("(%s)", e.getDeferredEvalResult())
       );
     } finally {

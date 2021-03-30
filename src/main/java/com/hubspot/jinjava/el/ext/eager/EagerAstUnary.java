@@ -37,7 +37,7 @@ public class EagerAstUnary extends AstUnary implements EvalResultHolder {
       } else {
         sb.append(e.getDeferredEvalResult());
       }
-      throw new DeferredParsingException(sb.toString());
+      throw new DeferredParsingException(AstUnary.class, sb.toString());
     } finally {
       child.getAndClearEvalResult();
     }

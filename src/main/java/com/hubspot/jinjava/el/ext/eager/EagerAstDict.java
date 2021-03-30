@@ -68,7 +68,10 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
           joiner.add(kvJoiner.toString());
         }
       );
-      throw new DeferredParsingException(String.format("{%s}", joiner.toString()));
+      throw new DeferredParsingException(
+        AstDict.class,
+        String.format("{%s}", joiner.toString())
+      );
     } finally {
       dict.forEach(
         (key, value) -> {

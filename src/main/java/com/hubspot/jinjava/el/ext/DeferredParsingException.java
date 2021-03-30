@@ -5,8 +5,14 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 public class DeferredParsingException extends DeferredValueException {
   private final String deferredEvalResult;
 
-  public DeferredParsingException(String deferredEvalResult) {
-    super("AstNode could not be parsed more than: " + deferredEvalResult);
+  public DeferredParsingException(Class<?> clazz, String deferredEvalResult) {
+    super(
+      String.format(
+        "%s could not be parsed more than: %s",
+        clazz.toString(),
+        deferredEvalResult
+      )
+    );
     this.deferredEvalResult = deferredEvalResult;
   }
 

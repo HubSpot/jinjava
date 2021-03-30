@@ -426,7 +426,7 @@ public class JinjavaInterpreter {
     if (obj != null) {
       if (obj instanceof DeferredValue) {
         // TODO add a flag to toggle which is thrown
-        throw new DeferredParsingException(variable);
+        throw new DeferredParsingException(String.class, variable);
         //        throw new DeferredValueException(variable, lineNumber, startPosition);
       }
       obj = var.resolve(obj);

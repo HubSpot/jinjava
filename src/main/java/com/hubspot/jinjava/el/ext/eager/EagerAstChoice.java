@@ -43,7 +43,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
       sb.append(e.getDeferredEvalResult());
       if (question.getAndClearEvalResult() != null) {
         // the question was evaluated so jump to either yes or no
-        throw new DeferredParsingException(sb.toString());
+        throw new DeferredParsingException(AstChoice.class, sb.toString());
       }
       sb.append(" ? ");
       if (yes.hasEvalResult()) {
@@ -73,7 +73,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
           sb.append(e1.getDeferredEvalResult());
         }
       }
-      throw new DeferredParsingException(sb.toString());
+      throw new DeferredParsingException(AstChoice.class, sb.toString());
     } finally {
       question.getAndClearEvalResult();
       yes.getAndClearEvalResult();

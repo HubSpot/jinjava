@@ -234,6 +234,12 @@ public class ChunkResolver {
       ).stream()
         .filter(Objects::nonNull)
         .allMatch(item -> isResolvableObjectRec(item, depth + 1));
+    } else if (val.getClass().isArray()) {
+      if (((Object[]) val).length == 0) {
+        return true;
+      }
+      return (Arrays.stream((Object[]) val)).filter(Objects::nonNull)
+        .allMatch(item -> isResolvableObjectRec(item, depth + 1));
     }
     return false;
   }

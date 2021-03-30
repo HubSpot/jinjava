@@ -89,7 +89,7 @@ public class ChunkResolverTest {
     context.put("foo", "foo_val");
     ChunkResolver chunkResolver = makeChunkResolver("(111 == 112) or (foo == deferred)");
     String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("false or ('foo_val' == deferred)");
+    assertThat(partiallyResolved).isEqualTo("false || ('foo_val' == deferred)");
     assertThat(chunkResolver.getDeferredWords()).containsExactly("deferred");
 
     context.put("deferred", "foo_val");
@@ -259,10 +259,10 @@ public class ChunkResolverTest {
   public void itDoesntDeferReservedWords() {
     context.put("foo", 0);
     ChunkResolver chunkResolver = makeChunkResolver(
-      "[(foo > 1) or deferred, deferred].append(1)"
+      "[(foo > 1) || deferred, deferred].append(1)"
     );
     String partiallyResolved = chunkResolver.resolveChunks();
-    assertThat(partiallyResolved).isEqualTo("[false or deferred, deferred].append(1)");
+    assertThat(partiallyResolved).isEqualTo("[false || deferred, deferred].append(1)");
     assertThat(chunkResolver.getDeferredWords()).doesNotContain("false", "or");
     assertThat(chunkResolver.getDeferredWords()).contains("deferred", ".append");
   }
@@ -469,7 +469,7 @@ public class ChunkResolverTest {
       "(  range (0 , 3 ) [ 1] + deferred) ~ 'YES'| lower"
     );
     String result = WhitespaceUtils.unquoteAndUnescape(chunkResolver.resolveChunks());
-    assertThat(result).isEqualTo("( 1 + deferred) ~ 'yes'");
+    assertThat(result).isEqualTo("(1 + deferred) ~ 'yes'");
     context.put("deferred", 2);
     assertThat(interpreter.resolveELExpression(result, 0)).isEqualTo("3yes");
   }
@@ -537,6 +537,12 @@ public class ChunkResolverTest {
         )
       )
       .isEqualTo("yes");
+  }
+
+  @Test
+  public void itFinishesResolvingList() {
+    assertThat(makeChunkResolver("[0 + 1, deferred, 2 + 1]").resolveChunks())
+      .isEqualTo("[1, deferred, 3]");
   }
 
   public static void voidFunction(int nothing) {}

@@ -58,7 +58,7 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
           sb.append(e1.getDeferredEvalResult());
         }
       }
-      throw new DeferredParsingException(sb.toString());
+      throw new DeferredParsingException(AstBinary.class, sb.toString());
     } finally {
       left.getAndClearEvalResult();
       right.getAndClearEvalResult();

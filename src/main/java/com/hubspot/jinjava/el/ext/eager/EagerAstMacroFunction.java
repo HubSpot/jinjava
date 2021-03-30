@@ -48,12 +48,12 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
           Arrays
             .stream(((AstParameters) params).eval(bindings, context))
             .map(ChunkResolver::getValueAsJinjavaStringSafe)
-            .collect(Collectors.joining(","));
+            .collect(Collectors.joining(", "));
       } catch (DeferredParsingException dpe) {
         paramString = dpe.getDeferredEvalResult();
       }
       sb.append(String.format("(%s)", paramString));
-      throw new DeferredParsingException(sb.toString());
+      throw new DeferredParsingException(AstMacroFunction.class, sb.toString());
     } finally {
       params.getAndClearEvalResult();
     }

@@ -39,6 +39,7 @@ public class EagerAstDot extends AstDot implements EvalResultHolder {
       return evalResult;
     } catch (DeferredParsingException e) {
       throw new DeferredParsingException(
+        AstDot.class,
         String.format("%s.%s", e.getDeferredEvalResult(), this.property)
       );
     } finally {
@@ -56,6 +57,10 @@ public class EagerAstDot extends AstDot implements EvalResultHolder {
   @Override
   public boolean hasEvalResult() {
     return evalResult != null;
+  }
+
+  public AstNode getPrefix() {
+    return prefix;
   }
 
   public String getProperty() {

@@ -83,7 +83,7 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
         }
       }
       sb.append("]");
-      throw new DeferredParsingException(sb.toString());
+      throw new DeferredParsingException(AstRangeBracket.class, sb.toString());
     } finally {
       ((EvalResultHolder) prefix).getAndClearEvalResult();
       ((EvalResultHolder) property).getAndClearEvalResult();
@@ -100,5 +100,17 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
   @Override
   public boolean hasEvalResult() {
     return evalResult != null;
+  }
+
+  public AstNode getRangeMax() {
+    return rangeMax;
+  }
+
+  public AstNode getRangeMin() {
+    return property;
+  }
+
+  public AstNode getPrefix() {
+    return prefix;
   }
 }

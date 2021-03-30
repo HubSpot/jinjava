@@ -50,7 +50,7 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
       evalResult = super.eval(bindings, context);
       return evalResult;
     } catch (DeferredParsingException e) {
-      StringJoiner joiner = new StringJoiner(",");
+      StringJoiner joiner = new StringJoiner(", ");
       nodes
         .stream()
         .map(node -> (EvalResultHolder) node)
@@ -78,7 +78,7 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
             }
           }
         );
-      throw new DeferredParsingException(joiner.toString());
+      throw new DeferredParsingException(AstParameters.class, joiner.toString());
     } finally {
       nodes.forEach(node -> ((EvalResultHolder) node).getAndClearEvalResult());
     }

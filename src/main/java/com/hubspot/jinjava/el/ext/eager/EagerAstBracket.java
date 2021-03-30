@@ -53,7 +53,7 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
           sb.append(String.format("[%s]", e1.getDeferredEvalResult()));
         }
       }
-      throw new DeferredParsingException(sb.toString());
+      throw new DeferredParsingException(AstBracket.class, sb.toString());
     } finally {
       ((EvalResultHolder) prefix).getAndClearEvalResult();
       ((EvalResultHolder) property).getAndClearEvalResult();
@@ -70,5 +70,13 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
   @Override
   public boolean hasEvalResult() {
     return evalResult != null;
+  }
+
+  public AstNode getPrefix() {
+    return prefix;
+  }
+
+  public AstNode getMethod() {
+    return property;
   }
 }
