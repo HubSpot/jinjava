@@ -175,7 +175,7 @@ public class RawTagTest extends BaseInterpretingTest {
     assertThat(nonPreservedResult).isEqualTo("{{ deferred }}");
 
     // Should not get evaluated because it's wrapped in a raw tag.
-    String deferredRealValue = "ResolvedExpression value.";
+    String deferredRealValue = "Resolved value.";
     preserveInterpreter.getContext().put("deferred", deferredRealValue);
     interpreter.getContext().put("deferred", deferredRealValue);
     String preservedIdempotent = tag.interpret(

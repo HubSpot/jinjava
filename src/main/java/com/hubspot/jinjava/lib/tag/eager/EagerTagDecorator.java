@@ -27,7 +27,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.util.ChunkResolver;
-import com.hubspot.jinjava.util.ChunkResolver.ResolvedExpression;
+import com.hubspot.jinjava.util.ChunkResolver.ResolvedChunks;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.Collections;
@@ -102,7 +102,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     result.append(
       executeInChildContext(
           eagerInterpreter ->
-            ResolvedExpression.fromString(
+            ResolvedChunks.fromString(
               getEagerImage(tagNode.getMaster(), eagerInterpreter) +
               renderChildren(tagNode, eagerInterpreter)
             ),
@@ -155,12 +155,12 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    *    that preserves the state within the output for a second rendering pass.
    */
   public static EagerStringResult executeInChildContext(
-    Function<JinjavaInterpreter, ResolvedExpression> function,
+    Function<JinjavaInterpreter, ResolvedChunks> function,
     JinjavaInterpreter interpreter,
     boolean takeNewValue,
     boolean partialMacroEvaluation
   ) {
-    ResolvedExpression result;
+    ResolvedChunks result;
     Map<String, Integer> initiallyResolvedHashes = new HashMap<>();
     interpreter
       .getContext()
@@ -284,7 +284,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         entry ->
           executeInChildContext(
             eagerInterpreter ->
-              ResolvedExpression.fromString(
+              ResolvedChunks.fromString(
                 new EagerMacroFunction(entry.getKey(), entry.getValue(), interpreter)
                 .reconstructImage()
               ),

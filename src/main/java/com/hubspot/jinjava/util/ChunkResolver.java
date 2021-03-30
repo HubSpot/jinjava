@@ -90,7 +90,7 @@ public class ChunkResolver {
    *  `[(foo == bar), deferred, bar]` -> `[true,deferred,'hello']`
    * @return String with chunk layers within it being partially or fully resolved.
    */
-  public ResolvedExpression resolveChunks() {
+  public ResolvedChunks resolveChunks() {
     boolean fullyResolved = false;
     Object result;
     try {
@@ -111,7 +111,7 @@ public class ChunkResolver {
       result = Collections.singletonList(null);
       fullyResolved = true;
     }
-    return new ResolvedExpression(result, fullyResolved);
+    return new ResolvedChunks(result, fullyResolved);
   }
 
   public static String getValueAsJinjavaStringSafe(Object val) {
@@ -237,15 +237,21 @@ public class ChunkResolver {
     return false;
   }
 
-  public static class ResolvedExpression {
+  public static class ResolvedChunks {
     private final Object resolvedObject;
     private final boolean fullyResolved;
 
-    private ResolvedExpression(Object resolvedObject, boolean fullyResolved) {
+    private ResolvedChunks(Object resolvedObject, boolean fullyResolved) {
       this.resolvedObject = resolvedObject;
       this.fullyResolved = fullyResolved;
     }
 
+    /**
+     * Returns a string representation of the resolved expression.
+     * If there are multiple, they will be separated by commas,
+     * but not surrounded with brackets.
+     * @return String representation of the chunks.
+     */
     @Override
     public String toString() {
       if (resolvedObject instanceof String) {
@@ -276,8 +282,15 @@ public class ChunkResolver {
       throw new DeferredValueException("Object is not resolved");
     }
 
-    public static ResolvedExpression fromString(String resolvedString) {
-      return new ResolvedExpression(resolvedString, false);
+    /**
+     * Method to wrap a string value in the ResolvedChunks class.
+     * It is not evaluated, rather it's allows a the class to be manually
+     * built from a partially resolved string.
+     * @param resolvedString Partially resolved string to wrap.
+     * @return A ResolvedChunks that {@link #toString()} returns <code>resolvedString</code>.
+     */
+    public static ResolvedChunks fromString(String resolvedString) {
+      return new ResolvedChunks(resolvedString, false);
     }
   }
 }

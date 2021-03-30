@@ -8,7 +8,7 @@ import com.hubspot.jinjava.lib.tag.ElseTag;
 import com.hubspot.jinjava.lib.tag.IfTag;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
-import com.hubspot.jinjava.util.ChunkResolver.ResolvedExpression;
+import com.hubspot.jinjava.util.ChunkResolver.ResolvedChunks;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.ObjectTruthValue;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +40,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     result.append(
       executeInChildContext(
         eagerInterpreter ->
-          ResolvedExpression.fromString(
+          ResolvedChunks.fromString(
             getEagerImage(tagNode.getMaster(), eagerInterpreter) +
             renderChildren(tagNode, eagerInterpreter)
           ),
