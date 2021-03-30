@@ -289,13 +289,20 @@ public class ExtendedParser extends Parser {
         break;
       case LPAREN:
         int i = 0;
-        Symbol s;
-        do {
-          s = lookahead(i++).getSymbol();
-          if (s == Symbol.COMMA) {
-            return createAstTuple(params());
+        Symbol s = lookahead(i++).getSymbol();
+        int depth = 0;
+        while (s != Symbol.EOF && (depth > 0 || s != Symbol.RPAREN)) {
+          if (s == LPAREN || s == LBRACK) {
+            depth++;
+          } else if (depth > 0 && (s == RPAREN || s == RBRACK)) {
+            depth--;
+          } else if (depth == 0) {
+            if (s == Symbol.COMMA) {
+              return createAstTuple(params());
+            }
           }
-        } while (s != Symbol.RPAREN && s != Symbol.EOF);
+          s = lookahead(i++).getSymbol();
+        }
 
         consumeToken();
         v = expr(true);
