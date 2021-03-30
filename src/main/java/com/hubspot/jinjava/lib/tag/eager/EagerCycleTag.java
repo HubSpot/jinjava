@@ -45,9 +45,9 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       true,
       false
     );
-    String expression = eagerStringResult.getResult().toString();
+    String expression = eagerStringResult.getResult().toString().replace(", ", ",");
     if (WhitespaceUtils.isWrappedWith(expression, "[", "]")) {
-      expression = expression.substring(1, expression.length() - 1).replace(", ", ",");
+      expression = expression.substring(1, expression.length() - 1);
     }
     StringBuilder prefixToPreserveState = new StringBuilder(
       interpreter.getContext().isDeferredExecutionMode()
@@ -107,7 +107,10 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     String var = helper.get(2);
     if (!chunkResolver.getDeferredWords().isEmpty()) {
       return EagerTagDecorator.buildSetTagForDeferredInChildContext(
-        ImmutableMap.of(var, String.format("[%s]", resolvedExpression)),
+        ImmutableMap.of(
+          var,
+          String.format("[%s]", resolvedExpression.replace(",", ", "))
+        ),
         interpreter,
         true
       );

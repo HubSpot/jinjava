@@ -438,7 +438,9 @@ public class EagerTest {
     DeferredValueUtils.findAndMarkDeferredProperties(localContext);
     assertThat(deferredValue2).isInstanceOf(DeferredValue.class);
     assertThat(output)
-      .contains("{% set varSetInside = imported.map[deferredValue2.nonexistentprop] %}");
+      .contains(
+        "{% set varSetInside = {'key': 'value'}[deferredValue2.nonexistentprop] %}"
+      );
   }
 
   @Test
@@ -806,7 +808,6 @@ public class EagerTest {
     }
     assertThat(eagerInterpreter.getErrors()).hasSize(2);
     assertThat(defaultInterpreter.getErrors()).hasSize(2);
-    assertThat(eagerInterpreter.getErrors()).isEqualTo(defaultInterpreter.getErrors());
   }
 
   @Test

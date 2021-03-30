@@ -1,6 +1,6 @@
-{% set c = [1,deferred] %}
+{% set c = [1, deferred] %}
 {% if c is iterable %}{{ c[0 % c|length] }}{% else %}{{ c }}{% endif %}
-{% set c = [2,deferred] %}
+{% set c = [2, deferred] %}
 {% if c is iterable %}{{ c[1 % c|length] }}{% else %}{{ c }}{% endif %}
-{% set c = [3,deferred] %}
+{% set c = [3, deferred] %}
 {% if c is iterable %}{{ c[2 % c|length] }}{% else %}{{ c }}{% endif %}

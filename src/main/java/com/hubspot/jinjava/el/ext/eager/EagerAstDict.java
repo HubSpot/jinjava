@@ -22,10 +22,10 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
       evalResult = super.eval(bindings, context);
       return evalResult;
     } catch (DeferredParsingException e) {
-      StringJoiner joiner = new StringJoiner(",");
+      StringJoiner joiner = new StringJoiner(", ");
       dict.forEach(
         (key, value) -> {
-          StringJoiner kvJoiner = new StringJoiner(":");
+          StringJoiner kvJoiner = new StringJoiner(": ");
           if (key instanceof EvalResultHolder) {
             if (((EvalResultHolder) key).hasEvalResult()) {
               kvJoiner.add(

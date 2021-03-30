@@ -11,6 +11,7 @@ import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.tree.parse.Token;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,7 @@ public class ChunkResolver {
   private final Set<String> deferredWords;
 
   public ChunkResolver(String s, Token token, JinjavaInterpreter interpreter) {
-    value = s;
+    value = s.trim();
     this.token = token;
     this.interpreter = interpreter;
     deferredWords = new HashSet<>();
@@ -87,9 +88,6 @@ public class ChunkResolver {
    */
   public ResolvedExpression resolveChunks() {
     boolean fullyResolved = false;
-    boolean isThrowInterpreterErrorsStart = interpreter
-      .getContext()
-      .getThrowInterpreterErrors();
     Object result;
     try {
       result =
@@ -105,10 +103,11 @@ public class ChunkResolver {
     } catch (DeferredValueException e) {
       deferredWords.addAll(findDeferredWords(value));
       result = value;
-    } finally {
-      interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);
+    } catch (TemplateSyntaxException e) {
+      result = Collections.singletonList(null);
+      fullyResolved = true;
     }
-    return new ResolvedExpression(result, fullyResolved, interpreter);
+    return new ResolvedExpression(result, fullyResolved);
   }
 
   public static String getValueAsJinjavaStringSafe(Object val) {
@@ -123,31 +122,39 @@ public class ChunkResolver {
   // Find any variables, functions, etc in this chunk to mark as deferred.
   // similar processing to getChunk method, but without recursion.
   private Set<String> findDeferredWords(String chunk) {
-    Set<String> words = new HashSet<>();
-    char[] value = chunk.toCharArray();
-    int prevQuotePos = 0;
-    int curPos = 0;
-    char c;
-    char prevChar = 0;
-    boolean inQuote = false;
-    char quoteChar = 0;
-    while (curPos < chunk.length()) {
-      c = value[curPos];
-      if (inQuote) {
-        if (c == quoteChar && prevChar != '\\') {
-          inQuote = false;
-          prevQuotePos = curPos;
+    boolean throwInterpreterErrorsStart = interpreter
+      .getContext()
+      .getThrowInterpreterErrors();
+    try {
+      interpreter.getContext().setThrowInterpreterErrors(true);
+      Set<String> words = new HashSet<>();
+      char[] value = chunk.toCharArray();
+      int prevQuotePos = 0;
+      int curPos = 0;
+      char c;
+      char prevChar = 0;
+      boolean inQuote = false;
+      char quoteChar = 0;
+      while (curPos < chunk.length()) {
+        c = value[curPos];
+        if (inQuote) {
+          if (c == quoteChar && prevChar != '\\') {
+            inQuote = false;
+            prevQuotePos = curPos;
+          }
+        } else if ((c == '\'' || c == '"') && prevChar != '\\') {
+          inQuote = true;
+          quoteChar = c;
+          words.addAll(findDeferredWordsInSubstring(chunk, prevQuotePos, curPos));
         }
-      } else if ((c == '\'' || c == '"') && prevChar != '\\') {
-        inQuote = true;
-        quoteChar = c;
-        words.addAll(findDeferredWordsInSubstring(chunk, prevQuotePos, curPos));
+        prevChar = c;
+        curPos++;
       }
-      prevChar = c;
-      curPos++;
+      words.addAll(findDeferredWordsInSubstring(chunk, prevQuotePos, curPos));
+      return words;
+    } finally {
+      interpreter.getContext().setThrowInterpreterErrors(throwInterpreterErrorsStart);
     }
-    words.addAll(findDeferredWordsInSubstring(chunk, prevQuotePos, curPos));
-    return words;
   }
 
   // Knowing that there are no quotes between start and end,
@@ -229,16 +236,10 @@ public class ChunkResolver {
   public static class ResolvedExpression {
     private final Object resolvedObject;
     private final boolean fullyResolved;
-    private final JinjavaInterpreter interpreter;
 
-    private ResolvedExpression(
-      Object resolvedObject,
-      boolean fullyResolved,
-      JinjavaInterpreter interpreter
-    ) {
+    private ResolvedExpression(Object resolvedObject, boolean fullyResolved) {
       this.resolvedObject = resolvedObject;
       this.fullyResolved = fullyResolved;
-      this.interpreter = interpreter;
     }
 
     @Override
@@ -261,18 +262,18 @@ public class ChunkResolver {
     }
 
     public List<?> toList() {
-      if (fullyResolved && resolvedObject instanceof List) {
-        return (List<?>) resolvedObject;
+      if (fullyResolved) {
+        if (resolvedObject instanceof List) {
+          return (List<?>) resolvedObject;
+        } else {
+          return Collections.singletonList(resolvedObject);
+        }
       }
       throw new DeferredValueException("Object is not resolved");
     }
 
     public static ResolvedExpression fromString(String resolvedString) {
-      return new ResolvedExpression(
-        resolvedString,
-        false,
-        JinjavaInterpreter.getCurrent()
-      );
+      return new ResolvedExpression(resolvedString, false);
     }
   }
 }
