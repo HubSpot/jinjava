@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.CycleTag;
@@ -168,9 +169,21 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     String tokenStart = tagToken.getSymbols().getExpressionStartWithTag();
     String tokenEnd = tagToken.getSymbols().getExpressionEndWithTag();
     return (
-      String.format("%s if %s is iterable %s", tokenStart, var, tokenEnd) +
+      String.format(
+        "%s if exptest:iterable.evaluate(%s, %s) %s",
+        tokenStart,
+        var,
+        ExtendedParser.INTERPRETER,
+        tokenEnd
+      ) +
       // modulo indexing
-      String.format("{{ %s[%d %% %s|length] }}", var, forIndex, var) +
+      String.format(
+        "{{ %s[%d %% filter:length.filter(%s, %s)] }}",
+        var,
+        forIndex,
+        var,
+        ExtendedParser.INTERPRETER
+      ) +
       String.format("%s else %s", tokenStart, tokenEnd) +
       String.format("{{ %s }}", var) +
       String.format("%s endif %s", tokenStart, tokenEnd)

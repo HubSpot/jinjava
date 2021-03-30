@@ -301,22 +301,6 @@ public class ChunkResolverTest {
   }
 
   @Test
-  public void itGracefullyFailsExpressionTest() {
-    String input = "foo == deferred.bar and (foo is not equalto deferred)";
-    context.put("foo", 4);
-    ChunkResolver chunkResolver = makeChunkResolver(input);
-    interpreter.getContext().setThrowInterpreterErrors(true);
-
-    String partiallyResolved = chunkResolver.resolveChunks().toString();
-
-    interpreter.getContext().setThrowInterpreterErrors(false);
-
-    assertThat(partiallyResolved).isEqualTo(input);
-    assertThat(chunkResolver.getDeferredWords())
-      .containsExactlyInAnyOrder("deferred.bar", "foo", "equalto", "deferred");
-  }
-
-  @Test
   public void itHandlesSingleQuotes() {
     context.put("foo", "'");
     context.put("bar", '\'');
