@@ -85,18 +85,17 @@ public class Jinjava {
     this.globalContext = new Context();
 
     Properties expConfig = new Properties();
-    // TODO add config flag
-    //    if (globalConfig.isEagerExecutionEnabled()) {
-    expConfig.setProperty(
-      TreeBuilder.class.getName(),
-      EagerExtendedSyntaxBuilder.class.getName()
-    );
-    //    } else {
-    //      expConfig.setProperty(
-    //        TreeBuilder.class.getName(),
-    //        ExtendedSyntaxBuilder.class.getName()
-    //      );
-    //    }
+    if (globalConfig.getExecutionMode().useEagerParser()) {
+      expConfig.setProperty(
+        TreeBuilder.class.getName(),
+        EagerExtendedSyntaxBuilder.class.getName()
+      );
+    } else {
+      expConfig.setProperty(
+        TreeBuilder.class.getName(),
+        ExtendedSyntaxBuilder.class.getName()
+      );
+    }
 
     TypeConverter converter = new TruthyTypeConverter();
     this.expressionFactory = new ExpressionFactoryImpl(expConfig, converter);
