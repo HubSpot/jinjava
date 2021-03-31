@@ -275,7 +275,7 @@ public class ExtendedParser extends Parser {
         if (
           getToken().getSymbol() == COLON &&
           lookahead(0).getSymbol() == IDENTIFIER &&
-          (lookahead(1).getSymbol() == LPAREN || lookahead(1).getSymbol() == DOT)
+          (lookahead(1).getSymbol() == LPAREN || (isPossibleExpTestOrFilter(name)))
         ) { // ns:f(...)
           consumeToken();
           name += ":" + getToken().getImage();
@@ -474,6 +474,26 @@ public class ExtendedParser extends Parser {
 
   private boolean isPossibleExpTest(Symbol symbol) {
     return VALID_SYMBOLS_FOR_EXP_TEST.contains(symbol);
+  }
+
+  private boolean isPossibleExpTestOrFilter(String namespace)
+    throws ParseException, ScanException {
+    if (
+      FILTER_PREFIX.substring(0, FILTER_PREFIX.length() - 1).equals(namespace) ||
+      EXPTEST_PREFIX.substring(0, EXPTEST_PREFIX.length() - 1).equals(namespace) &&
+      lookahead(1).getSymbol() == DOT &&
+      lookahead(2).getSymbol() == IDENTIFIER
+    ) {
+      Token property = lookahead(2);
+      if (
+        "filter".equals(property.getImage()) ||
+        "evaluate".equals(property.getImage()) ||
+        "evaluateNegated".equals(property.getImage())
+      ) {
+        return lookahead(3).getSymbol() == LPAREN;
+      }
+    }
+    return false;
   }
 
   private AstNode buildAstMethodForIdentifier(AstNode astNode, String property)

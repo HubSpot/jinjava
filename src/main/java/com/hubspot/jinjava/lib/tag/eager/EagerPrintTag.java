@@ -6,7 +6,6 @@ import com.hubspot.jinjava.lib.tag.PrintTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.ChunkResolver;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
-import com.hubspot.jinjava.util.WhitespaceUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
@@ -57,15 +56,6 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
       true,
       false
     );
-    LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
-      interpreter.getConfig().getMaxOutputSize(),
-      " "
-    );
-    joiner
-      .add(tagToken.getSymbols().getExpressionStartWithTag())
-      .add(tagToken.getTagName())
-      .add(resolvedExpression.getResult())
-      .add(tagToken.getSymbols().getExpressionEndWithTag());
     StringBuilder prefixToPreserveState = new StringBuilder(
       interpreter.getContext().isDeferredExecutionMode()
         ? resolvedExpression.getPrefixToPreserveState()
@@ -78,9 +68,7 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
         (
           includeExpressionResult
             ? wrapInRawIfNeeded(
-              WhitespaceUtils.unquoteAndUnescape(
-                resolvedExpression.getResult().toString()
-              ),
+              resolvedExpression.getResult().toString(true),
               interpreter
             )
             : ""
@@ -90,6 +78,16 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
     prefixToPreserveState.append(
       reconstructFromContextBeforeDeferring(chunkResolver.getDeferredWords(), interpreter)
     );
+
+    LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
+      interpreter.getConfig().getMaxOutputSize(),
+      " "
+    );
+    joiner
+      .add(tagToken.getSymbols().getExpressionStartWithTag())
+      .add(tagToken.getTagName())
+      .add(resolvedExpression.getResult().toString())
+      .add(tagToken.getSymbols().getExpressionEndWithTag());
     interpreter
       .getContext()
       .handleEagerToken(

@@ -47,11 +47,7 @@ public class ChunkResolverTest {
         .newBuilder()
         .withExecutionMode(EagerExecutionMode.instance())
         .withLegacyOverrides(
-          LegacyOverrides
-            .newBuilder()
-            .withEvaluateMapKeys(evaluateMapKeys)
-            .withUsePyishObjectMapper(true)
-            .build()
+          LegacyOverrides.newBuilder().withEvaluateMapKeys(evaluateMapKeys).build()
         )
         .build()
     );
@@ -221,7 +217,6 @@ public class ChunkResolverTest {
   }
 
   @Test
-  // TODO support order of operations
   public void itSupportsOrderOfOperations() {
     ChunkResolver chunkResolver = makeChunkResolver("[0,1]|reverse + deferred");
     String partiallyResolved = chunkResolver.resolveChunks().toString();
@@ -244,25 +239,6 @@ public class ChunkResolverTest {
     assertThat(chunkResolver.getDeferredWords())
       .containsExactlyInAnyOrder("range", "deferred");
   }
-
-  /*@Test
-  public void itSplitsChunks() {
-    ChunkResolver chunkResolver = makeChunkResolver("1, 1 + 1, 1 + 2");
-    List<String> miniChunks = chunkResolver.splitChunks();
-    assertThat(miniChunks).containsExactly("1", "2", "3");
-    assertThat(chunkResolver.getDeferredWords()).isEmpty();
-  }
-
-  @Test
-  public void itProperlySplitsMultiLevelChunks() {
-    ChunkResolver chunkResolver = makeChunkResolver(
-      "[5,7], 1 + 1, 1 + range(0 + 1, deferred)"
-    );
-    List<String> miniChunks = chunkResolver.splitChunks();
-    assertThat(miniChunks).containsExactly("[5, 7]", "2", "1 + range(1, deferred)");
-    assertThat(chunkResolver.getDeferredWords())
-      .containsExactlyInAnyOrder("range", "deferred");
-  }*/
 
   @Test
   public void itDoesntDeferReservedWords() {
@@ -578,6 +554,12 @@ public class ChunkResolverTest {
   public void itFinishesResolvingList() {
     assertThat(makeChunkResolver("[0 + 1, deferred, 2 + 1]").resolveChunks().toString())
       .isEqualTo("[1, deferred, 3]");
+  }
+
+  @Test
+  public void itHandlesExtraSapces() {
+    context.put("foo", " foo");
+    assertThat(makeChunkResolver("foo").resolveChunks().toString()).isEqualTo("' foo'");
   }
 
   @Test

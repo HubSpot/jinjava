@@ -46,22 +46,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
       true,
       false
     );
-    LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
-      interpreter.getConfig().getMaxOutputSize(),
-      " "
-    );
-    joiner
-      .add(tagToken.getSymbols().getExpressionStartWithTag())
-      .add(tagToken.getTagName())
-      .add(variables)
-      .add("=")
-      .add(resolvedExpression.getResult().toString())
-      .add(tagToken.getSymbols().getExpressionEndWithTag());
-    StringBuilder prefixToPreserveState = new StringBuilder(
-      interpreter.getContext().isDeferredExecutionMode()
-        ? resolvedExpression.getPrefixToPreserveState()
-        : ""
-    );
+
     String[] varTokens = variables.split(",");
 
     if (
@@ -80,9 +65,16 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
         return "";
       } catch (DeferredValueException ignored) {}
     }
-    prefixToPreserveState.append(
-      reconstructFromContextBeforeDeferring(chunkResolver.getDeferredWords(), interpreter)
-    );
+    LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
+      interpreter.getConfig().getMaxOutputSize(),
+      " "
+    )
+      .add(tagToken.getSymbols().getExpressionStartWithTag())
+      .add(tagToken.getTagName())
+      .add(variables)
+      .add("=")
+      .add(resolvedExpression.getResult().toString())
+      .add(tagToken.getSymbols().getExpressionEndWithTag());
 
     interpreter
       .getContext()
@@ -114,10 +106,18 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
         )
       );
     }
+    String prefixToPreserveState =
+      (
+        interpreter.getContext().isDeferredExecutionMode()
+          ? resolvedExpression.getPrefixToPreserveState()
+          : ""
+      ) +
+      reconstructFromContextBeforeDeferring(
+        chunkResolver.getDeferredWords(),
+        interpreter
+      );
     return wrapInAutoEscapeIfNeeded(
-      prefixToPreserveState.toString() +
-      joiner.toString() +
-      suffixToPreserveState.toString(),
+      prefixToPreserveState + joiner.toString() + suffixToPreserveState.toString(),
       interpreter
     );
   }

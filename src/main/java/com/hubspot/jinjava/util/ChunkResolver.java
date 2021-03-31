@@ -254,19 +254,37 @@ public class ChunkResolver {
      */
     @Override
     public String toString() {
+      return toString(false);
+    }
+
+    /**
+     * When forOutput is true, the result will always be unquoted.
+     * @param forOutput Whether the result is going to be included in the final output,
+     *                  such as in an expression, or not such as when reconstructing tags.
+     * @return String representation of the chunks
+     */
+    public String toString(boolean forOutput) {
       if (resolvedObject instanceof String) {
         return (String) resolvedObject;
       }
       if (resolvedObject == null) {
-        return JINJAVA_EMPTY_STRING;
+        return forOutput ? "" : JINJAVA_EMPTY_STRING;
       }
-      String asString = PyishObjectMapper.getAsPyishString(resolvedObject);
-      if (fullyResolved && StringUtils.isNotEmpty(asString)) {
-        // Removes surrounding brackets.
-        asString = asString.substring(1, asString.length() - 1);
+      String asString;
+      JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+      if (forOutput && interpreter != null) {
+        asString =
+          JinjavaInterpreter.getCurrent().getAsString(((List<?>) resolvedObject).get(0));
+      } else {
+        asString = PyishObjectMapper.getAsUnquotedPyishString(resolvedObject);
+
+        if (fullyResolved && StringUtils.isNotEmpty(asString)) {
+          // Removes surrounding brackets.
+          asString = asString.substring(1, asString.length() - 1);
+        }
       }
       if (JINJAVA_NULL.equals(asString)) {
-        return JINJAVA_EMPTY_STRING;
+        return forOutput ? "" : JINJAVA_EMPTY_STRING;
       }
       return asString;
     }
