@@ -15,8 +15,8 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
 
   public EagerAstBinary(AstNode left, AstNode right, Operator operator) {
     this(
-      EagerAstNode.getAsEvalResultHolder(left),
-      EagerAstNode.getAsEvalResultHolder(right),
+      EagerAstNodeDecorator.getAsEvalResultHolder(left),
+      EagerAstNodeDecorator.getAsEvalResultHolder(right),
       operator
     );
   }

@@ -315,10 +315,6 @@ public class ExtendedParser extends Parser {
     return v;
   }
 
-  protected AstRightValue createAstNested(AstNode node) {
-    return new AstNested(node);
-  }
-
   @Override
   protected AstNode literal() throws ScanException, ParseException {
     AstNode v = null;
@@ -346,6 +342,10 @@ public class ExtendedParser extends Parser {
     }
 
     return super.literal();
+  }
+
+  protected AstRightValue createAstNested(AstNode node) {
+    return new AstNested(node);
   }
 
   protected AstTuple createAstTuple(AstParameters parameters)
@@ -489,7 +489,7 @@ public class ExtendedParser extends Parser {
         "filter".equals(property.getImage()) ||
         "evaluate".equals(property.getImage()) ||
         "evaluateNegated".equals(property.getImage())
-      ) {
+      ) { // exptest:equalto.evaluate(...
         return lookahead(3).getSymbol() == LPAREN;
       }
     }

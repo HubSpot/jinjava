@@ -19,9 +19,9 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
     boolean ignoreReturnType
   ) {
     super(
-      (AstNode) EagerAstNode.getAsEvalResultHolder(base),
-      (AstNode) EagerAstNode.getAsEvalResultHolder(rangeStart),
-      (AstNode) EagerAstNode.getAsEvalResultHolder(rangeMax),
+      (AstNode) EagerAstNodeDecorator.getAsEvalResultHolder(base),
+      (AstNode) EagerAstNodeDecorator.getAsEvalResultHolder(rangeStart),
+      (AstNode) EagerAstNodeDecorator.getAsEvalResultHolder(rangeMax),
       lvalue,
       strict,
       ignoreReturnType

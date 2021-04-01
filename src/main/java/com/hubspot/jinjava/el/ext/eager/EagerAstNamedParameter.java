@@ -15,7 +15,7 @@ public class EagerAstNamedParameter
   private final EvalResultHolder value;
 
   public EagerAstNamedParameter(AstIdentifier name, AstNode value) {
-    this(name, EagerAstNode.getAsEvalResultHolder(value));
+    this(name, EagerAstNodeDecorator.getAsEvalResultHolder(value));
   }
 
   private EagerAstNamedParameter(AstIdentifier name, EvalResultHolder value) {

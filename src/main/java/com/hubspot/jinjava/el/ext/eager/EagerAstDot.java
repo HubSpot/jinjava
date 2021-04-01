@@ -18,7 +18,12 @@ public class EagerAstDot extends AstDot implements EvalResultHolder {
     boolean lvalue,
     boolean ignoreReturnType
   ) {
-    this(EagerAstNode.getAsEvalResultHolder(base), property, lvalue, ignoreReturnType);
+    this(
+      EagerAstNodeDecorator.getAsEvalResultHolder(base),
+      property,
+      lvalue,
+      ignoreReturnType
+    );
   }
 
   public EagerAstDot(

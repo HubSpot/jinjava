@@ -18,8 +18,8 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
     boolean ignoreReturnType
   ) {
     super(
-      (AstNode) EagerAstNode.getAsEvalResultHolder(base),
-      (AstNode) EagerAstNode.getAsEvalResultHolder(property),
+      (AstNode) EagerAstNodeDecorator.getAsEvalResultHolder(base),
+      (AstNode) EagerAstNodeDecorator.getAsEvalResultHolder(property),
       lvalue,
       strict,
       ignoreReturnType

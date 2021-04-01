@@ -33,11 +33,6 @@ public class StringConcatOperator extends SimpleOperator {
     return new ExtensionHandler(ExtensionPoint.ADD) {
 
       @Override
-      public String toString() {
-        return TOKEN.getImage();
-      }
-
-      @Override
       public AstNode createAstNode(AstNode... children) {
         return eager
           ? new EagerAstBinary(children[0], children[1], OP)

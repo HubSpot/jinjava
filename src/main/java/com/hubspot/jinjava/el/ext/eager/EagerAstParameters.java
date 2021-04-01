@@ -21,7 +21,7 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
     this(
       nodes
         .stream()
-        .map(EagerAstNode::getAsEvalResultHolder)
+        .map(EagerAstNodeDecorator::getAsEvalResultHolder)
         .map(e -> (AstNode) e)
         .collect(Collectors.toList()),
       true
@@ -39,7 +39,9 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
     }
     List<AstNode> nodes = new ArrayList<>();
     for (int i = 0; i < astParameters.getCardinality(); i++) {
-      nodes.add((AstNode) EagerAstNode.getAsEvalResultHolder(astParameters.getChild(i)));
+      nodes.add(
+        (AstNode) EagerAstNodeDecorator.getAsEvalResultHolder(astParameters.getChild(i))
+      );
     }
     return new EagerAstParameters(nodes, true);
   }

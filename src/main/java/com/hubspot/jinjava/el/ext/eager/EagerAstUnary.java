@@ -13,7 +13,7 @@ public class EagerAstUnary extends AstUnary implements EvalResultHolder {
   protected final Operator operator;
 
   public EagerAstUnary(AstNode child, Operator operator) {
-    this(EagerAstNode.getAsEvalResultHolder(child), operator);
+    this(EagerAstNodeDecorator.getAsEvalResultHolder(child), operator);
   }
 
   private EagerAstUnary(EvalResultHolder child, Operator operator) {

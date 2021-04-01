@@ -7,7 +7,7 @@ import javax.el.ELContext;
 import javax.el.MethodInfo;
 import javax.el.ValueReference;
 
-public class EagerAstNode extends AstNode implements EvalResultHolder {
+public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
   private final AstNode astNode;
   private Object evalResult;
 
@@ -16,12 +16,12 @@ public class EagerAstNode extends AstNode implements EvalResultHolder {
       return (EvalResultHolder) astNode;
     }
     if (astNode != null) {
-      return new EagerAstNode(astNode);
+      return new EagerAstNodeDecorator(astNode);
     }
     return null;
   }
 
-  private EagerAstNode(AstNode astNode) {
+  private EagerAstNodeDecorator(AstNode astNode) {
     this.astNode = astNode;
   }
 

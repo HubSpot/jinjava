@@ -16,9 +16,9 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
 
   public EagerAstChoice(AstNode question, AstNode yes, AstNode no) {
     this(
-      EagerAstNode.getAsEvalResultHolder(question),
-      EagerAstNode.getAsEvalResultHolder(yes),
-      EagerAstNode.getAsEvalResultHolder(no)
+      EagerAstNodeDecorator.getAsEvalResultHolder(question),
+      EagerAstNodeDecorator.getAsEvalResultHolder(yes),
+      EagerAstNodeDecorator.getAsEvalResultHolder(no)
     );
   }
 

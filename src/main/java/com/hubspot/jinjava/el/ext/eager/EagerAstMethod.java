@@ -21,7 +21,7 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
 
   public EagerAstMethod(AstProperty property, AstParameters params) {
     this(
-      EagerAstNode.getAsEvalResultHolder(property),
+      EagerAstNodeDecorator.getAsEvalResultHolder(property),
       EagerAstParameters.getAsEvalResultHolder(params)
     );
   }

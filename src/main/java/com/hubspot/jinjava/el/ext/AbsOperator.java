@@ -11,6 +11,10 @@ import de.odysseus.el.tree.impl.ast.AstUnary;
 import de.odysseus.el.tree.impl.ast.AstUnary.SimpleOperator;
 
 public class AbsOperator extends SimpleOperator {
+  public static final ExtensionToken TOKEN = new Scanner.ExtensionToken("+");
+  public static final AbsOperator OP = new AbsOperator();
+
+  public static final ExtensionHandler HANDLER = getHandler(false);
 
   @Override
   protected Object apply(TypeConverter converter, Object o) {
@@ -36,10 +40,10 @@ public class AbsOperator extends SimpleOperator {
     );
   }
 
-  public static final ExtensionToken TOKEN = new Scanner.ExtensionToken("+");
-  public static final AbsOperator OP = new AbsOperator();
-
-  public static final ExtensionHandler HANDLER = getHandler(false);
+  @Override
+  public String toString() {
+    return "+";
+  }
 
   public static ExtensionHandler getHandler(boolean eager) {
     return new ExtensionHandler(ExtensionPoint.UNARY) {
