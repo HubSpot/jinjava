@@ -38,45 +38,17 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
       evalResult = super.eval(bindings, context);
       return evalResult;
     } catch (DeferredParsingException e) {
-      StringBuilder sb = new StringBuilder();
-      sb.append(e.getDeferredEvalResult());
       if (question.getAndClearEvalResult() != null) {
         // the question was evaluated so jump to either yes or no
-        throw new DeferredParsingException(this, sb.toString());
+        throw new DeferredParsingException(this, e.getDeferredEvalResult());
       }
-      sb.append(" ? ");
-
-      sb.append(EvalResultHolder.reconstructNode(bindings, context, yes, e, false));
-      sb.append(" : ");
-      sb.append(EvalResultHolder.reconstructNode(bindings, context, no, e, false));
-      //      if (yes.hasEvalResult()) {
-      //        sb.append(ChunkResolver.getValueAsJinjavaStringSafe(yes.getAndClearEvalResult()));
-      //      } else {
-      //        try {
-      //          sb.append(
-      //            ChunkResolver.getValueAsJinjavaStringSafe(
-      //              ((AstNode) yes).eval(bindings, context)
-      //            )
-      //          );
-      //        } catch (DeferredParsingException e1) {
-      //          sb.append(e1.getDeferredEvalResult());
-      //        }
-      //      }
-      //      sb.append(" : ");
-      //      if (no.hasEvalResult()) {
-      //        sb.append(ChunkResolver.getValueAsJinjavaStringSafe(no.getAndClearEvalResult()));
-      //      } else {
-      //        try {
-      //          sb.append(
-      //            ChunkResolver.getValueAsJinjavaStringSafe(
-      //              ((AstNode) no).eval(bindings, context)
-      //            )
-      //          );
-      //        } catch (DeferredParsingException e1) {
-      //          sb.append(e1.getDeferredEvalResult());
-      //        }
-      //      }
-      throw new DeferredParsingException(this, sb.toString());
+      String sb =
+        e.getDeferredEvalResult() +
+        " ? " +
+        EvalResultHolder.reconstructNode(bindings, context, yes, e, false) +
+        " : " +
+        EvalResultHolder.reconstructNode(bindings, context, no, e, false);
+      throw new DeferredParsingException(this, sb);
     } finally {
       question.getAndClearEvalResult();
       yes.getAndClearEvalResult();

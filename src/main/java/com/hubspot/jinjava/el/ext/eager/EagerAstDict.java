@@ -2,7 +2,8 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.AstDict;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.util.ChunkResolver;
+import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import java.util.Map;
@@ -22,46 +23,36 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
       evalResult = super.eval(bindings, context);
       return evalResult;
     } catch (DeferredParsingException e) {
+      JinjavaInterpreter interpreter = (JinjavaInterpreter) context
+        .getELResolver()
+        .getValue(context, null, ExtendedParser.INTERPRETER);
       StringJoiner joiner = new StringJoiner(", ");
       dict.forEach(
         (key, value) -> {
           StringJoiner kvJoiner = new StringJoiner(": ");
           if (key instanceof EvalResultHolder) {
-            if (((EvalResultHolder) key).hasEvalResult()) {
-              kvJoiner.add(
-                ChunkResolver.getValueAsJinjavaStringSafe(
-                  ((EvalResultHolder) key).getAndClearEvalResult()
-                )
-              );
-            } else {
-              try {
-                kvJoiner.add(
-                  ChunkResolver.getValueAsJinjavaStringSafe(key.eval(bindings, context))
-                );
-              } catch (DeferredParsingException e1) {
-                kvJoiner.add(e1.getDeferredEvalResult());
-              }
-            }
+            kvJoiner.add(
+              EvalResultHolder.reconstructNode(
+                bindings,
+                context,
+                (EvalResultHolder) key,
+                e,
+                !interpreter.getConfig().getLegacyOverrides().isEvaluateMapKeys()
+              )
+            );
           } else {
             kvJoiner.add(key.toString());
           }
-
           if (value instanceof EvalResultHolder) {
-            if (((EvalResultHolder) value).hasEvalResult()) {
-              kvJoiner.add(
-                ChunkResolver.getValueAsJinjavaStringSafe(
-                  ((EvalResultHolder) value).getAndClearEvalResult()
-                )
-              );
-            } else {
-              try {
-                kvJoiner.add(
-                  ChunkResolver.getValueAsJinjavaStringSafe(value.eval(bindings, context))
-                );
-              } catch (DeferredParsingException e1) {
-                kvJoiner.add(e1.getDeferredEvalResult());
-              }
-            }
+            kvJoiner.add(
+              EvalResultHolder.reconstructNode(
+                bindings,
+                context,
+                (EvalResultHolder) value,
+                e,
+                false
+              )
+            );
           } else {
             kvJoiner.add(value.toString());
           }

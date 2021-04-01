@@ -37,31 +37,11 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
       evalResult = super.eval(bindings, context);
       return evalResult;
     } catch (DeferredParsingException e) {
-      StringBuilder sb = new StringBuilder();
-      sb.append(EvalResultHolder.reconstructNode(bindings, context, left, e, false));
-      sb.append(String.format(" %s ", operator.toString()));
-      sb.append(EvalResultHolder.reconstructNode(bindings, context, right, e, false));
-
-      //      if (left.hasEvalResult()) {
-      //        sb.append(
-      //          ChunkResolver.getValueAsJinjavaStringSafe(left.getAndClearEvalResult())
-      //        );
-      //        sb.append(String.format(" %s ", operator.toString()));
-      //        sb.append(e.getDeferredEvalResult());
-      //      } else {
-      //        sb.append(e.getDeferredEvalResult());
-      //        sb.append(String.format(" %s ", operator.toString()));
-      //        try {
-      //          sb.append(
-      //            ChunkResolver.getValueAsJinjavaStringSafe(
-      //              ((AstNode) right).eval(bindings, context)
-      //            )
-      //          );
-      //        } catch (DeferredParsingException e1) {
-      //          sb.append(e1.getDeferredEvalResult());
-      //        }
-      //      }
-      throw new DeferredParsingException(this, sb.toString());
+      String sb =
+        EvalResultHolder.reconstructNode(bindings, context, left, e, false) +
+        String.format(" %s ", operator.toString()) +
+        EvalResultHolder.reconstructNode(bindings, context, right, e, false);
+      throw new DeferredParsingException(this, sb);
     } finally {
       left.getAndClearEvalResult();
       right.getAndClearEvalResult();
