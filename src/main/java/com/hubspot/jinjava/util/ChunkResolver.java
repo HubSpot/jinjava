@@ -235,6 +235,9 @@ public class ChunkResolver {
   }
 
   private boolean isTokenSplitter(char c) {
+    if (c == '|' && prevChar == '|') { // or operator
+      return true;
+    }
     return (
       !Character.isLetterOrDigit(c) && c != '_' && c != '.' && c != '|' && c != ' '
     );
