@@ -53,7 +53,7 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
         paramString = dpe.getDeferredEvalResult();
       }
       sb.append(String.format("(%s)", paramString));
-      throw new DeferredParsingException(AstMacroFunction.class, sb.toString());
+      throw new DeferredParsingException(this, sb.toString());
     } finally {
       params.getAndClearEvalResult();
     }

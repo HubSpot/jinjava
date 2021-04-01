@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.util.ChunkResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBinary;
 import de.odysseus.el.tree.impl.ast.AstNode;
@@ -39,26 +38,30 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
       return evalResult;
     } catch (DeferredParsingException e) {
       StringBuilder sb = new StringBuilder();
-      if (left.hasEvalResult()) {
-        sb.append(
-          ChunkResolver.getValueAsJinjavaStringSafe(left.getAndClearEvalResult())
-        );
-        sb.append(String.format(" %s ", operator.toString()));
-        sb.append(e.getDeferredEvalResult());
-      } else {
-        sb.append(e.getDeferredEvalResult());
-        sb.append(String.format(" %s ", operator.toString()));
-        try {
-          sb.append(
-            ChunkResolver.getValueAsJinjavaStringSafe(
-              ((AstNode) right).eval(bindings, context)
-            )
-          );
-        } catch (DeferredParsingException e1) {
-          sb.append(e1.getDeferredEvalResult());
-        }
-      }
-      throw new DeferredParsingException(AstBinary.class, sb.toString());
+      sb.append(EvalResultHolder.reconstructNode(bindings, context, left, e, false));
+      sb.append(String.format(" %s ", operator.toString()));
+      sb.append(EvalResultHolder.reconstructNode(bindings, context, right, e, false));
+
+      //      if (left.hasEvalResult()) {
+      //        sb.append(
+      //          ChunkResolver.getValueAsJinjavaStringSafe(left.getAndClearEvalResult())
+      //        );
+      //        sb.append(String.format(" %s ", operator.toString()));
+      //        sb.append(e.getDeferredEvalResult());
+      //      } else {
+      //        sb.append(e.getDeferredEvalResult());
+      //        sb.append(String.format(" %s ", operator.toString()));
+      //        try {
+      //          sb.append(
+      //            ChunkResolver.getValueAsJinjavaStringSafe(
+      //              ((AstNode) right).eval(bindings, context)
+      //            )
+      //          );
+      //        } catch (DeferredParsingException e1) {
+      //          sb.append(e1.getDeferredEvalResult());
+      //        }
+      //      }
+      throw new DeferredParsingException(this, sb.toString());
     } finally {
       left.getAndClearEvalResult();
       right.getAndClearEvalResult();

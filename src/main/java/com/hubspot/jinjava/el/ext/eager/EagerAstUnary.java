@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.util.ChunkResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstUnary;
@@ -28,16 +27,10 @@ public class EagerAstUnary extends AstUnary implements EvalResultHolder {
       evalResult = super.eval(bindings, context);
       return evalResult;
     } catch (DeferredParsingException e) {
-      StringBuilder sb = new StringBuilder();
-      sb.append(operator.toString());
-      if (child.hasEvalResult()) {
-        sb.append(
-          ChunkResolver.getValueAsJinjavaStringSafe(child.getAndClearEvalResult())
-        );
-      } else {
-        sb.append(e.getDeferredEvalResult());
-      }
-      throw new DeferredParsingException(AstUnary.class, sb.toString());
+      String sb =
+        operator.toString() +
+        EvalResultHolder.reconstructNode(bindings, context, child, e, false);
+      throw new DeferredParsingException(this, sb);
     } finally {
       child.getAndClearEvalResult();
     }

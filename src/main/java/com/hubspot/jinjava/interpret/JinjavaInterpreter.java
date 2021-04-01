@@ -426,7 +426,7 @@ public class JinjavaInterpreter {
     if (obj != null) {
       if (obj instanceof DeferredValue) {
         if (config.getExecutionMode().useEagerParser()) {
-          throw new DeferredParsingException(String.class, variable);
+          throw new DeferredParsingException(this, variable);
         } else {
           throw new DeferredValueException(variable, lineNumber, startPosition);
         }

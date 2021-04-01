@@ -31,7 +31,7 @@ public class EagerAstNamedParameter
       return evalResult;
     } catch (DeferredParsingException e) {
       throw new DeferredParsingException(
-        AstNamedParameter.class,
+        this,
         String.format("%s=%s", name, e.getDeferredEvalResult())
       );
     } finally {

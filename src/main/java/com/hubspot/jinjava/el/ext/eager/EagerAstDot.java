@@ -44,7 +44,7 @@ public class EagerAstDot extends AstDot implements EvalResultHolder {
       return evalResult;
     } catch (DeferredParsingException e) {
       throw new DeferredParsingException(
-        AstDot.class,
+        this,
         String.format("%s.%s", e.getDeferredEvalResult(), this.property)
       );
     } finally {

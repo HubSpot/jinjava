@@ -4,19 +4,25 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 
 public class DeferredParsingException extends DeferredValueException {
   private final String deferredEvalResult;
+  private final Object sourceNode;
 
-  public DeferredParsingException(Class<?> clazz, String deferredEvalResult) {
+  public DeferredParsingException(Object sourceNode, String deferredEvalResult) {
     super(
       String.format(
         "%s could not be parsed more than: %s",
-        clazz.toString(),
+        sourceNode.getClass(),
         deferredEvalResult
       )
     );
     this.deferredEvalResult = deferredEvalResult;
+    this.sourceNode = sourceNode;
   }
 
   public String getDeferredEvalResult() {
     return deferredEvalResult;
+  }
+
+  public Object getSourceNode() {
+    return sourceNode;
   }
 }

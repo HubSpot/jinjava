@@ -243,7 +243,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
             if (value instanceof DeferredValue) {
               if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
-                throw new DeferredParsingException(String.class, propertyName);
+                throw new DeferredParsingException(this, propertyName);
               } else {
                 throw new DeferredValueException(
                   propertyName,

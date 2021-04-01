@@ -1,10 +1,7 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.el.ext.ExtendedParser;
-import com.hubspot.jinjava.util.ChunkResolver;
 import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import java.util.ArrayList;
@@ -57,30 +54,12 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
         .stream()
         .map(node -> (EvalResultHolder) node)
         .forEach(
-          node -> {
-            if (
-              node instanceof AstIdentifier &&
-              ExtendedParser.INTERPRETER.equals(((AstIdentifier) node).getName())
-            ) {
-              joiner.add(ExtendedParser.INTERPRETER);
-            } else if (node.hasEvalResult()) {
-              joiner.add(
-                ChunkResolver.getValueAsJinjavaStringSafe(node.getAndClearEvalResult())
-              );
-            } else {
-              try {
-                joiner.add(
-                  ChunkResolver.getValueAsJinjavaStringSafe(
-                    ((AstNode) node).eval(bindings, context)
-                  )
-                );
-              } catch (DeferredParsingException e1) {
-                joiner.add(e1.getDeferredEvalResult());
-              }
-            }
-          }
+          node ->
+            joiner.add(
+              EvalResultHolder.reconstructNode(bindings, context, node, e, false)
+            )
         );
-      throw new DeferredParsingException(AstParameters.class, joiner.toString());
+      throw new DeferredParsingException(this, joiner.toString());
     } finally {
       nodes.forEach(node -> ((EvalResultHolder) node).getAndClearEvalResult());
     }

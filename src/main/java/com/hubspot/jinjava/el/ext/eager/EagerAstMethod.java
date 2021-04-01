@@ -4,12 +4,10 @@ import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.util.ChunkResolver;
 import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstMethod;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import de.odysseus.el.tree.impl.ast.AstProperty;
-import java.util.Optional;
 import javax.el.ELContext;
 
 public class EagerAstMethod extends AstMethod implements EvalResultHolder {
@@ -38,9 +36,6 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
       evalResult = super.eval(bindings, context);
       return evalResult;
     } catch (DeferredParsingException e) {
-      //      if (e.getDeferredEvalResult().contains(ExtendedParser.INTERPRETER)) {
-      //        throw new DeferredValueException("Cannot partially resolve");
-      //      }
       StringBuilder sb = new StringBuilder();
       String paramString;
       if (property.hasEvalResult()) {
@@ -63,18 +58,13 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
           sb.append(e.getDeferredEvalResult());
         }
       } else {
-        Optional<String> maybePartiallyResolved = getPartiallyResolved(
-          bindings,
-          context,
-          e.getDeferredEvalResult()
+        throw new DeferredParsingException(
+          this,
+          getPartiallyResolved(bindings, context, e)
         );
-        if (!maybePartiallyResolved.isPresent()) {
-          throw new DeferredValueException("Cannot resolve method");
-        }
-        throw new DeferredParsingException(AstMethod.class, maybePartiallyResolved.get());
       }
       sb.append(String.format("(%s)", paramString));
-      throw new DeferredParsingException(AstMethod.class, sb.toString());
+      throw new DeferredParsingException(this, sb.toString());
     } finally {
       property.getAndClearEvalResult();
       params.getAndClearEvalResult();
@@ -93,12 +83,16 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
     return evalResult != null;
   }
 
-  private Optional<String> getPartiallyResolved(
+  /**
+   * This method is used when we need to reconstruct the method property and params manually.
+   * Neither the property or params could be evaluated so we dive into the property and figure out
+   * where the DeferredParsingException came from.
+   */
+  private String getPartiallyResolved(
     Bindings bindings,
     ELContext context,
-    String deferredValueResult
+    DeferredParsingException deferredParsingException
   ) {
-    boolean usedDeferredValueResult = false;
     String stringPrefix;
     String stringMethod = "";
     String stringRangeMax = "";
@@ -120,86 +114,57 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
       methodOrRangeMin = ((EagerAstRangeBracket) property).getRangeMin();
       rangeMax = ((EagerAstRangeBracket) property).getRangeMax();
     } else {
-      return Optional.empty();
+      throw new DeferredValueException("Cannot resolve property in EagerAstMethod");
     }
 
-    if (((EvalResultHolder) prefix).hasEvalResult()) {
-      if (prefix instanceof AstIdentifier) {
-        ((EvalResultHolder) prefix).getAndClearEvalResult(); // clear unused result
-        stringPrefix = ((AstIdentifier) prefix).getName();
-      } else {
-        stringPrefix =
-          ChunkResolver.getValueAsJinjavaStringSafe(
-            ((EvalResultHolder) prefix).getAndClearEvalResult()
-          );
-      }
-    } else {
-      stringPrefix = deferredValueResult;
-      usedDeferredValueResult = true;
-    }
+    // If prefix is an identifier, then preserve it in case the method should modify it.
+    stringPrefix =
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        (EvalResultHolder) prefix,
+        deferredParsingException,
+        true
+      );
+
     if (methodOrRangeMin instanceof EvalResultHolder) {
-      if (((EvalResultHolder) methodOrRangeMin).hasEvalResult()) {
-        stringMethod =
-          ChunkResolver.getValueAsJinjavaStringSafe(
-            ((EvalResultHolder) methodOrRangeMin).getAndClearEvalResult()
-          );
-      } else if (usedDeferredValueResult) {
-        stringMethod = getResultFromAstNode(bindings, context, methodOrRangeMin);
-      } else {
-        stringMethod = deferredValueResult;
-        usedDeferredValueResult = true;
-      }
+      stringMethod =
+        EvalResultHolder.reconstructNode(
+          bindings,
+          context,
+          (EvalResultHolder) methodOrRangeMin,
+          deferredParsingException,
+          false
+        );
     }
 
     if (rangeMax instanceof EvalResultHolder) {
-      if (((EvalResultHolder) rangeMax).hasEvalResult()) {
-        stringRangeMax =
-          ChunkResolver.getValueAsJinjavaStringSafe(
-            ((EvalResultHolder) rangeMax).getAndClearEvalResult()
-          );
-      } else if (usedDeferredValueResult) {
-        stringRangeMax = getResultFromAstNode(bindings, context, rangeMax);
-      } else {
-        stringRangeMax = deferredValueResult;
-        usedDeferredValueResult = true;
-      }
+      stringRangeMax =
+        EvalResultHolder.reconstructNode(
+          bindings,
+          context,
+          (EvalResultHolder) rangeMax,
+          deferredParsingException,
+          false
+        );
     }
     String paramString;
-    if (usedDeferredValueResult) {
+    if (deferredParsingException.getSourceNode() == params) {
+      paramString = deferredParsingException.getDeferredEvalResult();
+    } else {
       try {
         paramString =
           ChunkResolver.getValueAsJinjavaStringSafe(params.eval(bindings, context));
-        // replace brackets with parens
+        // remove brackets so they can get replaced with parentheses
         paramString = paramString.substring(1, paramString.length() - 1);
       } catch (DeferredParsingException e) {
         paramString = e.getDeferredEvalResult();
       }
-    } else {
-      paramString = deferredValueResult;
     }
 
-    return Optional.of(
+    return (
       String.format(formatString, stringPrefix, stringMethod, stringRangeMax) +
       String.format("(%s)", paramString)
     );
-  }
-
-  private String getResultFromAstNode(
-    Bindings bindings,
-    ELContext context,
-    AstNode methodOrRangeMin
-  ) {
-    String stringMethod;
-    try {
-      stringMethod =
-        ChunkResolver.getValueAsJinjavaStringSafe(
-          methodOrRangeMin.eval(bindings, context)
-        );
-    } catch (DeferredParsingException e) {
-      stringMethod = e.getDeferredEvalResult();
-    } finally {
-      ((EvalResultHolder) methodOrRangeMin).getAndClearEvalResult();
-    }
-    return stringMethod;
   }
 }

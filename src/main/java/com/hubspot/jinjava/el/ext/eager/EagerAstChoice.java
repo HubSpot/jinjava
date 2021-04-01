@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.util.ChunkResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstChoice;
 import de.odysseus.el.tree.impl.ast.AstNode;
@@ -43,37 +42,41 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
       sb.append(e.getDeferredEvalResult());
       if (question.getAndClearEvalResult() != null) {
         // the question was evaluated so jump to either yes or no
-        throw new DeferredParsingException(AstChoice.class, sb.toString());
+        throw new DeferredParsingException(this, sb.toString());
       }
       sb.append(" ? ");
-      if (yes.hasEvalResult()) {
-        sb.append(ChunkResolver.getValueAsJinjavaStringSafe(yes.getAndClearEvalResult()));
-      } else {
-        try {
-          sb.append(
-            ChunkResolver.getValueAsJinjavaStringSafe(
-              ((AstNode) yes).eval(bindings, context)
-            )
-          );
-        } catch (DeferredParsingException e1) {
-          sb.append(e1.getDeferredEvalResult());
-        }
-      }
+
+      sb.append(EvalResultHolder.reconstructNode(bindings, context, yes, e, false));
       sb.append(" : ");
-      if (no.hasEvalResult()) {
-        sb.append(ChunkResolver.getValueAsJinjavaStringSafe(no.getAndClearEvalResult()));
-      } else {
-        try {
-          sb.append(
-            ChunkResolver.getValueAsJinjavaStringSafe(
-              ((AstNode) no).eval(bindings, context)
-            )
-          );
-        } catch (DeferredParsingException e1) {
-          sb.append(e1.getDeferredEvalResult());
-        }
-      }
-      throw new DeferredParsingException(AstChoice.class, sb.toString());
+      sb.append(EvalResultHolder.reconstructNode(bindings, context, no, e, false));
+      //      if (yes.hasEvalResult()) {
+      //        sb.append(ChunkResolver.getValueAsJinjavaStringSafe(yes.getAndClearEvalResult()));
+      //      } else {
+      //        try {
+      //          sb.append(
+      //            ChunkResolver.getValueAsJinjavaStringSafe(
+      //              ((AstNode) yes).eval(bindings, context)
+      //            )
+      //          );
+      //        } catch (DeferredParsingException e1) {
+      //          sb.append(e1.getDeferredEvalResult());
+      //        }
+      //      }
+      //      sb.append(" : ");
+      //      if (no.hasEvalResult()) {
+      //        sb.append(ChunkResolver.getValueAsJinjavaStringSafe(no.getAndClearEvalResult()));
+      //      } else {
+      //        try {
+      //          sb.append(
+      //            ChunkResolver.getValueAsJinjavaStringSafe(
+      //              ((AstNode) no).eval(bindings, context)
+      //            )
+      //          );
+      //        } catch (DeferredParsingException e1) {
+      //          sb.append(e1.getDeferredEvalResult());
+      //        }
+      //      }
+      throw new DeferredParsingException(this, sb.toString());
     } finally {
       question.getAndClearEvalResult();
       yes.getAndClearEvalResult();
