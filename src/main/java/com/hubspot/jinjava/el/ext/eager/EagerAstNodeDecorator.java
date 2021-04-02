@@ -7,6 +7,11 @@ import javax.el.ELContext;
 import javax.el.MethodInfo;
 import javax.el.ValueReference;
 
+/**
+ * This decorator exists to ensure that every EvalResultHolder is an
+ * instanceof AstNode. When using eager parsing, every AstNode should either
+ * be an EvalResultHolder or wrapped with this decorator.
+ */
 public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
   private final AstNode astNode;
   private Object evalResult;
@@ -15,7 +20,7 @@ public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
     if (astNode instanceof EvalResultHolder) {
       return (EvalResultHolder) astNode;
     }
-    if (astNode != null) {
+    if (astNode != null) { // Wraps nodes such as AstString, AstNumber
       return new EagerAstNodeDecorator(astNode);
     }
     return null;

@@ -4,7 +4,6 @@ import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstParameters;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -15,7 +14,7 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
   private final List<AstNode> nodes;
 
   public EagerAstParameters(List<AstNode> nodes) {
-    this(
+    this( // to avoid converting nodes twice, call separate constructor
       nodes
         .stream()
         .map(EagerAstNodeDecorator::getAsEvalResultHolder)
@@ -28,19 +27,6 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
   private EagerAstParameters(List<AstNode> nodes, boolean convertedToEvalResultHolder) {
     super(nodes);
     this.nodes = nodes;
-  }
-
-  public static EvalResultHolder getAsEvalResultHolder(AstParameters astParameters) {
-    if (astParameters instanceof EvalResultHolder) {
-      return (EvalResultHolder) astParameters;
-    }
-    List<AstNode> nodes = new ArrayList<>();
-    for (int i = 0; i < astParameters.getCardinality(); i++) {
-      nodes.add(
-        (AstNode) EagerAstNodeDecorator.getAsEvalResultHolder(astParameters.getChild(i))
-      );
-    }
-    return new EagerAstParameters(nodes, true);
   }
 
   @Override

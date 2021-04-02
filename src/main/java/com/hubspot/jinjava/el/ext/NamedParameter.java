@@ -1,8 +1,9 @@
 package com.hubspot.jinjava.el.ext;
 
+import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import java.util.Objects;
 
-public class NamedParameter {
+public class NamedParameter implements PyishSerializable {
   private final String name;
   private final Object value;
 
@@ -22,5 +23,10 @@ public class NamedParameter {
   @Override
   public String toString() {
     return Objects.toString(value, "");
+  }
+
+  @Override
+  public String toPyishString() {
+    return name + "=" + PyishSerializable.writeValueAsString(value);
   }
 }

@@ -20,7 +20,7 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
   public EagerAstMethod(AstProperty property, AstParameters params) {
     this(
       EagerAstNodeDecorator.getAsEvalResultHolder(property),
-      EagerAstParameters.getAsEvalResultHolder(params)
+      EagerAstNodeDecorator.getAsEvalResultHolder(params)
     );
   }
 
@@ -36,35 +36,10 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
       evalResult = super.eval(bindings, context);
       return evalResult;
     } catch (DeferredParsingException e) {
-      StringBuilder sb = new StringBuilder();
-      String paramString;
-      if (property.hasEvalResult()) {
-        sb.append(
-          ChunkResolver.getValueAsJinjavaStringSafe(property.getAndClearEvalResult())
-        );
-        paramString = e.getDeferredEvalResult();
-      } else if (params.hasEvalResult()) {
-        paramString =
-          ChunkResolver.getValueAsJinjavaStringSafe(params.getAndClearEvalResult());
-        if (property instanceof EagerAstDot) {
-          sb.append(
-            String.format(
-              "%s.%s",
-              e.getDeferredEvalResult(),
-              ((EagerAstDot) property).getProperty()
-            )
-          );
-        } else {
-          sb.append(e.getDeferredEvalResult());
-        }
-      } else {
-        throw new DeferredParsingException(
-          this,
-          getPartiallyResolved(bindings, context, e)
-        );
-      }
-      sb.append(String.format("(%s)", paramString));
-      throw new DeferredParsingException(this, sb.toString());
+      throw new DeferredParsingException(
+        this,
+        getPartiallyResolved(bindings, context, e)
+      );
     } finally {
       property.getAndClearEvalResult();
       params.getAndClearEvalResult();
@@ -94,11 +69,8 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
     DeferredParsingException deferredParsingException
   ) {
     String stringPrefix;
-    String stringMethod = "";
-    String stringRangeMax = "";
+    String stringMethod;
     AstNode prefix;
-    AstNode methodOrRangeMin = null;
-    AstNode rangeMax = null;
     String formatString;
     if (property instanceof EagerAstDot) {
       formatString = "%s.%s";
@@ -107,13 +79,15 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
     } else if (property instanceof EagerAstBracket) {
       formatString = "%s[%s]";
       prefix = ((EagerAstBracket) property).getPrefix();
-      methodOrRangeMin = ((EagerAstBracket) property).getMethod();
-    } else if (property instanceof EagerAstRangeBracket) {
-      formatString = "%s[%s:%s]";
-      prefix = ((EagerAstRangeBracket) property).getPrefix();
-      methodOrRangeMin = ((EagerAstRangeBracket) property).getRangeMin();
-      rangeMax = ((EagerAstRangeBracket) property).getRangeMax();
-    } else {
+      stringMethod =
+        EvalResultHolder.reconstructNode(
+          bindings,
+          context,
+          (EvalResultHolder) ((EagerAstBracket) property).getMethod(),
+          deferredParsingException,
+          false
+        );
+    } else { // Should not happen natively
       throw new DeferredValueException("Cannot resolve property in EagerAstMethod");
     }
 
@@ -126,28 +100,6 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
         deferredParsingException,
         true
       );
-
-    if (methodOrRangeMin instanceof EvalResultHolder) {
-      stringMethod =
-        EvalResultHolder.reconstructNode(
-          bindings,
-          context,
-          (EvalResultHolder) methodOrRangeMin,
-          deferredParsingException,
-          false
-        );
-    }
-
-    if (rangeMax instanceof EvalResultHolder) {
-      stringRangeMax =
-        EvalResultHolder.reconstructNode(
-          bindings,
-          context,
-          (EvalResultHolder) rangeMax,
-          deferredParsingException,
-          false
-        );
-    }
     String paramString;
     if (deferredParsingException.getSourceNode() == params) {
       paramString = deferredParsingException.getDeferredEvalResult();
@@ -163,7 +115,7 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
     }
 
     return (
-      String.format(formatString, stringPrefix, stringMethod, stringRangeMax) +
+      String.format(formatString, stringPrefix, stringMethod) +
       String.format("(%s)", paramString)
     );
   }

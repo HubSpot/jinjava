@@ -7,11 +7,13 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
+import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
+import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
@@ -22,7 +24,10 @@ import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.After;
@@ -580,6 +585,85 @@ public class ChunkResolverTest {
       .isEqualTo("true");
   }
 
+  @Test
+  public void itHandlesDeferredChoice() {
+    context.put("foo", "foo");
+    context.put("bar", "bar");
+    assertThat(makeChunkResolver("deferred ? foo : bar").resolveChunks().toString())
+      .isEqualTo("deferred ? 'foo' : 'bar'");
+    assertThat(makeChunkResolver("true ? deferred : bar").resolveChunks().toString())
+      .isEqualTo("deferred");
+    assertThat(makeChunkResolver("false ? foo : deferred").resolveChunks().toString())
+      .isEqualTo("deferred");
+  }
+
+  @Test
+  public void itHandlesDeferredNamedParameter() {
+    context.put("foo", "foo");
+    assertThat(makeChunkResolver("x=foo, y=deferred").resolveChunks().toString())
+      .isEqualTo("x='foo', y=deferred");
+  }
+
+  @Test
+  public void itHandlesDeferredValueInList() {
+    context.put("foo", "foo");
+    assertThat(makeChunkResolver("[foo, deferred, foo ~ '!']").resolveChunks().toString())
+      .isEqualTo("['foo', deferred, 'foo!']");
+  }
+
+  @Test
+  public void itHandlesDeferredValueInTuple() {
+    context.put("foo", "foo");
+    assertThat(makeChunkResolver("(foo, deferred, foo ~ '!')").resolveChunks().toString())
+      .isEqualTo("('foo', deferred, 'foo!')");
+  }
+
+  @Test
+  public void itHandlesDeferredMethod() {
+    context.put("foo", "foo");
+    context.put("my_list", new PyList(new ArrayList<>()));
+    assertThat(
+        makeChunkResolver("my_list.append(deferred ~ foo)").resolveChunks().toString()
+      )
+      .isEqualTo("my_list.append(deferred ~ 'foo')");
+    assertThat(makeChunkResolver("deferred.append(foo)").resolveChunks().toString())
+      .isEqualTo("deferred.append('foo')");
+    assertThat(makeChunkResolver("deferred[1 + 1] | length").resolveChunks().toString())
+      .isEqualTo("filter:length.filter(deferred[2], ____int3rpr3t3r____)");
+  }
+
+  @Test
+  public void itHandlesDeferredBracketMethod() throws NoSuchMethodException {
+    context.put("zero", 0);
+    context.put("foo", "foo");
+    LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+    map.put("string", null);
+    context.put(
+      "my_list",
+      new PyList(
+        Collections.singletonList(
+          new AbstractCallableMethod("echo", map) {
+
+            @Override
+            public Object doEvaluate(
+              Map<String, Object> argMap,
+              Map<String, Object> kwargMap,
+              List<Object> varArgs
+            ) {
+              return argMap.get("string");
+            }
+          }
+        )
+      )
+    );
+    assertThat(makeChunkResolver("my_list[zero](foo)").resolveChunks().toString())
+      .isEqualTo("'foo'");
+    assertThat(
+        makeChunkResolver("my_list[zero](deferred ~ foo)").resolveChunks().toString()
+      )
+      .isEqualTo("my_list[0](deferred ~ 'foo')");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {
@@ -595,6 +679,10 @@ public class ChunkResolverTest {
 
     String bar() {
       return bar;
+    }
+
+    String echo(String toEcho) {
+      return toEcho;
     }
   }
 

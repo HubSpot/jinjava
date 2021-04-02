@@ -83,16 +83,4 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
   public boolean hasEvalResult() {
     return evalResult != null;
   }
-
-  public AstNode getRangeMax() {
-    return rangeMax;
-  }
-
-  public AstNode getRangeMin() {
-    return property;
-  }
-
-  public AstNode getPrefix() {
-    return prefix;
-  }
 }

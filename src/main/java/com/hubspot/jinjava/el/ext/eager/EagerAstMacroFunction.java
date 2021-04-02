@@ -21,7 +21,7 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
     AstParameters params,
     boolean varargs
   ) {
-    this(name, index, EagerAstParameters.getAsEvalResultHolder(params), varargs);
+    this(name, index, EagerAstNodeDecorator.getAsEvalResultHolder(params), varargs);
   }
 
   private EagerAstMacroFunction(
