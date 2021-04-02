@@ -523,6 +523,16 @@ public class ChunkResolverTest {
       .isEqualTo("yes");
   }
 
+  @Test
+  public void itHandlesOrOperator() {
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(
+          makeChunkResolver("false == true || (true) ? 'yes' : 'no'").resolveChunks()
+        )
+      )
+      .isEqualTo("yes");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {
