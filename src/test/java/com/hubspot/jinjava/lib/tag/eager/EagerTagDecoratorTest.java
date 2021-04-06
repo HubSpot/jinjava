@@ -13,6 +13,7 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.mode.DefaultExecutionMode;
@@ -44,7 +45,16 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
   private EagerGenericTag<Tag> eagerTagDecorator;
 
   @Before
-  public void eagerSetup() {
+  public void eagerSetup() throws Exception {
+    jinjava
+      .getGlobalContext()
+      .registerFunction(
+        new ELFunctionDefinition(
+          "",
+          "add_to_context",
+          this.getClass().getDeclaredMethod("addToContext", String.class, String.class)
+        )
+      );
     interpreter =
       new JinjavaInterpreter(
         jinjava,
@@ -380,6 +390,12 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
       .isInstanceOf(OutputTooBigException.class);
   }
 
+  @Test
+  public void itModifiesContextInChildContext() {
+    assertThat(interpreter.render("{{ add_to_context('foo', 'bar') }}{{ foo }}"))
+      .isEqualTo("bar");
+  }
+
   private static MacroFunction getMockMacroFunction(String image) {
     MacroFunction mockMacroFunction = mock(MacroFunction.class);
     when(mockMacroFunction.getName()).thenReturn("foo");
@@ -394,5 +410,9 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     when(mockTagNode.getSymbols()).thenReturn(new DefaultTokenScannerSymbols());
     when(mockTagNode.getEndName()).thenReturn(endName);
     return mockTagNode;
+  }
+
+  public static void addToContext(String key, String value) {
+    JinjavaInterpreter.getCurrent().getContext().put(key, value);
   }
 }

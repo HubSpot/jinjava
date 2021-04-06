@@ -180,6 +180,18 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       interpreter.getContext().setDeferredExecutionMode(true);
       interpreter.getContext().setPartialMacroEvaluation(partialMacroEvaluation);
       result.append(function.apply(interpreter));
+      interpreter
+        .getContext()
+        .getParent()
+        .putAll(
+          interpreter
+            .getContext()
+            .getSessionBindings()
+            .entrySet()
+            .stream()
+            .filter(entry -> !entry.getKey().equals(GLOBAL_MACROS_SCOPE_KEY))
+            .collect(Collectors.toMap(Entry::getKey, Entry::getValue))
+        );
     }
     Map<String, String> deferredValuesToSet = interpreter
       .getContext()
