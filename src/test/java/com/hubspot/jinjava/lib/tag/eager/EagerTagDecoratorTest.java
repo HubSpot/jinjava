@@ -52,7 +52,16 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
         new ELFunctionDefinition(
           "",
           "add_to_context",
-          this.getClass().getDeclaredMethod("addToContext", String.class, String.class)
+          this.getClass().getDeclaredMethod("addToContext", String.class, Object.class)
+        )
+      );
+    jinjava
+      .getGlobalContext()
+      .registerFunction(
+        new ELFunctionDefinition(
+          "",
+          "modify_context",
+          this.getClass().getDeclaredMethod("modifyContext", String.class, Object.class)
         )
       );
     interpreter =
@@ -69,6 +78,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     eagerTagDecorator = new EagerGenericTag<>(mockTag);
 
     JinjavaInterpreter.pushCurrent(interpreter);
+    context.put("deferred", DeferredValue.instance());
   }
 
   @After
@@ -116,7 +126,6 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     assertThat(result.getResult()).isEqualTo("function return");
     assertThat(result.getPrefixToPreserveState()).isEqualTo("{% set foo = [] %}");
     assertThat(context.get("foo")).isInstanceOf(DeferredValue.class);
-    assertThat(context.getEagerTokens()).isNotEmpty();
   }
 
   @Test
@@ -391,9 +400,25 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itModifiesContextInChildContext() {
+  public void itPutsOnContextInChildContext() {
     assertThat(interpreter.render("{{ add_to_context('foo', 'bar') }}{{ foo }}"))
       .isEqualTo("bar");
+  }
+
+  @Test
+  public void itModifiesContextInChildContext() {
+    context.put("foo", new ArrayList<>());
+    assertThat(interpreter.render("{{ modify_context('foo', 'bar') }}{{ foo }}"))
+      .isEqualTo("[bar]");
+  }
+
+  @Test
+  public void itDoesntModifyContextWhenResultIsDeferred() {
+    context.put("foo", new ArrayList<>());
+    assertThat(
+        interpreter.render("{{ modify_context('foo', 'bar') ~ deferred }}{{ foo }}")
+      )
+      .isEqualTo("{{ null ~ deferred }}[bar]");
   }
 
   private static MacroFunction getMockMacroFunction(String image) {
@@ -412,7 +437,11 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     return mockTagNode;
   }
 
-  public static void addToContext(String key, String value) {
+  public static void addToContext(String key, Object value) {
     JinjavaInterpreter.getCurrent().getContext().put(key, value);
+  }
+
+  public static void modifyContext(String key, Object value) {
+    ((List<Object>) JinjavaInterpreter.getCurrent().getContext().get(key)).add(value);
   }
 }

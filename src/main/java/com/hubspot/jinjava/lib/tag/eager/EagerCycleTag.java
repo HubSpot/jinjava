@@ -49,11 +49,12 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     if (WhitespaceUtils.isWrappedWith(expression, "[", "]")) {
       expression = expression.substring(1, expression.length() - 1).replace(", ", ",");
     }
-    StringBuilder prefixToPreserveState = new StringBuilder(
-      interpreter.getContext().isDeferredExecutionMode()
-        ? resolvedExpression.getPrefixToPreserveState()
-        : ""
-    );
+    StringBuilder prefixToPreserveState = new StringBuilder();
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      prefixToPreserveState.append(resolvedExpression.getPrefixToPreserveState());
+    } else {
+      interpreter.getContext().putAll(resolvedExpression.getSessionBindings());
+    }
     HelperStringTokenizer items = new HelperStringTokenizer(expression).splitComma(true);
     List<String> values = items.allTokens();
     if (!chunkResolver.getDeferredWords().isEmpty()) {

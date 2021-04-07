@@ -65,11 +65,12 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
       .add(tagToken.getTagName())
       .add(resolvedExpression.getResult())
       .add(tagToken.getSymbols().getExpressionEndWithTag());
-    StringBuilder prefixToPreserveState = new StringBuilder(
-      interpreter.getContext().isDeferredExecutionMode()
-        ? resolvedExpression.getPrefixToPreserveState()
-        : ""
-    );
+    StringBuilder prefixToPreserveState = new StringBuilder();
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      prefixToPreserveState.append(resolvedExpression.getPrefixToPreserveState());
+    } else {
+      interpreter.getContext().putAll(resolvedExpression.getSessionBindings());
+    }
     if (chunkResolver.getDeferredWords().isEmpty()) {
       // Possible macro/set tag in front of this one.
       return (

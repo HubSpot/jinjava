@@ -20,13 +20,10 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     ExpressionToken master,
     JinjavaInterpreter interpreter
   ) {
-    EagerStringResult eagerStringResult = eagerResolveExpression(master, interpreter);
-    return new RenderedOutputNode(
-      eagerStringResult.getPrefixToPreserveState() + eagerStringResult.getResult()
-    );
+    return new RenderedOutputNode(eagerResolveExpression(master, interpreter));
   }
 
-  private EagerStringResult eagerResolveExpression(
+  private String eagerResolveExpression(
     ExpressionToken master,
     JinjavaInterpreter interpreter
   ) {
@@ -41,11 +38,12 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       true,
       interpreter.getConfig().isNestedInterpretationEnabled()
     );
-    StringBuilder prefixToPreserveState = new StringBuilder(
-      interpreter.getContext().isDeferredExecutionMode()
-        ? resolvedExpression.getPrefixToPreserveState()
-        : ""
-    );
+    StringBuilder prefixToPreserveState = new StringBuilder();
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      prefixToPreserveState.append(resolvedExpression.getPrefixToPreserveState());
+    } else {
+      interpreter.getContext().putAll(resolvedExpression.getSessionBindings());
+    }
     if (chunkResolver.getDeferredWords().isEmpty()) {
       String result = interpreter.getAsString(
         interpreter.resolveELExpression(
@@ -75,7 +73,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       if (interpreter.getContext().isAutoEscape()) {
         result = EscapeFilter.escapeHtmlEntities(result);
       }
-      return new EagerStringResult(result, prefixToPreserveState.toString());
+      return prefixToPreserveState.toString() + result;
     }
     prefixToPreserveState.append(
       EagerTagDecorator.reconstructFromContextBeforeDeferring(
@@ -98,12 +96,9 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         )
       );
     // There is no result because it couldn't be entirely evaluated.
-    return new EagerStringResult(
-      "",
-      EagerTagDecorator.wrapInAutoEscapeIfNeeded(
-        prefixToPreserveState.toString() + helpers,
-        interpreter
-      )
+    return EagerTagDecorator.wrapInAutoEscapeIfNeeded(
+      prefixToPreserveState.toString() + helpers,
+      interpreter
     );
   }
 

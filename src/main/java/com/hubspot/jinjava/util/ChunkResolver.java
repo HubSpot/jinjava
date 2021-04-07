@@ -287,19 +287,19 @@ public class ChunkResolver {
             );
         } catch (TemplateSyntaxException ignored) {}
         if (val == null) {
-          try {
-            val = interpreter.resolveELExpression(token, this.token.getLineNumber());
-          } catch (UnknownTokenException e) {
-            // val is still null
-          }
+          val = interpreter.resolveELExpression(token, this.token.getLineNumber());
         }
-        if (val != null && isResolvableObject(val)) {
+        if (val == null) {
+          if (!token.trim().matches("[\\w]+")) {
+            resolvedToken = ChunkResolver.JINJAVA_NULL; // It was some void or null expression
+          }
+        } else if (isResolvableObject(val)) {
           resolvedToken = PyishObjectMapper.getAsPyishString(val);
         }
       }
     } catch (DeferredValueException e) {
       deferredWords.addAll(findDeferredWords(token));
-    } catch (TemplateSyntaxException ignored) {}
+    } catch (TemplateSyntaxException | UnknownTokenException ignored) {}
     return spaced(resolvedToken, token);
   }
 
