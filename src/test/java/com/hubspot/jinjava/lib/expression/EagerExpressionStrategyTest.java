@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.expression;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
@@ -44,7 +45,9 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
         JinjavaConfig
           .newBuilder()
           .withNestedInterpretationEnabled(false)
-          .withUsePyishObjectMapper(true)
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+          )
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );

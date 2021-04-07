@@ -6,6 +6,7 @@ import com.google.common.collect.PeekingIterator;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -55,6 +56,7 @@ import java.util.Optional;
     )
   }
 )
+@JinjavaTextMateSnippet(code = "{% from '${1:path}' import ${2:macro_name} %}")
 public class FromTag implements Tag {
   public static final String TAG_NAME = "from";
 

@@ -143,6 +143,9 @@ public class MacroFunction extends AbstractCallableMethod {
     for (Node node : content) {
       result.append(node.render(interpreter));
     }
+    if (interpreter.getConfig().getExecutionMode().isPreserveRawTags()) {
+      return interpreter.renderFlat(result.toString());
+    }
     return result.toString();
   }
 

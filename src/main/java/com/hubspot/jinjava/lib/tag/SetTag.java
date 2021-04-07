@@ -18,6 +18,7 @@ package com.hubspot.jinjava.lib.tag;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -63,6 +64,7 @@ import org.apache.commons.lang3.StringUtils;
     )
   }
 )
+@JinjavaTextMateSnippet(code = "{% set ${1:var} = ${2:expr} %}")
 public class SetTag implements Tag {
   public static final String TAG_NAME = "set";
 

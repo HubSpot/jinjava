@@ -65,7 +65,7 @@ public class ReplaceFilter implements Filter {
       );
     }
 
-    String s = (String) var;
+    String s = var.toString();
     String toReplace = args[0];
     String replaceWith = args[1];
     Integer count = null;

@@ -4,10 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.tag.FromTag;
+import com.hubspot.jinjava.lib.filter.Filter;
+import com.hubspot.jinjava.lib.tag.ImportTag;
 import com.hubspot.jinjava.lib.tag.ImportTagTest;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.loader.LocationResolver;
@@ -30,8 +32,9 @@ public class EagerImportTagTest extends ImportTagTest {
   private static final String TEMPLATE_FILE = "template.jinja";
 
   @Before
-  public void eagerSetup() {
+  public void eagerSetup() throws Exception {
     context.put("padding", 42);
+    context.registerFilter(new PrintPathFilter());
     interpreter =
       new JinjavaInterpreter(
         jinjava,
@@ -39,10 +42,13 @@ public class EagerImportTagTest extends ImportTagTest {
         JinjavaConfig
           .newBuilder()
           .withExecutionMode(EagerExecutionMode.instance())
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+          )
           .build()
       );
     Tag tag = EagerTagFactory
-      .getEagerTagDecorator(FromTag.class)
+      .getEagerTagDecorator(new ImportTag())
       .orElseThrow(RuntimeException::new);
     context.registerTag(tag);
     context.put("deferred", DeferredValue.instance());
@@ -405,9 +411,12 @@ public class EagerImportTagTest extends ImportTagTest {
     // There are some extras due to deferred values copying up the context stack.
     assertThat(interpreter.render(result).trim())
       .isEqualTo(
-        "{'b': {'foo_b': 'ba', 'a': {'foo_a': 'a', 'something': 'somn'}, 'foo_a': 'a'}, " +
-        "'foo_c': 'cbaa', " +
-        "'a': {'foo_a': 'a', 'something': 'somn'}, 'foo_b': 'ba', 'foo_a': 'a'}"
+        "{'b': {'foo_b': 'ba', 'a': " +
+        "{'foo_a': 'a', 'import_resource_path': 'import-tree-a.jinja', 'something': 'somn'}, " +
+        "'foo_a': 'a', 'import_resource_path': 'import-tree-b.jinja'}, " +
+        "'foo_c': 'cbaa', 'a': {'foo_a': 'a', 'import_resource_path': " +
+        "'import-tree-a.jinja', 'something': 'somn'}, " +
+        "'foo_b': 'ba', 'foo_a': 'a', 'import_resource_path': 'import-tree-c.jinja'}"
       );
   }
 
@@ -434,6 +443,73 @@ public class EagerImportTagTest extends ImportTagTest {
     );
     context.put("a_val", "a");
     assertThat(interpreter.render(result).trim()).isEqualTo("12345 cbaabaaba");
+  }
+
+  @Test
+  public void itCorrectlySetsAliasedPath() {
+    setupResourceLocator();
+    context.put("foo", "foo");
+    String result = interpreter.render(
+      "{% import 'import-macro.jinja' as m %}{{ m.print_path_macro(foo) }}"
+    );
+    assertThat(result.trim()).isEqualTo("import-macro.jinja\nfoo");
+  }
+
+  @Test
+  public void itCorrectlySetsPath() {
+    setupResourceLocator();
+    context.put("foo", "foo");
+    String result = interpreter.render(
+      "{% import 'import-macro.jinja' %}{{ print_path_macro(foo) }}"
+    );
+    assertThat(result.trim()).isEqualTo("import-macro.jinja\nfoo");
+  }
+
+  @Test
+  public void itCorrectlySetsAliasedPathForSecondPass() {
+    setupResourceLocator();
+    context.put("foo", DeferredValue.instance());
+    String firstPassResult = interpreter.render(
+      "{% import 'import-macro.jinja' as m %}{{ m.print_path_macro(foo) }}"
+    );
+    assertThat(firstPassResult)
+      .isEqualTo(
+        "{% set deferred_import_resource_path = 'import-macro.jinja' %}{% macro m.print_path_macro(var) %}\n" +
+        "{{ var|print_path }}\n" +
+        "{{ var }}\n" +
+        "{% endmacro %}{% set deferred_import_resource_path = null %}{{ m.print_path_macro(foo) }}"
+      );
+    context.put("foo", "foo");
+    assertThat(interpreter.render(firstPassResult).trim())
+      .isEqualTo("import-macro.jinja\nfoo");
+  }
+
+  @Test
+  public void itCorrectlySetsPathForSecondPass() {
+    setupResourceLocator();
+    context.put("foo", DeferredValue.instance());
+    String firstPassResult = interpreter.render(
+      "{% import 'import-macro.jinja' %}{{ print_path_macro(foo) }}"
+    );
+    assertThat(firstPassResult)
+      .isEqualTo(
+        "{% set deferred_import_resource_path = 'import-macro.jinja' %}{% macro print_path_macro(var) %}\n" +
+        "{{ var|print_path }}\n" +
+        "{{ var }}\n" +
+        "{% endmacro %}{% set deferred_import_resource_path = null %}{{ print_path_macro(foo) }}"
+      );
+    context.put("foo", "foo");
+    assertThat(interpreter.render(firstPassResult).trim())
+      .isEqualTo("import-macro.jinja\nfoo");
+  }
+
+  @Test
+  public void itImportsDoublyNamed() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% import 'variables.jinja' as foo %}{{ foo.foo['foo'].bar }}"
+    );
+    assertThat(result).isEqualTo("here");
   }
 
   private static JinjavaInterpreter getChildInterpreter(
@@ -473,6 +549,19 @@ public class EagerImportTagTest extends ImportTagTest {
         }
       }
     );
+  }
+
+  public static class PrintPathFilter implements Filter {
+
+    @Override
+    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+      return interpreter.getContext().getCurrentPathStack().peek().orElse("/");
+    }
+
+    @Override
+    public String getName() {
+      return "print_path";
+    }
   }
 
   @Test

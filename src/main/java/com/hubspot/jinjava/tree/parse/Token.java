@@ -21,7 +21,7 @@ import java.io.Serializable;
 public abstract class Token implements Serializable {
   private static final long serialVersionUID = 3359084948763661809L;
 
-  protected final String image;
+  protected String image;
   // useful for some token type
   protected String content;
 
@@ -48,6 +48,11 @@ public abstract class Token implements Serializable {
 
   public String getImage() {
     return image;
+  }
+
+  public void mergeImageAndContent(Token otherToken) {
+    this.image = image + otherToken.image;
+    this.content = content + otherToken.content;
   }
 
   public int getLineNumber() {

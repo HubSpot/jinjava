@@ -1,12 +1,15 @@
 package com.hubspot.jinjava.lib.fn.eager;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
+import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.MacroTag;
+import com.hubspot.jinjava.lib.tag.eager.EagerTagDecorator;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,14 +63,13 @@ public class EagerMacroFunction extends AbstractCallableMethod {
 
   public String getStartTag(JinjavaInterpreter interpreter) {
     StringJoiner argJoiner = new StringJoiner(", ");
-    PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishObjectMapper();
     for (String arg : macroFunction.getArguments()) {
       if (macroFunction.getDefaults().get(arg) != null) {
         argJoiner.add(
           String.format(
             "%s=%s",
             arg,
-            pyishObjectMapper.getAsPyishString(macroFunction.getDefaults().get(arg))
+            PyishObjectMapper.getAsPyishString(macroFunction.getDefaults().get(arg))
           )
         );
         continue;
@@ -100,21 +102,48 @@ public class EagerMacroFunction extends AbstractCallableMethod {
    *  rendering pass.
    */
   public String reconstructImage() {
-    String result;
-    try {
-      result =
-        (String) evaluate(
-          macroFunction
-            .getArguments()
-            .stream()
-            .map(arg -> DeferredValue.instance())
-            .toArray()
+    String prefix = "";
+    String suffix = "";
+    Optional<String> importFile = macroFunction.getImportFile(interpreter);
+    if (importFile.isPresent()) {
+      interpreter.getContext().getCurrentPathStack().pop();
+      String currentDeferredImportResource = (String) interpreter
+        .getContext()
+        .get(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY);
+      prefix =
+        EagerTagDecorator.buildSetTagForDeferredInChildContext(
+          ImmutableMap.of(
+            Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
+            PyishObjectMapper.getAsPyishString(importFile.get())
+          ),
+          interpreter,
+          false
         );
-    } catch (DeferredValueException e) {
-      // In case something not eager-supported encountered a deferred value
-      return macroFunction.reconstructImage();
+      suffix =
+        EagerTagDecorator.buildSetTagForDeferredInChildContext(
+          ImmutableMap.of(
+            Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
+            PyishObjectMapper.getAsPyishString(currentDeferredImportResource)
+          ),
+          interpreter,
+          false
+        );
     }
 
-    return (getStartTag(interpreter) + result + getEndTag(interpreter));
+    String result;
+    try {
+      String evaluation = (String) evaluate(
+        macroFunction
+          .getArguments()
+          .stream()
+          .map(arg -> DeferredValue.instance())
+          .toArray()
+      );
+      result = (getStartTag(interpreter) + evaluation + getEndTag(interpreter));
+    } catch (DeferredValueException e) {
+      // In case something not eager-supported encountered a deferred value
+      result = macroFunction.reconstructImage();
+    }
+    return prefix + result + suffix;
   }
 }

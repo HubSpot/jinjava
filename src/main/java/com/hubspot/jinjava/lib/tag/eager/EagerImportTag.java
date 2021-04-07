@@ -28,6 +28,10 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     super(new ImportTag());
   }
 
+  public EagerImportTag(ImportTag importTag) {
+    super(importTag);
+  }
+
   @Override
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
     List<String> helper = ImportTag.getHelpers(tagToken);
@@ -114,7 +118,6 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         .getContext()
         .put(currentImportAlias, DeferredValue.instance(currentAliasMap));
     }
-    PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishObjectMapper();
     for (Map.Entry<String, Object> entry : (
       (Map<String, Object>) (
         (DeferredValue) interpreter.getContext().get(currentImportAlias)
@@ -127,13 +130,17 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
           String.format(
             "'%s': %s",
             entry.getKey(),
-            pyishObjectMapper.getAsPyishString(entry.getValue())
+            PyishObjectMapper.getAsPyishString(entry.getValue())
           )
         );
       }
     }
     if (keyValueJoiner.length() > 0) {
-      return buildDoUpdateTag(currentImportAlias, keyValueJoiner.toString(), interpreter);
+      return buildDoUpdateTag(
+        currentImportAlias,
+        "{" + keyValueJoiner.toString() + "}",
+        interpreter
+      );
     }
     return "";
   }
@@ -234,7 +241,6 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         parent.getContext().addGlobalMacro(macro);
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-      childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
       childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
       parent.getContext().putAll(childBindings);
     } else {
@@ -255,10 +261,18 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
             .orElse(currentImportAlias)
             .split("\\.")
         )
+        .filter(
+          key ->
+            mapForCurrentContextAlias ==
+            (
+              childBindings.get(key) instanceof DeferredValue
+                ? ((DeferredValue) childBindings.get(key)).getOriginalValue()
+                : childBindings.get(key)
+            )
+        )
         .forEach(childBindings::remove);
       // Remove meta keys
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-      childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
       childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
       mapForCurrentContextAlias.putAll(childBindings);
     }

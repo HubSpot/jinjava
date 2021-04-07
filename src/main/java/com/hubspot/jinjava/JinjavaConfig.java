@@ -51,7 +51,6 @@ public class JinjavaConfig {
   private final Map<Context.Library, Set<String>> disabled;
   private final boolean failOnUnknownTokens;
   private final boolean nestedInterpretationEnabled;
-  private final boolean usePyishObjectMapper;
   private final RandomNumberGeneratorStrategy randomNumberGenerator;
   private final boolean validationMode;
   private final long maxStringLength;
@@ -60,8 +59,8 @@ public class JinjavaConfig {
   private final InterpreterFactory interpreterFactory;
   private TokenScannerSymbols tokenScannerSymbols;
   private final ELResolver elResolver;
-  private final boolean iterateOverMapKeys;
   private final ExecutionMode executionMode;
+  private final LegacyOverrides legacyOverrides;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -103,7 +102,6 @@ public class JinjavaConfig {
     failOnUnknownTokens = builder.failOnUnknownTokens;
     maxOutputSize = builder.maxOutputSize;
     nestedInterpretationEnabled = builder.nestedInterpretationEnabled;
-    usePyishObjectMapper = builder.usePyishObjectMapper;
     randomNumberGenerator = builder.randomNumberGeneratorStrategy;
     validationMode = builder.validationMode;
     maxStringLength = builder.maxStringLength;
@@ -112,8 +110,8 @@ public class JinjavaConfig {
     interpreterFactory = builder.interpreterFactory;
     tokenScannerSymbols = builder.tokenScannerSymbols;
     elResolver = builder.elResolver;
-    iterateOverMapKeys = builder.iterateOverMapKeys;
     executionMode = builder.executionMode;
+    legacyOverrides = builder.legacyOverrides;
   }
 
   public Charset getCharset() {
@@ -176,10 +174,6 @@ public class JinjavaConfig {
     return nestedInterpretationEnabled;
   }
 
-  public boolean isUsePyishObjectMapper() {
-    return usePyishObjectMapper;
-  }
-
   public boolean isValidationMode() {
     return validationMode;
   }
@@ -204,12 +198,20 @@ public class JinjavaConfig {
     return elResolver;
   }
 
+  /**
+   * @deprecated  Replaced by {@link LegacyOverrides#isIterateOverMapKeys()}
+   */
+  @Deprecated
   public boolean isIterateOverMapKeys() {
-    return iterateOverMapKeys;
+    return legacyOverrides.isIterateOverMapKeys();
   }
 
   public ExecutionMode getExecutionMode() {
     return executionMode;
+  }
+
+  public LegacyOverrides getLegacyOverrides() {
+    return legacyOverrides;
   }
 
   public static class Builder {
@@ -227,7 +229,6 @@ public class JinjavaConfig {
     private int maxMacroRecursionDepth;
     private boolean failOnUnknownTokens;
     private boolean nestedInterpretationEnabled = true;
-    private boolean usePyishObjectMapper = false;
     private RandomNumberGeneratorStrategy randomNumberGeneratorStrategy =
       RandomNumberGeneratorStrategy.THREAD_LOCAL;
     private boolean validationMode = false;
@@ -235,10 +236,10 @@ public class JinjavaConfig {
     private InterpreterFactory interpreterFactory = new JinjavaInterpreterFactory();
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
     private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
-    private boolean iterateOverMapKeys;
     private int maxListSize = Integer.MAX_VALUE;
     private int maxMapSize = Integer.MAX_VALUE;
     private ExecutionMode executionMode = DefaultExecutionMode.instance();
+    private LegacyOverrides legacyOverrides = LegacyOverrides.NONE;
 
     private Builder() {}
 
@@ -322,11 +323,6 @@ public class JinjavaConfig {
       return this;
     }
 
-    public Builder withUsePyishObjectMapper(boolean usePyishObjectMapper) {
-      this.usePyishObjectMapper = usePyishObjectMapper;
-      return this;
-    }
-
     public Builder withValidationMode(boolean validationMode) {
       this.validationMode = validationMode;
       return this;
@@ -357,13 +353,26 @@ public class JinjavaConfig {
       return this;
     }
 
+    /**
+     * @deprecated  Replaced by {@link LegacyOverrides.Builder#withIterateOverMapKeys(boolean)}}
+     */
+    @Deprecated
     public Builder withIterateOverMapKeys(boolean iterateOverMapKeys) {
-      this.iterateOverMapKeys = iterateOverMapKeys;
-      return this;
+      return withLegacyOverrides(
+        LegacyOverrides
+          .Builder.from(legacyOverrides)
+          .withIterateOverMapKeys(iterateOverMapKeys)
+          .build()
+      );
     }
 
     public Builder withExecutionMode(ExecutionMode executionMode) {
       this.executionMode = executionMode;
+      return this;
+    }
+
+    public Builder withLegacyOverrides(LegacyOverrides legacyOverrides) {
+      this.legacyOverrides = legacyOverrides;
       return this;
     }
 

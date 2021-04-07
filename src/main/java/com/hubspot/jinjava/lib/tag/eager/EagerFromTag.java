@@ -21,6 +21,10 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
     super(new FromTag());
   }
 
+  public EagerFromTag(FromTag fromTag) {
+    super(fromTag);
+  }
+
   @Override
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
     List<String> helper = FromTag.getHelpers(tagToken);

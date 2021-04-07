@@ -27,10 +27,12 @@ import com.google.common.collect.Multimap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
 import com.hubspot.jinjava.random.DeferredRandomNumberGenerator;
 import com.hubspot.jinjava.tree.Node;
@@ -150,6 +152,12 @@ public class JinjavaInterpreter {
     return new InterpreterScopeClosable();
   }
 
+  public InterpreterScopeClosable enterNonStackingScope() {
+    context = new Context(context, null, null, false);
+    scopeDepth++;
+    return new InterpreterScopeClosable();
+  }
+
   public void leaveScope() {
     Context parent = context.getParent();
     scopeDepth--;
@@ -196,7 +204,9 @@ public class JinjavaInterpreter {
         return template;
       } else {
         context.setRenderDepth(depth + 1);
-        return render(parse(template), false);
+        try (TemporaryValueClosable<Boolean> c = context.withUnwrapRawOverride()) {
+          return render(parse(template), false);
+        }
       }
     } finally {
       context.setRenderDepth(depth);
@@ -475,8 +485,8 @@ public class JinjavaInterpreter {
   }
 
   public String getAsString(Object object) {
-    if (config.isUsePyishObjectMapper()) {
-      return context.getPyishObjectMapper().getAsUnquotedPyishString(object);
+    if (config.getLegacyOverrides().isUsePyishObjectMapper()) {
+      return PyishObjectMapper.getAsUnquotedPyishString(object);
     }
     return Objects.toString(object, "");
   }

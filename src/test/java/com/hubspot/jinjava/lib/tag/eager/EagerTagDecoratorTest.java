@@ -92,7 +92,10 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     EagerStringResult result = EagerTagDecorator.executeInChildContext(
       (
         interpreter1 -> {
-          ((List<Integer>) interpreter1.getContext().get("foo")).add(1);
+          context.put(
+            "foo",
+            DeferredValue.instance(interpreter1.getContext().get("foo"))
+          );
           return "function return";
         }
       ),

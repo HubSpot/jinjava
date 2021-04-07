@@ -22,7 +22,6 @@ import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
-import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -160,8 +159,6 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   ) {
     StringBuilder result = new StringBuilder();
     Map<String, Integer> initiallyResolvedHashes = new HashMap<>();
-    Map<String, String> initiallyResolvedAsStrings = new HashMap<>();
-    PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishObjectMapper();
     interpreter
       .getContext()
       .entrySet()
@@ -175,26 +172,11 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         entry -> !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
       )
       .forEach(
-        entry -> {
-          try {
-            if (
-              entry.getValue().getClass().getMethod("toString").getDeclaringClass() !=
-              Object.class ||
-              entry.getValue() instanceof PyishSerializable
-            ) {
-              initiallyResolvedAsStrings.put(
-                entry.getKey(),
-                pyishObjectMapper.getAsPyishString(entry.getValue())
-              );
-            }
-            initiallyResolvedHashes.put(entry.getKey(), entry.getValue().hashCode());
-          } catch (NoSuchMethodException ignored) {
-            // do nothing
-          }
-        }
+        entry -> initiallyResolvedHashes.put(entry.getKey(), entry.getValue().hashCode())
       );
 
-    try (InterpreterScopeClosable c = interpreter.enterScope()) {
+    // Don't create new call stacks to prevent hitting max recursion with this silent new scope
+    try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
       interpreter.getContext().setDeferredExecutionMode(true);
       interpreter.getContext().setPartialMacroEvaluation(partialMacroEvaluation);
       result.append(function.apply(interpreter));
@@ -211,21 +193,15 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         Collectors.toMap(
           Entry::getKey,
           e -> {
-            if (e instanceof DeferredValue) {
-              return pyishObjectMapper.getAsPyishString(
+            if (e.getValue() instanceof DeferredValue) {
+              return PyishObjectMapper.getAsPyishString(
                 ((DeferredValue) e.getValue()).getOriginalValue()
               );
             }
             if (takeNewValue) {
-              return pyishObjectMapper.getAsPyishString(e.getValue());
+              return PyishObjectMapper.getAsPyishString(e.getValue());
             }
 
-            // This is necessary if a state-changing function, such as .update()
-            // or .append() is run against a variable in the context.
-            // It will revert the effects when takeNewValue is false.
-            if (initiallyResolvedAsStrings.containsKey(e.getKey())) {
-              return initiallyResolvedAsStrings.get(e.getKey());
-            }
             // Previous value could not be mapped to a string
             throw new DeferredValueException(e.getKey());
           }
@@ -327,7 +303,6 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       return ""; // This will be handled outside of the deferred execution mode.
     }
     Map<String, String> deferredMap = new HashMap<>();
-    PyishObjectMapper pyishObjectMapper = interpreter.getContext().getPyishObjectMapper();
     deferredWords
       .stream()
       .map(w -> w.split("\\.", 2)[0]) // get base prop
@@ -340,7 +315,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         w -> {
           deferredMap.put(
             w,
-            pyishObjectMapper.getAsPyishString(interpreter.getContext().get(w))
+            PyishObjectMapper.getAsPyishString(interpreter.getContext().get(w))
           );
         }
       );
@@ -426,7 +401,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     return new LengthLimitingStringJoiner(interpreter.getConfig().getMaxOutputSize(), " ")
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
       .add(DoTag.TAG_NAME)
-      .add(String.format("%s.update({%s})", currentImportAlias, updateString))
+      .add(String.format("%s.update(%s)", currentImportAlias, updateString))
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag())
       .toString();
   }
@@ -509,7 +484,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   }
 
   public static String wrapInRawIfNeeded(String output, JinjavaInterpreter interpreter) {
-    if (interpreter.getConfig().getExecutionMode().isPreserveRawTags()) {
+    if (
+      interpreter.getConfig().getExecutionMode().isPreserveRawTags() &&
+      !interpreter.getContext().isUnwrapRawOverride()
+    ) {
       if (
         output.contains(
           interpreter.getConfig().getTokenScannerSymbols().getExpressionStart()

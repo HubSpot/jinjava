@@ -16,6 +16,7 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.time.DateTimeException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -31,6 +32,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 public class Functions {
   public static final String STRING_TO_TIME_FUNCTION = "stringToTime";
+  public static final String STRING_TO_DATE_FUNCTION = "stringToDate";
 
   public static final int RANGE_LIMIT = 1000;
 
@@ -241,15 +243,85 @@ public class Functions {
     }
   }
 
+  @JinjavaDoc(
+    value = "converts a string and date format into a date object",
+    params = {
+      @JinjavaParam(value = "dateString", type = "string", desc = "date as string"),
+      @JinjavaParam(
+        value = "dateFormat",
+        type = "string",
+        desc = "format of the date string"
+      )
+    }
+  )
+  public static PyishDate stringToDate(String dateString, String dateFormat) {
+    if (dateString == null) {
+      return null;
+    }
+
+    if (dateFormat == null) {
+      throw new InterpretException(
+        String.format("%s() requires non-null date format", STRING_TO_DATE_FUNCTION)
+      );
+    }
+
+    try {
+      String convertedFormat = StrftimeFormatter.toJavaDateTimeFormat(dateFormat);
+      return new PyishDate(
+        LocalDate
+          .parse(dateString, DateTimeFormatter.ofPattern(convertedFormat))
+          .atTime(0, 0)
+          .toInstant(ZoneOffset.UTC)
+      );
+    } catch (DateTimeParseException e) {
+      throw new InterpretException(
+        String.format(
+          "%s() could not match date input %s with date format %s",
+          STRING_TO_DATE_FUNCTION,
+          dateString,
+          dateFormat
+        )
+      );
+    } catch (IllegalArgumentException e) {
+      throw new InterpretException(
+        String.format(
+          "%s() requires valid date format, was %s",
+          STRING_TO_DATE_FUNCTION,
+          dateFormat
+        )
+      );
+    }
+  }
+
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
   private static final String DEFAULT_END = "...";
 
   @JinjavaDoc(
     value = "truncates a given string to a specified length",
     params = {
-      @JinjavaParam("s"),
-      @JinjavaParam(value = "length", type = "number", defaultValue = "255"),
-      @JinjavaParam(value = "end", defaultValue = "...")
+      @JinjavaParam(
+        value = "string",
+        type = "string",
+        desc = "String to be truncated",
+        required = true
+      ),
+      @JinjavaParam(
+        value = "length",
+        type = "number",
+        defaultValue = "255",
+        desc = "Specifies the length at which to truncate the text (includes HTML characters)"
+      ),
+      @JinjavaParam(
+        value = "killwords",
+        type = "boolean",
+        defaultValue = "False",
+        desc = "If true, the string will cut text at length"
+      ),
+      @JinjavaParam(
+        value = "end",
+        defaultValue = "...",
+        desc = "The characters that will be added to indicate where the text was truncated"
+      )
     }
   )
   public static Object truncate(Object var, Object... arg) {

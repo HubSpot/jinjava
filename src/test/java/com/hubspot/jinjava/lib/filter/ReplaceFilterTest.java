@@ -46,4 +46,10 @@ public class ReplaceFilterTest extends BaseInterpretingTest {
       )
       .isEqualTo("d'oh, d'oh, aaargh");
   }
+
+  @Test
+  public void replaceBoolean() {
+    assertThat(filter.filter(true, interpreter, "true", "TRUEEE").toString())
+      .isEqualTo("TRUEEE");
+  }
 }

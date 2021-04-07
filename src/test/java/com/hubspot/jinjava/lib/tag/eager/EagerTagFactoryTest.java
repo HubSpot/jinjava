@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.hubspot.jinjava.lib.tag.IncludeTag;
 import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.Tag;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,6 +18,16 @@ public class EagerTagFactoryTest {
     Set<EagerTagDecorator<?>> eagerTagDecoratorSet = EagerTagFactory
       .EAGER_TAG_OVERRIDES.keySet()
       .stream()
+      .map(
+        clazz -> {
+          try {
+            return clazz.getDeclaredConstructor().newInstance();
+          } catch (Exception ignored) {
+            return null;
+          }
+        }
+      )
+      .filter(Objects::nonNull)
       .map(EagerTagFactory::getEagerTagDecorator)
       .filter(Optional::isPresent)
       .map(Optional::get)
@@ -34,12 +45,11 @@ public class EagerTagFactoryTest {
 
   @Test
   public void itGetsEagerTagDecoratorForNonOverride() {
-    Class<? extends Tag> clazz = IncludeTag.class;
     Optional<? extends EagerTagDecorator<? extends Tag>> maybeEagerGenericTag = EagerTagFactory.getEagerTagDecorator(
-      clazz
+      new IncludeTag()
     );
     assertThat(maybeEagerGenericTag).isPresent();
     assertThat(maybeEagerGenericTag.get()).isInstanceOf(EagerGenericTag.class);
-    assertThat(maybeEagerGenericTag.get().getTag()).isInstanceOf(clazz);
+    assertThat(maybeEagerGenericTag.get().getTag()).isInstanceOf(IncludeTag.class);
   }
 }

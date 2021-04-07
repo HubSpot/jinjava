@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -61,6 +62,7 @@ import org.apache.commons.lang3.StringUtils;
     )
   }
 )
+@JinjavaTextMateSnippet(code = "{% import '${1:path}' ${2: as ${3:import_name}} %}")
 public class ImportTag implements Tag {
   public static final String TAG_NAME = "import";
 
@@ -179,7 +181,6 @@ public class ImportTag implements Tag {
         interpreter.getContext().addGlobalMacro(macro);
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-      childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
       childBindings
         .keySet()
         .forEach(key -> interpreter.getContext().put(key, DeferredValue.instance()));
@@ -193,7 +194,6 @@ public class ImportTag implements Tag {
         childBindings.put(macroEntry.getKey(), macro);
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-      childBindings.remove(Context.IMPORT_RESOURCE_PATH_KEY);
       interpreter.getContext().put(contextVar, DeferredValue.instance(childBindings));
     }
   }

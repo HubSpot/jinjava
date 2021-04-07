@@ -49,4 +49,17 @@ public class WhitespaceUtilsTest {
     assertThat(isExpressionQuoted("\"foo 'and' bar\"")).isTrue();
     assertThat(isExpressionQuoted("\"foo 'and' bar'")).isFalse();
   }
+
+  @Test
+  public void itKnowsUntrimmedExpressionIsQuoted() {
+    assertThat(isExpressionQuoted(" 'foo'")).isTrue();
+    assertThat(isExpressionQuoted("'foo' ")).isTrue();
+    assertThat(isExpressionQuoted(" 'foo' ")).isTrue();
+  }
+
+  @Test
+  public void itDoesntCountSingleQuoteChar() {
+    assertThat(isExpressionQuoted("'")).isFalse();
+    assertThat(isExpressionQuoted("\" ")).isFalse();
+  }
 }

@@ -144,6 +144,13 @@ public class Jinjava {
   }
 
   /**
+   * @return code snippets of all available filters, functions, and tags registered on this jinjava instance.
+   */
+  public String getJinjavaSnippetDoc() {
+    return new JinjavaDocFactory(this).getCodeEditorTagSnippets();
+  }
+
+  /**
    * Render the given template using the given context bindings.
    *
    * @param template
