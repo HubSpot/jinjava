@@ -664,6 +664,18 @@ public class ChunkResolverTest {
       .isEqualTo("my_list[0](deferred ~ 'foo')");
   }
 
+  @Test
+  public void itHandlesOrOperator() {
+    assertThat(
+        WhitespaceUtils.unquoteAndUnescape(
+          makeChunkResolver("false == true || (true) ? 'yes' : 'no'")
+            .resolveChunks()
+            .toString()
+        )
+      )
+      .isEqualTo("yes");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {

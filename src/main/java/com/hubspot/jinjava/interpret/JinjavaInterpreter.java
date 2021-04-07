@@ -423,6 +423,9 @@ public class JinjavaInterpreter {
     Variable var = new Variable(this, variable);
     String varName = var.getName();
     Object obj = context.get(varName);
+    if (obj == null && context.getDynamicVariableResolver() != null) {
+      obj = context.getDynamicVariableResolver().apply(varName);
+    }
     if (obj != null) {
       if (obj instanceof DeferredValue) {
         if (config.getExecutionMode().useEagerParser()) {

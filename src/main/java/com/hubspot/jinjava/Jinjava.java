@@ -326,6 +326,7 @@ public class Jinjava {
     globalContext.getAllFilters().forEach(context::registerFilter);
     globalContext.getAllFunctions().forEach(context::registerFunction);
     globalContext.getAllTags().forEach(context::registerTag);
+    context.setDynamicVariableResolver(globalContext.getDynamicVariableResolver());
     return context;
   }
 }

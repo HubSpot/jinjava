@@ -307,26 +307,28 @@ public class JinjavaDocFactory {
     StringBuilder snippet = new StringBuilder("{% ");
     snippet.append(tag.getName());
     int i = 1;
-    for (JinjavaParam param : docAnnotation.input()) {
-      String inputValue = "${" + i + ":" + param.value() + "}";
-      if (param.value().equalsIgnoreCase("path")) {
-        inputValue = "'" + inputValue + "'";
-      } else if (param.value().equalsIgnoreCase("argument_names")) {
-        inputValue = "(" + inputValue + ")";
+    if (docAnnotation != null) {
+      for (JinjavaParam param : docAnnotation.input()) {
+        String inputValue = "${" + i + ":" + param.value() + "}";
+        if (param.value().equalsIgnoreCase("path")) {
+          inputValue = "'" + inputValue + "'";
+        } else if (param.value().equalsIgnoreCase("argument_names")) {
+          inputValue = "(" + inputValue + ")";
+        }
+        snippet.append(" " + inputValue);
+        i++;
       }
-      snippet.append(" " + inputValue);
-      i++;
-    }
 
-    for (JinjavaParam param : docAnnotation.params()) {
-      String paramValue = "${" + i + ":" + param.value() + "}";
-      if (param.value().equalsIgnoreCase("path")) {
-        paramValue = "'" + paramValue + "'";
-      } else if (param.value().equalsIgnoreCase("argument_names")) {
-        paramValue = "(" + paramValue + ")";
+      for (JinjavaParam param : docAnnotation.params()) {
+        String paramValue = "${" + i + ":" + param.value() + "}";
+        if (param.value().equalsIgnoreCase("path")) {
+          paramValue = "'" + paramValue + "'";
+        } else if (param.value().equalsIgnoreCase("argument_names")) {
+          paramValue = "(" + paramValue + ")";
+        }
+        snippet.append(" " + paramValue);
+        i++;
       }
-      snippet.append(" " + paramValue);
-      i++;
     }
 
     snippet.append(" %}");
