@@ -56,15 +56,6 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
       true,
       false
     );
-    LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
-      interpreter.getConfig().getMaxOutputSize(),
-      " "
-    );
-    joiner
-      .add(tagToken.getSymbols().getExpressionStartWithTag())
-      .add(tagToken.getTagName())
-      .add(resolvedExpression.getResult())
-      .add(tagToken.getSymbols().getExpressionEndWithTag());
     StringBuilder prefixToPreserveState = new StringBuilder(
       interpreter.getContext().isDeferredExecutionMode()
         ? resolvedExpression.getPrefixToPreserveState()
@@ -77,12 +68,7 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
         (
           includeExpressionResult
             ? wrapInRawIfNeeded(
-              interpreter.getAsString(
-                interpreter.resolveELExpression(
-                  resolvedExpression.getResult(),
-                  interpreter.getLineNumber()
-                )
-              ),
+              resolvedExpression.getResult().toString(true),
               interpreter
             )
             : ""
@@ -92,6 +78,16 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
     prefixToPreserveState.append(
       reconstructFromContextBeforeDeferring(chunkResolver.getDeferredWords(), interpreter)
     );
+
+    LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
+      interpreter.getConfig().getMaxOutputSize(),
+      " "
+    );
+    joiner
+      .add(tagToken.getSymbols().getExpressionStartWithTag())
+      .add(tagToken.getTagName())
+      .add(resolvedExpression.getResult().toString())
+      .add(tagToken.getSymbols().getExpressionEndWithTag());
     interpreter
       .getContext()
       .handleEagerToken(

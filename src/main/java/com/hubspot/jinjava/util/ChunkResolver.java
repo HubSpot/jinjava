@@ -1,7 +1,8 @@
 package com.hubspot.jinjava.util;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -9,9 +10,9 @@ import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.tree.parse.Token;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,10 @@ public class ChunkResolver {
     "null",
     "true",
     "false",
-    "__macros__"
+    "__macros__",
+    ExtendedParser.INTERPRETER,
+    "exptest",
+    "filter"
   );
 
   private static final Set<Class<?>> RESOLVABLE_CLASSES = ImmutableSet.of(
@@ -55,32 +59,13 @@ public class ChunkResolver {
     PyishSerializable.class
   );
 
-  // ( -> )
-  // { -> }
-  // [ -> ]
-  private static final Map<Character, Character> CHUNK_LEVEL_MARKER_MAP = ImmutableMap.of(
-    '(',
-    ')',
-    '{',
-    '}',
-    '[',
-    ']'
-  );
-
-  private final char[] value;
-  private final int length;
+  private final String value;
   private final Token token;
   private final JinjavaInterpreter interpreter;
   private final Set<String> deferredWords;
 
-  private int nextPos = 0;
-  private char prevChar = 0;
-  private boolean inQuote = false;
-  private char quoteChar = 0;
-
   public ChunkResolver(String s, Token token, JinjavaInterpreter interpreter) {
-    value = s.toCharArray();
-    length = value.length;
+    value = s.trim();
     this.token = token;
     this.interpreter = interpreter;
     deferredWords = new HashSet<>();
@@ -105,269 +90,75 @@ public class ChunkResolver {
    *  `[(foo == bar), deferred, bar]` -> `[true,deferred,'hello']`
    * @return String with chunk layers within it being partially or fully resolved.
    */
-  public String resolveChunks() {
-    nextPos = 0;
-    boolean isThrowInterpreterErrorsStart = interpreter
-      .getContext()
-      .getThrowInterpreterErrors();
+  public ResolvedChunks resolveChunks() {
+    boolean fullyResolved = false;
+    Object result;
     try {
-      interpreter.getContext().setThrowInterpreterErrors(true);
-      String expression = String.join("", getChunk(null)).trim();
-      if (JINJAVA_NULL.equals(expression)) {
-        // Resolved value of null as a string is ''.
-        return JINJAVA_EMPTY_STRING;
-      }
-      return expression;
-    } finally {
-      interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);
-    }
-  }
-
-  /**
-   * Chunkify and resolve variables and expressions within the string.
-   * Rather than concatenating the chunks, they are split by mini-chunks,
-   * with the comma splitter omitted from the list of results.
-   * Therefore an expression of "1, 1 + 1, 1 + range(deferred)" becomes a List of ["1", "2", "1 + range(deferred)"].
-   *
-   * @return List of the expression chunk which is split into mini-chunks.
-   */
-  public List<String> splitChunks() {
-    nextPos = 0;
-    boolean isThrowInterpreterErrorsStart = interpreter
-      .getContext()
-      .getThrowInterpreterErrors();
-    try {
-      interpreter.getContext().setThrowInterpreterErrors(true);
-      List<String> miniChunks = getChunk(null);
-      return miniChunks
-        .stream()
-        .filter(s -> s.length() > 1 || !isMiniChunkSplitter(s.charAt(0)))
-        .map(String::trim)
-        .collect(Collectors.toList());
-    } finally {
-      interpreter.getContext().setThrowInterpreterErrors(isThrowInterpreterErrorsStart);
-    }
-  }
-
-  /**
-   *  e.g. `[0, foo + bar]`:
-   *     `0, foo + bar` is a chunk
-   *     `0` and `foo + bar` are mini chunks
-   *     `0`, `,`, ` `, `foo`, ` `, `+`, ` `, and `bar` are the tokens
-   * @param chunkLevelMarker the marker `(`, `[`, `{` that started this chunk
-   * @return the resolved chunk
-   */
-  private List<String> getChunk(Character chunkLevelMarker) {
-    List<String> chunks = new ArrayList<>();
-    // Mini chunks are split by commas.
-    StringBuilder miniChunkBuilder = new StringBuilder();
-    StringBuilder tokenBuilder = new StringBuilder();
-    while (nextPos < length) {
-      boolean isAfterWhitespace = prevChar == ' ' && !isOpWhitespace(prevChar);
-      char c = value[nextPos++];
-      if (inQuote) {
-        if (c == quoteChar && prevChar != '\\') {
-          inQuote = false;
-        }
-      } else if ((c == '\'' || c == '"') && prevChar != '\\') {
-        inQuote = true;
-        quoteChar = c;
-      } else if (
-        chunkLevelMarker != null && CHUNK_LEVEL_MARKER_MAP.get(chunkLevelMarker) == c
-      ) {
-        setPrevChar(c);
-        break;
-      } else if (CHUNK_LEVEL_MARKER_MAP.containsKey(c)) {
-        setPrevChar(c);
-        tokenBuilder.append(c);
-        tokenBuilder.append(resolveChunk(String.join("", getChunk(c))));
-        tokenBuilder.append(prevChar);
-        continue;
-      } else if (isTokenSplitter(c)) {
-        String resolvedToken;
-        if (
-          c == ':' &&
-          chunkLevelMarker != null &&
-          '{' == chunkLevelMarker &&
-          !interpreter.getConfig().getLegacyOverrides().isEvaluateMapKeys()
-        ) {
-          resolvedToken =
-            '\'' + WhitespaceUtils.unquoteAndUnescape(tokenBuilder.toString()) + '\'';
-        } else {
-          resolvedToken = resolveToken(tokenBuilder.toString());
-        }
-        if (StringUtils.isNotEmpty(resolvedToken)) {
-          miniChunkBuilder.append(resolvedToken);
-        }
-        tokenBuilder = new StringBuilder();
-        if (isMiniChunkSplitter(c)) {
-          chunks.add(resolveChunk(miniChunkBuilder.toString()));
-          chunks.add(String.valueOf(c));
-          miniChunkBuilder = new StringBuilder();
-        } else {
-          miniChunkBuilder.append(c);
-        }
-        setPrevChar(c);
-        continue;
-      } else if (isAfterWhitespace) {
-        // In case there is whitespace between words: `foo or bar`
-        String resolvedToken = resolveToken(tokenBuilder.toString());
-        if (StringUtils.isNotEmpty(resolvedToken)) {
-          miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
-        }
-        tokenBuilder = new StringBuilder();
-      }
-      setPrevChar(c);
-      tokenBuilder.append(c);
-    }
-    miniChunkBuilder.append(resolveToken(tokenBuilder.toString()));
-    chunks.add(resolveChunk(miniChunkBuilder.toString()));
-    return chunks;
-  }
-
-  private void setPrevChar(char c) {
-    if (c == '\\' && prevChar == '\\') {
-      // Backslashes cancel each other out for escaping when there's an even number.
-      prevChar = '\0';
-    } else {
-      prevChar = c;
-    }
-  }
-
-  private boolean isTokenSplitter(char c) {
-    if (c == '|' && prevChar == '|') { // or operator
-      return true;
-    }
-    return (
-      !Character.isLetterOrDigit(c) && c != '_' && c != '.' && c != '|' && c != ' '
-    );
-  }
-
-  private boolean isOpWhitespace(char c) {
-    // If a pipe or full stop character is surrounded by whitespace on either side,
-    // we don't want to split those tokens
-    boolean isFilterWhitespace = false;
-    if (c == ' ') {
-      int prevPos = nextPos - 2;
-      if (nextPos < length) {
-        isFilterWhitespace =
-          value[nextPos] == ' ' || value[nextPos] == '|' || value[nextPos] == '.';
-      }
-      if (prevPos >= 0) {
-        isFilterWhitespace =
-          isFilterWhitespace ||
-          value[prevPos] == ' ' ||
-          value[prevPos] == '|' ||
-          value[prevPos] == '.';
-      }
-    }
-    return isFilterWhitespace;
-  }
-
-  private boolean isMiniChunkSplitter(char c) {
-    return c == ',';
-  }
-
-  private String resolveToken(String token) {
-    if (StringUtils.isBlank(token)) {
-      return token;
-    }
-    String resolvedToken = token;
-    try {
-      if (
-        !WhitespaceUtils.isExpressionQuoted(token) && !RESERVED_KEYWORDS.contains(token)
-      ) {
-        Object val = null;
-        try {
-          val =
-            interpreter.retraceVariable(
-              token,
-              this.token.getLineNumber(),
-              this.token.getStartPosition()
-            );
-        } catch (TemplateSyntaxException ignored) {}
-        if (val == null) {
-          try {
-            val = interpreter.resolveELExpression(token, this.token.getLineNumber());
-          } catch (UnknownTokenException e) {
-            // val is still null
-          }
-        }
-        if (val != null && isResolvableObject(val)) {
-          resolvedToken = PyishObjectMapper.getAsPyishString(val);
-        }
-      }
+      result =
+        interpreter.resolveELExpression(
+          String.format("[%s]", value),
+          interpreter.getLineNumber()
+        );
+      fullyResolved = true;
+    } catch (DeferredParsingException e) {
+      deferredWords.addAll(findDeferredWords(e.getDeferredEvalResult()));
+      String bracketedResult = e.getDeferredEvalResult().trim();
+      result = bracketedResult.substring(1, bracketedResult.length() - 1);
     } catch (DeferredValueException e) {
-      deferredWords.addAll(findDeferredWords(token));
-    } catch (TemplateSyntaxException ignored) {}
-    return spaced(resolvedToken, token);
+      deferredWords.addAll(findDeferredWords(value));
+      result = value;
+    } catch (TemplateSyntaxException e) {
+      result = Collections.singletonList(null);
+      fullyResolved = true;
+    }
+    return new ResolvedChunks(result, fullyResolved);
   }
 
-  // Try resolving the chunk/mini chunk as an ELExpression
-  private String resolveChunk(String chunk) {
-    if (StringUtils.isBlank(chunk)) {
-      return chunk;
+  public static String getValueAsJinjavaStringSafe(Object val) {
+    if (val == null) {
+      return JINJAVA_NULL;
+    } else if (isResolvableObject(val)) {
+      return PyishObjectMapper.getAsPyishString(val);
     }
-    String resolvedChunk = chunk;
-    try {
-      if (
-        !WhitespaceUtils.isExpressionQuoted(chunk) && !RESERVED_KEYWORDS.contains(chunk)
-      ) {
-        try {
-          Object val = interpreter.retraceVariable(
-            chunk.trim(),
-            this.token.getLineNumber(),
-            this.token.getStartPosition()
-          );
-          if (val != null) {
-            // If this isn't the final call, don't prematurely resolve complex objects.
-            if (!isResolvableObject(val)) {
-              return chunk;
-            }
-          }
-        } catch (TemplateSyntaxException ignored) {}
-
-        Object val = interpreter.resolveELExpression(chunk, token.getLineNumber());
-        if (val == null) {
-          resolvedChunk = ChunkResolver.JINJAVA_NULL;
-        } else if (isResolvableObject(val)) {
-          resolvedChunk = PyishObjectMapper.getAsPyishString(val);
-        }
-      }
-    } catch (TemplateSyntaxException ignored) {} catch (Exception e) {
-      deferredWords.addAll(findDeferredWords(chunk));
-    }
-    return spaced(resolvedChunk, chunk);
+    throw new DeferredValueException("Can not convert deferred result to string");
   }
 
   // Find any variables, functions, etc in this chunk to mark as deferred.
   // similar processing to getChunk method, but without recursion.
   private Set<String> findDeferredWords(String chunk) {
-    Set<String> words = new HashSet<>();
-    char[] value = chunk.toCharArray();
-    int prevQuotePos = 0;
-    int curPos = 0;
-    char c;
-    char prevChar = 0;
-    boolean inQuote = false;
-    char quoteChar = 0;
-    while (curPos < chunk.length()) {
-      c = value[curPos];
-      if (inQuote) {
-        if (c == quoteChar && prevChar != '\\') {
-          inQuote = false;
-          prevQuotePos = curPos;
+    boolean throwInterpreterErrorsStart = interpreter
+      .getContext()
+      .getThrowInterpreterErrors();
+    try {
+      interpreter.getContext().setThrowInterpreterErrors(true);
+      Set<String> words = new HashSet<>();
+      char[] value = chunk.toCharArray();
+      int prevQuotePos = 0;
+      int curPos = 0;
+      char c;
+      char prevChar = 0;
+      boolean inQuote = false;
+      char quoteChar = 0;
+      while (curPos < chunk.length()) {
+        c = value[curPos];
+        if (inQuote) {
+          if (c == quoteChar && prevChar != '\\') {
+            inQuote = false;
+            prevQuotePos = curPos;
+          }
+        } else if ((c == '\'' || c == '"') && prevChar != '\\') {
+          inQuote = true;
+          quoteChar = c;
+          words.addAll(findDeferredWordsInSubstring(chunk, prevQuotePos, curPos));
         }
-      } else if ((c == '\'' || c == '"') && prevChar != '\\') {
-        inQuote = true;
-        quoteChar = c;
-        words.addAll(findDeferredWordsInSubstring(chunk, prevQuotePos, curPos));
+        prevChar = c;
+        curPos++;
       }
-      prevChar = c;
-      curPos++;
+      words.addAll(findDeferredWordsInSubstring(chunk, prevQuotePos, curPos));
+      return words;
+    } finally {
+      interpreter.getContext().setThrowInterpreterErrors(throwInterpreterErrorsStart);
     }
-    words.addAll(findDeferredWordsInSubstring(chunk, prevQuotePos, curPos));
-    return words;
   }
 
   // Knowing that there are no quotes between start and end,
@@ -436,13 +227,88 @@ public class ChunkResolver {
       ).stream()
         .filter(Objects::nonNull)
         .allMatch(item -> isResolvableObjectRec(item, depth + 1));
+    } else if (val.getClass().isArray()) {
+      if (((Object[]) val).length == 0) {
+        return true;
+      }
+      return (Arrays.stream((Object[]) val)).filter(Objects::nonNull)
+        .allMatch(item -> isResolvableObjectRec(item, depth + 1));
     }
     return false;
   }
 
-  private static String spaced(String toSpaceOut, String reference) {
-    String prefix = reference.startsWith(" ") ? " " : "";
-    String suffix = reference.endsWith(" ") ? " " : "";
-    return prefix + toSpaceOut.trim() + suffix;
+  public static class ResolvedChunks {
+    private final Object resolvedObject;
+    private final boolean fullyResolved;
+
+    private ResolvedChunks(Object resolvedObject, boolean fullyResolved) {
+      this.resolvedObject = resolvedObject;
+      this.fullyResolved = fullyResolved;
+    }
+
+    /**
+     * Returns a string representation of the resolved expression.
+     * If there are multiple, they will be separated by commas,
+     * but not surrounded with brackets.
+     * @return String representation of the chunks.
+     */
+    @Override
+    public String toString() {
+      return toString(false);
+    }
+
+    /**
+     * When forOutput is true, the result will always be unquoted.
+     * @param forOutput Whether the result is going to be included in the final output,
+     *                  such as in an expression, or not such as when reconstructing tags.
+     * @return String representation of the chunks
+     */
+    public String toString(boolean forOutput) {
+      if (resolvedObject instanceof String) {
+        return (String) resolvedObject;
+      }
+      if (resolvedObject == null) {
+        return forOutput ? "" : JINJAVA_EMPTY_STRING;
+      }
+      String asString;
+      JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+      if (forOutput && interpreter != null) {
+        asString =
+          JinjavaInterpreter.getCurrent().getAsString(((List<?>) resolvedObject).get(0));
+      } else {
+        asString = PyishObjectMapper.getAsUnquotedPyishString(resolvedObject);
+
+        if (fullyResolved && StringUtils.isNotEmpty(asString)) {
+          // Removes surrounding brackets.
+          asString = asString.substring(1, asString.length() - 1);
+        }
+      }
+      if (JINJAVA_NULL.equals(asString)) {
+        return forOutput ? "" : JINJAVA_EMPTY_STRING;
+      }
+      return asString;
+    }
+
+    public List<?> toList() {
+      if (fullyResolved) {
+        if (resolvedObject instanceof List) {
+          return (List<?>) resolvedObject;
+        } else {
+          return Collections.singletonList(resolvedObject);
+        }
+      }
+      throw new DeferredValueException("Object is not resolved");
+    }
+
+    /**
+     * Method to wrap a string value in the ResolvedChunks class.
+     * It is not evaluated, rather it's allows a the class to be manually
+     * built from a partially resolved string.
+     * @param resolvedString Partially resolved string to wrap.
+     * @return A ResolvedChunks that {@link #toString()} returns <code>resolvedString</code>.
+     */
+    public static ResolvedChunks fromString(String resolvedString) {
+      return new ResolvedChunks(resolvedString, false);
+    }
   }
 }

@@ -21,6 +21,11 @@ public class EagerExecutionMode implements ExecutionMode {
   }
 
   @Override
+  public boolean useEagerParser() {
+    return true;
+  }
+
+  @Override
   public void prepareContext(Context context) {
     context
       .getAllTags()

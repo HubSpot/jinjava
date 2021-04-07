@@ -111,7 +111,12 @@ public class SetTag implements Tag {
     String[] varTokens = var.split(",");
 
     try {
-      executeSet((TagToken) tagNode.getMaster(), interpreter, varTokens, expr, false);
+      @SuppressWarnings("unchecked")
+      List<?> exprVals = (List<Object>) interpreter.resolveELExpression(
+        "[" + expr + "]",
+        tagNode.getMaster().getLineNumber()
+      );
+      executeSet((TagToken) tagNode.getMaster(), interpreter, varTokens, exprVals, false);
     } catch (DeferredValueException e) {
       DeferredValueUtils.deferVariables(varTokens, interpreter.getContext());
       throw e;
@@ -124,18 +129,13 @@ public class SetTag implements Tag {
     TagToken tagToken,
     JinjavaInterpreter interpreter,
     String[] varTokens,
-    String expr,
+    List<?> resolvedList,
     boolean allowDeferredValueOverride
   ) {
     if (varTokens.length > 1) {
       // handle multi-variable assignment
-      @SuppressWarnings("unchecked")
-      List<Object> exprVals = (List<Object>) interpreter.resolveELExpression(
-        "[" + expr + "]",
-        tagToken.getLineNumber()
-      );
 
-      if (varTokens.length != exprVals.size()) {
+      if (resolvedList == null || varTokens.length != resolvedList.size()) {
         throw new TemplateSyntaxException(
           tagToken.getImage(),
           "Tag 'set' declares an uneven number of variables and assigned values",
@@ -154,7 +154,7 @@ public class SetTag implements Tag {
             throw new DeferredValueException(varItem);
           }
         }
-        interpreter.getContext().put(varItem, exprVals.get(i));
+        interpreter.getContext().put(varItem, resolvedList.get(i));
       }
     } else {
       // handle single variable assignment
@@ -168,10 +168,7 @@ public class SetTag implements Tag {
       }
       interpreter
         .getContext()
-        .put(
-          varTokens[0],
-          interpreter.resolveELExpression(expr, tagToken.getLineNumber())
-        );
+        .put(varTokens[0], resolvedList != null ? resolvedList.get(0) : null);
     }
   }
 

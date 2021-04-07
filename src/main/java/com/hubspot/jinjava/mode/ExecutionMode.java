@@ -7,5 +7,9 @@ public interface ExecutionMode {
     return false;
   }
 
+  default boolean useEagerParser() {
+    return false;
+  }
+
   default void prepareContext(Context context) {}
 }

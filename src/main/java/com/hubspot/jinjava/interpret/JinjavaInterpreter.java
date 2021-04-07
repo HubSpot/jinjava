@@ -27,6 +27,7 @@ import com.google.common.collect.Multimap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
+import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -427,7 +428,11 @@ public class JinjavaInterpreter {
     }
     if (obj != null) {
       if (obj instanceof DeferredValue) {
-        throw new DeferredValueException(variable, lineNumber, startPosition);
+        if (config.getExecutionMode().useEagerParser()) {
+          throw new DeferredParsingException(this, variable);
+        } else {
+          throw new DeferredValueException(variable, lineNumber, startPosition);
+        }
       }
       obj = var.resolve(obj);
     }

@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.util.ChunkResolver.ResolvedChunks;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
@@ -26,7 +27,8 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
     if (!tagNode.getChildren().isEmpty()) {
       result.append(
         executeInChildContext(
-          eagerInterpreter -> renderChildren(tagNode, eagerInterpreter),
+          eagerInterpreter ->
+            ResolvedChunks.fromString(renderChildren(tagNode, eagerInterpreter)),
           interpreter,
           false,
           false

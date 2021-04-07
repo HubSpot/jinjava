@@ -4,6 +4,7 @@ import static de.odysseus.el.tree.impl.Builder.Feature.METHOD_INVOCATIONS;
 import static de.odysseus.el.tree.impl.Builder.Feature.NULL_PROPERTIES;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.COLON;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.COMMA;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.DOT;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.EQ;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.FALSE;
 import static de.odysseus.el.tree.impl.Scanner.Symbol.GE;
@@ -37,6 +38,7 @@ import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstNull;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import de.odysseus.el.tree.impl.ast.AstProperty;
+import de.odysseus.el.tree.impl.ast.AstRightValue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -221,7 +223,7 @@ public class ExtendedParser extends Parser {
       }
     }
     consumeToken(right);
-    return new AstParameters(l);
+    return createAstParameters(l);
   }
 
   protected AstDict dict() throws ScanException, ParseException {
@@ -252,6 +254,10 @@ public class ExtendedParser extends Parser {
       fail("}");
     }
     consumeToken();
+    return createAstDict(dict);
+  }
+
+  protected AstDict createAstDict(Map<AstNode, AstNode> dict) {
     return new AstDict(dict);
   }
 
@@ -269,7 +275,7 @@ public class ExtendedParser extends Parser {
         if (
           getToken().getSymbol() == COLON &&
           lookahead(0).getSymbol() == IDENTIFIER &&
-          lookahead(1).getSymbol() == LPAREN
+          (lookahead(1).getSymbol() == LPAREN || (isPossibleExpTestOrFilter(name)))
         ) { // ns:f(...)
           consumeToken();
           name += ":" + getToken().getImage();
@@ -292,7 +298,7 @@ public class ExtendedParser extends Parser {
             depth--;
           } else if (depth == 0) {
             if (s == Symbol.COMMA) {
-              return new AstTuple(params());
+              return createAstTuple(params());
             }
           }
           s = lookahead(i++).getSymbol();
@@ -301,7 +307,7 @@ public class ExtendedParser extends Parser {
         consumeToken();
         v = expr(true);
         consumeToken(RPAREN);
-        v = new AstNested(v);
+        v = createAstNested(v);
         break;
       default:
         break;
@@ -314,10 +320,11 @@ public class ExtendedParser extends Parser {
     AstNode v = null;
     switch (getToken().getSymbol()) {
       case LBRACK:
-        v = new AstList(params(LBRACK, RBRACK));
+        v = createAstList(params(LBRACK, RBRACK));
+
         break;
       case LPAREN:
-        v = new AstTuple(params());
+        v = createAstTuple(params());
         break;
       case EXTENSION:
         if (getToken() == LITERAL_DICT_START) {
@@ -335,6 +342,20 @@ public class ExtendedParser extends Parser {
     }
 
     return super.literal();
+  }
+
+  protected AstRightValue createAstNested(AstNode node) {
+    return new AstNested(node);
+  }
+
+  protected AstTuple createAstTuple(AstParameters parameters)
+    throws ScanException, ParseException {
+    return new AstTuple(parameters);
+  }
+
+  protected AstList createAstList(AstParameters parameters)
+    throws ScanException, ParseException {
+    return new AstList(parameters);
   }
 
   protected AstRangeBracket createAstRangeBracket(
@@ -424,7 +445,7 @@ public class ExtendedParser extends Parser {
                 "filter",
                 true
               );
-              v = createAstMethod(filterProperty, new AstParameters(filterParams)); // function("filter:" + filterName, new AstParameters(filterParams));
+              v = createAstMethod(filterProperty, createAstParameters(filterParams)); // function("filter:" + filterName, new AstParameters(filterParams));
             } while ("|".equals(getToken().getImage()));
           } else if (
             "is".equals(getToken().getImage()) &&
@@ -447,8 +468,32 @@ public class ExtendedParser extends Parser {
     }
   }
 
+  protected AstParameters createAstParameters(List<AstNode> nodes) {
+    return new AstParameters(nodes);
+  }
+
   private boolean isPossibleExpTest(Symbol symbol) {
     return VALID_SYMBOLS_FOR_EXP_TEST.contains(symbol);
+  }
+
+  private boolean isPossibleExpTestOrFilter(String namespace)
+    throws ParseException, ScanException {
+    if (
+      FILTER_PREFIX.substring(0, FILTER_PREFIX.length() - 1).equals(namespace) ||
+      EXPTEST_PREFIX.substring(0, EXPTEST_PREFIX.length() - 1).equals(namespace) &&
+      lookahead(1).getSymbol() == DOT &&
+      lookahead(2).getSymbol() == IDENTIFIER
+    ) {
+      Token property = lookahead(2);
+      if (
+        "filter".equals(property.getImage()) ||
+        "evaluate".equals(property.getImage()) ||
+        "evaluateNegated".equals(property.getImage())
+      ) { // exptest:equalto.evaluate(...
+        return lookahead(3).getSymbol() == LPAREN;
+      }
+    }
+    return false;
   }
 
   private AstNode buildAstMethodForIdentifier(AstNode astNode, String property)
@@ -467,7 +512,7 @@ public class ExtendedParser extends Parser {
       property,
       true
     );
-    return createAstMethod(exptestProperty, new AstParameters(exptestParams));
+    return createAstMethod(exptestProperty, createAstParameters(exptestParams));
   }
 
   @Override

@@ -39,5 +39,10 @@ public class AdditionOperator extends AstBinary.SimpleOperator {
     return NumberOperations.add(converter, o1, o2);
   }
 
+  @Override
+  public String toString() {
+    return "+";
+  }
+
   public static final AdditionOperator OP = new AdditionOperator();
 }

@@ -23,6 +23,7 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.ChunkResolver.ResolvedChunks;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -73,14 +74,14 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
       (
         interpreter1 -> {
           ((List<Integer>) interpreter1.getContext().get("foo")).add(1);
-          return "function return";
+          return ResolvedChunks.fromString("function return");
         }
       ),
       interpreter,
       true,
       false
     );
-    assertThat(result.getResult()).isEqualTo("function return");
+    assertThat(result.getResult().toString()).isEqualTo("function return");
     assertThat(result.getPrefixToPreserveState()).isEqualTo("{% set foo = [1] %}");
     assertThat(context.get("foo")).isEqualTo(ImmutableList.of(1));
     assertThat(context.getEagerTokens()).isEmpty();
@@ -96,14 +97,14 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
             "foo",
             DeferredValue.instance(interpreter1.getContext().get("foo"))
           );
-          return "function return";
+          return ResolvedChunks.fromString("function return");
         }
       ),
       interpreter,
       false,
       false
     );
-    assertThat(result.getResult()).isEqualTo("function return");
+    assertThat(result.getResult().toString()).isEqualTo("function return");
     assertThat(result.getPrefixToPreserveState()).isEqualTo("{% set foo = [] %}");
     assertThat(context.get("foo")).isInstanceOf(DeferredValue.class);
     assertThat(context.getEagerTokens()).isNotEmpty();

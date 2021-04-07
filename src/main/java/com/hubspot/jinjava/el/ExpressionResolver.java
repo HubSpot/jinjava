@@ -44,7 +44,10 @@ public class ExpressionResolver {
 
   public ExpressionResolver(JinjavaInterpreter interpreter, Jinjava jinjava) {
     this.interpreter = interpreter;
-    this.expressionFactory = jinjava.getExpressionFactory();
+    this.expressionFactory =
+      interpreter.getConfig().getExecutionMode().useEagerParser()
+        ? jinjava.getEagerExpressionFactory()
+        : jinjava.getExpressionFactory();
 
     this.resolver = new JinjavaInterpreterResolver(interpreter);
     this.elContext = new JinjavaELContext(interpreter, resolver);

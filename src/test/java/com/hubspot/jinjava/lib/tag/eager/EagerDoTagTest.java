@@ -63,7 +63,7 @@ public class EagerDoTagTest extends DoTagTest {
       tooLong.append(i);
     }
     context.setDeferredExecutionMode(true);
-    interpreter.render(String.format("{%% do deferred.append(%s) %%}", tooLong));
+    interpreter.render(String.format("{%% do deferred.append('%s') %%}", tooLong));
     assertThat(interpreter.getErrors()).hasSize(1);
     assertThat(interpreter.getErrors().get(0).getReason())
       .isEqualTo(ErrorReason.OUTPUT_TOO_BIG);

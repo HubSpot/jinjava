@@ -118,6 +118,15 @@ public class ExtendedParserTest {
     assertThat(astNode).isInstanceOf(AstTuple.class);
   }
 
+  @Test
+  public void itParsesExpTestLikeDictionary() {
+    // Don't want to accidentally try to parse these as a filter or exptest
+    AstNode astNode = buildExpressionNodes(
+      "#{{filter:length.filter, exptest:equalto.evaluate}}"
+    );
+    assertThat(astNode).isInstanceOf(AstDict.class);
+  }
+
   private void assertForExpression(
     AstNode astNode,
     String leftExpected,

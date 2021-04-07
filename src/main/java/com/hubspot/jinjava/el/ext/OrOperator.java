@@ -17,5 +17,10 @@ public class OrOperator implements Operator {
     return right.eval(bindings, context);
   }
 
+  @Override
+  public String toString() {
+    return "||";
+  }
+
   public static final OrOperator OP = new OrOperator();
 }
