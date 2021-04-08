@@ -12,6 +12,7 @@ import javax.el.ELContext;
 
 public class EagerAstMacroFunction extends AstMacroFunction implements EvalResultHolder {
   protected Object evalResult;
+  protected boolean hasEvalResult;
   // instanceof AstParameters
   protected EvalResultHolder params;
 
@@ -38,6 +39,7 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
   public Object eval(Bindings bindings, ELContext context) {
     try {
       evalResult = super.eval(bindings, context);
+      hasEvalResult = true;
       return evalResult;
     } catch (DeferredValueException e) {
       StringBuilder sb = new StringBuilder();
@@ -63,11 +65,12 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
   public Object getAndClearEvalResult() {
     Object temp = evalResult;
     evalResult = null;
+    hasEvalResult = false;
     return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
-    return evalResult != null;
+    return hasEvalResult;
   }
 }

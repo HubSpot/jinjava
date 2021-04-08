@@ -11,7 +11,8 @@ import java.util.StringJoiner;
 import javax.el.ELContext;
 
 public class EagerAstDict extends AstDict implements EvalResultHolder {
-  private Object evalResult;
+  protected Object evalResult;
+  protected boolean hasEvalResult;
 
   public EagerAstDict(Map<AstNode, AstNode> dict) {
     super(dict);
@@ -21,6 +22,7 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
   public Object eval(Bindings bindings, ELContext context) {
     try {
       evalResult = super.eval(bindings, context);
+      hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
       JinjavaInterpreter interpreter = (JinjavaInterpreter) context
@@ -78,11 +80,12 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
   public Object getAndClearEvalResult() {
     Object temp = evalResult;
     evalResult = null;
+    hasEvalResult = false;
     return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
-    return evalResult != null;
+    return hasEvalResult;
   }
 }

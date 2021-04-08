@@ -10,8 +10,9 @@ import java.util.stream.Collectors;
 import javax.el.ELContext;
 
 public class EagerAstParameters extends AstParameters implements EvalResultHolder {
-  private Object[] evalResult;
-  private final List<AstNode> nodes;
+  protected Object[] evalResult;
+  protected boolean hasEvalResult;
+  protected final List<AstNode> nodes;
 
   public EagerAstParameters(List<AstNode> nodes) {
     this( // to avoid converting nodes twice, call separate constructor
@@ -33,6 +34,7 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
   public Object[] eval(Bindings bindings, ELContext context) {
     try {
       evalResult = super.eval(bindings, context);
+      hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
       StringJoiner joiner = new StringJoiner(", ");
@@ -55,11 +57,12 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
   public Object[] getAndClearEvalResult() {
     Object[] temp = evalResult;
     evalResult = null;
+    hasEvalResult = false;
     return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
-    return evalResult != null;
+    return hasEvalResult;
   }
 }

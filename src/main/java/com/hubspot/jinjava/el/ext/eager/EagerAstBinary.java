@@ -8,6 +8,7 @@ import javax.el.ELContext;
 
 public class EagerAstBinary extends AstBinary implements EvalResultHolder {
   protected Object evalResult;
+  protected boolean hasEvalResult;
   protected final EvalResultHolder left;
   protected final EvalResultHolder right;
   protected final Operator operator;
@@ -35,6 +36,7 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
   public Object eval(Bindings bindings, ELContext context) {
     try {
       evalResult = super.eval(bindings, context);
+      hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
       String sb =
@@ -52,11 +54,12 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
   public Object getAndClearEvalResult() {
     Object temp = evalResult;
     evalResult = null;
+    hasEvalResult = false;
     return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
-    return evalResult != null;
+    return hasEvalResult;
   }
 }

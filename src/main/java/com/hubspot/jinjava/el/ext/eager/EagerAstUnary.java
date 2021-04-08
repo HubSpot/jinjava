@@ -7,7 +7,8 @@ import de.odysseus.el.tree.impl.ast.AstUnary;
 import javax.el.ELContext;
 
 public class EagerAstUnary extends AstUnary implements EvalResultHolder {
-  private Object evalResult;
+  protected Object evalResult;
+  protected boolean hasEvalResult;
   protected final EvalResultHolder child;
   protected final Operator operator;
 
@@ -25,6 +26,7 @@ public class EagerAstUnary extends AstUnary implements EvalResultHolder {
   public Object eval(Bindings bindings, ELContext context) {
     try {
       evalResult = super.eval(bindings, context);
+      hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
       String sb =
@@ -40,11 +42,12 @@ public class EagerAstUnary extends AstUnary implements EvalResultHolder {
   public Object getAndClearEvalResult() {
     Object temp = evalResult;
     evalResult = null;
+    hasEvalResult = false;
     return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
-    return evalResult != null;
+    return hasEvalResult;
   }
 }

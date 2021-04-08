@@ -8,6 +8,7 @@ import javax.el.ELContext;
 
 public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultHolder {
   protected Object evalResult;
+  protected boolean hasEvalResult;
 
   public EagerAstRangeBracket(
     AstNode base,
@@ -31,6 +32,7 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
   public Object eval(Bindings bindings, ELContext context) {
     try {
       evalResult = super.eval(bindings, context);
+      hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
       String sb =
@@ -76,11 +78,12 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
   public Object getAndClearEvalResult() {
     Object temp = evalResult;
     evalResult = null;
+    hasEvalResult = false;
     return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
-    return evalResult != null;
+    return hasEvalResult;
   }
 }

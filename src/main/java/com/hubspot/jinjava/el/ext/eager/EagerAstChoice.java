@@ -9,6 +9,7 @@ import javax.el.ELException;
 
 public class EagerAstChoice extends AstChoice implements EvalResultHolder {
   protected Object evalResult;
+  protected boolean hasEvalResult;
   protected final EvalResultHolder question;
   protected final EvalResultHolder yes;
   protected final EvalResultHolder no;
@@ -36,6 +37,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
   public Object eval(Bindings bindings, ELContext context) throws ELException {
     try {
       evalResult = super.eval(bindings, context);
+      hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
       if (question.getAndClearEvalResult() != null) {
@@ -60,11 +62,12 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
   public Object getAndClearEvalResult() {
     Object temp = evalResult;
     evalResult = null;
+    hasEvalResult = false;
     return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
-    return evalResult != null;
+    return hasEvalResult;
   }
 }

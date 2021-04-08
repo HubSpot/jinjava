@@ -5,7 +5,8 @@ import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import javax.el.ELContext;
 
 public class EagerAstIdentifier extends AstIdentifier implements EvalResultHolder {
-  private Object evalResult;
+  protected Object evalResult;
+  protected boolean hasEvalResult;
 
   public EagerAstIdentifier(String name, int index, boolean ignoreReturnType) {
     super(name, index, ignoreReturnType);
@@ -14,6 +15,7 @@ public class EagerAstIdentifier extends AstIdentifier implements EvalResultHolde
   @Override
   public Object eval(Bindings bindings, ELContext context) {
     evalResult = super.eval(bindings, context);
+    hasEvalResult = true;
     return evalResult;
   }
 
@@ -21,11 +23,12 @@ public class EagerAstIdentifier extends AstIdentifier implements EvalResultHolde
   public Object getAndClearEvalResult() {
     Object temp = evalResult;
     evalResult = null;
+    hasEvalResult = false;
     return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
-    return evalResult != null;
+    return hasEvalResult;
   }
 }

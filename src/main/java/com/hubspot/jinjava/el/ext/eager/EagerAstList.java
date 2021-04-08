@@ -8,7 +8,8 @@ import java.util.StringJoiner;
 import javax.el.ELContext;
 
 public class EagerAstList extends AstList implements EvalResultHolder {
-  private Object evalResult;
+  protected Object evalResult;
+  protected boolean hasEvalResult;
 
   public EagerAstList(AstParameters elements) {
     super(elements);
@@ -44,11 +45,12 @@ public class EagerAstList extends AstList implements EvalResultHolder {
   public Object getAndClearEvalResult() {
     Object temp = evalResult;
     evalResult = null;
+    hasEvalResult = false;
     return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
-    return evalResult != null;
+    return hasEvalResult;
   }
 }

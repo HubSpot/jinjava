@@ -8,7 +8,8 @@ import java.util.StringJoiner;
 import javax.el.ELContext;
 
 public class EagerAstTuple extends AstTuple implements EvalResultHolder {
-  private Object evalResult;
+  protected Object evalResult;
+  protected boolean hasEvalResult;
 
   public EagerAstTuple(AstParameters elements) {
     super(elements);
@@ -18,6 +19,7 @@ public class EagerAstTuple extends AstTuple implements EvalResultHolder {
   public Object eval(Bindings bindings, ELContext context) {
     try {
       evalResult = super.eval(bindings, context);
+      hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
       StringJoiner joiner = new StringJoiner(", ");
@@ -44,11 +46,12 @@ public class EagerAstTuple extends AstTuple implements EvalResultHolder {
   public Object getAndClearEvalResult() {
     Object temp = evalResult;
     evalResult = null;
+    hasEvalResult = false;
     return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
-    return evalResult != null;
+    return hasEvalResult;
   }
 }
