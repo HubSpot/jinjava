@@ -40,7 +40,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     String expression = tagToken.getHelpers().substring(eqPos + 1);
 
     ChunkResolver chunkResolver = new ChunkResolver(expression, tagToken, interpreter);
-    EagerStringResult resolvedExpression = executeInChildContext(
+    EagerStringResult eagerStringResult = executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
       interpreter,
       true,
@@ -59,7 +59,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
             tagToken,
             interpreter,
             varTokens,
-            resolvedExpression.getResult().toList(),
+            eagerStringResult.getResult().toList(),
             true
           );
         return "";
@@ -73,7 +73,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
       .add(tagToken.getTagName())
       .add(variables)
       .add("=")
-      .add(resolvedExpression.getResult().toString())
+      .add(eagerStringResult.getResult().toString())
       .add(tagToken.getSymbols().getExpressionEndWithTag());
 
     interpreter
@@ -108,9 +108,9 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     }
     StringBuilder prefixToPreserveState = new StringBuilder();
     if (interpreter.getContext().isDeferredExecutionMode()) {
-      prefixToPreserveState.append(resolvedExpression.getPrefixToPreserveState());
+      prefixToPreserveState.append(eagerStringResult.getPrefixToPreserveState());
     } else {
-      interpreter.getContext().putAll(resolvedExpression.getSessionBindings());
+      interpreter.getContext().putAll(eagerStringResult.getSessionBindings());
     }
     prefixToPreserveState.append(
       reconstructFromContextBeforeDeferring(chunkResolver.getDeferredWords(), interpreter)
