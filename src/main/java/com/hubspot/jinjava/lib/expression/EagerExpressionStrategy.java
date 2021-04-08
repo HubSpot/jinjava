@@ -38,11 +38,12 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       true,
       interpreter.getConfig().isNestedInterpretationEnabled()
     );
-    StringBuilder prefixToPreserveState = new StringBuilder(
-      interpreter.getContext().isDeferredExecutionMode()
-        ? eagerStringResult.getPrefixToPreserveState()
-        : ""
-    );
+    StringBuilder prefixToPreserveState = new StringBuilder();
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      prefixToPreserveState.append(eagerStringResult.getPrefixToPreserveState());
+    } else {
+      interpreter.getContext().putAll(eagerStringResult.getSessionBindings());
+    }
     if (chunkResolver.getDeferredWords().isEmpty()) {
       String result = eagerStringResult.getResult().toString(true);
       if (
@@ -92,7 +93,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
           chunkResolver.getDeferredWords()
         )
       );
-    // There is no only a preserving prefix because it couldn't be entirely evaluated.
+    // There is only a preserving prefix because it couldn't be entirely evaluated.
     return EagerTagDecorator.wrapInAutoEscapeIfNeeded(
       prefixToPreserveState.toString() + helpers,
       interpreter

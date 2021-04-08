@@ -46,16 +46,22 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       true,
       false
     );
-    String expression = eagerStringResult.getResult().toString().replace(", ", ",");
-    if (WhitespaceUtils.isWrappedWith(expression, "[", "]")) {
-      expression = expression.substring(1, expression.length() - 1);
+    String resolvedExpression = eagerStringResult
+      .getResult()
+      .toString()
+      .replace(", ", ",");
+    if (WhitespaceUtils.isWrappedWith(resolvedExpression, "[", "]")) {
+      resolvedExpression =
+        resolvedExpression.substring(1, resolvedExpression.length() - 1);
     }
-    StringBuilder prefixToPreserveState = new StringBuilder(
-      interpreter.getContext().isDeferredExecutionMode()
-        ? eagerStringResult.getPrefixToPreserveState()
-        : ""
-    );
-    HelperStringTokenizer items = new HelperStringTokenizer(expression).splitComma(true);
+    StringBuilder prefixToPreserveState = new StringBuilder();
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      prefixToPreserveState.append(eagerStringResult.getPrefixToPreserveState());
+    } else {
+      interpreter.getContext().putAll(eagerStringResult.getSessionBindings());
+    }
+    HelperStringTokenizer items = new HelperStringTokenizer(resolvedExpression)
+    .splitComma(true);
     List<String> values = items.allTokens();
     if (!chunkResolver.getDeferredWords().isEmpty()) {
       prefixToPreserveState.append(
@@ -80,13 +86,25 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       // The helpers get printed out
       return (
         prefixToPreserveState.toString() +
-        interpretPrintingCycle(tagToken, interpreter, values, chunkResolver, expression)
+        interpretPrintingCycle(
+          tagToken,
+          interpreter,
+          values,
+          chunkResolver,
+          resolvedExpression
+        )
       );
     } else if (helper.size() == 3) {
       // The helpers get set to a new variable
       return (
         prefixToPreserveState.toString() +
-        interpretSettingCycle(interpreter, values, helper, chunkResolver, expression)
+        interpretSettingCycle(
+          interpreter,
+          values,
+          helper,
+          chunkResolver,
+          resolvedExpression
+        )
       );
     } else {
       throw new TemplateSyntaxException(

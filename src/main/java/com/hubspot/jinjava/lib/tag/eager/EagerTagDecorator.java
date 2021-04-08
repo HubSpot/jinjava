@@ -110,7 +110,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           false,
           false
         )
-        .toString()
+        .asTemplateString()
     );
 
     if (StringUtils.isNotBlank(tagNode.getEndName())) {
@@ -179,48 +179,48 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       );
 
     // Don't create new call stacks to prevent hitting max recursion with this silent new scope
+    Map<String, Object> sessionBindings;
     try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
       interpreter.getContext().setDeferredExecutionMode(true);
       interpreter.getContext().setPartialMacroEvaluation(partialMacroEvaluation);
       result = function.apply(interpreter);
+      sessionBindings = interpreter.getContext().getSessionBindings();
     }
-    Map<String, String> deferredValuesToSet = interpreter
-      .getContext()
-      .entrySet()
-      .stream()
-      .filter(e -> initiallyResolvedHashes.containsKey(e.getKey()))
-      .filter(
-        e -> !initiallyResolvedHashes.get(e.getKey()).equals(e.getValue().hashCode())
-      )
-      .collect(
-        Collectors.toMap(
-          Entry::getKey,
-          e -> {
-            if (e.getValue() instanceof DeferredValue) {
-              return PyishObjectMapper.getAsPyishString(
-                ((DeferredValue) e.getValue()).getOriginalValue()
-              );
-            }
-            if (takeNewValue) {
-              return PyishObjectMapper.getAsPyishString(e.getValue());
-            }
+    sessionBindings.putAll(
+      interpreter
+        .getContext()
+        .entrySet()
+        .stream()
+        .filter(e -> initiallyResolvedHashes.containsKey(e.getKey()))
+        .filter(
+          e -> !initiallyResolvedHashes.get(e.getKey()).equals(e.getValue().hashCode())
+        )
+        .collect(
+          Collectors.toMap(
+            Entry::getKey,
+            e -> {
+              if (e.getValue() instanceof DeferredValue) {
+                return ((DeferredValue) e.getValue()).getOriginalValue();
+              }
+              if (takeNewValue) {
+                return e.getValue();
+              }
 
-            // Previous value could not be mapped to a string
-            throw new DeferredValueException(e.getKey());
-          }
+              // Previous value could not be mapped to a string
+              throw new DeferredValueException(e.getKey());
+            }
+          )
         )
-      );
-    if (deferredValuesToSet.size() > 0) {
-      return new EagerStringResult(
-        result,
-        buildSetTagForDeferredInChildContext(
-          deferredValuesToSet,
-          interpreter,
-          !takeNewValue
-        )
-      );
-    }
-    return new EagerStringResult(result);
+    );
+    sessionBindings =
+      sessionBindings
+        .entrySet()
+        .stream()
+        .filter(entry -> !entry.getKey().equals(GLOBAL_MACROS_SCOPE_KEY))
+        .filter(entry -> !(entry.getValue() instanceof DeferredValue)) // these are already set recursively
+        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+
+    return new EagerStringResult(result, sessionBindings);
   }
 
   /**
@@ -293,7 +293,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
             false
           )
       )
-      .map(EagerStringResult::toString)
+      .map(EagerStringResult::asTemplateString)
       .collect(Collectors.joining());
     // Remove macro functions from the set because they've been fully processed now.
     deferredWords.removeAll(toRemove);

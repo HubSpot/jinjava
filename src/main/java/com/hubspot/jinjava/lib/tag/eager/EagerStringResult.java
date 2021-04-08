@@ -1,6 +1,13 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import static com.hubspot.jinjava.lib.tag.eager.EagerTagDecorator.buildSetTagForDeferredInChildContext;
+
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.util.ChunkResolver.ResolvedChunks;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * This represents the result of executing an expression, where if something got
@@ -9,28 +16,44 @@ import com.hubspot.jinjava.util.ChunkResolver.ResolvedChunks;
  */
 public class EagerStringResult {
   private final ResolvedChunks result;
-  private final String prefixToPreserveState;
+  private final Map<String, Object> sessionBindings;
+  private String prefixToPreserveState;
 
-  public EagerStringResult(ResolvedChunks result) {
+  public EagerStringResult(ResolvedChunks result, Map<String, Object> sessionBindings) {
     this.result = result;
-    this.prefixToPreserveState = "";
-  }
-
-  public EagerStringResult(ResolvedChunks result, String prefixToPreserveState) {
-    this.result = result;
-    this.prefixToPreserveState = prefixToPreserveState;
+    this.sessionBindings = sessionBindings;
   }
 
   public ResolvedChunks getResult() {
     return result;
   }
 
+  public Map<String, Object> getSessionBindings() {
+    return sessionBindings;
+  }
+
   public String getPrefixToPreserveState() {
+    if (prefixToPreserveState != null) {
+      return prefixToPreserveState;
+    }
+    prefixToPreserveState =
+      buildSetTagForDeferredInChildContext(
+        sessionBindings
+          .entrySet()
+          .stream()
+          .collect(
+            Collectors.toMap(
+              Entry::getKey,
+              entry -> PyishObjectMapper.getAsPyishString(entry.getValue())
+            )
+          ),
+        JinjavaInterpreter.getCurrent(),
+        false
+      );
     return prefixToPreserveState;
   }
 
-  @Override
-  public String toString() {
-    return prefixToPreserveState + result;
+  public String asTemplateString() {
+    return getPrefixToPreserveState() + result;
   }
 }
