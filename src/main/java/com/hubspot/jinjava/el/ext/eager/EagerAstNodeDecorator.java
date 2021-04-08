@@ -14,7 +14,8 @@ import javax.el.ValueReference;
  */
 public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
   private final AstNode astNode;
-  private Object evalResult;
+  protected Object evalResult;
+  protected boolean hasEvalResult;
 
   public static EvalResultHolder getAsEvalResultHolder(AstNode astNode) {
     if (astNode instanceof EvalResultHolder) {
@@ -34,12 +35,13 @@ public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
   public Object getAndClearEvalResult() {
     Object temp = evalResult;
     evalResult = null;
+    hasEvalResult = false;
     return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
-    return evalResult != null;
+    return hasEvalResult;
   }
 
   @Override
@@ -50,6 +52,7 @@ public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
   @Override
   public Object eval(Bindings bindings, ELContext elContext) {
     evalResult = astNode.eval(bindings, elContext);
+    hasEvalResult = true;
     return evalResult;
   }
 
@@ -106,7 +109,7 @@ public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
     Class<?>[] classes,
     Object[] objects
   ) {
-    if (evalResult != null) {
+    if (hasEvalResult) {
       return evalResult;
     }
     evalResult = astNode.invoke(bindings, elContext, aClass, classes, objects);

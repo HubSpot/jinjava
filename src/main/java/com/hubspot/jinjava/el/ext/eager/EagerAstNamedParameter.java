@@ -10,9 +10,10 @@ import javax.el.ELContext;
 public class EagerAstNamedParameter
   extends AstNamedParameter
   implements EvalResultHolder {
-  private Object evalResult;
-  private final AstIdentifier name;
-  private final EvalResultHolder value;
+  protected boolean hasEvalResult;
+  protected Object evalResult;
+  protected final AstIdentifier name;
+  protected final EvalResultHolder value;
 
   public EagerAstNamedParameter(AstIdentifier name, AstNode value) {
     this(name, EagerAstNodeDecorator.getAsEvalResultHolder(value));
@@ -28,6 +29,7 @@ public class EagerAstNamedParameter
   public Object eval(Bindings bindings, ELContext context) {
     try {
       evalResult = super.eval(bindings, context);
+      hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
       throw new DeferredParsingException(
@@ -43,11 +45,12 @@ public class EagerAstNamedParameter
   public Object getAndClearEvalResult() {
     Object temp = evalResult;
     evalResult = null;
+    hasEvalResult = false;
     return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
-    return evalResult != null;
+    return hasEvalResult;
   }
 }

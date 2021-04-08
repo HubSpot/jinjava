@@ -11,8 +11,9 @@ import javax.el.ELContext;
  * AstNested is final so this decorates AstRightValue.
  */
 public class EagerAstNested extends AstRightValue implements EvalResultHolder {
-  private Object evalResult;
-  private final AstNode child;
+  protected Object evalResult;
+  protected boolean hasEvalResult;
+  protected final AstNode child;
 
   public EagerAstNested(AstNode child) {
     this.child = child;
@@ -29,6 +30,7 @@ public class EagerAstNested extends AstRightValue implements EvalResultHolder {
   public Object eval(Bindings bindings, ELContext context) {
     try {
       evalResult = child.eval(bindings, context);
+      hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
       throw new DeferredParsingException(
@@ -49,12 +51,13 @@ public class EagerAstNested extends AstRightValue implements EvalResultHolder {
   public Object getAndClearEvalResult() {
     Object temp = evalResult;
     evalResult = null;
+    hasEvalResult = false;
     return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
-    return evalResult != null;
+    return hasEvalResult;
   }
 
   @Override

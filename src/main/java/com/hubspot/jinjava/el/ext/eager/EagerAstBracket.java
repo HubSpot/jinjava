@@ -9,6 +9,7 @@ import javax.el.ELContext;
 
 public class EagerAstBracket extends AstBracket implements EvalResultHolder {
   protected Object evalResult;
+  protected boolean hasEvalResult;
 
   public EagerAstBracket(
     AstNode base,
@@ -30,6 +31,7 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
   public Object eval(Bindings bindings, ELContext context) {
     try {
       evalResult = super.eval(bindings, context);
+      hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
       StringBuilder sb = new StringBuilder();
@@ -64,12 +66,13 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
   public Object getAndClearEvalResult() {
     Object temp = evalResult;
     evalResult = null;
+    hasEvalResult = false;
     return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
-    return evalResult != null;
+    return hasEvalResult;
   }
 
   public AstNode getPrefix() {
