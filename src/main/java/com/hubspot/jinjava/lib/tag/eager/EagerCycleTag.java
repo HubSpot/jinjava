@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.CycleTag;
@@ -39,21 +40,21 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       helper.add(sb.toString());
     }
     ChunkResolver chunkResolver = new ChunkResolver(helper.get(0), tagToken, interpreter);
-    EagerStringResult resolvedExpression = executeInChildContext(
+    EagerStringResult eagerStringResult = executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
       interpreter,
       true,
       false
     );
-    String expression = resolvedExpression.getResult();
+    String expression = eagerStringResult.getResult().toString().replace(", ", ",");
     if (WhitespaceUtils.isWrappedWith(expression, "[", "]")) {
-      expression = expression.substring(1, expression.length() - 1).replace(", ", ",");
+      expression = expression.substring(1, expression.length() - 1);
     }
     StringBuilder prefixToPreserveState = new StringBuilder();
     if (interpreter.getContext().isDeferredExecutionMode()) {
-      prefixToPreserveState.append(resolvedExpression.getPrefixToPreserveState());
+      prefixToPreserveState.append(eagerStringResult.getPrefixToPreserveState());
     } else {
-      interpreter.getContext().putAll(resolvedExpression.getSessionBindings());
+      interpreter.getContext().putAll(eagerStringResult.getSessionBindings());
     }
     HelperStringTokenizer items = new HelperStringTokenizer(expression).splitComma(true);
     List<String> values = items.allTokens();
@@ -108,7 +109,10 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     String var = helper.get(2);
     if (!chunkResolver.getDeferredWords().isEmpty()) {
       return EagerTagDecorator.buildSetTagForDeferredInChildContext(
-        ImmutableMap.of(var, String.format("[%s]", resolvedExpression)),
+        ImmutableMap.of(
+          var,
+          String.format("[%s]", resolvedExpression.replace(",", ", "))
+        ),
         interpreter,
         true
       );
@@ -166,9 +170,21 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     String tokenStart = tagToken.getSymbols().getExpressionStartWithTag();
     String tokenEnd = tagToken.getSymbols().getExpressionEndWithTag();
     return (
-      String.format("%s if %s is iterable %s", tokenStart, var, tokenEnd) +
+      String.format(
+        "%s if exptest:iterable.evaluate(%s, %s) %s",
+        tokenStart,
+        var,
+        ExtendedParser.INTERPRETER,
+        tokenEnd
+      ) +
       // modulo indexing
-      String.format("{{ %s[%d %% %s|length] }}", var, forIndex, var) +
+      String.format(
+        "{{ %s[%d %% filter:length.filter(%s, %s)] }}",
+        var,
+        forIndex,
+        var,
+        ExtendedParser.INTERPRETER
+      ) +
       String.format("%s else %s", tokenStart, tokenEnd) +
       String.format("{{ %s }}", var) +
       String.format("%s endif %s", tokenStart, tokenEnd)

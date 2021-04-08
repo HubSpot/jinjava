@@ -32,7 +32,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       master,
       interpreter
     );
-    EagerStringResult resolvedExpression = EagerTagDecorator.executeInChildContext(
+    EagerStringResult eagerStringResult = EagerTagDecorator.executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
       interpreter,
       true,
@@ -40,17 +40,12 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     );
     StringBuilder prefixToPreserveState = new StringBuilder();
     if (interpreter.getContext().isDeferredExecutionMode()) {
-      prefixToPreserveState.append(resolvedExpression.getPrefixToPreserveState());
+      prefixToPreserveState.append(eagerStringResult.getPrefixToPreserveState());
     } else {
-      interpreter.getContext().putAll(resolvedExpression.getSessionBindings());
+      interpreter.getContext().putAll(eagerStringResult.getSessionBindings());
     }
     if (chunkResolver.getDeferredWords().isEmpty()) {
-      String result = interpreter.getAsString(
-        interpreter.resolveELExpression(
-          resolvedExpression.getResult(),
-          interpreter.getLineNumber()
-        )
-      );
+      String result = eagerStringResult.getResult().toString(true);
       if (
         !StringUtils.equals(result, master.getImage()) &&
         (
@@ -81,7 +76,10 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         interpreter
       )
     );
-    String helpers = wrapInExpression(resolvedExpression.getResult(), interpreter);
+    String helpers = wrapInExpression(
+      eagerStringResult.getResult().toString(),
+      interpreter
+    );
     interpreter
       .getContext()
       .handleEagerToken(
@@ -95,7 +93,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
           chunkResolver.getDeferredWords()
         )
       );
-    // There is no result because it couldn't be entirely evaluated.
+    // There is only a preserving prefix because it couldn't be entirely evaluated.
     return EagerTagDecorator.wrapInAutoEscapeIfNeeded(
       prefixToPreserveState.toString() + helpers,
       interpreter

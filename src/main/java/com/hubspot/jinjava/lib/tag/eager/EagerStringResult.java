@@ -4,6 +4,7 @@ import static com.hubspot.jinjava.lib.tag.eager.EagerTagDecorator.buildSetTagFor
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
+import com.hubspot.jinjava.util.ChunkResolver.ResolvedChunks;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -14,16 +15,16 @@ import java.util.stream.Collectors;
  * that would preserve the state for a second pass.
  */
 public class EagerStringResult {
-  private final String result;
+  private final ResolvedChunks result;
   private final Map<String, Object> sessionBindings;
   private String prefixToPreserveState;
 
-  public EagerStringResult(String result, Map<String, Object> sessionBindings) {
+  public EagerStringResult(ResolvedChunks result, Map<String, Object> sessionBindings) {
     this.result = result;
     this.sessionBindings = sessionBindings;
   }
 
-  public String getResult() {
+  public ResolvedChunks getResult() {
     return result;
   }
 

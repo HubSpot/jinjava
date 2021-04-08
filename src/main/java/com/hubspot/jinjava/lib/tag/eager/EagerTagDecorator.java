@@ -27,6 +27,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.util.ChunkResolver;
+import com.hubspot.jinjava.util.ChunkResolver.ResolvedChunks;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.Collections;
@@ -101,8 +102,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     result.append(
       executeInChildContext(
           eagerInterpreter ->
-            getEagerImage(tagNode.getMaster(), eagerInterpreter) +
-            renderChildren(tagNode, eagerInterpreter),
+            ResolvedChunks.fromString(
+              getEagerImage(tagNode.getMaster(), eagerInterpreter) +
+              renderChildren(tagNode, eagerInterpreter)
+            ),
           interpreter,
           false,
           false
@@ -152,12 +155,12 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    *    that preserves the state within the output for a second rendering pass.
    */
   public static EagerStringResult executeInChildContext(
-    Function<JinjavaInterpreter, String> function,
+    Function<JinjavaInterpreter, ResolvedChunks> function,
     JinjavaInterpreter interpreter,
     boolean takeNewValue,
     boolean partialMacroEvaluation
   ) {
-    StringBuilder result = new StringBuilder();
+    ResolvedChunks result;
     Map<String, Integer> initiallyResolvedHashes = new HashMap<>();
     interpreter
       .getContext()
@@ -180,7 +183,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
       interpreter.getContext().setDeferredExecutionMode(true);
       interpreter.getContext().setPartialMacroEvaluation(partialMacroEvaluation);
-      result.append(function.apply(interpreter));
+      result = function.apply(interpreter);
       sessionBindings = interpreter.getContext().getSessionBindings();
     }
     sessionBindings.putAll(
@@ -217,7 +220,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         .filter(entry -> !(entry.getValue() instanceof DeferredValue)) // these are already set recursively
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
-    return new EagerStringResult(result.toString(), sessionBindings);
+    return new EagerStringResult(result, sessionBindings);
   }
 
   /**
@@ -281,8 +284,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         entry ->
           executeInChildContext(
             eagerInterpreter ->
-              new EagerMacroFunction(entry.getKey(), entry.getValue(), interpreter)
-              .reconstructImage(),
+              ResolvedChunks.fromString(
+                new EagerMacroFunction(entry.getKey(), entry.getValue(), interpreter)
+                .reconstructImage()
+              ),
             interpreter,
             false,
             false
@@ -447,7 +452,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       tagToken,
       interpreter
     );
-    String resolvedChunks = chunkResolver.resolveChunks();
+    String resolvedChunks = chunkResolver.resolveChunks().toString();
     if (StringUtils.isNotBlank(resolvedChunks)) {
       joiner.add(resolvedChunks);
     }

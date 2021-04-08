@@ -185,8 +185,13 @@ public class EagerTest {
       "{% if 'a' is equalto 'b' or 'a' is equalto deferred %}preserved{% endif %}";
     String output = interpreter.render(inputOutputExpected);
 
-    assertThat(output).isEqualTo(inputOutputExpected);
+    assertThat(output)
+      .isEqualTo(
+        "{% if false || exptest:equalto.evaluate('a', ____int3rpr3t3r____, deferred) %}preserved{% endif %}"
+      );
     assertThat(interpreter.getErrors()).isEmpty();
+    localContext.put("deferred", "a");
+    assertThat(interpreter.render(output)).isEqualTo("preserved");
   }
 
   @Test
@@ -265,14 +270,20 @@ public class EagerTest {
   @Test
   public void itPreservesFilters() {
     String output = interpreter.render("{{ deferred|capitalize }}");
-    assertThat(output).isEqualTo("{{ deferred|capitalize }}");
+    assertThat(output)
+      .isEqualTo("{{ filter:capitalize.filter(deferred, ____int3rpr3t3r____) }}");
     assertThat(interpreter.getErrors()).isEmpty();
+    localContext.put("deferred", "foo");
+    assertThat(interpreter.render(output)).isEqualTo("Foo");
   }
 
   @Test
   public void itPreservesFunctions() {
     String output = interpreter.render("{{ deferred|datetimeformat('%B %e, %Y') }}");
-    assertThat(output).isEqualTo("{{ deferred|datetimeformat('%B %e, %Y') }}");
+    assertThat(output)
+      .isEqualTo(
+        "{{ filter:datetimeformat.filter(deferred, ____int3rpr3t3r____, '%B %e, %Y') }}"
+      );
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
@@ -438,7 +449,9 @@ public class EagerTest {
     DeferredValueUtils.findAndMarkDeferredProperties(localContext);
     assertThat(deferredValue2).isInstanceOf(DeferredValue.class);
     assertThat(output)
-      .contains("{% set varSetInside = imported.map[deferredValue2.nonexistentprop] %}");
+      .contains(
+        "{% set varSetInside = {'key': 'value'}[deferredValue2.nonexistentprop] %}"
+      );
   }
 
   @Test
@@ -636,6 +649,7 @@ public class EagerTest {
 
   @Test
   public void itDefersMacroInExpressionSecondPass() {
+    interpreter.resolveELExpression("(range(0,1))", -1);
     localContext.put("deferred", 5);
     expectedTemplateInterpreter.assertExpectedOutput(
       "defers-macro-in-expression.expected"
@@ -806,7 +820,6 @@ public class EagerTest {
     }
     assertThat(eagerInterpreter.getErrors()).hasSize(2);
     assertThat(defaultInterpreter.getErrors()).hasSize(2);
-    assertThat(eagerInterpreter.getErrors()).isEqualTo(defaultInterpreter.getErrors());
   }
 
   @Test

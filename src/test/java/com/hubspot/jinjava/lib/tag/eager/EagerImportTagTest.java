@@ -475,7 +475,7 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(firstPassResult)
       .isEqualTo(
         "{% set deferred_import_resource_path = 'import-macro.jinja' %}{% macro m.print_path_macro(var) %}\n" +
-        "{{ var|print_path }}\n" +
+        "{{ filter:print_path.filter(var, ____int3rpr3t3r____) }}\n" +
         "{{ var }}\n" +
         "{% endmacro %}{% set deferred_import_resource_path = null %}{{ m.print_path_macro(foo) }}"
       );
@@ -494,7 +494,7 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(firstPassResult)
       .isEqualTo(
         "{% set deferred_import_resource_path = 'import-macro.jinja' %}{% macro print_path_macro(var) %}\n" +
-        "{{ var|print_path }}\n" +
+        "{{ filter:print_path.filter(var, ____int3rpr3t3r____) }}\n" +
         "{{ var }}\n" +
         "{% endmacro %}{% set deferred_import_resource_path = null %}{{ print_path_macro(foo) }}"
       );

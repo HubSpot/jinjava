@@ -4,6 +4,7 @@ import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
+import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
 import com.hubspot.jinjava.el.ext.JinjavaListELResolver;
@@ -241,11 +242,15 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
             }
 
             if (value instanceof DeferredValue) {
-              throw new DeferredValueException(
-                propertyName,
-                interpreter.getLineNumber(),
-                interpreter.getPosition()
-              );
+              if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
+                throw new DeferredParsingException(this, propertyName);
+              } else {
+                throw new DeferredValueException(
+                  propertyName,
+                  interpreter.getLineNumber(),
+                  interpreter.getPosition()
+                );
+              }
             }
           } catch (PropertyNotFoundException e) {
             if (errOnUnknownProp) {

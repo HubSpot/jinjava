@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.ExpectedNodeInterpreter;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -30,6 +31,9 @@ public class EagerForTagTest extends ForTagTest {
           .newBuilder()
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
           .withExecutionMode(EagerExecutionMode.instance())
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+          )
           .build()
       );
     tag = new EagerForTag();

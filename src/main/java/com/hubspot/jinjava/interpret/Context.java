@@ -109,6 +109,7 @@ public class Context extends ScopeMap<String, Object> {
   private boolean throwInterpreterErrors = false;
   private boolean partialMacroEvaluation = false;
   private boolean unwrapRawOverride = false;
+  private DynamicVariableResolver dynamicVariableResolver = null;
 
   public Context() {
     this(null, null, null, true);
@@ -202,6 +203,7 @@ public class Context extends ScopeMap<String, Object> {
       this.expressionStrategy = parent.expressionStrategy;
       this.partialMacroEvaluation = parent.partialMacroEvaluation;
       this.unwrapRawOverride = parent.unwrapRawOverride;
+      this.dynamicVariableResolver = parent.dynamicVariableResolver;
     }
   }
 
@@ -527,6 +529,16 @@ public class Context extends ScopeMap<String, Object> {
 
   public void registerTag(Tag t) {
     tagLibrary.addTag(t);
+  }
+
+  public DynamicVariableResolver getDynamicVariableResolver() {
+    return dynamicVariableResolver;
+  }
+
+  public void setDynamicVariableResolver(
+    final DynamicVariableResolver dynamicVariableResolver
+  ) {
+    this.dynamicVariableResolver = dynamicVariableResolver;
   }
 
   public ExpressionStrategy getExpressionStrategy() {

@@ -103,7 +103,7 @@ public class EagerSetTagTest extends SetTagTest {
       tooLong.append(i);
     }
     context.setDeferredExecutionMode(true);
-    interpreter.render(String.format("{%% set deferred = %s %%}", tooLong));
+    interpreter.render(String.format("{%% set deferred = '%s' %%}", tooLong));
     assertThat(interpreter.getErrors()).hasSize(1);
     assertThat(interpreter.getErrors().get(0).getReason())
       .isEqualTo(ErrorReason.OUTPUT_TOO_BIG);
