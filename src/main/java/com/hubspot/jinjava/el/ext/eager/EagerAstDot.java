@@ -8,9 +8,10 @@ import javax.el.ELContext;
 import javax.el.ELException;
 
 public class EagerAstDot extends AstDot implements EvalResultHolder {
-  private Object evalResult;
-  private final EvalResultHolder base;
-  private final String property;
+  protected Object evalResult;
+  protected boolean hasEvalResult;
+  protected final EvalResultHolder base;
+  protected final String property;
 
   public EagerAstDot(
     AstNode base,
@@ -41,6 +42,7 @@ public class EagerAstDot extends AstDot implements EvalResultHolder {
   public Object eval(Bindings bindings, ELContext context) throws ELException {
     try {
       evalResult = super.eval(bindings, context);
+      hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
       throw new DeferredParsingException(
@@ -56,12 +58,13 @@ public class EagerAstDot extends AstDot implements EvalResultHolder {
   public Object getAndClearEvalResult() {
     Object temp = evalResult;
     evalResult = null;
+    hasEvalResult = false;
     return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
-    return evalResult != null;
+    return hasEvalResult;
   }
 
   public AstNode getPrefix() {
