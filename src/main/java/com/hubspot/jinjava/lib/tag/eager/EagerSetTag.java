@@ -39,7 +39,12 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
 
     String expression = tagToken.getHelpers().substring(eqPos + 1);
 
-    ChunkResolver chunkResolver = new ChunkResolver(expression, tagToken, interpreter);
+    ChunkResolver chunkResolver = new ChunkResolver(
+      expression,
+      tagToken,
+      true,
+      interpreter
+    );
     EagerStringResult eagerStringResult = executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
       interpreter,

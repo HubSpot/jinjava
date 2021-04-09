@@ -41,6 +41,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     ChunkResolver chunkResolver = new ChunkResolver(
       loopExpression,
       tagToken,
+      false,
       interpreter
     );
 

@@ -87,7 +87,7 @@ public class ChunkResolverTest {
   }
 
   private ChunkResolver makeChunkResolver(String string) {
-    return new ChunkResolver(string, tagToken, interpreter);
+    return new ChunkResolver(string, tagToken, true, interpreter);
   }
 
   @Test

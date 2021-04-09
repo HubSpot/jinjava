@@ -450,6 +450,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     ChunkResolver chunkResolver = new ChunkResolver(
       tagToken.getHelpers().trim(),
       tagToken,
+      true,
       interpreter
     );
     String resolvedChunks = chunkResolver.resolveChunks().toString();

@@ -39,7 +39,12 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     if (sb.length() > 0) {
       helper.add(sb.toString());
     }
-    ChunkResolver chunkResolver = new ChunkResolver(helper.get(0), tagToken, interpreter);
+    ChunkResolver chunkResolver = new ChunkResolver(
+      helper.get(0),
+      tagToken,
+      true,
+      interpreter
+    );
     EagerStringResult eagerStringResult = executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
       interpreter,

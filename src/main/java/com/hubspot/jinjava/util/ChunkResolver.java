@@ -61,12 +61,19 @@ public class ChunkResolver {
 
   private final String value;
   private final Token token;
+  private final boolean allowCommas; // if true, then wrap the expression in brackets.
   private final JinjavaInterpreter interpreter;
   private final Set<String> deferredWords;
 
-  public ChunkResolver(String s, Token token, JinjavaInterpreter interpreter) {
+  public ChunkResolver(
+    String s,
+    Token token,
+    boolean allowCommas,
+    JinjavaInterpreter interpreter
+  ) {
     value = s.trim();
     this.token = token;
+    this.allowCommas = allowCommas;
     this.interpreter = interpreter;
     deferredWords = new HashSet<>();
   }
@@ -94,16 +101,27 @@ public class ChunkResolver {
     boolean fullyResolved = false;
     Object result;
     try {
-      result =
-        interpreter.resolveELExpression(
-          String.format("[%s]", value),
-          interpreter.getLineNumber()
-        );
+      if (allowCommas) {
+        result =
+          interpreter.resolveELExpression(
+            String.format("[%s]", value),
+            interpreter.getLineNumber()
+          );
+      } else {
+        result = interpreter.resolveELExpression(value, interpreter.getLineNumber());
+        if (result != null) {
+          result = Collections.singletonList(result);
+        }
+      }
+
       fullyResolved = true;
     } catch (DeferredParsingException e) {
       deferredWords.addAll(findDeferredWords(e.getDeferredEvalResult()));
-      String bracketedResult = e.getDeferredEvalResult().trim();
-      result = bracketedResult.substring(1, bracketedResult.length() - 1);
+      String maybeBracketedResult = e.getDeferredEvalResult().trim();
+      result =
+        allowCommas
+          ? maybeBracketedResult.substring(1, maybeBracketedResult.length() - 1)
+          : maybeBracketedResult;
     } catch (DeferredValueException e) {
       deferredWords.addAll(findDeferredWords(value));
       result = value;

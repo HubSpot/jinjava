@@ -49,7 +49,7 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
     JinjavaInterpreter interpreter,
     boolean includeExpressionResult
   ) {
-    ChunkResolver chunkResolver = new ChunkResolver(expr, tagToken, interpreter);
+    ChunkResolver chunkResolver = new ChunkResolver(expr, tagToken, false, interpreter);
     EagerStringResult eagerStringResult = executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
       interpreter,
