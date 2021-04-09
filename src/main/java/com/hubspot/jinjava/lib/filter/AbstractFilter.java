@@ -67,7 +67,8 @@ public abstract class AbstractFilter implements Filter {
   }
 
   @SuppressFBWarnings(
-    "FB bug prevents forEach() method call counting `namedArgs` as used (fixed in next release)"
+    value = "UC_USELESS_OBJECT",
+    justification = "FB bug prevents forEach() method call counting `namedArgs` as used (fixed in next release)"
   )
   public Object filter(
     Object var,
