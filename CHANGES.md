@@ -1,4 +1,36 @@
 # Jinjava Releases #
+
+### 2020-10-07 Version 2.5.7 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.7%7Cjar)) ###
+* Various PRs for support EagerTokens and two-phase rendering via ChunkResolver.
+* [Preserve Raw Tags Config](https://github.com/HubSpot/jinjava/pull/518)
+* [Change config name to preserveForFinalPass](https://github.com/HubSpot/jinjava/pull/520)
+* [Ensure that after pushing the interpreter, it gets popped](https://github.com/HubSpot/jinjava/pull/521)
+* [Python Booleans and Filter base with parsing](https://github.com/HubSpot/jinjava/pull/523)
+* [toyaml/fromyaml filters](https://github.com/HubSpot/jinjava/pull/524)
+* [Add ChunkResolver to partially resolve expressions](https://github.com/HubSpot/jinjava/pull/525)
+* [Simply JinjavaConfig construction](https://github.com/HubSpot/jinjava/pull/528)
+* [Add size limited pymaps and pylists](https://github.com/HubSpot/jinjava/pull/530)
+* [Remove overrides for append and insert](https://github.com/HubSpot/jinjava/pull/536)
+* [Filter upgrades to support kw params](https://github.com/HubSpot/jinjava/pull/531)
+* [Check if list index is numeric before parsing to int](https://github.com/HubSpot/jinjava/pull/538)
+* [Rethrow CollectionTooBigExceptions in resolver](https://github.com/HubSpot/jinjava/pull/541)
+* [Add error for collection too big](https://github.com/HubSpot/jinjava/pull/550)
+* [Fix args for aliased functions](https://github.com/HubSpot/jinjava/pull/551)
+* [Add filter to interpret a string early](https://github.com/HubSpot/jinjava/pull/570)
+* [Variable function evaluator](https://github.com/HubSpot/jinjava/pull/572)
+* [Check that disabled library map isn't null](https://github.com/HubSpot/jinjava/pull/573)
+* [Pyish String representations of objects](https://github.com/HubSpot/jinjava/pull/581)
+* [Intial support for vsCodeTagSnippets](https://github.com/HubSpot/jinjava/pull/589)
+* [Fix documentation for truncate function](https://github.com/HubSpot/jinjava/pull/594)
+* [Fix bug with whitespace controls not applying properly](https://github.com/HubSpot/jinjava/pull/599)
+* [Allow replace filter on non-strings](https://github.com/HubSpot/jinjava/pull/603)
+* [Add function and filter to convert string to date](https://github.com/HubSpot/jinjava/pull/608)
+* [Expose jinjava snippets throught the jinjava object](https://github.com/HubSpot/jinjava/pull/622)
+* [Output pyish versions of objects using legacy override flag](https://github.com/HubSpot/jinjava/pull/621)
+* [Trim before checking if expression is quoted](https://github.com/HubSpot/jinjava/pull/623)
+* [Fix tuple parsing bug](https://github.com/HubSpot/jinjava/pull/627)
+* [Fix NPE around code snippets documentation](https://github.com/HubSpot/jinjava/pull/630)
+
 ### 2020-10-07 Version 2.5.6 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.6%7Cjar)) ###
 * [Accept ip address without network prefix in ipaddr('address') filter](https://github.com/HubSpot/jinjava/pull/512)
 * [Expression test parity with jinja including isIterable](https://github.com/HubSpot/jinjava/pull/510)
