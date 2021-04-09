@@ -39,7 +39,8 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     if (sb.length() > 0) {
       helper.add(sb.toString());
     }
-    ChunkResolver chunkResolver = new ChunkResolver(helper.get(0), tagToken, interpreter);
+    String expression = '[' + helper.get(0) + ']';
+    ChunkResolver chunkResolver = new ChunkResolver(expression, tagToken, interpreter);
     EagerStringResult eagerStringResult = executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
       interpreter,
@@ -50,6 +51,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       .getResult()
       .toString()
       .replace(", ", ",");
+    resolvedExpression = resolvedExpression.substring(1, resolvedExpression.length() - 1);
     if (WhitespaceUtils.isWrappedWith(resolvedExpression, "[", "]")) {
       resolvedExpression =
         resolvedExpression.substring(1, resolvedExpression.length() - 1);

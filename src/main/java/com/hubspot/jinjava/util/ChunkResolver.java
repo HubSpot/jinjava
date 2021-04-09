@@ -94,16 +94,11 @@ public class ChunkResolver {
     boolean fullyResolved = false;
     Object result;
     try {
-      result =
-        interpreter.resolveELExpression(
-          String.format("[%s]", value),
-          interpreter.getLineNumber()
-        );
+      result = interpreter.resolveELExpression(value, interpreter.getLineNumber());
       fullyResolved = true;
     } catch (DeferredParsingException e) {
       deferredWords.addAll(findDeferredWords(e.getDeferredEvalResult()));
-      String bracketedResult = e.getDeferredEvalResult().trim();
-      result = bracketedResult.substring(1, bracketedResult.length() - 1);
+      result = e.getDeferredEvalResult().trim();
     } catch (DeferredValueException e) {
       deferredWords.addAll(findDeferredWords(value));
       result = value;
@@ -264,7 +259,7 @@ public class ChunkResolver {
      * @return String representation of the chunks
      */
     public String toString(boolean forOutput) {
-      if (resolvedObject instanceof String) {
+      if (!fullyResolved) {
         return (String) resolvedObject;
       }
       if (resolvedObject == null) {
@@ -273,18 +268,9 @@ public class ChunkResolver {
       String asString;
       JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
       if (forOutput && interpreter != null) {
-        asString =
-          JinjavaInterpreter.getCurrent().getAsString(((List<?>) resolvedObject).get(0));
+        asString = interpreter.getAsString(resolvedObject);
       } else {
-        asString = PyishObjectMapper.getAsUnquotedPyishString(resolvedObject);
-
-        if (fullyResolved && StringUtils.isNotEmpty(asString)) {
-          // Removes surrounding brackets.
-          asString = asString.substring(1, asString.length() - 1);
-        }
-      }
-      if (JINJAVA_NULL.equals(asString)) {
-        return forOutput ? "" : JINJAVA_EMPTY_STRING;
+        asString = PyishObjectMapper.getAsPyishString(resolvedObject);
       }
       return asString;
     }

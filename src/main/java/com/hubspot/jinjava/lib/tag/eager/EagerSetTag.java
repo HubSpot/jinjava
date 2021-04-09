@@ -7,6 +7,7 @@ import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.ChunkResolver;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
+import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +40,11 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
 
     String expression = tagToken.getHelpers().substring(eqPos + 1);
 
-    ChunkResolver chunkResolver = new ChunkResolver(expression, tagToken, interpreter);
+    ChunkResolver chunkResolver = new ChunkResolver(
+      '[' + expression + ']',
+      tagToken,
+      interpreter
+    );
     EagerStringResult eagerStringResult = executeInChildContext(
       eagerInterpreter -> chunkResolver.resolveChunks(),
       interpreter,
@@ -65,6 +70,10 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
         return "";
       } catch (DeferredValueException ignored) {}
     }
+    String deferredResult = eagerStringResult.getResult().toString();
+    if (WhitespaceUtils.isWrappedWith(deferredResult, "[", "]")) {
+      deferredResult = deferredResult.substring(1, deferredResult.length() - 1);
+    }
     LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
       interpreter.getConfig().getMaxOutputSize(),
       " "
@@ -73,7 +82,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
       .add(tagToken.getTagName())
       .add(variables)
       .add("=")
-      .add(eagerStringResult.getResult().toString())
+      .add(deferredResult)
       .add(tagToken.getSymbols().getExpressionEndWithTag());
 
     interpreter
