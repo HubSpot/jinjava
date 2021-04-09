@@ -1,6 +1,6 @@
 # Jinjava Releases #
 
-### 2020-10-07 Version 2.5.7 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.7%7Cjar)) ###
+### 2021-04-09 Version 2.5.7 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.7%7Cjar)) ###
 * Various PRs for support EagerTokens and two-phase rendering via ChunkResolver.
 * [Preserve Raw Tags Config](https://github.com/HubSpot/jinjava/pull/518)
 * [Change config name to preserveForFinalPass](https://github.com/HubSpot/jinjava/pull/520)
