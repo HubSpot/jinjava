@@ -9,6 +9,7 @@ import com.hubspot.jinjava.util.Logging;
 import org.apache.commons.lang3.StringUtils;
 
 public class DefaultExpressionStrategy implements ExpressionStrategy {
+  private static final long serialVersionUID = 436239440273704843L;
 
   public RenderedOutputNode interpretOutput(
     ExpressionToken master,

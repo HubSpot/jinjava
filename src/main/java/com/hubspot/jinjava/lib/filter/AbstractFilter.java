@@ -21,6 +21,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,15 +66,17 @@ public abstract class AbstractFilter implements Filter {
     return filter(var, interpreter, args, Collections.emptyMap());
   }
 
+  @SuppressFBWarnings(
+    "FB bug prevents forEach() method call counting `namedArgs` as used (fixed in next release)"
+  )
   public Object filter(
     Object var,
     JinjavaInterpreter interpreter,
     Object[] args,
     Map<String, Object> kwargs
   ) {
-    Map<String, Object> namedArgs = new HashMap<>();
     //Set defaults
-    namedArgs.putAll(defaultValues);
+    Map<String, Object> namedArgs = new HashMap<>(defaultValues);
 
     //Process named params
     for (Map.Entry<String, Object> passedNamedArgEntry : kwargs.entrySet()) {
