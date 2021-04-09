@@ -61,19 +61,12 @@ public class ChunkResolver {
 
   private final String value;
   private final Token token;
-  private final boolean allowCommas; // if true, then wrap the expression in brackets.
   private final JinjavaInterpreter interpreter;
   private final Set<String> deferredWords;
 
-  public ChunkResolver(
-    String s,
-    Token token,
-    boolean allowCommas,
-    JinjavaInterpreter interpreter
-  ) {
+  public ChunkResolver(String s, Token token, JinjavaInterpreter interpreter) {
     value = s.trim();
     this.token = token;
-    this.allowCommas = allowCommas;
     this.interpreter = interpreter;
     deferredWords = new HashSet<>();
   }
@@ -101,19 +94,11 @@ public class ChunkResolver {
     boolean fullyResolved = false;
     Object result;
     try {
-      result =
-        interpreter.resolveELExpression(
-          allowCommas ? String.format("[%s]", value) : value,
-          interpreter.getLineNumber()
-        );
+      result = interpreter.resolveELExpression(value, interpreter.getLineNumber());
       fullyResolved = true;
     } catch (DeferredParsingException e) {
       deferredWords.addAll(findDeferredWords(e.getDeferredEvalResult()));
-      String maybeBracketedResult = e.getDeferredEvalResult().trim();
-      result =
-        allowCommas
-          ? maybeBracketedResult.substring(1, maybeBracketedResult.length() - 1)
-          : maybeBracketedResult;
+      result = e.getDeferredEvalResult().trim();
     } catch (DeferredValueException e) {
       deferredWords.addAll(findDeferredWords(value));
       result = value;
@@ -121,7 +106,7 @@ public class ChunkResolver {
       result = Collections.singletonList(null);
       fullyResolved = true;
     }
-    return new ResolvedChunks(result, fullyResolved, allowCommas);
+    return new ResolvedChunks(result, fullyResolved);
   }
 
   public static String getValueAsJinjavaStringSafe(Object val) {
@@ -250,12 +235,10 @@ public class ChunkResolver {
   public static class ResolvedChunks {
     private final Object resolvedObject;
     private final boolean fullyResolved;
-    private final boolean isList;
 
-    private ResolvedChunks(Object resolvedObject, boolean fullyResolved, boolean isList) {
+    private ResolvedChunks(Object resolvedObject, boolean fullyResolved) {
       this.resolvedObject = resolvedObject;
       this.fullyResolved = fullyResolved;
-      this.isList = isList;
     }
 
     /**
@@ -285,17 +268,9 @@ public class ChunkResolver {
       String asString;
       JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
       if (forOutput && interpreter != null) {
-        asString =
-          JinjavaInterpreter
-            .getCurrent()
-            .getAsString(isList ? ((List<?>) resolvedObject).get(0) : resolvedObject);
+        asString = interpreter.getAsString(resolvedObject);
       } else {
-        asString = PyishObjectMapper.getAsUnquotedPyishString(resolvedObject);
-
-        if (isList && StringUtils.isNotEmpty(asString)) {
-          // Removes surrounding brackets.
-          asString = asString.substring(1, asString.length() - 1);
-        }
+        asString = PyishObjectMapper.getAsPyishString(resolvedObject);
       }
       if (JINJAVA_NULL.equals(asString)) {
         return forOutput ? "" : JINJAVA_EMPTY_STRING;
@@ -304,7 +279,7 @@ public class ChunkResolver {
     }
 
     public List<?> toList() {
-      if (fullyResolved && isList) {
+      if (fullyResolved) {
         if (resolvedObject instanceof List) {
           return (List<?>) resolvedObject;
         } else {
@@ -322,7 +297,7 @@ public class ChunkResolver {
      * @return A ResolvedChunks that {@link #toString()} returns <code>resolvedString</code>.
      */
     public static ResolvedChunks fromString(String resolvedString) {
-      return new ResolvedChunks(resolvedString, false, false);
+      return new ResolvedChunks(resolvedString, false);
     }
   }
 }

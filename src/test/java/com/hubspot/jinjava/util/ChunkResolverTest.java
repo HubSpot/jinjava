@@ -87,7 +87,7 @@ public class ChunkResolverTest {
   }
 
   private ChunkResolver makeChunkResolver(String string) {
-    return new ChunkResolver(string, tagToken, true, interpreter);
+    return new ChunkResolver(string, tagToken, interpreter);
   }
 
   @Test
@@ -120,9 +120,9 @@ public class ChunkResolverTest {
   @Test
   public void itResolvesSimpleBoolean() {
     context.put("foo", true);
-    ChunkResolver chunkResolver = makeChunkResolver("false || (foo), 'bar'");
+    ChunkResolver chunkResolver = makeChunkResolver("[false || (foo), 'bar']");
     String partiallyResolved = chunkResolver.resolveChunks().toString();
-    assertThat(partiallyResolved).isEqualTo("true, 'bar'");
+    assertThat(partiallyResolved).isEqualTo("[true, 'bar']");
     assertThat(chunkResolver.getDeferredWords()).isEmpty();
   }
 
@@ -600,8 +600,8 @@ public class ChunkResolverTest {
   @Test
   public void itHandlesDeferredNamedParameter() {
     context.put("foo", "foo");
-    assertThat(makeChunkResolver("x=foo, y=deferred").resolveChunks().toString())
-      .isEqualTo("x='foo', y=deferred");
+    assertThat(makeChunkResolver("[x=foo, y=deferred]").resolveChunks().toString())
+      .isEqualTo("[x='foo', y=deferred]");
   }
 
   @Test

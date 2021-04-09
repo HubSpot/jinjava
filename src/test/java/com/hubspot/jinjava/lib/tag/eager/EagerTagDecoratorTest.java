@@ -344,7 +344,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
 
   @Test
   public void itDoesntLimitShortString() {
-    String template = "{% raw %}abc{% endraw %}";
+    String template = "{% if true %}abc{% endif %}";
 
     TagNode tagNode = (TagNode) (interpreter.parse(template).getChildren().get(0));
     assertThat(eagerTagDecorator.eagerInterpret(tagNode, interpreter))

@@ -30,7 +30,6 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     ChunkResolver chunkResolver = new ChunkResolver(
       master.getExpr(),
       master,
-      false,
       interpreter
     );
     EagerStringResult eagerStringResult = EagerTagDecorator.executeInChildContext(
