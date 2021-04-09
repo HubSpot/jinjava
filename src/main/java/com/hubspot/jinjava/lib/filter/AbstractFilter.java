@@ -71,9 +71,8 @@ public abstract class AbstractFilter implements Filter {
     Object[] args,
     Map<String, Object> kwargs
   ) {
-    Map<String, Object> namedArgs = new HashMap<>();
     //Set defaults
-    namedArgs.putAll(defaultValues);
+    Map<String, Object> namedArgs = new HashMap<>(defaultValues);
 
     //Process named params
     for (Map.Entry<String, Object> passedNamedArgEntry : kwargs.entrySet()) {
