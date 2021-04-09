@@ -101,19 +101,11 @@ public class ChunkResolver {
     boolean fullyResolved = false;
     Object result;
     try {
-      if (allowCommas) {
-        result =
-          interpreter.resolveELExpression(
-            String.format("[%s]", value),
-            interpreter.getLineNumber()
-          );
-      } else {
-        result = interpreter.resolveELExpression(value, interpreter.getLineNumber());
-        if (result != null) {
-          result = Collections.singletonList(result);
-        }
-      }
-
+      result =
+        interpreter.resolveELExpression(
+          allowCommas ? String.format("[%s]", value) : value,
+          interpreter.getLineNumber()
+        );
       fullyResolved = true;
     } catch (DeferredParsingException e) {
       deferredWords.addAll(findDeferredWords(e.getDeferredEvalResult()));
@@ -129,7 +121,7 @@ public class ChunkResolver {
       result = Collections.singletonList(null);
       fullyResolved = true;
     }
-    return new ResolvedChunks(result, fullyResolved);
+    return new ResolvedChunks(result, fullyResolved, allowCommas);
   }
 
   public static String getValueAsJinjavaStringSafe(Object val) {
@@ -258,10 +250,12 @@ public class ChunkResolver {
   public static class ResolvedChunks {
     private final Object resolvedObject;
     private final boolean fullyResolved;
+    private final boolean isList;
 
-    private ResolvedChunks(Object resolvedObject, boolean fullyResolved) {
+    private ResolvedChunks(Object resolvedObject, boolean fullyResolved, boolean isList) {
       this.resolvedObject = resolvedObject;
       this.fullyResolved = fullyResolved;
+      this.isList = isList;
     }
 
     /**
@@ -282,7 +276,7 @@ public class ChunkResolver {
      * @return String representation of the chunks
      */
     public String toString(boolean forOutput) {
-      if (resolvedObject instanceof String) {
+      if (!fullyResolved) {
         return (String) resolvedObject;
       }
       if (resolvedObject == null) {
@@ -292,11 +286,13 @@ public class ChunkResolver {
       JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
       if (forOutput && interpreter != null) {
         asString =
-          JinjavaInterpreter.getCurrent().getAsString(((List<?>) resolvedObject).get(0));
+          JinjavaInterpreter
+            .getCurrent()
+            .getAsString(isList ? ((List<?>) resolvedObject).get(0) : resolvedObject);
       } else {
         asString = PyishObjectMapper.getAsUnquotedPyishString(resolvedObject);
 
-        if (fullyResolved && StringUtils.isNotEmpty(asString)) {
+        if (isList && StringUtils.isNotEmpty(asString)) {
           // Removes surrounding brackets.
           asString = asString.substring(1, asString.length() - 1);
         }
@@ -308,7 +304,7 @@ public class ChunkResolver {
     }
 
     public List<?> toList() {
-      if (fullyResolved) {
+      if (fullyResolved && isList) {
         if (resolvedObject instanceof List) {
           return (List<?>) resolvedObject;
         } else {
@@ -326,7 +322,7 @@ public class ChunkResolver {
      * @return A ResolvedChunks that {@link #toString()} returns <code>resolvedString</code>.
      */
     public static ResolvedChunks fromString(String resolvedString) {
-      return new ResolvedChunks(resolvedString, false);
+      return new ResolvedChunks(resolvedString, false, false);
     }
   }
 }
