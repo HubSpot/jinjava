@@ -272,9 +272,6 @@ public class ChunkResolver {
       } else {
         asString = PyishObjectMapper.getAsPyishString(resolvedObject);
       }
-      if (JINJAVA_NULL.equals(asString)) {
-        return forOutput ? "" : JINJAVA_EMPTY_STRING;
-      }
       return asString;
     }
 
