@@ -26,8 +26,8 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.Token;
-import com.hubspot.jinjava.util.ChunkResolver;
-import com.hubspot.jinjava.util.ChunkResolver.ResolvedChunks;
+import com.hubspot.jinjava.util.EagerExpressionResolver;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.Collections;
@@ -102,7 +102,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     result.append(
       executeInChildContext(
           eagerInterpreter ->
-            ResolvedChunks.fromString(
+            EagerExpressionResult.fromString(
               getEagerImage(tagNode.getMaster(), eagerInterpreter) +
               renderChildren(tagNode, eagerInterpreter)
             ),
@@ -146,21 +146,21 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    * @param interpreter JinjavaInterpreter to create a child from.
    * @param takeNewValue If a value is updated (not replaced) either take the new value or
    *                     take the previous value and put it into the
-   *                     <code>EagerStringResult.prefixToPreserveState</code>.
+   *                     <code>EagerExecutionResult.prefixToPreserveState</code>.
    * @param partialMacroEvaluation Allow macro functions to be partially evaluated rather than
    *                               needing an explicit result during this render.
-   * @return An <code>EagerStringResult</code> where:
+   * @return An <code>EagerExecutionResult</code> where:
    *  <code>result</code> is the string result of <code>function</code>.
    *  <code>prefixToPreserveState</code> is either blank or a <code>set</code> tag
    *    that preserves the state within the output for a second rendering pass.
    */
-  public static EagerStringResult executeInChildContext(
-    Function<JinjavaInterpreter, ResolvedChunks> function,
+  public static EagerExecutionResult executeInChildContext(
+    Function<JinjavaInterpreter, EagerExpressionResult> function,
     JinjavaInterpreter interpreter,
     boolean takeNewValue,
     boolean partialMacroEvaluation
   ) {
-    ResolvedChunks result;
+    EagerExpressionResult result;
     Map<String, Integer> initiallyResolvedHashes = new HashMap<>();
     interpreter
       .getContext()
@@ -220,7 +220,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         .filter(entry -> !(entry.getValue() instanceof DeferredValue)) // these are already set recursively
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
-    return new EagerStringResult(result, sessionBindings);
+    return new EagerExecutionResult(result, sessionBindings);
   }
 
   /**
@@ -284,7 +284,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         entry ->
           executeInChildContext(
             eagerInterpreter ->
-              ResolvedChunks.fromString(
+              EagerExpressionResult.fromString(
                 new EagerMacroFunction(entry.getKey(), entry.getValue(), interpreter)
                 .reconstructImage()
               ),
@@ -293,7 +293,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
             false
           )
       )
-      .map(EagerStringResult::asTemplateString)
+      .map(EagerExecutionResult::asTemplateString)
       .collect(Collectors.joining());
     // Remove macro functions from the set because they've been fully processed now.
     deferredWords.removeAll(toRemove);
@@ -429,7 +429,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   }
 
   /**
-   * Uses the {@link ChunkResolver} to partially evaluate any expression within
+   * Uses the {@link EagerExpressionResolver} to partially evaluate any expression within
    * the tagToken's helpers. If there are any macro functions that must be deferred,
    * then their images are pre-pended to the result, which is the partial image
    * of the {@link TagToken}.
@@ -447,18 +447,17 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       .add(tagToken.getSymbols().getExpressionStartWithTag())
       .add(tagToken.getTagName());
 
-    ChunkResolver chunkResolver = new ChunkResolver(
+    EagerExpressionResult eagerExpressionResult = EagerExpressionResolver.resolveExpression(
       tagToken.getHelpers().trim(),
-      tagToken,
       interpreter
     );
-    String resolvedChunks = chunkResolver.resolveChunks().toString();
-    if (StringUtils.isNotBlank(resolvedChunks)) {
-      joiner.add(resolvedChunks);
+    String resolvedString = eagerExpressionResult.toString();
+    if (StringUtils.isNotBlank(resolvedString)) {
+      joiner.add(resolvedString);
     }
     joiner.add(tagToken.getSymbols().getExpressionEndWithTag());
     String reconstructedFromContext = reconstructFromContextBeforeDeferring(
-      chunkResolver.getDeferredWords(),
+      eagerExpressionResult.getDeferredWords(),
       interpreter
     );
 
@@ -472,7 +471,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
             tagToken.getStartPosition(),
             tagToken.getSymbols()
           ),
-          chunkResolver.getDeferredWords()
+          eagerExpressionResult.getDeferredWords()
         )
       );
 

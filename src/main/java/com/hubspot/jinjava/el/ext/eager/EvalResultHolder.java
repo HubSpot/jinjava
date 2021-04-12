@@ -2,7 +2,7 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
-import com.hubspot.jinjava.util.ChunkResolver;
+import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import javax.el.ELContext;
@@ -33,13 +33,17 @@ public interface EvalResultHolder {
       partiallyResolvedImage = ((AstIdentifier) astNode).getName();
     } else if (astNode.hasEvalResult()) {
       partiallyResolvedImage =
-        ChunkResolver.getValueAsJinjavaStringSafe(astNode.getAndClearEvalResult());
+        EagerExpressionResolver.getValueAsJinjavaStringSafe(
+          astNode.getAndClearEvalResult()
+        );
     } else if (exception.getSourceNode() == astNode) {
       partiallyResolvedImage = exception.getDeferredEvalResult();
     } else {
       try {
         partiallyResolvedImage =
-          ChunkResolver.getValueAsJinjavaStringSafe(astNode.eval(bindings, context));
+          EagerExpressionResolver.getValueAsJinjavaStringSafe(
+            astNode.eval(bindings, context)
+          );
       } catch (DeferredParsingException e) {
         partiallyResolvedImage = e.getDeferredEvalResult();
       } finally {

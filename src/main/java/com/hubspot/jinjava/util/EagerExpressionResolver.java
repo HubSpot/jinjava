@@ -9,7 +9,6 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
-import com.hubspot.jinjava.tree.parse.Token;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,15 +20,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * This class takes a string and resolves it in chunks. This allows for
- * strings with deferred values within them to be partially resolved, as much
- * as they can be with a deferred value.
- * E.g with foo=3, bar=2:
- *   "range(0,foo)[-1] + deferred/bar" -> "2 + deferred/2"
- * This class is not thread-safe. Do not reuse between threads.
- */
-public class ChunkResolver {
+public class EagerExpressionResolver {
   private static final String JINJAVA_NULL = "null";
   private static final String JINJAVA_EMPTY_STRING = "''";
 
@@ -59,54 +50,37 @@ public class ChunkResolver {
     PyishSerializable.class
   );
 
-  private final String value;
-  private final Token token;
-  private final JinjavaInterpreter interpreter;
-  private final Set<String> deferredWords;
-
-  public ChunkResolver(String s, Token token, JinjavaInterpreter interpreter) {
-    value = s.trim();
-    this.token = token;
-    this.interpreter = interpreter;
-    deferredWords = new HashSet<>();
-  }
-
   /**
-   * @return Any deferred words that were encountered.
-   */
-  public Set<String> getDeferredWords() {
-    return deferredWords;
-  }
-
-  /**
-   * Chunkify and resolve variables and expressions within the string.
-   * Tokens are resolved within "chunks" where a chunk is surrounded by a markers
-   * of {}, [], (). The contents inside of a chunk are split by whitespace
-   * and/or comma, and these "tokens" resolved individually.
+   * Resolve the expression while handling deferred values.
+   * Returns a EagerExpressionResult object which either holds the fully resolved object or a
+   * partially resolved string as well as a set of any words that couldn't be resolved.
+   * If a DeferredParsingException is thrown, the expression was partially resolved.
+   * If a DeferredValueException is thrown, the expression could not be resolved at all.
    *
-   * The main chunk itself does not get resolved.
-   * e.g.
-   *  `false || (foo), 'bar'` -> `true, 'bar'`
-   *  `[(foo == bar), deferred, bar]` -> `[true,deferred,'hello']`
-   * @return String with chunk layers within it being partially or fully resolved.
+   * E.g with foo=3, bar=2:
+   *   "range(0,foo)[-1] + deferred/bar" -> "2 + deferred/2"
    */
-  public ResolvedChunks resolveChunks() {
+  public static EagerExpressionResult resolveExpression(
+    String expression,
+    JinjavaInterpreter interpreter
+  ) {
     boolean fullyResolved = false;
+    Set<String> deferredWords = new HashSet<>();
     Object result;
     try {
-      result = interpreter.resolveELExpression(value, interpreter.getLineNumber());
+      result = interpreter.resolveELExpression(expression, interpreter.getLineNumber());
       fullyResolved = true;
     } catch (DeferredParsingException e) {
-      deferredWords.addAll(findDeferredWords(e.getDeferredEvalResult()));
+      deferredWords.addAll(findDeferredWords(e.getDeferredEvalResult(), interpreter));
       result = e.getDeferredEvalResult().trim();
     } catch (DeferredValueException e) {
-      deferredWords.addAll(findDeferredWords(value));
-      result = value;
+      deferredWords.addAll(findDeferredWords(expression, interpreter));
+      result = expression;
     } catch (TemplateSyntaxException e) {
       result = Collections.singletonList(null);
       fullyResolved = true;
     }
-    return new ResolvedChunks(result, fullyResolved);
+    return new EagerExpressionResult(result, deferredWords, fullyResolved);
   }
 
   public static String getValueAsJinjavaStringSafe(Object val) {
@@ -118,23 +92,25 @@ public class ChunkResolver {
     throw new DeferredValueException("Can not convert deferred result to string");
   }
 
-  // Find any variables, functions, etc in this chunk to mark as deferred.
-  // similar processing to getChunk method, but without recursion.
-  private Set<String> findDeferredWords(String chunk) {
+  // Find any unresolved variables, functions, etc in this expression to mark as deferred.
+  private static Set<String> findDeferredWords(
+    String partiallyResolved,
+    JinjavaInterpreter interpreter
+  ) {
     boolean throwInterpreterErrorsStart = interpreter
       .getContext()
       .getThrowInterpreterErrors();
     try {
       interpreter.getContext().setThrowInterpreterErrors(true);
       Set<String> words = new HashSet<>();
-      char[] value = chunk.toCharArray();
+      char[] value = partiallyResolved.toCharArray();
       int prevQuotePos = 0;
       int curPos = 0;
       char c;
       char prevChar = 0;
       boolean inQuote = false;
       char quoteChar = 0;
-      while (curPos < chunk.length()) {
+      while (curPos < partiallyResolved.length()) {
         c = value[curPos];
         if (inQuote) {
           if (c == quoteChar && prevChar != '\\') {
@@ -144,12 +120,21 @@ public class ChunkResolver {
         } else if ((c == '\'' || c == '"') && prevChar != '\\') {
           inQuote = true;
           quoteChar = c;
-          words.addAll(findDeferredWordsInSubstring(chunk, prevQuotePos, curPos));
+          words.addAll(
+            findDeferredWordsInSubstring(
+              partiallyResolved,
+              prevQuotePos,
+              curPos,
+              interpreter
+            )
+          );
         }
         prevChar = c;
         curPos++;
       }
-      words.addAll(findDeferredWordsInSubstring(chunk, prevQuotePos, curPos));
+      words.addAll(
+        findDeferredWordsInSubstring(partiallyResolved, prevQuotePos, curPos, interpreter)
+      );
       return words;
     } finally {
       interpreter.getContext().setThrowInterpreterErrors(throwInterpreterErrorsStart);
@@ -157,30 +142,27 @@ public class ChunkResolver {
   }
 
   // Knowing that there are no quotes between start and end,
-  // split up the words in `chunk` and return whichever ones can't be resolved.
-  private Set<String> findDeferredWordsInSubstring(String chunk, int start, int end) {
+  // split up the words in `partiallyResolved` and return whichever ones can't be resolved.
+  private static Set<String> findDeferredWordsInSubstring(
+    String partiallyResolved,
+    int start,
+    int end,
+    JinjavaInterpreter interpreter
+  ) {
     return Arrays
-      .stream(chunk.substring(start, end).split("[^\\w.]"))
+      .stream(partiallyResolved.substring(start, end).split("[^\\w.]"))
       .filter(StringUtils::isNotBlank)
-      .filter(w -> shouldBeEvaluated(w, token, interpreter))
+      .filter(w -> shouldBeEvaluated(w, interpreter))
       .collect(Collectors.toSet());
   }
 
-  public static boolean shouldBeEvaluated(
-    String w,
-    Token token,
-    JinjavaInterpreter interpreter
-  ) {
+  public static boolean shouldBeEvaluated(String w, JinjavaInterpreter interpreter) {
     try {
       if (RESERVED_KEYWORDS.contains(w)) {
         return false;
       }
       try {
-        Object val = interpreter.retraceVariable(
-          w,
-          token.getLineNumber(),
-          token.getStartPosition()
-        );
+        Object val = interpreter.retraceVariable(w, interpreter.getLineNumber());
         if (val != null) {
           // It's a variable that must now be deferred
           return true;
@@ -189,7 +171,7 @@ public class ChunkResolver {
         // val is still null
       }
       // don't defer numbers, values such as true/false, etc.
-      return interpreter.resolveELExpression(w, token.getLineNumber()) == null;
+      return interpreter.resolveELExpression(w, interpreter.getLineNumber()) == null;
     } catch (DeferredValueException | TemplateSyntaxException e) {
       return true;
     }
@@ -232,12 +214,18 @@ public class ChunkResolver {
     return false;
   }
 
-  public static class ResolvedChunks {
+  public static class EagerExpressionResult {
     private final Object resolvedObject;
+    private final Set<String> deferredWords;
     private final boolean fullyResolved;
 
-    private ResolvedChunks(Object resolvedObject, boolean fullyResolved) {
+    private EagerExpressionResult(
+      Object resolvedObject,
+      Set<String> deferredWords,
+      boolean fullyResolved
+    ) {
       this.resolvedObject = resolvedObject;
+      this.deferredWords = deferredWords;
       this.fullyResolved = fullyResolved;
     }
 
@@ -245,7 +233,7 @@ public class ChunkResolver {
      * Returns a string representation of the resolved expression.
      * If there are multiple, they will be separated by commas,
      * but not surrounded with brackets.
-     * @return String representation of the chunks.
+     * @return String representation of the result.
      */
     @Override
     public String toString() {
@@ -256,7 +244,7 @@ public class ChunkResolver {
      * When forOutput is true, the result will always be unquoted.
      * @param forOutput Whether the result is going to be included in the final output,
      *                  such as in an expression, or not such as when reconstructing tags.
-     * @return String representation of the chunks
+     * @return String representation of the result
      */
     public String toString(boolean forOutput) {
       if (!fullyResolved) {
@@ -290,15 +278,19 @@ public class ChunkResolver {
       return fullyResolved;
     }
 
+    public Set<String> getDeferredWords() {
+      return deferredWords;
+    }
+
     /**
-     * Method to wrap a string value in the ResolvedChunks class.
+     * Method to wrap a string value in the EagerExpressionResult class.
      * It is not evaluated, rather it's allows a the class to be manually
      * built from a partially resolved string.
      * @param resolvedString Partially resolved string to wrap.
-     * @return A ResolvedChunks that {@link #toString()} returns <code>resolvedString</code>.
+     * @return A EagerExpressionResult that {@link #toString()} returns <code>resolvedString</code>.
      */
-    public static ResolvedChunks fromString(String resolvedString) {
-      return new ResolvedChunks(resolvedString, false);
+    public static EagerExpressionResult fromString(String resolvedString) {
+      return new EagerExpressionResult(resolvedString, Collections.emptySet(), false);
     }
   }
 }

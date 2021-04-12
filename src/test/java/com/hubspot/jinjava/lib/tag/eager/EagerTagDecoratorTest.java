@@ -24,7 +24,7 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
-import com.hubspot.jinjava.util.ChunkResolver.ResolvedChunks;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -90,11 +90,11 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
   @Test
   public void itExecutesInChildContextAndTakesNewValue() {
     context.put("foo", new ArrayList<Integer>());
-    EagerStringResult result = EagerTagDecorator.executeInChildContext(
+    EagerExecutionResult result = EagerTagDecorator.executeInChildContext(
       (
         interpreter1 -> {
           ((List<Integer>) interpreter1.getContext().get("foo")).add(1);
-          return ResolvedChunks.fromString("function return");
+          return EagerExpressionResult.fromString("function return");
         }
       ),
       interpreter,
@@ -110,14 +110,14 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
   @Test
   public void itExecutesInChildContextAndDefersNewValue() {
     context.put("foo", new ArrayList<Integer>());
-    EagerStringResult result = EagerTagDecorator.executeInChildContext(
+    EagerExecutionResult result = EagerTagDecorator.executeInChildContext(
       (
         interpreter1 -> {
           context.put(
             "foo",
             DeferredValue.instance(interpreter1.getContext().get("foo"))
           );
-          return ResolvedChunks.fromString("function return");
+          return EagerExpressionResult.fromString("function return");
         }
       ),
       interpreter,

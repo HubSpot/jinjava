@@ -592,14 +592,14 @@ public class JinjavaInterpreter {
   public void addError(TemplateError templateError) {
     if (context.getThrowInterpreterErrors()) {
       if (templateError.getSeverity() == ErrorType.FATAL) {
-        // Throw fatal errors when resolving chunks.
+        // Throw fatal errors when locating deferred words.
         throw new TemplateSyntaxException(
           this,
           templateError.getFieldName(),
           templateError.getMessage()
         );
       } else {
-        // Hide warning errors when resolving chunks.
+        // Hide warning errors when locating deferred words.
         return;
       }
     }

@@ -3,7 +3,7 @@ package com.hubspot.jinjava.el.ext.eager;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.interpret.DeferredValueException;
-import com.hubspot.jinjava.util.ChunkResolver;
+import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import java.util.Arrays;
@@ -49,7 +49,7 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
         paramString =
           Arrays
             .stream(((AstParameters) params).eval(bindings, context))
-            .map(ChunkResolver::getValueAsJinjavaStringSafe)
+            .map(EagerExpressionResolver::getValueAsJinjavaStringSafe)
             .collect(Collectors.joining(", "));
       } catch (DeferredParsingException dpe) {
         paramString = dpe.getDeferredEvalResult();

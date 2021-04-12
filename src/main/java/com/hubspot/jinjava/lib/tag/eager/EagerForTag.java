@@ -4,7 +4,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.ForTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
-import com.hubspot.jinjava.util.ChunkResolver;
+import com.hubspot.jinjava.util.EagerExpressionResolver;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.HashSet;
@@ -38,9 +39,9 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     }
 
     String loopExpression = getTag().getLoopExpression(helperTokens, loopVars);
-    ChunkResolver chunkResolver = new ChunkResolver(
+
+    EagerExpressionResult eagerExpressionResult = EagerExpressionResolver.resolveExpression(
       loopExpression,
-      tagToken,
       interpreter
     );
 
@@ -48,15 +49,16 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       interpreter.getConfig().getMaxOutputSize(),
       " "
     );
+
     joiner
       .add(tagToken.getSymbols().getExpressionStartWithTag())
       .add(tagToken.getTagName())
       .add(String.join(", ", loopVars))
       .add("in")
-      .add(chunkResolver.resolveChunks())
+      .add(eagerExpressionResult.toString())
       .add(tagToken.getSymbols().getExpressionEndWithTag());
     String newlyDeferredFunctionImages = reconstructFromContextBeforeDeferring(
-      chunkResolver.getDeferredWords(),
+      eagerExpressionResult.getDeferredWords(),
       interpreter
     );
 
@@ -70,7 +72,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
             tagToken.getStartPosition(),
             tagToken.getSymbols()
           ),
-          chunkResolver.getDeferredWords(),
+          eagerExpressionResult.getDeferredWords(),
           new HashSet<>(loopVars)
         )
       );

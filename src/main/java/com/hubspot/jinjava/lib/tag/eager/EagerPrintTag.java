@@ -4,7 +4,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.PrintTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
-import com.hubspot.jinjava.util.ChunkResolver;
+import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import org.apache.commons.lang3.StringUtils;
 
@@ -49,32 +49,37 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
     JinjavaInterpreter interpreter,
     boolean includeExpressionResult
   ) {
-    ChunkResolver chunkResolver = new ChunkResolver(expr, tagToken, interpreter);
-    EagerStringResult eagerStringResult = executeInChildContext(
-      eagerInterpreter -> chunkResolver.resolveChunks(),
+    EagerExecutionResult eagerExecutionResult = executeInChildContext(
+      eagerInterpreter -> EagerExpressionResolver.resolveExpression(expr, interpreter),
       interpreter,
       true,
       false
     );
     StringBuilder prefixToPreserveState = new StringBuilder();
     if (interpreter.getContext().isDeferredExecutionMode()) {
-      prefixToPreserveState.append(eagerStringResult.getPrefixToPreserveState());
+      prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
     } else {
-      interpreter.getContext().putAll(eagerStringResult.getSessionBindings());
+      interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
     }
-    if (eagerStringResult.getResult().isFullyResolved()) {
+    if (eagerExecutionResult.getResult().isFullyResolved()) {
       // Possible macro/set tag in front of this one.
       return (
         prefixToPreserveState.toString() +
         (
           includeExpressionResult
-            ? wrapInRawIfNeeded(eagerStringResult.getResult().toString(true), interpreter)
+            ? wrapInRawIfNeeded(
+              eagerExecutionResult.getResult().toString(true),
+              interpreter
+            )
             : ""
         )
       );
     }
     prefixToPreserveState.append(
-      reconstructFromContextBeforeDeferring(chunkResolver.getDeferredWords(), interpreter)
+      reconstructFromContextBeforeDeferring(
+        eagerExecutionResult.getResult().getDeferredWords(),
+        interpreter
+      )
     );
 
     LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
@@ -84,7 +89,7 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
     joiner
       .add(tagToken.getSymbols().getExpressionStartWithTag())
       .add(tagToken.getTagName())
-      .add(eagerStringResult.getResult().toString())
+      .add(eagerExecutionResult.getResult().toString().trim())
       .add(tagToken.getSymbols().getExpressionEndWithTag());
     interpreter
       .getContext()
@@ -96,7 +101,7 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
             tagToken.getStartPosition(),
             tagToken.getSymbols()
           ),
-          chunkResolver.getDeferredWords()
+          eagerExecutionResult.getResult().getDeferredWords()
         )
       );
     // Possible set tag in front of this one.

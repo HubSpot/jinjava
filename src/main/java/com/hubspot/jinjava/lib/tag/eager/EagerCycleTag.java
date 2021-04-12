@@ -6,7 +6,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.CycleTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
-import com.hubspot.jinjava.util.ChunkResolver;
+import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.ArrayList;
@@ -41,9 +41,9 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       helper.add(sb.toString());
     }
     String expression = '[' + helper.get(0) + ']';
-    ChunkResolver chunkResolver = new ChunkResolver(expression, tagToken, interpreter);
-    EagerStringResult eagerStringResult = executeInChildContext(
-      eagerInterpreter -> chunkResolver.resolveChunks(),
+    EagerExecutionResult eagerExecutionResult = executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResolver.resolveExpression(expression, interpreter),
       interpreter,
       true,
       false
@@ -51,11 +51,11 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
 
     StringBuilder prefixToPreserveState = new StringBuilder();
     if (interpreter.getContext().isDeferredExecutionMode()) {
-      prefixToPreserveState.append(eagerStringResult.getPrefixToPreserveState());
+      prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
     } else {
-      interpreter.getContext().putAll(eagerStringResult.getSessionBindings());
+      interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
     }
-    String resolvedExpression = eagerStringResult
+    String resolvedExpression = eagerExecutionResult
       .getResult()
       .toString()
       .replace(", ", ",");
@@ -64,18 +64,18 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       resolvedExpression =
         resolvedExpression.substring(1, resolvedExpression.length() - 1);
     }
-    List<String> resolvedValues; // can only be retrieved if the ResolvedChunks are fully resolved.
-    if (!eagerStringResult.getResult().isFullyResolved()) {
+    List<String> resolvedValues; // can only be retrieved if the EagerExpressionResult are fully resolved.
+    if (!eagerExecutionResult.getResult().isFullyResolved()) {
       resolvedValues =
         new HelperStringTokenizer(resolvedExpression).splitComma(true).allTokens();
       prefixToPreserveState.append(
         reconstructFromContextBeforeDeferring(
-          chunkResolver.getDeferredWords(),
+          eagerExecutionResult.getResult().getDeferredWords(),
           interpreter
         )
       );
     } else {
-      List<?> objects = eagerStringResult.getResult().toList();
+      List<?> objects = eagerExecutionResult.getResult().toList();
       if (objects.size() == 1 && objects.get(0) instanceof List) {
         // because we may have wrapped in an extra set of brackets
         objects = (List<?>) objects.get(0);
@@ -102,7 +102,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
           interpreter,
           resolvedValues,
           resolvedExpression,
-          eagerStringResult.getResult().isFullyResolved()
+          eagerExecutionResult.getResult().isFullyResolved()
         )
       );
     } else if (helper.size() == 3) {
@@ -114,7 +114,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
           resolvedValues,
           helper,
           resolvedExpression,
-          eagerStringResult.getResult().isFullyResolved()
+          eagerExecutionResult.getResult().isFullyResolved()
         )
       );
     } else {
@@ -172,11 +172,11 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       if (!fullyResolved) {
         return getIsIterable(var, forindex, tagToken);
       } else {
-        return values.get(forindex % values.size());
+        return var;
       }
     }
     String item = values.get(forindex % values.size());
-    if (!fullyResolved && ChunkResolver.shouldBeEvaluated(item, tagToken, interpreter)) {
+    if (!fullyResolved && EagerExpressionResolver.shouldBeEvaluated(item, interpreter)) {
       return String.format("{{ %s }}", values.get(forindex % values.size()));
     }
     return item;
