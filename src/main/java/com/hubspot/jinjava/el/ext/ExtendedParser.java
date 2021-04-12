@@ -448,6 +448,12 @@ public class ExtendedParser extends Parser {
               v = createAstMethod(filterProperty, createAstParameters(filterParams)); // function("filter:" + filterName, new AstParameters(filterParams));
             } while ("|".equals(getToken().getImage()));
           } else if (
+            "not".equals(getToken().getImage()) &&
+            isPossibleExpTest(lookahead(0).getSymbol())
+          ) {
+            consumeToken(); // 'not'
+            v = buildAstMethodForIdentifier(v, "evaluateNegated");
+          } else if (
             "is".equals(getToken().getImage()) &&
             "not".equals(lookahead(0).getImage()) &&
             isPossibleExpTest(lookahead(1).getSymbol())

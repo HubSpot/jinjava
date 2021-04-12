@@ -19,6 +19,17 @@ public class IsInExpTestTest extends BaseJinjavaTest {
   }
 
   @Test
+  public void testIsNotInList() {
+    // optional is syntax
+    assertThat(jinjava.render("{{ 2 is not in [1, 2] }}", new HashMap<>())).isEqualTo("false");
+    assertThat(jinjava.render("{{ 2 is not in [1] }}", new HashMap<>())).isEqualTo("true");
+
+    // should run without `is` keyword
+    assertThat(jinjava.render("{{ 2 not in [1, 2] }}", new HashMap<>())).isEqualTo("false");
+    assertThat(jinjava.render("{{ 2 not in [1] }}", new HashMap<>())).isEqualTo("true");
+  }
+
+  @Test
   public void testNull() {
     assertThat(jinjava.render("{{ null is in [null] }}", new HashMap<>()))
       .isEqualTo("true");
