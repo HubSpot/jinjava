@@ -286,6 +286,10 @@ public class ChunkResolver {
       throw new DeferredValueException("Object is not resolved");
     }
 
+    public boolean isFullyResolved() {
+      return fullyResolved;
+    }
+
     /**
      * Method to wrap a string value in the ResolvedChunks class.
      * It is not evaluated, rather it's allows a the class to be manually
