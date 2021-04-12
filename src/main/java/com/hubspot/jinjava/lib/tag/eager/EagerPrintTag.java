@@ -62,7 +62,7 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
     } else {
       interpreter.getContext().putAll(eagerStringResult.getSessionBindings());
     }
-    if (chunkResolver.getDeferredWords().isEmpty()) {
+    if (eagerStringResult.getResult().isFullyResolved()) {
       // Possible macro/set tag in front of this one.
       return (
         prefixToPreserveState.toString() +

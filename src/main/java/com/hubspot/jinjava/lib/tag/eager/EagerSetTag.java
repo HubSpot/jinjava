@@ -55,7 +55,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     String[] varTokens = variables.split(",");
 
     if (
-      chunkResolver.getDeferredWords().isEmpty() &&
+      eagerStringResult.getResult().isFullyResolved() &&
       !interpreter.getContext().isDeferredExecutionMode()
     ) {
       try {

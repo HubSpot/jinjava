@@ -45,7 +45,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     } else {
       interpreter.getContext().putAll(eagerStringResult.getSessionBindings());
     }
-    if (chunkResolver.getDeferredWords().isEmpty()) {
+    if (eagerStringResult.getResult().isFullyResolved()) {
       String result = eagerStringResult.getResult().toString(true);
       if (
         !StringUtils.equals(result, master.getImage()) &&

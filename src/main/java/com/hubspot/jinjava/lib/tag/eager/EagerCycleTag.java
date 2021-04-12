@@ -101,8 +101,8 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
           tagToken,
           interpreter,
           resolvedValues,
-          chunkResolver,
-          resolvedExpression
+          resolvedExpression,
+          eagerStringResult.getResult().isFullyResolved()
         )
       );
     } else if (helper.size() == 3) {
@@ -113,8 +113,8 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
           interpreter,
           resolvedValues,
           helper,
-          chunkResolver,
-          resolvedExpression
+          resolvedExpression,
+          eagerStringResult.getResult().isFullyResolved()
         )
       );
     } else {
@@ -131,11 +131,11 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     JinjavaInterpreter interpreter,
     List<String> values,
     List<String> helper,
-    ChunkResolver chunkResolver,
-    String resolvedExpression
+    String resolvedExpression,
+    boolean fullyResolved
   ) {
     String var = helper.get(2);
-    if (!chunkResolver.getDeferredWords().isEmpty()) {
+    if (!fullyResolved) {
       return EagerTagDecorator.buildSetTagForDeferredInChildContext(
         ImmutableMap.of(
           var,
@@ -153,8 +153,8 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     TagToken tagToken,
     JinjavaInterpreter interpreter,
     List<String> values,
-    ChunkResolver chunkResolver,
-    String resolvedExpression
+    String resolvedExpression,
+    boolean fullyResolved
   ) {
     if (interpreter.getContext().isDeferredExecutionMode()) {
       return reconstructCycleTag(resolvedExpression, tagToken);
@@ -169,17 +169,14 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     }
     if (values.size() == 1) {
       String var = values.get(0);
-      if (!chunkResolver.getDeferredWords().isEmpty()) {
+      if (!fullyResolved) {
         return getIsIterable(var, forindex, tagToken);
       } else {
         return values.get(forindex % values.size());
       }
     }
     String item = values.get(forindex % values.size());
-    if (
-      !chunkResolver.getDeferredWords().isEmpty() &&
-      ChunkResolver.shouldBeEvaluated(item, tagToken, interpreter)
-    ) {
+    if (!fullyResolved && ChunkResolver.shouldBeEvaluated(item, tagToken, interpreter)) {
       return String.format("{{ %s }}", values.get(forindex % values.size()));
     }
     return item;
