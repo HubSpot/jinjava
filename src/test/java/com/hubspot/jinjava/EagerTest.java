@@ -789,6 +789,11 @@ public class EagerTest {
   }
 
   @Test
+  public void itHandlesCycleWithQuote() {
+    expectedTemplateInterpreter.assertExpectedOutput("handles-cycle-with-quote");
+  }
+
+  @Test
   public void itHandlesUnknownFunctionErrors() {
     JinjavaInterpreter eagerInterpreter = new JinjavaInterpreter(
       jinjava,

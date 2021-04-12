@@ -11,6 +11,7 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
 
@@ -47,6 +48,13 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       true,
       false
     );
+
+    StringBuilder prefixToPreserveState = new StringBuilder();
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      prefixToPreserveState.append(eagerStringResult.getPrefixToPreserveState());
+    } else {
+      interpreter.getContext().putAll(eagerStringResult.getSessionBindings());
+    }
     String resolvedExpression = eagerStringResult
       .getResult()
       .toString()
@@ -56,16 +64,10 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       resolvedExpression =
         resolvedExpression.substring(1, resolvedExpression.length() - 1);
     }
-    StringBuilder prefixToPreserveState = new StringBuilder();
-    if (interpreter.getContext().isDeferredExecutionMode()) {
-      prefixToPreserveState.append(eagerStringResult.getPrefixToPreserveState());
-    } else {
-      interpreter.getContext().putAll(eagerStringResult.getSessionBindings());
-    }
-    HelperStringTokenizer items = new HelperStringTokenizer(resolvedExpression)
-    .splitComma(true);
-    List<String> values = items.allTokens();
-    if (!chunkResolver.getDeferredWords().isEmpty()) {
+    List<String> resolvedValues; // can only be retrieved if the ResolvedChunks are fully resolved.
+    if (!eagerStringResult.getResult().isFullyResolved()) {
+      resolvedValues =
+        new HelperStringTokenizer(resolvedExpression).splitComma(true).allTokens();
       prefixToPreserveState.append(
         reconstructFromContextBeforeDeferring(
           chunkResolver.getDeferredWords(),
@@ -73,11 +75,18 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
         )
       );
     } else {
-      for (int i = 0; i < values.size(); i++) {
-        values.set(
+      List<?> objects = eagerStringResult.getResult().toList();
+      if (objects.size() == 1 && objects.get(0) instanceof List) {
+        // because we may have wrapped in an extra set of brackets
+        objects = (List<?>) objects.get(0);
+      }
+      resolvedValues =
+        objects.stream().map(interpreter::getAsString).collect(Collectors.toList());
+      for (int i = 0; i < resolvedValues.size(); i++) {
+        resolvedValues.set(
           i,
           interpreter.resolveString(
-            values.get(i),
+            resolvedValues.get(i),
             tagToken.getLineNumber(),
             tagToken.getStartPosition()
           )
@@ -91,9 +100,9 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
         interpretPrintingCycle(
           tagToken,
           interpreter,
-          values,
-          chunkResolver,
-          resolvedExpression
+          resolvedValues,
+          resolvedExpression,
+          eagerStringResult.getResult().isFullyResolved()
         )
       );
     } else if (helper.size() == 3) {
@@ -102,10 +111,10 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
         prefixToPreserveState.toString() +
         interpretSettingCycle(
           interpreter,
-          values,
+          resolvedValues,
           helper,
-          chunkResolver,
-          resolvedExpression
+          resolvedExpression,
+          eagerStringResult.getResult().isFullyResolved()
         )
       );
     } else {
@@ -122,11 +131,11 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     JinjavaInterpreter interpreter,
     List<String> values,
     List<String> helper,
-    ChunkResolver chunkResolver,
-    String resolvedExpression
+    String resolvedExpression,
+    boolean fullyResolved
   ) {
     String var = helper.get(2);
-    if (!chunkResolver.getDeferredWords().isEmpty()) {
+    if (!fullyResolved) {
       return EagerTagDecorator.buildSetTagForDeferredInChildContext(
         ImmutableMap.of(
           var,
@@ -144,8 +153,8 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     TagToken tagToken,
     JinjavaInterpreter interpreter,
     List<String> values,
-    ChunkResolver chunkResolver,
-    String resolvedExpression
+    String resolvedExpression,
+    boolean fullyResolved
   ) {
     if (interpreter.getContext().isDeferredExecutionMode()) {
       return reconstructCycleTag(resolvedExpression, tagToken);
@@ -160,17 +169,14 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     }
     if (values.size() == 1) {
       String var = values.get(0);
-      if (!chunkResolver.getDeferredWords().isEmpty()) {
+      if (!fullyResolved) {
         return getIsIterable(var, forindex, tagToken);
       } else {
         return values.get(forindex % values.size());
       }
     }
     String item = values.get(forindex % values.size());
-    if (
-      !chunkResolver.getDeferredWords().isEmpty() &&
-      ChunkResolver.shouldBeEvaluated(item, tagToken, interpreter)
-    ) {
+    if (!fullyResolved && ChunkResolver.shouldBeEvaluated(item, tagToken, interpreter)) {
       return String.format("{{ %s }}", values.get(forindex % values.size()));
     }
     return item;
