@@ -8,6 +8,7 @@ public class JinjavaDoc {
   private final Map<String, JinjavaDocFilter> filters = new TreeMap<>();
   private final Map<String, JinjavaDocFunction> functions = new TreeMap<>();
   private final Map<String, JinjavaDocTag> tags = new TreeMap<>();
+  private final Map<String, String> snippets = new TreeMap<>();
 
   public Map<String, JinjavaDocExpTest> getExpTests() {
     return expTests;
@@ -39,5 +40,13 @@ public class JinjavaDoc {
 
   public void addTag(JinjavaDocTag tag) {
     tags.put(tag.getName(), tag);
+  }
+
+  public Map<String, String> getSnippets() {
+    return snippets;
+  }
+
+  public void addSnippet(String name, String snippet) {
+    snippets.put(name, snippet);
   }
 }

@@ -41,6 +41,7 @@ public class JinjavaDocFactory {
     addFilterDocs(doc);
     addFnDocs(doc);
     addTagDocs(doc);
+    addCodeSnippets(doc);
 
     return doc;
   }
@@ -55,6 +56,15 @@ public class JinjavaDocFactory {
       snippets.append("\n\n");
     }
     return snippets.toString();
+  }
+
+  private void addCodeSnippets(JinjavaDoc doc) {
+    for (Tag tag : jinjava.getGlobalContextCopy().getAllTags()) {
+      if (tag instanceof EndTag) {
+        continue;
+      }
+      doc.addSnippet(tag.getName(), getTagSnippet(tag));
+    }
   }
 
   private void addExpTests(JinjavaDoc doc) {
