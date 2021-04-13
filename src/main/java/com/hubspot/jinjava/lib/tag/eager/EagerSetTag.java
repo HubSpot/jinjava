@@ -5,7 +5,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
-import com.hubspot.jinjava.util.ChunkResolver;
+import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.Arrays;
@@ -40,13 +40,9 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
 
     String expression = tagToken.getHelpers().substring(eqPos + 1);
 
-    ChunkResolver chunkResolver = new ChunkResolver(
-      '[' + expression + ']',
-      tagToken,
-      interpreter
-    );
-    EagerStringResult eagerStringResult = executeInChildContext(
-      eagerInterpreter -> chunkResolver.resolveChunks(),
+    EagerExecutionResult eagerExecutionResult = executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResolver.resolveExpression('[' + expression + ']', interpreter),
       interpreter,
       true,
       false
@@ -55,7 +51,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     String[] varTokens = variables.split(",");
 
     if (
-      eagerStringResult.getResult().isFullyResolved() &&
+      eagerExecutionResult.getResult().isFullyResolved() &&
       !interpreter.getContext().isDeferredExecutionMode()
     ) {
       try {
@@ -64,13 +60,13 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
             tagToken,
             interpreter,
             varTokens,
-            eagerStringResult.getResult().toList(),
+            eagerExecutionResult.getResult().toList(),
             true
           );
         return "";
       } catch (DeferredValueException ignored) {}
     }
-    String deferredResult = eagerStringResult.getResult().toString();
+    String deferredResult = eagerExecutionResult.getResult().toString();
     if (WhitespaceUtils.isWrappedWith(deferredResult, "[", "]")) {
       deferredResult = deferredResult.substring(1, deferredResult.length() - 1);
     }
@@ -95,7 +91,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
             tagToken.getStartPosition(),
             tagToken.getSymbols()
           ),
-          chunkResolver.getDeferredWords(),
+          eagerExecutionResult.getResult().getDeferredWords(),
           Arrays.stream(varTokens).map(String::trim).collect(Collectors.toSet())
         )
       );
@@ -117,12 +113,15 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     }
     StringBuilder prefixToPreserveState = new StringBuilder();
     if (interpreter.getContext().isDeferredExecutionMode()) {
-      prefixToPreserveState.append(eagerStringResult.getPrefixToPreserveState());
+      prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
     } else {
-      interpreter.getContext().putAll(eagerStringResult.getSessionBindings());
+      interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
     }
     prefixToPreserveState.append(
-      reconstructFromContextBeforeDeferring(chunkResolver.getDeferredWords(), interpreter)
+      reconstructFromContextBeforeDeferring(
+        eagerExecutionResult.getResult().getDeferredWords(),
+        interpreter
+      )
     );
     return wrapInAutoEscapeIfNeeded(
       prefixToPreserveState + joiner.toString() + suffixToPreserveState.toString(),

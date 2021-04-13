@@ -1,7 +1,7 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.util.ChunkResolver;
+import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBracket;
 import de.odysseus.el.tree.impl.ast.AstNode;
@@ -37,7 +37,7 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
       StringBuilder sb = new StringBuilder();
       if (((EvalResultHolder) prefix).hasEvalResult()) {
         sb.append(
-          ChunkResolver.getValueAsJinjavaStringSafe(
+          EagerExpressionResolver.getValueAsJinjavaStringSafe(
             ((EvalResultHolder) prefix).getAndClearEvalResult()
           )
         );
@@ -48,7 +48,9 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
           sb.append(
             String.format(
               "[%s]",
-              ChunkResolver.getValueAsJinjavaStringSafe(property.eval(bindings, context))
+              EagerExpressionResolver.getValueAsJinjavaStringSafe(
+                property.eval(bindings, context)
+              )
             )
           );
         } catch (DeferredParsingException e1) {

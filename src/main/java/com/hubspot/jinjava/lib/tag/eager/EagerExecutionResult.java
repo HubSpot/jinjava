@@ -4,32 +4,35 @@ import static com.hubspot.jinjava.lib.tag.eager.EagerTagDecorator.buildSetTagFor
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
-import com.hubspot.jinjava.util.ChunkResolver.ResolvedChunks;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 /**
- * This represents the result of executing an expression, where if something got
- * deferred, then the <code>prefixToPreserveState</code> can be added to the output
+ * This represents the result of speculatively executing an expression, where if something
+ * got deferred, then the <code>prefixToPreserveState</code> can be added to the output
  * that would preserve the state for a second pass.
  */
-public class EagerStringResult {
-  private final ResolvedChunks result;
-  private final Map<String, Object> sessionBindings;
+public class EagerExecutionResult {
+  private final EagerExpressionResult result;
+  private final Map<String, Object> speculativeBindings;
   private String prefixToPreserveState;
 
-  public EagerStringResult(ResolvedChunks result, Map<String, Object> sessionBindings) {
+  public EagerExecutionResult(
+    EagerExpressionResult result,
+    Map<String, Object> speculativeBindings
+  ) {
     this.result = result;
-    this.sessionBindings = sessionBindings;
+    this.speculativeBindings = speculativeBindings;
   }
 
-  public ResolvedChunks getResult() {
+  public EagerExpressionResult getResult() {
     return result;
   }
 
-  public Map<String, Object> getSessionBindings() {
-    return sessionBindings;
+  public Map<String, Object> getSpeculativeBindings() {
+    return speculativeBindings;
   }
 
   public String getPrefixToPreserveState() {
@@ -38,7 +41,7 @@ public class EagerStringResult {
     }
     prefixToPreserveState =
       buildSetTagForDeferredInChildContext(
-        sessionBindings
+        speculativeBindings
           .entrySet()
           .stream()
           .collect(

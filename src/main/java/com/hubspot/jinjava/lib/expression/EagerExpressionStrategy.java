@@ -4,12 +4,12 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
 import com.hubspot.jinjava.lib.tag.RawTag;
-import com.hubspot.jinjava.lib.tag.eager.EagerStringResult;
+import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.lib.tag.eager.EagerTagDecorator;
 import com.hubspot.jinjava.lib.tag.eager.EagerToken;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
-import com.hubspot.jinjava.util.ChunkResolver;
+import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.Logging;
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,25 +28,21 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     ExpressionToken master,
     JinjavaInterpreter interpreter
   ) {
-    ChunkResolver chunkResolver = new ChunkResolver(
-      master.getExpr(),
-      master,
-      interpreter
-    );
-    EagerStringResult eagerStringResult = EagerTagDecorator.executeInChildContext(
-      eagerInterpreter -> chunkResolver.resolveChunks(),
+    EagerExecutionResult eagerExecutionResult = EagerTagDecorator.executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResolver.resolveExpression(master.getExpr(), interpreter),
       interpreter,
       true,
       interpreter.getConfig().isNestedInterpretationEnabled()
     );
     StringBuilder prefixToPreserveState = new StringBuilder();
     if (interpreter.getContext().isDeferredExecutionMode()) {
-      prefixToPreserveState.append(eagerStringResult.getPrefixToPreserveState());
+      prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
     } else {
-      interpreter.getContext().putAll(eagerStringResult.getSessionBindings());
+      interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
     }
-    if (eagerStringResult.getResult().isFullyResolved()) {
-      String result = eagerStringResult.getResult().toString(true);
+    if (eagerExecutionResult.getResult().isFullyResolved()) {
+      String result = eagerExecutionResult.getResult().toString(true);
       if (
         !StringUtils.equals(result, master.getImage()) &&
         (
@@ -73,12 +69,12 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     }
     prefixToPreserveState.append(
       EagerTagDecorator.reconstructFromContextBeforeDeferring(
-        chunkResolver.getDeferredWords(),
+        eagerExecutionResult.getResult().getDeferredWords(),
         interpreter
       )
     );
     String helpers = wrapInExpression(
-      eagerStringResult.getResult().toString(),
+      eagerExecutionResult.getResult().toString(),
       interpreter
     );
     interpreter
@@ -91,7 +87,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
             master.getStartPosition(),
             master.getSymbols()
           ),
-          chunkResolver.getDeferredWords()
+          eagerExecutionResult.getResult().getDeferredWords()
         )
       );
     // There is only a preserving prefix because it couldn't be entirely evaluated.
