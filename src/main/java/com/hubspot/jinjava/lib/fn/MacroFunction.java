@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.fn;
 
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
@@ -144,7 +145,13 @@ public class MacroFunction extends AbstractCallableMethod {
       result.append(node.render(interpreter));
     }
     if (interpreter.getConfig().getExecutionMode().isPreserveRawTags()) {
-      return interpreter.renderFlat(result.toString());
+      try (
+        TemporaryValueClosable<Boolean> c = interpreter
+          .getContext()
+          .withUnwrapRawOverride()
+      ) {
+        return interpreter.renderFlat(result.toString());
+      }
     }
     return result.toString();
   }
