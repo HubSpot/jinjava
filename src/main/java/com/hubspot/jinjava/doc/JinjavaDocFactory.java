@@ -63,7 +63,7 @@ public class JinjavaDocFactory {
       if (tag instanceof EndTag) {
         continue;
       }
-      doc.addSnippet(tag.getName(), getTagSnippet(tag));
+      doc.addCodeSnippet(tag.getName(), getTagSnippet(tag));
     }
   }
 
