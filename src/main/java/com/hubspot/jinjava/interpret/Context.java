@@ -110,6 +110,7 @@ public class Context extends ScopeMap<String, Object> {
   private boolean partialMacroEvaluation = false;
   private boolean unwrapRawOverride = false;
   private DynamicVariableResolver dynamicVariableResolver = null;
+  private final Set<String> metaContextVariables; // These variable names aren't tracked in eager execution
 
   public Context() {
     this(null, null, null, true);
@@ -199,6 +200,8 @@ public class Context extends ScopeMap<String, Object> {
     this.tagLibrary = new TagLibrary(parent == null, disabled.get(Library.TAG));
     this.functionLibrary =
       new FunctionLibrary(parent == null, disabled.get(Library.FUNCTION));
+    this.metaContextVariables =
+      parent == null ? new HashSet<>() : parent.metaContextVariables;
     if (parent != null) {
       this.expressionStrategy = parent.expressionStrategy;
       this.partialMacroEvaluation = parent.partialMacroEvaluation;
@@ -333,6 +336,10 @@ public class Context extends ScopeMap<String, Object> {
     if (getParent() != null) {
       getParent().addResolvedFunction(function);
     }
+  }
+
+  public Set<String> getMetaContextVariables() {
+    return metaContextVariables;
   }
 
   public void handleDeferredNode(Node node) {

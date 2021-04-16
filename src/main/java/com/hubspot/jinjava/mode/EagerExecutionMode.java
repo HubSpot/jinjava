@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.mode;
 
+import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.lib.expression.EagerExpressionStrategy;
 import com.hubspot.jinjava.lib.tag.eager.EagerTagDecorator;
@@ -35,5 +36,15 @@ public class EagerExecutionMode implements ExecutionMode {
       .filter(Optional::isPresent)
       .forEach(maybeEagerTag -> context.registerTag(maybeEagerTag.get()));
     context.setExpressionStrategy(new EagerExpressionStrategy());
+    context
+      .getMetaContextVariables()
+      .addAll(
+        ImmutableSet.of(
+          Context.GLOBAL_MACROS_SCOPE_KEY,
+          Context.IMPORT_RESOURCE_PATH_KEY,
+          Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
+          Context.IMPORT_RESOURCE_ALIAS_KEY
+        )
+      );
   }
 }
