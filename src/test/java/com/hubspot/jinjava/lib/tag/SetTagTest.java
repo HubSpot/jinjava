@@ -1,43 +1,34 @@
 package com.hubspot.jinjava.lib.tag;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 
+import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
+import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredValueException;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.tree.Node;
+import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.TreeParser;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.MockitoJUnitRunner;
-import com.google.common.collect.Lists;
-import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.Context;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.TemplateSyntaxException;
-import com.hubspot.jinjava.tree.Node;
-import com.hubspot.jinjava.tree.TagNode;
-import com.hubspot.jinjava.tree.TreeParser;
 
 @SuppressWarnings("unchecked")
-@RunWith(MockitoJUnitRunner.class)
-public class SetTagTest {
-
-  @InjectMocks
-  SetTag tag;
-
-  Context context;
-  JinjavaInterpreter interpreter;
+public class SetTagTest extends BaseInterpretingTest {
+  public Tag tag;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
-    context = interpreter.getContext();
+    tag = new SetTag();
   }
 
   @Test
@@ -77,10 +68,19 @@ public class SetTagTest {
     TagNode tagNode = (TagNode) fixture("set-complex-dict");
     tag.interpret(tagNode, interpreter);
 
-    Map<String, Object> dict = (Map<String, Object>) interpreter.resolveObject("styles", -1, -1);
-    assertThat(dict).contains(
-        entry("heading", "color:bluecolor;text-shadow:2px 2px 1px rgba(0,0,0,.1);font-family:fontfam"),
-        entry("module", "background:#ffffff;padding:123px;border:1px solid 10"));
+    Map<String, Object> dict = (Map<String, Object>) interpreter.resolveObject(
+      "styles",
+      -1,
+      -1
+    );
+    assertThat(dict)
+      .contains(
+        entry(
+          "heading",
+          "color:bluecolor;text-shadow:2px 2px 1px rgba(0,0,0,.1);font-family:fontfam"
+        ),
+        entry("module", "background:#ffffff;padding:123px;border:1px solid 10")
+      );
   }
 
   @Test
@@ -88,7 +88,8 @@ public class SetTagTest {
     context.put("lw_font_size_base", 42);
     TagNode tagNode = (TagNode) fixture("set-string-concat");
     tag.interpret(tagNode, interpreter);
-    assertThat(interpreter.resolveObject("lw_font_size", -1 ,-1)).isEqualTo("font-size: 42px; ");
+    assertThat(interpreter.resolveObject("lw_font_size", -1, -1))
+      .isEqualTo("font-size: 42px; ");
   }
 
   @Test
@@ -96,7 +97,8 @@ public class SetTagTest {
     context.put("lw_font_size_base", 10);
     TagNode tagNode = (TagNode) fixture("set-expr-concat");
     tag.interpret(tagNode, interpreter);
-    assertThat(interpreter.resolveObject("lw_secondary_font_size", -1, -1)).isEqualTo("font-size: 8px; ");
+    assertThat(interpreter.resolveObject("lw_secondary_font_size", -1, -1))
+      .isEqualTo("font-size: 8px; ");
   }
 
   @Test
@@ -104,7 +106,7 @@ public class SetTagTest {
     context.put("max_size", "470");
     TagNode tagNode = (TagNode) fixture("set-filter-expr");
     tag.interpret(tagNode, interpreter);
-    assertThat(interpreter.resolveObject("ie_max_size", -1 ,-1)).isEqualTo(440L);
+    assertThat(interpreter.resolveObject("ie_max_size", -1, -1)).isEqualTo(440L);
   }
 
   @Test
@@ -113,7 +115,7 @@ public class SetTagTest {
     TagNode tagNode = (TagNode) fixture("set-array");
     tag.interpret(tagNode, interpreter);
 
-    List<Object> result = (List<Object>) interpreter.resolveObject("the_list", -1,-1);
+    List<Object> result = (List<Object>) interpreter.resolveObject("the_list", -1, -1);
     assertThat(result).containsExactly(1L, 2L, 3L, 7L);
   }
 
@@ -124,7 +126,11 @@ public class SetTagTest {
     TagNode tagNode = (TagNode) fixture("set-dictionary");
     tag.interpret(tagNode, interpreter);
 
-    Map<String, Object> result = (Map<String, Object>) interpreter.resolveObject("the_dictionary", -1,-1);
+    Map<String, Object> result = (Map<String, Object>) interpreter.resolveObject(
+      "the_dictionary",
+      -1,
+      -1
+    );
     assertThat(result).contains(entry("seven", 7L));
   }
 
@@ -157,11 +163,13 @@ public class SetTagTest {
     TagNode tagNode = (TagNode) fixture("set-multivar");
     tag.interpret(tagNode, interpreter);
 
-    assertThat(context).contains(
+    assertThat(context)
+      .contains(
         entry("myvar1", "foo"),
         entry("myvar2", "mybar"),
         entry("myvar3", Lists.newArrayList(1L, 2L, 3L, 4L)),
-        entry("myvar4", "yoooooo"));
+        entry("myvar4", "yoooooo")
+      );
   }
 
   @Test(expected = TemplateSyntaxException.class)
@@ -171,11 +179,13 @@ public class SetTagTest {
     TagNode tagNode = (TagNode) fixture("set-multivar-unbalanced-vars");
     tag.interpret(tagNode, interpreter);
 
-    assertThat(context).contains(
+    assertThat(context)
+      .contains(
         entry("myvar1", "foo"),
         entry("myvar2", "mybar"),
         entry("myvar3", Lists.newArrayList(1L, 2L, 3L, 4L)),
-        entry("myvar4", "yoooooo"));
+        entry("myvar4", "yoooooo")
+      );
   }
 
   @Test(expected = TemplateSyntaxException.class)
@@ -185,11 +195,41 @@ public class SetTagTest {
     TagNode tagNode = (TagNode) fixture("set-multivar-unbalanced-vals");
     tag.interpret(tagNode, interpreter);
 
-    assertThat(context).contains(
+    assertThat(context)
+      .contains(
         entry("myvar1", "foo"),
         entry("myvar2", "mybar"),
         entry("myvar3", Lists.newArrayList(1L, 2L, 3L, 4L)),
-        entry("myvar4", "yoooooo"));
+        entry("myvar4", "yoooooo")
+      );
+  }
+
+  @Test
+  public void itThrowsAndDefersVarWhenValContainsDeferred() {
+    context.put("primary_font_size_num", DeferredValue.instance());
+
+    TagNode tagNode = (TagNode) fixture("set-var-exp");
+
+    assertThatThrownBy(() -> tag.interpret(tagNode, interpreter))
+      .isInstanceOf(DeferredValueException.class);
+    assertThat(context).contains(entry("primary_line_height", DeferredValue.instance()));
+  }
+
+  @Test
+  public void itThrowsAndDefersMultiVarWhenValContainsDeferred() {
+    context.put("bar", DeferredValue.instance());
+
+    TagNode tagNode = (TagNode) fixture("set-multivar");
+
+    assertThatThrownBy(() -> tag.interpret(tagNode, interpreter))
+      .isInstanceOf(DeferredValueException.class);
+    assertThat(context)
+      .contains(
+        entry("myvar1", DeferredValue.instance()),
+        entry("myvar2", DeferredValue.instance()),
+        entry("myvar3", DeferredValue.instance()),
+        entry("myvar4", DeferredValue.instance())
+      );
   }
 
   @Test
@@ -199,8 +239,7 @@ public class SetTagTest {
     interpreter = jinjava.newInterpreter();
     context = interpreter.getContext();
 
-    String template = "{% set ns = namespace(found=false) %}" +
-        "Result: {{ns.found}}";
+    String template = "{% set ns = namespace(found=false) %}" + "Result: {{ns.found}}";
 
     // when
     final String result = jinjava.render(template, null);
@@ -216,9 +255,10 @@ public class SetTagTest {
     interpreter = jinjava.newInterpreter();
     context = interpreter.getContext();
 
-    String template = "{% set ns = namespace(found=false) %}" +
-    "{% set ns.count=3 %}" +
-    "Found: {{ns.found}}, Count: {{ns.count}}";
+    String template =
+      "{% set ns = namespace(found=false) %}" +
+      "{% set ns.count=3 %}" +
+      "Found: {{ns.found}}, Count: {{ns.count}}";
 
     // when
     final String result = jinjava.render(template, null);
@@ -234,9 +274,10 @@ public class SetTagTest {
     interpreter = jinjava.newInterpreter();
     context = interpreter.getContext();
 
-    String template = "{% set ns = namespace(found=false) %}" +
-        "{% set ns.found=true %}" +
-        "Result: {{ns.found}}";
+    String template =
+      "{% set ns = namespace(found=false) %}" +
+      "{% set ns.found=true %}" +
+      "Result: {{ns.found}}";
 
     // when
     final String result = jinjava.render(template, null);
@@ -252,10 +293,11 @@ public class SetTagTest {
     interpreter = jinjava.newInterpreter();
     context = interpreter.getContext();
 
-    String template = "{% set ns = namespace(found=false) %}" +
-        "{% set ns.found=true %}" +
-        "{% set ns.found=1 %}" +
-        "Result: {{ns.found + 1}}";
+    String template =
+      "{% set ns = namespace(found=false) %}" +
+      "{% set ns.found=true %}" +
+      "{% set ns.found=1 %}" +
+      "Result: {{ns.found + 1}}";
     context.put("items", Lists.newArrayList("A", "B"));
 
     // when
@@ -267,12 +309,18 @@ public class SetTagTest {
 
   private Node fixture(String name) {
     try {
-      return new TreeParser(interpreter, Resources.toString(
-          Resources.getResource(String.format("tags/settag/%s.jinja", name)), StandardCharsets.UTF_8))
-              .buildTree().getChildren().getFirst();
+      return new TreeParser(
+        interpreter,
+        Resources.toString(
+          Resources.getResource(String.format("tags/settag/%s.jinja", name)),
+          StandardCharsets.UTF_8
+        )
+      )
+        .buildTree()
+        .getChildren()
+        .getFirst();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
-
 }

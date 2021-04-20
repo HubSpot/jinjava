@@ -1,10 +1,9 @@
 package com.hubspot.jinjava.el.ext;
 
-import javax.el.ELContext;
-
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBinary.Operator;
 import de.odysseus.el.tree.impl.ast.AstNode;
+import javax.el.ELContext;
 
 public class OrOperator implements Operator {
 
@@ -16,6 +15,11 @@ public class OrOperator implements Operator {
     }
 
     return right.eval(bindings, context);
+  }
+
+  @Override
+  public String toString() {
+    return "||";
   }
 
   public static final OrOperator OP = new OrOperator();

@@ -15,16 +15,14 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
-import java.io.Serializable;
-
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
+import java.io.Serializable;
 
 public interface Tag extends Importable, Serializable {
-
   default OutputNode interpretOutput(TagNode tagNode, JinjavaInterpreter interpreter) {
     return new RenderedOutputNode(interpret(tagNode, interpreter));
   }
@@ -34,10 +32,11 @@ public interface Tag extends Importable, Serializable {
   /**
    * @return Get name of end tag (lowerCase). Null if it's a single tag without content.
    */
-  String getEndTagName();
+  default String getEndTagName() {
+    return String.format("end%s", getName());
+  }
 
   default boolean isRenderedInValidationMode() {
     return false;
   }
-
 }

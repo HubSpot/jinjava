@@ -8,7 +8,7 @@ public class TitleFilterTest {
 
   @Test
   public void testTitleCase() {
-    assertThat(new TitleFilter().filter("this is string", null)).isEqualTo("This Is String");
+    assertThat(new TitleFilter().filter("this is string", null))
+      .isEqualTo("This Is String");
   }
-
 }

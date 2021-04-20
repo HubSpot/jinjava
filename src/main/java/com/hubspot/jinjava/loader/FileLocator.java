@@ -15,16 +15,14 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.loader;
 
+import com.google.common.io.Files;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import com.google.common.io.Files;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-
 public class FileLocator implements ResourceLocator {
-
   private File baseDir;
 
   /**
@@ -36,7 +34,9 @@ public class FileLocator implements ResourceLocator {
 
   public FileLocator(File baseDir) throws FileNotFoundException {
     if (!baseDir.exists()) {
-      throw new FileNotFoundException(String.format("Specified baseDir [%s] does not exist", baseDir.getAbsolutePath()));
+      throw new FileNotFoundException(
+        String.format("Specified baseDir [%s] does not exist", baseDir.getAbsolutePath())
+      );
     }
     this.baseDir = baseDir;
   }
@@ -52,7 +52,8 @@ public class FileLocator implements ResourceLocator {
   }
 
   @Override
-  public String getString(String name, Charset encoding, JinjavaInterpreter interpreter) throws IOException {
+  public String getString(String name, Charset encoding, JinjavaInterpreter interpreter)
+    throws IOException {
     File file = resolveFileName(name);
 
     if (!file.exists() || !file.isFile()) {
@@ -61,5 +62,4 @@ public class FileLocator implements ResourceLocator {
 
     return Files.toString(file, encoding);
   }
-
 }

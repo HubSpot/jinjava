@@ -1,0 +1,7 @@
+{% set foo = [] %}
+{% print foo %}
+{% do foo.append(bar) %}
+{% print foo.append(bar + 1) %}
+{% print deferred %}
+{% do deferred.append(bar) %}
+{% print deferred.append(bar + 1) %}

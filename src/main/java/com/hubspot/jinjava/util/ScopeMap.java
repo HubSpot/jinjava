@@ -1,16 +1,19 @@
 package com.hubspot.jinjava.util;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 
 public class ScopeMap<K, V> implements Map<K, V> {
-
   private final Map<K, V> scope;
   private final ScopeMap<K, V> parent;
 
@@ -19,8 +22,27 @@ public class ScopeMap<K, V> implements Map<K, V> {
   }
 
   public ScopeMap(ScopeMap<K, V> parent) {
-    this.scope = new HashMap<K, V>();
+    this.scope = new HashMap<>();
     this.parent = parent;
+
+    Set<ScopeMap<K, V>> parents = new HashSet<>();
+    if (parent != null) {
+      ScopeMap<K, V> p = parent.getParent();
+      while (p != null) {
+        parents.add(p);
+        if (parents.contains(parent)) {
+          ENGINE_LOG.error(
+            "Parent loop detected:\n{}",
+            Arrays
+              .stream(Thread.currentThread().getStackTrace())
+              .map(StackTraceElement::toString)
+              .collect(Collectors.joining("\n"))
+          );
+          break;
+        }
+        p = p.getParent();
+      }
+    }
   }
 
   public ScopeMap(ScopeMap<K, V> parent, Map<K, V> scope) {
@@ -90,6 +112,11 @@ public class ScopeMap<K, V> implements Map<K, V> {
 
   @Override
   public V put(K key, V value) {
+    if (value == this) {
+      throw new IllegalArgumentException(
+        String.format("attempt to put on map with key '%s' and value of itself", key)
+      );
+    }
     return scope.put(key, value);
   }
 
@@ -99,7 +126,18 @@ public class ScopeMap<K, V> implements Map<K, V> {
   }
 
   @Override
-  public void putAll(Map<? extends K, ? extends V> m) {
+  public void putAll(@Nonnull Map<? extends K, ? extends V> m) {
+    for (Entry<? extends K, ? extends V> entry : m.entrySet()) {
+      if (entry.getValue() == this) {
+        throw new IllegalArgumentException(
+          String.format(
+            "attempt to putAll on map with key '%s' and value of itself",
+            entry.getKey()
+          )
+        );
+      }
+    }
+
     scope.putAll(m);
   }
 
@@ -109,6 +147,7 @@ public class ScopeMap<K, V> implements Map<K, V> {
   }
 
   @Override
+  @Nonnull
   public Set<K> keySet() {
     Set<K> keys = new HashSet<>();
 
@@ -122,6 +161,7 @@ public class ScopeMap<K, V> implements Map<K, V> {
   }
 
   @Override
+  @Nonnull
   public Collection<V> values() {
     Set<java.util.Map.Entry<K, V>> entrySet = entrySet();
     Collection<V> values = new ArrayList<>(entrySet.size());
@@ -134,13 +174,16 @@ public class ScopeMap<K, V> implements Map<K, V> {
   }
 
   @Override
-  @SuppressFBWarnings(justification = "using overridden get() to do scoped retrieve with parent fallback",
-      value = "WMI_WRONG_MAP_ITERATOR")
+  @SuppressFBWarnings(
+    justification = "using overridden get() to do scoped retrieve with parent fallback",
+    value = "WMI_WRONG_MAP_ITERATOR"
+  )
+  @Nonnull
   public Set<java.util.Map.Entry<K, V>> entrySet() {
     Set<java.util.Map.Entry<K, V>> entries = new HashSet<>();
 
     for (K key : keySet()) {
-      entries.add(new ScopeMapEntry<K, V>(key, get(key), this));
+      entries.add(new ScopeMapEntry<>(key, get(key), this));
     }
 
     return entries;
@@ -169,12 +212,9 @@ public class ScopeMap<K, V> implements Map<K, V> {
 
     @Override
     public V setValue(V value) {
-      V old = value;
       this.value = value;
       map.put(key, value);
-      return old;
+      return value;
     }
-
   }
-
 }

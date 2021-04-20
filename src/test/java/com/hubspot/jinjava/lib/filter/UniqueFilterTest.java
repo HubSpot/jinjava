@@ -2,23 +2,13 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hubspot.jinjava.BaseJinjavaTest;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
 import org.junit.Test;
 
-import com.hubspot.jinjava.Jinjava;
-
-public class UniqueFilterTest {
-
-  Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
+public class UniqueFilterTest extends BaseJinjavaTest {
 
   @Test
   public void itDoesntFilterWhenNoDuplicateItemsInSeq() {
@@ -32,8 +22,16 @@ public class UniqueFilterTest {
 
   @Test
   public void itFiltersDuplicatesFromSeqByAttr() {
-    assertThat(render("name", new MyClass("a"), new MyClass("b"), new MyClass("a"), new MyClass("c")))
-        .isEqualTo("[Name:a][Name:b][Name:c]");
+    assertThat(
+        render(
+          "name",
+          new MyClass("a"),
+          new MyClass("b"),
+          new MyClass("a"),
+          new MyClass("c")
+        )
+      )
+      .isEqualTo("[Name:a][Name:b][Name:c]");
   }
 
   String render(Object... items) {
@@ -49,7 +47,10 @@ public class UniqueFilterTest {
       attrExtra = "(attr='" + attr + "')";
     }
 
-    return jinjava.render("{% for item in iterable|unique" + attrExtra + " %}{{ item }}{% endfor %}", context);
+    return jinjava.render(
+      "{% for item in iterable|unique" + attrExtra + " %}{{ item }}{% endfor %}",
+      context
+    );
   }
 
   public static class MyClass {
@@ -68,5 +69,4 @@ public class UniqueFilterTest {
       return "[Name:" + name + "]";
     }
   }
-
 }

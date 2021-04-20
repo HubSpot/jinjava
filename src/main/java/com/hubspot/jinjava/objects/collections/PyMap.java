@@ -1,14 +1,12 @@
 package com.hubspot.jinjava.objects.collections;
 
+import com.google.common.collect.ForwardingMap;
+import com.hubspot.jinjava.objects.PyWrapper;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.ForwardingMap;
-import com.hubspot.jinjava.objects.PyWrapper;
-
 public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
-
-  private Map<String, Object> map;
+  private final Map<String, Object> map;
 
   public PyMap(Map<String, Object> map) {
     this.map = map;
@@ -17,6 +15,14 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
   @Override
   protected Map<String, Object> delegate() {
     return map;
+  }
+
+  @Override
+  public Object put(String s, Object o) {
+    if (o == this) {
+      throw new IllegalArgumentException("Can't add map object to itself");
+    }
+    return delegate().put(s, o);
   }
 
   @Override
@@ -33,7 +39,19 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
   }
 
   public void update(Map<? extends String, ? extends Object> m) {
+    if (m == this) {
+      throw new IllegalArgumentException("Can't update map object with itself");
+    }
     putAll(m);
   }
 
+  @Override
+  public void putAll(Map<? extends String, ? extends Object> m) {
+    if (m == this) {
+      throw new IllegalArgumentException(
+        "Map putAll() operation can't be used to add map to itself"
+      );
+    }
+    super.putAll(m);
+  }
 }

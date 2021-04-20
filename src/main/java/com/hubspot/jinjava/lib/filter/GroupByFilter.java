@@ -1,40 +1,49 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @JinjavaDoc(
-    value = "Group a sequence of objects by a common attribute.",
-    params = {
-        @JinjavaParam(value = "value", desc = "The dict to iterate through and group by a common attribute"),
-        @JinjavaParam(value = "attribute", desc = "The common attribute to group by")
-    },
-    snippets = {
-        @JinjavaSnippet(
-            desc = "If you have a list of dicts or objects that represent persons with gender, first_name and last_name attributes and you want to group all users by genders you can do something like this",
-            code = "<ul>\n" +
-                "    {% for group in contents|groupby('blog_post_author') %}\n" +
-                "        <li>{{ group.grouper }}<ul>\n" +
-                "            {% for content in group.list %}\n" +
-                "                <li>{{ content.name }}</li>\n" +
-                "            {% endfor %}</ul></li>\n" +
-                "     {% endfor %}\n" +
-                "</ul>")
-    })
+  value = "Group a sequence of objects by a common attribute.",
+  input = @JinjavaParam(
+    value = "value",
+    desc = "The dict to iterate through and group by a common attribute",
+    required = true
+  ),
+  params = {
+    @JinjavaParam(
+      value = "attribute",
+      desc = "The common attribute to group by",
+      required = true
+    )
+  },
+  snippets = {
+    @JinjavaSnippet(
+      desc = "If you have a list of dicts or objects that represent persons with gender, first_name and last_name attributes and you want to group all users by genders you can do something like this",
+      code = "<ul>\n" +
+      "    {% for group in contents|groupby('blog_post_author') %}\n" +
+      "        <li>{{ group.grouper }}<ul>\n" +
+      "            {% for content in group.list %}\n" +
+      "                <li>{{ content.name }}</li>\n" +
+      "            {% endfor %}</ul></li>\n" +
+      "     {% endfor %}\n" +
+      "</ul>"
+    )
+  }
+)
 public class GroupByFilter implements Filter {
 
   @Override
@@ -44,8 +53,12 @@ public class GroupByFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if (args.length == 0) {
-      throw new InterpretException(getName() + " requires an attr name to group on", interpreter.getLineNumber());
+    if (args.length < 1) {
+      throw new TemplateSyntaxException(
+        interpreter,
+        getName(),
+        "requires 1 argument (attr name to group by)"
+      );
     }
 
     String attr = args[0];
@@ -98,5 +111,4 @@ public class GroupByFilter implements Filter {
       return list;
     }
   }
-
 }

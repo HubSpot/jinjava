@@ -1,26 +1,32 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Objects;
-
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.util.Objects;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 @JinjavaDoc(
-    value = "Format the value like a ‘human-readable’ file size (i.e. 13 kB, 4.1 MB, 102 Bytes, etc).",
-    params = {
-        @JinjavaParam(value = "value", desc = "The value to convert to filesize format"),
-        @JinjavaParam(value = "binary", type = "boolean", defaultValue = "False", desc = "Use binary prefixes (Mebi, Gibi)")
-    },
-    snippets = {
-        @JinjavaSnippet(
-            code = "{% set bytes = 100000 %}\n" +
-                "{{ bytes|filesizeformat }}")
-    })
+  value = "Format the value like a ‘human-readable’ file size (i.e. 13 kB, 4.1 MB, 102 Bytes, etc).",
+  input = @JinjavaParam(
+    value = "value",
+    desc = "The value to convert to filesize format",
+    required = true
+  ),
+  params = {
+    @JinjavaParam(
+      value = "binary",
+      type = "boolean",
+      defaultValue = "False",
+      desc = "Use binary prefixes (Mebi, Gibi)"
+    )
+  },
+  snippets = {
+    @JinjavaSnippet(code = "{% set bytes = 100000 %}\n" + "{{ bytes|filesizeformat }}")
+  }
+)
 public class FileSizeFormatFilter implements Filter {
 
   @Override
@@ -62,6 +68,24 @@ public class FileSizeFormatFilter implements Filter {
     return String.format("%.1f %s", (base * bytes / unit), prefix);
   }
 
-  private static final String[] BINARY_SIZES = { "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
-  private static final String[] DECIMAL_SIZES = { "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
+  private static final String[] BINARY_SIZES = {
+    "KiB",
+    "MiB",
+    "GiB",
+    "TiB",
+    "PiB",
+    "EiB",
+    "ZiB",
+    "YiB"
+  };
+  private static final String[] DECIMAL_SIZES = {
+    "KB",
+    "MB",
+    "GB",
+    "TB",
+    "PB",
+    "EB",
+    "ZB",
+    "YB"
+  };
 }

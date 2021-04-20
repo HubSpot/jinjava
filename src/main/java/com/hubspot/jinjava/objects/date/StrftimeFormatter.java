@@ -4,7 +4,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Locale;
-
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -13,12 +12,12 @@ import org.apache.commons.lang3.StringUtils;
  * @author jstehler
  */
 public class StrftimeFormatter {
-
   public static final String DEFAULT_DATE_FORMAT = "%H:%M / %d-%m-%Y";
   /*
    * Mapped from http://strftime.org/, http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
    */
   private static final String[] CONVERSIONS = new String[255];
+  private static final String[] NOMINATIVE_CONVERSIONS = new String[255];
 
   static {
     CONVERSIONS['a'] = "EEE";
@@ -28,7 +27,7 @@ public class StrftimeFormatter {
     CONVERSIONS['c'] = "EEE MMM dd HH:mm:ss yyyy";
     CONVERSIONS['d'] = "dd";
     CONVERSIONS['e'] = "d"; // The day of the month like with %d, but padded with blank (range 1 through 31).
-    CONVERSIONS['f'] = "SSSS";
+    CONVERSIONS['f'] = "SSSSSS";
     CONVERSIONS['H'] = "HH";
     CONVERSIONS['h'] = "hh";
     CONVERSIONS['I'] = "hh";
@@ -49,6 +48,8 @@ public class StrftimeFormatter {
     CONVERSIONS['z'] = "Z";
     CONVERSIONS['Z'] = "ZZZZ";
     CONVERSIONS['%'] = "%";
+
+    NOMINATIVE_CONVERSIONS['B'] = "LLLL";
   }
 
   /**
@@ -59,7 +60,7 @@ public class StrftimeFormatter {
    */
   public static String toJavaDateTimeFormat(String strftime) {
     if (!StringUtils.contains(strftime, '%')) {
-      return replaceL(strftime);
+      return strftime;
     }
 
     StringBuilder result = new StringBuilder();
@@ -69,16 +70,22 @@ public class StrftimeFormatter {
       if (c == '%') {
         c = strftime.charAt(++i);
         boolean stripLeadingZero = false;
+        String[] conversions = CONVERSIONS;
 
         if (c == '-') {
           stripLeadingZero = true;
           c = strftime.charAt(++i);
         }
 
+        if (c == 'O') {
+          c = strftime.charAt(++i);
+          conversions = NOMINATIVE_CONVERSIONS;
+        }
+
         if (stripLeadingZero) {
-          result.append(CONVERSIONS[c].substring(1));
+          result.append(conversions[c].substring(1));
         } else {
-          result.append(CONVERSIONS[c]);
+          result.append(conversions[c]);
         }
       } else if (Character.isLetter(c)) {
         result.append("'");
@@ -97,11 +104,7 @@ public class StrftimeFormatter {
       }
     }
 
-    return replaceL(result.toString());
-  }
-
-  private static String replaceL(String s) {
-    return StringUtils.replaceChars(s, 'L', 'M');
+    return result.toString();
   }
 
   public static DateTimeFormatter formatter(String strftime) {
@@ -111,26 +114,30 @@ public class StrftimeFormatter {
   public static DateTimeFormatter formatter(String strftime, Locale locale) {
     DateTimeFormatter fmt;
 
+    if (strftime == null) {
+      strftime = "";
+    }
+
     switch (strftime.toLowerCase()) {
-    case "short":
-      fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
-      break;
-    case "medium":
-      fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
-      break;
-    case "long":
-      fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);
-      break;
-    case "full":
-      fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL);
-      break;
-    default:
-      try {
-        fmt = DateTimeFormatter.ofPattern(toJavaDateTimeFormat(strftime));
+      case "short":
+        fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
         break;
-      } catch (IllegalArgumentException e) {
-        throw new InvalidDateFormatException(strftime, e);
-      }
+      case "medium":
+        fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
+        break;
+      case "long":
+        fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);
+        break;
+      case "full":
+        fmt = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL);
+        break;
+      default:
+        try {
+          fmt = DateTimeFormatter.ofPattern(toJavaDateTimeFormat(strftime));
+          break;
+        } catch (IllegalArgumentException e) {
+          throw new InvalidDateFormatException(strftime, e);
+        }
     }
 
     return fmt.withLocale(locale);
@@ -151,5 +158,4 @@ public class StrftimeFormatter {
   public static String format(ZonedDateTime d, String strftime, Locale locale) {
     return formatter(strftime, locale).format(d);
   }
-
 }

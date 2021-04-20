@@ -2,6 +2,31 @@ package com.hubspot.jinjava.el;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
+import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
+import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
+import com.hubspot.jinjava.el.ext.JinjavaListELResolver;
+import com.hubspot.jinjava.el.ext.NamedParameter;
+import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredValueException;
+import com.hubspot.jinjava.interpret.DisabledException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.LazyExpression;
+import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.objects.Namespace;
+import com.hubspot.jinjava.objects.PyWrapper;
+import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
+import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
+import com.hubspot.jinjava.objects.date.FormattedDate;
+import com.hubspot.jinjava.objects.date.PyishDate;
+import com.hubspot.jinjava.objects.date.StrftimeFormatter;
+import de.odysseus.el.util.SimpleResolver;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -16,7 +41,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-
 import javax.el.ArrayELResolver;
 import javax.el.CompositeELResolver;
 import javax.el.ELContext;
@@ -24,36 +48,12 @@ import javax.el.ELResolver;
 import javax.el.MapELResolver;
 import javax.el.PropertyNotFoundException;
 import javax.el.ResourceBundleELResolver;
-
-import com.hubspot.jinjava.objects.Namespace;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.google.common.collect.ImmutableMap;
-import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
-import com.hubspot.jinjava.el.ext.ExtendedParser;
-import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
-import com.hubspot.jinjava.el.ext.JinjavaListELResolver;
-import com.hubspot.jinjava.el.ext.NamedParameter;
-import com.hubspot.jinjava.interpret.DisabledException;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.TemplateError;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
-import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
-import com.hubspot.jinjava.objects.PyWrapper;
-import com.hubspot.jinjava.objects.collections.PyList;
-import com.hubspot.jinjava.objects.collections.PyMap;
-import com.hubspot.jinjava.objects.date.FormattedDate;
-import com.hubspot.jinjava.objects.date.PyishDate;
-import com.hubspot.jinjava.objects.date.StrftimeFormatter;
-
-import de.odysseus.el.util.SimpleResolver;
-
 public class JinjavaInterpreterResolver extends SimpleResolver {
+  public static final ELResolver DEFAULT_RESOLVER_READ_ONLY = new CompositeELResolver() {
 
-  private static final ELResolver DEFAULT_RESOLVER_READ_ONLY = new CompositeELResolver() {
     {
       add(new ArrayELResolver(true));
       add(new JinjavaListELResolver(true));
@@ -63,7 +63,8 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     }
   };
 
-  private static final ELResolver DEFAULT_RESOLVER_READ_WRITE = new CompositeELResolver() {
+  public static final ELResolver DEFAULT_RESOLVER_READ_WRITE = new CompositeELResolver() {
+
     {
       add(new ArrayELResolver(false));
       add(new JinjavaListELResolver(false));
@@ -76,28 +77,39 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
   private final JinjavaInterpreter interpreter;
 
   public JinjavaInterpreterResolver(JinjavaInterpreter interpreter) {
-    super(interpreter.getConfig().isReadOnlyResolver() ? DEFAULT_RESOLVER_READ_ONLY : DEFAULT_RESOLVER_READ_WRITE);
+    super(interpreter.getConfig().getElResolver());
     this.interpreter = interpreter;
   }
 
   @Override
-  public Object invoke(ELContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
-
+  public Object invoke(
+    ELContext context,
+    Object base,
+    Object method,
+    Class<?>[] paramTypes,
+    Object[] params
+  ) {
     try {
       Object methodProperty = getValue(context, base, method, false);
       if (methodProperty instanceof AbstractCallableMethod) {
         context.setPropertyResolved(true);
         return interpreter.getContext().isValidationMode()
-            ? ""
-            : ((AbstractCallableMethod) methodProperty).evaluate(params);
+          ? ""
+          : ((AbstractCallableMethod) methodProperty).evaluate(params);
       }
     } catch (IllegalArgumentException e) {
       // failed to access property, continue with method calls
     }
 
     return interpreter.getContext().isValidationMode()
-        ? ""
-        : super.invoke(context, base, method, paramTypes, generateMethodParams(method, params));
+      ? ""
+      : super.invoke(
+        context,
+        base,
+        method,
+        paramTypes,
+        generateMethodParams(method, params)
+      );
   }
 
   /**
@@ -128,7 +140,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     Map<String, Object> kwargs = new LinkedHashMap<>();
 
     // 2 -> Ignore the Left Value (0) and the JinjavaInterpreter (1)
-    for (Object param: Arrays.asList(astParams).subList(2, astParams.length)) {
+    for (Object param : Arrays.asList(astParams).subList(2, astParams.length)) {
       if (param instanceof NamedParameter) {
         NamedParameter namedParameter = (NamedParameter) param;
         kwargs.put(namedParameter.getName(), namedParameter.getValue());
@@ -137,10 +149,15 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       }
     }
 
-    return new Object[] {astParams[0], astParams[1], args.toArray(), kwargs};
+    return new Object[] { astParams[0], astParams[1], args.toArray(), kwargs };
   }
 
-  private Object getValue(ELContext context, Object base, Object property, boolean errOnUnknownProp) {
+  private Object getValue(
+    ELContext context,
+    Object base,
+    Object property,
+    boolean errOnUnknownProp
+  ) {
     String propertyName = Objects.toString(property, "");
     Object value = null;
 
@@ -152,14 +169,29 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
         value = interpreter;
       } else if (propertyName.startsWith(ExtendedParser.FILTER_PREFIX)) {
         item = ErrorItem.FILTER;
-        value = interpreter.getContext().getFilter(StringUtils.substringAfter(propertyName, ExtendedParser.FILTER_PREFIX));
+        value =
+          interpreter
+            .getContext()
+            .getFilter(
+              StringUtils.substringAfter(propertyName, ExtendedParser.FILTER_PREFIX)
+            );
       } else if (propertyName.startsWith(ExtendedParser.EXPTEST_PREFIX)) {
         item = ErrorItem.EXPRESSION_TEST;
-        value = interpreter.getContext().getExpTest(StringUtils.substringAfter(propertyName, ExtendedParser.EXPTEST_PREFIX));
+        value =
+          interpreter
+            .getContext()
+            .getExpTest(
+              StringUtils.substringAfter(propertyName, ExtendedParser.EXPTEST_PREFIX)
+            );
       } else {
         if (base == null) {
           // Look up property in context.
-          value = interpreter.retraceVariable((String) property, interpreter.getLineNumber(), -1);
+          value =
+            interpreter.retraceVariable(
+              (String) property,
+              interpreter.getLineNumber(),
+              -1
+            );
         } else {
           // Get property of base object.
           try {
@@ -172,6 +204,29 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
               base = optBase.get();
             }
 
+            if (base instanceof LazyExpression) {
+              base = ((LazyExpression) base).get();
+            }
+
+            // java doesn't natively support negative array indices, so the
+            // super class getValue returns null for them.  To make negative
+            // indices work as they do in python, detect them here and convert
+            // to the equivalent positive index.
+            //
+            // Check for Integer or Long instead of Number so the behavior for a
+            // floating-point index doesn't change (e.g. -1.5 stays -1.5, it
+            // doesn't become -1).
+            if (
+              base.getClass().isArray() &&
+              ((property instanceof Integer) || (property instanceof Long))
+            ) {
+              int propertyNum = ((Number) property).intValue();
+              if (propertyNum < 0) {
+                propertyNum += ((Object[]) base).length;
+                propertyName = String.valueOf(propertyNum);
+              }
+            }
+
             value = super.getValue(context, base, propertyName);
 
             if (value instanceof Optional) {
@@ -182,15 +237,49 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
               value = optValue.get();
             }
+
+            if (value instanceof LazyExpression) {
+              value = ((LazyExpression) value).get();
+            }
+
+            if (value instanceof DeferredValue) {
+              if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
+                throw new DeferredParsingException(this, propertyName);
+              } else {
+                throw new DeferredValueException(
+                  propertyName,
+                  interpreter.getLineNumber(),
+                  interpreter.getPosition()
+                );
+              }
+            }
           } catch (PropertyNotFoundException e) {
             if (errOnUnknownProp) {
-              interpreter.addError(TemplateError.fromUnknownProperty(base, propertyName, interpreter.getLineNumber(), -1));
+              interpreter.addError(
+                TemplateError.fromUnknownProperty(
+                  base,
+                  propertyName,
+                  interpreter.getLineNumber(),
+                  -1
+                )
+              );
             }
           }
         }
       }
     } catch (DisabledException e) {
-      interpreter.addError(new TemplateError(ErrorType.FATAL, ErrorReason.DISABLED, item, e.getMessage(), propertyName, interpreter.getLineNumber(), -1, e));
+      interpreter.addError(
+        new TemplateError(
+          ErrorType.FATAL,
+          ErrorReason.DISABLED,
+          item,
+          e.getMessage(),
+          propertyName,
+          interpreter.getLineNumber(),
+          -1,
+          e
+        )
+      );
     }
 
     context.setPropertyResolved(true);
@@ -203,24 +292,45 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       return null;
     }
 
+    if (value instanceof LazyExpression) {
+      value = ((LazyExpression) value).get();
+    }
+
     if (value instanceof PyWrapper) {
       return value;
     }
 
     if (value instanceof Namespace) {
-      return new PyMap(((Namespace) value).getAsDictionary());
+      return new SizeLimitingPyMap(
+        ((Namespace) value).getAsDictionary(),
+        interpreter.getConfig().getMaxMapSize()
+      );
     }
 
     if (List.class.isAssignableFrom(value.getClass())) {
-      return new PyList((List<Object>) value);
+      return new SizeLimitingPyList(
+        (List<Object>) value,
+        interpreter.getConfig().getMaxListSize()
+      );
     }
     if (Map.class.isAssignableFrom(value.getClass())) {
       // FIXME: ensure keys are actually strings, if not, convert them
-      return new PyMap((Map<String, Object>) value);
+      return new SizeLimitingPyMap(
+        (Map<String, Object>) value,
+        interpreter.getConfig().getMaxMapSize()
+      );
     }
 
     if (Date.class.isAssignableFrom(value.getClass())) {
-      return new PyishDate(localizeDateTime(interpreter, ZonedDateTime.ofInstant(Instant.ofEpochMilli(((Date) value).getTime()), ZoneOffset.UTC)));
+      return new PyishDate(
+        localizeDateTime(
+          interpreter,
+          ZonedDateTime.ofInstant(
+            Instant.ofEpochMilli(((Date) value).getTime()),
+            ZoneOffset.UTC
+          )
+        )
+      );
     }
     if (ZonedDateTime.class.isAssignableFrom(value.getClass())) {
       return new PyishDate(localizeDateTime(interpreter, (ZonedDateTime) value));
@@ -233,23 +343,59 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     return value;
   }
 
-  private static ZonedDateTime localizeDateTime(JinjavaInterpreter interpreter, ZonedDateTime dt) {
-    ENGINE_LOG.debug("Using timezone: {} to localize datetime: {}", interpreter.getConfig().getTimeZone(), dt);
+  private static ZonedDateTime localizeDateTime(
+    JinjavaInterpreter interpreter,
+    ZonedDateTime dt
+  ) {
+    ENGINE_LOG.debug(
+      "Using timezone: {} to localize datetime: {}",
+      interpreter.getConfig().getTimeZone(),
+      dt
+    );
     return dt.withZoneSameInstant(interpreter.getConfig().getTimeZone());
   }
 
-  private static String formattedDateToString(JinjavaInterpreter interpreter, FormattedDate d) {
-    DateTimeFormatter formatter = getFormatter(interpreter, d).withLocale(getLocale(interpreter, d));
+  private static String formattedDateToString(
+    JinjavaInterpreter interpreter,
+    FormattedDate d
+  ) {
+    DateTimeFormatter formatter = getFormatter(interpreter, d)
+      .withLocale(getLocale(interpreter, d));
     return formatter.format(localizeDateTime(interpreter, d.getDate()));
   }
 
-  private static DateTimeFormatter getFormatter(JinjavaInterpreter interpreter, FormattedDate d) {
+  private static DateTimeFormatter getFormatter(
+    JinjavaInterpreter interpreter,
+    FormattedDate d
+  ) {
     if (!StringUtils.isBlank(d.getFormat())) {
       try {
-        return StrftimeFormatter.formatter(d.getFormat(), interpreter.getConfig().getLocale());
+        return StrftimeFormatter.formatter(
+          d.getFormat(),
+          interpreter.getConfig().getLocale()
+        );
       } catch (IllegalArgumentException e) {
-        interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, e.getMessage(), null, interpreter.getLineNumber(), -1, null,
-            BasicTemplateErrorCategory.UNKNOWN_DATE, ImmutableMap.of("date", d.getDate().toString(), "exception", e.getMessage(), "lineNumber", String.valueOf(interpreter.getLineNumber()))));
+        interpreter.addError(
+          new TemplateError(
+            ErrorType.WARNING,
+            ErrorReason.SYNTAX_ERROR,
+            ErrorItem.OTHER,
+            e.getMessage(),
+            null,
+            interpreter.getLineNumber(),
+            -1,
+            null,
+            BasicTemplateErrorCategory.UNKNOWN_DATE,
+            ImmutableMap.of(
+              "date",
+              d.getDate().toString(),
+              "exception",
+              e.getMessage(),
+              "lineNumber",
+              String.valueOf(interpreter.getLineNumber())
+            )
+          )
+        );
       }
     }
 
@@ -261,12 +407,30 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       try {
         return LocaleUtils.toLocale(d.getLanguage());
       } catch (IllegalArgumentException e) {
-        interpreter.addError(new TemplateError(ErrorType.WARNING, ErrorReason.SYNTAX_ERROR, ErrorItem.OTHER, e.getMessage(), null, interpreter.getLineNumber(), -1, null,
-            BasicTemplateErrorCategory.UNKNOWN_LOCALE, ImmutableMap.of("date", d.getDate().toString(), "exception", e.getMessage(), "lineNumber", String.valueOf(interpreter.getLineNumber()))));
+        interpreter.addError(
+          new TemplateError(
+            ErrorType.WARNING,
+            ErrorReason.SYNTAX_ERROR,
+            ErrorItem.OTHER,
+            e.getMessage(),
+            null,
+            interpreter.getLineNumber(),
+            -1,
+            null,
+            BasicTemplateErrorCategory.UNKNOWN_LOCALE,
+            ImmutableMap.of(
+              "date",
+              d.getDate().toString(),
+              "exception",
+              e.getMessage(),
+              "lineNumber",
+              String.valueOf(interpreter.getLineNumber())
+            )
+          )
+        );
       }
     }
 
     return Locale.US;
   }
-
 }

@@ -1,0 +1,5 @@
+{% set foo = ['1','2','3'] %}
+{%- for item in deferred %}
+{% cycle foo %}
+{% cycle foo[0],foo[1],foo[2] %}
+{%- endfor -%}

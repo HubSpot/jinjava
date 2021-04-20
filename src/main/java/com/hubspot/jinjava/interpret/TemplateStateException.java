@@ -19,12 +19,16 @@ public class TemplateStateException extends InterpretException {
     super(msg, lineNumber, -1);
   }
 
-  public TemplateStateException(String msg, Throwable e, int lineNumber, int startPosition) {
+  public TemplateStateException(
+    String msg,
+    Throwable e,
+    int lineNumber,
+    int startPosition
+  ) {
     super(msg, e, lineNumber, startPosition);
   }
 
   public TemplateStateException(String msg, Throwable e, int lineNumber) {
     super(msg, e, lineNumber, -1);
   }
-
 }

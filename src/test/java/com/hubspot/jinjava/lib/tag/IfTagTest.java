@@ -2,45 +2,22 @@ package com.hubspot.jinjava.lib.tag;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.Context;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import org.junit.Before;
+import org.junit.Test;
 
-@RunWith(MockitoJUnitRunner.class)
-public class IfTagTest {
-
-  JinjavaInterpreter interpreter;
-  @InjectMocks
-  IfTag tag;
-
-  Jinjava jinjava;
-  private Context context;
+public class IfTagTest extends BaseInterpretingTest {
+  public Tag tag;
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
-    interpreter = jinjava.newInterpreter();
-    context = interpreter.getContext();
-    JinjavaInterpreter.pushCurrent(interpreter);
-  }
-
-  @After
-  public void tearDown() {
-    JinjavaInterpreter.popCurrent();
+    tag = new IfTag();
   }
 
   @Test
@@ -126,12 +103,18 @@ public class IfTagTest {
 
   private TagNode fixture(String name) {
     try {
-      return (TagNode) new TreeParser(interpreter, Resources.toString(
-          Resources.getResource(String.format("tags/iftag/%s.jinja", name)), StandardCharsets.UTF_8))
-          .buildTree().getChildren().getFirst();
+      return (TagNode) new TreeParser(
+        interpreter,
+        Resources.toString(
+          Resources.getResource(String.format("tags/iftag/%s.jinja", name)),
+          StandardCharsets.UTF_8
+        )
+      )
+        .buildTree()
+        .getChildren()
+        .getFirst();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
-
 }

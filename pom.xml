@@ -1,39 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>com.hubspot</groupId>
     <artifactId>basepom</artifactId>
-    <version>18.3</version>
+    <version>25.6</version>
   </parent>
 
   <groupId>com.hubspot.jinjava</groupId>
   <artifactId>jinjava</artifactId>
-  <version>2.4.16-SNAPSHOT</version>
+  <version>2.5.8-SNAPSHOT</version>
   <description>Jinja templating engine implemented in Java</description>
-  <url>https://github.com/HubSpot/jinjava</url>
-
-  <scm>
-    <connection>scm:git:git@github.com:HubSpot/jinjava.git</connection>
-    <developerConnection>scm:git:git@github.com:HubSpot/jinjava.git</developerConnection>
-    <url>git@github.com:HubSpot/jinjava.git</url>
-    <tag>HEAD</tag>
-  </scm>
-
-  <developers>
-    <developer>
-      <id>jaredstehler</id>
-      <name>Jared Stehler</name>
-    </developer>
-    <developer>
-      <id>boulter</id>
-      <name>Jeff Boulter</name>
-    </developer>
-  </developers>
 
   <properties>
-    <project.build.targetJdk>1.8</project.build.targetJdk>
+    <basepom.check.skip-prettier>false</basepom.check.skip-prettier>
+
+    <dep.javassist.version>3.24.1-GA</dep.javassist.version>
+
+    <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.jsoup</groupId>
+        <artifactId>jsoup</artifactId>
+        <version>1.10.3</version>
+      </dependency>
+      <dependency>
+        <groupId>de.odysseus.juel</groupId>
+        <artifactId>juel-api</artifactId>
+        <version>2.2.7</version>
+      </dependency>
+      <dependency>
+        <groupId>de.odysseus.juel</groupId>
+        <artifactId>juel-impl</artifactId>
+        <version>2.2.7</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.re2j</groupId>
+        <artifactId>re2j</artifactId>
+        <version>1.2</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.obermuhlner</groupId>
+        <artifactId>big-math</artifactId>
+        <version>2.0.0</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-net</groupId>
+        <artifactId>commons-net</artifactId>
+        <version>3.3</version>
+      </dependency>
+      <dependency>
+        <groupId>com.googlecode.java-ipv6</groupId>
+        <artifactId>java-ipv6</artifactId>
+        <version>0.17</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -69,8 +95,20 @@
       <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.java-ipv6</groupId>
+      <artifactId>java-ipv6</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -79,6 +117,14 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.obermuhlner</groupId>
+      <artifactId>big-math</artifactId>
     </dependency>
 
     <dependency>
@@ -108,31 +154,6 @@
     </dependency>
   </dependencies>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.jsoup</groupId>
-        <artifactId>jsoup</artifactId>
-        <version>1.10.3</version>
-      </dependency>
-      <dependency>
-        <groupId>de.odysseus.juel</groupId>
-        <artifactId>juel-api</artifactId>
-        <version>2.2.7</version>
-      </dependency>
-      <dependency>
-        <groupId>de.odysseus.juel</groupId>
-        <artifactId>juel-impl</artifactId>
-        <version>2.2.7</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.re2j</groupId>
-        <artifactId>re2j</artifactId>
-        <version>1.2</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <build>
     <plugins>
       <plugin>
@@ -146,10 +167,30 @@
           </execution>
           <execution>
             <id>report</id>
-            <phase>test</phase>
             <goals>
               <goal>report</goal>
             </goals>
+            <phase>test</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.17</version>
+        <executions>
+          <execution>
+            <id>validate</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>validate</phase>
+            <configuration>
+              <configLocation>${basedir}/src/main/resources/jinjava-checkstyle.xml</configLocation>
+              <encoding>UTF-8</encoding>
+              <consoleOutput>true</consoleOutput>
+              <failsOnError>true</failsOnError>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -157,13 +198,13 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <!-- Remove basepom's stuff -->
-        <configuration combine.self="override"/>
+        <configuration combine.self="override" />
         <executions>
           <execution>
-            <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
+            <phase>package</phase>
             <configuration>
               <createDependencyReducedPom>true</createDependencyReducedPom>
               <shadedArtifactAttached>false</shadedArtifactAttached>
@@ -189,5 +230,24 @@
       </plugin>
     </plugins>
   </build>
-</project>
 
+  <url>https://github.com/HubSpot/jinjava</url>
+
+  <developers>
+    <developer>
+      <id>jaredstehler</id>
+      <name>Jared Stehler</name>
+    </developer>
+    <developer>
+      <id>boulter</id>
+      <name>Jeff Boulter</name>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git@github.com:HubSpot/jinjava.git</connection>
+    <developerConnection>scm:git:git@github.com:HubSpot/jinjava.git</developerConnection>
+    <url>git@github.com:HubSpot/jinjava.git</url>
+    <tag>HEAD</tag>
+  </scm>
+</project>

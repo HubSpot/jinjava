@@ -15,10 +15,9 @@
  **********************************************************************/
 package com.hubspot.jinjava.util;
 
-import java.util.List;
-
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Lists;
+import java.util.List;
 
 /**
  * Whitespace and comma as separator quote to accept them as normal char
@@ -27,7 +26,6 @@ import com.google.common.collect.Lists;
  *
  */
 public class HelperStringTokenizer extends AbstractIterator<String> {
-
   private final char[] value;
   private final int length;
 
@@ -108,5 +106,4 @@ public class HelperStringTokenizer extends AbstractIterator<String> {
   public List<String> allTokens() {
     return Lists.newArrayList(this);
   }
-
 }

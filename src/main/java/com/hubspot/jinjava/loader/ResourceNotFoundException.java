@@ -8,5 +8,4 @@ public class ResourceNotFoundException extends IOException {
   public ResourceNotFoundException(String message) {
     super(message);
   }
-
 }

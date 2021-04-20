@@ -15,52 +15,59 @@
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
-import com.hubspot.jinjava.interpret.InterpretException;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.DeferredValueException;
+import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 
 public class TagNode extends Node {
-
   private static final long serialVersionUID = -6971280448795354252L;
 
   private final Tag tag;
   private final TagToken master;
   private final String endName;
 
-  public TagNode(Tag tag, TagToken token) {
+  public TagNode(Tag tag, TagToken token, TokenScannerSymbols symbols) {
     super(token, token.getLineNumber(), token.getStartPosition());
-
     this.master = token;
     this.tag = tag;
     this.endName = tag.getEndTagName();
   }
 
-  private TagNode(TagNode n) {
-    super(n.master, n.getLineNumber(), n.getStartPosition());
-
-    tag = n.tag;
-    master = n.master;
-    endName = n.endName;
-  }
-
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
-    if (interpreter.getContext().isValidationMode() && !tag.isRenderedInValidationMode()) {
+    if (
+      interpreter.getContext().isValidationMode() && !tag.isRenderedInValidationMode()
+    ) {
       return new RenderedOutputNode("");
     }
 
     try {
       return tag.interpretOutput(this, interpreter);
     } catch (DeferredValueException e) {
+      interpreter.getContext().handleDeferredNode(this);
       return new RenderedOutputNode(reconstructImage());
-    } catch (InterpretException e) {
+    } catch (
+      InterpretException
+      | InvalidInputException
+      | InvalidArgumentException
+      | OutputTooBigException e
+    ) {
       throw e;
     } catch (Exception e) {
-      throw new InterpretException("Error rendering tag", e, master.getLineNumber(), master.getStartPosition());
+      throw new InterpretException(
+        "Error rendering tag",
+        e,
+        master.getLineNumber(),
+        master.getStartPosition()
+      );
     }
   }
 
@@ -86,17 +93,35 @@ public class TagNode extends Node {
     return tag;
   }
 
-
-  private String reconstructImage() {
+  public String reconstructImage() {
     StringBuilder builder = new StringBuilder().append(master.getImage());
-
     for (Node n : getChildren()) {
-      builder.append(n.getMaster().getImage());
+      builder.append(n.reconstructImage());
     }
 
-    builder.append("{% ").append(getEndName()). append(" %}");
+    if (getEndName() != null) {
+      builder.append(reconstructEnd());
+    }
 
     return builder.toString();
   }
 
+  public String reconstructEnd() {
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(getSymbols().getExpressionStartWithTag());
+    if (
+      getChildren() != null &&
+      !getChildren().isEmpty() &&
+      getChildren().getLast().getMaster().isRightTrim()
+    ) {
+      stringBuilder.append(getSymbols().getTrimChar());
+    }
+    stringBuilder.append(" ").append(getEndName()).append(" ");
+    if (getMaster().isRightTrimAfterEnd()) {
+      stringBuilder.append(getSymbols().getTrimChar());
+    }
+
+    stringBuilder.append(getSymbols().getExpressionEndWithTag());
+    return stringBuilder.toString();
+  }
 }

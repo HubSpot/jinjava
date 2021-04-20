@@ -1,0 +1,13 @@
+{% set foo = 1 %}
+{% if deferred %}
+{% set foo = foo + 1 %}
+{% else %}
+{% set foo = foo + 2 %}//best we can do
+{% endif %}
+{{ foo }}
+
+{% set bar = 1 %}
+{%- for item in range(0,2) %}
+{%- set bar = bar + deferred %}
+{% endfor -%}
+{{ bar }}

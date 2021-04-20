@@ -15,26 +15,28 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import static com.hubspot.jinjava.tree.parse.TokenScannerSymbols.TOKEN_TAG;
-
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 
 public class TagToken extends Token {
-
   private static final long serialVersionUID = -4927751270481832992L;
 
   private String tagName;
   private String rawTagName;
   private String helpers;
 
-  public TagToken(String image, int lineNumber, int startPosition) {
-    super(image, lineNumber, startPosition);
+  public TagToken(
+    String image,
+    int lineNumber,
+    int startPosition,
+    TokenScannerSymbols symbols
+  ) {
+    super(image, lineNumber, startPosition, symbols);
   }
 
   @Override
   public int getType() {
-    return TOKEN_TAG;
+    return getSymbols().getTag();
   }
 
   /**
@@ -43,7 +45,12 @@ public class TagToken extends Token {
   @Override
   protected void parse() {
     if (image.length() < 4) {
-      throw new TemplateSyntaxException(image, "Malformed tag token", getLineNumber(), getStartPosition());
+      throw new TemplateSyntaxException(
+        image,
+        "Malformed tag token",
+        getLineNumber(),
+        getStartPosition()
+      );
     }
 
     content = image.substring(2, image.length() - 2);
@@ -63,8 +70,7 @@ public class TagToken extends Token {
       char c = content.charAt(pos);
       if (nameStart == -1 && Character.isJavaIdentifierStart(c)) {
         nameStart = pos;
-      }
-      else if (nameStart != -1 && !Character.isJavaIdentifierPart(c)) {
+      } else if (nameStart != -1 && !Character.isJavaIdentifierPart(c)) {
         break;
       }
     }
@@ -98,5 +104,4 @@ public class TagToken extends Token {
     }
     return "{% " + tagName + " " + helpers + " %}";
   }
-
 }

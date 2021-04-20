@@ -3,12 +3,10 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
-
 import org.junit.Before;
 import org.junit.Test;
 
 public class FirstFilterTest {
-
   FirstFilter filter;
 
   @Before
@@ -25,5 +23,4 @@ public class FirstFilterTest {
   public void firstForSeq() {
     assertThat(filter.filter(Arrays.asList("foo", "bar"), null)).isEqualTo("foo");
   }
-
 }

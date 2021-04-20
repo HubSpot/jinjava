@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.el.ext;
 
+import com.hubspot.jinjava.el.ext.eager.EagerAstBinary;
 import de.odysseus.el.misc.TypeConverter;
 import de.odysseus.el.tree.impl.Parser.ExtensionHandler;
 import de.odysseus.el.tree.impl.Parser.ExtensionPoint;
@@ -18,14 +19,25 @@ public class StringConcatOperator extends SimpleOperator {
     return new StringBuilder(o1s).append(o2s).toString();
   }
 
+  @Override
+  public String toString() {
+    return TOKEN.getImage();
+  }
+
   public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("~");
   public static final StringConcatOperator OP = new StringConcatOperator();
 
-  public static final ExtensionHandler HANDLER = new ExtensionHandler(ExtensionPoint.ADD) {
-    @Override
-    public AstNode createAstNode(AstNode... children) {
-      return new AstBinary(children[0], children[1], OP);
-    }
-  };
+  public static final ExtensionHandler HANDLER = getHandler(false);
 
+  public static ExtensionHandler getHandler(boolean eager) {
+    return new ExtensionHandler(ExtensionPoint.ADD) {
+
+      @Override
+      public AstNode createAstNode(AstNode... children) {
+        return eager
+          ? new EagerAstBinary(children[0], children[1], OP)
+          : new AstBinary(children[0], children[1], OP);
+      }
+    };
+  }
 }

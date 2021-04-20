@@ -2,60 +2,101 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.Lists;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import java.util.HashMap;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-import com.hubspot.jinjava.Jinjava;
-
-public class SelectAttrFilterTest {
-
-  Jinjava jinjava;
+public class SelectAttrFilterTest extends BaseJinjavaTest {
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
-    jinjava.getGlobalContext().put("users", Lists.newArrayList(
-        new User(0, false, "foo@bar.com", new Option(0, "option0")),
-        new User(1, true, "bar@bar.com", new Option(1, "option1")),
-        new User(2, false, null, new Option(2, "option2"))));
+    jinjava
+      .getGlobalContext()
+      .put(
+        "users",
+        Lists.newArrayList(
+          new User(0, false, "foo@bar.com", new Option(0, "option0")),
+          new User(1, true, "bar@bar.com", new Option(1, "option1")),
+          new User(2, false, null, new Option(2, "option2"))
+        )
+      );
   }
 
   @Test
   public void selectAttrWithNoExp() {
-    assertThat(jinjava.render("{{ users|selectattr('is_active') }}", new HashMap<String, Object>()))
-        .isEqualTo("[1]");
+    assertThat(
+        jinjava.render(
+          "{{ users|selectattr('is_active') }}",
+          new HashMap<String, Object>()
+        )
+      )
+      .isEqualTo("[1]");
   }
 
   @Test
   public void selectAttrWithExp() {
-    assertThat(jinjava.render("{{ users|selectattr('email', 'none') }}", new HashMap<String, Object>()))
-        .isEqualTo("[2]");
+    assertThat(
+        jinjava.render(
+          "{{ users|selectattr('email', 'none') }}",
+          new HashMap<String, Object>()
+        )
+      )
+      .isEqualTo("[2]");
+  }
+
+  @Test
+  public void selectAttrWithSymbolicExp() {
+    assertThat(
+        jinjava.render(
+          "{{ users|selectattr('isActive', '==', 'true') }}",
+          new HashMap<String, Object>()
+        )
+      )
+      .isEqualTo("[1]");
   }
 
   @Test
   public void selectAttrWithIsEqualToExp() {
-    assertThat(jinjava.render("{{ users|selectattr('email', 'equalto', 'bar@bar.com') }}", new HashMap<String, Object>()))
-        .isEqualTo("[1]");
+    assertThat(
+        jinjava.render(
+          "{{ users|selectattr('email', 'equalto', 'bar@bar.com') }}",
+          new HashMap<String, Object>()
+        )
+      )
+      .isEqualTo("[1]");
   }
 
   @Test
   public void selectAttrWithNumericIsEqualToExp() {
-    assertThat(jinjava.render("{{ users|selectattr('num', 'equalto', 1) }}", new HashMap<String, Object>()))
-        .isEqualTo("[1]");
+    assertThat(
+        jinjava.render(
+          "{{ users|selectattr('num', 'equalto', 1) }}",
+          new HashMap<String, Object>()
+        )
+      )
+      .isEqualTo("[1]");
   }
 
   @Test
   public void selectAttrWithNestedProperty() {
-    assertThat(jinjava.render("{{ users|selectattr('option.id', 'equalto', 1) }}", new HashMap<String, Object>()))
-        .isEqualTo("[1]");
+    assertThat(
+        jinjava.render(
+          "{{ users|selectattr('option.id', 'equalto', 1) }}",
+          new HashMap<String, Object>()
+        )
+      )
+      .isEqualTo("[1]");
 
-    assertThat(jinjava.render("{{ users|selectattr('option.name', 'equalto', 'option2') }}", new HashMap<String, Object>()))
-        .isEqualTo("[2]");
+    assertThat(
+        jinjava.render(
+          "{{ users|selectattr('option.name', 'equalto', 'option2') }}",
+          new HashMap<String, Object>()
+        )
+      )
+      .isEqualTo("[2]");
   }
-
 
   public static class User {
     private long num;

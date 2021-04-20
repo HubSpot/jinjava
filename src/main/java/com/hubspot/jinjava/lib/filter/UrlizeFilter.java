@@ -1,34 +1,49 @@
 package com.hubspot.jinjava.lib.filter;
 
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 @JinjavaDoc(
-    value = "Converts URLs in plain text into clickable links.",
-    params = {
-        @JinjavaParam(value = "value", desc = "string URL to convert to an anchor"),
-        @JinjavaParam(value = "trim_url_limit", type = "number", desc = "Sets a character limit"),
-        @JinjavaParam(value = "nofollow", type = "boolean", defaultValue = "False", desc = "Adds nofollow to generated link tag"),
-        @JinjavaParam(value = "target", desc = "Adds target attr to generated link tag")
-    },
-    snippets = {
-        @JinjavaSnippet(
-            desc = "links are shortened to 40 chars and defined with rel=\"nofollow\"",
-            code = "{{ \"http://www.hubspot.com\"|urlize(40) }}"),
-        @JinjavaSnippet(
-            desc = "If target is specified, the target attribute will be added to the <a> tag",
-            code = "{{ \"http://www.hubspot.com\"|urlize(10, true, target='_blank') }}"),
-    })
+  value = "Converts URLs in plain text into clickable links.",
+  input = @JinjavaParam(
+    value = "value",
+    type = "string",
+    desc = "string URL to convert to an anchor",
+    required = true
+  ),
+  params = {
+    @JinjavaParam(
+      value = "trim_url_limit",
+      type = "number",
+      desc = "Sets a character limit"
+    ),
+    @JinjavaParam(
+      value = "nofollow",
+      type = "boolean",
+      defaultValue = "False",
+      desc = "Adds nofollow to generated link tag"
+    ),
+    @JinjavaParam(value = "target", desc = "Adds target attr to generated link tag")
+  },
+  snippets = {
+    @JinjavaSnippet(
+      desc = "links are shortened to 40 chars and defined with rel=\"nofollow\"",
+      code = "{{ \"http://www.hubspot.com\"|urlize(40) }}"
+    ),
+    @JinjavaSnippet(
+      desc = "If target is specified, the target attribute will be added to the <a> tag",
+      code = "{{ \"http://www.hubspot.com\"|urlize(10, true, target='_blank') }}"
+    )
+  }
+)
 public class UrlizeFilter implements Filter {
 
   @Override
@@ -80,7 +95,7 @@ public class UrlizeFilter implements Filter {
   }
 
   private static final Pattern URL_RE = Pattern.compile(
-      "(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]",
-      Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-
+    "(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]",
+    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+  );
 }

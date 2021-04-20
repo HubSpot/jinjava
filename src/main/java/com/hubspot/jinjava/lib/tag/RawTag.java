@@ -1,40 +1,45 @@
 package com.hubspot.jinjava.lib.tag;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
+import org.apache.commons.lang3.StringUtils;
 
 @JinjavaDoc(
-    value = "Process all inner expressions as plain text",
-    snippets = {
-        @JinjavaSnippet(
-            code = "{% raw %}\n" +
-                "    The personalization token for a contact's first name is {{ contact.firstname }}\n" +
-                "{% endraw %}"
-        ),
-    })
+  value = "Process all inner expressions as plain text",
+  snippets = {
+    @JinjavaSnippet(
+      code = "{% raw %}\n" +
+      "    The personalization token for a contact's first name is {{ contact.firstname }}\n" +
+      "{% endraw %}"
+    )
+  }
+)
 public class RawTag implements Tag {
+  public static final String TAG_NAME = "raw";
+
   private static final long serialVersionUID = -6963360187396753883L;
 
   @Override
   public String getName() {
-    return "raw";
-  }
-
-  @Override
-  public String getEndTagName() {
-    return "endraw";
+    return TAG_NAME;
   }
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    if (
+      interpreter.getConfig().getExecutionMode().isPreserveRawTags() &&
+      !interpreter.getContext().isUnwrapRawOverride()
+    ) {
+      return renderNodeRaw(tagNode);
+    }
 
-    LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(interpreter.getConfig().getMaxOutputSize());
+    LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
+      interpreter.getConfig().getMaxOutputSize()
+    );
 
     for (Node n : tagNode.getChildren()) {
       result.append(renderNodeRaw(n));
@@ -59,5 +64,4 @@ public class RawTag implements Tag {
 
     return result.toString();
   }
-
 }

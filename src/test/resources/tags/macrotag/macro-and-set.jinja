@@ -1,0 +1,5 @@
+{% macro foo() -%}
+Hello {{ myname }}
+{%- endmacro %}
+{% set bar = myname + 19 %}
+{{ foo() }}

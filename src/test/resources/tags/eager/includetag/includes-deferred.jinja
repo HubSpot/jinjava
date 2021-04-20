@@ -1,0 +1,4 @@
+{%- set foo = 'abc' -%}
+Foo begins as: {{ foo }}
+{% include "tags/eager/includetag/sets-to-deferred.jinja" %}
+Foo ends as: {{ foo }}

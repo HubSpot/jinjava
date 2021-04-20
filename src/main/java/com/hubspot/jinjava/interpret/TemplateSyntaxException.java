@@ -5,26 +5,57 @@ public class TemplateSyntaxException extends InterpretException {
 
   private final String code;
 
-  public TemplateSyntaxException(String code, String message, int lineNumber, int startPosition) {
-    super("Syntax error in '" + code + "': " + message, lineNumber, startPosition);
+  @Deprecated
+  public TemplateSyntaxException(
+    String code,
+    String message,
+    int lineNumber,
+    int startPosition
+  ) {
+    super(
+      String.format("Syntax error in '%s': %s", code, message),
+      lineNumber,
+      startPosition
+    );
     this.code = code;
   }
 
+  @Deprecated
   public TemplateSyntaxException(String code, String message, int lineNumber) {
     this(code, message, lineNumber, -1);
   }
 
-  public TemplateSyntaxException(String code, String message, int lineNumber, int startPosition, Throwable t) {
+  @Deprecated
+  public TemplateSyntaxException(
+    String code,
+    String message,
+    int lineNumber,
+    int startPosition,
+    Throwable t
+  ) {
     super(message, t, lineNumber, startPosition);
     this.code = code;
   }
 
-  public TemplateSyntaxException(String code, String message, int lineNumber, Throwable t) {
+  @Deprecated
+  public TemplateSyntaxException(
+    String code,
+    String message,
+    int lineNumber,
+    Throwable t
+  ) {
     this(code, message, lineNumber, -1, t);
+  }
+
+  public TemplateSyntaxException(
+    JinjavaInterpreter interpreter,
+    String code,
+    String message
+  ) {
+    this(code, message, interpreter.getLineNumber(), interpreter.getPosition());
   }
 
   public String getCode() {
     return code;
   }
-
 }

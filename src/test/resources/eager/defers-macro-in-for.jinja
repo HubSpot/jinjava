@@ -1,0 +1,6 @@
+{%- macro macro_append(num) -%}
+{%- do my_list.append(num) -%}{{ my_list }}{# is a string #}
+{%- endmacro -%}
+{% for item in macro_append(deferred)|split(',',2) %}
+{{ item }}
+{% endfor %}

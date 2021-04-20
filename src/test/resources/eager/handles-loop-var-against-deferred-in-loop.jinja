@@ -1,0 +1,6 @@
+{% set items = ['item1', 'item2', 'item3'] %}
+{%- for item in items -%}
+{{ item }} {{ deferred }}.
+{%- set temp = item ~ deferred -%}
+{{ temp }}
+{% endfor %}

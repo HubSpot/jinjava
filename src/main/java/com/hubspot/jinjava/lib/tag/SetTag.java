@@ -15,17 +15,20 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
-import java.util.List;
-
-import com.hubspot.jinjava.objects.Namespace;
-import org.apache.commons.lang3.StringUtils;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
+import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.DeferredValueUtils;
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * {% set primary_line_height = primary_font_size_num*1.5 %}
@@ -36,36 +39,53 @@ import com.hubspot.jinjava.tree.TagNode;
  *
  */
 @JinjavaDoc(
-    value = "Assigns the value or result of a statement to a variable",
-    params = {
-        @JinjavaParam(value = "var", type = "variable identifier", desc = "The name of the variable"),
-        @JinjavaParam(value = "expr", type = "expression", desc = "The value stored in the variable (string, number, boolean, or sequence")
-    },
-    snippets = {
-        @JinjavaSnippet(
-            desc = "Set a variable in with a set statement and print the variable in a expression",
-            code = "{% set primaryColor = \"#F7761F\" %}\n" +
-                "{{ primaryColor }}\n"),
-        @JinjavaSnippet(
-            desc = "You can combine multiple values or variables into a sequence variable",
-            code = "{% set var_one = \"String 1\" %}\n" +
-                "{% set var_two = \"String 2\" %}\n" +
-                "{% set sequence = [var_one,  var_two] %}"),
-    })
+  value = "Assigns the value or result of a statement to a variable",
+  params = {
+    @JinjavaParam(
+      value = "var",
+      type = "variable identifier",
+      desc = "The name of the variable"
+    ),
+    @JinjavaParam(
+      value = "expr",
+      type = "expression",
+      desc = "The value stored in the variable (string, number, boolean, or sequence"
+    )
+  },
+  snippets = {
+    @JinjavaSnippet(
+      desc = "Set a variable in with a set statement and print the variable in a expression",
+      code = "{% set primaryColor = \"#F7761F\" %}\n" + "{{ primaryColor }}\n"
+    ),
+    @JinjavaSnippet(
+      desc = "You can combine multiple values or variables into a sequence variable",
+      code = "{% set var_one = \"String 1\" %}\n" +
+      "{% set var_two = \"String 2\" %}\n" +
+      "{% set sequence = [var_one,  var_two] %}"
+    )
+  }
+)
+@JinjavaTextMateSnippet(code = "{% set ${1:var} = ${2:expr} %}")
 public class SetTag implements Tag {
+  public static final String TAG_NAME = "set";
 
   private static final long serialVersionUID = -8558479410226781539L;
-  private static final String TAGNAME = "set";
 
   @Override
   public String getName() {
-    return TAGNAME;
+    return TAG_NAME;
   }
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     if (!tagNode.getHelpers().contains("=")) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' expects an assignment expression with '=', but was: " + tagNode.getHelpers(), tagNode.getLineNumber(), tagNode.getStartPosition());
+      throw new TemplateSyntaxException(
+        tagNode.getMaster().getImage(),
+        "Tag 'set' expects an assignment expression with '=', but was: " +
+        tagNode.getHelpers(),
+        tagNode.getLineNumber(),
+        tagNode.getStartPosition()
+      );
     }
 
     int eqPos = tagNode.getHelpers().indexOf('=');
@@ -73,65 +93,132 @@ public class SetTag implements Tag {
     String expr = tagNode.getHelpers().substring(eqPos + 1);
 
     if (var.length() == 0) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' requires a var name to assign to", tagNode.getLineNumber(), tagNode.getStartPosition());
+      throw new TemplateSyntaxException(
+        tagNode.getMaster().getImage(),
+        "Tag 'set' requires a var name to assign to",
+        tagNode.getLineNumber(),
+        tagNode.getStartPosition()
+      );
     }
     if (StringUtils.isBlank(expr)) {
-      throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' requires an expression to assign to a var", tagNode.getLineNumber(), tagNode.getStartPosition());
+      throw new TemplateSyntaxException(
+        tagNode.getMaster().getImage(),
+        "Tag 'set' requires an expression to assign to a var",
+        tagNode.getLineNumber(),
+        tagNode.getStartPosition()
+      );
     }
 
     String[] varTokens = var.split(",");
 
-    if (varTokens.length > 1) {
-      // handle multi-variable assignment
+    try {
       @SuppressWarnings("unchecked")
-      List<Object> exprVals = (List<Object>) interpreter.resolveELExpression("[" + expr + "]", tagNode.getLineNumber());
-
-      if (varTokens.length != exprVals.size()) {
-        throw new TemplateSyntaxException(tagNode.getMaster().getImage(), "Tag 'set' declares an uneven number of variables and assigned values", tagNode.getLineNumber(), tagNode.getStartPosition());
-      }
-
-      for (int i = 0; i < varTokens.length; i++) {
-        String varItem = varTokens[i].trim();
-        interpreter.getContext().put(varItem, exprVals.get(i));
-      }
-
-    } else {
-      // handle single variable assignment
-      setVariable(tagNode, interpreter, var, expr);
+      List<?> exprVals = (List<Object>) interpreter.resolveELExpression(
+        "[" + expr + "]",
+        tagNode.getMaster().getLineNumber()
+      );
+      executeSet((TagToken) tagNode.getMaster(), interpreter, varTokens, exprVals, false);
+    } catch (DeferredValueException e) {
+      DeferredValueUtils.deferVariables(varTokens, interpreter.getContext());
+      throw e;
     }
 
     return "";
   }
 
-  private void setVariable(TagNode tagNode, JinjavaInterpreter interpreter, String var, String expr) {
-    if(tagNode.getHelpers().contains(".")){
-      int dotPosition = tagNode.getHelpers().indexOf('.');
-      String variableName = tagNode.getHelpers().substring(0, dotPosition).trim();
+  public void executeSet(
+    TagToken tagToken,
+    JinjavaInterpreter interpreter,
+    String[] varTokens,
+    List<?> resolvedList,
+    boolean allowDeferredValueOverride
+  ) {
+    if (varTokens.length > 1) {
+      // handle multi-variable assignment
 
-      if (interpreter.getContext().containsKey(variableName)) {
-        setVariableForNamespace(tagNode, interpreter, dotPosition, variableName);
-      } else {
-        interpreter.getContext().put(var, interpreter.resolveELExpression(expr, tagNode.getLineNumber()));
+      if (resolvedList == null || varTokens.length != resolvedList.size()) {
+        throw new TemplateSyntaxException(
+          tagToken.getImage(),
+          "Tag 'set' declares an uneven number of variables and assigned values",
+          tagToken.getLineNumber(),
+          tagToken.getStartPosition()
+        );
+      }
+
+      for (int i = 0; i < varTokens.length; i++) {
+        String varItem = varTokens[i].trim();
+        if (interpreter.getContext().containsKey(varItem)) {
+          if (
+            !allowDeferredValueOverride &&
+            interpreter.getContext().get(varItem) instanceof DeferredValue
+          ) {
+            throw new DeferredValueException(varItem);
+          }
+        }
+        interpreter.getContext().put(varItem, resolvedList.get(i));
       }
     } else {
-      interpreter.getContext().put(var, interpreter.resolveELExpression(expr, tagNode.getLineNumber()));
+      // handle single variable assignment
+      if (interpreter.getContext().containsKey(varTokens[0])) {
+        if (
+          !allowDeferredValueOverride &&
+          interpreter.getContext().get(varTokens[0]) instanceof DeferredValue
+        ) {
+          throw new DeferredValueException(varTokens[0]);
+        }
+      }
+      setVariable(
+        tagToken,
+        interpreter,
+        varTokens[0],
+        resolvedList != null ? resolvedList.get(0) : null
+      );
     }
   }
 
-  private void setVariableForNamespace(TagNode tagNode, JinjavaInterpreter interpreter, int dotPosition, String variableName) {
+  private void setVariable(
+    TagToken tagToken,
+    JinjavaInterpreter interpreter,
+    String var,
+    Object value
+  ) {
+    if (tagToken.getHelpers().contains(".")) {
+      int dotPosition = tagToken.getHelpers().indexOf('.');
+      String variableName = tagToken.getHelpers().substring(0, dotPosition).trim();
 
+      if (interpreter.getContext().containsKey(variableName)) {
+        setVariableForNamespace(tagToken, interpreter, dotPosition, variableName);
+      } else {
+        interpreter.getContext().put(var, value);
+      }
+    } else {
+      interpreter.getContext().put(var, value);
+    }
+  }
+
+  private void setVariableForNamespace(
+    TagToken tagToken,
+    JinjavaInterpreter interpreter,
+    int dotPosition,
+    String variableName
+  ) {
     Namespace namespace = (Namespace) interpreter.getContext().get(variableName);
 
-    int variableAndKeyPosition = tagNode.getHelpers().indexOf('=');
-    String variableKey =  tagNode.getHelpers().substring(dotPosition + 1,variableAndKeyPosition).trim();
-    String value = tagNode.getHelpers().substring(variableAndKeyPosition + 1).trim();
+    int variableAndKeyPosition = tagToken.getHelpers().indexOf('=');
+    String variableKey = tagToken
+      .getHelpers()
+      .substring(dotPosition + 1, variableAndKeyPosition)
+      .trim();
+    String value = tagToken.getHelpers().substring(variableAndKeyPosition + 1).trim();
 
-    namespace.put(variableKey, interpreter.resolveELExpression(value, tagNode.getLineNumber()));
+    namespace.put(
+      variableKey,
+      interpreter.resolveELExpression(value, tagToken.getLineNumber())
+    );
   }
 
   @Override
   public String getEndTagName() {
     return null;
   }
-
 }

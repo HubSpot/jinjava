@@ -4,11 +4,11 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class JinjavaDoc {
-
   private final Map<String, JinjavaDocExpTest> expTests = new TreeMap<>();
   private final Map<String, JinjavaDocFilter> filters = new TreeMap<>();
   private final Map<String, JinjavaDocFunction> functions = new TreeMap<>();
   private final Map<String, JinjavaDocTag> tags = new TreeMap<>();
+  private final Map<String, String> codeSnippets = new TreeMap<>();
 
   public Map<String, JinjavaDocExpTest> getExpTests() {
     return expTests;
@@ -42,4 +42,11 @@ public class JinjavaDoc {
     tags.put(tag.getName(), tag);
   }
 
+  public Map<String, String> getCodeSnippets() {
+    return codeSnippets;
+  }
+
+  public void addCodeSnippet(String name, String snippet) {
+    codeSnippets.put(name, snippet);
+  }
 }

@@ -2,33 +2,25 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+import org.junit.Test;
 
-public class BatchFilterTest {
-
-  Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
+public class BatchFilterTest extends BaseJinjavaTest {
 
   @Test
   public void batchFilterNoBackfill() {
-    Map<String, Object> context = ImmutableMap.of("items", (Object) Lists.newArrayList(
-        "1", "2", "3", "4", "5", "6"));
+    Map<String, Object> context = ImmutableMap.of(
+      "items",
+      (Object) Lists.newArrayList("1", "2", "3", "4", "5", "6")
+    );
 
     Document dom = Jsoup.parseBodyFragment(render("batch-filter", context));
     assertThat(dom.select("tr")).hasSize(2);
@@ -46,8 +38,10 @@ public class BatchFilterTest {
 
   @Test
   public void batchFilterFillMissing() {
-    Map<String, Object> context = ImmutableMap.of("items", (Object) Lists.newArrayList(
-        "1", "2", "3", "4"));
+    Map<String, Object> context = ImmutableMap.of(
+      "items",
+      (Object) Lists.newArrayList("1", "2", "3", "4")
+    );
 
     Document dom = Jsoup.parseBodyFragment(render("batch-filter", context));
     assertThat(dom.select("tr")).hasSize(2);
@@ -65,10 +59,15 @@ public class BatchFilterTest {
 
   private String render(String template, Map<String, Object> context) {
     try {
-      return jinjava.render(Resources.toString(Resources.getResource(String.format("filter/%s.jinja", template)), StandardCharsets.UTF_8), context);
+      return jinjava.render(
+        Resources.toString(
+          Resources.getResource(String.format("filter/%s.jinja", template)),
+          StandardCharsets.UTF_8
+        ),
+        context
+      );
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
-
 }

@@ -1,17 +1,15 @@
 package com.hubspot.jinjava.random;
 
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import java.util.Random;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
-import com.hubspot.jinjava.interpret.DeferredValueException;
-
 /**
  * A random number generator that throws {@link com.hubspot.jinjava.interpret.DeferredValueException} for all supported methods.
  */
 public class DeferredRandomNumberGenerator extends Random {
-
   private static final String EXCEPTION_MESSAGE = "Generating random number";
 
   @Override
@@ -90,7 +88,11 @@ public class DeferredRandomNumberGenerator extends Random {
   }
 
   @Override
-  public LongStream longs(long streamSize, long randomNumberOrigin, long randomNumberBound) {
+  public LongStream longs(
+    long streamSize,
+    long randomNumberOrigin,
+    long randomNumberBound
+  ) {
     throw new UnsupportedOperationException();
   }
 
@@ -110,7 +112,11 @@ public class DeferredRandomNumberGenerator extends Random {
   }
 
   @Override
-  public DoubleStream doubles(long streamSize, double randomNumberOrigin, double randomNumberBound) {
+  public DoubleStream doubles(
+    long streamSize,
+    double randomNumberOrigin,
+    double randomNumberBound
+  ) {
     throw new UnsupportedOperationException();
   }
 

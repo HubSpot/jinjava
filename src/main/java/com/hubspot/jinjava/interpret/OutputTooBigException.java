@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.interpret;
 
 public class OutputTooBigException extends RuntimeException {
-
   private long maxSize;
   private final long size;
 
@@ -12,7 +11,10 @@ public class OutputTooBigException extends RuntimeException {
 
   @Override
   public String getMessage() {
-    return String.format("%d byte output rendered, over limit of %d bytes", size, maxSize);
+    return String.format(
+      "%d byte output rendered, over limit of %d bytes",
+      size,
+      maxSize
+    );
   }
-
 }

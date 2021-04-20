@@ -2,24 +2,14 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.Test;
 
-public class AttrFilterTest {
-
-  Jinjava jinjava;
-
-  @Before
-  public void setup() {
-    jinjava = new Jinjava();
-  }
+public class AttrFilterTest extends BaseJinjavaTest {
 
   @Test
   public void testAttr() {
@@ -34,10 +24,14 @@ public class AttrFilterTest {
     Map<String, Object> context = new HashMap<>();
     context.put("foo", new MyFoo());
 
-    RenderResult renderResult = jinjava.renderForResult("{{ foo|attr(\"barf\") }}", context);
+    RenderResult renderResult = jinjava.renderForResult(
+      "{{ foo|attr(\"barf\") }}",
+      context
+    );
     assertThat(renderResult.getOutput()).isEmpty();
     assertThat(renderResult.getErrors()).hasSize(1);
-    assertThat(renderResult.getErrors().get(0).getReason()).isEqualTo(ErrorReason.UNKNOWN);
+    assertThat(renderResult.getErrors().get(0).getReason())
+      .isEqualTo(ErrorReason.UNKNOWN);
     assertThat(renderResult.getErrors().get(0).getFieldName()).isEqualTo("barf");
   }
 
@@ -50,6 +44,7 @@ public class AttrFilterTest {
   }
 
   public static class MyFoo {
+
     public String getBar() {
       return "mybar";
     }
@@ -58,5 +53,4 @@ public class AttrFilterTest {
       return null;
     }
   }
-
 }

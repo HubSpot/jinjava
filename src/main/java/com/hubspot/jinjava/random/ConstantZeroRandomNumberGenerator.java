@@ -86,7 +86,11 @@ public class ConstantZeroRandomNumberGenerator extends Random {
   }
 
   @Override
-  public LongStream longs(long streamSize, long randomNumberOrigin, long randomNumberBound) {
+  public LongStream longs(
+    long streamSize,
+    long randomNumberOrigin,
+    long randomNumberBound
+  ) {
     throw new UnsupportedOperationException();
   }
 
@@ -106,7 +110,11 @@ public class ConstantZeroRandomNumberGenerator extends Random {
   }
 
   @Override
-  public DoubleStream doubles(long streamSize, double randomNumberOrigin, double randomNumberBound) {
+  public DoubleStream doubles(
+    long streamSize,
+    double randomNumberOrigin,
+    double randomNumberBound
+  ) {
     throw new UnsupportedOperationException();
   }
 

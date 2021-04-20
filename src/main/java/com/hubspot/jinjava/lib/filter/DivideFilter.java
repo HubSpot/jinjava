@@ -15,37 +15,62 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 @JinjavaDoc(
-    value = "Divides the current value by a divisor",
-    params = {
-        @JinjavaParam(value = "value", type = "number", desc = "The numerator to be divided"),
-        @JinjavaParam(value = "divisor", type = "number", desc = "The divisor to divide the value")
-    },
-    snippets = {
-        @JinjavaSnippet(
-            code = "{% set numerator = 106 %}\n" +
-                "{% numerator|divide(2) %}")
-    })
+  value = "Divides the current value by a divisor",
+  input = @JinjavaParam(
+    value = "value",
+    type = "number",
+    desc = "The numerator to be divided",
+    required = true
+  ),
+  params = {
+    @JinjavaParam(
+      value = "divisor",
+      type = "number",
+      desc = "The divisor to divide the value",
+      required = true
+    )
+  },
+  snippets = {
+    @JinjavaSnippet(code = "{% set numerator = 106 %}\n" + "{% numerator|divide(2) %}")
+  }
+)
 public class DivideFilter implements Filter {
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-    if (arg.length != 1) {
-      throw new InterpretException("filter multiply expects 1 arg >>> " + arg.length);
+    if (arg.length < 1) {
+      throw new TemplateSyntaxException(
+        interpreter,
+        getName(),
+        "requires 1 number (divisor) argument"
+      );
     }
     String toMul = arg[0];
     Number num;
     if (toMul != null) {
-      num = new BigDecimal(toMul);
+      try {
+        num = new BigDecimal(toMul);
+      } catch (NumberFormatException e) {
+        throw new InvalidArgumentException(
+          interpreter,
+          this,
+          InvalidReason.NUMBER_FORMAT,
+          0,
+          toMul
+        );
+      }
     } else {
       return object;
     }
@@ -76,8 +101,13 @@ public class DivideFilter implements Filter {
     if (object instanceof String) {
       try {
         return Double.valueOf((String) object) / num.doubleValue();
-      } catch (Exception e) {
-        throw new InterpretException(object + " can't be dealed with multiply filter", e);
+      } catch (NumberFormatException e) {
+        throw new InvalidInputException(
+          interpreter,
+          this,
+          InvalidReason.NUMBER_FORMAT,
+          object.toString()
+        );
       }
     }
     return object;
@@ -87,5 +117,4 @@ public class DivideFilter implements Filter {
   public String getName() {
     return "divide";
   }
-
 }

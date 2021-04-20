@@ -1,27 +1,27 @@
 package com.hubspot.jinjava.el;
 
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import de.odysseus.el.util.SimpleContext;
 import java.lang.reflect.Method;
-
 import javax.el.ELResolver;
 
-import de.odysseus.el.util.SimpleContext;
-
 public class JinjavaELContext extends SimpleContext {
-
+  private JinjavaInterpreter interpreter;
   private MacroFunctionMapper functionMapper;
 
   public JinjavaELContext() {
     super();
   }
 
-  public JinjavaELContext(ELResolver resolver) {
+  public JinjavaELContext(JinjavaInterpreter interpreter, ELResolver resolver) {
     super(resolver);
+    this.interpreter = interpreter;
   }
 
   @Override
   public MacroFunctionMapper getFunctionMapper() {
     if (functionMapper == null) {
-      functionMapper = new MacroFunctionMapper();
+      functionMapper = new MacroFunctionMapper(interpreter);
     }
     return functionMapper;
   }
@@ -30,5 +30,4 @@ public class JinjavaELContext extends SimpleContext {
   public void setFunction(String prefix, String localName, Method method) {
     getFunctionMapper().setFunction(prefix, localName, method);
   }
-
 }

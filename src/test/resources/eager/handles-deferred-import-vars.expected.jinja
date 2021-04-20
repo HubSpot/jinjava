@@ -1,0 +1,12 @@
+{% set myname = deferred + 3 %}
+{% set bar = myname + 19 %}
+Hello {{ myname }}
+
+foo: Hello {{ myname }}
+bar: {{ bar }}
+---{% set myname = deferred + 7 %}
+{% set bar = myname + 19 %}{% set simple = {} %}{% do simple.update({"bar": bar}) %}
+Hello {{ myname }}
+{% do simple.update({'import_resource_path': 'macro-and-set.jinja'}) %}
+simple.foo: {% set deferred_import_resource_path = 'macro-and-set.jinja' %}{% macro simple.foo() %}Hello {{ myname }}{% endmacro %}{% set deferred_import_resource_path = null %}{{ simple.foo() }}
+simple.bar: {{ simple.bar }}

@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.util;
 
 import static com.hubspot.jinjava.util.WhitespaceUtils.endsWith;
+import static com.hubspot.jinjava.util.WhitespaceUtils.isExpressionQuoted;
 import static com.hubspot.jinjava.util.WhitespaceUtils.startsWith;
 import static com.hubspot.jinjava.util.WhitespaceUtils.unwrap;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,4 +36,30 @@ public class WhitespaceUtilsTest {
     assertThat(unwrap("\t  <b>foobar</b>\n", "<b>", "</b>")).isEqualTo("foobar");
   }
 
+  @Test
+  public void itKnowsWhenAnExpressionIsQuoted() {
+    assertThat(isExpressionQuoted("'foo'")).isTrue();
+    assertThat(isExpressionQuoted("\"foo\"")).isTrue();
+    assertThat(isExpressionQuoted("'foo\\'")).isFalse();
+    assertThat(isExpressionQuoted("'foo\\\\'")).isTrue();
+    assertThat(isExpressionQuoted("foo")).isFalse();
+    assertThat(isExpressionQuoted("'foo'|lower ~ 'bar'")).isFalse();
+    assertThat(isExpressionQuoted("'foo\" and bar'")).isTrue();
+    assertThat(isExpressionQuoted("\"foo and bar\"")).isTrue();
+    assertThat(isExpressionQuoted("\"foo 'and' bar\"")).isTrue();
+    assertThat(isExpressionQuoted("\"foo 'and' bar'")).isFalse();
+  }
+
+  @Test
+  public void itKnowsUntrimmedExpressionIsQuoted() {
+    assertThat(isExpressionQuoted(" 'foo'")).isTrue();
+    assertThat(isExpressionQuoted("'foo' ")).isTrue();
+    assertThat(isExpressionQuoted(" 'foo' ")).isTrue();
+  }
+
+  @Test
+  public void itDoesntCountSingleQuoteChar() {
+    assertThat(isExpressionQuoted("'")).isFalse();
+    assertThat(isExpressionQuoted("\" ")).isFalse();
+  }
 }

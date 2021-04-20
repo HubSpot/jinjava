@@ -15,12 +15,11 @@
  **********************************************************************/
 package com.hubspot.jinjava.util;
 
-import java.util.Collections;
-import java.util.List;
-
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.util.Collections;
+import java.util.List;
 
 public class Variable {
   private static final Splitter DOT_SPLITTER = Splitter.on('.');
