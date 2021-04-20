@@ -85,6 +85,11 @@ public class Functions {
         type = "NamedParameter...",
         desc = "Keyword arguments to put into the namespace dictionary"
       )
+    },
+    snippets = {
+      @JinjavaSnippet(code = "{% set ns = namespace() %}"),
+      @JinjavaSnippet(code = "{% set ns = namespace(b=false) %}"),
+      @JinjavaSnippet(code = "{% set ns = namespace(my_map, b=false) %}")
     }
   )
   public static Namespace createNamespace(Object... parameters) {
