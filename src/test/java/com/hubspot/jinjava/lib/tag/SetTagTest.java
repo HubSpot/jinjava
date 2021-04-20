@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.entry;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
-import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -234,15 +233,10 @@ public class SetTagTest extends BaseInterpretingTest {
 
   @Test
   public void shouldSetNamespaceVariable() {
-    // given
-    Jinjava jinjava = new Jinjava();
-    interpreter = jinjava.newInterpreter();
-    context = interpreter.getContext();
-
     String template = "{% set ns = namespace(found=false) %}" + "Result: {{ns.found}}";
 
     // when
-    final String result = jinjava.render(template, null);
+    final String result = interpreter.render(template);
 
     // then
     assertThat(result).isEqualTo("Result: false");
@@ -250,18 +244,13 @@ public class SetTagTest extends BaseInterpretingTest {
 
   @Test
   public void shouldSetAFewVariablesInNamespace() {
-    // given
-    Jinjava jinjava = new Jinjava();
-    interpreter = jinjava.newInterpreter();
-    context = interpreter.getContext();
-
     String template =
       "{% set ns = namespace(found=false) %}" +
       "{% set ns.count=3 %}" +
       "Found: {{ns.found}}, Count: {{ns.count}}";
 
     // when
-    final String result = jinjava.render(template, null);
+    final String result = interpreter.render(template);
 
     // then
     assertThat(result).isEqualTo("Found: false, Count: 3");
@@ -269,18 +258,13 @@ public class SetTagTest extends BaseInterpretingTest {
 
   @Test
   public void shouldUpdateNamespaceVariableWithTheSameDataType() {
-    // given
-    Jinjava jinjava = new Jinjava();
-    interpreter = jinjava.newInterpreter();
-    context = interpreter.getContext();
-
     String template =
       "{% set ns = namespace(found=false) %}" +
       "{% set ns.found=true %}" +
       "Result: {{ns.found}}";
 
     // when
-    final String result = jinjava.render(template, null);
+    final String result = interpreter.render(template);
 
     // then
     assertThat(result).isEqualTo("Result: true");
@@ -288,11 +272,6 @@ public class SetTagTest extends BaseInterpretingTest {
 
   @Test
   public void shouldUpdateNamespaceVariableWithDifferentDataType() {
-    // given
-    Jinjava jinjava = new Jinjava();
-    interpreter = jinjava.newInterpreter();
-    context = interpreter.getContext();
-
     String template =
       "{% set ns = namespace(found=false) %}" +
       "{% set ns.found=true %}" +
@@ -301,7 +280,7 @@ public class SetTagTest extends BaseInterpretingTest {
     context.put("items", Lists.newArrayList("A", "B"));
 
     // when
-    final String result = jinjava.render(template, context);
+    final String result = interpreter.render(template);
 
     // then
     assertThat(result).isEqualTo("Result: 2");

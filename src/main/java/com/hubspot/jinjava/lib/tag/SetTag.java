@@ -168,7 +168,6 @@ public class SetTag implements Tag {
         }
       }
       setVariable(
-        tagToken,
         interpreter,
         varTokens[0],
         resolvedList != null ? resolvedList.get(0) : null
@@ -176,45 +175,17 @@ public class SetTag implements Tag {
     }
   }
 
-  private void setVariable(
-    TagToken tagToken,
-    JinjavaInterpreter interpreter,
-    String var,
-    Object value
-  ) {
-    if (tagToken.getHelpers().contains(".")) {
-      int dotPosition = tagToken.getHelpers().indexOf('.');
-      String variableName = tagToken.getHelpers().substring(0, dotPosition).trim();
+  private void setVariable(JinjavaInterpreter interpreter, String var, Object value) {
+    if (var.contains(".")) {
+      String[] varArray = var.split("\\.", 2);
+      Object namespace = interpreter.getContext().get(varArray[0]);
 
-      if (interpreter.getContext().containsKey(variableName)) {
-        setVariableForNamespace(tagToken, interpreter, dotPosition, variableName);
-      } else {
-        interpreter.getContext().put(var, value);
+      if (namespace instanceof Namespace) {
+        ((Namespace) namespace).put(varArray[1], value);
+        return;
       }
-    } else {
-      interpreter.getContext().put(var, value);
     }
-  }
-
-  private void setVariableForNamespace(
-    TagToken tagToken,
-    JinjavaInterpreter interpreter,
-    int dotPosition,
-    String variableName
-  ) {
-    Namespace namespace = (Namespace) interpreter.getContext().get(variableName);
-
-    int variableAndKeyPosition = tagToken.getHelpers().indexOf('=');
-    String variableKey = tagToken
-      .getHelpers()
-      .substring(dotPosition + 1, variableAndKeyPosition)
-      .trim();
-    String value = tagToken.getHelpers().substring(variableAndKeyPosition + 1).trim();
-
-    namespace.put(
-      variableKey,
-      interpreter.resolveELExpression(value, tagToken.getLineNumber())
-    );
+    interpreter.getContext().put(var, value);
   }
 
   @Override
