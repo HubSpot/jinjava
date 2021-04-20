@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -69,30 +70,36 @@ public class Functions {
     return result.toString();
   }
 
-  public static Namespace createNamespace(NamedParameter... namedParameters) {
-    final Namespace namespace = new Namespace();
-    Arrays
-      .asList(namedParameters)
-      .forEach(
-        namedParameter ->
-          namespace.put(namedParameter.getName(), namedParameter.getValue())
-      );
-
-    return namespace;
-  }
-
-  public static Namespace createNamespace(
-    Map<String, Object> dictionary,
-    NamedParameter... namedParameters
-  ) {
-    final Namespace namespace = new Namespace();
-    Arrays
-      .asList(namedParameters)
-      .forEach(
-        namedParameter ->
-          namespace.put(namedParameter.getName(), namedParameter.getValue())
-      );
-
+  @SuppressWarnings("unchecked")
+  @JinjavaDoc(
+    value = "Create a namespace object that can hold arbitrary attributes." +
+    "It may be initialized from a dictionary or with keyword arguments.",
+    params = {
+      @JinjavaParam(
+        value = "dictionary",
+        type = "Map",
+        desc = "The dictionary to initialize with"
+      ),
+      @JinjavaParam(
+        value = "kwargs",
+        type = "NamedParameter...",
+        desc = "Keyword arguments to put into the namespace dictionary"
+      )
+    }
+  )
+  public static Namespace createNamespace(Object... parameters) {
+    Namespace namespace = parameters.length > 0 && parameters[0] instanceof Map
+      ? new Namespace((Map<String, Object>) parameters[0])
+      : new Namespace();
+    namespace.putAll(
+      Arrays
+        .stream(parameters)
+        .filter(
+          p -> p instanceof NamedParameter && ((NamedParameter) p).getValue() != null
+        )
+        .map(p -> (NamedParameter) p)
+        .collect(Collectors.toMap(NamedParameter::getName, NamedParameter::getValue))
+    );
     return namespace;
   }
 

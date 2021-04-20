@@ -15,40 +15,26 @@ public class NamespaceTest {
 
   @Test
   public void shouldReturnNullIfValueDoNotExists() {
-    // given
     String key = "key";
-
-    // when
-    final Object result = namespace.get(key);
-
-    // then
+    Object result = namespace.get(key);
     assertThat(result).isEqualTo(null);
   }
 
   @Test
   public void shouldReplaceValueForKeyIfValueForKeyExists() {
-    // given
     String key = "key";
     namespace.put(key, Boolean.TRUE);
     namespace.put(key, "second value");
 
-    // when
-    final Object result = namespace.get(key);
-
-    // then
+    Object result = namespace.get(key);
     assertThat(result).isEqualTo("second value");
   }
 
   @Test
-  public void shouldSetValueIfValueDoNotExists() {
-    // given
+  public void shouldSetValueIfValueDoesNotExists() {
     String key = "key";
-    final String value = "Test";
-
-    // when
+    String value = "Test";
     namespace.put(key, value);
-
-    // then
     assertThat(namespace.get(key)).isEqualTo(value);
   }
 }

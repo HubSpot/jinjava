@@ -234,11 +234,7 @@ public class SetTagTest extends BaseInterpretingTest {
   @Test
   public void shouldSetNamespaceVariable() {
     String template = "{% set ns = namespace(found=false) %}" + "Result: {{ns.found}}";
-
-    // when
-    final String result = interpreter.render(template);
-
-    // then
+    String result = interpreter.render(template);
     assertThat(result).isEqualTo("Result: false");
   }
 
@@ -248,11 +244,7 @@ public class SetTagTest extends BaseInterpretingTest {
       "{% set ns = namespace(found=false) %}" +
       "{% set ns.count=3 %}" +
       "Found: {{ns.found}}, Count: {{ns.count}}";
-
-    // when
-    final String result = interpreter.render(template);
-
-    // then
+    String result = interpreter.render(template);
     assertThat(result).isEqualTo("Found: false, Count: 3");
   }
 
@@ -263,10 +255,7 @@ public class SetTagTest extends BaseInterpretingTest {
       "{% set ns.found=true %}" +
       "Result: {{ns.found}}";
 
-    // when
-    final String result = interpreter.render(template);
-
-    // then
+    String result = interpreter.render(template);
     assertThat(result).isEqualTo("Result: true");
   }
 
@@ -278,12 +267,20 @@ public class SetTagTest extends BaseInterpretingTest {
       "{% set ns.found=1 %}" +
       "Result: {{ns.found + 1}}";
     context.put("items", Lists.newArrayList("A", "B"));
+    String result = interpreter.render(template);
+    assertThat(result).isEqualTo("Result: 2");
+  }
 
-    // when
+  @Test
+  public void itCreatesNamespaceWithDictionary() {
+    Map<String, Object> dict = new HashMap<>();
+    dict.put("foo", "bar");
+    context.put("dict", dict);
+    String template =
+      "{% set ns = namespace(dict, foobar='baz') %}" + "{{ ns.foo ~ ns.foobar}}";
     final String result = interpreter.render(template);
 
-    // then
-    assertThat(result).isEqualTo("Result: 2");
+    assertThat(result).isEqualTo("barbaz");
   }
 
   private Node fixture(String name) {

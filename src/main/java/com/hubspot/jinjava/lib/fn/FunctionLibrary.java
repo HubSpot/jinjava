@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.lib.fn;
 
 import com.google.common.collect.Lists;
-import com.hubspot.jinjava.el.ext.NamedParameter;
 import com.hubspot.jinjava.lib.SimpleLibrary;
 import java.util.Set;
 
@@ -80,7 +79,15 @@ public class FunctionLibrary extends SimpleLibrary<ELFunctionDefinition> {
     );
 
     register(new ELFunctionDefinition("", "super", Functions.class, "renderSuperBlock"));
-    register(new ELFunctionDefinition("", "namespace", Functions.class, "createNamespace", NamedParameter[].class));
+    register(
+      new ELFunctionDefinition(
+        "",
+        "namespace",
+        Functions.class,
+        "createNamespace",
+        Object[].class
+      )
+    );
 
     register(
       new ELFunctionDefinition("fn", "list", Lists.class, "newArrayList", Object[].class)

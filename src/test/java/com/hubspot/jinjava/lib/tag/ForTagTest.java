@@ -10,7 +10,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
-import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.tree.Node;
@@ -252,10 +251,6 @@ public class ForTagTest extends BaseInterpretingTest {
 
   @Test
   public void testForLoopWithBooleanFromNamespaceVariable() {
-    // given
-    jinjava = new Jinjava();
-    interpreter = jinjava.newInterpreter();
-    context = interpreter.getContext();
     String template =
       "{% set ns = namespace(found=false) %}" +
       "{% for item in items %}" +
@@ -266,23 +261,12 @@ public class ForTagTest extends BaseInterpretingTest {
       "Found item having something: {{ ns.found }}";
 
     context.put("items", Lists.newArrayList("A", "B"));
-
-    // when
     String rendered = jinjava.render(template, context);
-
-    // debug
-    System.out.println(rendered);
-
-    // then
     assertThat(rendered).isEqualTo("Found item having something: true");
   }
 
   @Test
   public void forLoopShouldCountUsingNamespaceVariable() {
-    // given
-    jinjava = new Jinjava();
-    interpreter = jinjava.newInterpreter();
-    context = interpreter.getContext();
     String template =
       "{% set ns = namespace(found=2) %}" +
       "{% for item in items %}" +
@@ -291,14 +275,7 @@ public class ForTagTest extends BaseInterpretingTest {
       "Found item having something: {{ ns.found }}";
 
     context.put("items", Lists.newArrayList("A", "B"));
-
-    // when
     String rendered = jinjava.render(template, context);
-
-    // debug
-    System.out.println(rendered);
-
-    // then
     assertThat(rendered).isEqualTo("Found item having something: 4");
   }
 
