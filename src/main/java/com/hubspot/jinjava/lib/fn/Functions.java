@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -69,10 +70,22 @@ public class Functions {
   }
 
   public static Namespace createNamespace(NamedParameter... namedParameters) {
-    final Namespace namespace = JinjavaInterpreter
-      .getCurrent()
-      .getContext()
-      .getNamespace();
+    final Namespace namespace = new Namespace();
+    Arrays
+      .asList(namedParameters)
+      .forEach(
+        namedParameter ->
+          namespace.put(namedParameter.getName(), namedParameter.getValue())
+      );
+
+    return namespace;
+  }
+
+  public static Namespace createNamespace(
+    Map<String, Object> dictionary,
+    NamedParameter... namedParameters
+  ) {
+    final Namespace namespace = new Namespace();
     Arrays
       .asList(namedParameters)
       .forEach(

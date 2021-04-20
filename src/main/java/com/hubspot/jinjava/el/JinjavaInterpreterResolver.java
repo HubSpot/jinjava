@@ -302,7 +302,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
     if (value instanceof Namespace) {
       return new SizeLimitingPyMap(
-        ((Namespace) value).getAsDictionary(),
+        (Namespace) value,
         interpreter.getConfig().getMaxMapSize()
       );
     }

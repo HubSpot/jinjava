@@ -32,7 +32,6 @@ import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.TagLibrary;
 import com.hubspot.jinjava.lib.tag.eager.EagerToken;
-import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.ScopeMap;
@@ -86,7 +85,6 @@ public class Context extends ScopeMap<String, Object> {
   private final Set<String> resolvedExpressions = new HashSet<>();
   private final Set<String> resolvedValues = new HashSet<>();
   private final Set<String> resolvedFunctions = new HashSet<>();
-  private final Namespace namespace = new Namespace();
 
   private Set<Node> deferredNodes = new HashSet<>();
   private Set<EagerToken> eagerTokens = new HashSet<>();
@@ -697,9 +695,5 @@ public class Context extends ScopeMap<String, Object> {
     public void close() {
       resetValueConsumer.accept(previousValue);
     }
-  }
-
-  public Namespace getNamespace() {
-    return namespace;
   }
 }
