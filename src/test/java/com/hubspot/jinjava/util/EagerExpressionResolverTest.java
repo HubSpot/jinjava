@@ -665,14 +665,21 @@ public class EagerExpressionResolverTest {
       .isEqualTo("yes");
   }
 
+  @Test
+  public void itSplitsResolvedExpression() {
+    eagerResolveExpression("['a', 'b']");
+    assertThat(context.getResolvedExpressions())
+      .containsExactlyInAnyOrder("['a', 'b']", "'a'", "'b'");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {
     return foo == null && bar == null;
   }
 
-  private class Foo {
-    private String bar;
+  private static class Foo {
+    private final String bar;
 
     Foo(String bar) {
       this.bar = bar;
