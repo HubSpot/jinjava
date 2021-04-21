@@ -71,10 +71,7 @@ public class ExpressionResolver {
     expression = expression.trim();
     interpreter.getContext().addResolvedExpression(expression);
 
-    if (
-      interpreter.getConfig().getExecutionMode().useEagerParser() &&
-      WhitespaceUtils.isWrappedWith(expression, "[", "]")
-    ) {
+    if (WhitespaceUtils.isWrappedWith(expression, "[", "]")) {
       Arrays
         .stream(expression.substring(1, expression.length() - 1).split(","))
         .forEach(
