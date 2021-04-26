@@ -55,10 +55,18 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     } else {
       interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
     }
-    String resolvedExpression = eagerExecutionResult
-      .getResult()
-      .toString()
-      .replace(", ", ",");
+    String resolvedExpression;
+    if (
+      eagerExecutionResult
+        .getResult()
+        .toString()
+        .equals(EagerExpressionResolver.JINJAVA_EMPTY_STRING)
+    ) {
+      resolvedExpression = expression; // Cycle tag defaults to input on null
+    } else {
+      resolvedExpression = eagerExecutionResult.getResult().toString();
+    }
+    resolvedExpression = resolvedExpression.replace(", ", ",");
     resolvedExpression = resolvedExpression.substring(1, resolvedExpression.length() - 1);
     if (WhitespaceUtils.isWrappedWith(resolvedExpression, "[", "]")) {
       resolvedExpression =
