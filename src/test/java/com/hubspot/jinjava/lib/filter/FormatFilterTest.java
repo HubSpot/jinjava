@@ -6,9 +6,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
 import java.util.HashMap;
+import java.util.Locale;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class FormatFilterTest extends BaseJinjavaTest {
+
+  @BeforeClass
+  public static void beforeClass() {
+    Locale.setDefault(Locale.ENGLISH);
+  }
 
   @Test
   public void testFormatFilter() {
