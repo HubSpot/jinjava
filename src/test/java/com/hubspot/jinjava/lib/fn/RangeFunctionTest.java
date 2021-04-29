@@ -1,12 +1,42 @@
 package com.hubspot.jinjava.lib.fn;
 
+import static com.hubspot.jinjava.interpret.JinjavaInterpreter.pushCurrent;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.Arrays;
 import java.util.Collections;
+import org.assertj.core.api.Assertions;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class RangeFunctionTest {
+  private JinjavaConfig config;
+
+  @Before
+  public void beforeEach() {
+    config = JinjavaConfig.newBuilder().build();
+    Jinjava jinjava = new Jinjava(config);
+    pushCurrent(new JinjavaInterpreter(jinjava.newInterpreter()));
+  }
+
+  @After
+  public void afterEach() {
+    JinjavaInterpreter.popCurrent();
+  }
+
+  @Test
+  public void interpreterInstanceIsMandatory() {
+    JinjavaInterpreter.popCurrent();
+    assertThatThrownBy(() -> Functions.range(1))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("No JinjavaInterpreter instance available to use range function");
+  }
 
   @Test
   public void itGeneratesSimpleRanges() {
@@ -43,9 +73,27 @@ public class RangeFunctionTest {
   }
 
   @Test
-  public void itTruncatesHugeRanges() {
-    assertThat(Functions.range(2, 200000000).size()).isEqualTo(Functions.RANGE_LIMIT);
+  public void itTruncatesRangeToDefaultRangeLimit() {
+    int defaultRangeLimit = config.getRangeLimit();
+    assertThat(defaultRangeLimit).isEqualTo(Functions.DEFAULT_RANGE_LIMIT);
+    assertThat(Functions.range(2, 200000000).size()).isEqualTo(defaultRangeLimit);
     assertThat(Functions.range(Long.MAX_VALUE - 1, Long.MAX_VALUE).size())
-      .isEqualTo(Functions.RANGE_LIMIT);
+      .isEqualTo(defaultRangeLimit);
+  }
+
+  @Test
+  public void itTruncatesRangeToCustomRangeLimit() {
+    JinjavaInterpreter.popCurrent();
+    int customRangeLimit = 10;
+    JinjavaConfig customConfig = JinjavaConfig
+      .newBuilder()
+      .withRangeLimit(customRangeLimit)
+      .build();
+    pushCurrent(new JinjavaInterpreter(new Jinjava(customConfig).newInterpreter()));
+    assertThat(customConfig.getRangeLimit()).isEqualTo(customRangeLimit);
+
+    assertThat(Functions.range(20).size()).isEqualTo(customRangeLimit);
+    assertThat(Functions.range(Long.MAX_VALUE - 1, Long.MAX_VALUE).size())
+      .isEqualTo(customRangeLimit);
   }
 }
