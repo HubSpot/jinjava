@@ -1,8 +1,6 @@
 package com.hubspot.jinjava.lib.fn;
 
-import static com.hubspot.jinjava.interpret.JinjavaInterpreter.getCurrent;
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -52,7 +50,7 @@ public class Functions {
     }
   )
   public static String renderSuperBlock() {
-    JinjavaInterpreter interpreter = getCurrent();
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxOutputSize()
     );
@@ -389,7 +387,7 @@ public class Functions {
     "The third parameter specifies the step increment. All values can be negative. Impossible ranges will return an empty list. " +
     "Ranges can generate a maximum of " +
     DEFAULT_RANGE_LIMIT +
-    " values by default, but this integer value is configurable.",
+    " values.",
     params = {
       @JinjavaParam(value = "start", type = "number", defaultValue = "0"),
       @JinjavaParam(value = "end", type = "number"),
@@ -397,12 +395,7 @@ public class Functions {
     }
   )
   public static List<Integer> range(Object arg1, Object... args) {
-    int rangeLimit = requireNonNull(
-        JinjavaInterpreter.getCurrent(),
-        "No JinjavaInterpreter instance available to use range function"
-      )
-      .getConfig()
-      .getRangeLimit();
+    int rangeLimit = JinjavaInterpreter.getCurrent().getConfig().getRangeLimit();
     List<Integer> result = new ArrayList<>();
 
     int start = 0;

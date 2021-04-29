@@ -33,9 +33,7 @@ public class RangeFunctionTest {
   @Test
   public void interpreterInstanceIsMandatory() {
     JinjavaInterpreter.popCurrent();
-    assertThatThrownBy(() -> Functions.range(1))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("No JinjavaInterpreter instance available to use range function");
+    assertThatThrownBy(() -> Functions.range(1)).isInstanceOf(NullPointerException.class);
   }
 
   @Test
