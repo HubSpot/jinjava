@@ -34,7 +34,7 @@ public class Functions {
   public static final String STRING_TO_TIME_FUNCTION = "stringToTime";
   public static final String STRING_TO_DATE_FUNCTION = "stringToDate";
 
-  public static final int RANGE_LIMIT = 1000;
+  public static final int DEFAULT_RANGE_LIMIT = 1000;
 
   @JinjavaDoc(
     value = "Only usable within blocks, will render the contents of the parent block by calling super.",
@@ -386,7 +386,7 @@ public class Functions {
     "With two parameters, the range will start at the first value and increment by 1 up to (but not including) the second value. " +
     "The third parameter specifies the step increment. All values can be negative. Impossible ranges will return an empty list. " +
     "Ranges can generate a maximum of " +
-    RANGE_LIMIT +
+    DEFAULT_RANGE_LIMIT +
     " values.",
     params = {
       @JinjavaParam(value = "start", type = "number", defaultValue = "0"),
@@ -395,6 +395,7 @@ public class Functions {
     }
   )
   public static List<Integer> range(Object arg1, Object... args) {
+    int rangeLimit = JinjavaInterpreter.getCurrent().getConfig().getRangeLimit();
     List<Integer> result = new ArrayList<>();
 
     int start = 0;
@@ -404,19 +405,19 @@ public class Functions {
     switch (args.length) {
       case 0:
         if (NumberUtils.isNumber(arg1.toString())) {
-          end = NumberUtils.toInt(arg1.toString(), RANGE_LIMIT);
+          end = NumberUtils.toInt(arg1.toString(), rangeLimit);
         }
         break;
       case 1:
         start = NumberUtils.toInt(arg1.toString());
         if (args[0] != null && NumberUtils.isNumber(args[0].toString())) {
-          end = NumberUtils.toInt(args[0].toString(), start + RANGE_LIMIT);
+          end = NumberUtils.toInt(args[0].toString(), start + rangeLimit);
         }
         break;
       default:
         start = NumberUtils.toInt(arg1.toString());
         if (args[0] != null && NumberUtils.isNumber(args[0].toString())) {
-          end = NumberUtils.toInt(args[0].toString(), start + RANGE_LIMIT);
+          end = NumberUtils.toInt(args[0].toString(), start + rangeLimit);
         }
         if (args[1] != null) {
           step = NumberUtils.toInt(args[1].toString(), 1);
@@ -433,7 +434,7 @@ public class Functions {
       }
 
       for (int i = start; i < end; i += step) {
-        if (result.size() >= RANGE_LIMIT) {
+        if (result.size() >= rangeLimit) {
           break;
         }
         result.add(i);
@@ -444,7 +445,7 @@ public class Functions {
       }
 
       for (int i = start; i > end; i += step) {
-        if (result.size() >= RANGE_LIMIT) {
+        if (result.size() >= rangeLimit) {
           break;
         }
         result.add(i);
