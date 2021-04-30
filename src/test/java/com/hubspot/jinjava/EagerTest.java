@@ -290,7 +290,8 @@ public class EagerTest {
   @Test
   public void itPreservesRandomness() {
     String output = interpreter.render("{{ [1, 2, 3]|shuffle }}");
-    assertThat(output).isEqualTo("{{ [1, 2, 3]|shuffle }}");
+    assertThat(output)
+      .isEqualTo("{{ filter:shuffle.filter([1, 2, 3], ____int3rpr3t3r____) }}");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 

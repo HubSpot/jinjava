@@ -18,6 +18,7 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
+import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
@@ -52,6 +53,7 @@ public class EagerExpressionResolverTest {
       JinjavaConfig
         .newBuilder()
         .withExecutionMode(EagerExecutionMode.instance())
+        .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
         .withLegacyOverrides(
           LegacyOverrides.newBuilder().withEvaluateMapKeys(evaluateMapKeys).build()
         )
@@ -670,6 +672,19 @@ public class EagerExpressionResolverTest {
     eagerResolveExpression("['a', 'b']");
     assertThat(context.getResolvedExpressions())
       .containsExactlyInAnyOrder("['a', 'b']", "'a'", "'b'");
+  }
+
+  @Test
+  public void itHandlesToday() {
+    context.put("foo", "bar");
+    assertThat(eagerResolveExpression("foo ~ today()").toString())
+      .isEqualTo("'bar' ~ today()");
+  }
+
+  @Test
+  public void itHandlesRandom() {
+    assertThat(eagerResolveExpression("range(1)|random").toString())
+      .isEqualTo("filter:random.filter([0], ____int3rpr3t3r____)");
   }
 
   public static void voidFunction(int nothing) {}

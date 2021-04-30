@@ -6,6 +6,12 @@ public class DeferredParsingException extends DeferredValueException {
   private final String deferredEvalResult;
   private final Object sourceNode;
 
+  public DeferredParsingException(String message) {
+    super(message);
+    this.deferredEvalResult = message;
+    this.sourceNode = null;
+  }
+
   public DeferredParsingException(Object sourceNode, String deferredEvalResult) {
     super(
       String.format(

@@ -9,6 +9,7 @@ import de.odysseus.el.tree.impl.ast.AstParameters;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import javax.el.ELContext;
+import javax.el.ELException;
 
 public class EagerAstMacroFunction extends AstMacroFunction implements EvalResultHolder {
   protected Object evalResult;
@@ -41,7 +42,15 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
       evalResult = super.eval(bindings, context);
       hasEvalResult = true;
       return evalResult;
-    } catch (DeferredValueException e) {
+    } catch (DeferredValueException | ELException e) {
+      if (
+        !(
+          e instanceof DeferredValueException ||
+          e.getCause() instanceof DeferredValueException
+        )
+      ) {
+        throw e;
+      }
       StringBuilder sb = new StringBuilder();
       sb.append(getName());
       String paramString;
