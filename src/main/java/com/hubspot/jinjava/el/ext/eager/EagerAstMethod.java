@@ -9,6 +9,7 @@ import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import de.odysseus.el.tree.impl.ast.AstProperty;
 import javax.el.ELContext;
+import javax.el.ELException;
 
 public class EagerAstMethod extends AstMethod implements EvalResultHolder {
   protected Object evalResult;
@@ -37,10 +38,20 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
       evalResult = super.eval(bindings, context);
       hasEvalResult = true;
       return evalResult;
-    } catch (DeferredParsingException e) {
+    } catch (DeferredParsingException | ELException e) {
+      DeferredParsingException e1;
+      if (!(e instanceof DeferredParsingException)) {
+        if (e.getCause() instanceof DeferredParsingException) {
+          e1 = (DeferredParsingException) e.getCause();
+        } else {
+          throw e;
+        }
+      } else {
+        e1 = (DeferredParsingException) e;
+      }
       throw new DeferredParsingException(
         this,
-        getPartiallyResolved(bindings, context, e)
+        getPartiallyResolved(bindings, context, e1)
       );
     } finally {
       property.getAndClearEvalResult();

@@ -22,7 +22,7 @@ public class PyishSerializer extends JsonSerializer<Object> {
     jsonGenerator.setCharacterEscapes(PyishCharacterEscapes.INSTANCE);
     String string;
     if (object instanceof PyishSerializable) {
-      jsonGenerator.writeRaw(((PyishSerializable) object).toPyishString());
+      jsonGenerator.writeRawValue(((PyishSerializable) object).toPyishString());
     } else {
       string = Objects.toString(object, "");
       try {
