@@ -22,7 +22,9 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
+import com.hubspot.jinjava.util.WhitespaceUtils;
 import de.odysseus.el.tree.TreeBuilderException;
+import java.util.Arrays;
 import java.util.List;
 import javax.el.ELException;
 import javax.el.ExpressionFactory;
@@ -66,12 +68,18 @@ public class ExpressionResolver {
     if (StringUtils.isBlank(expression)) {
       return null;
     }
+    expression = expression.trim();
+    interpreter.getContext().addResolvedExpression(expression);
 
-    interpreter.getContext().addResolvedExpression(expression.trim());
-
+    if (WhitespaceUtils.isWrappedWith(expression, "[", "]")) {
+      Arrays
+        .stream(expression.substring(1, expression.length() - 1).split(","))
+        .forEach(
+          substring -> interpreter.getContext().addResolvedExpression(substring.trim())
+        );
+    }
     try {
-      String elExpression =
-        EXPRESSION_START_TOKEN + expression.trim() + EXPRESSION_END_TOKEN;
+      String elExpression = EXPRESSION_START_TOKEN + expression + EXPRESSION_END_TOKEN;
       ValueExpression valueExp = expressionFactory.createValueExpression(
         elContext,
         elExpression,

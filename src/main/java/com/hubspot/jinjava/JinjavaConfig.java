@@ -15,6 +15,8 @@
  **********************************************************************/
 package com.hubspot.jinjava;
 
+import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
+
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -56,6 +58,7 @@ public class JinjavaConfig {
   private final long maxStringLength;
   private final int maxListSize;
   private final int maxMapSize;
+  private final int rangeLimit;
   private final InterpreterFactory interpreterFactory;
   private TokenScannerSymbols tokenScannerSymbols;
   private final ELResolver elResolver;
@@ -107,6 +110,7 @@ public class JinjavaConfig {
     maxStringLength = builder.maxStringLength;
     maxListSize = builder.maxListSize;
     maxMapSize = builder.maxMapSize;
+    rangeLimit = builder.rangeLimit;
     interpreterFactory = builder.interpreterFactory;
     tokenScannerSymbols = builder.tokenScannerSymbols;
     elResolver = builder.elResolver;
@@ -140,6 +144,10 @@ public class JinjavaConfig {
 
   public int getMaxMapSize() {
     return maxMapSize;
+  }
+
+  public int getRangeLimit() {
+    return rangeLimit;
   }
 
   public RandomNumberGeneratorStrategy getRandomNumberGeneratorStrategy() {
@@ -233,6 +241,7 @@ public class JinjavaConfig {
       RandomNumberGeneratorStrategy.THREAD_LOCAL;
     private boolean validationMode = false;
     private long maxStringLength = 0;
+    private int rangeLimit = DEFAULT_RANGE_LIMIT;
     private InterpreterFactory interpreterFactory = new JinjavaInterpreterFactory();
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
     private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
@@ -340,6 +349,11 @@ public class JinjavaConfig {
 
     public Builder withMaxMapSize(int maxMapSize) {
       this.maxMapSize = maxMapSize;
+      return this;
+    }
+
+    public Builder withRangeLimit(int rangeLimit) {
+      this.rangeLimit = rangeLimit;
       return this;
     }
 

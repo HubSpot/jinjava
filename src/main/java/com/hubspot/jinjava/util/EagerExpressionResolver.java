@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerExpressionResolver {
-  private static final String JINJAVA_NULL = "null";
-  private static final String JINJAVA_EMPTY_STRING = "''";
+  public static final String JINJAVA_NULL = "null";
+  public static final String JINJAVA_EMPTY_STRING = "''";
 
   private static final Set<String> RESERVED_KEYWORDS = ImmutableSet.of(
     "and",

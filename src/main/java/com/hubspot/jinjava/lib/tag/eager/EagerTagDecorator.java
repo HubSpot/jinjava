@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import static com.hubspot.jinjava.interpret.Context.GLOBAL_MACROS_SCOPE_KEY;
-import static com.hubspot.jinjava.interpret.Context.IMPORT_RESOURCE_PATH_KEY;
 
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -163,15 +162,12 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   ) {
     EagerExpressionResult result;
     Map<String, Integer> initiallyResolvedHashes = new HashMap<>();
+    Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
     interpreter
       .getContext()
       .entrySet()
       .stream()
-      .filter(
-        e ->
-          !e.getKey().equals(GLOBAL_MACROS_SCOPE_KEY) &&
-          !e.getKey().equals(IMPORT_RESOURCE_PATH_KEY)
-      )
+      .filter(e -> !metaContextVariables.contains(e.getKey()))
       .filter(
         entry -> !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
       )
