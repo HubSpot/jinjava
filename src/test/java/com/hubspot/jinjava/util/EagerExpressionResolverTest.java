@@ -672,6 +672,13 @@ public class EagerExpressionResolverTest {
       .containsExactlyInAnyOrder("['a', 'b']", "'a'", "'b'");
   }
 
+  @Test
+  public void itHandlesToday() {
+    context.put("foo", "bar");
+    assertThat(eagerResolveExpression("foo ~ today()").toString())
+      .isEqualTo("'bar' ~ today()");
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {

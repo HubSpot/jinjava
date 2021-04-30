@@ -7,8 +7,10 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
@@ -81,6 +83,20 @@ public class Functions {
     }
   )
   public static ZonedDateTime today(String... var) {
+    if (
+      JinjavaInterpreter
+        .getCurrentMaybe()
+        .map(JinjavaInterpreter::getConfig)
+        .map(JinjavaConfig::getExecutionMode)
+        .map(ExecutionMode::useEagerParser)
+        .orElse(false)
+    ) {
+      throw new DeferredValueException(
+        "today() is deferred",
+        JinjavaInterpreter.getCurrent().getLineNumber(),
+        JinjavaInterpreter.getCurrent().getPosition()
+      );
+    }
     ZoneId zoneOffset = ZoneOffset.UTC;
     if (var.length > 0) {
       String timezone = var[0];
