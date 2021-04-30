@@ -20,6 +20,7 @@ import com.hubspot.jinjava.lib.tag.MacroTag;
 import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.Tag;
+import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -313,11 +314,16 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           !(interpreter.getContext().get(w) instanceof DeferredValue)
       )
       .forEach(
-        w ->
+        w -> {
+          Object value = interpreter.getContext().get(w);
           deferredMap.put(
             w,
-            PyishObjectMapper.getAsPyishString(interpreter.getContext().get(w))
-          )
+            String.format(
+              value instanceof Namespace ? "namespace(%s)" : "%s",
+              PyishObjectMapper.getAsPyishString(value)
+            )
+          );
+        }
       );
     return buildSetTagForDeferredInChildContext(deferredMap, interpreter, true);
   }

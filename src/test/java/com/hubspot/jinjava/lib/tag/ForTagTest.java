@@ -249,6 +249,36 @@ public class ForTagTest extends BaseInterpretingTest {
       .hasMessageContaining("Error rendering tag");
   }
 
+  @Test
+  public void testForLoopWithBooleanFromNamespaceVariable() {
+    String template =
+      "{% set ns = namespace(found=false) %}" +
+      "{% for item in items %}" +
+      "{% if item=='B' %}" +
+      "{% set ns.found=true %}" +
+      "{% endif %}" +
+      "{% endfor %}" +
+      "Found item having something: {{ ns.found }}";
+
+    context.put("items", Lists.newArrayList("A", "B"));
+    String rendered = jinjava.render(template, context);
+    assertThat(rendered).isEqualTo("Found item having something: true");
+  }
+
+  @Test
+  public void forLoopShouldCountUsingNamespaceVariable() {
+    String template =
+      "{% set ns = namespace(found=2) %}" +
+      "{% for item in items %}" +
+      "{% set ns.found= ns.found + 1 %}" +
+      "{% endfor %}" +
+      "Found item having something: {{ ns.found }}";
+
+    context.put("items", Lists.newArrayList("A", "B"));
+    String rendered = jinjava.render(template, context);
+    assertThat(rendered).isEqualTo("Found item having something: 4");
+  }
+
   private Node fixture(String name) {
     try {
       return new TreeParser(

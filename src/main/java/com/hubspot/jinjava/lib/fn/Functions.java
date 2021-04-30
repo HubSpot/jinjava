@@ -7,8 +7,10 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.el.ext.NamedParameter;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
@@ -23,10 +25,13 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -63,6 +68,44 @@ public class Functions {
     }
 
     return result.toString();
+  }
+
+  @SuppressWarnings("unchecked")
+  @JinjavaDoc(
+    value = "Create a namespace object that can hold arbitrary attributes." +
+    "It may be initialized from a dictionary or with keyword arguments.",
+    params = {
+      @JinjavaParam(
+        value = "dictionary",
+        type = "Map",
+        desc = "The dictionary to initialize with"
+      ),
+      @JinjavaParam(
+        value = "kwargs",
+        type = "NamedParameter...",
+        desc = "Keyword arguments to put into the namespace dictionary"
+      )
+    },
+    snippets = {
+      @JinjavaSnippet(code = "{% set ns = namespace() %}"),
+      @JinjavaSnippet(code = "{% set ns = namespace(b=false) %}"),
+      @JinjavaSnippet(code = "{% set ns = namespace(my_map, b=false) %}")
+    }
+  )
+  public static Namespace createNamespace(Object... parameters) {
+    Namespace namespace = parameters.length > 0 && parameters[0] instanceof Map
+      ? new Namespace((Map<String, Object>) parameters[0])
+      : new Namespace();
+    namespace.putAll(
+      Arrays
+        .stream(parameters)
+        .filter(
+          p -> p instanceof NamedParameter && ((NamedParameter) p).getValue() != null
+        )
+        .map(p -> (NamedParameter) p)
+        .collect(Collectors.toMap(NamedParameter::getName, NamedParameter::getValue))
+    );
+    return namespace;
   }
 
   public static List<Object> immutableListOf(Object... items) {
