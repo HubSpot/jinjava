@@ -19,6 +19,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
@@ -297,6 +298,13 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
     if (value instanceof PyWrapper) {
       return value;
+    }
+
+    if (value instanceof Namespace) {
+      return new SizeLimitingPyMap(
+        (Namespace) value,
+        interpreter.getConfig().getMaxMapSize()
+      );
     }
 
     if (List.class.isAssignableFrom(value.getClass())) {

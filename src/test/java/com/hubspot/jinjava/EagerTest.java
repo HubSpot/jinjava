@@ -837,4 +837,17 @@ public class EagerTest {
   public void itHandlesComplexRaw() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-complex-raw");
   }
+
+  @Test
+  public void itHandlesDeferredInNamespace() {
+    expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-in-namespace");
+  }
+
+  @Test
+  public void itHandlesDeferredInNamespaceSecondPass() {
+    localContext.put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferred-in-namespace.expected"
+    );
+  }
 }

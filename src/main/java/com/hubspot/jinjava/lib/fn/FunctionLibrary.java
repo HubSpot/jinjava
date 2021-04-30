@@ -79,6 +79,15 @@ public class FunctionLibrary extends SimpleLibrary<ELFunctionDefinition> {
     );
 
     register(new ELFunctionDefinition("", "super", Functions.class, "renderSuperBlock"));
+    register(
+      new ELFunctionDefinition(
+        "",
+        "namespace",
+        Functions.class,
+        "createNamespace",
+        Object[].class
+      )
+    );
 
     register(
       new ELFunctionDefinition("fn", "list", Lists.class, "newArrayList", Object[].class)

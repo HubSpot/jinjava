@@ -23,6 +23,7 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.DeferredValueUtils;
@@ -166,10 +167,25 @@ public class SetTag implements Tag {
           throw new DeferredValueException(varTokens[0]);
         }
       }
-      interpreter
-        .getContext()
-        .put(varTokens[0], resolvedList != null ? resolvedList.get(0) : null);
+      setVariable(
+        interpreter,
+        varTokens[0],
+        resolvedList != null ? resolvedList.get(0) : null
+      );
     }
+  }
+
+  private void setVariable(JinjavaInterpreter interpreter, String var, Object value) {
+    if (var.contains(".")) {
+      String[] varArray = var.split("\\.", 2);
+      Object namespace = interpreter.getContext().get(varArray[0]);
+
+      if (namespace instanceof Namespace) {
+        ((Namespace) namespace).put(varArray[1], value);
+        return;
+      }
+    }
+    interpreter.getContext().put(var, value);
   }
 
   @Override

@@ -231,6 +231,58 @@ public class SetTagTest extends BaseInterpretingTest {
       );
   }
 
+  @Test
+  public void shouldSetNamespaceVariable() {
+    String template = "{% set ns = namespace(found=false) %}" + "Result: {{ns.found}}";
+    String result = interpreter.render(template);
+    assertThat(result).isEqualTo("Result: false");
+  }
+
+  @Test
+  public void shouldSetAFewVariablesInNamespace() {
+    String template =
+      "{% set ns = namespace(found=false) %}" +
+      "{% set ns.count=3 %}" +
+      "Found: {{ns.found}}, Count: {{ns.count}}";
+    String result = interpreter.render(template);
+    assertThat(result).isEqualTo("Found: false, Count: 3");
+  }
+
+  @Test
+  public void shouldUpdateNamespaceVariableWithTheSameDataType() {
+    String template =
+      "{% set ns = namespace(found=false) %}" +
+      "{% set ns.found=true %}" +
+      "Result: {{ns.found}}";
+
+    String result = interpreter.render(template);
+    assertThat(result).isEqualTo("Result: true");
+  }
+
+  @Test
+  public void shouldUpdateNamespaceVariableWithDifferentDataType() {
+    String template =
+      "{% set ns = namespace(found=false) %}" +
+      "{% set ns.found=true %}" +
+      "{% set ns.found=1 %}" +
+      "Result: {{ns.found + 1}}";
+    context.put("items", Lists.newArrayList("A", "B"));
+    String result = interpreter.render(template);
+    assertThat(result).isEqualTo("Result: 2");
+  }
+
+  @Test
+  public void itCreatesNamespaceWithDictionary() {
+    Map<String, Object> dict = new HashMap<>();
+    dict.put("foo", "bar");
+    context.put("dict", dict);
+    String template =
+      "{% set ns = namespace(dict, foobar='baz') %}" + "{{ ns.foo ~ ns.foobar}}";
+    final String result = interpreter.render(template);
+
+    assertThat(result).isEqualTo("barbaz");
+  }
+
   private Node fixture(String name) {
     try {
       return new TreeParser(
