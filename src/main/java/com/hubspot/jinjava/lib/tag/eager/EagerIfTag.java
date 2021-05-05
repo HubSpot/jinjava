@@ -46,7 +46,8 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
             ),
           interpreter,
           false,
-          false
+          false,
+          true
         )
         .asTemplateString()
     );

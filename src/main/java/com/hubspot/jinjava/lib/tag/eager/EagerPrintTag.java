@@ -53,7 +53,8 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
       eagerInterpreter -> EagerExpressionResolver.resolveExpression(expr, interpreter),
       interpreter,
       true,
-      false
+      false,
+      interpreter.getContext().isDeferredExecutionMode()
     );
     StringBuilder prefixToPreserveState = new StringBuilder();
     if (interpreter.getContext().isDeferredExecutionMode()) {

@@ -21,6 +21,8 @@ import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.objects.Namespace;
+import com.hubspot.jinjava.objects.collections.PyList;
+import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -108,7 +110,8 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
             ),
           interpreter,
           false,
-          false
+          false,
+          true
         )
         .asTemplateString()
     );
@@ -149,6 +152,9 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    *                     <code>EagerExecutionResult.prefixToPreserveState</code>.
    * @param partialMacroEvaluation Allow macro functions to be partially evaluated rather than
    *                               needing an explicit result during this render.
+   * @param checkForContextChanges Set this to be true if executing <code>function</code> could
+   *                               cause changes to the context. Otherwise, a false value will
+   *                               speed up execution.
    * @return An <code>EagerExecutionResult</code> where:
    *  <code>result</code> is the string result of <code>function</code>.
    *  <code>prefixToPreserveState</code> is either blank or a <code>set</code> tag
@@ -158,22 +164,31 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     Function<JinjavaInterpreter, EagerExpressionResult> function,
     JinjavaInterpreter interpreter,
     boolean takeNewValue,
-    boolean partialMacroEvaluation
+    boolean partialMacroEvaluation,
+    boolean checkForContextChanges
   ) {
     EagerExpressionResult result;
-    Map<String, Integer> initiallyResolvedHashes = new HashMap<>();
     Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
-    interpreter
-      .getContext()
-      .entrySet()
-      .stream()
-      .filter(e -> !metaContextVariables.contains(e.getKey()))
-      .filter(
-        entry -> !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
-      )
-      .forEach(
-        entry -> initiallyResolvedHashes.put(entry.getKey(), entry.getValue().hashCode())
-      );
+    Map<String, Object> initiallyResolvedHashes = checkForContextChanges
+      ? interpreter
+        .getContext()
+        .entrySet()
+        .stream()
+        .filter(e -> !metaContextVariables.contains(e.getKey()))
+        .filter(
+          entry ->
+            !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
+        )
+        .collect(
+          Collectors.toMap(
+            Entry::getKey,
+            entry ->
+              (entry.getValue() instanceof PyList || entry.getValue() instanceof PyMap)
+                ? entry.getValue().hashCode()
+                : entry.getValue()
+          )
+        )
+      : Collections.emptyMap();
 
     // Don't create new call stacks to prevent hitting max recursion with this silent new scope
     Map<String, Object> sessionBindings;
@@ -183,32 +198,42 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       result = function.apply(interpreter);
       sessionBindings = interpreter.getContext().getSessionBindings();
     }
-    sessionBindings.putAll(
-      interpreter
-        .getContext()
-        .entrySet()
-        .stream()
-        .filter(e -> initiallyResolvedHashes.containsKey(e.getKey()))
-        .filter(
-          e -> !initiallyResolvedHashes.get(e.getKey()).equals(e.getValue().hashCode())
-        )
-        .collect(
-          Collectors.toMap(
-            Entry::getKey,
+    if (checkForContextChanges) {
+      sessionBindings.putAll(
+        interpreter
+          .getContext()
+          .entrySet()
+          .stream()
+          .filter(e -> initiallyResolvedHashes.containsKey(e.getKey()))
+          .filter(
             e -> {
-              if (e.getValue() instanceof DeferredValue) {
-                return ((DeferredValue) e.getValue()).getOriginalValue();
+              if (e.getValue() instanceof PyList || e.getValue() instanceof PyMap) {
+                return !initiallyResolvedHashes
+                  .get(e.getKey())
+                  .equals(e.getValue().hashCode());
+              } else {
+                return !initiallyResolvedHashes.get(e.getKey()).equals(e.getValue());
               }
-              if (takeNewValue) {
-                return e.getValue();
-              }
-
-              // Previous value could not be mapped to a string
-              throw new DeferredValueException(e.getKey());
             }
           )
-        )
-    );
+          .collect(
+            Collectors.toMap(
+              Entry::getKey,
+              e -> {
+                if (e.getValue() instanceof DeferredValue) {
+                  return ((DeferredValue) e.getValue()).getOriginalValue();
+                }
+                if (takeNewValue) {
+                  return e.getValue();
+                }
+
+                // Previous value could not be mapped to a string
+                throw new DeferredValueException(e.getKey());
+              }
+            )
+          )
+      );
+    }
     sessionBindings =
       sessionBindings
         .entrySet()
@@ -287,7 +312,8 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
               ),
             interpreter,
             false,
-            false
+            false,
+            true
           )
       )
       .map(EagerExecutionResult::asTemplateString)
