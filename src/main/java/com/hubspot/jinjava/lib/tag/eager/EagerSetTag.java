@@ -45,7 +45,8 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
         EagerExpressionResolver.resolveExpression('[' + expression + ']', interpreter),
       interpreter,
       true,
-      false
+      false,
+      interpreter.getContext().isDeferredExecutionMode()
     );
 
     String[] varTokens = variables.split(",");

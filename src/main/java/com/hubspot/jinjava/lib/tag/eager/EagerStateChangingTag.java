@@ -31,7 +31,8 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
             EagerExpressionResult.fromString(renderChildren(tagNode, eagerInterpreter)),
           interpreter,
           false,
-          false
+          false,
+          true
         )
       );
     }

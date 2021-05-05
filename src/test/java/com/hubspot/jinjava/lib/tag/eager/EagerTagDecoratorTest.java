@@ -89,7 +89,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
 
   @Test
   public void itExecutesInChildContextAndTakesNewValue() {
-    context.put("foo", new ArrayList<Integer>());
+    context.put("foo", new PyList(new ArrayList<>()));
     EagerExecutionResult result = EagerTagDecorator.executeInChildContext(
       (
         interpreter1 -> {
@@ -99,7 +99,8 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
       ),
       interpreter,
       true,
-      false
+      false,
+      true
     );
     assertThat(result.getResult().toString()).isEqualTo("function return");
     assertThat(result.getPrefixToPreserveState()).isEqualTo("{% set foo = [1] %}");
@@ -122,7 +123,8 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
       ),
       interpreter,
       false,
-      false
+      false,
+      true
     );
     assertThat(result.getResult().toString()).isEqualTo("function return");
     assertThat(result.getPrefixToPreserveState()).isEqualTo("{% set foo = [] %}");

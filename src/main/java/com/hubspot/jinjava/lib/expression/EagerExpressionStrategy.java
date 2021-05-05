@@ -28,13 +28,16 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     ExpressionToken master,
     JinjavaInterpreter interpreter
   ) {
-    EagerExecutionResult eagerExecutionResult = EagerTagDecorator.executeInChildContext(
-      eagerInterpreter ->
-        EagerExpressionResolver.resolveExpression(master.getExpr(), interpreter),
-      interpreter,
-      true,
-      interpreter.getConfig().isNestedInterpretationEnabled()
-    );
+    EagerExecutionResult eagerExecutionResult;
+    eagerExecutionResult =
+      EagerTagDecorator.executeInChildContext(
+        eagerInterpreter ->
+          EagerExpressionResolver.resolveExpression(master.getExpr(), interpreter),
+        interpreter,
+        true,
+        interpreter.getConfig().isNestedInterpretationEnabled(),
+        interpreter.getContext().isDeferredExecutionMode()
+      );
     StringBuilder prefixToPreserveState = new StringBuilder();
     if (interpreter.getContext().isDeferredExecutionMode()) {
       prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
