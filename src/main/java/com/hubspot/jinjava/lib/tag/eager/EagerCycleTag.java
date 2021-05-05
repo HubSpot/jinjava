@@ -47,7 +47,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       interpreter,
       true,
       false,
-      false
+      interpreter.getContext().isDeferredExecutionMode()
     );
 
     StringBuilder prefixToPreserveState = new StringBuilder();
