@@ -177,7 +177,7 @@ public class EagerExpressionResolver {
     }
   }
 
-  private static boolean isResolvableObject(Object val) {
+  public static boolean isResolvableObject(Object val) {
     return isResolvableObjectRec(val, 0);
   }
 

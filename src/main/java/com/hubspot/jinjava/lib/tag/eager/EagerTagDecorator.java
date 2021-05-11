@@ -169,26 +169,48 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   ) {
     EagerExpressionResult result;
     Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
-    Map<String, Object> initiallyResolvedHashes = checkForContextChanges
-      ? interpreter
-        .getContext()
-        .entrySet()
-        .stream()
-        .filter(e -> !metaContextVariables.contains(e.getKey()))
-        .filter(
-          entry ->
-            !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
-        )
-        .collect(
-          Collectors.toMap(
-            Entry::getKey,
+    final Map<String, Object> initiallyResolvedHashes;
+    final Map<String, String> initiallyResolvedAsStrings;
+    if (checkForContextChanges) {
+      initiallyResolvedHashes =
+        interpreter
+          .getContext()
+          .entrySet()
+          .stream()
+          .filter(e -> !metaContextVariables.contains(e.getKey()))
+          .filter(
             entry ->
-              (entry.getValue() instanceof PyList || entry.getValue() instanceof PyMap)
-                ? entry.getValue().hashCode()
-                : entry.getValue()
+              !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
           )
-        )
-      : Collections.emptyMap();
+          .collect(
+            Collectors.toMap(
+              Entry::getKey,
+              entry ->
+                (entry.getValue() instanceof PyList || entry.getValue() instanceof PyMap)
+                  ? entry.getValue().hashCode()
+                  : entry.getValue()
+            )
+          );
+      initiallyResolvedAsStrings =
+        initiallyResolvedHashes
+          .keySet()
+          .stream()
+          .filter(
+            key ->
+              EagerExpressionResolver.isResolvableObject(
+                interpreter.getContext().get(key)
+              )
+          )
+          .collect(
+            Collectors.toMap(
+              Function.identity(),
+              key -> PyishObjectMapper.getAsPyishString(interpreter.getContext().get(key))
+            )
+          );
+    } else {
+      initiallyResolvedHashes = Collections.emptyMap();
+      initiallyResolvedAsStrings = Collections.emptyMap();
+    }
 
     // Don't create new call stacks to prevent hitting max recursion with this silent new scope
     Map<String, Object> sessionBindings;
@@ -225,6 +247,13 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
                 }
                 if (takeNewValue) {
                   return e.getValue();
+                }
+
+                // This is necessary if a state-changing function, such as .update()
+                // or .append() is run against a variable in the context.
+                // It will revert the effects when takeNewValue is false.
+                if (initiallyResolvedAsStrings.containsKey(e.getKey())) {
+                  return initiallyResolvedAsStrings.get(e.getKey());
                 }
 
                 // Previous value could not be mapped to a string

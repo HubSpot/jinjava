@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class EagerTest {
@@ -514,7 +513,6 @@ public class EagerTest {
     );
   }
 
-  @Ignore
   @Test
   public void itDoesntDoubleAppendInDeferredTag() {
     expectedTemplateInterpreter.assertExpectedOutput(
