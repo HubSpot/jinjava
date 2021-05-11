@@ -102,10 +102,13 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
       false,
       true
     );
-    assertThat(result.getResult().toString()).isEqualTo("function return");
-    assertThat(result.getPrefixToPreserveState()).isEqualTo("{% set foo = [1] %}");
+
     assertThat(context.get("foo")).isEqualTo(ImmutableList.of(1));
     assertThat(context.getEagerTokens()).isEmpty();
+    assertThat(result.getResult().toString()).isEqualTo("function return");
+    // This will add an eager token because we normally don't call this method
+    // unless we're in deferred execution mode.
+    assertThat(result.getPrefixToPreserveState()).isEqualTo("{% set foo = [1] %}");
   }
 
   @Test

@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.el.ext.eager;
 
+import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import javax.el.ELContext;
@@ -14,9 +15,13 @@ public class EagerAstIdentifier extends AstIdentifier implements EvalResultHolde
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    evalResult = super.eval(bindings, context);
-    hasEvalResult = true;
-    return evalResult;
+    try {
+      evalResult = super.eval(bindings, context);
+      hasEvalResult = true;
+      return evalResult;
+    } catch (DeferredParsingException e) {
+      throw new DeferredParsingException(this, getName());
+    }
   }
 
   @Override

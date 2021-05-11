@@ -1,6 +1,8 @@
 package com.hubspot.jinjava.el.ext.eager;
 
+import com.hubspot.jinjava.el.DeferredELContext;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.OrOperator;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBinary;
 import de.odysseus.el.tree.impl.ast.AstNode;
@@ -42,7 +44,15 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
       String sb =
         EvalResultHolder.reconstructNode(bindings, context, left, e, false) +
         String.format(" %s ", operator.toString()) +
-        EvalResultHolder.reconstructNode(bindings, context, right, e, false);
+        EvalResultHolder.reconstructNode(
+          bindings,
+          (operator instanceof OrOperator || operator == AstBinary.AND)
+            ? DeferredELContext.INSTANCE // short circuit because this may not be evaluated
+            : context,
+          right,
+          e,
+          false
+        );
       throw new DeferredParsingException(this, sb);
     } finally {
       left.getAndClearEvalResult();
