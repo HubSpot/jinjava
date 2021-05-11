@@ -12,6 +12,7 @@ import com.hubspot.jinjava.lib.tag.ElseTag;
 import com.hubspot.jinjava.lib.tag.IfTag;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.ObjectTruthValue;
@@ -144,19 +145,28 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     InterpretException e,
     int deferredLineNumber
   ) {
+    TagToken token;
     if (
       e instanceof DeferredParsingException &&
       deferredLineNumber == tagNode.getLineNumber()
     ) {
-      return String.format(
-        "%s %s %s %s", // {% elif deferred %}
-        tagNode.getSymbols().getExpressionStartWithTag(),
-        tagNode.getName(),
-        ((DeferredParsingException) e).getDeferredEvalResult(),
-        tagNode.getSymbols().getExpressionEndWithTag()
-      );
+      token =
+        new TagToken(
+          String.format(
+            "%s %s %s %s", // {% elif deferred %}
+            tagNode.getSymbols().getExpressionStartWithTag(),
+            tagNode.getName(),
+            ((DeferredParsingException) e).getDeferredEvalResult(),
+            tagNode.getSymbols().getExpressionEndWithTag()
+          ),
+          tagNode.getLineNumber(),
+          tagNode.getStartPosition(),
+          tagNode.getSymbols()
+        );
+    } else {
+      token = (TagToken) tagNode.getMaster();
     }
-    return getEagerImage(tagNode.getMaster(), interpreter);
+    return getEagerImage(token, interpreter);
   }
 
   private boolean shouldDropBranch(
