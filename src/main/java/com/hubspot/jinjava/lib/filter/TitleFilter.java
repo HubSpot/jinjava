@@ -32,7 +32,7 @@ public class TitleFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     if (var instanceof String) {
       String value = (String) var;
-      return WordUtils.capitalize(value);
+      return WordUtils.capitalize(value.toLowerCase());
     }
     return var;
   }

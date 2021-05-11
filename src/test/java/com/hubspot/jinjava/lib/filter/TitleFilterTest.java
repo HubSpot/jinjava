@@ -7,8 +7,20 @@ import org.junit.Test;
 public class TitleFilterTest {
 
   @Test
-  public void testTitleCase() {
+  public void itTitleCasesNormalString() {
     assertThat(new TitleFilter().filter("this is string", null))
+      .isEqualTo("This Is String");
+  }
+
+  @Test
+  public void itDoesNotChangeAlreadyTitleCasedString() {
+    assertThat(new TitleFilter().filter("This Is String", null))
+      .isEqualTo("This Is String");
+  }
+
+  @Test
+  public void itLowercasesOtherUppercasedCharactersInString() {
+    assertThat(new TitleFilter().filter("this is sTRING", null))
       .isEqualTo("This Is String");
   }
 }
