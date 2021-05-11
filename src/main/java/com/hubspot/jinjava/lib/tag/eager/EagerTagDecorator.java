@@ -204,7 +204,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           .collect(
             Collectors.toMap(
               Function.identity(),
-              key -> PyishObjectMapper.getAsPyishString(interpreter.getContext().get(key))
+              key ->
+                PyishObjectMapper.getAsUnquotedPyishString(
+                  interpreter.getContext().get(key)
+                )
             )
           );
     } else {
@@ -400,7 +403,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     JinjavaInterpreter interpreter,
     boolean registerEagerToken
   ) {
-    if (deferredValuesToSet.size() == 0) {
+    if (deferredValuesToSet.isEmpty()) {
       return "";
     }
     Map<Library, Set<String>> disabled = interpreter.getConfig().getDisabled();

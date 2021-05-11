@@ -51,7 +51,7 @@ public class EagerExecutionResult {
               entry ->
                 String.format(
                   entry.getValue() instanceof Namespace ? "namespace(%s)" : "%s",
-                  PyishObjectMapper.getAsPyishString(entry.getValue())
+                  PyishObjectMapper.getAsUnquotedPyishString(entry.getValue())
                 )
             )
           ),
