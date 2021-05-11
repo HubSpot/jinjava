@@ -35,7 +35,7 @@ public class CapitalizeFilter implements Filter {
 
     if (var instanceof String) {
       String value = (String) var;
-      return StringUtils.capitalize(value);
+      return StringUtils.capitalize(value.toLowerCase());
     }
     return var;
   }
