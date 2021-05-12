@@ -514,9 +514,9 @@ public class EagerTest {
   }
 
   @Test
-  public void itDoesntDoubleAppendInDeferredTag() {
+  public void itDoesntDoubleAppendInDeferredIfTag() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "doesnt-double-append-in-deferred-tag"
+      "doesnt-double-append-in-deferred-if-tag"
     );
   }
 

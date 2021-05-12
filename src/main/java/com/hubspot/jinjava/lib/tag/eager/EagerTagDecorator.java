@@ -256,7 +256,11 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
                 // or .append() is run against a variable in the context.
                 // It will revert the effects when takeNewValue is false.
                 if (initiallyResolvedAsStrings.containsKey(e.getKey())) {
-                  return initiallyResolvedAsStrings.get(e.getKey());
+                  // convert to new list or map
+                  return interpreter.resolveELExpression(
+                    initiallyResolvedAsStrings.get(e.getKey()),
+                    interpreter.getLineNumber()
+                  );
                 }
 
                 // Previous value could not be mapped to a string
