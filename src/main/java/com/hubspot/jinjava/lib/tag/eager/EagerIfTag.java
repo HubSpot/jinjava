@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -12,7 +11,6 @@ import com.hubspot.jinjava.lib.tag.ElseTag;
 import com.hubspot.jinjava.lib.tag.IfTag;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
-import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.ObjectTruthValue;
@@ -47,6 +45,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     }
   }
 
+  @Override
   public String eagerInterpret(
     TagNode tagNode,
     JinjavaInterpreter interpreter,
@@ -98,7 +97,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     // the first branch.
     boolean definitelyExecuted = false;
     StringBuilder sb = new StringBuilder();
-    sb.append(buildImage(tagNode, interpreter, e, deferredLineNumber));
+    sb.append(getEagerImage(buildToken(tagNode, e, deferredLineNumber), interpreter));
 
     for (Node child : tagNode.getChildren()) {
       if (TagNode.class.isAssignableFrom(child.getClass())) {
@@ -126,7 +125,12 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
                 )
               );
             } else {
-              sb.append(buildImage(childTagNode, interpreter, e, deferredLineNumber));
+              sb.append(
+                getEagerImage(
+                  buildToken(childTagNode, e, deferredLineNumber),
+                  interpreter
+                )
+              );
             }
           }
           continue;
@@ -137,36 +141,6 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       }
     }
     return sb.toString();
-  }
-
-  private String buildImage(
-    TagNode tagNode,
-    JinjavaInterpreter interpreter,
-    InterpretException e,
-    int deferredLineNumber
-  ) {
-    TagToken token;
-    if (
-      e instanceof DeferredParsingException &&
-      deferredLineNumber == tagNode.getLineNumber()
-    ) {
-      token =
-        new TagToken(
-          String.format(
-            "%s %s %s %s", // {% elif deferred %}
-            tagNode.getSymbols().getExpressionStartWithTag(),
-            tagNode.getName(),
-            ((DeferredParsingException) e).getDeferredEvalResult(),
-            tagNode.getSymbols().getExpressionEndWithTag()
-          ),
-          tagNode.getLineNumber(),
-          tagNode.getStartPosition(),
-          tagNode.getSymbols()
-        );
-    } else {
-      token = (TagToken) tagNode.getMaster();
-    }
-    return getEagerImage(token, interpreter);
   }
 
   private boolean shouldDropBranch(

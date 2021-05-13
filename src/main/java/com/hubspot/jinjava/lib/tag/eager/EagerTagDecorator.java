@@ -3,10 +3,12 @@ package com.hubspot.jinjava.lib.tag.eager;
 import static com.hubspot.jinjava.interpret.Context.GLOBAL_MACROS_SCOPE_KEY;
 
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
+import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
+import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
@@ -62,7 +64,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     } catch (DeferredValueException | TemplateSyntaxException e) {
       try {
         return wrapInAutoEscapeIfNeeded(
-          eagerInterpret(tagNode, interpreter),
+          eagerInterpret(tagNode, interpreter, e),
           interpreter
         );
       } catch (OutputTooBigException e1) {
@@ -95,9 +97,14 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    * The tag node can not simply get evaluated normally in this circumstance.
    * @param tagNode TagNode to interpret.
    * @param interpreter The JinjavaInterpreter.
+   * @param e The exception that required non-default interpretation. May be null
    * @return The string result of performing an eager interpretation of the TagNode
    */
-  public String eagerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+  public String eagerInterpret(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    InterpretException e
+  ) {
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxOutputSize()
     );
@@ -105,7 +112,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       executeInChildContext(
           eagerInterpreter ->
             EagerExpressionResult.fromString(
-              getEagerImage(tagNode.getMaster(), eagerInterpreter) +
+              getEagerImage(
+                buildToken(tagNode, e, interpreter.getLineNumber()),
+                eagerInterpreter
+              ) +
               renderChildren(tagNode, eagerInterpreter)
             ),
           interpreter,
@@ -121,6 +131,31 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     }
 
     return result.toString();
+  }
+
+  public TagToken buildToken(
+    TagNode tagNode,
+    InterpretException e,
+    int deferredLineNumber
+  ) {
+    if (
+      e instanceof DeferredParsingException &&
+      deferredLineNumber == tagNode.getLineNumber()
+    ) {
+      return new TagToken(
+        String.format(
+          "%s %s %s %s", // like {% elif deferred %}
+          tagNode.getSymbols().getExpressionStartWithTag(),
+          tagNode.getName(),
+          ((DeferredParsingException) e).getDeferredEvalResult(),
+          tagNode.getSymbols().getExpressionEndWithTag()
+        ),
+        tagNode.getLineNumber(),
+        tagNode.getStartPosition(),
+        tagNode.getSymbols()
+      );
+    }
+    return (TagToken) tagNode.getMaster();
   }
 
   /**

@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.hubspot.jinjava.interpret.DeferredValueException;
+import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.ForTag;
@@ -24,7 +25,12 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     super(forTag);
   }
 
-  public String eagerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+  @Override
+  public String eagerInterpret(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    InterpretException e
+  ) {
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxOutputSize()
     );
@@ -35,7 +41,10 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       executeInChildContext(
           eagerInterpreter ->
             EagerExpressionResult.fromString(
-              getEagerImage(tagNode.getMaster(), eagerInterpreter)
+              getEagerImage(
+                buildToken(tagNode, e, interpreter.getLineNumber()),
+                eagerInterpreter
+              )
             ),
           interpreter,
           true,

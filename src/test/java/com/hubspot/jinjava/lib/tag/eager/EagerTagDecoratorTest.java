@@ -352,7 +352,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     String template = "{% if true %}abc{% endif %}";
 
     TagNode tagNode = (TagNode) (interpreter.parse(template).getChildren().get(0));
-    assertThat(eagerTagDecorator.eagerInterpret(tagNode, interpreter))
+    assertThat(eagerTagDecorator.eagerInterpret(tagNode, interpreter, null))
       .isEqualTo(template);
     assertThat(interpreter.getErrors()).hasSize(0);
   }
@@ -369,7 +369,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
         .getChildren()
         .get(0)
     );
-    assertThatThrownBy(() -> eagerTagDecorator.eagerInterpret(tagNode, interpreter))
+    assertThatThrownBy(() -> eagerTagDecorator.eagerInterpret(tagNode, interpreter, null))
       .isInstanceOf(OutputTooBigException.class);
   }
 

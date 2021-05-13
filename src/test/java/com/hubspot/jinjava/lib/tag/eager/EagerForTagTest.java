@@ -116,4 +116,19 @@ public class EagerForTagTest extends ForTagTest {
       )
       .isEqualTo(ForTag.TAG_NAME);
   }
+
+  @Test
+  public void itAllowsChangesInDeferredForToken() {
+    String output = interpreter.render(
+      "{% set foo = [0] %}\n" +
+      "{% for i in range(foo.append(1) ? 0 : 1, deferred) %}\n" +
+      "{{ i }}\n" +
+      "{% endfor %}\n" +
+      "{{ foo }}"
+    );
+    assertThat(output.trim())
+      .isEqualTo(
+        "{% for i in range(0, deferred) %}\n" + "{{ i }}\n" + "{% endfor %}\n" + "[0, 1]"
+      );
+  }
 }
