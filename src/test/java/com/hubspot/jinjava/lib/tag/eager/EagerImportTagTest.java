@@ -523,6 +523,16 @@ public class EagerImportTagTest extends ImportTagTest {
   }
 
   @Test
+  public void itKeepsImportAliasVariablesInsideOwnScope() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% set printer = {'key': 'val'} %}{% import 'intermediate-b.jinja' as inter %}" +
+      "{{ printer }}-{{ inter.print() }}"
+    );
+    assertThat(result.trim()).isEqualTo("{'key': 'val'}-B_inter_B");
+  }
+
+  @Test
   public void itKeepsDeferredImportAliasesInsideOwnScope() {
     setupResourceLocator();
     String result = interpreter.render(
