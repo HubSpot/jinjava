@@ -36,7 +36,7 @@ public interface EvalResultHolder {
         EagerExpressionResolver.getValueAsJinjavaStringSafe(
           astNode.getAndClearEvalResult()
         );
-    } else if (exception.getSourceNode() == astNode) {
+    } else if (exception != null && exception.getSourceNode() == astNode) {
       partiallyResolvedImage = exception.getDeferredEvalResult();
     } else {
       try {
