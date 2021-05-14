@@ -1,0 +1,4 @@
+{% import 'printer-b.jinja' as printer %}
+{% macro print(x='inter') -%}
+{{ printer.print(x) }}
+{%- endmacro %}
