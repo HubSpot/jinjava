@@ -252,7 +252,8 @@ public class ExtendsTagTest extends BaseInterpretingTest {
       String fullName,
       Charset encoding,
       JinjavaInterpreter interpreter
-    ) throws IOException {
+    )
+      throws IOException {
       return fixture(fullName);
     }
 

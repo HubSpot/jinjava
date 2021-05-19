@@ -34,6 +34,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.tag.ExtendsTag;
+import com.hubspot.jinjava.lib.tag.eager.EagerGenericTag;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
@@ -352,7 +353,20 @@ public class JinjavaInterpreter implements PyishSerializable {
   }
 
   private boolean isExtendsTag(Node node) {
-    return node instanceof TagNode && ((TagNode) node).getTag() instanceof ExtendsTag;
+    return (
+      node instanceof TagNode &&
+      (
+        ((TagNode) node).getTag() instanceof ExtendsTag ||
+        isEagerExtendsTag((TagNode) node)
+      )
+    );
+  }
+
+  private boolean isEagerExtendsTag(TagNode node) {
+    return (
+      node.getTag() instanceof EagerGenericTag &&
+      ((EagerGenericTag) node.getTag()).getTag() instanceof ExtendsTag
+    );
   }
 
   @SuppressFBWarnings(
