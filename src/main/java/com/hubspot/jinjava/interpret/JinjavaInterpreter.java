@@ -33,11 +33,14 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.lib.tag.ExtendsTag;
+import com.hubspot.jinjava.lib.tag.eager.EagerGenericTag;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
 import com.hubspot.jinjava.random.DeferredRandomNumberGenerator;
 import com.hubspot.jinjava.tree.Node;
+import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
 import com.hubspot.jinjava.tree.output.BlockInfo;
 import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
@@ -305,30 +308,37 @@ public class JinjavaInterpreter implements PyishSerializable {
 
     // render all extend parents, keeping the last as the root output
     if (processExtendRoots) {
+      Optional<String> extendPath = context.getExtendPathStack().peek();
       while (!extendParentRoots.isEmpty()) {
         context
           .getCurrentPathStack()
           .push(
-            context.getExtendPathStack().peek().orElse(""),
+            extendPath.orElse(""),
             context.getExtendPathStack().getTopLineNumber(),
             context.getExtendPathStack().getTopStartPosition()
           );
         Node parentRoot = extendParentRoots.removeFirst();
         output = new OutputList(config.getMaxOutputSize());
 
+        boolean hasNestedExtends = false;
         for (Node node : parentRoot.getChildren()) {
           lineNumber = node.getLineNumber() - 1; // The line number is off by one when rendering the extend parent
           position = node.getStartPosition();
           try {
             OutputNode out = node.render(this);
             output.addNode(out);
+            if (isExtendsTag(node)) {
+              hasNestedExtends = true;
+            }
           } catch (OutputTooBigException e) {
             addError(TemplateError.fromOutputTooBigException(e));
             return output.getValue();
           }
         }
 
-        context.getExtendPathStack().pop();
+        Optional<String> currentExtendPath = context.getExtendPathStack().pop();
+        extendPath =
+          hasNestedExtends ? currentExtendPath : context.getExtendPathStack().peek();
         context.getCurrentPathStack().pop();
       }
     }
@@ -340,6 +350,23 @@ public class JinjavaInterpreter implements PyishSerializable {
 
   private void resolveBlockStubs(OutputList output) {
     resolveBlockStubs(output, new Stack<>());
+  }
+
+  private boolean isExtendsTag(Node node) {
+    return (
+      node instanceof TagNode &&
+      (
+        ((TagNode) node).getTag() instanceof ExtendsTag ||
+        isEagerExtendsTag((TagNode) node)
+      )
+    );
+  }
+
+  private boolean isEagerExtendsTag(TagNode node) {
+    return (
+      node.getTag() instanceof EagerGenericTag &&
+      ((EagerGenericTag) node.getTag()).getTag() instanceof ExtendsTag
+    );
   }
 
   @SuppressFBWarnings(
