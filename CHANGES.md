@@ -1,6 +1,6 @@
 # Jinjava Releases #
 
-### 2021-05-14 Version 2.5.8 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.8%7Cjar)) ###
+### 2021-05-20 Version 2.5.8 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.8%7Cjar)) ###
 * Various PRs for eager execution to support two-phase rendering.
 * [Add rangeLimit to JinjavaConfig](https://github.com/HubSpot/jinjava/pull/658)
 * [Add namespace functionality](https://github.com/HubSpot/jinjava/pull/649)
