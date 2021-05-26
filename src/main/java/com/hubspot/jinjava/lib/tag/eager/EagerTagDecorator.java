@@ -310,7 +310,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         .entrySet()
         .stream()
         .filter(entry -> !entry.getKey().equals(GLOBAL_MACROS_SCOPE_KEY))
-        .filter(entry -> !(entry.getValue() instanceof DeferredValue)) // these are already set recursively
+        .filter(
+          entry ->
+            !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
+        ) // these are already set recursively
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
     return new EagerExecutionResult(result, sessionBindings);

@@ -512,6 +512,37 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(result).isEqualTo("here");
   }
 
+  @Test
+  public void itKeepsImportAliasesInsideOwnScope() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% import 'printer-a.jinja' as printer %}{% import 'intermediate-b.jinja' as inter %}" +
+      "{{ printer.print() }}-{{ inter.print() }}"
+    );
+    assertThat(result.trim()).isEqualTo("A_A_A-B_inter_B");
+  }
+
+  @Test
+  public void itKeepsImportAliasVariablesInsideOwnScope() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% set printer = {'key': 'val'} %}{% import 'intermediate-b.jinja' as inter %}" +
+      "{{ printer }}-{{ inter.print() }}"
+    );
+    assertThat(result.trim()).isEqualTo("{'key': 'val'}-B_inter_B");
+  }
+
+  @Test
+  public void itKeepsDeferredImportAliasesInsideOwnScope() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% import 'printer-a.jinja' as printer %}{% import 'intermediate-b.jinja' as inter %}" +
+      "{{ printer.print(deferred) }}-{{ inter.print(deferred) }}"
+    );
+    context.put("deferred", "resolved");
+    assertThat(interpreter.render(result)).isEqualTo("A_resolved_A-B_resolved_B");
+  }
+
   private static JinjavaInterpreter getChildInterpreter(
     JinjavaInterpreter interpreter,
     String alias

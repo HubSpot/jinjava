@@ -108,20 +108,20 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     String currentImportAlias
   ) {
     StringJoiner keyValueJoiner = new StringJoiner(",");
-    Object currentAliasMap = interpreter.getContext().get(currentImportAlias);
+    Object currentAliasMap = interpreter
+      .getContext()
+      .getSessionBindings()
+      .get(currentImportAlias);
     if ((!(currentAliasMap instanceof DeferredValue))) {
       // Make sure that the map is deferred.
       if (!(currentAliasMap instanceof Map)) {
         currentAliasMap = new PyMap(new HashMap<>());
       }
-      interpreter
-        .getContext()
-        .put(currentImportAlias, DeferredValue.instance(currentAliasMap));
+      currentAliasMap = DeferredValue.instance(currentAliasMap);
+      interpreter.getContext().put(currentImportAlias, currentAliasMap);
     }
     for (Map.Entry<String, Object> entry : (
-      (Map<String, Object>) (
-        (DeferredValue) interpreter.getContext().get(currentImportAlias)
-      ).getOriginalValue()
+      (Map<String, Object>) ((DeferredValue) currentAliasMap).getOriginalValue()
     ).entrySet()) {
       if (entry.getValue() instanceof DeferredValue) {
         keyValueJoiner.add(String.format("'%s': %s", entry.getKey(), entry.getKey()));
@@ -207,7 +207,11 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     String currentImportAlias,
     JinjavaInterpreter child
   ) {
-    Object parentValueForChild = child.getContext().getParent().get(currentImportAlias);
+    Object parentValueForChild = child
+      .getContext()
+      .getParent()
+      .getSessionBindings()
+      .get(currentImportAlias);
     if (parentValueForChild instanceof Map) {
       return (Map<String, Object>) parentValueForChild;
     } else if (parentValueForChild instanceof DeferredValue) {
