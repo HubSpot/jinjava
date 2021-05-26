@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -55,8 +56,12 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     );
 
     EagerExecutionResult eagerExecutionResult = executeInChildContext(
-      eagerInterpreter ->
-        EagerExpressionResult.fromString(renderChildren(tagNode, eagerInterpreter)),
+      eagerInterpreter -> {
+        eagerInterpreter.getContext().put("loop", DeferredValue.instance());
+        return EagerExpressionResult.fromString(
+          renderChildren(tagNode, eagerInterpreter)
+        );
+      },
       interpreter,
       false,
       false,
