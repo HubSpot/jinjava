@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.TagNode;
@@ -14,13 +15,17 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    return eagerInterpret(tagNode, interpreter);
+    return eagerInterpret(tagNode, interpreter, null);
   }
 
   @Override
-  public String eagerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+  public String eagerInterpret(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    InterpretException e
+  ) {
     StringBuilder result = new StringBuilder(
-      getEagerImage(tagNode.getMaster(), interpreter)
+      getEagerImage(buildToken(tagNode, e, interpreter.getLineNumber()), interpreter)
     );
 
     // Currently always false

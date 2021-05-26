@@ -82,6 +82,19 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
       .add(deferredResult)
       .add(tagToken.getSymbols().getExpressionEndWithTag());
 
+    StringBuilder prefixToPreserveState = new StringBuilder();
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
+    } else {
+      interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
+    }
+    prefixToPreserveState.append(
+      reconstructFromContextBeforeDeferring(
+        eagerExecutionResult.getResult().getDeferredWords(),
+        interpreter
+      )
+    );
+
     interpreter
       .getContext()
       .handleEagerToken(
@@ -112,18 +125,6 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
         )
       );
     }
-    StringBuilder prefixToPreserveState = new StringBuilder();
-    if (interpreter.getContext().isDeferredExecutionMode()) {
-      prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
-    } else {
-      interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
-    }
-    prefixToPreserveState.append(
-      reconstructFromContextBeforeDeferring(
-        eagerExecutionResult.getResult().getDeferredWords(),
-        interpreter
-      )
-    );
     return wrapInAutoEscapeIfNeeded(
       prefixToPreserveState + joiner.toString() + suffixToPreserveState.toString(),
       interpreter
