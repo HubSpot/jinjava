@@ -1,10 +1,12 @@
 package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import java.util.List;
 import org.junit.Test;
 
 public class LazyExpressionTest {
@@ -28,5 +30,23 @@ public class LazyExpressionTest {
       "{}"
     );
     assertThat(new ObjectMapper().writeValueAsString(expression)).isEqualTo("\"\"");
+  }
+
+  @Test
+  public void itMemoizesByDefault() {
+    List mock = mock(List.class);
+    LazyExpression expression = LazyExpression.of(mock::isEmpty, "");
+    expression.get();
+    expression.get();
+    verify(mock, times(1)).isEmpty();
+  }
+
+  @Test
+  public void itAllowsMemoizationToBeDisabled() {
+    List mock = mock(List.class);
+    LazyExpression expression = LazyExpression.of(mock::isEmpty, "", false);
+    expression.get();
+    expression.get();
+    verify(mock, times(2)).isEmpty();
   }
 }
