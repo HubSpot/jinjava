@@ -20,7 +20,7 @@ public class LazyExpression implements Supplier {
   }
 
   public static LazyExpression of(Supplier supplier, String image, boolean memoize) {
-    return new LazyExpression(supplier, image, false);
+    return new LazyExpression(supplier, image, memoize);
   }
 
   @Override
