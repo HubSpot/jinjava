@@ -11,5 +11,9 @@ public interface ExecutionMode {
     return false;
   }
 
+  default boolean useEagerContextReverting() {
+    return false;
+  }
+
   default void prepareContext(Context context) {}
 }

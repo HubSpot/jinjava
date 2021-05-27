@@ -226,7 +226,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
                   : entry.getValue()
             )
           );
-      initiallyResolvedAsStrings =
+      initiallyResolvedAsStrings = new HashMap<>();
+      // This creates a stringified snapshot of the context
+      // so it can be disabled via the config because it may cause performance issues.
+      if (interpreter.getConfig().getExecutionMode().useEagerContextReverting()) {
         initiallyResolvedHashes
           .keySet()
           .stream()
@@ -236,15 +239,19 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
                 interpreter.getContext().get(key)
               )
           )
-          .collect(
-            Collectors.toMap(
-              Function.identity(),
-              key ->
-                PyishObjectMapper.getAsUnquotedPyishString(
-                  interpreter.getContext().get(key)
-                )
-            )
+          .forEach(
+            key -> {
+              try {
+                initiallyResolvedAsStrings.put(
+                  key,
+                  PyishObjectMapper.getAsUnquotedPyishString(
+                    interpreter.getContext().get(key)
+                  )
+                );
+              } catch (Exception ignored) {}
+            }
           );
+      }
     } else {
       initiallyResolvedHashes = Collections.emptyMap();
       initiallyResolvedAsStrings = Collections.emptyMap();
