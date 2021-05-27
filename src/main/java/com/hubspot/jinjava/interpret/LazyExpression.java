@@ -6,35 +6,35 @@ import java.util.function.Supplier;
 public class LazyExpression implements Supplier {
   private final Supplier supplier;
   private final String image;
-  private final MEMOIZATION memoization;
+  private final Memoization memoization;
   private Object jsonValue = null;
 
-  public enum MEMOIZATION {
+  public enum Memoization {
     ON,
     OFF
   }
 
-  private LazyExpression(Supplier supplier, String image, MEMOIZATION memoization) {
+  private LazyExpression(Supplier supplier, String image, Memoization memoization) {
     this.supplier = supplier;
     this.image = image;
     this.memoization = memoization;
   }
 
   public static LazyExpression of(Supplier supplier, String image) {
-    return new LazyExpression(supplier, image, MEMOIZATION.ON);
+    return new LazyExpression(supplier, image, Memoization.ON);
   }
 
   public static LazyExpression of(
     Supplier supplier,
     String image,
-    MEMOIZATION memoization
+    Memoization memoization
   ) {
     return new LazyExpression(supplier, image, memoization);
   }
 
   @Override
   public Object get() {
-    if (jsonValue == null || memoization == MEMOIZATION.OFF) {
+    if (jsonValue == null || memoization == Memoization.OFF) {
       jsonValue = supplier.get();
     }
     return jsonValue;
