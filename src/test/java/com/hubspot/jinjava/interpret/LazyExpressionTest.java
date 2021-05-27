@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.interpret.LazyExpression.MEMOIZATION;
 import java.util.List;
 import org.junit.Test;
 
@@ -44,9 +45,18 @@ public class LazyExpressionTest {
   @Test
   public void itAllowsMemoizationToBeDisabled() {
     List mock = mock(List.class);
-    LazyExpression expression = LazyExpression.of(mock::isEmpty, "", false);
+    LazyExpression expression = LazyExpression.of(mock::isEmpty, "", MEMOIZATION.OFF);
     expression.get();
     expression.get();
     verify(mock, times(2)).isEmpty();
+  }
+
+  @Test
+  public void itAllowsMemoizationToBeEnabled() {
+    List mock = mock(List.class);
+    LazyExpression expression = LazyExpression.of(mock::isEmpty, "", MEMOIZATION.ON);
+    expression.get();
+    expression.get();
+    verify(mock, times(1)).isEmpty();
   }
 }
