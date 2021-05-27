@@ -39,7 +39,7 @@ public class LazyExpressionTest {
     LazyExpression expression = LazyExpression.of(mock::isEmpty, "");
     expression.get();
     expression.get();
-    verify(mock, times(1)).isEmpty();
+    verify(mock).isEmpty();
   }
 
   @Test
@@ -57,6 +57,6 @@ public class LazyExpressionTest {
     LazyExpression expression = LazyExpression.of(mock::isEmpty, "", Memoization.ON);
     expression.get();
     expression.get();
-    verify(mock, times(1)).isEmpty();
+    verify(mock).isEmpty();
   }
 }
