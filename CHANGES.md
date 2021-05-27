@@ -3,7 +3,7 @@
 ### 2015-05-21 Version 2.5.9 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.5.9/jar)) ###
 * [fix how current paths are tracked via multiple levels of inheritance with the `{% extends %}` tag](https://github.com/HubSpot/jinjava/pull/667)
 
-### 2021-05-14 Version 2.5.8 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.8%7Cjar)) ###
+### 2021-05-20 Version 2.5.8 ([Maven Central](https://search.maven.org/#artifactdetails%7Ccom.hubspot.jinjava%7Cjinjava%7C2.5.8%7Cjar)) ###
 * Various PRs for eager execution to support two-phase rendering.
 * [Add rangeLimit to JinjavaConfig](https://github.com/HubSpot/jinjava/pull/658)
 * [Add namespace functionality](https://github.com/HubSpot/jinjava/pull/649)
