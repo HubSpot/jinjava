@@ -131,4 +131,24 @@ public class EagerForTagTest extends ForTagTest {
         "{% for i in range(0, deferred) %}\n" + "{{ i }}\n" + "{% endfor %}\n" + "[0, 1]"
       );
   }
+
+  @Test
+  public void itDefersLoopVariable() {
+    String output = interpreter.render(
+      "{% for i in range(0, deferred) %}\n" +
+      "{{ loop.index }}\n" +
+      "{% endfor %}\n" +
+      "{% for i in range(0, 2) -%}\n" +
+      "{{ loop.index }}\n" +
+      "{% endfor %}"
+    );
+    assertThat(output.trim())
+      .isEqualTo(
+        "{% for i in range(0, deferred) %}\n" +
+        "{{ loop.index }}\n" +
+        "{% endfor %}\n" +
+        "1\n" +
+        "2"
+      );
+  }
 }
