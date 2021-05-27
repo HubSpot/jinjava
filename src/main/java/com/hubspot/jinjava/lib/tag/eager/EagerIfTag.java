@@ -1,7 +1,10 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.hubspot.jinjava.interpret.DeferredValueException;
+import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.ElseIfTag;
 import com.hubspot.jinjava.lib.tag.ElseTag;
@@ -24,7 +27,30 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
   }
 
   @Override
-  public String eagerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+  public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    try {
+      return getTag().interpret(tagNode, interpreter);
+    } catch (DeferredValueException | TemplateSyntaxException e) {
+      try {
+        return wrapInAutoEscapeIfNeeded(
+          eagerInterpret(tagNode, interpreter, e),
+          interpreter
+        );
+      } catch (OutputTooBigException e1) {
+        interpreter.addError(TemplateError.fromOutputTooBigException(e1));
+        throw new DeferredValueException(
+          String.format("Output too big for eager execution: %s", e1.getMessage())
+        );
+      }
+    }
+  }
+
+  @Override
+  public String eagerInterpret(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    InterpretException e
+  ) {
     if (StringUtils.isBlank(tagNode.getHelpers())) {
       throw new TemplateSyntaxException(
         interpreter,
@@ -41,8 +67,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       executeInChildContext(
           eagerInterpreter ->
             EagerExpressionResult.fromString(
-              getEagerImage(tagNode.getMaster(), eagerInterpreter) +
-              renderChildren(tagNode, eagerInterpreter)
+              eagerRenderBranches(tagNode, eagerInterpreter, e)
             ),
           interpreter,
           false,
@@ -57,43 +82,55 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     return result.toString();
   }
 
-  @Override
-  public String renderChildren(TagNode tagNode, JinjavaInterpreter interpreter) {
+  public String eagerRenderBranches(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    InterpretException e
+  ) {
+    // line number of the last attempted resolveELExpression
+    final int deferredLineNumber = interpreter.getLineNumber();
     // If the branch is impossible, it should be removed.
-    boolean definitelyDrop = shouldDropBranch(tagNode, interpreter);
+    boolean definitelyDrop = shouldDropBranch(tagNode, interpreter, deferredLineNumber);
     // If an ("elseif") branch would definitely get executed,
     // change it to an "else" tag and drop all the subsequent branches.
     // We know this has to start as false otherwise IfTag would have chosen
     // the first branch.
     boolean definitelyExecuted = false;
     StringBuilder sb = new StringBuilder();
+    sb.append(getEagerImage(buildToken(tagNode, e, deferredLineNumber), interpreter));
+
     for (Node child : tagNode.getChildren()) {
       if (TagNode.class.isAssignableFrom(child.getClass())) {
-        TagNode tag = (TagNode) child;
+        TagNode childTagNode = (TagNode) child;
         if (
-          tag.getName().equals(ElseIfTag.TAG_NAME) ||
-          tag.getName().equals(ElseTag.TAG_NAME)
+          childTagNode.getName().equals(ElseIfTag.TAG_NAME) ||
+          childTagNode.getName().equals(ElseTag.TAG_NAME)
         ) {
           if (definitelyExecuted) {
             break;
           }
           definitelyDrop =
-            tag.getName().equals(ElseIfTag.TAG_NAME) &&
-            shouldDropBranch(tag, interpreter);
+            childTagNode.getName().equals(ElseIfTag.TAG_NAME) &&
+            shouldDropBranch(childTagNode, interpreter, deferredLineNumber);
           if (!definitelyDrop) {
             definitelyExecuted =
-              tag.getName().equals(ElseTag.TAG_NAME) ||
-              isDefinitelyExecuted(tag, interpreter);
+              childTagNode.getName().equals(ElseTag.TAG_NAME) ||
+              isDefinitelyExecuted(childTagNode, interpreter, deferredLineNumber);
             if (definitelyExecuted) {
               sb.append(
                 String.format(
                   "%s else %s",
-                  tag.getSymbols().getExpressionStartWithTag(),
-                  tag.getSymbols().getExpressionEndWithTag()
+                  childTagNode.getSymbols().getExpressionStartWithTag(),
+                  childTagNode.getSymbols().getExpressionEndWithTag()
                 )
               );
             } else {
-              sb.append(getEagerImage(tag.getMaster(), interpreter));
+              sb.append(
+                getEagerImage(
+                  buildToken(childTagNode, e, deferredLineNumber),
+                  interpreter
+                )
+              );
             }
           }
           continue;
@@ -106,7 +143,16 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     return sb.toString();
   }
 
-  private boolean shouldDropBranch(TagNode tagNode, JinjavaInterpreter eagerInterpreter) {
+  private boolean shouldDropBranch(
+    TagNode tagNode,
+    JinjavaInterpreter eagerInterpreter,
+    int deferredLineNumber
+  ) {
+    if (deferredLineNumber > tagNode.getLineNumber()) {
+      return true; // Deferred value thrown on a later branch so we can drop this one.
+    } else if (deferredLineNumber == tagNode.getLineNumber()) {
+      return false;
+    }
     try {
       return !ObjectTruthValue.evaluate(
         eagerInterpreter.resolveELExpression(
@@ -121,8 +167,12 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
 
   private boolean isDefinitelyExecuted(
     TagNode tagNode,
-    JinjavaInterpreter eagerInterpreter
+    JinjavaInterpreter eagerInterpreter,
+    int deferredLineNumber
   ) {
+    if (deferredLineNumber == tagNode.getLineNumber()) {
+      return false; // Deferred value thrown when checking if this branch would be executed.
+    }
     try {
       return ObjectTruthValue.evaluate(
         eagerInterpreter.resolveELExpression(

@@ -3,10 +3,12 @@ package com.hubspot.jinjava.lib.tag.eager;
 import static com.hubspot.jinjava.interpret.Context.GLOBAL_MACROS_SCOPE_KEY;
 
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
+import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
+import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
@@ -62,7 +64,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     } catch (DeferredValueException | TemplateSyntaxException e) {
       try {
         return wrapInAutoEscapeIfNeeded(
-          eagerInterpret(tagNode, interpreter),
+          eagerInterpret(tagNode, interpreter, e),
           interpreter
         );
       } catch (OutputTooBigException e1) {
@@ -95,9 +97,14 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    * The tag node can not simply get evaluated normally in this circumstance.
    * @param tagNode TagNode to interpret.
    * @param interpreter The JinjavaInterpreter.
+   * @param e The exception that required non-default interpretation. May be null
    * @return The string result of performing an eager interpretation of the TagNode
    */
-  public String eagerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+  public String eagerInterpret(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    InterpretException e
+  ) {
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxOutputSize()
     );
@@ -105,7 +112,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       executeInChildContext(
           eagerInterpreter ->
             EagerExpressionResult.fromString(
-              getEagerImage(tagNode.getMaster(), eagerInterpreter) +
+              getEagerImage(
+                buildToken(tagNode, e, interpreter.getLineNumber()),
+                eagerInterpreter
+              ) +
               renderChildren(tagNode, eagerInterpreter)
             ),
           interpreter,
@@ -121,6 +131,31 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     }
 
     return result.toString();
+  }
+
+  public TagToken buildToken(
+    TagNode tagNode,
+    InterpretException e,
+    int deferredLineNumber
+  ) {
+    if (
+      e instanceof DeferredParsingException &&
+      deferredLineNumber == tagNode.getLineNumber()
+    ) {
+      return new TagToken(
+        String.format(
+          "%s %s %s %s", // like {% elif deferred %}
+          tagNode.getSymbols().getExpressionStartWithTag(),
+          tagNode.getName(),
+          ((DeferredParsingException) e).getDeferredEvalResult(),
+          tagNode.getSymbols().getExpressionEndWithTag()
+        ),
+        tagNode.getLineNumber(),
+        tagNode.getStartPosition(),
+        tagNode.getSymbols()
+      );
+    }
+    return (TagToken) tagNode.getMaster();
   }
 
   /**
@@ -169,26 +204,51 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   ) {
     EagerExpressionResult result;
     Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
-    Map<String, Object> initiallyResolvedHashes = checkForContextChanges
-      ? interpreter
-        .getContext()
-        .entrySet()
-        .stream()
-        .filter(e -> !metaContextVariables.contains(e.getKey()))
-        .filter(
-          entry ->
-            !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
-        )
-        .collect(
-          Collectors.toMap(
-            Entry::getKey,
+    final Map<String, Object> initiallyResolvedHashes;
+    final Map<String, String> initiallyResolvedAsStrings;
+    if (checkForContextChanges) {
+      initiallyResolvedHashes =
+        interpreter
+          .getContext()
+          .entrySet()
+          .stream()
+          .filter(e -> !metaContextVariables.contains(e.getKey()))
+          .filter(
             entry ->
-              (entry.getValue() instanceof PyList || entry.getValue() instanceof PyMap)
-                ? entry.getValue().hashCode()
-                : entry.getValue()
+              !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
           )
-        )
-      : Collections.emptyMap();
+          .collect(
+            Collectors.toMap(
+              Entry::getKey,
+              entry ->
+                (entry.getValue() instanceof PyList || entry.getValue() instanceof PyMap)
+                  ? entry.getValue().hashCode()
+                  : entry.getValue()
+            )
+          );
+      initiallyResolvedAsStrings =
+        initiallyResolvedHashes
+          .keySet()
+          .stream()
+          .filter(
+            key ->
+              EagerExpressionResolver.isResolvableObject(
+                interpreter.getContext().get(key)
+              )
+          )
+          .collect(
+            Collectors.toMap(
+              Function.identity(),
+              key ->
+                PyishObjectMapper.getAsUnquotedPyishString(
+                  interpreter.getContext().get(key)
+                )
+            )
+          );
+    } else {
+      initiallyResolvedHashes = Collections.emptyMap();
+      initiallyResolvedAsStrings = Collections.emptyMap();
+    }
 
     // Don't create new call stacks to prevent hitting max recursion with this silent new scope
     Map<String, Object> sessionBindings;
@@ -225,6 +285,17 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
                 }
                 if (takeNewValue) {
                   return e.getValue();
+                }
+
+                // This is necessary if a state-changing function, such as .update()
+                // or .append() is run against a variable in the context.
+                // It will revert the effects when takeNewValue is false.
+                if (initiallyResolvedAsStrings.containsKey(e.getKey())) {
+                  // convert to new list or map
+                  return interpreter.resolveELExpression(
+                    initiallyResolvedAsStrings.get(e.getKey()),
+                    interpreter.getLineNumber()
+                  );
                 }
 
                 // Previous value could not be mapped to a string
@@ -374,7 +445,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     JinjavaInterpreter interpreter,
     boolean registerEagerToken
   ) {
-    if (deferredValuesToSet.size() == 0) {
+    if (deferredValuesToSet.isEmpty()) {
       return "";
     }
     Map<Library, Set<String>> disabled = interpreter.getConfig().getDisabled();

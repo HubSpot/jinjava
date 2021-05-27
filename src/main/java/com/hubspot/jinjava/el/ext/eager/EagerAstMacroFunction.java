@@ -3,11 +3,9 @@ package com.hubspot.jinjava.el.ext.eager;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.interpret.DeferredValueException;
-import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstParameters;
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.StringJoiner;
 import javax.el.ELContext;
 import javax.el.ELException;
 
@@ -43,30 +41,43 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
       hasEvalResult = true;
       return evalResult;
     } catch (DeferredValueException | ELException e) {
-      if (
-        !(
-          e instanceof DeferredValueException ||
-          e.getCause() instanceof DeferredValueException
-        )
-      ) {
-        throw e;
+      DeferredValueException e1;
+      if (!(e instanceof DeferredValueException)) {
+        if (e.getCause() instanceof DeferredValueException) {
+          e1 = (DeferredValueException) e.getCause();
+        } else {
+          throw e;
+        }
+      } else {
+        e1 = (DeferredValueException) e;
       }
       StringBuilder sb = new StringBuilder();
       sb.append(getName());
-      String paramString;
       try {
-        paramString =
-          Arrays
-            .stream(((AstParameters) params).eval(bindings, context))
-            .map(EagerExpressionResolver::getValueAsJinjavaStringSafe)
-            .collect(Collectors.joining(", "));
+        StringJoiner paramString = new StringJoiner(", ");
+        for (int i = 0; i < ((AstParameters) params).getCardinality(); i++) {
+          paramString.add(
+            EvalResultHolder.reconstructNode(
+              bindings,
+              context,
+              (EvalResultHolder) ((AstParameters) params).getChild(i),
+              e1 instanceof DeferredParsingException
+                ? (DeferredParsingException) e1
+                : null,
+              false
+            )
+          );
+        }
+        sb.append(String.format("(%s)", paramString));
       } catch (DeferredParsingException dpe) {
-        paramString = dpe.getDeferredEvalResult();
+        sb.append(String.format("(%s)", dpe.getDeferredEvalResult()));
       }
-      sb.append(String.format("(%s)", paramString));
       throw new DeferredParsingException(this, sb.toString());
     } finally {
       params.getAndClearEvalResult();
+      for (int i = 0; i < ((AstParameters) params).getCardinality(); i++) {
+        ((EvalResultHolder) ((AstParameters) params).getChild(i)).getAndClearEvalResult();
+      }
     }
   }
 

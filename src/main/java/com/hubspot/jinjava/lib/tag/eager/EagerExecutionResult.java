@@ -56,7 +56,10 @@ public class EagerExecutionResult {
             )
           ),
         JinjavaInterpreter.getCurrent(),
-        false
+        !JinjavaInterpreter
+          .getCurrentMaybe()
+          .map(interpreter -> interpreter.getContext().isDeferredExecutionMode())
+          .orElse(false)
       );
     return prefixToPreserveState;
   }

@@ -164,6 +164,19 @@ public class ExtendsTagTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itResolvesRelativePathsWithMultipleLevelsOfInheritance()
+    throws IOException {
+    jinjava
+      .getGlobalContext()
+      .put(CURRENT_PATH_CONTEXT_KEY, "relative/nested-relative-extends.jinja");
+    String result = jinjava.render(
+      locator.fixture("relative/nested-relative-extends.jinja"),
+      new HashMap<>()
+    );
+    assertThat(result).contains("hello");
+  }
+
+  @Test
   public void itSetsErrorLineNumbersCorrectlyInBlocksInExtendingTemplate()
     throws IOException {
     RenderResult result = jinjava.renderForResult(

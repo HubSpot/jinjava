@@ -1,6 +1,6 @@
-{% set deferred = deferred && true %}
-
-{% set deferred = deferred && true %}
-true
-{% set deferred = deferred && true %}
-[0, 1, 2, 3, 4, 5]
+{% set foo = [0] %}{% set deferred = deferred && foo.append(1) %}
+{% do foo.append(2) %}
+{% set deferred = deferred && foo.append(3) %}
+{% print foo.append(4) %}
+{% set deferred = deferred && foo.append(5) %}
+{{ foo }}
