@@ -54,7 +54,7 @@ public class EagerAstDot extends AstDot implements EvalResultHolder {
         this,
         String.format(
           "%s.%s",
-          EvalResultHolder.reconstructNode(bindings, context, base, e, false),
+          EvalResultHolder.reconstructNode(bindings, context, base, e, true),
           property
         )
       );

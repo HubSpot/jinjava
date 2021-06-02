@@ -45,7 +45,7 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
           context,
           (EvalResultHolder) prefix,
           e,
-          false
+          true
         ),
         EvalResultHolder.reconstructNode(
           bindings,

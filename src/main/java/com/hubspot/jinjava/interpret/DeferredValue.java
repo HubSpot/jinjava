@@ -5,26 +5,14 @@ package com.hubspot.jinjava.interpret;
  * this part of the template, if the object is resolved from the context.
  *
  */
-public class DeferredValue {
-  private static final DeferredValue INSTANCE = new DeferredValue();
+public interface DeferredValue {
+  Object getOriginalValue();
 
-  private Object originalValue;
-
-  private DeferredValue() {}
-
-  private DeferredValue(Object originalValue) {
-    this.originalValue = originalValue;
+  static DeferredValue instance() {
+    return DeferredValueImpl.instance();
   }
 
-  public Object getOriginalValue() {
-    return originalValue;
-  }
-
-  public static DeferredValue instance() {
-    return INSTANCE;
-  }
-
-  public static DeferredValue instance(Object originalValue) {
-    return new DeferredValue(originalValue);
+  static DeferredValue instance(Object originalValue) {
+    return DeferredValueImpl.instance(originalValue);
   }
 }

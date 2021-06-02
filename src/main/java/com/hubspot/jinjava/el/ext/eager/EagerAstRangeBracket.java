@@ -46,7 +46,7 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
           context,
           (EvalResultHolder) prefix,
           e,
-          false
+          true
         ) +
         "[" +
         EvalResultHolder.reconstructNode(
