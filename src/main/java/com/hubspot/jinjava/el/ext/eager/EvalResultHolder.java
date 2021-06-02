@@ -2,6 +2,7 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
@@ -51,5 +52,24 @@ public interface EvalResultHolder {
       }
     }
     return partiallyResolvedImage;
+  }
+
+  static DeferredParsingException convertToDeferredParsingException(
+    RuntimeException original
+  ) {
+    DeferredValueException deferredValueException;
+    if (!(original instanceof DeferredValueException)) {
+      if (original.getCause() instanceof DeferredValueException) {
+        deferredValueException = (DeferredValueException) original.getCause();
+      } else {
+        throw original;
+      }
+    } else {
+      deferredValueException = (DeferredValueException) original;
+    }
+    if (deferredValueException instanceof DeferredParsingException) {
+      return (DeferredParsingException) deferredValueException;
+    }
+    return null;
   }
 }

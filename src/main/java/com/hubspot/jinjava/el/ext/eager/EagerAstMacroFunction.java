@@ -40,17 +40,10 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
       evalResult = super.eval(bindings, context);
       hasEvalResult = true;
       return evalResult;
-    } catch (DeferredValueException | ELException e) {
-      DeferredValueException e1;
-      if (!(e instanceof DeferredValueException)) {
-        if (e.getCause() instanceof DeferredValueException) {
-          e1 = (DeferredValueException) e.getCause();
-        } else {
-          throw e;
-        }
-      } else {
-        e1 = (DeferredValueException) e;
-      }
+    } catch (DeferredValueException | ELException originalException) {
+      DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
+        originalException
+      );
       StringBuilder sb = new StringBuilder();
       sb.append(getName());
       try {
@@ -61,9 +54,7 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
               bindings,
               context,
               (EvalResultHolder) ((AstParameters) params).getChild(i),
-              e1 instanceof DeferredParsingException
-                ? (DeferredParsingException) e1
-                : null,
+              e,
               false
             )
           );

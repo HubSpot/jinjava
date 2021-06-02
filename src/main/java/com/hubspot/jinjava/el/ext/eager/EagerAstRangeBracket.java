@@ -2,9 +2,11 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.AstRangeBracket;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
+import javax.el.ELException;
 
 public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultHolder {
   protected Object evalResult;
@@ -34,7 +36,10 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
       evalResult = super.eval(bindings, context);
       hasEvalResult = true;
       return evalResult;
-    } catch (DeferredParsingException e) {
+    } catch (DeferredValueException | ELException originalException) {
+      DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
+        originalException
+      );
       String sb =
         EvalResultHolder.reconstructNode(
           bindings,
