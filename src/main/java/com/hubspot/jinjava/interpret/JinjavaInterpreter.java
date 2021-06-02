@@ -453,7 +453,7 @@ public class JinjavaInterpreter implements PyishSerializable {
       obj = context.getDynamicVariableResolver().apply(varName);
     }
     if (obj != null) {
-      if (obj instanceof DeferredValue && !(obj instanceof DeferredMap)) {
+      if (obj instanceof DeferredValue && !(obj instanceof PartiallyDeferredValue)) {
         if (config.getExecutionMode().useEagerParser()) {
           throw new DeferredParsingException(this, variable);
         } else {
