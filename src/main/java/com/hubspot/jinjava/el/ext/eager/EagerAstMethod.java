@@ -38,20 +38,14 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
       evalResult = super.eval(bindings, context);
       hasEvalResult = true;
       return evalResult;
-    } catch (DeferredParsingException | ELException e) {
-      DeferredParsingException e1;
-      if (!(e instanceof DeferredParsingException)) {
-        if (e.getCause() instanceof DeferredParsingException) {
-          e1 = (DeferredParsingException) e.getCause();
-        } else {
-          throw e;
-        }
-      } else {
-        e1 = (DeferredParsingException) e;
-      }
+    } catch (DeferredValueException | ELException originalException) {
+      DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
+        originalException
+      );
+
       throw new DeferredParsingException(
         this,
-        getPartiallyResolved(bindings, context, e1)
+        getPartiallyResolved(bindings, context, e)
       );
     } finally {
       property.getAndClearEvalResult();
@@ -115,7 +109,10 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
         true
       );
     String paramString;
-    if (deferredParsingException.getSourceNode() == params) {
+    if (
+      deferredParsingException != null &&
+      deferredParsingException.getSourceNode() == params
+    ) {
       paramString = deferredParsingException.getDeferredEvalResult();
     } else {
       try {

@@ -1,11 +1,12 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.util.EagerExpressionResolver;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBracket;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
+import javax.el.ELException;
 
 public class EagerAstBracket extends AstBracket implements EvalResultHolder {
   protected Object evalResult;
@@ -33,31 +34,28 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
       evalResult = super.eval(bindings, context);
       hasEvalResult = true;
       return evalResult;
-    } catch (DeferredParsingException e) {
-      StringBuilder sb = new StringBuilder();
-      if (((EvalResultHolder) prefix).hasEvalResult()) {
-        sb.append(
-          EagerExpressionResolver.getValueAsJinjavaStringSafe(
-            ((EvalResultHolder) prefix).getAndClearEvalResult()
-          )
-        );
-        sb.append(String.format("[%s]", e.getDeferredEvalResult()));
-      } else {
-        sb.append(e.getDeferredEvalResult());
-        try {
-          sb.append(
-            String.format(
-              "[%s]",
-              EagerExpressionResolver.getValueAsJinjavaStringSafe(
-                property.eval(bindings, context)
-              )
-            )
-          );
-        } catch (DeferredParsingException e1) {
-          sb.append(String.format("[%s]", e1.getDeferredEvalResult()));
-        }
-      }
-      throw new DeferredParsingException(this, sb.toString());
+    } catch (DeferredValueException | ELException originalException) {
+      DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
+        originalException
+      );
+      String sb = String.format(
+        "%s[%s]",
+        EvalResultHolder.reconstructNode(
+          bindings,
+          context,
+          (EvalResultHolder) prefix,
+          e,
+          true
+        ),
+        EvalResultHolder.reconstructNode(
+          bindings,
+          context,
+          (EvalResultHolder) property,
+          e,
+          false
+        )
+      );
+      throw new DeferredParsingException(this, sb);
     } finally {
       ((EvalResultHolder) prefix).getAndClearEvalResult();
       ((EvalResultHolder) property).getAndClearEvalResult();

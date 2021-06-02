@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.el.ELException;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerExpressionResolver {
@@ -172,7 +173,7 @@ public class EagerExpressionResolver {
       }
       // don't defer numbers, values such as true/false, etc.
       return interpreter.resolveELExpression(w, interpreter.getLineNumber()) == null;
-    } catch (DeferredValueException | TemplateSyntaxException e) {
+    } catch (ELException | DeferredValueException | TemplateSyntaxException e) {
       return true;
     }
   }

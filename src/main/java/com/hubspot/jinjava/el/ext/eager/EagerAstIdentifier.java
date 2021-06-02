@@ -1,9 +1,11 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import javax.el.ELContext;
+import javax.el.ELException;
 
 public class EagerAstIdentifier extends AstIdentifier implements EvalResultHolder {
   protected Object evalResult;
@@ -19,7 +21,8 @@ public class EagerAstIdentifier extends AstIdentifier implements EvalResultHolde
       evalResult = super.eval(bindings, context);
       hasEvalResult = true;
       return evalResult;
-    } catch (DeferredParsingException e) {
+    } catch (DeferredValueException | ELException originalException) {
+      EvalResultHolder.convertToDeferredParsingException(originalException);
       throw new DeferredParsingException(this, getName());
     }
   }
