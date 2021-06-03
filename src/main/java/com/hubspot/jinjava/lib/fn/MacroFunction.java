@@ -140,21 +140,11 @@ public class MacroFunction extends AbstractCallableMethod {
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxOutputSize()
     );
-    int initialEagerTokenCount = interpreter.getContext().getEagerTokens().size();
-
-    for (Node node : content) {
-      result.append(node.render(interpreter));
-    }
-    if (
-      interpreter.getConfig().getExecutionMode().isPreserveRawTags() &&
-      initialEagerTokenCount == interpreter.getContext().getEagerTokens().size()
+    try (
+      TemporaryValueClosable<Boolean> c = interpreter.getContext().withUnwrapRawOverride()
     ) {
-      try (
-        TemporaryValueClosable<Boolean> c = interpreter
-          .getContext()
-          .withUnwrapRawOverride()
-      ) {
-        return interpreter.renderFlat(result.toString());
+      for (Node node : content) {
+        result.append(node.render(interpreter));
       }
     }
     return result.toString();
