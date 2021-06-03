@@ -326,12 +326,6 @@ public class Functions {
 
     try {
       String convertedFormat = StrftimeFormatter.toJavaDateTimeFormat(dateFormat);
-      ZonedDateTime.of(
-        LocalDate
-          .parse(dateString, DateTimeFormatter.ofPattern(convertedFormat))
-          .atTime(0, 0),
-        getDefaultZoneId()
-      );
 
       return new PyishDate(
         ZonedDateTime.of(
