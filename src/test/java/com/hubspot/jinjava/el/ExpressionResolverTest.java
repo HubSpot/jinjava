@@ -568,6 +568,14 @@ public class ExpressionResolverTest {
   }
 
   @Test
+  public void itResolvesNullLazyExpressions() {
+    Supplier<Object> lazyNull = () -> null;
+    context.put("nullobj", LazyExpression.of(lazyNull, ""));
+    assertThat(interpreter.resolveELExpression("nullobj", -1)).isNull();
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
   public void itResolvesSuppliersOnlyIfResolved() {
     TestClass testClass = new TestClass();
     Supplier<String> lazyString = () -> result("hallelujah", testClass);

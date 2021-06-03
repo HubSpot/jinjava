@@ -294,6 +294,9 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
     if (value instanceof LazyExpression) {
       value = ((LazyExpression) value).get();
+      if (value == null) {
+        return null;
+      }
     }
 
     if (value instanceof PyWrapper) {
