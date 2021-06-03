@@ -206,6 +206,9 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
             if (base instanceof LazyExpression) {
               base = ((LazyExpression) base).get();
+              if (base == null) {
+                return null;
+              }
             }
 
             // java doesn't natively support negative array indices, so the
@@ -240,6 +243,9 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
             if (value instanceof LazyExpression) {
               value = ((LazyExpression) value).get();
+              if (value == null) {
+                return null;
+              }
             }
 
             if (value instanceof DeferredValue) {
