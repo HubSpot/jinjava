@@ -140,8 +140,8 @@ public class Functions {
         JinjavaInterpreter.getCurrent().getPosition()
       );
     }
-    ZoneId zoneOffset = ZoneOffset.UTC;
-    if (var.length > 0) {
+    ZoneId zoneOffset = getDefaultZoneId();
+    if (var.length > 0 && var[0] != null) {
       String timezone = var[0];
       try {
         zoneOffset = ZoneId.of(timezone);
@@ -170,7 +170,7 @@ public class Functions {
     }
   )
   public static String dateTimeFormat(Object var, String... format) {
-    ZoneId zoneOffset = ZoneOffset.UTC;
+    ZoneId zoneOffset = getDefaultZoneId();
 
     if (format.length > 1) {
       String timezone = format[1];
@@ -245,7 +245,7 @@ public class Functions {
   public static long unixtimestamp(Object... var) {
     ZonedDateTime d = getDateTimeArg(
       var == null || var.length == 0 ? null : var[0],
-      ZoneOffset.UTC
+      getDefaultZoneId()
     );
 
     if (d == null) {
@@ -326,11 +326,14 @@ public class Functions {
 
     try {
       String convertedFormat = StrftimeFormatter.toJavaDateTimeFormat(dateFormat);
+
       return new PyishDate(
-        LocalDate
-          .parse(dateString, DateTimeFormatter.ofPattern(convertedFormat))
-          .atTime(0, 0)
-          .toInstant(ZoneOffset.UTC)
+        ZonedDateTime.of(
+          LocalDate
+            .parse(dateString, DateTimeFormatter.ofPattern(convertedFormat))
+            .atTime(0, 0),
+          getDefaultZoneId()
+        )
       );
     } catch (DateTimeParseException e) {
       throw new InterpretException(
@@ -512,5 +515,10 @@ public class Functions {
     }
 
     return result;
+  }
+
+  private static ZoneId getDefaultZoneId() {
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+    return interpreter == null ? ZoneOffset.UTC : interpreter.getConfig().getTimeZone();
   }
 }
