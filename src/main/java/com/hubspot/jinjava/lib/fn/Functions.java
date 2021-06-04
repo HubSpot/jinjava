@@ -141,7 +141,7 @@ public class Functions {
       );
     }
     ZoneId zoneOffset = getDefaultZoneId();
-    if (var.length > 0) {
+    if (var.length > 0 && var[0] != null) {
       String timezone = var[0];
       try {
         zoneOffset = ZoneId.of(timezone);
