@@ -139,7 +139,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
         AstMacroFunction.checkAndPushMacroStack(interpreter, fullName)
       )
     ) {
-      result = macroFunction.reconstructImage();
+      return "";
     } else {
       try {
         String evaluation = (String) evaluate(
