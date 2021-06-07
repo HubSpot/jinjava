@@ -45,6 +45,8 @@ public class EagerImportTagTest extends ImportTagTest {
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
           )
+          .withEnableRecursiveMacroCalls(true)
+          .withMaxMacroRecursionDepth(10)
           .build()
       );
     Tag tag = EagerTagFactory

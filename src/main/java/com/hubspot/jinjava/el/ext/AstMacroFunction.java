@@ -37,58 +37,8 @@ public class AstMacroFunction extends AstFunction {
           interpreter.getPosition()
         );
       }
-
-      CallStack macroStack = interpreter.getContext().getMacroStack();
       if (!macroFunction.isCaller()) {
-        try {
-          if (interpreter.getConfig().isEnableRecursiveMacroCalls()) {
-            if (interpreter.getConfig().getMaxMacroRecursionDepth() != 0) {
-              macroStack.pushWithMaxDepth(
-                getName(),
-                interpreter.getConfig().getMaxMacroRecursionDepth(),
-                interpreter.getLineNumber(),
-                interpreter.getPosition()
-              );
-            } else {
-              macroStack.pushWithoutCycleCheck(
-                getName(),
-                interpreter.getLineNumber(),
-                interpreter.getPosition()
-              );
-            }
-          } else {
-            macroStack.push(getName(), -1, -1);
-          }
-        } catch (MacroTagCycleException e) {
-          int maxDepth = interpreter.getConfig().getMaxMacroRecursionDepth();
-          if (maxDepth != 0 && interpreter.getConfig().isValidationMode()) {
-            // validation mode is only concerned with syntax
-            return "";
-          }
-
-          String message = maxDepth == 0
-            ? String.format("Cycle detected for macro '%s'", getName())
-            : String.format(
-              "Max recursion limit of %d reached for macro '%s'",
-              maxDepth,
-              getName()
-            );
-
-          interpreter.addError(
-            new TemplateError(
-              TemplateError.ErrorType.WARNING,
-              TemplateError.ErrorReason.EXCEPTION,
-              TemplateError.ErrorItem.TAG,
-              message,
-              null,
-              e.getLineNumber(),
-              e.getStartPosition(),
-              e,
-              BasicTemplateErrorCategory.CYCLE_DETECTED,
-              ImmutableMap.of("name", getName())
-            )
-          );
-
+        if (checkAndPushMacroStack(interpreter, getName())) {
           return "";
         }
       }
@@ -108,12 +58,73 @@ public class AstMacroFunction extends AstFunction {
           e.getCause()
         );
       } finally {
-        macroStack.pop();
+        if (!macroFunction.isCaller()) {
+          interpreter.getContext().getMacroStack().pop();
+        }
       }
     }
 
     return interpreter.getContext().isValidationMode()
       ? ""
       : super.eval(bindings, context);
+  }
+
+  public static boolean checkAndPushMacroStack(
+    JinjavaInterpreter interpreter,
+    String name
+  ) {
+    CallStack macroStack = interpreter.getContext().getMacroStack();
+    try {
+      if (interpreter.getConfig().isEnableRecursiveMacroCalls()) {
+        if (interpreter.getConfig().getMaxMacroRecursionDepth() != 0) {
+          macroStack.pushWithMaxDepth(
+            name,
+            interpreter.getConfig().getMaxMacroRecursionDepth(),
+            interpreter.getLineNumber(),
+            interpreter.getPosition()
+          );
+        } else {
+          macroStack.pushWithoutCycleCheck(
+            name,
+            interpreter.getLineNumber(),
+            interpreter.getPosition()
+          );
+        }
+      } else {
+        macroStack.push(name, -1, -1);
+      }
+    } catch (MacroTagCycleException e) {
+      int maxDepth = interpreter.getConfig().getMaxMacroRecursionDepth();
+      if (maxDepth != 0 && interpreter.getConfig().isValidationMode()) {
+        // validation mode is only concerned with syntax
+        return true;
+      }
+
+      String message = maxDepth == 0
+        ? String.format("Cycle detected for macro '%s'", name)
+        : String.format(
+          "Max recursion limit of %d reached for macro '%s'",
+          maxDepth,
+          name
+        );
+
+      interpreter.addError(
+        new TemplateError(
+          TemplateError.ErrorType.WARNING,
+          TemplateError.ErrorReason.EXCEPTION,
+          TemplateError.ErrorItem.TAG,
+          message,
+          null,
+          e.getLineNumber(),
+          e.getStartPosition(),
+          e,
+          BasicTemplateErrorCategory.CYCLE_DETECTED,
+          ImmutableMap.of("name", name)
+        )
+      );
+
+      return true;
+    }
+    return false;
   }
 }

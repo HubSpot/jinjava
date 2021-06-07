@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.fn.eager;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
+import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -131,18 +132,32 @@ public class EagerMacroFunction extends AbstractCallableMethod {
     }
 
     String result;
-    try {
-      String evaluation = (String) evaluate(
-        macroFunction
-          .getArguments()
-          .stream()
-          .map(arg -> DeferredValue.instance())
-          .toArray()
-      );
-      result = (getStartTag(interpreter) + evaluation + getEndTag(interpreter));
-    } catch (DeferredValueException e) {
-      // In case something not eager-supported encountered a deferred value
-      result = macroFunction.reconstructImage();
+    if (
+      interpreter.getContext().getMacroStack().contains(macroFunction.getName()) ||
+      (
+        !macroFunction.isCaller() &&
+        AstMacroFunction.checkAndPushMacroStack(interpreter, fullName)
+      )
+    ) {
+      return "";
+    } else {
+      try {
+        String evaluation = (String) evaluate(
+          macroFunction
+            .getArguments()
+            .stream()
+            .map(arg -> DeferredValue.instance())
+            .toArray()
+        );
+        result = (getStartTag(interpreter) + evaluation + getEndTag(interpreter));
+      } catch (DeferredValueException e) {
+        // In case something not eager-supported encountered a deferred value
+        result = macroFunction.reconstructImage();
+      } finally {
+        if (!macroFunction.isCaller()) {
+          interpreter.getContext().getMacroStack().pop();
+        }
+      }
     }
     return prefix + result + suffix;
   }

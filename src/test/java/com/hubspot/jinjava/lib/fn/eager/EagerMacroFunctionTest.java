@@ -4,13 +4,44 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.mode.EagerExecutionMode;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class EagerMacroFunctionTest extends BaseInterpretingTest {
+
+  @Before
+  public void eagerSetup() {
+    interpreter =
+      new JinjavaInterpreter(
+        jinjava,
+        context,
+        JinjavaConfig
+          .newBuilder()
+          .withExecutionMode(EagerExecutionMode.instance())
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+          )
+          .withEnableRecursiveMacroCalls(true)
+          .withMaxMacroRecursionDepth(10)
+          .build()
+      );
+    context.put("deferred", DeferredValue.instance());
+    JinjavaInterpreter.pushCurrent(interpreter);
+  }
+
+  @After
+  public void teardown() {
+    JinjavaInterpreter.popCurrent();
+  }
 
   @Test
   public void itReconstructsImage() {
@@ -84,6 +115,21 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
     try (TemporaryValueClosable<Boolean> ignored = context.withPartialMacroEvaluation()) {
       assertThat(macroFunction.evaluate("Bar")).isEqualTo("It's: Bar, {{ deferred }}");
     }
+  }
+
+  @Test
+  public void itDoesNotAllowStackOverflow() {
+    String name = "rec";
+    String code =
+      "{% macro rec(num=0) %}{% if num > 0 %}{{ num }}-{{ rec(num - 1)}}{% endif %}{% endmacro %}";
+    MacroFunction macroFunction = makeMacroFunction(name, code);
+    EagerMacroFunction eagerMacroFunction = new EagerMacroFunction(
+      name,
+      macroFunction,
+      interpreter
+    );
+    String output = eagerMacroFunction.reconstructImage();
+    assertThat(interpreter.render(output + "{{ rec(5) }}")).isEqualTo("5-4-3-2-1-");
   }
 
   private MacroFunction makeMacroFunction(String name, String code) {
