@@ -3,13 +3,9 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
-import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Locale;
@@ -17,16 +13,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class DateTimeFormatFilterTest extends BaseInterpretingTest {
-  private static final JinjavaConfig JAPANESE_LOCALE_CONFIG = new JinjavaConfig(
-    StandardCharsets.UTF_8,
-    new Locale("ja", "JA"),
-    ZoneOffset.ofHours(9),
-    10
-  );
+  DateTimeFormatFilter filter;
 
-  private DateTimeFormatFilter filter;
-
-  private ZonedDateTime d;
+  ZonedDateTime d;
 
   @Before
   public void setup() {
@@ -121,27 +110,5 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
         )
       )
       .isEqualTo(Functions.dateTimeFormat(d, "%A, %e %B", "UTC", "America/Los_Angeles"));
-  }
-
-  @Test
-  public void itUsesConfigZoneAsDefault() {
-    JinjavaInterpreter japaneseInterpreter = new Jinjava(JAPANESE_LOCALE_CONFIG)
-    .newInterpreter();
-
-    try {
-      JinjavaInterpreter.pushCurrent(japaneseInterpreter);
-
-      // before UTC midnight on 6/10 (or 6/11 in Japanese timezone)
-      japaneseInterpreter.getContext().put("d", 1623337200000L);
-
-      assertThat(
-          japaneseInterpreter.renderFlat(
-            "{{ d|datetimeformat('%m') }}/{{ d|datetimeformat('%e') }}"
-          )
-        )
-        .isEqualTo("06/11");
-    } finally {
-      JinjavaInterpreter.popCurrent();
-    }
   }
 }
