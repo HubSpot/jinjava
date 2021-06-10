@@ -2,6 +2,12 @@ package com.hubspot.jinjava.lib.fn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredValueException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.mode.EagerExecutionMode;
 import java.time.ZonedDateTime;
 import org.junit.Test;
 
@@ -24,5 +30,24 @@ public class UnixTimestampFunctionTest {
         )
       )
       .isLessThan(1000);
+  }
+
+  @Test(expected = DeferredValueException.class)
+  public void itDefersWhenExecutingEagerly() {
+    JinjavaInterpreter.pushCurrent(
+      new JinjavaInterpreter(
+        new Jinjava(),
+        new Context(),
+        JinjavaConfig
+          .newBuilder()
+          .withExecutionMode(EagerExecutionMode.instance())
+          .build()
+      )
+    );
+    try {
+      Functions.unixtimestamp(null);
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
   }
 }

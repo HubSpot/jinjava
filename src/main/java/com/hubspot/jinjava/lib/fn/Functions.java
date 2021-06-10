@@ -126,20 +126,6 @@ public class Functions {
     }
   )
   public static ZonedDateTime today(String... var) {
-    if (
-      JinjavaInterpreter
-        .getCurrentMaybe()
-        .map(JinjavaInterpreter::getConfig)
-        .map(JinjavaConfig::getExecutionMode)
-        .map(ExecutionMode::useEagerParser)
-        .orElse(false)
-    ) {
-      throw new DeferredValueException(
-        "today() is deferred",
-        JinjavaInterpreter.getCurrent().getLineNumber(),
-        JinjavaInterpreter.getCurrent().getPosition()
-      );
-    }
     ZoneId zoneOffset = ZoneOffset.UTC;
     if (var.length > 0) {
       String timezone = var[0];
@@ -213,6 +199,20 @@ public class Functions {
     ZonedDateTime d = null;
 
     if (var == null) {
+      if (
+        JinjavaInterpreter
+          .getCurrentMaybe()
+          .map(JinjavaInterpreter::getConfig)
+          .map(JinjavaConfig::getExecutionMode)
+          .map(ExecutionMode::useEagerParser)
+          .orElse(false)
+      ) {
+        throw new DeferredValueException(
+          "Time is deferred",
+          JinjavaInterpreter.getCurrent().getLineNumber(),
+          JinjavaInterpreter.getCurrent().getPosition()
+        );
+      }
       d = ZonedDateTime.now(zoneOffset);
     } else if (var instanceof Number) {
       d =
