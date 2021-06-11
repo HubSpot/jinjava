@@ -20,16 +20,30 @@ public class TruncDivOperator extends SimpleOperator {
     boolean aNum = aInt || a instanceof Double || a instanceof Float;
     boolean bNum = bInt || b instanceof Double || b instanceof Float;
 
+    double bAsDouble = converter.convert(b, Double.class);
+    if (bAsDouble == 0.0) {
+      throw new IllegalArgumentException(
+        String.format(
+          "Divisor for // (truncated division) cannot be zero: '%s' (%s) and '%s' (%s)",
+          a,
+          a.getClass().getSimpleName(),
+          b,
+          b.getClass().getSimpleName()
+        )
+      );
+    }
+
     if (aInt && bInt) {
-      Long d = converter.convert(a, Long.class);
-      Long e = converter.convert(b, Long.class);
-      return Math.floorDiv(d, e);
+      Long aAsLong = converter.convert(a, Long.class);
+      Long bAsLong = converter.convert(b, Long.class);
+      return Math.floorDiv(aAsLong, bAsLong);
     }
+
     if (aNum && bNum) {
-      Double d = converter.convert(a, Double.class);
-      Double e = converter.convert(b, Double.class);
-      return Math.floor(d / e);
+      Double aAsDouble = converter.convert(a, Double.class);
+      return Math.floor(aAsDouble / bAsDouble);
     }
+
     throw new IllegalArgumentException(
       String.format(
         "Unsupported operand type(s) for //: '%s' (%s) and '%s' (%s)",
