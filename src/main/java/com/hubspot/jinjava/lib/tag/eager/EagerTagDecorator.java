@@ -1,7 +1,5 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import static com.hubspot.jinjava.interpret.Context.GLOBAL_MACROS_SCOPE_KEY;
-
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -316,7 +314,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       sessionBindings
         .entrySet()
         .stream()
-        .filter(entry -> !entry.getKey().equals(GLOBAL_MACROS_SCOPE_KEY))
+        .filter(entry -> !metaContextVariables.contains(entry.getKey()))
         .filter(
           entry ->
             !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
