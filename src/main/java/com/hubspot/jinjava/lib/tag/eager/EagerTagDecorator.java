@@ -258,7 +258,9 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     // Don't create new call stacks to prevent hitting max recursion with this silent new scope
     Map<String, Object> sessionBindings;
     try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
-      interpreter.getContext().setDeferredExecutionMode(true);
+      if (checkForContextChanges) {
+        interpreter.getContext().setDeferredExecutionMode(true);
+      }
       interpreter.getContext().setPartialMacroEvaluation(partialMacroEvaluation);
       result = function.apply(interpreter);
       sessionBindings = interpreter.getContext().getSessionBindings();

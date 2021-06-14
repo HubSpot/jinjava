@@ -6,6 +6,7 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.tree.ExpressionNodeTest;
@@ -17,7 +18,16 @@ import org.junit.Test;
 public class EagerExpressionStrategyTest extends ExpressionNodeTest {
 
   @Before
-  public void eagerSetup() {
+  public void eagerSetup() throws Exception {
+    jinjava
+      .getGlobalContext()
+      .registerFunction(
+        new ELFunctionDefinition(
+          "",
+          "is_deferred_execution_mode",
+          this.getClass().getDeclaredMethod("isDeferredExecutionMode")
+        )
+      );
     interpreter =
       new JinjavaInterpreter(
         jinjava,
@@ -108,7 +118,39 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
     );
   }
 
+  @Test
+  public void itGoesIntoDeferredExecutionMode() {
+    assertExpectedOutput(
+      "{{ is_deferred_execution_mode() }}" +
+      "{% if deferred %}{{ is_deferred_execution_mode() }}{% endif %}" +
+      "{{ is_deferred_execution_mode() }}",
+      "false{% if deferred %}true{% endif %}false"
+    );
+  }
+
+  @Test
+  public void itGoesIntoDeferredExecutionModeWithMacro() {
+    assertExpectedOutput(
+      "{% macro def() %}{{ is_deferred_execution_mode() }}{% endmacro %}" +
+      "{{ def() }}" +
+      "{% if deferred %}{{ def() }}{% endif %}" +
+      "{{ def() }}",
+      "false{% if deferred %}true{% endif %}false"
+    );
+  }
+
+  @Test
+  public void itDoesNotGoIntoDeferredExecutionModeUnnecessarily() {
+    assertExpectedOutput("{{ is_deferred_execution_mode() }}", "false");
+    interpreter.getContext().setDeferredExecutionMode(true);
+    assertExpectedOutput("{{ is_deferred_execution_mode() }}", "true");
+  }
+
   private void assertExpectedOutput(String inputTemplate, String expectedOutput) {
     assertThat(interpreter.render(inputTemplate)).isEqualTo(expectedOutput);
+  }
+
+  public static boolean isDeferredExecutionMode() {
+    return JinjavaInterpreter.getCurrent().getContext().isDeferredExecutionMode();
   }
 }

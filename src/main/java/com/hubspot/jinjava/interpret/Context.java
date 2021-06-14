@@ -207,6 +207,7 @@ public class Context extends ScopeMap<String, Object> {
       this.partialMacroEvaluation = parent.partialMacroEvaluation;
       this.unwrapRawOverride = parent.unwrapRawOverride;
       this.dynamicVariableResolver = parent.dynamicVariableResolver;
+      this.deferredExecutionMode = parent.deferredExecutionMode;
     }
   }
 
