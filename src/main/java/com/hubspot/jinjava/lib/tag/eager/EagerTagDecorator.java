@@ -218,10 +218,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           .collect(
             Collectors.toMap(
               Entry::getKey,
-              entry ->
-                (entry.getValue() instanceof PyList || entry.getValue() instanceof PyMap)
-                  ? entry.getValue().hashCode()
-                  : entry.getValue()
+              entry -> getObjectOrHashCode(entry.getValue())
             )
           );
       initiallyResolvedAsStrings = new HashMap<>();
@@ -281,15 +278,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           .stream()
           .filter(e -> initiallyResolvedHashes.containsKey(e.getKey()))
           .filter(
-            e -> {
-              if (e.getValue() instanceof PyList || e.getValue() instanceof PyMap) {
-                return !initiallyResolvedHashes
-                  .get(e.getKey())
-                  .equals(e.getValue().hashCode());
-              } else {
-                return !initiallyResolvedHashes.get(e.getKey()).equals(e.getValue());
-              }
-            }
+            e ->
+              !initiallyResolvedHashes
+                .get(e.getKey())
+                .equals(getObjectOrHashCode(e.getValue()))
           )
           .collect(
             Collectors.toMap(
@@ -332,6 +324,13 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
     return new EagerExecutionResult(result, sessionBindings);
+  }
+
+  private static Object getObjectOrHashCode(Object o) {
+    if (o instanceof PyList || o instanceof PyMap) {
+      return o.hashCode();
+    }
+    return o;
   }
 
   /**
