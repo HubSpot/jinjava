@@ -265,6 +265,14 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       result = function.apply(interpreter);
       sessionBindings = interpreter.getContext().getSessionBindings();
     }
+    sessionBindings =
+      sessionBindings
+        .entrySet()
+        .stream()
+        .filter(
+          entry -> !entry.getValue().equals(interpreter.getContext().get(entry.getKey()))
+        )
+        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     if (checkForContextChanges) {
       sessionBindings.putAll(
         interpreter
