@@ -45,7 +45,6 @@ import javax.el.ArrayELResolver;
 import javax.el.CompositeELResolver;
 import javax.el.ELContext;
 import javax.el.ELResolver;
-import javax.el.MapELResolver;
 import javax.el.PropertyNotFoundException;
 import javax.el.ResourceBundleELResolver;
 import org.apache.commons.lang3.LocaleUtils;
@@ -57,7 +56,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     {
       add(new ArrayELResolver(true));
       add(new JinjavaListELResolver(true));
-      add(new MapELResolver(true));
+      add(new TypeConvertingMapELResolver(true));
       add(new ResourceBundleELResolver());
       add(new JinjavaBeanELResolver(true));
     }
@@ -68,7 +67,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     {
       add(new ArrayELResolver(false));
       add(new JinjavaListELResolver(false));
-      add(new MapELResolver(false));
+      add(new TypeConvertingMapELResolver(false));
       add(new ResourceBundleELResolver());
       add(new JinjavaBeanELResolver(false));
     }
