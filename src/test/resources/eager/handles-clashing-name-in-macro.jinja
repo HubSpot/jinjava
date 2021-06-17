@@ -1,0 +1,6 @@
+{% macro func(foo) %}
+{{ foo }}
+{% endmacro %}
+{% set foo = 1 %}
+{{ func(foo=deferred) }}
+{{ foo }}

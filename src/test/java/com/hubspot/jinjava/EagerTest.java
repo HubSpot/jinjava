@@ -848,4 +848,20 @@ public class EagerTest {
       "handles-deferred-in-namespace.expected"
     );
   }
+
+  @Test
+  public void itHandlesClashingNameInMacro() {
+    expectedTemplateInterpreter.assertExpectedOutput("handles-clashing-name-in-macro");
+  }
+
+  @Test
+  public void itHandlesClashingNameInMacroSecondPass() {
+    localContext.put("deferred", 0);
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-clashing-name-in-macro.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-clashing-name-in-macro.expected"
+    );
+  }
 }
