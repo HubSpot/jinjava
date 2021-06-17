@@ -6,6 +6,7 @@ import de.odysseus.el.misc.TypeConverterImpl;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.EnumSet;
+import javax.el.ELException;
 
 public class TruthyTypeConverter extends TypeConverterImpl {
   private static final long serialVersionUID = 1L;
@@ -103,7 +104,20 @@ public class TruthyTypeConverter extends TypeConverterImpl {
         return enumSet.iterator().next();
       }
     }
-    return super.coerceToEnum(value, type);
+
+    try {
+      return super.coerceToEnum(value, type);
+    } catch (ELException e) {
+      if (value instanceof String) {
+        for (T enumVal : type.getEnumConstants()) {
+          String enumStr = enumVal.toString();
+          if (enumStr != null && enumStr.equalsIgnoreCase((String) value)) {
+            return enumVal;
+          }
+        }
+      }
+      throw e;
+    }
   }
 
   @Override

@@ -31,6 +31,19 @@ public class AstDictTest {
   }
 
   @Test
+  public void itGetsDictValuesWithEnumKeysUsingToString() {
+    interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
+    assertThat(interpreter.resolveELExpression("foo.barName", -1)).isEqualTo("test");
+  }
+
+  @Test
+  public void itHandlesEmptyMaps() {
+    interpreter.getContext().put("foo", ImmutableMap.of());
+    assertThat(interpreter.resolveELExpression("foo.FATAL", -1)).isNull();
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
   public void itGetsDictValuesWithEnumKeysInObjects() {
     interpreter
       .getContext()
@@ -48,6 +61,22 @@ public class AstDictTest {
 
     public Map<ErrorType, String> getMyMap() {
       return myMap;
+    }
+  }
+
+  public enum TestEnum {
+    FOO("fooName"),
+    BAR("barName");
+
+    private String name;
+
+    TestEnum(String name) {
+      this.name = name;
+    }
+
+    @Override
+    public String toString() {
+      return name;
     }
   }
 }

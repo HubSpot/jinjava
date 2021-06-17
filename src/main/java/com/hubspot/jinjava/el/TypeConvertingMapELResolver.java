@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.el;
 
-import com.hubspot.jinjava.el.ext.CollectionMembershipOperator;
 import java.util.Map;
 import javax.el.ELContext;
 import javax.el.MapELResolver;
@@ -20,10 +19,7 @@ public class TypeConvertingMapELResolver extends MapELResolver {
       return value;
     }
 
-    if (
-      base instanceof Map &&
-      (Boolean) CollectionMembershipOperator.OP.apply(TYPE_CONVERTER, property, base)
-    ) {
+    if (base instanceof Map && !((Map) base).isEmpty()) {
       Class<?> keyClass = ((Map) base).keySet().iterator().next().getClass();
       value = ((Map) base).get(TYPE_CONVERTER.convert(property, keyClass));
       if (value != null) {
