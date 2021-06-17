@@ -75,7 +75,7 @@ public class EagerSetTagTest extends SetTagTest {
     assertThat(maybeEagerToken.get().getSetDeferredWords())
       .containsExactlyInAnyOrder("foo");
     assertThat(maybeEagerToken.get().getUsedDeferredWords())
-      .containsExactlyInAnyOrder("deferred", "range");
+      .containsExactlyInAnyOrder("range");
   }
 
   @Test
@@ -93,7 +93,7 @@ public class EagerSetTagTest extends SetTagTest {
     assertThat(maybeEagerToken.get().getSetDeferredWords())
       .containsExactlyInAnyOrder("foo", "foobar");
     assertThat(maybeEagerToken.get().getUsedDeferredWords())
-      .containsExactlyInAnyOrder("deferred", "range");
+      .containsExactlyInAnyOrder("range");
   }
 
   @Test

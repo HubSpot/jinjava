@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -105,7 +106,14 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
             tagToken.getStartPosition(),
             tagToken.getSymbols()
           ),
-          eagerExecutionResult.getResult().getDeferredWords(),
+          eagerExecutionResult
+            .getResult()
+            .getDeferredWords()
+            .stream()
+            .filter(
+              word -> !(interpreter.getContext().get(word) instanceof DeferredValue)
+            )
+            .collect(Collectors.toSet()),
           Arrays.stream(varTokens).map(String::trim).collect(Collectors.toSet())
         )
       );

@@ -1,11 +1,13 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.PrintTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
@@ -102,7 +104,14 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
             tagToken.getStartPosition(),
             tagToken.getSymbols()
           ),
-          eagerExecutionResult.getResult().getDeferredWords()
+          eagerExecutionResult
+            .getResult()
+            .getDeferredWords()
+            .stream()
+            .filter(
+              word -> !(interpreter.getContext().get(word) instanceof DeferredValue)
+            )
+            .collect(Collectors.toSet())
         )
       );
     // Possible set tag in front of this one.

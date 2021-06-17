@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.expression;
 
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
 import com.hubspot.jinjava.lib.tag.RawTag;
@@ -11,6 +12,7 @@ import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.Logging;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerExpressionStrategy implements ExpressionStrategy {
@@ -90,7 +92,14 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
             master.getStartPosition(),
             master.getSymbols()
           ),
-          eagerExecutionResult.getResult().getDeferredWords()
+          eagerExecutionResult
+            .getResult()
+            .getDeferredWords()
+            .stream()
+            .filter(
+              word -> !(interpreter.getContext().get(word) instanceof DeferredValue)
+            )
+            .collect(Collectors.toSet())
         )
       );
     // There is only a preserving prefix because it couldn't be entirely evaluated.

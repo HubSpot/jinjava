@@ -66,7 +66,6 @@ public class EagerUnlessTagTest extends UnlessTagTest {
       .findAny();
     assertThat(maybeEagerTagToken).isPresent();
     assertThat(maybeEagerTagToken.get().getSetDeferredWords()).isEmpty();
-    assertThat(maybeEagerTagToken.get().getUsedDeferredWords())
-      .containsExactlyInAnyOrder("deferred");
+    assertThat(maybeEagerTagToken.get().getUsedDeferredWords()).isEmpty();
   }
 }

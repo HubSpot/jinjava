@@ -195,7 +195,7 @@ public class DeferredValueUtilsTest {
         1,
         new DefaultTokenScannerSymbols()
       ),
-      ImmutableSet.of("deferred"),
+      ImmutableSet.of(),
       ImmutableSet.of("var_a", "var_b")
     );
     context.handleEagerToken(eagerToken);
@@ -214,7 +214,7 @@ public class DeferredValueUtilsTest {
         1,
         new DefaultTokenScannerSymbols()
       ),
-      ImmutableSet.of("var_a", "deferred", "int")
+      ImmutableSet.of("var_a", "int")
     );
     context.handleEagerToken(eagerToken);
     assertThat(context.get("var_a")).isInstanceOf(DeferredValue.class);

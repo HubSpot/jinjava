@@ -586,7 +586,13 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
             tagToken.getStartPosition(),
             tagToken.getSymbols()
           ),
-          eagerExpressionResult.getDeferredWords()
+          eagerExpressionResult
+            .getDeferredWords()
+            .stream()
+            .filter(
+              word -> !(interpreter.getContext().get(word) instanceof DeferredValue)
+            )
+            .collect(Collectors.toSet())
         )
       );
 
