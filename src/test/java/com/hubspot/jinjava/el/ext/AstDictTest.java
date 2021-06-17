@@ -7,6 +7,7 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,6 +35,13 @@ public class AstDictTest {
   public void itGetsDictValuesWithEnumKeysUsingToString() {
     interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
     assertThat(interpreter.resolveELExpression("foo.barName", -1)).isEqualTo("test");
+  }
+
+  @Test
+  public void itDoesItemsMethodCall() {
+    interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
+    assertThat(interpreter.resolveELExpression("foo.items()", -1))
+      .isInstanceOf(Set.class);
   }
 
   @Test
