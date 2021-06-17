@@ -27,7 +27,7 @@ public class AstDictTest {
   @Test
   public void itGetsDictValuesWithEnumKeys() {
     interpreter.getContext().put("foo", ImmutableMap.of(ErrorType.FATAL, "test"));
-    assertThat(interpreter.resolveELExpression("foo.fatal", -1)).isEqualTo("test");
+    assertThat(interpreter.resolveELExpression("foo.FATAL", -1)).isEqualTo("test");
   }
 
   @Test
@@ -35,7 +35,7 @@ public class AstDictTest {
     interpreter
       .getContext()
       .put("test", new TestClass(ImmutableMap.of(ErrorType.FATAL, "test")));
-    assertThat(interpreter.resolveELExpression("test.my_map.fatal", -1))
+    assertThat(interpreter.resolveELExpression("test.my_map.FATAL", -1))
       .isEqualTo("test");
   }
 

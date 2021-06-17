@@ -56,7 +56,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     {
       add(new ArrayELResolver(true));
       add(new JinjavaListELResolver(true));
-      add(new EnumMapELResolver(true));
+      add(new TypeConvertingMapELResolver(true));
       add(new ResourceBundleELResolver());
       add(new JinjavaBeanELResolver(true));
     }
@@ -67,7 +67,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     {
       add(new ArrayELResolver(false));
       add(new JinjavaListELResolver(false));
-      add(new EnumMapELResolver(false));
+      add(new TypeConvertingMapELResolver(false));
       add(new ResourceBundleELResolver());
       add(new JinjavaBeanELResolver(false));
     }
