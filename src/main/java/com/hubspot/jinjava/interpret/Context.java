@@ -365,6 +365,15 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public void handleEagerToken(EagerToken eagerToken) {
+    int maxNumEagerTokens = JinjavaInterpreter
+      .getCurrentMaybe()
+      .map(i -> i.getConfig().getMaxNumEagerTokens())
+      .orElse(1000);
+    if (eagerTokens.size() >= maxNumEagerTokens) {
+      throw new DeferredValueException(
+        "Too many Deferred Tokens, max is " + maxNumEagerTokens
+      );
+    }
     eagerTokens.add(eagerToken);
     DeferredValueUtils.findAndMarkDeferredProperties(this, eagerToken);
     if (getParent() != null) {
