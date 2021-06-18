@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.el.ELException;
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +50,10 @@ public class EagerExpressionResolver {
     Boolean.class,
     Number.class,
     PyishSerializable.class
+  );
+
+  private static final Pattern NAMED_PARAMETER_KEY_PATTERN = Pattern.compile(
+    "[\\w.]+=([^=]|$)"
   );
 
   /**
@@ -151,7 +156,12 @@ public class EagerExpressionResolver {
     JinjavaInterpreter interpreter
   ) {
     return Arrays
-      .stream(partiallyResolved.substring(start, end).split("[^\\w.]"))
+      .stream(
+        NAMED_PARAMETER_KEY_PATTERN
+          .matcher(partiallyResolved.substring(start, end))
+          .replaceAll("$1")
+          .split("[^\\w.]")
+      )
       .filter(StringUtils::isNotBlank)
       .filter(w -> shouldBeEvaluated(w, interpreter))
       .collect(Collectors.toSet());

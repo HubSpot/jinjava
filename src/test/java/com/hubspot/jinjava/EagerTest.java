@@ -478,7 +478,7 @@ public class EagerTest {
           .flatMap(eagerToken -> eagerToken.getUsedDeferredWords().stream())
           .collect(Collectors.toSet())
       )
-      .contains("deferred");
+      .isEmpty();
   }
 
   @Test
@@ -846,6 +846,22 @@ public class EagerTest {
     localContext.put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
       "handles-deferred-in-namespace.expected"
+    );
+  }
+
+  @Test
+  public void itHandlesClashingNameInMacro() {
+    expectedTemplateInterpreter.assertExpectedOutput("handles-clashing-name-in-macro");
+  }
+
+  @Test
+  public void itHandlesClashingNameInMacroSecondPass() {
+    localContext.put("deferred", 0);
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-clashing-name-in-macro.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-clashing-name-in-macro.expected"
     );
   }
 }

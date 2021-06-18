@@ -15,6 +15,7 @@ import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class EagerForTag extends EagerTagDecorator<ForTag> {
 
@@ -130,7 +131,13 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
             tagToken.getStartPosition(),
             tagToken.getSymbols()
           ),
-          eagerExpressionResult.getDeferredWords(),
+          eagerExpressionResult
+            .getDeferredWords()
+            .stream()
+            .filter(
+              word -> !(interpreter.getContext().get(word) instanceof DeferredValue)
+            )
+            .collect(Collectors.toSet()),
           new HashSet<>(loopVars)
         )
       );

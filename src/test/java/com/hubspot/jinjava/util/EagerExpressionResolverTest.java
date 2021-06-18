@@ -597,8 +597,9 @@ public class EagerExpressionResolverTest {
   @Test
   public void itHandlesDeferredNamedParameter() {
     context.put("foo", "foo");
-    assertThat(eagerResolveExpression("[x=foo, y=deferred]").toString())
-      .isEqualTo("[x='foo', y=deferred]");
+    EagerExpressionResult result = eagerResolveExpression("[x=foo, y=deferred]");
+    assertThat(result.toString()).isEqualTo("[x='foo', y=deferred]");
+    assertThat(result.getDeferredWords()).containsExactly("deferred");
   }
 
   @Test
@@ -685,6 +686,13 @@ public class EagerExpressionResolverTest {
   public void itHandlesRandom() {
     assertThat(eagerResolveExpression("range(1)|random").toString())
       .isEqualTo("filter:random.filter([0], ____int3rpr3t3r____)");
+  }
+
+  @Test
+  public void itDoesntMarkNamedParamsAsDeferredWords() {
+    EagerExpressionResult result = eagerResolveExpression("range(end=deferred)");
+    assertThat(result.toString()).isEqualTo("range(end=deferred)");
+    assertThat(result.getDeferredWords()).containsExactlyInAnyOrder("range", "deferred");
   }
 
   public static void voidFunction(int nothing) {}
