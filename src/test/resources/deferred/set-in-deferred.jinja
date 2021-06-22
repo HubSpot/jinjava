@@ -2,5 +2,6 @@
 {% if reference == 'resolved' %}
    {% set varSetInside = 'set inside' %}
    {% set a, b, c = 'x','y','z' %}
+   {{ a ~ b ~ c }}
 {% endif %}
 {{ varSetInside }}

@@ -423,7 +423,7 @@ public class EagerTest {
     assertThat(localContext).containsKey("varSetInside");
     Object varSetInside = localContext.get("varSetInside");
     assertThat(varSetInside).isInstanceOf(DeferredValue.class);
-    assertThat(output).contains("{{ varSetInside }}");
+    assertThat(output).contains("{{ varSetInside }}").contains("xyz");
     assertThat(context.get("a")).isInstanceOf(DeferredValue.class);
     assertThat(context.get("b")).isInstanceOf(DeferredValue.class);
     assertThat(context.get("c")).isInstanceOf(DeferredValue.class);
