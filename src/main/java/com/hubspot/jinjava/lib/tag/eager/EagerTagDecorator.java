@@ -267,7 +267,13 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         .entrySet()
         .stream()
         .filter(
-          entry -> !entry.getValue().equals(interpreter.getContext().get(entry.getKey()))
+          entry ->
+            entry.getValue() != null &&
+            !entry.getValue().equals(interpreter.getContext().get(entry.getKey()))
+        )
+        .filter(
+          entry ->
+            !(interpreter.getContext().get(entry.getKey()) instanceof DeferredValue)
         )
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     if (checkForContextChanges) {

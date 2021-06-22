@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -98,49 +99,111 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     boolean definitelyExecuted = false;
     StringBuilder sb = new StringBuilder();
     sb.append(getEagerImage(buildToken(tagNode, e, deferredLineNumber), interpreter));
-
-    for (Node child : tagNode.getChildren()) {
-      if (TagNode.class.isAssignableFrom(child.getClass())) {
-        TagNode childTagNode = (TagNode) child;
-        if (
-          childTagNode.getName().equals(ElseIfTag.TAG_NAME) ||
-          childTagNode.getName().equals(ElseTag.TAG_NAME)
-        ) {
-          if (definitelyExecuted) {
-            break;
-          }
-          definitelyDrop =
-            childTagNode.getName().equals(ElseIfTag.TAG_NAME) &&
-            shouldDropBranch(childTagNode, interpreter, deferredLineNumber);
-          if (!definitelyDrop) {
-            definitelyExecuted =
-              childTagNode.getName().equals(ElseTag.TAG_NAME) ||
-              isDefinitelyExecuted(childTagNode, interpreter, deferredLineNumber);
-            if (definitelyExecuted) {
-              sb.append(
-                String.format(
-                  "%s else %s",
-                  childTagNode.getSymbols().getExpressionStartWithTag(),
-                  childTagNode.getSymbols().getExpressionEndWithTag()
-                )
-              );
-            } else {
-              sb.append(
-                getEagerImage(
-                  buildToken(childTagNode, e, deferredLineNumber),
-                  interpreter
-                )
-              );
-            }
-          }
-          continue;
+    int branchStart = 0;
+    int childrenSize = tagNode.getChildren().size();
+    while (branchStart < childrenSize) {
+      int branchEnd = findNextElseToken(tagNode, branchStart);
+      if (!definitelyDrop) {
+        int finalBranchStart = branchStart;
+        EagerExecutionResult result = executeInChildContext(
+          eagerInterpreter ->
+            EagerExpressionResult.fromString(
+              evaluateBranch(tagNode, finalBranchStart, branchEnd, interpreter)
+            ),
+          interpreter,
+          false,
+          false,
+          true
+        );
+        sb.append(result.getResult());
+        resetBindingsForNextBranch(interpreter, result);
+      }
+      if (branchEnd >= childrenSize || definitelyExecuted) {
+        break;
+      }
+      TagNode caseNode = (TagNode) tagNode.getChildren().get(branchEnd);
+      definitelyDrop =
+        caseNode.getName().equals(ElseIfTag.TAG_NAME) &&
+        shouldDropBranch(caseNode, interpreter, deferredLineNumber);
+      if (!definitelyDrop) {
+        definitelyExecuted =
+          caseNode.getName().equals(ElseTag.TAG_NAME) ||
+          isDefinitelyExecuted(caseNode, interpreter, deferredLineNumber);
+        if (definitelyExecuted) {
+          sb.append(
+            String.format(
+              "%s else %s",
+              caseNode.getSymbols().getExpressionStartWithTag(),
+              caseNode.getSymbols().getExpressionEndWithTag()
+            )
+          );
+        } else {
+          sb.append(
+            getEagerImage(buildToken(caseNode, e, deferredLineNumber), interpreter)
+          );
         }
       }
-      if (!definitelyDrop) {
-        sb.append(child.render(interpreter).getValue());
-      }
+      branchStart = branchEnd + 1;
     }
     return sb.toString();
+  }
+
+  private void resetBindingsForNextBranch(
+    JinjavaInterpreter interpreter,
+    EagerExecutionResult result
+  ) {
+    result
+      .getSpeculativeBindings()
+      .keySet()
+      .stream()
+      .filter(
+        key ->
+          interpreter.getContext().containsKey(key) &&
+          interpreter.getContext().get(key) instanceof DeferredValue
+      )
+      .forEach(
+        key -> {
+          if (
+            ((DeferredValue) interpreter.getContext().get(key)).getOriginalValue() != null
+          ) {
+            interpreter
+              .getContext()
+              .put(
+                key,
+                ((DeferredValue) interpreter.getContext().get(key)).getOriginalValue()
+              );
+          }
+        }
+      );
+  }
+
+  private String evaluateBranch(
+    TagNode tagNode,
+    int startIdx,
+    int endIdx,
+    JinjavaInterpreter interpreter
+  ) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = startIdx; i < endIdx; i++) {
+      Node child = tagNode.getChildren().get(i);
+      sb.append(child.render(interpreter).getValue());
+    }
+    return sb.toString();
+  }
+
+  private int findNextElseToken(TagNode tagNode, int startIdx) {
+    int i;
+    for (i = startIdx; i < tagNode.getChildren().size(); i++) {
+      Node childNode = tagNode.getChildren().get(i);
+      if (
+        (TagNode.class.isAssignableFrom(childNode.getClass())) &&
+        childNode.getName().equals(ElseIfTag.TAG_NAME) ||
+        childNode.getName().equals(ElseTag.TAG_NAME)
+      ) {
+        return i;
+      }
+    }
+    return i;
   }
 
   private boolean shouldDropBranch(
