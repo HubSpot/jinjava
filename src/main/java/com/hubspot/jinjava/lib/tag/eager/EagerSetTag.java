@@ -133,6 +133,21 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
         )
       );
     }
+    if (
+      eagerExecutionResult.getResult().isFullyResolved() &&
+      interpreter.getContext().isDeferredExecutionMode()
+    ) {
+      try {
+        getTag()
+          .executeSet(
+            tagToken,
+            interpreter,
+            varTokens,
+            eagerExecutionResult.getResult().toList(),
+            true
+          );
+      } catch (DeferredValueException ignored) {}
+    }
     return wrapInAutoEscapeIfNeeded(
       prefixToPreserveState + joiner.toString() + suffixToPreserveState.toString(),
       interpreter

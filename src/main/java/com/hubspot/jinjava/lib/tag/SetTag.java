@@ -184,6 +184,9 @@ public class SetTag implements Tag {
         ((Namespace) namespace).put(varArray[1], value);
         return;
       }
+      if (namespace instanceof DeferredValue) {
+        throw new DeferredValueException("Deferred Namespace");
+      }
     }
     interpreter.getContext().put(var, value);
   }
