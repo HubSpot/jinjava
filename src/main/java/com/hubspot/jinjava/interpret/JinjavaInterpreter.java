@@ -650,8 +650,8 @@ public class JinjavaInterpreter implements PyishSerializable {
     }
   }
 
-  public void removeError(int index) {
-    errors.remove(index);
+  public TemplateError removeError(int index) {
+    return errors.remove(index);
   }
 
   public int getScopeDepth() {
