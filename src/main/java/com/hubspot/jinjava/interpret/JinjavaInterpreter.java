@@ -650,8 +650,10 @@ public class JinjavaInterpreter implements PyishSerializable {
     }
   }
 
-  public TemplateError removeError(int index) {
-    return errors.remove(index);
+  public void removeLastError() {
+    if (!errors.isEmpty()) {
+      errors.remove(errors.size() - 1);
+    }
   }
 
   public Optional<TemplateError> getLastError() {
