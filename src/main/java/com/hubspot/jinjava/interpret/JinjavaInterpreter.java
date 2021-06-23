@@ -654,6 +654,12 @@ public class JinjavaInterpreter implements PyishSerializable {
     return errors.remove(index);
   }
 
+  public Optional<TemplateError> getLastError() {
+    return errors.isEmpty()
+      ? Optional.empty()
+      : Optional.of(errors.get(errors.size() - 1));
+  }
+
   public int getScopeDepth() {
     return scopeDepth;
   }
