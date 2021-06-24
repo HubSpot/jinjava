@@ -4,7 +4,9 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.lib.tag.FlexibleTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
+import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
@@ -15,7 +17,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-public class EagerSetTag extends EagerStateChangingTag<SetTag> {
+public class EagerSetTag extends EagerStateChangingTag<SetTag> implements FlexibleTag {
 
   public EagerSetTag() {
     super(new SetTag());
@@ -163,5 +165,10 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> {
     // Update the alias map to the value of the set variable.
     varList.forEach(var -> updateString.add(String.format("'%s': %s", var, var)));
     return "{" + updateString.toString() + "}";
+  }
+
+  @Override
+  public boolean hasEndTag(TagNode tagNode) {
+    return getTag().hasEndTag(tagNode);
   }
 }

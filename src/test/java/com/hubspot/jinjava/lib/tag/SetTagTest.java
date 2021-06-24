@@ -284,14 +284,19 @@ public class SetTagTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itDoesBlock() {
-    Map<String, Object> dict = new HashMap<>();
-    dict.put("foo", "bar");
-    context.put("dict", dict);
-    String template = "{% set foo %}eee{% endset %}{{ foo }}";
+  public void itSetsBlock() {
+    String template = "{% set foo %}bar{% endset %}{{ foo }}";
     final String result = interpreter.render(template);
 
-    assertThat(result).isEqualTo("eee");
+    assertThat(result).isEqualTo("bar");
+  }
+
+  @Test
+  public void itSetsBlockWithFilter() {
+    String template = "{% set foo | upper %}bar{% endset %}{{ foo }}";
+    final String result = interpreter.render(template);
+
+    assertThat(result).isEqualTo("BAR");
   }
 
   private Node fixture(String name) {

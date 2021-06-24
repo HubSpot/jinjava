@@ -228,8 +228,7 @@ public class TreeParser {
 
     if (
       node.getEndName() != null &&
-      !(tag instanceof FlexibleTag) ||
-      ((FlexibleTag) tag).hasEndTag(node)
+      (!(tag instanceof FlexibleTag) || ((FlexibleTag) tag).hasEndTag(node))
     ) {
       parent.getChildren().add(node);
       parent = node;

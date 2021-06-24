@@ -123,7 +123,11 @@ public class SetTag implements Tag, FlexibleTag {
   }
 
   public String interpretBlockSet(TagNode tagNode, JinjavaInterpreter interpreter) {
+    int filterPos = tagNode.getHelpers().indexOf('|');
     String var = tagNode.getHelpers().trim();
+    if (filterPos >= 0) {
+      var = tagNode.getHelpers().substring(0, filterPos).trim();
+    }
     StringBuilder sb = new StringBuilder();
     for (Node child : tagNode.getChildren()) {
       sb.append(child.render(interpreter));
@@ -135,6 +139,17 @@ public class SetTag implements Tag, FlexibleTag {
         interpreter,
         varAsArray,
         Collections.singletonList(sb.toString()),
+        false
+      );
+      Object finalVal = interpreter.resolveELExpression(
+        tagNode.getHelpers().trim(),
+        tagNode.getMaster().getLineNumber()
+      );
+      executeSet(
+        (TagToken) tagNode.getMaster(),
+        interpreter,
+        varAsArray,
+        Collections.singletonList(finalVal),
         false
       );
     } catch (DeferredValueException e) {
