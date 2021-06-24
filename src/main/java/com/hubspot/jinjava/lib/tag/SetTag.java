@@ -122,7 +122,7 @@ public class SetTag implements Tag, FlexibleTag {
     return "";
   }
 
-  public String interpretBlockSet(TagNode tagNode, JinjavaInterpreter interpreter) {
+  private String interpretBlockSet(TagNode tagNode, JinjavaInterpreter interpreter) {
     int filterPos = tagNode.getHelpers().indexOf('|');
     String var = tagNode.getHelpers().trim();
     if (filterPos >= 0) {
@@ -132,31 +132,40 @@ public class SetTag implements Tag, FlexibleTag {
     for (Node child : tagNode.getChildren()) {
       sb.append(child.render(interpreter));
     }
-    String[] varAsArray = new String[] { var };
     try {
-      executeSet(
-        (TagToken) tagNode.getMaster(),
-        interpreter,
-        varAsArray,
-        Collections.singletonList(sb.toString()),
-        false
-      );
-      Object finalVal = interpreter.resolveELExpression(
-        tagNode.getHelpers().trim(),
-        tagNode.getMaster().getLineNumber()
-      );
-      executeSet(
-        (TagToken) tagNode.getMaster(),
-        interpreter,
-        varAsArray,
-        Collections.singletonList(finalVal),
-        false
-      );
+      executeSetBlock(tagNode, var, sb.toString(), interpreter);
     } catch (DeferredValueException e) {
-      DeferredValueUtils.deferVariables(varAsArray, interpreter.getContext());
+      DeferredValueUtils.deferVariables(new String[] { var }, interpreter.getContext());
       throw e;
     }
     return "";
+  }
+
+  private void executeSetBlock(
+    TagNode tagNode,
+    String var,
+    String resolvedBlock,
+    JinjavaInterpreter interpreter
+  ) {
+    String[] varAsArray = new String[] { var };
+    executeSet(
+      (TagToken) tagNode.getMaster(),
+      interpreter,
+      varAsArray,
+      Collections.singletonList(resolvedBlock),
+      false
+    );
+    Object finalVal = interpreter.resolveELExpression(
+      tagNode.getHelpers().trim(),
+      tagNode.getMaster().getLineNumber()
+    );
+    executeSet(
+      (TagToken) tagNode.getMaster(),
+      interpreter,
+      varAsArray,
+      Collections.singletonList(finalVal),
+      false
+    );
   }
 
   public void executeSet(

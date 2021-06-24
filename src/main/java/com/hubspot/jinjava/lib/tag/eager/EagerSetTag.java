@@ -2,15 +2,18 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
+import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.FlexibleTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -24,6 +27,21 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
 
   public EagerSetTag(SetTag setTag) {
     super(setTag);
+  }
+
+  @Override
+  public String eagerInterpret(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    InterpretException e
+  ) {
+    if (tagNode.getHelpers().contains("=")) {
+      return getEagerImage(
+        buildToken(tagNode, e, interpreter.getLineNumber()),
+        interpreter
+      );
+    }
+    return interpretBlockSet(tagNode, interpreter);
   }
 
   @Override
@@ -69,6 +87,17 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
         return "";
       } catch (DeferredValueException ignored) {}
     }
+    return deferSetToken(tagToken, variables, eagerExecutionResult, interpreter);
+  }
+
+  private String deferSetToken(
+    TagToken tagToken,
+    String variables,
+    EagerExecutionResult eagerExecutionResult,
+    JinjavaInterpreter interpreter
+  ) {
+    String[] varTokens = variables.split(",");
+
     String deferredResult = eagerExecutionResult.getResult().toString();
     if (WhitespaceUtils.isWrappedWith(deferredResult, "[", "]")) {
       deferredResult = deferredResult.substring(1, deferredResult.length() - 1);
@@ -83,19 +112,6 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
       .add("=")
       .add(deferredResult)
       .add(tagToken.getSymbols().getExpressionEndWithTag());
-
-    StringBuilder prefixToPreserveState = new StringBuilder();
-    if (interpreter.getContext().isDeferredExecutionMode()) {
-      prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
-    } else {
-      interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
-    }
-    prefixToPreserveState.append(
-      reconstructFromContextBeforeDeferring(
-        eagerExecutionResult.getResult().getDeferredWords(),
-        interpreter
-      )
-    );
 
     interpreter
       .getContext()
@@ -118,22 +134,11 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
           Arrays.stream(varTokens).map(String::trim).collect(Collectors.toSet())
         )
       );
-
-    StringBuilder suffixToPreserveState = new StringBuilder();
-    Optional<String> maybeFullImportAlias = interpreter
-      .getContext()
-      .getImportResourceAlias();
-    if (maybeFullImportAlias.isPresent()) {
-      String currentImportAlias = maybeFullImportAlias
-        .get()
-        .substring(maybeFullImportAlias.get().lastIndexOf(".") + 1);
-      String updateString = getUpdateString(variables);
-      suffixToPreserveState.append(
-        interpreter.render(
-          buildDoUpdateTag(currentImportAlias, updateString, interpreter)
-        )
-      );
-    }
+    String prefixToPreserveState = getPrefixToPreserveState(
+      eagerExecutionResult,
+      interpreter
+    );
+    String suffixToPreserveState = getSuffixToPreserveState(variables, interpreter);
     if (
       eagerExecutionResult.getResult().isFullyResolved() &&
       interpreter.getContext().isDeferredExecutionMode()
@@ -150,9 +155,177 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
       } catch (DeferredValueException ignored) {}
     }
     return wrapInAutoEscapeIfNeeded(
-      prefixToPreserveState + joiner.toString() + suffixToPreserveState.toString(),
+      prefixToPreserveState + joiner + suffixToPreserveState,
       interpreter
     );
+  }
+
+  private String interpretBlockSet(TagNode tagNode, JinjavaInterpreter interpreter) {
+    int filterPos = tagNode.getHelpers().indexOf('|');
+    String var = tagNode.getHelpers().trim();
+
+    if (filterPos >= 0) {
+      var = tagNode.getHelpers().substring(0, filterPos).trim();
+    }
+    int numEagerTokens = interpreter.getContext().getEagerTokens().size();
+    EagerExecutionResult blockResult = executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResult.fromString(renderChildren(tagNode, eagerInterpreter)),
+      interpreter,
+      false,
+      false,
+      true
+    );
+    String[] varAsArray = new String[] { var };
+    boolean fullyResolved =
+      numEagerTokens == interpreter.getContext().getEagerTokens().size();
+    if (fullyResolved && !interpreter.getContext().isDeferredExecutionMode()) {
+      try {
+        return eagerExecuteBlockSet(tagNode, interpreter, var, blockResult, varAsArray);
+      } catch (DeferredValueException ignored) {}
+    }
+    LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
+      interpreter.getConfig().getMaxOutputSize(),
+      " "
+    )
+      .add(tagNode.getSymbols().getExpressionStartWithTag())
+      .add(tagNode.getTag().getName())
+      .add(var)
+      .add(tagNode.getSymbols().getExpressionEndWithTag());
+
+    interpreter
+      .getContext()
+      .handleEagerToken(
+        new EagerToken(
+          new TagToken(
+            joiner.toString(),
+            tagNode.getLineNumber(),
+            tagNode.getStartPosition(),
+            tagNode.getSymbols()
+          ),
+          Collections.emptySet(),
+          Collections.singleton(var)
+        )
+      );
+    if (fullyResolved && interpreter.getContext().isDeferredExecutionMode()) {
+      try {
+        // try to override the value for just this context
+        eagerExecuteBlockSet(tagNode, interpreter, var, blockResult, varAsArray);
+      } catch (DeferredValueException ignored) {}
+    }
+    EagerExecutionResult filterResult = executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResolver.resolveExpression(
+          '[' + tagNode.getHelpers().trim() + ']',
+          interpreter
+        ),
+      interpreter,
+      true,
+      false,
+      interpreter.getContext().isDeferredExecutionMode()
+    );
+    String filterSetPostfix = filterPos >= 0
+      ? deferSetToken((TagToken) tagNode.getMaster(), var, filterResult, interpreter)
+      : "";
+
+    String prefixToPreserveState = getPrefixToPreserveState(blockResult, interpreter);
+    String suffixToPreserveState = getSuffixToPreserveState(var, interpreter);
+    return (
+      prefixToPreserveState +
+      joiner +
+      blockResult.asTemplateString() +
+      reconstructEnd(tagNode) +
+      filterSetPostfix +
+      suffixToPreserveState
+    );
+  }
+
+  private String eagerExecuteBlockSet(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    String var,
+    EagerExecutionResult blockResult,
+    String[] varAsArray
+  ) {
+    getTag()
+      .executeSet(
+        (TagToken) tagNode.getMaster(),
+        interpreter,
+        varAsArray,
+        Collections.singletonList(blockResult.getResult().toString()),
+        true
+      );
+    EagerExecutionResult filterResult = executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResolver.resolveExpression(
+          '[' + tagNode.getHelpers().trim() + ']',
+          interpreter
+        ),
+      interpreter,
+      true,
+      false,
+      interpreter.getContext().isDeferredExecutionMode()
+    );
+    if (filterResult.getResult().isFullyResolved()) {
+      getTag()
+        .executeSet(
+          (TagToken) tagNode.getMaster(),
+          interpreter,
+          varAsArray,
+          filterResult.getResult().toList(),
+          true
+        );
+    } else {
+      // We could evaluate the block part, and just need to defer the filtering.
+      return deferSetToken(
+        (TagToken) tagNode.getMaster(),
+        var,
+        filterResult,
+        interpreter
+      );
+    }
+    return "";
+  }
+
+  private String getPrefixToPreserveState(
+    EagerExecutionResult eagerExecutionResult,
+    JinjavaInterpreter interpreter
+  ) {
+    StringBuilder prefixToPreserveState = new StringBuilder();
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
+    } else {
+      interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
+    }
+    prefixToPreserveState.append(
+      reconstructFromContextBeforeDeferring(
+        eagerExecutionResult.getResult().getDeferredWords(),
+        interpreter
+      )
+    );
+    return prefixToPreserveState.toString();
+  }
+
+  private String getSuffixToPreserveState(
+    String variables,
+    JinjavaInterpreter interpreter
+  ) {
+    StringBuilder suffixToPreserveState = new StringBuilder();
+    Optional<String> maybeFullImportAlias = interpreter
+      .getContext()
+      .getImportResourceAlias();
+    if (maybeFullImportAlias.isPresent()) {
+      String currentImportAlias = maybeFullImportAlias
+        .get()
+        .substring(maybeFullImportAlias.get().lastIndexOf(".") + 1);
+      String updateString = getUpdateString(variables);
+      suffixToPreserveState.append(
+        interpreter.render(
+          buildDoUpdateTag(currentImportAlias, updateString, interpreter)
+        )
+      );
+    }
+    return suffixToPreserveState.toString();
   }
 
   private static String getUpdateString(String variables) {

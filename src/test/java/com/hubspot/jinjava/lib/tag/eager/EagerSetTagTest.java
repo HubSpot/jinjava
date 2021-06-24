@@ -11,6 +11,7 @@ import com.hubspot.jinjava.lib.tag.SetTagTest;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -107,6 +108,113 @@ public class EagerSetTagTest extends SetTagTest {
     assertThat(interpreter.getErrors()).hasSize(1);
     assertThat(interpreter.getErrors().get(0).getReason())
       .isEqualTo(ErrorReason.OUTPUT_TOO_BIG);
+  }
+
+  @Test
+  public void itDefersBlock() {
+    String template = "{% set foo %}{{ 'i am' }}{{ deferred }}{% endset %}{{ foo }}";
+    final String result = interpreter.render(template);
+
+    assertThat(result).isEqualTo("{% set foo %}i am{{ deferred }}{% endset %}{{ foo }}");
+    assertThat(
+        context
+          .getEagerTokens()
+          .stream()
+          .flatMap(eagerToken -> eagerToken.getSetDeferredWords().stream())
+          .collect(Collectors.toSet())
+      )
+      .containsExactly("foo");
+    assertThat(
+        context
+          .getEagerTokens()
+          .stream()
+          .flatMap(eagerToken -> eagerToken.getUsedDeferredWords().stream())
+          .collect(Collectors.toSet())
+      )
+      .isEmpty();
+  }
+
+  @Test
+  public void itDefersBlockWithFilter() {
+    String template = "{% set foo | add(deferred) %}{{ 1 + 1 }}{% endset %}{{ foo }}";
+    final String result = interpreter.render(template);
+
+    assertThat(result)
+      .isEqualTo(
+        "{% set foo = filter:add.filter(2, ____int3rpr3t3r____, deferred) %}{{ foo }}"
+      );
+    assertThat(
+        context
+          .getEagerTokens()
+          .stream()
+          .flatMap(eagerToken -> eagerToken.getSetDeferredWords().stream())
+          .collect(Collectors.toSet())
+      )
+      .containsExactly("foo");
+    assertThat(
+        context
+          .getEagerTokens()
+          .stream()
+          .flatMap(eagerToken -> eagerToken.getUsedDeferredWords().stream())
+          .collect(Collectors.toSet())
+      )
+      .containsExactly("add.filter");
+  }
+
+  @Test
+  public void itDefersDeferredBlockWithDeferredFilter() {
+    String template =
+      "{% set foo | add(deferred|int) %}{{ 1 + deferred }}{% endset %}{{ foo }}";
+    final String result = interpreter.render(template);
+
+    assertThat(result)
+      .isEqualTo(
+        "{% set foo %}{{ 1 + deferred }}{% endset %}{% set foo = filter:add.filter(foo, ____int3rpr3t3r____, filter:int.filter(deferred, ____int3rpr3t3r____)) %}{{ foo }}"
+      );
+    context.remove("foo");
+    context.put("deferred", 2);
+    assertThat(interpreter.render(result)).isEqualTo(interpreter.render(template)); // 1 + 2 + 2 = 5
+  }
+
+  @Test
+  public void itDefersInDeferredExecutionMode() {
+    context.setDeferredExecutionMode(true);
+    String template = "{% set foo %}{{ 'i am iron man' }}{% endset %}{{ foo }}";
+    final String result = interpreter.render(template);
+
+    assertThat(result).isEqualTo("{% set foo %}i am iron man{% endset %}i am iron man");
+  }
+
+  @Test
+  public void itDefersInDeferredExecutionModeWithFilter() {
+    context.setDeferredExecutionMode(true);
+    String template = "{% set foo | int | add(deferred) %}1{% endset %}{{ foo }}";
+    final String result = interpreter.render(template);
+
+    assertThat(result)
+      .isEqualTo(
+        "{% set foo %}1{% endset %}{% set foo = filter:add.filter(filter:int.filter(foo, ____int3rpr3t3r____), ____int3rpr3t3r____, deferred) %}{{ foo }}"
+      );
+    assertThat(
+        context
+          .getEagerTokens()
+          .stream()
+          .flatMap(eagerToken -> eagerToken.getSetDeferredWords().stream())
+          .collect(Collectors.toSet())
+      )
+      .containsExactly("foo");
+    assertThat(
+        context
+          .getEagerTokens()
+          .stream()
+          .flatMap(eagerToken -> eagerToken.getUsedDeferredWords().stream())
+          .collect(Collectors.toSet())
+      )
+      .containsExactlyInAnyOrder("add.filter", "int.filter");
+    context.remove("foo");
+    context.put("deferred", 2);
+    context.setDeferredExecutionMode(false);
+    assertThat(interpreter.render(result)).isEqualTo(interpreter.render(template)); // 1 + 2 + 2 = 5
   }
 
   @Test
