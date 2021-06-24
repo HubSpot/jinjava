@@ -112,6 +112,10 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
       .add("=")
       .add(deferredResult)
       .add(tagToken.getSymbols().getExpressionEndWithTag());
+    String prefixToPreserveState = getPrefixToPreserveState(
+      eagerExecutionResult,
+      interpreter
+    );
 
     interpreter
       .getContext()
@@ -134,11 +138,8 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
           Arrays.stream(varTokens).map(String::trim).collect(Collectors.toSet())
         )
       );
-    String prefixToPreserveState = getPrefixToPreserveState(
-      eagerExecutionResult,
-      interpreter
-    );
     String suffixToPreserveState = getSuffixToPreserveState(variables, interpreter);
+
     if (
       eagerExecutionResult.getResult().isFullyResolved() &&
       interpreter.getContext().isDeferredExecutionMode()
@@ -192,6 +193,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
       .add(tagNode.getTag().getName())
       .add(var)
       .add(tagNode.getSymbols().getExpressionEndWithTag());
+    String prefixToPreserveState = getPrefixToPreserveState(blockResult, interpreter);
 
     interpreter
       .getContext()
@@ -207,6 +209,8 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
           Collections.singleton(var)
         )
       );
+    String suffixToPreserveState = getSuffixToPreserveState(var, interpreter);
+
     if (fullyResolved && interpreter.getContext().isDeferredExecutionMode()) {
       try {
         // try to override the value for just this context
@@ -228,8 +232,6 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
       ? deferSetToken((TagToken) tagNode.getMaster(), var, filterResult, interpreter)
       : "";
 
-    String prefixToPreserveState = getPrefixToPreserveState(blockResult, interpreter);
-    String suffixToPreserveState = getSuffixToPreserveState(var, interpreter);
     return (
       prefixToPreserveState +
       joiner +
