@@ -283,6 +283,17 @@ public class SetTagTest extends BaseInterpretingTest {
     assertThat(result).isEqualTo("barbaz");
   }
 
+  @Test
+  public void itDoesBlock() {
+    Map<String, Object> dict = new HashMap<>();
+    dict.put("foo", "bar");
+    context.put("dict", dict);
+    String template = "{% set foo %}eee{% endset %}{{ foo }}";
+    final String result = interpreter.render(template);
+
+    assertThat(result).isEqualTo("eee");
+  }
+
   private Node fixture(String name) {
     try {
       return new TreeParser(
