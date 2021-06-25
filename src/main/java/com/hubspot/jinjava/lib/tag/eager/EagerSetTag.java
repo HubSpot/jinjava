@@ -60,14 +60,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
 
     String expression = tagToken.getHelpers().substring(eqPos + 1);
 
-    EagerExecutionResult eagerExecutionResult = executeInChildContext(
-      eagerInterpreter ->
-        EagerExpressionResolver.resolveExpression('[' + expression + ']', interpreter),
-      interpreter,
-      true,
-      false,
-      interpreter.getContext().isDeferredExecutionMode()
-    );
+    EagerExecutionResult eagerExecutionResult = getFilterResult(expression, interpreter);
 
     String[] varTokens = variables.split(",");
 
@@ -182,7 +175,13 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
       numEagerTokens == interpreter.getContext().getEagerTokens().size();
     if (fullyResolved && !interpreter.getContext().isDeferredExecutionMode()) {
       try {
-        return eagerExecuteBlockSet(tagNode, interpreter, var, blockResult, varAsArray);
+        return eagerExecuteBlockSet(
+          tagNode,
+          interpreter,
+          varAsArray,
+          blockResult,
+          filterPos
+        );
       } catch (DeferredValueException ignored) {}
     }
     LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
@@ -214,23 +213,35 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
     if (fullyResolved && interpreter.getContext().isDeferredExecutionMode()) {
       try {
         // try to override the value for just this context
-        eagerExecuteBlockSet(tagNode, interpreter, var, blockResult, varAsArray);
+        getTag()
+          .executeSet(
+            (TagToken) tagNode.getMaster(),
+            interpreter,
+            varAsArray,
+            Collections.singletonList(blockResult.getResult().toString()),
+            true
+          );
       } catch (DeferredValueException ignored) {}
     }
-    EagerExecutionResult filterResult = executeInChildContext(
-      eagerInterpreter ->
-        EagerExpressionResolver.resolveExpression(
-          '[' + tagNode.getHelpers().trim() + ']',
-          interpreter
-        ),
-      interpreter,
-      true,
-      false,
-      interpreter.getContext().isDeferredExecutionMode()
-    );
-    String filterSetPostfix = filterPos >= 0
-      ? deferSetToken((TagToken) tagNode.getMaster(), var, filterResult, interpreter)
-      : "";
+    String filterSetPostfix = "";
+    if (filterPos >= 0) {
+      EagerExecutionResult filterResult = getFilterResult(
+        tagNode.getHelpers().trim(),
+        interpreter
+      );
+      if (filterResult.getResult().isFullyResolved()) {
+        getTag()
+          .executeSet(
+            (TagToken) tagNode.getMaster(),
+            interpreter,
+            varAsArray,
+            filterResult.getResult().toList(),
+            true
+          );
+      }
+      filterSetPostfix =
+        deferSetToken((TagToken) tagNode.getMaster(), var, filterResult, interpreter);
+    }
 
     return (
       prefixToPreserveState +
@@ -245,9 +256,9 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
   private String eagerExecuteBlockSet(
     TagNode tagNode,
     JinjavaInterpreter interpreter,
-    String var,
+    String[] varAsArray,
     EagerExecutionResult blockResult,
-    String[] varAsArray
+    int filterPos
   ) {
     getTag()
       .executeSet(
@@ -257,10 +268,41 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
         Collections.singletonList(blockResult.getResult().toString()),
         true
       );
-    EagerExecutionResult filterResult = executeInChildContext(
+    if (filterPos >= 0) {
+      EagerExecutionResult filterResult = getFilterResult(
+        tagNode.getHelpers().trim(),
+        interpreter
+      );
+      if (filterResult.getResult().isFullyResolved()) {
+        getTag()
+          .executeSet(
+            (TagToken) tagNode.getMaster(),
+            interpreter,
+            varAsArray,
+            filterResult.getResult().toList(),
+            true
+          );
+      } else {
+        // We could evaluate the block part, and just need to defer the filtering.
+        return deferSetToken(
+          (TagToken) tagNode.getMaster(),
+          varAsArray[0],
+          filterResult,
+          interpreter
+        );
+      }
+    }
+    return "";
+  }
+
+  private EagerExecutionResult getFilterResult(
+    String filterExpression,
+    JinjavaInterpreter interpreter
+  ) {
+    return executeInChildContext(
       eagerInterpreter ->
         EagerExpressionResolver.resolveExpression(
-          '[' + tagNode.getHelpers().trim() + ']',
+          '[' + filterExpression + ']',
           interpreter
         ),
       interpreter,
@@ -268,25 +310,6 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
       false,
       interpreter.getContext().isDeferredExecutionMode()
     );
-    if (filterResult.getResult().isFullyResolved()) {
-      getTag()
-        .executeSet(
-          (TagToken) tagNode.getMaster(),
-          interpreter,
-          varAsArray,
-          filterResult.getResult().toList(),
-          true
-        );
-    } else {
-      // We could evaluate the block part, and just need to defer the filtering.
-      return deferSetToken(
-        (TagToken) tagNode.getMaster(),
-        var,
-        filterResult,
-        interpreter
-      );
-    }
-    return "";
   }
 
   private String getPrefixToPreserveState(
@@ -338,7 +361,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
     StringJoiner updateString = new StringJoiner(",");
     // Update the alias map to the value of the set variable.
     varList.forEach(var -> updateString.add(String.format("'%s': %s", var, var)));
-    return "{" + updateString.toString() + "}";
+    return "{" + updateString + "}";
   }
 
   @Override

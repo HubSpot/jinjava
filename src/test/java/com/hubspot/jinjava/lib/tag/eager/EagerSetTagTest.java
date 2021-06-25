@@ -193,7 +193,7 @@ public class EagerSetTagTest extends SetTagTest {
 
     assertThat(result)
       .isEqualTo(
-        "{% set foo %}1{% endset %}{% set foo = filter:add.filter(filter:int.filter(foo, ____int3rpr3t3r____), ____int3rpr3t3r____, deferred) %}{{ foo }}"
+        "{% set foo %}1{% endset %}{% set foo = filter:add.filter(1, ____int3rpr3t3r____, deferred) %}{{ foo }}"
       );
     assertThat(
         context
