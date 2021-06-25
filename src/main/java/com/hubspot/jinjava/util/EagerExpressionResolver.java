@@ -9,6 +9,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -86,7 +87,11 @@ public class EagerExpressionResolver {
       result = Collections.singletonList(null);
       fullyResolved = true;
     }
-    return new EagerExpressionResult(result, deferredWords, fullyResolved);
+    return new EagerExpressionResult(
+      result,
+      deferredWords,
+      fullyResolved ? ResolutionState.FULL : ResolutionState.PARTIAL
+    );
   }
 
   public static String getValueAsJinjavaStringSafe(Object val) {
@@ -228,16 +233,16 @@ public class EagerExpressionResolver {
   public static class EagerExpressionResult {
     private final Object resolvedObject;
     private final Set<String> deferredWords;
-    private final boolean fullyResolved;
+    private final ResolutionState resolutionState;
 
     private EagerExpressionResult(
       Object resolvedObject,
       Set<String> deferredWords,
-      boolean fullyResolved
+      ResolutionState resolutionState
     ) {
       this.resolvedObject = resolvedObject;
       this.deferredWords = deferredWords;
-      this.fullyResolved = fullyResolved;
+      this.resolutionState = resolutionState;
     }
 
     /**
@@ -258,7 +263,7 @@ public class EagerExpressionResolver {
      * @return String representation of the result
      */
     public String toString(boolean forOutput) {
-      if (!fullyResolved) {
+      if (!resolutionState.fullyResolved) {
         return (String) resolvedObject;
       }
       if (resolvedObject == null) {
@@ -275,7 +280,7 @@ public class EagerExpressionResolver {
     }
 
     public List<?> toList() {
-      if (fullyResolved) {
+      if (resolutionState.fullyResolved) {
         if (resolvedObject instanceof List) {
           return (List<?>) resolvedObject;
         } else {
@@ -286,7 +291,7 @@ public class EagerExpressionResolver {
     }
 
     public boolean isFullyResolved() {
-      return fullyResolved;
+      return resolutionState.fullyResolved;
     }
 
     public Set<String> getDeferredWords() {
@@ -301,7 +306,40 @@ public class EagerExpressionResolver {
      * @return A EagerExpressionResult that {@link #toString()} returns <code>resolvedString</code>.
      */
     public static EagerExpressionResult fromString(String resolvedString) {
-      return new EagerExpressionResult(resolvedString, Collections.emptySet(), false);
+      return new EagerExpressionResult(
+        resolvedString,
+        Collections.emptySet(),
+        ResolutionState.PARTIAL
+      );
+    }
+
+    /**
+     * Method to wrap a string value in the EagerExpressionResult class.
+     * Manually provide whether the string has been fully resolved.
+     * @param resolvedString Partially or fully resolved string to wrap
+     * @param resolutionState Either FULL or PARTIAL
+     * @return A EagerExpressionResult that {@link #toString()} returns <code>resolvedString</code>.
+     */
+    public static EagerExpressionResult fromString(
+      String resolvedString,
+      ResolutionState resolutionState
+    ) {
+      return new EagerExpressionResult(
+        resolvedString,
+        Collections.emptySet(),
+        resolutionState
+      );
+    }
+
+    public enum ResolutionState {
+      FULL(true),
+      PARTIAL(false);
+
+      boolean fullyResolved;
+
+      ResolutionState(boolean fullyResolved) {
+        this.fullyResolved = fullyResolved;
+      }
     }
   }
 }
