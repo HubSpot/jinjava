@@ -230,7 +230,7 @@ public class SetTag implements Tag, FlexibleTag {
   }
 
   @Override
-  public boolean hasEndTag(TagNode tagNode) {
-    return !tagNode.getHelpers().contains("=");
+  public boolean hasEndTag(TagToken tagToken) {
+    return !tagToken.getHelpers().contains("=");
   }
 }

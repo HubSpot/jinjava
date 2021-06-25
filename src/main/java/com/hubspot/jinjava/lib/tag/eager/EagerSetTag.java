@@ -6,7 +6,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.FlexibleTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
-import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
@@ -168,7 +167,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
   }
 
   @Override
-  public boolean hasEndTag(TagNode tagNode) {
-    return getTag().hasEndTag(tagNode);
+  public boolean hasEndTag(TagToken tagToken) {
+    return false; // not yet implemented
   }
 }

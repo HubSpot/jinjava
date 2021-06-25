@@ -102,7 +102,7 @@ public class TagNode extends Node {
 
     if (
       getEndName() != null &&
-      (!(tag instanceof FlexibleTag) || ((FlexibleTag) tag).hasEndTag(this))
+      (!(tag instanceof FlexibleTag) || ((FlexibleTag) tag).hasEndTag(master))
     ) {
       builder.append(reconstructEnd());
     }
