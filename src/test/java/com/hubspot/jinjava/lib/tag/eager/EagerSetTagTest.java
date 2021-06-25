@@ -230,16 +230,4 @@ public class EagerSetTagTest extends SetTagTest {
   public void itThrowsAndDefersMultiVarWhenValContainsDeferred() {
     // Deferred values are handled differently. Test does not apply.
   }
-
-  @Test
-  @Ignore
-  public void itSetsBlock() {
-    // not implemented yet
-  }
-
-  @Test
-  @Ignore
-  public void itSetsBlockWithFilter() {
-    // not implemented yet
-  }
 }
