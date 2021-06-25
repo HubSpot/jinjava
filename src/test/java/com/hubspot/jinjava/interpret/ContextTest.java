@@ -1,9 +1,11 @@
 package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -64,5 +66,33 @@ public class ContextTest {
     assertThat(result.getContext().getResolvedValues()).containsOnly("foo");
     assertThat(globalContext.getResolvedExpressions()).isEmpty();
     assertThat(globalContext.getResolvedValues()).isEmpty();
+  }
+
+  @Test(expected = TemplateSyntaxException.class)
+  public void itThrowsFromChildContext() throws Exception {
+    Jinjava jinjava = new Jinjava();
+    Context globalContext = jinjava.getGlobalContext();
+    globalContext.registerFunction(
+      new ELFunctionDefinition(
+        "",
+        "throw_exception",
+        this.getClass().getDeclaredMethod("throwException")
+      )
+    );
+    JinjavaInterpreter interpreter = jinjava.newInterpreter();
+    JinjavaInterpreter.pushCurrent(interpreter);
+    try {
+      interpreter.getContext().setThrowInterpreterErrors(true);
+      interpreter.render(
+        "{% macro throw() %}{{ throw_exception() }}{% endmacro %}{{ throw() }}"
+      );
+      fail("Did not throw an exception");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
+  }
+
+  public static void throwException() {
+    throw new RuntimeException();
   }
 }
