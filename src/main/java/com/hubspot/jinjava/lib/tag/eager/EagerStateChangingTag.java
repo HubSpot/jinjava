@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.tag.FlexibleTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
@@ -43,7 +44,10 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
     }
 
     // Currently always false
-    if (StringUtils.isNotBlank(tagNode.getEndName())) {
+    if (
+      StringUtils.isNotBlank(tagNode.getEndName()) &&
+      (!(getTag() instanceof FlexibleTag) || ((FlexibleTag) getTag()).hasEndTag(tagNode))
+    ) {
       result.append(reconstructEnd(tagNode));
     }
 
