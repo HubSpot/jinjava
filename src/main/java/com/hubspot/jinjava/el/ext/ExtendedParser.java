@@ -461,6 +461,13 @@ public class ExtendedParser extends Parser {
           ) {
             consumeToken(); // 'is'
             v = buildAstMethodForIdentifier(v, "evaluate");
+          } else if ("in".equals(getToken().getImage())) {
+            v = buildAstMethodForIdentifier(v, "evaluate");
+          } else if (
+            "not".equals(getToken().getImage()) && "in".equals(lookahead(0).getImage())
+          ) {
+            consumeToken(); // 'not'
+            v = buildAstMethodForIdentifier(v, "evaluateNegated");
           }
 
           return v;

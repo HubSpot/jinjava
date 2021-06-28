@@ -29,4 +29,14 @@ public class IsInExpTestTest extends BaseJinjavaTest {
     assertThatThrownBy(() -> jinjava.render("{{ 2 is in null }}", new HashMap<>()))
       .hasMessageContaining("1st argument with value 'null' must be iterable");
   }
+
+  @Test
+  public void itEvaluatesWithoutIn() {
+    assertThat(jinjava.render("{{ 2 in [1, 2] }}", new HashMap<>())).isEqualTo("true");
+    assertThat(jinjava.render("{{ 2 in [1] }}", new HashMap<>())).isEqualTo("false");
+
+    assertThat(jinjava.render("{{ 2 not in [1, 2] }}", new HashMap<>()))
+      .isEqualTo("false");
+    assertThat(jinjava.render("{{ 2 not in [1] }}", new HashMap<>())).isEqualTo("true");
+  }
 }
