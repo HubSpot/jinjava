@@ -376,7 +376,14 @@ public class Context extends ScopeMap<String, Object> {
       );
     }
     eagerTokens.add(eagerToken);
-    DeferredValueUtils.findAndMarkDeferredProperties(this, eagerToken);
+    if (
+      eagerToken.getImportResourcePath() == null ||
+      eagerToken
+        .getImportResourcePath()
+        .equals(this.get(Context.IMPORT_RESOURCE_PATH_KEY))
+    ) {
+      DeferredValueUtils.findAndMarkDeferredProperties(this, eagerToken);
+    }
     if (getParent() != null) {
       Context parent = getParent();
       //Ignore global context

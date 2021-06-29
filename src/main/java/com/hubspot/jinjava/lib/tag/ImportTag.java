@@ -136,6 +136,7 @@ public class ImportTag implements Tag {
       );
     } finally {
       interpreter.getContext().getCurrentPathStack().pop();
+      interpreter.getContext().getImportPathStack().pop();
     }
   }
 

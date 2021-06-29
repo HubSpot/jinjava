@@ -99,6 +99,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       );
     } finally {
       interpreter.getContext().getCurrentPathStack().pop();
+      interpreter.getContext().getImportPathStack().pop();
     }
   }
 
