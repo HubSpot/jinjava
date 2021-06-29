@@ -8,7 +8,7 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.Objects;
 
 public class PyishObjectMapper {
-  private static final ObjectWriter PYISH_OBJECT_WRITER = new ObjectMapper()
+  public static final ObjectWriter PYISH_OBJECT_WRITER = new ObjectMapper()
     .registerModule(
       new SimpleModule()
         .setSerializerModifier(PyishBeanSerializerModifier.INSTANCE)
