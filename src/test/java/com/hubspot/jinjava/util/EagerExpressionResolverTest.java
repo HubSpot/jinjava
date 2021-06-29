@@ -592,6 +592,8 @@ public class EagerExpressionResolverTest {
       .isEqualTo("deferred");
     assertThat(eagerResolveExpression("false ? foo : deferred").toString())
       .isEqualTo("deferred");
+    assertThat(eagerResolveExpression("null ? foo : deferred").toString())
+      .isEqualTo("deferred");
   }
 
   @Test
