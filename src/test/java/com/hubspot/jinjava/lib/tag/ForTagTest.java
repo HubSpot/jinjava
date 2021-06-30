@@ -280,12 +280,14 @@ public class ForTagTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itShouldHandleSpaces() {
+  public void itShouldHandleSpacesInMaps() {
     String template =
-      "{% for item in ['foo', 'bar'] %}" + "{{ item }}\n" + "{% endfor %}";
+      "{% for item in [{'key': 'foo?'}, {'key': 'bar?'}] %}" +
+      "{{ item.key }}\n" +
+      "{% endfor %}";
 
     String rendered = jinjava.render(template, context);
-    assertThat(rendered).isEqualTo("foo\nbar\n");
+    assertThat(rendered).isEqualTo("foo?\nbar?\n");
   }
 
   private Node fixture(String name) {
