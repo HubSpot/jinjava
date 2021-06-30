@@ -43,7 +43,7 @@ import java.beans.PropertyDescriptor;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.apache.commons.lang3.StringUtils;
+import java.util.Optional;
 
 /**
  * {% for a in b|f1:d,c %}
@@ -126,12 +126,13 @@ public class ForTag implements Tag {
   }
 
   public String interpretUnchecked(TagNode tagNode, JinjavaInterpreter interpreter) {
-    String helpers = getWhitespaceAdjustedHelpers(tagNode.getHelpers());
-    List<String> helper = new HelperStringTokenizer(helpers).splitComma(true).allTokens();
+    List<String> helperTokens = new HelperStringTokenizer(tagNode.getHelpers())
+      .splitComma(true)
+      .allTokens();
+    List<String> loopVars = getLoopVars(helperTokens);
+    Optional<String> maybeLoopExpr = getLoopExpression(tagNode.getHelpers());
 
-    List<String> loopVars = getLoopVars(helper);
-
-    if (loopVars.size() >= helper.size()) {
+    if (loopVars.size() >= helperTokens.size() || !maybeLoopExpr.isPresent()) {
       throw new TemplateSyntaxException(
         tagNode.getHelpers().trim(),
         "Tag 'for' expects valid 'in' clause, got: " + tagNode.getHelpers(),
@@ -139,11 +140,12 @@ public class ForTag implements Tag {
         tagNode.getStartPosition()
       );
     }
+    String loopExpression = maybeLoopExpr.get();
 
-    String loopExpr = getLoopExpression(helper, loopVars);
     Object collection;
     try {
-      collection = interpreter.resolveELExpression(loopExpr, tagNode.getLineNumber());
+      collection =
+        interpreter.resolveELExpression(loopExpression, tagNode.getLineNumber());
     } catch (DeferredParsingException e) {
       throw new DeferredParsingException(
         String.format("%s in %s", String.join(", ", loopVars), e.getDeferredEvalResult())
@@ -233,32 +235,12 @@ public class ForTag implements Tag {
     }
   }
 
-  public static String getWhitespaceAdjustedHelpers(String helpers) {
-    /* apdlv72@gmail.com
-     * Fix for issues with for-loops that contain whitespace in their range, e.g.
-     * "{% for i in range(1 * 1, 2 * 2) %}"
-     * This is because HelperStringTokenizer will split the range expressions also
-     * at white spaces and end up with [i, in, range(1, *, 1, 2, *, 2)].
-     * To avoid this, the below fix will remove white space from the expression
-     * on the right side of the keyword "in". It will do so however only if there
-     * are no characters in this expression that indicate strings - namely ' and ".
-     * This avoids messing up expressions like {% for i in ['a ','b'] %} that
-     * contain spaces in the arguments.
-     * TODO A somewhat more sophisticated tokenizing/parsing of the for-loop expression.
-     */
-    String[] parts = helpers.split("\\s+in\\s+");
-    if (parts.length == 2 && !parts[1].contains("'") && !parts[1].contains("\"")) {
-      helpers = parts[0] + " in " + parts[1].replace(" ", "");
+  public Optional<String> getLoopExpression(String helpers) {
+    int inIndex = helpers.indexOf(" in ");
+    if (inIndex > 0) {
+      return Optional.of(helpers.substring(inIndex + 4).trim());
     }
-    return helpers;
-  }
-
-  public String getLoopExpression(List<String> helper, List<String> loopVars) {
-    String loopExpr = StringUtils.join(
-      helper.subList(loopVars.size() + 1, helper.size()),
-      ","
-    );
-    return loopExpr;
+    return Optional.empty();
   }
 
   public List<String> getLoopVars(List<String> helper) {

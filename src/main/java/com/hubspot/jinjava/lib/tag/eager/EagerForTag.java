@@ -15,6 +15,7 @@ import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class EagerForTag extends EagerTagDecorator<ForTag> {
@@ -82,13 +83,13 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
 
   @Override
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
-    List<String> helperTokens = new HelperStringTokenizer(
-      ForTag.getWhitespaceAdjustedHelpers(tagToken.getHelpers())
-    )
+    List<String> helperTokens = new HelperStringTokenizer(tagToken.getHelpers())
       .splitComma(true)
       .allTokens();
     List<String> loopVars = getTag().getLoopVars(helperTokens);
-    if (loopVars.size() >= helperTokens.size()) {
+    Optional<String> maybeLoopExpr = getTag().getLoopExpression(tagToken.getHelpers());
+
+    if (loopVars.size() >= helperTokens.size() || !maybeLoopExpr.isPresent()) {
       throw new TemplateSyntaxException(
         tagToken.getHelpers().trim(),
         "Tag 'for' expects valid 'in' clause, got: " + tagToken.getHelpers(),
@@ -97,7 +98,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       );
     }
 
-    String loopExpression = getTag().getLoopExpression(helperTokens, loopVars);
+    String loopExpression = maybeLoopExpr.get();
 
     EagerExpressionResult eagerExpressionResult = EagerExpressionResolver.resolveExpression(
       loopExpression,

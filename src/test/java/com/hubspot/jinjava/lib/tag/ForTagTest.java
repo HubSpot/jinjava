@@ -279,6 +279,15 @@ public class ForTagTest extends BaseInterpretingTest {
     assertThat(rendered).isEqualTo("Found item having something: 4");
   }
 
+  @Test
+  public void itShouldHandleSpaces() {
+    String template =
+      "{% for item in ['foo', 'bar'] %}" + "{{ item }}\n" + "{% endfor %}";
+
+    String rendered = jinjava.render(template, context);
+    assertThat(rendered).isEqualTo("foo\nbar\n");
+  }
+
   private Node fixture(String name) {
     try {
       return new TreeParser(
