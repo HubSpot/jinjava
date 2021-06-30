@@ -34,6 +34,7 @@ import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * {% for a in b|f1:d,c %}
@@ -126,21 +128,11 @@ public class ForTag implements Tag {
   }
 
   public String interpretUnchecked(TagNode tagNode, JinjavaInterpreter interpreter) {
-    List<String> helperTokens = new HelperStringTokenizer(tagNode.getHelpers())
-      .splitComma(true)
-      .allTokens();
-    List<String> loopVars = getLoopVars(helperTokens);
-    Optional<String> maybeLoopExpr = getLoopExpression(tagNode.getHelpers());
-
-    if (loopVars.size() >= helperTokens.size() || !maybeLoopExpr.isPresent()) {
-      throw new TemplateSyntaxException(
-        tagNode.getHelpers().trim(),
-        "Tag 'for' expects valid 'in' clause, got: " + tagNode.getHelpers(),
-        tagNode.getLineNumber(),
-        tagNode.getStartPosition()
-      );
-    }
-    String loopExpression = maybeLoopExpr.get();
+    Pair<List<String>, String> loopVarsAndExpression = getLoopVarsAndExpression(
+      (TagToken) tagNode.getMaster()
+    );
+    List<String> loopVars = loopVarsAndExpression.getLeft();
+    String loopExpression = loopVarsAndExpression.getRight();
 
     Object collection;
     try {
@@ -235,7 +227,25 @@ public class ForTag implements Tag {
     }
   }
 
-  public Optional<String> getLoopExpression(String helpers) {
+  public Pair<List<String>, String> getLoopVarsAndExpression(TagToken tagToken) {
+    List<String> helperTokens = new HelperStringTokenizer(tagToken.getHelpers())
+      .splitComma(true)
+      .allTokens();
+    List<String> loopVars = getLoopVars(helperTokens);
+    Optional<String> maybeLoopExpr = getLoopExpression(tagToken.getHelpers());
+
+    if (loopVars.size() >= helperTokens.size() || !maybeLoopExpr.isPresent()) {
+      throw new TemplateSyntaxException(
+        tagToken.getHelpers().trim(),
+        "Tag 'for' expects valid 'in' clause, got: " + tagToken.getHelpers(),
+        tagToken.getLineNumber(),
+        tagToken.getStartPosition()
+      );
+    }
+    return Pair.of(loopVars, maybeLoopExpr.get());
+  }
+
+  private Optional<String> getLoopExpression(String helpers) {
     int inIndex = helpers.indexOf(" in ");
     if (inIndex > 0) {
       return Optional.of(helpers.substring(inIndex + 4).trim());
@@ -243,7 +253,7 @@ public class ForTag implements Tag {
     return Optional.empty();
   }
 
-  public List<String> getLoopVars(List<String> helper) {
+  private List<String> getLoopVars(List<String> helper) {
     List<String> loopVars = Lists.newArrayList();
     while (loopVars.size() < helper.size()) {
       String val = helper.get(loopVars.size());
