@@ -77,6 +77,16 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
       .isEqualTo("October 12, 2018, at 01:09 AM");
   }
 
+  @Test
+  public void itOutputsTimezoneName() {
+    assertThat(filter.filter(1539277785000L, interpreter, "%l:%M %p %Z", "America/Los_Angeles")).isEqualTo("10:09 AM PDT");
+  }
+
+  @Test
+  public void itOutputsTimezoneOffset() {
+    assertThat(filter.filter(1539277785000L, interpreter, "%l:%M %p %z", "America/Los_Angeles")).isEqualTo("10:09 AM -0700");
+  }
+
   @Test(expected = InvalidDateFormatException.class)
   public void itThrowsExceptionOnInvalidTimezone() throws Exception {
     filter.filter(
