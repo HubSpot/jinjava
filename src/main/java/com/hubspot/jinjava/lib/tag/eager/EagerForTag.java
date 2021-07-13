@@ -68,7 +68,13 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       false,
       true
     );
-    if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
+    if (
+      eagerExecutionResult
+        .getSpeculativeBindings()
+        .keySet()
+        .stream()
+        .anyMatch(key -> !(interpreter.getContext().get(key) instanceof DeferredValue))
+    ) {
       // Values cannot be modified within a for loop because we don't know many times, if any it will run
       throw new DeferredValueException(
         "Modified values in deferred for loop: " +

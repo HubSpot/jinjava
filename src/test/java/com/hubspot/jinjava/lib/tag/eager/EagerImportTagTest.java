@@ -403,9 +403,12 @@ public class EagerImportTagTest extends ImportTagTest {
   public void itDefersTripleLayer() {
     setupResourceLocator();
     context.put("a_val", DeferredValue.instance("a"));
+
     context.put("b_val", "b");
     context.put("c_val", "c");
-    String result = interpreter.render("{% import 'import-tree-c.jinja' as c %}{{ c }}");
+    String result = interpreter.render(
+      "{% import 'import-tree-c.jinja' as c %}{{ c|dictsort(false, 'key') }}"
+    );
     assertThat(interpreter.render("{{ c.b.a.foo_a }}")).isEqualTo("{{ c.b.a.foo_a }}");
     assertThat(interpreter.render("{{ c.b.foo_b }}")).isEqualTo("{{ c.b.foo_b }}");
     assertThat(interpreter.render("{{ c.foo_c }}")).isEqualTo("{{ c.foo_c }}");
@@ -413,12 +416,9 @@ public class EagerImportTagTest extends ImportTagTest {
     // There are some extras due to deferred values copying up the context stack.
     assertThat(interpreter.render(result).trim())
       .isEqualTo(
-        "{'b': {'foo_b': 'ba', 'a': " +
-        "{'foo_a': 'a', 'import_resource_path': 'import-tree-a.jinja', 'something': 'somn'}, " +
-        "'foo_a': 'a', 'import_resource_path': 'import-tree-b.jinja'}, " +
-        "'foo_c': 'cbaa', 'a': {'foo_a': 'a', 'import_resource_path': " +
-        "'import-tree-a.jinja', 'something': 'somn'}, " +
-        "'foo_b': 'ba', 'foo_a': 'a', 'import_resource_path': 'import-tree-c.jinja'}"
+        interpreter.render(
+          "{% import 'import-tree-c.jinja' as c %}{{ c|dictsort(false, 'key') }}"
+        )
       );
   }
 

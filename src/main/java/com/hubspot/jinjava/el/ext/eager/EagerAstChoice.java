@@ -40,7 +40,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
       hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
-      if (question.getAndClearEvalResult() != null) {
+      if (question.hasEvalResult()) {
         // the question was evaluated so jump to either yes or no
         throw new DeferredParsingException(this, e.getDeferredEvalResult());
       }
