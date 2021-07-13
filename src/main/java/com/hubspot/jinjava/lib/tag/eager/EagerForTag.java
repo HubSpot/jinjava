@@ -4,18 +4,17 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.ForTag;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
-import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class EagerForTag extends EagerTagDecorator<ForTag> {
 
@@ -88,22 +87,10 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
 
   @Override
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
-    List<String> helperTokens = new HelperStringTokenizer(
-      ForTag.getWhitespaceAdjustedHelpers(tagToken.getHelpers())
-    )
-      .splitComma(true)
-      .allTokens();
-    List<String> loopVars = getTag().getLoopVars(helperTokens);
-    if (loopVars.size() >= helperTokens.size()) {
-      throw new TemplateSyntaxException(
-        tagToken.getHelpers().trim(),
-        "Tag 'for' expects valid 'in' clause, got: " + tagToken.getHelpers(),
-        tagToken.getLineNumber(),
-        tagToken.getStartPosition()
-      );
-    }
-
-    String loopExpression = getTag().getLoopExpression(helperTokens, loopVars);
+    Pair<List<String>, String> loopVarsAndExpression = getTag()
+      .getLoopVarsAndExpression(tagToken);
+    List<String> loopVars = loopVarsAndExpression.getLeft();
+    String loopExpression = loopVarsAndExpression.getRight();
 
     EagerExpressionResult eagerExpressionResult = EagerExpressionResolver.resolveExpression(
       loopExpression,
