@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -276,6 +277,20 @@ public class JinjavaInterpreterTest {
     renderResult = new Jinjava(preserveConfig).renderForResult(input, new HashMap<>());
     assertThat(renderResult.getOutput()).isEqualTo(preservedOutput);
     assertThat(renderResult.hasErrors()).isFalse();
+  }
+
+  @Test
+  public void itKnowsThatMethodIsResolved() {
+    // Tests fix of bug where an error when an AstMethod is called would cause an error to be output
+    // saying the method could not be resolved.
+    String input =
+      "{% set a, b = {}, [] %}{% macro a.foo()%} 1-{{ b.bar() }}. {% endmacro %} {{ a.foo() }}";
+
+    RenderResult renderResult = new Jinjava()
+    .renderForResult(input, ImmutableMap.of("deferred", DeferredValue.instance()));
+    assertThat(renderResult.getOutput().trim()).isEqualTo("1-.");
+    // Does not contain an error about 'a.foo()' being unknown.
+    assertThat(renderResult.getErrors()).hasSize(1);
   }
 
   @Test
