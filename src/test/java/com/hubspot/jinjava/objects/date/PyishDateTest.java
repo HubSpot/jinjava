@@ -2,6 +2,8 @@ package com.hubspot.jinjava.objects.date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -54,5 +56,13 @@ public class PyishDateTest {
   @Test(expected = NullPointerException.class)
   public void testNullStringNotAllowed() {
     new PyishDate((String) null);
+  }
+
+  @Test
+  public void itPyishSerializes() {
+    PyishDate d1 = new PyishDate(ZonedDateTime.parse("2013-11-12T14:15:16.170+02:00"));
+    JinjavaInterpreter interpreter = new Jinjava().newInterpreter();
+    interpreter.render("{% set foo = " + d1.toPyishString() + "%}");
+    assertThat(d1).isNotEqualTo(interpreter.getContext().get("foo"));
   }
 }
