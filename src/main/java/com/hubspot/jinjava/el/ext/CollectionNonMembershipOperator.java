@@ -26,8 +26,9 @@ public class CollectionNonMembershipOperator extends SimpleOperator {
   public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("not in");
 
   public static final ExtensionHandler HANDLER = getHandler(false);
+  public static final ExtensionHandler EAGER_HANDLER = getHandler(true);
 
-  public static ExtensionHandler getHandler(boolean eager) {
+  private static ExtensionHandler getHandler(boolean eager) {
     return new ExtensionHandler(ExtensionPoint.CMP) {
 
       @Override

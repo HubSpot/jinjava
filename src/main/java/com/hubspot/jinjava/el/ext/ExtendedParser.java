@@ -107,7 +107,7 @@ public class ExtendedParser extends Parser {
     );
     putExtensionHandler(
       CollectionNonMembershipOperator.TOKEN,
-      CollectionNonMembershipOperator.getHandler(false)
+      CollectionNonMembershipOperator.HANDLER
     );
 
     putExtensionHandler(

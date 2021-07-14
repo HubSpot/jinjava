@@ -49,12 +49,12 @@ public class EagerExtendedParser extends ExtendedParser {
 
     putExtensionHandler(
       CollectionMembershipOperator.TOKEN,
-      CollectionMembershipOperator.getHandler(true)
+      CollectionMembershipOperator.EAGER_HANDLER
     );
 
     putExtensionHandler(
       CollectionNonMembershipOperator.TOKEN,
-      CollectionNonMembershipOperator.getHandler(true)
+      CollectionNonMembershipOperator.EAGER_HANDLER
     );
   }
 
