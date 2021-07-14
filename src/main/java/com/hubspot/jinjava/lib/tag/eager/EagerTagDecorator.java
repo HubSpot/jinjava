@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 public abstract class EagerTagDecorator<T extends Tag> implements Tag {
-  private T tag;
+  private final T tag;
 
   public EagerTagDecorator(T tag) {
     this.tag = tag;

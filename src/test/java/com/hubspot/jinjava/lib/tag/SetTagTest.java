@@ -283,6 +283,22 @@ public class SetTagTest extends BaseInterpretingTest {
     assertThat(result).isEqualTo("barbaz");
   }
 
+  @Test
+  public void itSetsBlock() {
+    String template = "{% set foo %}bar{% endset %}{{ foo }}";
+    final String result = interpreter.render(template);
+
+    assertThat(result).isEqualTo("bar");
+  }
+
+  @Test
+  public void itSetsBlockWithFilter() {
+    String template = "{% set foo | upper %}bar{% endset %}{{ foo }}";
+    final String result = interpreter.render(template);
+
+    assertThat(result).isEqualTo("BAR");
+  }
+
   private Node fixture(String name) {
     try {
       return new TreeParser(
