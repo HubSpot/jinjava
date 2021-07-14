@@ -130,7 +130,7 @@ public final class PyishDate
   @Override
   public String toPyishString() {
     return String.format(
-      "%s|strtodate(%s)",
+      "\"%s\"|strtotime(\"%s\")",
       strftime(FULL_DATE_FORMAT),
       FULL_DATE_FORMAT
     );

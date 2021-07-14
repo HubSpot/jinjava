@@ -298,7 +298,7 @@ public class EagerExpressionResolverTest {
     EagerExpressionResult eagerExpressionResult = eagerResolveExpression("date");
 
     assertThat(WhitespaceUtils.unquoteAndUnescape(eagerExpressionResult.toString()))
-      .isEqualTo(date.toString());
+      .isEqualTo(date.toPyishString().replace("'", "\\'").replace('"', '\''));
   }
 
   @Test
