@@ -308,6 +308,14 @@ public class ForTagTest extends BaseInterpretingTest {
     assertThat(rendered).isEqualTo("foo?\nbar?\n");
   }
 
+  @Test
+  public void itHandlesUnconventionalSpacing() {
+    String template = "{% for item\nin \t[0,1] %}" + "{{ item }}\n" + "{% endfor %}";
+
+    String rendered = jinjava.render(template, context);
+    assertThat(rendered).isEqualTo("0\n1\n");
+  }
+
   private Node fixture(String name) {
     try {
       return new TreeParser(

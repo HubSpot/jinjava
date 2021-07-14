@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -93,6 +95,7 @@ public class ForTag implements Tag {
 
   private static final long serialVersionUID = 6175143875754966497L;
   private static final String LOOP = "loop";
+  private static final Pattern IN_PATTERN = Pattern.compile("\\sin\\s");
 
   @Override
   public boolean isRenderedInValidationMode() {
@@ -246,9 +249,9 @@ public class ForTag implements Tag {
   }
 
   private Optional<String> getLoopExpression(String helpers) {
-    int inIndex = helpers.indexOf(" in ");
-    if (inIndex > 0) {
-      return Optional.of(helpers.substring(inIndex + 4).trim());
+    Matcher matcher = IN_PATTERN.matcher(helpers);
+    if (matcher.find()) {
+      return Optional.of(helpers.substring(matcher.end()).trim());
     }
     return Optional.empty();
   }
