@@ -10,7 +10,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -186,12 +189,27 @@ public class ForTagTest extends BaseInterpretingTest {
 
   @Test
   public void testForLoopWithDates() {
-    Map<String, Object> context = Maps.newHashMap();
     Date testDate = new Date();
-    context.put("the_list", Lists.newArrayList(testDate));
+    interpreter =
+      new JinjavaInterpreter(
+        jinjava,
+        context,
+        JinjavaConfig
+          .newBuilder()
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withUsePyishObjectMapper(false).build()
+          )
+          .build()
+      );
+    interpreter.getContext().put("the_list", Lists.newArrayList(testDate));
     String template = "" + "{% for i in the_list %}{{i}}{% endfor %}";
-    String rendered = jinjava.render(template, context);
-    assertEquals(new PyishDate(testDate).toString(), rendered);
+    try {
+      JinjavaInterpreter.pushCurrent(interpreter);
+      String rendered = interpreter.render(template);
+      assertEquals(new PyishDate(testDate).toString(), rendered);
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
   }
 
   @Test
