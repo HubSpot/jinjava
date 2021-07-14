@@ -63,6 +63,6 @@ public class PyishDateTest {
     PyishDate d1 = new PyishDate(ZonedDateTime.parse("2013-11-12T14:15:16.170+02:00"));
     JinjavaInterpreter interpreter = new Jinjava().newInterpreter();
     interpreter.render("{% set foo = " + d1.toPyishString() + "%}");
-    assertThat(d1).isNotEqualTo(interpreter.getContext().get("foo"));
+    assertThat(d1).isEqualTo(interpreter.getContext().get("foo"));
   }
 }
