@@ -52,11 +52,9 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         buildSetTagForDeferredInChildContext(
           ImmutableMap.of(
             RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
-            '\'' +
-            (String) interpreter
-              .getContext()
-              .get(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY) +
-            '\''
+            PyishObjectMapper.getAsPyishString(
+              interpreter.getContext().get(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY)
+            )
           ),
           interpreter,
           false

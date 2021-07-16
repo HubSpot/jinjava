@@ -76,7 +76,7 @@ public class EagerFromTagTest extends FromTagTest {
   public void itDefersWhenPathIsDeferred() {
     String input = "{% from deferred import foo %}";
     String output = interpreter.render(input);
-    assertThat(output).isEqualTo(input);
+    assertThat(output).isEqualTo("{% set current_path = null %}" + input);
     assertThat(interpreter.getContext().getGlobalMacro("foo")).isNotNull();
     assertThat(interpreter.getContext().getGlobalMacro("foo").isDeferred()).isTrue();
   }
