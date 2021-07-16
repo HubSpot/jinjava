@@ -545,6 +545,35 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(interpreter.render(result)).isEqualTo("A_resolved_A-B_resolved_B");
   }
 
+  @Test
+  public void itDefersWhenPathIsDeferred() {
+    String input = "{% import deferred as foo %}";
+    String output = interpreter.render(input);
+    assertThat(output).isEqualTo("{% set current_path = null %}" + input);
+    assertThat(interpreter.getContext().get("foo"))
+      .isNotNull()
+      .isInstanceOf(DeferredValue.class);
+  }
+
+  @Test
+  public void itReconstructsCurrentPath() {
+    interpreter.getContext().put(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY, "bar");
+    String input = "{% import deferred as foo %}";
+    String output = interpreter.render(input);
+    assertThat(output).isEqualTo("{% set current_path = 'bar' %}" + input);
+    assertThat(interpreter.getContext().get("foo"))
+      .isNotNull()
+      .isInstanceOf(DeferredValue.class);
+  }
+
+  @Test
+  public void itDefersNodeWhenNoImportAlias() {
+    String input = "{% import deferred %}";
+    String output = interpreter.render(input);
+    assertThat(output).isEqualTo(input);
+    assertThat(interpreter.getContext().getDeferredNodes()).hasSize(1);
+  }
+
   private static JinjavaInterpreter getChildInterpreter(
     JinjavaInterpreter interpreter,
     String alias

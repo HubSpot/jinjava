@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -68,6 +70,26 @@ public class EagerFromTagTest extends FromTagTest {
   @After
   public void teardown() {
     JinjavaInterpreter.popCurrent();
+  }
+
+  @Test
+  public void itDefersWhenPathIsDeferred() {
+    String input = "{% from deferred import foo %}";
+    String output = interpreter.render(input);
+    assertThat(output).isEqualTo("{% set current_path = null %}" + input);
+    assertThat(interpreter.getContext().getGlobalMacro("foo")).isNotNull();
+    assertThat(interpreter.getContext().getGlobalMacro("foo").isDeferred()).isTrue();
+  }
+
+  @Test
+  public void itReconstructsCurrentPath() {
+    interpreter.getContext().put(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY, "bar");
+
+    String input = "{% from deferred import foo %}";
+    String output = interpreter.render(input);
+    assertThat(output).isEqualTo("{% set current_path = 'bar' %}" + input);
+    assertThat(interpreter.getContext().getGlobalMacro("foo")).isNotNull();
+    assertThat(interpreter.getContext().getGlobalMacro("foo").isDeferred()).isTrue();
   }
 
   @Test

@@ -219,6 +219,13 @@ public class ImportTag implements Tag {
     JinjavaInterpreter interpreter
   ) {
     String path = StringUtils.trimToEmpty(helper.get(0));
+    String templateFile = interpreter.resolveString(
+      path,
+      tagToken.getLineNumber(),
+      tagToken.getStartPosition()
+    );
+    templateFile = interpreter.resolveResourceLocation(templateFile);
+    interpreter.getContext().addDependency("coded_files", templateFile);
     try {
       interpreter
         .getContext()
@@ -241,14 +248,6 @@ public class ImportTag implements Tag {
       );
       return Optional.empty();
     }
-
-    String templateFile = interpreter.resolveString(
-      path,
-      tagToken.getLineNumber(),
-      tagToken.getStartPosition()
-    );
-    templateFile = interpreter.resolveResourceLocation(templateFile);
-    interpreter.getContext().addDependency("coded_files", templateFile);
     return Optional.of(templateFile);
   }
 
