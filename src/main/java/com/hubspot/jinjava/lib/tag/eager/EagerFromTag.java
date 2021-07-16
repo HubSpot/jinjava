@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
@@ -28,19 +29,35 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
   @Override
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
     List<String> helper = FromTag.getHelpers(tagToken);
-
-    Optional<String> maybeTemplateFile = FromTag.getTemplateFile(
-      helper,
-      tagToken,
-      interpreter
-    );
+    Map<String, String> imports = FromTag.getImportMap(helper);
+    Optional<String> maybeTemplateFile;
+    try {
+      maybeTemplateFile = FromTag.getTemplateFile(helper, tagToken, interpreter);
+    } catch (DeferredValueException e) {
+      imports
+        .values()
+        .forEach(
+          value -> {
+            MacroFunction deferredMacro = new MacroFunction(
+              null,
+              value,
+              null,
+              false,
+              null,
+              tagToken.getLineNumber(),
+              tagToken.getStartPosition()
+            );
+            deferredMacro.setDeferred(true);
+            interpreter.getContext().addGlobalMacro(deferredMacro);
+          }
+        );
+      return tagToken.getImage();
+    }
     if (!maybeTemplateFile.isPresent()) {
       return "";
     }
     String templateFile = maybeTemplateFile.get();
     try {
-      Map<String, String> imports = FromTag.getImportMap(helper);
-
       try {
         String template = interpreter.getResource(templateFile);
         Node node = interpreter.parse(template);

@@ -38,11 +38,16 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
 
     String currentImportAlias = ImportTag.getContextVar(helper);
 
-    Optional<String> maybeTemplateFile = ImportTag.getTemplateFile(
-      helper,
-      tagToken,
-      interpreter
-    );
+    Optional<String> maybeTemplateFile;
+    try {
+      maybeTemplateFile = ImportTag.getTemplateFile(helper, tagToken, interpreter);
+    } catch (DeferredValueException e) {
+      if (currentImportAlias.isEmpty()) {
+        throw e;
+      }
+      interpreter.getContext().put(currentImportAlias, DeferredValue.instance());
+      return tagToken.getImage();
+    }
     if (!maybeTemplateFile.isPresent()) {
       return "";
     }
