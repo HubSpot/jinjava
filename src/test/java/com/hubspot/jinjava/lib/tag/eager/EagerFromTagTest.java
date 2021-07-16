@@ -82,6 +82,17 @@ public class EagerFromTagTest extends FromTagTest {
   }
 
   @Test
+  public void itReconstructsCurrentPath() {
+    interpreter.getContext().put(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY, "bar");
+
+    String input = "{% from deferred import foo %}";
+    String output = interpreter.render(input);
+    assertThat(output).isEqualTo("{% set current_path = 'bar' %}" + input);
+    assertThat(interpreter.getContext().getGlobalMacro("foo")).isNotNull();
+    assertThat(interpreter.getContext().getGlobalMacro("foo").isDeferred()).isTrue();
+  }
+
+  @Test
   @Ignore
   @Override
   public void itDefersImport() {}

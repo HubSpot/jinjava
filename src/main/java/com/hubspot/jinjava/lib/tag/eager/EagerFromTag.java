@@ -1,11 +1,13 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.FromTag;
+import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import java.io.IOException;
@@ -51,7 +53,21 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
             interpreter.getContext().addGlobalMacro(deferredMacro);
           }
         );
-      return tagToken.getImage();
+      return (
+        buildSetTagForDeferredInChildContext(
+          ImmutableMap.of(
+            RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
+            '\'' +
+            (String) interpreter
+              .getContext()
+              .get(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY) +
+            '\''
+          ),
+          interpreter,
+          false
+        ) +
+        tagToken.getImage()
+      );
     }
     if (!maybeTemplateFile.isPresent()) {
       return "";

@@ -556,6 +556,17 @@ public class EagerImportTagTest extends ImportTagTest {
   }
 
   @Test
+  public void itReconstructsCurrentPath() {
+    interpreter.getContext().put(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY, "bar");
+    String input = "{% import deferred as foo %}";
+    String output = interpreter.render(input);
+    assertThat(output).isEqualTo("{% set current_path = 'bar' %}" + input);
+    assertThat(interpreter.getContext().get("foo"))
+      .isNotNull()
+      .isInstanceOf(DeferredValue.class);
+  }
+
+  @Test
   public void itDefersNodeWhenNoImportAlias() {
     String input = "{% import deferred %}";
     String output = interpreter.render(input);

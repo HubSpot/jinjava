@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -9,6 +10,7 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.ImportTag;
+import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.Node;
@@ -46,7 +48,21 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         throw e;
       }
       interpreter.getContext().put(currentImportAlias, DeferredValue.instance());
-      return tagToken.getImage();
+      return (
+        buildSetTagForDeferredInChildContext(
+          ImmutableMap.of(
+            RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
+            '\'' +
+            (String) interpreter
+              .getContext()
+              .get(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY) +
+            '\''
+          ),
+          interpreter,
+          false
+        ) +
+        tagToken.getImage()
+      );
     }
     if (!maybeTemplateFile.isPresent()) {
       return "";
