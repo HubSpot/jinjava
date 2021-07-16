@@ -90,6 +90,7 @@ public class ExtendedParser extends Parser {
     ExtendedScanner.addKeyToken(PowerOfOperator.TOKEN);
 
     ExtendedScanner.addKeyToken(CollectionMembershipOperator.TOKEN);
+    ExtendedScanner.addKeyToken(CollectionNonMembershipOperator.TOKEN);
   }
 
   public ExtendedParser(Builder context, String input) {
@@ -103,6 +104,10 @@ public class ExtendedParser extends Parser {
     putExtensionHandler(
       CollectionMembershipOperator.TOKEN,
       CollectionMembershipOperator.HANDLER
+    );
+    putExtensionHandler(
+      CollectionNonMembershipOperator.TOKEN,
+      CollectionNonMembershipOperator.HANDLER
     );
 
     putExtensionHandler(
@@ -342,6 +347,51 @@ public class ExtendedParser extends Parser {
     }
 
     return super.literal();
+  }
+
+  @Override
+  protected AstNode cmp(boolean required) throws ScanException, ParseException {
+    AstNode v = add(required);
+    if (v == null) {
+      return null;
+    }
+    while (true) {
+      switch (getToken().getSymbol()) {
+        case LT:
+          consumeToken();
+          v = createAstBinary(v, add(true), AstBinary.LT);
+          break;
+        case LE:
+          consumeToken();
+          v = createAstBinary(v, add(true), AstBinary.LE);
+          break;
+        case GE:
+          consumeToken();
+          v = createAstBinary(v, add(true), AstBinary.GE);
+          break;
+        case GT:
+          consumeToken();
+          v = createAstBinary(v, add(true), AstBinary.GT);
+          break;
+        case EXTENSION:
+          if (getExtensionHandler(getToken()).getExtensionPoint() == ExtensionPoint.CMP) {
+            v = getExtensionHandler(consumeToken()).createAstNode(v, add(true));
+            break;
+          }
+        default:
+          if (
+            "not".equals(getToken().getImage()) && "in".equals(lookahead(0).getImage())
+          ) {
+            consumeToken(); // not
+            consumeToken(); // in
+            v =
+              getExtensionHandler(CollectionNonMembershipOperator.TOKEN)
+                .createAstNode(v, add(true));
+            break;
+          }
+      }
+      return v;
+    }
   }
 
   protected AstRightValue createAstNested(AstNode node) {

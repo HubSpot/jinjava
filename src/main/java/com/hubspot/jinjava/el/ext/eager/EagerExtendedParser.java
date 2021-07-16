@@ -6,6 +6,7 @@ import com.hubspot.jinjava.el.ext.AstList;
 import com.hubspot.jinjava.el.ext.AstRangeBracket;
 import com.hubspot.jinjava.el.ext.AstTuple;
 import com.hubspot.jinjava.el.ext.CollectionMembershipOperator;
+import com.hubspot.jinjava.el.ext.CollectionNonMembershipOperator;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.NamedParameterOperator;
 import com.hubspot.jinjava.el.ext.PowerOfOperator;
@@ -48,7 +49,12 @@ public class EagerExtendedParser extends ExtendedParser {
 
     putExtensionHandler(
       CollectionMembershipOperator.TOKEN,
-      CollectionMembershipOperator.getHandler(true)
+      CollectionMembershipOperator.EAGER_HANDLER
+    );
+
+    putExtensionHandler(
+      CollectionNonMembershipOperator.TOKEN,
+      CollectionNonMembershipOperator.EAGER_HANDLER
     );
   }
 
