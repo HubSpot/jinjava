@@ -54,13 +54,14 @@ import org.apache.commons.net.util.SubnetUtils;
 )
 public class IpAddrFilter implements Filter {
   private static final Pattern IP4_PATTERN = Pattern.compile(
-    "(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])"
+    "((0*1?\\d\\d?|0*2[0-4]\\d|0*25[0-5])\\.){3}(0*1?\\d\\d?|0*2[0-4]\\d|0*25[0-5])(/0*([1-2]?\\d|3[0-2])?)?"
   );
   private static final Pattern IP6_PATTERN = Pattern.compile(
-    "^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$"
+    "^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}(/0*(\\d{1,2}|1[0-1]\\d|12[0-8])?)?$"
   );
   private static final Pattern IP6_COMPRESSED_PATTERN = Pattern.compile(
-    "^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$"
+    "^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)" +
+    "(/0*(\\d{1,2}|1[0-1]\\d|12[0-8])?)?$"
   );
 
   private static final Splitter PREFIX_SPLITTER = Splitter.on('/');
