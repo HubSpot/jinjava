@@ -40,6 +40,9 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
 
     String currentImportAlias = ImportTag.getContextVar(helper);
 
+    final String initialPathSetter = getSetTagForCurrentPath(interpreter);
+    final String newPathSetter;
+
     Optional<String> maybeTemplateFile;
     try {
       maybeTemplateFile = ImportTag.getTemplateFile(helper, tagToken, interpreter);
@@ -48,19 +51,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         throw e;
       }
       interpreter.getContext().put(currentImportAlias, DeferredValue.instance());
-      return (
-        buildSetTagForDeferredInChildContext(
-          ImmutableMap.of(
-            RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
-            PyishObjectMapper.getAsPyishString(
-              interpreter.getContext().get(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY)
-            )
-          ),
-          interpreter,
-          false
-        ) +
-        tagToken.getImage()
-      );
+      return (initialPathSetter + tagToken.getImage());
     }
     if (!maybeTemplateFile.isPresent()) {
       return "";
@@ -68,6 +59,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     String templateFile = maybeTemplateFile.get();
     try {
       Node node = ImportTag.parseTemplateAsNode(interpreter, templateFile);
+      newPathSetter = getSetTagForCurrentPath(interpreter);
 
       JinjavaInterpreter child = interpreter
         .getConfig()
@@ -103,12 +95,17 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       }
       integrateChild(currentImportAlias, childBindings, child, interpreter);
       if (child.getContext().getEagerTokens().isEmpty() || output == null) {
-        output = "";
+        return "";
       } else if (!Strings.isNullOrEmpty(currentImportAlias)) {
         // Since some values got deferred, output a DoTag that will load the currentImportAlias on the context.
-        return output + getDoTagToPreserve(interpreter, currentImportAlias);
+        return (
+          newPathSetter +
+          output +
+          getDoTagToPreserve(interpreter, currentImportAlias) +
+          initialPathSetter
+        );
       }
-      return output;
+      return newPathSetter + output + initialPathSetter;
     } catch (IOException e) {
       throw new InterpretException(
         e.getMessage(),
@@ -120,6 +117,28 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       interpreter.getContext().getCurrentPathStack().pop();
       interpreter.getContext().getImportPathStack().pop();
     }
+  }
+
+  public static String getSetTagForCurrentPath(JinjavaInterpreter interpreter) {
+    return buildSetTagForDeferredInChildContext(
+      ImmutableMap.of(
+        RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
+        PyishObjectMapper.getAsPyishString(
+          interpreter
+            .getContext()
+            .getCurrentPathStack()
+            .peek()
+            .orElseGet(
+              () ->
+                (String) interpreter
+                  .getContext()
+                  .getOrDefault(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY, "")
+            )
+        )
+      ),
+      interpreter,
+      false
+    );
   }
 
   @SuppressWarnings("unchecked")

@@ -42,7 +42,7 @@ public class EagerIncludeTagTest extends IncludeTagTest {
 
   @Test
   public void itIncludesDeferred() {
-    expectedTemplateInterpreter.assertExpectedOutput("includes-deferred");
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent("includes-deferred");
     assertThat(
         context
           .getEagerTokens()

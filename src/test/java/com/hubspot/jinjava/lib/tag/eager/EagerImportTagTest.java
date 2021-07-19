@@ -549,7 +549,7 @@ public class EagerImportTagTest extends ImportTagTest {
   public void itDefersWhenPathIsDeferred() {
     String input = "{% import deferred as foo %}";
     String output = interpreter.render(input);
-    assertThat(output).isEqualTo("{% set current_path = null %}" + input);
+    assertThat(output).isEqualTo("{% set current_path = '' %}" + input);
     assertThat(interpreter.getContext().get("foo"))
       .isNotNull()
       .isInstanceOf(DeferredValue.class);

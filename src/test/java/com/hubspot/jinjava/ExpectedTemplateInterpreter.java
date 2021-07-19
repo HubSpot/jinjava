@@ -33,6 +33,13 @@ public class ExpectedTemplateInterpreter {
     return output;
   }
 
+  public String assertExpectedOutputNonIdempotent(String name) {
+    String template = getFixtureTemplate(name);
+    String output = JinjavaInterpreter.getCurrent().render(template);
+    assertThat(output.trim()).isEqualTo(expected(name).trim());
+    return output;
+  }
+
   public String assertExpectedNonEagerOutput(String name) {
     JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
       jinjava,
