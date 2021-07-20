@@ -1,0 +1,45 @@
+package com.hubspot.jinjava.lib.tag.eager;
+
+import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.tag.IncludeTag;
+import com.hubspot.jinjava.loader.RelativePathResolver;
+import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
+import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.util.HelperStringTokenizer;
+import org.apache.commons.lang3.StringUtils;
+
+public class EagerIncludeTag extends EagerTagDecorator<IncludeTag> {
+
+  public EagerIncludeTag(IncludeTag tag) {
+    super(tag);
+  }
+
+  @Override
+  public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    int numEagerTokensStart = interpreter.getContext().getEagerTokens().size();
+    String output = super.interpret(tagNode, interpreter);
+    if (interpreter.getContext().getEagerTokens().size() > numEagerTokensStart) {
+      HelperStringTokenizer helper = new HelperStringTokenizer(tagNode.getHelpers());
+      String path = StringUtils.trimToEmpty(helper.next());
+      String templateFile = interpreter.resolveString(
+        path,
+        tagNode.getLineNumber(),
+        tagNode.getStartPosition()
+      );
+      final String initialPathSetter = EagerImportTag.getSetTagForCurrentPath(
+        interpreter
+      );
+      final String newPathSetter = buildSetTagForDeferredInChildContext(
+        ImmutableMap.of(
+          RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
+          PyishObjectMapper.getAsPyishString(templateFile)
+        ),
+        interpreter,
+        false
+      );
+      return newPathSetter + output + initialPathSetter;
+    }
+    return output;
+  }
+}
