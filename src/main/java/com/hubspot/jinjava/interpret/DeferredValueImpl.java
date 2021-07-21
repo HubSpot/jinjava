@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.interpret;
 
+import java.util.Objects;
+
 public class DeferredValueImpl implements DeferredValue {
   private static final DeferredValue INSTANCE = new DeferredValueImpl();
 
@@ -21,5 +23,10 @@ public class DeferredValueImpl implements DeferredValue {
 
   public static DeferredValue instance(Object originalValue) {
     return new DeferredValueImpl(originalValue);
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toString(originalValue);
   }
 }
