@@ -48,6 +48,11 @@ public class DeferredTest {
   }
 
   @Test
+  public void itGetsOriginalValueString() {
+    assertThat(DeferredValue.instance("abc").toString()).isEqualTo("abc");
+  }
+
+  @Test
   public void checkAssumptions() {
     // Just checking assumptions
     String output = interpreter.render("deferred");
