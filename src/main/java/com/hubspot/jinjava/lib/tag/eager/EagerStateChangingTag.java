@@ -30,7 +30,6 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
       getEagerImage(buildToken(tagNode, e, interpreter.getLineNumber()), interpreter)
     );
 
-    // Currently always false
     if (!tagNode.getChildren().isEmpty()) {
       result.append(
         executeInChildContext(
@@ -44,7 +43,6 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
       );
     }
 
-    // Currently always false
     if (
       StringUtils.isNotBlank(tagNode.getEndName()) &&
       (
