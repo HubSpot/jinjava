@@ -148,17 +148,20 @@ public class SetTag implements Tag, FlexibleTag {
         Collections.singletonList(sb.toString()),
         false
       );
-      Object finalVal = interpreter.resolveELExpression(
-        tagNode.getHelpers().trim(),
-        tagNode.getMaster().getLineNumber()
-      );
-      executeSet(
-        (TagToken) tagNode.getMaster(),
-        interpreter,
-        varAsArray,
-        Collections.singletonList(finalVal),
-        false
-      );
+      if (filterPos >= 0) {
+        // apply and save the filtered result
+        Object finalVal = interpreter.resolveELExpression(
+          tagNode.getHelpers().trim(),
+          tagNode.getMaster().getLineNumber()
+        );
+        executeSet(
+          (TagToken) tagNode.getMaster(),
+          interpreter,
+          varAsArray,
+          Collections.singletonList(finalVal),
+          false
+        );
+      }
     } catch (DeferredValueException e) {
       DeferredValueUtils.deferVariables(varAsArray, interpreter.getContext());
       throw e;
