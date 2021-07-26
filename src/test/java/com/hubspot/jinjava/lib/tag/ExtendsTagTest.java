@@ -244,6 +244,19 @@ public class ExtendsTagTest extends BaseInterpretingTest {
       .isEqualTo("/errors/error.html");
   }
 
+  @Test
+  public void itLimitsExtendsWithMultipleLevels() throws IOException {
+    // Previously this would run infinitely
+    RenderResult result = jinjava.renderForResult(
+      locator.fixture("rec1.jinja"),
+      new HashMap<>()
+    );
+    assertThat(result.getOutput().trim()).isEqualTo("foo");
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getMessage())
+      .contains("ExtendsTagCycleException");
+  }
+
   private static class ExtendsTagTestResourceLocator implements ResourceLocator {
     private RelativePathResolver relativePathResolver = new RelativePathResolver();
 
