@@ -58,20 +58,9 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         .asTemplateString()
     );
 
-    EagerExecutionResult eagerExecutionResult = executeInChildContext(
-      eagerInterpreter -> {
-        eagerInterpreter.getContext().put("loop", DeferredValue.instance());
-        return EagerExpressionResult.fromString(
-          renderChildren(tagNode, eagerInterpreter)
-        );
-      },
-      interpreter,
-      false,
-      false,
-      true
-    );
+    EagerExecutionResult eagerExecutionResult = runLoopOnce(tagNode, interpreter);
     if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
-      // Values cannot be modified within a for loop because we don't know many times, if any it will run
+      // Defer any variables that we tried to modify during the loop
       prefix =
         buildSetTagForDeferredInChildContext(
           eagerExecutionResult
@@ -87,19 +76,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
           interpreter,
           true
         );
-      eagerExecutionResult =
-        executeInChildContext(
-          eagerInterpreter -> {
-            eagerInterpreter.getContext().put("loop", DeferredValue.instance());
-            return EagerExpressionResult.fromString(
-              renderChildren(tagNode, eagerInterpreter)
-            );
-          },
-          interpreter,
-          false,
-          false,
-          true
-        );
+      eagerExecutionResult = runLoopOnce(tagNode, interpreter);
       if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
         throw new DeferredValueException(
           "Modified values in deferred for loop: " +
@@ -110,6 +87,24 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     result.append(eagerExecutionResult.asTemplateString());
     result.append(reconstructEnd(tagNode));
     return prefix + result;
+  }
+
+  private EagerExecutionResult runLoopOnce(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter
+  ) {
+    return executeInChildContext(
+      eagerInterpreter -> {
+        eagerInterpreter.getContext().put("loop", DeferredValue.instance());
+        return EagerExpressionResult.fromString(
+          renderChildren(tagNode, eagerInterpreter)
+        );
+      },
+      interpreter,
+      false,
+      false,
+      true
+    );
   }
 
   @Override
