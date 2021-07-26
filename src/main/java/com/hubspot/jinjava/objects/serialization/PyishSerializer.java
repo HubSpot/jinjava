@@ -3,6 +3,7 @@ package com.hubspot.jinjava.objects.serialization;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -21,10 +22,14 @@ public class PyishSerializer extends JsonSerializer<Object> {
     jsonGenerator.setPrettyPrinter(PyishPrettyPrinter.INSTANCE);
     jsonGenerator.setCharacterEscapes(PyishCharacterEscapes.INSTANCE);
     String string;
-    if (object instanceof PyishSerializable) {
-      jsonGenerator.writeRawValue(((PyishSerializable) object).toPyishString());
+    Object wrappedObject = JinjavaInterpreter
+      .getCurrentMaybe()
+      .map(interpreter -> interpreter.wrap(object))
+      .orElse(object);
+    if (wrappedObject instanceof PyishSerializable) {
+      jsonGenerator.writeRawValue(((PyishSerializable) wrappedObject).toPyishString());
     } else {
-      string = Objects.toString(object, "");
+      string = Objects.toString(wrappedObject, "");
       try {
         double number = Double.parseDouble(string);
         if (

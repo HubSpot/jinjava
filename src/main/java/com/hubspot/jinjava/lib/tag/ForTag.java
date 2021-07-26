@@ -34,6 +34,7 @@ import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
@@ -43,7 +44,10 @@ import java.beans.PropertyDescriptor;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.apache.commons.lang3.StringUtils;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * {% for a in b|f1:d,c %}
@@ -91,6 +95,7 @@ public class ForTag implements Tag {
 
   private static final long serialVersionUID = 6175143875754966497L;
   private static final String LOOP = "loop";
+  private static final Pattern IN_PATTERN = Pattern.compile("\\sin\\s");
 
   @Override
   public boolean isRenderedInValidationMode() {
@@ -126,24 +131,16 @@ public class ForTag implements Tag {
   }
 
   public String interpretUnchecked(TagNode tagNode, JinjavaInterpreter interpreter) {
-    String helpers = getWhitespaceAdjustedHelpers(tagNode.getHelpers());
-    List<String> helper = new HelperStringTokenizer(helpers).splitComma(true).allTokens();
+    Pair<List<String>, String> loopVarsAndExpression = getLoopVarsAndExpression(
+      (TagToken) tagNode.getMaster()
+    );
+    List<String> loopVars = loopVarsAndExpression.getLeft();
+    String loopExpression = loopVarsAndExpression.getRight();
 
-    List<String> loopVars = getLoopVars(helper);
-
-    if (loopVars.size() >= helper.size()) {
-      throw new TemplateSyntaxException(
-        tagNode.getHelpers().trim(),
-        "Tag 'for' expects valid 'in' clause, got: " + tagNode.getHelpers(),
-        tagNode.getLineNumber(),
-        tagNode.getStartPosition()
-      );
-    }
-
-    String loopExpr = getLoopExpression(helper, loopVars);
     Object collection;
     try {
-      collection = interpreter.resolveELExpression(loopExpr, tagNode.getLineNumber());
+      collection =
+        interpreter.resolveELExpression(loopExpression, tagNode.getLineNumber());
     } catch (DeferredParsingException e) {
       throw new DeferredParsingException(
         String.format("%s in %s", String.join(", ", loopVars), e.getDeferredEvalResult())
@@ -233,35 +230,33 @@ public class ForTag implements Tag {
     }
   }
 
-  public static String getWhitespaceAdjustedHelpers(String helpers) {
-    /* apdlv72@gmail.com
-     * Fix for issues with for-loops that contain whitespace in their range, e.g.
-     * "{% for i in range(1 * 1, 2 * 2) %}"
-     * This is because HelperStringTokenizer will split the range expressions also
-     * at white spaces and end up with [i, in, range(1, *, 1, 2, *, 2)].
-     * To avoid this, the below fix will remove white space from the expression
-     * on the right side of the keyword "in". It will do so however only if there
-     * are no characters in this expression that indicate strings - namely ' and ".
-     * This avoids messing up expressions like {% for i in ['a ','b'] %} that
-     * contain spaces in the arguments.
-     * TODO A somewhat more sophisticated tokenizing/parsing of the for-loop expression.
-     */
-    String[] parts = helpers.split("\\s+in\\s+");
-    if (parts.length == 2 && !parts[1].contains("'") && !parts[1].contains("\"")) {
-      helpers = parts[0] + " in " + parts[1].replace(" ", "");
+  public Pair<List<String>, String> getLoopVarsAndExpression(TagToken tagToken) {
+    List<String> helperTokens = new HelperStringTokenizer(tagToken.getHelpers())
+      .splitComma(true)
+      .allTokens();
+    List<String> loopVars = getLoopVars(helperTokens);
+    Optional<String> maybeLoopExpr = getLoopExpression(tagToken.getHelpers());
+
+    if (loopVars.size() >= helperTokens.size() || !maybeLoopExpr.isPresent()) {
+      throw new TemplateSyntaxException(
+        tagToken.getHelpers().trim(),
+        "Tag 'for' expects valid 'in' clause, got: " + tagToken.getHelpers(),
+        tagToken.getLineNumber(),
+        tagToken.getStartPosition()
+      );
     }
-    return helpers;
+    return Pair.of(loopVars, maybeLoopExpr.get());
   }
 
-  public String getLoopExpression(List<String> helper, List<String> loopVars) {
-    String loopExpr = StringUtils.join(
-      helper.subList(loopVars.size() + 1, helper.size()),
-      ","
-    );
-    return loopExpr;
+  private Optional<String> getLoopExpression(String helpers) {
+    Matcher matcher = IN_PATTERN.matcher(helpers);
+    if (matcher.find()) {
+      return Optional.of(helpers.substring(matcher.end()).trim());
+    }
+    return Optional.empty();
   }
 
-  public List<String> getLoopVars(List<String> helper) {
+  private List<String> getLoopVars(List<String> helper) {
     List<String> loopVars = Lists.newArrayList();
     while (loopVars.size() < helper.size()) {
       String val = helper.get(loopVars.size());

@@ -91,10 +91,11 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     try {
       Object methodProperty = getValue(context, base, method, false);
       if (methodProperty instanceof AbstractCallableMethod) {
-        context.setPropertyResolved(true);
-        return interpreter.getContext().isValidationMode()
+        Object result = interpreter.getContext().isValidationMode()
           ? ""
           : ((AbstractCallableMethod) methodProperty).evaluate(params);
+        context.setPropertyResolved(true);
+        return result;
       }
     } catch (IllegalArgumentException e) {
       // failed to access property, continue with method calls

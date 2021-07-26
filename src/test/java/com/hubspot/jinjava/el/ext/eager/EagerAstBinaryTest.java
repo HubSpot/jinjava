@@ -42,14 +42,24 @@ public class EagerAstBinaryTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itShortCircuitsDeferredAnd() {
-    assertThat(interpreter.resolveELExpression("false && deferred", -1)).isEqualTo(false);
-
+  public void itDoesNotShortCircuitIdentifier() {
     try {
       interpreter.resolveELExpression("foo && deferred && foo", -1);
       fail("Should throw DeferredParsingException");
     } catch (DeferredParsingException e) {
-      assertThat(e.getDeferredEvalResult()).isEqualTo("'bar' && deferred && foo");
+      assertThat(e.getDeferredEvalResult()).isEqualTo("'bar' && deferred && 'bar'");
+    }
+  }
+
+  @Test
+  public void itShortCircuitsDeferredAnd() {
+    assertThat(interpreter.resolveELExpression("false && deferred", -1)).isEqualTo(false);
+
+    try {
+      interpreter.resolveELExpression("foo && deferred && range(1)", -1);
+      fail("Should throw DeferredParsingException");
+    } catch (DeferredParsingException e) {
+      assertThat(e.getDeferredEvalResult()).isEqualTo("'bar' && deferred && range(1)");
     }
   }
 
@@ -57,20 +67,20 @@ public class EagerAstBinaryTest extends BaseInterpretingTest {
   public void itShortCircuitsDeferredOr() {
     assertThat(interpreter.resolveELExpression("foo || deferred", -1)).isEqualTo("bar");
     try {
-      interpreter.resolveELExpression("deferred || foo", -1);
+      interpreter.resolveELExpression("deferred || range(1)", -1);
       fail("Should throw DeferredParsingException");
     } catch (DeferredParsingException e) {
-      assertThat(e.getDeferredEvalResult()).isEqualTo("deferred || foo");
+      assertThat(e.getDeferredEvalResult()).isEqualTo("deferred || range(1)");
     }
   }
 
   @Test
   public void itDoesNotShortCircuitOtherOperators() {
     try {
-      interpreter.resolveELExpression("deferred + foo", -1);
+      interpreter.resolveELExpression("deferred + range(1)", -1);
       fail("Should throw DeferredParsingException");
     } catch (DeferredParsingException e) {
-      assertThat(e.getDeferredEvalResult()).isEqualTo("deferred + 'bar'");
+      assertThat(e.getDeferredEvalResult()).isEqualTo("deferred + [0]");
     }
   }
 }

@@ -403,9 +403,12 @@ public class EagerImportTagTest extends ImportTagTest {
   public void itDefersTripleLayer() {
     setupResourceLocator();
     context.put("a_val", DeferredValue.instance("a"));
+
     context.put("b_val", "b");
     context.put("c_val", "c");
-    String result = interpreter.render("{% import 'import-tree-c.jinja' as c %}{{ c }}");
+    String result = interpreter.render(
+      "{% import 'import-tree-c.jinja' as c %}{{ c|dictsort(false, 'key') }}"
+    );
     assertThat(interpreter.render("{{ c.b.a.foo_a }}")).isEqualTo("{{ c.b.a.foo_a }}");
     assertThat(interpreter.render("{{ c.b.foo_b }}")).isEqualTo("{{ c.b.foo_b }}");
     assertThat(interpreter.render("{{ c.foo_c }}")).isEqualTo("{{ c.foo_c }}");
@@ -413,12 +416,9 @@ public class EagerImportTagTest extends ImportTagTest {
     // There are some extras due to deferred values copying up the context stack.
     assertThat(interpreter.render(result).trim())
       .isEqualTo(
-        "{'b': {'foo_b': 'ba', 'a': " +
-        "{'foo_a': 'a', 'import_resource_path': 'import-tree-a.jinja', 'something': 'somn'}, " +
-        "'foo_a': 'a', 'import_resource_path': 'import-tree-b.jinja'}, " +
-        "'foo_c': 'cbaa', 'a': {'foo_a': 'a', 'import_resource_path': " +
-        "'import-tree-a.jinja', 'something': 'somn'}, " +
-        "'foo_b': 'ba', 'foo_a': 'a', 'import_resource_path': 'import-tree-c.jinja'}"
+        interpreter.render(
+          "{% import 'import-tree-c.jinja' as c %}{{ c|dictsort(false, 'key') }}"
+        )
       );
   }
 
@@ -543,6 +543,35 @@ public class EagerImportTagTest extends ImportTagTest {
     );
     context.put("deferred", "resolved");
     assertThat(interpreter.render(result)).isEqualTo("A_resolved_A-B_resolved_B");
+  }
+
+  @Test
+  public void itDefersWhenPathIsDeferred() {
+    String input = "{% import deferred as foo %}";
+    String output = interpreter.render(input);
+    assertThat(output).isEqualTo("{% set current_path = '' %}" + input);
+    assertThat(interpreter.getContext().get("foo"))
+      .isNotNull()
+      .isInstanceOf(DeferredValue.class);
+  }
+
+  @Test
+  public void itReconstructsCurrentPath() {
+    interpreter.getContext().put(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY, "bar");
+    String input = "{% import deferred as foo %}";
+    String output = interpreter.render(input);
+    assertThat(output).isEqualTo("{% set current_path = 'bar' %}" + input);
+    assertThat(interpreter.getContext().get("foo"))
+      .isNotNull()
+      .isInstanceOf(DeferredValue.class);
+  }
+
+  @Test
+  public void itDefersNodeWhenNoImportAlias() {
+    String input = "{% import deferred %}";
+    String output = interpreter.render(input);
+    assertThat(output).isEqualTo(input);
+    assertThat(interpreter.getContext().getDeferredNodes()).hasSize(1);
   }
 
   private static JinjavaInterpreter getChildInterpreter(

@@ -298,7 +298,7 @@ public class EagerExpressionResolverTest {
     EagerExpressionResult eagerExpressionResult = eagerResolveExpression("date");
 
     assertThat(WhitespaceUtils.unquoteAndUnescape(eagerExpressionResult.toString()))
-      .isEqualTo(date.toString());
+      .isEqualTo(date.toPyishString().replace("'", "\\'").replace('"', '\''));
   }
 
   @Test
@@ -591,6 +591,8 @@ public class EagerExpressionResolverTest {
     assertThat(eagerResolveExpression("true ? deferred : bar").toString())
       .isEqualTo("deferred");
     assertThat(eagerResolveExpression("false ? foo : deferred").toString())
+      .isEqualTo("deferred");
+    assertThat(eagerResolveExpression("null ? foo : deferred").toString())
       .isEqualTo("deferred");
   }
 

@@ -1,10 +1,14 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.FromTag;
+import com.hubspot.jinjava.loader.RelativePathResolver;
+import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import java.io.IOException;
@@ -28,19 +32,47 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
   @Override
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
     List<String> helper = FromTag.getHelpers(tagToken);
-
-    Optional<String> maybeTemplateFile = FromTag.getTemplateFile(
-      helper,
-      tagToken,
-      interpreter
-    );
+    Map<String, String> imports = FromTag.getImportMap(helper);
+    Optional<String> maybeTemplateFile;
+    try {
+      maybeTemplateFile = FromTag.getTemplateFile(helper, tagToken, interpreter);
+    } catch (DeferredValueException e) {
+      imports
+        .values()
+        .forEach(
+          value -> {
+            MacroFunction deferredMacro = new MacroFunction(
+              null,
+              value,
+              null,
+              false,
+              null,
+              tagToken.getLineNumber(),
+              tagToken.getStartPosition()
+            );
+            deferredMacro.setDeferred(true);
+            interpreter.getContext().addGlobalMacro(deferredMacro);
+          }
+        );
+      return (
+        buildSetTagForDeferredInChildContext(
+          ImmutableMap.of(
+            RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
+            PyishObjectMapper.getAsPyishString(
+              interpreter.getContext().get(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY)
+            )
+          ),
+          interpreter,
+          false
+        ) +
+        tagToken.getImage()
+      );
+    }
     if (!maybeTemplateFile.isPresent()) {
       return "";
     }
     String templateFile = maybeTemplateFile.get();
     try {
-      Map<String, String> imports = FromTag.getImportMap(helper);
-
       try {
         String template = interpreter.getResource(templateFile);
         Node node = interpreter.parse(template);

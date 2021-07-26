@@ -11,6 +11,7 @@ import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -69,6 +70,7 @@ public class MacroFunction extends AbstractCallableMethod {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     Optional<String> importFile = getImportFile(interpreter);
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
+      interpreter.getContext().setDeferredExecutionMode(false);
       String result = getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
 
       if (
@@ -167,5 +169,27 @@ public class MacroFunction extends AbstractCallableMethod {
       return content.get(0).getParent().reconstructImage();
     }
     return "";
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    MacroFunction that = (MacroFunction) o;
+    return (
+      caller == that.caller &&
+      definitionLineNumber == that.definitionLineNumber &&
+      definitionStartPosition == that.definitionStartPosition &&
+      content.equals(that.content)
+    );
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(content, caller, definitionLineNumber, definitionStartPosition);
   }
 }

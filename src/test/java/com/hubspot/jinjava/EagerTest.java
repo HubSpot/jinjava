@@ -750,7 +750,9 @@ public class EagerTest {
 
   @Test
   public void itHandlesDeferredImportVars() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-import-vars");
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-deferred-import-vars"
+    );
   }
 
   @Test

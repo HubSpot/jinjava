@@ -64,6 +64,13 @@ import org.apache.commons.lang3.StringUtils;
       code = "{% set var_one = \"String 1\" %}\n" +
       "{% set var_two = \"String 2\" %}\n" +
       "{% set sequence = [var_one,  var_two] %}"
+    ),
+    @JinjavaSnippet(
+      desc = "You can set a value to the string value within a block",
+      code = "{% set name = 'Jack' %}\n" +
+      "{% set message %}\n" +
+      "My name is {{ name }}\n" +
+      "{% end_set %}"
     )
   }
 )
