@@ -53,6 +53,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -308,8 +309,22 @@ public class JinjavaInterpreter implements PyishSerializable {
 
     // render all extend parents, keeping the last as the root output
     if (processExtendRoots) {
+      Set<String> extendPaths = new HashSet<>();
       Optional<String> extendPath = context.getExtendPathStack().peek();
       while (!extendParentRoots.isEmpty()) {
+        if (extendPaths.contains(extendPath.orElse(""))) {
+          addError(
+            TemplateError.fromException(
+              new ExtendsTagCycleException(
+                extendPath.orElse(""),
+                context.getExtendPathStack().getTopLineNumber(),
+                context.getExtendPathStack().getTopStartPosition()
+              )
+            )
+          );
+          break;
+        }
+        extendPaths.add(extendPath.orElse(""));
         context
           .getCurrentPathStack()
           .push(
