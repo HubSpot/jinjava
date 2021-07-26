@@ -162,7 +162,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    * @param interpreter The JinjavaInterpreter.
    * @return the string output of this tag node's children.
    */
-  public static String renderChildren(TagNode tagNode, JinjavaInterpreter interpreter) {
+  public String renderChildren(TagNode tagNode, JinjavaInterpreter interpreter) {
     StringBuilder sb = new StringBuilder();
     for (Node child : tagNode.getChildren()) {
       sb.append(child.render(interpreter).getValue());
