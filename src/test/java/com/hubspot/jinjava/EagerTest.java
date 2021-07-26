@@ -99,6 +99,18 @@ public class EagerTest {
   }
 
   @Test
+  public void itDefersNodeWhenModifiedInForLoop() {
+    assertThat(
+        interpreter.render(
+          "{% set bar = 'bar' %}{% set foo = 0 %}{% for i in deferred %}{{ bar ~ foo ~ bar }} {% set foo = foo + 1 %}{% endfor %}"
+        )
+      )
+      .isEqualTo(
+        "{% set foo = 0 %}{% for i in deferred %}{{ 'bar' ~ foo ~ 'bar' }} {% set foo = foo + 1 %}{% endfor %}"
+      );
+  }
+
+  @Test
   public void checkAssumptions() {
     // Just checking assumptions
     String output = interpreter.render("deferred");
