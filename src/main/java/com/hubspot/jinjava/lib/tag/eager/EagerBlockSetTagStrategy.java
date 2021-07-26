@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
+import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
@@ -31,12 +32,12 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
     int numEagerTokens = interpreter.getContext().getEagerTokens().size();
     return EagerTagDecorator.executeInChildContext(
       eagerInterpreter -> {
-        String renderedChildren = EagerTagDecorator.renderChildren(
-          tagNode,
-          eagerInterpreter
-        );
+        StringBuilder sb = new StringBuilder();
+        for (Node child : tagNode.getChildren()) {
+          sb.append(child.render(eagerInterpreter).getValue());
+        }
         return EagerExpressionResult.fromString(
-          renderedChildren,
+          sb.toString(),
           numEagerTokens ==
             eagerInterpreter.getContext().getParent().getEagerTokens().size()
             ? ResolutionState.FULL
