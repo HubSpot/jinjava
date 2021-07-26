@@ -24,9 +24,11 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.objects.Namespace;
+import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.DeferredValueUtils;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
@@ -62,11 +64,18 @@ import org.apache.commons.lang3.StringUtils;
       code = "{% set var_one = \"String 1\" %}\n" +
       "{% set var_two = \"String 2\" %}\n" +
       "{% set sequence = [var_one,  var_two] %}"
+    ),
+    @JinjavaSnippet(
+      desc = "You can set a value to the string value within a block",
+      code = "{% set name = 'Jack' %}\n" +
+      "{% set message %}\n" +
+      "My name is {{ name }}\n" +
+      "{% end_set %}"
     )
   }
 )
 @JinjavaTextMateSnippet(code = "{% set ${1:var} = ${2:expr} %}")
-public class SetTag implements Tag {
+public class SetTag implements Tag, FlexibleTag {
   public static final String TAG_NAME = "set";
 
   private static final long serialVersionUID = -8558479410226781539L;
@@ -79,13 +88,7 @@ public class SetTag implements Tag {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     if (!tagNode.getHelpers().contains("=")) {
-      throw new TemplateSyntaxException(
-        tagNode.getMaster().getImage(),
-        "Tag 'set' expects an assignment expression with '=', but was: " +
-        tagNode.getHelpers(),
-        tagNode.getLineNumber(),
-        tagNode.getStartPosition()
-      );
+      return interpretBlockSet(tagNode, interpreter);
     }
 
     int eqPos = tagNode.getHelpers().indexOf('=');
@@ -123,6 +126,46 @@ public class SetTag implements Tag {
       throw e;
     }
 
+    return "";
+  }
+
+  public String interpretBlockSet(TagNode tagNode, JinjavaInterpreter interpreter) {
+    int filterPos = tagNode.getHelpers().indexOf('|');
+    String var = tagNode.getHelpers().trim();
+    if (filterPos >= 0) {
+      var = tagNode.getHelpers().substring(0, filterPos).trim();
+    }
+    StringBuilder sb = new StringBuilder();
+    for (Node child : tagNode.getChildren()) {
+      sb.append(child.render(interpreter));
+    }
+    String[] varAsArray = new String[] { var };
+    try {
+      executeSet(
+        (TagToken) tagNode.getMaster(),
+        interpreter,
+        varAsArray,
+        Collections.singletonList(sb.toString()),
+        false
+      );
+      if (filterPos >= 0) {
+        // apply and save the filtered result
+        Object finalVal = interpreter.resolveELExpression(
+          tagNode.getHelpers().trim(),
+          tagNode.getMaster().getLineNumber()
+        );
+        executeSet(
+          (TagToken) tagNode.getMaster(),
+          interpreter,
+          varAsArray,
+          Collections.singletonList(finalVal),
+          false
+        );
+      }
+    } catch (DeferredValueException e) {
+      DeferredValueUtils.deferVariables(varAsArray, interpreter.getContext());
+      throw e;
+    }
     return "";
   }
 
@@ -193,6 +236,11 @@ public class SetTag implements Tag {
 
   @Override
   public String getEndTagName() {
-    return null;
+    return "endset";
+  }
+
+  @Override
+  public boolean hasEndTag(TagToken tagToken) {
+    return !tagToken.getHelpers().contains("=");
   }
 }

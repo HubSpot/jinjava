@@ -28,6 +28,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
 import com.hubspot.jinjava.interpret.UnknownTagException;
 import com.hubspot.jinjava.lib.tag.EndTag;
+import com.hubspot.jinjava.lib.tag.FlexibleTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -225,7 +226,10 @@ public class TreeParser {
     TagNode node = new TagNode(tag, tagToken, symbols);
     node.setParent(parent);
 
-    if (node.getEndName() != null) {
+    if (
+      node.getEndName() != null &&
+      (!(tag instanceof FlexibleTag) || ((FlexibleTag) tag).hasEndTag(tagToken))
+    ) {
       parent.getChildren().add(node);
       parent = node;
       return null;
