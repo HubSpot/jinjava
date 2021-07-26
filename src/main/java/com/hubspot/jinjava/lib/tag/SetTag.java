@@ -140,7 +140,7 @@ public class SetTag implements Tag, FlexibleTag {
       sb.append(child.render(interpreter));
     }
     try {
-      executeSetBlock(tagNode, var, sb.toString(), interpreter);
+      executeSetBlock(tagNode, var, sb.toString(), filterPos >= 0, interpreter);
     } catch (DeferredValueException e) {
       DeferredValueUtils.deferVariables(new String[] { var }, interpreter.getContext());
       throw e;
@@ -152,6 +152,7 @@ public class SetTag implements Tag, FlexibleTag {
     TagNode tagNode,
     String var,
     String resolvedBlock,
+    boolean hasFilterOp,
     JinjavaInterpreter interpreter
   ) {
     String[] varAsArray = new String[] { var };
@@ -162,17 +163,20 @@ public class SetTag implements Tag, FlexibleTag {
       Collections.singletonList(resolvedBlock),
       false
     );
-    Object finalVal = interpreter.resolveELExpression(
-      tagNode.getHelpers().trim(),
-      tagNode.getMaster().getLineNumber()
-    );
-    executeSet(
-      (TagToken) tagNode.getMaster(),
-      interpreter,
-      varAsArray,
-      Collections.singletonList(finalVal),
-      false
-    );
+    if (hasFilterOp) {
+      // Evaluate the whole expression to get the filtered result
+      Object finalVal = interpreter.resolveELExpression(
+        tagNode.getHelpers().trim(),
+        tagNode.getMaster().getLineNumber()
+      );
+      executeSet(
+        (TagToken) tagNode.getMaster(),
+        interpreter,
+        varAsArray,
+        Collections.singletonList(finalVal),
+        false
+      );
+    }
   }
 
   public void executeSet(
