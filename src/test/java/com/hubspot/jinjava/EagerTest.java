@@ -866,4 +866,17 @@ public class EagerTest {
       "handles-clashing-name-in-macro.expected"
     );
   }
+
+  @Test
+  public void itHandlesBlockSetInDeferredIf() {
+    expectedTemplateInterpreter.assertExpectedOutput("handles-block-set-in-deferred-if");
+  }
+
+  @Test
+  public void itHandlesBlockSetInDeferredIfSecondPass() {
+    localContext.put("deferred", 1);
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-block-set-in-deferred-if.expected"
+    );
+  }
 }

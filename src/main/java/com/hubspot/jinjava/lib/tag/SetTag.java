@@ -129,7 +129,7 @@ public class SetTag implements Tag, FlexibleTag {
     return "";
   }
 
-  public String interpretBlockSet(TagNode tagNode, JinjavaInterpreter interpreter) {
+  private String interpretBlockSet(TagNode tagNode, JinjavaInterpreter interpreter) {
     int filterPos = tagNode.getHelpers().indexOf('|');
     String var = tagNode.getHelpers().trim();
     if (filterPos >= 0) {
@@ -139,34 +139,44 @@ public class SetTag implements Tag, FlexibleTag {
     for (Node child : tagNode.getChildren()) {
       sb.append(child.render(interpreter));
     }
-    String[] varAsArray = new String[] { var };
     try {
+      executeSetBlock(tagNode, var, sb.toString(), filterPos >= 0, interpreter);
+    } catch (DeferredValueException e) {
+      DeferredValueUtils.deferVariables(new String[] { var }, interpreter.getContext());
+      throw e;
+    }
+    return "";
+  }
+
+  private void executeSetBlock(
+    TagNode tagNode,
+    String var,
+    String resolvedBlock,
+    boolean hasFilterOp,
+    JinjavaInterpreter interpreter
+  ) {
+    String[] varAsArray = new String[] { var };
+    executeSet(
+      (TagToken) tagNode.getMaster(),
+      interpreter,
+      varAsArray,
+      Collections.singletonList(resolvedBlock),
+      false
+    );
+    if (hasFilterOp) {
+      // Evaluate the whole expression to get the filtered result
+      Object finalVal = interpreter.resolveELExpression(
+        tagNode.getHelpers().trim(),
+        tagNode.getMaster().getLineNumber()
+      );
       executeSet(
         (TagToken) tagNode.getMaster(),
         interpreter,
         varAsArray,
-        Collections.singletonList(sb.toString()),
+        Collections.singletonList(finalVal),
         false
       );
-      if (filterPos >= 0) {
-        // apply and save the filtered result
-        Object finalVal = interpreter.resolveELExpression(
-          tagNode.getHelpers().trim(),
-          tagNode.getMaster().getLineNumber()
-        );
-        executeSet(
-          (TagToken) tagNode.getMaster(),
-          interpreter,
-          varAsArray,
-          Collections.singletonList(finalVal),
-          false
-        );
-      }
-    } catch (DeferredValueException e) {
-      DeferredValueUtils.deferVariables(varAsArray, interpreter.getContext());
-      throw e;
     }
-    return "";
   }
 
   public void executeSet(
