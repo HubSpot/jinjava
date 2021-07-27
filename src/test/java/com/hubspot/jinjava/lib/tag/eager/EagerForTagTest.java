@@ -9,7 +9,6 @@ import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
-import com.hubspot.jinjava.lib.tag.ForTag;
 import com.hubspot.jinjava.lib.tag.ForTagTest;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -100,19 +99,23 @@ public class EagerForTagTest extends ForTagTest {
 
   @Test
   public void itDoesntAllowChangesInDeferredFor() {
-    interpreter.render(
-      "{% set foo = [0] %}\n" +
-      "{% for i in range(0, deferred) %}\n" +
-      "{{ foo }}\n" +
+    String result = interpreter.render(
+      "{% set foo = [0] -%}\n" +
+      "{%- for i in range(0, deferred) %}\n" +
+      "{{ 'bar' }}{{ foo }}\n" +
       "{% do foo.append(1) %}\n" +
       "{% endfor %}\n" +
       "{{ foo }}"
     );
-    assertThat(interpreter.getContext().getDeferredNodes()).hasSize(1);
-    assertThat(
-        interpreter.getContext().getDeferredNodes().stream().findAny().get().getName()
-      )
-      .isEqualTo(ForTag.TAG_NAME);
+    assertThat(result)
+      .isEqualTo(
+        "{% set foo = [0] %}{% for i in range(0, deferred) %}\n" +
+        "bar{{ foo }}\n" +
+        "{% do foo.append(1) %}\n" +
+        "{% endfor %}\n" +
+        "{{ foo }}"
+      );
+    assertThat(interpreter.getContext().getDeferredNodes()).hasSize(0);
   }
 
   @Test

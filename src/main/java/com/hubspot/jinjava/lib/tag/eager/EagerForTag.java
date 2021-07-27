@@ -5,6 +5,7 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.ForTag;
+import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
@@ -13,6 +14,7 @@ import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -35,6 +37,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxOutputSize()
     );
+    String prefix = "";
 
     // separate getEagerImage from renderChildren because the token gets evaluated once
     // while the children are evaluated 0...n times.
@@ -55,7 +58,42 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         .asTemplateString()
     );
 
-    EagerExecutionResult eagerExecutionResult = executeInChildContext(
+    EagerExecutionResult eagerExecutionResult = runLoopOnce(tagNode, interpreter);
+    if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
+      // Defer any variables that we tried to modify during the loop
+      prefix =
+        buildSetTagForDeferredInChildContext(
+          eagerExecutionResult
+            .getSpeculativeBindings()
+            .entrySet()
+            .stream()
+            .collect(
+              Collectors.toMap(
+                Entry::getKey,
+                entry -> PyishObjectMapper.getAsPyishString(entry.getValue())
+              )
+            ),
+          interpreter,
+          true
+        );
+      eagerExecutionResult = runLoopOnce(tagNode, interpreter);
+      if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
+        throw new DeferredValueException(
+          "Modified values in deferred for loop: " +
+          String.join(", ", eagerExecutionResult.getSpeculativeBindings().keySet())
+        );
+      }
+    }
+    result.append(eagerExecutionResult.asTemplateString());
+    result.append(reconstructEnd(tagNode));
+    return prefix + result;
+  }
+
+  private EagerExecutionResult runLoopOnce(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter
+  ) {
+    return executeInChildContext(
       eagerInterpreter -> {
         eagerInterpreter.getContext().put("loop", DeferredValue.instance());
         return EagerExpressionResult.fromString(
@@ -67,22 +105,6 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       false,
       true
     );
-    if (
-      eagerExecutionResult
-        .getSpeculativeBindings()
-        .keySet()
-        .stream()
-        .anyMatch(key -> !(interpreter.getContext().get(key) instanceof DeferredValue))
-    ) {
-      // Values cannot be modified within a for loop because we don't know many times, if any it will run
-      throw new DeferredValueException(
-        "Modified values in deferred for loop: " +
-        String.join(", ", eagerExecutionResult.getSpeculativeBindings().keySet())
-      );
-    }
-    result.append(eagerExecutionResult.asTemplateString());
-    result.append(reconstructEnd(tagNode));
-    return result.toString();
   }
 
   @Override
