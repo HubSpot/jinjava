@@ -30,6 +30,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     ExpressionToken master,
     JinjavaInterpreter interpreter
   ) {
+    int numEagerTokensStart = interpreter.getContext().getEagerTokens().size();
     EagerExecutionResult eagerExecutionResult;
     eagerExecutionResult =
       EagerTagDecorator.executeInChildContext(
@@ -46,7 +47,10 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     } else {
       interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
     }
-    if (eagerExecutionResult.getResult().isFullyResolved()) {
+    if (
+      eagerExecutionResult.getResult().isFullyResolved() &&
+      interpreter.getContext().getEagerTokens().size() == numEagerTokensStart
+    ) {
       String result = eagerExecutionResult.getResult().toString(true);
       if (
         !StringUtils.equals(result, master.getImage()) &&
