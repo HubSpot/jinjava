@@ -48,8 +48,18 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     }
     if (eagerExecutionResult.getResult().isFullyResolved()) {
       String result = eagerExecutionResult.getResult().toString(true);
+      boolean containsIncompleteComment =
+        StringUtils.contains(
+          result,
+          "" + master.getSymbols().getPrefixChar() + master.getSymbols().getNoteChar()
+        ) &&
+        !StringUtils.contains(
+          result,
+          "" + master.getSymbols().getNoteChar() + master.getSymbols().getPostfixChar()
+        );
       if (
         !StringUtils.equals(result, master.getImage()) &&
+        !containsIncompleteComment &&
         (
           StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
           StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag())
