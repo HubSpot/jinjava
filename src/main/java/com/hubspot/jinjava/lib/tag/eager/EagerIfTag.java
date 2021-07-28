@@ -90,6 +90,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
   ) {
     // line number of the last attempted resolveELExpression
     final int deferredLineNumber = interpreter.getLineNumber();
+    final int deferredPosition = interpreter.getPosition();
     // If the branch is impossible, it should be removed.
     boolean definitelyDrop = shouldDropBranch(tagNode, interpreter, deferredLineNumber);
     // If an ("elseif") branch would definitely get executed,
@@ -98,7 +99,12 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     // the first branch.
     boolean definitelyExecuted = false;
     StringBuilder sb = new StringBuilder();
-    sb.append(getEagerImage(buildToken(tagNode, e, deferredLineNumber), interpreter));
+    sb.append(
+      getEagerImage(
+        buildToken(tagNode, e, deferredLineNumber, deferredPosition),
+        interpreter
+      )
+    );
     int branchStart = 0;
     int childrenSize = tagNode.getChildren().size();
     while (branchStart < childrenSize) {
@@ -139,7 +145,10 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
           );
         } else {
           sb.append(
-            getEagerImage(buildToken(caseNode, e, deferredLineNumber), interpreter)
+            getEagerImage(
+              buildToken(caseNode, e, deferredLineNumber, deferredPosition),
+              interpreter
+            )
           );
         }
       }

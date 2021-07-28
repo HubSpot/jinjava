@@ -27,7 +27,10 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
     InterpretException e
   ) {
     StringBuilder result = new StringBuilder(
-      getEagerImage(buildToken(tagNode, e, interpreter.getLineNumber()), interpreter)
+      getEagerImage(
+        buildToken(tagNode, e, interpreter.getLineNumber(), interpreter.getPosition()),
+        interpreter
+      )
     );
 
     if (!tagNode.getChildren().isEmpty()) {

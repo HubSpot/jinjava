@@ -46,7 +46,12 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
           eagerInterpreter ->
             EagerExpressionResult.fromString(
               getEagerImage(
-                buildToken(tagNode, e, interpreter.getLineNumber()),
+                buildToken(
+                  tagNode,
+                  e,
+                  interpreter.getLineNumber(),
+                  interpreter.getPosition()
+                ),
                 eagerInterpreter
               )
             ),
