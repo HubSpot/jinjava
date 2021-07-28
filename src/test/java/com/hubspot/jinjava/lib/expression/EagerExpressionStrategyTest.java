@@ -146,6 +146,11 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
     assertExpectedOutput("{{ is_deferred_execution_mode() }}", "true");
   }
 
+  @Test
+  public void itDoesNotNestedInterpretIfThereAreFakeNotes() {
+    assertExpectedOutput("{{ '{#something_to_{{keep}}' }}", "{#something_to_{{keep}}");
+  }
+
   private void assertExpectedOutput(String inputTemplate, String expectedOutput) {
     assertThat(interpreter.render(inputTemplate)).isEqualTo(expectedOutput);
   }

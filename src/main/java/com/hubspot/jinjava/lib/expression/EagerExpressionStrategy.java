@@ -30,7 +30,6 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     ExpressionToken master,
     JinjavaInterpreter interpreter
   ) {
-    int numEagerTokensStart = interpreter.getContext().getEagerTokens().size();
     EagerExecutionResult eagerExecutionResult;
     eagerExecutionResult =
       EagerTagDecorator.executeInChildContext(
@@ -47,13 +46,20 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     } else {
       interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
     }
-    if (
-      eagerExecutionResult.getResult().isFullyResolved() &&
-      interpreter.getContext().getEagerTokens().size() == numEagerTokensStart
-    ) {
+    if (eagerExecutionResult.getResult().isFullyResolved()) {
       String result = eagerExecutionResult.getResult().toString(true);
+      boolean containsIncompleteComment =
+        StringUtils.contains(
+          result,
+          "" + master.getSymbols().getPrefixChar() + master.getSymbols().getNoteChar()
+        ) &&
+        !StringUtils.contains(
+          result,
+          "" + master.getSymbols().getNoteChar() + master.getSymbols().getPostfixChar()
+        );
       if (
         !StringUtils.equals(result, master.getImage()) &&
+        !containsIncompleteComment &&
         (
           StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
           StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag())
