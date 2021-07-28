@@ -1,0 +1,3 @@
+{% set foo = [0] %}
+{% if deferred && foo.append(1) %}1{% elif deferred && foo.append(2) %}2{% endif %}
+{{ foo }}

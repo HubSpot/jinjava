@@ -111,7 +111,12 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           eagerInterpreter ->
             EagerExpressionResult.fromString(
               getEagerImage(
-                buildToken(tagNode, e, interpreter.getLineNumber()),
+                buildToken(
+                  tagNode,
+                  e,
+                  interpreter.getLineNumber(),
+                  interpreter.getPosition()
+                ),
                 eagerInterpreter
               ) +
               renderChildren(tagNode, eagerInterpreter)
@@ -134,11 +139,13 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   public TagToken buildToken(
     TagNode tagNode,
     InterpretException e,
-    int deferredLineNumber
+    int deferredLineNumber,
+    int deferredPosition
   ) {
     if (
       e instanceof DeferredParsingException &&
-      deferredLineNumber == tagNode.getLineNumber()
+      deferredLineNumber == tagNode.getLineNumber() &&
+      deferredPosition == tagNode.getStartPosition()
     ) {
       return new TagToken(
         String.format(

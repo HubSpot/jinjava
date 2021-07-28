@@ -90,15 +90,26 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
   ) {
     // line number of the last attempted resolveELExpression
     final int deferredLineNumber = interpreter.getLineNumber();
+    final int deferredPosition = interpreter.getPosition();
     // If the branch is impossible, it should be removed.
-    boolean definitelyDrop = shouldDropBranch(tagNode, interpreter, deferredLineNumber);
+    boolean definitelyDrop = shouldDropBranch(
+      tagNode,
+      interpreter,
+      deferredLineNumber,
+      deferredPosition
+    );
     // If an ("elseif") branch would definitely get executed,
     // change it to an "else" tag and drop all the subsequent branches.
     // We know this has to start as false otherwise IfTag would have chosen
     // the first branch.
     boolean definitelyExecuted = false;
     StringBuilder sb = new StringBuilder();
-    sb.append(getEagerImage(buildToken(tagNode, e, deferredLineNumber), interpreter));
+    sb.append(
+      getEagerImage(
+        buildToken(tagNode, e, deferredLineNumber, deferredPosition),
+        interpreter
+      )
+    );
     int branchStart = 0;
     int childrenSize = tagNode.getChildren().size();
     while (branchStart < childrenSize) {
@@ -124,7 +135,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       TagNode caseNode = (TagNode) tagNode.getChildren().get(branchEnd);
       definitelyDrop =
         caseNode.getName().equals(ElseIfTag.TAG_NAME) &&
-        shouldDropBranch(caseNode, interpreter, deferredLineNumber);
+        shouldDropBranch(caseNode, interpreter, deferredLineNumber, deferredPosition);
       if (!definitelyDrop) {
         definitelyExecuted =
           caseNode.getName().equals(ElseTag.TAG_NAME) ||
@@ -139,7 +150,10 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
           );
         } else {
           sb.append(
-            getEagerImage(buildToken(caseNode, e, deferredLineNumber), interpreter)
+            getEagerImage(
+              buildToken(caseNode, e, deferredLineNumber, deferredPosition),
+              interpreter
+            )
           );
         }
       }
@@ -209,13 +223,18 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
   private boolean shouldDropBranch(
     TagNode tagNode,
     JinjavaInterpreter eagerInterpreter,
-    int deferredLineNumber
+    int deferredLineNumber,
+    int deferredPosition
   ) {
     if (deferredLineNumber > tagNode.getLineNumber()) {
       return true; // Deferred value thrown on a later branch so we can drop this one.
-    } else if (deferredLineNumber == tagNode.getLineNumber()) {
-      return false;
+    } else if (
+      deferredLineNumber == tagNode.getLineNumber() &&
+      deferredPosition >= tagNode.getStartPosition()
+    ) {
+      return deferredPosition > tagNode.getStartPosition(); // false if they are equal
     }
+    // the tag node is after the deferred exception location
     try {
       return !ObjectTruthValue.evaluate(
         eagerInterpreter.resolveELExpression(

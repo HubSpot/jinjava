@@ -27,7 +27,7 @@ public class EagerSetTag extends EagerStateChangingTag<SetTag> implements Flexib
       return EagerInlineSetTagStrategy.INSTANCE.run(
         new TagNode(
           getTag(),
-          buildToken(tagNode, e, interpreter.getLineNumber()),
+          buildToken(tagNode, e, interpreter.getLineNumber(), interpreter.getPosition()),
           tagNode.getSymbols()
         ),
         interpreter

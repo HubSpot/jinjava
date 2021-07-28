@@ -891,4 +891,9 @@ public class EagerTest {
       "handles-block-set-in-deferred-if.expected"
     );
   }
+
+  @Test
+  public void itDoesntOverwriteElif() {
+    expectedTemplateInterpreter.assertExpectedOutput("doesnt-overwrite-elif");
+  }
 }
