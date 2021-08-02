@@ -578,6 +578,19 @@ public class JinjavaInterpreter implements PyishSerializable {
   }
 
   /**
+   * Resolve expression against current context. Also set the interpreter's position,
+   * useful for nodes that resolve multiple expressions such as a node using an IfTag and ElseTags.
+   * @param expression Jinja expression.
+   * @param lineNumber Line number of expression.
+   * @param position Start position of expression.
+   * @return Value of expression.
+   */
+  public Object resolveELExpression(String expression, int lineNumber, int position) {
+    this.position = position;
+    return resolveELExpression(expression, lineNumber);
+  }
+
+  /**
    * Resolve property of bean.
    *
    * @param object
