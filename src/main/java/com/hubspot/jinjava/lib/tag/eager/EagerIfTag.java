@@ -239,7 +239,8 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       return !ObjectTruthValue.evaluate(
         eagerInterpreter.resolveELExpression(
           tagNode.getHelpers(),
-          tagNode.getLineNumber()
+          tagNode.getLineNumber(),
+          tagNode.getStartPosition()
         )
       );
     } catch (DeferredValueException e) {
@@ -259,7 +260,8 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       return ObjectTruthValue.evaluate(
         eagerInterpreter.resolveELExpression(
           tagNode.getHelpers(),
-          tagNode.getLineNumber()
+          tagNode.getLineNumber(),
+          tagNode.getStartPosition()
         )
       );
     } catch (DeferredValueException e) {

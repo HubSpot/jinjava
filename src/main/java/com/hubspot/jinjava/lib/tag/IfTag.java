@@ -133,7 +133,11 @@ public class IfTag implements Tag {
     JinjavaInterpreter interpreter
   ) {
     return ObjectTruthValue.evaluate(
-      interpreter.resolveELExpression(tagNode.getHelpers(), tagNode.getLineNumber())
+      interpreter.resolveELExpression(
+        tagNode.getHelpers(),
+        tagNode.getLineNumber(),
+        tagNode.getStartPosition()
+      )
     );
   }
 
