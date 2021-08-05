@@ -48,32 +48,26 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     }
     if (eagerExecutionResult.getResult().isFullyResolved()) {
       String result = eagerExecutionResult.getResult().toString(true);
-      boolean containsIncompleteComment =
-        StringUtils.contains(
-          result,
-          "" + master.getSymbols().getPrefixChar() + master.getSymbols().getNoteChar()
-        ) &&
-        !StringUtils.contains(
-          result,
-          "" + master.getSymbols().getNoteChar() + master.getSymbols().getPostfixChar()
-        );
-      if (
-        !StringUtils.equals(result, master.getImage()) &&
-        !containsIncompleteComment &&
-        (
-          StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
-          StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag())
-        )
-      ) {
-        if (interpreter.getConfig().isNestedInterpretationEnabled()) {
-          try {
-            result = interpreter.renderFlat(result);
-          } catch (Exception e) {
-            Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
+      if (!StringUtils.equals(result, master.getImage())) {
+        long errorSizeStart = getUnclosedCommentErrorsCount(interpreter);
+        interpreter.parse(result);
+        if (
+          getUnclosedCommentErrorsCount(interpreter) == errorSizeStart &&
+          (
+            StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
+            StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag())
+          )
+        ) {
+          if (interpreter.getConfig().isNestedInterpretationEnabled()) {
+            try {
+              result = interpreter.renderFlat(result);
+            } catch (Exception e) {
+              Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
+            }
+          } else {
+            // Possible macro/set tag in front of this one. Includes result
+            result = wrapInRawOrExpressionIfNeeded(result, interpreter);
           }
-        } else {
-          // Possible macro/set tag in front of this one. Includes result
-          result = wrapInRawOrExpressionIfNeeded(result, interpreter);
         }
       }
 
@@ -117,6 +111,14 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       prefixToPreserveState.toString() + helpers,
       interpreter
     );
+  }
+
+  private long getUnclosedCommentErrorsCount(JinjavaInterpreter interpreter) {
+    return interpreter
+      .getErrors()
+      .stream()
+      .filter(error -> "Unclosed comment".equals(error.getMessage()))
+      .count();
   }
 
   private static String wrapInRawOrExpressionIfNeeded(

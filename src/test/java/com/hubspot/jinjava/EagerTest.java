@@ -754,7 +754,6 @@ public class EagerTest {
     try {
       new ExpectedTemplateInterpreter(jinjava, noNestedInterpreter, "eager")
       .assertExpectedOutput("wraps-certain-output-in-raw");
-      assertThat(noNestedInterpreter.getErrors()).isEmpty();
     } finally {
       JinjavaInterpreter.popCurrent();
     }
