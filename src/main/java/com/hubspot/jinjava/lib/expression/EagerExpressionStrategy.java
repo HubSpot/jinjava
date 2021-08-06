@@ -48,26 +48,26 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     }
     if (eagerExecutionResult.getResult().isFullyResolved()) {
       String result = eagerExecutionResult.getResult().toString(true);
-      if (!StringUtils.equals(result, master.getImage())) {
-        long errorSizeStart = getUnclosedCommentErrorsCount(interpreter);
-        interpreter.parse(result);
-        if (
-          getUnclosedCommentErrorsCount(interpreter) == errorSizeStart &&
-          (
-            StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
-            StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag())
-          )
-        ) {
-          if (interpreter.getConfig().isNestedInterpretationEnabled()) {
+      if (
+        !StringUtils.equals(result, master.getImage()) &&
+        (
+          StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
+          StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag())
+        )
+      ) {
+        if (interpreter.getConfig().isNestedInterpretationEnabled()) {
+          long errorSizeStart = getUnclosedCommentErrorsCount(interpreter);
+          interpreter.parse(result);
+          if (getUnclosedCommentErrorsCount(interpreter) == errorSizeStart) {
             try {
               result = interpreter.renderFlat(result);
             } catch (Exception e) {
               Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
             }
-          } else {
-            // Possible macro/set tag in front of this one. Includes result
-            result = wrapInRawOrExpressionIfNeeded(result, interpreter);
           }
+        } else {
+          // Possible macro/set tag in front of this one. Includes result
+          result = wrapInRawOrExpressionIfNeeded(result, interpreter);
         }
       }
 
