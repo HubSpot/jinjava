@@ -27,6 +27,7 @@ public class EagerIncludeTag extends EagerTagDecorator<IncludeTag> {
         tagNode.getLineNumber(),
         tagNode.getStartPosition()
       );
+      templateFile = interpreter.resolveResourceLocation(templateFile);
       final String initialPathSetter = EagerImportTag.getSetTagForCurrentPath(
         interpreter
       );
