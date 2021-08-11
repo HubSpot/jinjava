@@ -1,0 +1,10 @@
+{% set list = [] %}
+{% for item in deferred %}
+{% unless count %}
+{% set count = 0 %}
+{% endunless %}
+{% do list.append(count) %}
+{% set count = count + 1 %}
+{{ count }}
+{% endfor %}
+{{ list }}

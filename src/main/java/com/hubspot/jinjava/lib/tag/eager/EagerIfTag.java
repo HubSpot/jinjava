@@ -14,7 +14,6 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
-import com.hubspot.jinjava.util.ObjectTruthValue;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerIfTag extends EagerTagDecorator<IfTag> {
@@ -236,13 +235,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     }
     // the tag node is after the deferred exception location
     try {
-      return !ObjectTruthValue.evaluate(
-        eagerInterpreter.resolveELExpression(
-          tagNode.getHelpers(),
-          tagNode.getLineNumber(),
-          tagNode.getStartPosition()
-        )
-      );
+      return !getTag().isPositiveIfElseNode(tagNode, eagerInterpreter);
     } catch (DeferredValueException e) {
       return false;
     }
@@ -257,13 +250,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       return false; // Deferred value thrown when checking if this branch would be executed.
     }
     try {
-      return ObjectTruthValue.evaluate(
-        eagerInterpreter.resolveELExpression(
-          tagNode.getHelpers(),
-          tagNode.getLineNumber(),
-          tagNode.getStartPosition()
-        )
-      );
+      return getTag().isPositiveIfElseNode(tagNode, eagerInterpreter);
     } catch (DeferredValueException e) {
       return false;
     }

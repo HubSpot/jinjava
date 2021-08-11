@@ -896,4 +896,14 @@ public class EagerTest {
   public void itDoesntOverwriteElif() {
     expectedTemplateInterpreter.assertExpectedOutput("doesnt-overwrite-elif");
   }
+
+  @Test
+  public void itHandlesSetAndModifiedInFor() {
+    expectedTemplateInterpreter.assertExpectedOutput("handles-set-and-modified-in-for");
+  }
+
+  @Test
+  public void itHandlesSetInFor() {
+    expectedTemplateInterpreter.assertExpectedOutput("handles-set-in-for");
+  }
 }
