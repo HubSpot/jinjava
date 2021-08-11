@@ -128,10 +128,7 @@ public class IfTag implements Tag {
     return sb.toString();
   }
 
-  protected boolean isPositiveIfElseNode(
-    TagNode tagNode,
-    JinjavaInterpreter interpreter
-  ) {
+  public boolean isPositiveIfElseNode(TagNode tagNode, JinjavaInterpreter interpreter) {
     return ObjectTruthValue.evaluate(
       interpreter.resolveELExpression(
         tagNode.getHelpers(),
