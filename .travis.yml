@@ -11,6 +11,5 @@ cache:
     - $HOME/.m2
 
 after_success:
-  - travis_wait mvn validate -e
+  - mvn validate -e
   - codecov
-
