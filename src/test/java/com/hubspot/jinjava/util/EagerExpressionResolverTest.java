@@ -697,6 +697,27 @@ public class EagerExpressionResolverTest {
     assertThat(result.getDeferredWords()).containsExactlyInAnyOrder("range", "deferred");
   }
 
+  @Test
+  public void itDoesntMarkDictionaryKeysAsDeferredWords() {
+    context.put("a", "a val");
+    EagerExpressionResult result = eagerResolveExpression("{a: a, b:deferred}");
+    assertThat(result.toString()).isEqualTo("{a: 'a val', b: deferred}");
+    assertThat(result.getDeferredWords()).doesNotContain("a", "b");
+  }
+
+  @Test
+  public void itMarksDictionaryKeysAsDeferredWordsIfEvaluated() throws Exception {
+    JinjavaInterpreter.pushCurrent(getInterpreter(true));
+    try {
+      context.put("a", "a val");
+      EagerExpressionResult result = eagerResolveExpression("{deferred: a}");
+      assertThat(result.toString()).isEqualTo("{deferred: 'a val'}");
+      assertThat(result.getDeferredWords()).containsExactly("deferred");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {
