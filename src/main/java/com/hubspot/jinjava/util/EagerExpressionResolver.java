@@ -56,6 +56,7 @@ public class EagerExpressionResolver {
   private static final Pattern NAMED_PARAMETER_KEY_PATTERN = Pattern.compile(
     "[\\w.]+=([^=]|$)"
   );
+  private static final Pattern DICTIONARY_KEY_PATTERN = Pattern.compile("[\\w]: ");
 
   /**
    * Resolve the expression while handling deferred values.
@@ -160,10 +161,15 @@ public class EagerExpressionResolver {
     int end,
     JinjavaInterpreter interpreter
   ) {
+    partiallyResolved = partiallyResolved.substring(start, end);
+    if (!interpreter.getConfig().getLegacyOverrides().isEvaluateMapKeys()) {
+      partiallyResolved =
+        DICTIONARY_KEY_PATTERN.matcher(partiallyResolved).replaceAll("");
+    }
     return Arrays
       .stream(
         NAMED_PARAMETER_KEY_PATTERN
-          .matcher(partiallyResolved.substring(start, end))
+          .matcher(partiallyResolved)
           .replaceAll("$1")
           .split("[^\\w.]")
       )
