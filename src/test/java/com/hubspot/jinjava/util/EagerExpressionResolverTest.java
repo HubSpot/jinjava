@@ -699,19 +699,19 @@ public class EagerExpressionResolverTest {
 
   @Test
   public void itDoesntMarkDictionaryKeysAsDeferredWords() {
-    context.put("a", "a val");
-    EagerExpressionResult result = eagerResolveExpression("{a: a, b:deferred}");
-    assertThat(result.toString()).isEqualTo("{a: 'a val', b: deferred}");
-    assertThat(result.getDeferredWords()).doesNotContain("a", "b");
+    context.put("foo", "foo val");
+    EagerExpressionResult result = eagerResolveExpression("{foo: foo, bar:deferred}");
+    assertThat(result.toString()).isEqualTo("{foo: 'foo val', bar: deferred}");
+    assertThat(result.getDeferredWords()).doesNotContain("foo", "bar");
   }
 
   @Test
   public void itMarksDictionaryKeysAsDeferredWordsIfEvaluated() throws Exception {
     JinjavaInterpreter.pushCurrent(getInterpreter(true));
     try {
-      context.put("a", "a val");
-      EagerExpressionResult result = eagerResolveExpression("{deferred: a}");
-      assertThat(result.toString()).isEqualTo("{deferred: 'a val'}");
+      context.put("foo", "foo val");
+      EagerExpressionResult result = eagerResolveExpression("{deferred: foo}");
+      assertThat(result.toString()).isEqualTo("{deferred: 'foo val'}");
       assertThat(result.getDeferredWords()).containsExactly("deferred");
     } finally {
       JinjavaInterpreter.popCurrent();
