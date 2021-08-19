@@ -6,10 +6,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Document.OutputSettings;
-import org.jsoup.nodes.Entities.EscapeMode;
-import org.jsoup.parser.Parser;
 import org.jsoup.safety.Whitelist;
 
 /**
