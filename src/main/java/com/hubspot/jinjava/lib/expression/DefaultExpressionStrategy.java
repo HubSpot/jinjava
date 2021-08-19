@@ -6,7 +6,6 @@ import com.hubspot.jinjava.objects.SafeString;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.util.Logging;
-import org.apache.commons.lang3.StringUtils;
 
 public class DefaultExpressionStrategy implements ExpressionStrategy {
   private static final long serialVersionUID = 436239440273704843L;
@@ -21,19 +20,11 @@ public class DefaultExpressionStrategy implements ExpressionStrategy {
     );
     String result = interpreter.getAsString(var);
 
-    if (interpreter.getConfig().isNestedInterpretationEnabled()) {
-      if (
-        !StringUtils.equals(result, master.getImage()) &&
-        (
-          StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
-          StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag())
-        )
-      ) {
-        try {
-          result = interpreter.renderFlat(result);
-        } catch (Exception e) {
-          Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
-        }
+    if (shouldDoNestedInterpretation(result, master, interpreter)) {
+      try {
+        result = interpreter.renderFlat(result);
+      } catch (Exception e) {
+        Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
       }
     }
 

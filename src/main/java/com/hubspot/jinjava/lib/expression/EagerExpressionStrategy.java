@@ -48,27 +48,17 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     }
     if (eagerExecutionResult.getResult().isFullyResolved()) {
       String result = eagerExecutionResult.getResult().toString(true);
-      if (
-        !StringUtils.equals(result, master.getImage()) &&
-        (
-          StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
-          StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag())
-        )
-      ) {
-        if (interpreter.getConfig().isNestedInterpretationEnabled()) {
-          long errorSizeStart = getUnclosedCommentErrorsCount(interpreter);
-          interpreter.parse(result);
-          if (getUnclosedCommentErrorsCount(interpreter) == errorSizeStart) {
-            try {
-              result = interpreter.renderFlat(result);
-            } catch (Exception e) {
-              Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
-            }
-          }
-        } else {
-          // Possible macro/set tag in front of this one. Includes result
-          result = wrapInRawOrExpressionIfNeeded(result, interpreter);
+      long errorSizeStart = getUnclosedCommentErrorsCount(interpreter);
+
+      if (shouldDoNestedInterpretation(result, master, interpreter)) {
+        try {
+          result = interpreter.renderFlat(result);
+        } catch (Exception e) {
+          Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
         }
+      } else if (getUnclosedCommentErrorsCount(interpreter) == errorSizeStart) {
+        // Possible macro/set tag in front of this one. Includes result
+        result = wrapInRawOrExpressionIfNeeded(result, master, interpreter);
       }
 
       if (interpreter.getContext().isAutoEscape()) {
@@ -113,6 +103,22 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     );
   }
 
+  @Override
+  public boolean shouldDoNestedInterpretation(
+    String result,
+    ExpressionToken master,
+    JinjavaInterpreter interpreter
+  ) {
+    if (
+      ExpressionStrategy.super.shouldDoNestedInterpretation(result, master, interpreter)
+    ) {
+      long errorSizeStart = getUnclosedCommentErrorsCount(interpreter);
+      interpreter.parse(result);
+      return getUnclosedCommentErrorsCount(interpreter) == errorSizeStart;
+    }
+    return false;
+  }
+
   private long getUnclosedCommentErrorsCount(JinjavaInterpreter interpreter) {
     return interpreter
       .getErrors()
@@ -122,21 +128,23 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
   }
 
   private static String wrapInRawOrExpressionIfNeeded(
-    String output,
+    String result,
+    ExpressionToken master,
     JinjavaInterpreter interpreter
   ) {
     JinjavaConfig config = interpreter.getConfig();
     if (
       config.getExecutionMode().isPreserveRawTags() &&
       !interpreter.getContext().isUnwrapRawOverride() &&
+      !StringUtils.equals(result, master.getImage()) &&
       (
-        output.contains(config.getTokenScannerSymbols().getExpressionStart()) ||
-        output.contains(config.getTokenScannerSymbols().getExpressionStartWithTag())
+        result.contains(master.getSymbols().getExpressionStart()) ||
+        result.contains(master.getSymbols().getExpressionStartWithTag())
       )
     ) {
-      return EagerTagDecorator.wrapInTag(output, RawTag.TAG_NAME, interpreter);
+      return EagerTagDecorator.wrapInTag(result, RawTag.TAG_NAME, interpreter);
     }
-    return output;
+    return result;
   }
 
   private static String wrapInExpression(String output, JinjavaInterpreter interpreter) {
