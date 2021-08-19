@@ -37,7 +37,7 @@ public class StripTagsFilterTest {
   @Test
   public void itWorksWithNonHtmlStrings() throws Exception {
     assertThat(filter.filter("foo", interpreter)).isEqualTo("foo");
-    assertThat(filter.filter("foo < bar", interpreter)).isEqualTo("foo < bar");
+    assertThat(filter.filter("foo < bar", interpreter)).isEqualTo("foo &lt; bar");
   }
 
   @Test
@@ -50,5 +50,17 @@ public class StripTagsFilterTest {
   public void itStripsTagsFromHtml() throws Exception {
     assertThat(filter.filter("foo <b>bar</b> other", interpreter))
       .isEqualTo("foo bar other");
+  }
+
+  @Test
+  public void itStripsTagsFromNestedHtml() throws Exception {
+    assertThat(filter.filter("<div><strong>test</strong></div>", interpreter))
+      .isEqualTo("test");
+  }
+
+  @Test
+  public void itStripsTagsFromEscapedHtml() throws Exception {
+    assertThat(filter.filter("&lt;div&gt;test&lt;/test&gt;", interpreter))
+      .isEqualTo("&lt;div&gt;test&lt;/test&gt;");
   }
 }
