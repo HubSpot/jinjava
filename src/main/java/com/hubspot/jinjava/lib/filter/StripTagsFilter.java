@@ -35,6 +35,7 @@ public class StripTagsFilter implements Filter {
     }
 
     String val = interpreter.renderFlat((String) object);
+    val = val.replaceAll("<br>", "\n");
     String cleanedVal = Jsoup.clean(val, Whitelist.none());
 
     String normalizedVal = WHITESPACE.matcher(cleanedVal).replaceAll(" ");
