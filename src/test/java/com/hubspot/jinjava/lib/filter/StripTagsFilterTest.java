@@ -63,4 +63,16 @@ public class StripTagsFilterTest {
     assertThat(filter.filter("&lt;div&gt;test&lt;/test&gt;", interpreter))
       .isEqualTo("&lt;div&gt;test&lt;/test&gt;");
   }
+
+  @Test
+  public void itPreservesBreaks() throws Exception {
+    assertThat(filter.filter("<p>Test!<br><br>Space</p>", interpreter))
+      .isEqualTo("Test! Space");
+  }
+
+  @Test
+  public void itConvertsNewlinesToSpaces() throws Exception {
+    assertThat(filter.filter("<p>Test!\n\nSpace</p>", interpreter))
+      .isEqualTo("Test! Space");
+  }
 }
