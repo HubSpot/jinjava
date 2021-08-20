@@ -61,7 +61,7 @@ public class StripTagsFilterTest {
   @Test
   public void itStripsTagsFromEscapedHtml() throws Exception {
     assertThat(filter.filter("&lt;div&gt;test&lt;/test&gt;", interpreter))
-      .isEqualTo("&lt;div&gt;test&lt;/test&gt;");
+      .isEqualTo("test");
   }
 
   @Test
@@ -74,5 +74,16 @@ public class StripTagsFilterTest {
   public void itConvertsNewlinesToSpaces() throws Exception {
     assertThat(filter.filter("<p>Test!\n\nSpace</p>", interpreter))
       .isEqualTo("Test! Space");
+  }
+
+  @Test
+  public void itHandlesNonBreakSpaces() {
+    assertThat(filter.filter("Test&nbsp;Value", interpreter)).isEqualTo("Test Value");
+  }
+
+  @Test
+  public void itAddsWhitespaceBetweenParagraphTags() {
+    assertThat(filter.filter("<p>Test</p><p>Value</p>", interpreter))
+      .isEqualTo("Test Value");
   }
 }
