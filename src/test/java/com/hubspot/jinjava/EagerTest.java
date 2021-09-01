@@ -906,4 +906,9 @@ public class EagerTest {
   public void itHandlesSetInFor() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-set-in-for");
   }
+
+  @Test
+  public void itDoesNotReconstructLoop() {
+    expectedTemplateInterpreter.assertExpectedOutput("does-not-reconstruct-loop");
+  }
 }
