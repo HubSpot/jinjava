@@ -102,7 +102,9 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
   ) {
     return executeInChildContext(
       eagerInterpreter -> {
-        eagerInterpreter.getContext().put("loop", DeferredValue.instance());
+        if (!(eagerInterpreter.getContext().get("loop") instanceof DeferredValue)) {
+          eagerInterpreter.getContext().put("loop", DeferredValue.instance());
+        }
         return EagerExpressionResult.fromString(
           renderChildren(tagNode, eagerInterpreter)
         );
