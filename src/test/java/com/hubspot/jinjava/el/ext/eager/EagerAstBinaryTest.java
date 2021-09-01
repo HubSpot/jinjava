@@ -11,7 +11,10 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
+import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,6 +42,9 @@ public class EagerAstBinaryTest extends BaseInterpretingTest {
 
     interpreter.getContext().put("deferred", DeferredValue.instance());
     interpreter.getContext().put("foo", "bar");
+    List<Object> fooList = new ArrayList<>();
+    fooList.add("val");
+    interpreter.getContext().put("foo_list", new PyList(fooList));
   }
 
   @Test
@@ -56,21 +62,23 @@ public class EagerAstBinaryTest extends BaseInterpretingTest {
     assertThat(interpreter.resolveELExpression("false && deferred", -1)).isEqualTo(false);
 
     try {
-      interpreter.resolveELExpression("foo && deferred && range(1)", -1);
+      interpreter.resolveELExpression("foo && deferred && foo_list.add(foo)", -1);
       fail("Should throw DeferredParsingException");
     } catch (DeferredParsingException e) {
-      assertThat(e.getDeferredEvalResult()).isEqualTo("'bar' && deferred && range(1)");
+      assertThat(e.getDeferredEvalResult())
+        .isEqualTo("'bar' && deferred && foo_list.add('bar')");
     }
   }
 
   @Test
   public void itShortCircuitsDeferredOr() {
-    assertThat(interpreter.resolveELExpression("foo || deferred", -1)).isEqualTo("bar");
+    assertThat(interpreter.resolveELExpression("foo_list.add(foo) || deferred", -1))
+      .isEqualTo(true);
     try {
-      interpreter.resolveELExpression("deferred || range(1)", -1);
+      interpreter.resolveELExpression("deferred || foo_list.add(foo)", -1);
       fail("Should throw DeferredParsingException");
     } catch (DeferredParsingException e) {
-      assertThat(e.getDeferredEvalResult()).isEqualTo("deferred || range(1)");
+      assertThat(e.getDeferredEvalResult()).isEqualTo("deferred || foo_list.add('bar')");
     }
   }
 
@@ -81,6 +89,18 @@ public class EagerAstBinaryTest extends BaseInterpretingTest {
       fail("Should throw DeferredParsingException");
     } catch (DeferredParsingException e) {
       assertThat(e.getDeferredEvalResult()).isEqualTo("deferred + [0]");
+    }
+  }
+
+  @Test
+  public void itDoesNotShortCircuitNonModification() {
+    assertThat(interpreter.resolveELExpression("foo_list[0] || deferred", -1))
+      .isEqualTo("val");
+    try {
+      interpreter.resolveELExpression("deferred || foo_list[0]", -1);
+      fail("Should throw DeferredParsingException");
+    } catch (DeferredParsingException e) {
+      assertThat(e.getDeferredEvalResult()).isEqualTo("deferred || 'val'");
     }
   }
 }

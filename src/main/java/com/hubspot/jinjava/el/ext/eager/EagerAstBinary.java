@@ -1,11 +1,10 @@
 package com.hubspot.jinjava.el.ext.eager;
 
-import com.hubspot.jinjava.el.DeferredELContext;
+import com.hubspot.jinjava.el.NoInvokeELContext;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.OrOperator;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBinary;
-import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
 
@@ -42,18 +41,13 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
       hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
-      // Allow evaluation of identifiers as they won't cause context changes when evaluated.
-      boolean simpleRightSide = right instanceof AstIdentifier;
       String sb =
         EvalResultHolder.reconstructNode(bindings, context, left, e, false) +
         String.format(" %s ", operator.toString()) +
         EvalResultHolder.reconstructNode(
           bindings,
-          (
-              !simpleRightSide &&
-              (operator instanceof OrOperator || operator == AstBinary.AND)
-            )
-            ? DeferredELContext.INSTANCE // short circuit because this may not be evaluated
+          (operator instanceof OrOperator || operator == AstBinary.AND)
+            ? new NoInvokeELContext(context) // short circuit on modification attempts because this may not be evaluated
             : context,
           right,
           e,

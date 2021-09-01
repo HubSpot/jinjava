@@ -1,0 +1,13 @@
+{% if deferred && true %}first time!
+{% endif %}
+1
+
+{% if deferred && false %}first time!
+{% endif %}
+2
+
+{% for i in [0, 1] %}
+{% if deferred && loop.isLast() %}last time!
+{% endif %}
+{{ loop.index }}
+{% endfor %}
