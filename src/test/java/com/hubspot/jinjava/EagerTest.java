@@ -908,7 +908,7 @@ public class EagerTest {
   }
 
   @Test
-  public void itDoesNotReconstructLoop() {
-    expectedTemplateInterpreter.assertExpectedOutput("does-not-reconstruct-loop");
+  public void itHandlesDeferringLoopVariable() {
+    expectedTemplateInterpreter.assertExpectedOutput("handles-deferring-loop-variable");
   }
 }

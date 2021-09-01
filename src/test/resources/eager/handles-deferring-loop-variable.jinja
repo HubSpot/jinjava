@@ -1,0 +1,13 @@
+{% set foo = range(2) %}
+{% for i in foo %}
+{% if deferred && loop.index == 1 -%}
+first time!
+{% endif %}
+{{ loop.index }}
+{% endfor %}
+{% for i in foo %}
+{% if deferred && loop.isLast() -%}
+last time!
+{% endif %}
+{{ loop.index }}
+{% endfor %}

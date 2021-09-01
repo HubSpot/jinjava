@@ -22,6 +22,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -123,6 +124,13 @@ public class ForTag implements Tag {
     ) {
       throw new DeferredValueException(
         "for loop",
+        interpreter.getLineNumber(),
+        interpreter.getPosition()
+      );
+    }
+    if (interpreter.getContext().get("loop") instanceof DeferredValue) {
+      throw new DeferredValueException(
+        "loop variable deferred",
         interpreter.getLineNumber(),
         interpreter.getPosition()
       );
