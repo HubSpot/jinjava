@@ -46,7 +46,7 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
         String.format(" %s ", operator.toString()) +
         EvalResultHolder.reconstructNode(
           bindings,
-          ((operator instanceof OrOperator || operator == AstBinary.AND))
+          (operator instanceof OrOperator || operator == AstBinary.AND)
             ? new NoInvokeELContext(context) // short circuit on modification attempts because this may not be evaluated
             : context,
           right,
