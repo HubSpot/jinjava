@@ -1,5 +1,20 @@
 # Jinjava Releases #
 
+### 2021-09-02 Version 2.5.10 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.5.10/jar)) ###
+* [Make LazyExpression memoization disable-able](https://github.com/HubSpot/jinjava/pull/673)
+* [Add new MapELResolver with type coercion to support accessing enum keys](https://github.com/HubSpot/jinjava/pull/688)
+* Add methods to [remove error from interpreter](https://github.com/HubSpot/jinjava/pull/694),
+[get the last error](https://github.com/HubSpot/jinjava/pull/695),
+and [remove the last error](https://github.com/HubSpot/jinjava/pull/696)
+* [Pass value of throwInterpreterErrors to child contexts](https://github.com/HubSpot/jinjava/pull/697)
+* [Support Assignment Blocks with Set tags](https://github.com/HubSpot/jinjava/pull/698)
+* [Handle spaces better in for loop expressions](https://github.com/HubSpot/jinjava/pull/706)
+* [Support "not in"](https://github.com/HubSpot/jinjava/pull/707)
+* [Set propertyResolved after evaluating the AbstractCallableMethod](https://github.com/HubSpot/jinjava/pull/708)
+* [Limit infinite evaluation from recursive extends tags](https://github.com/HubSpot/jinjava/pull/719)
+* [Fix striptags to clean HTML instead of parsing](https://github.com/HubSpot/jinjava/pull/733)
+* Various PRs for eager execution to support two-phase rendering.
+
 ### 2021-05-21 Version 2.5.9 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.5.9/jar)) ###
 * [fix how current paths are tracked via multiple levels of inheritance with the `{% extends %}` tag](https://github.com/HubSpot/jinjava/pull/667)
 
