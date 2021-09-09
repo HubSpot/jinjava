@@ -15,6 +15,7 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -120,7 +121,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
   }
 
   public static String getSetTagForCurrentPath(JinjavaInterpreter interpreter) {
-    return buildSetTagForDeferredInChildContext(
+    return EagerReconstructionUtils.buildSetTagForDeferredInChildContext(
       ImmutableMap.of(
         RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
         PyishObjectMapper.getAsPyishString(
@@ -175,7 +176,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       }
     }
     if (keyValueJoiner.length() > 0) {
-      return buildDoUpdateTag(
+      return EagerReconstructionUtils.buildDoUpdateTag(
         currentImportAlias,
         "{" + keyValueJoiner.toString() + "}",
         interpreter

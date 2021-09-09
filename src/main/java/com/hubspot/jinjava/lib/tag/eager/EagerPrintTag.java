@@ -6,6 +6,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.PrintTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -51,7 +52,7 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
     JinjavaInterpreter interpreter,
     boolean includeExpressionResult
   ) {
-    EagerExecutionResult eagerExecutionResult = executeInChildContext(
+    EagerExecutionResult eagerExecutionResult = EagerReconstructionUtils.executeInChildContext(
       eagerInterpreter -> EagerExpressionResolver.resolveExpression(expr, interpreter),
       interpreter,
       true,
@@ -70,7 +71,7 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
         prefixToPreserveState.toString() +
         (
           includeExpressionResult
-            ? wrapInRawIfNeeded(
+            ? EagerReconstructionUtils.wrapInRawIfNeeded(
               eagerExecutionResult.getResult().toString(true),
               interpreter
             )
@@ -79,7 +80,7 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
       );
     }
     prefixToPreserveState.append(
-      reconstructFromContextBeforeDeferring(
+      EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
         eagerExecutionResult.getResult().getDeferredWords(),
         interpreter
       )
@@ -115,7 +116,7 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
         )
       );
     // Possible set tag in front of this one.
-    return wrapInAutoEscapeIfNeeded(
+    return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
       prefixToPreserveState.toString() + joiner.toString(),
       interpreter
     );

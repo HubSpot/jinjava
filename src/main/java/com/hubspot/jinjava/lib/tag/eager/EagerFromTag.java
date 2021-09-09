@@ -11,6 +11,7 @@ import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -55,7 +56,7 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
           }
         );
       return (
-        buildSetTagForDeferredInChildContext(
+        EagerReconstructionUtils.buildSetTagForDeferredInChildContext(
           ImmutableMap.of(
             RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
             PyishObjectMapper.getAsPyishString(
@@ -114,7 +115,11 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
           // Set after output
           output =
             output +
-            buildSetTagForDeferredInChildContext(newToOldImportNames, interpreter, true);
+            EagerReconstructionUtils.buildSetTagForDeferredInChildContext(
+              newToOldImportNames,
+              interpreter,
+              true
+            );
         }
         return output;
       } catch (IOException e) {

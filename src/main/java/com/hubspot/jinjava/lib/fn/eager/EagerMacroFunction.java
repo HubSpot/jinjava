@@ -10,8 +10,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.MacroTag;
-import com.hubspot.jinjava.lib.tag.eager.EagerTagDecorator;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,7 +112,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
         .getContext()
         .get(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY);
       prefix =
-        EagerTagDecorator.buildSetTagForDeferredInChildContext(
+        EagerReconstructionUtils.buildSetTagForDeferredInChildContext(
           ImmutableMap.of(
             Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
             PyishObjectMapper.getAsPyishString(importFile.get())
@@ -121,7 +121,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
           false
         );
       suffix =
-        EagerTagDecorator.buildSetTagForDeferredInChildContext(
+        EagerReconstructionUtils.buildSetTagForDeferredInChildContext(
           ImmutableMap.of(
             Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
             PyishObjectMapper.getAsPyishString(currentDeferredImportResource)

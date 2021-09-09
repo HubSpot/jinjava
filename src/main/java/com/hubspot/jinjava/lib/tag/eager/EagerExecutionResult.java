@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import static com.hubspot.jinjava.lib.tag.eager.EagerTagDecorator.buildSetTagForDeferredInChildContext;
+import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildSetTagForDeferredInChildContext;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.Namespace;

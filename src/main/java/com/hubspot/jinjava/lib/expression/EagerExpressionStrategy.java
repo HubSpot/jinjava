@@ -6,11 +6,11 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
 import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
-import com.hubspot.jinjava.lib.tag.eager.EagerTagDecorator;
 import com.hubspot.jinjava.lib.tag.eager.EagerToken;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.Logging;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +32,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
   ) {
     EagerExecutionResult eagerExecutionResult;
     eagerExecutionResult =
-      EagerTagDecorator.executeInChildContext(
+      EagerReconstructionUtils.executeInChildContext(
         eagerInterpreter ->
           EagerExpressionResolver.resolveExpression(master.getExpr(), interpreter),
         interpreter,
@@ -77,7 +77,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       return prefixToPreserveState.toString() + result;
     }
     prefixToPreserveState.append(
-      EagerTagDecorator.reconstructFromContextBeforeDeferring(
+      EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
         eagerExecutionResult.getResult().getDeferredWords(),
         interpreter
       )
@@ -107,7 +107,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         )
       );
     // There is only a preserving prefix because it couldn't be entirely evaluated.
-    return EagerTagDecorator.wrapInAutoEscapeIfNeeded(
+    return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
       prefixToPreserveState.toString() + helpers,
       interpreter
     );
@@ -134,7 +134,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         output.contains(config.getTokenScannerSymbols().getExpressionStartWithTag())
       )
     ) {
-      return EagerTagDecorator.wrapInTag(output, RawTag.TAG_NAME, interpreter);
+      return EagerReconstructionUtils.wrapInTag(output, RawTag.TAG_NAME, interpreter);
     }
     return output;
   }

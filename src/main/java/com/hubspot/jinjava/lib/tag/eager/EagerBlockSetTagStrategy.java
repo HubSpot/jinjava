@@ -9,6 +9,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.Collections;
 import java.util.Optional;
@@ -30,7 +31,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
     JinjavaInterpreter interpreter
   ) {
     int numEagerTokens = interpreter.getContext().getEagerTokens().size();
-    return EagerTagDecorator.executeInChildContext(
+    return EagerReconstructionUtils.executeInChildContext(
       eagerInterpreter -> {
         StringBuilder sb = new StringBuilder();
         for (Node child : tagNode.getChildren()) {
@@ -178,11 +179,11 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
       filterSetPostfix = runInlineStrategy(tagNode, variables, filterResult, interpreter);
     }
 
-    return EagerTagDecorator.wrapInAutoEscapeIfNeeded(
+    return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
       triple.getLeft() +
       triple.getMiddle() +
       eagerExecutionResult.getResult().toString(true) +
-      EagerTagDecorator.reconstructEnd(tagNode) +
+      EagerReconstructionUtils.reconstructEnd(tagNode) +
       filterSetPostfix +
       triple.getRight(),
       interpreter
