@@ -112,7 +112,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
         .getContext()
         .get(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY);
       prefix =
-        EagerReconstructionUtils.buildSetTagForDeferredInChildContext(
+        EagerReconstructionUtils.buildSetTag(
           ImmutableMap.of(
             Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
             PyishObjectMapper.getAsPyishString(importFile.get())
@@ -121,7 +121,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
           false
         );
       suffix =
-        EagerReconstructionUtils.buildSetTagForDeferredInChildContext(
+        EagerReconstructionUtils.buildSetTag(
           ImmutableMap.of(
             Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
             PyishObjectMapper.getAsPyishString(currentDeferredImportResource)

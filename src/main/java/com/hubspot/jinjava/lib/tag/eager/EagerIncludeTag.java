@@ -32,7 +32,7 @@ public class EagerIncludeTag extends EagerTagDecorator<IncludeTag> {
       final String initialPathSetter = EagerImportTag.getSetTagForCurrentPath(
         interpreter
       );
-      final String newPathSetter = EagerReconstructionUtils.buildSetTagForDeferredInChildContext(
+      final String newPathSetter = EagerReconstructionUtils.buildSetTag(
         ImmutableMap.of(
           RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
           PyishObjectMapper.getAsPyishString(templateFile)

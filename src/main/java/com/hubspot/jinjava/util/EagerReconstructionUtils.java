@@ -311,7 +311,7 @@ public class EagerReconstructionUtils {
           );
         }
       );
-    return buildSetTagForDeferredInChildContext(deferredMap, interpreter, true);
+    return buildSetTag(deferredMap, interpreter, true);
   }
 
   /**
@@ -326,7 +326,7 @@ public class EagerReconstructionUtils {
    * @return A jinjava-syntax string that is the image of a set tag that will
    *  be executed at a later time.
    */
-  public static String buildSetTagForDeferredInChildContext(
+  public static String buildSetTag(
     Map<String, String> deferredValuesToSet,
     JinjavaInterpreter interpreter,
     boolean registerEagerToken

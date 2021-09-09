@@ -69,7 +69,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
       // Defer any variables that we tried to modify during the loop
       prefix =
-        EagerReconstructionUtils.buildSetTagForDeferredInChildContext(
+        EagerReconstructionUtils.buildSetTag(
           eagerExecutionResult
             .getSpeculativeBindings()
             .entrySet()

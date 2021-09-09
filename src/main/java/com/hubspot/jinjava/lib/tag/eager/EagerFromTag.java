@@ -56,7 +56,7 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
           }
         );
       return (
-        EagerReconstructionUtils.buildSetTagForDeferredInChildContext(
+        EagerReconstructionUtils.buildSetTag(
           ImmutableMap.of(
             RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
             PyishObjectMapper.getAsPyishString(
@@ -115,11 +115,7 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
           // Set after output
           output =
             output +
-            EagerReconstructionUtils.buildSetTagForDeferredInChildContext(
-              newToOldImportNames,
-              interpreter,
-              true
-            );
+            EagerReconstructionUtils.buildSetTag(newToOldImportNames, interpreter, true);
         }
         return output;
       } catch (IOException e) {

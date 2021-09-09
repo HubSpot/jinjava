@@ -121,7 +121,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
   }
 
   public static String getSetTagForCurrentPath(JinjavaInterpreter interpreter) {
-    return EagerReconstructionUtils.buildSetTagForDeferredInChildContext(
+    return EagerReconstructionUtils.buildSetTag(
       ImmutableMap.of(
         RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
         PyishObjectMapper.getAsPyishString(

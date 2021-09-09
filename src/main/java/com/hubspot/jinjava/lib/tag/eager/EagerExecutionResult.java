@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildSetTagForDeferredInChildContext;
+import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildSetTag;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.Namespace;
@@ -41,7 +41,7 @@ public class EagerExecutionResult {
       return prefixToPreserveState;
     }
     prefixToPreserveState =
-      buildSetTagForDeferredInChildContext(
+      buildSetTag(
         speculativeBindings
           .entrySet()
           .stream()

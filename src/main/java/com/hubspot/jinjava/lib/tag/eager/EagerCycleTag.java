@@ -146,7 +146,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
   ) {
     String var = helper.get(2);
     if (!fullyResolved) {
-      return EagerReconstructionUtils.buildSetTagForDeferredInChildContext(
+      return EagerReconstructionUtils.buildSetTag(
         ImmutableMap.of(
           var,
           String.format("[%s]", resolvedExpression.replace(",", ", "))
