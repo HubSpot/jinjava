@@ -47,6 +47,7 @@ import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
 import com.hubspot.jinjava.tree.output.OutputList;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -63,6 +64,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -306,11 +308,13 @@ public class JinjavaInterpreter implements PyishSerializable {
         return output.getValue();
       }
     }
+    StringBuilder ignoredOutput = new StringBuilder();
 
     // render all extend parents, keeping the last as the root output
     if (processExtendRoots) {
       Set<String> extendPaths = new HashSet<>();
       Optional<String> extendPath = context.getExtendPathStack().peek();
+      int numEagerTokensBefore = 0;
       while (!extendParentRoots.isEmpty()) {
         if (extendPaths.contains(extendPath.orElse(""))) {
           addError(
@@ -333,6 +337,17 @@ public class JinjavaInterpreter implements PyishSerializable {
             context.getExtendPathStack().getTopStartPosition()
           );
         Node parentRoot = extendParentRoots.removeFirst();
+        if (context.getEagerTokens().size() > numEagerTokensBefore) {
+          ignoredOutput.append(
+            output
+              .getNodes()
+              .stream()
+              .filter(node -> node instanceof RenderedOutputNode)
+              .map(OutputNode::getValue)
+              .collect(Collectors.joining())
+          );
+        }
+        numEagerTokensBefore = context.getEagerTokens().size();
         output = new OutputList(config.getMaxOutputSize());
 
         boolean hasNestedExtends = false;
@@ -359,6 +374,17 @@ public class JinjavaInterpreter implements PyishSerializable {
     }
 
     resolveBlockStubs(output);
+    if (ignoredOutput.length() > 0) {
+      return (
+        EagerReconstructionUtils.buildBlockSetTag(
+          "__ignored_extends_child_output__",
+          ignoredOutput.toString(),
+          this,
+          true
+        ) +
+        output.getValue()
+      );
+    }
 
     return output.getValue();
   }

@@ -37,6 +37,10 @@ public class OutputList {
     }
   }
 
+  public List<OutputNode> getNodes() {
+    return nodes;
+  }
+
   public List<BlockPlaceholderOutputNode> getBlocks() {
     return blocks;
   }
