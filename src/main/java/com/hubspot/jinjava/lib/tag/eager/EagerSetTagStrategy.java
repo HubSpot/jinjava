@@ -44,6 +44,7 @@ public abstract class EagerSetTagStrategy {
       eagerExecutionResult.getResult().isFullyResolved() &&
       !interpreter.getContext().isDeferredExecutionMode()
     ) {
+      interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
       Optional<String> maybeResolved = resolveSet(
         tagNode,
         variables,

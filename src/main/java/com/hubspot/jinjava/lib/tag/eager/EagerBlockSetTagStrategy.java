@@ -48,7 +48,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
       interpreter,
       false,
       false,
-      true
+      interpreter.getContext().isDeferredExecutionMode()
     );
   }
 
