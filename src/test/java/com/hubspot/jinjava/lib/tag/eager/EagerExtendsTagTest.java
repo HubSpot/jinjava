@@ -67,6 +67,22 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
     );
   }
 
+  @Test
+  public void itReconstructsDeferredOutsideBlock() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-deferred-outside-block"
+    );
+  }
+
+  @Test
+  public void itReconstructsDeferredOutsideBlockSecondPass() {
+    context.put("deferred", "Resolved now");
+
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-deferred-outside-block.expected"
+    );
+  }
+
   @Override
   @Ignore
   @Test

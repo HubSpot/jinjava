@@ -385,15 +385,83 @@ public class EagerReconstructionUtils {
     return image;
   }
 
+  /**
+   * Build the image for a block {@link SetTag} and body to preserve the values of an object
+   * on the context for a later rendering pass.
+   * @param name The name of the variable to set.
+   * @param value The string value, potentially containing jinja code to put in the set tag block.
+   * @param interpreter The Jinjava interpreter.
+   * @param registerEagerToken Whether or not to register the returned {@link SetTag}
+   *                           token as an {@link EagerToken}.
+   * @return A jinjava-syntax string that is the image of a block set tag that will
+   *  be executed at a later time.
+   */
+  public static String buildBlockSetTag(
+    String name,
+    String value,
+    JinjavaInterpreter interpreter,
+    boolean registerEagerToken
+  ) {
+    Map<Library, Set<String>> disabled = interpreter.getConfig().getDisabled();
+    if (
+      disabled != null &&
+      disabled.containsKey(Library.TAG) &&
+      disabled.get(Library.TAG).contains(SetTag.TAG_NAME)
+    ) {
+      throw new DisabledException("set tag disabled");
+    }
+
+    LengthLimitingStringJoiner blockSetTokenBuilder = new LengthLimitingStringJoiner(
+      interpreter.getConfig().getMaxOutputSize(),
+      " "
+    );
+    StringJoiner endTokenBuilder = new StringJoiner(" ");
+    blockSetTokenBuilder
+      .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
+      .add(SetTag.TAG_NAME)
+      .add(name)
+      .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag());
+    endTokenBuilder
+      .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
+      .add("end" + SetTag.TAG_NAME)
+      .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag());
+    String image = blockSetTokenBuilder + value + endTokenBuilder;
+    if (registerEagerToken) {
+      interpreter
+        .getContext()
+        .handleEagerToken(
+          new EagerToken(
+            new TagToken(
+              blockSetTokenBuilder.toString(),
+              interpreter.getLineNumber(),
+              interpreter.getPosition(),
+              interpreter.getConfig().getTokenScannerSymbols()
+            ),
+            Collections.emptySet(),
+            Collections.singleton(name)
+          )
+        );
+    }
+    return image;
+  }
+
   public static String buildDoUpdateTag(
-    String currentImportAlias,
+    String name,
     String updateString,
     JinjavaInterpreter interpreter
   ) {
+    Map<Library, Set<String>> disabled = interpreter.getConfig().getDisabled();
+    if (
+      disabled != null &&
+      disabled.containsKey(Library.TAG) &&
+      disabled.get(Library.TAG).contains(DoTag.TAG_NAME)
+    ) {
+      throw new DisabledException("do tag disabled");
+    }
     return new LengthLimitingStringJoiner(interpreter.getConfig().getMaxOutputSize(), " ")
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
       .add(DoTag.TAG_NAME)
-      .add(String.format("%s.update(%s)", currentImportAlias, updateString))
+      .add(String.format("%s.update(%s)", name, updateString))
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag())
       .toString();
   }

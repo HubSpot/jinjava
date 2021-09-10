@@ -1,0 +1,12 @@
+{% set bar = [] %}
+{% set foo -%}
+1{% do bar.append(1) %}
+{%- endset %}
+{{ foo }}
+{% if deferred %}
+{% set foo -%}
+2{% do bar.append(2) %}
+{%- endset %}
+{% endif %}
+Bar: {{ bar }}
+Foo: {{ foo }}

@@ -911,4 +911,22 @@ public class EagerTest {
   public void itHandlesDeferringLoopVariable() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-deferring-loop-variable");
   }
+
+  @Test
+  public void itDefersChangesWithinDeferredSetBlock() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "defers-changes-within-deferred-set-block"
+    );
+  }
+
+  @Test
+  public void itDefersChangesWithinDeferredSetBlockSecondPass() {
+    localContext.put("deferred", 1);
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "defers-changes-within-deferred-set-block.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "defers-changes-within-deferred-set-block.expected"
+    );
+  }
 }
