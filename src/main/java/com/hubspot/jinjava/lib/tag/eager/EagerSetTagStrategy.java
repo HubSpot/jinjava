@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -114,7 +115,7 @@ public abstract class EagerSetTagStrategy {
       interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
     }
     prefixToPreserveState.append(
-      EagerTagDecorator.reconstructFromContextBeforeDeferring(
+      EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
         eagerExecutionResult.getResult().getDeferredWords(),
         interpreter
       )
@@ -137,7 +138,7 @@ public abstract class EagerSetTagStrategy {
       String updateString = getUpdateString(variables);
       suffixToPreserveState.append(
         interpreter.render(
-          EagerTagDecorator.buildDoUpdateTag(
+          EagerReconstructionUtils.buildDoUpdateTag(
             currentImportAlias,
             updateString,
             interpreter

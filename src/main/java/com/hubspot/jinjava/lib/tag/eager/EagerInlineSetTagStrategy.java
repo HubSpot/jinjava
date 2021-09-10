@@ -7,6 +7,7 @@ import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.Arrays;
@@ -29,7 +30,7 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
     String expression,
     JinjavaInterpreter interpreter
   ) {
-    return EagerTagDecorator.executeInChildContext(
+    return EagerReconstructionUtils.executeInChildContext(
       eagerInterpreter ->
         EagerExpressionResolver.resolveExpression('[' + expression + ']', interpreter),
       interpreter,
@@ -131,7 +132,7 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
     Triple<String, String, String> triple,
     JinjavaInterpreter interpreter
   ) {
-    return EagerTagDecorator.wrapInAutoEscapeIfNeeded(
+    return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
       triple.getLeft() + triple.getMiddle() + triple.getRight(),
       interpreter
     );

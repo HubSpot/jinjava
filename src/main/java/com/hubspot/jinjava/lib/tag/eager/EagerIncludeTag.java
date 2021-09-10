@@ -6,6 +6,7 @@ import com.hubspot.jinjava.lib.tag.IncludeTag;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 
@@ -31,7 +32,7 @@ public class EagerIncludeTag extends EagerTagDecorator<IncludeTag> {
       final String initialPathSetter = EagerImportTag.getSetTagForCurrentPath(
         interpreter
       );
-      final String newPathSetter = buildSetTagForDeferredInChildContext(
+      final String newPathSetter = EagerReconstructionUtils.buildSetTag(
         ImmutableMap.of(
           RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
           PyishObjectMapper.getAsPyishString(templateFile)

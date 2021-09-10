@@ -7,6 +7,7 @@ import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
@@ -35,7 +36,7 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
 
     if (!tagNode.getChildren().isEmpty()) {
       result.append(
-        executeInChildContext(
+        EagerReconstructionUtils.executeInChildContext(
           eagerInterpreter ->
             EagerExpressionResult.fromString(renderChildren(tagNode, eagerInterpreter)),
           interpreter,
@@ -53,7 +54,7 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
         ((FlexibleTag) getTag()).hasEndTag((TagToken) tagNode.getMaster())
       )
     ) {
-      result.append(reconstructEnd(tagNode));
+      result.append(EagerReconstructionUtils.reconstructEnd(tagNode));
     }
 
     return result.toString();

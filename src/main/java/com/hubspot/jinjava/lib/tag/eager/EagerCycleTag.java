@@ -7,6 +7,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.CycleTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       helper.add(sb.toString());
     }
     String expression = '[' + helper.get(0) + ']';
-    EagerExecutionResult eagerExecutionResult = executeInChildContext(
+    EagerExecutionResult eagerExecutionResult = EagerReconstructionUtils.executeInChildContext(
       eagerInterpreter ->
         EagerExpressionResolver.resolveExpression(expression, interpreter),
       interpreter,
@@ -78,7 +79,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       resolvedValues =
         new HelperStringTokenizer(resolvedExpression).splitComma(true).allTokens();
       prefixToPreserveState.append(
-        reconstructFromContextBeforeDeferring(
+        EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
           eagerExecutionResult.getResult().getDeferredWords(),
           interpreter
         )
@@ -145,7 +146,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
   ) {
     String var = helper.get(2);
     if (!fullyResolved) {
-      return EagerTagDecorator.buildSetTagForDeferredInChildContext(
+      return EagerReconstructionUtils.buildSetTag(
         ImmutableMap.of(
           var,
           String.format("[%s]", resolvedExpression.replace(",", ", "))

@@ -13,6 +13,7 @@ import com.hubspot.jinjava.lib.tag.IfTag;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import org.apache.commons.lang3.StringUtils;
 
@@ -32,7 +33,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       return getTag().interpret(tagNode, interpreter);
     } catch (DeferredValueException | TemplateSyntaxException e) {
       try {
-        return wrapInAutoEscapeIfNeeded(
+        return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
           eagerInterpret(tagNode, interpreter, e),
           interpreter
         );
@@ -64,7 +65,8 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     );
 
     result.append(
-      executeInChildContext(
+      EagerReconstructionUtils
+        .executeInChildContext(
           eagerInterpreter ->
             EagerExpressionResult.fromString(
               eagerRenderBranches(tagNode, eagerInterpreter, e)
@@ -77,7 +79,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
         .asTemplateString()
     );
     tagNode.getMaster().setRightTrimAfterEnd(false);
-    result.append(reconstructEnd(tagNode));
+    result.append(EagerReconstructionUtils.reconstructEnd(tagNode));
 
     return result.toString();
   }
@@ -115,7 +117,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       int branchEnd = findNextElseToken(tagNode, branchStart);
       if (!definitelyDrop) {
         int finalBranchStart = branchStart;
-        EagerExecutionResult result = executeInChildContext(
+        EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
           eagerInterpreter ->
             EagerExpressionResult.fromString(
               evaluateBranch(tagNode, finalBranchStart, branchEnd, interpreter)

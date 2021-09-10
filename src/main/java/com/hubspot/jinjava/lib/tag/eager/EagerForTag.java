@@ -10,6 +10,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.HashSet;
@@ -42,7 +43,8 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     // separate getEagerImage from renderChildren because the token gets evaluated once
     // while the children are evaluated 0...n times.
     result.append(
-      executeInChildContext(
+      EagerReconstructionUtils
+        .executeInChildContext(
           eagerInterpreter ->
             EagerExpressionResult.fromString(
               getEagerImage(
@@ -67,7 +69,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
       // Defer any variables that we tried to modify during the loop
       prefix =
-        buildSetTagForDeferredInChildContext(
+        EagerReconstructionUtils.buildSetTag(
           eagerExecutionResult
             .getSpeculativeBindings()
             .entrySet()
@@ -92,7 +94,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     }
 
     result.append(eagerExecutionResult.asTemplateString());
-    result.append(reconstructEnd(tagNode));
+    result.append(EagerReconstructionUtils.reconstructEnd(tagNode));
     return prefix + result;
   }
 
@@ -100,7 +102,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     TagNode tagNode,
     JinjavaInterpreter interpreter
   ) {
-    return executeInChildContext(
+    return EagerReconstructionUtils.executeInChildContext(
       eagerInterpreter -> {
         if (!(eagerInterpreter.getContext().get("loop") instanceof DeferredValue)) {
           eagerInterpreter.getContext().put("loop", DeferredValue.instance());
@@ -140,7 +142,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       .add("in")
       .add(eagerExpressionResult.toString())
       .add(tagToken.getSymbols().getExpressionEndWithTag());
-    String newlyDeferredFunctionImages = reconstructFromContextBeforeDeferring(
+    String newlyDeferredFunctionImages = EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
       eagerExpressionResult.getDeferredWords(),
       interpreter
     );
