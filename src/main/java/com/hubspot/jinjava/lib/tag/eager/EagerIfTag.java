@@ -29,6 +29,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    interpreter.getContext().checkNumberOfDeferredTokens();
     try {
       return getTag().interpret(tagNode, interpreter);
     } catch (DeferredValueException | TemplateSyntaxException e) {
