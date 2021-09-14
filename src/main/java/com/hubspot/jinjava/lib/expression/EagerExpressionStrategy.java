@@ -30,6 +30,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     ExpressionToken master,
     JinjavaInterpreter interpreter
   ) {
+    interpreter.getContext().checkNumberOfDeferredTokens();
     EagerExecutionResult eagerExecutionResult;
     eagerExecutionResult =
       EagerReconstructionUtils.executeInChildContext(

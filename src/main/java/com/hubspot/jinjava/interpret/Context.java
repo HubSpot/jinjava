@@ -365,16 +365,25 @@ public class Context extends ScopeMap<String, Object> {
     return ImmutableSet.copyOf(deferredNodes);
   }
 
-  public void handleEagerToken(EagerToken eagerToken) {
+  public void checkNumberOfDeferredTokens() {
+    Context secondToLastContext = this;
+    if (parent != null) {
+      while (secondToLastContext.parent.parent != null) {
+        secondToLastContext = secondToLastContext.parent;
+      }
+    }
     int maxNumEagerTokens = JinjavaInterpreter
       .getCurrentMaybe()
       .map(i -> i.getConfig().getMaxNumEagerTokens())
       .orElse(1000);
-    if (eagerTokens.size() >= maxNumEagerTokens) {
+    if (secondToLastContext.eagerTokens.size() >= maxNumEagerTokens) {
       throw new DeferredValueException(
         "Too many Deferred Tokens, max is " + maxNumEagerTokens
       );
     }
+  }
+
+  public void handleEagerToken(EagerToken eagerToken) {
     eagerTokens.add(eagerToken);
     if (
       eagerToken.getImportResourcePath() == null ||
@@ -389,6 +398,8 @@ public class Context extends ScopeMap<String, Object> {
       //Ignore global context
       if (parent.getParent() != null) {
         parent.handleEagerToken(eagerToken);
+      } else {
+        checkNumberOfDeferredTokens();
       }
     }
   }
