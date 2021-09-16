@@ -30,8 +30,7 @@ public final class ObjectTruthValue {
     }
 
     if (object instanceof HasObjectTruthValue) {
-      HasObjectTruthValue value = (HasObjectTruthValue) object;
-      return value.getObjectTruthValue();
+      return ((HasObjectTruthValue) object).getObjectTruthValue();
     }
 
     if (object instanceof Boolean) {
