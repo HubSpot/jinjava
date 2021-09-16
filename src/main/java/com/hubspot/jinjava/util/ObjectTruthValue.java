@@ -29,6 +29,10 @@ public final class ObjectTruthValue {
       return false;
     }
 
+    if (object instanceof HasObjectTruthValue) {
+      return ((HasObjectTruthValue) object).getObjectTruthValue();
+    }
+
     if (object instanceof Boolean) {
       Boolean b = (Boolean) object;
       return b.booleanValue();
