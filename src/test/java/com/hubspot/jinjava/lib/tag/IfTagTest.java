@@ -7,6 +7,8 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
+import com.hubspot.jinjava.util.HasObjectTruthValue;
+import com.hubspot.jinjava.util.ObjectTruthValueTest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.Before;
@@ -31,6 +33,17 @@ public class IfTagTest extends BaseInterpretingTest {
   public void itDoesntEvalChildrenWhenExprIsFalse() {
     context.put("foo", null);
     TagNode n = fixture("if");
+    assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("");
+  }
+
+  @Test
+  public void itChecksObjectTruthValue() {
+    context.put("foo", new TestObject().setObjectTruthValue(true));
+    TagNode n = fixture("if-object");
+    assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("ifblock");
+
+    context.put("foo", new TestObject().setObjectTruthValue(false));
+    n = fixture("if-object");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("");
   }
 
@@ -115,6 +128,20 @@ public class IfTagTest extends BaseInterpretingTest {
         .getFirst();
     } catch (IOException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  private class TestObject implements HasObjectTruthValue {
+    private boolean objectTruthValue = false;
+
+    public TestObject setObjectTruthValue(boolean objectTruthValue) {
+      this.objectTruthValue = objectTruthValue;
+      return this;
+    }
+
+    @Override
+    public boolean getObjectTruthValue() {
+      return objectTruthValue;
     }
   }
 }
