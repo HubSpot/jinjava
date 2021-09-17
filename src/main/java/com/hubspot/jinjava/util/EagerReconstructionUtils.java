@@ -290,6 +290,7 @@ public class EagerReconstructionUtils {
     if (interpreter.getContext().isDeferredExecutionMode()) {
       return ""; // This will be handled outside of the deferred execution mode.
     }
+    Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
     Map<String, String> deferredMap = new HashMap<>();
     deferredWords
       .stream()
@@ -299,6 +300,7 @@ public class EagerReconstructionUtils {
           interpreter.getContext().containsKey(w) &&
           !(interpreter.getContext().get(w) instanceof DeferredValue)
       )
+      .filter(w -> !metaContextVariables.contains(w))
       .forEach(
         w -> {
           Object value = interpreter.getContext().get(w);
