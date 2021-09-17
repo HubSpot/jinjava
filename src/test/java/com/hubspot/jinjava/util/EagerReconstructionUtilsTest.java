@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
@@ -23,6 +24,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -312,6 +314,20 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
     tagNode = getMockTagNode("endfor");
     assertThat(EagerReconstructionUtils.reconstructEnd(tagNode))
       .isEqualTo("{% endfor %}");
+  }
+
+  @Test
+  public void itIgnoresMetaContextVariables() {
+    interpreter
+      .getContext()
+      .put(Context.IMPORT_RESOURCE_ALIAS_KEY, DeferredValue.instance());
+    assertThat(
+        EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
+          Collections.singleton(Context.IMPORT_RESOURCE_ALIAS_KEY),
+          interpreter
+        )
+      )
+      .isEmpty();
   }
 
   private static MacroFunction getMockMacroFunction(String image) {
