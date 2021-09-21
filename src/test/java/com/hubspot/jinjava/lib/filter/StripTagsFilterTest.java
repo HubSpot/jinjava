@@ -78,7 +78,7 @@ public class StripTagsFilterTest {
 
   @Test
   public void itHandlesNonBreakSpaces() {
-    assertThat(filter.filter("Test&nbsp;Value", interpreter)).isEqualTo("Test Value");
+    assertThat(filter.filter("Test&nbsp;Value", interpreter)).isEqualTo("Test Value");
   }
 
   @Test
