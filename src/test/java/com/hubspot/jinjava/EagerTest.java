@@ -929,4 +929,11 @@ public class EagerTest {
       "defers-changes-within-deferred-set-block.expected"
     );
   }
+
+  @Test
+  public void itHandlesImportInDeferredIf() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-import-in-deferred-if"
+    );
+  }
 }

@@ -4,7 +4,7 @@ Hello {{ myname }}
 
 foo: Hello {{ myname }}
 bar: {{ bar }}
----{% set myname = deferred + 7 %}{% set current_path = 'macro-and-set.jinja' %}
+---{% set myname = deferred + 7 %}{% set current_path = 'macro-and-set.jinja' %}{% set simple = {} %}
 {% set bar = myname + 19 %}{% set simple = {} %}{% do simple.update({"bar": bar}) %}
 Hello {{ myname }}
 {% do simple.update({'import_resource_path': 'macro-and-set.jinja'}) %}{% set current_path = '' %}

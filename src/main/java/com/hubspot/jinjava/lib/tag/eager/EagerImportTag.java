@@ -101,6 +101,11 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         // Since some values got deferred, output a DoTag that will load the currentImportAlias on the context.
         return (
           newPathSetter +
+          EagerReconstructionUtils.buildSetTag(
+            ImmutableMap.of(currentImportAlias, "{}"),
+            interpreter,
+            true
+          ) +
           output +
           getDoTagToPreserve(interpreter, currentImportAlias) +
           initialPathSetter
@@ -152,14 +157,6 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       .getContext()
       .getSessionBindings()
       .get(currentImportAlias);
-    if ((!(currentAliasMap instanceof DeferredValue))) {
-      // Make sure that the map is deferred.
-      if (!(currentAliasMap instanceof Map)) {
-        currentAliasMap = new PyMap(new HashMap<>());
-      }
-      currentAliasMap = DeferredValue.instance(currentAliasMap);
-      interpreter.getContext().put(currentImportAlias, currentAliasMap);
-    }
     for (Map.Entry<String, Object> entry : (
       (Map<String, Object>) ((DeferredValue) currentAliasMap).getOriginalValue()
     ).entrySet()) {
