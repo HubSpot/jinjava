@@ -14,6 +14,8 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.RenderResult;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -331,5 +333,20 @@ public class ForTagTest extends BaseInterpretingTest {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Test
+  public void itCatchesConcurrentModificationInLoop() {
+    Map<String, Object> context = Maps.newHashMap();
+    String template =
+      "{% set test = [1, 2, 3] %}{% for i in test %}{% if i == 1 %}{{ test.append(4) }}{% endif %}{% endfor %}{{ test }}";
+
+    RenderResult rendered = jinjava.renderForResult(template, context);
+    assertEquals("[1, 2, 3, 4]", rendered.getOutput());
+    assertThat(rendered.getErrors()).hasSize(1);
+    assertThat(rendered.getErrors().get(0).getSeverity())
+      .isEqualTo(TemplateError.ErrorType.FATAL);
+    assertThat(rendered.getErrors().get(0).getMessage())
+      .contains("Cannot modify collection in 'for' loop");
   }
 }
