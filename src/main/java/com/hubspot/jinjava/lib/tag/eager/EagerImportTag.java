@@ -101,6 +101,11 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         // Since some values got deferred, output a DoTag that will load the currentImportAlias on the context.
         return (
           newPathSetter +
+          EagerReconstructionUtils.buildSetTag(
+            ImmutableMap.of(currentImportAlias, "{}"),
+            interpreter,
+            true
+          ) +
           output +
           getDoTagToPreserve(interpreter, currentImportAlias) +
           initialPathSetter

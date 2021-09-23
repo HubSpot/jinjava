@@ -1,0 +1,7 @@
+{% if deferred %}
+{%- import "macro-and-set.jinja" as simple -%}
+{% else %}
+{%- import "macro-and-set.jinja" as simple -%}
+{% endif %}
+simple.foo: {{ simple.foo() }}
+simple.bar: {{ simple.bar }}
