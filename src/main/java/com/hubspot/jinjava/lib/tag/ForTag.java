@@ -42,6 +42,7 @@ import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.ObjectIterator;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -112,6 +113,7 @@ public class ForTag implements Tag {
       .stream()
       .filter(n -> !(n instanceof ExpressionNode))
       .count();
+
     String result = interpretUnchecked(tagNode, interpreter);
     if (
       interpreter
@@ -128,6 +130,7 @@ public class ForTag implements Tag {
         interpreter.getPosition()
       );
     }
+
     if (interpreter.getContext().get("loop") instanceof DeferredValue) {
       throw new DeferredValueException(
         "loop variable deferred",
@@ -168,7 +171,24 @@ public class ForTag implements Tag {
         interpreter.getConfig().getMaxOutputSize()
       );
       while (loop.hasNext()) {
-        Object val = interpreter.wrap(loop.next());
+        Object val;
+        try {
+          val = interpreter.wrap(loop.next());
+        } catch (ConcurrentModificationException e) {
+          interpreter.addError(
+            new TemplateError(
+              TemplateError.ErrorType.FATAL,
+              TemplateError.ErrorReason.SYNTAX_ERROR,
+              TemplateError.ErrorItem.TAG,
+              "Concurrent Modification Error: Cannot modify collection in 'for' loop",
+              "",
+              interpreter.getLineNumber(),
+              interpreter.getPosition(),
+              e
+            )
+          );
+          break;
+        }
 
         // set item variables
         if (loopVars.size() == 1) {
