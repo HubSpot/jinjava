@@ -339,10 +339,10 @@ public class ForTagTest extends BaseInterpretingTest {
   public void itCatchesConcurrentModificationInLoop() {
     Map<String, Object> context = Maps.newHashMap();
     String template =
-      "{% set test = [1, 2, 3] %}{% for i in test %}{% if i == 1 %}{{ test.append(4) }}{% endif %}{% endfor %}{{ test }}";
+      "{% set test = [1, 2, 3] %}{% for i in test %}{{ 'hello' }}{% if i == 1 %}{{ test.append(4) }}{% endif %}{% endfor %}{{ test }}";
 
     RenderResult rendered = jinjava.renderForResult(template, context);
-    assertEquals("[1, 2, 3, 4]", rendered.getOutput());
+    assertEquals("hellotrue[1, 2, 3, 4]", rendered.getOutput());
     assertThat(rendered.getErrors()).hasSize(1);
     assertThat(rendered.getErrors().get(0).getSeverity())
       .isEqualTo(TemplateError.ErrorType.FATAL);
