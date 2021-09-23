@@ -157,14 +157,6 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       .getContext()
       .getSessionBindings()
       .get(currentImportAlias);
-    if ((!(currentAliasMap instanceof DeferredValue))) {
-      // Make sure that the map is deferred.
-      if (!(currentAliasMap instanceof Map)) {
-        currentAliasMap = new PyMap(new HashMap<>());
-      }
-      currentAliasMap = DeferredValue.instance(currentAliasMap);
-      interpreter.getContext().put(currentImportAlias, currentAliasMap);
-    }
     for (Map.Entry<String, Object> entry : (
       (Map<String, Object>) ((DeferredValue) currentAliasMap).getOriginalValue()
     ).entrySet()) {

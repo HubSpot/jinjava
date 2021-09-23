@@ -448,6 +448,29 @@ public class EagerImportTagTest extends ImportTagTest {
   }
 
   @Test
+  public void itHandlesQuadLayerInDeferredIf() {
+    setupResourceLocator();
+    context.put("a_val", "a");
+    context.put("b_val", "b");
+    String result = interpreter.render(
+      "{% if deferred %}{% import 'import-tree-b.jinja' as b %}{% endif %}"
+    );
+    assertThat(result)
+      .isEqualTo(
+        "{% if deferred %}{% set current_path = 'import-tree-b.jinja' %}{% set b = {} %}{% set current_path = 'import-tree-a.jinja' %}{% set a = {} %}{% set something = 'somn' %}{% do a.update({\"something\": something}) %}\n" +
+        "{% set foo_a = 'a' %}{% do a.update({\"foo_a\": foo_a}) %}\n" +
+        "{% do a.update({'foo_a': 'a','import_resource_path': 'import-tree-a.jinja','something': 'somn'}) %}{% set current_path = 'import-tree-b.jinja' %}\n" +
+        "{% set foo_b = 'b' + a.foo_a %}{% do b.update({\"foo_b\": foo_b}) %}\n" +
+        "{% do b.update({'a': a,'foo_b': foo_b,'import_resource_path': 'import-tree-b.jinja'}) %}{% set current_path = '' %}{% endif %}"
+      );
+
+    context.put("deferred", true);
+    interpreter.render(result);
+    assertThat(interpreter.render("{{ b.foo_b }}")).isEqualTo("ba");
+    assertThat(interpreter.render("{{ b.a.foo_a }}")).isEqualTo("a");
+  }
+
+  @Test
   public void itCorrectlySetsAliasedPath() {
     setupResourceLocator();
     context.put("foo", "foo");
