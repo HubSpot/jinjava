@@ -932,6 +932,8 @@ public class EagerTest {
 
   @Test
   public void itHandlesImportInDeferredIf() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-import-in-deferred-if");
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-import-in-deferred-if"
+    );
   }
 }
