@@ -252,7 +252,7 @@ public class Functions {
       return 0;
     }
 
-    return d.toEpochSecond() * 1000 + Math.round(d.getNano() / 1_000_000.0);
+    return d.toEpochSecond() * 1000 + (int) Math.floor(d.getNano() / 1_000_000.0);
   }
 
   @JinjavaDoc(
