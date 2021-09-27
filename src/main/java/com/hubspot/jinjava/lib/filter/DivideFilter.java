@@ -74,41 +74,51 @@ public class DivideFilter implements Filter {
     } else {
       return object;
     }
-    if (object instanceof Integer) {
-      return (Integer) object / num.intValue();
-    }
-    if (object instanceof Float) {
-      return (Float) object / num.floatValue();
-    }
-    if (object instanceof Long) {
-      return (Long) object / num.longValue();
-    }
-    if (object instanceof Short) {
-      return (Short) object / num.shortValue();
-    }
-    if (object instanceof Double) {
-      return (Double) object / num.doubleValue();
-    }
-    if (object instanceof BigDecimal) {
-      return ((BigDecimal) object).divide(BigDecimal.valueOf(num.doubleValue()));
-    }
-    if (object instanceof BigInteger) {
-      return ((BigInteger) object).divide(BigInteger.valueOf(num.longValue()));
-    }
-    if (object instanceof Byte) {
-      return (Byte) object / num.byteValue();
-    }
-    if (object instanceof String) {
-      try {
-        return Double.valueOf((String) object) / num.doubleValue();
-      } catch (NumberFormatException e) {
-        throw new InvalidInputException(
-          interpreter,
-          this,
-          InvalidReason.NUMBER_FORMAT,
-          object.toString()
-        );
+    try {
+      if (object instanceof Integer) {
+        return (Integer) object / num.intValue();
       }
+      if (object instanceof Float) {
+        return (Float) object / num.floatValue();
+      }
+      if (object instanceof Long) {
+        return (Long) object / num.longValue();
+      }
+      if (object instanceof Short) {
+        return (Short) object / num.shortValue();
+      }
+      if (object instanceof Double) {
+        return (Double) object / num.doubleValue();
+      }
+      if (object instanceof BigDecimal) {
+        return ((BigDecimal) object).divide(BigDecimal.valueOf(num.doubleValue()));
+      }
+      if (object instanceof BigInteger) {
+        return ((BigInteger) object).divide(BigInteger.valueOf(num.longValue()));
+      }
+      if (object instanceof Byte) {
+        return (Byte) object / num.byteValue();
+      }
+      if (object instanceof String) {
+        try {
+          return Double.valueOf((String) object) / num.doubleValue();
+        } catch (NumberFormatException e) {
+          throw new InvalidInputException(
+            interpreter,
+            this,
+            InvalidReason.NUMBER_FORMAT,
+            object.toString()
+          );
+        }
+      }
+    } catch (ArithmeticException e) {
+      throw new InvalidInputException(
+        interpreter,
+        this,
+        InvalidReason.NON_ZERO_NUMBER,
+        0,
+        num.toString()
+      );
     }
     return object;
   }
