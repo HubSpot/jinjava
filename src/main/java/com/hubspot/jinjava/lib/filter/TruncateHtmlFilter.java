@@ -1,11 +1,11 @@
 package com.hubspot.jinjava.lib.filter;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.SafeString;
 import java.util.Map;
@@ -115,16 +115,24 @@ public class TruncateHtmlFilter implements AdvancedFilter {
         try {
           length = Integer.parseInt(Objects.toString(args[0]));
         } catch (Exception e) {
-          ENGINE_LOG.warn(
-            "truncatehtml(): error setting length for {}, using default {}",
-            args[0],
-            DEFAULT_TRUNCATE_LENGTH
+          interpreter.addError(
+            TemplateError.fromInvalidArgumentException(
+              new InvalidArgumentException(
+                interpreter,
+                "truncatehtml",
+                String.format(
+                  "truncatehtml(): error setting length of %s, using default of %d",
+                  args[0],
+                  DEFAULT_TRUNCATE_LENGTH
+                )
+              )
+            )
           );
         }
       }
 
       if (args.length > 1 && args[1] != null) {
-        ends = Objects.toString(args[1]);
+        ends = args[1];
       }
 
       boolean killwords = false;
@@ -148,10 +156,10 @@ public class TruncateHtmlFilter implements AdvancedFilter {
   }
 
   private static class ContentTruncatingNodeVisitor implements NodeVisitor {
-    private int maxTextLen;
+    private final int maxTextLen;
     private int textLen;
-    private String ending;
-    private boolean killwords;
+    private final String ending;
+    private final boolean killwords;
 
     ContentTruncatingNodeVisitor(int maxTextLen, String ending, boolean killwords) {
       this.maxTextLen = maxTextLen;

@@ -1,7 +1,5 @@
 package com.hubspot.jinjava.lib.fn;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
@@ -10,7 +8,9 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.el.ext.NamedParameter;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
@@ -384,6 +384,8 @@ public class Functions {
     }
   )
   public static Object truncate(Object var, Object... arg) {
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+
     if (var instanceof String) {
       int length = DEFAULT_TRUNCATE_LENGTH;
       boolean killwords = false;
@@ -393,10 +395,18 @@ public class Functions {
         try {
           length = Integer.parseInt(Objects.toString(arg[0]));
         } catch (Exception e) {
-          ENGINE_LOG.debug(
-            "truncate(): error setting length for {}, using default {}",
-            arg[0],
-            DEFAULT_TRUNCATE_LENGTH
+          interpreter.addError(
+            TemplateError.fromInvalidArgumentException(
+              new InvalidArgumentException(
+                interpreter,
+                "truncate",
+                String.format(
+                  "truncate(): error setting length of %s, using default of %d",
+                  arg[0],
+                  DEFAULT_TRUNCATE_LENGTH
+                )
+              )
+            )
           );
         }
       }
@@ -405,7 +415,15 @@ public class Functions {
         try {
           killwords = BooleanUtils.toBoolean(Objects.toString(arg[1]));
         } catch (Exception e) {
-          ENGINE_LOG.warn("truncate(); error setting killwords for {}", arg[1]);
+          interpreter.addError(
+            TemplateError.fromInvalidArgumentException(
+              new InvalidArgumentException(
+                interpreter,
+                "truncate",
+                String.format("truncate(): error setting killwords for %s", arg[1])
+              )
+            )
+          );
         }
       }
 
@@ -461,21 +479,29 @@ public class Functions {
     int end = 0;
     int step = 1;
 
+    if (arg1 == null) {
+      throw new InvalidArgumentException(
+        JinjavaInterpreter.getCurrent(),
+        "range",
+        "Invalid null passed to range function"
+      );
+    }
+
     switch (args.length) {
       case 0:
-        if (NumberUtils.isNumber(arg1.toString())) {
+        if (NumberUtils.isCreatable(arg1.toString())) {
           end = NumberUtils.toInt(arg1.toString(), rangeLimit);
         }
         break;
       case 1:
         start = NumberUtils.toInt(arg1.toString());
-        if (args[0] != null && NumberUtils.isNumber(args[0].toString())) {
+        if (args[0] != null && NumberUtils.isCreatable(args[0].toString())) {
           end = NumberUtils.toInt(args[0].toString(), start + rangeLimit);
         }
         break;
       default:
         start = NumberUtils.toInt(arg1.toString());
-        if (args[0] != null && NumberUtils.isNumber(args[0].toString())) {
+        if (args[0] != null && NumberUtils.isCreatable(args[0].toString())) {
           end = NumberUtils.toInt(args[0].toString(), start + rangeLimit);
         }
         if (args[1] != null) {
