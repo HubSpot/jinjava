@@ -489,19 +489,19 @@ public class Functions {
 
     switch (args.length) {
       case 0:
-        if (NumberUtils.isNumber(arg1.toString())) {
+        if (NumberUtils.isCreatable(arg1.toString())) {
           end = NumberUtils.toInt(arg1.toString(), rangeLimit);
         }
         break;
       case 1:
         start = NumberUtils.toInt(arg1.toString());
-        if (args[0] != null && NumberUtils.isNumber(args[0].toString())) {
+        if (args[0] != null && NumberUtils.isCreatable(args[0].toString())) {
           end = NumberUtils.toInt(args[0].toString(), start + rangeLimit);
         }
         break;
       default:
         start = NumberUtils.toInt(arg1.toString());
-        if (args[0] != null && NumberUtils.isNumber(args[0].toString())) {
+        if (args[0] != null && NumberUtils.isCreatable(args[0].toString())) {
           end = NumberUtils.toInt(args[0].toString(), start + rangeLimit);
         }
         if (args[1] != null) {
