@@ -1,7 +1,7 @@
 package com.hubspot.jinjava.lib.expression;
 
 import com.hubspot.jinjava.JinjavaConfig;
-import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
 import com.hubspot.jinjava.lib.tag.RawTag;
@@ -102,7 +102,8 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
             .getDeferredWords()
             .stream()
             .filter(
-              word -> !(interpreter.getContext().get(word) instanceof DeferredValue)
+              word ->
+                !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
             )
             .collect(Collectors.toSet())
         )

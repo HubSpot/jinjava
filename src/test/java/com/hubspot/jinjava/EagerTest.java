@@ -490,7 +490,7 @@ public class EagerTest {
           .flatMap(eagerToken -> eagerToken.getUsedDeferredWords().stream())
           .collect(Collectors.toSet())
       )
-      .isEmpty();
+      .contains("deferred");
   }
 
   @Test

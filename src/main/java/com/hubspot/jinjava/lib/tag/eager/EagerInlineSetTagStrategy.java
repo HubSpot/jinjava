@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
@@ -101,7 +101,8 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
             .getDeferredWords()
             .stream()
             .filter(
-              word -> !(interpreter.getContext().get(word) instanceof DeferredValue)
+              word ->
+                !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
             )
             .collect(Collectors.toSet()),
           Arrays.stream(variables).map(String::trim).collect(Collectors.toSet())

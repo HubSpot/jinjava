@@ -84,7 +84,7 @@ public class EagerIncludeTagTest extends IncludeTagTest {
           .flatMap(eagerToken -> eagerToken.getUsedDeferredWords().stream())
           .collect(Collectors.toSet())
       )
-      .isEmpty();
+      .containsExactlyInAnyOrder("foo", "deferred");
     assertThat(
         context
           .getEagerTokens()

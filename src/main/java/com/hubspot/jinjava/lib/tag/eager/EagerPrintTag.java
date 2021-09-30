@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.PrintTag;
@@ -110,7 +110,8 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
             .getDeferredWords()
             .stream()
             .filter(
-              word -> !(interpreter.getContext().get(word) instanceof DeferredValue)
+              word ->
+                !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
             )
             .collect(Collectors.toSet())
         )
