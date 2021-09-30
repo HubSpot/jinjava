@@ -15,8 +15,6 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.util;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
 import java.util.Iterator;
 
 public class ForLoop implements Iterator<Object> {
@@ -32,7 +30,7 @@ public class ForLoop implements Iterator<Object> {
 
   private int depth;
 
-  private Iterator<?> it;
+  private final Iterator<?> it;
 
   public ForLoop(Iterator<?> ite, int len) {
     length = len;
@@ -111,23 +109,14 @@ public class ForLoop implements Iterator<Object> {
   }
 
   public int getRevindex0() {
-    if (revindex == NULL_VALUE) {
-      ENGINE_LOG.warn("can't compute items' length while looping.");
-    }
     return revindex;
   }
 
   public int getRevcounter() {
-    if (revcounter == NULL_VALUE) {
-      ENGINE_LOG.warn("can't compute items' length while looping.");
-    }
     return revcounter;
   }
 
   public int getLength() {
-    if (revcounter == NULL_VALUE) {
-      ENGINE_LOG.warn("can't compute items' length while looping.");
-    }
     return length;
   }
 
