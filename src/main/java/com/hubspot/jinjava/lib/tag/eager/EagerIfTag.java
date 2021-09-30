@@ -15,6 +15,9 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerIfTag extends EagerTagDecorator<IfTag> {
@@ -168,6 +171,25 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     JinjavaInterpreter interpreter,
     EagerExecutionResult result
   ) {
+    Set<Entry<String, Object>> nonDeferredBindingsToRevert = result
+      .getSpeculativeBindings()
+      .entrySet()
+      .stream()
+      .filter(
+        entry ->
+          interpreter.getContext().containsKey(entry.getKey()) &&
+          !(interpreter.getContext().get(entry.getKey()) instanceof DeferredValue)
+      )
+      .collect(Collectors.toSet());
+    if (!nonDeferredBindingsToRevert.isEmpty()) {
+      if (!interpreter.getConfig().getExecutionMode().useEagerContextReverting()) {
+        throw new DeferredValueException("Cannot revert value");
+      }
+      nonDeferredBindingsToRevert.forEach(
+        entry -> interpreter.getContext().put(entry.getKey(), entry.getValue())
+      );
+    }
+
     result
       .getSpeculativeBindings()
       .keySet()
