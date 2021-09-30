@@ -6,11 +6,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
-import com.hubspot.jinjava.LegacyOverrides;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.Arrays;
 import java.util.Collections;
-import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,6 +67,12 @@ public class RangeFunctionTest {
     assertThat(Functions.range(2, "f")).isEmpty();
     assertThat(Functions.range(2, new Object[] { null })).isEmpty();
     assertThat(Functions.range(2, 4, null)).isEqualTo(Arrays.asList(2, 3));
+  }
+
+  @Test
+  public void itHandlesMissingArg() {
+    assertThatThrownBy(() -> Functions.range(null))
+      .isInstanceOf(InvalidArgumentException.class);
   }
 
   @Test

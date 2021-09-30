@@ -10,6 +10,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.el.ext.NamedParameter;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.objects.Namespace;
@@ -460,6 +461,14 @@ public class Functions {
     int start = 0;
     int end = 0;
     int step = 1;
+
+    if (arg1 == null) {
+      throw new InvalidArgumentException(
+        JinjavaInterpreter.getCurrent(),
+        "range",
+        "Invalid null passed to range function"
+      );
+    }
 
     switch (args.length) {
       case 0:
