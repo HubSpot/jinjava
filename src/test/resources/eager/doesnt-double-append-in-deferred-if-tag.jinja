@@ -2,5 +2,8 @@
 {% if deferred == foo.append(1) %}
 {{ foo }}
 {% do foo.append(2) %}
+{% else %}
+{{ foo }}
+{% do foo.append(3) %}
 {% endif %}
 {{ foo }}
