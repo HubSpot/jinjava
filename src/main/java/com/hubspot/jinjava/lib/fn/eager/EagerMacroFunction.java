@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.interpret.Context;
-import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
@@ -146,7 +146,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
           macroFunction
             .getArguments()
             .stream()
-            .map(arg -> DeferredValue.instance())
+            .map(arg -> DeferredMacroValueImpl.instance())
             .toArray()
         );
         result = (getStartTag(interpreter) + evaluation + getEndTag(interpreter));

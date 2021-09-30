@@ -60,7 +60,7 @@ public class EagerForTagTest extends ForTagTest {
     assertThat(maybeEagerToken).isPresent();
     assertThat(maybeEagerToken.get().getSetDeferredWords())
       .containsExactlyInAnyOrder("item");
-    assertThat(maybeEagerToken.get().getUsedDeferredWords()).isEmpty();
+    assertThat(maybeEagerToken.get().getUsedDeferredWords()).contains("deferred");
   }
 
   @Test
@@ -75,7 +75,7 @@ public class EagerForTagTest extends ForTagTest {
     assertThat(maybeEagerToken).isPresent();
     assertThat(maybeEagerToken.get().getSetDeferredWords())
       .containsExactlyInAnyOrder("item", "item2");
-    assertThat(maybeEagerToken.get().getUsedDeferredWords()).isEmpty();
+    assertThat(maybeEagerToken.get().getUsedDeferredWords()).contains("deferred");
   }
 
   @Test
