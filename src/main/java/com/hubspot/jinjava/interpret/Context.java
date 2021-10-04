@@ -735,7 +735,7 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public Node getCurrentNode() {
-    return this.currentNode;
+    return currentNode;
   }
 
   public void setCurrentNode(final Node currentNode) {
