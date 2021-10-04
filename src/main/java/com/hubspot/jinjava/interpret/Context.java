@@ -111,6 +111,7 @@ public class Context extends ScopeMap<String, Object> {
   private boolean unwrapRawOverride = false;
   private DynamicVariableResolver dynamicVariableResolver = null;
   private final Set<String> metaContextVariables; // These variable names aren't tracked in eager execution
+  private Node currentProcessedNode;
 
   public Context() {
     this(null, null, null, true);
@@ -731,5 +732,13 @@ public class Context extends ScopeMap<String, Object> {
     public void close() {
       resetValueConsumer.accept(previousValue);
     }
+  }
+
+  public Node getCurrentProcessedNode() {
+    return this.currentProcessedNode;
+  }
+
+  public void setCurrentProcessedNode(final Node currentProcessedNode) {
+    this.currentProcessedNode = currentProcessedNode;
   }
 }
