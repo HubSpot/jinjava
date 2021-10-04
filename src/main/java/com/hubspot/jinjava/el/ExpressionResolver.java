@@ -186,10 +186,15 @@ public class ExpressionResolver {
           )
         );
       } else {
+        final String exceptionMessage = String.format(
+          "%s%nOriginating Exception:%n%s",
+          e.getMessage(),
+          getRootCauseMessage(e)
+        );
         interpreter.addError(
           TemplateError.fromException(
             new TemplateSyntaxException(
-              expression,
+              exceptionMessage,
               e.getMessage(),
               interpreter.getLineNumber(),
               e
