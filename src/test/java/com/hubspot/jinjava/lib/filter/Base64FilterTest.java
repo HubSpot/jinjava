@@ -20,20 +20,23 @@ public class Base64FilterTest extends BaseJinjavaTest {
   @Test
   public void itEncodesWithUtf16Le() {
     assertThat(
-        jinjava.render("{{ 'ß'|b64encode(encoding='utf-16le') }}", Collections.emptyMap())
+        jinjava.render(
+          "{{ '\uD801\uDC37'|b64encode(encoding='utf-16le') }}",
+          Collections.emptyMap()
+        )
       )
-      .isEqualTo("3wA=");
+      .isEqualTo("Adg33A==");
   }
 
   @Test
   public void itDecodesWithUtf16Le() {
     assertThat(
         jinjava.render(
-          "{{ '3wA='|b64decode(encoding='utf-16le') }}",
+          "{{ 'Adg33A=='|b64decode(encoding='utf-16le') }}",
           Collections.emptyMap()
         )
       )
-      .isEqualTo("ß");
+      .isEqualTo("\uD801\uDC37");
   }
 
   @Test

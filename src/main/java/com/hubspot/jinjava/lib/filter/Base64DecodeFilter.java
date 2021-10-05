@@ -27,7 +27,14 @@ import java.util.Base64;
     )
   },
   snippets = {
-    @JinjavaSnippet(code = "{% set my_number = -53 %}\n" + "{{ my_number|abs }}")
+    @JinjavaSnippet(
+      desc = "Decode a Base 64-encoded ASCII string into a UTF-8 string",
+      code = "{{ 'eydmb28nOiBbJ2JhciddfQ=='|b64decode }}"
+    ),
+    @JinjavaSnippet(
+      desc = "Decode a Base 64-encoded ASCII string into a UTF-16 Little Endian string",
+      code = "{{ 'Adg33A=='|b64decode(encoding='utf-16le') }}"
+    )
   }
 )
 public class Base64DecodeFilter implements Filter {

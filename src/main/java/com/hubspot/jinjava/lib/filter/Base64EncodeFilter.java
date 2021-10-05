@@ -20,7 +20,7 @@ import org.apache.commons.net.util.Charsets;
   value = "Encode the string input into base 64.",
   input = @JinjavaParam(
     value = "input",
-    type = "string",
+    type = "object",
     desc = "The string input to encode into base 64.",
     required = true
   ),
@@ -33,7 +33,14 @@ import org.apache.commons.net.util.Charsets;
     )
   },
   snippets = {
-    @JinjavaSnippet(code = "{% set my_number = -53 %}\n" + "{{ my_number|abs }}")
+    @JinjavaSnippet(
+      desc = "Encode a value with UTF-8 encoding into a Base 64 ASCII string",
+      code = "{{ 'abcd'|b64encode }}"
+    ),
+    @JinjavaSnippet(
+      desc = "Encode a value with UTF-16 Little Endian encoding into a Base 64 ASCII string",
+      code = "{{ '\uD801\uDC37'|b64encode(encoding='utf-16le') }}"
+    )
   }
 )
 public class Base64EncodeFilter implements Filter {
