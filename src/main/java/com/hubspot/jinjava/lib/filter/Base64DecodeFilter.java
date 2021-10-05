@@ -3,8 +3,11 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @JinjavaDoc(
@@ -37,7 +40,13 @@ public class Base64DecodeFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    if (!(var instanceof String)) {
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.STRING, 0, var);
+    }
     Charset charset = Base64EncodeFilter.checkCharset(interpreter, this, args);
-    return new String(Base64.getDecoder().decode((var.toString()).getBytes()), charset);
+    return new String(
+      Base64.getDecoder().decode((var.toString()).getBytes(StandardCharsets.US_ASCII)),
+      charset
+    );
   }
 }
