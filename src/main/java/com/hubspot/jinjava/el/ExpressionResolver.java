@@ -190,13 +190,13 @@ public class ExpressionResolver {
         final String combinedMessage = String.format(
           "%s%nOriginating Exception:%n%s",
           e.getMessage(),
-          getRootCauseMessage(e)
+          originatingException
         );
         interpreter.addError(
           TemplateError.fromException(
             new TemplateSyntaxException(
               expression,
-              StringUtils.equals(e.getMessage(), originatingException)
+              StringUtils.endsWith(originatingException, e.getMessage())
                 ? e.getMessage()
                 : combinedMessage,
               interpreter.getLineNumber(),
