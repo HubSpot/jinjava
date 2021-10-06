@@ -196,7 +196,10 @@ public class ExpressionResolver {
           TemplateError.fromException(
             new TemplateSyntaxException(
               expression,
-              StringUtils.endsWith(originatingException, e.getMessage())
+              (
+                  e.getCause() == null ||
+                  StringUtils.endsWith(originatingException, e.getCause().getMessage())
+                )
                 ? e.getMessage()
                 : combinedMessage,
               interpreter.getLineNumber(),

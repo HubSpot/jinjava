@@ -112,7 +112,9 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
       FromJsonFilter.class,
       ToYamlFilter.class,
       FromYamlFilter.class,
-      RenderFilter.class
+      RenderFilter.class,
+      Base64EncodeFilter.class,
+      Base64DecodeFilter.class
     );
   }
 
