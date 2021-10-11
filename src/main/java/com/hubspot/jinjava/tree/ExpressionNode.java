@@ -43,6 +43,7 @@ public class ExpressionNode extends Node {
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
+    interpreter.getContext().setCurrentNode(this);
     try {
       return expressionStrategy.interpretOutput(master, interpreter);
     } catch (DeferredValueException e) {

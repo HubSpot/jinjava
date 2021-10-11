@@ -44,6 +44,7 @@ public class TagNode extends Node {
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
+    interpreter.getContext().setCurrentNode(this);
     if (
       interpreter.getContext().isValidationMode() && !tag.isRenderedInValidationMode()
     ) {
