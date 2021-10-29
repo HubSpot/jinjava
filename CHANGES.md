@@ -1,4 +1,13 @@
 # Jinjava Releases #
+### 2021-10-29 Version 2.6.0 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.6.0/jar)) ###
+* [Create interface for object truth values](https://github.com/HubSpot/jinjava/pull/747)
+* [Catch concurrent modification in for loop](https://github.com/HubSpot/jinjava/pull/750)
+* [Add Originating Exception Message For A TemplateSyntaxException](https://github.com/HubSpot/jinjava/pull/753)
+* [Throw a template error when attempting to divide by zero](https://github.com/HubSpot/jinjava/pull/754)
+* [Make unixtimestamp behave the same as System.currentTimeMillis()](https://github.com/HubSpot/jinjava/pull/755)
+* [handle null argument in range function](https://github.com/HubSpot/jinjava/pull/758)
+* [Track Current Processed Node In The Context](https://github.com/HubSpot/jinjava/pull/760)
+* [Add Base 64 encode and decode filters](https://github.com/HubSpot/jinjava/pull/763)
 
 ### 2021-09-02 Version 2.5.10 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.5.10/jar)) ###
 * [Make LazyExpression memoization disable-able](https://github.com/HubSpot/jinjava/pull/673)
