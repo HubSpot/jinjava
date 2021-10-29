@@ -20,13 +20,11 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.el.TruthyTypeConverter;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
-import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import de.odysseus.el.misc.NumberOperations;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 @JinjavaDoc(
   value = "Divides the current value by a divisor",
