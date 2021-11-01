@@ -18,13 +18,13 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.el.TruthyTypeConverter;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
-import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import de.odysseus.el.misc.NumberOperations;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 @JinjavaDoc(
   value = "Multiplies the current object with the given multiplier",
@@ -45,6 +45,7 @@ import java.math.BigInteger;
   snippets = { @JinjavaSnippet(code = "{% set n = 20 %}\n" + "{{ n|multiply(3) }}") }
 )
 public class MultiplyFilter implements Filter {
+  private static final TruthyTypeConverter TYPE_CONVERTER = new TruthyTypeConverter();
 
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
@@ -69,43 +70,7 @@ public class MultiplyFilter implements Filter {
       );
     }
 
-    if (object instanceof Integer) {
-      return num.intValue() * (Integer) object;
-    }
-    if (object instanceof Float) {
-      return 0D + num.floatValue() * (Float) object;
-    }
-    if (object instanceof Long) {
-      return num.longValue() * (Long) object;
-    }
-    if (object instanceof Short) {
-      return num.shortValue() * (Short) object;
-    }
-    if (object instanceof Double) {
-      return num.doubleValue() * (Double) object;
-    }
-    if (object instanceof BigDecimal) {
-      return ((BigDecimal) object).multiply(BigDecimal.valueOf(num.doubleValue()));
-    }
-    if (object instanceof BigInteger) {
-      return ((BigInteger) object).multiply(BigInteger.valueOf(num.longValue()));
-    }
-    if (object instanceof Byte) {
-      return num.byteValue() * (Byte) object;
-    }
-    if (object instanceof String) {
-      try {
-        return num.doubleValue() * Double.parseDouble((String) object);
-      } catch (NumberFormatException e) {
-        throw new InvalidInputException(
-          interpreter,
-          this,
-          InvalidReason.NUMBER_FORMAT,
-          object.toString()
-        );
-      }
-    }
-    return object;
+    return NumberOperations.mul(TYPE_CONVERTER, object, num);
   }
 
   @Override
