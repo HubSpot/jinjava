@@ -36,6 +36,17 @@ public class DivideFilterTest extends BaseJinjavaTest {
   }
 
   @Test
+  public void itDividesIntegersWithNonIntegerResult() {
+    assertThat(
+        jinjava.render(
+          "{{ numerator|divide(denominator) }} {{ numerator / denominator }}",
+          ImmutableMap.of("numerator", 9, "denominator", 10)
+        )
+      )
+      .isEqualTo("0.9 0.9");
+  }
+
+  @Test
   public void itThrowsAnExceptionOnDivideByZero() {
     assertThatExceptionOfType(FatalTemplateErrorsException.class)
       .isThrownBy(
