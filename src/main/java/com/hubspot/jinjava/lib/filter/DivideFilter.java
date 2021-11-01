@@ -25,6 +25,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import de.odysseus.el.misc.NumberOperations;
 import java.math.BigDecimal;
+import java.util.Map;
 
 @JinjavaDoc(
   value = "Divides the current value by a divisor",
@@ -46,37 +47,46 @@ import java.math.BigDecimal;
     @JinjavaSnippet(code = "{% set numerator = 106 %}\n" + "{% numerator|divide(2) %}")
   }
 )
-public class DivideFilter implements Filter {
+public class DivideFilter implements AdvancedFilter {
   private static final TruthyTypeConverter TYPE_CONVERTER = new TruthyTypeConverter();
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-    if (arg.length < 1) {
+  public Object filter(
+    Object var,
+    JinjavaInterpreter interpreter,
+    Object[] args,
+    Map<String, Object> kwargs
+  ) {
+    if (args.length < 1) {
       throw new TemplateSyntaxException(
         interpreter,
         getName(),
         "requires 1 number (divisor) argument"
       );
     }
-    String toMul = arg[0];
+    Object toMul = args[0];
     Number num;
     if (toMul != null) {
-      try {
-        num = new BigDecimal(toMul);
-      } catch (NumberFormatException e) {
-        throw new InvalidArgumentException(
-          interpreter,
-          this,
-          InvalidReason.NUMBER_FORMAT,
-          0,
-          toMul
-        );
+      if (toMul instanceof Number) {
+        num = (Number) toMul;
+      } else {
+        try {
+          num = new BigDecimal(toMul.toString());
+        } catch (NumberFormatException e) {
+          throw new InvalidArgumentException(
+            interpreter,
+            this,
+            InvalidReason.NUMBER_FORMAT,
+            0,
+            toMul
+          );
+        }
       }
     } else {
-      return object;
+      return var;
     }
 
-    return NumberOperations.div(TYPE_CONVERTER, object, num);
+    return NumberOperations.div(TYPE_CONVERTER, var, num);
   }
 
   @Override

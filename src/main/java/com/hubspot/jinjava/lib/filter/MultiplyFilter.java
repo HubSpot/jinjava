@@ -25,6 +25,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import de.odysseus.el.misc.NumberOperations;
 import java.math.BigDecimal;
+import java.util.Map;
 
 @JinjavaDoc(
   value = "Multiplies the current object with the given multiplier",
@@ -44,33 +45,46 @@ import java.math.BigDecimal;
   },
   snippets = { @JinjavaSnippet(code = "{% set n = 20 %}\n" + "{{ n|multiply(3) }}") }
 )
-public class MultiplyFilter implements Filter {
+public class MultiplyFilter implements AdvancedFilter {
   private static final TruthyTypeConverter TYPE_CONVERTER = new TruthyTypeConverter();
 
   @Override
-  public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
-    if (arg.length < 1) {
+  public Object filter(
+    Object var,
+    JinjavaInterpreter interpreter,
+    Object[] args,
+    Map<String, Object> kwargs
+  ) {
+    if (args.length < 1) {
       throw new TemplateSyntaxException(
         interpreter,
         getName(),
         "requires 1 argument (number to multiply by)"
       );
     }
-    String toMul = arg[0];
+    Object toMul = args[0];
     Number num;
-    try {
-      num = new BigDecimal(toMul);
-    } catch (NumberFormatException e) {
-      throw new InvalidArgumentException(
-        interpreter,
-        this,
-        InvalidReason.NUMBER_FORMAT,
-        0,
-        toMul
-      );
+    if (toMul != null) {
+      if (toMul instanceof Number) {
+        num = (Number) toMul;
+      } else {
+        try {
+          num = new BigDecimal(toMul.toString());
+        } catch (NumberFormatException e) {
+          throw new InvalidArgumentException(
+            interpreter,
+            this,
+            InvalidReason.NUMBER_FORMAT,
+            0,
+            toMul
+          );
+        }
+      }
+    } else {
+      return var;
     }
 
-    return NumberOperations.mul(TYPE_CONVERTER, object, num);
+    return NumberOperations.mul(TYPE_CONVERTER, var, num);
   }
 
   @Override
