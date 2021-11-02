@@ -1,0 +1,9 @@
+0
+META
+{% for meta in deferred %}
+{{ meta }}{% endfor %}
+{{ meta }}
+{% set meta = [] %}{% if deferred %}
+{% set meta = [1] %}
+{% endif %}
+{{ meta }}

@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.collect.Sets;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.TagNode;
@@ -7,6 +8,7 @@ import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Triple;
@@ -34,6 +36,14 @@ public abstract class EagerSetTagStrategy {
       variables = new String[] { var };
       expression = tagNode.getHelpers();
     }
+
+    Set<String> metaLoopVars = Sets
+      .intersection(
+        interpreter.getContext().getMetaContextVariables(),
+        Arrays.stream(variables).map(String::trim).collect(Collectors.toSet())
+      )
+      .immutableCopy();
+    interpreter.getContext().getMetaContextVariables().removeAll(metaLoopVars);
 
     EagerExecutionResult eagerExecutionResult = getEagerExecutionResult(
       tagNode,
