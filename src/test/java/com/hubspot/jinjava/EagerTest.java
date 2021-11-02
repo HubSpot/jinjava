@@ -936,4 +936,13 @@ public class EagerTest {
       "handles-import-in-deferred-if"
     );
   }
+
+  @Test
+  public void itAllowsMetaContextVarOverriding() {
+    interpreter.getContext().getMetaContextVariables().add("meta");
+    interpreter.getContext().put("meta", "META");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "allows-meta-context-var-overriding"
+    );
+  }
 }

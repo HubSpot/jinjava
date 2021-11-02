@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.collect.Sets;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -17,6 +18,7 @@ import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -147,7 +149,13 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       eagerExpressionResult.getDeferredWords(),
       interpreter
     );
-
+    Set<String> metaLoopVars = Sets
+      .intersection(
+        interpreter.getContext().getMetaContextVariables(),
+        Sets.newHashSet(loopVars)
+      )
+      .immutableCopy();
+    interpreter.getContext().getMetaContextVariables().removeAll(metaLoopVars);
     interpreter
       .getContext()
       .handleEagerToken(
