@@ -52,6 +52,9 @@ public class TagNode extends Node {
     }
 
     try {
+      if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
+        interpreter.getContext().checkNumberOfDeferredTokens();
+      }
       return tag.interpretOutput(this, interpreter);
     } catch (DeferredValueException e) {
       interpreter.getContext().handleDeferredNode(this);
