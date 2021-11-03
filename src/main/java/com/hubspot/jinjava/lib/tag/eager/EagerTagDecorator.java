@@ -34,7 +34,6 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    interpreter.getContext().checkNumberOfDeferredTokens();
     try {
       return tag.interpret(tagNode, interpreter);
     } catch (DeferredValueException | TemplateSyntaxException e) {
