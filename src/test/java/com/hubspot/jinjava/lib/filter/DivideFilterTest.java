@@ -16,7 +16,7 @@ public class DivideFilterTest extends BaseJinjavaTest {
           ImmutableMap.of("numerator", 10, "denominator", 2)
         )
       )
-      .isEqualTo("5.0");
+      .isEqualTo("5");
     assertThat(
         jinjava.render(
           "{{ numerator // denominator }}",
@@ -41,6 +41,6 @@ public class DivideFilterTest extends BaseJinjavaTest {
           ImmutableMap.of("numerator", 9, "denominator", 10)
         )
       )
-      .isEqualTo("0.9 0.9");
+      .isEqualTo("1 0.9");
   }
 }

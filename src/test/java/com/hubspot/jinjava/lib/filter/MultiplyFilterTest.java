@@ -20,13 +20,13 @@ public class MultiplyFilterTest extends BaseJinjavaTest {
   public void itMultipliesDecimalNumbers() {
     Map<String, Object> vars = ImmutableMap.of("test", 10);
     RenderResult renderResult = jinjava.renderForResult("{{ test|multiply(.25) }}", vars);
-    assertThat(renderResult.getOutput()).isEqualTo("2.5");
+    assertThat(renderResult.getOutput()).isEqualTo("2.50");
   }
 
   @Test
   public void itCoercesStringsToNumbers() {
     Map<String, Object> vars = ImmutableMap.of("test", "10");
     RenderResult renderResult = jinjava.renderForResult("{{ test|multiply(.25) }}", vars);
-    assertThat(renderResult.getOutput()).isEqualTo("2.5");
+    assertThat(renderResult.getOutput()).isEqualTo("2.50");
   }
 }

@@ -65,20 +65,16 @@ public class MultiplyFilter implements AdvancedFilter {
     Object toMul = args[0];
     Number num;
     if (toMul != null) {
-      if (toMul instanceof Number) {
-        num = (Number) toMul;
-      } else {
-        try {
-          num = new BigDecimal(toMul.toString());
-        } catch (NumberFormatException e) {
-          throw new InvalidArgumentException(
-            interpreter,
-            this,
-            InvalidReason.NUMBER_FORMAT,
-            0,
-            toMul
-          );
-        }
+      try {
+        num = new BigDecimal(toMul.toString());
+      } catch (NumberFormatException e) {
+        throw new InvalidArgumentException(
+          interpreter,
+          this,
+          InvalidReason.NUMBER_FORMAT,
+          0,
+          toMul
+        );
       }
     } else {
       return var;
