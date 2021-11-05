@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseJinjavaTest;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import org.junit.Test;
 
 public class DivideFilterTest extends BaseJinjavaTest {
@@ -42,5 +45,34 @@ public class DivideFilterTest extends BaseJinjavaTest {
         )
       )
       .isEqualTo("1 0.9");
+  }
+
+  @Test
+  public void itRendersWithMorePrecisionWithConfigOption() {
+    Jinjava customJinjava = new Jinjava(
+      JinjavaConfig
+        .newBuilder()
+        .withLegacyOverrides(
+          LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+        )
+        .withEnablePreciseDivideFilter(true)
+        .build()
+    );
+
+    assertThat(
+        jinjava.render(
+          "{{ numerator|divide(denominator) }}",
+          ImmutableMap.of("numerator", 2, "denominator", 100)
+        )
+      )
+      .isEqualTo("0");
+
+    assertThat(
+        customJinjava.render(
+          "{{ numerator|divide(denominator) }}",
+          ImmutableMap.of("numerator", 2, "denominator", 100)
+        )
+      )
+      .isEqualTo("0.02");
   }
 }
