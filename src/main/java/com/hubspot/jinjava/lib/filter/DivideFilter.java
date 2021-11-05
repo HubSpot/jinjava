@@ -67,16 +67,22 @@ public class DivideFilter implements AdvancedFilter {
     Object toMul = args[0];
     Number num;
     if (toMul != null) {
-      try {
-        num = new BigDecimal(toMul.toString());
-      } catch (NumberFormatException e) {
-        throw new InvalidArgumentException(
-          interpreter,
-          this,
-          InvalidReason.NUMBER_FORMAT,
-          0,
-          toMul
-        );
+      if (
+        interpreter.getConfig().getEnablePreciseDivideFilter() && toMul instanceof Number
+      ) {
+        num = (Number) toMul;
+      } else {
+        try {
+          num = new BigDecimal(toMul.toString());
+        } catch (NumberFormatException e) {
+          throw new InvalidArgumentException(
+            interpreter,
+            this,
+            InvalidReason.NUMBER_FORMAT,
+            0,
+            toMul
+          );
+        }
       }
     } else {
       return var;

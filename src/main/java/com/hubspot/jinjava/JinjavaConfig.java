@@ -65,6 +65,7 @@ public class JinjavaConfig {
   private final ELResolver elResolver;
   private final ExecutionMode executionMode;
   private final LegacyOverrides legacyOverrides;
+  private final boolean enablePreciseDivideFilter;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -118,6 +119,7 @@ public class JinjavaConfig {
     elResolver = builder.elResolver;
     executionMode = builder.executionMode;
     legacyOverrides = builder.legacyOverrides;
+    enablePreciseDivideFilter = builder.enablePreciseDivideFilter;
   }
 
   public Charset getCharset() {
@@ -228,6 +230,10 @@ public class JinjavaConfig {
     return legacyOverrides;
   }
 
+  public boolean getEnablePreciseDivideFilter() {
+    return enablePreciseDivideFilter;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -256,6 +262,7 @@ public class JinjavaConfig {
     private int maxMapSize = Integer.MAX_VALUE;
     private ExecutionMode executionMode = DefaultExecutionMode.instance();
     private LegacyOverrides legacyOverrides = LegacyOverrides.NONE;
+    private boolean enablePreciseDivideFilter = false;
 
     private Builder() {}
 
@@ -399,6 +406,11 @@ public class JinjavaConfig {
 
     public Builder withLegacyOverrides(LegacyOverrides legacyOverrides) {
       this.legacyOverrides = legacyOverrides;
+      return this;
+    }
+
+    public Builder withEnablePreciseDivideFilter(boolean enablePreciseDivideFilter) {
+      this.enablePreciseDivideFilter = enablePreciseDivideFilter;
       return this;
     }
 
