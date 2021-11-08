@@ -260,6 +260,12 @@ public class TokenScannerTest {
   }
 
   @Test
+  public void testCommentWith$Char(){
+    List<Token> tokens = tokens("comment-without-whitespace");
+    assertThat(tokens.get(0).content.trim()).isEqualTo("${#array[@]}");
+  }
+
+  @Test
   public void testEscapedBackslashWithinAttrValue() {
     List<Token> tokens = tokens("escape-char-tokens");
 
