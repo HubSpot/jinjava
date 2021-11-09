@@ -10,6 +10,8 @@ import com.hubspot.jinjava.JinjavaConfig;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.hubspot.jinjava.LegacyOverrides;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -260,8 +262,18 @@ public class TokenScannerTest {
   }
 
   @Test
-  public void testCommentWith$Char(){
+  public void testCommentWithWhitespaceChar(){
     List<Token> tokens = tokens("comment-without-whitespace");
+    assertThat(tokens.get(0).content.trim()).isEqualTo("$");
+
+    LegacyOverrides legacyOverrides = LegacyOverrides.newBuilder()
+            .withUseWhitespaceAfterStartToken(true)
+            .build();
+    JinjavaConfig config = JinjavaConfig.newBuilder()
+            .withLegacyOverrides(legacyOverrides)
+            .build();
+    TokenScanner scanner = fixture("comment-without-whitespace", config);
+    tokens = Lists.newArrayList(scanner);
     assertThat(tokens.get(0).content.trim()).isEqualTo("${#array[@]}");
   }
 
@@ -298,13 +310,17 @@ public class TokenScannerTest {
   }
 
   private TokenScanner fixture(String fixture) {
+    return fixture(fixture, config);
+  }
+
+  private TokenScanner fixture(String fixture, JinjavaConfig config) {
     try {
       return new TokenScanner(
-        Resources.toString(
-          Resources.getResource(String.format("parse/tokenizer/%s.jinja", fixture)),
-          StandardCharsets.UTF_8
-        ),
-        config
+              Resources.toString(
+                      Resources.getResource(String.format("parse/tokenizer/%s.jinja", fixture)),
+                      StandardCharsets.UTF_8
+              ),
+              config
       );
     } catch (Exception e) {
       throw new RuntimeException(e);

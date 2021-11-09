@@ -9,11 +9,13 @@ public class LegacyOverrides {
   private final boolean evaluateMapKeys;
   private final boolean iterateOverMapKeys;
   private final boolean usePyishObjectMapper;
+  private final boolean useWhitespaceAfterStartToken;
 
   private LegacyOverrides(Builder builder) {
     evaluateMapKeys = builder.evaluateMapKeys;
     iterateOverMapKeys = builder.iterateOverMapKeys;
     usePyishObjectMapper = builder.usePyishObjectMapper;
+    useWhitespaceAfterStartToken = builder.useWhitespaceAfterStartToken;
   }
 
   public static Builder newBuilder() {
@@ -32,10 +34,15 @@ public class LegacyOverrides {
     return usePyishObjectMapper;
   }
 
+  public boolean isUseWhitespaceAfterStartToken(){
+    return useWhitespaceAfterStartToken;
+  }
+
   public static class Builder {
     private boolean evaluateMapKeys = false;
     private boolean iterateOverMapKeys = false;
     private boolean usePyishObjectMapper = false;
+    private boolean useWhitespaceAfterStartToken = false;
 
     private Builder() {}
 
@@ -47,7 +54,8 @@ public class LegacyOverrides {
       return new Builder()
         .withEvaluateMapKeys(legacyOverrides.evaluateMapKeys)
         .withIterateOverMapKeys(legacyOverrides.iterateOverMapKeys)
-        .withUsePyishObjectMapper(legacyOverrides.usePyishObjectMapper);
+        .withUsePyishObjectMapper(legacyOverrides.usePyishObjectMapper)
+        .withUseWhitespaceAfterStartToken(legacyOverrides.useWhitespaceAfterStartToken);
     }
 
     public Builder withEvaluateMapKeys(boolean evaluateMapKeys) {
@@ -62,6 +70,11 @@ public class LegacyOverrides {
 
     public Builder withUsePyishObjectMapper(boolean usePyishObjectMapper) {
       this.usePyishObjectMapper = usePyishObjectMapper;
+      return this;
+    }
+
+    public Builder withUseWhitespaceAfterStartToken(boolean useWhitespace){
+      this.useWhitespaceAfterStartToken = useWhitespace;
       return this;
     }
   }

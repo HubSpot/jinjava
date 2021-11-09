@@ -88,9 +88,13 @@ public class TokenScanner extends AbstractIterator<Token> {
       if (c == symbols.getPrefix()) {
         if (currPost < length) {
           c = is[currPost];
-          boolean hasNextChar = (currPost + 1) < length;
-          boolean nextCharIsWhitespace = hasNextChar && (' ' == is[currPost + 1]);
-          if (nextCharIsWhitespace) {
+          boolean startTokenFound = true;
+          if(config.getLegacyOverrides().isUseWhitespaceAfterStartToken()){
+            boolean hasNextChar = (currPost + 1) < length;
+            boolean nextCharIsWhitespace = hasNextChar && (' ' == is[currPost + 1]);
+            startTokenFound = nextCharIsWhitespace;
+          }
+          if (startTokenFound) {
             if (c == symbols.getNote()) {
               if (inComment == 1 || inRaw == 1) {
                 continue;
