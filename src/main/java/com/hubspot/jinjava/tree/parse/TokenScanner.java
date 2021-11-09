@@ -89,7 +89,7 @@ public class TokenScanner extends AbstractIterator<Token> {
         if (currPost < length) {
           c = is[currPost];
           boolean startTokenFound = true;
-          if(config.getLegacyOverrides().isUseWhitespaceAfterStartToken()){
+          if (config.getLegacyOverrides().isUseWhitespaceAfterStartToken()) {
             boolean hasNextChar = (currPost + 1) < length;
             boolean nextCharIsWhitespace = hasNextChar && (' ' == is[currPost + 1]);
             startTokenFound = nextCharIsWhitespace;

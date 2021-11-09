@@ -34,7 +34,7 @@ public class LegacyOverrides {
     return usePyishObjectMapper;
   }
 
-  public boolean isUseWhitespaceAfterStartToken(){
+  public boolean isUseWhitespaceAfterStartToken() {
     return useWhitespaceAfterStartToken;
   }
 
@@ -73,7 +73,7 @@ public class LegacyOverrides {
       return this;
     }
 
-    public Builder withUseWhitespaceAfterStartToken(boolean useWhitespace){
+    public Builder withUseWhitespaceAfterStartToken(boolean useWhitespace) {
       this.useWhitespaceAfterStartToken = useWhitespace;
       return this;
     }
