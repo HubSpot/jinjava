@@ -263,24 +263,46 @@ public class EagerReconstructionUtils {
       .peek(entry -> toRemove.add(entry.getKey()))
       .peek(entry -> entry.getValue().setDeferred(true))
       .map(
-        entry ->
-          executeInChildContext(
-            eagerInterpreter ->
-              EagerExpressionResult.fromString(
-                new EagerMacroFunction(entry.getKey(), entry.getValue(), interpreter)
-                .reconstructImage()
-              ),
-            interpreter,
-            false,
-            false,
-            true
-          )
+        entry -> {
+          int numEagerTokensStart = interpreter.getContext().getEagerTokens().size();
+          EagerExecutionResult eagerExecutionResult = runMacroFunctionOnce(
+            entry.getKey(),
+            entry.getValue(),
+            interpreter
+          );
+          String prefix = eagerExecutionResult.getPrefixToPreserveState();
+          if (interpreter.getContext().getEagerTokens().size() > numEagerTokensStart) {
+            // We need to run it again after any values that tried to get modified have been deferred
+            eagerExecutionResult =
+              runMacroFunctionOnce(entry.getKey(), entry.getValue(), interpreter);
+            if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
+              throw new DeferredValueException("Cannot reconstruct macro function");
+            }
+          }
+          return prefix + eagerExecutionResult.getResult().toString();
+        }
       )
-      .map(EagerExecutionResult::asTemplateString)
       .collect(Collectors.joining());
     // Remove macro functions from the set because they've been fully processed now.
     deferredWords.removeAll(toRemove);
     return result;
+  }
+
+  private static EagerExecutionResult runMacroFunctionOnce(
+    String fullName,
+    MacroFunction macroFunction,
+    JinjavaInterpreter interpreter
+  ) {
+    return executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResult.fromString(
+          new EagerMacroFunction(fullName, macroFunction, interpreter).reconstructImage()
+        ),
+      interpreter,
+      false,
+      false,
+      true
+    );
   }
 
   private static String reconstructVariablesBeforeDeferring(
