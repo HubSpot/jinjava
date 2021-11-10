@@ -142,8 +142,6 @@ public class EagerMacroFunction extends AbstractCallableMethod {
       return "";
     } else {
       try {
-        interpreter.getContext().put(Context.CURRENT_MACRO_FUNCTION_KEY, macroFunction);
-
         int numEagerTokensStart = interpreter.getContext().getEagerTokens().size();
         String evaluation = (String) evaluate(
           macroFunction

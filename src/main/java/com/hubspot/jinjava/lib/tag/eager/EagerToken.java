@@ -2,7 +2,6 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.parse.Token;
 import java.util.Collections;
 import java.util.Set;
@@ -16,7 +15,7 @@ public class EagerToken {
   private final Set<String> setDeferredWords;
 
   private final String importResourcePath;
-  private final MacroFunction currentMacroFunction;
+  private final String currentMacroFunction;
 
   public EagerToken(Token token, Set<String> usedDeferredWords) {
     this.token = token;
@@ -54,7 +53,7 @@ public class EagerToken {
     return importResourcePath;
   }
 
-  public MacroFunction getCurrentMacroFunction() {
+  public String getCurrentMacroFunction() {
     return currentMacroFunction;
   }
 
@@ -66,13 +65,10 @@ public class EagerToken {
       .orElse(null);
   }
 
-  private static MacroFunction acquireCurrentMacroFunction() {
-    return (MacroFunction) JinjavaInterpreter
+  private static String acquireCurrentMacroFunction() {
+    return JinjavaInterpreter
       .getCurrentMaybe()
-      .map(
-        interpreter -> interpreter.getContext().get(Context.CURRENT_MACRO_FUNCTION_KEY)
-      )
-      .filter(path -> path instanceof MacroFunction)
+      .flatMap(interpreter -> interpreter.getContext().getMacroStack().peek())
       .orElse(null);
   }
 }

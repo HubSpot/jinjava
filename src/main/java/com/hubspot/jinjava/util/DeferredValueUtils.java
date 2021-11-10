@@ -91,8 +91,9 @@ public class DeferredValueUtils {
     if (eagerToken != null) {
       if (
         eagerToken.getCurrentMacroFunction() == null ||
-        eagerToken.getCurrentMacroFunction() ==
-        context.get(Context.CURRENT_MACRO_FUNCTION_KEY)
+        eagerToken
+          .getCurrentMacroFunction()
+          .equals(context.getMacroStack().peek().orElse(null))
       ) {
         deferredProps.addAll(
           getPropertiesUsedInDeferredNodes(

@@ -53,7 +53,6 @@ public class Context extends ScopeMap<String, Object> {
   public static final String IMPORT_RESOURCE_PATH_KEY = "import_resource_path";
   public static final String DEFERRED_IMPORT_RESOURCE_PATH_KEY =
     "deferred_import_resource_path";
-  public static final String CURRENT_MACRO_FUNCTION_KEY = "current_macro_function";
 
   public static final String IMPORT_RESOURCE_ALIAS_KEY = "import_resource_alias";
 
