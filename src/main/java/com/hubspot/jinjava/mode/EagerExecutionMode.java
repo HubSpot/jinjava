@@ -48,7 +48,8 @@ public class EagerExecutionMode implements ExecutionMode {
           Context.GLOBAL_MACROS_SCOPE_KEY,
           Context.IMPORT_RESOURCE_PATH_KEY,
           Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
-          Context.IMPORT_RESOURCE_ALIAS_KEY
+          Context.IMPORT_RESOURCE_ALIAS_KEY,
+          Context.CURRENT_MACRO_FUNCTION_KEY
         )
       );
   }

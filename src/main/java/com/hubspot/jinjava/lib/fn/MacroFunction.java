@@ -138,6 +138,7 @@ public class MacroFunction extends AbstractCallableMethod {
     interpreter.getContext().put("kwargs", kwargMap);
     // varargs list
     interpreter.getContext().put("varargs", varArgs);
+    interpreter.getContext().put(Context.CURRENT_MACRO_FUNCTION_KEY, this);
 
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxOutputSize()

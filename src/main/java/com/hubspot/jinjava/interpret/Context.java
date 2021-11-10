@@ -53,6 +53,7 @@ public class Context extends ScopeMap<String, Object> {
   public static final String IMPORT_RESOURCE_PATH_KEY = "import_resource_path";
   public static final String DEFERRED_IMPORT_RESOURCE_PATH_KEY =
     "deferred_import_resource_path";
+  public static final String CURRENT_MACRO_FUNCTION_KEY = "current_macro_function";
 
   public static final String IMPORT_RESOURCE_ALIAS_KEY = "import_resource_alias";
 
@@ -387,10 +388,14 @@ public class Context extends ScopeMap<String, Object> {
   public void handleEagerToken(EagerToken eagerToken) {
     eagerTokens.add(eagerToken);
     if (
-      eagerToken.getImportResourcePath() == null ||
-      eagerToken
-        .getImportResourcePath()
-        .equals(this.get(Context.IMPORT_RESOURCE_PATH_KEY))
+      (
+        eagerToken.getImportResourcePath() == null ||
+        eagerToken.getImportResourcePath().equals(get(Context.IMPORT_RESOURCE_PATH_KEY))
+      ) &&
+      (
+        eagerToken.getCurrentMacroFunction() == null ||
+        eagerToken.getCurrentMacroFunction() == get(Context.CURRENT_MACRO_FUNCTION_KEY)
+      )
     ) {
       DeferredValueUtils.findAndMarkDeferredProperties(this, eagerToken);
     }
