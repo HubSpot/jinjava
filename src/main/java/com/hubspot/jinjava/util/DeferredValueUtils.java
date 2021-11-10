@@ -89,13 +89,19 @@ public class DeferredValueUtils {
     Set<String> deferredProps = getPropertiesUsedInDeferredNodes(context, templateSource);
     Set<String> setProps = getPropertiesSetInDeferredNodes(templateSource);
     if (eagerToken != null) {
-      deferredProps.addAll(
-        getPropertiesUsedInDeferredNodes(
-          context,
-          rebuildTemplateForEagerTagTokens(eagerToken, true),
-          false
-        )
-      );
+      if (
+        eagerToken.getCurrentMacroFunction() == null ||
+        eagerToken.getCurrentMacroFunction() ==
+        context.get(Context.CURRENT_MACRO_FUNCTION_KEY)
+      ) {
+        deferredProps.addAll(
+          getPropertiesUsedInDeferredNodes(
+            context,
+            rebuildTemplateForEagerTagTokens(eagerToken, true),
+            false
+          )
+        );
+      }
       deferredProps.addAll(
         getPropertiesUsedInDeferredNodes(
           context,
@@ -106,7 +112,6 @@ public class DeferredValueUtils {
     }
 
     markDeferredProperties(context, Sets.union(deferredProps, setProps));
-
     return deferredProps;
   }
 

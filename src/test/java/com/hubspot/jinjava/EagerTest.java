@@ -948,6 +948,8 @@ public class EagerTest {
 
   @Test
   public void itHandlesValueModifiedInMacro() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-value-modified-in-macro");
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-value-modified-in-macro"
+    );
   }
 }

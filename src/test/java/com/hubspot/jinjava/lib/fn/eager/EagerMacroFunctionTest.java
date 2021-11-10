@@ -10,6 +10,7 @@ import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import org.junit.After;
@@ -123,12 +124,15 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
     String code =
       "{% macro rec(num=0) %}{% if num > 0 %}{{ num }}-{{ rec(num - 1)}}{% endif %}{% endmacro %}";
     MacroFunction macroFunction = makeMacroFunction(name, code);
-    EagerMacroFunction eagerMacroFunction = new EagerMacroFunction(
-      name,
-      macroFunction,
-      interpreter
-    );
-    String output = eagerMacroFunction.reconstructImage();
+    String output;
+    try (InterpreterScopeClosable c = interpreter.enterScope()) {
+      EagerMacroFunction eagerMacroFunction = new EagerMacroFunction(
+        name,
+        macroFunction,
+        interpreter
+      );
+      output = eagerMacroFunction.reconstructImage();
+    }
     assertThat(interpreter.render(output + "{{ rec(5) }}")).isEqualTo("5-4-3-2-1-");
   }
 

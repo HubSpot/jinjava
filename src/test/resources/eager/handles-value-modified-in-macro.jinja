@@ -1,5 +1,6 @@
+{% set increment = 2 %}
 {% macro counter(foo) %}
-{% set level = level + 1 %}
+{% set level = level + increment %}
 {% if level < foo %}
 {{ counter() }}
 {% endif %}

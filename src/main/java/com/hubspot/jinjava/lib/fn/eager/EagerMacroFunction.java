@@ -142,6 +142,9 @@ public class EagerMacroFunction extends AbstractCallableMethod {
       return "";
     } else {
       try {
+        interpreter.getContext().put(Context.CURRENT_MACRO_FUNCTION_KEY, macroFunction);
+
+        int numEagerTokensStart = interpreter.getContext().getEagerTokens().size();
         String evaluation = (String) evaluate(
           macroFunction
             .getArguments()
@@ -149,6 +152,16 @@ public class EagerMacroFunction extends AbstractCallableMethod {
             .map(arg -> DeferredMacroValueImpl.instance())
             .toArray()
         );
+        if (interpreter.getContext().getEagerTokens().size() > numEagerTokensStart) {
+          evaluation =
+            (String) evaluate(
+              macroFunction
+                .getArguments()
+                .stream()
+                .map(arg -> DeferredMacroValueImpl.instance())
+                .toArray()
+            );
+        }
         result = (getStartTag(interpreter) + evaluation + getEndTag(interpreter));
       } catch (DeferredValueException e) {
         // In case something not eager-supported encountered a deferred value
