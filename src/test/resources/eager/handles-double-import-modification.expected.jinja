@@ -16,5 +16,5 @@
 {% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}{% do bar2.update({"foo": foo}) %}
 {% do bar2.update({'foo': foo,'import_resource_path': 'deferred-modification.jinja'}) %}{% set current_path = '' %}
 ---
-{{ bar1 }}
-{{ bar2 }}
+{{ bar1.foo }}
+{{ bar2.foo }}
