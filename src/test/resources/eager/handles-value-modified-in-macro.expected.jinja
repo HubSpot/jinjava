@@ -1,0 +1,15 @@
+{% macro counter(foo) %}
+{% set level = level + 2 %}
+{% if level < foo %}
+{{ counter() }}
+{% endif %}
+{{ level }}
+{% endmacro %}{{ counter(deferred) }}
+
+{% macro counter(foo) %}
+{% set level = level + 2 %}
+{% if level < foo %}
+{{ counter() }}
+{% endif %}
+{{ level }}
+{% endmacro %}{{ counter(2) }}

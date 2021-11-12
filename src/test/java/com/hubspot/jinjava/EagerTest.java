@@ -945,4 +945,11 @@ public class EagerTest {
       "allows-meta-context-var-overriding"
     );
   }
+
+  @Test
+  public void itHandlesValueModifiedInMacro() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-value-modified-in-macro"
+    );
+  }
 }

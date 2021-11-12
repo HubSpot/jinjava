@@ -388,9 +388,7 @@ public class Context extends ScopeMap<String, Object> {
     eagerTokens.add(eagerToken);
     if (
       eagerToken.getImportResourcePath() == null ||
-      eagerToken
-        .getImportResourcePath()
-        .equals(this.get(Context.IMPORT_RESOURCE_PATH_KEY))
+      eagerToken.getImportResourcePath().equals(get(Context.IMPORT_RESOURCE_PATH_KEY))
     ) {
       DeferredValueUtils.findAndMarkDeferredProperties(this, eagerToken);
     }
