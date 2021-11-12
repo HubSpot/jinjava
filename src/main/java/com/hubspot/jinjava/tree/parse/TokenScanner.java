@@ -88,48 +88,55 @@ public class TokenScanner extends AbstractIterator<Token> {
       if (c == symbols.getPrefix()) {
         if (currPost < length) {
           c = is[currPost];
+          boolean startTokenFound = true;
+          if (config.getLegacyOverrides().isWhitespaceRequiredWithinTokens()) {
+            boolean hasNextChar = (currPost + 1) < length;
+            boolean nextCharIsWhitespace = hasNextChar && (' ' == is[currPost + 1]);
+            startTokenFound = nextCharIsWhitespace;
+          }
+          if (startTokenFound) {
+            if (c == symbols.getNote()) {
+              if (inComment == 1 || inRaw == 1) {
+                continue;
+              }
+              inComment = 1;
 
-          if (c == symbols.getNote()) {
-            if (inComment == 1 || inRaw == 1) {
-              continue;
-            }
-            inComment = 1;
+              tokenLength = currPost - tokenStart - 1;
+              if (tokenLength > 0) {
+                // start a new token
+                lastStart = tokenStart;
+                tokenStart = --currPost;
+                tokenKind = c;
+                inComment = 0;
+                return newToken(symbols.getFixed());
+              } else {
+                tokenKind = c;
+              }
+            } else if (c == symbols.getTag() || c == symbols.getExprStart()) {
+              if (inComment > 0) {
+                continue;
+              }
+              if (inRaw > 0 && (c == symbols.getExprStart() || !isEndRaw())) {
+                continue;
+              }
+              // match token two ends
+              if (!matchToken(c) && tokenKind > 0) {
+                continue;
+              }
+              if (inBlock++ > 0) {
+                continue;
+              }
 
-            tokenLength = currPost - tokenStart - 1;
-            if (tokenLength > 0) {
-              // start a new token
-              lastStart = tokenStart;
-              tokenStart = --currPost;
-              tokenKind = c;
-              inComment = 0;
-              return newToken(symbols.getFixed());
-            } else {
-              tokenKind = c;
-            }
-          } else if (c == symbols.getTag() || c == symbols.getExprStart()) {
-            if (inComment > 0) {
-              continue;
-            }
-            if (inRaw > 0 && (c == symbols.getExprStart() || !isEndRaw())) {
-              continue;
-            }
-            // match token two ends
-            if (!matchToken(c) && tokenKind > 0) {
-              continue;
-            }
-            if (inBlock++ > 0) {
-              continue;
-            }
-
-            tokenLength = currPost - tokenStart - 1;
-            if (tokenLength > 0) {
-              // start a new token
-              lastStart = tokenStart;
-              tokenStart = --currPost;
-              tokenKind = c;
-              return newToken(symbols.getFixed());
-            } else {
-              tokenKind = c;
+              tokenLength = currPost - tokenStart - 1;
+              if (tokenLength > 0) {
+                // start a new token
+                lastStart = tokenStart;
+                tokenStart = --currPost;
+                tokenKind = c;
+                return newToken(symbols.getFixed());
+              } else {
+                tokenKind = c;
+              }
             }
           }
         } else { // reach the stream end

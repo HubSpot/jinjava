@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -260,6 +261,24 @@ public class TokenScannerTest {
   }
 
   @Test
+  public void testCommentWithWhitespaceChar() {
+    List<Token> tokens = tokens("comment-without-whitespace");
+    assertThat(tokens.get(0).content.trim()).isEqualTo("$");
+
+    LegacyOverrides legacyOverrides = LegacyOverrides
+      .newBuilder()
+      .withWhitespaceRequiredWithinTokens(true)
+      .build();
+    JinjavaConfig config = JinjavaConfig
+      .newBuilder()
+      .withLegacyOverrides(legacyOverrides)
+      .build();
+    TokenScanner scanner = fixture("comment-without-whitespace", config);
+    tokens = Lists.newArrayList(scanner);
+    assertThat(tokens.get(0).content.trim()).isEqualTo("${#array[@]}");
+  }
+
+  @Test
   public void testEscapedBackslashWithinAttrValue() {
     List<Token> tokens = tokens("escape-char-tokens");
 
@@ -292,6 +311,10 @@ public class TokenScannerTest {
   }
 
   private TokenScanner fixture(String fixture) {
+    return fixture(fixture, config);
+  }
+
+  private TokenScanner fixture(String fixture, JinjavaConfig config) {
     try {
       return new TokenScanner(
         Resources.toString(
