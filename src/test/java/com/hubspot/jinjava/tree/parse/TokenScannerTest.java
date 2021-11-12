@@ -267,7 +267,7 @@ public class TokenScannerTest {
 
     LegacyOverrides legacyOverrides = LegacyOverrides
       .newBuilder()
-      .withUseWhitespaceAfterStartToken(true)
+      .withWhitespaceRequiredWithinTokens(true)
       .build();
     JinjavaConfig config = JinjavaConfig
       .newBuilder()

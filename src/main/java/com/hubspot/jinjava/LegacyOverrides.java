@@ -9,13 +9,13 @@ public class LegacyOverrides {
   private final boolean evaluateMapKeys;
   private final boolean iterateOverMapKeys;
   private final boolean usePyishObjectMapper;
-  private final boolean useWhitespaceAfterStartToken;
+  private final boolean whitespaceRequiredWithinTokens;
 
   private LegacyOverrides(Builder builder) {
     evaluateMapKeys = builder.evaluateMapKeys;
     iterateOverMapKeys = builder.iterateOverMapKeys;
     usePyishObjectMapper = builder.usePyishObjectMapper;
-    useWhitespaceAfterStartToken = builder.useWhitespaceAfterStartToken;
+    whitespaceRequiredWithinTokens = builder.whitespaceRequiredWithinTokens;
   }
 
   public static Builder newBuilder() {
@@ -34,15 +34,15 @@ public class LegacyOverrides {
     return usePyishObjectMapper;
   }
 
-  public boolean isUseWhitespaceAfterStartToken() {
-    return useWhitespaceAfterStartToken;
+  public boolean isWhitespaceRequiredWithinTokens() {
+    return whitespaceRequiredWithinTokens;
   }
 
   public static class Builder {
     private boolean evaluateMapKeys = false;
     private boolean iterateOverMapKeys = false;
     private boolean usePyishObjectMapper = false;
-    private boolean useWhitespaceAfterStartToken = false;
+    private boolean whitespaceRequiredWithinTokens = false;
 
     private Builder() {}
 
@@ -55,7 +55,7 @@ public class LegacyOverrides {
         .withEvaluateMapKeys(legacyOverrides.evaluateMapKeys)
         .withIterateOverMapKeys(legacyOverrides.iterateOverMapKeys)
         .withUsePyishObjectMapper(legacyOverrides.usePyishObjectMapper)
-        .withUseWhitespaceAfterStartToken(legacyOverrides.useWhitespaceAfterStartToken);
+        .withWhitespaceRequiredWithinTokens(legacyOverrides.whitespaceRequiredWithinTokens);
     }
 
     public Builder withEvaluateMapKeys(boolean evaluateMapKeys) {
@@ -73,8 +73,8 @@ public class LegacyOverrides {
       return this;
     }
 
-    public Builder withUseWhitespaceAfterStartToken(boolean useWhitespace) {
-      this.useWhitespaceAfterStartToken = useWhitespace;
+    public Builder withWhitespaceRequiredWithinTokens(boolean useWhitespace) {
+      this.whitespaceRequiredWithinTokens = useWhitespace;
       return this;
     }
   }
