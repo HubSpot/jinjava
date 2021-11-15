@@ -1,10 +1,10 @@
-{% set myname = deferred + 3 %}{% set __ignored_from_child_output__ %}
+{% set myname = deferred + 3 %}{% set __ignored__ %}
 {% set bar = myname + 19 %}
 Hello {{ myname }}
 {% endset %}
 foo: Hello {{ myname }}
 bar: {{ bar }}
----{% set myname = deferred + 7 %}{% set __ignored_import_child_output__ %}{% set current_path = 'macro-and-set.jinja' %}{% set simple = {} %}
+---{% set myname = deferred + 7 %}{% set __ignored__ %}{% set current_path = 'macro-and-set.jinja' %}{% set simple = {} %}
 {% set bar = myname + 19 %}{% set simple = {} %}{% do simple.update({"bar": bar}) %}
 Hello {{ myname }}
 {% do simple.update({'import_resource_path': 'macro-and-set.jinja'}) %}{% set current_path = '' %}{% endset %}

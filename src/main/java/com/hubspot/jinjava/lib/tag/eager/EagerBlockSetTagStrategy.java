@@ -46,7 +46,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
         );
       },
       interpreter,
-      false,
+      true,
       false,
       false
     );

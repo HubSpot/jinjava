@@ -34,6 +34,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.tag.ExtendsTag;
+import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerGenericTag;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
@@ -377,7 +378,7 @@ public class JinjavaInterpreter implements PyishSerializable {
     if (ignoredOutput.length() > 0) {
       return (
         EagerReconstructionUtils.buildBlockSetTag(
-          "__ignored_extends_child_output__",
+          SetTag.IGNORED_VARIABLE_NAME,
           ignoredOutput.toString(),
           this,
           true

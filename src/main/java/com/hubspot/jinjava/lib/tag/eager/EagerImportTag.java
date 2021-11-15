@@ -10,6 +10,7 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.ImportTag;
+import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
@@ -28,8 +29,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
-  public static final String IGNORED_IMPORT_CHILD_OUTPUT_KEY =
-    "__ignored_import_child_output__";
 
   public EagerImportTag() {
     super(new ImportTag());
@@ -133,7 +132,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
           initialPathSetter;
       }
       return EagerReconstructionUtils.buildBlockSetTag(
-        IGNORED_IMPORT_CHILD_OUTPUT_KEY,
+        SetTag.IGNORED_VARIABLE_NAME,
         finalOutput,
         interpreter,
         true
@@ -329,8 +328,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     JinjavaInterpreter child,
     JinjavaInterpreter parent
   ) {
-    childBindings.remove(IGNORED_IMPORT_CHILD_OUTPUT_KEY);
-    childBindings.remove(EagerFromTag.IGNORED_FROM_CHILD_OUTPUT_KEY);
+    childBindings.remove(SetTag.IGNORED_VARIABLE_NAME);
     if (StringUtils.isBlank(currentImportAlias)) {
       for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
         parent.getContext().addGlobalMacro(macro);

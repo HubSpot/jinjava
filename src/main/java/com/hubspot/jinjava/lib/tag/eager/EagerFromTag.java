@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import static com.hubspot.jinjava.lib.tag.SetTag.IGNORED_VARIABLE_NAME;
+
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -21,8 +23,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class EagerFromTag extends EagerStateChangingTag<FromTag> {
-  public static final String IGNORED_FROM_CHILD_OUTPUT_KEY =
-    "__ignored_from_child_output__";
 
   public EagerFromTag() {
     super(new FromTag());
@@ -120,7 +120,7 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
             EagerReconstructionUtils.buildSetTag(newToOldImportNames, interpreter, true);
         }
         return EagerReconstructionUtils.buildBlockSetTag(
-          IGNORED_FROM_CHILD_OUTPUT_KEY,
+          IGNORED_VARIABLE_NAME,
           output,
           interpreter,
           true
