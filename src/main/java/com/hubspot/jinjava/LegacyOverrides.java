@@ -55,7 +55,9 @@ public class LegacyOverrides {
         .withEvaluateMapKeys(legacyOverrides.evaluateMapKeys)
         .withIterateOverMapKeys(legacyOverrides.iterateOverMapKeys)
         .withUsePyishObjectMapper(legacyOverrides.usePyishObjectMapper)
-        .withWhitespaceRequiredWithinTokens(legacyOverrides.whitespaceRequiredWithinTokens);
+        .withWhitespaceRequiredWithinTokens(
+          legacyOverrides.whitespaceRequiredWithinTokens
+        );
     }
 
     public Builder withEvaluateMapKeys(boolean evaluateMapKeys) {
@@ -73,8 +75,10 @@ public class LegacyOverrides {
       return this;
     }
 
-    public Builder withWhitespaceRequiredWithinTokens(boolean useWhitespace) {
-      this.whitespaceRequiredWithinTokens = useWhitespace;
+    public Builder withWhitespaceRequiredWithinTokens(
+      boolean whitespaceRequiredWithinTokens
+    ) {
+      this.whitespaceRequiredWithinTokens = whitespaceRequiredWithinTokens;
       return this;
     }
   }

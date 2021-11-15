@@ -952,4 +952,22 @@ public class EagerTest {
       "handles-value-modified-in-macro"
     );
   }
+
+  @Test
+  public void itHandlesDoubleImportModification() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-double-import-modification"
+    );
+  }
+
+  @Test
+  public void itHandlesDoubleImportModificationSecondPass() {
+    interpreter.getContext().put("deferred", false);
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-double-import-modification.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-double-import-modification.expected"
+    );
+  }
 }

@@ -21,8 +21,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
@@ -101,6 +103,11 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         // Since some values got deferred, output a DoTag that will load the currentImportAlias on the context.
         return (
           newPathSetter +
+          getSetTagForDeferredChildBindings(
+            interpreter,
+            currentImportAlias,
+            childBindings
+          ) +
           EagerReconstructionUtils.buildSetTag(
             ImmutableMap.of(currentImportAlias, "{}"),
             interpreter,
@@ -123,6 +130,32 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       interpreter.getContext().getCurrentPathStack().pop();
       interpreter.getContext().getImportPathStack().pop();
     }
+  }
+
+  private String getSetTagForDeferredChildBindings(
+    JinjavaInterpreter interpreter,
+    String currentImportAlias,
+    Map<String, Object> childBindings
+  ) {
+    return EagerReconstructionUtils.buildSetTag(
+      childBindings
+        .entrySet()
+        .stream()
+        .filter(entry -> !interpreter.getContext().containsKey(entry.getKey()))
+        .filter(entry -> !entry.getKey().equals(currentImportAlias))
+        .filter(entry -> entry.getValue() instanceof DeferredValue)
+        .collect(
+          Collectors.toMap(
+            Entry::getKey,
+            entry ->
+              PyishObjectMapper.getAsPyishString(
+                ((DeferredValue) entry.getValue()).getOriginalValue()
+              )
+          )
+        ),
+      interpreter,
+      false // false so that we don't defer them on higher context scopes; they only exist in the child scope
+    );
   }
 
   public static String getSetTagForCurrentPath(JinjavaInterpreter interpreter) {
