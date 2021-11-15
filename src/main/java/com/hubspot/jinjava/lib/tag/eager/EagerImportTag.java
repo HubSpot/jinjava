@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
+  public static final String IGNORED_IMPORT_CHILD_OUTPUT_KEY =
+    "__ignored_import_child_output__";
 
   public EagerImportTag() {
     super(new ImportTag());
@@ -97,28 +99,45 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         );
       }
       integrateChild(currentImportAlias, childBindings, child, interpreter);
+      String finalOutput;
       if (child.getContext().getEagerTokens().isEmpty() || output == null) {
         return "";
       } else if (!Strings.isNullOrEmpty(currentImportAlias)) {
         // Since some values got deferred, output a DoTag that will load the currentImportAlias on the context.
-        return (
+        finalOutput =
+          (
+            newPathSetter +
+            getSetTagForDeferredChildBindings(
+              interpreter,
+              currentImportAlias,
+              childBindings
+            ) +
+            EagerReconstructionUtils.buildSetTag(
+              ImmutableMap.of(currentImportAlias, "{}"),
+              interpreter,
+              true
+            ) +
+            output +
+            getDoTagToPreserve(interpreter, currentImportAlias) +
+            initialPathSetter
+          );
+      } else {
+        finalOutput =
           newPathSetter +
           getSetTagForDeferredChildBindings(
             interpreter,
             currentImportAlias,
             childBindings
           ) +
-          EagerReconstructionUtils.buildSetTag(
-            ImmutableMap.of(currentImportAlias, "{}"),
-            interpreter,
-            true
-          ) +
           output +
-          getDoTagToPreserve(interpreter, currentImportAlias) +
-          initialPathSetter
-        );
+          initialPathSetter;
       }
-      return newPathSetter + output + initialPathSetter;
+      return EagerReconstructionUtils.buildBlockSetTag(
+        IGNORED_IMPORT_CHILD_OUTPUT_KEY,
+        finalOutput,
+        interpreter,
+        true
+      );
     } catch (IOException e) {
       throw new InterpretException(
         e.getMessage(),
@@ -310,6 +329,8 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     JinjavaInterpreter child,
     JinjavaInterpreter parent
   ) {
+    childBindings.remove(IGNORED_IMPORT_CHILD_OUTPUT_KEY);
+    childBindings.remove(EagerFromTag.IGNORED_FROM_CHILD_OUTPUT_KEY);
     if (StringUtils.isBlank(currentImportAlias)) {
       for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
         parent.getContext().addGlobalMacro(macro);

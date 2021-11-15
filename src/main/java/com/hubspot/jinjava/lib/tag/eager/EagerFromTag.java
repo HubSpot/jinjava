@@ -21,6 +21,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class EagerFromTag extends EagerStateChangingTag<FromTag> {
+  public static final String IGNORED_FROM_CHILD_OUTPUT_KEY =
+    "__ignored_from_child_output__";
 
   public EagerFromTag() {
     super(new FromTag());
@@ -110,14 +112,19 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
           .filter(e -> !e.getKey().equals(e.getValue()))
           .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
         if (child.getContext().getEagerTokens().isEmpty() || output == null) {
-          output = "";
+          return "";
         } else if (newToOldImportNames.size() > 0) {
           // Set after output
           output =
             output +
             EagerReconstructionUtils.buildSetTag(newToOldImportNames, interpreter, true);
         }
-        return output;
+        return EagerReconstructionUtils.buildBlockSetTag(
+          IGNORED_FROM_CHILD_OUTPUT_KEY,
+          output,
+          interpreter,
+          true
+        );
       } catch (IOException e) {
         throw new InterpretException(
           e.getMessage(),

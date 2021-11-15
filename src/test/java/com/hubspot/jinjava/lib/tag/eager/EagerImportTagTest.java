@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -412,6 +414,7 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(interpreter.render("{{ c.b.a.foo_a }}")).isEqualTo("{{ c.b.a.foo_a }}");
     assertThat(interpreter.render("{{ c.b.foo_b }}")).isEqualTo("{{ c.b.foo_b }}");
     assertThat(interpreter.render("{{ c.foo_c }}")).isEqualTo("{{ c.foo_c }}");
+    removeDeferredContextKeys();
     context.put("a_val", "a");
     // There are some extras due to deferred values copying up the context stack.
     assertThat(interpreter.render(result).trim())
@@ -443,6 +446,8 @@ public class EagerImportTagTest extends ImportTagTest {
     String result = interpreter.render(
       "{% import 'import-tree-d.jinja' as d %}{{ d.resolvable }} {{ d.bar }}"
     );
+    removeDeferredContextKeys();
+
     context.put("a_val", "a");
     assertThat(interpreter.render(result).trim()).isEqualTo("12345 cbaabaaba");
   }
@@ -457,14 +462,16 @@ public class EagerImportTagTest extends ImportTagTest {
     );
     assertThat(result)
       .isEqualTo(
-        "{% if deferred %}{% set current_path = 'import-tree-b.jinja' %}{% set a,foo_b = {'foo_a': 'a', 'import_resource_path': 'import-tree-a.jinja', 'something': 'somn'},null %}{% set b = {} %}{% set current_path = 'import-tree-a.jinja' %}{% set a = {} %}{% set something = 'somn' %}{% do a.update({\"something\": something}) %}\n" +
+        "{% if deferred %}{% set __ignored_import_child_output__ %}{% set current_path = 'import-tree-b.jinja' %}{% set a,foo_b = {'foo_a': 'a', 'import_resource_path': 'import-tree-a.jinja', 'something': 'somn'},null %}{% set b = {} %}{% set __ignored_import_child_output__ %}{% set current_path = 'import-tree-a.jinja' %}{% set a = {} %}{% set something = 'somn' %}{% do a.update({\"something\": something}) %}\n" +
         "{% set foo_a = 'a' %}{% do a.update({\"foo_a\": foo_a}) %}\n" +
-        "{% do a.update({'foo_a': 'a','import_resource_path': 'import-tree-a.jinja','something': 'somn'}) %}{% set current_path = 'import-tree-b.jinja' %}\n" +
+        "{% do a.update({'foo_a': 'a','import_resource_path': 'import-tree-a.jinja','something': 'somn'}) %}{% set current_path = 'import-tree-b.jinja' %}{% endset %}\n" +
         "{% set foo_b = 'b' + a.foo_a %}{% do b.update({\"foo_b\": foo_b}) %}\n" +
-        "{% do b.update({'a': a,'foo_b': foo_b,'import_resource_path': 'import-tree-b.jinja'}) %}{% set current_path = '' %}{% endif %}"
+        "{% do b.update({'a': a,'foo_b': foo_b,'import_resource_path': 'import-tree-b.jinja'}) %}{% set current_path = '' %}{% endset %}{% endif %}"
       );
 
+    removeDeferredContextKeys();
     context.put("deferred", true);
+
     interpreter.render(result);
     assertThat(interpreter.render("{{ b.foo_b }}")).isEqualTo("ba");
     assertThat(interpreter.render("{{ b.a.foo_a }}")).isEqualTo("a");
@@ -608,6 +615,16 @@ public class EagerImportTagTest extends ImportTagTest {
     child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, TEMPLATE_FILE);
     EagerImportTag.setupImportAlias(alias, child, interpreter);
     return child;
+  }
+
+  private void removeDeferredContextKeys() {
+    context
+      .entrySet()
+      .stream()
+      .filter(entry -> entry.getValue() instanceof DeferredValue)
+      .map(Entry::getKey)
+      .collect(Collectors.toSet())
+      .forEach(context::remove);
   }
 
   private void setupResourceLocator() {
