@@ -72,7 +72,7 @@ public class RoundFilter implements Filter {
     }
 
     int precision = 0;
-    if (args.length > 0) {
+    if (args.length > 0 && args[0] != null) {
       precision = NumberUtils.toInt(args[0]);
     }
 
