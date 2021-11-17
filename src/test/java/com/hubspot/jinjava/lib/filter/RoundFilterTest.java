@@ -29,6 +29,4 @@ public class RoundFilterTest extends BaseJinjavaTest {
     )
         .isEqualTo("42.6");
   }
-
-
 }
