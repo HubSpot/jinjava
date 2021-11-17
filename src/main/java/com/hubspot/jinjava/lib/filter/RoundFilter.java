@@ -77,7 +77,7 @@ public class RoundFilter implements Filter {
     }
 
     String method = "common";
-    if (args.length > 1) {
+    if (args.length > 1 && args[1] != null) {
       method = args[1];
     }
 
