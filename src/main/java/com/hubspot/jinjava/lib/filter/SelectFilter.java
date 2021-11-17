@@ -62,6 +62,15 @@ public class SelectFilter implements AdvancedFilter {
       );
     }
 
+    if (args[0] == null) {
+      throw new InvalidArgumentException(
+        interpreter,
+        this,
+        InvalidReason.NULL,
+        "exp_test"
+      );
+    }
+
     Object[] expArgs = new Object[] {};
 
     if (args.length > 1) {
