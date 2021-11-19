@@ -1,11 +1,11 @@
-{% if deferred %}{% set current_path = 'macro-and-set.jinja' %}{% set simple = {} %}
+{% if deferred %}{% set __ignored__ %}{% set current_path = 'macro-and-set.jinja' %}{% set simple = {} %}
 {% set bar = 'person19' %}{% do simple.update({"bar": bar}) %}
 Hello person
-{% do simple.update({'bar': 'person19','import_resource_path': 'macro-and-set.jinja'}) %}{% set current_path = '' %}
-{% else %}{% set current_path = 'macro-and-set.jinja' %}{% set simple = {} %}
+{% do simple.update({'bar': 'person19','import_resource_path': 'macro-and-set.jinja'}) %}{% set current_path = '' %}{% endset %}
+{% else %}{% set __ignored__ %}{% set current_path = 'macro-and-set.jinja' %}{% set simple = {} %}
 {% set bar = 'person19' %}{% do simple.update({"bar": bar}) %}
 Hello person
-{% do simple.update({'bar': 'person19','import_resource_path': 'macro-and-set.jinja'}) %}{% set current_path = '' %}
+{% do simple.update({'bar': 'person19','import_resource_path': 'macro-and-set.jinja'}) %}{% set current_path = '' %}{% endset %}
 {% endif %}
 simple.foo: {{ simple.foo() }}
 simple.bar: {{ simple.bar }}

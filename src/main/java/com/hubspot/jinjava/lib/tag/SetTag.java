@@ -77,6 +77,7 @@ import org.apache.commons.lang3.StringUtils;
 @JinjavaTextMateSnippet(code = "{% set ${1:var} = ${2:expr} %}")
 public class SetTag implements Tag, FlexibleTag {
   public static final String TAG_NAME = "set";
+  public static final String IGNORED_VARIABLE_NAME = "__ignored__";
 
   private static final long serialVersionUID = -8558479410226781539L;
 
@@ -241,7 +242,9 @@ public class SetTag implements Tag, FlexibleTag {
         throw new DeferredValueException("Deferred Namespace");
       }
     }
-    interpreter.getContext().put(var, value);
+    if (!IGNORED_VARIABLE_NAME.equals(var)) {
+      interpreter.getContext().put(var, value);
+    }
   }
 
   @Override

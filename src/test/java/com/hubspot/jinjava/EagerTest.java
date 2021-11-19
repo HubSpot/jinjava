@@ -963,9 +963,6 @@ public class EagerTest {
   @Test
   public void itHandlesDoubleImportModificationSecondPass() {
     interpreter.getContext().put("deferred", false);
-    expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-double-import-modification.expected"
-    );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "handles-double-import-modification.expected"
     );

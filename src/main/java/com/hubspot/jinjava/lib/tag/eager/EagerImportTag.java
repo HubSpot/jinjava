@@ -10,6 +10,7 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.ImportTag;
+import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
@@ -97,28 +98,45 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         );
       }
       integrateChild(currentImportAlias, childBindings, child, interpreter);
+      String finalOutput;
       if (child.getContext().getEagerTokens().isEmpty() || output == null) {
         return "";
       } else if (!Strings.isNullOrEmpty(currentImportAlias)) {
         // Since some values got deferred, output a DoTag that will load the currentImportAlias on the context.
-        return (
+        finalOutput =
+          (
+            newPathSetter +
+            getSetTagForDeferredChildBindings(
+              interpreter,
+              currentImportAlias,
+              childBindings
+            ) +
+            EagerReconstructionUtils.buildSetTag(
+              ImmutableMap.of(currentImportAlias, "{}"),
+              interpreter,
+              true
+            ) +
+            output +
+            getDoTagToPreserve(interpreter, currentImportAlias) +
+            initialPathSetter
+          );
+      } else {
+        finalOutput =
           newPathSetter +
           getSetTagForDeferredChildBindings(
             interpreter,
             currentImportAlias,
             childBindings
           ) +
-          EagerReconstructionUtils.buildSetTag(
-            ImmutableMap.of(currentImportAlias, "{}"),
-            interpreter,
-            true
-          ) +
           output +
-          getDoTagToPreserve(interpreter, currentImportAlias) +
-          initialPathSetter
-        );
+          initialPathSetter;
       }
-      return newPathSetter + output + initialPathSetter;
+      return EagerReconstructionUtils.buildBlockSetTag(
+        SetTag.IGNORED_VARIABLE_NAME,
+        finalOutput,
+        interpreter,
+        true
+      );
     } catch (IOException e) {
       throw new InterpretException(
         e.getMessage(),
@@ -310,6 +328,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     JinjavaInterpreter child,
     JinjavaInterpreter parent
   ) {
+    childBindings.remove(SetTag.IGNORED_VARIABLE_NAME);
     if (StringUtils.isBlank(currentImportAlias)) {
       for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
         parent.getContext().addGlobalMacro(macro);
