@@ -256,7 +256,7 @@ public class ExtendedParser extends Parser {
     }
 
     Scanner.Token nextToken = getToken();
-    if (nextToken == null || nextToken.getImage() == null || !nextToken.equals("}")) {
+    if (nextToken == null || !"}".equals(nextToken.getImage())) {
       fail("}");
     }
     consumeToken();
