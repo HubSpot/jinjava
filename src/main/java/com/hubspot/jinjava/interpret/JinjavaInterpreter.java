@@ -381,7 +381,7 @@ public class JinjavaInterpreter implements PyishSerializable {
           SetTag.IGNORED_VARIABLE_NAME,
           ignoredOutput.toString(),
           this,
-          true
+          false
         ) +
         output.getValue()
       );
