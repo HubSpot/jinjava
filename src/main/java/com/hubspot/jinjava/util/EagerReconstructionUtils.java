@@ -201,8 +201,8 @@ public class EagerReconstructionUtils {
   private static Object getObjectOrHashCode(Object o) {
     if (o instanceof PyList || o instanceof PyMap) {
       if (
-        (o instanceof PyList && ((PyList) o).contains(o)) ||
-        (o instanceof PyMap && ((PyMap) o).containsValue(o))
+        (o instanceof PyList && ((PyList) o).toList().contains(o)) ||
+        (o instanceof PyMap && ((PyMap) o).toMap().containsValue(o))
       ) {
         return o; // Can't run hashcode as it will have infinite recursion and cause a stack overflow
       }
