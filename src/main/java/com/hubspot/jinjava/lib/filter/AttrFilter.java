@@ -3,6 +3,8 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
@@ -42,6 +44,10 @@ public class AttrFilter implements Filter {
         getName(),
         "requires 1 argument (attribute name to use)"
       );
+    }
+
+    if (args[0] == null) {
+      throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, "name");
     }
 
     return interpreter.resolveProperty(var, args[0]);
