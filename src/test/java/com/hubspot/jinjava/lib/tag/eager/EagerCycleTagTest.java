@@ -32,6 +32,7 @@ public class EagerCycleTagTest extends CycleTagTest {
     tag = new EagerCycleTag();
     context.registerTag(tag);
     context.registerTag(new EagerForTag());
+    JinjavaInterpreter.pushCurrent(interpreter);
   }
 
   @After
