@@ -43,6 +43,18 @@ public class AttrFilterTest extends BaseJinjavaTest {
     assertThat(jinjava.render("{{ foo|attr(\"null_val\") }}", context)).isEqualTo("");
   }
 
+  @Test
+  public void itAddsErrorOnNullAttribute() {
+    Map<String, Object> context = new HashMap<>();
+    context.put("foo", new MyFoo());
+    context.put("filter", null);
+
+    RenderResult result = jinjava.renderForResult("{{ foo|attr(filter) }}", context);
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getMessage())
+      .contains("'name' argument cannot be null");
+  }
+
   public static class MyFoo {
 
     public String getBar() {
