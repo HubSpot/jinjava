@@ -12,4 +12,24 @@ public class CycleTagTest extends BaseInterpretingTest {
     String template = "{% for item in [0,1] %}{% cycle {{item}} %}{% endfor %}";
     assertThat(interpreter.render(template)).isEqualTo("{{item}}{{item}}");
   }
+
+  @Test
+  public void itDefaultsMultipleNullToImage() {
+    String template = "{% for item in [0,1] %}{% cycle {{foo}},{{bar}} %}{% endfor %}";
+    assertThat(interpreter.render(template)).isEqualTo("{{foo}}{{bar}}");
+  }
+
+  @Test
+  public void itDefaultsNullToImageUsingAs() {
+    String template =
+      "{% for item in [0,1] %}{% cycle {{item}} as var %}{% cycle var %}{% endfor %}";
+    assertThat(interpreter.render(template)).isEqualTo("{{item}}{{item}}");
+  }
+
+  @Test
+  public void itDefaultsMultipleNullToImageUsingAs() {
+    String template =
+      "{% for item in [0,1] %}{% cycle {{foo}},{{bar}} as var %}{% cycle var %}{% endfor %}";
+    assertThat(interpreter.render(template)).isEqualTo("{{foo}}{{bar}}");
+  }
 }
