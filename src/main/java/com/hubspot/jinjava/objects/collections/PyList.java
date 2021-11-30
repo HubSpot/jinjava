@@ -41,7 +41,7 @@ public class PyList extends ForwardingList<Object> implements PyWrapper {
   }
 
   public boolean extend(PyList e) {
-    return addAll(e.list);
+    return e != null && addAll(e.list);
   }
 
   public Object pop() {

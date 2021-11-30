@@ -34,6 +34,17 @@ public class PyListTest extends BaseJinjavaTest {
   }
 
   @Test
+  public void itSupportsExtendOperationWithNullList() {
+    assertThat(
+        jinjava.render(
+          "{% set test = [1, 2, 3] %}" + "{% do test.extend(null) %}" + "{{ test }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo("[1, 2, 3]");
+  }
+
+  @Test
   public void itSupportsInsertOperation() {
     assertThat(
         jinjava.render(
