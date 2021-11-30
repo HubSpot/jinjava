@@ -33,6 +33,7 @@ public class TodayFunctionTest {
     Functions.today("Not a timezone");
   }
 
+  @Test
   public void itIgnoresNullTimezone() {
     assertThat(Functions.today((String) null).getZone()).isEqualTo(ZoneOffset.UTC);
   }
