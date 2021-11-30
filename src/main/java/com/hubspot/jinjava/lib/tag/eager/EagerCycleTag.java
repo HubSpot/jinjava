@@ -58,49 +58,46 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
     }
     String resolvedExpression;
+    List<String> resolvedValues; // can only be retrieved if the EagerExpressionResult are fully resolved.
     if (
       eagerExecutionResult
         .getResult()
         .toString()
         .equals(EagerExpressionResolver.JINJAVA_EMPTY_STRING)
     ) {
-      resolvedExpression = expression; // Cycle tag defaults to input on null
-    } else {
-      resolvedExpression = eagerExecutionResult.getResult().toString();
-    }
-    resolvedExpression = resolvedExpression.replace(", ", ",");
-    resolvedExpression = resolvedExpression.substring(1, resolvedExpression.length() - 1);
-    if (WhitespaceUtils.isWrappedWith(resolvedExpression, "[", "]")) {
-      resolvedExpression =
-        resolvedExpression.substring(1, resolvedExpression.length() - 1);
-    }
-    List<String> resolvedValues; // can only be retrieved if the EagerExpressionResult are fully resolved.
-    if (!eagerExecutionResult.getResult().isFullyResolved()) {
+      resolvedExpression = normalizeResolvedExpression(expression); // Cycle tag defaults to input on null
       resolvedValues =
         new HelperStringTokenizer(resolvedExpression).splitComma(true).allTokens();
-      prefixToPreserveState.append(
-        EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
-          eagerExecutionResult.getResult().getDeferredWords(),
-          interpreter
-        )
-      );
     } else {
-      List<?> objects = eagerExecutionResult.getResult().toList();
-      if (objects.size() == 1 && objects.get(0) instanceof List) {
-        // because we may have wrapped in an extra set of brackets
-        objects = (List<?>) objects.get(0);
-      }
-      resolvedValues =
-        objects.stream().map(interpreter::getAsString).collect(Collectors.toList());
-      for (int i = 0; i < resolvedValues.size(); i++) {
-        resolvedValues.set(
-          i,
-          interpreter.resolveString(
-            resolvedValues.get(i),
-            tagToken.getLineNumber(),
-            tagToken.getStartPosition()
+      resolvedExpression =
+        normalizeResolvedExpression(eagerExecutionResult.getResult().toString());
+      if (!eagerExecutionResult.getResult().isFullyResolved()) {
+        resolvedValues =
+          new HelperStringTokenizer(resolvedExpression).splitComma(true).allTokens();
+        prefixToPreserveState.append(
+          EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
+            eagerExecutionResult.getResult().getDeferredWords(),
+            interpreter
           )
         );
+      } else {
+        List<?> objects = eagerExecutionResult.getResult().toList();
+        if (objects.size() == 1 && objects.get(0) instanceof List) {
+          // because we may have wrapped in an extra set of brackets
+          objects = (List<?>) objects.get(0);
+        }
+        resolvedValues =
+          objects.stream().map(interpreter::getAsString).collect(Collectors.toList());
+        for (int i = 0; i < resolvedValues.size(); i++) {
+          resolvedValues.set(
+            i,
+            interpreter.resolveString(
+              resolvedValues.get(i),
+              tagToken.getLineNumber(),
+              tagToken.getStartPosition()
+            )
+          );
+        }
       }
     }
     if (helper.size() == 1) {
@@ -135,6 +132,16 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
         tagToken.getStartPosition()
       );
     }
+  }
+
+  private String normalizeResolvedExpression(String resolvedExpression) {
+    resolvedExpression = resolvedExpression.replace(", ", ",");
+    resolvedExpression = resolvedExpression.substring(1, resolvedExpression.length() - 1);
+    if (WhitespaceUtils.isWrappedWith(resolvedExpression, "[", "]")) {
+      resolvedExpression =
+        resolvedExpression.substring(1, resolvedExpression.length() - 1);
+    }
+    return resolvedExpression;
   }
 
   private String interpretSettingCycle(
