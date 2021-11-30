@@ -26,7 +26,9 @@ public class UnixTimestampFunctionTest {
     assertThat(Functions.unixtimestamp(d)).isEqualTo(epochMilliseconds);
     assertThat(
         Math.abs(
-          Functions.unixtimestamp(null) - ZonedDateTime.now().toEpochSecond() * 1000
+          Functions.unixtimestamp((Object) null) -
+          ZonedDateTime.now().toEpochSecond() *
+          1000
         )
       )
       .isLessThan(1000);
@@ -45,7 +47,7 @@ public class UnixTimestampFunctionTest {
       )
     );
     try {
-      Functions.unixtimestamp(null);
+      Functions.unixtimestamp((Object) null);
     } finally {
       JinjavaInterpreter.popCurrent();
     }

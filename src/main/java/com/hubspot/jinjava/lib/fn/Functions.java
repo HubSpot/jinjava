@@ -127,7 +127,7 @@ public class Functions {
   )
   public static ZonedDateTime today(String... var) {
     ZoneId zoneOffset = ZoneOffset.UTC;
-    if (var.length > 0) {
+    if (var.length > 0 && var[0] != null) {
       String timezone = var[0];
       try {
         zoneOffset = ZoneId.of(timezone);
