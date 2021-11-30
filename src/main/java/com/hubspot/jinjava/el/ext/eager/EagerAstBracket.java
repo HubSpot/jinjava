@@ -58,7 +58,9 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
       throw new DeferredParsingException(this, sb);
     } finally {
       ((EvalResultHolder) prefix).getAndClearEvalResult();
-      ((EvalResultHolder) property).getAndClearEvalResult();
+      if (property != null) {
+        ((EvalResultHolder) property).getAndClearEvalResult();
+      }
     }
   }
 
