@@ -33,7 +33,7 @@ import java.util.Map;
     )
   }
 )
-public class RejectFilter implements AdvancedFilter {
+public class RejectFilter extends SelectFilter {
 
   @Override
   public String getName() {
@@ -41,52 +41,12 @@ public class RejectFilter implements AdvancedFilter {
   }
 
   @Override
-  public Object filter(
-    Object var,
+  boolean evaluate(
     JinjavaInterpreter interpreter,
-    Object[] args,
-    Map<String, Object> kwargs
+    Object[] expArgs,
+    ExpTest expTest,
+    Object val
   ) {
-    List<Object> result = new ArrayList<>();
-
-    if (args.length < 1) {
-      throw new TemplateSyntaxException(
-        interpreter,
-        getName(),
-        "requires 1 argument (name of expression test to filter by)"
-      );
-    }
-
-    if (args[0] == null) {
-      throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 0);
-    }
-
-    Object[] expArgs = new Object[] {};
-
-    if (args.length > 1) {
-      expArgs = Arrays.copyOfRange(args, 1, args.length);
-    }
-
-    ExpTest expTest = interpreter.getContext().getExpTest(args[0].toString());
-    if (expTest == null) {
-      throw new InvalidArgumentException(
-        interpreter,
-        this,
-        InvalidReason.EXPRESSION_TEST,
-        0,
-        args[0]
-      );
-    }
-
-    ForLoop loop = ObjectIterator.getLoop(var);
-    while (loop.hasNext()) {
-      Object val = loop.next();
-
-      if (!expTest.evaluate(val, interpreter, expArgs)) {
-        result.add(val);
-      }
-    }
-
-    return result;
+    return !super.evaluate(interpreter, expArgs, expTest, val);
   }
 }

@@ -38,6 +38,6 @@ public class RejectFilterTest extends BaseJinjavaTest {
     Map<String, Object> context = new HashMap<>();
     context.put("test", null);
     assertThatThrownBy(() -> jinjava.render("{{numbers|reject(test, 3)}}", context))
-      .hasMessageContaining("1st argument cannot be null");
+      .hasMessageContaining("'exp_test' argument cannot be null");
   }
 }
