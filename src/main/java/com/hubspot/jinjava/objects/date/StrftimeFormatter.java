@@ -67,7 +67,7 @@ public class StrftimeFormatter {
 
     for (int i = 0; i < strftime.length(); i++) {
       char c = strftime.charAt(i);
-      if (c == '%') {
+      if (c == '%' && strftime.length() > i + 1) {
         c = strftime.charAt(++i);
         boolean stripLeadingZero = false;
         String[] conversions = CONVERSIONS;

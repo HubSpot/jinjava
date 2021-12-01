@@ -38,6 +38,11 @@ public class StrftimeFormatterTest {
   }
 
   @Test
+  public void testFormatWithTrailingPercent() {
+    assertThat(StrftimeFormatter.format(d, "%B %-d, %")).isEqualTo("November 6, %");
+  }
+
+  @Test
   public void testWithNoPcts() {
     assertThat(StrftimeFormatter.format(d, "MMMM yyyy")).isEqualTo("November 2013");
   }
