@@ -13,6 +13,7 @@ import com.hubspot.jinjava.util.ObjectIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @JinjavaDoc(
   value = "Filters a sequence of objects by applying a test to the object and rejecting the ones with the test succeeding.",
@@ -32,7 +33,7 @@ import java.util.List;
     )
   }
 )
-public class RejectFilter implements Filter {
+public class RejectFilter implements AdvancedFilter {
 
   @Override
   public String getName() {
@@ -40,7 +41,12 @@ public class RejectFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+  public Object filter(
+    Object var,
+    JinjavaInterpreter interpreter,
+    Object[] args,
+    Map<String, Object> kwargs
+  ) {
     List<Object> result = new ArrayList<>();
 
     if (args.length < 1) {
@@ -61,7 +67,7 @@ public class RejectFilter implements Filter {
       expArgs = Arrays.copyOfRange(args, 1, args.length);
     }
 
-    ExpTest expTest = interpreter.getContext().getExpTest(args[0]);
+    ExpTest expTest = interpreter.getContext().getExpTest(args[0].toString());
     if (expTest == null) {
       throw new InvalidArgumentException(
         interpreter,
