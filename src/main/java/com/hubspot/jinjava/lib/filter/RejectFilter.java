@@ -11,6 +11,7 @@ import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @JinjavaDoc(
@@ -54,6 +55,12 @@ public class RejectFilter implements Filter {
       throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 0);
     }
 
+    Object[] expArgs = new Object[] {};
+
+    if (args.length > 1) {
+      expArgs = Arrays.copyOfRange(args, 1, args.length);
+    }
+
     ExpTest expTest = interpreter.getContext().getExpTest(args[0]);
     if (expTest == null) {
       throw new InvalidArgumentException(
@@ -69,7 +76,7 @@ public class RejectFilter implements Filter {
     while (loop.hasNext()) {
       Object val = loop.next();
 
-      if (!expTest.evaluate(val, interpreter)) {
+      if (!expTest.evaluate(val, interpreter, expArgs)) {
         result.add(val);
       }
     }
