@@ -3,6 +3,7 @@ package com.hubspot.jinjava.interpret;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class RenderResult {
   private final String output;
@@ -23,7 +24,11 @@ public class RenderResult {
     this.output = "";
     this.context = context;
     this.errors =
-      ImmutableList.<TemplateError>builder().add(fromException).addAll(errors).build();
+      ImmutableList
+        .<TemplateError>builder()
+        .add(fromException)
+        .addAll(Optional.ofNullable(errors).orElse(Collections.emptyList()))
+        .build();
   }
 
   public RenderResult(String result) {
