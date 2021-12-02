@@ -19,7 +19,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -51,10 +50,6 @@ public class RandomFilter implements Filter {
       return null;
     }
 
-    boolean isConstantRandom =
-      interpreter.getConfig().getRandomNumberGeneratorStrategy() ==
-      RandomNumberGeneratorStrategy.CONSTANT_ZERO;
-
     // collection
     if (object instanceof Collection) {
       Collection<?> clt = (Collection<?>) object;
@@ -63,9 +58,6 @@ public class RandomFilter implements Filter {
         return null;
       }
       Iterator<?> it = clt.iterator();
-      if (isConstantRandom) {
-        return it.next();
-      }
       int index = interpreter.getRandom().nextInt(size);
       while (index-- > 0) {
         it.next();
@@ -78,9 +70,6 @@ public class RandomFilter implements Filter {
       if (size == 0) {
         return null;
       }
-      if (isConstantRandom) {
-        return Array.get(object, 0);
-      }
       int index = interpreter.getRandom().nextInt(size);
       return Array.get(object, index);
     }
@@ -92,9 +81,6 @@ public class RandomFilter implements Filter {
         return null;
       }
       Iterator<?> it = map.values().iterator();
-      if (isConstantRandom) {
-        return it.next();
-      }
       int index = interpreter.getRandom().nextInt(size);
       while (index-- > 0) {
         it.next();
@@ -103,16 +89,10 @@ public class RandomFilter implements Filter {
     }
     // number
     if (object instanceof Number) {
-      if (isConstantRandom) {
-        return 0;
-      }
       return interpreter.getRandom().nextInt(((Number) object).intValue());
     }
     // string
     if (object instanceof String) {
-      if (isConstantRandom) {
-        return 0;
-      }
       try {
         return interpreter
           .getRandom()
