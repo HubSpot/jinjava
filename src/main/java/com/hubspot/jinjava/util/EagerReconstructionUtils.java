@@ -206,7 +206,9 @@ public class EagerReconstructionUtils {
       ) {
         return o; // Can't run hashcode as it will have infinite recursion and cause a stack overflow
       }
-      return o.hashCode();
+      return (
+        o.hashCode() + (o instanceof PyList ? ((PyList) o).size() : ((PyMap) o).size())
+      );
     }
     return o;
   }
