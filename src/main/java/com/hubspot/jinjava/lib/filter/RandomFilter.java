@@ -19,6 +19,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -49,13 +50,21 @@ public class RandomFilter implements Filter {
     if (object == null) {
       return null;
     }
+
+    boolean isConstantRandom =
+      interpreter.getConfig().getRandomNumberGeneratorStrategy() ==
+      RandomNumberGeneratorStrategy.CONSTANT_ZERO;
+
     // collection
     if (object instanceof Collection) {
       Collection<?> clt = (Collection<?>) object;
-      Iterator<?> it = clt.iterator();
       int size = clt.size();
       if (size == 0) {
         return null;
+      }
+      Iterator<?> it = clt.iterator();
+      if (isConstantRandom) {
+        return it.next();
       }
       int index = interpreter.getRandom().nextInt(size);
       while (index-- > 0) {
@@ -69,16 +78,22 @@ public class RandomFilter implements Filter {
       if (size == 0) {
         return null;
       }
+      if (isConstantRandom) {
+        return Array.get(object, 0);
+      }
       int index = interpreter.getRandom().nextInt(size);
       return Array.get(object, index);
     }
     // map
     if (object instanceof Map) {
       Map<?, ?> map = (Map<?, ?>) object;
-      Iterator<?> it = map.values().iterator();
       int size = map.size();
       if (size == 0) {
         return null;
+      }
+      Iterator<?> it = map.values().iterator();
+      if (isConstantRandom) {
+        return it.next();
       }
       int index = interpreter.getRandom().nextInt(size);
       while (index-- > 0) {
@@ -88,10 +103,16 @@ public class RandomFilter implements Filter {
     }
     // number
     if (object instanceof Number) {
+      if (isConstantRandom) {
+        return 0;
+      }
       return interpreter.getRandom().nextInt(((Number) object).intValue());
     }
     // string
     if (object instanceof String) {
+      if (isConstantRandom) {
+        return 0;
+      }
       try {
         return interpreter
           .getRandom()
