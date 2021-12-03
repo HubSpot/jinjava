@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
@@ -147,15 +148,25 @@ public abstract class EagerSetTagStrategy {
         .get()
         .substring(maybeFullImportAlias.get().lastIndexOf(".") + 1);
       String updateString = getUpdateString(variables);
-      suffixToPreserveState.append(
-        interpreter.render(
-          EagerReconstructionUtils.buildDoUpdateTag(
-            currentImportAlias,
-            updateString,
-            interpreter
+      if (variables.equals(currentImportAlias)) {
+        suffixToPreserveState.append(
+          EagerReconstructionUtils.buildSetTag(
+            ImmutableMap.of(variables, updateString),
+            interpreter,
+            false
           )
-        )
-      );
+        );
+      } else {
+        suffixToPreserveState.append(
+          interpreter.render(
+            EagerReconstructionUtils.buildDoUpdateTag(
+              currentImportAlias,
+              updateString,
+              interpreter
+            )
+          )
+        );
+      }
     }
     return suffixToPreserveState.toString();
   }
