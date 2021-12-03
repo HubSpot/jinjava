@@ -120,7 +120,7 @@ public class EagerForTagTest extends ForTagTest {
 
   @Test
   public void itDoesntAllowChangesInDeferredForWithSameHashCode() {
-    // Map with {'1':'1'} has the same hashcode as {} so we must differentiate
+    // Map with {'a':'a'} has the same hashcode as {'b':'b'} so we must differentiate
     String result = interpreter.render(
       "{% set foo = {'a': 'a'} -%}\n" +
       "{%- for i in range(0, deferred) %}\n" +
