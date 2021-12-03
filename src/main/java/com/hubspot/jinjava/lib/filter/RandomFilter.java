@@ -49,14 +49,15 @@ public class RandomFilter implements Filter {
     if (object == null) {
       return null;
     }
+
     // collection
     if (object instanceof Collection) {
       Collection<?> clt = (Collection<?>) object;
-      Iterator<?> it = clt.iterator();
       int size = clt.size();
       if (size == 0) {
         return null;
       }
+      Iterator<?> it = clt.iterator();
       int index = interpreter.getRandom().nextInt(size);
       while (index-- > 0) {
         it.next();
@@ -75,11 +76,11 @@ public class RandomFilter implements Filter {
     // map
     if (object instanceof Map) {
       Map<?, ?> map = (Map<?, ?>) object;
-      Iterator<?> it = map.values().iterator();
       int size = map.size();
       if (size == 0) {
         return null;
       }
+      Iterator<?> it = map.values().iterator();
       int index = interpreter.getRandom().nextInt(size);
       while (index-- > 0) {
         it.next();
