@@ -122,18 +122,20 @@ public class EagerForTagTest extends ForTagTest {
   public void itDoesntAllowChangesInDeferredForWithSameHashCode() {
     // Map with {'1':'1'} has the same hashcode as {} so we must differentiate
     String result = interpreter.render(
-      "{% set foo = {} -%}\n" +
+      "{% set foo = {'a': 'a'} -%}\n" +
       "{%- for i in range(0, deferred) %}\n" +
       "{{ 'bar' }}{{ foo }}\n" +
-      "{% do foo.update({'1': '1'}) %}\n" +
+      "{% do foo.clear() %}\n" +
+      "{% do foo.update({'b': 'b'}) %}\n" +
       "{% endfor %}\n" +
       "{{ foo }}"
     );
     assertThat(result)
       .isEqualTo(
-        "{% set foo = {} %}{% for i in range(0, deferred) %}\n" +
+        "{% set foo = {'a': 'a'} %}{% for i in range(0, deferred) %}\n" +
         "bar{{ foo }}\n" +
-        "{% do foo.update({'1': 1}) %}\n" +
+        "{% do foo.clear() %}\n" +
+        "{% do foo.update({'b': 'b'}) %}\n" +
         "{% endfor %}\n" +
         "{{ foo }}"
       );
