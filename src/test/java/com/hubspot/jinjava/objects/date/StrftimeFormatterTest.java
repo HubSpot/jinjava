@@ -2,6 +2,7 @@ package com.hubspot.jinjava.objects.date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Locale;
 import org.junit.Before;
@@ -99,8 +100,9 @@ public class StrftimeFormatterTest {
 
   @Test
   public void testZoneOutput() {
-    assertThat(StrftimeFormatter.format(d, "%z")).isEqualTo("+0000");
-    assertThat(StrftimeFormatter.format(d, "%Z")).isEqualTo("GMT");
+    d = ZonedDateTime.of(d.toLocalDateTime(), ZoneId.of("America/Los_Angeles"));
+    assertThat(StrftimeFormatter.format(d, "%z")).isEqualTo("-0800");
+    assertThat(StrftimeFormatter.format(d, "%Z")).isEqualTo("PST");
   }
 
   @Test
