@@ -119,6 +119,24 @@ public class EagerForTagTest extends ForTagTest {
   }
 
   @Test
+  public void itDefersVariablesThatLaterGetDeferred() {
+    String result = interpreter.render(
+      "{%- for i in range(0, deferred) %}\n" +
+      "{{ foo ~ (1 + 2) }}\n" +
+      "{% set foo = i %}\n" +
+      "{% endfor %}"
+    );
+    assertThat(result)
+      .isEqualTo(
+        "{% for i in range(0, deferred) %}\n" +
+        "{{ foo ~ 3 }}\n" +
+        "{% set foo = i %}\n" +
+        "{% endfor %}"
+      );
+    assertThat(interpreter.getContext().getDeferredNodes()).hasSize(0);
+  }
+
+  @Test
   public void itDoesntAllowChangesInDeferredForWithSameHashCode() {
     // Map with {'a':'a'} has the same hashcode as {'b':'b'} so we must differentiate
     String result = interpreter.render(
