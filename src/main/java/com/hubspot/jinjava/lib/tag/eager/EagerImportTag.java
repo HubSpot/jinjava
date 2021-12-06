@@ -211,6 +211,9 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     for (Map.Entry<String, Object> entry : (
       (Map<String, Object>) ((DeferredValue) currentAliasMap).getOriginalValue()
     ).entrySet()) {
+      if (entry.getKey().equals(currentImportAlias)) {
+        continue;
+      }
       if (entry.getValue() instanceof DeferredValue) {
         keyValueJoiner.add(String.format("'%s': %s", entry.getKey(), entry.getKey()));
       } else if (!(entry.getValue() instanceof MacroFunction)) {

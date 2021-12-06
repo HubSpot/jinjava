@@ -146,16 +146,22 @@ public abstract class EagerSetTagStrategy {
       String currentImportAlias = maybeFullImportAlias
         .get()
         .substring(maybeFullImportAlias.get().lastIndexOf(".") + 1);
-      String updateString = getUpdateString(variables);
-      suffixToPreserveState.append(
-        interpreter.render(
-          EagerReconstructionUtils.buildDoUpdateTag(
-            currentImportAlias,
-            updateString,
-            interpreter
+      String filteredVariables = Arrays
+        .stream(variables.split(","))
+        .filter(var -> !var.equals(currentImportAlias))
+        .collect(Collectors.joining(","));
+      if (!filteredVariables.isEmpty()) {
+        String updateString = getUpdateString(filteredVariables);
+        suffixToPreserveState.append(
+          interpreter.render(
+            EagerReconstructionUtils.buildDoUpdateTag(
+              currentImportAlias,
+              updateString,
+              interpreter
+            )
           )
-        )
-      );
+        );
+      }
     }
     return suffixToPreserveState.toString();
   }

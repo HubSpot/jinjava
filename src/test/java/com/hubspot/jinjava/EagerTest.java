@@ -967,4 +967,11 @@ public class EagerTest {
       "handles-double-import-modification.expected"
     );
   }
+
+  @Test
+  public void itHandlesSameNameImportVar() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-same-name-import-var"
+    );
+  }
 }
