@@ -437,6 +437,7 @@ public class Functions {
         if (!killwords) {
           length = movePointerToJustBeforeLastWord(length, string);
         }
+        length = Math.max(length, 0);
 
         return string.substring(0, length) + ends;
       } else {
