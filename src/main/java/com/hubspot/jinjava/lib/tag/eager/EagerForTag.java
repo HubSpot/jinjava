@@ -86,10 +86,9 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
           interpreter,
           true
         );
-
-      // Run for loop again now that the necessary values have been deferred
-      eagerExecutionResult = runLoopOnce(tagNode, interpreter);
     }
+    // Run for loop again now that the necessary values have been deferred
+    eagerExecutionResult = runLoopOnce(tagNode, interpreter);
     if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
       throw new DeferredValueException(
         "Modified values in deferred for loop: " +
