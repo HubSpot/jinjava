@@ -50,4 +50,9 @@ public class TruncateFilterTest {
     assertThat(filter.filter("foo bar", interpreter, "5", "True", "!"))
       .isEqualTo("foo b!");
   }
+
+  @Test
+  public void itTruncatesGivenNegativeLength() throws Exception {
+    assertThat(filter.filter("foo bar", interpreter, "-1", "True")).isEqualTo("...");
+  }
 }
