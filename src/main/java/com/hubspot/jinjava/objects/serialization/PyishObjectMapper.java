@@ -26,11 +26,15 @@ public class PyishObjectMapper {
 
   public static String getAsPyishString(Object val) {
     try {
-      return PYISH_OBJECT_WRITER
+      String string = PYISH_OBJECT_WRITER
         .writeValueAsString(val)
         .replace("'", "\\'")
         // Replace double-quotes with single quote as they are preferred in Jinja
         .replaceAll("(?<!\\\\)(\\\\\\\\)*(?:\")", "$1'");
+      if (!string.contains("{{")) {
+        return string.replaceAll("}}(,|$)", "} }$1");
+      }
+      return string;
     } catch (JsonProcessingException e) {
       return Objects.toString(val, "");
     }
