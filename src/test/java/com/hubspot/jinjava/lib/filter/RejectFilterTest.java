@@ -1,16 +1,14 @@
 package com.hubspot.jinjava.lib.filter;
 
-import com.google.common.collect.Lists;
-import com.hubspot.jinjava.BaseJinjavaTest;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
-
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.google.common.collect.Lists;
+import com.hubspot.jinjava.BaseJinjavaTest;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.Before;
+import org.junit.Test;
 
 public class RejectFilterTest extends BaseJinjavaTest {
 

@@ -3,17 +3,8 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InvalidArgumentException;
-import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
-import com.hubspot.jinjava.util.ForLoop;
-import com.hubspot.jinjava.util.ObjectIterator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 @JinjavaDoc(
   value = "Filters a sequence of objects by applying a test to the object and rejecting the ones with the test succeeding.",
