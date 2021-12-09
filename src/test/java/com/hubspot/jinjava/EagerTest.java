@@ -974,4 +974,11 @@ public class EagerTest {
       "handles-same-name-import-var"
     );
   }
+
+  @Test
+  public void itRunsForLoopInsideDeferredForLoop() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "runs-for-loop-inside-deferred-for-loop"
+    );
+  }
 }
