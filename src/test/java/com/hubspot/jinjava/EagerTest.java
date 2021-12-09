@@ -974,4 +974,9 @@ public class EagerTest {
       "handles-same-name-import-var"
     );
   }
+
+  @Test
+  public void itReconstructsTypesProperly() {
+    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-types-properly");
+  }
 }
