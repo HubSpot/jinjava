@@ -113,6 +113,7 @@ public class ForTag implements Tag {
       .stream()
       .filter(n -> !(n instanceof ExpressionNode))
       .count();
+    long numEagerTokensBefore = interpreter.getContext().getEagerTokens().size();
 
     String result = interpretUnchecked(tagNode, interpreter);
     if (
@@ -131,7 +132,10 @@ public class ForTag implements Tag {
       );
     }
 
-    if (interpreter.getContext().get("loop") instanceof DeferredValue) {
+    if (
+      interpreter.getContext().get("loop") instanceof DeferredValue &&
+      interpreter.getContext().getEagerTokens().size() > numEagerTokensBefore
+    ) {
       throw new DeferredValueException(
         "loop variable deferred",
         interpreter.getLineNumber(),
