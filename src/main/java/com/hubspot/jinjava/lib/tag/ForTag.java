@@ -113,7 +113,6 @@ public class ForTag implements Tag {
       .stream()
       .filter(n -> !(n instanceof ExpressionNode))
       .count();
-    long numEagerTokensBefore = interpreter.getContext().getEagerTokens().size();
 
     String result = interpretUnchecked(tagNode, interpreter);
     if (
@@ -127,17 +126,6 @@ public class ForTag implements Tag {
     ) {
       throw new DeferredValueException(
         "for loop",
-        interpreter.getLineNumber(),
-        interpreter.getPosition()
-      );
-    }
-
-    if (
-      interpreter.getContext().get("loop") instanceof DeferredValue &&
-      interpreter.getContext().getEagerTokens().size() > numEagerTokensBefore
-    ) {
-      throw new DeferredValueException(
-        "loop variable deferred",
         interpreter.getLineNumber(),
         interpreter.getPosition()
       );
@@ -252,14 +240,27 @@ public class ForTag implements Tag {
               buff.append(node.render(interpreter));
             } catch (OutputTooBigException e) {
               interpreter.addError(TemplateError.fromOutputTooBigException(e));
-              return buff.toString();
+              return checkLoopVariable(interpreter, buff);
             }
           }
         }
       }
-
-      return buff.toString();
+      return checkLoopVariable(interpreter, buff);
     }
+  }
+
+  private String checkLoopVariable(
+    JinjavaInterpreter interpreter,
+    LengthLimitingStringBuilder buff
+  ) {
+    if (interpreter.getContext().get("loop") instanceof DeferredValue) {
+      throw new DeferredValueException(
+        "loop variable deferred",
+        interpreter.getLineNumber(),
+        interpreter.getPosition()
+      );
+    }
+    return buff.toString();
   }
 
   public Pair<List<String>, String> getLoopVarsAndExpression(TagToken tagToken) {
