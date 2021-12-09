@@ -92,11 +92,20 @@ public class SelectFilter implements AdvancedFilter {
     while (loop.hasNext()) {
       Object val = loop.next();
 
-      if (expTest.evaluate(val, interpreter, expArgs)) {
+      if (evaluate(interpreter, expArgs, expTest, val)) {
         result.add(val);
       }
     }
 
     return result;
+  }
+
+  boolean evaluate(
+    JinjavaInterpreter interpreter,
+    Object[] expArgs,
+    ExpTest expTest,
+    Object val
+  ) {
+    return expTest.evaluate(val, interpreter, expArgs);
   }
 }
