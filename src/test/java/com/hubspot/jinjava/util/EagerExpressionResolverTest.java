@@ -388,7 +388,7 @@ public class EagerExpressionResolverTest {
     EagerExpressionResult eagerExpressionResult = eagerResolveExpression(
       "date|datetimeformat('%Y')"
     );
-    assertThat(eagerExpressionResult.toString()).isEqualTo("1970");
+    assertThat(eagerExpressionResult.toString()).isEqualTo("'1970'");
   }
 
   @Test
