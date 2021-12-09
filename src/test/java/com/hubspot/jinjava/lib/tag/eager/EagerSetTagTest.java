@@ -136,7 +136,8 @@ public class EagerSetTagTest extends SetTagTest {
 
   @Test
   public void itDefersBlockWithFilter() {
-    String template = "{% set foo | add(deferred) %}{{ 1 + 1 }}{% endset %}{{ foo }}";
+    String template =
+      "{% set foo | int |add(deferred) %}{{ 1 + 1 }}{% endset %}{{ foo }}";
     final String result = interpreter.render(template);
 
     assertThat(result)
