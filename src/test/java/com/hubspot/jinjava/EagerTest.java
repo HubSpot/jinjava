@@ -979,7 +979,7 @@ public class EagerTest {
   public void itReconstructsTypesProperly() {
     expectedTemplateInterpreter.assertExpectedOutput("reconstructs-types-properly");
   }
-  
+
   @Test
   public void itRunsForLoopInsideDeferredForLoop() {
     expectedTemplateInterpreter.assertExpectedOutput(
