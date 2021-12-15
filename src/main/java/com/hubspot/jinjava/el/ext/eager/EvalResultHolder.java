@@ -58,9 +58,7 @@ public interface EvalResultHolder {
     Object evalResult = astNode.getEvalResult();
     if (astNode.hasEvalResult() && (!preserveIdentifier || isPrimitive(evalResult))) {
       partiallyResolvedImage =
-        EagerExpressionResolver.getValueAsJinjavaStringSafe(
-          evalResult // this used to clear result too
-        );
+        EagerExpressionResolver.getValueAsJinjavaStringSafe(evalResult);
     } else if (
       preserveIdentifier ||
       (

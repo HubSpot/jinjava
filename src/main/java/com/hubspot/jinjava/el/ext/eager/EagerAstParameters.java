@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import javax.el.ELContext;
 
 public class EagerAstParameters extends AstParameters implements EvalResultHolder {
-  protected Object[] evalResult;
+  protected Object evalResult;
   protected boolean hasEvalResult;
   protected final List<AstNode> nodes;
 
@@ -66,13 +66,13 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
   }
 
   @Override
-  public Object[] getEvalResult() {
+  public Object getEvalResult() {
     return evalResult;
   }
 
   @Override
   public void setEvalResult(Object evalResult) {
-    this.evalResult = (Object[]) evalResult;
+    this.evalResult = evalResult;
     hasEvalResult = true;
   }
 
