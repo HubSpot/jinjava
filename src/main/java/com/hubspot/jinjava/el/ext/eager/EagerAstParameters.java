@@ -48,17 +48,19 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
             )
         );
       throw new DeferredParsingException(this, joiner.toString());
-    } finally {
-      nodes.forEach(node -> ((EvalResultHolder) node).getAndClearEvalResult());
     }
   }
 
   @Override
-  public Object[] getAndClearEvalResult() {
-    Object[] temp = evalResult;
+  public Object[] getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    nodes.forEach(node -> ((EvalResultHolder) node).clearEvalResult());
   }
 
   @Override

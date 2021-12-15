@@ -64,20 +64,22 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
         sb.append(String.format("(%s)", dpe.getDeferredEvalResult()));
       }
       throw new DeferredParsingException(this, sb.toString());
-    } finally {
-      params.getAndClearEvalResult();
-      for (int i = 0; i < ((AstParameters) params).getCardinality(); i++) {
-        ((EvalResultHolder) ((AstParameters) params).getChild(i)).getAndClearEvalResult();
-      }
     }
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    params.clearEvalResult();
+    for (int i = 0; i < ((AstParameters) params).getCardinality(); i++) {
+      ((EvalResultHolder) ((AstParameters) params).getChild(i)).clearEvalResult();
+    }
   }
 
   @Override

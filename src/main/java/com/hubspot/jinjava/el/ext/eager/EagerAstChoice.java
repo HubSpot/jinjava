@@ -51,23 +51,52 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
         " : " +
         EvalResultHolder.reconstructNode(bindings, context, no, e, false);
       throw new DeferredParsingException(this, sb);
-    } finally {
-      question.getAndClearEvalResult();
-      yes.getAndClearEvalResult();
-      no.getAndClearEvalResult();
     }
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    question.clearEvalResult();
+    yes.clearEvalResult();
+    no.clearEvalResult();
   }
 
   @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
+  }
+
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    return (
+      deferredParsingException.getDeferredEvalResult() +
+      " ? " +
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        yes,
+        deferredParsingException,
+        false
+      ) +
+      " : " +
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        no,
+        deferredParsingException,
+        false
+      )
+    );
   }
 }

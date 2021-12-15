@@ -42,20 +42,22 @@ public class EagerAstBracket
       );
       String sb = getPartiallyResolved(bindings, context, e, false);
       throw new DeferredParsingException(this, sb);
-    } finally {
-      ((EvalResultHolder) prefix).getAndClearEvalResult();
-      if (property != null) {
-        ((EvalResultHolder) property).getAndClearEvalResult();
-      }
     }
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    ((EvalResultHolder) prefix).clearEvalResult();
+    if (property != null) {
+      ((EvalResultHolder) property).clearEvalResult();
+    }
   }
 
   @Override
@@ -77,7 +79,6 @@ public class EagerAstBracket
     DeferredParsingException deferredParsingException,
     boolean preserveIdentifier
   ) {
-    getAndClearEvalResult();
     return String.format(
       "%s[%s]",
       EvalResultHolder.reconstructNode(

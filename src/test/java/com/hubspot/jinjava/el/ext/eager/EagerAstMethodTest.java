@@ -147,4 +147,15 @@ public class EagerAstMethodTest extends BaseInterpretingTest {
         .isEqualTo("foo_map.get('foo_list').append(deferred)");
     }
   }
+
+  @Test
+  public void itPreservesAstChoice() {
+    try {
+      interpreter.resolveELExpression("(deferred ? [] : foo_list).append(deferred)", -1);
+      fail("Should throw DeferredParsingException");
+    } catch (DeferredParsingException e) {
+      assertThat(e.getDeferredEvalResult())
+        .isEqualTo("foo_map.get('foo_list').append(deferred)");
+    }
+  }
 }

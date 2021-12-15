@@ -36,17 +36,19 @@ public class EagerAstNamedParameter
         this,
         String.format("%s=%s", name, e.getDeferredEvalResult())
       );
-    } finally {
-      value.getAndClearEvalResult();
     }
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    value.clearEvalResult();
   }
 
   @Override

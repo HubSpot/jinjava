@@ -34,19 +34,21 @@ public class EagerAstList extends AstList implements EvalResultHolder {
         );
       }
       throw new DeferredParsingException(this, "[" + joiner.toString() + "]");
-    } finally {
-      for (int i = 0; i < elements.getCardinality(); i++) {
-        ((EvalResultHolder) elements.getChild(i)).getAndClearEvalResult();
-      }
     }
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    for (int i = 0; i < elements.getCardinality(); i++) {
+      ((EvalResultHolder) elements.getChild(i)).clearEvalResult();
+    }
   }
 
   @Override

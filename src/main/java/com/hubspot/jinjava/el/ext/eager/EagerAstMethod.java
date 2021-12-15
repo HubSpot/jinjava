@@ -48,18 +48,20 @@ public class EagerAstMethod
         this,
         getPartiallyResolved(bindings, context, e, true)
       );
-    } finally {
-      property.getAndClearEvalResult();
-      params.getAndClearEvalResult();
     }
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    property.clearEvalResult();
+    params.clearEvalResult();
   }
 
   @Override
@@ -78,7 +80,7 @@ public class EagerAstMethod
     DeferredParsingException deferredParsingException,
     boolean preserveIdentifier
   ) {
-    getAndClearEvalResult();
+    clearEvalResult();
     String propertyResult;
     if (property instanceof PartiallyResolvable) {
       propertyResult =

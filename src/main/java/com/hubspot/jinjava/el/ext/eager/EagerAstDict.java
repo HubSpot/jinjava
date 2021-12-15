@@ -62,26 +62,29 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
         }
       );
       throw new DeferredParsingException(this, String.format("{%s}", joiner.toString()));
-    } finally {
-      dict.forEach(
-        (key, value) -> {
-          if (key instanceof EvalResultHolder) {
-            ((EvalResultHolder) key).getAndClearEvalResult();
-          }
-          if (value instanceof EvalResultHolder) {
-            ((EvalResultHolder) value).getAndClearEvalResult();
-          }
-        }
-      );
     }
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+
+    dict.forEach(
+      (key, value) -> {
+        if (key instanceof EvalResultHolder) {
+          ((EvalResultHolder) key).clearEvalResult();
+        }
+        if (value instanceof EvalResultHolder) {
+          ((EvalResultHolder) value).clearEvalResult();
+        }
+      }
+    );
   }
 
   @Override

@@ -9,7 +9,8 @@ import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import javax.el.ELContext;
 
 public interface EvalResultHolder {
-  Object getAndClearEvalResult();
+  Object getEvalResult();
+  void clearEvalResult();
 
   boolean hasEvalResult();
 
@@ -40,7 +41,7 @@ public interface EvalResultHolder {
     } else if (astNode.hasEvalResult()) {
       partiallyResolvedImage =
         EagerExpressionResolver.getValueAsJinjavaStringSafe(
-          astNode.getAndClearEvalResult()
+          astNode.getEvalResult() // this used to clear result too
         );
     } else if (exception != null && exception.getSourceNode() == astNode) {
       partiallyResolvedImage = exception.getDeferredEvalResult();
@@ -53,7 +54,7 @@ public interface EvalResultHolder {
       } catch (DeferredParsingException e) {
         partiallyResolvedImage = e.getDeferredEvalResult();
       } finally {
-        astNode.getAndClearEvalResult();
+        //        astNode.getAndClearEvalResult();
       }
     }
     return partiallyResolvedImage;

@@ -29,11 +29,14 @@ public class EagerAstIdentifier
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
   }
 
   @Override
@@ -48,7 +51,7 @@ public class EagerAstIdentifier
     DeferredParsingException deferredParsingException,
     boolean preserveIdentifier
   ) {
-    getAndClearEvalResult();
+    clearEvalResult();
     return getName();
   }
 }

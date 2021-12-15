@@ -1,5 +1,9 @@
 package com.hubspot.jinjava.el.ext.eager;
 
+import static de.odysseus.el.tree.impl.Scanner.Symbol.END_EVAL;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.START_EVAL_DEFERRED;
+import static de.odysseus.el.tree.impl.Scanner.Symbol.START_EVAL_DYNAMIC;
+
 import com.hubspot.jinjava.el.ext.AbsOperator;
 import com.hubspot.jinjava.el.ext.AstDict;
 import com.hubspot.jinjava.el.ext.AstList;
@@ -15,11 +19,13 @@ import com.hubspot.jinjava.el.ext.TruncDivOperator;
 import de.odysseus.el.tree.impl.Builder;
 import de.odysseus.el.tree.impl.Builder.Feature;
 import de.odysseus.el.tree.impl.Scanner.ScanException;
+import de.odysseus.el.tree.impl.Scanner.Symbol;
 import de.odysseus.el.tree.impl.ast.AstBinary;
 import de.odysseus.el.tree.impl.ast.AstBinary.Operator;
 import de.odysseus.el.tree.impl.ast.AstBracket;
 import de.odysseus.el.tree.impl.ast.AstChoice;
 import de.odysseus.el.tree.impl.ast.AstDot;
+import de.odysseus.el.tree.impl.ast.AstEval;
 import de.odysseus.el.tree.impl.ast.AstFunction;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstMethod;
@@ -56,6 +62,21 @@ public class EagerExtendedParser extends ExtendedParser {
       CollectionNonMembershipOperator.TOKEN,
       CollectionNonMembershipOperator.EAGER_HANDLER
     );
+  }
+
+  @Override
+  protected AstEval eval(boolean required, boolean deferred)
+    throws ScanException, ParseException {
+    AstEval v = null;
+    Symbol startEval = deferred ? START_EVAL_DEFERRED : START_EVAL_DYNAMIC;
+    if (getToken().getSymbol() == startEval) {
+      consumeToken();
+      v = new AstEval(new EagerAstRoot(expr(true)), deferred);
+      consumeToken(END_EVAL);
+    } else if (required) {
+      fail(startEval);
+    }
+    return v;
   }
 
   @Override

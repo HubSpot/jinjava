@@ -37,9 +37,12 @@ public class EagerAstNested extends AstRightValue implements EvalResultHolder {
         this,
         String.format("(%s)", e.getDeferredEvalResult())
       );
-    } finally {
-      ((EvalResultHolder) child).getAndClearEvalResult();
     }
+  }
+
+  @Override
+  public Object getEvalResult() {
+    return evalResult;
   }
 
   @Override
@@ -48,11 +51,10 @@ public class EagerAstNested extends AstRightValue implements EvalResultHolder {
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    ((EvalResultHolder) child).clearEvalResult();
   }
 
   @Override

@@ -54,8 +54,6 @@ public class EagerAstDot extends AstDot implements EvalResultHolder, PartiallyRe
         this,
         getPartiallyResolved(bindings, context, e, false)
       );
-    } finally {
-      base.getAndClearEvalResult();
     }
   }
 
@@ -65,7 +63,7 @@ public class EagerAstDot extends AstDot implements EvalResultHolder, PartiallyRe
     DeferredParsingException e,
     boolean preserveIdentifier
   ) {
-    getAndClearEvalResult();
+    clearEvalResult();
     return String.format(
       "%s.%s",
       EvalResultHolder.reconstructNode(bindings, context, base, e, preserveIdentifier),
@@ -74,11 +72,15 @@ public class EagerAstDot extends AstDot implements EvalResultHolder, PartiallyRe
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    base.clearEvalResult();
   }
 
   @Override

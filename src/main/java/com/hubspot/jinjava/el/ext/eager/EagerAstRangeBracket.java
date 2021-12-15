@@ -66,25 +66,27 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
         ) +
         "]";
       throw new DeferredParsingException(this, sb);
-    } finally {
-      if (prefix != null) {
-        ((EvalResultHolder) prefix).getAndClearEvalResult();
-      }
-      if (property != null) {
-        ((EvalResultHolder) property).getAndClearEvalResult();
-      }
-      if (rangeMax != null) {
-        ((EvalResultHolder) rangeMax).getAndClearEvalResult();
-      }
     }
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    if (prefix != null) {
+      ((EvalResultHolder) prefix).clearEvalResult();
+    }
+    if (property != null) {
+      ((EvalResultHolder) property).clearEvalResult();
+    }
+    if (rangeMax != null) {
+      ((EvalResultHolder) rangeMax).clearEvalResult();
+    }
   }
 
   @Override

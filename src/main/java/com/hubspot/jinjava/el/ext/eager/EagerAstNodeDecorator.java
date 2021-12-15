@@ -32,11 +32,14 @@ public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
   }
 
   @Override

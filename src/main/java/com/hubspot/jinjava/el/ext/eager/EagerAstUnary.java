@@ -33,17 +33,19 @@ public class EagerAstUnary extends AstUnary implements EvalResultHolder {
         operator.toString() +
         EvalResultHolder.reconstructNode(bindings, context, child, e, false);
       throw new DeferredParsingException(this, sb);
-    } finally {
-      child.getAndClearEvalResult();
     }
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    child.clearEvalResult();
   }
 
   @Override

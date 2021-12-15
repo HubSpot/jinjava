@@ -54,18 +54,20 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
           false
         );
       throw new DeferredParsingException(this, sb);
-    } finally {
-      left.getAndClearEvalResult();
-      right.getAndClearEvalResult();
     }
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    left.clearEvalResult();
+    right.clearEvalResult();
   }
 
   @Override
