@@ -7,16 +7,38 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
+import de.odysseus.el.tree.impl.ast.AstNode;
+import java.util.function.Supplier;
 import javax.el.ELContext;
+import javax.el.ELException;
 
 public interface EvalResultHolder {
   Object getEvalResult();
+
+  void setEvalResult(Object evalResult);
 
   void clearEvalResult();
 
   boolean hasEvalResult();
 
-  Object eval(Bindings bindings, ELContext elContext);
+  default Object eval(
+    Supplier<Object> evalSupplier,
+    Bindings bindings,
+    ELContext context
+  ) {
+    try {
+      setEvalResult(evalSupplier.get());
+      return getEvalResult();
+    } catch (DeferredValueException | ELException originalException) {
+      DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
+        originalException
+      );
+      throw new DeferredParsingException(
+        this,
+        getPartiallyResolved(bindings, context, e, false)
+      );
+    }
+  }
 
   String getPartiallyResolved(
     Bindings bindings,
@@ -54,12 +76,10 @@ public interface EvalResultHolder {
       try {
         partiallyResolvedImage =
           EagerExpressionResolver.getValueAsJinjavaStringSafe(
-            astNode.eval(bindings, context)
+            ((AstNode) astNode).eval(bindings, context)
           );
       } catch (DeferredParsingException e) {
         partiallyResolvedImage = e.getDeferredEvalResult();
-      } finally {
-        //        astNode.getAndClearEvalResult();
       }
     }
     return partiallyResolvedImage;

@@ -2,11 +2,9 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.AstRangeBracket;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.interpret.DeferredValueException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
-import javax.el.ELException;
 
 public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultHolder {
   protected Object evalResult;
@@ -32,19 +30,11 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    try {
-      evalResult = super.eval(bindings, context);
-      hasEvalResult = true;
-      return evalResult;
-    } catch (DeferredValueException | ELException originalException) {
-      DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
-        originalException
-      );
-      throw new DeferredParsingException(
-        this,
-        getPartiallyResolved(bindings, context, e, false)
-      );
-    }
+    return EvalResultHolder.super.eval(
+      () -> super.eval(bindings, context),
+      bindings,
+      context
+    );
   }
 
   @Override
@@ -85,6 +75,12 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
   @Override
   public Object getEvalResult() {
     return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = evalResult;
+    hasEvalResult = true;
   }
 
   @Override

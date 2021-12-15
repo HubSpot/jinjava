@@ -36,8 +36,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
   @Override
   public Object eval(Bindings bindings, ELContext context) throws ELException {
     try {
-      evalResult = super.eval(bindings, context);
-      hasEvalResult = true;
+      setEvalResult(super.eval(bindings, context));
       return evalResult;
     } catch (DeferredParsingException e) {
       if (question.hasEvalResult()) {
@@ -54,6 +53,12 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
   @Override
   public Object getEvalResult() {
     return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = evalResult;
+    hasEvalResult = true;
   }
 
   @Override

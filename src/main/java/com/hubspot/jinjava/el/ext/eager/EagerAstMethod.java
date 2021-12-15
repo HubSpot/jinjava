@@ -5,6 +5,7 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstMethod;
+import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import de.odysseus.el.tree.impl.ast.AstProperty;
 import javax.el.ELContext;
@@ -34,8 +35,7 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
   @Override
   public Object eval(Bindings bindings, ELContext context) {
     try {
-      evalResult = super.eval(bindings, context);
-      hasEvalResult = true;
+      setEvalResult(super.eval(bindings, context));
       return evalResult;
     } catch (DeferredValueException | ELException originalException) {
       DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
@@ -43,7 +43,7 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
       );
       throw new DeferredParsingException(
         this,
-        getPartiallyResolved(bindings, context, e, true)
+        getPartiallyResolved(bindings, context, e, true) // Need this to always be true because the method may modify the identifier
       );
     }
   }
@@ -51,6 +51,12 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
   @Override
   public Object getEvalResult() {
     return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = evalResult;
+    hasEvalResult = true;
   }
 
   @Override
@@ -95,7 +101,7 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
       try {
         paramString =
           EagerExpressionResolver.getValueAsJinjavaStringSafe(
-            params.eval(bindings, context)
+            ((AstNode) params).eval(bindings, context)
           );
         // remove brackets so they can get replaced with parentheses
         paramString = paramString.substring(1, paramString.length() - 1);

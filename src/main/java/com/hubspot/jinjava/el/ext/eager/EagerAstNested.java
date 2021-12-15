@@ -28,21 +28,22 @@ public class EagerAstNested extends AstRightValue implements EvalResultHolder {
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    try {
-      evalResult = child.eval(bindings, context);
-      hasEvalResult = true;
-      return evalResult;
-    } catch (DeferredParsingException e) {
-      throw new DeferredParsingException(
-        this,
-        getPartiallyResolved(bindings, context, e, false)
-      );
-    }
+    return EvalResultHolder.super.eval(
+      () -> child.eval(bindings, context),
+      bindings,
+      context
+    );
   }
 
   @Override
   public Object getEvalResult() {
     return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = evalResult;
+    hasEvalResult = true;
   }
 
   @Override

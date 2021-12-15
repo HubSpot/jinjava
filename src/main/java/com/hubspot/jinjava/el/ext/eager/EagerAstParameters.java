@@ -32,16 +32,11 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
 
   @Override
   public Object[] eval(Bindings bindings, ELContext context) {
-    try {
-      evalResult = super.eval(bindings, context);
-      hasEvalResult = true;
-      return evalResult;
-    } catch (DeferredParsingException e) {
-      throw new DeferredParsingException(
-        this,
-        getPartiallyResolved(bindings, context, e, false)
-      );
-    }
+    return (Object[]) EvalResultHolder.super.eval(
+      () -> super.eval(bindings, context),
+      bindings,
+      context
+    );
   }
 
   @Override
@@ -73,6 +68,12 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
   @Override
   public Object[] getEvalResult() {
     return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = (Object[]) evalResult;
+    hasEvalResult = true;
   }
 
   @Override
