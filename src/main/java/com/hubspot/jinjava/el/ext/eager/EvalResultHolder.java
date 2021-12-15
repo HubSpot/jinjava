@@ -24,14 +24,19 @@ public interface EvalResultHolder {
   ) {
     String partiallyResolvedImage;
     if (
-      astNode instanceof AstIdentifier &&
+      (preserveIdentifier && astNode instanceof PartiallyResolvable) ||
       (
-        preserveIdentifier ||
+        astNode instanceof AstIdentifier &&
         ExtendedParser.INTERPRETER.equals(((AstIdentifier) astNode).getName())
       )
     ) {
-      astNode.getAndClearEvalResult(); // clear unused result
-      partiallyResolvedImage = ((AstIdentifier) astNode).getName();
+      partiallyResolvedImage =
+        ((PartiallyResolvable) astNode).getPartiallyResolved(
+            bindings,
+            context,
+            exception,
+            true
+          );
     } else if (astNode.hasEvalResult()) {
       partiallyResolvedImage =
         EagerExpressionResolver.getValueAsJinjavaStringSafe(

@@ -8,7 +8,9 @@ import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
 import javax.el.ELException;
 
-public class EagerAstBracket extends AstBracket implements EvalResultHolder {
+public class EagerAstBracket
+  extends AstBracket
+  implements EvalResultHolder, PartiallyResolvable {
   protected Object evalResult;
   protected boolean hasEvalResult;
 
@@ -38,23 +40,7 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
       DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
         originalException
       );
-      String sb = String.format(
-        "%s[%s]",
-        EvalResultHolder.reconstructNode(
-          bindings,
-          context,
-          (EvalResultHolder) prefix,
-          e,
-          true
-        ),
-        EvalResultHolder.reconstructNode(
-          bindings,
-          context,
-          (EvalResultHolder) property,
-          e,
-          false
-        )
-      );
+      String sb = getPartiallyResolved(bindings, context, e, false);
       throw new DeferredParsingException(this, sb);
     } finally {
       ((EvalResultHolder) prefix).getAndClearEvalResult();
@@ -83,5 +69,31 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
 
   public AstNode getMethod() {
     return property;
+  }
+
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    getAndClearEvalResult();
+    return String.format(
+      "%s[%s]",
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        (EvalResultHolder) prefix,
+        deferredParsingException,
+        preserveIdentifier
+      ),
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        (EvalResultHolder) property,
+        deferredParsingException,
+        false
+      )
+    );
   }
 }

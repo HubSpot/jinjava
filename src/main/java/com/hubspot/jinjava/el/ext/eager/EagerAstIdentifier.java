@@ -7,7 +7,9 @@ import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import javax.el.ELContext;
 import javax.el.ELException;
 
-public class EagerAstIdentifier extends AstIdentifier implements EvalResultHolder {
+public class EagerAstIdentifier
+  extends AstIdentifier
+  implements EvalResultHolder, PartiallyResolvable {
   protected Object evalResult;
   protected boolean hasEvalResult;
 
@@ -22,7 +24,6 @@ public class EagerAstIdentifier extends AstIdentifier implements EvalResultHolde
       hasEvalResult = true;
       return evalResult;
     } catch (DeferredValueException | ELException originalException) {
-      EvalResultHolder.convertToDeferredParsingException(originalException);
       throw new DeferredParsingException(this, getName());
     }
   }
@@ -38,5 +39,16 @@ public class EagerAstIdentifier extends AstIdentifier implements EvalResultHolde
   @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
+  }
+
+  @Override
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    getAndClearEvalResult();
+    return getName();
   }
 }
