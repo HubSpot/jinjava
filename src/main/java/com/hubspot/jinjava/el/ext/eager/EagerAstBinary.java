@@ -41,20 +41,39 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
       hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
-      String sb =
-        EvalResultHolder.reconstructNode(bindings, context, left, e, false) +
-        String.format(" %s ", operator.toString()) +
-        EvalResultHolder.reconstructNode(
-          bindings,
-          (operator instanceof OrOperator || operator == AstBinary.AND)
-            ? new NoInvokeELContext(context) // short circuit on modification attempts because this may not be evaluated
-            : context,
-          right,
-          e,
-          false
-        );
-      throw new DeferredParsingException(this, sb);
+      throw new DeferredParsingException(
+        this,
+        getPartiallyResolved(bindings, context, e, false)
+      );
     }
+  }
+
+  @Override
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    return (
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        left,
+        deferredParsingException,
+        false
+      ) +
+      String.format(" %s ", operator.toString()) +
+      EvalResultHolder.reconstructNode(
+        bindings,
+        (operator instanceof OrOperator || operator == AstBinary.AND)
+          ? new NoInvokeELContext(context) // short circuit on modification attempts because this may not be evaluated
+          : context,
+        right,
+        deferredParsingException,
+        false
+      )
+    );
   }
 
   @Override

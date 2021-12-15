@@ -37,18 +37,37 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
       hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
-      StringJoiner joiner = new StringJoiner(", ");
-      nodes
-        .stream()
-        .map(node -> (EvalResultHolder) node)
-        .forEach(
-          node ->
-            joiner.add(
-              EvalResultHolder.reconstructNode(bindings, context, node, e, false)
-            )
-        );
-      throw new DeferredParsingException(this, joiner.toString());
+      throw new DeferredParsingException(
+        this,
+        getPartiallyResolved(bindings, context, e, false)
+      );
     }
+  }
+
+  @Override
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    StringJoiner joiner = new StringJoiner(", ");
+    nodes
+      .stream()
+      .map(node -> (EvalResultHolder) node)
+      .forEach(
+        node ->
+          joiner.add(
+            EvalResultHolder.reconstructNode(
+              bindings,
+              context,
+              node,
+              deferredParsingException,
+              false
+            )
+          )
+      );
+    return joiner.toString();
   }
 
   @Override

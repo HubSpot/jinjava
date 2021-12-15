@@ -5,6 +5,7 @@ import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import de.odysseus.el.tree.Bindings;
+import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -25,44 +26,59 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
       hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
-      JinjavaInterpreter interpreter = (JinjavaInterpreter) context
-        .getELResolver()
-        .getValue(context, null, ExtendedParser.INTERPRETER);
-      StringJoiner joiner = new StringJoiner(", ");
-      dict.forEach(
-        (key, value) -> {
-          StringJoiner kvJoiner = new StringJoiner(": ");
-          if (key instanceof EvalResultHolder) {
-            kvJoiner.add(
-              EvalResultHolder.reconstructNode(
-                bindings,
-                context,
-                (EvalResultHolder) key,
-                e,
-                !interpreter.getConfig().getLegacyOverrides().isEvaluateMapKeys()
-              )
-            );
-          } else {
-            kvJoiner.add(key.toString());
-          }
-          if (value instanceof EvalResultHolder) {
-            kvJoiner.add(
-              EvalResultHolder.reconstructNode(
-                bindings,
-                context,
-                (EvalResultHolder) value,
-                e,
-                false
-              )
-            );
-          } else {
-            kvJoiner.add(value.toString());
-          }
-          joiner.add(kvJoiner.toString());
-        }
+      throw new DeferredParsingException(
+        this,
+        getPartiallyResolved(bindings, context, e, false)
       );
-      throw new DeferredParsingException(this, String.format("{%s}", joiner.toString()));
     }
+  }
+
+  @Override
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    JinjavaInterpreter interpreter = (JinjavaInterpreter) context
+      .getELResolver()
+      .getValue(context, null, ExtendedParser.INTERPRETER);
+    StringJoiner joiner = new StringJoiner(", ");
+    dict.forEach(
+      (key, value) -> {
+        StringJoiner kvJoiner = new StringJoiner(": ");
+        if (key instanceof AstIdentifier) {
+          kvJoiner.add(((AstIdentifier) key).getName());
+        } else if (key instanceof EvalResultHolder) {
+          kvJoiner.add(
+            EvalResultHolder.reconstructNode(
+              bindings,
+              context,
+              (EvalResultHolder) key,
+              deferredParsingException,
+              !interpreter.getConfig().getLegacyOverrides().isEvaluateMapKeys()
+            )
+          );
+        } else {
+          kvJoiner.add(key.toString());
+        }
+        if (value instanceof EvalResultHolder) {
+          kvJoiner.add(
+            EvalResultHolder.reconstructNode(
+              bindings,
+              context,
+              (EvalResultHolder) value,
+              deferredParsingException,
+              preserveIdentifier
+            )
+          );
+        } else {
+          kvJoiner.add(value.toString());
+        }
+        joiner.add(kvJoiner.toString());
+      }
+    );
+    return String.format("{%s}", joiner);
   }
 
   @Override

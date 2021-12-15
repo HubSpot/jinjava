@@ -10,9 +10,7 @@ import de.odysseus.el.tree.impl.ast.AstProperty;
 import javax.el.ELContext;
 import javax.el.ELException;
 
-public class EagerAstMethod
-  extends AstMethod
-  implements EvalResultHolder, PartiallyResolvable {
+public class EagerAstMethod extends AstMethod implements EvalResultHolder {
   protected Object evalResult;
   protected boolean hasEvalResult;
   // instanceof AstProperty
@@ -43,7 +41,6 @@ public class EagerAstMethod
       DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
         originalException
       );
-
       throw new DeferredParsingException(
         this,
         getPartiallyResolved(bindings, context, e, true)
@@ -80,19 +77,14 @@ public class EagerAstMethod
     DeferredParsingException deferredParsingException,
     boolean preserveIdentifier
   ) {
-    clearEvalResult();
     String propertyResult;
-    if (property instanceof PartiallyResolvable) {
-      propertyResult =
-        ((PartiallyResolvable) property).getPartiallyResolved(
-            bindings,
-            context,
-            deferredParsingException,
-            preserveIdentifier
-          );
-    } else { // Should not happen natively
-      throw new DeferredValueException("Cannot resolve property in EagerAstMethod");
-    }
+    propertyResult =
+      (property).getPartiallyResolved(
+          bindings,
+          context,
+          deferredParsingException,
+          preserveIdentifier
+        );
     String paramString;
     if (
       deferredParsingException != null &&

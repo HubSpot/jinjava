@@ -34,9 +34,29 @@ public class EagerAstNamedParameter
     } catch (DeferredParsingException e) {
       throw new DeferredParsingException(
         this,
-        String.format("%s=%s", name, e.getDeferredEvalResult())
+        getPartiallyResolved(bindings, context, e, false)
       );
     }
+  }
+
+  @Override
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    return String.format(
+      "%s=%s",
+      name,
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        value,
+        deferredParsingException,
+        false
+      )
+    );
   }
 
   @Override

@@ -40,33 +40,46 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
       DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
         originalException
       );
-      String sb =
-        EvalResultHolder.reconstructNode(
-          bindings,
-          context,
-          (EvalResultHolder) prefix,
-          e,
-          true
-        ) +
-        "[" +
-        EvalResultHolder.reconstructNode(
-          bindings,
-          context,
-          (EvalResultHolder) property,
-          e,
-          false
-        ) +
-        ":" +
-        EvalResultHolder.reconstructNode(
-          bindings,
-          context,
-          (EvalResultHolder) rangeMax,
-          e,
-          false
-        ) +
-        "]";
-      throw new DeferredParsingException(this, sb);
+      throw new DeferredParsingException(
+        this,
+        getPartiallyResolved(bindings, context, e, false)
+      );
     }
+  }
+
+  @Override
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    return (
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        (EvalResultHolder) prefix,
+        deferredParsingException,
+        preserveIdentifier
+      ) +
+      "[" +
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        (EvalResultHolder) property,
+        deferredParsingException,
+        false
+      ) +
+      ":" +
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        (EvalResultHolder) rangeMax,
+        deferredParsingException,
+        false
+      ) +
+      "]"
+    );
   }
 
   @Override

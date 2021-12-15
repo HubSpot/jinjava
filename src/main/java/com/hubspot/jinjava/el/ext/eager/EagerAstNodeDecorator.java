@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.el.ext.eager;
 
+import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.Node;
 import de.odysseus.el.tree.impl.ast.AstNode;
@@ -57,6 +58,16 @@ public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
     evalResult = astNode.eval(bindings, elContext);
     hasEvalResult = true;
     return evalResult;
+  }
+
+  @Override
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    return null;
   }
 
   @Override

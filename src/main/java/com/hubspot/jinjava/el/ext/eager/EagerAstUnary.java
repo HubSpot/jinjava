@@ -29,11 +29,30 @@ public class EagerAstUnary extends AstUnary implements EvalResultHolder {
       hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
-      String sb =
-        operator.toString() +
-        EvalResultHolder.reconstructNode(bindings, context, child, e, false);
-      throw new DeferredParsingException(this, sb);
+      throw new DeferredParsingException(
+        this,
+        getPartiallyResolved(bindings, context, e, false)
+      );
     }
+  }
+
+  @Override
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    return (
+      operator.toString() +
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        child,
+        deferredParsingException,
+        false
+      )
+    );
   }
 
   @Override

@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.el.ext.eager;
 
+import com.google.common.primitives.Primitives;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -10,11 +11,19 @@ import javax.el.ELContext;
 
 public interface EvalResultHolder {
   Object getEvalResult();
+
   void clearEvalResult();
 
   boolean hasEvalResult();
 
   Object eval(Bindings bindings, ELContext elContext);
+
+  String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  );
 
   static String reconstructNode(
     Bindings bindings,
@@ -24,25 +33,21 @@ public interface EvalResultHolder {
     boolean preserveIdentifier
   ) {
     String partiallyResolvedImage;
-    if (
-      (preserveIdentifier && astNode instanceof PartiallyResolvable) ||
+    Object evalResult = astNode.getEvalResult();
+    if (astNode.hasEvalResult() && (!preserveIdentifier || isPrimitive(evalResult))) {
+      partiallyResolvedImage =
+        EagerExpressionResolver.getValueAsJinjavaStringSafe(
+          evalResult // this used to clear result too
+        );
+    } else if (
+      preserveIdentifier ||
       (
         astNode instanceof AstIdentifier &&
         ExtendedParser.INTERPRETER.equals(((AstIdentifier) astNode).getName())
       )
     ) {
       partiallyResolvedImage =
-        ((PartiallyResolvable) astNode).getPartiallyResolved(
-            bindings,
-            context,
-            exception,
-            true
-          );
-    } else if (astNode.hasEvalResult()) {
-      partiallyResolvedImage =
-        EagerExpressionResolver.getValueAsJinjavaStringSafe(
-          astNode.getEvalResult() // this used to clear result too
-        );
+        astNode.getPartiallyResolved(bindings, context, exception, true);
     } else if (exception != null && exception.getSourceNode() == astNode) {
       partiallyResolvedImage = exception.getDeferredEvalResult();
     } else {
@@ -77,5 +82,13 @@ public interface EvalResultHolder {
       return (DeferredParsingException) deferredValueException;
     }
     return null;
+  }
+
+  static boolean isPrimitive(Object evalResult) {
+    return (
+      evalResult == null ||
+      Primitives.isWrapperType(evalResult.getClass()) ||
+      evalResult instanceof String
+    );
   }
 }

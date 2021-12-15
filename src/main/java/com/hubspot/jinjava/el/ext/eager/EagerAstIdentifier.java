@@ -7,9 +7,7 @@ import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import javax.el.ELContext;
 import javax.el.ELException;
 
-public class EagerAstIdentifier
-  extends AstIdentifier
-  implements EvalResultHolder, PartiallyResolvable {
+public class EagerAstIdentifier extends AstIdentifier implements EvalResultHolder {
   protected Object evalResult;
   protected boolean hasEvalResult;
 
@@ -51,7 +49,6 @@ public class EagerAstIdentifier
     DeferredParsingException deferredParsingException,
     boolean preserveIdentifier
   ) {
-    clearEvalResult();
     return getName();
   }
 }

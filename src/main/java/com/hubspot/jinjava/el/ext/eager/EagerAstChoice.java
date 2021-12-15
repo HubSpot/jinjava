@@ -44,13 +44,10 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
         // the question was evaluated so jump to either yes or no
         throw new DeferredParsingException(this, e.getDeferredEvalResult());
       }
-      String sb =
-        e.getDeferredEvalResult() +
-        " ? " +
-        EvalResultHolder.reconstructNode(bindings, context, yes, e, false) +
-        " : " +
-        EvalResultHolder.reconstructNode(bindings, context, no, e, false);
-      throw new DeferredParsingException(this, sb);
+      throw new DeferredParsingException(
+        this,
+        getPartiallyResolved(bindings, context, e, false)
+      );
     }
   }
 
@@ -73,6 +70,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
     return hasEvalResult;
   }
 
+  @Override
   public String getPartiallyResolved(
     Bindings bindings,
     ELContext context,
@@ -80,14 +78,20 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
     boolean preserveIdentifier
   ) {
     return (
-      deferredParsingException.getDeferredEvalResult() +
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        question,
+        deferredParsingException,
+        false
+      ) +
       " ? " +
       EvalResultHolder.reconstructNode(
         bindings,
         context,
         yes,
         deferredParsingException,
-        false
+        preserveIdentifier
       ) +
       " : " +
       EvalResultHolder.reconstructNode(
@@ -95,7 +99,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
         context,
         no,
         deferredParsingException,
-        false
+        preserveIdentifier
       )
     );
   }

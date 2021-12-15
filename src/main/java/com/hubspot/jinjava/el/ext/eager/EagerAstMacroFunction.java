@@ -44,27 +44,40 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
       DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
         originalException
       );
-      StringBuilder sb = new StringBuilder();
-      sb.append(getName());
-      try {
-        StringJoiner paramString = new StringJoiner(", ");
-        for (int i = 0; i < ((AstParameters) params).getCardinality(); i++) {
-          paramString.add(
-            EvalResultHolder.reconstructNode(
-              bindings,
-              context,
-              (EvalResultHolder) ((AstParameters) params).getChild(i),
-              e,
-              false
-            )
-          );
-        }
-        sb.append(String.format("(%s)", paramString));
-      } catch (DeferredParsingException dpe) {
-        sb.append(String.format("(%s)", dpe.getDeferredEvalResult()));
-      }
-      throw new DeferredParsingException(this, sb.toString());
+      throw new DeferredParsingException(
+        this,
+        getPartiallyResolved(bindings, context, e, false)
+      );
     }
+  }
+
+  @Override
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(getName());
+    try {
+      StringJoiner paramString = new StringJoiner(", ");
+      for (int i = 0; i < ((AstParameters) params).getCardinality(); i++) {
+        paramString.add(
+          EvalResultHolder.reconstructNode(
+            bindings,
+            context,
+            (EvalResultHolder) ((AstParameters) params).getChild(i),
+            deferredParsingException,
+            false
+          )
+        );
+      }
+      sb.append(String.format("(%s)", paramString));
+    } catch (DeferredParsingException dpe) {
+      sb.append(String.format("(%s)", dpe.getDeferredEvalResult()));
+    }
+    return sb.toString();
   }
 
   @Override

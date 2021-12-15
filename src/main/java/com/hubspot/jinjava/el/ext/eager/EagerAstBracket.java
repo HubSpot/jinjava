@@ -8,9 +8,7 @@ import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
 import javax.el.ELException;
 
-public class EagerAstBracket
-  extends AstBracket
-  implements EvalResultHolder, PartiallyResolvable {
+public class EagerAstBracket extends AstBracket implements EvalResultHolder {
   protected Object evalResult;
   protected boolean hasEvalResult;
 
@@ -40,8 +38,10 @@ public class EagerAstBracket
       DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
         originalException
       );
-      String sb = getPartiallyResolved(bindings, context, e, false);
-      throw new DeferredParsingException(this, sb);
+      throw new DeferredParsingException(
+        this,
+        getPartiallyResolved(bindings, context, e, false)
+      );
     }
   }
 

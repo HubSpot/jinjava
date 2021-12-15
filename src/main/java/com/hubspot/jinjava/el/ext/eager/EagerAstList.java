@@ -19,21 +19,13 @@ public class EagerAstList extends AstList implements EvalResultHolder {
   public Object eval(Bindings bindings, ELContext context) {
     try {
       evalResult = super.eval(bindings, context);
+      hasEvalResult = true;
       return evalResult;
     } catch (DeferredParsingException e) {
-      StringJoiner joiner = new StringJoiner(", ");
-      for (int i = 0; i < elements.getCardinality(); i++) {
-        joiner.add(
-          EvalResultHolder.reconstructNode(
-            bindings,
-            context,
-            (EvalResultHolder) elements.getChild(i),
-            e,
-            false
-          )
-        );
-      }
-      throw new DeferredParsingException(this, "[" + joiner.toString() + "]");
+      throw new DeferredParsingException(
+        this,
+        getPartiallyResolved(bindings, context, e, false)
+      );
     }
   }
 
@@ -54,5 +46,27 @@ public class EagerAstList extends AstList implements EvalResultHolder {
   @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
+  }
+
+  @Override
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    StringJoiner joiner = new StringJoiner(", ");
+    for (int i = 0; i < elements.getCardinality(); i++) {
+      joiner.add(
+        EvalResultHolder.reconstructNode(
+          bindings,
+          context,
+          (EvalResultHolder) elements.getChild(i),
+          deferredParsingException,
+          preserveIdentifier
+        )
+      );
+    }
+    return "[" + joiner.toString() + "]";
   }
 }

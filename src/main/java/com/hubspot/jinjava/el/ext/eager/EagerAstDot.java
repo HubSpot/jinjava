@@ -8,7 +8,7 @@ import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
 import javax.el.ELException;
 
-public class EagerAstDot extends AstDot implements EvalResultHolder, PartiallyResolvable {
+public class EagerAstDot extends AstDot implements EvalResultHolder {
   protected Object evalResult;
   protected boolean hasEvalResult;
   protected final EvalResultHolder base;
@@ -49,7 +49,6 @@ public class EagerAstDot extends AstDot implements EvalResultHolder, PartiallyRe
       DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
         originalException
       );
-
       throw new DeferredParsingException(
         this,
         getPartiallyResolved(bindings, context, e, false)
@@ -63,7 +62,6 @@ public class EagerAstDot extends AstDot implements EvalResultHolder, PartiallyRe
     DeferredParsingException e,
     boolean preserveIdentifier
   ) {
-    clearEvalResult();
     return String.format(
       "%s.%s",
       EvalResultHolder.reconstructNode(bindings, context, base, e, preserveIdentifier),
