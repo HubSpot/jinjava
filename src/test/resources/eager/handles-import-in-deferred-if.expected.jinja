@@ -1,9 +1,9 @@
 {% if deferred %}{% set __ignored__ %}{% set current_path = 'macro-and-set.jinja' %}{% set simple = {} %}
-{% set bar = 'person19' %}{% do simple.update({"bar": bar}) %}
+{% set bar = 'person19' %}{% do simple.update({'bar': bar}) %}
 Hello person
 {% do simple.update({'bar': 'person19','import_resource_path': 'macro-and-set.jinja'}) %}{% set current_path = '' %}{% endset %}
 {% else %}{% set __ignored__ %}{% set current_path = 'macro-and-set.jinja' %}{% set simple = {} %}
-{% set bar = 'person19' %}{% do simple.update({"bar": bar}) %}
+{% set bar = 'person19' %}{% do simple.update({'bar': bar}) %}
 Hello person
 {% do simple.update({'bar': 'person19','import_resource_path': 'macro-and-set.jinja'}) %}{% set current_path = '' %}{% endset %}
 {% endif %}

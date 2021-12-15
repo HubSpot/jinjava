@@ -151,21 +151,52 @@ public class EagerAstMethodTest extends BaseInterpretingTest {
   @Test
   public void itPreservesAstChoice() {
     try {
-      interpreter.resolveELExpression("(deferred ? [] : foo_list).append(deferred)", -1);
+      interpreter.resolveELExpression(
+        "(deferred ? [foo] : foo_list).append(deferred)",
+        -1
+      );
       fail("Should throw DeferredParsingException");
     } catch (DeferredParsingException e) {
       assertThat(e.getDeferredEvalResult())
-        .isEqualTo("(deferred ? [] : foo_list).append(deferred)");
+        .isEqualTo("(deferred ? ['bar'] : foo_list).append(deferred)");
     }
   }
 
   @Test
   public void itPreservesAstList() {
     try {
-      interpreter.resolveELExpression("[foo_list][0].append(deferred)", -1);
+      interpreter.resolveELExpression("[foo_list, foo][0].append(deferred)", -1);
       fail("Should throw DeferredParsingException");
     } catch (DeferredParsingException e) {
-      assertThat(e.getDeferredEvalResult()).isEqualTo("[foo_list][0].append(deferred)");
+      // It's not smart enough to know that it is safe to reduce this to just `foo_list.append(deferred)`
+      assertThat(e.getDeferredEvalResult())
+        .isEqualTo("[foo_list, 'bar'][0].append(deferred)");
+    }
+  }
+
+  @Test
+  public void itPreservesAstDict() {
+    try {
+      interpreter.resolveELExpression(
+        "{'foo': foo_list, 'bar': foo}.foo.append(deferred)",
+        -1
+      );
+      fail("Should throw DeferredParsingException");
+    } catch (DeferredParsingException e) {
+      assertThat(e.getDeferredEvalResult())
+        .isEqualTo("{'foo': foo_list, 'bar': 'bar'}.foo.append(deferred)");
+    }
+  }
+
+  @Test
+  public void itPreservesAstTuple() {
+    try {
+      interpreter.resolveELExpression("(foo_list, foo)[0].append(deferred)", -1);
+      fail("Should throw DeferredParsingException");
+    } catch (DeferredParsingException e) {
+      // It's not smart enough to know that it is safe to reduce this to just `foo_list.append(deferred)`
+      assertThat(e.getDeferredEvalResult())
+        .isEqualTo("(foo_list, 'bar')[0].append(deferred)");
     }
   }
 }

@@ -4,6 +4,7 @@ import com.hubspot.jinjava.el.ext.AstDict;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstNode;
@@ -55,7 +56,11 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
             )
           );
         } else {
-          kvJoiner.add(key.toString());
+          kvJoiner.add(
+            EagerExpressionResolver.getValueAsJinjavaStringSafe(
+              key.eval(bindings, context)
+            )
+          );
         }
         if (value instanceof EvalResultHolder) {
           kvJoiner.add(
@@ -68,7 +73,11 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
             )
           );
         } else {
-          kvJoiner.add(value.toString());
+          kvJoiner.add(
+            EagerExpressionResolver.getValueAsJinjavaStringSafe(
+              value.eval(bindings, context)
+            )
+          );
         }
         joiner.add(kvJoiner.toString());
       }
