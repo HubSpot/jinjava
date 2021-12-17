@@ -184,12 +184,19 @@ public class MacroFunction extends AbstractCallableMethod {
       caller == that.caller &&
       definitionLineNumber == that.definitionLineNumber &&
       definitionStartPosition == that.definitionStartPosition &&
-      content.equals(that.content)
+      content.equals(that.content) &&
+      name.equals(that.name)
     );
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(content, caller, definitionLineNumber, definitionStartPosition);
+    return Objects.hash(
+      content,
+      caller,
+      definitionLineNumber,
+      definitionStartPosition,
+      name
+    );
   }
 }

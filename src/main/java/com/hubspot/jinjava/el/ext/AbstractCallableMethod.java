@@ -25,8 +25,8 @@ public abstract class AbstractCallableMethod {
     }
   }
 
-  private final String name;
-  private final LinkedHashMap<String, Object> argNamesWithDefaults;
+  protected final String name;
+  protected final LinkedHashMap<String, Object> argNamesWithDefaults;
 
   public AbstractCallableMethod(
     String name,

@@ -118,7 +118,7 @@ public class MacroTag implements Tag {
       args,
       argNamesWithDefaults
     );
-    MacroFunction macro;
+    MacroFunction macro = null;
     String contextImportResourcePath = (String) interpreter
       .getContext()
       .get(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY, "");
@@ -131,16 +131,27 @@ public class MacroTag implements Tag {
           .getContext()
           .put(Context.IMPORT_RESOURCE_PATH_KEY, contextImportResourcePath);
       }
-      macro =
-        new MacroFunction(
-          tagNode.getChildren(),
-          name,
-          argNamesWithDefaults,
-          false,
-          interpreter.getContext(),
-          interpreter.getLineNumber(),
-          interpreter.getPosition()
-        );
+      if (StringUtils.isNotEmpty(parentName)) {
+        Object maybeAliasMap = interpreter.getContext().get(parentName);
+        if (maybeAliasMap instanceof DeferredValue) {
+          maybeAliasMap = ((DeferredValue) maybeAliasMap).getOriginalValue();
+        }
+        if (maybeAliasMap instanceof Map) {
+          macro = (MacroFunction) ((Map<?, ?>) maybeAliasMap).get(name);
+        }
+      }
+      if (macro == null) {
+        macro =
+          new MacroFunction(
+            tagNode.getChildren(),
+            name,
+            argNamesWithDefaults,
+            false,
+            interpreter.getContext(),
+            interpreter.getLineNumber(),
+            interpreter.getPosition()
+          );
+      }
     } finally {
       if (scopeEntered) {
         interpreter.leaveScope();

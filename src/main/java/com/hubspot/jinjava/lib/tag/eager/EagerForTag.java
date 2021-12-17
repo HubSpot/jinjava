@@ -7,6 +7,7 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.ForTag;
+import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -152,7 +153,10 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     Set<String> metaLoopVars = Sets
       .intersection(
         interpreter.getContext().getMetaContextVariables(),
-        Sets.newHashSet(loopVars)
+        loopVars
+          .stream()
+          .filter(var -> !EagerExecutionMode.STATIC_META_CONTEXT_VARIABLES.contains(var))
+          .collect(Collectors.toSet())
       )
       .immutableCopy();
     interpreter.getContext().getMetaContextVariables().removeAll(metaLoopVars);
