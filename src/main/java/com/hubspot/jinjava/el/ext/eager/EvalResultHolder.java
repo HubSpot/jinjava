@@ -54,33 +54,33 @@ public interface EvalResultHolder {
     DeferredParsingException exception,
     boolean preserveIdentifier
   ) {
-    String partiallyResolvedImage;
     Object evalResult = astNode.getEvalResult();
     if (astNode.hasEvalResult() && (!preserveIdentifier || isPrimitive(evalResult))) {
-      partiallyResolvedImage =
-        EagerExpressionResolver.getValueAsJinjavaStringSafe(evalResult);
-    } else if (
+      try {
+        return EagerExpressionResolver.getValueAsJinjavaStringSafe(evalResult);
+      } catch (DeferredValueException e) {
+        preserveIdentifier = true;
+      }
+    }
+    if (
       preserveIdentifier ||
       (
         astNode instanceof AstIdentifier &&
         ExtendedParser.INTERPRETER.equals(((AstIdentifier) astNode).getName())
       )
     ) {
-      partiallyResolvedImage =
-        astNode.getPartiallyResolved(bindings, context, exception, true);
-    } else if (exception != null && exception.getSourceNode() == astNode) {
-      partiallyResolvedImage = exception.getDeferredEvalResult();
-    } else {
-      try {
-        partiallyResolvedImage =
-          EagerExpressionResolver.getValueAsJinjavaStringSafe(
-            ((AstNode) astNode).eval(bindings, context)
-          );
-      } catch (DeferredParsingException e) {
-        partiallyResolvedImage = e.getDeferredEvalResult();
-      }
+      return astNode.getPartiallyResolved(bindings, context, exception, true);
     }
-    return partiallyResolvedImage;
+    if (exception != null && exception.getSourceNode() == astNode) {
+      return exception.getDeferredEvalResult();
+    }
+    try {
+      return EagerExpressionResolver.getValueAsJinjavaStringSafe(
+        ((AstNode) astNode).eval(bindings, context)
+      );
+    } catch (DeferredParsingException e) {
+      return e.getDeferredEvalResult();
+    }
   }
 
   static DeferredParsingException convertToDeferredParsingException(

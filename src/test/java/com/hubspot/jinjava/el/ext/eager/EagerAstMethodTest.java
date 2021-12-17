@@ -7,6 +7,7 @@ import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.eager.EagerAstDotTest.Foo;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -197,6 +198,18 @@ public class EagerAstMethodTest extends BaseInterpretingTest {
       // It's not smart enough to know that it is safe to reduce this to just `foo_list.append(deferred)`
       assertThat(e.getDeferredEvalResult())
         .isEqualTo("(foo_list, 'bar')[0].append(deferred)");
+    }
+  }
+
+  @Test
+  public void itPreservesUnresolvable() {
+    interpreter.getContext().put("foo_object", new Foo());
+    try {
+      interpreter.resolveELExpression("foo_object.deferred|upper", -1);
+      fail("Should throw DeferredParsingException");
+    } catch (DeferredParsingException e) {
+      assertThat(e.getDeferredEvalResult())
+        .isEqualTo("filter:upper.filter(foo_object.deferred, ____int3rpr3t3r____)");
     }
   }
 }
