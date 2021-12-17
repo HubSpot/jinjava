@@ -1,12 +1,10 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.interpret.DeferredValueException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBracket;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
-import javax.el.ELException;
 
 public class EagerAstBracket extends AstBracket implements EvalResultHolder {
   protected Object evalResult;
@@ -30,46 +28,32 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    try {
-      evalResult = super.eval(bindings, context);
-      hasEvalResult = true;
-      return evalResult;
-    } catch (DeferredValueException | ELException originalException) {
-      DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
-        originalException
-      );
-      String sb = String.format(
-        "%s[%s]",
-        EvalResultHolder.reconstructNode(
-          bindings,
-          context,
-          (EvalResultHolder) prefix,
-          e,
-          true
-        ),
-        EvalResultHolder.reconstructNode(
-          bindings,
-          context,
-          (EvalResultHolder) property,
-          e,
-          false
-        )
-      );
-      throw new DeferredParsingException(this, sb);
-    } finally {
-      ((EvalResultHolder) prefix).getAndClearEvalResult();
-      if (property != null) {
-        ((EvalResultHolder) property).getAndClearEvalResult();
-      }
-    }
+    return EvalResultHolder.super.eval(
+      () -> super.eval(bindings, context),
+      bindings,
+      context
+    );
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = evalResult;
+    hasEvalResult = true;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    ((EvalResultHolder) prefix).clearEvalResult();
+    if (property != null) {
+      ((EvalResultHolder) property).clearEvalResult();
+    }
   }
 
   @Override
@@ -83,5 +67,30 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
 
   public AstNode getMethod() {
     return property;
+  }
+
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    return String.format(
+      "%s[%s]",
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        (EvalResultHolder) prefix,
+        deferredParsingException,
+        preserveIdentifier
+      ),
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        (EvalResultHolder) property,
+        deferredParsingException,
+        false
+      )
+    );
   }
 }

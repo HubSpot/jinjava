@@ -17,37 +17,53 @@ public class EagerAstTuple extends AstTuple implements EvalResultHolder {
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    try {
-      evalResult = super.eval(bindings, context);
-      hasEvalResult = true;
-      return evalResult;
-    } catch (DeferredParsingException e) {
-      StringJoiner joiner = new StringJoiner(", ");
-      for (int i = 0; i < elements.getCardinality(); i++) {
-        joiner.add(
-          EvalResultHolder.reconstructNode(
-            bindings,
-            context,
-            (EvalResultHolder) elements.getChild(i),
-            e,
-            false
-          )
-        );
-      }
-      throw new DeferredParsingException(this, "(" + joiner.toString() + ")");
-    } finally {
-      for (int i = 0; i < elements.getCardinality(); i++) {
-        ((EvalResultHolder) elements.getChild(i)).getAndClearEvalResult();
-      }
-    }
+    return EvalResultHolder.super.eval(
+      () -> super.eval(bindings, context),
+      bindings,
+      context
+    );
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    StringJoiner joiner = new StringJoiner(", ");
+    for (int i = 0; i < elements.getCardinality(); i++) {
+      joiner.add(
+        EvalResultHolder.reconstructNode(
+          bindings,
+          context,
+          (EvalResultHolder) elements.getChild(i),
+          deferredParsingException,
+          preserveIdentifier
+        )
+      );
+    }
+    return '(' + joiner.toString() + ')';
+  }
+
+  @Override
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = evalResult;
+    hasEvalResult = true;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    for (int i = 0; i < elements.getCardinality(); i++) {
+      ((EvalResultHolder) elements.getChild(i)).clearEvalResult();
+    }
   }
 
   @Override

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import javax.el.ELContext;
 
 public class EagerAstParameters extends AstParameters implements EvalResultHolder {
-  protected Object[] evalResult;
+  protected Object evalResult;
   protected boolean hasEvalResult;
   protected final List<AstNode> nodes;
 
@@ -32,33 +32,55 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
 
   @Override
   public Object[] eval(Bindings bindings, ELContext context) {
-    try {
-      evalResult = super.eval(bindings, context);
-      hasEvalResult = true;
-      return evalResult;
-    } catch (DeferredParsingException e) {
-      StringJoiner joiner = new StringJoiner(", ");
-      nodes
-        .stream()
-        .map(node -> (EvalResultHolder) node)
-        .forEach(
-          node ->
-            joiner.add(
-              EvalResultHolder.reconstructNode(bindings, context, node, e, false)
-            )
-        );
-      throw new DeferredParsingException(this, joiner.toString());
-    } finally {
-      nodes.forEach(node -> ((EvalResultHolder) node).getAndClearEvalResult());
-    }
+    return (Object[]) EvalResultHolder.super.eval(
+      () -> super.eval(bindings, context),
+      bindings,
+      context
+    );
   }
 
   @Override
-  public Object[] getAndClearEvalResult() {
-    Object[] temp = evalResult;
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    StringJoiner joiner = new StringJoiner(", ");
+    nodes
+      .stream()
+      .map(node -> (EvalResultHolder) node)
+      .forEach(
+        node ->
+          joiner.add(
+            EvalResultHolder.reconstructNode(
+              bindings,
+              context,
+              node,
+              deferredParsingException,
+              false
+            )
+          )
+      );
+    return joiner.toString();
+  }
+
+  @Override
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = evalResult;
+    hasEvalResult = true;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    nodes.forEach(node -> ((EvalResultHolder) node).clearEvalResult());
   }
 
   @Override
