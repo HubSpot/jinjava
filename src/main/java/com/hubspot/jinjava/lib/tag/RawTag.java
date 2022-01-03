@@ -37,7 +37,13 @@ public class RawTag implements Tag {
       interpreter.getConfig().getExecutionMode().isPreserveRawTags() &&
       !interpreter.getContext().isUnwrapRawOverride()
     ) {
-      result.append("{% raw %}");
+      result.append(
+        String.format(
+          "%s raw %s",
+          tagNode.getSymbols().getExpressionStartWithTag(),
+          tagNode.getSymbols().getExpressionEndWithTag()
+        )
+      );
     }
 
     for (Node n : tagNode.getChildren()) {
@@ -48,7 +54,13 @@ public class RawTag implements Tag {
       interpreter.getConfig().getExecutionMode().isPreserveRawTags() &&
       !interpreter.getContext().isUnwrapRawOverride()
     ) {
-      result.append("{% endraw %}");
+      result.append(
+        String.format(
+          "%s endraw %s",
+          tagNode.getSymbols().getExpressionStartWithTag(),
+          tagNode.getSymbols().getExpressionEndWithTag()
+        )
+      );
     }
 
     return result.toString();
@@ -64,7 +76,14 @@ public class RawTag implements Tag {
     if (TagNode.class.isAssignableFrom(n.getClass())) {
       TagNode t = (TagNode) n;
       if (StringUtils.isNotBlank(t.getEndName())) {
-        result.append("{% ").append(t.getEndName()).append(" %}");
+        result.append(
+          String.format(
+            "%s %s %s",
+            t.getSymbols().getExpressionStartWithTag(),
+            t.getEndName(),
+            t.getSymbols().getExpressionEndWithTag()
+          )
+        );
       }
     }
 
