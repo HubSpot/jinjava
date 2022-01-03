@@ -4,9 +4,9 @@ import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
-import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.impl.ast.AstIdentifier;
-import javax.el.ELContext;
+import com.hubspot.jinjava.el.tree.Bindings;
+import com.hubspot.jinjava.el.tree.impl.ast.AstIdentifier;
+import jakarta.el.ELContext;
 
 public interface EvalResultHolder {
   Object getAndClearEvalResult();

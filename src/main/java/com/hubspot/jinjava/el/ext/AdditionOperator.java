@@ -1,8 +1,8 @@
 package com.hubspot.jinjava.el.ext;
 
-import de.odysseus.el.misc.NumberOperations;
-import de.odysseus.el.misc.TypeConverter;
-import de.odysseus.el.tree.impl.ast.AstBinary;
+import com.hubspot.jinjava.el.misc.NumberOperations;
+import com.hubspot.jinjava.el.misc.TypeConverter;
+import com.hubspot.jinjava.el.tree.impl.ast.AstBinary;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

@@ -1,51 +1,51 @@
 package com.hubspot.jinjava.el.ext;
 
-import static de.odysseus.el.tree.impl.Builder.Feature.METHOD_INVOCATIONS;
-import static de.odysseus.el.tree.impl.Builder.Feature.NULL_PROPERTIES;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.COLON;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.COMMA;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.DOT;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.EQ;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.FALSE;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.GE;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.GT;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.IDENTIFIER;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.LBRACK;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.LE;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.LPAREN;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.LT;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.NE;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.QUESTION;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.RBRACK;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.RPAREN;
-import static de.odysseus.el.tree.impl.Scanner.Symbol.TRUE;
+import static com.hubspot.jinjava.el.tree.impl.Builder.Feature.METHOD_INVOCATIONS;
+import static com.hubspot.jinjava.el.tree.impl.Builder.Feature.NULL_PROPERTIES;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.COLON;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.COMMA;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.DOT;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.EQ;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.FALSE;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.GE;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.GT;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.IDENTIFIER;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.LBRACK;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.LE;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.LPAREN;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.LT;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.NE;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.QUESTION;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.RBRACK;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.RPAREN;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.TRUE;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import de.odysseus.el.tree.impl.Builder;
-import de.odysseus.el.tree.impl.Builder.Feature;
-import de.odysseus.el.tree.impl.Parser;
-import de.odysseus.el.tree.impl.Scanner;
-import de.odysseus.el.tree.impl.Scanner.ScanException;
-import de.odysseus.el.tree.impl.Scanner.Symbol;
-import de.odysseus.el.tree.impl.Scanner.Token;
-import de.odysseus.el.tree.impl.ast.AstBinary;
-import de.odysseus.el.tree.impl.ast.AstBracket;
-import de.odysseus.el.tree.impl.ast.AstDot;
-import de.odysseus.el.tree.impl.ast.AstFunction;
-import de.odysseus.el.tree.impl.ast.AstNested;
-import de.odysseus.el.tree.impl.ast.AstNode;
-import de.odysseus.el.tree.impl.ast.AstNull;
-import de.odysseus.el.tree.impl.ast.AstParameters;
-import de.odysseus.el.tree.impl.ast.AstProperty;
-import de.odysseus.el.tree.impl.ast.AstRightValue;
+import com.hubspot.jinjava.el.tree.impl.Builder;
+import com.hubspot.jinjava.el.tree.impl.Builder.Feature;
+import com.hubspot.jinjava.el.tree.impl.Parser;
+import com.hubspot.jinjava.el.tree.impl.Scanner;
+import com.hubspot.jinjava.el.tree.impl.Scanner.ScanException;
+import com.hubspot.jinjava.el.tree.impl.Scanner.Symbol;
+import com.hubspot.jinjava.el.tree.impl.Scanner.Token;
+import com.hubspot.jinjava.el.tree.impl.ast.AstBinary;
+import com.hubspot.jinjava.el.tree.impl.ast.AstBracket;
+import com.hubspot.jinjava.el.tree.impl.ast.AstDot;
+import com.hubspot.jinjava.el.tree.impl.ast.AstFunction;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNested;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNull;
+import com.hubspot.jinjava.el.tree.impl.ast.AstParameters;
+import com.hubspot.jinjava.el.tree.impl.ast.AstProperty;
+import com.hubspot.jinjava.el.tree.impl.ast.AstRightValue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.el.ELException;
+import jakarta.el.ELException;
 
 public class ExtendedParser extends Parser {
   public static final String INTERPRETER = "____int3rpr3t3r____";
@@ -380,9 +380,7 @@ public class ExtendedParser extends Parser {
             break;
           }
         default:
-          if (
-            "not".equals(getToken().getImage()) && "in".equals(lookahead(0).getImage())
-          ) {
+          if ("not".equals(getToken().getImage()) && "in".equals(lookahead(0).getImage())) {
             consumeToken(); // not
             consumeToken(); // in
             v =

@@ -14,11 +14,14 @@
   <description>Jinja templating engine implemented in Java</description>
 
   <properties>
-    <basepom.check.skip-prettier>false</basepom.check.skip-prettier>
+    <jakarta.el.version>4.0.0</jakarta.el.version>
+    <jakarta.el.impl.version>4.0.2</jakarta.el.impl.version>
+    <basepom.check.skip-prettier>true</basepom.check.skip-prettier>
 
     <dep.javassist.version>3.24.1-GA</dep.javassist.version>
 
     <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
+    <dep.plugin.versions.version>2.8.1</dep.plugin.versions.version>
   </properties>
 
   <dependencyManagement>
@@ -58,6 +61,16 @@
         <artifactId>java-ipv6</artifactId>
         <version>0.17</version>
       </dependency>
+      <dependency>
+        <groupId>jakarta.el</groupId>
+        <artifactId>jakarta.el-api</artifactId>
+        <version>${jakarta.el.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish</groupId>
+        <artifactId>jakarta.el</artifactId>
+        <version>${jakarta.el.impl.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -79,13 +92,13 @@
       <artifactId>jsoup</artifactId>
     </dependency>
     <dependency>
-      <groupId>de.odysseus.juel</groupId>
-      <artifactId>juel-api</artifactId>
+      <groupId>jakarta.el</groupId>
+      <artifactId>jakarta.el-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>de.odysseus.juel</groupId>
-      <artifactId>juel-impl</artifactId>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.glassfish</groupId>-->
+<!--      <artifactId>jakarta.el</artifactId>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>com.google.re2j</groupId>
       <artifactId>re2j</artifactId>
@@ -155,6 +168,15 @@
   </dependencies>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>${dep.plugin.versions.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.jacoco</groupId>
@@ -195,36 +217,15 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <!-- Remove basepom's stuff -->
-        <configuration combine.self="override" />
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
         <executions>
           <execution>
+            <id>check-dependency-updates</id>
             <goals>
-              <goal>shade</goal>
+              <goal>display-dependency-updates</goal>
             </goals>
-            <phase>package</phase>
-            <configuration>
-              <createDependencyReducedPom>true</createDependencyReducedPom>
-              <shadedArtifactAttached>false</shadedArtifactAttached>
-              <artifactSet>
-                <includes>
-                  <include>de.odysseus.juel:juel-api</include>
-                  <include>de.odysseus.juel:juel-impl</include>
-                </includes>
-              </artifactSet>
-              <relocations>
-                <relocation>
-                  <pattern>javax.el</pattern>
-                  <shadedPattern>jinjava.javax.el</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>de.odysseus.el</pattern>
-                  <shadedPattern>jinjava.de.odysseus.el</shadedPattern>
-                </relocation>
-              </relocations>
-            </configuration>
+            <phase>verify</phase>
           </execution>
         </executions>
       </plugin>

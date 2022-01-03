@@ -1,13 +1,13 @@
 package com.hubspot.jinjava.el.ext;
 
 import com.hubspot.jinjava.el.ext.eager.EagerAstBinary;
-import de.odysseus.el.misc.TypeConverter;
-import de.odysseus.el.tree.impl.Parser.ExtensionHandler;
-import de.odysseus.el.tree.impl.Parser.ExtensionPoint;
-import de.odysseus.el.tree.impl.Scanner;
-import de.odysseus.el.tree.impl.ast.AstBinary;
-import de.odysseus.el.tree.impl.ast.AstBinary.SimpleOperator;
-import de.odysseus.el.tree.impl.ast.AstNode;
+import com.hubspot.jinjava.el.misc.TypeConverter;
+import com.hubspot.jinjava.el.tree.impl.Parser.ExtensionHandler;
+import com.hubspot.jinjava.el.tree.impl.Parser.ExtensionPoint;
+import com.hubspot.jinjava.el.tree.impl.Scanner;
+import com.hubspot.jinjava.el.tree.impl.ast.AstBinary;
+import com.hubspot.jinjava.el.tree.impl.ast.AstBinary.SimpleOperator;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
 
 public class PowerOfOperator extends SimpleOperator {
   public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("**");

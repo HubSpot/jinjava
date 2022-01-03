@@ -12,22 +12,21 @@ import com.hubspot.jinjava.el.ext.NamedParameterOperator;
 import com.hubspot.jinjava.el.ext.PowerOfOperator;
 import com.hubspot.jinjava.el.ext.StringConcatOperator;
 import com.hubspot.jinjava.el.ext.TruncDivOperator;
-import de.odysseus.el.tree.impl.Builder;
-import de.odysseus.el.tree.impl.Builder.Feature;
-import de.odysseus.el.tree.impl.Scanner.ScanException;
-import de.odysseus.el.tree.impl.ast.AstBinary;
-import de.odysseus.el.tree.impl.ast.AstBinary.Operator;
-import de.odysseus.el.tree.impl.ast.AstBracket;
-import de.odysseus.el.tree.impl.ast.AstChoice;
-import de.odysseus.el.tree.impl.ast.AstDot;
-import de.odysseus.el.tree.impl.ast.AstFunction;
-import de.odysseus.el.tree.impl.ast.AstIdentifier;
-import de.odysseus.el.tree.impl.ast.AstMethod;
-import de.odysseus.el.tree.impl.ast.AstNode;
-import de.odysseus.el.tree.impl.ast.AstParameters;
-import de.odysseus.el.tree.impl.ast.AstProperty;
-import de.odysseus.el.tree.impl.ast.AstRightValue;
-import de.odysseus.el.tree.impl.ast.AstUnary;
+import com.hubspot.jinjava.el.tree.impl.Builder;
+import com.hubspot.jinjava.el.tree.impl.Builder.Feature;
+import com.hubspot.jinjava.el.tree.impl.ast.AstBinary;
+import com.hubspot.jinjava.el.tree.impl.ast.AstBinary.Operator;
+import com.hubspot.jinjava.el.tree.impl.ast.AstBracket;
+import com.hubspot.jinjava.el.tree.impl.ast.AstChoice;
+import com.hubspot.jinjava.el.tree.impl.ast.AstDot;
+import com.hubspot.jinjava.el.tree.impl.ast.AstFunction;
+import com.hubspot.jinjava.el.tree.impl.ast.AstIdentifier;
+import com.hubspot.jinjava.el.tree.impl.ast.AstMethod;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
+import com.hubspot.jinjava.el.tree.impl.ast.AstParameters;
+import com.hubspot.jinjava.el.tree.impl.ast.AstProperty;
+import com.hubspot.jinjava.el.tree.impl.ast.AstRightValue;
+import com.hubspot.jinjava.el.tree.impl.ast.AstUnary;
 import java.util.List;
 import java.util.Map;
 
@@ -126,7 +125,7 @@ public class EagerExtendedParser extends ExtendedParser {
   @Override
   protected AstUnary createAstUnary(
     AstNode child,
-    de.odysseus.el.tree.impl.ast.AstUnary.Operator operator
+    com.hubspot.jinjava.el.tree.impl.ast.AstUnary.Operator operator
   ) {
     return new EagerAstUnary(child, operator);
   }
@@ -162,14 +161,12 @@ public class EagerExtendedParser extends ExtendedParser {
   }
 
   @Override
-  protected AstTuple createAstTuple(AstParameters parameters)
-    throws ScanException, ParseException {
+  protected AstTuple createAstTuple(AstParameters parameters) {
     return new EagerAstTuple(parameters);
   }
 
   @Override
-  protected AstList createAstList(AstParameters parameters)
-    throws ScanException, ParseException {
+  protected AstList createAstList(AstParameters parameters) {
     return new EagerAstList(parameters);
   }
 

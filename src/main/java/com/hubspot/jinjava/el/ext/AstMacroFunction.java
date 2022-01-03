@@ -8,13 +8,14 @@ import com.hubspot.jinjava.interpret.MacroTagCycleException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
-import de.odysseus.el.misc.LocalMessages;
-import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.impl.ast.AstFunction;
-import de.odysseus.el.tree.impl.ast.AstParameters;
+import com.hubspot.jinjava.el.tree.Bindings;
+import com.hubspot.jinjava.el.tree.impl.ast.AstFunction;
+import com.hubspot.jinjava.el.tree.impl.ast.AstParameters;
 import java.lang.reflect.InvocationTargetException;
-import javax.el.ELContext;
-import javax.el.ELException;
+import java.text.MessageFormat;
+
+import jakarta.el.ELContext;
+import jakarta.el.ELException;
 
 public class AstMacroFunction extends AstFunction {
 
@@ -51,10 +52,10 @@ public class AstMacroFunction extends AstFunction {
           AbstractCallableMethod.EVAL_METHOD
         );
       } catch (IllegalAccessException e) {
-        throw new ELException(LocalMessages.get("error.function.access", getName()), e);
+        throw new ELException(MessageFormat.format("error.function.access", getName()), e);
       } catch (InvocationTargetException e) {
         throw new ELException(
-          LocalMessages.get("error.function.invocation", getName()),
+              MessageFormat.format("error.function.invocation", getName()),
           e.getCause()
         );
       } finally {

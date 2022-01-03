@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.el.ext;
 
-import de.odysseus.el.tree.impl.Scanner;
+import com.hubspot.jinjava.el.tree.impl.Scanner;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

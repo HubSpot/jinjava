@@ -1,13 +1,13 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.impl.ast.AstNode;
-import de.odysseus.el.tree.impl.ast.AstParameters;
+import com.hubspot.jinjava.el.tree.Bindings;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
+import com.hubspot.jinjava.el.tree.impl.ast.AstParameters;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-import javax.el.ELContext;
+import jakarta.el.ELContext;
 
 public class EagerAstParameters extends AstParameters implements EvalResultHolder {
   protected Object[] evalResult;

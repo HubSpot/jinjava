@@ -4,17 +4,17 @@ import com.google.common.collect.Iterables;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
-import de.odysseus.el.misc.LocalMessages;
-import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.impl.ast.AstBracket;
-import de.odysseus.el.tree.impl.ast.AstNode;
+import com.hubspot.jinjava.el.tree.Bindings;
+import com.hubspot.jinjava.el.tree.impl.ast.AstBracket;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
+
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
-import javax.el.ELContext;
-import javax.el.ELException;
-import javax.el.PropertyNotFoundException;
+import jakarta.el.ELContext;
+import jakarta.el.ELException;
+import jakarta.el.PropertyNotFoundException;
 
 public class AstRangeBracket extends AstBracket {
   protected final AstNode rangeMax;
@@ -36,7 +36,7 @@ public class AstRangeBracket extends AstBracket {
     Object base = prefix.eval(bindings, context);
     if (base == null) {
       throw new PropertyNotFoundException(
-        LocalMessages.get("error.property.base.null", prefix)
+        MessageFormat.format("error.property.base.null", prefix)
       );
     }
     boolean baseIsString = base.getClass().equals(String.class);
@@ -48,14 +48,19 @@ public class AstRangeBracket extends AstBracket {
       throw new ELException("Property " + prefix + " is not a sequence.");
     }
 
-    // https://github.com/HubSpot/jinjava/issues/52
+    // FIXME: https://github.com/HubSpot/jinjava/issues/52
     if (baseIsString) {
       return evalString((String) base, bindings, context);
     }
 
-    Iterable<?> baseItr = base.getClass().isArray()
-      ? Arrays.asList((Object[]) base)
-      : (Iterable<?>) base;
+    Iterable<?> baseItr;
+    if (base.getClass().isArray()) {
+      assert base instanceof Object[];
+      baseItr = Arrays.asList((Object[]) base);
+    }
+    else {
+      baseItr = (Iterable<?>) base;
+    }
 
     Object start = property == null ? 0 : property.eval(bindings, context);
     if (start == null && strict) {
@@ -100,10 +105,7 @@ public class AstRangeBracket extends AstBracket {
       }
     }
 
-    Iterator<?> baseIterator = baseItr.iterator();
-    while (baseIterator.hasNext()) {
-      Object next = baseIterator.next();
-
+    for (Object next : baseItr) {
       if (index >= startNum) {
         if (index >= endNum) {
           break;
@@ -112,7 +114,6 @@ public class AstRangeBracket extends AstBracket {
       }
       index++;
     }
-
     return result;
   }
 

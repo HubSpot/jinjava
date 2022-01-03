@@ -2,10 +2,10 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.AstNamedParameter;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.impl.ast.AstIdentifier;
-import de.odysseus.el.tree.impl.ast.AstNode;
-import javax.el.ELContext;
+import com.hubspot.jinjava.el.tree.Bindings;
+import com.hubspot.jinjava.el.tree.impl.ast.AstIdentifier;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
+import jakarta.el.ELContext;
 
 public class EagerAstNamedParameter
   extends AstNamedParameter

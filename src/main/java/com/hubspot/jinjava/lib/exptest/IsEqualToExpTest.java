@@ -6,8 +6,8 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.el.TruthyTypeConverter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
-import de.odysseus.el.misc.BooleanOperations;
-import de.odysseus.el.misc.TypeConverter;
+import com.hubspot.jinjava.el.misc.BooleanOperations;
+import com.hubspot.jinjava.el.misc.TypeConverter;
 
 @JinjavaDoc(
   value = "Returns true if an object has the same value as another object",

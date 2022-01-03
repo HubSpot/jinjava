@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMess
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.el.ext.NamedParameter;
+import com.hubspot.jinjava.el.tree.TreeBuilderException;
 import com.hubspot.jinjava.interpret.CollectionTooBigException;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
@@ -23,13 +24,12 @@ import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.util.WhitespaceUtils;
-import de.odysseus.el.tree.TreeBuilderException;
 import java.util.Arrays;
 import java.util.List;
-import javax.el.ELException;
-import javax.el.ExpressionFactory;
-import javax.el.PropertyNotFoundException;
-import javax.el.ValueExpression;
+import jakarta.el.ELException;
+import jakarta.el.ExpressionFactory;
+import jakarta.el.PropertyNotFoundException;
+import jakarta.el.ValueExpression;
 import org.apache.commons.lang3.StringUtils;
 
 /**

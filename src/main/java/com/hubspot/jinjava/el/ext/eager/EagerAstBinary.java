@@ -3,10 +3,10 @@ package com.hubspot.jinjava.el.ext.eager;
 import com.hubspot.jinjava.el.NoInvokeELContext;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.OrOperator;
-import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.impl.ast.AstBinary;
-import de.odysseus.el.tree.impl.ast.AstNode;
-import javax.el.ELContext;
+import com.hubspot.jinjava.el.tree.Bindings;
+import com.hubspot.jinjava.el.tree.impl.ast.AstBinary;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
+import jakarta.el.ELContext;
 
 public class EagerAstBinary extends AstBinary implements EvalResultHolder {
   protected Object evalResult;

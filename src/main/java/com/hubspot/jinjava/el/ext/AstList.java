@@ -1,13 +1,13 @@
 package com.hubspot.jinjava.el.ext;
 
+import com.hubspot.jinjava.el.tree.Bindings;
+import com.hubspot.jinjava.el.tree.impl.ast.AstLiteral;
+import com.hubspot.jinjava.el.tree.impl.ast.AstParameters;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
-import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.impl.ast.AstLiteral;
-import de.odysseus.el.tree.impl.ast.AstParameters;
 import java.util.ArrayList;
 import java.util.List;
-import javax.el.ELContext;
+import jakarta.el.ELContext;
 import org.apache.commons.lang3.StringUtils;
 
 public class AstList extends AstLiteral {

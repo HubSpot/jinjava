@@ -1,12 +1,12 @@
 package com.hubspot.jinjava.el.ext;
 
 import com.hubspot.jinjava.el.ext.eager.EagerAstNamedParameter;
-import de.odysseus.el.tree.impl.Parser.ExtensionHandler;
-import de.odysseus.el.tree.impl.Parser.ExtensionPoint;
-import de.odysseus.el.tree.impl.Scanner;
-import de.odysseus.el.tree.impl.ast.AstIdentifier;
-import de.odysseus.el.tree.impl.ast.AstNode;
-import javax.el.ELException;
+import com.hubspot.jinjava.el.tree.impl.Parser.ExtensionHandler;
+import com.hubspot.jinjava.el.tree.impl.Parser.ExtensionPoint;
+import com.hubspot.jinjava.el.tree.impl.Scanner;
+import com.hubspot.jinjava.el.tree.impl.ast.AstIdentifier;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
+import jakarta.el.ELException;
 
 public class NamedParameterOperator {
   public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("=");

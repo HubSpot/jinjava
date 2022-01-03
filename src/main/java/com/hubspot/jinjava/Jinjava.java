@@ -17,9 +17,12 @@ package com.hubspot.jinjava;
 
 import com.hubspot.jinjava.doc.JinjavaDoc;
 import com.hubspot.jinjava.doc.JinjavaDocFactory;
+import com.hubspot.jinjava.el.ExpressionFactoryImpl;
 import com.hubspot.jinjava.el.ExtendedSyntaxBuilder;
 import com.hubspot.jinjava.el.TruthyTypeConverter;
 import com.hubspot.jinjava.el.ext.eager.EagerExtendedSyntaxBuilder;
+import com.hubspot.jinjava.el.misc.TypeConverter;
+import com.hubspot.jinjava.el.tree.TreeBuilder;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
 import com.hubspot.jinjava.interpret.InterpretException;
@@ -36,15 +39,12 @@ import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.loader.ClasspathResourceLocator;
 import com.hubspot.jinjava.loader.ResourceLocator;
-import de.odysseus.el.ExpressionFactoryImpl;
-import de.odysseus.el.misc.TypeConverter;
-import de.odysseus.el.tree.TreeBuilder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import javax.el.ExpressionFactory;
+import jakarta.el.ExpressionFactory;
 
 /**
  * The main client API for the Jinjava library, instances of this class can be used to render jinja templates with a given map of context values. Example use:

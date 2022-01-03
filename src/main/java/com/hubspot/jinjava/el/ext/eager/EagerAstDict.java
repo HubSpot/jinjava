@@ -4,11 +4,11 @@ import com.hubspot.jinjava.el.ext.AstDict;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.impl.ast.AstNode;
+import com.hubspot.jinjava.el.tree.Bindings;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
 import java.util.Map;
 import java.util.StringJoiner;
-import javax.el.ELContext;
+import jakarta.el.ELContext;
 
 public class EagerAstDict extends AstDict implements EvalResultHolder {
   protected Object evalResult;

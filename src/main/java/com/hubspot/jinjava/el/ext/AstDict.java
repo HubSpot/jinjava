@@ -3,15 +3,15 @@ package com.hubspot.jinjava.el.ext;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateStateException;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
-import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.impl.ast.AstIdentifier;
-import de.odysseus.el.tree.impl.ast.AstLiteral;
-import de.odysseus.el.tree.impl.ast.AstNode;
-import de.odysseus.el.tree.impl.ast.AstString;
+import com.hubspot.jinjava.el.tree.Bindings;
+import com.hubspot.jinjava.el.tree.impl.ast.AstIdentifier;
+import com.hubspot.jinjava.el.tree.impl.ast.AstLiteral;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
+import com.hubspot.jinjava.el.tree.impl.ast.AstString;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import javax.el.ELContext;
+import jakarta.el.ELContext;
 
 public class AstDict extends AstLiteral {
   protected final Map<AstNode, AstNode> dict;

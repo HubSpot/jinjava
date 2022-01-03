@@ -1,9 +1,9 @@
 package com.hubspot.jinjava.el.ext;
 
-import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.impl.ast.AstBinary.Operator;
-import de.odysseus.el.tree.impl.ast.AstNode;
-import javax.el.ELContext;
+import com.hubspot.jinjava.el.tree.Bindings;
+import com.hubspot.jinjava.el.tree.impl.ast.AstBinary.Operator;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
+import jakarta.el.ELContext;
 
 public class OrOperator implements Operator {
 

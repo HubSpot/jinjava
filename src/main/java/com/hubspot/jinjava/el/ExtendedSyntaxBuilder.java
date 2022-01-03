@@ -1,8 +1,8 @@
 package com.hubspot.jinjava.el;
 
 import com.hubspot.jinjava.el.ext.ExtendedParser;
-import de.odysseus.el.tree.impl.Builder;
-import de.odysseus.el.tree.impl.Parser;
+import com.hubspot.jinjava.el.tree.impl.Builder;
+import com.hubspot.jinjava.el.tree.impl.Parser;
 
 /**
  * Syntax extensions for the expression language library

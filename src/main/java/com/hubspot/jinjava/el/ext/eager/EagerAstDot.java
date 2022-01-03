@@ -2,11 +2,11 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.interpret.DeferredValueException;
-import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.impl.ast.AstDot;
-import de.odysseus.el.tree.impl.ast.AstNode;
-import javax.el.ELContext;
-import javax.el.ELException;
+import com.hubspot.jinjava.el.tree.Bindings;
+import com.hubspot.jinjava.el.tree.impl.ast.AstDot;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
+import jakarta.el.ELContext;
+import jakarta.el.ELException;
 
 public class EagerAstDot extends AstDot implements EvalResultHolder {
   protected Object evalResult;

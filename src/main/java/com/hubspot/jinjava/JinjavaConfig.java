@@ -27,6 +27,7 @@ import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
+import jakarta.el.ELResolver;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
@@ -35,7 +36,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import javax.el.ELResolver;
 
 public class JinjavaConfig {
   private final Charset charset;

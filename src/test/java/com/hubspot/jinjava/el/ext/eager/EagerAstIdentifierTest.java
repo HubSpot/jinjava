@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.el.JinjavaELContext;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
-import de.odysseus.el.tree.Bindings;
+import com.hubspot.jinjava.el.tree.Bindings;
 import java.lang.reflect.Method;
-import javax.el.ValueExpression;
+import jakarta.el.ValueExpression;
 import org.junit.Before;
 import org.junit.Test;
 

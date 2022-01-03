@@ -1,10 +1,10 @@
 package com.hubspot.jinjava.el.ext;
 
-import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.impl.ast.AstIdentifier;
-import de.odysseus.el.tree.impl.ast.AstLiteral;
-import de.odysseus.el.tree.impl.ast.AstNode;
-import javax.el.ELContext;
+import com.hubspot.jinjava.el.tree.Bindings;
+import com.hubspot.jinjava.el.tree.impl.ast.AstIdentifier;
+import com.hubspot.jinjava.el.tree.impl.ast.AstLiteral;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
+import jakarta.el.ELContext;
 
 public class AstNamedParameter extends AstLiteral {
   private final AstIdentifier name;

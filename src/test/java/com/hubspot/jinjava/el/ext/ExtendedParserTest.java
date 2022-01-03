@@ -3,14 +3,14 @@ package com.hubspot.jinjava.el.ext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-import de.odysseus.el.tree.impl.Builder;
-import de.odysseus.el.tree.impl.ast.AstBinary;
-import de.odysseus.el.tree.impl.ast.AstIdentifier;
-import de.odysseus.el.tree.impl.ast.AstMethod;
-import de.odysseus.el.tree.impl.ast.AstNested;
-import de.odysseus.el.tree.impl.ast.AstNode;
-import de.odysseus.el.tree.impl.ast.AstParameters;
-import de.odysseus.el.tree.impl.ast.AstString;
+import com.hubspot.jinjava.el.tree.impl.Builder;
+import com.hubspot.jinjava.el.tree.impl.ast.AstBinary;
+import com.hubspot.jinjava.el.tree.impl.ast.AstIdentifier;
+import com.hubspot.jinjava.el.tree.impl.ast.AstMethod;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNested;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
+import com.hubspot.jinjava.el.tree.impl.ast.AstParameters;
+import com.hubspot.jinjava.el.tree.impl.ast.AstString;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 

@@ -23,7 +23,7 @@ import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
-import de.odysseus.el.misc.NumberOperations;
+import com.hubspot.jinjava.el.misc.NumberOperations;
 import java.math.BigDecimal;
 import java.util.Map;
 

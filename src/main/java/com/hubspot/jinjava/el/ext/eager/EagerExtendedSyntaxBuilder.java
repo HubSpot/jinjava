@@ -1,7 +1,7 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ExtendedSyntaxBuilder;
-import de.odysseus.el.tree.impl.Parser;
+import com.hubspot.jinjava.el.tree.impl.Parser;
 
 public class EagerExtendedSyntaxBuilder extends ExtendedSyntaxBuilder {
 

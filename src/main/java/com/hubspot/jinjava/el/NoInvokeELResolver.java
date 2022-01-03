@@ -3,8 +3,8 @@ package com.hubspot.jinjava.el;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import java.beans.FeatureDescriptor;
 import java.util.Iterator;
-import javax.el.ELContext;
-import javax.el.ELResolver;
+import jakarta.el.ELContext;
+import jakarta.el.ELResolver;
 
 /**
  * An ELResolver that is read only and does not allow invocation of methods.

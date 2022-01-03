@@ -1,9 +1,9 @@
 package com.hubspot.jinjava.el;
 
+import com.hubspot.jinjava.el.util.SimpleContext;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import de.odysseus.el.util.SimpleContext;
 import java.lang.reflect.Method;
-import javax.el.ELResolver;
+import jakarta.el.ELResolver;
 
 public class JinjavaELContext extends SimpleContext {
   private JinjavaInterpreter interpreter;

@@ -1,11 +1,11 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import de.odysseus.el.tree.Bindings;
-import de.odysseus.el.tree.Node;
-import de.odysseus.el.tree.impl.ast.AstNode;
-import de.odysseus.el.tree.impl.ast.AstRightValue;
-import javax.el.ELContext;
+import com.hubspot.jinjava.el.tree.Bindings;
+import com.hubspot.jinjava.el.tree.Node;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
+import com.hubspot.jinjava.el.tree.impl.ast.AstRightValue;
+import jakarta.el.ELContext;
 
 /**
  * AstNested is final so this decorates AstRightValue.

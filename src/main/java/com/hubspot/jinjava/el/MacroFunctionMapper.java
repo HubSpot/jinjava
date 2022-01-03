@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import javax.el.FunctionMapper;
+import jakarta.el.FunctionMapper;
 
 public class MacroFunctionMapper extends FunctionMapper {
   private final JinjavaInterpreter interpreter;

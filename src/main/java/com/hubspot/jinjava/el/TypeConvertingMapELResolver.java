@@ -1,9 +1,10 @@
 package com.hubspot.jinjava.el;
 
+import jakarta.el.ELContext;
+import jakarta.el.ELException;
+import jakarta.el.MapELResolver;
+
 import java.util.Map;
-import javax.el.ELContext;
-import javax.el.ELException;
-import javax.el.MapELResolver;
 
 public class TypeConvertingMapELResolver extends MapELResolver {
   private static final TruthyTypeConverter TYPE_CONVERTER = new TruthyTypeConverter();

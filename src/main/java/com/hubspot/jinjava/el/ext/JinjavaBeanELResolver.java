@@ -3,13 +3,14 @@ package com.hubspot.jinjava.el.ext;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import jakarta.el.BeanELResolver;
+import jakarta.el.ELContext;
+import jakarta.el.MethodNotFoundException;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Set;
-import javax.el.BeanELResolver;
-import javax.el.ELContext;
-import javax.el.MethodNotFoundException;
 
 /**
  * {@link BeanELResolver} supporting snake case property names.
