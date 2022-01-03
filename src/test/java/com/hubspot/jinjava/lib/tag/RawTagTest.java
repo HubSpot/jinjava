@@ -144,6 +144,22 @@ public class RawTagTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void ifFixesSpacingWithRawTagPreservation() {
+    TagNode tagNode = fixture("nospacing");
+    JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
+      jinjava,
+      jinjava.getGlobalContextCopy(),
+      JinjavaConfig
+        .newBuilder()
+        .withExecutionMode(PreserveRawExecutionMode.instance())
+        .build()
+    );
+    String result = tag.interpret(tagNode, preserveInterpreter);
+    assertThat(StringUtils.normalizeSpace(result))
+      .isEqualTo("{% raw %} {%print 'foo'%} {% endraw %}");
+  }
+
+  @Test
   public void itPreservesDeferredWhilePreservingRawTags() {
     TagNode tagNode = fixture("deferred");
     JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
