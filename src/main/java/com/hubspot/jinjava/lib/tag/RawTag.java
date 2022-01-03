@@ -30,19 +30,25 @@ public class RawTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
+      interpreter.getConfig().getMaxOutputSize()
+    );
     if (
       interpreter.getConfig().getExecutionMode().isPreserveRawTags() &&
       !interpreter.getContext().isUnwrapRawOverride()
     ) {
-      return renderNodeRaw(tagNode);
+      result.append("{% raw %}");
     }
-
-    LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
-      interpreter.getConfig().getMaxOutputSize()
-    );
 
     for (Node n : tagNode.getChildren()) {
       result.append(renderNodeRaw(n));
+    }
+
+    if (
+      interpreter.getConfig().getExecutionMode().isPreserveRawTags() &&
+      !interpreter.getContext().isUnwrapRawOverride()
+    ) {
+      result.append("{% endraw %}");
     }
 
     return result.toString();
