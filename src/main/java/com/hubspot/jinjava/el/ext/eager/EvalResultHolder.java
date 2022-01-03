@@ -1,19 +1,51 @@
 package com.hubspot.jinjava.el.ext.eager;
 
+import com.google.common.primitives.Primitives;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.el.tree.Bindings;
 import com.hubspot.jinjava.el.tree.impl.ast.AstIdentifier;
 import jakarta.el.ELContext;
+import jakarta.el.ELException;
+import java.util.function.Supplier;
 
 public interface EvalResultHolder {
-  Object getAndClearEvalResult();
+  Object getEvalResult();
+
+  void setEvalResult(Object evalResult);
+
+  void clearEvalResult();
 
   boolean hasEvalResult();
 
-  Object eval(Bindings bindings, ELContext elContext);
+  default Object eval(
+    Supplier<Object> evalSupplier,
+    Bindings bindings,
+    ELContext context
+  ) {
+    try {
+      setEvalResult(evalSupplier.get());
+      return getEvalResult();
+    } catch (DeferredValueException | ELException originalException) {
+      DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
+        originalException
+      );
+      throw new DeferredParsingException(
+        this,
+        getPartiallyResolved(bindings, context, e, false)
+      );
+    }
+  }
+
+  String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  );
 
   static String reconstructNode(
     Bindings bindings,
@@ -22,36 +54,33 @@ public interface EvalResultHolder {
     DeferredParsingException exception,
     boolean preserveIdentifier
   ) {
-    String partiallyResolvedImage;
+    Object evalResult = astNode.getEvalResult();
+    if (astNode.hasEvalResult() && (!preserveIdentifier || isPrimitive(evalResult))) {
+      try {
+        return EagerExpressionResolver.getValueAsJinjavaStringSafe(evalResult);
+      } catch (DeferredValueException e) {
+        preserveIdentifier = true;
+      }
+    }
     if (
-      astNode instanceof AstIdentifier &&
+      preserveIdentifier ||
       (
-        preserveIdentifier ||
+        astNode instanceof AstIdentifier &&
         ExtendedParser.INTERPRETER.equals(((AstIdentifier) astNode).getName())
       )
     ) {
-      astNode.getAndClearEvalResult(); // clear unused result
-      partiallyResolvedImage = ((AstIdentifier) astNode).getName();
-    } else if (astNode.hasEvalResult()) {
-      partiallyResolvedImage =
-        EagerExpressionResolver.getValueAsJinjavaStringSafe(
-          astNode.getAndClearEvalResult()
-        );
-    } else if (exception != null && exception.getSourceNode() == astNode) {
-      partiallyResolvedImage = exception.getDeferredEvalResult();
-    } else {
-      try {
-        partiallyResolvedImage =
-          EagerExpressionResolver.getValueAsJinjavaStringSafe(
-            astNode.eval(bindings, context)
-          );
-      } catch (DeferredParsingException e) {
-        partiallyResolvedImage = e.getDeferredEvalResult();
-      } finally {
-        astNode.getAndClearEvalResult();
-      }
+      return astNode.getPartiallyResolved(bindings, context, exception, true);
     }
-    return partiallyResolvedImage;
+    if (exception != null && exception.getSourceNode() == astNode) {
+      return exception.getDeferredEvalResult();
+    }
+    try {
+      return EagerExpressionResolver.getValueAsJinjavaStringSafe(
+        ((AstNode) astNode).eval(bindings, context)
+      );
+    } catch (DeferredParsingException e) {
+      return e.getDeferredEvalResult();
+    }
   }
 
   static DeferredParsingException convertToDeferredParsingException(
@@ -71,5 +100,13 @@ public interface EvalResultHolder {
       return (DeferredParsingException) deferredValueException;
     }
     return null;
+  }
+
+  static boolean isPrimitive(Object evalResult) {
+    return (
+      evalResult == null ||
+      Primitives.isWrapperType(evalResult.getClass()) ||
+      evalResult instanceof String
+    );
   }
 }

@@ -101,15 +101,19 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       // failed to access property, continue with method calls
     }
 
-    return interpreter.getContext().isValidationMode()
-      ? ""
-      : super.invoke(
-        context,
-        base,
-        method,
-        paramTypes,
-        generateMethodParams(method, params)
-      );
+    try {
+      return interpreter.getContext().isValidationMode()
+        ? ""
+        : super.invoke(
+          context,
+          base,
+          method,
+          paramTypes,
+          generateMethodParams(method, params)
+        );
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
   }
 
   /**
@@ -134,6 +138,10 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
   private Object[] generateMethodParams(Object method, Object[] astParams) {
     if (!"filter".equals(method)) {
       return astParams; // We only change the signature method for filters
+    }
+
+    if (astParams == null) {
+      throw new IllegalArgumentException("AST params cannot be null");
     }
 
     List<Object> args = new ArrayList<>();

@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.el.tree.Bindings;
 import com.hubspot.jinjava.el.tree.impl.ast.AstDot;
 import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
@@ -41,34 +40,43 @@ public class EagerAstDot extends AstDot implements EvalResultHolder {
 
   @Override
   public Object eval(Bindings bindings, ELContext context) throws ELException {
-    try {
-      evalResult = super.eval(bindings, context);
-      hasEvalResult = true;
-      return evalResult;
-    } catch (DeferredValueException | ELException originalException) {
-      DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
-        originalException
-      );
-
-      throw new DeferredParsingException(
-        this,
-        String.format(
-          "%s.%s",
-          EvalResultHolder.reconstructNode(bindings, context, base, e, true),
-          property
-        )
-      );
-    } finally {
-      base.getAndClearEvalResult();
-    }
+    return EvalResultHolder.super.eval(
+      () -> super.eval(bindings, context),
+      bindings,
+      context
+    );
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException e,
+    boolean preserveIdentifier
+  ) {
+    return String.format(
+      "%s.%s",
+      EvalResultHolder.reconstructNode(bindings, context, base, e, preserveIdentifier),
+      property
+    );
+  }
+
+  @Override
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = evalResult;
+    hasEvalResult = true;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    base.clearEvalResult();
   }
 
   @Override

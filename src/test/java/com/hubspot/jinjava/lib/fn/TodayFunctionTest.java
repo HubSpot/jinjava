@@ -30,7 +30,12 @@ public class TodayFunctionTest {
 
   @Test(expected = InvalidDateFormatException.class)
   public void itThrowsExceptionOnInvalidTimezone() {
-    ZonedDateTime zonedDateTime = Functions.today("Not a timezone");
+    Functions.today("Not a timezone");
+  }
+
+  @Test
+  public void itIgnoresNullTimezone() {
+    assertThat(Functions.today((String) null).getZone()).isEqualTo(ZoneOffset.UTC);
   }
 
   @Test(expected = DeferredValueException.class)

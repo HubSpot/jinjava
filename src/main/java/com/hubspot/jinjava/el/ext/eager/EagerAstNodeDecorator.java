@@ -1,11 +1,13 @@
 package com.hubspot.jinjava.el.ext.eager;
 
+import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.tree.Bindings;
 import com.hubspot.jinjava.el.tree.Node;
 import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
 import jakarta.el.ELContext;
 import jakarta.el.MethodInfo;
 import jakarta.el.ValueReference;
+import java.util.function.Supplier;
 
 /**
  * This decorator exists to ensure that every EvalResultHolder is an
@@ -32,16 +34,30 @@ public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = evalResult;
+    hasEvalResult = true;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
   }
 
   @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
+  }
+
+  @Override
+  public Object eval(Supplier<Object> evalSupplier, Bindings bindings, ELContext context) {
+    return EvalResultHolder.super.eval(evalSupplier, bindings, context);
   }
 
   @Override
@@ -51,9 +67,18 @@ public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
 
   @Override
   public Object eval(Bindings bindings, ELContext elContext) {
-    evalResult = astNode.eval(bindings, elContext);
-    hasEvalResult = true;
+    setEvalResult(astNode.eval(bindings, elContext));
     return evalResult;
+  }
+
+  @Override
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    return null;
   }
 
   @Override

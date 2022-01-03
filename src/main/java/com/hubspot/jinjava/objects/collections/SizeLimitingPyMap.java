@@ -38,6 +38,9 @@ public class SizeLimitingPyMap extends PyMap implements PyWrapper {
 
   @Override
   public void putAll(Map<? extends String, ?> m) {
+    if (m == null) {
+      return;
+    }
     HashSet<String> keys = new HashSet<>(delegate().keySet());
     checkSize(
       (int) m.keySet().stream().filter(k -> !keys.contains(k)).count() + delegate().size()

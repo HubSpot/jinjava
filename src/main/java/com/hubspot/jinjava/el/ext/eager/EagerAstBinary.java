@@ -36,36 +36,58 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    try {
-      evalResult = super.eval(bindings, context);
-      hasEvalResult = true;
-      return evalResult;
-    } catch (DeferredParsingException e) {
-      String sb =
-        EvalResultHolder.reconstructNode(bindings, context, left, e, false) +
-        String.format(" %s ", operator.toString()) +
-        EvalResultHolder.reconstructNode(
-          bindings,
-          (operator instanceof OrOperator || operator == AstBinary.AND)
-            ? new NoInvokeELContext(context) // short circuit on modification attempts because this may not be evaluated
-            : context,
-          right,
-          e,
-          false
-        );
-      throw new DeferredParsingException(this, sb);
-    } finally {
-      left.getAndClearEvalResult();
-      right.getAndClearEvalResult();
-    }
+    return EvalResultHolder.super.eval(
+      () -> super.eval(bindings, context),
+      bindings,
+      context
+    );
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    return (
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        left,
+        deferredParsingException,
+        false
+      ) +
+      String.format(" %s ", operator.toString()) +
+      EvalResultHolder.reconstructNode(
+        bindings,
+        (operator instanceof OrOperator || operator == AstBinary.AND)
+          ? new NoInvokeELContext(context) // short circuit on modification attempts because this may not be evaluated
+          : context,
+        right,
+        deferredParsingException,
+        false
+      )
+    );
+  }
+
+  @Override
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = evalResult;
+    hasEvalResult = true;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    left.clearEvalResult();
+    right.clearEvalResult();
   }
 
   @Override

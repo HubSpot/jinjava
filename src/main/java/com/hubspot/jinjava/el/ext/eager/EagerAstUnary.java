@@ -24,26 +24,48 @@ public class EagerAstUnary extends AstUnary implements EvalResultHolder {
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    try {
-      evalResult = super.eval(bindings, context);
-      hasEvalResult = true;
-      return evalResult;
-    } catch (DeferredParsingException e) {
-      String sb =
-        operator.toString() +
-        EvalResultHolder.reconstructNode(bindings, context, child, e, false);
-      throw new DeferredParsingException(this, sb);
-    } finally {
-      child.getAndClearEvalResult();
-    }
+    return EvalResultHolder.super.eval(
+      () -> super.eval(bindings, context),
+      bindings,
+      context
+    );
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    return (
+      operator.toString() +
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        child,
+        deferredParsingException,
+        false
+      )
+    );
+  }
+
+  @Override
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = evalResult;
+    hasEvalResult = true;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    child.clearEvalResult();
   }
 
   @Override

@@ -14,11 +14,13 @@ import com.hubspot.jinjava.el.ext.StringConcatOperator;
 import com.hubspot.jinjava.el.ext.TruncDivOperator;
 import com.hubspot.jinjava.el.tree.impl.Builder;
 import com.hubspot.jinjava.el.tree.impl.Builder.Feature;
+import com.hubspot.jinjava.el.tree.impl.Scanner;
 import com.hubspot.jinjava.el.tree.impl.ast.AstBinary;
 import com.hubspot.jinjava.el.tree.impl.ast.AstBinary.Operator;
 import com.hubspot.jinjava.el.tree.impl.ast.AstBracket;
 import com.hubspot.jinjava.el.tree.impl.ast.AstChoice;
 import com.hubspot.jinjava.el.tree.impl.ast.AstDot;
+import com.hubspot.jinjava.el.tree.impl.ast.AstEval;
 import com.hubspot.jinjava.el.tree.impl.ast.AstFunction;
 import com.hubspot.jinjava.el.tree.impl.ast.AstIdentifier;
 import com.hubspot.jinjava.el.tree.impl.ast.AstMethod;
@@ -29,6 +31,10 @@ import com.hubspot.jinjava.el.tree.impl.ast.AstRightValue;
 import com.hubspot.jinjava.el.tree.impl.ast.AstUnary;
 import java.util.List;
 import java.util.Map;
+
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.END_EVAL;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.START_EVAL_DEFERRED;
+import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.START_EVAL_DYNAMIC;
 
 public class EagerExtendedParser extends ExtendedParser {
 
@@ -55,6 +61,21 @@ public class EagerExtendedParser extends ExtendedParser {
       CollectionNonMembershipOperator.TOKEN,
       CollectionNonMembershipOperator.EAGER_HANDLER
     );
+  }
+
+  @Override
+  protected AstEval eval(boolean required, boolean deferred)
+    throws Scanner.ScanException, ParseException {
+    AstEval v = null;
+    Scanner.Symbol startEval = deferred ? START_EVAL_DEFERRED : START_EVAL_DYNAMIC;
+    if (getToken().getSymbol() == startEval) {
+      consumeToken();
+      v = new AstEval(new EagerAstRoot(expr(true)), deferred);
+      consumeToken(END_EVAL);
+    } else if (required) {
+      fail(startEval);
+    }
+    return v;
   }
 
   @Override

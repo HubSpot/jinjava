@@ -3,15 +3,8 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.InvalidArgumentException;
-import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
-import com.hubspot.jinjava.util.ForLoop;
-import com.hubspot.jinjava.util.ObjectIterator;
-import java.util.ArrayList;
-import java.util.List;
 
 @JinjavaDoc(
   value = "Filters a sequence of objects by applying a test to the object and rejecting the ones with the test succeeding.",
@@ -31,7 +24,7 @@ import java.util.List;
     )
   }
 )
-public class RejectFilter implements Filter {
+public class RejectFilter extends SelectFilter {
 
   @Override
   public String getName() {
@@ -39,41 +32,12 @@ public class RejectFilter implements Filter {
   }
 
   @Override
-  public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    List<Object> result = new ArrayList<>();
-
-    if (args.length < 1) {
-      throw new TemplateSyntaxException(
-        interpreter,
-        getName(),
-        "requires 1 argument (name of expression test to filter by)"
-      );
-    }
-
-    if (args[0] == null) {
-      throw new InvalidArgumentException(interpreter, this, InvalidReason.NULL, 0);
-    }
-
-    ExpTest expTest = interpreter.getContext().getExpTest(args[0]);
-    if (expTest == null) {
-      throw new InvalidArgumentException(
-        interpreter,
-        this,
-        InvalidReason.EXPRESSION_TEST,
-        0,
-        args[0]
-      );
-    }
-
-    ForLoop loop = ObjectIterator.getLoop(var);
-    while (loop.hasNext()) {
-      Object val = loop.next();
-
-      if (!expTest.evaluate(val, interpreter)) {
-        result.add(val);
-      }
-    }
-
-    return result;
+  boolean evaluate(
+    JinjavaInterpreter interpreter,
+    Object[] expArgs,
+    ExpTest expTest,
+    Object val
+  ) {
+    return !super.evaluate(interpreter, expArgs, expTest, val);
   }
 }

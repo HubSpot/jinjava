@@ -30,19 +30,37 @@ public class RawTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
+      interpreter.getConfig().getMaxOutputSize()
+    );
     if (
       interpreter.getConfig().getExecutionMode().isPreserveRawTags() &&
       !interpreter.getContext().isUnwrapRawOverride()
     ) {
-      return renderNodeRaw(tagNode);
+      result.append(
+        String.format(
+          "%s raw %s",
+          tagNode.getSymbols().getExpressionStartWithTag(),
+          tagNode.getSymbols().getExpressionEndWithTag()
+        )
+      );
     }
-
-    LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
-      interpreter.getConfig().getMaxOutputSize()
-    );
 
     for (Node n : tagNode.getChildren()) {
       result.append(renderNodeRaw(n));
+    }
+
+    if (
+      interpreter.getConfig().getExecutionMode().isPreserveRawTags() &&
+      !interpreter.getContext().isUnwrapRawOverride()
+    ) {
+      result.append(
+        String.format(
+          "%s endraw %s",
+          tagNode.getSymbols().getExpressionStartWithTag(),
+          tagNode.getSymbols().getExpressionEndWithTag()
+        )
+      );
     }
 
     return result.toString();
@@ -58,7 +76,14 @@ public class RawTag implements Tag {
     if (TagNode.class.isAssignableFrom(n.getClass())) {
       TagNode t = (TagNode) n;
       if (StringUtils.isNotBlank(t.getEndName())) {
-        result.append("{% ").append(t.getEndName()).append(" %}");
+        result.append(
+          String.format(
+            "%s %s %s",
+            t.getSymbols().getExpressionStartWithTag(),
+            t.getEndName(),
+            t.getSymbols().getExpressionEndWithTag()
+          )
+        );
       }
     }
 

@@ -5,12 +5,14 @@ import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
@@ -85,6 +87,16 @@ public class PrettyPrintFilter implements Filter {
             props.add(pd.getName() + "=" + readMethod.invoke(var));
           }
         } catch (Exception e) {
+          if (
+            e instanceof InvocationTargetException &&
+            (
+              (InvocationTargetException) e
+            ).getTargetException() instanceof DeferredValueException
+          ) {
+            throw (DeferredValueException) (
+              (InvocationTargetException) e
+            ).getTargetException();
+          }
           ENGINE_LOG.error("Error reading bean value", e);
         }
       }

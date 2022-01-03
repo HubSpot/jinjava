@@ -36,38 +36,76 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
   @Override
   public Object eval(Bindings bindings, ELContext context) throws ELException {
     try {
-      evalResult = super.eval(bindings, context);
-      hasEvalResult = true;
+      setEvalResult(super.eval(bindings, context));
       return evalResult;
     } catch (DeferredParsingException e) {
       if (question.hasEvalResult()) {
         // the question was evaluated so jump to either yes or no
         throw new DeferredParsingException(this, e.getDeferredEvalResult());
       }
-      String sb =
-        e.getDeferredEvalResult() +
-        " ? " +
-        EvalResultHolder.reconstructNode(bindings, context, yes, e, false) +
-        " : " +
-        EvalResultHolder.reconstructNode(bindings, context, no, e, false);
-      throw new DeferredParsingException(this, sb);
-    } finally {
-      question.getAndClearEvalResult();
-      yes.getAndClearEvalResult();
-      no.getAndClearEvalResult();
+      throw new DeferredParsingException(
+        this,
+        getPartiallyResolved(bindings, context, e, false)
+      );
     }
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = evalResult;
+    hasEvalResult = true;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    question.clearEvalResult();
+    yes.clearEvalResult();
+    no.clearEvalResult();
   }
 
   @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
+  }
+
+  @Override
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    return (
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        question,
+        deferredParsingException,
+        false
+      ) +
+      " ? " +
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        yes,
+        deferredParsingException,
+        preserveIdentifier
+      ) +
+      " : " +
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        no,
+        deferredParsingException,
+        preserveIdentifier
+      )
+    );
   }
 }

@@ -56,10 +56,16 @@ public class SizeLimitingPyMapTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itLimitsOnAddAll() {
+  public void itLimitsOnPutAll() {
     SizeLimitingPyMap objects = new SizeLimitingPyMap(new HashMap<>(), 2);
     assertThatThrownBy(() -> objects.putAll(createMap(3)))
       .isInstanceOf(CollectionTooBigException.class);
+  }
+
+  @Test
+  public void itHandlesNullOnPutAll() {
+    SizeLimitingPyMap objects = new SizeLimitingPyMap(new HashMap<>(), 10);
+    objects.putAll(null);
   }
 
   @Test

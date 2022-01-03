@@ -199,8 +199,11 @@ public class EagerReconstructionUtils {
   }
 
   private static Object getObjectOrHashCode(Object o) {
-    if (o instanceof PyList || o instanceof PyMap) {
+    if (o instanceof PyList && !((PyList) o).toList().contains(o)) {
       return o.hashCode();
+    }
+    if (o instanceof PyMap && !((PyMap) o).toMap().containsValue(o)) {
+      return o.hashCode() + ((PyMap) o).keySet().hashCode();
     }
     return o;
   }
