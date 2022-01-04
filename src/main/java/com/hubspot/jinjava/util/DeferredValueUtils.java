@@ -3,6 +3,7 @@ package com.hubspot.jinjava.util;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -12,6 +13,7 @@ import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TextNode;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -93,7 +95,7 @@ public class DeferredValueUtils {
         eagerToken.getCurrentMacroFunction() == null ||
         eagerToken
           .getCurrentMacroFunction()
-          .equals(context.getMacroStack().peek().orElse(null))
+          .equals(context.getParent().getMacroStack().peek().orElse(null))
       ) {
         deferredProps.addAll(
           getPropertiesUsedInDeferredNodes(
@@ -102,14 +104,35 @@ public class DeferredValueUtils {
             false
           )
         );
+        deferredProps.addAll(
+          getPropertiesUsedInDeferredNodes(
+            context,
+            rebuildTemplateForEagerTagTokens(eagerToken, false),
+            true
+          )
+        );
+      } else {
+        List<String> macroArgs = Optional
+          .ofNullable(context.getGlobalMacro(eagerToken.getCurrentMacroFunction()))
+          .map(AbstractCallableMethod::getArguments)
+          .orElseGet(
+            () ->
+              context
+                .getLocalMacro(eagerToken.getCurrentMacroFunction())
+                .map(AbstractCallableMethod::getArguments)
+                .orElse(Collections.emptyList())
+          );
+        deferredProps.addAll(
+          getPropertiesUsedInDeferredNodes(
+              context,
+              rebuildTemplateForEagerTagTokens(eagerToken, false),
+              true
+            )
+            .stream()
+            .filter(prop -> !macroArgs.contains(prop))
+            .collect(Collectors.toSet())
+        );
       }
-      deferredProps.addAll(
-        getPropertiesUsedInDeferredNodes(
-          context,
-          rebuildTemplateForEagerTagTokens(eagerToken, false),
-          true
-        )
-      );
     }
 
     markDeferredProperties(context, Sets.union(deferredProps, setProps));

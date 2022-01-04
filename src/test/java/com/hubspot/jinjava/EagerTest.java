@@ -986,4 +986,11 @@ public class EagerTest {
       "runs-for-loop-inside-deferred-for-loop"
     );
   }
+
+  @Test
+  public void itModifiesVariableInDeferredMacro() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "modifies-variable-in-deferred-macro"
+    );
+  }
 }

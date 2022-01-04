@@ -1,0 +1,14 @@
+{% macro my_macro(list, other) %}
+{% do list.append(other) %}
+{% endmacro %}{% set list = [] %}{% do my_macro(list, deferred) %}
+{{ list }}
+
+{% macro my_macro(list, other) %}
+{% do list.append(other) %}
+{% endmacro %}{% set var = [] %}{% do my_macro(var, deferred) %}
+{{ var }}
+
+{% macro my_macro(list, other) %}
+{% do list.append(other) %}
+{% endmacro %}{% set var2 = [] %}{% do my_macro(var2, 1) %}
+{{ var2 }}
