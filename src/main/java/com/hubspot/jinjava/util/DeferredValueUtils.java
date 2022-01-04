@@ -122,6 +122,7 @@ public class DeferredValueUtils {
                 .map(AbstractCallableMethod::getArguments)
                 .orElse(Collections.emptyList())
           );
+        // Filter out macro args because we will want them to be deferred on the higher-level contexts later
         deferredProps.addAll(
           getPropertiesUsedInDeferredNodes(
               context,
