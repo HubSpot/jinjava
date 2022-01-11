@@ -2,12 +2,15 @@ package com.hubspot.jinjava.el;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -338,25 +341,28 @@ public class ExtendedSyntaxBuilderTest {
 
   @Test
   public void itReturnsCorrectSyntaxErrorPositions() {
-    assertThat(
-        interpreter.render(
-          "hi {{ missing thing }}{{ missing thing }}\nI am {{ blah blabbity }} too"
-        )
-      )
-      .isEqualTo("hi \nI am  too");
-    assertThat(interpreter.getErrorsCopy().size()).isEqualTo(3);
-    assertThat(interpreter.getErrorsCopy().get(0).getLineno()).isEqualTo(1);
-    assertThat(interpreter.getErrorsCopy().get(0).getMessage()).contains("position 14");
-    assertThat(interpreter.getErrorsCopy().get(0).getStartPosition()).isEqualTo(14);
-    assertThat(interpreter.getErrorsCopy().get(0).getFieldName()).isEqualTo("thing");
-    assertThat(interpreter.getErrorsCopy().get(1).getLineno()).isEqualTo(1);
-    assertThat(interpreter.getErrorsCopy().get(1).getMessage()).contains("position 33");
-    assertThat(interpreter.getErrorsCopy().get(1).getStartPosition()).isEqualTo(33);
-    assertThat(interpreter.getErrorsCopy().get(1).getFieldName()).isEqualTo("thing");
-    assertThat(interpreter.getErrorsCopy().get(2).getLineno()).isEqualTo(2);
-    assertThat(interpreter.getErrorsCopy().get(2).getMessage()).contains("position 13");
-    assertThat(interpreter.getErrorsCopy().get(2).getStartPosition()).isEqualTo(13);
-    assertThat(interpreter.getErrorsCopy().get(2).getFieldName()).isEqualTo("blabbity");
+    assertEquals(interpreter.render(
+          "hi {{ missing thing }}{{ missing thing }}\nI am {{ blah blabbity }} too"),
+            "hi \nI am  too");
+    assertEquals(3, interpreter.getErrorsCopy().size());
+
+    TemplateError error = interpreter.getErrorsCopy().get(0);
+    assertEquals(1, error.getLineno());
+    assertTrue(error.getMessage().contains("position 14"));
+    assertEquals(14, error.getStartPosition());
+    assertEquals("thing", error.getFieldName());
+
+    error = interpreter.getErrorsCopy().get(1);
+    assertThat(error.getLineno()).isEqualTo(1);
+    assertThat(error.getMessage()).contains("position 33");
+    assertThat(error.getStartPosition()).isEqualTo(33);
+    assertThat(error.getFieldName()).isEqualTo("thing");
+
+    error = interpreter.getErrorsCopy().get(2);
+    assertThat(error.getLineno()).isEqualTo(2);
+    assertThat(error.getMessage()).contains("position 13");
+    assertThat(error.getStartPosition()).isEqualTo(13);
+    assertThat(error.getFieldName()).isEqualTo("blabbity");
   }
 
   private Object val(String expr) {

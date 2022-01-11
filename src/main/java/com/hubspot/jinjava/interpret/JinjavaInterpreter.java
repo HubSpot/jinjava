@@ -186,8 +186,8 @@ public class JinjavaInterpreter implements PyishSerializable {
 
   public class InterpreterScopeClosable implements AutoCloseable {
 
-    @Override
-    public void close() {
+  @Override
+  public void close() {
       leaveScope();
     }
   }
@@ -209,7 +209,7 @@ public class JinjavaInterpreter implements PyishSerializable {
 
     try {
       if (depth > config.getMaxRenderDepth()) {
-        ENGINE_LOG.warn("Max render depth exceeded: {}", Integer.toString(depth));
+        ENGINE_LOG.warn("Max render depth exceeded: {}", depth);
         return template;
       } else {
         context.setRenderDepth(depth + 1);
@@ -276,22 +276,26 @@ public class JinjavaInterpreter implements PyishSerializable {
             )
           );
           output.addNode(new RenderedOutputNode(renderStr));
-        } else {
+        }
+        else {
           OutputNode out;
           context.pushRenderStack(renderStr);
           try {
             out = node.render(this);
-          } catch (DeferredValueException e) {
+          }
+          catch (DeferredValueException e) {
             context.handleDeferredNode(node);
             out = new RenderedOutputNode(node.getMaster().getImage());
           }
           context.popRenderStack();
           output.addNode(out);
         }
-      } catch (OutputTooBigException e) {
+      }
+      catch (OutputTooBigException e) {
         addError(TemplateError.fromOutputTooBigException(e));
         return output.getValue();
-      } catch (CollectionTooBigException e) {
+      }
+      catch (CollectionTooBigException e) {
         addError(
           new TemplateError(
             ErrorType.FATAL,
@@ -407,7 +411,7 @@ public class JinjavaInterpreter implements PyishSerializable {
   private boolean isEagerExtendsTag(TagNode node) {
     return (
       node.getTag() instanceof EagerGenericTag &&
-      ((EagerGenericTag) node.getTag()).getTag() instanceof ExtendsTag
+      ((EagerGenericTag<?>) node.getTag()).getTag() instanceof ExtendsTag
     );
   }
 
@@ -686,14 +690,11 @@ public class JinjavaInterpreter implements PyishSerializable {
     }
     // fix line numbers not matching up with source template
     if (!context.getCurrentPathStack().isEmpty()) {
-      if (!templateError.getSourceTemplate().isPresent()) {
-        templateError.setMessage(
-          getWrappedErrorMessage(
-            context.getCurrentPathStack().peek().get(),
-            templateError
-          )
+      if (!templateError.getSourceTemplate().isPresent() && context.getCurrentPathStack().peek().isPresent()) {
+        String templateName = context.getCurrentPathStack().peek().get();
+        templateError.setMessage(getWrappedErrorMessage(templateName, templateError)
         );
-        templateError.setSourceTemplate(context.getCurrentPathStack().peek().get());
+        templateError.setSourceTemplate(templateName);
       }
       templateError.setStartPosition(context.getCurrentPathStack().getTopStartPosition());
       templateError.setLineno(context.getCurrentPathStack().getTopLineNumber());
