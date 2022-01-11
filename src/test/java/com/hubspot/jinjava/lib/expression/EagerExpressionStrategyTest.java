@@ -158,6 +158,26 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
     assertExpectedOutput("{{ deferred ~ foo }}", "{{ deferred ~ {'foo': {} } }}");
   }
 
+  @Test
+  public void itDoesNotReconstructWithNestedDoubleCurlyBraces() {
+    interpreter
+      .getContext()
+      .put("foo", ImmutableMap.of("foo", ImmutableMap.of("bar", ImmutableMap.of())));
+    assertExpectedOutput(
+      "{{ deferred ~ foo }}",
+      "{{ deferred ~ {'foo': {'bar': {} } } }}"
+    );
+  }
+
+  @Test
+  public void itReconstructsWithNestedInterpretation() {
+    interpreter.getContext().put("foo", "{{ print 'bar' }}");
+    assertExpectedOutput(
+      "{{ deferred ~ foo }}",
+      "{{ deferred ~ '{{ print \\'bar\\' }}' }}"
+    );
+  }
+
   private void assertExpectedOutput(String inputTemplate, String expectedOutput) {
     assertThat(interpreter.render(inputTemplate)).isEqualTo(expectedOutput);
   }

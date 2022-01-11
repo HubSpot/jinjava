@@ -1,6 +1,6 @@
 {% if deferred %}
 {% set __ignored__ %}{% set current_path = '../settag/set-var-and-deferred.jinja' %}{% set current_path,value = null,null %}{% set my_var = {} %}{% set my_var = {} %}{% if deferred %}
-{% set __ignored__ %}{% set current_path = '../settag/set-var-and-deferred.jinja' %}{% do my_var.update({"current_path": current_path}) %}{% set value = null %}{% do my_var.update({"value": value}) %}{% set my_var = {} %}{% set my_var = {'foo': 'bar'} %}{% set my_var = {'my_var': {'foo': 'bar'}} %}
+{% set __ignored__ %}{% set current_path = '../settag/set-var-and-deferred.jinja' %}{% do my_var.update({"current_path": current_path}) %}{% set value = null %}{% do my_var.update({"value": value}) %}{% set my_var = {} %}{% set my_var = {'foo': 'bar'} %}{% set my_var = {'my_var': {'foo': 'bar'} } %}
 {% set value = deferred %}{% do my_var.update({"value": value}) %}{% do my_var.update({"value": value}) %}
 {% do my_var.update({"import_resource_path": "../settag/set-var-and-deferred.jinja", "value": value}) %}{% set current_path = '' %}{% do my_var.update({"current_path": current_path}) %}{% endset %}{% do my_var.update({"__ignored__": __ignored__}) %}
 {{ my_var }}

@@ -32,7 +32,7 @@ public class PyishObjectMapper {
         // Replace double-quotes with single quote as they are preferred in Jinja
         .replaceAll("(?<!\\\\)(\\\\\\\\)*(?:\")", "$1'");
       if (!string.contains("{{")) {
-        return string.replaceAll("}}(,|$)", "} }$1");
+        return String.join("} ", string.split("}(?=})"));
       }
       return string;
     } catch (JsonProcessingException e) {
