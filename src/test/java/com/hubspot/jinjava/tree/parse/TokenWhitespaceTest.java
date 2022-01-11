@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.tree.parse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
@@ -15,17 +16,16 @@ public class TokenWhitespaceTest {
   @Test
   public void trimBlocksTrimsAfterTag() {
     List<Token> tokens = scanTokens(
-      "parse/tokenizer/whitespace-tags.jinja",
-      trimBlocksConfig()
+            trimBlocksConfig()
     );
-    assertThat(tokens.get(2).getImage()).isEqualTo("        yay\n    ");
+    assertEquals(tokens.get(2).getImage(), "        yay\n    ");
   }
 
-  private List<Token> scanTokens(String srcPath, JinjavaConfig config) {
+  private List<Token> scanTokens(JinjavaConfig config) {
     try {
       return Lists.newArrayList(
         new TokenScanner(
-          Resources.toString(Resources.getResource(srcPath), StandardCharsets.UTF_8),
+          Resources.toString(Resources.getResource("parse/tokenizer/whitespace-tags.jinja"), StandardCharsets.UTF_8),
           config
         )
       );

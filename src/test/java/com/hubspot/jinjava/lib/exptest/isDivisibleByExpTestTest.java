@@ -1,8 +1,10 @@
 package com.hubspot.jinjava.lib.exptest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import com.hubspot.jinjava.BaseJinjavaTest;
+import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -40,12 +42,10 @@ public class isDivisibleByExpTestTest extends BaseJinjavaTest {
     );
   }
 
-  @Test
+  @Test(expected = FatalTemplateErrorsException.class)
   public void itRequiresDivisor() {
-    assertEquals(
-      jinjava.render(String.format(DIVISIBLE_BY_TEMPLATE, "10", "null"), new HashMap<>()),
-      "false"
-    );
+    jinjava.render(String.format(DIVISIBLE_BY_TEMPLATE, "10", "null"), new HashMap<>());
+    fail("This line shouldn't be reached!");
   }
 
   @Test
