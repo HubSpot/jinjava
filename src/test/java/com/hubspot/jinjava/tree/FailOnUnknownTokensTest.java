@@ -2,6 +2,7 @@ package com.hubspot.jinjava.tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertEquals;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -30,7 +31,7 @@ public class FailOnUnknownTokensTest {
     context.put("token2", "test1");
     String template = "hello {{ token1 }} and {{ token2 }}";
     String renderedTemplate = jinjava.render(template, context);
-    assertThat(renderedTemplate).isEqualTo("hello test and test1");
+    assertEquals(renderedTemplate, "hello test and test1");
   }
 
   @Test
@@ -41,8 +42,7 @@ public class FailOnUnknownTokensTest {
 
     String template =
       "{{ name | default('mary') }} has a {{ animal }} and eats {{ fruit | default('mango')}}";
-    assertThat(jinjava.render(template, context))
-      .isEqualTo("mary has a lamb and eats apple");
+    assertEquals(jinjava.render(template, context), "mary has a lamb and eats apple");
   }
 
   @Test

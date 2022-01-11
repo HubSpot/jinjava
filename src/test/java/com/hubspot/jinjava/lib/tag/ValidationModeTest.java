@@ -21,7 +21,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationModeTest {
@@ -29,7 +29,6 @@ public class ValidationModeTest {
   JinjavaInterpreter validatingInterpreter;
 
   Jinjava jinjava;
-  private Context context;
 
   ValidationFilter validationFilter;
 
@@ -73,12 +72,12 @@ public class ValidationModeTest {
     jinjava.getGlobalContext().registerFilter(validationFilter);
     jinjava.getGlobalContext().registerFunction(validationFunction);
     interpreter = jinjava.newInterpreter();
-    context = interpreter.getContext();
+    Context context = interpreter.getContext();
 
     validatingInterpreter =
       new JinjavaInterpreter(
         jinjava,
-        context,
+              context,
         JinjavaConfig.newBuilder().withValidationMode(true).build()
       );
 

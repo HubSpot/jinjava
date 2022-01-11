@@ -61,12 +61,12 @@ import jakarta.el.ExpressionFactory;
  * @author jstehler
  */
 public class Jinjava {
-  private ExpressionFactory expressionFactory;
-  private ExpressionFactory eagerExpressionFactory;
+  private final ExpressionFactory expressionFactory;
+  private final ExpressionFactory eagerExpressionFactory;
   private ResourceLocator resourceLocator;
 
-  private Context globalContext;
-  private JinjavaConfig globalConfig;
+  private final Context globalContext;
+  private final JinjavaConfig globalConfig;
 
   /**
    * Create a new Jinjava processor instance with the default global config

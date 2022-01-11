@@ -1,7 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -11,7 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StripTagsFilterTest {
@@ -27,7 +27,7 @@ public class StripTagsFilterTest {
   }
 
   @Test
-  public void itPassesThruNonStringVals() throws Exception {
+  public void itPassesThruNonStringVals() {
     assertThat(filter.filter(123, interpreter)).isEqualTo(123);
     assertThat(filter.filter(true, interpreter)).isEqualTo(true);
     Object foo = new Object();
@@ -35,43 +35,43 @@ public class StripTagsFilterTest {
   }
 
   @Test
-  public void itWorksWithNonHtmlStrings() throws Exception {
+  public void itWorksWithNonHtmlStrings() {
     assertThat(filter.filter("foo", interpreter)).isEqualTo("foo");
     assertThat(filter.filter("foo < bar", interpreter)).isEqualTo("foo &lt; bar");
   }
 
   @Test
-  public void itNormalizesWhitespaceInNonHtmlStrings() throws Exception {
+  public void itNormalizesWhitespaceInNonHtmlStrings() {
     assertThat(filter.filter("foo bar  other   var", interpreter))
       .isEqualTo("foo bar other var");
   }
 
   @Test
-  public void itStripsTagsFromHtml() throws Exception {
+  public void itStripsTagsFromHtml() {
     assertThat(filter.filter("foo <b>bar</b> other", interpreter))
       .isEqualTo("foo bar other");
   }
 
   @Test
-  public void itStripsTagsFromNestedHtml() throws Exception {
+  public void itStripsTagsFromNestedHtml() {
     assertThat(filter.filter("<div><strong>test</strong></div>", interpreter))
       .isEqualTo("test");
   }
 
   @Test
-  public void itStripsTagsFromEscapedHtml() throws Exception {
+  public void itStripsTagsFromEscapedHtml() {
     assertThat(filter.filter("&lt;div&gt;test&lt;/test&gt;", interpreter))
       .isEqualTo("test");
   }
 
   @Test
-  public void itPreservesBreaks() throws Exception {
+  public void itPreservesBreaks() {
     assertThat(filter.filter("<p>Test!<br><br>Space</p>", interpreter))
       .isEqualTo("Test! Space");
   }
 
   @Test
-  public void itConvertsNewlinesToSpaces() throws Exception {
+  public void itConvertsNewlinesToSpaces() {
     assertThat(filter.filter("<p>Test!\n\nSpace</p>", interpreter))
       .isEqualTo("Test! Space");
   }

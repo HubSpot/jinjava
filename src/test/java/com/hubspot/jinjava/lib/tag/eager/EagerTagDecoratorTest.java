@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -18,11 +19,12 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EagerTagDecoratorTest extends BaseInterpretingTest {
@@ -90,7 +92,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     }
     TagNode tagNode = (TagNode) (
       interpreter
-        .parse(String.format("{%% raw %%}%s{%% endraw %%}", tooLong.toString()))
+        .parse(String.format("{%% raw %%}%s{%% endraw %%}", tooLong))
         .getChildren()
         .get(0)
     );
@@ -107,7 +109,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     }
     TagNode tagNode = (TagNode) (
       interpreter
-        .parse(String.format("{%% raw %%}%s{%% endraw %%}", tooLong.toString()))
+        .parse(String.format("{%% raw %%}%s{%% endraw %%}", tooLong))
         .getChildren()
         .get(0)
     );
@@ -153,7 +155,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
   }
 
   public static void addToContext(String key, Object value) {
-    JinjavaInterpreter.getCurrent().getContext().put(key, value);
+    Objects.requireNonNull(JinjavaInterpreter.getCurrent()).getContext().put(key, value);
   }
 
   public static void modifyContext(String key, Object value) {
