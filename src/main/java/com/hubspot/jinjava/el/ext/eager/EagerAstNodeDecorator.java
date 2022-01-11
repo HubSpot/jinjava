@@ -72,7 +72,7 @@ public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
     DeferredParsingException deferredParsingException,
     boolean preserveIdentifier
   ) {
-    return null;
+    return astNode.toString();
   }
 
   @Override
