@@ -4,8 +4,10 @@ import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.tree.Bindings;
 import com.hubspot.jinjava.el.tree.impl.ast.AstParameters;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import java.util.StringJoiner;
 import jakarta.el.ELContext;
+import jakarta.el.ELException;
 
 public class EagerAstMacroFunction extends AstMacroFunction implements EvalResultHolder {
   protected Object evalResult;
@@ -34,11 +36,18 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    return EvalResultHolder.super.eval(
-      () -> super.eval(bindings, context),
-      bindings,
-      context
-    );
+    try {
+      setEvalResult(super.eval(bindings, context));
+      return evalResult;
+    } catch (DeferredValueException | ELException originalException) {
+      DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
+        originalException
+      );
+      throw new DeferredParsingException(
+        this,
+        getPartiallyResolved(bindings, context, e, true) // Need this to always be true because the macro function may modify the identifier
+      );
+    }
   }
 
   @Override
@@ -59,7 +68,7 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
             context,
             (EvalResultHolder) ((AstParameters) params).getChild(i),
             deferredParsingException,
-            false
+            preserveIdentifier
           )
         );
       }

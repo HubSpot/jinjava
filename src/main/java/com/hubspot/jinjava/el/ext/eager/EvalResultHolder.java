@@ -54,6 +54,17 @@ public interface EvalResultHolder {
     DeferredParsingException exception,
     boolean preserveIdentifier
   ) {
+    if (
+      preserveIdentifier &&
+      !astNode.hasEvalResult() &&
+      !(exception != null && exception.getSourceNode() == astNode)
+    ) {
+      try {
+        EagerExpressionResolver.getValueAsJinjavaStringSafe(
+          ((AstNode) astNode).eval(bindings, context)
+        );
+      } catch (DeferredParsingException ignored) {}
+    }
     Object evalResult = astNode.getEvalResult();
     if (astNode.hasEvalResult() && (!preserveIdentifier || isPrimitive(evalResult))) {
       try {
@@ -74,13 +85,14 @@ public interface EvalResultHolder {
     if (exception != null && exception.getSourceNode() == astNode) {
       return exception.getDeferredEvalResult();
     }
-    try {
-      return EagerExpressionResolver.getValueAsJinjavaStringSafe(
-        ((AstNode) astNode).eval(bindings, context)
-      );
-    } catch (DeferredParsingException e) {
-      return e.getDeferredEvalResult();
+    if (!astNode.hasEvalResult()) {
+      try {
+        evalResult = ((AstNode) astNode).eval(bindings, context);
+      } catch (DeferredParsingException e) {
+        return e.getDeferredEvalResult();
+      }
     }
+    return EagerExpressionResolver.getValueAsJinjavaStringSafe(evalResult);
   }
 
   static DeferredParsingException convertToDeferredParsingException(
