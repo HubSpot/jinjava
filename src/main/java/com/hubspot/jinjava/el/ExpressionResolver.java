@@ -31,11 +31,16 @@ import jakarta.el.ExpressionFactory;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.el.ValueExpression;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Resolves Jinja expressions.
  */
 public class ExpressionResolver {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ExpressionResolver.class);
+
   private final JinjavaInterpreter interpreter;
   private final ExpressionFactory expressionFactory;
   private final JinjavaInterpreterResolver resolver;
@@ -85,6 +90,7 @@ public class ExpressionResolver {
         elExpression,
         Object.class
       );
+      LOG.debug("EL expression is: " + elExpression);
       Object result = valueExp.getValue(elContext);
       if (result == null && interpreter.getConfig().isFailOnUnknownTokens()) {
         throw new UnknownTokenException(
@@ -126,11 +132,9 @@ public class ExpressionResolver {
       interpreter.addError(
         TemplateError.fromException(
           new TemplateSyntaxException(
+            interpreter,
             expression.substring(e.getPosition() - EXPRESSION_START_TOKEN.length()),
-            "Error parsing '" + expression + "': " + errorMessage,
-            interpreter.getLineNumber(),
-            position,
-            e
+            "Error parsing '" + expression + "': " + errorMessage
           )
         )
       );
@@ -195,15 +199,14 @@ public class ExpressionResolver {
         interpreter.addError(
           TemplateError.fromException(
             new TemplateSyntaxException(
+              interpreter,
               expression,
               (
                   e.getCause() == null ||
                   StringUtils.endsWith(originatingException, e.getCause().getMessage())
                 )
                 ? e.getMessage()
-                : combinedMessage,
-              interpreter.getLineNumber(),
-              e
+                : combinedMessage
             )
           )
         );
@@ -221,17 +224,16 @@ public class ExpressionResolver {
           e
         )
       );
-    } catch (UnknownTokenException e) {
+    } catch (UnknownTokenException | DeferredValueException e) {
       // Re-throw the exception because you only get this when the config failOnUnknownTokens is enabled.
       throw e;
-    } catch (DeferredValueException e) {
-      // Re-throw so that it can be handled in JinjavaInterpreter
-      throw e;
-    } catch (InvalidInputException e) {
+    } // Re-throw so that it can be handled in JinjavaInterpreter
+    catch (InvalidInputException e) {
       interpreter.addError(TemplateError.fromInvalidInputException(e));
     } catch (InvalidArgumentException e) {
       interpreter.addError(TemplateError.fromInvalidArgumentException(e));
     } catch (Exception e) {
+      LOG.error("Error during expression resolving", e);
       interpreter.addError(
         TemplateError.fromException(
           new InterpretException(

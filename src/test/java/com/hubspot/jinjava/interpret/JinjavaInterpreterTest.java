@@ -2,8 +2,8 @@ package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertEquals;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
@@ -24,13 +24,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class JinjavaInterpreterTest {
-  private Jinjava jinjava;
   private JinjavaInterpreter interpreter;
   private TokenScannerSymbols symbols;
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
+    Jinjava jinjava = new Jinjava();
     interpreter = jinjava.newInterpreter();
     symbols = interpreter.getConfig().getTokenScannerSymbols();
   }
@@ -88,36 +87,10 @@ public class JinjavaInterpreterTest {
     assertThat(content).isEmpty();
   }
 
-  // Ex VariableChain stuff
-
-  static class Foo {
-    private String bar;
-
-    public Foo(String bar) {
-      this.bar = bar;
-    }
-
-    public String getBar() {
-      return bar;
-    }
-
-    public String getBarFoo() {
-      return bar;
-    }
-
-    public String getBarFoo1() {
-      return bar;
-    }
-
-    @JsonIgnore
-    public String getBarHidden() {
-      return bar;
-    }
-  }
-
   @Test
   public void singleWordProperty() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "bar")).isEqualTo("a");
+    assertEquals("Can't resolve single word property",
+            "a", interpreter.resolveProperty(new Foo("a"), "bar"));
   }
 
   @Test

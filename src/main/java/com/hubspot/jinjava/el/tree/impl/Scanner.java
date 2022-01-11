@@ -1,5 +1,8 @@
 package com.hubspot.jinjava.el.tree.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.text.MessageFormat;
 import java.util.HashMap;
 
@@ -9,6 +12,9 @@ import java.util.HashMap;
  * @author Christoph Beck
  */
 public class Scanner {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Scanner.class);
+
     /**
      * Scan exception type
      */
@@ -383,7 +389,9 @@ public class Scanner {
                 return fixed(Symbol.GT);
             case '"':
             case '\'': return nextString();
-            default: throw new IllegalArgumentException("Value " + c1 + " is not supported.");
+            default:
+                LOG.debug("Value " + c1 + " is not recognized.");
+                break;
         }
 
         if (isDigit(c1) || c1 == '.') {

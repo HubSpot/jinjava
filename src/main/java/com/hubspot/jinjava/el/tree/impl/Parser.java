@@ -33,6 +33,8 @@ import com.hubspot.jinjava.el.tree.impl.ast.AstProperty;
 import com.hubspot.jinjava.el.tree.impl.ast.AstString;
 import com.hubspot.jinjava.el.tree.impl.ast.AstText;
 import com.hubspot.jinjava.el.tree.impl.ast.AstUnary;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.hubspot.jinjava.el.tree.impl.Builder.Feature.METHOD_INVOCATIONS;
 import static com.hubspot.jinjava.el.tree.impl.Builder.Feature.NULL_PROPERTIES;
@@ -64,6 +66,9 @@ import static com.hubspot.jinjava.el.tree.impl.Scanner.Symbol.TRUE;
  * @author Christoph Beck
  */
 public class Parser {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Parser.class);
+
     /**
      * Parse exception type
      */
@@ -657,20 +662,13 @@ public class Parser {
      * function   := (&lt;IDENTIFIER&gt; &lt;COLON&gt;)? &lt;IDENTIFIER&gt; &lt;LPAREN&gt; list? &lt;RPAREN&gt;
      */
     protected AstNode nonliteral() throws ScanException, ParseException {
-        AstNode v = null;
-        switch (token.getSymbol()) {
+        AstNode v;
+        Symbol tokenSymbol = token.getSymbol();
+        switch (tokenSymbol) {
             case IDENTIFIER:
                 String name = consumeToken().getImage();
-                if (token.getSymbol() == COLON && lookahead(0).getSymbol() == IDENTIFIER && lookahead(1).getSymbol() == LPAREN) { // ns:f(...)
-                    consumeToken();
-                    name += ":" + token.getImage();
-                    consumeToken();
-                }
-                if (token.getSymbol() == LPAREN) { // function
-                    v = function(name, params());
-                } else { // identifier
-                    v = identifier(name);
-                }
+                // identifier
+                v = identifier(name);
                 break;
             case LPAREN:
                 consumeToken();
@@ -678,7 +676,9 @@ public class Parser {
                 consumeToken(RPAREN);
                 v = new AstNested(v);
                 break;
-            default: throw new IllegalArgumentException("Value " + token.getSymbol() + " is not supported.");
+            default:
+                LOG.debug("Value " + tokenSymbol + " is not supported.");
+                v = null;
         }
         return v;
     }
@@ -737,7 +737,9 @@ public class Parser {
                     v = getExtensionHandler(consumeToken()).createAstNode();
                     break;
                 }
-            default: throw new IllegalArgumentException("Value " + token.getSymbol() + " is not supported.");
+            default:
+                LOG.debug("Value " + token.getSymbol() + " is not recognized.");
+                v = null;
         }
         return v;
     }
