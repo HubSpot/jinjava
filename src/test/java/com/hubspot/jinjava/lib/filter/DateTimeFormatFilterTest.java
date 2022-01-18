@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
@@ -77,7 +78,7 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
       .isEqualTo("October 12, 2018, at 01:09 AM");
   }
 
-  @Test(expected = InvalidDateFormatException.class)
+  @Test(expected = InvalidArgumentException.class)
   public void itThrowsExceptionOnInvalidTimezone() throws Exception {
     filter.filter(
       1539277785000L,

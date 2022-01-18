@@ -163,7 +163,11 @@ public class Functions {
       try {
         zoneOffset = ZoneId.of(timezone);
       } catch (DateTimeException e) {
-        throw new InvalidDateFormatException(timezone, e);
+        throw new InvalidArgumentException(
+          JinjavaInterpreter.getCurrent(),
+          "datetimeformat",
+          String.format("Invalid timezone: %s", timezone)
+        );
       }
     } else if (var instanceof ZonedDateTime) {
       zoneOffset = ((ZonedDateTime) var).getZone();
