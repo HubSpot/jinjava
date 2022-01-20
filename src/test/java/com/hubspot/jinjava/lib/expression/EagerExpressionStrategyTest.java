@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.expression;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -149,6 +150,32 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
   @Test
   public void itDoesNotNestedInterpretIfThereAreFakeNotes() {
     assertExpectedOutput("{{ '{#something_to_{{keep}}' }}", "{#something_to_{{keep}}");
+  }
+
+  @Test
+  public void itDoesNotReconstructWithDoubleCurlyBraces() {
+    interpreter.getContext().put("foo", ImmutableMap.of("foo", ImmutableMap.of()));
+    assertExpectedOutput("{{ deferred ~ foo }}", "{{ deferred ~ {'foo': {} } }}");
+  }
+
+  @Test
+  public void itDoesNotReconstructWithNestedDoubleCurlyBraces() {
+    interpreter
+      .getContext()
+      .put("foo", ImmutableMap.of("foo", ImmutableMap.of("bar", ImmutableMap.of())));
+    assertExpectedOutput(
+      "{{ deferred ~ foo }}",
+      "{{ deferred ~ {'foo': {'bar': {} } } }}"
+    );
+  }
+
+  @Test
+  public void itReconstructsWithNestedInterpretation() {
+    interpreter.getContext().put("foo", "{{ print 'bar' }}");
+    assertExpectedOutput(
+      "{{ deferred ~ foo }}",
+      "{{ deferred ~ '{{ print \\'bar\\' }}' }}"
+    );
   }
 
   private void assertExpectedOutput(String inputTemplate, String expectedOutput) {
