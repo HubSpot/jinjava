@@ -28,18 +28,22 @@ public class EagerAstNested extends AstRightValue implements EvalResultHolder {
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    try {
-      evalResult = child.eval(bindings, context);
-      hasEvalResult = true;
-      return evalResult;
-    } catch (DeferredParsingException e) {
-      throw new DeferredParsingException(
-        this,
-        String.format("(%s)", e.getDeferredEvalResult())
-      );
-    } finally {
-      ((EvalResultHolder) child).getAndClearEvalResult();
-    }
+    return EvalResultHolder.super.eval(
+      () -> child.eval(bindings, context),
+      bindings,
+      context
+    );
+  }
+
+  @Override
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = evalResult;
+    hasEvalResult = true;
   }
 
   @Override
@@ -48,11 +52,10 @@ public class EagerAstNested extends AstRightValue implements EvalResultHolder {
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    ((EvalResultHolder) child).clearEvalResult();
   }
 
   @Override
@@ -68,5 +71,24 @@ public class EagerAstNested extends AstRightValue implements EvalResultHolder {
   @Override
   public Node getChild(int i) {
     return i == 0 ? child : null;
+  }
+
+  @Override
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    return String.format(
+      "(%s)",
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        (EvalResultHolder) child,
+        deferredParsingException,
+        preserveIdentifier
+      )
+    );
   }
 }

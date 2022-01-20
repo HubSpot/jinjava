@@ -974,4 +974,23 @@ public class EagerTest {
       "handles-same-name-import-var"
     );
   }
+
+  @Test
+  public void itReconstructsTypesProperly() {
+    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-types-properly");
+  }
+
+  @Test
+  public void itRunsForLoopInsideDeferredForLoop() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "runs-for-loop-inside-deferred-for-loop"
+    );
+  }
+
+  @Test
+  public void itModifiesVariableInDeferredMacro() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "modifies-variable-in-deferred-macro"
+    );
+  }
 }

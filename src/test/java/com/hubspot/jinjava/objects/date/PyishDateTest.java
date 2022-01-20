@@ -66,4 +66,31 @@ public class PyishDateTest {
     interpreter.render("{% set foo = " + PyishObjectMapper.getAsPyishString(d1) + "%}");
     assertThat(d1).isEqualTo(interpreter.getContext().get("foo"));
   }
+
+  @Test
+  public void testPyishDateToStringWithCustomDateFormatter() {
+    PyishDate d1 = new PyishDate(ZonedDateTime.parse("2013-11-12T14:15:16.170+02:00"));
+    JinjavaInterpreter interpreter = new Jinjava().newInterpreter();
+    JinjavaInterpreter.pushCurrent(interpreter);
+    try {
+      interpreter
+        .getContext()
+        .put(PyishDate.PYISH_DATE_CUSTOM_DATE_FORMAT_CONTEXT_KEY, "YYYY-MM-dd");
+      assertThat(d1.toString()).isEqualTo("2013-11-12");
+      interpreter
+        .getContext()
+        .put(PyishDate.PYISH_DATE_CUSTOM_DATE_FORMAT_CONTEXT_KEY, "YYYY/MM/dd");
+      assertThat(d1.toString()).isEqualTo("2013/11/12");
+      interpreter
+        .getContext()
+        .put(PyishDate.PYISH_DATE_CUSTOM_DATE_FORMAT_CONTEXT_KEY, "MM/dd/yy");
+      assertThat(d1.toString()).isEqualTo("11/12/13");
+      interpreter
+        .getContext()
+        .remove(PyishDate.PYISH_DATE_CUSTOM_DATE_FORMAT_CONTEXT_KEY);
+      assertThat(d1.toString()).isEqualTo("2013-11-12 14:15:16");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
+  }
 }

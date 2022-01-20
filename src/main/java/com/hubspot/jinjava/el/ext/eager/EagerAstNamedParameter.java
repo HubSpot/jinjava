@@ -27,26 +27,49 @@ public class EagerAstNamedParameter
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    try {
-      evalResult = super.eval(bindings, context);
-      hasEvalResult = true;
-      return evalResult;
-    } catch (DeferredParsingException e) {
-      throw new DeferredParsingException(
-        this,
-        String.format("%s=%s", name, e.getDeferredEvalResult())
-      );
-    } finally {
-      value.getAndClearEvalResult();
-    }
+    return EvalResultHolder.super.eval(
+      () -> super.eval(bindings, context),
+      bindings,
+      context
+    );
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public String getPartiallyResolved(
+    Bindings bindings,
+    ELContext context,
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
+  ) {
+    return String.format(
+      "%s=%s",
+      name,
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        value,
+        deferredParsingException,
+        false
+      )
+    );
+  }
+
+  @Override
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = evalResult;
+    hasEvalResult = true;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    value.clearEvalResult();
   }
 
   @Override

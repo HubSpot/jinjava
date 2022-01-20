@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.objects.date;
 
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import java.io.Serializable;
@@ -24,6 +25,8 @@ public final class PyishDate
   private static final long serialVersionUID = 1L;
   public static final String PYISH_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
   public static final String FULL_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+  public static final String PYISH_DATE_CUSTOM_DATE_FORMAT_CONTEXT_KEY =
+    "Jinjava_PyishDate_Custom_Format_Key";
 
   private final ZonedDateTime date;
 
@@ -107,6 +110,22 @@ public final class PyishDate
 
   @Override
   public String toString() {
+    if (
+      JinjavaInterpreter.getCurrent() != null &&
+      JinjavaInterpreter
+        .getCurrent()
+        .getContext()
+        .containsKey(PYISH_DATE_CUSTOM_DATE_FORMAT_CONTEXT_KEY)
+    ) {
+      return strftime(
+        JinjavaInterpreter
+          .getCurrent()
+          .getContext()
+          .get(PYISH_DATE_CUSTOM_DATE_FORMAT_CONTEXT_KEY)
+          .toString()
+      );
+    }
+
     return strftime(PYISH_DATE_FORMAT);
   }
 

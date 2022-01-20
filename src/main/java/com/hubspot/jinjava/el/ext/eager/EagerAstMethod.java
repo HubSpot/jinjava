@@ -35,30 +35,36 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
   @Override
   public Object eval(Bindings bindings, ELContext context) {
     try {
-      evalResult = super.eval(bindings, context);
-      hasEvalResult = true;
+      setEvalResult(super.eval(bindings, context));
       return evalResult;
     } catch (DeferredValueException | ELException originalException) {
       DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
         originalException
       );
-
       throw new DeferredParsingException(
         this,
-        getPartiallyResolved(bindings, context, e)
+        getPartiallyResolved(bindings, context, e, true) // Need this to always be true because the method may modify the identifier
       );
-    } finally {
-      property.getAndClearEvalResult();
-      params.getAndClearEvalResult();
     }
   }
 
   @Override
-  public Object getAndClearEvalResult() {
-    Object temp = evalResult;
+  public Object getEvalResult() {
+    return evalResult;
+  }
+
+  @Override
+  public void setEvalResult(Object evalResult) {
+    this.evalResult = evalResult;
+    hasEvalResult = true;
+  }
+
+  @Override
+  public void clearEvalResult() {
     evalResult = null;
     hasEvalResult = false;
-    return temp;
+    property.clearEvalResult();
+    params.clearEvalResult();
   }
 
   @Override
@@ -71,43 +77,20 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
    * Neither the property or params could be evaluated so we dive into the property and figure out
    * where the DeferredParsingException came from.
    */
-  private String getPartiallyResolved(
+  public String getPartiallyResolved(
     Bindings bindings,
     ELContext context,
-    DeferredParsingException deferredParsingException
+    DeferredParsingException deferredParsingException,
+    boolean preserveIdentifier
   ) {
-    String stringPrefix;
-    String stringMethod;
-    AstNode prefix;
-    String formatString;
-    if (property instanceof EagerAstDot) {
-      formatString = "%s.%s";
-      prefix = ((EagerAstDot) property).getPrefix();
-      stringMethod = ((EagerAstDot) property).getProperty();
-    } else if (property instanceof EagerAstBracket) {
-      formatString = "%s[%s]";
-      prefix = ((EagerAstBracket) property).getPrefix();
-      stringMethod =
-        EvalResultHolder.reconstructNode(
+    String propertyResult;
+    propertyResult =
+      (property).getPartiallyResolved(
           bindings,
           context,
-          (EvalResultHolder) ((EagerAstBracket) property).getMethod(),
           deferredParsingException,
-          false
+          preserveIdentifier
         );
-    } else { // Should not happen natively
-      throw new DeferredValueException("Cannot resolve property in EagerAstMethod");
-    }
-
-    // If prefix is an identifier, then preserve it in case the method should modify it.
-    stringPrefix =
-      EvalResultHolder.reconstructNode(
-        bindings,
-        context,
-        (EvalResultHolder) prefix,
-        deferredParsingException,
-        true
-      );
     String paramString;
     if (
       deferredParsingException != null &&
@@ -118,7 +101,7 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
       try {
         paramString =
           EagerExpressionResolver.getValueAsJinjavaStringSafe(
-            params.eval(bindings, context)
+            ((AstNode) params).eval(bindings, context)
           );
         // remove brackets so they can get replaced with parentheses
         paramString = paramString.substring(1, paramString.length() - 1);
@@ -127,9 +110,6 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
       }
     }
 
-    return (
-      String.format(formatString, stringPrefix, stringMethod) +
-      String.format("(%s)", paramString)
-    );
+    return (propertyResult + String.format("(%s)", paramString));
   }
 }

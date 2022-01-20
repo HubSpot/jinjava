@@ -13,7 +13,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.objects.Namespace;
-import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import com.hubspot.jinjava.tree.Node;
@@ -132,7 +131,11 @@ public class Functions {
       try {
         zoneOffset = ZoneId.of(timezone);
       } catch (DateTimeException e) {
-        throw new InvalidDateFormatException(timezone, e);
+        throw new InvalidArgumentException(
+          JinjavaInterpreter.getCurrent(),
+          "today",
+          String.format("Invalid timezone: %s", timezone)
+        );
       }
     }
 
@@ -163,7 +166,11 @@ public class Functions {
       try {
         zoneOffset = ZoneId.of(timezone);
       } catch (DateTimeException e) {
-        throw new InvalidDateFormatException(timezone, e);
+        throw new InvalidArgumentException(
+          JinjavaInterpreter.getCurrent(),
+          "datetimeformat",
+          String.format("Invalid timezone: %s", timezone)
+        );
       }
     } else if (var instanceof ZonedDateTime) {
       zoneOffset = ((ZonedDateTime) var).getZone();
@@ -437,6 +444,7 @@ public class Functions {
         if (!killwords) {
           length = movePointerToJustBeforeLastWord(length, string);
         }
+        length = Math.max(length, 0);
 
         return string.substring(0, length) + ends;
       } else {
