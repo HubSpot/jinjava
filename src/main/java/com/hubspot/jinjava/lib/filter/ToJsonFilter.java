@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.filter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -19,7 +20,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
   snippets = { @JinjavaSnippet(code = "{{object|tojson}}") }
 )
 public class ToJsonFilter implements Filter {
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+  .registerModule(new JavaTimeModule());
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
