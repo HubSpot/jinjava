@@ -73,6 +73,15 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itAllowsRecursionForTagExpressions() throws Exception {
+    context.put("myvar", "{% if true %}{{ place }}{% endif %}");
+    context.put("place", "{% if true %}Hello{% endif %}");
+
+    ExpressionNode node = fixture("simplevar");
+    assertThat(node.render(interpreter).toString()).isEqualTo("Hello");
+  }
+
+  @Test
   public void itDoesNotRescursivelyEvaluateExpressionsOfSelf() throws Exception {
     context.put("myvar", "hello {{myvar}}");
 
