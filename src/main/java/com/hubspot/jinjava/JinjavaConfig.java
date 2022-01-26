@@ -17,6 +17,7 @@ package com.hubspot.jinjava;
 
 import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -66,6 +67,7 @@ public class JinjavaConfig {
   private final ExecutionMode executionMode;
   private final LegacyOverrides legacyOverrides;
   private final boolean enablePreciseDivideFilter;
+  private final ObjectMapper objectMapper;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -120,6 +122,7 @@ public class JinjavaConfig {
     executionMode = builder.executionMode;
     legacyOverrides = builder.legacyOverrides;
     enablePreciseDivideFilter = builder.enablePreciseDivideFilter;
+    objectMapper = builder.objectMapper;
   }
 
   public Charset getCharset() {
@@ -214,6 +217,10 @@ public class JinjavaConfig {
     return elResolver;
   }
 
+  public ObjectMapper getObjectMapper() {
+    return objectMapper;
+  }
+
   /**
    * @deprecated  Replaced by {@link LegacyOverrides#isIterateOverMapKeys()}
    */
@@ -263,6 +270,7 @@ public class JinjavaConfig {
     private ExecutionMode executionMode = DefaultExecutionMode.instance();
     private LegacyOverrides legacyOverrides = LegacyOverrides.NONE;
     private boolean enablePreciseDivideFilter = false;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private Builder() {}
 
@@ -392,8 +400,8 @@ public class JinjavaConfig {
     @Deprecated
     public Builder withIterateOverMapKeys(boolean iterateOverMapKeys) {
       return withLegacyOverrides(
-        LegacyOverrides
-          .Builder.from(legacyOverrides)
+        LegacyOverrides.Builder
+          .from(legacyOverrides)
           .withIterateOverMapKeys(iterateOverMapKeys)
           .build()
       );
@@ -411,6 +419,11 @@ public class JinjavaConfig {
 
     public Builder withEnablePreciseDivideFilter(boolean enablePreciseDivideFilter) {
       this.enablePreciseDivideFilter = enablePreciseDivideFilter;
+      return this;
+    }
+
+    public Builder withObjectMapper(ObjectMapper objectMapper) {
+      this.objectMapper = objectMapper;
       return this;
     }
 
