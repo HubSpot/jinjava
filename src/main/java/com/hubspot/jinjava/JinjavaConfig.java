@@ -400,8 +400,8 @@ public class JinjavaConfig {
     @Deprecated
     public Builder withIterateOverMapKeys(boolean iterateOverMapKeys) {
       return withLegacyOverrides(
-        LegacyOverrides.Builder
-          .from(legacyOverrides)
+        LegacyOverrides
+          .Builder.from(legacyOverrides)
           .withIterateOverMapKeys(iterateOverMapKeys)
           .build()
       );
