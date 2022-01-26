@@ -73,7 +73,7 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itAllowsRecursionForTagExpressions() throws Exception {
+  public void itAllowsNestedTagExpressions() throws Exception {
     context.put("myvar", "{% if true %}{{ place }}{% endif %}");
     context.put("place", "{% if true %}Hello{% endif %}");
 
