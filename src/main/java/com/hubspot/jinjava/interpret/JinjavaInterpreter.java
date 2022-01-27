@@ -40,6 +40,7 @@ import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
 import com.hubspot.jinjava.random.DeferredRandomNumberGenerator;
+import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
@@ -259,7 +260,7 @@ public class JinjavaInterpreter implements PyishSerializable {
       position = node.getStartPosition();
       String renderStr = node.getMaster().getImage();
       try {
-        if (context.doesRenderStackContain(renderStr)) {
+        if (node instanceof ExpressionNode && context.doesRenderStackContain(renderStr)) {
           // This is a circular rendering. Stop rendering it here.
           addError(
             new TemplateError(
