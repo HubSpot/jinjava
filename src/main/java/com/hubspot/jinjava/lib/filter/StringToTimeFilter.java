@@ -8,6 +8,7 @@ import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.Functions;
+import com.hubspot.jinjava.objects.date.PyishDate;
 
 @JinjavaDoc(
   value = "Converts a datetime string and datetime format to a datetime object",
@@ -39,6 +40,11 @@ public class StringToTimeFilter implements Filter {
 
     if (var == null) {
       return null;
+    }
+
+    //Preserve behaviour for String which are now Pyishdates passed
+    if (var instanceof PyishDate){
+      var = ((PyishDate) var).toString();
     }
 
     if (!(var instanceof String)) {
