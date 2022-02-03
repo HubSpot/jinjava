@@ -107,11 +107,11 @@ public class EagerMacroFunction extends AbstractCallableMethod {
     String prefix = "";
     String suffix = "";
     Optional<String> importFile = macroFunction.getImportFile(interpreter);
+    Object currentDeferredImportResource = null;
     if (importFile.isPresent()) {
       interpreter.getContext().getCurrentPathStack().pop();
-      Object currentDeferredImportResource = interpreter
-        .getContext()
-        .get(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY);
+      currentDeferredImportResource =
+        interpreter.getContext().get(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY);
       if (currentDeferredImportResource instanceof DeferredValue) {
         currentDeferredImportResource =
           ((DeferredValue) currentDeferredImportResource).getOriginalValue();
@@ -158,6 +158,10 @@ public class EagerMacroFunction extends AbstractCallableMethod {
             .map(arg -> DeferredMacroValueImpl.instance())
             .toArray()
         );
+
+        interpreter
+          .getContext()
+          .put(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY, currentDeferredImportResource);
         if (interpreter.getContext().getEagerTokens().size() > numEagerTokensStart) {
           evaluation =
             (String) evaluate(

@@ -544,15 +544,16 @@ public class EagerImportTagTest extends ImportTagTest {
     );
     assertThat(firstPassResult)
       .isEqualTo(
-        "{% set deferred_import_resource_path = 'double-import-macro.jinja' %}{% macro print_path_macro2(var) %}{{ filter:print_path.filter(foo, ____int3rpr3t3r____) }}\n" +
+        "{% set deferred_import_resource_path = 'double-import-macro.jinja' %}{% macro print_path_macro2(var) %}{{ filter:print_path.filter(var, ____int3rpr3t3r____) }}\n" +
         "{% set deferred_import_resource_path = 'import-macro.jinja' %}{% macro print_path_macro(var) %}\n" +
         "{{ filter:print_path.filter(var, ____int3rpr3t3r____) }}\n" +
         "{{ var }}\n" +
-        "{% endmacro %}{% set deferred_import_resource_path = 'double-import-macro.jinja' %}{{ print_path_macro(foo) }}{% endmacro %}{% set deferred_import_resource_path = null %}{{ print_path_macro2(foo) }}"
+        "{% endmacro %}{% set deferred_import_resource_path = null %}{{ print_path_macro(var) }}{% endmacro %}{% set deferred_import_resource_path = null %}{{ print_path_macro2(foo) }}"
       );
     context.put("foo", "foo");
+    context.put(Context.GLOBAL_MACROS_SCOPE_KEY, null);
     assertThat(interpreter.render(firstPassResult).trim())
-      .isEqualTo("double-import-macro.jinja\nimport-macro.jinja\nfoo");
+      .isEqualTo("double-import-macro.jinja\n\nimport-macro.jinja\nfoo");
   }
 
   @Test

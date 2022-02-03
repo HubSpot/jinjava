@@ -180,16 +180,34 @@ public class MacroFunction extends AbstractCallableMethod {
       return false;
     }
     MacroFunction that = (MacroFunction) o;
+    if (this.deferred && that.deferred) {
+      return (
+        caller == that.caller &&
+        content.equals(that.content) &&
+        Objects.equals(
+          localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY),
+          that.localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY)
+        )
+      );
+    }
     return (
       caller == that.caller &&
-      definitionLineNumber == that.definitionLineNumber &&
-      definitionStartPosition == that.definitionStartPosition &&
-      content.equals(that.content)
+      content.equals(that.content) &&
+      Objects.equals(getName(), that.getName()) &&
+      Objects.equals(
+        localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY),
+        that.localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY)
+      )
     );
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(content, caller, definitionLineNumber, definitionStartPosition);
+    return Objects.hash(
+      getName(),
+      localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY),
+      content,
+      caller
+    );
   }
 }
