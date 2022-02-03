@@ -5,6 +5,7 @@ import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
@@ -108,9 +109,13 @@ public class EagerMacroFunction extends AbstractCallableMethod {
     Optional<String> importFile = macroFunction.getImportFile(interpreter);
     if (importFile.isPresent()) {
       interpreter.getContext().getCurrentPathStack().pop();
-      String currentDeferredImportResource = (String) interpreter
+      Object currentDeferredImportResource = interpreter
         .getContext()
         .get(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY);
+      if (currentDeferredImportResource instanceof DeferredValue) {
+        currentDeferredImportResource =
+          ((DeferredValue) currentDeferredImportResource).getOriginalValue();
+      }
       prefix =
         EagerReconstructionUtils.buildSetTag(
           ImmutableMap.of(
@@ -120,6 +125,9 @@ public class EagerMacroFunction extends AbstractCallableMethod {
           interpreter,
           false
         );
+      interpreter
+        .getContext()
+        .put(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY, importFile.get());
       suffix =
         EagerReconstructionUtils.buildSetTag(
           ImmutableMap.of(
