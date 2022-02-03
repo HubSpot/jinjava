@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseJinjavaTest;
+import com.hubspot.jinjava.objects.date.PyishDate;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,5 +38,16 @@ public class StringToTimeFilterTest extends BaseJinjavaTest {
         jinjava.renderForResult("{{ datetime|strtotime(format) }}", vars).getErrors()
       )
       .hasSize(1);
+  }
+
+  @Test
+  public void itPreservesBehaviourForPyishDates() {
+
+    String expectedTs = "1531558890000";
+
+    Map<String, Object> vars = ImmutableMap.of("test", new PyishDate(expectedTs), "format", "ignored");
+
+    assertThat(jinjava.render("{{ test|strtotime(format)|unixtimestamp }}", vars))
+      .isEqualTo(expectedTs);
   }
 }
