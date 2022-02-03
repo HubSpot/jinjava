@@ -44,7 +44,7 @@ public class StringToTimeFilter implements Filter {
 
     //Preserve behaviour for String which are now Pyishdates passed
     if (var instanceof PyishDate){
-      var = ((PyishDate) var).toString();
+      return var;
     }
 
     if (!(var instanceof String)) {
