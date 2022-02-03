@@ -156,7 +156,9 @@ public class MacroTag implements Tag {
             (Map<String, Object>) interpreter
               .getContext()
               .getOrDefault(parentName, new HashMap<>());
-          macroOfParent.put(macro.getName(), macro);
+          if (!isLocalMacroFunctionAlreadyDeferred(macro.getName(), macroOfParent)) {
+            macroOfParent.put(macro.getName(), macro);
+          }
           if (!interpreter.getContext().containsKey(parentName)) {
             interpreter.getContext().put(parentName, macroOfParent);
           }
@@ -164,7 +166,14 @@ public class MacroTag implements Tag {
           Object originalValue =
             ((DeferredValue) interpreter.getContext().get(parentName)).getOriginalValue();
           if (originalValue instanceof Map) {
-            ((Map<String, Object>) originalValue).put(macro.getName(), macro);
+            if (
+              !isLocalMacroFunctionAlreadyDeferred(
+                macro.getName(),
+                (Map<String, Object>) originalValue
+              )
+            ) {
+              ((Map<String, Object>) originalValue).put(macro.getName(), macro);
+            }
           } else {
             macroOfParent = new HashMap<>();
             macroOfParent.put(macro.getName(), macro);
@@ -182,7 +191,11 @@ public class MacroTag implements Tag {
         );
       }
     } else {
-      interpreter.getContext().addGlobalMacro(macro);
+      if (
+        !isGlobalMacroFunctionAlreadyDeferred(macro.getName(), interpreter.getContext())
+      ) {
+        interpreter.getContext().addGlobalMacro(macro);
+      }
     }
 
     if (deferred) {
@@ -194,6 +207,22 @@ public class MacroTag implements Tag {
     }
 
     return "";
+  }
+
+  private boolean isLocalMacroFunctionAlreadyDeferred(
+    String name,
+    Map<String, Object> macroOfParent
+  ) {
+    return (
+      (macroOfParent.get(name) instanceof MacroFunction) &&
+      ((MacroFunction) macroOfParent.get(name)).isDeferred()
+    );
+  }
+
+  private boolean isGlobalMacroFunctionAlreadyDeferred(String name, Context context) {
+    return (
+      context.getGlobalMacro(name) != null && context.getGlobalMacro(name).isDeferred()
+    );
   }
 
   public static boolean populateArgNames(
