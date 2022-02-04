@@ -22,6 +22,7 @@ import com.google.common.collect.Sets;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,6 +44,7 @@ public class ListFilterTest {
   @Test
   public void itConvertsSetsToLists() {
     Set<Integer> ints = Sets.newHashSet(1, 2, 3);
+    ints = new TreeSet<Integer>(ints); // Converting to TreeMap to avoid non-deterministic permutations.
     List<?> o = (List<?>) filter.filter(ints, null);
     assertThat(o).isEqualTo(Lists.newArrayList(1, 2, 3));
   }

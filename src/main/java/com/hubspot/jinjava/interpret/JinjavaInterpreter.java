@@ -84,7 +84,6 @@ public class JinjavaInterpreter implements PyishSerializable {
   private int lineNumber = -1;
   private int position = 0;
   private int scopeDepth = 1;
-  private BlockInfo currentBlock;
   private final List<TemplateError> errors = new LinkedList<>();
   private static final int MAX_ERROR_SIZE = 100;
 
@@ -429,7 +428,6 @@ public class JinjavaInterpreter implements PyishSerializable {
             .map(BlockInfo::getNodes)
             .orElse(null);
           context.setSuperBlock(superBlock);
-          currentBlock = block;
 
           OutputList blockValueBuilder = new OutputList(config.getMaxOutputSize());
 
@@ -465,7 +463,6 @@ public class JinjavaInterpreter implements PyishSerializable {
           blockNames.pop();
 
           context.removeSuperBlock();
-          currentBlock = null;
 
           blockPlaceholder.resolve(blockValueBuilder.getValue());
         }
@@ -672,10 +669,6 @@ public class JinjavaInterpreter implements PyishSerializable {
 
   public void setPosition(int position) {
     this.position = position;
-  }
-
-  public BlockInfo getCurrentBlock() {
-    return currentBlock;
   }
 
   public void addError(TemplateError templateError) {
