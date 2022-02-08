@@ -157,12 +157,9 @@ public class ImportTag implements Tag {
         .getContext()
         .putAll(getChildBindingsWithoutImportResourcePath(childBindings));
     } else {
-      for (Map.Entry<String, MacroFunction> macro : child
+      childBindings.putAll(child
         .getContext()
-        .getGlobalMacros()
-        .entrySet()) {
-        childBindings.put(macro.getKey(), macro.getValue());
-      }
+        .getGlobalMacros());
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
       parent.getContext().put(contextVar, childBindings);
     }
