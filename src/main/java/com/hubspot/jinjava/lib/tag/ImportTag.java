@@ -25,7 +25,9 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -151,7 +153,9 @@ public class ImportTag implements Tag {
         parent.getContext().addGlobalMacro(macro);
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-      parent.getContext().putAll(childBindings);
+      parent
+        .getContext()
+        .putAll(getChildBindingsWithoutImportResourcePath(childBindings));
     } else {
       for (Map.Entry<String, MacroFunction> macro : child
         .getContext()
@@ -162,6 +166,17 @@ public class ImportTag implements Tag {
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
       parent.getContext().put(contextVar, childBindings);
     }
+  }
+
+  public static Map<String, Object> getChildBindingsWithoutImportResourcePath(
+    Map<String, Object> childBindings
+  ) {
+    // Don't remove them from childBindings, because it is needed in a macro function's localContextScope
+    return childBindings
+      .entrySet()
+      .stream()
+      .filter(entry -> !entry.getKey().equals(Context.IMPORT_RESOURCE_PATH_KEY))
+      .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
   }
 
   public static void handleDeferredNodesDuringImport(

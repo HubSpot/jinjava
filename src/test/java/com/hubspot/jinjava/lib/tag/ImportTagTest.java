@@ -11,6 +11,7 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.lib.tag.eager.EagerImportTagTest.PrintPathFilter;
 import com.hubspot.jinjava.loader.LocationResolver;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
@@ -39,6 +40,7 @@ public class ImportTagTest extends BaseInterpretingTest {
     );
 
     context.put("padding", 42);
+    context.registerFilter(new PrintPathFilter());
   }
 
   @Test
@@ -350,6 +352,17 @@ public class ImportTagTest extends BaseInterpretingTest {
     assertThat(result.getErrors().get(0).getSourceTemplate().isPresent());
     assertThat(result.getErrors().get(0).getSourceTemplate().get())
       .isEqualTo("tags/importtag/errors/macro-with-error.jinja");
+  }
+
+  @Test
+  public void itCorrectlySetsNestedPaths() {
+    context.put("foo", "foo");
+    assertThat(
+        interpreter.render(
+          "{% import 'double-import-macro.jinja' %}{{ print_path_macro2(foo) }}"
+        )
+      )
+      .isEqualTo("double-import-macro.jinja\n\nimport-macro.jinja\nfoo\n");
   }
 
   private String fixture(String name) {
