@@ -79,6 +79,21 @@ public class ImportTagTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itHandlesNullImportedValues() throws IOException {
+    Jinjava jinjava = new Jinjava();
+    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
+
+    interpreter.render(
+      Resources.toString(
+        Resources.getResource("tags/importtag/imports-null.jinja"),
+        StandardCharsets.UTF_8
+      )
+    );
+    assertThat(context.get("foo")).isEqualTo("foo");
+    assertThat(context.get("bar")).isEqualTo(null);
+  }
+
+  @Test
   public void importedContextExposesVars() {
     assertThat(fixture("import"))
       .contains("wrap-padding: padding-left:42px;padding-right:42px");
