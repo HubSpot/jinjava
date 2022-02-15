@@ -23,6 +23,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -151,17 +152,27 @@ public class ImportTag implements Tag {
         parent.getContext().addGlobalMacro(macro);
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-      parent.getContext().putAll(childBindings);
-    } else {
-      for (Map.Entry<String, MacroFunction> macro : child
+      parent
         .getContext()
-        .getGlobalMacros()
-        .entrySet()) {
-        childBindings.put(macro.getKey(), macro.getValue());
-      }
+        .putAll(getChildBindingsWithoutImportResourcePath(childBindings));
+    } else {
+      childBindings.putAll(child.getContext().getGlobalMacros());
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
       parent.getContext().put(contextVar, childBindings);
     }
+  }
+
+  public static Map<String, Object> getChildBindingsWithoutImportResourcePath(
+    Map<String, Object> childBindings
+  ) {
+    Map<String, Object> filteredMap = new HashMap<>();
+    // Don't remove them from childBindings, because it is needed in a macro function's localContextScope
+    childBindings
+      .entrySet()
+      .stream()
+      .filter(entry -> !entry.getKey().equals(Context.IMPORT_RESOURCE_PATH_KEY))
+      .forEach(entry -> filteredMap.put(entry.getKey(), entry.getValue()));
+    return filteredMap;
   }
 
   public static void handleDeferredNodesDuringImport(

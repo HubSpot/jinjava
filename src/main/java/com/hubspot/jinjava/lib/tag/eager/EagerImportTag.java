@@ -338,12 +338,11 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
       childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
-      parent.getContext().putAll(childBindings);
+      parent
+        .getContext()
+        .putAll(ImportTag.getChildBindingsWithoutImportResourcePath(childBindings));
     } else {
-      Map<String, MacroFunction> globalMacros = child.getContext().getGlobalMacros();
-      for (Map.Entry<String, MacroFunction> macro : globalMacros.entrySet()) {
-        childBindings.put(macro.getKey(), macro.getValue());
-      }
+      childBindings.putAll(child.getContext().getGlobalMacros());
       Map<String, Object> mapForCurrentContextAlias = getMapForCurrentContextAlias(
         currentImportAlias,
         child

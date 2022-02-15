@@ -1,0 +1,5 @@
+{% import 'import-macro.jinja' -%}
+{% macro print_path_macro2(var) -%}
+{{ var|print_path }}
+{{ print_path_macro(var) }}
+{%- endmacro %}
