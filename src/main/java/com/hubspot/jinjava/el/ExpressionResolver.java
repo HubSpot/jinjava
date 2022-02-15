@@ -126,7 +126,9 @@ public class ExpressionResolver {
       interpreter.addError(
         TemplateError.fromException(
           new TemplateSyntaxException(
-            expression.substring(e.getPosition() - EXPRESSION_START_TOKEN.length()),
+            expression.substring(
+              Math.max(e.getPosition() - EXPRESSION_START_TOKEN.length(), 0)
+            ),
             "Error parsing '" + expression + "': " + errorMessage,
             interpreter.getLineNumber(),
             position,
