@@ -694,7 +694,10 @@ public class JinjavaInterpreter implements PyishSerializable {
     }
     // fix line numbers not matching up with source template
     if (!context.getCurrentPathStack().isEmpty()) {
-      if (!templateError.getSourceTemplate().isPresent()) {
+      if (
+        !templateError.getSourceTemplate().isPresent() &&
+        context.getCurrentPathStack().peek().isPresent()
+      ) {
         templateError.setMessage(
           getWrappedErrorMessage(
             context.getCurrentPathStack().peek().get(),
