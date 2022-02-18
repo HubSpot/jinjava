@@ -119,12 +119,16 @@ public class MacroTag implements Tag {
       argNamesWithDefaults
     );
     MacroFunction macro;
-    String contextImportResourcePath = (String) interpreter
+    Object contextImportResourcePath = interpreter
       .getContext()
-      .get(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY, "");
+      .get(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY);
+    if (contextImportResourcePath instanceof DeferredValue) {
+      contextImportResourcePath =
+        ((DeferredValue) contextImportResourcePath).getOriginalValue();
+    }
     boolean scopeEntered = false;
     try {
-      if (StringUtils.isNotEmpty(contextImportResourcePath)) {
+      if (StringUtils.isNotEmpty((String) contextImportResourcePath)) {
         scopeEntered = true;
         interpreter.enterScope();
         interpreter
