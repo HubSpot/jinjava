@@ -4,13 +4,12 @@ import com.google.common.collect.ForwardingMap;
 import com.hubspot.jinjava.objects.PyWrapper;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
   private final Map<String, Object> map;
 
   public PyMap(Map<String, Object> map) {
-    this.map = new TreeMap<>(map);
+    this.map = map;
   }
 
   @Override
