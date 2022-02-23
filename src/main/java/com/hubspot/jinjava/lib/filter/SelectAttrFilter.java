@@ -111,15 +111,16 @@ public class SelectAttrFilter implements AdvancedFilter {
     }
 
     ForLoop loop = ObjectIterator.getLoop(var);
+    Variable tempVariable = new Variable(
+      interpreter,
+      String.format("%s.%s", "placeholder", attr)
+    );
     while (loop.hasNext()) {
       Object val = loop.next();
 
-      Object attrVal = new Variable(
-        interpreter,
-        String.format("%s.%s", "placeholder", attr)
-      )
-      .resolve(val);
-      if (acceptObjects == expTest.evaluate(attrVal, interpreter, expArgs)) {
+      if (
+        acceptObjects == expTest.evaluate(tempVariable.resolve(val), interpreter, expArgs)
+      ) {
         result.add(val);
       }
     }
