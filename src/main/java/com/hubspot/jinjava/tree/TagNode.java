@@ -72,7 +72,7 @@ public class TagNode extends Node {
     } finally {
       long total = System.currentTimeMillis() - timestamp;
       if (total > 10L) {
-        System.out.printf("'%s' - %dms", master.toString(), total);
+        System.out.printf("'%s' - %dms\n", master.toString(), total);
       }
     }
   }
