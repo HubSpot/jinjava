@@ -118,8 +118,9 @@ public class SelectAttrFilter implements AdvancedFilter {
     while (loop.hasNext()) {
       Object val = loop.next();
 
-      if (acceptObjects == expTest.evaluate(tempVariable
-        .resolve(val), interpreter, expArgs)) {
+      if (
+        acceptObjects == expTest.evaluate(tempVariable.resolve(val), interpreter, expArgs)
+      ) {
         result.add(val);
       }
     }
