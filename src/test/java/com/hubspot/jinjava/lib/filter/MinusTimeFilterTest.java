@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseJinjavaTest;
+import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -56,5 +57,18 @@ public class MinusTimeFilterTest extends BaseJinjavaTest {
     vars = ImmutableMap.of("test", timestamp);
     assertThat(jinjava.render("{{ test|minus_time(1, 'days')|unixtimestamp }}", vars))
       .isEqualTo(String.valueOf(oneDay));
+  }
+
+  @Test
+  public void itWarnsOnDateTimeException() {
+    long timestamp = 1543352736000L;
+
+    Map<String, Object> vars = ImmutableMap.of("test", timestamp);
+    RenderResult renderResult = jinjava.renderForResult(
+      "{{ test|minus_time(9999999999, 'years')|unixtimestamp }}",
+      vars
+    );
+    assertThat(renderResult.getOutput()).isEqualTo(String.valueOf(timestamp));
+    assertThat(renderResult.getErrors()).hasSize(1);
   }
 }
