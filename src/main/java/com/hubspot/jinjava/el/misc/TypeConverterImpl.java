@@ -14,7 +14,6 @@
 package com.hubspot.jinjava.el.misc;
 
 import jakarta.el.ELException;
-
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.math.BigDecimal;
@@ -25,349 +24,401 @@ import java.text.MessageFormat;
  * Type Conversions as described in EL 2.1 specification (section 1.17).
  */
 public class TypeConverterImpl implements TypeConverter {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private static final String ERROR_COERCE_TYPE = "Cannot coerce ''{0}'' of {1} to {2} (incompatible type)";
-    private static final String ERROR_COERCE_VALUE = "Cannot coerce ''{0}'' of {1} to {2} (incompatible value)";
+  private static final String ERROR_COERCE_TYPE =
+    "Cannot coerce ''{0}'' of {1} to {2} (incompatible type)";
+  private static final String ERROR_COERCE_VALUE =
+    "Cannot coerce ''{0}'' of {1} to {2} (incompatible value)";
 
-    protected Boolean coerceToBoolean(Object value) {
-        if (value == null || "".equals(value)) {
-            return Boolean.FALSE;
-        }
-        if (value instanceof Boolean) {
-            return (Boolean)value;
-        }
-        if (value instanceof String) {
-            return Boolean.valueOf((String)value);
-        }
-        throw new ELException(formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Boolean.class));
+  protected Boolean coerceToBoolean(Object value) {
+    if (value == null || "".equals(value)) {
+      return Boolean.FALSE;
     }
-
-    protected Character coerceToCharacter(Object value) {
-        if (value == null || "".equals(value)) {
-            return (char) 0;
-        }
-        if (value instanceof Character) {
-            return (Character)value;
-        }
-        if (value instanceof Number) {
-            return (char) ((Number) value).shortValue();
-        }
-        if (value instanceof String) {
-            return ((String) value).charAt(0);
-        }
-        throw new ELException(formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Character.class));
+    if (value instanceof Boolean) {
+      return (Boolean) value;
     }
-
-    protected BigDecimal coerceToBigDecimal(Object value) {
-        if (value == null || "".equals(value)) {
-            return BigDecimal.valueOf(0L);
-        }
-        if (value instanceof BigDecimal) {
-            return (BigDecimal)value;
-        }
-        if (value instanceof BigInteger) {
-            return new BigDecimal((BigInteger)value);
-        }
-        if (value instanceof Number) {
-            return BigDecimal.valueOf(((Number) value).doubleValue());
-        }
-        if (value instanceof String) {
-            try {
-                return new BigDecimal((String)value);
-            } catch (NumberFormatException e) {
-                throw new ELException(formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), BigDecimal.class));
-            }
-        }
-        if (value instanceof Character) {
-            return new BigDecimal((short)((Character)value).charValue());
-        }
-        throw new ELException(formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), BigDecimal.class));
+    if (value instanceof String) {
+      return Boolean.valueOf((String) value);
     }
+    throw new ELException(
+      formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Boolean.class)
+    );
+  }
 
-    protected BigInteger coerceToBigInteger(Object value) {
-        if (value == null || "".equals(value)) {
-            return BigInteger.valueOf(0L);
-        }
-        if (value instanceof BigInteger) {
-            return (BigInteger)value;
-        }
-        if (value instanceof BigDecimal) {
-            return ((BigDecimal)value).toBigInteger();
-        }
-        if (value instanceof Number) {
-            return BigInteger.valueOf(((Number)value).longValue());
-        }
-        if (value instanceof String) {
-            try {
-                return new BigInteger((String)value);
-            } catch (NumberFormatException e) {
-                throw new ELException(formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), BigInteger.class));
-            }
-        }
-        if (value instanceof Character) {
-            return BigInteger.valueOf((short)((Character)value).charValue());
-        }
-        throw new ELException(formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), BigInteger.class));
+  protected Character coerceToCharacter(Object value) {
+    if (value == null || "".equals(value)) {
+      return (char) 0;
     }
+    if (value instanceof Character) {
+      return (Character) value;
+    }
+    if (value instanceof Number) {
+      return (char) ((Number) value).shortValue();
+    }
+    if (value instanceof String) {
+      return ((String) value).charAt(0);
+    }
+    throw new ELException(
+      formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Character.class)
+    );
+  }
 
-    protected Double coerceToDouble(Object value) {
-        if (value == null || "".equals(value)) {
-            return (double) 0;
-        }
-        if (value instanceof Double) {
-            return (Double)value;
-        }
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
-        }
-        if (value instanceof String) {
-            try {
-                return Double.valueOf((String)value);
-            } catch (NumberFormatException e) {
-                throw new ELException(formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), Double.class));
-            }
-        }
-        if (value instanceof Character) {
-            return (double) (short) ((Character) value).charValue();
-        }
-        throw new ELException(formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Double.class));
+  protected BigDecimal coerceToBigDecimal(Object value) {
+    if (value == null || "".equals(value)) {
+      return BigDecimal.valueOf(0L);
     }
+    if (value instanceof BigDecimal) {
+      return (BigDecimal) value;
+    }
+    if (value instanceof BigInteger) {
+      return new BigDecimal((BigInteger) value);
+    }
+    if (value instanceof Integer) {
+      return BigDecimal.valueOf(((Number) value).intValue());
+    }
+    if (value instanceof Long) {
+      return BigDecimal.valueOf(((Number) value).longValue());
+    }
+    if (value instanceof Number) {
+      return BigDecimal.valueOf(((Number) value).doubleValue());
+    }
+    if (value instanceof String) {
+      try {
+        return new BigDecimal((String) value);
+      } catch (NumberFormatException e) {
+        throw new ELException(
+          formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), BigDecimal.class)
+        );
+      }
+    }
+    if (value instanceof Character) {
+      return new BigDecimal((short) ((Character) value).charValue());
+    }
+    throw new ELException(
+      formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), BigDecimal.class)
+    );
+  }
 
-    protected Float coerceToFloat(Object value) {
-        if (value == null || "".equals(value)) {
-            return (float) 0;
-        }
-        if (value instanceof Float) {
-            return (Float)value;
-        }
-        if (value instanceof Number) {
-            return ((Number) value).floatValue();
-        }
-        if (value instanceof String) {
-            try {
-                return Float.valueOf((String)value);
-            } catch (NumberFormatException e) {
-                throw new ELException(formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), Float.class));
-            }
-        }
-        if (value instanceof Character) {
-            return (float) (short) ((Character) value).charValue();
-        }
-        throw new ELException(formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Float.class));
+  protected BigInteger coerceToBigInteger(Object value) {
+    if (value == null || "".equals(value)) {
+      return BigInteger.valueOf(0L);
     }
+    if (value instanceof BigInteger) {
+      return (BigInteger) value;
+    }
+    if (value instanceof BigDecimal) {
+      return ((BigDecimal) value).toBigInteger();
+    }
+    if (value instanceof Number) {
+      return BigInteger.valueOf(((Number) value).longValue());
+    }
+    if (value instanceof String) {
+      try {
+        return new BigInteger((String) value);
+      } catch (NumberFormatException e) {
+        throw new ELException(
+          formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), BigInteger.class)
+        );
+      }
+    }
+    if (value instanceof Character) {
+      return BigInteger.valueOf((short) ((Character) value).charValue());
+    }
+    throw new ELException(
+      formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), BigInteger.class)
+    );
+  }
 
-    protected Long coerceToLong(Object value) {
-        if (value == null || "".equals(value)) {
-            return 0L;
-        }
-        if (value instanceof Long) {
-            return (Long)value;
-        }
-        if (value instanceof Number) {
-            return ((Number) value).longValue();
-        }
-        if (value instanceof String) {
-            try {
-                return Long.valueOf((String)value);
-            } catch (NumberFormatException e) {
-                throw new ELException(formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), Long.class));
-            }
-        }
-        if (value instanceof Character) {
-            return (long) (short) ((Character) value).charValue();
-        }
-        throw new ELException(formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Long.class));
+  protected Double coerceToDouble(Object value) {
+    if (value == null || "".equals(value)) {
+      return (double) 0;
     }
+    if (value instanceof Double) {
+      return (Double) value;
+    }
+    if (value instanceof Number) {
+      return ((Number) value).doubleValue();
+    }
+    if (value instanceof String) {
+      try {
+        return Double.valueOf((String) value);
+      } catch (NumberFormatException e) {
+        throw new ELException(
+          formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), Double.class)
+        );
+      }
+    }
+    if (value instanceof Character) {
+      return (double) (short) ((Character) value).charValue();
+    }
+    throw new ELException(
+      formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Double.class)
+    );
+  }
 
-    protected Integer coerceToInteger(Object value) {
-        if (value == null || "".equals(value)) {
-            return 0;
-        }
-        if (value instanceof Integer) {
-            return (Integer)value;
-        }
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
-        }
-        if (value instanceof String) {
-            try {
-                return Integer.valueOf((String)value);
-            } catch (NumberFormatException e) {
-                throw new ELException(formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), Integer.class));
-            }
-        }
-        if (value instanceof Character) {
-            return (int) (short) ((Character) value).charValue();
-        }
-        throw new ELException(formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Integer.class));
+  protected Float coerceToFloat(Object value) {
+    if (value == null || "".equals(value)) {
+      return (float) 0;
     }
+    if (value instanceof Float) {
+      return (Float) value;
+    }
+    if (value instanceof Number) {
+      return ((Number) value).floatValue();
+    }
+    if (value instanceof String) {
+      try {
+        return Float.valueOf((String) value);
+      } catch (NumberFormatException e) {
+        throw new ELException(
+          formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), Float.class)
+        );
+      }
+    }
+    if (value instanceof Character) {
+      return (float) (short) ((Character) value).charValue();
+    }
+    throw new ELException(
+      formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Float.class)
+    );
+  }
 
-    protected Short coerceToShort(Object value) {
-        if (value == null || "".equals(value)) {
-            return (short) 0;
-        }
-        if (value instanceof Short) {
-            return (Short)value;
-        }
-        if (value instanceof Number) {
-            return ((Number) value).shortValue();
-        }
-        if (value instanceof String) {
-            try {
-                return Short.valueOf((String)value);
-            } catch (NumberFormatException e) {
-                throw new ELException(formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), Short.class));
-            }
-        }
-        if (value instanceof Character) {
-            return (short) ((Character) value).charValue();
-        }
-        throw new ELException(formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Short.class));
+  protected Long coerceToLong(Object value) {
+    if (value == null || "".equals(value)) {
+      return 0L;
     }
+    if (value instanceof Long) {
+      return (Long) value;
+    }
+    if (value instanceof Number) {
+      return ((Number) value).longValue();
+    }
+    if (value instanceof String) {
+      try {
+        return Long.valueOf((String) value);
+      } catch (NumberFormatException e) {
+        throw new ELException(
+          formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), Long.class)
+        );
+      }
+    }
+    if (value instanceof Character) {
+      return (long) (short) ((Character) value).charValue();
+    }
+    throw new ELException(
+      formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Long.class)
+    );
+  }
 
-    protected Byte coerceToByte(Object value) {
-        if (value == null || "".equals(value)) {
-            return (byte) 0;
-        }
-        if (value instanceof Byte) {
-            return (Byte)value;
-        }
-        if (value instanceof Number) {
-            return ((Number) value).byteValue();
-        }
-        if (value instanceof String) {
-            try {
-                return Byte.valueOf((String)value);
-            } catch (NumberFormatException e) {
-                throw new ELException(formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), Byte.class));
-            }
-        }
-        if (value instanceof Character) {
-            return Short.valueOf((short) ((Character) value).charValue()).byteValue();
-        }
-        throw new ELException(formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Byte.class));
+  protected Integer coerceToInteger(Object value) {
+    if (value == null || "".equals(value)) {
+      return 0;
     }
+    if (value instanceof Integer) {
+      return (Integer) value;
+    }
+    if (value instanceof Number) {
+      return ((Number) value).intValue();
+    }
+    if (value instanceof String) {
+      try {
+        return Integer.valueOf((String) value);
+      } catch (NumberFormatException e) {
+        throw new ELException(
+          formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), Integer.class)
+        );
+      }
+    }
+    if (value instanceof Character) {
+      return (int) (short) ((Character) value).charValue();
+    }
+    throw new ELException(
+      formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Integer.class)
+    );
+  }
 
-    protected String coerceToString(Object value) {
-        if (value == null) {
-            return "";
-        }
-        if (value instanceof String) {
-            return (String)value;
-        }
-        if (value instanceof Enum<?>) {
-            return ((Enum<?>)value).name();
-        }
-        return value.toString();
+  protected Short coerceToShort(Object value) {
+    if (value == null || "".equals(value)) {
+      return (short) 0;
     }
+    if (value instanceof Short) {
+      return (Short) value;
+    }
+    if (value instanceof Number) {
+      return ((Number) value).shortValue();
+    }
+    if (value instanceof String) {
+      try {
+        return Short.valueOf((String) value);
+      } catch (NumberFormatException e) {
+        throw new ELException(
+          formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), Short.class)
+        );
+      }
+    }
+    if (value instanceof Character) {
+      return (short) ((Character) value).charValue();
+    }
+    throw new ELException(
+      formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Short.class)
+    );
+  }
 
-    @SuppressWarnings("unchecked")
-    protected <T extends Enum<T>> T coerceToEnum(Object value, Class<T> type) {
-        if (value == null || "".equals(value)) {
-            return null;
-        }
-        if (type.isInstance(value)) {
-            return (T)value;
-        }
-        if (value instanceof String) {
-            try {
-                return Enum.valueOf(type, (String)value);
-            } catch (IllegalArgumentException e) {
-                throw new ELException(formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), type));
-            }
-        }
-        throw new ELException(formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), type));
+  protected Byte coerceToByte(Object value) {
+    if (value == null || "".equals(value)) {
+      return (byte) 0;
     }
+    if (value instanceof Byte) {
+      return (Byte) value;
+    }
+    if (value instanceof Number) {
+      return ((Number) value).byteValue();
+    }
+    if (value instanceof String) {
+      try {
+        return Byte.valueOf((String) value);
+      } catch (NumberFormatException e) {
+        throw new ELException(
+          formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), Byte.class)
+        );
+      }
+    }
+    if (value instanceof Character) {
+      return Short.valueOf((short) ((Character) value).charValue()).byteValue();
+    }
+    throw new ELException(
+      formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), Byte.class)
+    );
+  }
 
-    protected Object coerceStringToType(String value, Class<?> type) {
-        PropertyEditor editor = PropertyEditorManager.findEditor(type);
-        if (editor == null) {
-            if ("".equals(value)) {
-                return null;
-            }
-            throw new ELException(formatMessage(ERROR_COERCE_TYPE, value, String.class, type));
-        } else {
-            if ("".equals(value)) {
-                try {
-                    editor.setAsText(value);
-                } catch (IllegalArgumentException e) {
-                    return null;
-                }
-            } else {
-                try {
-                    editor.setAsText(value);
-                } catch (IllegalArgumentException e) {
-                    throw new ELException(formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), type));
-                }
-            }
-            return editor.getValue();
-        }
+  protected String coerceToString(Object value) {
+    if (value == null) {
+      return "";
     }
+    if (value instanceof String) {
+      return (String) value;
+    }
+    if (value instanceof Enum<?>) {
+      return ((Enum<?>) value).name();
+    }
+    return value.toString();
+  }
 
-    @SuppressWarnings("unchecked")
-    protected Object coerceToType(Object value, Class<?> type) {
-        if (type == String.class) {
-            return coerceToString(value);
-        }
-        if (type == Long.class || type == long.class) {
-            return coerceToLong(value);
-        }
-        if (type == Double.class || type == double.class) {
-            return coerceToDouble(value);
-        }
-        if (type == Boolean.class || type == boolean.class) {
-            return coerceToBoolean(value);
-        }
-        if (type == Integer.class || type == int.class) {
-            return coerceToInteger(value);
-        }
-        if (type == Float.class || type == float.class) {
-            return coerceToFloat(value);
-        }
-        if (type == Short.class || type == short.class) {
-            return coerceToShort(value);
-        }
-        if (type == Byte.class || type == byte.class) {
-            return coerceToByte(value);
-        }
-        if (type == Character.class || type == char.class) {
-            return coerceToCharacter(value);
-        }
-        if (type == BigDecimal.class) {
-            return coerceToBigDecimal(value);
-        }
-        if (type == BigInteger.class) {
-            return coerceToBigInteger(value);
-        }
-        if (type.getSuperclass() == Enum.class) {
-            return coerceToEnum(value, (Class<? extends Enum>)type);
-        }
-        if (value == null || value.getClass() == type || type.isInstance(value)) {
-            return value;
-        }
-        if (value instanceof String) {
-            return coerceStringToType((String)value, type);
-        }
-        throw new ELException(formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), type));
+  @SuppressWarnings("unchecked")
+  protected <T extends Enum<T>> T coerceToEnum(Object value, Class<T> type) {
+    if (value == null || "".equals(value)) {
+      return null;
     }
+    if (type.isInstance(value)) {
+      return (T) value;
+    }
+    if (value instanceof String) {
+      try {
+        return Enum.valueOf(type, (String) value);
+      } catch (IllegalArgumentException e) {
+        throw new ELException(
+          formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), type)
+        );
+      }
+    }
+    throw new ELException(
+      formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), type)
+    );
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-        return obj != null && obj.getClass().equals(getClass());
+  protected Object coerceStringToType(String value, Class<?> type) {
+    PropertyEditor editor = PropertyEditorManager.findEditor(type);
+    if (editor == null) {
+      if ("".equals(value)) {
+        return null;
+      }
+      throw new ELException(formatMessage(ERROR_COERCE_TYPE, value, String.class, type));
+    } else {
+      if ("".equals(value)) {
+        try {
+          editor.setAsText(value);
+        } catch (IllegalArgumentException e) {
+          return null;
+        }
+      } else {
+        try {
+          editor.setAsText(value);
+        } catch (IllegalArgumentException e) {
+          throw new ELException(
+            formatMessage(ERROR_COERCE_VALUE, value, value.getClass(), type)
+          );
+        }
+      }
+      return editor.getValue();
     }
+  }
 
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
+  @SuppressWarnings("unchecked")
+  protected Object coerceToType(Object value, Class<?> type) {
+    if (type == String.class) {
+      return coerceToString(value);
     }
+    if (type == Long.class || type == long.class) {
+      return coerceToLong(value);
+    }
+    if (type == Double.class || type == double.class) {
+      return coerceToDouble(value);
+    }
+    if (type == Boolean.class || type == boolean.class) {
+      return coerceToBoolean(value);
+    }
+    if (type == Integer.class || type == int.class) {
+      return coerceToInteger(value);
+    }
+    if (type == Float.class || type == float.class) {
+      return coerceToFloat(value);
+    }
+    if (type == Short.class || type == short.class) {
+      return coerceToShort(value);
+    }
+    if (type == Byte.class || type == byte.class) {
+      return coerceToByte(value);
+    }
+    if (type == Character.class || type == char.class) {
+      return coerceToCharacter(value);
+    }
+    if (type == BigDecimal.class) {
+      return coerceToBigDecimal(value);
+    }
+    if (type == BigInteger.class) {
+      return coerceToBigInteger(value);
+    }
+    if (type.getSuperclass() == Enum.class) {
+      return coerceToEnum(value, (Class<? extends Enum>) type);
+    }
+    if (value == null || value.getClass() == type || type.isInstance(value)) {
+      return value;
+    }
+    if (value instanceof String) {
+      return coerceStringToType((String) value, type);
+    }
+    throw new ELException(
+      formatMessage(ERROR_COERCE_TYPE, value, value.getClass(), type)
+    );
+  }
 
-    @SuppressWarnings("unchecked")
-    public <T> T convert(Object value, Class<T> type) throws ELException {
-        return (T)coerceToType(value, type);
-    }
+  @Override
+  public boolean equals(Object obj) {
+    return obj != null && obj.getClass().equals(getClass());
+  }
 
-    private String formatMessage(String template, Object... args) {
-        return MessageFormat.format(template, args);
-    }
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T convert(Object value, Class<T> type) throws ELException {
+    return (T) coerceToType(value, type);
+  }
+
+  private String formatMessage(String template, Object... args) {
+    return MessageFormat.format(template, args);
+  }
 }

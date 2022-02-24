@@ -24,12 +24,12 @@ import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.util.WhitespaceUtils;
-import java.util.Arrays;
-import java.util.List;
 import jakarta.el.ELException;
 import jakarta.el.ExpressionFactory;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.el.ValueExpression;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
  * Resolves Jinja expressions.
  */
 public class ExpressionResolver {
-
   private static final Logger LOG = LoggerFactory.getLogger(ExpressionResolver.class);
 
   private final JinjavaInterpreter interpreter;
@@ -132,9 +131,11 @@ public class ExpressionResolver {
       interpreter.addError(
         TemplateError.fromException(
           new TemplateSyntaxException(
-            interpreter,
             expression.substring(e.getPosition() - EXPRESSION_START_TOKEN.length()),
-            "Error parsing '" + expression + "': " + errorMessage
+            "Error parsing '" + expression + "': " + errorMessage,
+            interpreter.getLineNumber(),
+            position,
+            e
           )
         )
       );
@@ -199,14 +200,15 @@ public class ExpressionResolver {
         interpreter.addError(
           TemplateError.fromException(
             new TemplateSyntaxException(
-              interpreter,
               expression,
               (
                   e.getCause() == null ||
                   StringUtils.endsWith(originatingException, e.getCause().getMessage())
                 )
                 ? e.getMessage()
-                : combinedMessage
+                : combinedMessage,
+              interpreter.getLineNumber(),
+              e
             )
           )
         );
@@ -227,8 +229,7 @@ public class ExpressionResolver {
     } catch (UnknownTokenException | DeferredValueException e) {
       // Re-throw the exception because you only get this when the config failOnUnknownTokens is enabled.
       throw e;
-    } // Re-throw so that it can be handled in JinjavaInterpreter
-    catch (InvalidInputException e) {
+    } catch (InvalidInputException e) { // Re-throw so that it can be handled in JinjavaInterpreter
       interpreter.addError(TemplateError.fromInvalidInputException(e));
     } catch (InvalidArgumentException e) {
       interpreter.addError(TemplateError.fromInvalidArgumentException(e));
