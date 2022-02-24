@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,6 +77,15 @@ public class EagerExpressionResolverTest {
           "",
           "is_null",
           this.getClass().getDeclaredMethod("isNull", Object.class, Object.class)
+        )
+      );
+    jinjava
+      .getGlobalContext()
+      .registerFunction(
+        new ELFunctionDefinition(
+          "",
+          "sleeper",
+          this.getClass().getDeclaredMethod("sleeper")
         )
       );
     interpreter = new JinjavaInterpreter(jinjava.newInterpreter());
@@ -718,10 +729,60 @@ public class EagerExpressionResolverTest {
     }
   }
 
+  @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+  @Test
+  public void itIsThreadSafe() throws InterruptedException {
+    Map<String, String> map = new HashMap<>();
+    map.put("bar", "first");
+    AtomicLong sleepTime = new AtomicLong(500L);
+    context.put("map", map);
+    context.put("sleep_time", sleepTime);
+    CompletableFuture<EagerExpressionResult> first;
+    synchronized (sleepTime) {
+      first = CompletableFuture.supplyAsync(this::appendAndSleep);
+      sleepTime.wait();
+    }
+    sleepTime.set(1L);
+    map.put("bar", "second");
+    CompletableFuture<EagerExpressionResult> second = CompletableFuture.supplyAsync(
+      this::appendAndSleep
+    );
+    CompletableFuture.allOf(first, second).join();
+    assertThat(first.join().toString())
+      .describedAs("First result should say 'first' and sleep for 500ms")
+      .isEqualTo("deferred && 'first' && 500");
+    assertThat(second.join().toString()) // caching would make this say 'first'
+      .describedAs("Second result should say 'second' and sleep for 1ms")
+      .isEqualTo("deferred && 'second' && 1");
+  }
+
+  private EagerExpressionResult appendAndSleep() {
+    JinjavaInterpreter.pushCurrent(interpreter);
+    try {
+      return eagerResolveExpression("deferred && map.bar && sleeper()");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
+  }
+
   public static void voidFunction(int nothing) {}
 
   public static boolean isNull(Object foo, Object bar) {
     return foo == null && bar == null;
+  }
+
+  @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+  public static long sleeper() throws InterruptedException {
+    AtomicLong atomicSleepTime = (AtomicLong) JinjavaInterpreter
+      .getCurrent()
+      .getContext()
+      .get("sleep_time");
+    long sleepTime = atomicSleepTime.get();
+    synchronized (atomicSleepTime) {
+      atomicSleepTime.notify();
+    }
+    Thread.sleep(sleepTime);
+    return sleepTime;
   }
 
   private static class Foo {
