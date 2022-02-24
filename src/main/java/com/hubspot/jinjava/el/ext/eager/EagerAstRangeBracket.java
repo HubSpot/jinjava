@@ -84,21 +84,6 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
   }
 
   @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-    if (prefix != null) {
-      ((EvalResultHolder) prefix).clearEvalResult();
-    }
-    if (property != null) {
-      ((EvalResultHolder) property).clearEvalResult();
-    }
-    if (rangeMax != null) {
-      ((EvalResultHolder) rangeMax).clearEvalResult();
-    }
-  }
-
-  @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
   }

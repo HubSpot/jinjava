@@ -91,16 +91,6 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
   }
 
   @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-    params.clearEvalResult();
-    for (int i = 0; i < ((AstParameters) params).getCardinality(); i++) {
-      ((EvalResultHolder) ((AstParameters) params).getChild(i)).clearEvalResult();
-    }
-  }
-
-  @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
   }
