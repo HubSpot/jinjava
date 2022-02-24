@@ -112,4 +112,16 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
       )
       .isEqualTo(Functions.dateTimeFormat(d, "%A, %e %B", "UTC", "America/Los_Angeles"));
   }
+
+  @Test
+  public void itDefaultsToUtcForNullTimezone() {
+    interpreter.getContext().put("d", d);
+
+    assertThat(
+        interpreter.renderFlat(
+          "{{ d|datetimeformat('%A, %e %B, %I:%M %p', null, 'sv') }}"
+        )
+      )
+      .isEqualTo("onsdag, 6 november, 02:22 em");
+  }
 }
