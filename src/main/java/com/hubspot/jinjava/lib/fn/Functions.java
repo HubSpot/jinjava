@@ -165,7 +165,7 @@ public class Functions {
       String timezone = format[1];
       try {
         zoneOffset = ZoneId.of(timezone);
-      } catch (DateTimeException e) {
+      } catch (DateTimeException | NullPointerException e) {
         throw new InvalidArgumentException(
           JinjavaInterpreter.getCurrent(),
           "datetimeformat",
