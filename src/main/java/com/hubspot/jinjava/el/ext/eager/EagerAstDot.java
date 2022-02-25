@@ -73,13 +73,6 @@ public class EagerAstDot extends AstDot implements EvalResultHolder {
   }
 
   @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-    base.clearEvalResult();
-  }
-
-  @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
   }

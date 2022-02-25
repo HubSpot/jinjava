@@ -60,14 +60,6 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
   }
 
   @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-    property.clearEvalResult();
-    params.clearEvalResult();
-  }
-
-  @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
   }

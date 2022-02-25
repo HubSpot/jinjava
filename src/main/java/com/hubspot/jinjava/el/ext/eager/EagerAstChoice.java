@@ -62,15 +62,6 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
   }
 
   @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-    question.clearEvalResult();
-    yes.clearEvalResult();
-    no.clearEvalResult();
-  }
-
-  @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
   }

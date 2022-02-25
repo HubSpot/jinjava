@@ -34,12 +34,6 @@ public class EagerAstIdentifier extends AstIdentifier implements EvalResultHolde
   }
 
   @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-  }
-
-  @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
   }

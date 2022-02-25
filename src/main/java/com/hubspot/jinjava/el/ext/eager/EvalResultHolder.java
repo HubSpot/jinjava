@@ -17,8 +17,6 @@ public interface EvalResultHolder {
 
   void setEvalResult(Object evalResult);
 
-  void clearEvalResult();
-
   boolean hasEvalResult();
 
   default Object eval(

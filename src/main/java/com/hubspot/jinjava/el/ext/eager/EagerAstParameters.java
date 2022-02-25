@@ -77,13 +77,6 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
   }
 
   @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-    nodes.forEach(node -> ((EvalResultHolder) node).clearEvalResult());
-  }
-
-  @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
   }

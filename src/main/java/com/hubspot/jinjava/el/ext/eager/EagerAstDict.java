@@ -97,23 +97,6 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
   }
 
   @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-
-    dict.forEach(
-      (key, value) -> {
-        if (key instanceof EvalResultHolder) {
-          ((EvalResultHolder) key).clearEvalResult();
-        }
-        if (value instanceof EvalResultHolder) {
-          ((EvalResultHolder) value).clearEvalResult();
-        }
-      }
-    );
-  }
-
-  @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
   }
