@@ -51,6 +51,9 @@ public class LengthLimitingStringBuilder implements Serializable, CharSequence {
   }
 
   public void append(String str) {
+    if (str == null) {
+      return;
+    }
     length += str.length();
     if (maxLength > 0 && length > maxLength) {
       throw new OutputTooBigException(maxLength, length);
