@@ -136,8 +136,35 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
     assertThat(interpreter.render(output + "{{ rec(5) }}")).isEqualTo("5-4-3-2-1-");
   }
 
+  @Test
+  public void itDefersDifferentMacrosWithSameName() {
+    // This kind of situation can happen when importing and the imported macro function calls another that has a name clash
+    String foo1Code = "{% macro foo(var) %}This is the {{ var }}{% endmacro %}";
+    String barCode = "{% macro bar(var) %}^{{ foo(var) }}^{% endmacro %}";
+    String foo2Code = "{% macro foo(var) %}~{{ bar(var) }}~{% endmacro %}";
+    MacroFunction foo1Macro = makeMacroFunction("foo", foo1Code);
+    foo1Macro.setDeferred(true);
+    MacroFunction barMacro = makeMacroFunction("bar", barCode);
+    barMacro.setDeferred(true);
+    interpreter.getContext().addGlobalMacro(foo1Macro);
+    interpreter.getContext().addGlobalMacro(barMacro);
+    MacroFunction foo2Macro;
+    String output;
+    try (InterpreterScopeClosable c = interpreter.enterScope()) {
+      foo2Macro = makeMacroFunction("foo", foo2Code);
+      EagerMacroFunction eagerMacroFunction = new EagerMacroFunction(
+        "foo",
+        foo2Macro,
+        interpreter
+      );
+      output = eagerMacroFunction.reconstructImage();
+    }
+    assertThat(interpreter.render(output + "{{ foo('Foo') }}"))
+      .isEqualTo("~^This is the Foo^~");
+  }
+
   private MacroFunction makeMacroFunction(String name, String code) {
     interpreter.render(code);
-    return context.getGlobalMacro(name);
+    return interpreter.getContext().getGlobalMacro(name);
   }
 }

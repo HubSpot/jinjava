@@ -141,7 +141,10 @@ public class EagerMacroFunction extends AbstractCallableMethod {
 
     String result;
     if (
-      interpreter.getContext().getMacroStack().contains(macroFunction.getName()) ||
+      (
+        interpreter.getContext().getMacroStack().contains(macroFunction.getName()) &&
+        !differentMacroWithSameNameExists()
+      ) ||
       (
         !macroFunction.isCaller() &&
         AstMacroFunction.checkAndPushMacroStack(interpreter, fullName)
@@ -183,5 +186,26 @@ public class EagerMacroFunction extends AbstractCallableMethod {
       }
     }
     return prefix + result + suffix;
+  }
+
+  private boolean differentMacroWithSameNameExists() {
+    Context context = interpreter.getContext();
+    if (context.getParent() == null) {
+      return false;
+    }
+    MacroFunction mostRecent = context.getGlobalMacro(macroFunction.getName());
+    if (macroFunction != mostRecent) {
+      return true;
+    }
+    while (
+      !context.getGlobalMacros().containsKey(macroFunction.getName()) ||
+      context.getParent().getParent() == null
+    ) {
+      context = context.getParent();
+    }
+    MacroFunction secondMostRecent = context
+      .getParent()
+      .getGlobalMacro(macroFunction.getName());
+    return secondMostRecent != null && secondMostRecent != macroFunction;
   }
 }
