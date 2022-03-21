@@ -127,9 +127,7 @@ public class MacroFunction extends AbstractCallableMethod {
       if (scopeEntry.getValue() instanceof MacroFunction) {
         interpreter.getContext().addGlobalMacro((MacroFunction) scopeEntry.getValue());
       } else {
-        if (
-          !(interpreter.getContext().get(scopeEntry.getKey()) instanceof DeferredValue)
-        ) {
+        if (!alreadyDeferredInEarlierCall(scopeEntry.getKey(), interpreter)) {
           interpreter.getContext().put(scopeEntry.getKey(), scopeEntry.getValue());
         }
       }
@@ -202,5 +200,33 @@ public class MacroFunction extends AbstractCallableMethod {
       localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY),
       caller
     );
+  }
+
+  private boolean alreadyDeferredInEarlierCall(
+    String key,
+    JinjavaInterpreter interpreter
+  ) {
+    if (interpreter.getContext().get(key) instanceof DeferredValue) {
+      Context penultimateParent = interpreter.getContext().getPenultimateParent();
+      String importResourcePath = (String) localContextScope.get(
+        Context.IMPORT_RESOURCE_PATH_KEY
+      );
+      return penultimateParent
+        .getEagerTokens()
+        .stream()
+        .filter(
+          eagerToken ->
+            Objects.equals(importResourcePath, eagerToken.getImportResourcePath())
+        )
+        .anyMatch(
+          eagerToken ->
+            eagerToken.getSetDeferredWords().contains(key) ||
+            eagerToken
+              .getUsedDeferredWords()
+              .stream()
+              .anyMatch(used -> key.equals(used.split("\\.", 2)[0]))
+        );
+    }
+    return false;
   }
 }

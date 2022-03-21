@@ -407,6 +407,16 @@ public class Context extends ScopeMap<String, Object> {
     return eagerTokens;
   }
 
+  public Context getPenultimateParent() {
+    Context secondToLastContext = this;
+    if (parent != null) {
+      while (secondToLastContext.parent.parent != null) {
+        secondToLastContext = secondToLastContext.parent;
+      }
+    }
+    return secondToLastContext;
+  }
+
   public List<? extends Node> getSuperBlock() {
     if (superBlock != null) {
       return superBlock;
