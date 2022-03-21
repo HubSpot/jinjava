@@ -1,0 +1,5 @@
+{% set var = [] -%}
+{% macro adjust(val) -%}
+{% do var.append(val ~ deferred) -%}
+{{ val }}
+{%- endmacro %}

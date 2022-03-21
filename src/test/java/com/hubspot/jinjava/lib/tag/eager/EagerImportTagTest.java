@@ -625,6 +625,28 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(interpreter.getContext().getDeferredNodes()).hasSize(1);
   }
 
+  @Test
+  public void itHandlesVarFromImportedMacro() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% import 'import-macro-and-var.jinja' -%}\n" +
+      "{{ adjust('a') }}\n" +
+      "{{ adjust('b') }}\n" +
+      "c{{ var }}"
+    );
+    assertThat(result.trim())
+      .isEqualTo(
+        "{% set var = [] %}{% do var.append('a' ~ deferred) %}\n" +
+        "a\n" +
+        "{% do var.append('b' ~ deferred) %}\n" +
+        "b\n" +
+        "c{{ var }}"
+      );
+    context.put("deferred", "resolved");
+    assertThat(interpreter.render(result).trim())
+      .isEqualTo("a\n" + "\n" + "b\n" + "c['aresolved', 'bresolved']");
+  }
+
   private static JinjavaInterpreter getChildInterpreter(
     JinjavaInterpreter interpreter,
     String alias
