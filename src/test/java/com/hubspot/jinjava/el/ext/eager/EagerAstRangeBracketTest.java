@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class EagerAstRangeBracketTest extends BaseInterpretingTest {
+
   @Before
   public void setup() {
     JinjavaConfig config = JinjavaConfig
@@ -39,6 +40,7 @@ public class EagerAstRangeBracketTest extends BaseInterpretingTest {
 
   @Test
   public void itHandlesNullRangePrefix() {
-    assertThat(interpreter.render("{{ deferred[:100] }}")).isEqualTo("{{ deferred[:100] }}");
+    assertThat(interpreter.render("{{ deferred[:100] }}"))
+      .isEqualTo("{{ deferred[:100] }}");
   }
 }
