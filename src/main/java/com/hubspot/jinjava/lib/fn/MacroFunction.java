@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.fn;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
@@ -126,7 +127,9 @@ public class MacroFunction extends AbstractCallableMethod {
       if (scopeEntry.getValue() instanceof MacroFunction) {
         interpreter.getContext().addGlobalMacro((MacroFunction) scopeEntry.getValue());
       } else {
-        interpreter.getContext().put(scopeEntry.getKey(), scopeEntry.getValue());
+        if (!alreadyDeferredInEarlierCall(scopeEntry.getKey(), interpreter)) {
+          interpreter.getContext().put(scopeEntry.getKey(), scopeEntry.getValue());
+        }
       }
     }
 
@@ -197,5 +200,33 @@ public class MacroFunction extends AbstractCallableMethod {
       localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY),
       caller
     );
+  }
+
+  private boolean alreadyDeferredInEarlierCall(
+    String key,
+    JinjavaInterpreter interpreter
+  ) {
+    if (interpreter.getContext().get(key) instanceof DeferredValue) {
+      Context penultimateParent = interpreter.getContext().getPenultimateParent();
+      String importResourcePath = (String) localContextScope.get(
+        Context.IMPORT_RESOURCE_PATH_KEY
+      );
+      return penultimateParent
+        .getEagerTokens()
+        .stream()
+        .filter(
+          eagerToken ->
+            Objects.equals(importResourcePath, eagerToken.getImportResourcePath())
+        )
+        .anyMatch(
+          eagerToken ->
+            eagerToken.getSetDeferredWords().contains(key) ||
+            eagerToken
+              .getUsedDeferredWords()
+              .stream()
+              .anyMatch(used -> key.equals(used.split("\\.", 2)[0]))
+        );
+    }
+    return false;
   }
 }
