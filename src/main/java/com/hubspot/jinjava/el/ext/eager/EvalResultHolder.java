@@ -52,6 +52,9 @@ public interface EvalResultHolder {
     DeferredParsingException exception,
     boolean preserveIdentifier
   ) {
+    if (astNode == null) {
+      return "";
+    }
     if (
       preserveIdentifier &&
       !astNode.hasEvalResult() &&
