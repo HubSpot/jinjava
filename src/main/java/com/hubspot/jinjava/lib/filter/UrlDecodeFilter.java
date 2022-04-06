@@ -13,7 +13,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 @JinjavaDoc(
-  value = "Decodes escaped URL strings. It accepts both dictionaries and regular strings as well as pairwise iterables.",
+  value = "Decodes encoded URL strings back to the original URL. It accepts both dictionaries and regular strings as well as pairwise iterables.",
   input = @JinjavaParam(
     value = "url",
     type = "string",
