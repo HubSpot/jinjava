@@ -12,6 +12,7 @@ import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.Logging;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
@@ -119,6 +120,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     return interpreter
       .getErrors()
       .stream()
+      .filter(Objects::nonNull)
       .filter(error -> "Unclosed comment".equals(error.getMessage()))
       .count();
   }
