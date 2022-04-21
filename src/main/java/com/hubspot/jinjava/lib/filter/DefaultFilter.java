@@ -75,8 +75,7 @@ public class DefaultFilter extends AbstractFilter implements AdvancedFilter {
       );
     }
 
-    Object truthyObj = parsedArgs.get(TRUTHY_PARAM);
-    boolean truthy = truthyObj != null && (boolean) truthyObj;
+    boolean truthy = Boolean.TRUE.equals(parsedArgs.get(TRUTHY_PARAM));
     Object defaultValue = parsedArgs.get(DEFAULT_VALUE_PARAM);
 
     if (truthy) {
