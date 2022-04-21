@@ -72,11 +72,11 @@ public class DefaultFilterTest extends BaseJinjavaTest {
   @Test
   public void itIgnoresBadTruthyValue() {
     assertThat(
-      jinjava.render(
-        "{% set d=d | default({\"key\": \"value\"}, \"Blah\") %}Type = {{ type(d.key) }}",
-        new HashMap<>()
+        jinjava.render(
+          "{% set d=d | default({\"key\": \"value\"}, \"Blah\") %}Type = {{ type(d.key) }}",
+          new HashMap<>()
+        )
       )
-    )
       .isEqualTo("Type = str");
   }
 }
