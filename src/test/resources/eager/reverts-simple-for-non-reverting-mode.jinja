@@ -1,0 +1,11 @@
+{% set my_list = [] %}
+{% do my_list.append(0) %}
+{% if 5 < 6 %}
+  {% do my_list.append(1) %}
+  {% if deferred %}
+    {% do my_list.append(2) %}
+  {% endif %}
+  {% do my_list.append(3) %}
+{% endif %}
+{% do my_list.append(4) %}
+{{ my_list }}

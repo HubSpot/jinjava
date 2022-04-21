@@ -10,7 +10,7 @@ import java.util.Optional;
 public class EagerExecutionMode implements ExecutionMode {
   private static final ExecutionMode INSTANCE = new EagerExecutionMode();
 
-  private EagerExecutionMode() {}
+  protected EagerExecutionMode() {}
 
   public static ExecutionMode instance() {
     return INSTANCE;
