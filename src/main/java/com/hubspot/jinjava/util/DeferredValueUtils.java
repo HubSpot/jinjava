@@ -97,13 +97,19 @@ public class DeferredValueUtils {
           .getCurrentMacroFunction()
           .equals(context.getParent().getMacroStack().peek().orElse(null))
       ) {
-        deferredProps.addAll(
-          getPropertiesUsedInDeferredNodes(
-            context,
-            rebuildTemplateForEagerTagTokens(eagerToken, true),
-            false
-          )
-        );
+        if (
+          eagerToken.getCurrentCallStack() == null ||
+          eagerToken.getCurrentCallStack() == context.getCurrentPathStack()
+        ) {
+          deferredProps.addAll(
+            getPropertiesUsedInDeferredNodes(
+              context,
+              rebuildTemplateForEagerTagTokens(eagerToken, true),
+              false
+            )
+          );
+        }
+
         deferredProps.addAll(
           getPropertiesUsedInDeferredNodes(
             context,

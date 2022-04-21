@@ -11,8 +11,11 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.MacroTag;
+import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,10 +60,37 @@ public class EagerMacroFunction extends AbstractCallableMethod {
     Optional<String> importFile = macroFunction.getImportFile(interpreter);
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       interpreter.getContext().setDeferredExecutionMode(true);
-      return macroFunction.getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
+      LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
+        interpreter.getConfig().getMaxOutputSize()
+      );
+      int numEagerTokensStart = interpreter.getContext().getEagerTokens().size();
+      EagerExecutionResult eagerExecutionResult = runMacroOnce(argMap, kwargMap, varArgs);
+      if (interpreter.getContext().getEagerTokens().size() > numEagerTokensStart) {
+        // Run macro function again now that the necessary values have been deferred
+        eagerExecutionResult = runMacroOnce(argMap, kwargMap, varArgs);
+      }
+
+      return eagerExecutionResult.getResult().toString();
     } finally {
       importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop());
     }
+  }
+
+  private EagerExecutionResult runMacroOnce(
+    Map<String, Object> argMap,
+    Map<String, Object> kwargMap,
+    List<Object> varArgs
+  ) {
+    return EagerReconstructionUtils.executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResult.fromString(
+          macroFunction.getEvaluationResult(argMap, kwargMap, varArgs, interpreter)
+        ),
+      interpreter,
+      false,
+      false,
+      true
+    );
   }
 
   public String getStartTag(JinjavaInterpreter interpreter) {
@@ -153,7 +183,9 @@ public class EagerMacroFunction extends AbstractCallableMethod {
       return "";
     } else {
       try {
-        int numEagerTokensStart = interpreter.getContext().getEagerTokens().size();
+        interpreter
+          .getContext()
+          .put(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY, currentDeferredImportResource);
         String evaluation = (String) evaluate(
           macroFunction
             .getArguments()
@@ -162,19 +194,6 @@ public class EagerMacroFunction extends AbstractCallableMethod {
             .toArray()
         );
 
-        interpreter
-          .getContext()
-          .put(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY, currentDeferredImportResource);
-        if (interpreter.getContext().getEagerTokens().size() > numEagerTokensStart) {
-          evaluation =
-            (String) evaluate(
-              macroFunction
-                .getArguments()
-                .stream()
-                .map(arg -> DeferredMacroValueImpl.instance())
-                .toArray()
-            );
-        }
         result = (getStartTag(interpreter) + evaluation + getEndTag(interpreter));
       } catch (DeferredValueException e) {
         // In case something not eager-supported encountered a deferred value

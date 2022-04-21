@@ -1,0 +1,15 @@
+{% for _ignored_ in deferred %}
+
+{% set foo = 'abc' %}
+{% macro my_macro(val) %}
+  {% set foo = val %}
+  Macro {{ foo }}.
+{% endmacro %}
+{{ my_macro(deferred) }}
+{% endfor %}
+Post-Macro {{ foo }}.
+{% set bar = 'def' %}
+{% for bar in range(deferred) %}
+  Loop {{ bar }}.
+{% endfor %}
+Post-For {{ bar }}.

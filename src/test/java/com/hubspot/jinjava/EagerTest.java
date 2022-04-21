@@ -993,4 +993,11 @@ public class EagerTest {
       "modifies-variable-in-deferred-macro"
     );
   }
+
+  @Test
+  public void itDoesNotDeferSetInScope() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "does-not-defer-set-in-scope"
+    );
+  }
 }

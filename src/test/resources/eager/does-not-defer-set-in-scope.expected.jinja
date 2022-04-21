@@ -1,0 +1,11 @@
+{% set foo = 'abc' %}
+{% macro my_macro(val) %}
+  {% set foo = val %}
+  Macro {{ foo }}.
+{% endmacro %}
+{{ my_macro(deferred) }}
+Post-Macro {{ foo }}.
+{% for foo in range(deferred) %}
+  Loop {{ foo }}.
+{% endfor %}
+Post-For {{ foo }}.
