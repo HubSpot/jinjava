@@ -199,12 +199,21 @@ public class EagerExpressionResolver {
     }
   }
 
-  public static boolean isResolvableObject(Object val) {
-    return isResolvableObjectRec(val, 0);
+  public static boolean isResolvableObject(Object val, int maxDepth, int maxSize) {
+    return isResolvableObjectRec(val, 0, maxDepth, maxSize);
   }
 
-  private static boolean isResolvableObjectRec(Object val, int depth) {
-    if (depth > 10) {
+  public static boolean isResolvableObject(Object val) {
+    return isResolvableObjectRec(val, 0, 10, Integer.MAX_VALUE);
+  }
+
+  private static boolean isResolvableObjectRec(
+    Object val,
+    int depth,
+    int maxDepth,
+    int maxSize
+  ) {
+    if (depth > maxDepth) {
       return false;
     }
     boolean isResolvable = RESOLVABLE_CLASSES
@@ -214,24 +223,27 @@ public class EagerExpressionResolver {
       return true;
     }
     if (val instanceof Collection || val instanceof Map) {
-      if (
-        val instanceof Collection
-          ? ((Collection<?>) val).isEmpty()
-          : ((Map<?, ?>) val).isEmpty()
-      ) {
+      int size = val instanceof Collection
+        ? ((Collection<?>) val).size()
+        : ((Map<?, ?>) val).size();
+      if (size == 0) {
         return true;
+      } else if (size > maxSize) {
+        return false;
       }
       return (
         val instanceof Collection ? (Collection<?>) val : ((Map<?, ?>) val).values()
       ).stream()
         .filter(Objects::nonNull)
-        .allMatch(item -> isResolvableObjectRec(item, depth + 1));
+        .allMatch(item -> isResolvableObjectRec(item, depth + 1, maxDepth, maxSize));
     } else if (val.getClass().isArray()) {
       if (((Object[]) val).length == 0) {
         return true;
+      } else if (((Object[]) val).length > maxSize) {
+        return false;
       }
       return (Arrays.stream((Object[]) val)).filter(Objects::nonNull)
-        .allMatch(item -> isResolvableObjectRec(item, depth + 1));
+        .allMatch(item -> isResolvableObjectRec(item, depth + 1, maxDepth, maxSize));
     }
     return false;
   }

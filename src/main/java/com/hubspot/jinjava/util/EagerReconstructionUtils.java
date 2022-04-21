@@ -91,28 +91,39 @@ public class EagerReconstructionUtils {
       initiallyResolvedAsStrings = new HashMap<>();
       // This creates a stringified snapshot of the context
       // so it can be disabled via the config because it may cause performance issues.
-      Stream<String> keyStream = initiallyResolvedHashes.keySet().stream();
+      Stream<Entry<String, Object>> entryStream;
       if (!interpreter.getConfig().getExecutionMode().useEagerContextReverting()) {
-        Set<String> combinedScopeKeys = interpreter.getContext().getCombinedScopeKeys();
-        keyStream = keyStream.filter(combinedScopeKeys::contains);
+        entryStream =
+          interpreter
+            .getContext()
+            .getCombinedScope()
+            .entrySet()
+            .stream()
+            .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
+            .filter(
+              entry -> EagerExpressionResolver.isResolvableObject(entry.getValue(), 2, 10) // TODO make this configurable
+            );
+      } else {
+        entryStream =
+          interpreter
+            .getContext()
+            .entrySet()
+            .stream()
+            .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
+            .filter(
+              entry -> EagerExpressionResolver.isResolvableObject(entry.getValue())
+            );
       }
-      keyStream
-        .filter(
-          key ->
-            EagerExpressionResolver.isResolvableObject(interpreter.getContext().get(key))
-        )
-        .forEach(
-          key -> {
-            try {
-              initiallyResolvedAsStrings.put(
-                key,
-                PyishObjectMapper.getAsUnquotedPyishString(
-                  interpreter.getContext().get(key)
-                )
-              );
-            } catch (Exception ignored) {}
-          }
-        );
+      entryStream.forEach(
+        entry -> {
+          try {
+            initiallyResolvedAsStrings.put(
+              entry.getKey(),
+              PyishObjectMapper.getAsUnquotedPyishString(entry.getValue())
+            );
+          } catch (Exception ignored) {}
+        }
+      );
     } else {
       initiallyResolvedHashes = Collections.emptyMap();
       initiallyResolvedAsStrings = Collections.emptyMap();

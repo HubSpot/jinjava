@@ -407,14 +407,14 @@ public class Context extends ScopeMap<String, Object> {
     return eagerTokens;
   }
 
-  public Set<String> getCombinedScopeKeys() {
-    Set<String> scopeKeys = new HashSet<>(getScope().keySet());
+  public Map<String, Object> getCombinedScope() {
+    Map<String, Object> scopeMap = new HashMap<>(getScope());
     Context parent = this.parent;
     while (parent != null && parent.currentPathStack == currentPathStack) {
-      scopeKeys.addAll(parent.getScope().keySet());
+      parent.getScope().forEach(scopeMap::putIfAbsent);
       parent = parent.parent;
     }
-    return scopeKeys;
+    return scopeMap;
   }
 
   public Context getPenultimateParent() {
