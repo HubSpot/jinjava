@@ -15,7 +15,6 @@ import com.hubspot.jinjava.loader.ResourceLocator;
 import com.hubspot.jinjava.mode.DefaultExecutionMode;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.mode.ExecutionMode;
-import com.hubspot.jinjava.mode.NonRevertingEagerExecutionMode;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.util.DeferredValueUtils;
@@ -43,7 +42,7 @@ public class EagerTest {
     setupWithExecutionMode(EagerExecutionMode.instance());
   }
 
-  private void setupWithExecutionMode(ExecutionMode executionMode) {
+  protected void setupWithExecutionMode(ExecutionMode executionMode) {
     JinjavaInterpreter.popCurrent();
     jinjava = new Jinjava();
     jinjava.setResourceLocator(
@@ -1003,10 +1002,7 @@ public class EagerTest {
   }
 
   @Test
-  public void itRevertsSimpleForNonRevertingMode() {
-    setupWithExecutionMode(NonRevertingEagerExecutionMode.instance());
-    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "reverts-simple-for-non-reverting-mode"
-    );
+  public void itRevertsSimple() {
+    expectedTemplateInterpreter.assertExpectedOutput("reverts-simple");
   }
 }
