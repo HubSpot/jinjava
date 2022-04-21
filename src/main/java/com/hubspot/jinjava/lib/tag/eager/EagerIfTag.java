@@ -181,9 +181,6 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       )
       .collect(Collectors.toSet());
     if (!nonDeferredBindingsToRevert.isEmpty()) {
-      if (!interpreter.getConfig().getExecutionMode().useEagerContextReverting()) {
-        throw new DeferredValueException("Cannot revert value");
-      }
       nonDeferredBindingsToRevert.forEach(
         entry -> interpreter.getContext().put(entry.getKey(), entry.getValue())
       );

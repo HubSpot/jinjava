@@ -105,7 +105,7 @@ public class EagerExpressionResolver {
   }
 
   // Find any unresolved variables, functions, etc in this expression to mark as deferred.
-  private static Set<String> findDeferredWords(
+  public static Set<String> findDeferredWords(
     String partiallyResolved,
     JinjavaInterpreter interpreter
   ) {
