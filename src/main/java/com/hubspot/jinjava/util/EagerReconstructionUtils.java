@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class EagerReconstructionUtils {
 
@@ -90,29 +91,28 @@ public class EagerReconstructionUtils {
       initiallyResolvedAsStrings = new HashMap<>();
       // This creates a stringified snapshot of the context
       // so it can be disabled via the config because it may cause performance issues.
-      if (interpreter.getConfig().getExecutionMode().useEagerContextReverting()) {
-        initiallyResolvedHashes
-          .keySet()
-          .stream()
-          .filter(
-            key ->
-              EagerExpressionResolver.isResolvableObject(
-                interpreter.getContext().get(key)
-              )
-          )
-          .forEach(
-            key -> {
-              try {
-                initiallyResolvedAsStrings.put(
-                  key,
-                  PyishObjectMapper.getAsUnquotedPyishString(
-                    interpreter.getContext().get(key)
-                  )
-                );
-              } catch (Exception ignored) {}
-            }
-          );
+      Stream<String> keyStream = initiallyResolvedHashes.keySet().stream();
+      if (!interpreter.getConfig().getExecutionMode().useEagerContextReverting()) {
+        Set<String> combinedScopeKeys = interpreter.getContext().getCombinedScopeKeys();
+        keyStream = keyStream.filter(combinedScopeKeys::contains);
       }
+      keyStream
+        .filter(
+          key ->
+            EagerExpressionResolver.isResolvableObject(interpreter.getContext().get(key))
+        )
+        .forEach(
+          key -> {
+            try {
+              initiallyResolvedAsStrings.put(
+                key,
+                PyishObjectMapper.getAsUnquotedPyishString(
+                  interpreter.getContext().get(key)
+                )
+              );
+            } catch (Exception ignored) {}
+          }
+        );
     } else {
       initiallyResolvedHashes = Collections.emptyMap();
       initiallyResolvedAsStrings = Collections.emptyMap();

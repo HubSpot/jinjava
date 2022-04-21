@@ -14,6 +14,7 @@ import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
 import com.hubspot.jinjava.mode.DefaultExecutionMode;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
+import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.util.DeferredValueUtils;
@@ -31,13 +32,19 @@ import org.junit.Test;
 
 public class EagerTest {
   private JinjavaInterpreter interpreter;
-  private final Jinjava jinjava = new Jinjava();
+  private Jinjava jinjava;
   private ExpectedTemplateInterpreter expectedTemplateInterpreter;
   Context globalContext = new Context();
   Context localContext; // ref to context created with global as parent
 
   @Before
   public void setup() {
+    setupWithExecutionMode(EagerExecutionMode.instance());
+  }
+
+  protected void setupWithExecutionMode(ExecutionMode executionMode) {
+    JinjavaInterpreter.popCurrent();
+    jinjava = new Jinjava();
     jinjava.setResourceLocator(
       new ResourceLocator() {
         private RelativePathResolver relativePathResolver = new RelativePathResolver();
@@ -64,7 +71,7 @@ public class EagerTest {
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
-      .withExecutionMode(EagerExecutionMode.instance())
+      .withExecutionMode(executionMode)
       .withNestedInterpretationEnabled(true)
       .withLegacyOverrides(
         LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
@@ -992,5 +999,10 @@ public class EagerTest {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "modifies-variable-in-deferred-macro"
     );
+  }
+
+  @Test
+  public void itRevertsSimple() {
+    expectedTemplateInterpreter.assertExpectedOutput("reverts-simple");
   }
 }
