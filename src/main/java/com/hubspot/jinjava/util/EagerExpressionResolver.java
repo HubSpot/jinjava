@@ -216,9 +216,11 @@ public class EagerExpressionResolver {
     if (depth > maxDepth) {
       return false;
     }
-    boolean isResolvable = RESOLVABLE_CLASSES
-      .stream()
-      .anyMatch(clazz -> clazz.isAssignableFrom(val.getClass()));
+    boolean isResolvable =
+      val == null ||
+      RESOLVABLE_CLASSES
+        .stream()
+        .anyMatch(clazz -> clazz.isAssignableFrom(val.getClass()));
     if (isResolvable) {
       return true;
     }
