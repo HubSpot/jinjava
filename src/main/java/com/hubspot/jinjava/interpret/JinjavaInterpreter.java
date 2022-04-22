@@ -56,6 +56,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -73,6 +74,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 public class JinjavaInterpreter implements PyishSerializable {
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
   private final LinkedList<Node> extendParentRoots = new LinkedList<>();
+  private final Map<String, RevertibleObject> revertibleObjects = new HashMap<>();
 
   private Context context;
   private final JinjavaConfig config;
@@ -184,6 +186,10 @@ public class JinjavaInterpreter implements PyishSerializable {
 
   public boolean isValidationMode() {
     return config.isValidationMode();
+  }
+
+  public Map<String, RevertibleObject> getRevertibleObjects() {
+    return revertibleObjects;
   }
 
   public class InterpreterScopeClosable implements AutoCloseable {
