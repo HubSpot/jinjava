@@ -130,6 +130,7 @@ public class EagerReconstructionUtils {
                   hashCode,
                   PyishObjectMapper.getAsUnquotedPyishString(entry.getValue())
                 );
+              interpreter.getRevertibleObjects().put(entry.getKey(), revertibleObject);
             }
             initiallyResolvedAsStrings.put(
               entry.getKey(),
