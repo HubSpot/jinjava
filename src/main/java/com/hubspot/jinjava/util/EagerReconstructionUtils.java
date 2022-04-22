@@ -7,6 +7,7 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
+import com.hubspot.jinjava.interpret.RevertibleObject;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.AutoEscapeTag;
@@ -117,9 +118,22 @@ public class EagerReconstructionUtils {
       entryStream.forEach(
         entry -> {
           try {
+            RevertibleObject revertibleObject = interpreter
+              .getRevertibleObjects()
+              .get(entry.getKey());
+            Object hashCode = initiallyResolvedHashes.get(entry.getKey());
+            if (
+              revertibleObject == null || !hashCode.equals(revertibleObject.getHashCode())
+            ) {
+              revertibleObject =
+                new RevertibleObject(
+                  hashCode,
+                  PyishObjectMapper.getAsUnquotedPyishString(entry.getValue())
+                );
+            }
             initiallyResolvedAsStrings.put(
               entry.getKey(),
-              PyishObjectMapper.getAsUnquotedPyishString(entry.getValue())
+              revertibleObject.getPyishString()
             );
           } catch (Exception ignored) {}
         }
