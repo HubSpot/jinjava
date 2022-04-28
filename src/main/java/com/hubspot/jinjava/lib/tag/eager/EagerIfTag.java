@@ -213,7 +213,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
           ) {
             interpreter
               .getContext()
-              .put(
+              .replace(
                 key,
                 ((DeferredValue) interpreter.getContext().get(key)).getOriginalValue()
               );
