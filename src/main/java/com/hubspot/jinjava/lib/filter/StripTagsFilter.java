@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
@@ -33,8 +34,12 @@ public class StripTagsFilter implements Filter {
     if (!(object instanceof String)) {
       return object;
     }
+    int numEagerTokensStart = interpreter.getContext().getEagerTokens().size();
 
     String val = interpreter.renderFlat((String) object);
+    if (interpreter.getContext().getEagerTokens().size() > numEagerTokensStart) {
+      throw new DeferredValueException("Deferred in StripTagsFilter");
+    }
 
     String cleanedVal = Jsoup.parse(val).text();
     cleanedVal = Jsoup.clean(cleanedVal, Whitelist.none());
