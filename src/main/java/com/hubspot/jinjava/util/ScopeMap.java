@@ -121,6 +121,30 @@ public class ScopeMap<K, V> implements Map<K, V> {
   }
 
   @Override
+  public boolean replace(K key, V oldValue, V newValue) {
+    boolean replaced = scope.replace(key, oldValue, newValue);
+    if (replaced) {
+      return true;
+    }
+    if (parent != null) {
+      return parent.replace(key, oldValue, newValue);
+    }
+    return false;
+  }
+
+  @Override
+  public V replace(K key, V value) {
+    V val = scope.replace(key, value);
+    if (val != null) {
+      return val;
+    }
+    if (parent != null) {
+      return parent.replace(key, value);
+    }
+    return null;
+  }
+
+  @Override
   public V remove(Object key) {
     return scope.remove(key);
   }
