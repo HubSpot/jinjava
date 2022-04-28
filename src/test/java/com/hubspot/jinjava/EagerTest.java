@@ -1005,4 +1005,9 @@ public class EagerTest {
   public void itRevertsSimple() {
     expectedTemplateInterpreter.assertExpectedOutput("reverts-simple");
   }
+
+  @Test
+  public void itScopesResettingBindings() {
+    expectedTemplateInterpreter.assertExpectedOutput("scopes-resetting-bindings");
+  }
 }
