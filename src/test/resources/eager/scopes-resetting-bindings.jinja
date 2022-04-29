@@ -1,0 +1,10 @@
+{% set my_list = [] %}
+{% do my_list.append(0) %}
+{% for i in deferred %}
+{% for j in deferred %}
+{% if deferred %}
+{% do my_list.append(1) %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{{ my_list }}
