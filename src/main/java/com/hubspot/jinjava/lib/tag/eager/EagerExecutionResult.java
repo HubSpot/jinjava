@@ -3,7 +3,6 @@ package com.hubspot.jinjava.lib.tag.eager;
 import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildSetTag;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import java.util.Map;
@@ -48,11 +47,7 @@ public class EagerExecutionResult {
           .collect(
             Collectors.toMap(
               Entry::getKey,
-              entry ->
-                String.format(
-                  entry.getValue() instanceof Namespace ? "namespace(%s)" : "%s",
-                  PyishObjectMapper.getAsPyishString(entry.getValue())
-                )
+              entry -> PyishObjectMapper.getAsPyishString(entry.getValue())
             )
           ),
         JinjavaInterpreter.getCurrent(),
