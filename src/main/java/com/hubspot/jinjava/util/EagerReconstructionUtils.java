@@ -128,7 +128,7 @@ public class EagerReconstructionUtils {
               revertibleObject =
                 new RevertibleObject(
                   hashCode,
-                  PyishObjectMapper.getAsUnquotedPyishString(entry.getValue())
+                  PyishObjectMapper.getAsPyishString(entry.getValue())
                 );
               interpreter.getRevertibleObjects().put(entry.getKey(), revertibleObject);
             }
@@ -185,10 +185,10 @@ public class EagerReconstructionUtils {
             Collectors.toMap(
               Entry::getKey,
               e -> {
-                if (e.getValue() instanceof DeferredValue) {
-                  return ((DeferredValue) e.getValue()).getOriginalValue();
-                }
                 if (takeNewValue) {
+                  if (e.getValue() instanceof DeferredValue) {
+                    return ((DeferredValue) e.getValue()).getOriginalValue();
+                  }
                   return e.getValue();
                 }
 
@@ -201,6 +201,9 @@ public class EagerReconstructionUtils {
                     initiallyResolvedAsStrings.get(e.getKey()),
                     interpreter.getLineNumber()
                   );
+                }
+                if (e.getValue() instanceof DeferredValue) {
+                  return ((DeferredValue) e.getValue()).getOriginalValue();
                 }
 
                 // Previous value could not be mapped to a string

@@ -1010,4 +1010,9 @@ public class EagerTest {
   public void itScopesResettingBindings() {
     expectedTemplateInterpreter.assertExpectedOutput("scopes-resetting-bindings");
   }
+
+  @Test
+  public void itReconstructsWithMultipleLoops() {
+    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-with-multiple-loops");
+  }
 }

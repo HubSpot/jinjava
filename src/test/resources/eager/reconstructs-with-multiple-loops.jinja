@@ -1,0 +1,15 @@
+{% set my_list = [] %}
+{% for i in deferred %}
+  {% if deferred %}
+    {% for j in deferred %}
+      {% if deferred %}
+        {% do my_list.append(1) %}
+      {% else %}
+        {% do my_list.append(2) %}
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    {% do my_list.append(3) %}
+  {% endif %}
+{% endfor %}
+{{ my_list }}
