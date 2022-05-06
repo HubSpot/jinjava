@@ -12,6 +12,7 @@ import com.hubspot.jinjava.lib.tag.ElseTag;
 import com.hubspot.jinjava.lib.tag.IfTag;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.parse.NoteToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
@@ -167,15 +168,26 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       branchStart = branchEnd + 1;
     }
     if (!bindingsToDefer.isEmpty()) {
-      bindingsToDefer
-        .stream()
-        .filter(key -> !(interpreter.getContext().get(key) instanceof DeferredValue))
-        .forEach(
-          key ->
-            interpreter
-              .getContext()
-              .replace(key, DeferredValue.instance(interpreter.getContext().get(key)))
-        );
+      bindingsToDefer =
+        bindingsToDefer
+          .stream()
+          .filter(key -> !(interpreter.getContext().get(key) instanceof DeferredValue))
+          .collect(Collectors.toSet());
+      if (!bindingsToDefer.isEmpty()) {
+        interpreter
+          .getContext()
+          .handleEagerToken(
+            new EagerToken(
+              new NoteToken(
+                "",
+                interpreter.getLineNumber(),
+                interpreter.getPosition(),
+                interpreter.getConfig().getTokenScannerSymbols()
+              ),
+              bindingsToDefer
+            )
+          );
+      }
       return sb.toString();
     }
     return sb.toString();

@@ -17,7 +17,6 @@ import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.lib.tag.eager.EagerToken;
-import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
@@ -128,7 +127,7 @@ public class EagerReconstructionUtils {
               revertibleObject =
                 new RevertibleObject(
                   hashCode,
-                  PyishObjectMapper.getAsUnquotedPyishString(entry.getValue())
+                  PyishObjectMapper.getAsPyishString(entry.getValue())
                 );
               interpreter.getRevertibleObjects().put(entry.getKey(), revertibleObject);
             }
@@ -185,10 +184,10 @@ public class EagerReconstructionUtils {
             Collectors.toMap(
               Entry::getKey,
               e -> {
-                if (e.getValue() instanceof DeferredValue) {
-                  return ((DeferredValue) e.getValue()).getOriginalValue();
-                }
                 if (takeNewValue) {
+                  if (e.getValue() instanceof DeferredValue) {
+                    return ((DeferredValue) e.getValue()).getOriginalValue();
+                  }
                   return e.getValue();
                 }
 
@@ -201,6 +200,9 @@ public class EagerReconstructionUtils {
                     initiallyResolvedAsStrings.get(e.getKey()),
                     interpreter.getLineNumber()
                   );
+                }
+                if (e.getValue() instanceof DeferredValue) {
+                  return ((DeferredValue) e.getValue()).getOriginalValue();
                 }
 
                 // Previous value could not be mapped to a string
@@ -333,13 +335,7 @@ public class EagerReconstructionUtils {
       .forEach(
         w -> {
           Object value = interpreter.getContext().get(w);
-          deferredMap.put(
-            w,
-            String.format(
-              value instanceof Namespace ? "namespace(%s)" : "%s",
-              PyishObjectMapper.getAsPyishString(value)
-            )
-          );
+          deferredMap.put(w, PyishObjectMapper.getAsPyishString(value));
         }
       );
     return buildSetTag(deferredMap, interpreter, true);

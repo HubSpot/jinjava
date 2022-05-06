@@ -28,6 +28,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -95,8 +96,20 @@ public class Functions {
   )
   public static Namespace createNamespace(Object... parameters) {
     Namespace namespace = parameters.length > 0 && parameters[0] instanceof Map
-      ? new Namespace((Map<String, Object>) parameters[0])
-      : new Namespace();
+      ? new Namespace(
+        (Map<String, Object>) parameters[0],
+        JinjavaInterpreter
+          .getCurrentMaybe()
+          .map(interpreter -> interpreter.getConfig().getMaxMapSize())
+          .orElse(Integer.MAX_VALUE)
+      )
+      : new Namespace(
+        new HashMap<>(),
+        JinjavaInterpreter
+          .getCurrentMaybe()
+          .map(interpreter -> interpreter.getConfig().getMaxMapSize())
+          .orElse(Integer.MAX_VALUE)
+      );
     namespace.putAll(
       Arrays
         .stream(parameters)
