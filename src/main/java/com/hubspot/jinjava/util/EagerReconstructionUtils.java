@@ -196,10 +196,12 @@ public class EagerReconstructionUtils {
                 // It will revert the effects when takeNewValue is false.
                 if (initiallyResolvedAsStrings.containsKey(e.getKey())) {
                   // convert to new list or map
-                  return interpreter.resolveELExpression(
-                    initiallyResolvedAsStrings.get(e.getKey()),
-                    interpreter.getLineNumber()
-                  );
+                  try {
+                    return interpreter.resolveELExpression(
+                      initiallyResolvedAsStrings.get(e.getKey()),
+                      interpreter.getLineNumber()
+                    );
+                  } catch (DeferredValueException ignored) {}
                 }
                 if (e.getValue() instanceof DeferredValue) {
                   return ((DeferredValue) e.getValue()).getOriginalValue();
