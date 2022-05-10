@@ -191,6 +191,19 @@ public class EagerReconstructionUtils {
                   return e.getValue();
                 }
 
+                if (
+                  e.getValue() instanceof DeferredValue &&
+                  initiallyResolvedHashes
+                    .get(e.getKey())
+                    .equals(
+                      getObjectOrHashCode(
+                        ((DeferredValue) e.getValue()).getOriginalValue()
+                      )
+                    )
+                ) {
+                  return ((DeferredValue) e.getValue()).getOriginalValue();
+                }
+
                 // This is necessary if a state-changing function, such as .update()
                 // or .append() is run against a variable in the context.
                 // It will revert the effects when takeNewValue is false.
@@ -202,9 +215,6 @@ public class EagerReconstructionUtils {
                       interpreter.getLineNumber()
                     );
                   } catch (DeferredValueException ignored) {}
-                }
-                if (e.getValue() instanceof DeferredValue) {
-                  return ((DeferredValue) e.getValue()).getOriginalValue();
                 }
 
                 // Previous value could not be mapped to a string

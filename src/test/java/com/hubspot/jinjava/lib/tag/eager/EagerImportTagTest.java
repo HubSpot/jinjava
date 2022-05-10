@@ -661,6 +661,20 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(interpreter.render(result).trim()).isEqualTo("5foo\nresolved");
   }
 
+  @Test
+  public void itDoesNotSilentlyOverrideMacro() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% import 'macro-a.jinja' as macros %}\n" +
+      "{{ macros.doer() }}\n" +
+      "{% if deferred %}\n" +
+      "  {% import 'macro-b.jinja' as macros %}\n" +
+      "{% endif %}\n" +
+      "{{ macros.doer() }}"
+    );
+    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
+  }
+
   private static JinjavaInterpreter getChildInterpreter(
     JinjavaInterpreter interpreter,
     String alias
