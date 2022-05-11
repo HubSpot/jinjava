@@ -1,7 +1,10 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValueException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstMethod;
@@ -34,7 +37,14 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    try {
+    try (
+      TemporaryValueClosable<Boolean> c = (
+        (JinjavaInterpreter) context
+          .getELResolver()
+          .getValue(context, null, ExtendedParser.INTERPRETER)
+      ).getContext()
+        .withPartialMacroEvaluation(false)
+    ) {
       setEvalResult(super.eval(bindings, context));
       return evalResult;
     } catch (DeferredValueException | ELException originalException) {

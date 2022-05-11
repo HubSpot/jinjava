@@ -1015,4 +1015,9 @@ public class EagerTest {
   public void itReconstructsWithMultipleLoops() {
     expectedTemplateInterpreter.assertExpectedOutput("reconstructs-with-multiple-loops");
   }
+
+  @Test
+  public void itFullyDefersFilteredMacro() {
+    expectedTemplateInterpreter.assertExpectedOutput("fully-defers-filtered-macro");
+  }
 }
