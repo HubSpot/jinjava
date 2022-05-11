@@ -1,4 +1,5 @@
-{% macro thing(foo) %}{{ filter:upper.filter(foo, ____int3rpr3t3r____) }}
-  A flashy {{ deferred }}.{% endmacro %}{{ thing(thing('bar')) }}
+{% macro flashy(foo) %}{{ filter:upper.filter(foo, ____int3rpr3t3r____) }}
+  A flashy {{ deferred }}.{% endmacro %}{{ flashy(flashy('bar')) }}
+---
 
-{% macro other() %}A fancy {{ deferred }}.{% endmacro %}{{ filter:upper.filter(other(), ____int3rpr3t3r____) }}
+{% macro silly() %}A silly {{ deferred }}.{% endmacro %}{{ filter:upper.filter(silly(), ____int3rpr3t3r____) }}

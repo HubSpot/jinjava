@@ -1,9 +1,10 @@
-{% macro thing(foo) -%}
-{{ foo|upper }}
+{% macro flashy(foo) -%}
+  {{ foo|upper }}
   A flashy {{ deferred }}.
 {%- endmacro %}
-{{ thing(thing('bar')) }}
-{% macro other() -%}
-A fancy {{ deferred }}.
+{{ flashy(flashy('bar')) }}
+---
+{% macro silly() -%}
+A silly {{ deferred }}.
 {%- endmacro %}
-{{ other()|upper }}
+{{ silly()|upper }}
