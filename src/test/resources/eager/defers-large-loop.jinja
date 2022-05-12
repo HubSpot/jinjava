@@ -1,0 +1,6 @@
+{% for i in range(10) %}
+Small {{ i }} {{ deferred }} {{ deferred ~ i }}
+{% endfor %}
+{% for i in range(500 + 100) %}
+Big {{ i }} {{ deferred }} {{ deferred ~ i }}
+{% endfor %}

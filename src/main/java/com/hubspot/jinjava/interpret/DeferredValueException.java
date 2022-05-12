@@ -6,16 +6,13 @@ package com.hubspot.jinjava.interpret;
  * and instead echo its contents to the output.
  */
 public class DeferredValueException extends InterpretException {
+  public static final String MESSAGE_PREFIX = "Encountered a deferred value: ";
 
   public DeferredValueException(String message) {
-    super("Encountered a deferred value: " + message);
+    super(MESSAGE_PREFIX + message);
   }
 
   public DeferredValueException(String variable, int lineNumber, int startPosition) {
-    super(
-      "Encountered a deferred value: \"" + variable + "\"",
-      lineNumber,
-      startPosition
-    );
+    super(MESSAGE_PREFIX + '\"' + variable + '\"', lineNumber, startPosition);
   }
 }

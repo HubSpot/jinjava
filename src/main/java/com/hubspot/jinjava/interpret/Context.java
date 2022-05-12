@@ -106,6 +106,7 @@ public class Context extends ScopeMap<String, Object> {
 
   private boolean validationMode = false;
   private boolean deferredExecutionMode = false;
+  private boolean deferLargeObjects = false;
   private boolean throwInterpreterErrors = false;
   private boolean partialMacroEvaluation = false;
   private boolean unwrapRawOverride = false;
@@ -209,6 +210,7 @@ public class Context extends ScopeMap<String, Object> {
       this.unwrapRawOverride = parent.unwrapRawOverride;
       this.dynamicVariableResolver = parent.dynamicVariableResolver;
       this.deferredExecutionMode = parent.deferredExecutionMode;
+      this.deferLargeObjects = parent.deferLargeObjects;
       this.throwInterpreterErrors = parent.throwInterpreterErrors;
     }
   }
@@ -693,6 +695,26 @@ public class Context extends ScopeMap<String, Object> {
   public Context setDeferredExecutionMode(boolean deferredExecutionMode) {
     this.deferredExecutionMode = deferredExecutionMode;
     return this;
+  }
+
+  public boolean isDeferLargeObjects() {
+    return deferLargeObjects;
+  }
+
+  public Context setDeferLargeObjects(boolean deferLargeObjects) {
+    this.deferLargeObjects = deferLargeObjects;
+    return this;
+  }
+
+  public TemporaryValueClosable<Boolean> withDeferLargeObjects(
+    boolean deferLargeObjects
+  ) {
+    TemporaryValueClosable<Boolean> temporaryValueClosable = new TemporaryValueClosable<>(
+      this.deferLargeObjects,
+      this::setDeferLargeObjects
+    );
+    this.deferLargeObjects = deferLargeObjects;
+    return temporaryValueClosable;
   }
 
   public boolean getThrowInterpreterErrors() {

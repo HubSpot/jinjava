@@ -4,10 +4,12 @@ import com.google.common.primitives.Primitives;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.DeferredValueException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstNode;
+import java.util.Collection;
 import java.util.function.Supplier;
 import javax.el.ELContext;
 import javax.el.ELException;
@@ -26,7 +28,20 @@ public interface EvalResultHolder {
   ) {
     try {
       setEvalResult(evalSupplier.get());
-      return getEvalResult();
+      Object evalResult = getEvalResult();
+      if (
+        evalResult instanceof Collection &&
+        ((Collection<?>) evalResult).size() > 100 &&
+        (
+          (JinjavaInterpreter) context
+            .getELResolver()
+            .getValue(context, null, ExtendedParser.INTERPRETER)
+        ).getContext()
+          .isDeferLargeObjects()
+      ) {
+        throw new DeferredValueException("Collection too big");
+      }
+      return evalResult;
     } catch (DeferredValueException | ELException originalException) {
       DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
         originalException

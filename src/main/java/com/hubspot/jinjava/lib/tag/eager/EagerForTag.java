@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.collect.Sets;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -43,30 +44,39 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     );
     String prefix = "";
 
-    // separate getEagerImage from renderChildren because the token gets evaluated once
-    // while the children are evaluated 0...n times.
-    result.append(
-      EagerReconstructionUtils
-        .executeInChildContext(
-          eagerInterpreter ->
-            EagerExpressionResult.fromString(
-              getEagerImage(
-                buildToken(
-                  tagNode,
-                  e,
-                  interpreter.getLineNumber(),
-                  interpreter.getPosition()
-                ),
-                eagerInterpreter
-              )
-            ),
-          interpreter,
-          true,
-          false,
-          false
+    try (
+      TemporaryValueClosable<Boolean> c = interpreter
+        .getContext()
+        .withDeferLargeObjects(
+          ForTag.FULL_TOO_LARGE_EXCEPTION_MESSAGE.equals(e.getMessage()) ||
+          interpreter.getContext().isDeferLargeObjects()
         )
-        .asTemplateString()
-    );
+    ) {
+      // separate getEagerImage from renderChildren because the token gets evaluated once
+      // while the children are evaluated 0...n times.
+      result.append(
+        EagerReconstructionUtils
+          .executeInChildContext(
+            eagerInterpreter ->
+              EagerExpressionResult.fromString(
+                getEagerImage(
+                  buildToken(
+                    tagNode,
+                    e,
+                    interpreter.getLineNumber(),
+                    interpreter.getPosition()
+                  ),
+                  eagerInterpreter
+                )
+              ),
+            interpreter,
+            true,
+            false,
+            false
+          )
+          .asTemplateString()
+      );
+    }
 
     EagerExecutionResult eagerExecutionResult = runLoopOnce(tagNode, interpreter);
     if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
