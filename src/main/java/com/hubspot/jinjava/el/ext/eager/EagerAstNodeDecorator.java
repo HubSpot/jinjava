@@ -56,7 +56,7 @@ public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
   @Override
   public Object eval(Bindings bindings, ELContext elContext) {
     setEvalResult(astNode.eval(bindings, elContext));
-    return evalResult;
+    return checkEvalResultSize(elContext);
   }
 
   @Override
