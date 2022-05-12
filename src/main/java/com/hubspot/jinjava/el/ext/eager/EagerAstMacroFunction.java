@@ -2,12 +2,9 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.DeferredValueException;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstParameters;
-import java.util.Collection;
 import java.util.StringJoiner;
 import javax.el.ELContext;
 import javax.el.ELException;
@@ -41,19 +38,7 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
   public Object eval(Bindings bindings, ELContext context) {
     try {
       setEvalResult(super.eval(bindings, context));
-      if (
-        evalResult instanceof Collection &&
-        ((Collection<?>) evalResult).size() > 100 &&
-        (
-          (JinjavaInterpreter) context
-            .getELResolver()
-            .getValue(context, null, ExtendedParser.INTERPRETER)
-        ).getContext()
-          .isDeferLargeObjects()
-      ) {
-        throw new DeferredValueException("Collection too big");
-      }
-      return evalResult;
+      return checkEvalResultSize(context);
     } catch (DeferredValueException | ELException originalException) {
       DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
         originalException

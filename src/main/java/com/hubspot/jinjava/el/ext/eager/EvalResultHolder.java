@@ -28,20 +28,7 @@ public interface EvalResultHolder {
   ) {
     try {
       setEvalResult(evalSupplier.get());
-      Object evalResult = getEvalResult();
-      if (
-        evalResult instanceof Collection &&
-        ((Collection<?>) evalResult).size() > 100 &&
-        (
-          (JinjavaInterpreter) context
-            .getELResolver()
-            .getValue(context, null, ExtendedParser.INTERPRETER)
-        ).getContext()
-          .isDeferLargeObjects()
-      ) {
-        throw new DeferredValueException("Collection too big");
-      }
-      return evalResult;
+      return checkEvalResultSize(context);
     } catch (DeferredValueException | ELException originalException) {
       DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
         originalException
@@ -51,6 +38,23 @@ public interface EvalResultHolder {
         getPartiallyResolved(bindings, context, e, false)
       );
     }
+  }
+
+  default Object checkEvalResultSize(ELContext context) {
+    Object evalResult = getEvalResult();
+    if (
+      evalResult instanceof Collection &&
+      ((Collection<?>) evalResult).size() > 100 && // TODO make size configurable
+      (
+        (JinjavaInterpreter) context
+          .getELResolver()
+          .getValue(context, null, ExtendedParser.INTERPRETER)
+      ).getContext()
+        .isDeferLargeObjects()
+    ) {
+      throw new DeferredValueException("Collection too big");
+    }
+    return evalResult;
   }
 
   String getPartiallyResolved(
