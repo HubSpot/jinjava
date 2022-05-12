@@ -121,4 +121,16 @@ public class StrftimeFormatterTest {
       )
       .isIn("Июнь", "июнь");
   }
+
+  @Test
+  public void testJavaFormatWithInvalidChar() {
+    assertThat(StrftimeFormatter.toJavaDateTimeFormat("%d.%é.%Y"))
+      .isEqualTo("dd.null.yyyy");
+  }
+
+  @Test
+  public void testJavaFormatWithGT255Char() {
+    assertThat(StrftimeFormatter.toJavaDateTimeFormat("%d.%ğ.%Y"))
+      .isEqualTo("dd.null.yyyy");
+  }
 }
