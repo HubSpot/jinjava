@@ -46,7 +46,7 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
   public Object eval(Bindings bindings, ELContext context) {
     try {
       setEvalResult(super.eval(bindings, context));
-      return evalResult;
+      return checkEvalResultSize(context);
     } catch (DeferredValueException | ELException originalException) {
       DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
         originalException

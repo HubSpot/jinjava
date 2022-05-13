@@ -37,7 +37,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
   public Object eval(Bindings bindings, ELContext context) throws ELException {
     try {
       setEvalResult(super.eval(bindings, context));
-      return evalResult;
+      return checkEvalResultSize(context);
     } catch (DeferredParsingException e) {
       if (question.hasEvalResult()) {
         // the question was evaluated so jump to either yes or no

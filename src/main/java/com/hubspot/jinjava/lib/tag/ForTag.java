@@ -98,6 +98,9 @@ public class ForTag implements Tag {
   private static final long serialVersionUID = 6175143875754966497L;
   private static final String LOOP = "loop";
   private static final Pattern IN_PATTERN = Pattern.compile("\\sin\\s");
+  public static final String TOO_LARGE_EXCEPTION_MESSAGE = "Loop too large";
+  public static final String FULL_TOO_LARGE_EXCEPTION_MESSAGE =
+    DeferredValueException.MESSAGE_PREFIX + TOO_LARGE_EXCEPTION_MESSAGE;
 
   @Override
   public boolean isRenderedInValidationMode() {
@@ -243,6 +246,16 @@ public class ForTag implements Tag {
               return checkLoopVariable(interpreter, buff);
             }
           }
+        }
+        if (
+          interpreter.getConfig().getMaxNumEagerTokens() <
+          (
+            loop.getLength() *
+            interpreter.getContext().getEagerTokens().size() /
+            loop.getIndex()
+          )
+        ) {
+          throw new DeferredValueException(TOO_LARGE_EXCEPTION_MESSAGE);
         }
       }
       return checkLoopVariable(interpreter, buff);

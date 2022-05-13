@@ -1028,4 +1028,9 @@ public class EagerTest {
       "fully-defers-filtered-macro.expected"
     );
   }
+
+  @Test
+  public void itDefersLargeLoop() {
+    expectedTemplateInterpreter.assertExpectedOutput("defers-large-loop");
+  }
 }
