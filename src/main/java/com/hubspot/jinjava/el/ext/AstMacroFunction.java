@@ -44,7 +44,7 @@ public class AstMacroFunction extends AstFunction {
       }
 
       try {
-        return super.invoke(
+        return invoke(
           bindings,
           context,
           macroFunction,

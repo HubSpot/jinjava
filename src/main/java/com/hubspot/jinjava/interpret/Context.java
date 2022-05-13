@@ -712,11 +712,17 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public TemporaryValueClosable<Boolean> withPartialMacroEvaluation() {
+    return withPartialMacroEvaluation(true);
+  }
+
+  public TemporaryValueClosable<Boolean> withPartialMacroEvaluation(
+    boolean partialMacroEvaluation
+  ) {
     TemporaryValueClosable<Boolean> temporaryValueClosable = new TemporaryValueClosable<>(
       this.partialMacroEvaluation,
       this::setPartialMacroEvaluation
     );
-    this.partialMacroEvaluation = true;
+    this.partialMacroEvaluation = partialMacroEvaluation;
     return temporaryValueClosable;
   }
 
