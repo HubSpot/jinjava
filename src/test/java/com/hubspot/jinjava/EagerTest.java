@@ -1017,6 +1017,19 @@ public class EagerTest {
   }
 
   @Test
+  public void itFullyDefersFilteredMacro() {
+    expectedTemplateInterpreter.assertExpectedOutput("fully-defers-filtered-macro");
+  }
+
+  @Test
+  public void itFullyDefersFilteredMacroSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "fully-defers-filtered-macro.expected"
+    );
+  }
+
+  @Test
   public void itDefersLargeLoop() {
     expectedTemplateInterpreter.assertExpectedOutput("defers-large-loop");
   }

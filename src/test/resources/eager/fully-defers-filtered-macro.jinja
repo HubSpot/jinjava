@@ -1,0 +1,10 @@
+{% macro flashy(foo) -%}
+  {{ foo|upper }}
+  A flashy {{ deferred }}.
+{%- endmacro %}
+{{ flashy(flashy('bar')) }}
+---
+{% macro silly() -%}
+A silly {{ deferred }}.
+{%- endmacro %}
+{{ silly()|upper }}
