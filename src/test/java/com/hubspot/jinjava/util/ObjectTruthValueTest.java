@@ -16,41 +16,31 @@ public class ObjectTruthValueTest {
 
   @Test
   public void itEvaluatesIntegers() {
-    int a = 1;
-    assertThat(ObjectTruthValue.evaluate(a)).isTrue();
-    int b = 0;
-    assertThat(ObjectTruthValue.evaluate(b)).isFalse();
+    checkNumberTruthiness(1, 0);
   }
 
   @Test
   public void itEvaluatesDoubles() {
-    double a = 0.5;
-    assertThat(ObjectTruthValue.evaluate(a)).isTrue();
-    double b = 0.0;
-    assertThat(ObjectTruthValue.evaluate(b)).isFalse();
+    checkNumberTruthiness(0.5, 0.0);
   }
 
   @Test
   public void itEvaluatesLongs() {
-    long a = 1;
-    assertThat(ObjectTruthValue.evaluate(a)).isTrue();
-    long b = 0;
-    assertThat(ObjectTruthValue.evaluate(b)).isFalse();
+    checkNumberTruthiness(1L, 0L);
   }
 
   @Test
   public void itEvaluatesShorts() {
-    short a = 1;
-    assertThat(ObjectTruthValue.evaluate(a)).isTrue();
-    short b = 0;
-    assertThat(ObjectTruthValue.evaluate(b)).isFalse();
+    checkNumberTruthiness((short) 1, (short) 0);
   }
 
   @Test
   public void itEvaluatesFloats() {
-    float a = 0.5f;
+    checkNumberTruthiness(0.5f, 0.0f);
+  }
+
+  private void checkNumberTruthiness(Object a, Object b) {
     assertThat(ObjectTruthValue.evaluate(a)).isTrue();
-    float b = 0.0f;
     assertThat(ObjectTruthValue.evaluate(b)).isFalse();
   }
 

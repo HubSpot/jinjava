@@ -39,19 +39,7 @@ public final class ObjectTruthValue {
     }
 
     if (object instanceof Number) {
-      if (object instanceof Integer) {
-        return (Integer) object != 0;
-      }
-      if (object instanceof Double) {
-        return (Double) object != 0;
-      }
-      if (object instanceof Long) {
-        return (Long) object != 0;
-      }
-      if (object instanceof Short) {
-        return (Short) object != 0;
-      }
-      return (Float) object != 0;
+      return ((Number) object).doubleValue() != 0;
     }
 
     if (object instanceof String) {
