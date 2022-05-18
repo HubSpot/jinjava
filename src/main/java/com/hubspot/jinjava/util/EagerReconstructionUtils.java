@@ -157,14 +157,25 @@ public class EagerReconstructionUtils {
       sessionBindings
         .entrySet()
         .stream()
+        //        .filter(
+        //          entry -> {
+        //            if (entry.getValue() != null) {
+        //              Object current = interpreter.getContext().get(entry.getKey());
+        //              if (entry.getValue() instanceof DeferredValue) {
+        //                return (
+        //                  (current instanceof DeferredValue) &&
+        //                    ((DeferredValue) current).getOriginalValue() != null
+        //                );
+        //              }
+        //              return !entry.getValue().equals(current);
+        //            }
+        //            return false;
+        //          }
+        //        )
         .filter(
           entry ->
             entry.getValue() != null &&
             !entry.getValue().equals(interpreter.getContext().get(entry.getKey()))
-        )
-        .filter(
-          entry ->
-            !(interpreter.getContext().get(entry.getKey()) instanceof DeferredValue)
         )
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     if (checkForContextChanges) {

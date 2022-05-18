@@ -55,7 +55,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
     List<Object> varArgs
   ) {
     Optional<String> importFile = macroFunction.getImportFile(interpreter);
-    try (InterpreterScopeClosable c = interpreter.enterScope()) {
+    try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
       interpreter.getContext().setDeferredExecutionMode(true);
       return macroFunction.getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
     } finally {
@@ -152,7 +152,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
     ) {
       return "";
     } else {
-      try {
+      try (InterpreterScopeClosable c = interpreter.enterScope()) {
         int numEagerTokensStart = interpreter.getContext().getEagerTokens().size();
         String evaluation = (String) evaluate(
           macroFunction
@@ -162,9 +162,6 @@ public class EagerMacroFunction extends AbstractCallableMethod {
             .toArray()
         );
 
-        interpreter
-          .getContext()
-          .put(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY, currentDeferredImportResource);
         if (interpreter.getContext().getEagerTokens().size() > numEagerTokensStart) {
           evaluation =
             (String) evaluate(
@@ -180,6 +177,9 @@ public class EagerMacroFunction extends AbstractCallableMethod {
         // In case something not eager-supported encountered a deferred value
         result = macroFunction.reconstructImage();
       } finally {
+        interpreter
+          .getContext()
+          .put(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY, currentDeferredImportResource);
         if (!macroFunction.isCaller()) {
           interpreter.getContext().getMacroStack().pop();
         }

@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.hubspot.jinjava.interpret.CallStack;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.parse.Token;
@@ -14,6 +15,8 @@ public class EagerToken {
   // These words are those which will be set to a value which has been deferred.
   private final Set<String> setDeferredWords;
 
+  private final CallStack currentPathStack;
+
   private final String importResourcePath;
   private final String currentMacroFunction;
 
@@ -23,6 +26,7 @@ public class EagerToken {
     this.setDeferredWords = Collections.emptySet();
     importResourcePath = acquireImportResourcePath();
     currentMacroFunction = acquireCurrentMacroFunction();
+    currentPathStack = acquireCurrentPathStack();
   }
 
   public EagerToken(
@@ -35,6 +39,7 @@ public class EagerToken {
     this.setDeferredWords = setDeferredWords;
     importResourcePath = acquireImportResourcePath();
     currentMacroFunction = acquireCurrentMacroFunction();
+    currentPathStack = acquireCurrentPathStack();
   }
 
   public Token getToken() {
@@ -57,6 +62,10 @@ public class EagerToken {
     return currentMacroFunction;
   }
 
+  public CallStack getCurrentPathStack() {
+    return currentPathStack;
+  }
+
   private static String acquireImportResourcePath() {
     return (String) JinjavaInterpreter
       .getCurrentMaybe()
@@ -69,6 +78,13 @@ public class EagerToken {
     return JinjavaInterpreter
       .getCurrentMaybe()
       .flatMap(interpreter -> interpreter.getContext().getMacroStack().peek())
+      .orElse(null);
+  }
+
+  private static CallStack acquireCurrentPathStack() {
+    return JinjavaInterpreter
+      .getCurrentMaybe()
+      .map(interpreter -> interpreter.getContext().getCurrentPathStack())
       .orElse(null);
   }
 }

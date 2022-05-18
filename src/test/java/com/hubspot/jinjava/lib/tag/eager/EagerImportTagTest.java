@@ -548,7 +548,7 @@ public class EagerImportTagTest extends ImportTagTest {
         "{% set deferred_import_resource_path = 'import-macro.jinja' %}{% macro print_path_macro(var) %}\n" +
         "{{ filter:print_path.filter(var, ____int3rpr3t3r____) }}\n" +
         "{{ var }}\n" +
-        "{% endmacro %}{% set deferred_import_resource_path = null %}{{ print_path_macro(var) }}{% endmacro %}{% set deferred_import_resource_path = null %}{{ print_path_macro2(foo) }}"
+        "{% endmacro %}{% set deferred_import_resource_path = 'double-import-macro.jinja' %}{{ print_path_macro(var) }}{% endmacro %}{% set deferred_import_resource_path = null %}{{ print_path_macro2(foo) }}"
       );
     context.put("foo", "foo");
     context.put(Context.GLOBAL_MACROS_SCOPE_KEY, null);
