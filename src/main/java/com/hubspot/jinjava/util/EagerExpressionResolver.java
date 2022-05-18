@@ -99,7 +99,10 @@ public class EagerExpressionResolver {
     if (val == null) {
       return JINJAVA_NULL;
     } else if (isResolvableObject(val)) {
-      return PyishObjectMapper.getAsPyishString(val);
+      String pyishString = PyishObjectMapper.getAsPyishString(val);
+      if (pyishString.length() < 1048576) { // TODO maybe this should be configurable
+        return pyishString;
+      }
     }
     throw new DeferredValueException("Can not convert deferred result to string");
   }
