@@ -405,6 +405,17 @@ public class Context extends ScopeMap<String, Object> {
     }
   }
 
+  public void removeEagerTokens(Collection<EagerToken> toRemove) {
+    eagerTokens.removeAll(toRemove);
+    if (getParent() != null) {
+      Context parent = getParent();
+      //Ignore global context
+      if (parent.getParent() != null) {
+        parent.removeEagerTokens(toRemove);
+      }
+    }
+  }
+
   public Set<EagerToken> getEagerTokens() {
     return eagerTokens;
   }
