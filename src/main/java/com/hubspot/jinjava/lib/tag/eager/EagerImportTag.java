@@ -19,6 +19,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,15 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       if (currentImportAlias.isEmpty()) {
         throw e;
       }
-      interpreter.getContext().put(currentImportAlias, DeferredValue.instance());
+      interpreter
+        .getContext()
+        .handleEagerToken(
+          new EagerToken(
+            tagToken,
+            Collections.singleton(helper.get(0)),
+            Collections.singleton(currentImportAlias)
+          )
+        );
       return (initialPathSetter + tagToken.getImage());
     }
     if (!maybeTemplateFile.isPresent()) {
