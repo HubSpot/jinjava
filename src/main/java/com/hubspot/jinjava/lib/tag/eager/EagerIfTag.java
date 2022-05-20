@@ -15,6 +15,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.NoteToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.util.HashSet;
 import java.util.Map;
@@ -78,9 +79,11 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
               eagerRenderBranches(tagNode, eagerInterpreter, e)
             ),
           interpreter,
-          false,
-          false,
-          true
+          EagerChildContextConfig
+            .newBuilder()
+            .withForceDeferredExecutionMode(true)
+            .withCheckForContextChanges(true)
+            .build()
         )
         .asTemplateString()
     );
@@ -130,9 +133,11 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
               evaluateBranch(tagNode, finalBranchStart, branchEnd, interpreter)
             ),
           interpreter,
-          false,
-          false,
-          true
+          EagerChildContextConfig
+            .newBuilder()
+            .withForceDeferredExecutionMode(true)
+            .withCheckForContextChanges(true)
+            .build()
         );
         sb.append(result.getResult());
         bindingsToDefer.addAll(resetBindingsForNextBranch(interpreter, result));

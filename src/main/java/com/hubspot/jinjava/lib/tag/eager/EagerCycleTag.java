@@ -8,6 +8,7 @@ import com.hubspot.jinjava.lib.tag.CycleTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.ArrayList;
@@ -46,9 +47,11 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       eagerInterpreter ->
         EagerExpressionResolver.resolveExpression(expression, interpreter),
       interpreter,
-      true,
-      false,
-      interpreter.getContext().isDeferredExecutionMode()
+      EagerChildContextConfig
+        .newBuilder()
+        .withTakeNewValue(true)
+        .withCheckForContextChanges(interpreter.getContext().isDeferredExecutionMode())
+        .build()
     );
 
     StringBuilder prefixToPreserveState = new StringBuilder();

@@ -10,6 +10,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.Collections;
 import java.util.Optional;
@@ -46,9 +47,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
         );
       },
       interpreter,
-      true,
-      false,
-      false
+      EagerChildContextConfig.newBuilder().withTakeNewValue(true).build()
     );
   }
 

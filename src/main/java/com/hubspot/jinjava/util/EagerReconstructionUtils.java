@@ -67,11 +67,29 @@ public class EagerReconstructionUtils {
     boolean partialMacroEvaluation,
     boolean checkForContextChanges
   ) {
+    return executeInChildContext(
+      function,
+      interpreter,
+      EagerChildContextConfig
+        .newBuilder()
+        .withTakeNewValue(takeNewValue)
+        .withCheckForContextChanges(checkForContextChanges)
+        .withForceDeferredExecutionMode(checkForContextChanges)
+        .withPartialMacroEvaluation(partialMacroEvaluation)
+        .build()
+    );
+  }
+
+  public static EagerExecutionResult executeInChildContext(
+    Function<JinjavaInterpreter, EagerExpressionResult> function,
+    JinjavaInterpreter interpreter,
+    EagerChildContextConfig eagerChildContextConfig
+  ) {
     EagerExpressionResult result;
     Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
     final Map<String, Object> initiallyResolvedHashes;
     final Map<String, String> initiallyResolvedAsStrings;
-    if (checkForContextChanges) {
+    if (eagerChildContextConfig.checkForContextChanges) {
       initiallyResolvedHashes =
         interpreter
           .getContext()
@@ -146,10 +164,12 @@ public class EagerReconstructionUtils {
     // Don't create new call stacks to prevent hitting max recursion with this silent new scope
     Map<String, Object> sessionBindings;
     try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
-      if (checkForContextChanges) {
+      if (eagerChildContextConfig.forceDeferredExecutionMode) {
         interpreter.getContext().setDeferredExecutionMode(true);
       }
-      interpreter.getContext().setPartialMacroEvaluation(partialMacroEvaluation);
+      interpreter
+        .getContext()
+        .setPartialMacroEvaluation(eagerChildContextConfig.partialMacroEvaluation);
       result = function.apply(interpreter);
       sessionBindings = interpreter.getContext().getSessionBindings();
     }
@@ -167,7 +187,7 @@ public class EagerReconstructionUtils {
             !(interpreter.getContext().get(entry.getKey()) instanceof DeferredValue)
         )
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-    if (checkForContextChanges) {
+    if (eagerChildContextConfig.checkForContextChanges) {
       sessionBindings.putAll(
         interpreter
           .getContext()
@@ -184,7 +204,7 @@ public class EagerReconstructionUtils {
             Collectors.toMap(
               Entry::getKey,
               e -> {
-                if (takeNewValue) {
+                if (eagerChildContextConfig.takeNewValue) {
                   if (e.getValue() instanceof DeferredValue) {
                     return ((DeferredValue) e.getValue()).getOriginalValue();
                   }
@@ -314,9 +334,11 @@ public class EagerReconstructionUtils {
                 .reconstructImage()
               ),
             interpreter,
-            false,
-            false,
-            true
+            EagerChildContextConfig
+              .newBuilder()
+              .withForceDeferredExecutionMode(true)
+              .withCheckForContextChanges(true)
+              .build()
           )
       )
       .map(EagerExecutionResult::asTemplateString)
@@ -571,7 +593,64 @@ public class EagerReconstructionUtils {
     );
   }
 
-  public class EagerChildContextConfig {
-    private boolean takeNewValue
+  public static class EagerChildContextConfig {
+    private final boolean takeNewValue;
+    private final boolean partialMacroEvaluation;
+    private final boolean checkForContextChanges;
+    private final boolean forceDeferredExecutionMode;
+
+    private EagerChildContextConfig(
+      boolean takeNewValue,
+      boolean partialMacroEvaluation,
+      boolean checkForContextChanges,
+      boolean forceDeferredExecutionMode
+    ) {
+      this.takeNewValue = takeNewValue;
+      this.partialMacroEvaluation = partialMacroEvaluation;
+      this.checkForContextChanges = checkForContextChanges;
+      this.forceDeferredExecutionMode = forceDeferredExecutionMode;
+    }
+
+    public static Builder newBuilder() {
+      return new Builder();
+    }
+
+    public static class Builder {
+      private boolean takeNewValue;
+      private boolean partialMacroEvaluation;
+      private boolean checkForContextChanges;
+      private boolean forceDeferredExecutionMode;
+
+      private Builder() {}
+
+      public Builder withTakeNewValue(boolean takeNewValue) {
+        this.takeNewValue = takeNewValue;
+        return this;
+      }
+
+      public Builder withPartialMacroEvaluation(boolean partialMacroEvaluation) {
+        this.partialMacroEvaluation = partialMacroEvaluation;
+        return this;
+      }
+
+      public Builder withCheckForContextChanges(boolean checkForContextChanges) {
+        this.checkForContextChanges = checkForContextChanges;
+        return this;
+      }
+
+      public Builder withForceDeferredExecutionMode(boolean forceDeferredExecutionMode) {
+        this.forceDeferredExecutionMode = forceDeferredExecutionMode;
+        return this;
+      }
+
+      public EagerChildContextConfig build() {
+        return new EagerChildContextConfig(
+          takeNewValue,
+          partialMacroEvaluation,
+          checkForContextChanges,
+          forceDeferredExecutionMode
+        );
+      }
+    }
   }
 }

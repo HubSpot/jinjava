@@ -389,7 +389,12 @@ public class Context extends ScopeMap<String, Object> {
   public void handleEagerToken(EagerToken eagerToken) {
     eagerTokens.add(eagerToken);
 
-    DeferredValueUtils.findAndMarkDeferredProperties(this, eagerToken);
+    if (
+      eagerToken.getImportResourcePath() == null ||
+      eagerToken.getImportResourcePath().equals(get(Context.IMPORT_RESOURCE_PATH_KEY))
+    ) {
+      DeferredValueUtils.findAndMarkDeferredProperties(this, eagerToken);
+    }
     if (getParent() != null) {
       Context parent = getParent();
       //Ignore global context

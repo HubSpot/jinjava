@@ -11,6 +11,7 @@ import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.Logging;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -37,10 +38,16 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         eagerInterpreter ->
           EagerExpressionResolver.resolveExpression(master.getExpr(), interpreter),
         interpreter,
-        true,
-        interpreter.getConfig().isNestedInterpretationEnabled(),
-        interpreter.getContext().isDeferredExecutionMode()
+        EagerChildContextConfig
+          .newBuilder()
+          .withTakeNewValue(true)
+          .withPartialMacroEvaluation(
+            interpreter.getConfig().isNestedInterpretationEnabled()
+          )
+          .withCheckForContextChanges(interpreter.getContext().isDeferredExecutionMode())
+          .build()
       );
+
     StringBuilder prefixToPreserveState = new StringBuilder();
     if (interpreter.getContext().isDeferredExecutionMode()) {
       prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());

@@ -8,6 +8,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.Arrays;
@@ -34,9 +35,11 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
       eagerInterpreter ->
         EagerExpressionResolver.resolveExpression('[' + expression + ']', interpreter),
       interpreter,
-      true,
-      false,
-      interpreter.getContext().isDeferredExecutionMode()
+      EagerChildContextConfig
+        .newBuilder()
+        .withTakeNewValue(true)
+        .withCheckForContextChanges(interpreter.getContext().isDeferredExecutionMode())
+        .build()
     );
   }
 

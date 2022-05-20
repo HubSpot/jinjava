@@ -17,6 +17,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.HashSet;
@@ -46,9 +47,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
             getTag().interpretUnchecked(tagNode, interpreter)
           ),
         interpreter,
-        false,
-        false,
-        false
+        EagerChildContextConfig.newBuilder().withCheckForContextChanges(true).build()
       );
       if (
         interpreter.getContext().getEagerTokens().size() > numEagerTokensStart &&
@@ -112,9 +111,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
                 )
               ),
             interpreter,
-            false,
-            false,
-            false
+            EagerChildContextConfig.newBuilder().build()
           )
           .asTemplateString()
       );
@@ -167,9 +164,11 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         );
       },
       interpreter,
-      false,
-      false,
-      true
+      EagerChildContextConfig
+        .newBuilder()
+        .withForceDeferredExecutionMode(true)
+        .withCheckForContextChanges(true)
+        .build()
     );
   }
 

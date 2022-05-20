@@ -16,6 +16,7 @@ import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.stream.Collectors;
@@ -100,9 +101,11 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
               renderChildren(tagNode, eagerInterpreter)
             ),
           interpreter,
-          false,
-          false,
-          true
+          EagerChildContextConfig
+            .newBuilder()
+            .withForceDeferredExecutionMode(true)
+            .withCheckForContextChanges(true)
+            .build()
         )
         .asTemplateString()
     );
