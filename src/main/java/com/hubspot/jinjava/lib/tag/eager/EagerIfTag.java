@@ -193,7 +193,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     return sb.toString();
   }
 
-  private Set<String> resetBindingsForNextBranch(
+  public static Set<String> resetBindingsForNextBranch(
     JinjavaInterpreter interpreter,
     EagerExecutionResult result
   ) {

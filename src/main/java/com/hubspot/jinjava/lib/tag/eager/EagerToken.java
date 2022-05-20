@@ -15,17 +15,17 @@ public class EagerToken {
   // These words are those which will be set to a value which has been deferred.
   private final Set<String> setDeferredWords;
 
+  // Used to determine the combine scope
   private final CallStack currentPathStack;
 
+  // Used to determine if in separate file
   private final String importResourcePath;
-  private final String currentMacroFunction;
 
   public EagerToken(Token token, Set<String> usedDeferredWords) {
     this.token = token;
     this.usedDeferredWords = usedDeferredWords;
     this.setDeferredWords = Collections.emptySet();
     importResourcePath = acquireImportResourcePath();
-    currentMacroFunction = acquireCurrentMacroFunction();
     currentPathStack = acquireCurrentPathStack();
   }
 
@@ -38,7 +38,6 @@ public class EagerToken {
     this.usedDeferredWords = usedDeferredWords;
     this.setDeferredWords = setDeferredWords;
     importResourcePath = acquireImportResourcePath();
-    currentMacroFunction = acquireCurrentMacroFunction();
     currentPathStack = acquireCurrentPathStack();
   }
 
@@ -58,10 +57,6 @@ public class EagerToken {
     return importResourcePath;
   }
 
-  public String getCurrentMacroFunction() {
-    return currentMacroFunction;
-  }
-
   public CallStack getCurrentPathStack() {
     return currentPathStack;
   }
@@ -71,13 +66,6 @@ public class EagerToken {
       .getCurrentMaybe()
       .map(interpreter -> interpreter.getContext().get(Context.IMPORT_RESOURCE_PATH_KEY))
       .filter(path -> path instanceof String)
-      .orElse(null);
-  }
-
-  private static String acquireCurrentMacroFunction() {
-    return JinjavaInterpreter
-      .getCurrentMaybe()
-      .flatMap(interpreter -> interpreter.getContext().getMacroStack().peek())
       .orElse(null);
   }
 

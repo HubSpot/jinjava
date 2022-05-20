@@ -112,8 +112,9 @@ public class DeferredValueUtils {
           )
         );
       } else {
-        List<String> macroArgs = Optional
-          .ofNullable(eagerToken.getCurrentMacroFunction())
+        List<String> macroArgs = context
+          .getMacroStack()
+          .peek()
           .map(
             name ->
               Optional
