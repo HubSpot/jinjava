@@ -82,7 +82,12 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
         joiner.add(kvJoiner.toString());
       }
     );
-    return String.format("{%s}", joiner);
+    String joined = joiner.toString();
+    if (joined.endsWith("}")) {
+      // prevent 2 closing braces from being interpreted as a closing expression token
+      joined += ' ';
+    }
+    return String.format("{%s}", joined);
   }
 
   @Override

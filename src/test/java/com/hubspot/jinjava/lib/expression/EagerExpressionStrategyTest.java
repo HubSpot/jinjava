@@ -170,6 +170,14 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
   }
 
   @Test
+  public void itDoesNotReconstructDirectlyWrittenWithDoubleCurlyBraces() {
+    assertExpectedOutput(
+      "{{ deferred ~ {\n'foo': {\n'bar': deferred\n}\n}\n }}",
+      "{{ deferred ~ {'foo': {'bar': deferred} } }}"
+    );
+  }
+
+  @Test
   public void itReconstructsWithNestedInterpretation() {
     interpreter.getContext().put("foo", "{{ print 'bar' }}");
     assertExpectedOutput(
