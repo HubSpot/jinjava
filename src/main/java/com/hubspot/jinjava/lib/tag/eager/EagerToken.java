@@ -16,7 +16,7 @@ public class EagerToken {
   private final Set<String> setDeferredWords;
 
   // Used to determine the combine scope
-  private final CallStack currentPathStack;
+  private final CallStack macroStack;
 
   // Used to determine if in separate file
   private final String importResourcePath;
@@ -26,7 +26,7 @@ public class EagerToken {
     this.usedDeferredWords = usedDeferredWords;
     this.setDeferredWords = Collections.emptySet();
     importResourcePath = acquireImportResourcePath();
-    currentPathStack = acquireCurrentPathStack();
+    macroStack = acquireMacroStack();
   }
 
   public EagerToken(
@@ -38,7 +38,7 @@ public class EagerToken {
     this.usedDeferredWords = usedDeferredWords;
     this.setDeferredWords = setDeferredWords;
     importResourcePath = acquireImportResourcePath();
-    currentPathStack = acquireCurrentPathStack();
+    macroStack = acquireMacroStack();
   }
 
   public Token getToken() {
@@ -57,8 +57,8 @@ public class EagerToken {
     return importResourcePath;
   }
 
-  public CallStack getCurrentPathStack() {
-    return currentPathStack;
+  public CallStack getMacroStack() {
+    return macroStack;
   }
 
   private static String acquireImportResourcePath() {
@@ -69,10 +69,10 @@ public class EagerToken {
       .orElse(null);
   }
 
-  private static CallStack acquireCurrentPathStack() {
+  private static CallStack acquireMacroStack() {
     return JinjavaInterpreter
       .getCurrentMaybe()
-      .map(interpreter -> interpreter.getContext().getCurrentPathStack())
+      .map(interpreter -> interpreter.getContext().getMacroStack())
       .orElse(null);
   }
 }

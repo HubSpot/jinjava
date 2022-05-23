@@ -92,10 +92,8 @@ public class DeferredValueUtils {
     Set<String> setProps = getPropertiesSetInDeferredNodes(templateSource);
     if (eagerToken != null) {
       if (
-        (
-          eagerToken.getCurrentPathStack() == null ||
-          eagerToken.getCurrentPathStack() == context.getCurrentPathStack()
-        )
+        eagerToken.getMacroStack() == null ||
+        eagerToken.getMacroStack() == context.getMacroStack()
       ) {
         deferredProps.addAll(
           getPropertiesUsedInDeferredNodes(
@@ -112,7 +110,7 @@ public class DeferredValueUtils {
           )
         );
       } else {
-        List<String> macroArgs = context
+        List<String> macroArgs = eagerToken
           .getMacroStack()
           .peek()
           .map(
