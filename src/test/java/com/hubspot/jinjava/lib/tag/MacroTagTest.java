@@ -11,6 +11,7 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -342,6 +343,32 @@ public class MacroTagTest extends BaseInterpretingTest {
       -1
     );
     assertThat(fn.reconstructImage()).isEqualTo(fixtureText("simple-no-trim").trim());
+  }
+
+  @Test
+  public void itCorrectlyScopesNestedMacroTags() {
+    interpreter =
+      new Jinjava(
+        JinjavaConfig
+          .newBuilder()
+          .withEnableRecursiveMacroCalls(true)
+          .withMaxMacroRecursionDepth(2)
+          .build()
+      )
+      .newInterpreter();
+    JinjavaInterpreter.pushCurrent(interpreter);
+    try {
+      String result = interpreter.render(fixtureText("scoping"));
+      assertThat(interpreter.getErrors()).hasSize(1);
+      assertThat(interpreter.getErrors().get(0).getReason())
+        .isEqualTo(ErrorReason.SYNTAX_ERROR);
+      assertThat(interpreter.getErrors().get(0).getMessage())
+        .isEqualTo("Could not resolve function 'bar'");
+      assertThat(result.trim())
+        .isEqualTo("parent & child & the bar.\nparent & child & the bar.\n.");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
   }
 
   private Node snippet(String jinja) {
