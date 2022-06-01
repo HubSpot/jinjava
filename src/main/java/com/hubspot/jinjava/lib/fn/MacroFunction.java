@@ -9,6 +9,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -130,6 +131,13 @@ public class MacroFunction extends AbstractCallableMethod {
     for (Map.Entry<String, Object> scopeEntry : localContextScope.getScope().entrySet()) {
       if (scopeEntry.getValue() instanceof MacroFunction) {
         interpreter.getContext().addGlobalMacro((MacroFunction) scopeEntry.getValue());
+      } else if (scopeEntry.getKey().equals(Context.GLOBAL_MACROS_SCOPE_KEY)) {
+        interpreter
+          .getContext()
+          .put(
+            Context.GLOBAL_MACROS_SCOPE_KEY,
+            new HashMap<>((Map<String, MacroFunction>) scopeEntry.getValue())
+          );
       } else {
         if (!alreadyDeferredInEarlierCall(scopeEntry.getKey(), interpreter)) {
           interpreter.getContext().put(scopeEntry.getKey(), scopeEntry.getValue());
