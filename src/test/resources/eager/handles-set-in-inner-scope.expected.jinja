@@ -1,0 +1,5 @@
+{% set foo = 1 %}{% for i in [0] %}
+{% set foo = deferred %}
+{{ foo }}
+{% endfor %}
+{{ foo }}

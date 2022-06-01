@@ -7,6 +7,9 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
+import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.ForTag;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
@@ -14,6 +17,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.HashSet;
@@ -31,6 +35,43 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
 
   public EagerForTag(ForTag forTag) {
     super(forTag);
+  }
+
+  @Override
+  public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    try {
+      int numEagerTokensStart = interpreter.getContext().getEagerTokens().size();
+      EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
+        eagerInterpreter ->
+          EagerExpressionResult.fromString(
+            getTag().interpretUnchecked(tagNode, interpreter)
+          ),
+        interpreter,
+        EagerChildContextConfig.newBuilder().withCheckForContextChanges(true).build()
+      );
+      if (
+        interpreter.getContext().getEagerTokens().size() > numEagerTokensStart &&
+        !result.getSpeculativeBindings().isEmpty()
+      ) {
+        EagerIfTag.resetBindingsForNextBranch(interpreter, result);
+        throw new DeferredValueException(
+          "Modification inside partially evaluated for loop"
+        );
+      }
+      return result.getResult().toString(true);
+    } catch (DeferredValueException | TemplateSyntaxException e) {
+      try {
+        return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
+          eagerInterpret(tagNode, interpreter, e),
+          interpreter
+        );
+      } catch (OutputTooBigException e1) {
+        interpreter.addError(TemplateError.fromOutputTooBigException(e1));
+        throw new DeferredValueException(
+          String.format("Output too big for eager execution: %s", e1.getMessage())
+        );
+      }
+    }
   }
 
   @Override
@@ -70,9 +111,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
                 )
               ),
             interpreter,
-            true,
-            false,
-            false
+            EagerChildContextConfig.newBuilder().build()
           )
           .asTemplateString()
       );
@@ -125,9 +164,11 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         );
       },
       interpreter,
-      false,
-      false,
-      true
+      EagerChildContextConfig
+        .newBuilder()
+        .withForceDeferredExecutionMode(true)
+        .withCheckForContextChanges(true)
+        .build()
     );
   }
 

@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.hubspot.jinjava.interpret.CallStack;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.parse.Token;
@@ -14,15 +15,18 @@ public class EagerToken {
   // These words are those which will be set to a value which has been deferred.
   private final Set<String> setDeferredWords;
 
+  // Used to determine the combine scope
+  private final CallStack macroStack;
+
+  // Used to determine if in separate file
   private final String importResourcePath;
-  private final String currentMacroFunction;
 
   public EagerToken(Token token, Set<String> usedDeferredWords) {
     this.token = token;
     this.usedDeferredWords = usedDeferredWords;
     this.setDeferredWords = Collections.emptySet();
     importResourcePath = acquireImportResourcePath();
-    currentMacroFunction = acquireCurrentMacroFunction();
+    macroStack = acquireMacroStack();
   }
 
   public EagerToken(
@@ -34,7 +38,7 @@ public class EagerToken {
     this.usedDeferredWords = usedDeferredWords;
     this.setDeferredWords = setDeferredWords;
     importResourcePath = acquireImportResourcePath();
-    currentMacroFunction = acquireCurrentMacroFunction();
+    macroStack = acquireMacroStack();
   }
 
   public Token getToken() {
@@ -53,8 +57,8 @@ public class EagerToken {
     return importResourcePath;
   }
 
-  public String getCurrentMacroFunction() {
-    return currentMacroFunction;
+  public CallStack getMacroStack() {
+    return macroStack;
   }
 
   private static String acquireImportResourcePath() {
@@ -65,10 +69,10 @@ public class EagerToken {
       .orElse(null);
   }
 
-  private static String acquireCurrentMacroFunction() {
+  private static CallStack acquireMacroStack() {
     return JinjavaInterpreter
       .getCurrentMaybe()
-      .flatMap(interpreter -> interpreter.getContext().getMacroStack().peek())
+      .map(interpreter -> interpreter.getContext().getMacroStack())
       .orElse(null);
   }
 }

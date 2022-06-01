@@ -23,6 +23,7 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -71,9 +72,12 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         }
       ),
       interpreter,
-      true,
-      false,
-      true
+      EagerChildContextConfig
+        .newBuilder()
+        .withTakeNewValue(true)
+        .withForceDeferredExecutionMode(true)
+        .withCheckForContextChanges(true)
+        .build()
     );
 
     assertThat(context.get("foo")).isEqualTo(ImmutableList.of(1));
@@ -98,9 +102,11 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         }
       ),
       interpreter,
-      false,
-      false,
-      true
+      EagerChildContextConfig
+        .newBuilder()
+        .withForceDeferredExecutionMode(true)
+        .withCheckForContextChanges(true)
+        .build()
     );
     assertThat(result.getResult().toString()).isEqualTo("function return");
     assertThat(result.getPrefixToPreserveState()).isEqualTo("{% set foo = [] %}");

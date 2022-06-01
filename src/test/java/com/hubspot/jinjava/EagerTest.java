@@ -1033,4 +1033,9 @@ public class EagerTest {
   public void itDefersLargeLoop() {
     expectedTemplateInterpreter.assertExpectedOutput("defers-large-loop");
   }
+
+  @Test
+  public void itHandlesSetInInnerScope() {
+    expectedTemplateInterpreter.assertExpectedOutput("handles-set-in-inner-scope");
+  }
 }

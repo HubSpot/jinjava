@@ -92,10 +92,8 @@ public class DeferredValueUtils {
     Set<String> setProps = getPropertiesSetInDeferredNodes(templateSource);
     if (eagerToken != null) {
       if (
-        eagerToken.getCurrentMacroFunction() == null ||
-        eagerToken
-          .getCurrentMacroFunction()
-          .equals(context.getParent().getMacroStack().peek().orElse(null))
+        eagerToken.getMacroStack() == null ||
+        eagerToken.getMacroStack() == context.getMacroStack()
       ) {
         deferredProps.addAll(
           getPropertiesUsedInDeferredNodes(
@@ -112,16 +110,23 @@ public class DeferredValueUtils {
           )
         );
       } else {
-        List<String> macroArgs = Optional
-          .ofNullable(context.getGlobalMacro(eagerToken.getCurrentMacroFunction()))
-          .map(AbstractCallableMethod::getArguments)
-          .orElseGet(
-            () ->
-              context
-                .getLocalMacro(eagerToken.getCurrentMacroFunction())
+        List<String> macroArgs = eagerToken
+          .getMacroStack()
+          .peek()
+          .map(
+            name ->
+              Optional
+                .ofNullable(context.getGlobalMacro(name))
                 .map(AbstractCallableMethod::getArguments)
-                .orElse(Collections.emptyList())
-          );
+                .orElseGet(
+                  () ->
+                    context
+                      .getLocalMacro(name)
+                      .map(AbstractCallableMethod::getArguments)
+                      .orElse(Collections.emptyList())
+                )
+          )
+          .orElse(Collections.emptyList());
         // Filter out macro args because we will want them to be deferred on the higher-level contexts later
         deferredProps.addAll(
           getPropertiesUsedInDeferredNodes(
