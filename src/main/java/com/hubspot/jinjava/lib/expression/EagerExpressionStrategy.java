@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.expression;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
 import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
@@ -57,9 +58,11 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         )
       ) {
         if (interpreter.getConfig().isNestedInterpretationEnabled()) {
-          long errorSizeStart = getUnclosedCommentErrorsCount(interpreter);
+          long errorSizeStart = getParsingErrorsCount(interpreter);
+
           interpreter.parse(result);
-          if (getUnclosedCommentErrorsCount(interpreter) == errorSizeStart) {
+
+          if (getParsingErrorsCount(interpreter) == errorSizeStart) {
             try {
               result = interpreter.renderFlat(result);
             } catch (Exception e) {
@@ -115,11 +118,15 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     );
   }
 
-  private long getUnclosedCommentErrorsCount(JinjavaInterpreter interpreter) {
+  private long getParsingErrorsCount(JinjavaInterpreter interpreter) {
     return interpreter
       .getErrors()
       .stream()
-      .filter(error -> "Unclosed comment".equals(error.getMessage()))
+      .filter(
+        error ->
+          "Unclosed comment".equals(error.getMessage()) ||
+          error.getReason() == ErrorReason.DISABLED
+      )
       .count();
   }
 
