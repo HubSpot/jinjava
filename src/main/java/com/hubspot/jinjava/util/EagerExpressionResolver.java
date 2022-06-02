@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
@@ -96,14 +97,16 @@ public class EagerExpressionResolver {
   }
 
   public static String getValueAsJinjavaStringSafe(Object val) {
-    if (val == null) {
-      return JINJAVA_NULL;
-    } else if (isResolvableObject(val)) {
-      String pyishString = PyishObjectMapper.getAsPyishString(val);
-      if (pyishString.length() < 1048576) { // TODO maybe this should be configurable
-        return pyishString;
+    try {
+      if (val == null) {
+        return JINJAVA_NULL;
+      } else if (isResolvableObject(val)) {
+        String pyishString = PyishObjectMapper.getAsPyishStringOrThrow(val);
+        if (pyishString.length() < 1048576) { // TODO maybe this should be configurable
+          return pyishString;
+        }
       }
-    }
+    } catch (JsonProcessingException ignored) {}
     throw new DeferredValueException("Can not convert deferred result to string");
   }
 

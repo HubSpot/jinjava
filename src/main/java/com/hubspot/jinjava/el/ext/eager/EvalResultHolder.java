@@ -112,7 +112,11 @@ public interface EvalResultHolder {
         return e.getDeferredEvalResult();
       }
     }
-    return EagerExpressionResolver.getValueAsJinjavaStringSafe(evalResult);
+    try {
+      return EagerExpressionResolver.getValueAsJinjavaStringSafe(evalResult);
+    } catch (DeferredValueException e) {
+      return astNode.getPartiallyResolved(bindings, context, exception, true);
+    }
   }
 
   static DeferredParsingException convertToDeferredParsingException(

@@ -39,18 +39,23 @@ public class PyishObjectMapper {
 
   public static String getAsPyishString(Object val) {
     try {
-      String string = PYISH_OBJECT_WRITER
-        .writeValueAsString(val)
-        .replace("'", "\\'")
-        // Replace double-quotes with single quote as they are preferred in Jinja
-        .replaceAll("(?<!\\\\)(\\\\\\\\)*(?:\")", "$1'");
-      if (!string.contains("{{")) {
-        return String.join("} ", string.split("}(?=})"));
-      }
-      return string;
+      return getAsPyishStringOrThrow(val);
     } catch (JsonProcessingException e) {
       return Objects.toString(val, "");
     }
+  }
+
+  public static String getAsPyishStringOrThrow(Object val)
+    throws JsonProcessingException {
+    String string = PYISH_OBJECT_WRITER
+      .writeValueAsString(val)
+      .replace("'", "\\'")
+      // Replace double-quotes with single quote as they are preferred in Jinja
+      .replaceAll("(?<!\\\\)(\\\\\\\\)*(?:\")", "$1'");
+    if (!string.contains("{{")) {
+      return String.join("} ", string.split("}(?=})"));
+    }
+    return string;
   }
 
   public static class NullKeySerializer extends JsonSerializer<Object> {
