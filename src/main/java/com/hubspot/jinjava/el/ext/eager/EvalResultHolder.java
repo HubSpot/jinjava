@@ -74,6 +74,9 @@ public interface EvalResultHolder {
     if (astNode == null) {
       return "";
     }
+    preserveIdentifier |=
+      astNode instanceof AstIdentifier &&
+      ExtendedParser.INTERPRETER.equals(((AstIdentifier) astNode).getName());
     if (
       preserveIdentifier &&
       !astNode.hasEvalResult() &&
@@ -86,37 +89,22 @@ public interface EvalResultHolder {
       } catch (DeferredParsingException ignored) {}
     }
     Object evalResult = astNode.getEvalResult();
-    if (astNode.hasEvalResult() && (!preserveIdentifier || isPrimitive(evalResult))) {
+    if (!preserveIdentifier || (astNode.hasEvalResult() && isPrimitive(evalResult))) {
+      if (exception != null && exception.getSourceNode() == astNode) {
+        return exception.getDeferredEvalResult();
+      }
+      if (!astNode.hasEvalResult()) {
+        try {
+          evalResult = ((AstNode) astNode).eval(bindings, context);
+        } catch (DeferredParsingException e) {
+          return e.getDeferredEvalResult();
+        }
+      }
       try {
         return EagerExpressionResolver.getValueAsJinjavaStringSafe(evalResult);
-      } catch (DeferredValueException e) {
-        preserveIdentifier = true;
-      }
+      } catch (DeferredValueException ignored) {}
     }
-    if (
-      preserveIdentifier ||
-      (
-        astNode instanceof AstIdentifier &&
-        ExtendedParser.INTERPRETER.equals(((AstIdentifier) astNode).getName())
-      )
-    ) {
-      return astNode.getPartiallyResolved(bindings, context, exception, true);
-    }
-    if (exception != null && exception.getSourceNode() == astNode) {
-      return exception.getDeferredEvalResult();
-    }
-    if (!astNode.hasEvalResult()) {
-      try {
-        evalResult = ((AstNode) astNode).eval(bindings, context);
-      } catch (DeferredParsingException e) {
-        return e.getDeferredEvalResult();
-      }
-    }
-    try {
-      return EagerExpressionResolver.getValueAsJinjavaStringSafe(evalResult);
-    } catch (DeferredValueException e) {
-      return astNode.getPartiallyResolved(bindings, context, exception, true);
-    }
+    return astNode.getPartiallyResolved(bindings, context, exception, true);
   }
 
   static DeferredParsingException convertToDeferredParsingException(
