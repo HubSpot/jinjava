@@ -1038,4 +1038,11 @@ public class EagerTest {
   public void itHandlesSetInInnerScope() {
     expectedTemplateInterpreter.assertExpectedOutput("handles-set-in-inner-scope");
   }
+
+  @Test
+  public void itCorrectlyDefersWithMultipleLoops() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "correctly-defers-with-multiple-loops"
+    );
+  }
 }

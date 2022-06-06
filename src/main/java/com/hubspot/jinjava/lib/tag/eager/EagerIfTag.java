@@ -18,8 +18,6 @@ import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -202,42 +200,10 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     JinjavaInterpreter interpreter,
     EagerExecutionResult result
   ) {
-    Map<String, Object> nonDeferredBindingsToRevert = result
-      .getSpeculativeBindings()
-      .entrySet()
-      .stream()
-      .filter(
-        entry ->
-          interpreter.getContext().containsKey(entry.getKey()) &&
-          !(interpreter.getContext().get(entry.getKey()) instanceof DeferredValue)
-      )
-      .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-    if (!nonDeferredBindingsToRevert.isEmpty()) {
-      nonDeferredBindingsToRevert.forEach(
-        (k, v) -> interpreter.getContext().replace(k, v)
-      );
-    }
-
     result
       .getSpeculativeBindings()
-      .keySet()
-      .stream()
-      .filter(key -> interpreter.getContext().get(key) instanceof DeferredValue)
-      .forEach(
-        key -> {
-          if (
-            ((DeferredValue) interpreter.getContext().get(key)).getOriginalValue() != null
-          ) {
-            interpreter
-              .getContext()
-              .replace(
-                key,
-                ((DeferredValue) interpreter.getContext().get(key)).getOriginalValue()
-              );
-          }
-        }
-      );
-    return nonDeferredBindingsToRevert.keySet();
+      .forEach((k, v) -> interpreter.getContext().replace(k, v));
+    return result.getSpeculativeBindings().keySet();
   }
 
   private String evaluateBranch(
