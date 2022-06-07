@@ -9,6 +9,7 @@ import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.ElseIfTag;
 import com.hubspot.jinjava.lib.tag.ElseTag;
 import com.hubspot.jinjava.lib.tag.EndTag;
+import com.hubspot.jinjava.lib.tag.ExtendsTag;
 import com.hubspot.jinjava.lib.tag.ForTag;
 import com.hubspot.jinjava.lib.tag.FromTag;
 import com.hubspot.jinjava.lib.tag.IfTag;
@@ -45,6 +46,7 @@ public class EagerTagFactory {
     .add(ElseIfTag.class)
     .add(ElseTag.class)
     .add(RawTag.class)
+    .add(ExtendsTag.class) // TODO support reconstructing extends tags
     .build();
 
   @SuppressWarnings("unchecked")

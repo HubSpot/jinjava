@@ -18,6 +18,7 @@ package com.hubspot.jinjava.lib.tag;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -84,6 +85,9 @@ public class ExtendsTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      throw new DeferredValueException("extends tag");
+    }
     HelperStringTokenizer tokenizer = new HelperStringTokenizer(tagNode.getHelpers());
     if (!tokenizer.hasNext()) {
       throw new TemplateSyntaxException(
