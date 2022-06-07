@@ -62,7 +62,7 @@ public class ExpectedTemplateInterpreter {
     }
   }
 
-  private String getFixtureTemplate(String name) {
+  public String getFixtureTemplate(String name) {
     try {
       return Resources.toString(
         Resources.getResource(String.format("%s/%s.jinja", path, name)),

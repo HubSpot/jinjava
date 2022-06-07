@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import static org.assertj.core.api.Java6Assertions.assertThat;
+
 import com.hubspot.jinjava.ExpectedTemplateInterpreter;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
@@ -81,6 +83,14 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
     expectedTemplateInterpreter.assertExpectedOutput(
       "reconstructs-deferred-outside-block.expected"
     );
+  }
+
+  @Test
+  public void itThrowsWhenDeferredExtendsTag() {
+    interpreter.render(
+      expectedTemplateInterpreter.getFixtureTemplate("throws-when-deferred-extends-tag")
+    );
+    assertThat(interpreter.getContext().getDeferredNodes()).hasSize(2);
   }
 
   @Override
