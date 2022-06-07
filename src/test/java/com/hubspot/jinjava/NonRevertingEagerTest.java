@@ -3,6 +3,7 @@ package com.hubspot.jinjava;
 import com.hubspot.jinjava.mode.NonRevertingEagerExecutionMode;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
 
 public class NonRevertingEagerTest extends EagerTest {
 
@@ -14,6 +15,7 @@ public class NonRevertingEagerTest extends EagerTest {
 
   @Ignore
   @Override
+  @Test
   public void itCorrectlyDefersWithMultipleLoops() {
     super.itCorrectlyDefersWithMultipleLoops();
   }
