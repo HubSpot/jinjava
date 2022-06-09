@@ -10,6 +10,7 @@ import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
@@ -564,6 +565,14 @@ public class EagerExpressionResolverTest {
   }
 
   @Test
+  public void itHandlesPyishSerializableWithProcessingException() {
+    context.put("foo", new SomethingExceptionallyPyish("yes"));
+    context.getMetaContextVariables().add("foo");
+    assertThat(interpreter.render("{{ deferred && (1 == 2 || foo) }}"))
+      .isEqualTo("{{ deferred && (false || foo) }}");
+  }
+
+  @Test
   public void itFinishesResolvingList() {
     assertThat(eagerResolveExpression("[0 + 1, deferred, 2 + 1]").toString())
       .isEqualTo("[1, deferred, 3]");
@@ -810,6 +819,23 @@ public class EagerExpressionResolverTest {
 
     public String getName() {
       return name;
+    }
+  }
+
+  public class SomethingExceptionallyPyish implements PyishSerializable {
+    private String name;
+
+    public SomethingExceptionallyPyish(String name) {
+      this.name = name;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    @Override
+    public String toPyishString() {
+      throw new DeferredValueException("Can't serialize");
     }
   }
 }
