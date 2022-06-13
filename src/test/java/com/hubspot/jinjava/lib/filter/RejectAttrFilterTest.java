@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.BaseJinjavaTest;
+import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,7 +77,7 @@ public class RejectAttrFilterTest extends BaseJinjavaTest {
       .isEqualTo("[1, 2]");
   }
 
-  public static class User {
+  public static class User implements PyishSerializable {
     private int num;
     private boolean isActive;
     private String email;
@@ -108,6 +109,11 @@ public class RejectAttrFilterTest extends BaseJinjavaTest {
     @Override
     public String toString() {
       return num + "";
+    }
+
+    @Override
+    public String toPyishString() {
+      return toString();
     }
   }
 
