@@ -2,6 +2,8 @@ package com.hubspot.jinjava.objects.serialization;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,5 +18,20 @@ public class PyishObjectMapperTest {
     map.put(null, "null");
     assertThat(PyishObjectMapper.getAsPyishString(map))
       .isEqualTo("{'': 'null', 'foo': 'bar'}");
+  }
+
+  @Test
+  public void itSerilizesMapEntrySet2() throws JsonProcessingException {
+    SizeLimitingPyMap map = new SizeLimitingPyMap(new HashMap<>(), 10);
+    map.put("foo", "bar");
+    String result = PyishObjectMapper.getAsPyishString(map.items());
+    assertThat(result)
+      .isEqualTo(
+        new ObjectMapper()
+          .writer(PyishPrettyPrinter.INSTANCE)
+          .writeValueAsString(map.items())
+          .replaceAll("\"", "'")
+      )
+      .isEqualTo("[{'foo': 'bar'}]");
   }
 }

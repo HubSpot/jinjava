@@ -16,17 +16,12 @@ public class PyishBeanSerializerModifier extends BeanSerializerModifier {
     BeanDescription beanDesc,
     JsonSerializer<?> serializer
   ) {
-    try {
-      if (
-        beanDesc.getBeanClass().getMethod("toString").getDeclaringClass() == Object.class
-      ) {
-        // Use the PyishSerializer if it extends the PyishSerializable class.
-        // For example, a Map implementation could then have custom string serialization.
-        if (!(PyishSerializable.class.isAssignableFrom(beanDesc.getBeanClass()))) {
-          return serializer;
-        }
-      }
-    } catch (NoSuchMethodException ignored) {}
-    return PyishSerializer.INSTANCE;
+    // Use the PyishSerializer if it extends the PyishSerializable class.
+    // For example, a Map implementation could then have custom string serialization.
+    if (!(PyishSerializable.class.isAssignableFrom(beanDesc.getBeanClass()))) {
+      return serializer;
+    } else {
+      return PyishSerializer.INSTANCE;
+    }
   }
 }
