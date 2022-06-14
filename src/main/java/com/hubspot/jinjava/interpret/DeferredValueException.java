@@ -9,7 +9,7 @@ public class DeferredValueException extends InterpretException {
   public static final String MESSAGE_PREFIX = "Encountered a deferred value: ";
 
   public DeferredValueException(String message) {
-    super(MESSAGE_PREFIX + message);
+    super(message);
   }
 
   public DeferredValueException(String variable, int lineNumber, int startPosition) {

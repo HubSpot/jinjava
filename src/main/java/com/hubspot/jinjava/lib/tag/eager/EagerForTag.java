@@ -53,13 +53,15 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       if (
         result.getResult().getResolutionState() == ResolutionState.NONE ||
         (
-          result.getResult().isFullyResolved() &&
+          !result.getResult().isFullyResolved() &&
           !result.getSpeculativeBindings().isEmpty()
         )
       ) {
         EagerIfTag.resetBindingsForNextBranch(interpreter, result);
         throw new DeferredValueException(
-          "Modification inside partially evaluated for loop"
+          result.getResult().getResolutionState() == ResolutionState.NONE
+            ? result.getResult().toString()
+            : "Modification inside partially evaluated for loop"
         );
       }
       return result.getResult().toString(true);
@@ -93,7 +95,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       TemporaryValueClosable<Boolean> c = interpreter
         .getContext()
         .withDeferLargeObjects(
-          ForTag.FULL_TOO_LARGE_EXCEPTION_MESSAGE.equals(e.getMessage()) ||
+          ForTag.TOO_LARGE_EXCEPTION_MESSAGE.equals(e.getMessage()) ||
           interpreter.getContext().isDeferLargeObjects()
         )
     ) {

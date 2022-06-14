@@ -31,24 +31,25 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
     String expression,
     JinjavaInterpreter interpreter
   ) {
-    int numEagerTokens = interpreter.getContext().getEagerTokens().size();
-    return EagerReconstructionUtils.executeInChildContext(
-      eagerInterpreter -> {
-        StringBuilder sb = new StringBuilder();
-        for (Node child : tagNode.getChildren()) {
-          sb.append(child.render(eagerInterpreter).getValue());
-        }
-        return EagerExpressionResult.fromString(
-          sb.toString(),
-          numEagerTokens ==
-            eagerInterpreter.getContext().getParent().getEagerTokens().size()
-            ? ResolutionState.FULL
-            : ResolutionState.PARTIAL
-        );
-      },
+    EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResult.fromSupplier(
+          () -> {
+            StringBuilder sb = new StringBuilder();
+            for (Node child : tagNode.getChildren()) {
+              sb.append(child.render(eagerInterpreter).getValue());
+            }
+            return sb.toString();
+          },
+          eagerInterpreter
+        ),
       interpreter,
       EagerChildContextConfig.newBuilder().withTakeNewValue(true).build()
     );
+    if (result.getResult().getResolutionState() == ResolutionState.NONE) {
+      throw new DeferredValueException("Block set tag children could not be rendered");
+    }
+    return result;
   }
 
   @Override

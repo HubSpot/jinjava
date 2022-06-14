@@ -362,6 +362,16 @@ public class EagerExpressionResolver {
       );
     }
 
+    /**
+     * Method to supply a string value to the EagerExpressionResult class.
+     * In the event that a DeferredValueException is thrown, the message will be the wrapped
+     * value, and the resolutionState will be NONE
+     * Manually provide whether the string has been fully resolved.
+     * @param stringSupplier Supplier function to run, which could potentially throw a DeferredValueException.
+     * @param interpreter The JinjavaInterpreter
+     * @return A EagerExpressionResult that wraps either
+     * <code>stringSupplier.get()</code> or the thrown DeferredValueException's message.
+     */
     public static EagerExpressionResult fromSupplier(
       Supplier<String> stringSupplier,
       JinjavaInterpreter interpreter
@@ -374,7 +384,7 @@ public class EagerExpressionResolver {
             : ResolutionState.PARTIAL
         );
       } catch (DeferredValueException e) {
-        return EagerExpressionResult.fromString("", ResolutionState.NONE);
+        return EagerExpressionResult.fromString(e.getMessage(), ResolutionState.NONE);
       }
     }
 
