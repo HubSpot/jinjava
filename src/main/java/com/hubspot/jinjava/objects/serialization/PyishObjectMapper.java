@@ -1,12 +1,10 @@
 package com.hubspot.jinjava.objects.serialization;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.hubspot.jinjava.util.WhitespaceUtils;
@@ -18,13 +16,11 @@ public class PyishObjectMapper {
 
   static {
     ObjectMapper mapper = new ObjectMapper()
-      .registerModule(
+    .registerModule(
         new SimpleModule()
           .setSerializerModifier(PyishBeanSerializerModifier.INSTANCE)
           .addSerializer(PyishSerializable.class, PyishSerializer.INSTANCE)
-      )
-      .configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
-      .setSerializationInclusion(Include.NON_NULL);
+      );
     mapper.getSerializerProvider().setNullKeySerializer(new NullKeySerializer());
     PYISH_OBJECT_WRITER =
       mapper.writer(PyishPrettyPrinter.INSTANCE).with(PyishCharacterEscapes.INSTANCE);
