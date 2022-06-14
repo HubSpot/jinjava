@@ -47,7 +47,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
       EagerChildContextConfig.newBuilder().withTakeNewValue(true).build()
     );
     if (result.getResult().getResolutionState() == ResolutionState.NONE) {
-      throw new DeferredValueException("Block set tag children could not be rendered");
+      throw new DeferredValueException(result.getResult().toString());
     }
     return result;
   }
