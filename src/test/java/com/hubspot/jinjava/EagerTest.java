@@ -1053,4 +1053,11 @@ public class EagerTest {
       "correctly-defers-with-multiple-loops"
     );
   }
+
+  @Test
+  public void itRevertsModificationWithDeferredLoop() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reverts-modification-with-deferred-loop"
+    );
+  }
 }

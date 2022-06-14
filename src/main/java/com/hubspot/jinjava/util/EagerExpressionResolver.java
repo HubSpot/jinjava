@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.el.ELException;
@@ -316,6 +317,10 @@ public class EagerExpressionResolver {
       throw new DeferredValueException("Object is not resolved");
     }
 
+    public ResolutionState getResolutionState() {
+      return resolutionState;
+    }
+
     public boolean isFullyResolved() {
       return resolutionState.fullyResolved;
     }
@@ -357,9 +362,26 @@ public class EagerExpressionResolver {
       );
     }
 
+    public static EagerExpressionResult fromSupplier(
+      Supplier<String> stringSupplier,
+      JinjavaInterpreter interpreter
+    ) {
+      try {
+        return EagerExpressionResult.fromString(
+          stringSupplier.get(),
+          interpreter.getContext().getEagerTokens().isEmpty()
+            ? ResolutionState.FULL
+            : ResolutionState.PARTIAL
+        );
+      } catch (DeferredValueException e) {
+        return EagerExpressionResult.fromString("", ResolutionState.NONE);
+      }
+    }
+
     public enum ResolutionState {
       FULL(true),
-      PARTIAL(false);
+      PARTIAL(false),
+      NONE(false);
 
       boolean fullyResolved;
 
