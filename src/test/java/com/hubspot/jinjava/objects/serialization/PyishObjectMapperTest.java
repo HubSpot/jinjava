@@ -21,7 +21,7 @@ public class PyishObjectMapperTest {
   }
 
   @Test
-  public void itSerilizesMapEntrySet2() throws JsonProcessingException {
+  public void itSerializesMapEntrySet() throws JsonProcessingException {
     SizeLimitingPyMap map = new SizeLimitingPyMap(new HashMap<>(), 10);
     map.put("foo", "bar");
     String result = PyishObjectMapper.getAsPyishString(map.items());
@@ -33,7 +33,7 @@ public class PyishObjectMapperTest {
           .replaceAll("\"", "'")
       )
       .isEqualTo("[{'foo': 'bar'}]");
-    }
+  }
 
   @Test
   public void itSerializesMapWithNullValues() {
