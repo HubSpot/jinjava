@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.objects;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public class SafeString {
   private final String value;
 
@@ -7,6 +9,7 @@ public class SafeString {
     this.value = value;
   }
 
+  @JsonValue
   public String getValue() {
     return value;
   }

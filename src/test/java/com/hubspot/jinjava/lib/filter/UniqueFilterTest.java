@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.BaseJinjavaTest;
+import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +54,7 @@ public class UniqueFilterTest extends BaseJinjavaTest {
     );
   }
 
-  public static class MyClass {
+  public static class MyClass implements PyishSerializable {
     private final String name;
 
     public MyClass(String name) {
@@ -67,6 +68,11 @@ public class UniqueFilterTest extends BaseJinjavaTest {
     @Override
     public String toString() {
       return "[Name:" + name + "]";
+    }
+
+    @Override
+    public String toPyishString() {
+      return toString();
     }
   }
 }

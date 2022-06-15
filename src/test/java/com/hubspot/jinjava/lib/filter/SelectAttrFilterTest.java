@@ -2,8 +2,10 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.BaseJinjavaTest;
+import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
@@ -98,7 +100,7 @@ public class SelectAttrFilterTest extends BaseJinjavaTest {
       .isEqualTo("[2]");
   }
 
-  public static class User {
+  public static class User implements PyishSerializable {
     private long num;
     private boolean isActive;
     private String email;
@@ -131,9 +133,14 @@ public class SelectAttrFilterTest extends BaseJinjavaTest {
     public String toString() {
       return num + "";
     }
+
+    @Override
+    public String toPyishString() {
+      return toString();
+    }
   }
 
-  public static class Option {
+  public static class Option implements PyishSerializable {
     private long id;
     private String name;
 
@@ -150,9 +157,15 @@ public class SelectAttrFilterTest extends BaseJinjavaTest {
       return name;
     }
 
+    @JsonValue
     @Override
     public String toString() {
       return id + "";
+    }
+
+    @Override
+    public String toPyishString() {
+      return toString();
     }
   }
 }
