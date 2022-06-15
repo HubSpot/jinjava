@@ -23,6 +23,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -103,6 +104,13 @@ public class EagerTest {
     } finally {
       JinjavaInterpreter.popCurrent();
     }
+  }
+
+  @Test
+  public void itReconstructsMapWithNullValues() {
+    interpreter.render("{% set foo = {'foo': null} %}");
+    assertThat(interpreter.getContext().get("foo")).isInstanceOf(Map.class);
+    assertThat((Map) interpreter.getContext().get("foo")).hasSize(1);
   }
 
   @Test
