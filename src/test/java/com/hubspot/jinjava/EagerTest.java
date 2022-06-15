@@ -1060,4 +1060,17 @@ public class EagerTest {
       "reverts-modification-with-deferred-loop"
     );
   }
+
+  @Test
+  public void itReconstructsMapNode() {
+    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-map-node");
+  }
+
+  @Test
+  public void itReconstructsMapNodeSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "reconstructs-map-node.expected"
+    );
+  }
 }

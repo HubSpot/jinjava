@@ -101,6 +101,16 @@ public class FunctionLibrary extends SimpleLibrary<ELFunctionDefinition> {
         Object[].class
       )
     );
+    register(
+      new ELFunctionDefinition(
+        "fn",
+        "map_entry",
+        Functions.class,
+        "convertToMapEntry",
+        Object.class,
+        Object.class
+      )
+    );
   }
 
   public void addFunction(ELFunctionDefinition fn) {

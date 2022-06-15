@@ -1,0 +1,12 @@
+{% set my_list = [] %}
+{% for key, val in {'foo': 'ff', 'bar': 'bb'}.items() -%}
+{% do my_list.append(deferred) %}
+{{ key ~ ' ' ~ val }}
+{%- endfor %}
+{{ my_list }}
+{% set my_list = [] %}
+{% for i in {'foo': 'ff', 'bar': 'bb'}.items() -%}
+{% do my_list.append(deferred) %}
+{{ i.key }}
+{%- endfor %}
+{{ my_list }}
