@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.el.ELException;
@@ -316,6 +317,10 @@ public class EagerExpressionResolver {
       throw new DeferredValueException("Object is not resolved");
     }
 
+    public ResolutionState getResolutionState() {
+      return resolutionState;
+    }
+
     public boolean isFullyResolved() {
       return resolutionState.fullyResolved;
     }
@@ -357,9 +362,36 @@ public class EagerExpressionResolver {
       );
     }
 
+    /**
+     * Method to supply a string value to the EagerExpressionResult class.
+     * In the event that a DeferredValueException is thrown, the message will be the wrapped
+     * value, and the resolutionState will be NONE
+     * Manually provide whether the string has been fully resolved.
+     * @param stringSupplier Supplier function to run, which could potentially throw a DeferredValueException.
+     * @param interpreter The JinjavaInterpreter
+     * @return A EagerExpressionResult that wraps either
+     * <code>stringSupplier.get()</code> or the thrown DeferredValueException's message.
+     */
+    public static EagerExpressionResult fromSupplier(
+      Supplier<String> stringSupplier,
+      JinjavaInterpreter interpreter
+    ) {
+      try {
+        return EagerExpressionResult.fromString(
+          stringSupplier.get(),
+          interpreter.getContext().getEagerTokens().isEmpty()
+            ? ResolutionState.FULL
+            : ResolutionState.PARTIAL
+        );
+      } catch (DeferredValueException e) {
+        return EagerExpressionResult.fromString(e.getMessage(), ResolutionState.NONE);
+      }
+    }
+
     public enum ResolutionState {
       FULL(true),
-      PARTIAL(false);
+      PARTIAL(false),
+      NONE(false);
 
       boolean fullyResolved;
 

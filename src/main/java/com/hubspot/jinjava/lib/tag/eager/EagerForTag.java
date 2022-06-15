@@ -16,6 +16,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
@@ -40,22 +41,27 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     try {
-      int numEagerTokensStart = interpreter.getContext().getEagerTokens().size();
       EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
         eagerInterpreter ->
-          EagerExpressionResult.fromString(
-            getTag().interpretUnchecked(tagNode, interpreter)
+          EagerExpressionResult.fromSupplier(
+            () -> getTag().interpretUnchecked(tagNode, eagerInterpreter),
+            eagerInterpreter
           ),
         interpreter,
         EagerChildContextConfig.newBuilder().withCheckForContextChanges(true).build()
       );
       if (
-        interpreter.getContext().getEagerTokens().size() > numEagerTokensStart &&
-        !result.getSpeculativeBindings().isEmpty()
+        result.getResult().getResolutionState() == ResolutionState.NONE ||
+        (
+          !result.getResult().isFullyResolved() &&
+          !result.getSpeculativeBindings().isEmpty()
+        )
       ) {
         EagerIfTag.resetBindingsForNextBranch(interpreter, result);
         throw new DeferredValueException(
-          "Modification inside partially evaluated for loop"
+          result.getResult().getResolutionState() == ResolutionState.NONE
+            ? result.getResult().toString()
+            : "Modification inside partially evaluated for loop"
         );
       }
       return result.getResult().toString(true);
@@ -89,7 +95,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       TemporaryValueClosable<Boolean> c = interpreter
         .getContext()
         .withDeferLargeObjects(
-          ForTag.FULL_TOO_LARGE_EXCEPTION_MESSAGE.equals(e.getMessage()) ||
+          ForTag.TOO_LARGE_EXCEPTION_MESSAGE.equals(e.getMessage()) ||
           interpreter.getContext().isDeferLargeObjects()
         )
     ) {

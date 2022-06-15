@@ -19,4 +19,11 @@ public class NonRevertingEagerTest extends EagerTest {
   public void itCorrectlyDefersWithMultipleLoops() {
     super.itCorrectlyDefersWithMultipleLoops();
   }
+
+  @Ignore
+  @Override
+  @Test
+  public void itRevertsModificationWithDeferredLoop() {
+    super.itRevertsModificationWithDeferredLoop();
+  }
 }
