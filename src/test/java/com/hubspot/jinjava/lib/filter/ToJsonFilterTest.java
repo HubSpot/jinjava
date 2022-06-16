@@ -22,9 +22,12 @@ public class ToJsonFilterTest extends BaseInterpretingTest {
     assertThat(filter.filter(testArray, interpreter)).isEqualTo("[4,1,2]");
 
     Map<String, Object> testMap = new LinkedHashMap<>();
-    testMap.put("testArray", testArray);
     testMap.put("testString", "testString");
+    testMap.put("testBoolean", true);
+    testMap.put("testArray", testArray);
     assertThat(filter.filter(testMap, interpreter))
-      .isEqualTo("{\"testArray\":[4,1,2],\"testString\":\"testString\"}");
+      .isEqualTo(
+        "{\"testArray\":[4,1,2],\"testBoolean\":true,\"testString\":\"testString\"}"
+      );
   }
 }
