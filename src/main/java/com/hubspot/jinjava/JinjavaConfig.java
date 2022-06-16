@@ -17,7 +17,9 @@ package com.hubspot.jinjava;
 
 import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -272,7 +274,14 @@ public class JinjavaConfig {
     private boolean enablePreciseDivideFilter = false;
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    private Builder() {}
+    private Builder() {
+      objectMapper.setConfig(
+        objectMapper
+          .getSerializationConfig()
+          .with(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+          .with(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+      );
+    }
 
     public Builder withCharset(Charset charset) {
       this.charset = charset;
