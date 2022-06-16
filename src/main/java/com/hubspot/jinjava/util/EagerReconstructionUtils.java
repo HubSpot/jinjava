@@ -145,7 +145,7 @@ public class EagerReconstructionUtils {
               revertibleObject =
                 new RevertibleObject(
                   hashCode,
-                  PyishObjectMapper.getAsPyishString(entry.getValue())
+                  PyishObjectMapper.getAsPyishStringOrThrow(entry.getValue())
                 );
               interpreter.getRevertibleObjects().put(entry.getKey(), revertibleObject);
             }
