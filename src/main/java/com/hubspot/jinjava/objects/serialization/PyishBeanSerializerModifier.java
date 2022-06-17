@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
+import java.util.Map;
 
 public class PyishBeanSerializerModifier extends BeanSerializerModifier {
   public static final PyishBeanSerializerModifier INSTANCE = new PyishBeanSerializerModifier();
@@ -19,6 +20,9 @@ public class PyishBeanSerializerModifier extends BeanSerializerModifier {
     // Use the PyishSerializer if it extends the PyishSerializable class.
     // For example, a Map implementation could then have custom string serialization.
     if (!(PyishSerializable.class.isAssignableFrom(beanDesc.getBeanClass()))) {
+      if (Map.Entry.class.isAssignableFrom(beanDesc.getBeanClass())) {
+        return MapEntrySerializer.INSTANCE;
+      }
       return serializer;
     } else {
       return PyishSerializer.INSTANCE;
