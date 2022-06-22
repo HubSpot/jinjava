@@ -134,26 +134,31 @@ public class EagerReconstructionUtils {
       }
       entryStream.forEach(
         entry -> {
+          RevertibleObject revertibleObject = interpreter
+            .getRevertibleObjects()
+            .get(entry.getKey());
+          Object hashCode = initiallyResolvedHashes.get(entry.getKey());
           try {
-            RevertibleObject revertibleObject = interpreter
-              .getRevertibleObjects()
-              .get(entry.getKey());
-            Object hashCode = initiallyResolvedHashes.get(entry.getKey());
             if (
               revertibleObject == null || !hashCode.equals(revertibleObject.getHashCode())
             ) {
               revertibleObject =
                 new RevertibleObject(
                   hashCode,
-                  PyishObjectMapper.getAsPyishString(entry.getValue())
+                  PyishObjectMapper.getAsPyishStringOrThrow(entry.getValue())
                 );
               interpreter.getRevertibleObjects().put(entry.getKey(), revertibleObject);
             }
-            initiallyResolvedAsStrings.put(
-              entry.getKey(),
-              revertibleObject.getPyishString()
-            );
-          } catch (Exception ignored) {}
+            revertibleObject
+              .getPyishString()
+              .ifPresent(
+                pyishString -> initiallyResolvedAsStrings.put(entry.getKey(), pyishString)
+              );
+          } catch (Exception e) {
+            interpreter
+              .getRevertibleObjects()
+              .put(entry.getKey(), new RevertibleObject(hashCode));
+          }
         }
       );
     } else {

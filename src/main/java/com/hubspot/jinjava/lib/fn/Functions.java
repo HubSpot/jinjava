@@ -25,6 +25,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -124,6 +125,18 @@ public class Functions {
 
   public static List<Object> immutableListOf(Object... items) {
     return Collections.unmodifiableList(Lists.newArrayList(items));
+  }
+
+  @JinjavaDoc(
+    value = "converts a key-value pair into a Map.Entry",
+    params = {
+      @JinjavaParam(value = "key", type = "object"),
+      @JinjavaParam(value = "value", type = "object")
+    },
+    hidden = true
+  )
+  public static Map.Entry<?, ?> convertToMapEntry(Object key, Object value) {
+    return new SimpleEntry<>(key, value);
   }
 
   @JinjavaDoc(
