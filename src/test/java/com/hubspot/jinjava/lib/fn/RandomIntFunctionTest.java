@@ -48,11 +48,19 @@ public class RandomIntFunctionTest {
   @Test
   public void jinJavaRendersRandomIntFunctionWithBound() {
     int bound = 100;
-    assertThat(Integer.valueOf(jinjava.render("{{ random_int(" + bound + ") }}", Collections.emptyMap()))).isBetween(0,bound);
+    assertThat(
+        Integer.valueOf(
+          jinjava.render("{{ random_int(" + bound + ") }}", Collections.emptyMap())
+        )
+      )
+      .isBetween(0, bound);
   }
 
   @Test
   public void jinJavaRendersRandomIntFunction() {
-    assertThat(Integer.valueOf(jinjava.render("{{ random_int() }}", Collections.emptyMap()))).isBetween(0, Integer.MAX_VALUE);
+    assertThat(
+        Integer.valueOf(jinjava.render("{{ random_int() }}", Collections.emptyMap()))
+      )
+      .isBetween(0, Integer.MAX_VALUE);
   }
 }

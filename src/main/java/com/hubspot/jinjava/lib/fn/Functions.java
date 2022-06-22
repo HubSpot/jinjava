@@ -577,7 +577,11 @@ public class Functions {
   @JinjavaDoc(
     value = "Return a random positive integer within bound, the default bound is integer max value",
     params = {
-      @JinjavaParam(value = "bound", type = "number", defaultValue = "" + Integer.MAX_VALUE)
+      @JinjavaParam(
+        value = "bound",
+        type = "number",
+        defaultValue = "" + Integer.MAX_VALUE
+      )
     }
   )
   public static int randomInt(Object... var) {
