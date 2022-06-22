@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.fn;
 
+import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
@@ -10,7 +11,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +85,9 @@ public class MacroFunction extends AbstractCallableMethod {
       ) {
         interpreter
           .getContext()
-          .removeEagerTokens(new HashSet<>(interpreter.getContext().getEagerTokens()));
+          .removeEagerTokens(
+            ImmutableList.copyOf(interpreter.getContext().getEagerTokens())
+          );
         // If the macro function could not be fully evaluated, throw a DeferredValueException.
         throw new DeferredValueException(
           getName(),
