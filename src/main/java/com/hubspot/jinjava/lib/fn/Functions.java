@@ -573,4 +573,23 @@ public class Functions {
 
     return result;
   }
+
+  @JinjavaDoc(
+    value = "Return a random positive integer within bound, the default bound is integer max value",
+    params = {
+      @JinjavaParam(value = "bound", type = "number", defaultValue = "" + Integer.MAX_VALUE)
+    }
+  )
+  public static int randomInt(Object... var) {
+    int bound = Integer.MAX_VALUE;
+
+    if (var.length == 1) {
+      String arg = var[0].toString();
+      if (NumberUtils.isCreatable(arg)) {
+        bound = NumberUtils.toInt(arg, bound);
+      }
+    }
+
+    return JinjavaInterpreter.getCurrent().getRandom().nextInt(bound);
+  }
 }

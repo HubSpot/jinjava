@@ -111,6 +111,15 @@ public class FunctionLibrary extends SimpleLibrary<ELFunctionDefinition> {
         Object.class
       )
     );
+    register(
+      new ELFunctionDefinition(
+        "",
+        "random_int",
+        Functions.class,
+        "randomInt",
+        Object[].class
+      )
+    );
   }
 
   public void addFunction(ELFunctionDefinition fn) {
