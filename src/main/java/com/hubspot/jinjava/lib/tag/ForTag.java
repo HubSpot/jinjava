@@ -240,6 +240,9 @@ public class ForTag implements Tag {
             try {
               buff.append(node.render(interpreter));
             } catch (OutputTooBigException e) {
+              if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
+                throw new DeferredValueException(TOO_LARGE_EXCEPTION_MESSAGE);
+              }
               interpreter.addError(TemplateError.fromOutputTooBigException(e));
               return checkLoopVariable(interpreter, buff);
             }

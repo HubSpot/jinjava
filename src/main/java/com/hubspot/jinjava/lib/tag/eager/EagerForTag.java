@@ -41,12 +41,16 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     try {
+      Set<EagerToken> addedTokens = new HashSet<>();
       EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
-        eagerInterpreter ->
-          EagerExpressionResult.fromSupplier(
+        eagerInterpreter -> {
+          EagerExpressionResult expressionResult = EagerExpressionResult.fromSupplier(
             () -> getTag().interpretUnchecked(tagNode, eagerInterpreter),
             eagerInterpreter
-          ),
+          );
+          addedTokens.addAll(eagerInterpreter.getContext().getEagerTokens());
+          return expressionResult;
+        },
         interpreter,
         EagerChildContextConfig.newBuilder().withCheckForContextChanges(true).build()
       );
@@ -58,6 +62,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         )
       ) {
         EagerIfTag.resetBindingsForNextBranch(interpreter, result);
+        interpreter.getContext().removeEagerTokens(addedTokens);
         throw new DeferredValueException(
           result.getResult().getResolutionState() == ResolutionState.NONE
             ? result.getResult().toString()
