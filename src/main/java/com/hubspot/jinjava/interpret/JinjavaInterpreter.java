@@ -717,27 +717,21 @@ public class JinjavaInterpreter implements PyishSerializable {
     }
 
     // Limit the number of error.
-    synchronized (this) {
-      if (errors.size() < MAX_ERROR_SIZE) {
-        errors.add(templateError.withScopeDepth(scopeDepth));
-      }
+    if (errors.size() < MAX_ERROR_SIZE) {
+      this.errors.add(templateError.withScopeDepth(scopeDepth));
     }
   }
 
   public void removeLastError() {
-    synchronized (this) {
-      if (!errors.isEmpty()) {
-        errors.remove(errors.size() - 1);
-      }
+    if (!errors.isEmpty()) {
+      errors.remove(errors.size() - 1);
     }
   }
 
   public Optional<TemplateError> getLastError() {
-    synchronized (this) {
-      return errors.isEmpty()
-        ? Optional.empty()
-        : Optional.of(errors.get(errors.size() - 1));
-    }
+    return errors.isEmpty()
+      ? Optional.empty()
+      : Optional.of(errors.get(errors.size() - 1));
   }
 
   public int getScopeDepth() {
@@ -786,9 +780,7 @@ public class JinjavaInterpreter implements PyishSerializable {
 
   // Explicitly indicate this returns a copy of the errors list.
   public List<TemplateError> getErrorsCopy() {
-    synchronized (this) {
-      return Lists.newArrayList(errors);
-    }
+    return Lists.newArrayList(errors);
   }
 
   private static final ThreadLocal<Stack<JinjavaInterpreter>> CURRENT_INTERPRETER = ThreadLocal.withInitial(

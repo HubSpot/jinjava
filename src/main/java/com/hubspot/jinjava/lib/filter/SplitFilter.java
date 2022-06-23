@@ -58,13 +58,17 @@ public class SplitFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     Splitter splitter;
 
-    if (args.length > 0) {
-      splitter = Splitter.on(args[0]);
+    if (args != null && args.length > 0) {
+      if (args[0] != null) {
+        splitter = Splitter.on(args[0]);
+      } else {
+        splitter = Splitter.on(CharMatcher.whitespace());
+      }
     } else {
       splitter = Splitter.on(CharMatcher.whitespace());
     }
 
-    if (args.length > 1) {
+    if (args != null && args.length > 1) {
       int limit = NumberUtils.toInt(args[1], 0);
       if (limit > 0) {
         splitter = splitter.limit(limit);
