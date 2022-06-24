@@ -100,8 +100,8 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
       .add(tagToken.getSymbols().getExpressionEndWithTag());
     interpreter
       .getContext()
-      .handleEagerToken(
-        new EagerToken(
+      .handleDeferredToken(
+        new DeferredToken(
           new TagToken(
             joiner.toString(),
             tagToken.getLineNumber(),

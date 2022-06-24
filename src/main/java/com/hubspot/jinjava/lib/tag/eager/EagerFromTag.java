@@ -111,7 +111,7 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
           .stream()
           .filter(e -> !e.getKey().equals(e.getValue()))
           .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-        if (child.getContext().getEagerTokens().isEmpty() || output == null) {
+        if (child.getContext().getDeferredTokens().isEmpty() || output == null) {
           return "";
         } else if (newToOldImportNames.size() > 0) {
           // Set after output

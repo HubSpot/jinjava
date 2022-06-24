@@ -45,8 +45,8 @@ public class EagerUnlessTagTest extends UnlessTagTest {
   public void itHandlesDeferredInRegular() {
     context.put("foo", true);
     expectedNodeInterpreter.assertExpectedOutput("handles-deferred-in-regular");
-    Optional<EagerToken> maybeEagerTagToken = context
-      .getEagerTokens()
+    Optional<DeferredToken> maybeEagerTagToken = context
+      .getDeferredTokens()
       .stream()
       .filter(e -> e.getToken() instanceof TagToken)
       .filter(e -> ((TagToken) e.getToken()).getTagName().equals(tag.getName()))
@@ -58,8 +58,8 @@ public class EagerUnlessTagTest extends UnlessTagTest {
   public void itHandlesDeferredInEager() {
     context.put("foo", 1);
     expectedNodeInterpreter.assertExpectedOutput("handles-deferred-in-eager");
-    Optional<EagerToken> maybeEagerTagToken = context
-      .getEagerTokens()
+    Optional<DeferredToken> maybeEagerTagToken = context
+      .getDeferredTokens()
       .stream()
       .filter(e -> e.getToken() instanceof TagToken)
       .filter(e -> ((TagToken) e.getToken()).getTagName().equals(tag.getName()))

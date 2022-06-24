@@ -210,8 +210,8 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
 
     interpreter
       .getContext()
-      .handleEagerToken(
-        new EagerToken(
+      .handleDeferredToken(
+        new DeferredToken(
           new TagToken(
             joiner.toString(),
             tagToken.getLineNumber(),

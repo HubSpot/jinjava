@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
-import com.hubspot.jinjava.lib.tag.eager.EagerToken;
+import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -185,10 +185,10 @@ public class DeferredValueUtilsTest {
   }
 
   @Test
-  public void itDefersSetWordsInEagerTokens() {
+  public void itDefersSetWordsInDeferredTokens() {
     Context context = new Context();
     context.put("var_a", "a");
-    EagerToken eagerToken = new EagerToken(
+    DeferredToken deferredToken = new DeferredToken(
       new TagToken(
         "{% set var_a, var_b = deferred, deferred %}",
         1,
@@ -198,16 +198,16 @@ public class DeferredValueUtilsTest {
       ImmutableSet.of(),
       ImmutableSet.of("var_a", "var_b")
     );
-    context.handleEagerToken(eagerToken);
+    context.handleDeferredToken(deferredToken);
     assertThat(context.get("var_a")).isInstanceOf(DeferredValue.class);
     assertThat(context.get("var_b")).isInstanceOf(DeferredValue.class);
   }
 
   @Test
-  public void itDefersUsedWordsInEagerTokens() {
+  public void itDefersUsedWordsInDeferredTokens() {
     Context context = new Context();
     context.put("var_a", "a");
-    EagerToken eagerToken = new EagerToken(
+    DeferredToken deferredToken = new DeferredToken(
       new ExpressionToken(
         "{{ var_a.append(deferred|int)}}",
         1,
@@ -216,7 +216,7 @@ public class DeferredValueUtilsTest {
       ),
       ImmutableSet.of("var_a", "int")
     );
-    context.handleEagerToken(eagerToken);
+    context.handleDeferredToken(deferredToken);
     assertThat(context.get("var_a")).isInstanceOf(DeferredValue.class);
     assertThat(context.containsKey("int")).isFalse();
   }

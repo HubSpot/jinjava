@@ -116,8 +116,8 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
 
     interpreter
       .getContext()
-      .handleEagerToken(
-        new EagerToken(
+      .handleDeferredToken(
+        new DeferredToken(
           new TagToken(
             joiner.toString(),
             tagNode.getLineNumber(),

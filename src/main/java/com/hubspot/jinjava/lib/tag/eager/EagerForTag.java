@@ -41,14 +41,14 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     try {
-      Set<EagerToken> addedTokens = new HashSet<>();
+      Set<DeferredToken> addedTokens = new HashSet<>();
       EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
         eagerInterpreter -> {
           EagerExpressionResult expressionResult = EagerExpressionResult.fromSupplier(
             () -> getTag().interpretUnchecked(tagNode, eagerInterpreter),
             eagerInterpreter
           );
-          addedTokens.addAll(eagerInterpreter.getContext().getEagerTokens());
+          addedTokens.addAll(eagerInterpreter.getContext().getDeferredTokens());
           return expressionResult;
         },
         interpreter,
@@ -62,7 +62,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         )
       ) {
         EagerIfTag.resetBindingsForNextBranch(interpreter, result);
-        interpreter.getContext().removeEagerTokens(addedTokens);
+        interpreter.getContext().removeDeferredTokens(addedTokens);
         throw new DeferredValueException(
           result.getResult().getResolutionState() == ResolutionState.NONE
             ? result.getResult().toString()
@@ -220,8 +220,8 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     interpreter.getContext().getMetaContextVariables().removeAll(metaLoopVars);
     interpreter
       .getContext()
-      .handleEagerToken(
-        new EagerToken(
+      .handleDeferredToken(
+        new DeferredToken(
           new TagToken(
             joiner.toString(),
             tagToken.getLineNumber(),

@@ -249,10 +249,10 @@ public class ForTag implements Tag {
           }
         }
         if (
-          interpreter.getConfig().getMaxNumEagerTokens() <
+          interpreter.getConfig().getMaxNumDeferredTokens() <
           (
             loop.getLength() *
-            interpreter.getContext().getEagerTokens().size() /
+            interpreter.getContext().getDeferredTokens().size() /
             loop.getIndex()
           )
         ) {

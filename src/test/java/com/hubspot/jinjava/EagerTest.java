@@ -492,17 +492,17 @@ public class EagerTest {
     expectedTemplateInterpreter.assertExpectedOutput("evaluates-non-eager-set");
     assertThat(
         localContext
-          .getEagerTokens()
+          .getDeferredTokens()
           .stream()
-          .flatMap(eagerToken -> eagerToken.getSetDeferredWords().stream())
+          .flatMap(deferredToken -> deferredToken.getSetDeferredWords().stream())
           .collect(Collectors.toSet())
       )
       .containsExactlyInAnyOrder("item");
     assertThat(
         localContext
-          .getEagerTokens()
+          .getDeferredTokens()
           .stream()
-          .flatMap(eagerToken -> eagerToken.getUsedDeferredWords().stream())
+          .flatMap(deferredToken -> deferredToken.getUsedDeferredWords().stream())
           .collect(Collectors.toSet())
       )
       .contains("deferred");
@@ -590,7 +590,7 @@ public class EagerTest {
     localContext.put("deferred2", 10);
 
     // TODO auto remove deferred
-    localContext.getEagerTokens().clear();
+    localContext.getDeferredTokens().clear();
     localContext.getGlobalMacro("macro_append").setDeferred(false);
 
     String output = interpreter.render(deferredOutput);

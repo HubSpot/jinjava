@@ -379,7 +379,7 @@ public class EagerExpressionResolver {
       try {
         return EagerExpressionResult.fromString(
           stringSupplier.get(),
-          interpreter.getContext().getEagerTokens().isEmpty()
+          interpreter.getContext().getDeferredTokens().isEmpty()
             ? ResolutionState.FULL
             : ResolutionState.PARTIAL
         );

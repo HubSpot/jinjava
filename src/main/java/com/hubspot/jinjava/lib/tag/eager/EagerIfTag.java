@@ -179,8 +179,8 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       if (!bindingsToDefer.isEmpty()) {
         interpreter
           .getContext()
-          .handleEagerToken(
-            new EagerToken(
+          .handleDeferredToken(
+            new DeferredToken(
               new NoteToken(
                 "",
                 interpreter.getLineNumber(),

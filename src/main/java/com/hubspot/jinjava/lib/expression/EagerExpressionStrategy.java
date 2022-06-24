@@ -6,8 +6,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
 import com.hubspot.jinjava.lib.tag.RawTag;
+import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
-import com.hubspot.jinjava.lib.tag.eager.EagerToken;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
@@ -99,8 +99,8 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     );
     interpreter
       .getContext()
-      .handleEagerToken(
-        new EagerToken(
+      .handleDeferredToken(
+        new DeferredToken(
           new ExpressionToken(
             helpers,
             master.getLineNumber(),
