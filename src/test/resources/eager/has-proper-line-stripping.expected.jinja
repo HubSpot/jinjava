@@ -1,7 +1,3 @@
-{% if content.translated_from_id != null && content.translated_from_id > 0 -%}
-{{ content.translated_from_id }}
-{%- elif content.id == null || content.id == 0 -%}
-null
-{%- else -%}
-{{ content.id }}
-{%- endif %}
+1
+2
+3{% if deferred > 0 %}{{ deferred }}{% elif deferred == 0 %}null{% else %}{{ deferred }}{% endif %}
