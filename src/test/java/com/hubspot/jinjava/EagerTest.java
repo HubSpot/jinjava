@@ -1073,4 +1073,9 @@ public class EagerTest {
       "reconstructs-map-node.expected"
     );
   }
+
+  @Test
+  public void itHasProperLineStripping() {
+    expectedTemplateInterpreter.assertExpectedOutput("has-proper-line-stripping");
+  }
 }
