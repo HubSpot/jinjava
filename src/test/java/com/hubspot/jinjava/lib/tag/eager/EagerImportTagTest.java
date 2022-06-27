@@ -636,15 +636,15 @@ public class EagerImportTagTest extends ImportTagTest {
     );
     assertThat(result.trim())
       .isEqualTo(
-        "{% set var = [] %}{% do var.append('a' ~ deferred) %}\n" +
+        "{% set var = [] %}{% do var.append('a' ~ deferred) %}" +
         "a\n" +
-        "{% do var.append('b' ~ deferred) %}\n" +
+        "{% do var.append('b' ~ deferred) %}" +
         "b\n" +
         "c{{ var }}"
       );
     context.put("deferred", "resolved");
     assertThat(interpreter.render(result).trim())
-      .isEqualTo("a\n" + "\n" + "b\n" + "c['aresolved', 'bresolved']");
+      .isEqualTo("a\n" + "b\n" + "c['aresolved', 'bresolved']");
   }
 
   @Test
@@ -656,7 +656,7 @@ public class EagerImportTagTest extends ImportTagTest {
       "{{ apply('foo') }}\n" +
       "{{ val }}"
     );
-    assertThat(result.trim()).isEqualTo("{% set val = deferred %}\n5foo\n{{ val }}");
+    assertThat(result.trim()).isEqualTo("{% set val = deferred %}5foo\n{{ val }}");
     context.put("deferred", "resolved");
     assertThat(interpreter.render(result).trim()).isEqualTo("5foo\nresolved");
   }
