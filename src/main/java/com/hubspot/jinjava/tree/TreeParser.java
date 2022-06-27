@@ -155,14 +155,7 @@ public class TreeParser {
     final Node lastSibling = getLastSibling();
 
     // if last sibling was a tag and has rightTrimAfterEnd, strip whitespace
-    if (
-      lastSibling instanceof TagNode &&
-      (
-        ((TagNode) lastSibling).getEndName() == null
-          ? lastSibling.getMaster().isRightTrim()
-          : lastSibling.getMaster().isRightTrimAfterEnd()
-      )
-    ) {
+    if (lastSibling instanceof TagNode && isRightTrim((TagNode) lastSibling)) {
       textToken.setLeftTrim(true);
     }
 
@@ -176,6 +169,20 @@ public class TreeParser {
     TextNode n = new TextNode(textToken);
     n.setParent(parent);
     return n;
+  }
+
+  private boolean isRightTrim(TagNode lastSibling) {
+    return (
+        lastSibling.getEndName() == null ||
+        (
+          lastSibling.getTag() instanceof FlexibleTag &&
+          !((FlexibleTag) lastSibling.getTag()).hasEndTag(
+              (TagToken) lastSibling.getMaster()
+            )
+        )
+      )
+      ? lastSibling.getMaster().isRightTrim()
+      : lastSibling.getMaster().isRightTrimAfterEnd();
   }
 
   private Node expression(ExpressionToken expressionToken) {
