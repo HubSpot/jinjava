@@ -155,7 +155,14 @@ public class TreeParser {
     final Node lastSibling = getLastSibling();
 
     // if last sibling was a tag and has rightTrimAfterEnd, strip whitespace
-    if (lastSibling instanceof TagNode && lastSibling.getMaster().isRightTrimAfterEnd()) {
+    if (
+      lastSibling instanceof TagNode &&
+      (
+        ((TagNode) lastSibling).getEndName() == null
+          ? lastSibling.getMaster().isRightTrim()
+          : lastSibling.getMaster().isRightTrimAfterEnd()
+      )
+    ) {
       textToken.setLeftTrim(true);
     }
 

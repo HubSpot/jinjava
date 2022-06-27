@@ -1,0 +1,7 @@
+{% if content.translated_from_id != null && content.translated_from_id > 0 -%}
+{{ content.translated_from_id }}
+{%- elif content.id == null || content.id == 0 -%}
+null
+{%- else -%}
+{{ content.id }}
+{%- endif %}
