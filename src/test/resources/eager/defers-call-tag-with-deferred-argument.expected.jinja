@@ -1,0 +1,16 @@
+{% macro repeat(val) %}
+{{ val }}
+
+
+macro 1
+{% macro repeat(val) %}
+{{ val }}
+
+{% macro renderEntity(val) %}
+Aaa {{ val }}
+{% endmacro %}{{ renderEntity(val) }}
+
+{% endmacro %}{{ repeat(deferred) }}
+
+
+{% endmacro %}{{ repeat(deferred) }}
