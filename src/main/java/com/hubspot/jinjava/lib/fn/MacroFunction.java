@@ -130,19 +130,28 @@ public class MacroFunction extends AbstractCallableMethod {
   ) {
     interpreter.setLineNumber(definitionLineNumber);
     interpreter.setPosition(definitionStartPosition);
-    for (Map.Entry<String, Object> scopeEntry : localContextScope.getScope().entrySet()) {
-      if (scopeEntry.getValue() instanceof MacroFunction) {
-        interpreter.getContext().addGlobalMacro((MacroFunction) scopeEntry.getValue());
-      } else if (scopeEntry.getKey().equals(Context.GLOBAL_MACROS_SCOPE_KEY)) {
-        interpreter
-          .getContext()
-          .put(
-            Context.GLOBAL_MACROS_SCOPE_KEY,
-            new HashMap<>((Map<String, MacroFunction>) scopeEntry.getValue())
-          );
-      } else {
-        if (!alreadyDeferredInEarlierCall(scopeEntry.getKey(), interpreter)) {
-          interpreter.getContext().put(scopeEntry.getKey(), scopeEntry.getValue());
+    if (
+      !Objects.equals(
+        interpreter.getContext().get(Context.IMPORT_RESOURCE_PATH_KEY),
+        localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY)
+      )
+    ) {
+      for (Map.Entry<String, Object> scopeEntry : localContextScope
+        .getScope()
+        .entrySet()) {
+        if (scopeEntry.getValue() instanceof MacroFunction) {
+          interpreter.getContext().addGlobalMacro((MacroFunction) scopeEntry.getValue());
+        } else if (scopeEntry.getKey().equals(Context.GLOBAL_MACROS_SCOPE_KEY)) {
+          interpreter
+            .getContext()
+            .put(
+              Context.GLOBAL_MACROS_SCOPE_KEY,
+              new HashMap<>((Map<String, MacroFunction>) scopeEntry.getValue())
+            );
+        } else {
+          if (!alreadyDeferredInEarlierCall(scopeEntry.getKey(), interpreter)) {
+            interpreter.getContext().put(scopeEntry.getKey(), scopeEntry.getValue());
+          }
         }
       }
     }
