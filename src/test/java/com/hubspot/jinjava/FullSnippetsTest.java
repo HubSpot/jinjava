@@ -94,4 +94,11 @@ public class FullSnippetsTest {
       "does-not-override-macro-functions-from-higher-scope"
     );
   }
+
+  @Test
+  public void itUsesLowerScopeValueInMacroEvaluation() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "uses-lower-scope-value-in-macro-evaluation"
+    );
+  }
 }
