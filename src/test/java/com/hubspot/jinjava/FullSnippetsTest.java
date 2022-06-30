@@ -87,4 +87,11 @@ public class FullSnippetsTest {
       "does-not-override-call-tag-from-higher-scope"
     );
   }
+
+  @Test
+  public void itDoesNotOverrideMacroFunctionsFromHigherScope() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "does-not-override-macro-functions-from-higher-scope"
+    );
+  }
 }
