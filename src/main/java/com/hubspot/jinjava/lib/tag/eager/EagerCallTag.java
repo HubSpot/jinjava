@@ -86,6 +86,7 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
           )
         );
       }
+      caller.setDeferred(true);
       prefixToPreserveState.append(
         EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
           eagerExecutionResult.getResult().getDeferredWords(),

@@ -1,27 +1,12 @@
-{% macro foo() -%}
-first foo definition
-{% endmacro %}
-{% macro repeat(val) -%}
-{% print val %}
-{{ foo() }}
+{% macro repeat(val) %}
+{{ val }}
 {{ caller() }}
-{% endmacro %}
-{% call repeat(1) -%}
-1st caller
-{% macro foo() -%}
-second foo definition
-{% endmacro %}
-{% macro repeat(val) -%}
-{% print val %}
-{{ foo() }}
+{% endmacro %}{% call repeat(deferred) %}
+macro 1
+{% macro repeat(val) %}
+{{ val }}
 {{ caller() }}
-{% endmacro %}
-{% for i in range(1) -%}
-{% macro foo() -%}
-third foo definition
-{% endmacro -%}
-{% call repeat(2) -%}
-2nd caller
+{% endmacro %}{% call repeat(deferred + 1) %}
+macro2
 {% endcall %}
-{% endfor %}
 {% endcall %}
