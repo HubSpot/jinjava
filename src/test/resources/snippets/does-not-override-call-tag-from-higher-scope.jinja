@@ -1,0 +1,14 @@
+{% macro first() -%}
+1st macro
+{{ caller() }}
+{% endmacro %}
+{% call first() -%}
+1st caller
+{% macro second() -%}
+2nd macro
+{{ caller() }}
+{% endmacro %}
+{% call second() -%}
+2nd caller
+{% endcall %}
+{% endcall %}
