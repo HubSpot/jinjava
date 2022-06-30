@@ -1089,7 +1089,7 @@ public class EagerTest {
   @Test
   public void itDefersCallTagWithDeferredArgumentSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "defers-call-tag-with-deferred-argument.expected"
     );
   }
