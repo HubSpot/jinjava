@@ -185,7 +185,7 @@ public class Functions {
     }
   )
   public static String dateTimeFormat(Object var, String... format) {
-    ZoneId zoneOffset = ZoneOffset.UTC;
+    ZoneId zoneOffset = ZoneId.of("UTC");
 
     if (format.length > 1 && format[1] != null) {
       String timezone = format[1];
