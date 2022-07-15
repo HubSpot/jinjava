@@ -1,0 +1,13 @@
+{% macro foo() %}
+1st foo
+{% endmacro %}
+{% macro bar() %}
+bar
+{{ foo() }}
+{% endmacro %}
+{% for i in range(1) %}
+{% macro foo() %}
+2nd foo
+{% endmacro %}
+{{ bar() }}
+{% endfor %}

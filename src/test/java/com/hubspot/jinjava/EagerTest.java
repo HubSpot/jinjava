@@ -77,7 +77,7 @@ public class EagerTest {
       .withLegacyOverrides(
         LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
       )
-      .withMaxMacroRecursionDepth(5)
+      .withMaxMacroRecursionDepth(20)
       .withEnableRecursiveMacroCalls(true)
       .build();
     JinjavaInterpreter parentInterpreter = new JinjavaInterpreter(
@@ -1071,6 +1071,26 @@ public class EagerTest {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "reconstructs-map-node.expected"
+    );
+  }
+
+  @Test
+  public void itHasProperLineStripping() {
+    expectedTemplateInterpreter.assertExpectedOutput("has-proper-line-stripping");
+  }
+
+  @Test
+  public void itDefersCallTagWithDeferredArgument() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "defers-call-tag-with-deferred-argument"
+    );
+  }
+
+  @Test
+  public void itDefersCallTagWithDeferredArgumentSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "defers-call-tag-with-deferred-argument.expected"
     );
   }
 }

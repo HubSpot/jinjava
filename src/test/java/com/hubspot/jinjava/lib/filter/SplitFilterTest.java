@@ -45,4 +45,25 @@ public class SplitFilterTest extends BaseInterpretingTest {
     );
     assertThat(result).containsExactly("hello", "world  this is fred");
   }
+
+  @Test
+  public void itReturnsDefaultIfSeparatorIsNull() {
+    List<String> result = (List<String>) filter.filter(
+      "hello world  this is fred",
+      interpreter,
+      null
+    );
+    assertThat(result).containsExactly("hello", "world", "this", "is", "fred");
+  }
+
+  @Test
+  public void itReturnsDefaultSeparatorIfNullAndTruncated() {
+    List<String> result = (List<String>) filter.filter(
+      "hello world  this is fred",
+      interpreter,
+      null,
+      "2"
+    );
+    assertThat(result).containsExactly("hello", "world  this is fred");
+  }
 }

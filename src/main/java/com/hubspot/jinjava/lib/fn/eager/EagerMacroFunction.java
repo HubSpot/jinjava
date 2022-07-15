@@ -153,7 +153,6 @@ public class EagerMacroFunction extends AbstractCallableMethod {
       return "";
     } else {
       try (InterpreterScopeClosable c = interpreter.enterScope()) {
-        int numDeferredTokensStart = interpreter.getContext().getDeferredTokens().size();
         String evaluation = (String) evaluate(
           macroFunction
             .getArguments()
@@ -162,9 +161,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
             .toArray()
         );
 
-        if (
-          interpreter.getContext().getDeferredTokens().size() > numDeferredTokensStart
-        ) {
+        if (!interpreter.getContext().getDeferredTokens().isEmpty()) {
           evaluation =
             (String) evaluate(
               macroFunction
@@ -200,8 +197,8 @@ public class EagerMacroFunction extends AbstractCallableMethod {
       return true;
     }
     while (
-      !context.getGlobalMacros().containsKey(macroFunction.getName()) ||
-      context.getParent().getParent() == null
+      !context.getGlobalMacros().containsKey(macroFunction.getName()) &&
+      context.getParent().getParent() != null
     ) {
       context = context.getParent();
     }

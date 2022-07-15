@@ -14,7 +14,10 @@ public class StrftimeFormatterTest {
   @Before
   public void setup() {
     Locale.setDefault(Locale.ENGLISH);
-    d = ZonedDateTime.parse("2013-11-06T14:22:00.123+00:00");
+    d =
+      ZonedDateTime
+        .parse("2013-11-06T14:22:00.123+00:00")
+        .withZoneSameLocal(ZoneId.of("UTC"));
   }
 
   @Test
@@ -101,6 +104,7 @@ public class StrftimeFormatterTest {
   @Test
   public void testZoneOutput() {
     assertThat(StrftimeFormatter.format(d, "%z")).isEqualTo("+0000");
+    assertThat(StrftimeFormatter.format(d, "%Z")).isEqualTo("UTC");
 
     ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(
       d.toInstant(),

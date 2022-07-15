@@ -14,6 +14,7 @@ import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.Logging;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
@@ -33,21 +34,19 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     JinjavaInterpreter interpreter
   ) {
     interpreter.getContext().checkNumberOfDeferredTokens();
-    EagerExecutionResult eagerExecutionResult;
-    eagerExecutionResult =
-      EagerReconstructionUtils.executeInChildContext(
-        eagerInterpreter ->
-          EagerExpressionResolver.resolveExpression(master.getExpr(), interpreter),
-        interpreter,
-        EagerChildContextConfig
-          .newBuilder()
-          .withTakeNewValue(true)
-          .withPartialMacroEvaluation(
-            interpreter.getConfig().isNestedInterpretationEnabled()
-          )
-          .withCheckForContextChanges(interpreter.getContext().isDeferredExecutionMode())
-          .build()
-      );
+    EagerExecutionResult eagerExecutionResult = EagerReconstructionUtils.executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResolver.resolveExpression(master.getExpr(), interpreter),
+      interpreter,
+      EagerChildContextConfig
+        .newBuilder()
+        .withTakeNewValue(true)
+        .withPartialMacroEvaluation(
+          interpreter.getConfig().isNestedInterpretationEnabled()
+        )
+        .withCheckForContextChanges(interpreter.getContext().isDeferredExecutionMode())
+        .build()
+    );
 
     StringBuilder prefixToPreserveState = new StringBuilder();
     if (interpreter.getContext().isDeferredExecutionMode()) {
@@ -57,35 +56,9 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     }
     if (eagerExecutionResult.getResult().isFullyResolved()) {
       String result = eagerExecutionResult.getResult().toString(true);
-      if (
-        !StringUtils.equals(result, master.getImage()) &&
-        (
-          StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
-          StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag())
-        )
-      ) {
-        if (interpreter.getConfig().isNestedInterpretationEnabled()) {
-          long errorSizeStart = getParsingErrorsCount(interpreter);
-
-          interpreter.parse(result);
-
-          if (getParsingErrorsCount(interpreter) == errorSizeStart) {
-            try {
-              result = interpreter.renderFlat(result);
-            } catch (Exception e) {
-              Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
-            }
-          }
-        } else {
-          // Possible macro/set tag in front of this one. Includes result
-          result = wrapInRawOrExpressionIfNeeded(result, interpreter);
-        }
-      }
-
-      if (interpreter.getContext().isAutoEscape()) {
-        result = EscapeFilter.escapeHtmlEntities(result);
-      }
-      return prefixToPreserveState.toString() + result;
+      return (
+        prefixToPreserveState.toString() + postProcessResult(master, result, interpreter)
+      );
     }
     prefixToPreserveState.append(
       EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
@@ -125,10 +98,47 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     );
   }
 
-  private long getParsingErrorsCount(JinjavaInterpreter interpreter) {
+  public static String postProcessResult(
+    ExpressionToken master,
+    String result,
+    JinjavaInterpreter interpreter
+  ) {
+    if (
+      !StringUtils.equals(result, master.getImage()) &&
+      (
+        StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
+        StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag())
+      )
+    ) {
+      if (interpreter.getConfig().isNestedInterpretationEnabled()) {
+        long errorSizeStart = getParsingErrorsCount(interpreter);
+
+        interpreter.parse(result);
+
+        if (getParsingErrorsCount(interpreter) == errorSizeStart) {
+          try {
+            result = interpreter.renderFlat(result);
+          } catch (Exception e) {
+            Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
+          }
+        }
+      } else {
+        // Possible macro/set tag in front of this one. Includes result
+        result = wrapInRawOrExpressionIfNeeded(result, interpreter);
+      }
+    }
+
+    if (interpreter.getContext().isAutoEscape()) {
+      result = EscapeFilter.escapeHtmlEntities(result);
+    }
+    return result;
+  }
+
+  private static long getParsingErrorsCount(JinjavaInterpreter interpreter) {
     return interpreter
       .getErrors()
       .stream()
+      .filter(Objects::nonNull)
       .filter(
         error ->
           "Unclosed comment".equals(error.getMessage()) ||
