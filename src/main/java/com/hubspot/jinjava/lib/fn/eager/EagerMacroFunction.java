@@ -198,8 +198,8 @@ public class EagerMacroFunction extends AbstractCallableMethod {
       return true;
     }
     while (
-      !context.getGlobalMacros().containsKey(macroFunction.getName()) ||
-      context.getParent().getParent() == null
+      !context.getGlobalMacros().containsKey(macroFunction.getName()) &&
+      context.getParent().getParent() != null
     ) {
       context = context.getParent();
     }
