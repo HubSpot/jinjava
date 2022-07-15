@@ -315,6 +315,7 @@ public class EagerReconstructionUtils {
       .filter(w -> !interpreter.getContext().containsKey(w))
       .map(w -> interpreter.getContext().getGlobalMacro(w))
       .filter(Objects::nonNull)
+      .filter(macroFunction -> !macroFunction.isCaller())
       .collect(Collectors.toMap(AbstractCallableMethod::getName, Function.identity()));
     for (String word : deferredWords) {
       if (word.contains(".")) {

@@ -4,6 +4,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.lib.tag.BlockTag;
+import com.hubspot.jinjava.lib.tag.CallTag;
 import com.hubspot.jinjava.lib.tag.CycleTag;
 import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.ElseIfTag;
@@ -37,6 +38,7 @@ public class EagerTagFactory {
     .put(CycleTag.class, EagerCycleTag.class)
     .put(IfTag.class, EagerIfTag.class)
     .put(UnlessTag.class, EagerUnlessTag.class)
+    .put(CallTag.class, EagerCallTag.class)
     .build();
   // These classes don't need an eager decorator.
   public static final Set<Class<? extends Tag>> TAG_CLASSES_TO_SKIP = ImmutableSet

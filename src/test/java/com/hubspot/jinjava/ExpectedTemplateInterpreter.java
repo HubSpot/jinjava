@@ -47,6 +47,12 @@ public class ExpectedTemplateInterpreter {
       JinjavaConfig
         .newBuilder()
         .withExecutionMode(DefaultExecutionMode.instance())
+        .withNestedInterpretationEnabled(true)
+        .withLegacyOverrides(
+          LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+        )
+        .withMaxMacroRecursionDepth(20)
+        .withEnableRecursiveMacroCalls(true)
         .build()
     );
     try {
