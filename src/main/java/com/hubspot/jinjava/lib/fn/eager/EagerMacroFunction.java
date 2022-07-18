@@ -161,7 +161,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
             .toArray()
         );
 
-        if (!interpreter.getContext().getEagerTokens().isEmpty()) {
+        if (!interpreter.getContext().getDeferredTokens().isEmpty()) {
           evaluation =
             (String) evaluate(
               macroFunction

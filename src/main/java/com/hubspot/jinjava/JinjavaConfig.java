@@ -60,7 +60,7 @@ public class JinjavaConfig {
   private final int maxListSize;
   private final int maxMapSize;
   private final int rangeLimit;
-  private final int maxNumEagerTokens;
+  private final int maxNumDeferredTokens;
   private final InterpreterFactory interpreterFactory;
   private TokenScannerSymbols tokenScannerSymbols;
   private final ELResolver elResolver;
@@ -115,7 +115,7 @@ public class JinjavaConfig {
     maxListSize = builder.maxListSize;
     maxMapSize = builder.maxMapSize;
     rangeLimit = builder.rangeLimit;
-    maxNumEagerTokens = builder.maxNumEagerTokens;
+    maxNumDeferredTokens = builder.maxNumDeferredTokens;
     interpreterFactory = builder.interpreterFactory;
     tokenScannerSymbols = builder.tokenScannerSymbols;
     elResolver = builder.elResolver;
@@ -157,8 +157,8 @@ public class JinjavaConfig {
     return rangeLimit;
   }
 
-  public int getMaxNumEagerTokens() {
-    return maxNumEagerTokens;
+  public int getMaxNumDeferredTokens() {
+    return maxNumDeferredTokens;
   }
 
   public RandomNumberGeneratorStrategy getRandomNumberGeneratorStrategy() {
@@ -261,7 +261,7 @@ public class JinjavaConfig {
     private boolean validationMode = false;
     private long maxStringLength = 0;
     private int rangeLimit = DEFAULT_RANGE_LIMIT;
-    private int maxNumEagerTokens = 1000;
+    private int maxNumDeferredTokens = 1000;
     private InterpreterFactory interpreterFactory = new JinjavaInterpreterFactory();
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
     private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
@@ -379,8 +379,8 @@ public class JinjavaConfig {
       return this;
     }
 
-    public Builder withMaxNumEagerTokens(int maxNumEagerTokens) {
-      this.maxNumEagerTokens = maxNumEagerTokens;
+    public Builder withMaxNumDeferredTokens(int maxNumDeferredTokens) {
+      this.maxNumDeferredTokens = maxNumDeferredTokens;
       return this;
     }
 

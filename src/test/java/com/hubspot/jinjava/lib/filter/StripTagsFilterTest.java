@@ -7,7 +7,7 @@ import static org.mockito.Mockito.*;
 
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.tag.eager.EagerToken;
+import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import java.util.Collections;
@@ -31,7 +31,7 @@ public class StripTagsFilterTest {
 
   @Before
   public void setup() {
-    when(interpreter.getContext().getEagerTokens()).thenReturn(Collections.emptySet());
+    when(interpreter.getContext().getDeferredTokens()).thenReturn(Collections.emptySet());
     when(interpreter.renderFlat(anyString())).thenAnswer(new ReturnsArgumentAt(0));
   }
 
@@ -97,15 +97,15 @@ public class StripTagsFilterTest {
   }
 
   @Test
-  public void itThrowsDeferredValueExceptionWhenEagerTokensAreLeft() {
+  public void itThrowsDeferredValueExceptionWhenDeferredTokensAreLeft() {
     AtomicInteger counter = new AtomicInteger();
-    when(interpreter.getContext().getEagerTokens())
+    when(interpreter.getContext().getDeferredTokens())
       .thenAnswer(
         i ->
           counter.getAndIncrement() == 0
             ? Collections.emptySet()
             : Collections.singleton(
-              new EagerToken(
+              new DeferredToken(
                 new ExpressionToken(
                   "{{ deferred && other }}",
                   0,

@@ -80,13 +80,13 @@ public class MacroFunction extends AbstractCallableMethod {
         !interpreter.getContext().isPartialMacroEvaluation() &&
         (
           !interpreter.getContext().getDeferredNodes().isEmpty() ||
-          !interpreter.getContext().getEagerTokens().isEmpty()
+          !interpreter.getContext().getDeferredTokens().isEmpty()
         )
       ) {
         interpreter
           .getContext()
-          .removeEagerTokens(
-            ImmutableList.copyOf(interpreter.getContext().getEagerTokens())
+          .removeDeferredTokens(
+            ImmutableList.copyOf(interpreter.getContext().getDeferredTokens())
           );
         // If the macro function could not be fully evaluated, throw a DeferredValueException.
         throw new DeferredValueException(
@@ -235,16 +235,16 @@ public class MacroFunction extends AbstractCallableMethod {
         Context.IMPORT_RESOURCE_PATH_KEY
       );
       return penultimateParent
-        .getEagerTokens()
+        .getDeferredTokens()
         .stream()
         .filter(
-          eagerToken ->
-            Objects.equals(importResourcePath, eagerToken.getImportResourcePath())
+          deferredToken ->
+            Objects.equals(importResourcePath, deferredToken.getImportResourcePath())
         )
         .anyMatch(
-          eagerToken ->
-            eagerToken.getSetDeferredWords().contains(key) ||
-            eagerToken
+          deferredToken ->
+            deferredToken.getSetDeferredWords().contains(key) ||
+            deferredToken
               .getUsedDeferredWords()
               .stream()
               .anyMatch(used -> key.equals(used.split("\\.", 2)[0]))

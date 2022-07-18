@@ -105,8 +105,8 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
         .add(tagNode.getSymbols().getExpressionEndWithTag());
       interpreter
         .getContext()
-        .handleEagerToken(
-          new EagerToken(
+        .handleDeferredToken(
+          new DeferredToken(
             new TagToken(
               joiner.toString(),
               tagNode.getLineNumber(),

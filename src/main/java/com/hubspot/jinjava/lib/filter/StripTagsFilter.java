@@ -34,10 +34,10 @@ public class StripTagsFilter implements Filter {
     if (!(object instanceof String)) {
       return object;
     }
-    int numEagerTokensStart = interpreter.getContext().getEagerTokens().size();
+    int numDeferredTokensStart = interpreter.getContext().getDeferredTokens().size();
 
     String val = interpreter.renderFlat((String) object);
-    if (interpreter.getContext().getEagerTokens().size() > numEagerTokensStart) {
+    if (interpreter.getContext().getDeferredTokens().size() > numDeferredTokensStart) {
       throw new DeferredValueException("Deferred in StripTagsFilter");
     }
 

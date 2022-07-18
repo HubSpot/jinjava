@@ -50,32 +50,32 @@ public class EagerForTagTest extends ForTagTest {
   }
 
   @Test
-  public void itRegistersEagerToken() {
+  public void itRegistersDeferredToken() {
     expectedNodeInterpreter.assertExpectedOutput("registers-eager-token");
-    Optional<EagerToken> maybeEagerToken = context
-      .getEagerTokens()
+    Optional<DeferredToken> maybeDeferredToken = context
+      .getDeferredTokens()
       .stream()
       .filter(e -> ((TagToken) e.getToken()).getTagName().equals(tag.getName()))
       .findAny();
-    assertThat(maybeEagerToken).isPresent();
-    assertThat(maybeEagerToken.get().getSetDeferredWords())
+    assertThat(maybeDeferredToken).isPresent();
+    assertThat(maybeDeferredToken.get().getSetDeferredWords())
       .containsExactlyInAnyOrder("item");
-    assertThat(maybeEagerToken.get().getUsedDeferredWords()).contains("deferred");
+    assertThat(maybeDeferredToken.get().getUsedDeferredWords()).contains("deferred");
   }
 
   @Test
   public void itHandlesMultipleLoopVars() {
     expectedNodeInterpreter.assertExpectedOutput("handles-multiple-loop-vars");
-    Optional<EagerToken> maybeEagerToken = context
-      .getEagerTokens()
+    Optional<DeferredToken> maybeDeferredToken = context
+      .getDeferredTokens()
       .stream()
       .filter(e -> e.getToken() instanceof TagToken)
       .filter(e -> ((TagToken) e.getToken()).getTagName().equals(tag.getName()))
       .findAny();
-    assertThat(maybeEagerToken).isPresent();
-    assertThat(maybeEagerToken.get().getSetDeferredWords())
+    assertThat(maybeDeferredToken).isPresent();
+    assertThat(maybeDeferredToken.get().getSetDeferredWords())
       .containsExactlyInAnyOrder("item", "item2");
-    assertThat(maybeEagerToken.get().getUsedDeferredWords()).contains("deferred");
+    assertThat(maybeDeferredToken.get().getUsedDeferredWords()).contains("deferred");
   }
 
   @Test

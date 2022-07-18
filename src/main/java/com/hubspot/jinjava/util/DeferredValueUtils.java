@@ -8,7 +8,7 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
-import com.hubspot.jinjava.lib.tag.eager.EagerToken;
+import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -85,32 +85,32 @@ public class DeferredValueUtils {
 
   public static Set<String> findAndMarkDeferredProperties(
     Context context,
-    EagerToken eagerToken
+    DeferredToken deferredToken
   ) {
     String templateSource = rebuildTemplateForNodes(context.getDeferredNodes());
     Set<String> deferredProps = getPropertiesUsedInDeferredNodes(context, templateSource);
     Set<String> setProps = getPropertiesSetInDeferredNodes(templateSource);
-    if (eagerToken != null) {
+    if (deferredToken != null) {
       if (
-        eagerToken.getMacroStack() == null ||
-        eagerToken.getMacroStack() == context.getMacroStack()
+        deferredToken.getMacroStack() == null ||
+        deferredToken.getMacroStack() == context.getMacroStack()
       ) {
         deferredProps.addAll(
           getPropertiesUsedInDeferredNodes(
             context,
-            rebuildTemplateForEagerTagTokens(eagerToken, true),
+            rebuildTemplateForEagerTagTokens(deferredToken, true),
             false
           )
         );
         deferredProps.addAll(
           getPropertiesUsedInDeferredNodes(
             context,
-            rebuildTemplateForEagerTagTokens(eagerToken, false),
+            rebuildTemplateForEagerTagTokens(deferredToken, false),
             true
           )
         );
       } else {
-        List<String> macroArgs = eagerToken
+        List<String> macroArgs = deferredToken
           .getMacroStack()
           .peek()
           .map(
@@ -131,7 +131,7 @@ public class DeferredValueUtils {
         deferredProps.addAll(
           getPropertiesUsedInDeferredNodes(
               context,
-              rebuildTemplateForEagerTagTokens(eagerToken, false),
+              rebuildTemplateForEagerTagTokens(deferredToken, false),
               true
             )
             .stream()
@@ -214,15 +214,15 @@ public class DeferredValueUtils {
   }
 
   private static String rebuildTemplateForEagerTagTokens(
-    EagerToken eagerToken,
+    DeferredToken deferredToken,
     boolean fromSetWords
   ) {
     StringJoiner joiner = new StringJoiner(" ");
 
     (
       fromSetWords
-        ? eagerToken.getSetDeferredWords().stream()
-        : eagerToken.getUsedDeferredWords().stream()
+        ? deferredToken.getSetDeferredWords().stream()
+        : deferredToken.getUsedDeferredWords().stream()
     ).map(h -> h + ".eager.helper")
       .forEach(joiner::add);
     return joiner.toString();

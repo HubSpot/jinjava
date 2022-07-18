@@ -45,8 +45,8 @@ public class EagerIfTagTest extends IfTagTest {
   public void itHandlesDeferredInRegular() {
     context.put("foo", true);
     expectedNodeInterpreter.assertExpectedOutput("handles-deferred-in-regular");
-    Optional<EagerToken> maybeEagerTagToken = context
-      .getEagerTokens()
+    Optional<DeferredToken> maybeEagerTagToken = context
+      .getDeferredTokens()
       .stream()
       .filter(e -> e.getToken() instanceof TagToken)
       .filter(e -> ((TagToken) e.getToken()).getTagName().equals(tag.getName()))
@@ -58,8 +58,8 @@ public class EagerIfTagTest extends IfTagTest {
   public void itHandlesDeferredInEager() {
     context.put("foo", 1);
     expectedNodeInterpreter.assertExpectedOutput("handles-deferred-in-eager");
-    Optional<EagerToken> maybeEagerTagToken = context
-      .getEagerTokens()
+    Optional<DeferredToken> maybeEagerTagToken = context
+      .getDeferredTokens()
       .stream()
       .filter(e -> e.getToken() instanceof TagToken)
       .filter(e -> ((TagToken) e.getToken()).getTagName().equals(tag.getName()))
@@ -73,8 +73,8 @@ public class EagerIfTagTest extends IfTagTest {
   public void itHandlesOnlyDeferredElif() {
     context.put("foo", 1);
     expectedNodeInterpreter.assertExpectedOutput("handles-only-deferred-elif");
-    Optional<EagerToken> maybeEagerTagToken = context
-      .getEagerTokens()
+    Optional<DeferredToken> maybeEagerTagToken = context
+      .getDeferredTokens()
       .stream()
       .filter(e -> e.getToken() instanceof TagToken)
       .filter(e -> ((TagToken) e.getToken()).getTagName().equals("elif"))
@@ -88,8 +88,8 @@ public class EagerIfTagTest extends IfTagTest {
   public void itRemovesImpossibleIfBlocks() {
     context.put("foo", 1);
     expectedNodeInterpreter.assertExpectedOutput("removes-impossible-if-blocks");
-    Optional<EagerToken> maybeEagerTagToken = context
-      .getEagerTokens()
+    Optional<DeferredToken> maybeEagerTagToken = context
+      .getDeferredTokens()
       .stream()
       .filter(e -> e.getToken() instanceof TagToken)
       .filter(e -> ((TagToken) e.getToken()).getTagName().equals(tag.getName()))

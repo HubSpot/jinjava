@@ -15,8 +15,8 @@ import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.MacroTag;
 import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
+import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
-import com.hubspot.jinjava.lib.tag.eager.EagerToken;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
@@ -388,15 +388,15 @@ public class EagerReconstructionUtils {
    * @param deferredValuesToSet Map that specifies what the context objects should be set
    *                            to in the returned image.
    * @param interpreter The Jinjava interpreter.
-   * @param registerEagerToken Whether or not to register the returned {@link SetTag}
-   *                           image as an {@link EagerToken}.
+   * @param registerDeferredToken Whether or not to register the returned {@link SetTag}
+   *                           image as an {@link DeferredToken}.
    * @return A jinjava-syntax string that is the image of a set tag that will
    *  be executed at a later time.
    */
   public static String buildSetTag(
     Map<String, String> deferredValuesToSet,
     JinjavaInterpreter interpreter,
-    boolean registerEagerToken
+    boolean registerDeferredToken
   ) {
     if (deferredValuesToSet.isEmpty()) {
       return "";
@@ -432,11 +432,11 @@ public class EagerReconstructionUtils {
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag());
     String image = result.toString();
     // Don't defer if we're sticking with the new value
-    if (registerEagerToken) {
+    if (registerDeferredToken) {
       interpreter
         .getContext()
-        .handleEagerToken(
-          new EagerToken(
+        .handleDeferredToken(
+          new DeferredToken(
             new TagToken(
               image,
               // TODO this line number won't be accurate, currently doesn't matter.
@@ -458,8 +458,8 @@ public class EagerReconstructionUtils {
    * @param name The name of the variable to set.
    * @param value The string value, potentially containing jinja code to put in the set tag block.
    * @param interpreter The Jinjava interpreter.
-   * @param registerEagerToken Whether or not to register the returned {@link SetTag}
-   *                           token as an {@link EagerToken}.
+   * @param registerDeferredToken Whether or not to register the returned {@link SetTag}
+   *                           token as an {@link DeferredToken}.
    * @return A jinjava-syntax string that is the image of a block set tag that will
    *  be executed at a later time.
    */
@@ -467,7 +467,7 @@ public class EagerReconstructionUtils {
     String name,
     String value,
     JinjavaInterpreter interpreter,
-    boolean registerEagerToken
+    boolean registerDeferredToken
   ) {
     Map<Library, Set<String>> disabled = interpreter.getConfig().getDisabled();
     if (
@@ -493,11 +493,11 @@ public class EagerReconstructionUtils {
       .add("end" + SetTag.TAG_NAME)
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag());
     String image = blockSetTokenBuilder + value + endTokenBuilder;
-    if (registerEagerToken) {
+    if (registerDeferredToken) {
       interpreter
         .getContext()
-        .handleEagerToken(
-          new EagerToken(
+        .handleDeferredToken(
+          new DeferredToken(
             new TagToken(
               blockSetTokenBuilder.toString(),
               interpreter.getLineNumber(),

@@ -57,8 +57,8 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       }
       interpreter
         .getContext()
-        .handleEagerToken(
-          new EagerToken(
+        .handleDeferredToken(
+          new DeferredToken(
             tagToken,
             Collections.singleton(helper.get(0)),
             Collections.singleton(currentImportAlias)
@@ -108,7 +108,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       }
       integrateChild(currentImportAlias, childBindings, child, interpreter);
       String finalOutput;
-      if (child.getContext().getEagerTokens().isEmpty() || output == null) {
+      if (child.getContext().getDeferredTokens().isEmpty() || output == null) {
         return "";
       } else if (!Strings.isNullOrEmpty(currentImportAlias)) {
         // Since some values got deferred, output a DoTag that will load the currentImportAlias on the context.

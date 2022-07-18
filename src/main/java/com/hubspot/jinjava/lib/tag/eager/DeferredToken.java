@@ -7,7 +7,7 @@ import com.hubspot.jinjava.tree.parse.Token;
 import java.util.Collections;
 import java.util.Set;
 
-public class EagerToken {
+public class DeferredToken {
   private final Token token;
   // These words aren't yet DeferredValues, but are unresolved
   // so they should be replaced with DeferredValueImpls if they exist in the context
@@ -21,7 +21,7 @@ public class EagerToken {
   // Used to determine if in separate file
   private final String importResourcePath;
 
-  public EagerToken(Token token, Set<String> usedDeferredWords) {
+  public DeferredToken(Token token, Set<String> usedDeferredWords) {
     this.token = token;
     this.usedDeferredWords = usedDeferredWords;
     this.setDeferredWords = Collections.emptySet();
@@ -29,7 +29,7 @@ public class EagerToken {
     macroStack = acquireMacroStack();
   }
 
-  public EagerToken(
+  public DeferredToken(
     Token token,
     Set<String> usedDeferredWords,
     Set<String> setDeferredWords

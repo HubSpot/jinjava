@@ -323,7 +323,7 @@ public class JinjavaInterpreter implements PyishSerializable {
     if (processExtendRoots) {
       Set<String> extendPaths = new HashSet<>();
       Optional<String> extendPath = context.getExtendPathStack().peek();
-      int numEagerTokensBefore = 0;
+      int numDeferredTokensBefore = 0;
       while (!extendParentRoots.isEmpty()) {
         if (extendPaths.contains(extendPath.orElse(""))) {
           addError(
@@ -346,7 +346,7 @@ public class JinjavaInterpreter implements PyishSerializable {
             context.getExtendPathStack().getTopStartPosition()
           );
         Node parentRoot = extendParentRoots.removeFirst();
-        if (context.getEagerTokens().size() > numEagerTokensBefore) {
+        if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
           ignoredOutput.append(
             output
               .getNodes()
@@ -356,7 +356,7 @@ public class JinjavaInterpreter implements PyishSerializable {
               .collect(Collectors.joining())
           );
         }
-        numEagerTokensBefore = context.getEagerTokens().size();
+        numDeferredTokensBefore = context.getDeferredTokens().size();
         output = new OutputList(config.getMaxOutputSize());
 
         boolean hasNestedExtends = false;
