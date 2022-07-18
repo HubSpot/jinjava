@@ -56,6 +56,7 @@ public class TagNode extends Node {
       }
       return tag.interpretOutput(this, interpreter);
     } catch (DeferredValueException e) {
+      checkForInterrupt();
       interpreter.getContext().handleDeferredNode(this);
       return new RenderedOutputNode(reconstructImage());
     } catch (
