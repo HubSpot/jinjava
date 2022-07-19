@@ -367,20 +367,18 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void unaryMinusBindsTighterThanPlus() {
-    assertThat(jinjava.render("{{ -10 + 4 }}", new HashMap<>())).isEqualTo("-6");
+    assertThat(interpreter.render("{{ -10 + 4 }}")).isEqualTo("-6");
     assertThat(new Jinjava().render("{{ 4 + -10 }}", new HashMap<>())).isEqualTo("-6");
   }
 
   @Test
   public void filterChainsBindTighterThanPlus() {
-    assertThat(jinjava.render("{{ -10 | abs + 4 }}", new HashMap<>()))
-      .isEqualTo("14");
-    assertThat(jinjava.render("{{ 4 + -10 | abs }}", new HashMap<>()))
-      .isEqualTo("14");
+    assertThat(interpreter.render("{{ -10 | abs + 4 }}")).isEqualTo("14");
+    assertThat(interpreter.render("{{ 4 + -10 | abs }}")).isEqualTo("14");
   }
 
   @Test
   public void negativesParse() {
-    assertThat(jinjava.render("{{ -10 }}", new HashMap<>())).isEqualTo("-10");
+    assertThat(interpreter.render("{{ -10 }}")).isEqualTo("-10");
   }
 }
