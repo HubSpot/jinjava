@@ -364,4 +364,20 @@ public class JinjavaInterpreterTest {
     assertThat(interpreter.render("{{ 'foo' | upper | replace('O', 'A') }}"))
       .isEqualTo("FAA");
   }
+
+  @Test
+  public void filterChainsHavePrecedence() {
+    assertThat(new Jinjava().render("{{ -10 | abs + 4 }}", new HashMap<>()))
+      .isEqualTo("14");
+    assertThat(new Jinjava().render("{{ 4 + -10 | abs }}", new HashMap<>()))
+      .isEqualTo("14");
+  }
+
+  @Test
+  public void redundantParenthesesDoNotAffectFilterChainPrecedence() {
+    assertThat(new Jinjava().render("{{ (-10 | abs) + 4 }}", new HashMap<>()))
+      .isEqualTo("14");
+    assertThat(new Jinjava().render("{{ 4 + (-10 | abs) }}", new HashMap<>()))
+      .isEqualTo("14");
+  }
 }
