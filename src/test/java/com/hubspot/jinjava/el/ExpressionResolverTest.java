@@ -602,6 +602,11 @@ public class ExpressionResolverTest {
     assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
+  @Test
+  public void itRunsFilterAfterUnary() {
+    assertThat(interpreter.resolveELExpression("-10|abs", -1)).isEqualTo(10L);
+  }
+
   public String result(String value, TestClass testClass) {
     testClass.touch();
     return value;

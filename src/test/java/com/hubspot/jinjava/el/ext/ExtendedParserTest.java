@@ -3,14 +3,18 @@ package com.hubspot.jinjava.el.ext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
+import de.odysseus.el.tree.Node;
 import de.odysseus.el.tree.impl.Builder;
 import de.odysseus.el.tree.impl.ast.AstBinary;
+import de.odysseus.el.tree.impl.ast.AstDot;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstMethod;
 import de.odysseus.el.tree.impl.ast.AstNested;
 import de.odysseus.el.tree.impl.ast.AstNode;
+import de.odysseus.el.tree.impl.ast.AstNumber;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import de.odysseus.el.tree.impl.ast.AstString;
+import de.odysseus.el.tree.impl.ast.AstUnary;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -22,6 +26,20 @@ public class ExtendedParserTest {
 
     assertThat(astNode).isInstanceOf(AstBinary.class);
     assertLeftAndRightByOperator((AstBinary) astNode, "a", "b", AstBinary.EQ);
+  }
+
+  @Test
+  public void itParsesFilterAfterUnary() {
+    AstNode astNode = buildExpressionNodes("#{-10|abs}");
+
+    assertThat(astNode).isInstanceOf(AstMethod.class);
+    Node filter = astNode.getChild(0);
+    assertThat(filter).isInstanceOf(AstDot.class);
+    assertThat(filter.toString()).isEqualTo(". filter");
+    Node unary = astNode.getChild(1).getChild(0);
+    assertThat(unary).isInstanceOf(AstUnary.class);
+    assertThat(((AstUnary) unary).getOperator()).isEqualTo(AstUnary.NEG);
+    assertThat(unary.getChild(0)).isInstanceOf(AstNumber.class);
   }
 
   @Test
