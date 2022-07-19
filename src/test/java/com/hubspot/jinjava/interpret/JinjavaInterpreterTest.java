@@ -366,18 +366,16 @@ public class JinjavaInterpreterTest {
   }
 
   @Test
-  public void filterChainsHavePrecedence() {
-    assertThat(new Jinjava().render("{{ -10 | abs + 4 }}", new HashMap<>()))
-      .isEqualTo("14");
-    assertThat(new Jinjava().render("{{ 4 + -10 | abs }}", new HashMap<>()))
-      .isEqualTo("14");
+  public void unaryMinusBindsTighterThanPlus() {
+    assertThat(new Jinjava().render("{{ -10 + 4 }}", new HashMap<>())).isEqualTo("-6");
+    assertThat(new Jinjava().render("{{ 4 + -10 }}", new HashMap<>())).isEqualTo("-6");
   }
 
   @Test
-  public void redundantParenthesesDoNotAffectFilterChainPrecedence() {
-    assertThat(new Jinjava().render("{{ (-10 | abs) + 4 }}", new HashMap<>()))
+  public void filterChainsBindTighterThanPlus() {
+    assertThat(new Jinjava().render("{{ -10 | abs + 4 }}", new HashMap<>()))
       .isEqualTo("14");
-    assertThat(new Jinjava().render("{{ 4 + (-10 | abs) }}", new HashMap<>()))
+    assertThat(new Jinjava().render("{{ 4 + -10 | abs }}", new HashMap<>()))
       .isEqualTo("14");
   }
 }
