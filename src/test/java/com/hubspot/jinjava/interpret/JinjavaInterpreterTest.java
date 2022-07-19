@@ -378,4 +378,9 @@ public class JinjavaInterpreterTest {
     assertThat(new Jinjava().render("{{ 4 + -10 | abs }}", new HashMap<>()))
       .isEqualTo("14");
   }
+
+  @Test
+  public void negativesParse() {
+    assertThat(new Jinjava().render("{{ -10 }}", new HashMap<>())).isEqualTo("-10");
+  }
 }
