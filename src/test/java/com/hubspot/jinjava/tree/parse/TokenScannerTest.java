@@ -297,6 +297,15 @@ public class TokenScannerTest {
   }
 
   @Test
+  public void itKeepsLeadingDashIfThereIsWhitespace() {
+    script = "{{-1}}{{- 1}}{{ -1 }}";
+    scanner = new TokenScanner(script, config);
+    assertEquals("1", ((ExpressionToken) scanner.next()).getExpr());
+    assertEquals("1", ((ExpressionToken) scanner.next()).getExpr());
+    assertEquals("-1", ((ExpressionToken) scanner.next()).getExpr());
+  }
+
+  @Test
   public void testLstripBlocks() {
     config =
       JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build();
