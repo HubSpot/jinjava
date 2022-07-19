@@ -378,7 +378,7 @@ public class JinjavaInterpreterTest {
   }
 
   @Test
-  public void negativesParse() {
+  public void standaloneNegativesParse() {
     assertThat(interpreter.render("{{ -10 }}")).isEqualTo("-10");
   }
 }
