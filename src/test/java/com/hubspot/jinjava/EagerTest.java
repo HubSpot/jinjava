@@ -1100,4 +1100,19 @@ public class EagerTest {
       "handles-duplicate-variable-reference-modification"
     );
   }
+
+  @Test
+  public void itHandlesHigherScopeReferenceModification() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-higher-scope-reference-modification"
+    );
+  }
+
+  @Test
+  public void itHandlesHigherScopeReferenceModificationSecondPass() {
+    interpreter.getContext().put("deferred", "b");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-higher-scope-reference-modification.expected"
+    );
+  }
 }
