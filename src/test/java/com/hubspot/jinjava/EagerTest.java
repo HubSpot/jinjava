@@ -1115,4 +1115,11 @@ public class EagerTest {
       "handles-higher-scope-reference-modification.expected"
     );
   }
+
+  @Test
+  public void itDoesNotReferentialDeferForSetVars() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "does-not-referential-defer-for-set-vars"
+    );
+  }
 }

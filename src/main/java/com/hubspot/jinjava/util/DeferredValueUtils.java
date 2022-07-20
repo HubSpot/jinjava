@@ -147,11 +147,7 @@ public class DeferredValueUtils {
     referentialDefers.forEach(
       word -> {
         Object wordValue = context.get(word);
-        if (wordValue instanceof DeferredValue) {
-          wordValue = ((DeferredValue) wordValue).getOriginalValue();
-        }
-        final Object originalWordValue = wordValue;
-        if (!isPrimitive(wordValue)) {
+        if (!(wordValue instanceof DeferredValue) && !isPrimitive(wordValue)) {
           Context temp = context;
           while (temp.getParent() != null) {
             temp
@@ -159,7 +155,7 @@ public class DeferredValueUtils {
               .entrySet()
               .stream()
               .filter(entry -> !entry.getKey().equals(word))
-              .filter(entry -> entry.getValue() == originalWordValue)
+              .filter(entry -> entry.getValue() == wordValue)
               .forEach(
                 entry -> entry.setValue(DeferredLazyReference.instance(context, word))
               );

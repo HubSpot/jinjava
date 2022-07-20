@@ -1,0 +1,5 @@
+{% set foo = [] %}
+{%- set bar = foo %}
+{% do foo.append(1) %}
+{% set foo = deferred %}
+{{ foo }} and  {{ bar }}.
