@@ -1093,4 +1093,11 @@ public class EagerTest {
       "defers-call-tag-with-deferred-argument.expected"
     );
   }
+
+  @Test
+  public void itHandlesDuplicateVariableReferenceModification() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-duplicate-variable-reference-modification"
+    );
+  }
 }
