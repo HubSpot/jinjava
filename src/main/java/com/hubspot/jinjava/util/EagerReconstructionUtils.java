@@ -2,11 +2,13 @@ package com.hubspot.jinjava.util;
 
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context.Library;
+import com.hubspot.jinjava.interpret.DeferredLazyReference;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
+import com.hubspot.jinjava.interpret.LazyExpression;
 import com.hubspot.jinjava.interpret.RevertibleObject;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
@@ -264,6 +266,9 @@ public class EagerReconstructionUtils {
   }
 
   private static Object getObjectOrHashCode(Object o) {
+    if (o instanceof LazyExpression) {
+      o = ((LazyExpression) o).get();
+    }
     if (o instanceof PyList && !((PyList) o).toList().contains(o)) {
       return o.hashCode();
     }
@@ -378,7 +383,22 @@ public class EagerReconstructionUtils {
           deferredMap.put(w, PyishObjectMapper.getAsPyishString(value));
         }
       );
-    return buildSetTag(deferredMap, interpreter, true);
+    deferredWords
+      .stream()
+      .map(w -> w.split("\\.", 2)[0]) // get base prop
+      .filter(w -> (interpreter.getContext().get(w) instanceof DeferredLazyReference))
+      .forEach(
+        w -> {
+          Object value = interpreter.getContext().get(w);
+          deferredMap.put(
+            w,
+            PyishObjectMapper.getAsPyishString(
+              ((DeferredLazyReference) value).getOriginalValue()
+            )
+          );
+        }
+      );
+    return buildSetTag(deferredMap, interpreter, false);
   }
 
   /**
