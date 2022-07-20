@@ -427,6 +427,37 @@ public class ExtendedParser extends Parser {
   }
 
   @Override
+  protected AstNode mul(boolean required) throws ScanException, ParseException {
+    AstNode v = unary(required);
+    if (v == null) {
+      return null;
+    }
+    while (true) {
+      switch (getToken().getSymbol()) {
+        case MUL:
+          consumeToken();
+          v = createAstBinary(v, unary(true), AstBinary.MUL);
+          break;
+        case DIV:
+          consumeToken();
+          v = createAstBinary(v, unary(true), AstBinary.DIV);
+          break;
+        case MOD:
+          consumeToken();
+          v = createAstBinary(v, unary(true), AstBinary.MOD);
+          break;
+        case EXTENSION:
+          if (getExtensionHandler(getToken()).getExtensionPoint() == ExtensionPoint.MUL) {
+            v = getExtensionHandler(consumeToken()).createAstNode(v, unary(true));
+            break;
+          }
+        default:
+          return v;
+      }
+    }
+  }
+
+  @Override
   protected AstNode value() throws ScanException, ParseException {
     boolean lvalue = true;
     AstNode v = nonliteral();
