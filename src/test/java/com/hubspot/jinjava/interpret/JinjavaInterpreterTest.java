@@ -357,7 +357,7 @@ public class JinjavaInterpreterTest {
   @Test
   public void itBindsUnaryMinusTighterThanPlus() {
     assertThat(interpreter.render("{{ -10 + 4 }}")).isEqualTo("-6");
-    assertThat(new Jinjava().render("{{ 4 + -10 }}", new HashMap<>())).isEqualTo("-6");
+    assertThat(interpreter.render("{{ 4 + -10 }}")).isEqualTo("-6");
   }
 
   @Test
