@@ -350,7 +350,7 @@ public class JinjavaInterpreterTest {
   }
 
   @Test
-  public void itBindsUnaryMinusTighterThanPipe() {
+  public void itBindsUnaryMinusTighterThanFilters() {
     assertThat(interpreter.render("{{ (-5 | abs) }}")).isEqualTo("5");
   }
 
