@@ -358,4 +358,10 @@ public class JinjavaInterpreterTest {
   public void itBindsFiltersTighterThanMul() {
     assertThat(interpreter.render("{{ (-5 * -4 | abs) }}")).isEqualTo("-20");
   }
+
+  @Test
+  public void itInterpretsFilterChainsInOrder() {
+    assertThat(interpreter.render("{{ 'foo' | upper | replace('O', 'A') }}"))
+      .isEqualTo("FAA");
+  }
 }
