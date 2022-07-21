@@ -355,8 +355,20 @@ public class JinjavaInterpreterTest {
   }
 
   @Test
+  public void itBindsUnaryMinusTighterThanPlus() {
+    assertThat(interpreter.render("{{ -10 + 4 }}")).isEqualTo("-6");
+    assertThat(new Jinjava().render("{{ 4 + -10 }}", new HashMap<>())).isEqualTo("-6");
+  }
+
+  @Test
   public void itBindsFiltersTighterThanMul() {
     assertThat(interpreter.render("{{ (-5 * -4 | abs) }}")).isEqualTo("-20");
+  }
+
+  @Test
+  public void itBindsFiltersTighterThanPlus() {
+    assertThat(interpreter.render("{{ -10 | abs + 4 }}")).isEqualTo("14");
+    assertThat(interpreter.render("{{ 4 + -10 | abs }}")).isEqualTo("14");
   }
 
   @Test
@@ -366,19 +378,7 @@ public class JinjavaInterpreterTest {
   }
 
   @Test
-  public void unaryMinusBindsTighterThanPlus() {
-    assertThat(interpreter.render("{{ -10 + 4 }}")).isEqualTo("-6");
-    assertThat(new Jinjava().render("{{ 4 + -10 }}", new HashMap<>())).isEqualTo("-6");
-  }
-
-  @Test
-  public void filterChainsBindTighterThanPlus() {
-    assertThat(interpreter.render("{{ -10 | abs + 4 }}")).isEqualTo("14");
-    assertThat(interpreter.render("{{ 4 + -10 | abs }}")).isEqualTo("14");
-  }
-
-  @Test
-  public void standaloneNegativesParse() {
+  public void itInterpretsStandaloneNegatives() {
     assertThat(interpreter.render("{{ -10 }}")).isEqualTo("-10");
   }
 }
