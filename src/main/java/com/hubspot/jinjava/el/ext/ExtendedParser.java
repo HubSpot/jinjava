@@ -427,6 +427,83 @@ public class ExtendedParser extends Parser {
   }
 
   @Override
+  protected AstNode mul(boolean required) throws ScanException, ParseException {
+    AstNode v = filter(required);
+    if (v == null) {
+      return null;
+    }
+    while (true) {
+      switch (getToken().getSymbol()) {
+        case MUL:
+          consumeToken();
+          v = createAstBinary(v, filter(true), AstBinary.MUL);
+          break;
+        case DIV:
+          consumeToken();
+          v = createAstBinary(v, filter(true), AstBinary.DIV);
+          break;
+        case MOD:
+          consumeToken();
+          v = createAstBinary(v, filter(true), AstBinary.MOD);
+          break;
+        case EXTENSION:
+          if (getExtensionHandler(getToken()).getExtensionPoint() == ExtensionPoint.MUL) {
+            v = getExtensionHandler(consumeToken()).createAstNode(v, filter(true));
+            break;
+          }
+        default:
+          return v;
+      }
+    }
+  }
+
+  protected AstNode filter(boolean required) throws ScanException, ParseException {
+    AstNode v = unary(required);
+    if (v == null) {
+      return null;
+    }
+    while (true) {
+      if ("|".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
+        do {
+          consumeToken(); // '|'
+          String filterName = consumeToken().getImage();
+          List<AstNode> filterParams = Lists.newArrayList(v, interpreter());
+
+          // optional filter args
+          if (getToken().getSymbol() == Symbol.LPAREN) {
+            AstParameters astParameters = params();
+            for (int i = 0; i < astParameters.getCardinality(); i++) {
+              filterParams.add(astParameters.getChild(i));
+            }
+          }
+
+          AstProperty filterProperty = createAstDot(
+            identifier(FILTER_PREFIX + filterName),
+            "filter",
+            true
+          );
+          v = createAstMethod(filterProperty, createAstParameters(filterParams)); // function("filter:" + filterName, new AstParameters(filterParams));
+        } while ("|".equals(getToken().getImage()));
+      } else if (
+        "is".equals(getToken().getImage()) &&
+        "not".equals(lookahead(0).getImage()) &&
+        isPossibleExpTest(lookahead(1).getSymbol())
+      ) {
+        consumeToken(); // 'is'
+        consumeToken(); // 'not'
+        v = buildAstMethodForIdentifier(v, "evaluateNegated");
+      } else if (
+        "is".equals(getToken().getImage()) && isPossibleExpTest(lookahead(0).getSymbol())
+      ) {
+        consumeToken(); // 'is'
+        v = buildAstMethodForIdentifier(v, "evaluate");
+      } else {
+        return v;
+      }
+    }
+  }
+
+  @Override
   protected AstNode value() throws ScanException, ParseException {
     boolean lvalue = true;
     AstNode v = nonliteral();
@@ -475,45 +552,6 @@ public class ExtendedParser extends Parser {
 
           break;
         default:
-          if (
-            "|".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER
-          ) {
-            do {
-              consumeToken(); // '|'
-              String filterName = consumeToken().getImage();
-              List<AstNode> filterParams = Lists.newArrayList(v, interpreter());
-
-              // optional filter args
-              if (getToken().getSymbol() == Symbol.LPAREN) {
-                AstParameters astParameters = params();
-                for (int i = 0; i < astParameters.getCardinality(); i++) {
-                  filterParams.add(astParameters.getChild(i));
-                }
-              }
-
-              AstProperty filterProperty = createAstDot(
-                identifier(FILTER_PREFIX + filterName),
-                "filter",
-                true
-              );
-              v = createAstMethod(filterProperty, createAstParameters(filterParams)); // function("filter:" + filterName, new AstParameters(filterParams));
-            } while ("|".equals(getToken().getImage()));
-          } else if (
-            "is".equals(getToken().getImage()) &&
-            "not".equals(lookahead(0).getImage()) &&
-            isPossibleExpTest(lookahead(1).getSymbol())
-          ) {
-            consumeToken(); // 'is'
-            consumeToken(); // 'not'
-            v = buildAstMethodForIdentifier(v, "evaluateNegated");
-          } else if (
-            "is".equals(getToken().getImage()) &&
-            isPossibleExpTest(lookahead(0).getSymbol())
-          ) {
-            consumeToken(); // 'is'
-            v = buildAstMethodForIdentifier(v, "evaluate");
-          }
-
           return v;
       }
     }

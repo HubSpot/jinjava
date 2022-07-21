@@ -332,4 +332,36 @@ public class JinjavaInterpreterTest {
     );
     assertThat(interpreter.getErrors()).isEmpty();
   }
+
+  @Test
+  public void itBindsUnaryMinusTighterThanCmp() {
+    assertThat(interpreter.render("{{ (-5 > 4) }}")).isEqualTo("false");
+  }
+
+  @Test
+  public void itBindsUnaryMinusTighterThanIs() {
+    assertThat(interpreter.render("{{ (-5 is integer) == true }}")).isEqualTo("true");
+  }
+
+  @Test
+  public void itBindsUnaryMinusTighterThanIsNot() {
+    assertThat(interpreter.render("{{ (-5 is not integer) == false }}"))
+      .isEqualTo("true");
+  }
+
+  @Test
+  public void itBindsUnaryMinusTighterThanFilters() {
+    assertThat(interpreter.render("{{ (-5 | abs) }}")).isEqualTo("5");
+  }
+
+  @Test
+  public void itBindsFiltersTighterThanMul() {
+    assertThat(interpreter.render("{{ (-5 * -4 | abs) }}")).isEqualTo("-20");
+  }
+
+  @Test
+  public void itInterpretsFilterChainsInOrder() {
+    assertThat(interpreter.render("{{ 'foo' | upper | replace('O', 'A') }}"))
+      .isEqualTo("FAA");
+  }
 }
