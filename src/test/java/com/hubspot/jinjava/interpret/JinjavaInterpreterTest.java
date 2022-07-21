@@ -334,23 +334,23 @@ public class JinjavaInterpreterTest {
   }
 
   @Test
-  public void unaryMinusBindsTighterThanCmp() {
+  public void itBindsUnaryMinusTighterThanCmp() {
     assertThat(interpreter.render("{{ (-5 > 4) }}")).isEqualTo("false");
   }
 
   @Test
-  public void unaryMinusBindsTighterThanIs() {
+  public void itBindsUnaryMinusTighterThanIs() {
     assertThat(interpreter.render("{{ (-5 is integer) == true }}")).isEqualTo("true");
   }
 
   @Test
-  public void unaryMinusBindsTighterThanIsNot() {
+  public void itBindsUnaryMinusTighterThanIsNot() {
     assertThat(interpreter.render("{{ (-5 is not integer) == false }}"))
       .isEqualTo("true");
   }
 
   @Test
-  public void unaryMinusBindsTighterThanPipe() {
+  public void itBindsUnaryMinusTighterThanPipe() {
     assertThat(interpreter.render("{{ (-5 | abs) }}")).isEqualTo("5");
   }
 }
