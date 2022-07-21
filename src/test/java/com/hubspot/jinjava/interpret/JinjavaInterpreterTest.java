@@ -353,4 +353,9 @@ public class JinjavaInterpreterTest {
   public void itBindsUnaryMinusTighterThanPipe() {
     assertThat(interpreter.render("{{ (-5 | abs) }}")).isEqualTo("5");
   }
+
+  @Test
+  public void itBindsFiltersTighterThanMul() {
+    assertThat(interpreter.render("{{ (-5 * -4 | abs) }}")).isEqualTo("-20");
+  }
 }
