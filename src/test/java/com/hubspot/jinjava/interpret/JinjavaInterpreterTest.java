@@ -335,7 +335,7 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itBindsUnaryMinusTighterThanCmp() {
-    assertThat(interpreter.render("{{ (-5 > 4) }}")).isEqualTo("false");
+    assertThat(interpreter.render("{{ -5 > 4 }}")).isEqualTo("false");
   }
 
   @Test
@@ -351,7 +351,7 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itBindsUnaryMinusTighterThanFilters() {
-    assertThat(interpreter.render("{{ (-5 | abs) }}")).isEqualTo("5");
+    assertThat(interpreter.render("{{ -5 | abs }}")).isEqualTo("5");
   }
 
   @Test
@@ -362,7 +362,7 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itBindsFiltersTighterThanMul() {
-    assertThat(interpreter.render("{{ (-5 * -4 | abs) }}")).isEqualTo("-20");
+    assertThat(interpreter.render("{{ -5 * -4 | abs }}")).isEqualTo("-20");
   }
 
   @Test
