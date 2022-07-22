@@ -381,4 +381,15 @@ public class JinjavaInterpreterTest {
   public void itInterpretsStandaloneNegatives() {
     assertThat(interpreter.render("{{ -10 }}")).isEqualTo("-10");
   }
+
+  @Test
+  public void itInterpretsWhitespaceControlBeforeDot() {
+    assertThat(
+        jinjava.render(
+          "{{- foo.bar -}}",
+          ImmutableMap.of("foo", ImmutableMap.of("bar", "baz"))
+        )
+      )
+      .isEqualTo("baz");
+  }
 }
