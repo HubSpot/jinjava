@@ -381,9 +381,4 @@ public class JinjavaInterpreterTest {
   public void itInterpretsStandaloneNegatives() {
     assertThat(interpreter.render("{{ -10 }}")).isEqualTo("-10");
   }
-
-  @Test
-  public void itInterpretsWhitespaceControlOnBothSides() {
-    assertThat(interpreter.render("{{- 5 -}}")).isEqualTo("5");
-  }
 }
