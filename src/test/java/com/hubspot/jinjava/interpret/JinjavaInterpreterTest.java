@@ -383,13 +383,8 @@ public class JinjavaInterpreterTest {
   }
 
   @Test
-  public void itInterpretsWhitespaceControlBeforeDot() {
-    assertThat(
-        jinjava.render(
-          "{{- foo.bar -}}",
-          ImmutableMap.of("foo", ImmutableMap.of("bar", "baz"))
-        )
-      )
-      .isEqualTo("baz");
+  public void itInterpretsWhitespaceControlBeforeIdentifier() {
+    assertThat(jinjava.render("{{- foo -}}", ImmutableMap.of("foo", "bar")))
+      .isEqualTo("bar");
   }
 }
