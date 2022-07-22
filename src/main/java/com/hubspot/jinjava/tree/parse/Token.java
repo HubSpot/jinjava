@@ -83,25 +83,6 @@ public abstract class Token implements Serializable {
     this.rightTrimAfterEnd = rightTrimAfterEnd;
   }
 
-  /**
-   * Handle any whitespace control characters, capturing whether leading or trailing
-   * whitespace should be stripped.
-   * @param unwrapped the content of the block stripped of its delimeters
-   * @return the content stripped of any whitespace control characters.
-   */
-  protected final String handleTrim(String unwrapped) {
-    String result = unwrapped;
-    if (result.startsWith("-")) {
-      setLeftTrim(true);
-      result = result.substring(1);
-    }
-    if (result.endsWith("-")) {
-      setRightTrim(true);
-      result = result.substring(0, result.length() - 1);
-    }
-    return result;
-  }
-
   public int getStartPosition() {
     return startPosition;
   }
