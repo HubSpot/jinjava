@@ -335,7 +335,7 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itBindsUnaryMinusTighterThanCmp() {
-    assertThat(interpreter.render("{{ -5 > 4 }}")).isEqualTo("false");
+    assertThat(interpreter.render("{{ (-5 > 4) }}")).isEqualTo("false");
   }
 
   @Test
@@ -351,34 +351,17 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itBindsUnaryMinusTighterThanFilters() {
-    assertThat(interpreter.render("{{ -5 | abs }}")).isEqualTo("5");
-  }
-
-  @Test
-  public void itBindsUnaryMinusTighterThanPlus() {
-    assertThat(interpreter.render("{{ -10 + 4 }}")).isEqualTo("-6");
-    assertThat(interpreter.render("{{ 4 + -10 }}")).isEqualTo("-6");
+    assertThat(interpreter.render("{{ (-5 | abs) }}")).isEqualTo("5");
   }
 
   @Test
   public void itBindsFiltersTighterThanMul() {
-    assertThat(interpreter.render("{{ -5 * -4 | abs }}")).isEqualTo("-20");
-  }
-
-  @Test
-  public void itBindsFiltersTighterThanPlus() {
-    assertThat(interpreter.render("{{ -10 | abs + 4 }}")).isEqualTo("14");
-    assertThat(interpreter.render("{{ 4 + -10 | abs }}")).isEqualTo("14");
+    assertThat(interpreter.render("{{ (-5 * -4 | abs) }}")).isEqualTo("-20");
   }
 
   @Test
   public void itInterpretsFilterChainsInOrder() {
     assertThat(interpreter.render("{{ 'foo' | upper | replace('O', 'A') }}"))
       .isEqualTo("FAA");
-  }
-
-  @Test
-  public void itInterpretsStandaloneNegatives() {
-    assertThat(interpreter.render("{{ -10 }}")).isEqualTo("-10");
   }
 }
