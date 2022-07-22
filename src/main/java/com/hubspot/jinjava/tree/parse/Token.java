@@ -91,13 +91,13 @@ public abstract class Token implements Serializable {
    */
   protected final String handleTrim(String unwrapped) {
     String result = unwrapped;
-    if (unwrapped.startsWith("-")) {
+    if (result.startsWith("-")) {
       setLeftTrim(true);
-      result = unwrapped.substring(1);
+      result = result.substring(1);
     }
-    if (unwrapped.endsWith("-")) {
+    if (result.endsWith("-")) {
       setRightTrim(true);
-      result = unwrapped.substring(0, unwrapped.length() - 1);
+      result = result.substring(0, result.length() - 1);
     }
     return result;
   }
