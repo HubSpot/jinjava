@@ -105,7 +105,7 @@ public abstract class Node implements Serializable {
   }
 
   public final void checkForInterrupt() {
-    if (Thread.interrupted()) {
+    if (Thread.currentThread().isInterrupted()) {
       throw new InterpretException(
         "Interrupt rendering " + getClass(),
         master.getLineNumber(),
