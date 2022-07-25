@@ -14,7 +14,7 @@ public class LazyExpression implements Supplier {
     OFF
   }
 
-  private LazyExpression(Supplier supplier, String image, Memoization memoization) {
+  protected LazyExpression(Supplier supplier, String image, Memoization memoization) {
     this.supplier = supplier;
     this.image = image;
     this.memoization = memoization;

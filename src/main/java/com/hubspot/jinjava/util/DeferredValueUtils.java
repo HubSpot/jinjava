@@ -3,8 +3,10 @@ package com.hubspot.jinjava.util;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.google.common.primitives.Primitives;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredLazyReference;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
@@ -90,6 +92,7 @@ public class DeferredValueUtils {
     String templateSource = rebuildTemplateForNodes(context.getDeferredNodes());
     Set<String> deferredProps = getPropertiesUsedInDeferredNodes(context, templateSource);
     Set<String> setProps = getPropertiesSetInDeferredNodes(templateSource);
+    Set<String> referentialDefers = new HashSet<>();
     if (deferredToken != null) {
       if (
         deferredToken.getMacroStack() == null ||
@@ -102,7 +105,7 @@ public class DeferredValueUtils {
             false
           )
         );
-        deferredProps.addAll(
+        referentialDefers.addAll(
           getPropertiesUsedInDeferredNodes(
             context,
             rebuildTemplateForEagerTagTokens(deferredToken, false),
@@ -128,7 +131,7 @@ public class DeferredValueUtils {
           )
           .orElse(Collections.emptyList());
         // Filter out macro args because we will want them to be deferred on the higher-level contexts later
-        deferredProps.addAll(
+        referentialDefers.addAll(
           getPropertiesUsedInDeferredNodes(
               context,
               rebuildTemplateForEagerTagTokens(deferredToken, false),
@@ -140,9 +143,38 @@ public class DeferredValueUtils {
         );
       }
     }
+    deferredProps.addAll(referentialDefers);
+    referentialDefers.forEach(
+      word -> {
+        Object wordValue = context.get(word);
+        if (!(wordValue instanceof DeferredValue) && !isPrimitive(wordValue)) {
+          Context temp = context;
+          while (temp.getParent() != null) {
+            temp
+              .getScope()
+              .entrySet()
+              .stream()
+              .filter(entry -> !entry.getKey().equals(word))
+              .filter(entry -> entry.getValue() == wordValue)
+              .forEach(
+                entry -> entry.setValue(DeferredLazyReference.instance(context, word))
+              );
+            temp = temp.getParent();
+          }
+        }
+      }
+    );
 
     markDeferredProperties(context, Sets.union(deferredProps, setProps));
     return deferredProps;
+  }
+
+  private static boolean isPrimitive(Object wordValue) {
+    return (
+      wordValue == null ||
+      Primitives.isWrapperType(wordValue.getClass()) ||
+      wordValue instanceof String
+    );
   }
 
   public static Set<String> getPropertiesSetInDeferredNodes(String templateSource) {

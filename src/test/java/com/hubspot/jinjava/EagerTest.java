@@ -1093,4 +1093,33 @@ public class EagerTest {
       "defers-call-tag-with-deferred-argument.expected"
     );
   }
+
+  @Test
+  public void itHandlesDuplicateVariableReferenceModification() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-duplicate-variable-reference-modification"
+    );
+  }
+
+  @Test
+  public void itHandlesHigherScopeReferenceModification() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-higher-scope-reference-modification"
+    );
+  }
+
+  @Test
+  public void itHandlesHigherScopeReferenceModificationSecondPass() {
+    interpreter.getContext().put("deferred", "b");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-higher-scope-reference-modification.expected"
+    );
+  }
+
+  @Test
+  public void itDoesNotReferentialDeferForSetVars() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "does-not-referential-defer-for-set-vars"
+    );
+  }
 }

@@ -1,0 +1,9 @@
+{% set some_list = [] %}{% set the_list = some_list %}{% if deferred %}
+{% do some_list.append(deferred) %}
+{% endif %}
+{{ the_list }}
+
+
+{% set foo = [1] %}{% do foo.append(deferred) %}
+{% do foo.append(2) %}
+{% set bar = foo %}{{ foo ~ 'and' ~ bar }}
