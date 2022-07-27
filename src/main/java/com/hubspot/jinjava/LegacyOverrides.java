@@ -10,12 +10,14 @@ public class LegacyOverrides {
   private final boolean iterateOverMapKeys;
   private final boolean usePyishObjectMapper;
   private final boolean whitespaceRequiredWithinTokens;
+  private final boolean useNaturalOperatorPrecedence;
 
   private LegacyOverrides(Builder builder) {
     evaluateMapKeys = builder.evaluateMapKeys;
     iterateOverMapKeys = builder.iterateOverMapKeys;
     usePyishObjectMapper = builder.usePyishObjectMapper;
     whitespaceRequiredWithinTokens = builder.whitespaceRequiredWithinTokens;
+    useNaturalOperatorPrecedence = builder.useNaturalOperatorPrecedence;
   }
 
   public static Builder newBuilder() {
@@ -38,11 +40,16 @@ public class LegacyOverrides {
     return whitespaceRequiredWithinTokens;
   }
 
+  public boolean isUseNaturalOperatorPrecedence() {
+    return useNaturalOperatorPrecedence;
+  }
+
   public static class Builder {
     private boolean evaluateMapKeys = false;
     private boolean iterateOverMapKeys = false;
     private boolean usePyishObjectMapper = false;
     private boolean whitespaceRequiredWithinTokens = false;
+    private boolean useNaturalOperatorPrecedence = false;
 
     private Builder() {}
 
@@ -57,7 +64,8 @@ public class LegacyOverrides {
         .withUsePyishObjectMapper(legacyOverrides.usePyishObjectMapper)
         .withWhitespaceRequiredWithinTokens(
           legacyOverrides.whitespaceRequiredWithinTokens
-        );
+        )
+        .withUseNaturalOperatorPrecedence(legacyOverrides.useNaturalOperatorPrecedence);
     }
 
     public Builder withEvaluateMapKeys(boolean evaluateMapKeys) {
@@ -79,6 +87,13 @@ public class LegacyOverrides {
       boolean whitespaceRequiredWithinTokens
     ) {
       this.whitespaceRequiredWithinTokens = whitespaceRequiredWithinTokens;
+      return this;
+    }
+
+    public Builder withUseNaturalOperatorPrecedence(
+      boolean useNaturalOperatorPrecedence
+    ) {
+      this.useNaturalOperatorPrecedence = useNaturalOperatorPrecedence;
       return this;
     }
   }
