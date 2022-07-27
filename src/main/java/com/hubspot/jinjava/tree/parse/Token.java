@@ -20,6 +20,7 @@ import com.hubspot.jinjava.interpret.UnexpectedTokenException;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.io.Serializable;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 public abstract class Token implements Serializable {
   private static final long serialVersionUID = 3359084948763661809L;
@@ -104,18 +105,24 @@ public abstract class Token implements Serializable {
     BiPredicate<String, String> startsWith = parseWhitespaceControlStrictly
       ? String::startsWith
       : WhitespaceUtils::startsWith;
+    Function<String, String> stripLeft = parseWhitespaceControlStrictly
+      ? s -> s.substring(1)
+      : s -> WhitespaceUtils.unwrap(s, "-", "");
     BiPredicate<String, String> endsWith = parseWhitespaceControlStrictly
       ? String::endsWith
       : WhitespaceUtils::endsWith;
+    Function<String, String> stripRight = parseWhitespaceControlStrictly
+      ? s -> s.substring(0, s.length() - 1)
+      : s -> WhitespaceUtils.unwrap(s, "", "-");
 
     String result = unwrapped;
     if (startsWith.test(result, "-")) {
       setLeftTrim(true);
-      result = result.substring(1);
+      result = stripLeft.apply(result);
     }
     if (endsWith.test(result, "-")) {
       setRightTrim(true);
-      result = result.substring(0, result.length() - 1);
+      result = stripRight.apply(result);
     }
     return result;
   }
