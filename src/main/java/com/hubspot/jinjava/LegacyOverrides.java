@@ -11,7 +11,7 @@ public class LegacyOverrides {
   private final boolean usePyishObjectMapper;
   private final boolean whitespaceRequiredWithinTokens;
   private final boolean useNaturalOperatorPrecedence;
-  private final boolean strictWhitespaceControlParsing;
+  private final boolean parseWhitespaceControlStrictly;
 
   private LegacyOverrides(Builder builder) {
     evaluateMapKeys = builder.evaluateMapKeys;
@@ -19,7 +19,7 @@ public class LegacyOverrides {
     usePyishObjectMapper = builder.usePyishObjectMapper;
     whitespaceRequiredWithinTokens = builder.whitespaceRequiredWithinTokens;
     useNaturalOperatorPrecedence = builder.useNaturalOperatorPrecedence;
-    strictWhitespaceControlParsing = builder.strictWhitespaceControlParsing;
+    parseWhitespaceControlStrictly = builder.parseWhitespaceControlStrictly;
   }
 
   public static Builder newBuilder() {
@@ -46,8 +46,8 @@ public class LegacyOverrides {
     return useNaturalOperatorPrecedence;
   }
 
-  public boolean isStrictWhitespaceControlParsing() {
-    return strictWhitespaceControlParsing;
+  public boolean isParseWhitespaceControlStrictly() {
+    return parseWhitespaceControlStrictly;
   }
 
   public static class Builder {
@@ -56,7 +56,7 @@ public class LegacyOverrides {
     private boolean usePyishObjectMapper = false;
     private boolean whitespaceRequiredWithinTokens = false;
     private boolean useNaturalOperatorPrecedence = false;
-    private boolean strictWhitespaceControlParsing = false;
+    private boolean parseWhitespaceControlStrictly = false;
 
     private Builder() {}
 
@@ -73,8 +73,8 @@ public class LegacyOverrides {
           legacyOverrides.whitespaceRequiredWithinTokens
         )
         .withUseNaturalOperatorPrecedence(legacyOverrides.useNaturalOperatorPrecedence)
-        .withStrictWhitespaceControlParsing(
-          legacyOverrides.strictWhitespaceControlParsing
+        .withParseWhitespaceControlStrictly(
+          legacyOverrides.parseWhitespaceControlStrictly
         );
     }
 
@@ -107,10 +107,10 @@ public class LegacyOverrides {
       return this;
     }
 
-    public Builder withStrictWhitespaceControlParsing(
-      boolean strictWhitespaceControlParsing
+    public Builder withParseWhitespaceControlStrictly(
+      boolean parseWhitespaceControlStrictly
     ) {
-      this.strictWhitespaceControlParsing = strictWhitespaceControlParsing;
+      this.parseWhitespaceControlStrictly = parseWhitespaceControlStrictly;
       return this;
     }
   }
