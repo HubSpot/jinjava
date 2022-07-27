@@ -24,7 +24,9 @@ public class JinjavaInterpreterLegacyPrecedenceTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
-          .withLegacyOverrides(LegacyOverrides.newBuilder().build())
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withUseNaturalOperatorPrecedence(true).build()
+          )
           .build()
       );
   }
