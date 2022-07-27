@@ -223,12 +223,7 @@ public class EagerExpressionResolver {
     if (depth > maxDepth) {
       return false;
     }
-    boolean isResolvable =
-      val == null ||
-      RESOLVABLE_CLASSES
-        .stream()
-        .anyMatch(clazz -> clazz.isAssignableFrom(val.getClass()));
-    if (isResolvable) {
+    if (val == null) {
       return true;
     }
     if (val instanceof Collection || val instanceof Map) {
@@ -254,7 +249,9 @@ public class EagerExpressionResolver {
       return (Arrays.stream((Object[]) val)).filter(Objects::nonNull)
         .allMatch(item -> isResolvableObjectRec(item, depth + 1, maxDepth, maxSize));
     }
-    return false;
+    return RESOLVABLE_CLASSES
+      .stream()
+      .anyMatch(clazz -> clazz.isAssignableFrom(val.getClass()));
   }
 
   public static class EagerExpressionResult {
