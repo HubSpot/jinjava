@@ -22,6 +22,7 @@ import static de.odysseus.el.tree.impl.Scanner.Symbol.TRUE;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import de.odysseus.el.tree.impl.Builder;
 import de.odysseus.el.tree.impl.Builder.Feature;
 import de.odysseus.el.tree.impl.Parser;
@@ -395,6 +396,37 @@ public class ExtendedParser extends Parser {
     }
   }
 
+  @Override
+  protected AstNode mul(boolean required) throws ScanException, ParseException {
+    AstNode v = unary(required);
+    if (v == null) {
+      return null;
+    }
+    while (true) {
+      switch (getToken().getSymbol()) {
+        case MUL:
+          consumeToken();
+          v = createAstBinary(v, unary(true), AstBinary.MUL);
+          break;
+        case DIV:
+          consumeToken();
+          v = createAstBinary(v, unary(true), AstBinary.DIV);
+          break;
+        case MOD:
+          consumeToken();
+          v = createAstBinary(v, unary(true), AstBinary.MOD);
+          break;
+        case EXTENSION:
+          if (getExtensionHandler(getToken()).getExtensionPoint() == ExtensionPoint.MUL) {
+            v = getExtensionHandler(consumeToken()).createAstNode(v, unary(true));
+            break;
+          }
+        default:
+          return v;
+      }
+    }
+  }
+
   protected AstRightValue createAstNested(AstNode node) {
     return new AstNested(node);
   }
@@ -475,6 +507,18 @@ public class ExtendedParser extends Parser {
 
           break;
         default:
+          boolean useNaturalOperatorPrecedence =
+            JinjavaInterpreter.getCurrent() != null &&
+            JinjavaInterpreter
+              .getCurrent()
+              .getConfig()
+              .getLegacyOverrides()
+              .isUseNaturalOperatorPrecedence();
+
+          if (useNaturalOperatorPrecedence) {
+            return v;
+          }
+
           if (
             "|".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER
           ) {
