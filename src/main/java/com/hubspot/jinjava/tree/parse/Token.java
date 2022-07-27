@@ -15,8 +15,11 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
+import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.io.Serializable;
+import java.util.function.BiPredicate;
 
 public abstract class Token implements Serializable {
   private static final long serialVersionUID = 3359084948763661809L;
@@ -90,12 +93,27 @@ public abstract class Token implements Serializable {
    * @return the content stripped of any whitespace control characters.
    */
   protected final String handleTrim(String unwrapped) {
+    boolean parseWhitespaceControlStrictly =
+      JinjavaInterpreter.getCurrent() != null &&
+      JinjavaInterpreter
+        .getCurrent()
+        .getConfig()
+        .getLegacyOverrides()
+        .isParseWhitespaceControlStrictly();
+
+    BiPredicate<String, String> startsWith = parseWhitespaceControlStrictly
+      ? String::startsWith
+      : WhitespaceUtils::startsWith;
+    BiPredicate<String, String> endsWith = parseWhitespaceControlStrictly
+      ? String::endsWith
+      : WhitespaceUtils::endsWith;
+
     String result = unwrapped;
-    if (result.startsWith("-")) {
+    if (startsWith.test(result, "-")) {
       setLeftTrim(true);
       result = result.substring(1);
     }
-    if (result.endsWith("-")) {
+    if (endsWith.test(result, "-")) {
       setRightTrim(true);
       result = result.substring(0, result.length() - 1);
     }
