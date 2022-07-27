@@ -121,7 +121,7 @@ public class EagerReconstructionUtils {
             .stream()
             .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
             .filter(
-              entry -> EagerExpressionResolver.isResolvableObject(entry.getValue(), 2, 10) // TODO make this configurable
+              entry -> EagerExpressionResolver.isResolvableObject(entry.getValue(), 2, 20) // TODO make this configurable
             );
       } else {
         entryStream =
