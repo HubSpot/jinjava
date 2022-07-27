@@ -398,7 +398,17 @@ public class ExtendedParser extends Parser {
 
   @Override
   protected AstNode mul(boolean required) throws ScanException, ParseException {
-    AstNode v = unary(required);
+    boolean useNaturalOperatorPrecedence =
+      JinjavaInterpreter.getCurrent() != null &&
+      JinjavaInterpreter
+        .getCurrent()
+        .getConfig()
+        .getLegacyOverrides()
+        .isUseNaturalOperatorPrecedence();
+
+    ParseLevel next = useNaturalOperatorPrecedence ? this::filter : this::unary;
+
+    AstNode v = next.parse(required);
     if (v == null) {
       return null;
     }
@@ -406,19 +416,19 @@ public class ExtendedParser extends Parser {
       switch (getToken().getSymbol()) {
         case MUL:
           consumeToken();
-          v = createAstBinary(v, unary(true), AstBinary.MUL);
+          v = createAstBinary(v, next.parse(true), AstBinary.MUL);
           break;
         case DIV:
           consumeToken();
-          v = createAstBinary(v, unary(true), AstBinary.DIV);
+          v = createAstBinary(v, next.parse(true), AstBinary.DIV);
           break;
         case MOD:
           consumeToken();
-          v = createAstBinary(v, unary(true), AstBinary.MOD);
+          v = createAstBinary(v, next.parse(true), AstBinary.MOD);
           break;
         case EXTENSION:
           if (getExtensionHandler(getToken()).getExtensionPoint() == ExtensionPoint.MUL) {
-            v = getExtensionHandler(consumeToken()).createAstNode(v, unary(true));
+            v = getExtensionHandler(consumeToken()).createAstNode(v, next.parse(true));
             break;
           }
         default:
@@ -667,4 +677,9 @@ public class ExtendedParser extends Parser {
       return null;
     }
   };
+
+  @FunctionalInterface
+  private interface ParseLevel {
+    AstNode parse(boolean required) throws ScanException, ParseException;
+  }
 }
