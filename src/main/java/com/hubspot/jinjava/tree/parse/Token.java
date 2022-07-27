@@ -17,10 +17,7 @@ package com.hubspot.jinjava.tree.parse;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
-import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.io.Serializable;
-import java.util.function.BiPredicate;
-import java.util.function.Function;
 
 public abstract class Token implements Serializable {
   private static final long serialVersionUID = 3359084948763661809L;
@@ -102,27 +99,18 @@ public abstract class Token implements Serializable {
         .getLegacyOverrides()
         .isParseWhitespaceControlStrictly();
 
-    BiPredicate<String, String> startsWith = parseWhitespaceControlStrictly
-      ? String::startsWith
-      : WhitespaceUtils::startsWith;
-    Function<String, String> stripLeft = parseWhitespaceControlStrictly
-      ? s -> s.substring(1)
-      : s -> WhitespaceUtils.unwrap(s, "-", "");
-    BiPredicate<String, String> endsWith = parseWhitespaceControlStrictly
-      ? String::endsWith
-      : WhitespaceUtils::endsWith;
-    Function<String, String> stripRight = parseWhitespaceControlStrictly
-      ? s -> s.substring(0, s.length() - 1)
-      : s -> WhitespaceUtils.unwrap(s, "", "-");
+    WhitespaceControlParser parser = parseWhitespaceControlStrictly
+      ? WhitespaceControlParser.STRICT
+      : WhitespaceControlParser.LENIENT;
 
     String result = unwrapped;
-    if (startsWith.test(result, "-")) {
+    if (parser.hasLeftTrim(result)) {
       setLeftTrim(true);
-      result = stripLeft.apply(result);
+      result = parser.stripLeft(result);
     }
-    if (endsWith.test(result, "-")) {
+    if (parser.hasRightTrim(result)) {
       setRightTrim(true);
-      result = stripRight.apply(result);
+      result = parser.stripRight(result);
     }
     return result;
   }
