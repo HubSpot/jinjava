@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.interpret;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -35,5 +36,41 @@ public class LegacyWhitespaceControlParsingTest {
     String template = "{{ -10 }}";
     assertThat(legacy.render(template, new HashMap<>())).isEqualTo("10");
     assertThat(modern.render(template, new HashMap<>())).isEqualTo("-10");
+  }
+
+  @Test
+  public void itInterpretsStandaloneNegativesWithWhitespace() {
+    String template = "{{ - 10 }}";
+    assertThat(legacy.render(template, new HashMap<>())).isEqualTo("10");
+
+    // Somewhat surprising, but this aligns with Jinja
+    assertThat(modern.render(template, new HashMap<>())).isEqualTo("-10");
+  }
+
+  @Test
+  public void itErrorsOnTrailingDash() {
+    String template = "{{ 10- }}";
+    assertThat(legacy.render(template, new HashMap<>())).isEqualTo("10");
+    assertThatExceptionOfType(FatalTemplateErrorsException.class)
+      .isThrownBy(() -> modern.render(template, new HashMap<>()))
+      .withMessageContaining("syntax error at position 6");
+  }
+
+  @Test
+  public void itErrorsOnSpacedTrailingDash() {
+    String template = "{{ 10 - }}";
+    assertThat(legacy.render(template, new HashMap<>())).isEqualTo("10");
+    assertThatExceptionOfType(FatalTemplateErrorsException.class)
+      .isThrownBy(() -> modern.render(template, new HashMap<>()))
+      .withMessageContaining("syntax error at position 7");
+  }
+
+  @Test
+  public void itErrorsOnSpacedDashesOnBothSides() {
+    String template = "{{ - 10 - }}";
+    assertThat(legacy.render(template, new HashMap<>())).isEqualTo("10");
+    assertThatExceptionOfType(FatalTemplateErrorsException.class)
+      .isThrownBy(() -> modern.render(template, new HashMap<>()))
+      .withMessageContaining("syntax error at position 9");
   }
 }
