@@ -15,6 +15,9 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
 import java.io.Serializable;
 
@@ -81,6 +84,36 @@ public abstract class Token implements Serializable {
 
   public void setRightTrimAfterEnd(boolean rightTrimAfterEnd) {
     this.rightTrimAfterEnd = rightTrimAfterEnd;
+  }
+
+  /**
+   * Handle any whitespace control characters, capturing whether leading or trailing
+   * whitespace should be stripped.
+   * @param unwrapped the content of the block stripped of its delimeters
+   * @return the content stripped of any whitespace control characters.
+   */
+  protected final String handleTrim(String unwrapped) {
+    boolean parseWhitespaceControlStrictly = JinjavaInterpreter
+      .getCurrentMaybe()
+      .map(JinjavaInterpreter::getConfig)
+      .map(JinjavaConfig::getLegacyOverrides)
+      .map(LegacyOverrides::isParseWhitespaceControlStrictly)
+      .orElse(false);
+
+    WhitespaceControlParser parser = parseWhitespaceControlStrictly
+      ? WhitespaceControlParser.STRICT
+      : WhitespaceControlParser.LENIENT;
+
+    String result = unwrapped;
+    if (parser.hasLeftTrim(result)) {
+      setLeftTrim(true);
+      result = parser.stripLeft(result);
+    }
+    if (parser.hasRightTrim(result)) {
+      setRightTrim(true);
+      result = parser.stripRight(result);
+    }
+    return result;
   }
 
   public int getStartPosition() {

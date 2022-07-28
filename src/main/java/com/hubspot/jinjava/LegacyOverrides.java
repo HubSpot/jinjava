@@ -11,6 +11,7 @@ public class LegacyOverrides {
   private final boolean usePyishObjectMapper;
   private final boolean whitespaceRequiredWithinTokens;
   private final boolean useNaturalOperatorPrecedence;
+  private final boolean parseWhitespaceControlStrictly;
 
   private LegacyOverrides(Builder builder) {
     evaluateMapKeys = builder.evaluateMapKeys;
@@ -18,6 +19,7 @@ public class LegacyOverrides {
     usePyishObjectMapper = builder.usePyishObjectMapper;
     whitespaceRequiredWithinTokens = builder.whitespaceRequiredWithinTokens;
     useNaturalOperatorPrecedence = builder.useNaturalOperatorPrecedence;
+    parseWhitespaceControlStrictly = builder.parseWhitespaceControlStrictly;
   }
 
   public static Builder newBuilder() {
@@ -44,12 +46,17 @@ public class LegacyOverrides {
     return useNaturalOperatorPrecedence;
   }
 
+  public boolean isParseWhitespaceControlStrictly() {
+    return parseWhitespaceControlStrictly;
+  }
+
   public static class Builder {
     private boolean evaluateMapKeys = false;
     private boolean iterateOverMapKeys = false;
     private boolean usePyishObjectMapper = false;
     private boolean whitespaceRequiredWithinTokens = false;
     private boolean useNaturalOperatorPrecedence = false;
+    private boolean parseWhitespaceControlStrictly = false;
 
     private Builder() {}
 
@@ -65,7 +72,10 @@ public class LegacyOverrides {
         .withWhitespaceRequiredWithinTokens(
           legacyOverrides.whitespaceRequiredWithinTokens
         )
-        .withUseNaturalOperatorPrecedence(legacyOverrides.useNaturalOperatorPrecedence);
+        .withUseNaturalOperatorPrecedence(legacyOverrides.useNaturalOperatorPrecedence)
+        .withParseWhitespaceControlStrictly(
+          legacyOverrides.parseWhitespaceControlStrictly
+        );
     }
 
     public Builder withEvaluateMapKeys(boolean evaluateMapKeys) {
@@ -94,6 +104,13 @@ public class LegacyOverrides {
       boolean useNaturalOperatorPrecedence
     ) {
       this.useNaturalOperatorPrecedence = useNaturalOperatorPrecedence;
+      return this;
+    }
+
+    public Builder withParseWhitespaceControlStrictly(
+      boolean parseWhitespaceControlStrictly
+    ) {
+      this.parseWhitespaceControlStrictly = parseWhitespaceControlStrictly;
       return this;
     }
   }
