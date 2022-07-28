@@ -23,7 +23,9 @@ public class LegacyWhitespaceControlParsingTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
-          .withLegacyOverrides(LegacyOverrides.newBuilder().build())
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withParseWhitespaceControlStrictly(true).build()
+          )
           .build()
       );
   }
