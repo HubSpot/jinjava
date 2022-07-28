@@ -34,6 +34,7 @@ public class LegacyWhitespaceControlParsingTest {
   @Test
   public void itInterpretsStandaloneNegatives() {
     String template = "{{ -10 }}";
+
     assertThat(legacy.render(template, new HashMap<>())).isEqualTo("10");
     assertThat(modern.render(template, new HashMap<>())).isEqualTo("-10");
   }
@@ -41,6 +42,7 @@ public class LegacyWhitespaceControlParsingTest {
   @Test
   public void itInterpretsStandaloneNegativesWithWhitespace() {
     String template = "{{ - 10 }}";
+
     assertThat(legacy.render(template, new HashMap<>())).isEqualTo("10");
 
     // Somewhat surprising, but this aligns with Jinja
@@ -50,6 +52,7 @@ public class LegacyWhitespaceControlParsingTest {
   @Test
   public void itErrorsOnTrailingDash() {
     String template = "{{ 10- }}";
+
     assertThat(legacy.render(template, new HashMap<>())).isEqualTo("10");
     assertThatExceptionOfType(FatalTemplateErrorsException.class)
       .isThrownBy(() -> modern.render(template, new HashMap<>()))
@@ -59,6 +62,7 @@ public class LegacyWhitespaceControlParsingTest {
   @Test
   public void itErrorsOnSpacedTrailingDash() {
     String template = "{{ 10 - }}";
+
     assertThat(legacy.render(template, new HashMap<>())).isEqualTo("10");
     assertThatExceptionOfType(FatalTemplateErrorsException.class)
       .isThrownBy(() -> modern.render(template, new HashMap<>()))
@@ -68,6 +72,7 @@ public class LegacyWhitespaceControlParsingTest {
   @Test
   public void itErrorsOnSpacedDashesOnBothSides() {
     String template = "{{ - 10 - }}";
+
     assertThat(legacy.render(template, new HashMap<>())).isEqualTo("10");
     assertThatExceptionOfType(FatalTemplateErrorsException.class)
       .isThrownBy(() -> modern.render(template, new HashMap<>()))
