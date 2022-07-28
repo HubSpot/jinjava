@@ -348,4 +348,9 @@ public class JinjavaInterpreterTest {
   public void itInterpretsWhitespaceControl() {
     assertThat(interpreter.render(".  {%- set x = 5 -%}  .")).isEqualTo("..");
   }
+
+  @Test
+  public void itInterpretsEmptyExpressions() {
+    assertThat(interpreter.render("{{}}")).isEqualTo("");
+  }
 }
