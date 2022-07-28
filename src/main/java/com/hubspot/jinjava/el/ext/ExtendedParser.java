@@ -408,7 +408,7 @@ public class ExtendedParser extends Parser {
 
     ParseLevel next = useNaturalOperatorPrecedence ? this::filter : this::unary;
 
-    AstNode v = next.parse(required);
+    AstNode v = next.apply(required);
     if (v == null) {
       return null;
     }
@@ -416,19 +416,19 @@ public class ExtendedParser extends Parser {
       switch (getToken().getSymbol()) {
         case MUL:
           consumeToken();
-          v = createAstBinary(v, next.parse(true), AstBinary.MUL);
+          v = createAstBinary(v, next.apply(true), AstBinary.MUL);
           break;
         case DIV:
           consumeToken();
-          v = createAstBinary(v, next.parse(true), AstBinary.DIV);
+          v = createAstBinary(v, next.apply(true), AstBinary.DIV);
           break;
         case MOD:
           consumeToken();
-          v = createAstBinary(v, next.parse(true), AstBinary.MOD);
+          v = createAstBinary(v, next.apply(true), AstBinary.MOD);
           break;
         case EXTENSION:
           if (getExtensionHandler(getToken()).getExtensionPoint() == ExtensionPoint.MUL) {
-            v = getExtensionHandler(consumeToken()).createAstNode(v, next.parse(true));
+            v = getExtensionHandler(consumeToken()).createAstNode(v, next.apply(true));
             break;
           }
         default:
@@ -680,6 +680,6 @@ public class ExtendedParser extends Parser {
 
   @FunctionalInterface
   private interface ParseLevel {
-    AstNode parse(boolean required) throws ScanException, ParseException;
+    AstNode apply(boolean required) throws ScanException, ParseException;
   }
 }
