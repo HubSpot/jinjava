@@ -32,14 +32,6 @@ public class LegacyOperatorPrecedenceTest {
   }
 
   @Test
-  public void itBindsUnaryMinusTighterThanCmp() {
-    String template = "{{ (-5 > 4) }}";
-
-    assertThat(legacy.render(template, new HashMap<>())).isEqualTo("false");
-    assertThat(modern.render(template, new HashMap<>())).isEqualTo("false");
-  }
-
-  @Test
   public void itBindsUnaryMinusTighterThanIs() {
     String template = "{{ (-5 is integer) }}";
 
@@ -73,13 +65,5 @@ public class LegacyOperatorPrecedenceTest {
 
     assertThat(legacy.render(template, new HashMap<>())).isEqualTo("20");
     assertThat(modern.render(template, new HashMap<>())).isEqualTo("-20");
-  }
-
-  @Test
-  public void itInterpretsFilterChainsInOrder() {
-    String template = "{{ 'foo' | upper | replace('O', 'A') }}";
-
-    assertThat(legacy.render(template, new HashMap<>())).isEqualTo("FAA");
-    assertThat(modern.render(template, new HashMap<>())).isEqualTo("FAA");
   }
 }
