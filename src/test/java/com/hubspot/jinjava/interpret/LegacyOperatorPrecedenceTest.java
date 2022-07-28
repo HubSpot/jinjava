@@ -10,7 +10,7 @@ import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 
-public class LegacyPrecedenceTest {
+public class LegacyOperatorPrecedenceTest {
   Jinjava legacy;
   Jinjava modern;
 
