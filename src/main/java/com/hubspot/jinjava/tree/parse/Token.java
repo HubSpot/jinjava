@@ -15,6 +15,8 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
 import java.io.Serializable;
@@ -91,13 +93,12 @@ public abstract class Token implements Serializable {
    * @return the content stripped of any whitespace control characters.
    */
   protected final String handleTrim(String unwrapped) {
-    boolean parseWhitespaceControlStrictly =
-      JinjavaInterpreter.getCurrent() != null &&
-      JinjavaInterpreter
-        .getCurrent()
-        .getConfig()
-        .getLegacyOverrides()
-        .isParseWhitespaceControlStrictly();
+    boolean parseWhitespaceControlStrictly = JinjavaInterpreter
+      .getCurrentMaybe()
+      .map(JinjavaInterpreter::getConfig)
+      .map(JinjavaConfig::getLegacyOverrides)
+      .map(LegacyOverrides::isParseWhitespaceControlStrictly)
+      .orElse(false);
 
     WhitespaceControlParser parser = parseWhitespaceControlStrictly
       ? WhitespaceControlParser.STRICT
