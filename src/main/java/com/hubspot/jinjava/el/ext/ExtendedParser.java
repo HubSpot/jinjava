@@ -434,7 +434,7 @@ public class ExtendedParser extends Parser {
     if (v == null) {
       return null;
     }
-    return foo(v);
+    return parseOperators(v);
   }
 
   protected AstRightValue createAstNested(AstNode node) {
@@ -520,14 +520,14 @@ public class ExtendedParser extends Parser {
           if (shouldUseNaturalOperatorPrecedence()) {
             return v;
           }
-          return foo(v);
+          return parseOperators(v);
       }
     }
   }
 
-  private AstNode foo(AstNode v0) throws ScanException, ParseException {
+  private AstNode parseOperators(AstNode left) throws ScanException, ParseException {
     if ("|".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
-      AstNode v = v0;
+      AstNode v = left;
 
       do {
         consumeToken(); // '|'
@@ -558,15 +558,15 @@ public class ExtendedParser extends Parser {
     ) {
       consumeToken(); // 'is'
       consumeToken(); // 'not'
-      return buildAstMethodForIdentifier(v0, "evaluateNegated");
+      return buildAstMethodForIdentifier(left, "evaluateNegated");
     } else if (
       "is".equals(getToken().getImage()) && isPossibleExpTest(lookahead(0).getSymbol())
     ) {
       consumeToken(); // 'is'
-      return buildAstMethodForIdentifier(v0, "evaluate");
+      return buildAstMethodForIdentifier(left, "evaluate");
     }
 
-    return v0;
+    return left;
   }
 
   protected AstParameters createAstParameters(List<AstNode> nodes) {
