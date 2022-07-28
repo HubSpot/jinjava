@@ -528,9 +528,7 @@ public class ExtendedParser extends Parser {
             return v;
           }
 
-          v = foo(v);
-
-          return v;
+          return foo(v);
       }
     }
   }
