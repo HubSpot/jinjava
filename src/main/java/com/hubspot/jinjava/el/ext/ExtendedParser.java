@@ -398,9 +398,7 @@ public class ExtendedParser extends Parser {
 
   @Override
   protected AstNode mul(boolean required) throws ScanException, ParseException {
-    boolean useNaturalOperatorPrecedence = shouldUseNaturalOperatorPrecedence();
-
-    ParseLevel next = useNaturalOperatorPrecedence ? this::filter : this::unary;
+    ParseLevel next = shouldUseNaturalOperatorPrecedence() ? this::filter : this::unary;
 
     AstNode v = next.apply(required);
     if (v == null) {
@@ -522,9 +520,7 @@ public class ExtendedParser extends Parser {
 
           break;
         default:
-          boolean useNaturalOperatorPrecedence = shouldUseNaturalOperatorPrecedence();
-
-          if (useNaturalOperatorPrecedence) {
+          if (shouldUseNaturalOperatorPrecedence()) {
             return v;
           }
 
