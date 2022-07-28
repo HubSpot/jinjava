@@ -343,4 +343,9 @@ public class JinjavaInterpreterTest {
     assertThat(interpreter.render("{{ 'foo' | upper | replace('O', 'A') }}"))
       .isEqualTo("FAA");
   }
+
+  @Test
+  public void itInterpretsWhitespaceControl() {
+    assertThat(interpreter.render(".  {%- set x = 5 -%}  .")).isEqualTo("..");
+  }
 }
