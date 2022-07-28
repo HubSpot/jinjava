@@ -398,13 +398,7 @@ public class ExtendedParser extends Parser {
 
   @Override
   protected AstNode mul(boolean required) throws ScanException, ParseException {
-    boolean useNaturalOperatorPrecedence =
-      JinjavaInterpreter.getCurrent() != null &&
-      JinjavaInterpreter
-        .getCurrent()
-        .getConfig()
-        .getLegacyOverrides()
-        .isUseNaturalOperatorPrecedence();
+    boolean useNaturalOperatorPrecedence = shouldUseNaturalOperatorPrecedence();
 
     ParseLevel next = useNaturalOperatorPrecedence ? this::filter : this::unary;
 
@@ -562,13 +556,7 @@ public class ExtendedParser extends Parser {
 
           break;
         default:
-          boolean useNaturalOperatorPrecedence =
-            JinjavaInterpreter.getCurrent() != null &&
-            JinjavaInterpreter
-              .getCurrent()
-              .getConfig()
-              .getLegacyOverrides()
-              .isUseNaturalOperatorPrecedence();
+          boolean useNaturalOperatorPrecedence = shouldUseNaturalOperatorPrecedence();
 
           if (useNaturalOperatorPrecedence) {
             return v;
@@ -677,6 +665,17 @@ public class ExtendedParser extends Parser {
       return null;
     }
   };
+
+  private static boolean shouldUseNaturalOperatorPrecedence() {
+    return (
+      JinjavaInterpreter.getCurrent() != null &&
+      JinjavaInterpreter
+        .getCurrent()
+        .getConfig()
+        .getLegacyOverrides()
+        .isUseNaturalOperatorPrecedence()
+    );
+  }
 
   @FunctionalInterface
   private interface ParseLevel {
