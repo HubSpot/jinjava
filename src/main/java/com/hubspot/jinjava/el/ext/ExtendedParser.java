@@ -434,10 +434,7 @@ public class ExtendedParser extends Parser {
     if (v == null) {
       return null;
     }
-
-    v = foo(v);
-
-    return v;
+    return foo(v);
   }
 
   protected AstRightValue createAstNested(AstNode node) {
@@ -523,7 +520,6 @@ public class ExtendedParser extends Parser {
           if (shouldUseNaturalOperatorPrecedence()) {
             return v;
           }
-
           return foo(v);
       }
     }
