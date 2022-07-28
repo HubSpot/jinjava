@@ -22,6 +22,8 @@ import static de.odysseus.el.tree.impl.Scanner.Symbol.TRUE;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import de.odysseus.el.tree.impl.Builder;
 import de.odysseus.el.tree.impl.Builder.Feature;
@@ -630,14 +632,12 @@ public class ExtendedParser extends Parser {
   };
 
   private static boolean shouldUseNaturalOperatorPrecedence() {
-    return (
-      JinjavaInterpreter.getCurrent() != null &&
-      JinjavaInterpreter
-        .getCurrent()
-        .getConfig()
-        .getLegacyOverrides()
-        .isUseNaturalOperatorPrecedence()
-    );
+    return JinjavaInterpreter
+      .getCurrentMaybe()
+      .map(JinjavaInterpreter::getConfig)
+      .map(JinjavaConfig::getLegacyOverrides)
+      .map(LegacyOverrides::isUseNaturalOperatorPrecedence)
+      .orElse(false);
   }
 
   @FunctionalInterface
