@@ -4,7 +4,7 @@ public class StrictWhitespaceControlParser implements WhitespaceControlParser {
 
   @Override
   public boolean hasLeftTrim(String unwrapped) {
-    return unwrapped.startsWith("-");
+    return unwrapped.charAt(0) == '-';
   }
 
   @Override
@@ -14,7 +14,7 @@ public class StrictWhitespaceControlParser implements WhitespaceControlParser {
 
   @Override
   public boolean hasRightTrim(String unwrapped) {
-    return unwrapped.endsWith("-");
+    return unwrapped.charAt(unwrapped.length() - 1) == '-';
   }
 
   @Override
