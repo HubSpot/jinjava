@@ -535,8 +535,10 @@ public class ExtendedParser extends Parser {
     }
   }
 
-  private AstNode foo(AstNode v) throws ScanException, ParseException {
+  private AstNode foo(AstNode v0) throws ScanException, ParseException {
     if ("|".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
+      AstNode v = v0;
+
       do {
         consumeToken(); // '|'
         String filterName = consumeToken().getImage();
@@ -557,6 +559,8 @@ public class ExtendedParser extends Parser {
         );
         v = createAstMethod(filterProperty, createAstParameters(filterParams)); // function("filter:" + filterName, new AstParameters(filterParams));
       } while ("|".equals(getToken().getImage()));
+
+      return v;
     } else if (
       "is".equals(getToken().getImage()) &&
       "not".equals(lookahead(0).getImage()) &&
@@ -564,14 +568,15 @@ public class ExtendedParser extends Parser {
     ) {
       consumeToken(); // 'is'
       consumeToken(); // 'not'
-      v = buildAstMethodForIdentifier(v, "evaluateNegated");
+      return buildAstMethodForIdentifier(v0, "evaluateNegated");
     } else if (
       "is".equals(getToken().getImage()) && isPossibleExpTest(lookahead(0).getSymbol())
     ) {
       consumeToken(); // 'is'
-      v = buildAstMethodForIdentifier(v, "evaluate");
+      return buildAstMethodForIdentifier(v0, "evaluate");
     }
-    return v;
+
+    return v0;
   }
 
   protected AstParameters createAstParameters(List<AstNode> nodes) {
