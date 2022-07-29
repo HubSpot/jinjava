@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.el.ext.eager;
 
+import com.hubspot.jinjava.el.NoInvokeELContext;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstChoice;
@@ -84,7 +85,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
       " ? " +
       EvalResultHolder.reconstructNode(
         bindings,
-        context,
+        new NoInvokeELContext(context),
         yes,
         deferredParsingException,
         preserveIdentifier
@@ -92,7 +93,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
       " : " +
       EvalResultHolder.reconstructNode(
         bindings,
-        context,
+        new NoInvokeELContext(context),
         no,
         deferredParsingException,
         preserveIdentifier
