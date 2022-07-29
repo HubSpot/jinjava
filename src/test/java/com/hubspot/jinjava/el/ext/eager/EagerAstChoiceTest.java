@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.el.ext.eager;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
@@ -89,5 +90,29 @@ public class EagerAstChoiceTest extends BaseInterpretingTest {
     } catch (DeferredParsingException e) {
       Assertions.assertThat(e.getDeferredEvalResult()).isEqualTo("deferred");
     }
+  }
+
+  @Test
+  public void itResolvesChoiceYes() {
+    interpreter.getContext().put("bar", "bar val");
+    interpreter.resolveELExpression(
+      "foo_list[0] == 'val' ? foo_list.add(bar) : deferred",
+      -1
+    );
+    PyList result = (PyList) interpreter.getContext().get("foo_list");
+    assertEquals(result.size(), 2);
+    assertEquals(result.get(1), "bar val");
+  }
+
+  @Test
+  public void itResolvesChoiceNo() {
+    interpreter.getContext().put("bar", "bar val");
+    interpreter.resolveELExpression(
+      "foo_list[0] == 'bar' ? deferred : foo_list.add(bar)",
+      -1
+    );
+    PyList result = (PyList) interpreter.getContext().get("foo_list");
+    assertEquals(result.size(), 2);
+    assertEquals(result.get(1), "bar val");
   }
 }
