@@ -22,6 +22,9 @@ import static de.odysseus.el.tree.impl.Scanner.Symbol.TRUE;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import de.odysseus.el.tree.impl.Builder;
 import de.odysseus.el.tree.impl.Builder.Feature;
 import de.odysseus.el.tree.impl.Parser;
@@ -395,6 +398,47 @@ public class ExtendedParser extends Parser {
     }
   }
 
+  @Override
+  protected AstNode mul(boolean required) throws ScanException, ParseException {
+    ParseLevel next = shouldUseNaturalOperatorPrecedence() ? this::filter : this::unary;
+
+    AstNode v = next.apply(required);
+    if (v == null) {
+      return null;
+    }
+    while (true) {
+      switch (getToken().getSymbol()) {
+        case MUL:
+          consumeToken();
+          v = createAstBinary(v, next.apply(true), AstBinary.MUL);
+          break;
+        case DIV:
+          consumeToken();
+          v = createAstBinary(v, next.apply(true), AstBinary.DIV);
+          break;
+        case MOD:
+          consumeToken();
+          v = createAstBinary(v, next.apply(true), AstBinary.MOD);
+          break;
+        case EXTENSION:
+          if (getExtensionHandler(getToken()).getExtensionPoint() == ExtensionPoint.MUL) {
+            v = getExtensionHandler(consumeToken()).createAstNode(v, next.apply(true));
+            break;
+          }
+        default:
+          return v;
+      }
+    }
+  }
+
+  protected AstNode filter(boolean required) throws ScanException, ParseException {
+    AstNode v = unary(required);
+    if (v == null) {
+      return null;
+    }
+    return parseOperators(v);
+  }
+
   protected AstRightValue createAstNested(AstNode node) {
     return new AstNested(node);
   }
@@ -475,48 +519,56 @@ public class ExtendedParser extends Parser {
 
           break;
         default:
-          if (
-            "|".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER
-          ) {
-            do {
-              consumeToken(); // '|'
-              String filterName = consumeToken().getImage();
-              List<AstNode> filterParams = Lists.newArrayList(v, interpreter());
-
-              // optional filter args
-              if (getToken().getSymbol() == Symbol.LPAREN) {
-                AstParameters astParameters = params();
-                for (int i = 0; i < astParameters.getCardinality(); i++) {
-                  filterParams.add(astParameters.getChild(i));
-                }
-              }
-
-              AstProperty filterProperty = createAstDot(
-                identifier(FILTER_PREFIX + filterName),
-                "filter",
-                true
-              );
-              v = createAstMethod(filterProperty, createAstParameters(filterParams)); // function("filter:" + filterName, new AstParameters(filterParams));
-            } while ("|".equals(getToken().getImage()));
-          } else if (
-            "is".equals(getToken().getImage()) &&
-            "not".equals(lookahead(0).getImage()) &&
-            isPossibleExpTest(lookahead(1).getSymbol())
-          ) {
-            consumeToken(); // 'is'
-            consumeToken(); // 'not'
-            v = buildAstMethodForIdentifier(v, "evaluateNegated");
-          } else if (
-            "is".equals(getToken().getImage()) &&
-            isPossibleExpTest(lookahead(0).getSymbol())
-          ) {
-            consumeToken(); // 'is'
-            v = buildAstMethodForIdentifier(v, "evaluate");
+          if (shouldUseNaturalOperatorPrecedence()) {
+            return v;
           }
-
-          return v;
+          return parseOperators(v);
       }
     }
+  }
+
+  private AstNode parseOperators(AstNode left) throws ScanException, ParseException {
+    if ("|".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
+      AstNode v = left;
+
+      do {
+        consumeToken(); // '|'
+        String filterName = consumeToken().getImage();
+        List<AstNode> filterParams = Lists.newArrayList(v, interpreter());
+
+        // optional filter args
+        if (getToken().getSymbol() == Symbol.LPAREN) {
+          AstParameters astParameters = params();
+          for (int i = 0; i < astParameters.getCardinality(); i++) {
+            filterParams.add(astParameters.getChild(i));
+          }
+        }
+
+        AstProperty filterProperty = createAstDot(
+          identifier(FILTER_PREFIX + filterName),
+          "filter",
+          true
+        );
+        v = createAstMethod(filterProperty, createAstParameters(filterParams)); // function("filter:" + filterName, new AstParameters(filterParams));
+      } while ("|".equals(getToken().getImage()));
+
+      return v;
+    } else if (
+      "is".equals(getToken().getImage()) &&
+      "not".equals(lookahead(0).getImage()) &&
+      isPossibleExpTest(lookahead(1).getSymbol())
+    ) {
+      consumeToken(); // 'is'
+      consumeToken(); // 'not'
+      return buildAstMethodForIdentifier(left, "evaluateNegated");
+    } else if (
+      "is".equals(getToken().getImage()) && isPossibleExpTest(lookahead(0).getSymbol())
+    ) {
+      consumeToken(); // 'is'
+      return buildAstMethodForIdentifier(left, "evaluate");
+    }
+
+    return left;
   }
 
   protected AstParameters createAstParameters(List<AstNode> nodes) {
@@ -578,4 +630,18 @@ public class ExtendedParser extends Parser {
       return null;
     }
   };
+
+  private static boolean shouldUseNaturalOperatorPrecedence() {
+    return JinjavaInterpreter
+      .getCurrentMaybe()
+      .map(JinjavaInterpreter::getConfig)
+      .map(JinjavaConfig::getLegacyOverrides)
+      .map(LegacyOverrides::isUseNaturalOperatorPrecedence)
+      .orElse(false);
+  }
+
+  @FunctionalInterface
+  private interface ParseLevel {
+    AstNode apply(boolean required) throws ScanException, ParseException;
+  }
 }

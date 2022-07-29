@@ -16,7 +16,6 @@ limitations under the License.
 package com.hubspot.jinjava.tree.parse;
 
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
-import com.hubspot.jinjava.util.WhitespaceUtils;
 
 public class TagToken extends Token {
   private static final long serialVersionUID = -4927751270481832992L;
@@ -54,15 +53,7 @@ public class TagToken extends Token {
     }
 
     content = image.substring(2, image.length() - 2);
-
-    if (WhitespaceUtils.startsWith(content, "-")) {
-      setLeftTrim(true);
-      content = WhitespaceUtils.unwrap(content, "-", "");
-    }
-    if (WhitespaceUtils.endsWith(content, "-")) {
-      setRightTrim(true);
-      content = WhitespaceUtils.unwrap(content, "", "-");
-    }
+    content = handleTrim(content);
 
     int nameStart = -1, pos = 0, len = content.length();
 
