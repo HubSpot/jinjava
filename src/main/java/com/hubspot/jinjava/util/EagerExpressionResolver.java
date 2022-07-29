@@ -2,6 +2,7 @@ package com.hubspot.jinjava.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.primitives.Primitives;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -51,8 +52,7 @@ public class EagerExpressionResolver {
   private static final Set<Class<?>> RESOLVABLE_CLASSES = ImmutableSet.of(
     String.class,
     Boolean.class,
-    Number.class,
-    PyishSerializable.class
+    Number.class
   );
 
   private static final Pattern NAMED_PARAMETER_KEY_PATTERN = Pattern.compile(
@@ -223,12 +223,7 @@ public class EagerExpressionResolver {
     if (depth > maxDepth) {
       return false;
     }
-    boolean isResolvable =
-      val == null ||
-      RESOLVABLE_CLASSES
-        .stream()
-        .anyMatch(clazz -> clazz.isAssignableFrom(val.getClass()));
-    if (isResolvable) {
+    if (isPrimitive(val)) {
       return true;
     }
     if (val instanceof Collection || val instanceof Map) {
@@ -254,7 +249,13 @@ public class EagerExpressionResolver {
       return (Arrays.stream((Object[]) val)).filter(Objects::nonNull)
         .allMatch(item -> isResolvableObjectRec(item, depth + 1, maxDepth, maxSize));
     }
-    return false;
+    return PyishSerializable.class.isAssignableFrom(val.getClass());
+  }
+
+  public static boolean isPrimitive(Object val) {
+    return (
+      val == null || Primitives.isWrapperType(val.getClass()) || val instanceof String
+    );
   }
 
   public static class EagerExpressionResult {

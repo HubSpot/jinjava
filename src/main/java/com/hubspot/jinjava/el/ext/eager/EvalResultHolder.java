@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.el.ext.eager;
 
-import com.google.common.primitives.Primitives;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -89,7 +88,10 @@ public interface EvalResultHolder {
       } catch (DeferredParsingException ignored) {}
     }
     Object evalResult = astNode.getEvalResult();
-    if (!preserveIdentifier || (astNode.hasEvalResult() && isPrimitive(evalResult))) {
+    if (
+      !preserveIdentifier ||
+      (astNode.hasEvalResult() && EagerExpressionResolver.isPrimitive(evalResult))
+    ) {
       if (exception != null && exception.getSourceNode() == astNode) {
         return exception.getDeferredEvalResult();
       }
@@ -124,13 +126,5 @@ public interface EvalResultHolder {
       return (DeferredParsingException) deferredValueException;
     }
     return null;
-  }
-
-  static boolean isPrimitive(Object evalResult) {
-    return (
-      evalResult == null ||
-      Primitives.isWrapperType(evalResult.getClass()) ||
-      evalResult instanceof String
-    );
   }
 }
