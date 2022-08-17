@@ -54,11 +54,22 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         interpreter,
         EagerChildContextConfig.newBuilder().withCheckForContextChanges(true).build()
       );
+      Set<String> deferredUsedWords = addedTokens
+        .stream()
+        .flatMap(token -> token.getUsedDeferredWords().stream())
+        .collect(Collectors.toSet());
       if (
         result.getResult().getResolutionState() == ResolutionState.NONE ||
         (
           !result.getResult().isFullyResolved() &&
           !result.getSpeculativeBindings().isEmpty()
+        ) ||
+        (
+          getTag()
+            .getLoopVarsAndExpression((TagToken) tagNode.getMaster())
+            .getLeft()
+            .stream()
+            .anyMatch(deferredUsedWords::contains)
         )
       ) {
         EagerIfTag.resetBindingsForNextBranch(interpreter, result);
