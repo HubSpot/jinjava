@@ -1,0 +1,11 @@
+{% macro getData() %}
+{% macro doIt(val) %}
+{{ deferred }}
+{% endmacro %}
+
+{% for val in [{'a': 'a'}, {'b': 'b'}] %}
+{{ doIt(val)|upper }}
+{% endfor %}
+{% endmacro %}
+
+{{ getData()|upper }}

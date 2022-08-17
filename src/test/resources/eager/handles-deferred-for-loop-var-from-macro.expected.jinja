@@ -1,0 +1,9 @@
+{% macro getData() %}
+
+
+{% for val in [{'a': 'a'}, {'b': 'b'}] %}
+{% macro doIt(val) %}
+{{ deferred }}
+{% endmacro %}{{ filter:upper.filter(doIt(val), ____int3rpr3t3r____) }}
+{% endfor %}
+{% endmacro %}{{ filter:upper.filter(getData(), ____int3rpr3t3r____) }}

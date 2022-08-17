@@ -1122,4 +1122,11 @@ public class EagerTest {
       "does-not-referential-defer-for-set-vars"
     );
   }
+
+  @Test
+  public void itHandlesDeferredForLoopVarFromMacro() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferred-for-loop-var-from-macro"
+    );
+  }
 }
