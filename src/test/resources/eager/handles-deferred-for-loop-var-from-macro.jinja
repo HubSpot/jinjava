@@ -1,6 +1,6 @@
 {% macro getData() %}
 {% macro doIt(val) %}
-{{ deferred }}
+{{ deferred ~ val|tojson }}
 {% endmacro %}
 
 {% for val in [{'a': 'a'}, {'b': 'b'}] %}

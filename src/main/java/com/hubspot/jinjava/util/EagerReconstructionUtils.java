@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.util;
 
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
+import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.DeferredLazyReference;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -364,7 +365,19 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter
   ) {
     if (interpreter.getContext().isDeferredExecutionMode()) {
-      return ""; // This will be handled outside of the deferred execution mode.
+      Context parent = interpreter.getContext().getParent();
+      while (parent.isDeferredExecutionMode()) {
+        parent = parent.getParent();
+      }
+      final Context finalParent = parent;
+      deferredWords =
+        deferredWords
+          .stream()
+          .filter(word -> interpreter.getContext().get(word) != finalParent.get(word))
+          .collect(Collectors.toSet());
+    }
+    if (deferredWords.isEmpty()) {
+      return "";
     }
     Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
     Map<String, String> deferredMap = new HashMap<>();
