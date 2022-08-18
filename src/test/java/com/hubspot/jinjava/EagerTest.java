@@ -1122,4 +1122,11 @@ public class EagerTest {
       "does-not-referential-defer-for-set-vars"
     );
   }
+
+  @Test
+  public void itKeepsScopeIsolationFromForLoops() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "keeps-scope-isolation-from-for-loops"
+    );
+  }
 }

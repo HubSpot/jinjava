@@ -1,0 +1,15 @@
+{% for i in range(deferred) %}
+{% set foo = 'a' ~ i %}
+{% for j in range(deferred) %}
+{% set foo = 'b' ~ j %}
+{% for __ignored__ in [0] %}
+{% set foo = 'c0' %}
+c0
+
+{% set foo = 'c1' %}
+c1
+{% endfor %}
+{{ foo }}
+{% endfor %}
+{{ foo }}
+{% endfor %}

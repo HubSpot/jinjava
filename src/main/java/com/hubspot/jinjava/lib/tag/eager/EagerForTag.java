@@ -69,7 +69,14 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
             : "Modification inside partially evaluated for loop"
         );
       }
-      return result.getResult().toString(true);
+      if (result.getResult().isFullyResolved()) {
+        return result.getResult().toString(true);
+      } else {
+        return EagerReconstructionUtils.wrapInChildScope(
+          result.getResult().toString(true),
+          interpreter
+        );
+      }
     } catch (DeferredValueException | TemplateSyntaxException e) {
       try {
         return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
