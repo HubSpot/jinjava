@@ -1,7 +1,14 @@
-{% set my_list = [0, 1] %}{% if deferred %}
+{% for __ignored__ in [0] %}
+
+
+
+
+
+  {% set my_list = [0, 1] %}{% if deferred %}
     {% set my_list = [0, 1, 2] %}
   {% endif %}
   {% do my_list.append(3) %}
 
 {% do my_list.append(4) %}
 {{ my_list }}
+{% endfor %}
