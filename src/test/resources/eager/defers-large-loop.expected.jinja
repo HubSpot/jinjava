@@ -1,3 +1,4 @@
+{% for __ignored__ in [0] %}
 Small 0 {{ deferred }} {{ deferred ~ 0 }}
 
 Small 1 {{ deferred }} {{ deferred ~ 1 }}
@@ -17,7 +18,7 @@ Small 7 {{ deferred }} {{ deferred ~ 7 }}
 Small 8 {{ deferred }} {{ deferred ~ 8 }}
 
 Small 9 {{ deferred }} {{ deferred ~ 9 }}
-
+{% endfor %}
 {% for i in range(600) %}
 Big {{ i }} {{ deferred }} {{ deferred ~ i }}
 {% endfor %}

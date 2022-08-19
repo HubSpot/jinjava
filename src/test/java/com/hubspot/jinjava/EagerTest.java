@@ -227,11 +227,13 @@ public class EagerTest {
       "{% for item in dict %}{% if item == deferred %} equal {% else %} not equal {% endif %}{% endfor %}"
     );
     StringBuilder expected = new StringBuilder();
+    expected.append("{% for __ignored__ in [0] %}");
     for (String item : (Set<String>) localContext.get("dict")) {
       expected
         .append(String.format("{%% if '%s' == deferred %%}", item))
         .append(" equal {% else %} not equal {% endif %}");
     }
+    expected.append("{% endfor %}");
     assertThat(output).isEqualTo(expected.toString());
     assertThat(interpreter.getErrors()).isEmpty();
   }
@@ -243,6 +245,7 @@ public class EagerTest {
       "{% for item in dict %}{% if item == 'a' %} equal {% if item == deferred %}{% endif %}{% else %} not equal {% endif %}{% endfor %}"
     );
     StringBuilder expected = new StringBuilder();
+    expected.append("{% for __ignored__ in [0] %}");
     for (String item : (Set<String>) localContext.get("dict")) {
       if (item.equals("a")) {
         expected.append(" equal {% if 'a' == deferred %}{% endif %}");
@@ -250,6 +253,7 @@ public class EagerTest {
         expected.append(" not equal ");
       }
     }
+    expected.append("{% endfor %}");
     assertThat(output).isEqualTo(expected.toString());
     assertThat(interpreter.getErrors()).isEmpty();
   }
@@ -262,7 +266,9 @@ public class EagerTest {
     );
 
     StringBuilder expected = new StringBuilder();
+    expected.append("{% for __ignored__ in [0] %}");
     for (String item : (Set<String>) localContext.get("dict")) {
+      expected.append("{% for __ignored__ in [0] %}");
       for (String item2 : (Set<String>) localContext.get("dict2")) {
         if (item2.equals("e")) {
           expected.append(" equal {% if 'e' == deferred %}{% endif %}");
@@ -270,7 +276,9 @@ public class EagerTest {
           expected.append(" not equal ");
         }
       }
+      expected.append("{% endfor %}");
     }
+    expected.append("{% endfor %}");
     assertThat(output).isEqualTo(expected.toString());
     assertThat(interpreter.getErrors()).isEmpty();
   }
@@ -1120,6 +1128,28 @@ public class EagerTest {
   public void itDoesNotReferentialDeferForSetVars() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "does-not-referential-defer-for-set-vars"
+    );
+  }
+
+  @Test
+  public void itKeepsScopeIsolationFromForLoops() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "keeps-scope-isolation-from-for-loops"
+    );
+  }
+
+  @Test
+  public void itDoesNotOverrideImportModificationInFor() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "does-not-override-import-modification-in-for"
+    );
+  }
+
+  @Test
+  public void itDoesNotOverrideImportModificationInForSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "does-not-override-import-modification-in-for.expected"
     );
   }
 

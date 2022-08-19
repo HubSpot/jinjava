@@ -632,6 +632,22 @@ public class EagerReconstructionUtils {
     );
   }
 
+  public static String wrapInChildScope(String toWrap, JinjavaInterpreter interpreter) {
+    return (
+      String.format(
+        "%s for __ignored__ in [0] %s",
+        interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag(),
+        interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag()
+      ) +
+      toWrap +
+      String.format(
+        "%s endfor %s",
+        interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag(),
+        interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag()
+      )
+    );
+  }
+
   public static class EagerChildContextConfig {
     private final boolean takeNewValue;
     private final boolean partialMacroEvaluation;
