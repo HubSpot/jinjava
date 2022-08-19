@@ -1137,4 +1137,19 @@ public class EagerTest {
       "keeps-scope-isolation-from-for-loops"
     );
   }
+
+  @Test
+  public void itDoesNotOverrideImportModificationInFor() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "does-not-override-import-modification-in-for"
+    );
+  }
+
+  @Test
+  public void itDoesNotOverrideImportModificationInForSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "does-not-override-import-modification-in-for.expected"
+    );
+  }
 }
