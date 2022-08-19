@@ -1152,4 +1152,19 @@ public class EagerTest {
       "does-not-override-import-modification-in-for.expected"
     );
   }
+
+  @Test
+  public void itHandlesDeferredForLoopVarFromMacro() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-deferred-for-loop-var-from-macro"
+    );
+  }
+
+  @Test
+  public void itHandlesDeferredForLoopVarFromMacroSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-deferred-for-loop-var-from-macro.expected"
+    );
+  }
 }
