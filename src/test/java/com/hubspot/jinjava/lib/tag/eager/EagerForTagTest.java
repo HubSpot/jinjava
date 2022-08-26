@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.in;
 
 import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.ExpectedNodeInterpreter;
@@ -193,5 +194,28 @@ public class EagerForTagTest extends ForTagTest {
         "1\n" +
         "2"
       );
+  }
+
+  @Test
+  public void itDoesNotSwallowDeferredValueException() {
+    interpreter.getContext().registerTag(new EagerDoTag());
+    interpreter.getContext().registerTag(new EagerIfTag());
+    interpreter.getContext().registerTag(new EagerSetTag());
+
+    String input =
+      "{% set my_list = [] %}" +
+      "{% for i in range(30) %}" +
+      "{{ my_list.append(i) }}" +
+      "{% endfor %}" +
+      "{% for i in [0, 1] %}" +
+      "{% for j in deferred %}" +
+      "{% if loop.first %}" +
+      "{% do my_list.append(1) %}" +
+      "{% endif %}" +
+      "{% endfor %}" +
+      "{% endfor %}" +
+      "{{ my_list }}";
+    interpreter.render(input);
+    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
   }
 }

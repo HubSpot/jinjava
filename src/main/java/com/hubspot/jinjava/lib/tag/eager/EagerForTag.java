@@ -40,20 +40,20 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    Set<DeferredToken> addedTokens = new HashSet<>();
+    EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
+      eagerInterpreter -> {
+        EagerExpressionResult expressionResult = EagerExpressionResult.fromSupplier(
+          () -> getTag().interpretUnchecked(tagNode, eagerInterpreter),
+          eagerInterpreter
+        );
+        addedTokens.addAll(eagerInterpreter.getContext().getDeferredTokens());
+        return expressionResult;
+      },
+      interpreter,
+      EagerChildContextConfig.newBuilder().withCheckForContextChanges(true).build()
+    );
     try {
-      Set<DeferredToken> addedTokens = new HashSet<>();
-      EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
-        eagerInterpreter -> {
-          EagerExpressionResult expressionResult = EagerExpressionResult.fromSupplier(
-            () -> getTag().interpretUnchecked(tagNode, eagerInterpreter),
-            eagerInterpreter
-          );
-          addedTokens.addAll(eagerInterpreter.getContext().getDeferredTokens());
-          return expressionResult;
-        },
-        interpreter,
-        EagerChildContextConfig.newBuilder().withCheckForContextChanges(true).build()
-      );
       if (
         result.getResult().getResolutionState() == ResolutionState.NONE ||
         (
