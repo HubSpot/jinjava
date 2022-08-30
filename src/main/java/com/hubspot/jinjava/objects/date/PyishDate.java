@@ -30,6 +30,8 @@ public final class PyishDate
 
   private final ZonedDateTime date;
 
+  private String dateFormat = PYISH_DATE_FORMAT;
+
   public PyishDate(ZonedDateTime dt) {
     super(dt.toInstant().toEpochMilli());
     this.date = dt;
@@ -100,6 +102,14 @@ public final class PyishDate
     return date.get(ChronoField.MILLI_OF_SECOND);
   }
 
+  public String getDateFormat() {
+    return dateFormat;
+  }
+
+  public void setDateFormat(String dateFormat) {
+    this.dateFormat = dateFormat;
+  }
+
   public Date toDate() {
     return Date.from(date.toInstant());
   }
@@ -126,7 +136,7 @@ public final class PyishDate
       );
     }
 
-    return strftime(PYISH_DATE_FORMAT);
+    return strftime(dateFormat);
   }
 
   @Override
