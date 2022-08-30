@@ -93,4 +93,11 @@ public class PyishDateTest {
       JinjavaInterpreter.popCurrent();
     }
   }
+
+  @Test
+  public void testPyishDateCustomDateFormat() {
+    PyishDate d = new PyishDate(ZonedDateTime.parse("2013-10-31T14:15:16.170+02:00"));
+    d.setDateFormat("dd - MM - YYYY <> HH:mm:ss");
+    assertThat(d.toString()).isEqualTo("31 - 10 - 2013 <> 14:15:16");
+  }
 }
