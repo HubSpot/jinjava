@@ -61,7 +61,6 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
-        <!--Using 2.12.6 instead of 2.13 https://github.com/FasterXML/jackson-databind/issues/3380#issuecomment-1018129505-->
         <version>2.12.6</version>
       </dependency>
       <dependency>

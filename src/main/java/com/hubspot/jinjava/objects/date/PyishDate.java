@@ -2,6 +2,7 @@ package com.hubspot.jinjava.objects.date;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.PyWrapper;
+import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import java.io.Serializable;
 import java.time.Instant;
@@ -149,9 +150,9 @@ public final class PyishDate
   @Override
   public String toPyishString() {
     return String.format(
-      "\"%s\"|strtotime(\"%s\")",
+      "'%s'|strtotime(%s)",
       strftime(FULL_DATE_FORMAT),
-      FULL_DATE_FORMAT
+      PyishObjectMapper.getAsPyishString(FULL_DATE_FORMAT)
     );
   }
 }
