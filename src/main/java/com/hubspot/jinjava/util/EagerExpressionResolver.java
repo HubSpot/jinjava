@@ -1,6 +1,8 @@
 package com.hubspot.jinjava.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.primitives.Primitives;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import jakarta.el.ELException;
@@ -49,8 +52,7 @@ public class EagerExpressionResolver {
   private static final Set<Class<?>> RESOLVABLE_CLASSES = ImmutableSet.of(
     String.class,
     Boolean.class,
-    Number.class,
-    PyishSerializable.class
+    Number.class
   );
 
   private static final Pattern NAMED_PARAMETER_KEY_PATTERN = Pattern.compile(
@@ -96,11 +98,16 @@ public class EagerExpressionResolver {
   }
 
   public static String getValueAsJinjavaStringSafe(Object val) {
-    if (val == null) {
-      return JINJAVA_NULL;
-    } else if (isResolvableObject(val)) {
-      return PyishObjectMapper.getAsPyishString(val);
-    }
+    try {
+      if (val == null) {
+        return JINJAVA_NULL;
+      } else if (isResolvableObject(val)) {
+        String pyishString = PyishObjectMapper.getAsPyishStringOrThrow(val);
+        if (pyishString.length() < 1048576) { // TODO maybe this should be configurable
+          return pyishString;
+        }
+      }
+    } catch (JsonProcessingException ignored) {}
     throw new DeferredValueException("Can not convert deferred result to string");
   }
 
@@ -199,41 +206,56 @@ public class EagerExpressionResolver {
     }
   }
 
-  public static boolean isResolvableObject(Object val) {
-    return isResolvableObjectRec(val, 0);
+  public static boolean isResolvableObject(Object val, int maxDepth, int maxSize) {
+    return isResolvableObjectRec(val, 0, maxDepth, maxSize);
   }
 
-  private static boolean isResolvableObjectRec(Object val, int depth) {
-    if (depth > 10) {
+  public static boolean isResolvableObject(Object val) {
+    return isResolvableObjectRec(val, 0, 10, Integer.MAX_VALUE);
+  }
+
+  private static boolean isResolvableObjectRec(
+    Object val,
+    int depth,
+    int maxDepth,
+    int maxSize
+  ) {
+    if (depth > maxDepth) {
       return false;
     }
-    boolean isResolvable = RESOLVABLE_CLASSES
-      .stream()
-      .anyMatch(clazz -> clazz.isAssignableFrom(val.getClass()));
-    if (isResolvable) {
+    if (isPrimitive(val)) {
       return true;
     }
     if (val instanceof Collection || val instanceof Map) {
-      if (
-        val instanceof Collection
-          ? ((Collection<?>) val).isEmpty()
-          : ((Map<?, ?>) val).isEmpty()
-      ) {
+      int size = val instanceof Collection
+        ? ((Collection<?>) val).size()
+        : ((Map<?, ?>) val).size();
+      if (size == 0) {
         return true;
+      } else if (size > maxSize) {
+        return false;
       }
       return (
         val instanceof Collection ? (Collection<?>) val : ((Map<?, ?>) val).values()
       ).stream()
         .filter(Objects::nonNull)
-        .allMatch(item -> isResolvableObjectRec(item, depth + 1));
+        .allMatch(item -> isResolvableObjectRec(item, depth + 1, maxDepth, maxSize));
     } else if (val.getClass().isArray()) {
       if (((Object[]) val).length == 0) {
         return true;
+      } else if (((Object[]) val).length > maxSize) {
+        return false;
       }
       return (Arrays.stream((Object[]) val)).filter(Objects::nonNull)
-        .allMatch(item -> isResolvableObjectRec(item, depth + 1));
+        .allMatch(item -> isResolvableObjectRec(item, depth + 1, maxDepth, maxSize));
     }
-    return false;
+    return PyishSerializable.class.isAssignableFrom(val.getClass());
+  }
+
+  public static boolean isPrimitive(Object val) {
+    return (
+      val == null || Primitives.isWrapperType(val.getClass()) || val instanceof String
+    );
   }
 
   public static class EagerExpressionResult {
@@ -296,6 +318,10 @@ public class EagerExpressionResolver {
       throw new DeferredValueException("Object is not resolved");
     }
 
+    public ResolutionState getResolutionState() {
+      return resolutionState;
+    }
+
     public boolean isFullyResolved() {
       return resolutionState.fullyResolved;
     }
@@ -337,9 +363,36 @@ public class EagerExpressionResolver {
       );
     }
 
+    /**
+     * Method to supply a string value to the EagerExpressionResult class.
+     * In the event that a DeferredValueException is thrown, the message will be the wrapped
+     * value, and the resolutionState will be NONE
+     * Manually provide whether the string has been fully resolved.
+     * @param stringSupplier Supplier function to run, which could potentially throw a DeferredValueException.
+     * @param interpreter The JinjavaInterpreter
+     * @return A EagerExpressionResult that wraps either
+     * <code>stringSupplier.get()</code> or the thrown DeferredValueException's message.
+     */
+    public static EagerExpressionResult fromSupplier(
+      Supplier<String> stringSupplier,
+      JinjavaInterpreter interpreter
+    ) {
+      try {
+        return EagerExpressionResult.fromString(
+          stringSupplier.get(),
+          interpreter.getContext().getDeferredTokens().isEmpty()
+            ? ResolutionState.FULL
+            : ResolutionState.PARTIAL
+        );
+      } catch (DeferredValueException e) {
+        return EagerExpressionResult.fromString(e.getMessage(), ResolutionState.NONE);
+      }
+    }
+
     public enum ResolutionState {
       FULL(true),
-      PARTIAL(false);
+      PARTIAL(false),
+      NONE(false);
 
       boolean fullyResolved;
 

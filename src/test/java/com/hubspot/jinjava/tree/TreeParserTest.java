@@ -117,6 +117,13 @@ public class TreeParserTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itStripsAllOuterWhiteSpaceForInlineTags() throws Exception {
+    String expression = "1\n\n{%- print 2 -%}\n\n3\n\n{%- set x = 1 -%}\n\n4";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo("1234");
+  }
+
+  @Test
   public void itStripsAllOuterWhiteSpaceWithComment() throws Exception {
     String expression =
       ".\n {#- comment -#} \n {#- comment -#} {%- for foo in [1,2,3] -%} {{ foo }} {%- endfor -%} \n {#- comment -#} \n {#- comment -#}.";

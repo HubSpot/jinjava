@@ -125,6 +125,11 @@ public class IntFilterTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itUsesLongsForVerySmallValues() {
+    assertThat(filter.filter("-42595200000", interpreter)).isEqualTo(-42595200000L);
+  }
+
+  @Test
   public void itConvertsProperlyInExpressionTest() {
     assertThat(interpreter.render("{{ '3'|int in [null, 4, 5, 6, null, 3] }}"))
       .isEqualTo("true");

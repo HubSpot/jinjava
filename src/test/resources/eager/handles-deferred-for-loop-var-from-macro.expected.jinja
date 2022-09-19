@@ -1,0 +1,13 @@
+{% macro getData() %}
+
+
+{% for __ignored__ in [0] %}
+{% macro doIt(val) %}
+{{ deferred ~ filter:tojson.filter(val, ____int3rpr3t3r____) }}
+{% endmacro %}{% set val = {'a': 'a'} %}{{ filter:upper.filter(doIt(val), ____int3rpr3t3r____) }}
+
+{% macro doIt(val) %}
+{{ deferred ~ filter:tojson.filter(val, ____int3rpr3t3r____) }}
+{% endmacro %}{% set val = {'b': 'b'} %}{{ filter:upper.filter(doIt(val), ____int3rpr3t3r____) }}
+{% endfor %}
+{% endmacro %}{{ filter:upper.filter(getData(), ____int3rpr3t3r____) }}

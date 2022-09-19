@@ -17,6 +17,7 @@ package com.hubspot.jinjava;
 
 import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -59,13 +60,14 @@ public class JinjavaConfig {
   private final int maxListSize;
   private final int maxMapSize;
   private final int rangeLimit;
-  private final int maxNumEagerTokens;
+  private final int maxNumDeferredTokens;
   private final InterpreterFactory interpreterFactory;
   private TokenScannerSymbols tokenScannerSymbols;
   private final ELResolver elResolver;
   private final ExecutionMode executionMode;
   private final LegacyOverrides legacyOverrides;
   private final boolean enablePreciseDivideFilter;
+  private final ObjectMapper objectMapper;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -113,13 +115,14 @@ public class JinjavaConfig {
     maxListSize = builder.maxListSize;
     maxMapSize = builder.maxMapSize;
     rangeLimit = builder.rangeLimit;
-    maxNumEagerTokens = builder.maxNumEagerTokens;
+    maxNumDeferredTokens = builder.maxNumDeferredTokens;
     interpreterFactory = builder.interpreterFactory;
     tokenScannerSymbols = builder.tokenScannerSymbols;
     elResolver = builder.elResolver;
     executionMode = builder.executionMode;
     legacyOverrides = builder.legacyOverrides;
     enablePreciseDivideFilter = builder.enablePreciseDivideFilter;
+    objectMapper = builder.objectMapper;
   }
 
   public Charset getCharset() {
@@ -154,8 +157,8 @@ public class JinjavaConfig {
     return rangeLimit;
   }
 
-  public int getMaxNumEagerTokens() {
-    return maxNumEagerTokens;
+  public int getMaxNumDeferredTokens() {
+    return maxNumDeferredTokens;
   }
 
   public RandomNumberGeneratorStrategy getRandomNumberGeneratorStrategy() {
@@ -214,6 +217,10 @@ public class JinjavaConfig {
     return elResolver;
   }
 
+  public ObjectMapper getObjectMapper() {
+    return objectMapper;
+  }
+
   /**
    * @deprecated  Replaced by {@link LegacyOverrides#isIterateOverMapKeys()}
    */
@@ -254,7 +261,7 @@ public class JinjavaConfig {
     private boolean validationMode = false;
     private long maxStringLength = 0;
     private int rangeLimit = DEFAULT_RANGE_LIMIT;
-    private int maxNumEagerTokens = 1000;
+    private int maxNumDeferredTokens = 1000;
     private InterpreterFactory interpreterFactory = new JinjavaInterpreterFactory();
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
     private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
@@ -263,6 +270,7 @@ public class JinjavaConfig {
     private ExecutionMode executionMode = DefaultExecutionMode.instance();
     private LegacyOverrides legacyOverrides = LegacyOverrides.NONE;
     private boolean enablePreciseDivideFilter = false;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private Builder() {}
 
@@ -371,8 +379,8 @@ public class JinjavaConfig {
       return this;
     }
 
-    public Builder withMaxNumEagerTokens(int maxNumEagerTokens) {
-      this.maxNumEagerTokens = maxNumEagerTokens;
+    public Builder withMaxNumDeferredTokens(int maxNumDeferredTokens) {
+      this.maxNumDeferredTokens = maxNumDeferredTokens;
       return this;
     }
 
@@ -411,6 +419,11 @@ public class JinjavaConfig {
 
     public Builder withEnablePreciseDivideFilter(boolean enablePreciseDivideFilter) {
       this.enablePreciseDivideFilter = enablePreciseDivideFilter;
+      return this;
+    }
+
+    public Builder withObjectMapper(ObjectMapper objectMapper) {
+      this.objectMapper = objectMapper;
       return this;
     }
 

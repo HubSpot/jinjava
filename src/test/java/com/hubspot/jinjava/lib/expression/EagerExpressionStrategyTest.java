@@ -2,15 +2,19 @@ package com.hubspot.jinjava.lib.expression;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
+import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.tree.ExpressionNodeTest;
 import java.util.ArrayList;
+import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -149,6 +153,53 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
   @Test
   public void itDoesNotNestedInterpretIfThereAreFakeNotes() {
     assertExpectedOutput("{{ '{#something_to_{{keep}}' }}", "{#something_to_{{keep}}");
+  }
+
+  @Test
+  public void itDoesNotReconstructWithDoubleCurlyBraces() {
+    interpreter.getContext().put("foo", ImmutableMap.of("foo", ImmutableMap.of()));
+    assertExpectedOutput("{{ deferred ~ foo }}", "{{ deferred ~ {'foo': {} } }}");
+  }
+
+  @Test
+  public void itDoesNotReconstructWithNestedDoubleCurlyBraces() {
+    interpreter
+      .getContext()
+      .put("foo", ImmutableMap.of("foo", ImmutableMap.of("bar", ImmutableMap.of())));
+    assertExpectedOutput(
+      "{{ deferred ~ foo }}",
+      "{{ deferred ~ {'foo': {'bar': {} } } }}"
+    );
+  }
+
+  @Test
+  public void itDoesNotReconstructDirectlyWrittenWithDoubleCurlyBraces() {
+    assertExpectedOutput(
+      "{{ deferred ~ {\n'foo': {\n'bar': deferred\n}\n}\n }}",
+      "{{ deferred ~ {'foo': {'bar': deferred} } }}"
+    );
+  }
+
+  @Test
+  public void itReconstructsWithNestedInterpretation() {
+    interpreter.getContext().put("foo", "{{ print 'bar' }}");
+    assertExpectedOutput(
+      "{{ deferred ~ foo }}",
+      "{{ deferred ~ '{{ print \\'bar\\' }}' }}"
+    );
+  }
+
+  @Test
+  public void itDoesNotDoNestedInterpretationWithSyntaxErrors() {
+    try (
+      InterpreterScopeClosable c = interpreter.enterScope(
+        ImmutableMap.of(Library.TAG, Collections.singleton("print"))
+      )
+    ) {
+      interpreter.getContext().put("foo", "{% print 'bar' %}");
+      // Rather than rendering this to an empty string
+      assertThat(interpreter.render("{{ foo }}")).isEqualTo("{% print 'bar' %}");
+    }
   }
 
   private void assertExpectedOutput(String inputTemplate, String expectedOutput) {

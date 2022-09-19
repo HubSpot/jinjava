@@ -3,6 +3,6 @@
 start: {% cycle 'start' %}
 foo: {% cycle foo %}
 one/two: {% cycle 'one','two' %}
-{%- cycle 'a','b','c' as letter -%}
+{% cycle 'a','b','c' as letter -%}
 letter: {% cycle letter %}
 {%- endfor -%}

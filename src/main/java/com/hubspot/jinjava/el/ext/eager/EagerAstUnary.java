@@ -62,13 +62,6 @@ public class EagerAstUnary extends AstUnary implements EvalResultHolder {
   }
 
   @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-    child.clearEvalResult();
-  }
-
-  @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
   }

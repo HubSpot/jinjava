@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
+import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -135,7 +136,7 @@ public class SortFilterTest extends BaseJinjavaTest {
     );
   }
 
-  public static class MyFoo {
+  public static class MyFoo implements PyishSerializable {
     private Date date;
 
     MyFoo(Date date) {
@@ -150,9 +151,14 @@ public class SortFilterTest extends BaseJinjavaTest {
     public String toString() {
       return "" + date.getTime();
     }
+
+    @Override
+    public String toPyishString() {
+      return toString();
+    }
   }
 
-  public static class MyBar {
+  public static class MyBar implements PyishSerializable {
     private MyFoo foo;
 
     MyBar(MyFoo foo) {
@@ -166,6 +172,11 @@ public class SortFilterTest extends BaseJinjavaTest {
     @Override
     public String toString() {
       return foo.toString();
+    }
+
+    @Override
+    public String toPyishString() {
+      return toString();
     }
   }
 }

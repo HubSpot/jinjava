@@ -12,10 +12,12 @@ import com.hubspot.jinjava.lib.tag.ElseTag;
 import com.hubspot.jinjava.lib.tag.IfTag;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.parse.NoteToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
-import java.util.Map.Entry;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -75,9 +77,11 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
               eagerRenderBranches(tagNode, eagerInterpreter, e)
             ),
           interpreter,
-          false,
-          false,
-          true
+          EagerChildContextConfig
+            .newBuilder()
+            .withForceDeferredExecutionMode(true)
+            .withCheckForContextChanges(true)
+            .build()
         )
         .asTemplateString()
     );
@@ -116,6 +120,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     );
     int branchStart = 0;
     int childrenSize = tagNode.getChildren().size();
+    Set<String> bindingsToDefer = new HashSet<>();
     while (branchStart < childrenSize) {
       int branchEnd = findNextElseToken(tagNode, branchStart);
       if (!definitelyDrop) {
@@ -126,12 +131,14 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
               evaluateBranch(tagNode, finalBranchStart, branchEnd, interpreter)
             ),
           interpreter,
-          false,
-          false,
-          true
+          EagerChildContextConfig
+            .newBuilder()
+            .withForceDeferredExecutionMode(true)
+            .withCheckForContextChanges(true)
+            .build()
         );
         sb.append(result.getResult());
-        resetBindingsForNextBranch(interpreter, result);
+        bindingsToDefer.addAll(resetBindingsForNextBranch(interpreter, result));
       }
       if (branchEnd >= childrenSize || definitelyExecuted) {
         break;
@@ -163,55 +170,40 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       }
       branchStart = branchEnd + 1;
     }
+    if (!bindingsToDefer.isEmpty()) {
+      bindingsToDefer =
+        bindingsToDefer
+          .stream()
+          .filter(key -> !(interpreter.getContext().get(key) instanceof DeferredValue))
+          .collect(Collectors.toSet());
+      if (!bindingsToDefer.isEmpty()) {
+        interpreter
+          .getContext()
+          .handleDeferredToken(
+            new DeferredToken(
+              new NoteToken(
+                "",
+                interpreter.getLineNumber(),
+                interpreter.getPosition(),
+                interpreter.getConfig().getTokenScannerSymbols()
+              ),
+              bindingsToDefer
+            )
+          );
+      }
+      return sb.toString();
+    }
     return sb.toString();
   }
 
-  private void resetBindingsForNextBranch(
+  public static Set<String> resetBindingsForNextBranch(
     JinjavaInterpreter interpreter,
     EagerExecutionResult result
   ) {
-    Set<Entry<String, Object>> nonDeferredBindingsToRevert = result
-      .getSpeculativeBindings()
-      .entrySet()
-      .stream()
-      .filter(
-        entry ->
-          interpreter.getContext().containsKey(entry.getKey()) &&
-          !(interpreter.getContext().get(entry.getKey()) instanceof DeferredValue)
-      )
-      .collect(Collectors.toSet());
-    if (!nonDeferredBindingsToRevert.isEmpty()) {
-      if (!interpreter.getConfig().getExecutionMode().useEagerContextReverting()) {
-        throw new DeferredValueException("Cannot revert value");
-      }
-      nonDeferredBindingsToRevert.forEach(
-        entry -> interpreter.getContext().put(entry.getKey(), entry.getValue())
-      );
-    }
-
     result
       .getSpeculativeBindings()
-      .keySet()
-      .stream()
-      .filter(
-        key ->
-          interpreter.getContext().containsKey(key) &&
-          interpreter.getContext().get(key) instanceof DeferredValue
-      )
-      .forEach(
-        key -> {
-          if (
-            ((DeferredValue) interpreter.getContext().get(key)).getOriginalValue() != null
-          ) {
-            interpreter
-              .getContext()
-              .put(
-                key,
-                ((DeferredValue) interpreter.getContext().get(key)).getOriginalValue()
-              );
-          }
-        }
-      );
+      .forEach((k, v) -> interpreter.getContext().replace(k, v));
+    return result.getSpeculativeBindings().keySet();
   }
 
   private String evaluateBranch(

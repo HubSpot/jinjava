@@ -305,4 +305,25 @@ public class JinjavaInterpreterTest {
     );
     assertThat(interpreter.getErrors()).isEmpty();
   }
+
+  @Test
+  public void itBindsUnaryMinusTighterThanCmp() {
+    assertThat(interpreter.render("{{ (-5 > 4) }}")).isEqualTo("false");
+  }
+
+  @Test
+  public void itInterpretsFilterChainsInOrder() {
+    assertThat(interpreter.render("{{ 'foo' | upper | replace('O', 'A') }}"))
+      .isEqualTo("FAA");
+  }
+
+  @Test
+  public void itInterpretsWhitespaceControl() {
+    assertThat(interpreter.render(".  {%- set x = 5 -%}  .")).isEqualTo("..");
+  }
+
+  @Test
+  public void itInterpretsEmptyExpressions() {
+    assertThat(interpreter.render("{{}}")).isEqualTo("");
+  }
 }

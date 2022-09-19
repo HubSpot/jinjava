@@ -83,14 +83,6 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
   }
 
   @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-    left.clearEvalResult();
-    right.clearEvalResult();
-  }
-
-  @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
   }

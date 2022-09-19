@@ -1,0 +1,26 @@
+{% set alpha, beta = [], [] %}
+{{ alpha ~ beta }}
+{%- do alpha.append(0) %}
+{%- do beta.append(0) %}
+{{ alpha ~ beta }}
+{% for i in deferred %}
+  {% if deferred %}
+    {% for j in deferred %}
+      {% if deferred %}
+        {% do alpha.append(1) %}
+      {% else %}
+        {% do alpha.append(2) %}
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    {% for j in deferred %}
+      {% do beta.append(1) %}
+      {% if deferred %}
+        {% do alpha.append(3) %}
+      {% else %}
+        {% do alpha.append(4) %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endfor %}
+{{ alpha ~ beta }}

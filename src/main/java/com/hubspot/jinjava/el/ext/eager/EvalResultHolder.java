@@ -1,23 +1,22 @@
 package com.hubspot.jinjava.el.ext.eager;
 
-import com.google.common.primitives.Primitives;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
 import com.hubspot.jinjava.interpret.DeferredValueException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.el.tree.Bindings;
 import com.hubspot.jinjava.el.tree.impl.ast.AstIdentifier;
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
+import java.util.Collection;
 import java.util.function.Supplier;
 
 public interface EvalResultHolder {
   Object getEvalResult();
 
   void setEvalResult(Object evalResult);
-
-  void clearEvalResult();
 
   boolean hasEvalResult();
 
@@ -28,7 +27,7 @@ public interface EvalResultHolder {
   ) {
     try {
       setEvalResult(evalSupplier.get());
-      return getEvalResult();
+      return checkEvalResultSize(context);
     } catch (DeferredValueException | ELException originalException) {
       DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
         originalException
@@ -38,6 +37,23 @@ public interface EvalResultHolder {
         getPartiallyResolved(bindings, context, e, false)
       );
     }
+  }
+
+  default Object checkEvalResultSize(ELContext context) {
+    Object evalResult = getEvalResult();
+    if (
+      evalResult instanceof Collection &&
+      ((Collection<?>) evalResult).size() > 100 && // TODO make size configurable
+      (
+        (JinjavaInterpreter) context
+          .getELResolver()
+          .getValue(context, null, ExtendedParser.INTERPRETER)
+      ).getContext()
+        .isDeferLargeObjects()
+    ) {
+      throw new DeferredValueException("Collection too big");
+    }
+    return evalResult;
   }
 
   String getPartiallyResolved(
@@ -54,6 +70,12 @@ public interface EvalResultHolder {
     DeferredParsingException exception,
     boolean preserveIdentifier
   ) {
+    if (astNode == null) {
+      return "";
+    }
+    preserveIdentifier |=
+      astNode instanceof AstIdentifier &&
+      ExtendedParser.INTERPRETER.equals(((AstIdentifier) astNode).getName());
     if (
       preserveIdentifier &&
       !astNode.hasEvalResult() &&
@@ -66,33 +88,25 @@ public interface EvalResultHolder {
       } catch (DeferredParsingException ignored) {}
     }
     Object evalResult = astNode.getEvalResult();
-    if (astNode.hasEvalResult() && (!preserveIdentifier || isPrimitive(evalResult))) {
+    if (
+      !preserveIdentifier ||
+      (astNode.hasEvalResult() && EagerExpressionResolver.isPrimitive(evalResult))
+    ) {
+      if (exception != null && exception.getSourceNode() == astNode) {
+        return exception.getDeferredEvalResult();
+      }
+      if (!astNode.hasEvalResult()) {
+        try {
+          evalResult = ((AstNode) astNode).eval(bindings, context);
+        } catch (DeferredParsingException e) {
+          return e.getDeferredEvalResult();
+        }
+      }
       try {
         return EagerExpressionResolver.getValueAsJinjavaStringSafe(evalResult);
-      } catch (DeferredValueException e) {
-        preserveIdentifier = true;
-      }
+      } catch (DeferredValueException ignored) {}
     }
-    if (
-      preserveIdentifier ||
-      (
-        astNode instanceof AstIdentifier &&
-        ExtendedParser.INTERPRETER.equals(((AstIdentifier) astNode).getName())
-      )
-    ) {
-      return astNode.getPartiallyResolved(bindings, context, exception, true);
-    }
-    if (exception != null && exception.getSourceNode() == astNode) {
-      return exception.getDeferredEvalResult();
-    }
-    if (!astNode.hasEvalResult()) {
-      try {
-        evalResult = ((AstNode) astNode).eval(bindings, context);
-      } catch (DeferredParsingException e) {
-        return e.getDeferredEvalResult();
-      }
-    }
-    return EagerExpressionResolver.getValueAsJinjavaStringSafe(evalResult);
+    return astNode.getPartiallyResolved(bindings, context, exception, true);
   }
 
   static DeferredParsingException convertToDeferredParsingException(
@@ -112,13 +126,5 @@ public interface EvalResultHolder {
       return (DeferredParsingException) deferredValueException;
     }
     return null;
-  }
-
-  static boolean isPrimitive(Object evalResult) {
-    return (
-      evalResult == null ||
-      Primitives.isWrapperType(evalResult.getClass()) ||
-      evalResult instanceof String
-    );
   }
 }

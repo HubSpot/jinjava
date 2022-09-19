@@ -3,15 +3,18 @@ package com.hubspot.jinjava.lib.expression;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
 import com.hubspot.jinjava.lib.tag.RawTag;
+import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
-import com.hubspot.jinjava.lib.tag.eager.EagerToken;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.Logging;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
@@ -31,16 +34,20 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     JinjavaInterpreter interpreter
   ) {
     interpreter.getContext().checkNumberOfDeferredTokens();
-    EagerExecutionResult eagerExecutionResult;
-    eagerExecutionResult =
-      EagerReconstructionUtils.executeInChildContext(
-        eagerInterpreter ->
-          EagerExpressionResolver.resolveExpression(master.getExpr(), interpreter),
-        interpreter,
-        true,
-        interpreter.getConfig().isNestedInterpretationEnabled(),
-        interpreter.getContext().isDeferredExecutionMode()
-      );
+    EagerExecutionResult eagerExecutionResult = EagerReconstructionUtils.executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResolver.resolveExpression(master.getExpr(), interpreter),
+      interpreter,
+      EagerChildContextConfig
+        .newBuilder()
+        .withTakeNewValue(true)
+        .withPartialMacroEvaluation(
+          interpreter.getConfig().isNestedInterpretationEnabled()
+        )
+        .withCheckForContextChanges(interpreter.getContext().isDeferredExecutionMode())
+        .build()
+    );
+
     StringBuilder prefixToPreserveState = new StringBuilder();
     if (interpreter.getContext().isDeferredExecutionMode()) {
       prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
@@ -49,33 +56,9 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     }
     if (eagerExecutionResult.getResult().isFullyResolved()) {
       String result = eagerExecutionResult.getResult().toString(true);
-      if (
-        !StringUtils.equals(result, master.getImage()) &&
-        (
-          StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
-          StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag())
-        )
-      ) {
-        if (interpreter.getConfig().isNestedInterpretationEnabled()) {
-          long errorSizeStart = getUnclosedCommentErrorsCount(interpreter);
-          interpreter.parse(result);
-          if (getUnclosedCommentErrorsCount(interpreter) == errorSizeStart) {
-            try {
-              result = interpreter.renderFlat(result);
-            } catch (Exception e) {
-              Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
-            }
-          }
-        } else {
-          // Possible macro/set tag in front of this one. Includes result
-          result = wrapInRawOrExpressionIfNeeded(result, interpreter);
-        }
-      }
-
-      if (interpreter.getContext().isAutoEscape()) {
-        result = EscapeFilter.escapeHtmlEntities(result);
-      }
-      return prefixToPreserveState.toString() + result;
+      return (
+        prefixToPreserveState.toString() + postProcessResult(master, result, interpreter)
+      );
     }
     prefixToPreserveState.append(
       EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
@@ -89,8 +72,8 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     );
     interpreter
       .getContext()
-      .handleEagerToken(
-        new EagerToken(
+      .handleDeferredToken(
+        new DeferredToken(
           new ExpressionToken(
             helpers,
             master.getLineNumber(),
@@ -115,11 +98,52 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     );
   }
 
-  private long getUnclosedCommentErrorsCount(JinjavaInterpreter interpreter) {
+  public static String postProcessResult(
+    ExpressionToken master,
+    String result,
+    JinjavaInterpreter interpreter
+  ) {
+    if (
+      !StringUtils.equals(result, master.getImage()) &&
+      (
+        StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
+        StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag())
+      )
+    ) {
+      if (interpreter.getConfig().isNestedInterpretationEnabled()) {
+        long errorSizeStart = getParsingErrorsCount(interpreter);
+
+        interpreter.parse(result);
+
+        if (getParsingErrorsCount(interpreter) == errorSizeStart) {
+          try {
+            result = interpreter.renderFlat(result);
+          } catch (Exception e) {
+            Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
+          }
+        }
+      } else {
+        // Possible macro/set tag in front of this one. Includes result
+        result = wrapInRawOrExpressionIfNeeded(result, interpreter);
+      }
+    }
+
+    if (interpreter.getContext().isAutoEscape()) {
+      result = EscapeFilter.escapeHtmlEntities(result);
+    }
+    return result;
+  }
+
+  private static long getParsingErrorsCount(JinjavaInterpreter interpreter) {
     return interpreter
       .getErrors()
       .stream()
-      .filter(error -> "Unclosed comment".equals(error.getMessage()))
+      .filter(Objects::nonNull)
+      .filter(
+        error ->
+          "Unclosed comment".equals(error.getMessage()) ||
+          error.getReason() == ErrorReason.DISABLED
+      )
       .count();
   }
 

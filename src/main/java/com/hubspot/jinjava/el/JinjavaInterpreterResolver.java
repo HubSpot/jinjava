@@ -27,6 +27,7 @@ import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
 import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
+import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -304,6 +305,9 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
   Object wrap(Object value) {
     if (value == null) {
       return null;
+    }
+    if (value instanceof PyishSerializable) {
+      return value;
     }
 
     if (value instanceof LazyExpression) {

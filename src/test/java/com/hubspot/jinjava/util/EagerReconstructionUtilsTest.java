@@ -13,8 +13,8 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
-import com.hubspot.jinjava.lib.tag.eager.EagerToken;
 import com.hubspot.jinjava.mode.DefaultExecutionMode;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
@@ -23,6 +23,7 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -71,13 +72,16 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         }
       ),
       interpreter,
-      true,
-      false,
-      true
+      EagerChildContextConfig
+        .newBuilder()
+        .withTakeNewValue(true)
+        .withForceDeferredExecutionMode(true)
+        .withCheckForContextChanges(true)
+        .build()
     );
 
     assertThat(context.get("foo")).isEqualTo(ImmutableList.of(1));
-    assertThat(context.getEagerTokens()).isEmpty();
+    assertThat(context.getDeferredTokens()).isEmpty();
     assertThat(result.getResult().toString()).isEqualTo("function return");
     // This will add an eager token because we normally don't call this method
     // unless we're in deferred execution mode.
@@ -98,9 +102,11 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         }
       ),
       interpreter,
-      false,
-      false,
-      true
+      EagerChildContextConfig
+        .newBuilder()
+        .withForceDeferredExecutionMode(true)
+        .withCheckForContextChanges(true)
+        .build()
     );
     assertThat(result.getResult().toString()).isEqualTo("function return");
     assertThat(result.getPrefixToPreserveState()).isEqualTo("{% set foo = [] %}");
@@ -189,14 +195,14 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
       true
     );
     assertThat(result).isEqualTo("{% set foo = 'bar' %}");
-    assertThat(context.getEagerTokens()).hasSize(1);
-    EagerToken eagerToken = context
-      .getEagerTokens()
+    assertThat(context.getDeferredTokens()).hasSize(1);
+    DeferredToken deferredToken = context
+      .getDeferredTokens()
       .stream()
       .findAny()
       .orElseThrow(RuntimeException::new);
-    assertThat(eagerToken.getSetDeferredWords()).containsExactly("foo");
-    assertThat(eagerToken.getUsedDeferredWords()).isEmpty();
+    assertThat(deferredToken.getSetDeferredWords()).containsExactly("foo");
+    assertThat(deferredToken.getUsedDeferredWords()).isEmpty();
   }
 
   @Test
@@ -208,7 +214,7 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
       false
     );
     assertThat(result).isEqualTo("{% set foo = 'bar' %}");
-    assertThat(context.getEagerTokens()).isEmpty();
+    assertThat(context.getDeferredTokens()).isEmpty();
   }
 
   @Test
@@ -220,14 +226,15 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
       true
     );
     assertThat(result).isEqualTo("{% set foo,baz = 'bar',2 %}");
-    assertThat(context.getEagerTokens()).hasSize(1);
-    EagerToken eagerToken = context
-      .getEagerTokens()
+    assertThat(context.getDeferredTokens()).hasSize(1);
+    DeferredToken deferredToken = context
+      .getDeferredTokens()
       .stream()
       .findAny()
       .orElseThrow(RuntimeException::new);
-    assertThat(eagerToken.getSetDeferredWords()).containsExactlyInAnyOrder("foo", "baz");
-    assertThat(eagerToken.getUsedDeferredWords()).isEmpty();
+    assertThat(deferredToken.getSetDeferredWords())
+      .containsExactlyInAnyOrder("foo", "baz");
+    assertThat(deferredToken.getUsedDeferredWords()).isEmpty();
   }
 
   @Test

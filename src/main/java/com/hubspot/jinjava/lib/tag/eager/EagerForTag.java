@@ -1,18 +1,24 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.collect.Sets;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
+import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.ForTag;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.HashSet;
@@ -33,6 +39,60 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
   }
 
   @Override
+  public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    Set<DeferredToken> addedTokens = new HashSet<>();
+    EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
+      eagerInterpreter -> {
+        EagerExpressionResult expressionResult = EagerExpressionResult.fromSupplier(
+          () -> getTag().interpretUnchecked(tagNode, eagerInterpreter),
+          eagerInterpreter
+        );
+        addedTokens.addAll(eagerInterpreter.getContext().getDeferredTokens());
+        return expressionResult;
+      },
+      interpreter,
+      EagerChildContextConfig.newBuilder().withCheckForContextChanges(true).build()
+    );
+    try {
+      if (
+        result.getResult().getResolutionState() == ResolutionState.NONE ||
+        (
+          !result.getResult().isFullyResolved() &&
+          !result.getSpeculativeBindings().isEmpty()
+        )
+      ) {
+        EagerIfTag.resetBindingsForNextBranch(interpreter, result);
+        interpreter.getContext().removeDeferredTokens(addedTokens);
+        throw new DeferredValueException(
+          result.getResult().getResolutionState() == ResolutionState.NONE
+            ? result.getResult().toString()
+            : "Modification inside partially evaluated for loop"
+        );
+      }
+      if (result.getResult().isFullyResolved()) {
+        return result.getResult().toString(true);
+      } else {
+        return EagerReconstructionUtils.wrapInChildScope(
+          result.getResult().toString(true),
+          interpreter
+        );
+      }
+    } catch (DeferredValueException | TemplateSyntaxException e) {
+      try {
+        return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
+          eagerInterpret(tagNode, interpreter, e),
+          interpreter
+        );
+      } catch (OutputTooBigException e1) {
+        interpreter.addError(TemplateError.fromOutputTooBigException(e1));
+        throw new DeferredValueException(
+          String.format("Output too big for eager execution: %s", e1.getMessage())
+        );
+      }
+    }
+  }
+
+  @Override
   public String eagerInterpret(
     TagNode tagNode,
     JinjavaInterpreter interpreter,
@@ -43,30 +103,37 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     );
     String prefix = "";
 
-    // separate getEagerImage from renderChildren because the token gets evaluated once
-    // while the children are evaluated 0...n times.
-    result.append(
-      EagerReconstructionUtils
-        .executeInChildContext(
-          eagerInterpreter ->
-            EagerExpressionResult.fromString(
-              getEagerImage(
-                buildToken(
-                  tagNode,
-                  e,
-                  interpreter.getLineNumber(),
-                  interpreter.getPosition()
-                ),
-                eagerInterpreter
-              )
-            ),
-          interpreter,
-          true,
-          false,
-          false
+    try (
+      TemporaryValueClosable<Boolean> c = interpreter
+        .getContext()
+        .withDeferLargeObjects(
+          ForTag.TOO_LARGE_EXCEPTION_MESSAGE.equals(e.getMessage()) ||
+          interpreter.getContext().isDeferLargeObjects()
         )
-        .asTemplateString()
-    );
+    ) {
+      // separate getEagerImage from renderChildren because the token gets evaluated once
+      // while the children are evaluated 0...n times.
+      result.append(
+        EagerReconstructionUtils
+          .executeInChildContext(
+            eagerInterpreter ->
+              EagerExpressionResult.fromString(
+                getEagerImage(
+                  buildToken(
+                    tagNode,
+                    e,
+                    interpreter.getLineNumber(),
+                    interpreter.getPosition()
+                  ),
+                  eagerInterpreter
+                )
+              ),
+            interpreter,
+            EagerChildContextConfig.newBuilder().build()
+          )
+          .asTemplateString()
+      );
+    }
 
     EagerExecutionResult eagerExecutionResult = runLoopOnce(tagNode, interpreter);
     if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
@@ -115,9 +182,11 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         );
       },
       interpreter,
-      false,
-      false,
-      true
+      EagerChildContextConfig
+        .newBuilder()
+        .withForceDeferredExecutionMode(true)
+        .withCheckForContextChanges(true)
+        .build()
     );
   }
 
@@ -158,8 +227,8 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     interpreter.getContext().getMetaContextVariables().removeAll(metaLoopVars);
     interpreter
       .getContext()
-      .handleEagerToken(
-        new EagerToken(
+      .handleDeferredToken(
+        new DeferredToken(
           new TagToken(
             joiner.toString(),
             tagToken.getLineNumber(),

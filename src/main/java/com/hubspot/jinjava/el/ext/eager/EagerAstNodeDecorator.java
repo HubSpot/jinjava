@@ -45,12 +45,6 @@ public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
   }
 
   @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-  }
-
-  @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
   }
@@ -68,7 +62,7 @@ public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
   @Override
   public Object eval(Bindings bindings, ELContext elContext) {
     setEvalResult(astNode.eval(bindings, elContext));
-    return evalResult;
+    return checkEvalResultSize(elContext);
   }
 
   @Override

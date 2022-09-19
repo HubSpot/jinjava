@@ -2,6 +2,7 @@ package com.hubspot.jinjava.objects.date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Locale;
 import org.junit.Before;
@@ -13,7 +14,10 @@ public class StrftimeFormatterTest {
   @Before
   public void setup() {
     Locale.setDefault(Locale.ENGLISH);
-    d = ZonedDateTime.parse("2013-11-06T14:22:00.123+00:00");
+    d =
+      ZonedDateTime
+        .parse("2013-11-06T14:22:00.123+00:00")
+        .withZoneSameLocal(ZoneId.of("UTC"));
   }
 
   @Test
@@ -100,7 +104,13 @@ public class StrftimeFormatterTest {
   @Test
   public void testZoneOutput() {
     assertThat(StrftimeFormatter.format(d, "%z")).isEqualTo("+0000");
-    assertThat(StrftimeFormatter.format(d, "%Z")).isEqualTo("GMT");
+    assertThat(StrftimeFormatter.format(d, "%Z")).isEqualTo("UTC");
+
+    ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(
+      d.toInstant(),
+      ZoneId.of("America/New_York")
+    );
+    assertThat(StrftimeFormatter.format(zonedDateTime, "%Z")).isEqualTo("EST");
   }
 
   @Test
@@ -114,5 +124,17 @@ public class StrftimeFormatterTest {
           .format(zonedDateTime)
       )
       .isIn("Июнь", "июнь");
+  }
+
+  @Test
+  public void testJavaFormatWithInvalidChar() {
+    assertThat(StrftimeFormatter.toJavaDateTimeFormat("%d.%é.%Y"))
+      .isEqualTo("dd.null.yyyy");
+  }
+
+  @Test
+  public void testJavaFormatWithGT255Char() {
+    assertThat(StrftimeFormatter.toJavaDateTimeFormat("%d.%ğ.%Y"))
+      .isEqualTo("dd.null.yyyy");
   }
 }

@@ -18,9 +18,9 @@ public class EagerIncludeTag extends EagerTagDecorator<IncludeTag> {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    int numEagerTokensStart = interpreter.getContext().getEagerTokens().size();
+    int numDeferredTokensStart = interpreter.getContext().getDeferredTokens().size();
     String output = super.interpret(tagNode, interpreter);
-    if (interpreter.getContext().getEagerTokens().size() > numEagerTokensStart) {
+    if (interpreter.getContext().getDeferredTokens().size() > numDeferredTokensStart) {
       HelperStringTokenizer helper = new HelperStringTokenizer(tagNode.getHelpers());
       String path = StringUtils.trimToEmpty(helper.next());
       String templateFile = interpreter.resolveString(

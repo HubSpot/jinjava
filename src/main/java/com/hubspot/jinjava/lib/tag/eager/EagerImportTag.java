@@ -19,6 +19,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,15 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       if (currentImportAlias.isEmpty()) {
         throw e;
       }
-      interpreter.getContext().put(currentImportAlias, DeferredValue.instance());
+      interpreter
+        .getContext()
+        .handleDeferredToken(
+          new DeferredToken(
+            tagToken,
+            Collections.singleton(helper.get(0)),
+            Collections.singleton(currentImportAlias)
+          )
+        );
       return (initialPathSetter + tagToken.getImage());
     }
     if (!maybeTemplateFile.isPresent()) {
@@ -99,7 +108,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       }
       integrateChild(currentImportAlias, childBindings, child, interpreter);
       String finalOutput;
-      if (child.getContext().getEagerTokens().isEmpty() || output == null) {
+      if (child.getContext().getDeferredTokens().isEmpty() || output == null) {
         return "";
       } else if (!Strings.isNullOrEmpty(currentImportAlias)) {
         // Since some values got deferred, output a DoTag that will load the currentImportAlias on the context.
@@ -338,12 +347,11 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
       childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
-      parent.getContext().putAll(childBindings);
+      parent
+        .getContext()
+        .putAll(ImportTag.getChildBindingsWithoutImportResourcePath(childBindings));
     } else {
-      Map<String, MacroFunction> globalMacros = child.getContext().getGlobalMacros();
-      for (Map.Entry<String, MacroFunction> macro : globalMacros.entrySet()) {
-        childBindings.put(macro.getKey(), macro.getValue());
-      }
+      childBindings.putAll(child.getContext().getGlobalMacros());
       Map<String, Object> mapForCurrentContextAlias = getMapForCurrentContextAlias(
         currentImportAlias,
         child

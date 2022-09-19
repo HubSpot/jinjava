@@ -31,7 +31,7 @@ import com.hubspot.jinjava.lib.fn.FunctionLibrary;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.TagLibrary;
-import com.hubspot.jinjava.lib.tag.eager.EagerToken;
+import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.ScopeMap;
@@ -87,7 +87,7 @@ public class Context extends ScopeMap<String, Object> {
   private final Set<String> resolvedFunctions = new HashSet<>();
 
   private Set<Node> deferredNodes = new HashSet<>();
-  private Set<EagerToken> eagerTokens = new HashSet<>();
+  private Set<DeferredToken> deferredTokens = new HashSet<>();
 
   private final ExpTestLibrary expTestLibrary;
   private final FilterLibrary filterLibrary;
@@ -106,6 +106,7 @@ public class Context extends ScopeMap<String, Object> {
 
   private boolean validationMode = false;
   private boolean deferredExecutionMode = false;
+  private boolean deferLargeObjects = false;
   private boolean throwInterpreterErrors = false;
   private boolean partialMacroEvaluation = false;
   private boolean unwrapRawOverride = false;
@@ -209,6 +210,7 @@ public class Context extends ScopeMap<String, Object> {
       this.unwrapRawOverride = parent.unwrapRawOverride;
       this.dynamicVariableResolver = parent.dynamicVariableResolver;
       this.deferredExecutionMode = parent.deferredExecutionMode;
+      this.deferLargeObjects = parent.deferLargeObjects;
       this.throwInterpreterErrors = parent.throwInterpreterErrors;
     }
   }
@@ -220,7 +222,7 @@ public class Context extends ScopeMap<String, Object> {
     resolvedFunctions.clear();
     dependencies = HashMultimap.create();
     deferredNodes = new HashSet<>();
-    eagerTokens = new HashSet<>();
+    deferredTokens = new HashSet<>();
   }
 
   @Override
@@ -373,38 +375,70 @@ public class Context extends ScopeMap<String, Object> {
         secondToLastContext = secondToLastContext.parent;
       }
     }
-    int maxNumEagerTokens = JinjavaInterpreter
+    int maxNumDeferredTokens = JinjavaInterpreter
       .getCurrentMaybe()
-      .map(i -> i.getConfig().getMaxNumEagerTokens())
+      .map(i -> i.getConfig().getMaxNumDeferredTokens())
       .orElse(1000);
-    if (secondToLastContext.eagerTokens.size() >= maxNumEagerTokens) {
+    if (secondToLastContext.deferredTokens.size() >= maxNumDeferredTokens) {
       throw new DeferredValueException(
-        "Too many Deferred Tokens, max is " + maxNumEagerTokens
+        "Too many Deferred Tokens, max is " + maxNumDeferredTokens
       );
     }
   }
 
-  public void handleEagerToken(EagerToken eagerToken) {
-    eagerTokens.add(eagerToken);
+  public void handleDeferredToken(DeferredToken deferredToken) {
+    deferredTokens.add(deferredToken);
+
     if (
-      eagerToken.getImportResourcePath() == null ||
-      eagerToken.getImportResourcePath().equals(get(Context.IMPORT_RESOURCE_PATH_KEY))
+      deferredToken.getImportResourcePath() == null ||
+      deferredToken.getImportResourcePath().equals(get(Context.IMPORT_RESOURCE_PATH_KEY))
     ) {
-      DeferredValueUtils.findAndMarkDeferredProperties(this, eagerToken);
+      DeferredValueUtils.findAndMarkDeferredProperties(this, deferredToken);
     }
     if (getParent() != null) {
       Context parent = getParent();
       //Ignore global context
       if (parent.getParent() != null) {
-        parent.handleEagerToken(eagerToken);
+        parent.handleDeferredToken(deferredToken);
       } else {
         checkNumberOfDeferredTokens();
       }
     }
   }
 
-  public Set<EagerToken> getEagerTokens() {
-    return eagerTokens;
+  public void removeDeferredTokens(Collection<DeferredToken> toRemove) {
+    deferredTokens.removeAll(toRemove);
+    if (getParent() != null) {
+      Context parent = getParent();
+      //Ignore global context
+      if (parent.getParent() != null) {
+        parent.removeDeferredTokens(toRemove);
+      }
+    }
+  }
+
+  public Set<DeferredToken> getDeferredTokens() {
+    return deferredTokens;
+  }
+
+  public Map<String, Object> getCombinedScope() {
+    Map<String, Object> scopeMap = new HashMap<>(getScope());
+    Context parent = this.parent;
+    while (parent != null && parent.currentPathStack == currentPathStack) {
+      parent.getScope().forEach(scopeMap::putIfAbsent);
+      parent = parent.parent;
+    }
+    return scopeMap;
+  }
+
+  public Context getPenultimateParent() {
+    Context secondToLastContext = this;
+    if (parent != null) {
+      while (secondToLastContext.parent.parent != null) {
+        secondToLastContext = secondToLastContext.parent;
+      }
+    }
+    return secondToLastContext;
   }
 
   public List<? extends Node> getSuperBlock() {
@@ -675,6 +709,26 @@ public class Context extends ScopeMap<String, Object> {
     return this;
   }
 
+  public boolean isDeferLargeObjects() {
+    return deferLargeObjects;
+  }
+
+  public Context setDeferLargeObjects(boolean deferLargeObjects) {
+    this.deferLargeObjects = deferLargeObjects;
+    return this;
+  }
+
+  public TemporaryValueClosable<Boolean> withDeferLargeObjects(
+    boolean deferLargeObjects
+  ) {
+    TemporaryValueClosable<Boolean> temporaryValueClosable = new TemporaryValueClosable<>(
+      this.deferLargeObjects,
+      this::setDeferLargeObjects
+    );
+    this.deferLargeObjects = deferLargeObjects;
+    return temporaryValueClosable;
+  }
+
   public boolean getThrowInterpreterErrors() {
     return throwInterpreterErrors;
   }
@@ -692,11 +746,17 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public TemporaryValueClosable<Boolean> withPartialMacroEvaluation() {
+    return withPartialMacroEvaluation(true);
+  }
+
+  public TemporaryValueClosable<Boolean> withPartialMacroEvaluation(
+    boolean partialMacroEvaluation
+  ) {
     TemporaryValueClosable<Boolean> temporaryValueClosable = new TemporaryValueClosable<>(
       this.partialMacroEvaluation,
       this::setPartialMacroEvaluation
     );
-    this.partialMacroEvaluation = true;
+    this.partialMacroEvaluation = partialMacroEvaluation;
     return temporaryValueClosable;
   }
 

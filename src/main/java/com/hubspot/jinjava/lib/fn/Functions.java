@@ -13,7 +13,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.objects.Namespace;
-import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import com.hubspot.jinjava.tree.Node;
@@ -26,9 +25,11 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -96,8 +97,20 @@ public class Functions {
   )
   public static Namespace createNamespace(Object... parameters) {
     Namespace namespace = parameters.length > 0 && parameters[0] instanceof Map
-      ? new Namespace((Map<String, Object>) parameters[0])
-      : new Namespace();
+      ? new Namespace(
+        (Map<String, Object>) parameters[0],
+        JinjavaInterpreter
+          .getCurrentMaybe()
+          .map(interpreter -> interpreter.getConfig().getMaxMapSize())
+          .orElse(Integer.MAX_VALUE)
+      )
+      : new Namespace(
+        new HashMap<>(),
+        JinjavaInterpreter
+          .getCurrentMaybe()
+          .map(interpreter -> interpreter.getConfig().getMaxMapSize())
+          .orElse(Integer.MAX_VALUE)
+      );
     namespace.putAll(
       Arrays
         .stream(parameters)
@@ -112,6 +125,18 @@ public class Functions {
 
   public static List<Object> immutableListOf(Object... items) {
     return Collections.unmodifiableList(Lists.newArrayList(items));
+  }
+
+  @JinjavaDoc(
+    value = "converts a key-value pair into a Map.Entry",
+    params = {
+      @JinjavaParam(value = "key", type = "object"),
+      @JinjavaParam(value = "value", type = "object")
+    },
+    hidden = true
+  )
+  public static Map.Entry<?, ?> convertToMapEntry(Object key, Object value) {
+    return new SimpleEntry<>(key, value);
   }
 
   @JinjavaDoc(
@@ -132,7 +157,11 @@ public class Functions {
       try {
         zoneOffset = ZoneId.of(timezone);
       } catch (DateTimeException e) {
-        throw new InvalidDateFormatException(timezone, e);
+        throw new InvalidArgumentException(
+          JinjavaInterpreter.getCurrent(),
+          "today",
+          String.format("Invalid timezone: %s", timezone)
+        );
       }
     }
 
@@ -156,14 +185,18 @@ public class Functions {
     }
   )
   public static String dateTimeFormat(Object var, String... format) {
-    ZoneId zoneOffset = ZoneOffset.UTC;
+    ZoneId zoneOffset = ZoneId.of("UTC");
 
-    if (format.length > 1) {
+    if (format.length > 1 && format[1] != null) {
       String timezone = format[1];
       try {
         zoneOffset = ZoneId.of(timezone);
       } catch (DateTimeException e) {
-        throw new InvalidDateFormatException(timezone, e);
+        throw new InvalidArgumentException(
+          JinjavaInterpreter.getCurrent(),
+          "datetimeformat",
+          String.format("Invalid timezone: %s", timezone)
+        );
       }
     } else if (var instanceof ZonedDateTime) {
       zoneOffset = ((ZonedDateTime) var).getZone();

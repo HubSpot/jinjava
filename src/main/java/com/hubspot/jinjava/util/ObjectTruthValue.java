@@ -39,7 +39,7 @@ public final class ObjectTruthValue {
     }
 
     if (object instanceof Number) {
-      return ((Number) object).intValue() != 0;
+      return ((Number) object).doubleValue() != 0;
     }
 
     if (object instanceof String) {

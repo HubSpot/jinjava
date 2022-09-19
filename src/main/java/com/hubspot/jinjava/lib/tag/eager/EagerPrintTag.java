@@ -7,6 +7,7 @@ import com.hubspot.jinjava.lib.tag.PrintTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -55,9 +56,11 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
     EagerExecutionResult eagerExecutionResult = EagerReconstructionUtils.executeInChildContext(
       eagerInterpreter -> EagerExpressionResolver.resolveExpression(expr, interpreter),
       interpreter,
-      true,
-      false,
-      interpreter.getContext().isDeferredExecutionMode()
+      EagerChildContextConfig
+        .newBuilder()
+        .withTakeNewValue(true)
+        .withCheckForContextChanges(interpreter.getContext().isDeferredExecutionMode())
+        .build()
     );
     StringBuilder prefixToPreserveState = new StringBuilder();
     if (interpreter.getContext().isDeferredExecutionMode()) {
@@ -97,8 +100,8 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
       .add(tagToken.getSymbols().getExpressionEndWithTag());
     interpreter
       .getContext()
-      .handleEagerToken(
-        new EagerToken(
+      .handleDeferredToken(
+        new DeferredToken(
           new TagToken(
             joiner.toString(),
             tagToken.getLineNumber(),

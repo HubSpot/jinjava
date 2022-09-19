@@ -5,10 +5,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredLazyReference;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
-import com.hubspot.jinjava.lib.tag.eager.EagerToken;
+import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -85,48 +86,54 @@ public class DeferredValueUtils {
 
   public static Set<String> findAndMarkDeferredProperties(
     Context context,
-    EagerToken eagerToken
+    DeferredToken deferredToken
   ) {
     String templateSource = rebuildTemplateForNodes(context.getDeferredNodes());
     Set<String> deferredProps = getPropertiesUsedInDeferredNodes(context, templateSource);
     Set<String> setProps = getPropertiesSetInDeferredNodes(templateSource);
-    if (eagerToken != null) {
+    Set<String> referentialDefers = new HashSet<>();
+    if (deferredToken != null) {
       if (
-        eagerToken.getCurrentMacroFunction() == null ||
-        eagerToken
-          .getCurrentMacroFunction()
-          .equals(context.getParent().getMacroStack().peek().orElse(null))
+        deferredToken.getMacroStack() == null ||
+        deferredToken.getMacroStack() == context.getMacroStack()
       ) {
         deferredProps.addAll(
           getPropertiesUsedInDeferredNodes(
             context,
-            rebuildTemplateForEagerTagTokens(eagerToken, true),
+            rebuildTemplateForEagerTagTokens(deferredToken, true),
             false
           )
         );
-        deferredProps.addAll(
+        referentialDefers.addAll(
           getPropertiesUsedInDeferredNodes(
             context,
-            rebuildTemplateForEagerTagTokens(eagerToken, false),
+            rebuildTemplateForEagerTagTokens(deferredToken, false),
             true
           )
         );
       } else {
-        List<String> macroArgs = Optional
-          .ofNullable(context.getGlobalMacro(eagerToken.getCurrentMacroFunction()))
-          .map(AbstractCallableMethod::getArguments)
-          .orElseGet(
-            () ->
-              context
-                .getLocalMacro(eagerToken.getCurrentMacroFunction())
+        List<String> macroArgs = deferredToken
+          .getMacroStack()
+          .peek()
+          .map(
+            name ->
+              Optional
+                .ofNullable(context.getGlobalMacro(name))
                 .map(AbstractCallableMethod::getArguments)
-                .orElse(Collections.emptyList())
-          );
+                .orElseGet(
+                  () ->
+                    context
+                      .getLocalMacro(name)
+                      .map(AbstractCallableMethod::getArguments)
+                      .orElse(Collections.emptyList())
+                )
+          )
+          .orElse(Collections.emptyList());
         // Filter out macro args because we will want them to be deferred on the higher-level contexts later
-        deferredProps.addAll(
+        referentialDefers.addAll(
           getPropertiesUsedInDeferredNodes(
               context,
-              rebuildTemplateForEagerTagTokens(eagerToken, false),
+              rebuildTemplateForEagerTagTokens(deferredToken, false),
               true
             )
             .stream()
@@ -135,6 +142,30 @@ public class DeferredValueUtils {
         );
       }
     }
+    deferredProps.addAll(referentialDefers);
+    referentialDefers.forEach(
+      word -> {
+        Object wordValue = context.get(word);
+        if (
+          !(wordValue instanceof DeferredValue) &&
+          !EagerExpressionResolver.isPrimitive(wordValue)
+        ) {
+          Context temp = context;
+          while (temp.getParent() != null) {
+            temp
+              .getScope()
+              .entrySet()
+              .stream()
+              .filter(entry -> !entry.getKey().equals(word))
+              .filter(entry -> entry.getValue() == wordValue)
+              .forEach(
+                entry -> entry.setValue(DeferredLazyReference.instance(context, word))
+              );
+            temp = temp.getParent();
+          }
+        }
+      }
+    );
 
     markDeferredProperties(context, Sets.union(deferredProps, setProps));
     return deferredProps;
@@ -209,15 +240,15 @@ public class DeferredValueUtils {
   }
 
   private static String rebuildTemplateForEagerTagTokens(
-    EagerToken eagerToken,
+    DeferredToken deferredToken,
     boolean fromSetWords
   ) {
     StringJoiner joiner = new StringJoiner(" ");
 
     (
       fromSetWords
-        ? eagerToken.getSetDeferredWords().stream()
-        : eagerToken.getUsedDeferredWords().stream()
+        ? deferredToken.getSetDeferredWords().stream()
+        : deferredToken.getUsedDeferredWords().stream()
     ).map(h -> h + ".eager.helper")
       .forEach(joiner::add);
     return joiner.toString();

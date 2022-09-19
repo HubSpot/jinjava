@@ -1,13 +1,16 @@
 package com.hubspot.jinjava.lib.fn;
 
+import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,9 +80,14 @@ public class MacroFunction extends AbstractCallableMethod {
         !interpreter.getContext().isPartialMacroEvaluation() &&
         (
           !interpreter.getContext().getDeferredNodes().isEmpty() ||
-          !interpreter.getContext().getEagerTokens().isEmpty()
+          !interpreter.getContext().getDeferredTokens().isEmpty()
         )
       ) {
+        interpreter
+          .getContext()
+          .removeDeferredTokens(
+            ImmutableList.copyOf(interpreter.getContext().getDeferredTokens())
+          );
         // If the macro function could not be fully evaluated, throw a DeferredValueException.
         throw new DeferredValueException(
           getName(),
@@ -122,11 +130,29 @@ public class MacroFunction extends AbstractCallableMethod {
   ) {
     interpreter.setLineNumber(definitionLineNumber);
     interpreter.setPosition(definitionStartPosition);
-    for (Map.Entry<String, Object> scopeEntry : localContextScope.getScope().entrySet()) {
-      if (scopeEntry.getValue() instanceof MacroFunction) {
-        interpreter.getContext().addGlobalMacro((MacroFunction) scopeEntry.getValue());
-      } else {
-        interpreter.getContext().put(scopeEntry.getKey(), scopeEntry.getValue());
+    if (
+      !Objects.equals(
+        interpreter.getContext().get(Context.IMPORT_RESOURCE_PATH_KEY),
+        localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY)
+      )
+    ) {
+      for (Map.Entry<String, Object> scopeEntry : localContextScope
+        .getScope()
+        .entrySet()) {
+        if (scopeEntry.getValue() instanceof MacroFunction) {
+          interpreter.getContext().addGlobalMacro((MacroFunction) scopeEntry.getValue());
+        } else if (scopeEntry.getKey().equals(Context.GLOBAL_MACROS_SCOPE_KEY)) {
+          interpreter
+            .getContext()
+            .put(
+              Context.GLOBAL_MACROS_SCOPE_KEY,
+              new HashMap<>((Map<String, MacroFunction>) scopeEntry.getValue())
+            );
+        } else {
+          if (!alreadyDeferredInEarlierCall(scopeEntry.getKey(), interpreter)) {
+            interpreter.getContext().put(scopeEntry.getKey(), scopeEntry.getValue());
+          }
+        }
       }
     }
 
@@ -182,14 +208,48 @@ public class MacroFunction extends AbstractCallableMethod {
     MacroFunction that = (MacroFunction) o;
     return (
       caller == that.caller &&
-      definitionLineNumber == that.definitionLineNumber &&
-      definitionStartPosition == that.definitionStartPosition &&
-      content.equals(that.content)
+      Objects.equals(getName(), that.getName()) &&
+      Objects.equals(
+        localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY),
+        that.localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY)
+      )
     );
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(content, caller, definitionLineNumber, definitionStartPosition);
+    return Objects.hash(
+      getName(),
+      localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY),
+      caller
+    );
+  }
+
+  private boolean alreadyDeferredInEarlierCall(
+    String key,
+    JinjavaInterpreter interpreter
+  ) {
+    if (interpreter.getContext().get(key) instanceof DeferredValue) {
+      Context penultimateParent = interpreter.getContext().getPenultimateParent();
+      String importResourcePath = (String) localContextScope.get(
+        Context.IMPORT_RESOURCE_PATH_KEY
+      );
+      return penultimateParent
+        .getDeferredTokens()
+        .stream()
+        .filter(
+          deferredToken ->
+            Objects.equals(importResourcePath, deferredToken.getImportResourcePath())
+        )
+        .anyMatch(
+          deferredToken ->
+            deferredToken.getSetDeferredWords().contains(key) ||
+            deferredToken
+              .getUsedDeferredWords()
+              .stream()
+              .anyMatch(used -> key.equals(used.split("\\.", 2)[0]))
+        );
+    }
+    return false;
   }
 }

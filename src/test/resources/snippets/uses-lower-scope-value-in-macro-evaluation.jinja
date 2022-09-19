@@ -1,0 +1,10 @@
+{% set val = 1 %}
+{% macro foo() -%}
+{{ val }}
+{%- endmacro %}
+{% for i in range(1) %}
+{{ foo() }}
+{%- set val = 2 %}
+{{ foo() }}
+{%- endfor %}
+{{ val }}

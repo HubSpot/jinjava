@@ -1,0 +1,10 @@
+{% set b_list = ['a'] %}{% do b_list.append(deferred ? 'b' : '') %}
+{% macro c(c_list) %}{% do c_list.append(deferred ? 'c' : '') %}
+C: {{ c_list }}.{% endmacro %}{{ c(b_list) }}{% do b_list.append(deferred ? 'b' : '') %}
+B: {{ b_list }}.{% set a_list = b_list %}{% do a_list.append(deferred ? 'a' : '') %}
+A: {% set a_list = b_list %}{{ a_list }}.
+---
+{% set a_list = ['a'] %}{% for i in [0] %}{% set b_list = a_list %}{% do b_list.append('b') %}{% for __ignored__ in [0] %}{% set c_list = b_list %}{% do c_list.append(deferred ? 'c' : '') %}
+C: {{ c_list }}.{% endfor %}{% do b_list.append(deferred ? 'b' : '') %}
+B: {{ b_list }}.{% endfor %}{% do a_list.append(deferred ? 'a' : '') %}
+A: {{ a_list }}.

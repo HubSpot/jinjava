@@ -536,6 +536,27 @@ public class EagerImportTagTest extends ImportTagTest {
   }
 
   @Test
+  public void itCorrectlySetsNestedPathsForSecondPass() {
+    setupResourceLocator();
+    context.put("foo", DeferredValue.instance());
+    String firstPassResult = interpreter.render(
+      "{% import 'double-import-macro.jinja' %}{{ print_path_macro2(foo) }}"
+    );
+    assertThat(firstPassResult)
+      .isEqualTo(
+        "{% set deferred_import_resource_path = 'double-import-macro.jinja' %}{% macro print_path_macro2(var) %}{{ filter:print_path.filter(var, ____int3rpr3t3r____) }}\n" +
+        "{% set deferred_import_resource_path = 'import-macro.jinja' %}{% macro print_path_macro(var) %}\n" +
+        "{{ filter:print_path.filter(var, ____int3rpr3t3r____) }}\n" +
+        "{{ var }}\n" +
+        "{% endmacro %}{% set deferred_import_resource_path = 'double-import-macro.jinja' %}{{ print_path_macro(var) }}{% endmacro %}{% set deferred_import_resource_path = null %}{{ print_path_macro2(foo) }}"
+      );
+    context.put("foo", "foo");
+    context.put(Context.GLOBAL_MACROS_SCOPE_KEY, null);
+    assertThat(interpreter.render(firstPassResult).trim())
+      .isEqualTo("double-import-macro.jinja\n\nimport-macro.jinja\nfoo");
+  }
+
+  @Test
   public void itImportsDoublyNamed() {
     setupResourceLocator();
     String result = interpreter.render(
@@ -602,6 +623,56 @@ public class EagerImportTagTest extends ImportTagTest {
     String output = interpreter.render(input);
     assertThat(output).isEqualTo(input);
     assertThat(interpreter.getContext().getDeferredNodes()).hasSize(1);
+  }
+
+  @Test
+  public void itHandlesVarFromImportedMacro() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% import 'import-macro-and-var.jinja' -%}\n" +
+      "{{ adjust('a') }}\n" +
+      "{{ adjust('b') }}\n" +
+      "c{{ var }}"
+    );
+    assertThat(result.trim())
+      .isEqualTo(
+        "{% set var = [] %}{% do var.append('a' ~ deferred) %}" +
+        "a\n" +
+        "{% do var.append('b' ~ deferred) %}" +
+        "b\n" +
+        "c{{ var }}"
+      );
+    context.put("deferred", "resolved");
+    assertThat(interpreter.render(result).trim())
+      .isEqualTo("a\n" + "b\n" + "c['aresolved', 'bresolved']");
+  }
+
+  @Test
+  public void itPutsDeferredInOtherSpotValuesOnContext() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% import 'import-macro-applies-val.jinja' -%}\n" +
+      "{% set val = deferred -%}\n" +
+      "{{ apply('foo') }}\n" +
+      "{{ val }}"
+    );
+    assertThat(result.trim()).isEqualTo("{% set val = deferred %}5foo\n{{ val }}");
+    context.put("deferred", "resolved");
+    assertThat(interpreter.render(result).trim()).isEqualTo("5foo\nresolved");
+  }
+
+  @Test
+  public void itDoesNotSilentlyOverrideMacro() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% import 'macro-a.jinja' as macros %}\n" +
+      "{{ macros.doer() }}\n" +
+      "{% if deferred %}\n" +
+      "  {% import 'macro-b.jinja' as macros %}\n" +
+      "{% endif %}\n" +
+      "{{ macros.doer() }}"
+    );
+    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
   }
 
   private static JinjavaInterpreter getChildInterpreter(

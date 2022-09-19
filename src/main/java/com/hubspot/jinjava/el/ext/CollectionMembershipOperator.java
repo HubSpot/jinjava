@@ -10,6 +10,7 @@ import com.hubspot.jinjava.el.tree.impl.ast.AstBinary.SimpleOperator;
 import com.hubspot.jinjava.el.tree.impl.ast.AstNode;
 import java.util.Collection;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import jakarta.el.ELException;
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +51,7 @@ public class CollectionMembershipOperator extends SimpleOperator {
         try {
           Class<?> keyClass = map.keySet().iterator().next().getClass();
           return map.containsKey(converter.convert(o1, keyClass));
-        } catch (ELException e) {
+        } catch (ELException | NoSuchElementException e) {
           return Boolean.FALSE;
         }
       }

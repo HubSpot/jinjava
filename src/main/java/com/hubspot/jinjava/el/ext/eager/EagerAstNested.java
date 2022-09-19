@@ -52,13 +52,6 @@ public class EagerAstNested extends AstRightValue implements EvalResultHolder {
   }
 
   @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-    ((EvalResultHolder) child).clearEvalResult();
-  }
-
-  @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
   }

@@ -82,7 +82,12 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
         joiner.add(kvJoiner.toString());
       }
     );
-    return String.format("{%s}", joiner);
+    String joined = joiner.toString();
+    if (joined.endsWith("}")) {
+      // prevent 2 closing braces from being interpreted as a closing expression token
+      joined += ' ';
+    }
+    return String.format("{%s}", joined);
   }
 
   @Override
@@ -94,23 +99,6 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
   public void setEvalResult(Object evalResult) {
     this.evalResult = evalResult;
     hasEvalResult = true;
-  }
-
-  @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-
-    dict.forEach(
-      (key, value) -> {
-        if (key instanceof EvalResultHolder) {
-          ((EvalResultHolder) key).clearEvalResult();
-        }
-        if (value instanceof EvalResultHolder) {
-          ((EvalResultHolder) value).clearEvalResult();
-        }
-      }
-    );
   }
 
   @Override

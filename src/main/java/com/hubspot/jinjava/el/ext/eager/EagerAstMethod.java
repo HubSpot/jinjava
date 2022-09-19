@@ -36,7 +36,7 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
   public Object eval(Bindings bindings, ELContext context) {
     try {
       setEvalResult(super.eval(bindings, context));
-      return evalResult;
+      return checkEvalResultSize(context);
     } catch (DeferredValueException | ELException originalException) {
       DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
         originalException
@@ -57,14 +57,6 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
   public void setEvalResult(Object evalResult) {
     this.evalResult = evalResult;
     hasEvalResult = true;
-  }
-
-  @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-    property.clearEvalResult();
-    params.clearEvalResult();
   }
 
   @Override

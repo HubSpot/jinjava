@@ -14,6 +14,7 @@ import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
 import com.hubspot.jinjava.mode.DefaultExecutionMode;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
+import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.util.DeferredValueUtils;
@@ -22,6 +23,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,13 +33,19 @@ import org.junit.Test;
 
 public class EagerTest {
   private JinjavaInterpreter interpreter;
-  private final Jinjava jinjava = new Jinjava();
+  private Jinjava jinjava;
   private ExpectedTemplateInterpreter expectedTemplateInterpreter;
   Context globalContext = new Context();
   Context localContext; // ref to context created with global as parent
 
   @Before
   public void setup() {
+    setupWithExecutionMode(EagerExecutionMode.instance());
+  }
+
+  protected void setupWithExecutionMode(ExecutionMode executionMode) {
+    JinjavaInterpreter.popCurrent();
+    jinjava = new Jinjava();
     jinjava.setResourceLocator(
       new ResourceLocator() {
         private RelativePathResolver relativePathResolver = new RelativePathResolver();
@@ -64,12 +72,12 @@ public class EagerTest {
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
-      .withExecutionMode(EagerExecutionMode.instance())
+      .withExecutionMode(executionMode)
       .withNestedInterpretationEnabled(true)
       .withLegacyOverrides(
         LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
       )
-      .withMaxMacroRecursionDepth(5)
+      .withMaxMacroRecursionDepth(20)
       .withEnableRecursiveMacroCalls(true)
       .build();
     JinjavaInterpreter parentInterpreter = new JinjavaInterpreter(
@@ -96,6 +104,13 @@ public class EagerTest {
     } finally {
       JinjavaInterpreter.popCurrent();
     }
+  }
+
+  @Test
+  public void itReconstructsMapWithNullValues() {
+    interpreter.render("{% set foo = {'foo': null} %}");
+    assertThat(interpreter.getContext().get("foo")).isInstanceOf(Map.class);
+    assertThat((Map) interpreter.getContext().get("foo")).hasSize(1);
   }
 
   @Test
@@ -212,11 +227,13 @@ public class EagerTest {
       "{% for item in dict %}{% if item == deferred %} equal {% else %} not equal {% endif %}{% endfor %}"
     );
     StringBuilder expected = new StringBuilder();
+    expected.append("{% for __ignored__ in [0] %}");
     for (String item : (Set<String>) localContext.get("dict")) {
       expected
         .append(String.format("{%% if '%s' == deferred %%}", item))
         .append(" equal {% else %} not equal {% endif %}");
     }
+    expected.append("{% endfor %}");
     assertThat(output).isEqualTo(expected.toString());
     assertThat(interpreter.getErrors()).isEmpty();
   }
@@ -228,6 +245,7 @@ public class EagerTest {
       "{% for item in dict %}{% if item == 'a' %} equal {% if item == deferred %}{% endif %}{% else %} not equal {% endif %}{% endfor %}"
     );
     StringBuilder expected = new StringBuilder();
+    expected.append("{% for __ignored__ in [0] %}");
     for (String item : (Set<String>) localContext.get("dict")) {
       if (item.equals("a")) {
         expected.append(" equal {% if 'a' == deferred %}{% endif %}");
@@ -235,6 +253,7 @@ public class EagerTest {
         expected.append(" not equal ");
       }
     }
+    expected.append("{% endfor %}");
     assertThat(output).isEqualTo(expected.toString());
     assertThat(interpreter.getErrors()).isEmpty();
   }
@@ -247,7 +266,9 @@ public class EagerTest {
     );
 
     StringBuilder expected = new StringBuilder();
+    expected.append("{% for __ignored__ in [0] %}");
     for (String item : (Set<String>) localContext.get("dict")) {
+      expected.append("{% for __ignored__ in [0] %}");
       for (String item2 : (Set<String>) localContext.get("dict2")) {
         if (item2.equals("e")) {
           expected.append(" equal {% if 'e' == deferred %}{% endif %}");
@@ -255,7 +276,9 @@ public class EagerTest {
           expected.append(" not equal ");
         }
       }
+      expected.append("{% endfor %}");
     }
+    expected.append("{% endfor %}");
     assertThat(output).isEqualTo(expected.toString());
     assertThat(interpreter.getErrors()).isEmpty();
   }
@@ -477,17 +500,17 @@ public class EagerTest {
     expectedTemplateInterpreter.assertExpectedOutput("evaluates-non-eager-set");
     assertThat(
         localContext
-          .getEagerTokens()
+          .getDeferredTokens()
           .stream()
-          .flatMap(eagerToken -> eagerToken.getSetDeferredWords().stream())
+          .flatMap(deferredToken -> deferredToken.getSetDeferredWords().stream())
           .collect(Collectors.toSet())
       )
       .containsExactlyInAnyOrder("item");
     assertThat(
         localContext
-          .getEagerTokens()
+          .getDeferredTokens()
           .stream()
-          .flatMap(eagerToken -> eagerToken.getUsedDeferredWords().stream())
+          .flatMap(deferredToken -> deferredToken.getUsedDeferredWords().stream())
           .collect(Collectors.toSet())
       )
       .contains("deferred");
@@ -575,7 +598,7 @@ public class EagerTest {
     localContext.put("deferred2", 10);
 
     // TODO auto remove deferred
-    localContext.getEagerTokens().clear();
+    localContext.getDeferredTokens().clear();
     localContext.getGlobalMacro("macro_append").setDeferred(false);
 
     String output = interpreter.render(deferredOutput);
@@ -991,6 +1014,157 @@ public class EagerTest {
   public void itModifiesVariableInDeferredMacro() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "modifies-variable-in-deferred-macro"
+    );
+  }
+
+  @Test
+  public void itRevertsSimple() {
+    expectedTemplateInterpreter.assertExpectedOutput("reverts-simple");
+  }
+
+  @Test
+  public void itScopesResettingBindings() {
+    expectedTemplateInterpreter.assertExpectedOutput("scopes-resetting-bindings");
+  }
+
+  @Test
+  public void itReconstructsWithMultipleLoops() {
+    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-with-multiple-loops");
+  }
+
+  @Test
+  public void itFullyDefersFilteredMacro() {
+    expectedTemplateInterpreter.assertExpectedOutput("fully-defers-filtered-macro");
+  }
+
+  @Test
+  public void itFullyDefersFilteredMacroSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "fully-defers-filtered-macro.expected"
+    );
+  }
+
+  @Test
+  public void itDefersLargeLoop() {
+    expectedTemplateInterpreter.assertExpectedOutput("defers-large-loop");
+  }
+
+  @Test
+  public void itHandlesSetInInnerScope() {
+    expectedTemplateInterpreter.assertExpectedOutput("handles-set-in-inner-scope");
+  }
+
+  @Test
+  public void itCorrectlyDefersWithMultipleLoops() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "correctly-defers-with-multiple-loops"
+    );
+  }
+
+  @Test
+  public void itRevertsModificationWithDeferredLoop() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reverts-modification-with-deferred-loop"
+    );
+  }
+
+  @Test
+  public void itReconstructsMapNode() {
+    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-map-node");
+  }
+
+  @Test
+  public void itReconstructsMapNodeSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "reconstructs-map-node.expected"
+    );
+  }
+
+  @Test
+  public void itHasProperLineStripping() {
+    expectedTemplateInterpreter.assertExpectedOutput("has-proper-line-stripping");
+  }
+
+  @Test
+  public void itDefersCallTagWithDeferredArgument() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "defers-call-tag-with-deferred-argument"
+    );
+  }
+
+  @Test
+  public void itDefersCallTagWithDeferredArgumentSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "defers-call-tag-with-deferred-argument.expected"
+    );
+  }
+
+  @Test
+  public void itHandlesDuplicateVariableReferenceModification() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-duplicate-variable-reference-modification"
+    );
+  }
+
+  @Test
+  public void itHandlesHigherScopeReferenceModification() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-higher-scope-reference-modification"
+    );
+  }
+
+  @Test
+  public void itHandlesHigherScopeReferenceModificationSecondPass() {
+    interpreter.getContext().put("deferred", "b");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-higher-scope-reference-modification.expected"
+    );
+  }
+
+  @Test
+  public void itDoesNotReferentialDeferForSetVars() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "does-not-referential-defer-for-set-vars"
+    );
+  }
+
+  @Test
+  public void itKeepsScopeIsolationFromForLoops() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "keeps-scope-isolation-from-for-loops"
+    );
+  }
+
+  @Test
+  public void itDoesNotOverrideImportModificationInFor() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "does-not-override-import-modification-in-for"
+    );
+  }
+
+  @Test
+  public void itDoesNotOverrideImportModificationInForSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "does-not-override-import-modification-in-for.expected"
+    );
+  }
+
+  @Test
+  public void itHandlesDeferredForLoopVarFromMacro() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-deferred-for-loop-var-from-macro"
+    );
+  }
+
+  @Test
+  public void itHandlesDeferredForLoopVarFromMacroSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-deferred-for-loop-var-from-macro.expected"
     );
   }
 }

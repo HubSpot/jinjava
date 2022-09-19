@@ -46,7 +46,7 @@ public class StrftimeFormatter {
     CONVERSIONS['y'] = "yy";
     CONVERSIONS['Y'] = "yyyy";
     CONVERSIONS['z'] = "Z";
-    CONVERSIONS['Z'] = "ZZZZ";
+    CONVERSIONS['Z'] = "z";
     CONVERSIONS['%'] = "%";
 
     NOMINATIVE_CONVERSIONS['B'] = "LLLL";
@@ -82,11 +82,17 @@ public class StrftimeFormatter {
           conversions = NOMINATIVE_CONVERSIONS;
         }
 
-        if (stripLeadingZero) {
-          result.append(conversions[c].substring(1));
+        if (c > 255) {
+          // If the date format has invalid character that is > ascii (255) then
+          // maintain the behaviour similar to invalid ascii char <= 255 i.e. append null
+          result.append(conversions[0]);
         } else {
-          result.append(conversions[c]);
-        }
+          if (stripLeadingZero) {
+            result.append(conversions[c].substring(1));
+          } else {
+            result.append(conversions[c]);
+          }
+        } // < 255
       } else if (Character.isLetter(c)) {
         result.append("'");
         while (Character.isLetter(c)) {

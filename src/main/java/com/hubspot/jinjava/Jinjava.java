@@ -97,6 +97,7 @@ public class Jinjava {
       TreeBuilder.class.getName(),
       EagerExtendedSyntaxBuilder.class.getName()
     );
+    eagerExpConfig.setProperty(ExpressionFactoryImpl.PROP_CACHE_SIZE, "0");
 
     TypeConverter converter = new TruthyTypeConverter();
     this.expressionFactory = new ExpressionFactoryImpl(expConfig, converter);
@@ -326,6 +327,7 @@ public class Jinjava {
     globalContext.getAllFilters().forEach(context::registerFilter);
     globalContext.getAllFunctions().forEach(context::registerFunction);
     globalContext.getAllTags().forEach(context::registerTag);
+    context.setAutoEscape(globalContext.isAutoEscape());
     context.setDynamicVariableResolver(globalContext.getDynamicVariableResolver());
     return context;
   }

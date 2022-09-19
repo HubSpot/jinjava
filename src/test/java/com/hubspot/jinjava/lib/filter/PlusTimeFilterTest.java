@@ -98,4 +98,17 @@ public class PlusTimeFilterTest extends BaseJinjavaTest {
     );
     assertThat(renderResult.getErrors()).hasSize(1);
   }
+
+  @Test
+  public void itWarnsOnDateTimeException() {
+    long timestamp = 1543352736000L;
+
+    Map<String, Object> vars = ImmutableMap.of("test", timestamp);
+    RenderResult renderResult = jinjava.renderForResult(
+      "{{ test|plus_time(9999999999, 'years')|unixtimestamp }}",
+      vars
+    );
+    assertThat(renderResult.getOutput()).isEqualTo(String.valueOf(timestamp));
+    assertThat(renderResult.getErrors()).hasSize(1);
+  }
 }

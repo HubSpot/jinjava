@@ -44,19 +44,19 @@ public class TagNode extends Node {
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
-    interpreter.getContext().setCurrentNode(this);
+    preProcess(interpreter);
     if (
       interpreter.getContext().isValidationMode() && !tag.isRenderedInValidationMode()
     ) {
       return new RenderedOutputNode("");
     }
-
     try {
       if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
         interpreter.getContext().checkNumberOfDeferredTokens();
       }
       return tag.interpretOutput(this, interpreter);
     } catch (DeferredValueException e) {
+      checkForInterrupt();
       interpreter.getContext().handleDeferredNode(this);
       return new RenderedOutputNode(reconstructImage());
     } catch (

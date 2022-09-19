@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
+import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -136,8 +137,41 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
     assertThat(interpreter.render(output + "{{ rec(5) }}")).isEqualTo("5-4-3-2-1-");
   }
 
+  @Test
+  public void itDefersDifferentMacrosWithSameName() {
+    // This kind of situation can happen when importing and the imported macro function calls another that has a name clash
+    String foo1Code = "{% macro foo(var) %}This is the {{ var }}{% endmacro %}";
+    String barCode = "{% macro bar(var) %}^{{ foo(var) }}^{% endmacro %}";
+    String foo2Code = "{% macro foo(var) %}~{{ bar(var) }}~{% endmacro %}";
+    MacroFunction foo1Macro;
+    MacroFunction barMacro;
+    try (InterpreterScopeClosable c = interpreter.enterScope()) { // Imitate importing
+      interpreter.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, "some_path");
+      foo1Macro = makeMacroFunction("foo", foo1Code);
+      foo1Macro.setDeferred(true);
+      barMacro = makeMacroFunction("bar", barCode);
+      barMacro.setDeferred(true);
+    }
+    interpreter.getContext().addGlobalMacro(foo1Macro);
+    interpreter.getContext().addGlobalMacro(barMacro);
+
+    MacroFunction foo2Macro;
+    String output;
+    try (InterpreterScopeClosable c = interpreter.enterScope()) {
+      foo2Macro = makeMacroFunction("foo", foo2Code);
+      EagerMacroFunction eagerMacroFunction = new EagerMacroFunction(
+        "foo",
+        foo2Macro,
+        interpreter
+      );
+      output = eagerMacroFunction.reconstructImage();
+    }
+    assertThat(interpreter.render(output + "{{ foo('Foo') }}"))
+      .isEqualTo("~^This is the Foo^~");
+  }
+
   private MacroFunction makeMacroFunction(String name, String code) {
     interpreter.render(code);
-    return context.getGlobalMacro(name);
+    return interpreter.getContext().getGlobalMacro(name);
   }
 }

@@ -74,7 +74,7 @@ public class IntFilter implements Filter {
   }
 
   private Object convertResult(Long result) {
-    if (result > Integer.MAX_VALUE) {
+    if (result < Integer.MIN_VALUE || result > Integer.MAX_VALUE) {
       return result;
     }
     return result.intValue();

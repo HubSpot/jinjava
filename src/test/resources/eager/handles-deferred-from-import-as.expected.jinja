@@ -1,6 +1,5 @@
 {% set myname = deferred + 7 %}{% set __ignored__ %}
 {% set bar = myname + 19 %}
 Hello {{ myname }}
-{% set from_bar = bar %}{% endset %}
-from_foo: Hello {{ myname }}
+{% set from_bar = bar %}{% endset %}from_foo: Hello {{ myname }}
 from_bar: {{ from_bar }}

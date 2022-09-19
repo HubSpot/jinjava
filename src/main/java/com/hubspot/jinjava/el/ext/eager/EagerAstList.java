@@ -36,15 +36,6 @@ public class EagerAstList extends AstList implements EvalResultHolder {
   }
 
   @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-    for (int i = 0; i < elements.getCardinality(); i++) {
-      ((EvalResultHolder) elements.getChild(i)).clearEvalResult();
-    }
-  }
-
-  @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
   }

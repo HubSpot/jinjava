@@ -5,6 +5,7 @@ import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
@@ -54,7 +55,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
     List<Object> varArgs
   ) {
     Optional<String> importFile = macroFunction.getImportFile(interpreter);
-    try (InterpreterScopeClosable c = interpreter.enterScope()) {
+    try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
       interpreter.getContext().setDeferredExecutionMode(true);
       return macroFunction.getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
     } finally {
@@ -106,11 +107,15 @@ public class EagerMacroFunction extends AbstractCallableMethod {
     String prefix = "";
     String suffix = "";
     Optional<String> importFile = macroFunction.getImportFile(interpreter);
+    Object currentDeferredImportResource = null;
     if (importFile.isPresent()) {
       interpreter.getContext().getCurrentPathStack().pop();
-      String currentDeferredImportResource = (String) interpreter
-        .getContext()
-        .get(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY);
+      currentDeferredImportResource =
+        interpreter.getContext().get(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY);
+      if (currentDeferredImportResource instanceof DeferredValue) {
+        currentDeferredImportResource =
+          ((DeferredValue) currentDeferredImportResource).getOriginalValue();
+      }
       prefix =
         EagerReconstructionUtils.buildSetTag(
           ImmutableMap.of(
@@ -120,6 +125,9 @@ public class EagerMacroFunction extends AbstractCallableMethod {
           interpreter,
           false
         );
+      interpreter
+        .getContext()
+        .put(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY, importFile.get());
       suffix =
         EagerReconstructionUtils.buildSetTag(
           ImmutableMap.of(
@@ -133,7 +141,10 @@ public class EagerMacroFunction extends AbstractCallableMethod {
 
     String result;
     if (
-      interpreter.getContext().getMacroStack().contains(macroFunction.getName()) ||
+      (
+        interpreter.getContext().getMacroStack().contains(macroFunction.getName()) &&
+        !differentMacroWithSameNameExists()
+      ) ||
       (
         !macroFunction.isCaller() &&
         AstMacroFunction.checkAndPushMacroStack(interpreter, fullName)
@@ -141,8 +152,7 @@ public class EagerMacroFunction extends AbstractCallableMethod {
     ) {
       return "";
     } else {
-      try {
-        int numEagerTokensStart = interpreter.getContext().getEagerTokens().size();
+      try (InterpreterScopeClosable c = interpreter.enterScope()) {
         String evaluation = (String) evaluate(
           macroFunction
             .getArguments()
@@ -150,7 +160,8 @@ public class EagerMacroFunction extends AbstractCallableMethod {
             .map(arg -> DeferredMacroValueImpl.instance())
             .toArray()
         );
-        if (interpreter.getContext().getEagerTokens().size() > numEagerTokensStart) {
+
+        if (!interpreter.getContext().getDeferredTokens().isEmpty()) {
           evaluation =
             (String) evaluate(
               macroFunction
@@ -165,11 +176,35 @@ public class EagerMacroFunction extends AbstractCallableMethod {
         // In case something not eager-supported encountered a deferred value
         result = macroFunction.reconstructImage();
       } finally {
+        interpreter
+          .getContext()
+          .put(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY, currentDeferredImportResource);
         if (!macroFunction.isCaller()) {
           interpreter.getContext().getMacroStack().pop();
         }
       }
     }
     return prefix + result + suffix;
+  }
+
+  private boolean differentMacroWithSameNameExists() {
+    Context context = interpreter.getContext();
+    if (context.getParent() == null) {
+      return false;
+    }
+    MacroFunction mostRecent = context.getGlobalMacro(macroFunction.getName());
+    if (macroFunction != mostRecent) {
+      return true;
+    }
+    while (
+      !context.getGlobalMacros().containsKey(macroFunction.getName()) &&
+      context.getParent().getParent() != null
+    ) {
+      context = context.getParent();
+    }
+    MacroFunction secondMostRecent = context
+      .getParent()
+      .getGlobalMacro(macroFunction.getName());
+    return secondMostRecent != null && secondMostRecent != macroFunction;
   }
 }

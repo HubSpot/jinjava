@@ -21,13 +21,7 @@ public class EagerAstRoot extends AstNode {
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    try {
-      return rootNode.eval(bindings, context);
-    } finally {
-      if (rootNode instanceof EvalResultHolder) {
-        ((EvalResultHolder) rootNode).clearEvalResult();
-      }
-    }
+    return rootNode.eval(bindings, context);
   }
 
   @Override

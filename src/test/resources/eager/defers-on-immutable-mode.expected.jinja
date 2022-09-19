@@ -5,6 +5,5 @@
 {% endif %}
 {{ foo }}
 
-{% set bar = 1 + deferred %}
-{% set bar = bar + deferred %}
-{{ bar }}
+{% set bar = 1 %}{% for item in [0, 1] %}{% set bar = bar + deferred %}
+{% endfor %}{{ bar }}

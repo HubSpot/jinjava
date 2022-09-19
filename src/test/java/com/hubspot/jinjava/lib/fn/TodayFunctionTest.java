@@ -2,19 +2,20 @@ package com.hubspot.jinjava.lib.fn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
-import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import org.junit.Test;
 
-public class TodayFunctionTest {
+public class TodayFunctionTest extends BaseInterpretingTest {
 
   @Test
   public void itDefaultsToUtcTimezone() {
@@ -28,7 +29,7 @@ public class TodayFunctionTest {
     assertThat(zonedDateTime.getZone()).isEqualTo(ZoneId.of("America/New_York"));
   }
 
-  @Test(expected = InvalidDateFormatException.class)
+  @Test(expected = InvalidArgumentException.class)
   public void itThrowsExceptionOnInvalidTimezone() {
     Functions.today("Not a timezone");
   }

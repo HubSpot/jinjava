@@ -40,6 +40,7 @@ import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
 import com.hubspot.jinjava.random.DeferredRandomNumberGenerator;
+import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
@@ -55,6 +56,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -72,6 +74,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 public class JinjavaInterpreter implements PyishSerializable {
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
   private final LinkedList<Node> extendParentRoots = new LinkedList<>();
+  private final Map<String, RevertibleObject> revertibleObjects = new HashMap<>();
 
   private Context context;
   private final JinjavaConfig config;
@@ -83,6 +86,7 @@ public class JinjavaInterpreter implements PyishSerializable {
   private int lineNumber = -1;
   private int position = 0;
   private int scopeDepth = 1;
+  private BlockInfo currentBlock;
   private final List<TemplateError> errors = new LinkedList<>();
   private static final int MAX_ERROR_SIZE = 100;
 
@@ -184,6 +188,10 @@ public class JinjavaInterpreter implements PyishSerializable {
     return config.isValidationMode();
   }
 
+  public Map<String, RevertibleObject> getRevertibleObjects() {
+    return revertibleObjects;
+  }
+
   public class InterpreterScopeClosable implements AutoCloseable {
 
   @Override
@@ -259,7 +267,7 @@ public class JinjavaInterpreter implements PyishSerializable {
       position = node.getStartPosition();
       String renderStr = node.getMaster().getImage();
       try {
-        if (context.doesRenderStackContain(renderStr)) {
+        if (node instanceof ExpressionNode && context.doesRenderStackContain(renderStr)) {
           // This is a circular rendering. Stop rendering it here.
           addError(
             new TemplateError(
@@ -319,7 +327,7 @@ public class JinjavaInterpreter implements PyishSerializable {
     if (processExtendRoots) {
       Set<String> extendPaths = new HashSet<>();
       Optional<String> extendPath = context.getExtendPathStack().peek();
-      int numEagerTokensBefore = 0;
+      int numDeferredTokensBefore = 0;
       while (!extendParentRoots.isEmpty()) {
         if (extendPaths.contains(extendPath.orElse(""))) {
           addError(
@@ -342,7 +350,7 @@ public class JinjavaInterpreter implements PyishSerializable {
             context.getExtendPathStack().getTopStartPosition()
           );
         Node parentRoot = extendParentRoots.removeFirst();
-        if (context.getEagerTokens().size() > numEagerTokensBefore) {
+        if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
           ignoredOutput.append(
             output
               .getNodes()
@@ -352,7 +360,7 @@ public class JinjavaInterpreter implements PyishSerializable {
               .collect(Collectors.joining())
           );
         }
-        numEagerTokensBefore = context.getEagerTokens().size();
+        numDeferredTokensBefore = context.getDeferredTokens().size();
         output = new OutputList(config.getMaxOutputSize());
 
         boolean hasNestedExtends = false;
@@ -431,6 +439,7 @@ public class JinjavaInterpreter implements PyishSerializable {
             .map(BlockInfo::getNodes)
             .orElse(null);
           context.setSuperBlock(superBlock);
+          currentBlock = block;
 
           OutputList blockValueBuilder = new OutputList(config.getMaxOutputSize());
 
@@ -466,6 +475,7 @@ public class JinjavaInterpreter implements PyishSerializable {
           blockNames.pop();
 
           context.removeSuperBlock();
+          currentBlock = null;
 
           blockPlaceholder.resolve(blockValueBuilder.getValue());
         }
@@ -674,6 +684,10 @@ public class JinjavaInterpreter implements PyishSerializable {
     this.position = position;
   }
 
+  public BlockInfo getCurrentBlock() {
+    return currentBlock;
+  }
+
   public void addError(TemplateError templateError) {
     if (context.getThrowInterpreterErrors()) {
       if (templateError.getSeverity() == ErrorType.FATAL) {
@@ -690,9 +704,13 @@ public class JinjavaInterpreter implements PyishSerializable {
     }
     // fix line numbers not matching up with source template
     if (!context.getCurrentPathStack().isEmpty()) {
-      if (!templateError.getSourceTemplate().isPresent() && context.getCurrentPathStack().peek().isPresent()) {
+      if (
+        !templateError.getSourceTemplate().isPresent() &&
+        context.getCurrentPathStack().peek().isPresent()
+      ) {
         String templateName = context.getCurrentPathStack().peek().get();
-        templateError.setMessage(getWrappedErrorMessage(templateName, templateError)
+        templateError.setMessage(
+          getWrappedErrorMessage(templateName, templateError)
         );
         templateError.setSourceTemplate(templateName);
       }

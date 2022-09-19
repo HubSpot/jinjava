@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.el.ext.eager;
 
+import com.hubspot.jinjava.el.NoInvokeELContext;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.tree.Bindings;
 import com.hubspot.jinjava.el.tree.impl.ast.AstChoice;
@@ -37,7 +38,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
   public Object eval(Bindings bindings, ELContext context) throws ELException {
     try {
       setEvalResult(super.eval(bindings, context));
-      return evalResult;
+      return checkEvalResultSize(context);
     } catch (DeferredParsingException e) {
       if (question.hasEvalResult()) {
         // the question was evaluated so jump to either yes or no
@@ -59,15 +60,6 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
   public void setEvalResult(Object evalResult) {
     this.evalResult = evalResult;
     hasEvalResult = true;
-  }
-
-  @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-    question.clearEvalResult();
-    yes.clearEvalResult();
-    no.clearEvalResult();
   }
 
   @Override
@@ -93,7 +85,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
       " ? " +
       EvalResultHolder.reconstructNode(
         bindings,
-        context,
+        new NoInvokeELContext(context),
         yes,
         deferredParsingException,
         preserveIdentifier
@@ -101,7 +93,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
       " : " +
       EvalResultHolder.reconstructNode(
         bindings,
-        context,
+        new NoInvokeELContext(context),
         no,
         deferredParsingException,
         preserveIdentifier

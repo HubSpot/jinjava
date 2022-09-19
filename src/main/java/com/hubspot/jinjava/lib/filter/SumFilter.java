@@ -77,6 +77,9 @@ public class SumFilter implements AdvancedFilter {
 
       if (attr != null) {
         val = interpreter.resolveProperty(val, attr);
+        if (val == null) {
+          continue;
+        }
       }
 
       try {

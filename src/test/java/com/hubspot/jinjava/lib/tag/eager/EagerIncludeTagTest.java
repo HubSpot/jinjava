@@ -79,17 +79,17 @@ public class EagerIncludeTagTest extends IncludeTagTest {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent("includes-deferred");
     assertThat(
         context
-          .getEagerTokens()
+          .getDeferredTokens()
           .stream()
-          .flatMap(eagerToken -> eagerToken.getUsedDeferredWords().stream())
+          .flatMap(deferredToken -> deferredToken.getUsedDeferredWords().stream())
           .collect(Collectors.toSet())
       )
       .containsExactlyInAnyOrder("foo", "deferred");
     assertThat(
         context
-          .getEagerTokens()
+          .getDeferredTokens()
           .stream()
-          .flatMap(eagerToken -> eagerToken.getSetDeferredWords().stream())
+          .flatMap(deferredToken -> deferredToken.getSetDeferredWords().stream())
           .collect(Collectors.toSet())
       )
       .containsExactlyInAnyOrder("foo");

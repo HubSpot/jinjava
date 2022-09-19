@@ -10,6 +10,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.Collections;
 import java.util.Optional;
@@ -30,26 +31,25 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
     String expression,
     JinjavaInterpreter interpreter
   ) {
-    int numEagerTokens = interpreter.getContext().getEagerTokens().size();
-    return EagerReconstructionUtils.executeInChildContext(
-      eagerInterpreter -> {
-        StringBuilder sb = new StringBuilder();
-        for (Node child : tagNode.getChildren()) {
-          sb.append(child.render(eagerInterpreter).getValue());
-        }
-        return EagerExpressionResult.fromString(
-          sb.toString(),
-          numEagerTokens ==
-            eagerInterpreter.getContext().getParent().getEagerTokens().size()
-            ? ResolutionState.FULL
-            : ResolutionState.PARTIAL
-        );
-      },
+    EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResult.fromSupplier(
+          () -> {
+            StringBuilder sb = new StringBuilder();
+            for (Node child : tagNode.getChildren()) {
+              sb.append(child.render(eagerInterpreter).getValue());
+            }
+            return sb.toString();
+          },
+          eagerInterpreter
+        ),
       interpreter,
-      true,
-      false,
-      false
+      EagerChildContextConfig.newBuilder().withTakeNewValue(true).build()
     );
+    if (result.getResult().getResolutionState() == ResolutionState.NONE) {
+      throw new DeferredValueException(result.getResult().toString());
+    }
+    return result;
   }
 
   @Override
@@ -116,8 +116,8 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
 
     interpreter
       .getContext()
-      .handleEagerToken(
-        new EagerToken(
+      .handleDeferredToken(
+        new DeferredToken(
           new TagToken(
             joiner.toString(),
             tagNode.getLineNumber(),

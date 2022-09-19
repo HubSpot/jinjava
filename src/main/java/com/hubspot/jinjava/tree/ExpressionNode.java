@@ -43,10 +43,11 @@ public class ExpressionNode extends Node {
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
-    interpreter.getContext().setCurrentNode(this);
+    preProcess(interpreter);
     try {
       return expressionStrategy.interpretOutput(master, interpreter);
     } catch (DeferredValueException e) {
+      checkForInterrupt();
       interpreter.getContext().handleDeferredNode(this);
       return new RenderedOutputNode(master.getImage());
     }

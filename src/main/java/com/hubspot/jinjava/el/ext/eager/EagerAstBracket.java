@@ -47,16 +47,6 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
   }
 
   @Override
-  public void clearEvalResult() {
-    evalResult = null;
-    hasEvalResult = false;
-    ((EvalResultHolder) prefix).clearEvalResult();
-    if (property != null) {
-      ((EvalResultHolder) property).clearEvalResult();
-    }
-  }
-
-  @Override
   public boolean hasEvalResult() {
     return hasEvalResult;
   }

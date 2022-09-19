@@ -4,8 +4,13 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.PyishDate;
+import java.time.DateTimeException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -43,16 +48,31 @@ public class MinusTimeFilter extends BaseDateFilter {
     long diff = parseDiffAmount(interpreter, args);
     ChronoUnit chronoUnit = parseChronoUnit(interpreter, args);
 
-    if (var instanceof ZonedDateTime) {
-      ZonedDateTime dateTime = (ZonedDateTime) var;
-      return new PyishDate(dateTime.minus(diff, chronoUnit));
-    } else if (var instanceof PyishDate) {
-      PyishDate pyishDate = (PyishDate) var;
-      return new PyishDate(pyishDate.toDateTime().minus(diff, chronoUnit));
-    } else if (var instanceof Number) {
-      Number timestamp = (Number) var;
-      ZonedDateTime zonedDateTime = Functions.getDateTimeArg(timestamp, ZoneOffset.UTC);
-      return new PyishDate(zonedDateTime.minus(diff, chronoUnit));
+    try {
+      if (var instanceof ZonedDateTime) {
+        ZonedDateTime dateTime = (ZonedDateTime) var;
+        return new PyishDate(dateTime.minus(diff, chronoUnit));
+      } else if (var instanceof PyishDate) {
+        PyishDate pyishDate = (PyishDate) var;
+        return new PyishDate(pyishDate.toDateTime().minus(diff, chronoUnit));
+      } else if (var instanceof Number) {
+        Number timestamp = (Number) var;
+        ZonedDateTime zonedDateTime = Functions.getDateTimeArg(timestamp, ZoneOffset.UTC);
+        return new PyishDate(zonedDateTime.minus(diff, chronoUnit));
+      }
+    } catch (DateTimeException e) {
+      interpreter.addError(
+        new TemplateError(
+          ErrorType.WARNING,
+          ErrorReason.OTHER,
+          ErrorItem.FILTER,
+          e.getMessage(),
+          null,
+          interpreter.getLineNumber(),
+          interpreter.getPosition(),
+          e
+        )
+      );
     }
 
     return var;

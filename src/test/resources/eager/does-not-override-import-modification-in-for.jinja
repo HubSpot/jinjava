@@ -1,0 +1,8 @@
+{% set foo = 'start' %}
+{% for i in range(2) %}
+{% import "deferred-modification.jinja" as bar1 %}
+{{ bar1.foo }}
+{% import "deferred-modification.jinja" as bar2 %}
+{{ bar2.foo }}
+{% endfor %}
+{{ foo }}
