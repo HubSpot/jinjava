@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 
 import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.ExpectedNodeInterpreter;
@@ -11,8 +10,12 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.lib.tag.ForTagTest;
+import com.hubspot.jinjava.mode.DefaultExecutionMode;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
+import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.DeferredValueUtils;
+import java.util.HashMap;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -24,6 +27,16 @@ public class EagerForTagTest extends ForTagTest {
 
   @Before
   public void eagerSetup() {
+    setupWithExecutionMode(EagerExecutionMode.instance());
+    tag = new EagerForTag();
+    context.registerTag(tag);
+    context.put("deferred", DeferredValue.instance());
+    expectedNodeInterpreter =
+      new ExpectedNodeInterpreter(interpreter, tag, "tags/eager/fortag");
+    JinjavaInterpreter.pushCurrent(interpreter);
+  }
+
+  private void setupWithExecutionMode(ExecutionMode executionMode) {
     interpreter =
       new JinjavaInterpreter(
         jinjava,
@@ -31,18 +44,12 @@ public class EagerForTagTest extends ForTagTest {
         JinjavaConfig
           .newBuilder()
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
-          .withExecutionMode(EagerExecutionMode.instance())
+          .withExecutionMode(executionMode)
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
           )
           .build()
       );
-    tag = new EagerForTag();
-    context.registerTag(tag);
-    context.put("deferred", DeferredValue.instance());
-    expectedNodeInterpreter =
-      new ExpectedNodeInterpreter(interpreter, tag, "tags/eager/fortag");
-    JinjavaInterpreter.pushCurrent(interpreter);
   }
 
   @After
@@ -215,7 +222,59 @@ public class EagerForTagTest extends ForTagTest {
       "{% endfor %}" +
       "{% endfor %}" +
       "{{ my_list }}";
-    interpreter.render(input);
+    EagerExecutionMode executionMode = new EagerExecutionMode() {
+
+      @Override
+      public boolean useEagerContextReverting() {
+        return false;
+      }
+    };
+    setupWithExecutionMode(executionMode);
+
+    String render = interpreter.render(input);
     assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
+
+    HashMap<String, Object> deferredContextWithOriginalValues = DeferredValueUtils.getDeferredContextWithOriginalValues(
+      interpreter.getContext()
+    );
+    setupWithExecutionMode(executionMode);
+    interpreter.getContext().putAll(deferredContextWithOriginalValues);
+    interpreter.getContext().put("deferred", "[]");
+
+    interpreter.render(render);
+    assertThat(interpreter.getContext().getDeferredTokens()).isEmpty();
+  }
+
+  @Test
+  public void itRendersNestedForLoops() {
+    String input =
+      "{% for __ignored1__ in [0] %}\n" +
+      "  {% set counter = [] %}\n" +
+      "  {% for __ignored2__ in [0] %}\n" +
+      "    {% for __ignored3__ in [0] %}\n" +
+      "      {% do counter.append(1) %}\n" +
+      "    {% endfor %}\n" +
+      "  {% endfor %}\n" +
+      "  {{ counter }}" +
+      "{% endfor %}";
+
+    EagerExecutionMode executionMode = new EagerExecutionMode() {
+
+      @Override
+      public boolean useEagerContextReverting() {
+        return false;
+      }
+    };
+    setupWithExecutionMode(executionMode);
+
+    String output = interpreter.render(input);
+
+    HashMap<String, Object> deferredContextWithOriginalValues = DeferredValueUtils.getDeferredContextWithOriginalValues(
+      interpreter.getContext()
+    );
+    setupWithExecutionMode(DefaultExecutionMode.instance());
+    interpreter.getContext().putAll(deferredContextWithOriginalValues);
+    String output2 = interpreter.render(output);
+    assertThat(output2.trim()).isEqualTo("[1]");
   }
 }
