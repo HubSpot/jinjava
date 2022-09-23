@@ -106,6 +106,14 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itConvertsToLocaleSpecificDateTimeFormat() {
+    assertThat(
+        filter.filter(1539277785000L, interpreter, "%x %X", "Europe/Berlin", "de-DE")
+      )
+      .isEqualTo("10/11/18 19:09:45");
+  }
+
+  @Test
   public void itDefaultsToEnglishForBadLocaleValues() {
     interpreter.getContext().put("d", d);
 
