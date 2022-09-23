@@ -10,7 +10,7 @@ import de.odysseus.el.tree.impl.ast.AstParameters;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-import javax.el.ELContext;
+import jakarta.el.ELContext;
 
 public class EagerAstParameters extends AstParameters implements EvalResultHolder {
   protected Object evalResult;

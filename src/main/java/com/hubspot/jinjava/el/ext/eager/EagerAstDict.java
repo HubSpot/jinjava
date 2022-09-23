@@ -10,7 +10,7 @@ import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import java.util.Map;
 import java.util.StringJoiner;
-import javax.el.ELContext;
+import jakarta.el.ELContext;
 
 public class EagerAstDict extends AstDict implements EvalResultHolder {
   protected Object evalResult;

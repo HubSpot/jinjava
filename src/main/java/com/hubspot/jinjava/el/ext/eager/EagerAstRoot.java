@@ -3,9 +3,9 @@ package com.hubspot.jinjava.el.ext.eager;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.Node;
 import de.odysseus.el.tree.impl.ast.AstNode;
-import javax.el.ELContext;
-import javax.el.MethodInfo;
-import javax.el.ValueReference;
+import jakarta.el.ELContext;
+import jakarta.el.MethodInfo;
+import jakarta.el.ValueReference;
 
 public class EagerAstRoot extends AstNode {
   private AstNode rootNode;

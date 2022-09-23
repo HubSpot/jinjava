@@ -48,7 +48,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.el.ELException;
+import jakarta.el.ELException;
 
 public class ExtendedParser extends Parser {
   public static final String INTERPRETER = "____int3rpr3t3r____";

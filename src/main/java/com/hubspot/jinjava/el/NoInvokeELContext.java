@@ -1,9 +1,9 @@
 package com.hubspot.jinjava.el;
 
-import javax.el.ELContext;
-import javax.el.ELResolver;
-import javax.el.FunctionMapper;
-import javax.el.VariableMapper;
+import jakarta.el.ELContext;
+import jakarta.el.ELResolver;
+import jakarta.el.FunctionMapper;
+import jakarta.el.VariableMapper;
 
 public class NoInvokeELContext extends ELContext {
   private ELContext delegate;

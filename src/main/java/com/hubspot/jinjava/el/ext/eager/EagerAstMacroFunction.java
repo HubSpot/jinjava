@@ -12,8 +12,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.StringJoiner;
-import javax.el.ELContext;
-import javax.el.ELException;
+import jakarta.el.ELContext;
+import jakarta.el.ELException;
 
 public class EagerAstMacroFunction extends AstMacroFunction implements EvalResultHolder {
   protected Object evalResult;

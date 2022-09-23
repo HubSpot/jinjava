@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.fn;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNull;
 
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.objects.date.PyishDate;
@@ -43,13 +44,13 @@ public class StringToTimeFunctionTest {
   public void itReturnsNullOnNullInput() {
     String datetime = null;
     String format = "yyyy-MM-dd'T'HH:mm:ssZ";
-    assertThat(Functions.stringToTime(datetime, format)).isEqualTo(null);
+    assertNull(Functions.stringToTime(datetime, format));
   }
 
   @Test(expected = InterpretException.class)
   public void itFailsOnNullDatetimeFormat() {
     String datetime = "2018-07-14T14:31:30+0530";
     String format = null;
-    assertThat(Functions.stringToTime(datetime, format)).isEqualTo(null);
+    assertNull(Functions.stringToTime(datetime, format));
   }
 }

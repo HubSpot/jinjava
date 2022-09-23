@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import javax.el.ExpressionFactory;
+import jakarta.el.ExpressionFactory;
 
 /**
  * The main client API for the Jinjava library, instances of this class can be used to render jinja templates with a given map of context values. Example use:

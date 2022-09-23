@@ -6,7 +6,7 @@ import de.odysseus.el.misc.TypeConverterImpl;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.EnumSet;
-import javax.el.ELException;
+import jakarta.el.ELException;
 
 public class TruthyTypeConverter extends TypeConverterImpl {
   private static final long serialVersionUID = 1L;

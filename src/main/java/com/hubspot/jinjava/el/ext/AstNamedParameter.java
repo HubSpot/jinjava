@@ -4,7 +4,7 @@ import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstLiteral;
 import de.odysseus.el.tree.impl.ast.AstNode;
-import javax.el.ELContext;
+import jakarta.el.ELContext;
 
 public class AstNamedParameter extends AstLiteral {
   private final AstIdentifier name;

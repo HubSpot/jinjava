@@ -4,7 +4,7 @@ import com.hubspot.jinjava.objects.collections.PyList;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import java.util.Collections;
-import javax.el.ELContext;
+import jakarta.el.ELContext;
 
 public class AstTuple extends AstList {
 

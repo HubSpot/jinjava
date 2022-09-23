@@ -7,9 +7,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Set;
-import javax.el.BeanELResolver;
-import javax.el.ELContext;
-import javax.el.MethodNotFoundException;
+import jakarta.el.BeanELResolver;
+import jakarta.el.ELContext;
+import jakarta.el.MethodNotFoundException;
 
 /**
  * {@link BeanELResolver} supporting snake case property names.

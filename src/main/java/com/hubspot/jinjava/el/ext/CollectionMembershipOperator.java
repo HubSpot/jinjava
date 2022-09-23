@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import javax.el.ELException;
+import jakarta.el.ELException;
 import org.apache.commons.lang3.StringUtils;
 
 public class CollectionMembershipOperator extends SimpleOperator {

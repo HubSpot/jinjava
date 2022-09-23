@@ -4,7 +4,7 @@ import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBracket;
 import de.odysseus.el.tree.impl.ast.AstNode;
-import javax.el.ELContext;
+import jakarta.el.ELContext;
 
 public class EagerAstBracket extends AstBracket implements EvalResultHolder {
   protected Object evalResult;
