@@ -92,12 +92,7 @@ public class StrftimeFormatterTest {
 
   @Test
   public void testFinnishMonths() {
-    assertThat(
-        StrftimeFormatter
-          .formatter("long")
-          .withLocale(Locale.forLanguageTag("fi"))
-          .format(d)
-      )
+    assertThat(StrftimeFormatter.format(d, "long", Locale.forLanguageTag("fi")))
       .startsWith("6. marraskuuta 2013 klo 14.22.00");
   }
 
@@ -118,10 +113,7 @@ public class StrftimeFormatterTest {
     ZonedDateTime zonedDateTime = ZonedDateTime.parse("2019-06-06T14:22:00.000+00:00");
 
     assertThat(
-        StrftimeFormatter
-          .formatter("%OB")
-          .withLocale(Locale.forLanguageTag("ru"))
-          .format(zonedDateTime)
+        StrftimeFormatter.format(zonedDateTime, "%OB", Locale.forLanguageTag("ru"))
       )
       .isIn("Июнь", "июнь");
   }
