@@ -2,7 +2,6 @@ package com.hubspot.jinjava.el;
 
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
-import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
@@ -18,27 +17,21 @@ import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
-import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
-import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.objects.date.PyishDate;
-import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import de.odysseus.el.util.SimpleResolver;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -48,7 +41,6 @@ import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.el.PropertyNotFoundException;
 import javax.el.ResourceBundleELResolver;
-import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class JinjavaInterpreterResolver extends SimpleResolver {
@@ -357,10 +349,6 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       return new PyishDate(localizeDateTime(interpreter, (ZonedDateTime) value));
     }
 
-    if (FormattedDate.class.isAssignableFrom(value.getClass())) {
-      return formattedDateToString(interpreter, (FormattedDate) value);
-    }
-
     return value;
   }
 
@@ -374,84 +362,5 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       dt
     );
     return dt.withZoneSameInstant(interpreter.getConfig().getTimeZone());
-  }
-
-  private static String formattedDateToString(
-    JinjavaInterpreter interpreter,
-    FormattedDate d
-  ) {
-    DateTimeFormatter formatter = getFormatter(interpreter, d)
-      .withLocale(getLocale(interpreter, d));
-    return formatter.format(localizeDateTime(interpreter, d.getDate()));
-  }
-
-  private static DateTimeFormatter getFormatter(
-    JinjavaInterpreter interpreter,
-    FormattedDate d
-  ) {
-    if (!StringUtils.isBlank(d.getFormat())) {
-      try {
-        return StrftimeFormatter.formatter(
-          d.getFormat(),
-          interpreter.getConfig().getLocale()
-        );
-      } catch (IllegalArgumentException e) {
-        interpreter.addError(
-          new TemplateError(
-            ErrorType.WARNING,
-            ErrorReason.SYNTAX_ERROR,
-            ErrorItem.OTHER,
-            e.getMessage(),
-            null,
-            interpreter.getLineNumber(),
-            -1,
-            null,
-            BasicTemplateErrorCategory.UNKNOWN_DATE,
-            ImmutableMap.of(
-              "date",
-              d.getDate().toString(),
-              "exception",
-              e.getMessage(),
-              "lineNumber",
-              String.valueOf(interpreter.getLineNumber())
-            )
-          )
-        );
-      }
-    }
-
-    return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
-  }
-
-  private static Locale getLocale(JinjavaInterpreter interpreter, FormattedDate d) {
-    if (!StringUtils.isBlank(d.getLanguage())) {
-      try {
-        return LocaleUtils.toLocale(d.getLanguage());
-      } catch (IllegalArgumentException e) {
-        interpreter.addError(
-          new TemplateError(
-            ErrorType.WARNING,
-            ErrorReason.SYNTAX_ERROR,
-            ErrorItem.OTHER,
-            e.getMessage(),
-            null,
-            interpreter.getLineNumber(),
-            -1,
-            null,
-            BasicTemplateErrorCategory.UNKNOWN_LOCALE,
-            ImmutableMap.of(
-              "date",
-              d.getDate().toString(),
-              "exception",
-              e.getMessage(),
-              "lineNumber",
-              String.valueOf(interpreter.getLineNumber())
-            )
-          )
-        );
-      }
-    }
-
-    return Locale.US;
   }
 }
