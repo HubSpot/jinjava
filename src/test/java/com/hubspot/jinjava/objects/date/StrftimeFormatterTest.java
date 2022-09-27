@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.objects.date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -119,15 +120,14 @@ public class StrftimeFormatterTest {
   }
 
   @Test
-  public void testJavaFormatWithInvalidChar() {
-    assertThat(StrftimeFormatter.toJavaDateTimeFormat("%d.%é.%Y"))
-      .isEqualTo("dd.null.yyyy");
-  }
+  public void itThrowsOnInvalidFormats() {
+    assertThatExceptionOfType(InvalidDateFormatException.class)
+      .isThrownBy(() -> StrftimeFormatter.format(d, "%d.%é.%Y"))
+      .withMessage("Invalid date format: [%d.%é.%Y]");
 
-  @Test
-  public void testJavaFormatWithGT255Char() {
-    assertThat(StrftimeFormatter.toJavaDateTimeFormat("%d.%ğ.%Y"))
-      .isEqualTo("dd.null.yyyy");
+    assertThatExceptionOfType(InvalidDateFormatException.class)
+      .isThrownBy(() -> StrftimeFormatter.format(d, "%d.%ğ.%Y"))
+      .withMessage("Invalid date format: [%d.%ğ.%Y]");
   }
 
   @Test
