@@ -53,67 +53,6 @@ public class StrftimeFormatter {
     NOMINATIVE_CONVERSIONS['B'] = "LLLL";
   }
 
-  /**
-   * Parses a string in python strftime format, returning the equivalent string in java date time format.
-   *
-   * @param strftime
-   * @return date formatted as string
-   */
-  public static String toJavaDateTimeFormat(String strftime) {
-    if (!StringUtils.contains(strftime, '%')) {
-      return strftime;
-    }
-
-    StringBuilder result = new StringBuilder();
-
-    for (int i = 0; i < strftime.length(); i++) {
-      char c = strftime.charAt(i);
-      if (c == '%' && strftime.length() > i + 1) {
-        c = strftime.charAt(++i);
-        boolean stripLeadingZero = false;
-        String[] conversions = CONVERSIONS;
-
-        if (c == '-') {
-          stripLeadingZero = true;
-          c = strftime.charAt(++i);
-        }
-
-        if (c == 'O') {
-          c = strftime.charAt(++i);
-          conversions = NOMINATIVE_CONVERSIONS;
-        }
-
-        if (c > 255) {
-          // If the date format has invalid character that is > ascii (255) then
-          // maintain the behaviour similar to invalid ascii char <= 255 i.e. append null
-          result.append(conversions[0]);
-        } else {
-          if (stripLeadingZero) {
-            result.append(conversions[c].substring(1));
-          } else {
-            result.append(conversions[c]);
-          }
-        } // < 255
-      } else if (Character.isLetter(c)) {
-        result.append("'");
-        while (Character.isLetter(c)) {
-          result.append(c);
-          if (++i < strftime.length()) {
-            c = strftime.charAt(i);
-          } else {
-            c = 0;
-          }
-        }
-        result.append("'");
-        --i; // re-consume last char
-      } else {
-        result.append(c);
-      }
-    }
-
-    return result.toString();
-  }
-
   public static DateTimeFormatter toDateTimeFormatter(String strftime) {
     if (!StringUtils.contains(strftime, '%')) {
       return DateTimeFormatter.ofPattern(strftime);
