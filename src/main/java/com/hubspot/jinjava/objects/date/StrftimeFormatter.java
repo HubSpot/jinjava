@@ -53,6 +53,11 @@ public class StrftimeFormatter {
     NOMINATIVE_CONVERSIONS['B'] = "LLLL";
   }
 
+  /**
+   * Build a {@link DateTimeFormatter} that matches the given Python <code>strftime</code> pattern.
+   *
+   * @see <a href="https://strftime.org/">Python <code>strftime</code> cheatsheet</a>
+   */
   public static DateTimeFormatter toDateTimeFormatter(String strftime) {
     if (!StringUtils.contains(strftime, '%')) {
       return DateTimeFormatter.ofPattern(strftime);
