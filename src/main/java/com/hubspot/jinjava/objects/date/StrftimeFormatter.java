@@ -2,6 +2,7 @@ package com.hubspot.jinjava.objects.date;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.FormatStyle;
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
@@ -113,6 +114,59 @@ public class StrftimeFormatter {
     return result.toString();
   }
 
+  public static DateTimeFormatter toDateTimeFormatter(String strftime) {
+    if (!StringUtils.contains(strftime, '%')) {
+      return DateTimeFormatter.ofPattern(strftime);
+    }
+
+    DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+
+    for (int i = 0; i < strftime.length(); i++) {
+      char c = strftime.charAt(i);
+      if (c == '%' && strftime.length() > i + 1) {
+        c = strftime.charAt(++i);
+        boolean stripLeadingZero = false;
+        String[] conversions = CONVERSIONS;
+
+        if (c == '-') {
+          stripLeadingZero = true;
+          c = strftime.charAt(++i);
+        }
+
+        if (c == 'O') {
+          c = strftime.charAt(++i);
+          conversions = NOMINATIVE_CONVERSIONS;
+        }
+
+        if (c > 255) {
+          // If the date format has invalid character that is > ascii (255) then
+          // maintain the behaviour similar to invalid ascii char <= 255 i.e. append null
+          builder.appendLiteral("");
+        } else {
+          if (stripLeadingZero) {
+            builder.appendPattern(conversions[c].substring(1));
+          } else {
+            builder.appendPattern(conversions[c]);
+          }
+        } // < 255
+      } else if (Character.isLetter(c)) {
+        while (Character.isLetter(c)) {
+          builder.appendLiteral(c);
+          if (++i < strftime.length()) {
+            c = strftime.charAt(i);
+          } else {
+            c = 0;
+          }
+        }
+        --i; // re-consume last char
+      } else {
+        builder.appendLiteral(c);
+      }
+    }
+
+    return builder.toFormatter();
+  }
+
   private static DateTimeFormatter formatter(String strftime, Locale locale) {
     DateTimeFormatter fmt;
 
@@ -135,7 +189,7 @@ public class StrftimeFormatter {
         break;
       default:
         try {
-          fmt = DateTimeFormatter.ofPattern(toJavaDateTimeFormat(strftime));
+          fmt = toDateTimeFormatter(strftime);
           break;
         } catch (IllegalArgumentException e) {
           throw new InvalidDateFormatException(strftime, e);
