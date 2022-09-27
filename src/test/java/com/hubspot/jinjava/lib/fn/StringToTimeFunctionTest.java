@@ -41,6 +41,7 @@ public class StringToTimeFunctionTest {
       .withMessageContaining("could not match datetime input");
   }
 
+  @Test
   public void itReturnsNullOnNullInput() {
     String datetime = null;
     String format = "yyyy-MM-dd'T'HH:mm:ssZ";
