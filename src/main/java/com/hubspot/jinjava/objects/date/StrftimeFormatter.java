@@ -84,13 +84,13 @@ public class StrftimeFormatter {
 
         if (c > 255) {
           throw new InvalidDateFormatException(strftime);
+        }
+
+        if (stripLeadingZero) {
+          builder.appendPattern(conversions[c].substring(1));
         } else {
-          if (stripLeadingZero) {
-            builder.appendPattern(conversions[c].substring(1));
-          } else {
-            builder.appendPattern(conversions[c]);
-          }
-        } // < 255
+          builder.appendPattern(conversions[c]);
+        }
       } else {
         builder.appendLiteral(c);
       }
