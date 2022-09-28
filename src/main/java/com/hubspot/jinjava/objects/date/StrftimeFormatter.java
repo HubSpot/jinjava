@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.FormatStyle;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -110,16 +111,10 @@ public class StrftimeFormatter {
         conversions = NOMINATIVE_CONVERSION_COMPONENTS;
       }
 
-      if (c > 255) {
-        throw new InvalidDateFormatException(strftime);
-      }
-
-      StrftimeConversionComponent conversion = conversions.get(c);
-      if (conversion == null) {
-        throw new InvalidDateFormatException(strftime);
-      }
-
-      conversion.append(builder, stripLeadingZero);
+      Optional
+        .ofNullable(conversions.get(c))
+        .orElseThrow(() -> new InvalidDateFormatException(strftime))
+        .append(builder, stripLeadingZero);
     }
 
     return builder.toFormatter();
