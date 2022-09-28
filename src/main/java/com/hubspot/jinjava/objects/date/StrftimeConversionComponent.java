@@ -4,7 +4,10 @@ import java.time.format.DateTimeFormatterBuilder;
 
 public interface StrftimeConversionComponent {
   char getSourcePattern();
-  DateTimeFormatterBuilder append(DateTimeFormatterBuilder builder);
+  DateTimeFormatterBuilder append(
+    DateTimeFormatterBuilder builder,
+    boolean stripLeadingZero
+  );
 
   static MappingStrftimeConversionComponent mapping(
     char sourcePattern,

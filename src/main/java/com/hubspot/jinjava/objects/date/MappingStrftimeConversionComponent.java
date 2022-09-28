@@ -17,7 +17,12 @@ public class MappingStrftimeConversionComponent implements StrftimeConversionCom
   }
 
   @Override
-  public DateTimeFormatterBuilder append(DateTimeFormatterBuilder builder) {
-    return builder.appendPattern(targetPattern);
+  public DateTimeFormatterBuilder append(
+    DateTimeFormatterBuilder builder,
+    boolean stripLeadingZero
+  ) {
+    return builder.appendPattern(
+      stripLeadingZero ? targetPattern.substring(1) : targetPattern
+    );
   }
 }
