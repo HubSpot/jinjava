@@ -67,38 +67,39 @@ public class StrftimeFormatter {
 
     for (int i = 0; i < strftime.length(); i++) {
       char c = strftime.charAt(i);
-      if (c == '%' && strftime.length() > i + 1) {
-        c = strftime.charAt(++i);
-        boolean stripLeadingZero = false;
-        String[] conversions = CONVERSIONS;
-
-        if (c == '-') {
-          stripLeadingZero = true;
-          c = strftime.charAt(++i);
-        }
-
-        if (c == 'O') {
-          c = strftime.charAt(++i);
-          conversions = NOMINATIVE_CONVERSIONS;
-        }
-
-        if (c > 255) {
-          throw new InvalidDateFormatException(strftime);
-        }
-
-        String conversion = conversions[c];
-        if (conversion == null) {
-          throw new InvalidDateFormatException(strftime);
-        }
-
-        if (stripLeadingZero) {
-          conversion = conversion.substring(1);
-        }
-
-        builder.appendPattern(conversion);
-      } else {
+      if (c != '%' || strftime.length() <= i + 1) {
         builder.appendLiteral(c);
+        continue;
       }
+
+      c = strftime.charAt(++i);
+      boolean stripLeadingZero = false;
+      String[] conversions = CONVERSIONS;
+
+      if (c == '-') {
+        stripLeadingZero = true;
+        c = strftime.charAt(++i);
+      }
+
+      if (c == 'O') {
+        c = strftime.charAt(++i);
+        conversions = NOMINATIVE_CONVERSIONS;
+      }
+
+      if (c > 255) {
+        throw new InvalidDateFormatException(strftime);
+      }
+
+      String conversion = conversions[c];
+      if (conversion == null) {
+        throw new InvalidDateFormatException(strftime);
+      }
+
+      if (stripLeadingZero) {
+        conversion = conversion.substring(1);
+      }
+
+      builder.appendPattern(conversion);
     }
 
     return builder.toFormatter();
