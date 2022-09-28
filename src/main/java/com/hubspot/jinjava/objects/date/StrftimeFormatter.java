@@ -92,10 +92,10 @@ public class StrftimeFormatter {
         }
 
         if (stripLeadingZero) {
-          builder.appendPattern(conversion.substring(1));
-        } else {
-          builder.appendPattern(conversion);
+          conversion = conversion.substring(1);
         }
+
+        builder.appendPattern(conversion);
       } else {
         builder.appendLiteral(c);
       }
