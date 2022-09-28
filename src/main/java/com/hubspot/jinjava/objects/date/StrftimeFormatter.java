@@ -1,10 +1,16 @@
 package com.hubspot.jinjava.objects.date;
 
+import static com.hubspot.jinjava.objects.date.StrftimeConversionComponent.mapping;
+
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.FormatStyle;
 import java.util.Locale;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -17,40 +23,58 @@ public class StrftimeFormatter {
   /*
    * Mapped from http://strftime.org/, http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
    */
-  private static final String[] CONVERSIONS = new String[255];
-  private static final String[] NOMINATIVE_CONVERSIONS = new String[255];
+  private static final Map<Character, StrftimeConversionComponent> CONVERSION_COMPONENTS;
+  private static final Map<Character, StrftimeConversionComponent> NOMINATIVE_CONVERSION_COMPONENTS;
 
   static {
-    CONVERSIONS['a'] = "EEE";
-    CONVERSIONS['A'] = "EEEE";
-    CONVERSIONS['b'] = "MMM";
-    CONVERSIONS['B'] = "MMMM";
-    CONVERSIONS['c'] = "EEE MMM dd HH:mm:ss yyyy";
-    CONVERSIONS['d'] = "dd";
-    CONVERSIONS['e'] = "d"; // The day of the month like with %d, but padded with blank (range 1 through 31).
-    CONVERSIONS['f'] = "SSSSSS";
-    CONVERSIONS['H'] = "HH";
-    CONVERSIONS['h'] = "hh";
-    CONVERSIONS['I'] = "hh";
-    CONVERSIONS['j'] = "DDD";
-    CONVERSIONS['k'] = "H"; // The hour as a decimal number, using a 24-hour clock like %H, but padded with blank (range 0 through 23).
-    CONVERSIONS['l'] = "h"; // The hour as a decimal number, using a 12-hour clock like %I, but padded with blank (range 1 through 12).
-    CONVERSIONS['m'] = "MM";
-    CONVERSIONS['M'] = "mm";
-    CONVERSIONS['p'] = "a";
-    CONVERSIONS['S'] = "ss";
-    CONVERSIONS['U'] = "ww";
-    CONVERSIONS['w'] = "e";
-    CONVERSIONS['W'] = "ww";
-    CONVERSIONS['x'] = "MM/dd/yy";
-    CONVERSIONS['X'] = "HH:mm:ss";
-    CONVERSIONS['y'] = "yy";
-    CONVERSIONS['Y'] = "yyyy";
-    CONVERSIONS['z'] = "Z";
-    CONVERSIONS['Z'] = "z";
-    CONVERSIONS['%'] = "%";
+    CONVERSION_COMPONENTS =
+      Stream
+        .of(
+          mapping('a', "EEE"),
+          mapping('A', "EEEE"),
+          mapping('b', "MMM"),
+          mapping('B', "MMMM"),
+          mapping('c', "EEE MMM dd HH:mm:ss yyyy"),
+          mapping('d', "dd"),
+          mapping('e', "d"), // The day of the month like with %d, but padded with blank (range 1 through 31).
+          mapping('f', "SSSSSS"),
+          mapping('H', "HH"),
+          mapping('h', "hh"),
+          mapping('I', "hh"),
+          mapping('j', "DDD"),
+          mapping('k', "H"), // The hour as a decimal number, using a 24-hour clock like %H, but padded with blank (range 0 through 23).
+          mapping('l', "h"), // The hour as a decimal number, using a 12-hour clock like %I, but padded with blank (range 1 through 12).
+          mapping('m', "MM"),
+          mapping('M', "mm"),
+          mapping('p', "a"),
+          mapping('S', "ss"),
+          mapping('U', "ww"),
+          mapping('w', "e"),
+          mapping('W', "ww"),
+          mapping('x', "MM/dd/yy"),
+          mapping('X', "HH:mm:ss"),
+          mapping('y', "yy"),
+          mapping('Y', "yyyy"),
+          mapping('z', "Z"),
+          mapping('Z', "z"),
+          mapping('%', "%")
+        )
+        .collect(
+          Collectors.toMap(
+            MappingStrftimeConversionComponent::getSourcePattern,
+            Function.identity()
+          )
+        );
 
-    NOMINATIVE_CONVERSIONS['B'] = "LLLL";
+    NOMINATIVE_CONVERSION_COMPONENTS =
+      Stream
+        .of(mapping('B', "LLLL"))
+        .collect(
+          Collectors.toMap(
+            MappingStrftimeConversionComponent::getSourcePattern,
+            Function.identity()
+          )
+        );
   }
 
   /**
@@ -74,7 +98,7 @@ public class StrftimeFormatter {
 
       c = strftime.charAt(++i);
       boolean stripLeadingZero = false;
-      String[] conversions = CONVERSIONS;
+      Map<Character, StrftimeConversionComponent> conversions = CONVERSION_COMPONENTS;
 
       if (c == '-') {
         stripLeadingZero = true;
@@ -83,23 +107,19 @@ public class StrftimeFormatter {
 
       if (c == 'O') {
         c = strftime.charAt(++i);
-        conversions = NOMINATIVE_CONVERSIONS;
+        conversions = NOMINATIVE_CONVERSION_COMPONENTS;
       }
 
       if (c > 255) {
         throw new InvalidDateFormatException(strftime);
       }
 
-      String conversion = conversions[c];
+      StrftimeConversionComponent conversion = conversions.get(c);
       if (conversion == null) {
         throw new InvalidDateFormatException(strftime);
       }
 
-      if (stripLeadingZero) {
-        conversion = conversion.substring(1);
-      }
-
-      builder.appendPattern(conversion);
+      conversion.append(builder, stripLeadingZero);
     }
 
     return builder.toFormatter();
