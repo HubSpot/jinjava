@@ -108,13 +108,13 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
   @Test
   public void itConvertsToLocaleSpecificDateTimeFormat() {
     assertThat(
-        filter.filter(1539277785000L, interpreter, "%x %X", "Europe/Berlin", "en-US")
+        filter.filter(1539277785000L, interpreter, "%x %X - %c", "Europe/Berlin", "en-US")
       )
-      .isEqualTo("10/11/18 19:09:45");
+      .isEqualTo("10/11/18 19:09:45 - Thu Oct 11 19:09:45 2018");
     assertThat(
-        filter.filter(1539277785000L, interpreter, "%x %X", "Europe/Berlin", "de-DE")
+        filter.filter(1539277785000L, interpreter, "%x %X - %c", "Europe/Berlin", "de-DE")
       )
-      .isEqualTo("10/11/18 19:09:45");
+      .isEqualTo("10/11/18 19:09:45 - Do. Okt. 11 19:09:45 2018");
   }
 
   @Test
