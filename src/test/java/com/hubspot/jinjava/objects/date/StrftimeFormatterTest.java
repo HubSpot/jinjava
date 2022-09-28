@@ -140,4 +140,10 @@ public class StrftimeFormatterTest {
   public void itIgnoresFinalStandalonePercent() {
     assertThat(StrftimeFormatter.format(d, "%")).isEqualTo("%");
   }
+
+  @Test
+  public void itAllowsLiteralCharacters() {
+    assertThat(StrftimeFormatter.format(d, "1: day %d month %B"))
+      .isEqualTo("1: day 06 month November");
+  }
 }
