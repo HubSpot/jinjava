@@ -86,10 +86,15 @@ public class StrftimeFormatter {
           throw new InvalidDateFormatException(strftime);
         }
 
+        String conversion = conversions[c];
+        if (conversion == null) {
+          throw new InvalidDateFormatException(strftime);
+        }
+
         if (stripLeadingZero) {
-          builder.appendPattern(conversions[c].substring(1));
+          builder.appendPattern(conversion.substring(1));
         } else {
-          builder.appendPattern(conversions[c]);
+          builder.appendPattern(conversion);
         }
       } else {
         builder.appendLiteral(c);
