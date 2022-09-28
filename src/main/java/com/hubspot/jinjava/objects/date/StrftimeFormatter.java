@@ -91,16 +91,6 @@ public class StrftimeFormatter {
             builder.appendPattern(conversions[c]);
           }
         } // < 255
-      } else if (Character.isLetter(c)) {
-        while (Character.isLetter(c)) {
-          builder.appendLiteral(c);
-          if (++i < strftime.length()) {
-            c = strftime.charAt(i);
-          } else {
-            c = 0;
-          }
-        }
-        --i; // re-consume last char
       } else {
         builder.appendLiteral(c);
       }
