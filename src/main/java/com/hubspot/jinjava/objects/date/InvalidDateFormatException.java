@@ -6,8 +6,17 @@ public class InvalidDateFormatException extends IllegalArgumentException {
   private final String format;
 
   public InvalidDateFormatException(String format, Throwable t) {
-    super("Invalid date format: [" + format + "]", t);
+    super(buildMessage(format), t);
     this.format = format;
+  }
+
+  public InvalidDateFormatException(String format) {
+    super(buildMessage(format));
+    this.format = format;
+  }
+
+  private static String buildMessage(String format) {
+    return "Invalid date format: [" + format + "]";
   }
 
   public String getFormat() {

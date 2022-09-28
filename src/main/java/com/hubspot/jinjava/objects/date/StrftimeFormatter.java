@@ -83,9 +83,7 @@ public class StrftimeFormatter {
         }
 
         if (c > 255) {
-          // If the date format has invalid character that is > ascii (255) then
-          // maintain the behaviour similar to invalid ascii char <= 255 i.e. append null
-          builder.appendLiteral("");
+          throw new InvalidDateFormatException(strftime);
         } else {
           if (stripLeadingZero) {
             builder.appendPattern(conversions[c].substring(1));
