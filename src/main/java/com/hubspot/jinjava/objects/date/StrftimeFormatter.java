@@ -62,7 +62,7 @@ public class StrftimeFormatter {
         )
         .collect(
           Collectors.toMap(
-            MappingStrftimeConversionComponent::getSourcePattern,
+            StrftimeConversionComponent::getSourcePattern,
             Function.identity()
           )
         );
