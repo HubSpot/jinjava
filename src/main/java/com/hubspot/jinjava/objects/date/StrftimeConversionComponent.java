@@ -9,10 +9,10 @@ public interface StrftimeConversionComponent {
     boolean stripLeadingZero
   );
 
-  static MappingStrftimeConversionComponent mapping(
+  static PatternStrftimeConversionComponent pattern(
     char sourcePattern,
     String targetPattern
   ) {
-    return new MappingStrftimeConversionComponent(sourcePattern, targetPattern);
+    return new PatternStrftimeConversionComponent(sourcePattern, targetPattern);
   }
 }

@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.objects.date;
 
-import static com.hubspot.jinjava.objects.date.StrftimeConversionComponent.mapping;
+import static com.hubspot.jinjava.objects.date.StrftimeConversionComponent.pattern;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -31,34 +31,34 @@ public class StrftimeFormatter {
     CONVERSION_COMPONENTS =
       Stream
         .of(
-          mapping('a', "EEE"),
-          mapping('A', "EEEE"),
-          mapping('b', "MMM"),
-          mapping('B', "MMMM"),
-          mapping('c', "EEE MMM dd HH:mm:ss yyyy"),
-          mapping('d', "dd"),
-          mapping('e', "d"), // The day of the month like with %d, but padded with blank (range 1 through 31).
-          mapping('f', "SSSSSS"),
-          mapping('H', "HH"),
-          mapping('h', "hh"),
-          mapping('I', "hh"),
-          mapping('j', "DDD"),
-          mapping('k', "H"), // The hour as a decimal number, using a 24-hour clock like %H, but padded with blank (range 0 through 23).
-          mapping('l', "h"), // The hour as a decimal number, using a 12-hour clock like %I, but padded with blank (range 1 through 12).
-          mapping('m', "MM"),
-          mapping('M', "mm"),
-          mapping('p', "a"),
-          mapping('S', "ss"),
-          mapping('U', "ww"),
-          mapping('w', "e"),
-          mapping('W', "ww"),
-          mapping('x', "MM/dd/yy"),
-          mapping('X', "HH:mm:ss"),
-          mapping('y', "yy"),
-          mapping('Y', "yyyy"),
-          mapping('z', "Z"),
-          mapping('Z', "z"),
-          mapping('%', "%")
+          pattern('a', "EEE"),
+          pattern('A', "EEEE"),
+          pattern('b', "MMM"),
+          pattern('B', "MMMM"),
+          pattern('c', "EEE MMM dd HH:mm:ss yyyy"),
+          pattern('d', "dd"),
+          pattern('e', "d"), // The day of the month like with %d, but padded with blank (range 1 through 31).
+          pattern('f', "SSSSSS"),
+          pattern('H', "HH"),
+          pattern('h', "hh"),
+          pattern('I', "hh"),
+          pattern('j', "DDD"),
+          pattern('k', "H"), // The hour as a decimal number, using a 24-hour clock like %H, but padded with blank (range 0 through 23).
+          pattern('l', "h"), // The hour as a decimal number, using a 12-hour clock like %I, but padded with blank (range 1 through 12).
+          pattern('m', "MM"),
+          pattern('M', "mm"),
+          pattern('p', "a"),
+          pattern('S', "ss"),
+          pattern('U', "ww"),
+          pattern('w', "e"),
+          pattern('W', "ww"),
+          pattern('x', "MM/dd/yy"),
+          pattern('X', "HH:mm:ss"),
+          pattern('y', "yy"),
+          pattern('Y', "yyyy"),
+          pattern('z', "Z"),
+          pattern('Z', "z"),
+          pattern('%', "%")
         )
         .collect(
           Collectors.toMap(
@@ -69,10 +69,10 @@ public class StrftimeFormatter {
 
     NOMINATIVE_CONVERSION_COMPONENTS =
       Stream
-        .of(mapping('B', "LLLL"))
+        .of(pattern('B', "LLLL"))
         .collect(
           Collectors.toMap(
-            MappingStrftimeConversionComponent::getSourcePattern,
+            PatternStrftimeConversionComponent::getSourcePattern,
             Function.identity()
           )
         );
