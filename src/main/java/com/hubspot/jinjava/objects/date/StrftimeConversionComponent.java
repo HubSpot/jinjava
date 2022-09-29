@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.objects.date;
 
+import com.hubspot.jinjava.objects.date.DelegatingStrftimeConversionComponent.StrftimeConversionComponentDelegate;
 import java.time.format.DateTimeFormatterBuilder;
 
 public interface StrftimeConversionComponent {
@@ -14,5 +15,12 @@ public interface StrftimeConversionComponent {
     String targetPattern
   ) {
     return new MappingStrftimeConversionComponent(sourcePattern, targetPattern);
+  }
+
+  static DelegatingStrftimeConversionComponent delegating(
+    char sourcePattern,
+    StrftimeConversionComponentDelegate delegate
+  ) {
+    return new DelegatingStrftimeConversionComponent(sourcePattern, delegate);
   }
 }
