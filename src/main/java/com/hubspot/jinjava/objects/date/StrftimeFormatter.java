@@ -2,6 +2,7 @@ package com.hubspot.jinjava.objects.date;
 
 import static com.hubspot.jinjava.objects.date.StrftimeConversionComponent.pattern;
 
+import com.google.common.collect.ImmutableMap;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -9,9 +10,6 @@ import java.time.format.FormatStyle;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -29,53 +27,43 @@ public class StrftimeFormatter {
 
   static {
     CONVERSION_COMPONENTS =
-      Stream
-        .of(
-          pattern('a', "EEE"),
-          pattern('A', "EEEE"),
-          pattern('b', "MMM"),
-          pattern('B', "MMMM"),
-          pattern('c', "EEE MMM dd HH:mm:ss yyyy"),
-          pattern('d', "dd"),
-          pattern('e', "d"), // The day of the month like with %d, but padded with blank (range 1 through 31).
-          pattern('f', "SSSSSS"),
-          pattern('H', "HH"),
-          pattern('h', "hh"),
-          pattern('I', "hh"),
-          pattern('j', "DDD"),
-          pattern('k', "H"), // The hour as a decimal number, using a 24-hour clock like %H, but padded with blank (range 0 through 23).
-          pattern('l', "h"), // The hour as a decimal number, using a 12-hour clock like %I, but padded with blank (range 1 through 12).
-          pattern('m', "MM"),
-          pattern('M', "mm"),
-          pattern('p', "a"),
-          pattern('S', "ss"),
-          pattern('U', "ww"),
-          pattern('w', "e"),
-          pattern('W', "ww"),
-          pattern('x', "MM/dd/yy"),
-          pattern('X', "HH:mm:ss"),
-          pattern('y', "yy"),
-          pattern('Y', "yyyy"),
-          pattern('z', "Z"),
-          pattern('Z', "z"),
-          pattern('%', "%")
-        )
-        .collect(
-          Collectors.toMap(
-            StrftimeConversionComponent::getSourcePattern,
-            Function.identity()
-          )
-        );
+      ImmutableMap
+        .<Character, StrftimeConversionComponent>builder()
+        .put('a', pattern('a', "EEE"))
+        .put('A', pattern('A', "EEEE"))
+        .put('b', pattern('b', "MMM"))
+        .put('B', pattern('B', "MMMM"))
+        .put('c', pattern('c', "EEE MMM dd HH:mm:ss yyyy"))
+        .put('d', pattern('d', "dd"))
+        .put('e', pattern('e', "d")) // The day of the month like with %d, but padded with blank (range 1 through 31).
+        .put('f', pattern('f', "SSSSSS"))
+        .put('H', pattern('H', "HH"))
+        .put('h', pattern('h', "hh"))
+        .put('I', pattern('I', "hh"))
+        .put('j', pattern('j', "DDD"))
+        .put('k', pattern('k', "H")) // The hour as a decimal number, using a 24-hour clock like %H, but padded with blank (range 0 through 23).
+        .put('l', pattern('l', "h")) // The hour as a decimal number, using a 12-hour clock like %I, but padded with blank (range 1 through 12).
+        .put('m', pattern('m', "MM"))
+        .put('M', pattern('M', "mm"))
+        .put('p', pattern('p', "a"))
+        .put('S', pattern('S', "ss"))
+        .put('U', pattern('U', "ww"))
+        .put('w', pattern('w', "e"))
+        .put('W', pattern('W', "ww"))
+        .put('x', pattern('x', "MM/dd/yy"))
+        .put('X', pattern('X', "HH:mm:ss"))
+        .put('y', pattern('y', "yy"))
+        .put('Y', pattern('Y', "yyyy"))
+        .put('z', pattern('z', "Z"))
+        .put('Z', pattern('Z', "z"))
+        .put('%', pattern('%', "%"))
+        .build();
 
     NOMINATIVE_CONVERSION_COMPONENTS =
-      Stream
-        .of(pattern('B', "LLLL"))
-        .collect(
-          Collectors.toMap(
-            PatternStrftimeConversionComponent::getSourcePattern,
-            Function.identity()
-          )
-        );
+      ImmutableMap
+        .<Character, StrftimeConversionComponent>builder()
+        .put('B', pattern('B', "LLLL"))
+        .build();
   }
 
   /**
