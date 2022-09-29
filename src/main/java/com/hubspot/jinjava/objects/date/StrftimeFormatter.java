@@ -29,40 +29,40 @@ public class StrftimeFormatter {
     CONVERSION_COMPONENTS =
       ImmutableMap
         .<Character, StrftimeConversionComponent>builder()
-        .put('a', pattern('a', "EEE"))
-        .put('A', pattern('A', "EEEE"))
-        .put('b', pattern('b', "MMM"))
-        .put('B', pattern('B', "MMMM"))
-        .put('c', pattern('c', "EEE MMM dd HH:mm:ss yyyy"))
-        .put('d', pattern('d', "dd"))
-        .put('e', pattern('e', "d")) // The day of the month like with %d, but padded with blank (range 1 through 31).
-        .put('f', pattern('f', "SSSSSS"))
-        .put('H', pattern('H', "HH"))
-        .put('h', pattern('h', "hh"))
-        .put('I', pattern('I', "hh"))
-        .put('j', pattern('j', "DDD"))
-        .put('k', pattern('k', "H")) // The hour as a decimal number, using a 24-hour clock like %H, but padded with blank (range 0 through 23).
-        .put('l', pattern('l', "h")) // The hour as a decimal number, using a 12-hour clock like %I, but padded with blank (range 1 through 12).
-        .put('m', pattern('m', "MM"))
-        .put('M', pattern('M', "mm"))
-        .put('p', pattern('p', "a"))
-        .put('S', pattern('S', "ss"))
-        .put('U', pattern('U', "ww"))
-        .put('w', pattern('w', "e"))
-        .put('W', pattern('W', "ww"))
-        .put('x', pattern('x', "MM/dd/yy"))
-        .put('X', pattern('X', "HH:mm:ss"))
-        .put('y', pattern('y', "yy"))
-        .put('Y', pattern('Y', "yyyy"))
-        .put('z', pattern('z', "Z"))
-        .put('Z', pattern('Z', "z"))
-        .put('%', pattern('%', "%"))
+        .put('a', pattern("EEE"))
+        .put('A', pattern("EEEE"))
+        .put('b', pattern("MMM"))
+        .put('B', pattern("MMMM"))
+        .put('c', pattern("EEE MMM dd HH:mm:ss yyyy"))
+        .put('d', pattern("dd"))
+        .put('e', pattern("d")) // The day of the month like with %d, but padded with blank (range 1 through 31).
+        .put('f', pattern("SSSSSS"))
+        .put('H', pattern("HH"))
+        .put('h', pattern("hh"))
+        .put('I', pattern("hh"))
+        .put('j', pattern("DDD"))
+        .put('k', pattern("H")) // The hour as a decimal number, using a 24-hour clock like %H, but padded with blank (range 0 through 23).
+        .put('l', pattern("h")) // The hour as a decimal number, using a 12-hour clock like %I, but padded with blank (range 1 through 12).
+        .put('m', pattern("MM"))
+        .put('M', pattern("mm"))
+        .put('p', pattern("a"))
+        .put('S', pattern("ss"))
+        .put('U', pattern("ww"))
+        .put('w', pattern("e"))
+        .put('W', pattern("ww"))
+        .put('x', pattern("MM/dd/yy"))
+        .put('X', pattern("HH:mm:ss"))
+        .put('y', pattern("yy"))
+        .put('Y', pattern("yyyy"))
+        .put('z', pattern("Z"))
+        .put('Z', pattern("z"))
+        .put('%', pattern("%"))
         .build();
 
     NOMINATIVE_CONVERSION_COMPONENTS =
       ImmutableMap
         .<Character, StrftimeConversionComponent>builder()
-        .put('B', pattern('B', "LLLL"))
+        .put('B', pattern("LLLL"))
         .build();
   }
 

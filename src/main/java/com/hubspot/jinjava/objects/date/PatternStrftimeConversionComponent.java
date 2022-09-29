@@ -3,17 +3,10 @@ package com.hubspot.jinjava.objects.date;
 import java.time.format.DateTimeFormatterBuilder;
 
 public class PatternStrftimeConversionComponent implements StrftimeConversionComponent {
-  private final char sourcePattern;
   private final String targetPattern;
 
-  public PatternStrftimeConversionComponent(char sourcePattern, String targetPattern) {
-    this.sourcePattern = sourcePattern;
+  public PatternStrftimeConversionComponent(String targetPattern) {
     this.targetPattern = targetPattern;
-  }
-
-  @Override
-  public char getSourcePattern() {
-    return sourcePattern;
   }
 
   @Override
