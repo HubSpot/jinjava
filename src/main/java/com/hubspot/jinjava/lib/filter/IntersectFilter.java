@@ -7,10 +7,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.lib.fn.TypeFunction;
-import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
