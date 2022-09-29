@@ -5,8 +5,14 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.lib.fn.TypeFunction;
+import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @JinjavaDoc(
   value = "Returns a list containing elements present in both lists",
@@ -35,9 +41,41 @@ public class IntersectFilter extends AbstractSetFilter {
     Object[] args,
     Map<String, Object> kwargs
   ) {
-    return new ArrayList<>(
-      Sets.intersection(objectToSet(var), objectToSet(parseArgs(interpreter, args)))
-    );
+    Object argObj = parseArgs(interpreter, args);
+
+    Set<Object> varSet = objectToSet(var);
+    Set<Object> argSet = objectToSet(argObj);
+
+    boolean areMismatchedElementTypes = !getTypeOfSetElements(varSet)
+      .equals(getTypeOfSetElements(argSet));
+
+    if (areMismatchedElementTypes) {
+      interpreter.addError(
+        new TemplateError(
+          TemplateError.ErrorType.WARNING,
+          TemplateError.ErrorReason.OTHER,
+          TemplateError.ErrorItem.FILTER,
+          String.format(
+            "Mismatched types. `value` elements are of type `%s` and `list` elements are of type `%s`. This may lead to unexpected behavior.",
+            getTypeOfSetElements(varSet),
+            getTypeOfSetElements(argSet)
+          ),
+          "list",
+          interpreter.getLineNumber(),
+          -1,
+          null
+        )
+      );
+    }
+
+    return new ArrayList<>(Sets.intersection(varSet, argSet));
+  }
+
+  private String getTypeOfSetElements(Set<Object> set) {
+    if (set.isEmpty()) {
+      return "null";
+    }
+    return TypeFunction.type(set.iterator().next());
   }
 
   @Override
