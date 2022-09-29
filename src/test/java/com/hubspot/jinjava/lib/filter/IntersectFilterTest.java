@@ -36,6 +36,17 @@ public class IntersectFilterTest extends BaseJinjavaTest {
   }
 
   @Test
+  public void itDoesNotThrowWarningOnMatchedTypes() {
+    JinjavaInterpreter interpreter = jinjava.newInterpreter();
+
+    String renderedOutput = interpreter.render("{{ [1, 2, 3]|intersect([1, 2, 3]) }}");
+    assertThat(renderedOutput).isEqualTo("[1, 2, 3]");
+
+    List<TemplateError> errors = interpreter.getErrors();
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
   public void itThrowsWarningOnMismatchTypes() {
     JinjavaInterpreter interpreter = jinjava.newInterpreter();
 
