@@ -23,11 +23,11 @@ public class StrftimeFormatter {
   /*
    * Mapped from http://strftime.org/, http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
    */
-  private static final Map<Character, StrftimeConversionComponent> CONVERSION_COMPONENTS;
-  private static final Map<Character, StrftimeConversionComponent> NOMINATIVE_CONVERSION_COMPONENTS;
+  private static final Map<Character, StrftimeConversionComponent> COMPONENTS;
+  private static final Map<Character, StrftimeConversionComponent> NOMINATIVE_COMPONENTS;
 
   static {
-    CONVERSION_COMPONENTS =
+    COMPONENTS =
       ImmutableMap
         .<Character, StrftimeConversionComponent>builder()
         .put('a', pattern("EEE"))
@@ -60,7 +60,7 @@ public class StrftimeFormatter {
         .put('%', literal("%"))
         .build();
 
-    NOMINATIVE_CONVERSION_COMPONENTS =
+    NOMINATIVE_COMPONENTS =
       ImmutableMap
         .<Character, StrftimeConversionComponent>builder()
         .put('B', pattern("LLLL"))
@@ -88,7 +88,7 @@ public class StrftimeFormatter {
 
       c = strftime.charAt(++i);
       boolean stripLeadingZero = false;
-      Map<Character, StrftimeConversionComponent> conversions = CONVERSION_COMPONENTS;
+      Map<Character, StrftimeConversionComponent> components = COMPONENTS;
 
       if (c == '-') {
         stripLeadingZero = true;
@@ -97,11 +97,11 @@ public class StrftimeFormatter {
 
       if (c == 'O') {
         c = strftime.charAt(++i);
-        conversions = NOMINATIVE_CONVERSION_COMPONENTS;
+        components = NOMINATIVE_COMPONENTS;
       }
 
       Optional
-        .ofNullable(conversions.get(c))
+        .ofNullable(components.get(c))
         .orElseThrow(() -> new InvalidDateFormatException(strftime))
         .append(builder, stripLeadingZero);
     }
