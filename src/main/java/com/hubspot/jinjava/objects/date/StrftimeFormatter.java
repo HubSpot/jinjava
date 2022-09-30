@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.objects.date;
 
+import static com.hubspot.jinjava.objects.date.StrftimeConversionComponent.literal;
 import static com.hubspot.jinjava.objects.date.StrftimeConversionComponent.pattern;
 
 import com.google.common.collect.ImmutableMap;
@@ -56,7 +57,7 @@ public class StrftimeFormatter {
         .put('Y', pattern("yyyy"))
         .put('z', pattern("Z"))
         .put('Z', pattern("z"))
-        .put('%', pattern("%"))
+        .put('%', literal("%"))
         .build();
 
     NOMINATIVE_CONVERSION_COMPONENTS =
