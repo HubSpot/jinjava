@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.filter;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.lib.fn.TypeFunction;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 import java.util.LinkedHashSet;
@@ -28,5 +29,12 @@ public abstract class AbstractSetFilter implements AdvancedFilter {
       result.add(loop.next());
     }
     return result;
+  }
+
+  protected String getTypeOfSetElements(Set<Object> set) {
+    if (set.isEmpty()) {
+      return "null";
+    }
+    return TypeFunction.type(set.iterator().next());
   }
 }

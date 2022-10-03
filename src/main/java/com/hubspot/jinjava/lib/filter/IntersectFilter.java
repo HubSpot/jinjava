@@ -6,7 +6,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
-import com.hubspot.jinjava.lib.fn.TypeFunction;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
@@ -67,13 +66,6 @@ public class IntersectFilter extends AbstractSetFilter {
     }
 
     return new ArrayList<>(Sets.intersection(varSet, argSet));
-  }
-
-  private String getTypeOfSetElements(Set<Object> set) {
-    if (set.isEmpty()) {
-      return "null";
-    }
-    return TypeFunction.type(set.iterator().next());
   }
 
   @Override
