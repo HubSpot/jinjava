@@ -47,6 +47,28 @@ public class IntersectFilterTest extends BaseJinjavaTest {
   }
 
   @Test
+  public void itDoesNotThrowWarningOnEmptyVarSet() {
+    JinjavaInterpreter interpreter = jinjava.newInterpreter();
+
+    String renderedOutput = interpreter.render("{{ []|intersect([1, 2, 3]) }}");
+    assertThat(renderedOutput).isEqualTo("[]");
+
+    List<TemplateError> errors = interpreter.getErrors();
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void itDoesNotThrowWarningOnEmptyArgSet() {
+    JinjavaInterpreter interpreter = jinjava.newInterpreter();
+
+    String renderedOutput = interpreter.render("{{ [1, 2, 3]|intersect([]) }}");
+    assertThat(renderedOutput).isEqualTo("[]");
+
+    List<TemplateError> errors = interpreter.getErrors();
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
   public void itThrowsWarningOnMismatchTypes() {
     JinjavaInterpreter interpreter = jinjava.newInterpreter();
 
@@ -62,7 +84,7 @@ public class IntersectFilterTest extends BaseJinjavaTest {
     assertThat(error.getSeverity()).isEqualTo(TemplateError.ErrorType.WARNING);
     assertThat(error.getMessage())
       .isEqualTo(
-        "Mismatched types. `value` elements are of type `long` and `list` elements are of type `str`. This may lead to unexpected behavior."
+        "Mismatched Types: input set has elements of type 'long' but arg set has elements of type 'str'. Use |map filter to convert sets to the same type for filter to work correctly."
       );
   }
 }

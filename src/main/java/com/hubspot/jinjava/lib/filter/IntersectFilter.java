@@ -43,17 +43,18 @@ public class IntersectFilter extends AbstractSetFilter {
     Set<Object> varSet = objectToSet(var);
     Set<Object> argSet = objectToSet(argObj);
 
+    boolean isAtLeastOneSetEmpty = varSet.isEmpty() || argSet.isEmpty();
     boolean areMismatchedElementTypes = !getTypeOfSetElements(varSet)
       .equals(getTypeOfSetElements(argSet));
 
-    if (areMismatchedElementTypes) {
+    if (areMismatchedElementTypes && !isAtLeastOneSetEmpty) {
       interpreter.addError(
         new TemplateError(
           TemplateError.ErrorType.WARNING,
           TemplateError.ErrorReason.OTHER,
           TemplateError.ErrorItem.FILTER,
           String.format(
-            "Mismatched types. `value` elements are of type `%s` and `list` elements are of type `%s`. This may lead to unexpected behavior.",
+            "Mismatched Types: input set has elements of type '%s' but arg set has elements of type '%s'. Use |map filter to convert sets to the same type for filter to work correctly.",
             getTypeOfSetElements(varSet),
             getTypeOfSetElements(argSet)
           ),
