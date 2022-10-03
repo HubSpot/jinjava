@@ -7,6 +7,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 
 @JinjavaDoc(
   value = "Returns a list containing elements present in either list",
@@ -35,9 +36,12 @@ public class UnionFilter extends AbstractSetFilter {
     Object[] args,
     Map<String, Object> kwargs
   ) {
-    return new ArrayList<>(
-      Sets.union(objectToSet(var), objectToSet(parseArgs(interpreter, args)))
-    );
+    Set<Object> varSet = objectToSet(var);
+    Set<Object> argSet = objectToSet(parseArgs(interpreter, args));
+
+    attachMismatchedTypesWarning(interpreter, varSet, argSet);
+
+    return new ArrayList<>(Sets.union(varSet, argSet));
   }
 
   @Override

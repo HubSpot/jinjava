@@ -5,7 +5,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.TemplateError;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
@@ -42,28 +41,7 @@ public class IntersectFilter extends AbstractSetFilter {
     Set<Object> varSet = objectToSet(var);
     Set<Object> argSet = objectToSet(argObj);
 
-    boolean isAtLeastOneSetEmpty = varSet.isEmpty() || argSet.isEmpty();
-    boolean areMismatchedElementTypes = !getTypeOfSetElements(varSet)
-      .equals(getTypeOfSetElements(argSet));
-
-    if (areMismatchedElementTypes && !isAtLeastOneSetEmpty) {
-      interpreter.addError(
-        new TemplateError(
-          TemplateError.ErrorType.WARNING,
-          TemplateError.ErrorReason.OTHER,
-          TemplateError.ErrorItem.FILTER,
-          String.format(
-            "Mismatched Types: input set has elements of type '%s' but arg set has elements of type '%s'. Use |map filter to convert sets to the same type for filter to work correctly.",
-            getTypeOfSetElements(varSet),
-            getTypeOfSetElements(argSet)
-          ),
-          "list",
-          interpreter.getLineNumber(),
-          -1,
-          null
-        )
-      );
-    }
+    attachMismatchedTypesWarning(interpreter, varSet, argSet);
 
     return new ArrayList<>(Sets.intersection(varSet, argSet));
   }

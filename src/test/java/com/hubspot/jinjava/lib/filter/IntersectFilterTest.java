@@ -3,10 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.BaseJinjavaTest;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.TemplateError;
 import java.util.HashMap;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,58 +30,5 @@ public class IntersectFilterTest extends BaseJinjavaTest {
   public void itReturnsEmptyOnNullParameters() {
     assertThat(jinjava.render("{{ [1, 2, 3]|intersect(null) }}", new HashMap<>()))
       .isEqualTo("[]");
-  }
-
-  @Test
-  public void itDoesNotThrowWarningOnMatchedTypes() {
-    JinjavaInterpreter interpreter = jinjava.newInterpreter();
-
-    String renderedOutput = interpreter.render("{{ [1, 2, 3]|intersect([1, 2, 3]) }}");
-    assertThat(renderedOutput).isEqualTo("[1, 2, 3]");
-
-    List<TemplateError> errors = interpreter.getErrors();
-    assertThat(errors).isEmpty();
-  }
-
-  @Test
-  public void itDoesNotThrowWarningOnEmptyVarSet() {
-    JinjavaInterpreter interpreter = jinjava.newInterpreter();
-
-    String renderedOutput = interpreter.render("{{ []|intersect([1, 2, 3]) }}");
-    assertThat(renderedOutput).isEqualTo("[]");
-
-    List<TemplateError> errors = interpreter.getErrors();
-    assertThat(errors).isEmpty();
-  }
-
-  @Test
-  public void itDoesNotThrowWarningOnEmptyArgSet() {
-    JinjavaInterpreter interpreter = jinjava.newInterpreter();
-
-    String renderedOutput = interpreter.render("{{ [1, 2, 3]|intersect([]) }}");
-    assertThat(renderedOutput).isEqualTo("[]");
-
-    List<TemplateError> errors = interpreter.getErrors();
-    assertThat(errors).isEmpty();
-  }
-
-  @Test
-  public void itThrowsWarningOnMismatchTypes() {
-    JinjavaInterpreter interpreter = jinjava.newInterpreter();
-
-    String renderedOutput = interpreter.render(
-      "{{ [1, 2, 3]|intersect(['1', '2', '3']) }}"
-    );
-    assertThat(renderedOutput).isEqualTo("[]");
-
-    List<TemplateError> errors = interpreter.getErrors();
-    assertThat(errors).isNotEmpty();
-
-    TemplateError error = errors.get(0);
-    assertThat(error.getSeverity()).isEqualTo(TemplateError.ErrorType.WARNING);
-    assertThat(error.getMessage())
-      .isEqualTo(
-        "Mismatched Types: input set has elements of type 'long' but arg set has elements of type 'str'. Use |map filter to convert sets to the same type for filter to work correctly."
-      );
   }
 }
