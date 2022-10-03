@@ -7,6 +7,7 @@ import com.hubspot.jinjava.lib.fn.TypeFunction;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 public abstract class AbstractSetFilter implements AdvancedFilter {
@@ -31,6 +32,23 @@ public abstract class AbstractSetFilter implements AdvancedFilter {
     }
     return result;
   }
+
+  @Override
+  public Object filter(
+    Object var,
+    JinjavaInterpreter interpreter,
+    Object[] args,
+    Map<String, Object> kwargs
+  ) {
+    Set<Object> varSet = objectToSet(var);
+    Set<Object> argSet = objectToSet(parseArgs(interpreter, args));
+
+    attachMismatchedTypesWarning(interpreter, varSet, argSet);
+
+    return filter(varSet, argSet);
+  }
+
+  public abstract Object filter(Set<Object> varSet, Set<Object> argSet);
 
   protected void attachMismatchedTypesWarning(
     JinjavaInterpreter interpreter,

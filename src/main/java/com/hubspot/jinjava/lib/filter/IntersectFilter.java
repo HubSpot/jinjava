@@ -4,9 +4,7 @@ import com.google.common.collect.Sets;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Set;
 
 @JinjavaDoc(
@@ -30,19 +28,7 @@ import java.util.Set;
 public class IntersectFilter extends AbstractSetFilter {
 
   @Override
-  public Object filter(
-    Object var,
-    JinjavaInterpreter interpreter,
-    Object[] args,
-    Map<String, Object> kwargs
-  ) {
-    Object argObj = parseArgs(interpreter, args);
-
-    Set<Object> varSet = objectToSet(var);
-    Set<Object> argSet = objectToSet(argObj);
-
-    attachMismatchedTypesWarning(interpreter, varSet, argSet);
-
+  public Object filter(Set<Object> varSet, Set<Object> argSet) {
     return new ArrayList<>(Sets.intersection(varSet, argSet));
   }
 
