@@ -78,7 +78,7 @@ public abstract class AbstractSetFilter implements AdvancedFilter {
         ),
         "list",
         interpreter.getLineNumber(),
-        -1,
+        interpreter.getPosition(),
         null
       )
     );
