@@ -85,9 +85,6 @@ public abstract class AbstractSetFilter implements AdvancedFilter {
   }
 
   private String getTypeOfSetElements(Set<Object> set) {
-    if (set.isEmpty()) {
-      return "null";
-    }
     return TypeFunction.type(set.iterator().next());
   }
 }
