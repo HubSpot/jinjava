@@ -601,6 +601,17 @@ public class JinjavaInterpreter implements PyishSerializable {
   }
 
   /**
+   * Resolve expression against current context, but does not add the expression to the set of resolved expressions.
+   *
+   * @param expression
+   *          Jinja expression.
+   * @return Value of expression.
+   */
+  public Object resolveELExpressionSilently(String expression) {
+    return expressionResolver.resolveExpression(expression, false);
+  }
+
+  /**
    * Resolve expression against current context.
    *
    * @param expression

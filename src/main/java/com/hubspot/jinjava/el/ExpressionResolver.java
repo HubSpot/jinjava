@@ -65,11 +65,17 @@ public class ExpressionResolver {
    * @return Value of expression.
    */
   public Object resolveExpression(String expression) {
+    return resolveExpression(expression, true);
+  }
+
+  public Object resolveExpression(String expression, boolean addToResolvedExpressions) {
     if (StringUtils.isBlank(expression)) {
       return null;
     }
     expression = expression.trim();
-    interpreter.getContext().addResolvedExpression(expression);
+    if (addToResolvedExpressions) {
+      interpreter.getContext().addResolvedExpression(expression);
+    }
 
     if (WhitespaceUtils.isWrappedWith(expression, "[", "]")) {
       Arrays
