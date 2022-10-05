@@ -2,6 +2,7 @@ package com.hubspot.jinjava.objects.serialization;
 
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.core.io.SerializedString;
 import java.util.Arrays;
 
 public class PyishCharacterEscapes extends CharacterEscapes {
@@ -11,9 +12,11 @@ public class PyishCharacterEscapes extends CharacterEscapes {
   private PyishCharacterEscapes() {
     int[] escapes = CharacterEscapes.standardAsciiEscapesForJSON();
     escapes['\n'] = CharacterEscapes.ESCAPE_NONE;
+    escapes['"'] = CharacterEscapes.ESCAPE_NONE;
     escapes['\t'] = CharacterEscapes.ESCAPE_NONE;
     escapes['\r'] = CharacterEscapes.ESCAPE_NONE;
     escapes['\f'] = CharacterEscapes.ESCAPE_NONE;
+    escapes['\''] = CharacterEscapes.ESCAPE_CUSTOM;
     asciiEscapes = escapes;
   }
 
@@ -23,7 +26,10 @@ public class PyishCharacterEscapes extends CharacterEscapes {
   }
 
   @Override
-  public SerializableString getEscapeSequence(int i) {
+  public SerializableString getEscapeSequence(int ch) {
+    if (ch == '\'') {
+      return new SerializedString("\\'");
+    }
     return null;
   }
 }
