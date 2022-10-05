@@ -366,25 +366,26 @@ public class EagerReconstructionUtils {
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
+    Set<String> filteredDeferredWords = deferredWords;
     if (interpreter.getContext().isDeferredExecutionMode()) {
       Context parent = interpreter.getContext().getParent();
       while (parent.isDeferredExecutionMode()) {
         parent = parent.getParent();
       }
       final Context finalParent = parent;
-      deferredWords =
+      filteredDeferredWords =
         deferredWords
           .stream()
           .filter(word -> interpreter.getContext().get(word) != finalParent.get(word))
           .collect(Collectors.toSet());
     }
-    if (deferredWords.isEmpty()) {
+    if (filteredDeferredWords.isEmpty()) {
       return "";
     }
     Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
     Map<String, PyishBlockSetSerializable> blockSetMap = new HashMap<>();
 
-    deferredWords
+    filteredDeferredWords
       .stream()
       .map(w -> w.split("\\.", 2)[0]) // get base prop
       .filter(w -> !metaContextVariables.contains(w))
@@ -393,7 +394,7 @@ public class EagerReconstructionUtils {
         w ->
           blockSetMap.put(w, (PyishBlockSetSerializable) interpreter.getContext().get(w))
       );
-    deferredWords
+    filteredDeferredWords
       .stream()
       .map(w -> w.split("\\.", 2)[0]) // get base prop
       .filter(
