@@ -1,11 +1,11 @@
 package com.hubspot.jinjava.lib.fn;
 
-import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
+import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.eager.MacroFunctionTempVariable;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValue;
-import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.tree.Node;
@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Function definition parsed from a jinjava template, stored in global macros registry in interpreter context.
@@ -35,6 +36,8 @@ public class MacroFunction extends AbstractCallableMethod {
   private final int definitionStartPosition;
 
   private boolean deferred;
+
+  private AtomicInteger callCount = new AtomicInteger();
 
   public MacroFunction(
     List<Node> content,
@@ -70,6 +73,7 @@ public class MacroFunction extends AbstractCallableMethod {
     Map<String, Object> kwargMap,
     List<Object> varArgs
   ) {
+    int currentCallCount = callCount.getAndIncrement();
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     Optional<String> importFile = getImportFile(interpreter);
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
@@ -83,17 +87,15 @@ public class MacroFunction extends AbstractCallableMethod {
           !interpreter.getContext().getDeferredTokens().isEmpty()
         )
       ) {
+        String tempVarName = MacroFunctionTempVariable.getVarName(
+          getName(),
+          currentCallCount
+        );
         interpreter
           .getContext()
-          .removeDeferredTokens(
-            ImmutableList.copyOf(interpreter.getContext().getDeferredTokens())
-          );
-        // If the macro function could not be fully evaluated, throw a DeferredValueException.
-        throw new DeferredValueException(
-          getName(),
-          interpreter.getLineNumber(),
-          interpreter.getPosition()
-        );
+          .getParent()
+          .put(tempVarName, new MacroFunctionTempVariable(result));
+        throw new DeferredParsingException(this, tempVarName);
       }
 
       return result;

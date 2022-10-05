@@ -22,6 +22,7 @@ import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
+import com.hubspot.jinjava.objects.serialization.PyishBlockSetSerializable;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -298,7 +299,8 @@ public class EagerReconstructionUtils {
   ) {
     return (
       reconstructMacroFunctionsBeforeDeferring(deferredWords, interpreter) +
-      reconstructVariablesBeforeDeferring(deferredWords, interpreter)
+      reconstructBlockSetVariablesBeforeDeferring(deferredWords, interpreter) +
+      reconstructInlineSetVariablesBeforeDeferring(deferredWords, interpreter)
     );
   }
 
@@ -362,7 +364,80 @@ public class EagerReconstructionUtils {
     return result;
   }
 
-  private static String reconstructVariablesBeforeDeferring(
+  private static String reconstructBlockSetVariablesBeforeDeferring(
+    Set<String> deferredWords,
+    JinjavaInterpreter interpreter
+  ) {
+    Set<String> filteredDeferredWords = deferredWords;
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      Context parent = interpreter.getContext().getParent();
+      while (parent.isDeferredExecutionMode()) {
+        parent = parent.getParent();
+      }
+      final Context finalParent = parent;
+      filteredDeferredWords =
+        deferredWords
+          .stream()
+          .filter(word -> interpreter.getContext().get(word) != finalParent.get(word))
+          .collect(Collectors.toSet());
+    }
+    if (filteredDeferredWords.isEmpty()) {
+      return "";
+    }
+    Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
+    Map<String, PyishBlockSetSerializable> blockSetMap = new HashMap<>();
+
+    filteredDeferredWords
+      .stream()
+      .map(w -> w.split("\\.", 2)[0]) // get base prop
+      .filter(w -> !metaContextVariables.contains(w))
+      .filter(w -> interpreter.getContext().get(w) instanceof PyishBlockSetSerializable)
+      .forEach(
+        w ->
+          blockSetMap.put(w, (PyishBlockSetSerializable) interpreter.getContext().get(w))
+      );
+    filteredDeferredWords
+      .stream()
+      .map(w -> w.split("\\.", 2)[0]) // get base prop
+      .filter(
+        w -> {
+          Object value = interpreter.getContext().get(w);
+          return (
+            value instanceof DeferredLazyReference &&
+            (
+              (DeferredLazyReference) value
+            ).getOriginalValue() instanceof PyishBlockSetSerializable
+          );
+        }
+      )
+      .forEach(
+        w -> {
+          blockSetMap.put(
+            w,
+            (PyishBlockSetSerializable) (
+              (DeferredLazyReference) interpreter.getContext().get(w)
+            ).getOriginalValue()
+          );
+        }
+      );
+    String blockSetTags = blockSetMap
+      .entrySet()
+      .stream()
+      .map(
+        entry ->
+          buildBlockSetTag(
+            entry.getKey(),
+            entry.getValue().getBlockSetBody(),
+            interpreter,
+            false
+          )
+      )
+      .collect(Collectors.joining());
+    deferredWords.removeAll(blockSetMap.keySet());
+    return blockSetTags;
+  }
+
+  private static String reconstructInlineSetVariablesBeforeDeferring(
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {

@@ -1,6 +1,6 @@
-{% macro big_guy() %}
+{% set __macro_big_guy_temp_variable_0__ %}
 {% if deferred %}I am foo{% else %}I am bar{% endif %}
-{% endmacro %}{% print big_guy() %}
-{% macro big_guy() %}
+{% endset %}{% print __macro_big_guy_temp_variable_0__ %}
+{% set __macro_big_guy_temp_variable_1__ %}
 {% if deferred %}No more foo{% else %}I am bar{% endif %}
-{% endmacro %}{% print big_guy() %}
+{% endset %}{% print __macro_big_guy_temp_variable_1__ %}
