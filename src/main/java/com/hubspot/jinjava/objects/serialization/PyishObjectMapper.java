@@ -50,14 +50,27 @@ public class PyishObjectMapper {
   public static String getAsPyishStringOrThrow(Object val)
     throws JsonProcessingException {
     String string = PYISH_OBJECT_WRITER.writeValueAsString(val);
-    Optional<Long> maxStringLength = JinjavaInterpreter
-      .getCurrentMaybe()
+    Optional<JinjavaInterpreter> interpreterMaybe = JinjavaInterpreter.getCurrentMaybe();
+    Optional<Long> maxStringLength = interpreterMaybe
       .map(interpreter -> interpreter.getConfig().getMaxStringLength())
       .filter(max -> max > 0);
     if (maxStringLength.map(max -> string.length() > max).orElse(false)) {
       throw new OutputTooBigException(maxStringLength.get(), string.length());
     }
-    if (string.contains("}}") && !string.contains("{{")) {
+    if (
+      interpreterMaybe
+        .map(
+          interpreter ->
+            interpreter
+              .getConfig()
+              .getTokenScannerSymbols()
+              .getExpressionEnd()
+              .equals("}}")
+        )
+        .orElse(true) &&
+      string.contains("}}") &&
+      !string.contains("{{")
+    ) {
       return String.join("} ", string.split("}(?=})"));
     }
     return string;
