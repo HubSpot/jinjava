@@ -204,7 +204,7 @@ public class EagerForTagTest extends ForTagTest {
 
     String input =
       "{% set my_list = [] %}" +
-      "{% for i in range(30) %}" +
+      "{% for i in range(401) %}" +
       "{{ my_list.append(i) }}" +
       "{% endfor %}" +
       "{% for i in [0, 1] %}" +
