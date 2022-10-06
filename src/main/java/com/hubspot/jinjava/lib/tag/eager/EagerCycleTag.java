@@ -13,6 +13,7 @@ import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
@@ -112,6 +113,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
           interpreter,
           resolvedValues,
           resolvedExpression,
+          eagerExecutionResult.getResult().getDeferredWords(),
           eagerExecutionResult.getResult().isFullyResolved()
         )
       );
@@ -174,10 +176,26 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     JinjavaInterpreter interpreter,
     List<String> values,
     String resolvedExpression,
+    Set<String> deferredWords,
     boolean fullyResolved
   ) {
     if (interpreter.getContext().isDeferredExecutionMode()) {
-      return reconstructCycleTag(resolvedExpression, tagToken);
+      String reconstructedTag = reconstructCycleTag(resolvedExpression, tagToken);
+
+      interpreter
+        .getContext()
+        .handleDeferredToken(
+          new DeferredToken(
+            new TagToken(
+              reconstructedTag,
+              tagToken.getLineNumber(),
+              tagToken.getStartPosition(),
+              tagToken.getSymbols()
+            ),
+            deferredWords
+          )
+        );
+      return reconstructedTag;
     }
     Integer forindex = (Integer) interpreter.retraceVariable(
       CycleTag.LOOP_INDEX,
