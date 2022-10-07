@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.objects.serialization;
 
+import com.fasterxml.jackson.core.JsonFactoryBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -7,7 +8,9 @@ import com.hubspot.jinjava.objects.PyWrapper;
 import java.util.Objects;
 
 public interface PyishSerializable extends PyWrapper {
-  ObjectWriter SELF_WRITER = new ObjectMapper()
+  ObjectWriter SELF_WRITER = new ObjectMapper(
+    new JsonFactoryBuilder().quoteChar('\'').build()
+  )
     .writer(PyishPrettyPrinter.INSTANCE)
     .with(PyishCharacterEscapes.INSTANCE);
   /**
@@ -31,7 +34,7 @@ public interface PyishSerializable extends PyWrapper {
     try {
       return SELF_WRITER.writeValueAsString(value);
     } catch (JsonProcessingException e) {
-      return '"' + Objects.toString(value) + '"';
+      return '\'' + Objects.toString(value) + '\'';
     }
   }
 }

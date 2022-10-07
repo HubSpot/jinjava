@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.objects.serialization;
 
+import com.fasterxml.jackson.core.JsonFactoryBuilder;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -18,7 +19,9 @@ public class PyishObjectMapper {
   public static final ObjectWriter PYISH_OBJECT_WRITER;
 
   static {
-    ObjectMapper mapper = new ObjectMapper()
+    ObjectMapper mapper = new ObjectMapper(
+      new JsonFactoryBuilder().quoteChar('\'').build()
+    )
     .registerModule(
         new SimpleModule()
           .setSerializerModifier(PyishBeanSerializerModifier.INSTANCE)
@@ -47,21 +50,30 @@ public class PyishObjectMapper {
   public static String getAsPyishStringOrThrow(Object val)
     throws JsonProcessingException {
     String string = PYISH_OBJECT_WRITER.writeValueAsString(val);
-    Optional<Long> maxStringLength = JinjavaInterpreter
-      .getCurrentMaybe()
+    Optional<JinjavaInterpreter> interpreterMaybe = JinjavaInterpreter.getCurrentMaybe();
+    Optional<Long> maxStringLength = interpreterMaybe
       .map(interpreter -> interpreter.getConfig().getMaxStringLength())
       .filter(max -> max > 0);
     if (maxStringLength.map(max -> string.length() > max).orElse(false)) {
       throw new OutputTooBigException(maxStringLength.get(), string.length());
     }
-    String result = string
-      .replace("'", "\\'")
-      // Replace double-quotes with single quote as they are preferred in Jinja
-      .replaceAll("(?<!\\\\)(\\\\\\\\)*(?:\")", "$1'");
-    if (!result.contains("{{")) {
-      return String.join("} ", result.split("}(?=})"));
+    if (
+      interpreterMaybe
+        .map(
+          interpreter ->
+            interpreter
+              .getConfig()
+              .getTokenScannerSymbols()
+              .getExpressionEnd()
+              .equals("}}")
+        )
+        .orElse(true) &&
+      string.contains("}}") &&
+      !string.contains("{{")
+    ) {
+      return String.join("} ", string.split("}(?=})"));
     }
-    return result;
+    return string;
   }
 
   public static class NullKeySerializer extends JsonSerializer<Object> {

@@ -4,9 +4,8 @@ import com.google.common.collect.Sets;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.Set;
 
 @JinjavaDoc(
   value = "Returns a list containing elements present in the first list but not the second list",
@@ -29,15 +28,8 @@ import java.util.Map;
 public class DifferenceFilter extends AbstractSetFilter {
 
   @Override
-  public Object filter(
-    Object var,
-    JinjavaInterpreter interpreter,
-    Object[] args,
-    Map<String, Object> kwargs
-  ) {
-    return new ArrayList<>(
-      Sets.difference(objectToSet(var), objectToSet(parseArgs(interpreter, args)))
-    );
+  public Object filter(Set<Object> varSet, Set<Object> argSet) {
+    return new ArrayList<>(Sets.difference(varSet, argSet));
   }
 
   @Override

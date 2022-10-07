@@ -1,13 +1,13 @@
-{% macro getData() %}
+{% set __macro_getData_temp_variable_0__ %}
 
 
 {% for __ignored__ in [0] %}
-{% macro doIt(val) %}
-{{ deferred ~ filter:tojson.filter(val, ____int3rpr3t3r____) }}
-{% endmacro %}{% set val = {'a': 'a'} %}{{ filter:upper.filter(doIt(val), ____int3rpr3t3r____) }}
+{% set __macro_doIt_temp_variable_0__ %}
+{{ deferred ~ '{"a":"a"}' }}
+{% endset %}{{ filter:upper.filter(__macro_doIt_temp_variable_0__, ____int3rpr3t3r____) }}
 
-{% macro doIt(val) %}
-{{ deferred ~ filter:tojson.filter(val, ____int3rpr3t3r____) }}
-{% endmacro %}{% set val = {'b': 'b'} %}{{ filter:upper.filter(doIt(val), ____int3rpr3t3r____) }}
+{% set __macro_doIt_temp_variable_1__ %}
+{{ deferred ~ '{"b":"b"}' }}
+{% endset %}{{ filter:upper.filter(__macro_doIt_temp_variable_1__, ____int3rpr3t3r____) }}
 {% endfor %}
-{% endmacro %}{{ filter:upper.filter(getData(), ____int3rpr3t3r____) }}
+{% endset %}{{ filter:upper.filter(__macro_getData_temp_variable_0__, ____int3rpr3t3r____) }}

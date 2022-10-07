@@ -310,7 +310,18 @@ public class EagerExpressionResolverTest {
     EagerExpressionResult eagerExpressionResult = eagerResolveExpression("date");
 
     assertThat(WhitespaceUtils.unquoteAndUnescape(eagerExpressionResult.toString()))
-      .isEqualTo(date.toPyishString().replace("'", "\\'").replace('"', '\''));
+      .isEqualTo(date.toPyishString());
+    interpreter.render(
+      "{% set foo = " +
+      PyishObjectMapper.getAsPyishString(ImmutableMap.of("a", date)) +
+      " %}"
+    );
+    assertThat(
+        (
+          (PyishDate) ((Map<String, Object>) interpreter.getContext().get("foo")).get("a")
+        ).toDateTime()
+      )
+      .isEqualTo(date.toDateTime());
   }
 
   @Test
