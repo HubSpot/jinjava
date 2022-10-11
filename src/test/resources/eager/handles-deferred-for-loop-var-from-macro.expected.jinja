@@ -3,11 +3,11 @@
 
 {% for __ignored__ in [0] %}
 {% set __macro_doIt_temp_variable_0__ %}
-{{ deferred ~ '{"a":"a"}' }}
+{{ deferred ~ '{\"a\":\"a\"}' }}
 {% endset %}{{ filter:upper.filter(__macro_doIt_temp_variable_0__, ____int3rpr3t3r____) }}
 
 {% set __macro_doIt_temp_variable_1__ %}
-{{ deferred ~ '{"b":"b"}' }}
+{{ deferred ~ '{\"b\":\"b\"}' }}
 {% endset %}{{ filter:upper.filter(__macro_doIt_temp_variable_1__, ____int3rpr3t3r____) }}
 {% endfor %}
 {% endset %}{{ filter:upper.filter(__macro_getData_temp_variable_0__, ____int3rpr3t3r____) }}
