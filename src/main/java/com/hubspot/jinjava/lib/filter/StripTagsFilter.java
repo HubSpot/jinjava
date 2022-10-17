@@ -7,7 +7,7 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Safelist;
+import org.jsoup.safety.Whitelist;
 
 /**
  * striptags(value) Strip SGML/XML tags and replace adjacent whitespace by one space.
@@ -42,7 +42,7 @@ public class StripTagsFilter implements Filter {
     }
 
     String cleanedVal = Jsoup.parse(val).text();
-    cleanedVal = Jsoup.clean(cleanedVal, Safelist.none());
+    cleanedVal = Jsoup.clean(cleanedVal, Whitelist.none());
 
     // backwards compatibility with Jsoup.parse
     cleanedVal = cleanedVal.replaceAll("&nbsp;", " ");
