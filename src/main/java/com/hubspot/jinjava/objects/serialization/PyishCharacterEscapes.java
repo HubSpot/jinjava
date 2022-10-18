@@ -12,7 +12,6 @@ public class PyishCharacterEscapes extends CharacterEscapes {
   private PyishCharacterEscapes() {
     int[] escapes = CharacterEscapes.standardAsciiEscapesForJSON();
     escapes['\n'] = CharacterEscapes.ESCAPE_NONE;
-    escapes['"'] = CharacterEscapes.ESCAPE_NONE;
     escapes['\t'] = CharacterEscapes.ESCAPE_NONE;
     escapes['\r'] = CharacterEscapes.ESCAPE_NONE;
     escapes['\f'] = CharacterEscapes.ESCAPE_NONE;
