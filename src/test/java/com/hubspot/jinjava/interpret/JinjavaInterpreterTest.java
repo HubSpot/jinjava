@@ -391,4 +391,23 @@ public class JinjavaInterpreterTest {
       .extracting(TemplateError::getMessage)
       .containsOnly("Invalid date format: [not a real format]");
   }
+
+  @Test
+  public void itHandlesInvalidLocaleInFormattedDate() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ d }}",
+      ImmutableMap.of(
+        "d",
+        new FormattedDate(
+          "medium",
+          "not a real locale",
+          ZonedDateTime.of(2022, 10, 20, 17, 9, 43, 0, ZoneId.of("America/New_York"))
+        )
+      )
+    );
+
+    assertThat(result.getErrors())
+      .extracting(TemplateError::getMessage)
+      .containsOnly("Invalid locale format: not a real locale");
+  }
 }
