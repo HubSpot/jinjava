@@ -11,8 +11,4 @@ public interface StrftimeConversionComponent {
   static PatternStrftimeConversionComponent pattern(String targetPattern) {
     return new PatternStrftimeConversionComponent(targetPattern);
   }
-
-  static LiteralStrftimeConversionComponent literal(String literal) {
-    return new LiteralStrftimeConversionComponent(literal);
-  }
 }
