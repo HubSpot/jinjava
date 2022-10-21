@@ -14,6 +14,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
 import com.hubspot.jinjava.objects.date.FormattedDate;
+import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.output.BlockInfo;
 import com.hubspot.jinjava.tree.parse.TextToken;
@@ -21,6 +22,7 @@ import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -393,6 +395,29 @@ public class JinjavaInterpreterTest {
     assertThat(result.getErrors())
       .extracting(TemplateError::getMessage)
       .containsOnly("Invalid date format: [not a real format]");
+  }
+
+  @Test
+  public void itDefaultsToMediumOnEmptyFormatInFormattedDate() {
+    ZonedDateTime date = ZonedDateTime.of(
+      2022,
+      10,
+      20,
+      17,
+      9,
+      43,
+      0,
+      ZoneId.of("America/New_York")
+    );
+    String result = jinjava.render(
+      "{{ d }}",
+      ImmutableMap.of("d", new FormattedDate("", "en_US", date))
+    );
+
+    assertThat(result)
+      .isEqualTo(
+        StrftimeFormatter.format(date, "medium", Locale.forLanguageTag("en-US"))
+      );
   }
 
   @Test
