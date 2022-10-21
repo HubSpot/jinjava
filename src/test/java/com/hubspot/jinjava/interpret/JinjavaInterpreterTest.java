@@ -13,10 +13,12 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
+import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.output.BlockInfo;
 import com.hubspot.jinjava.tree.parse.TextToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Optional;
@@ -352,5 +354,22 @@ public class JinjavaInterpreterTest {
   @Test
   public void itInterpretsEmptyExpressions() {
     assertThat(interpreter.render("{{}}")).isEqualTo("");
+  }
+
+  @Test
+  public void itInterpretsFormattedDates() {
+    String result = jinjava.render(
+      "{{ d }}",
+      ImmutableMap.of(
+        "d",
+        new FormattedDate(
+          "medium",
+          "en-US",
+          ZonedDateTime.of(2022, 10, 20, 17, 9, 43, 0, ZoneId.of("America/New_York"))
+        )
+      )
+    );
+
+    assertThat(result).isEqualTo("Oct 20, 2022, 9:09:43 PM");
   }
 }
