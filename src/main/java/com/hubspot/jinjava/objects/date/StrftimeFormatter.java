@@ -176,5 +176,9 @@ public class StrftimeFormatter {
           stripLeadingZero ? targetPattern.substring(1) : targetPattern
         );
     }
+
+    static ConversionComponent localized(FormatStyle dateStyle, FormatStyle timeStyle) {
+      return (builder, stripLeadingZero) -> builder.appendLocalized(dateStyle, timeStyle);
+    }
   }
 }
