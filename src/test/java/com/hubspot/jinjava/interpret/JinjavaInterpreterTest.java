@@ -32,7 +32,10 @@ public class JinjavaInterpreterTest {
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
+    jinjava =
+      new Jinjava(
+        JinjavaConfig.newBuilder().withTimeZone(ZoneId.of("America/New_York")).build()
+      );
     interpreter = jinjava.newInterpreter();
     symbols = interpreter.getConfig().getTokenScannerSymbols();
   }
@@ -370,7 +373,7 @@ public class JinjavaInterpreterTest {
       )
     );
 
-    assertThat(result).isEqualTo("Oct 20, 2022, 9:09:43 PM");
+    assertThat(result).isEqualTo("Oct 20, 2022, 5:09:43 PM");
   }
 
   @Test
