@@ -372,4 +372,23 @@ public class JinjavaInterpreterTest {
 
     assertThat(result).isEqualTo("Oct 20, 2022, 9:09:43 PM");
   }
+
+  @Test
+  public void itHandlesInvalidFormatInFormattedDate() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ d }}",
+      ImmutableMap.of(
+        "d",
+        new FormattedDate(
+          "not a real format",
+          "en_US",
+          ZonedDateTime.of(2022, 10, 20, 17, 9, 43, 0, ZoneId.of("America/New_York"))
+        )
+      )
+    );
+
+    assertThat(result.getErrors())
+      .extracting(TemplateError::getMessage)
+      .containsOnly("Invalid date format: [not a real format]");
+  }
 }
