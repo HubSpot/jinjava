@@ -438,4 +438,27 @@ public class JinjavaInterpreterTest {
       .extracting(TemplateError::getMessage)
       .containsOnly("Invalid locale format: not a real locale");
   }
+
+  @Test
+  public void itDefaultsToUnitedStatesOnEmptyLocale() {
+    ZonedDateTime date = ZonedDateTime.of(
+      2022,
+      10,
+      20,
+      17,
+      9,
+      43,
+      0,
+      ZoneId.of("America/New_York")
+    );
+    String result = jinjava.render(
+      "{{ d }}",
+      ImmutableMap.of("d", new FormattedDate("medium", "", date))
+    );
+
+    assertThat(result)
+      .isEqualTo(
+        StrftimeFormatter.format(date, "medium", Locale.forLanguageTag("en-US"))
+      );
+  }
 }
