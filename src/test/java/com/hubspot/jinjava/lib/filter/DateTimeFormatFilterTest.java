@@ -154,12 +154,5 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
     TemplateError error = result.getErrors().get(0);
     assertThat(error.getSeverity()).isEqualTo(ErrorType.FATAL);
     assertThat(error.getMessage()).contains("Invalid date format: [%é]");
-
-    /*
-    datetimeformat outputs the string "null" for unrecognized format codes,
-    which DateTimeFormatter then tries to interpret as a pattern. 'n' and 'u'
-    are valid pattern letters, but 'l' is not, hence the following error message.
-    */
-    assertThat(error.getMessage()).contains("Unknown pattern letter: l");
   }
 }
