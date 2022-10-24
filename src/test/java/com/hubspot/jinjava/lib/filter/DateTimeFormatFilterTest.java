@@ -165,6 +165,7 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
 
     TemplateError error = result.getErrors().get(0);
     assertThat(error.getSeverity()).isEqualTo(ErrorType.FATAL);
-    assertThat(error.getMessage()).contains("Invalid date format: [%é]");
+    assertThat(error.getMessage())
+      .contains("Invalid date format '%é': unknown format code 'é'");
   }
 }

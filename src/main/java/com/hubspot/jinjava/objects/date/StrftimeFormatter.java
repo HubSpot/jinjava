@@ -99,9 +99,17 @@ public class StrftimeFormatter {
         components = NOMINATIVE_COMPONENTS;
       }
 
+      final char finalChar = c;
+
       Optional
-        .ofNullable(components.get(c))
-        .orElseThrow(() -> new InvalidDateFormatException(strftime))
+        .ofNullable(components.get(finalChar))
+        .orElseThrow(
+          () ->
+            new InvalidDateFormatException(
+              strftime,
+              String.format("unknown format code '%s'", finalChar)
+            )
+        )
         .append(builder, stripLeadingZero);
     }
 

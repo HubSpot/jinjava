@@ -10,13 +10,13 @@ public class InvalidDateFormatException extends IllegalArgumentException {
     this.format = format;
   }
 
-  public InvalidDateFormatException(String format) {
-    super(buildMessage(format));
+  public InvalidDateFormatException(String format, String reason) {
+    super(buildMessage(format) + ": " + reason);
     this.format = format;
   }
 
   private static String buildMessage(String format) {
-    return "Invalid date format: [" + format + "]";
+    return "Invalid date format '" + format + "'";
   }
 
   public String getFormat() {

@@ -123,11 +123,11 @@ public class StrftimeFormatterTest {
   public void itThrowsOnInvalidFormats() {
     assertThatExceptionOfType(InvalidDateFormatException.class)
       .isThrownBy(() -> StrftimeFormatter.format(d, "%d.%é.%Y"))
-      .withMessage("Invalid date format: [%d.%é.%Y]");
+      .withMessage("Invalid date format '%d.%é.%Y'");
 
     assertThatExceptionOfType(InvalidDateFormatException.class)
       .isThrownBy(() -> StrftimeFormatter.format(d, "%d.%ğ.%Y"))
-      .withMessage("Invalid date format: [%d.%ğ.%Y]");
+      .withMessage("Invalid date format '%d.%ğ.%Y'");
   }
 
   @Test
