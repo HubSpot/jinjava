@@ -440,7 +440,7 @@ public class JinjavaInterpreterTest {
   }
 
   @Test
-  public void itDefaultsToUnitedStatesOnEmptyLocale() {
+  public void itDefaultsToUnitedStatesOnEmptyLocaleInFormattedDate() {
     ZonedDateTime date = ZonedDateTime.of(
       2022,
       10,
