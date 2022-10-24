@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.RenderResult;
+import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
@@ -136,7 +138,11 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
 
     assertThat(result.getOutput()).isEqualTo("");
     assertThat(result.getErrors()).hasSize(1);
-    assertThat(result.getErrors().get(0).getMessage())
-      .contains("Invalid date format: [%é]");
+
+    TemplateError error = result.getErrors().get(0);
+    assertThat(error.getSeverity()).isEqualTo(ErrorType.FATAL);
+    assertThat(error.getMessage())
+      .contains("Invalid date format: [%é]")
+      .contains("Unknown pattern letter: l");
   }
 }
