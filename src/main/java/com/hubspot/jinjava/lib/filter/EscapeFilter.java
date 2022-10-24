@@ -48,6 +48,13 @@ public class EscapeFilter implements Filter {
   private static final String[] REPLACE_WITH = new String[] { BAMP, BGT, BLT, BSQ, BDQ };
 
   public static String escapeHtmlEntities(String input) {
+    for (int idx = 0; idx < TO_REPLACE.length; ++idx) {
+      input = input.replace(TO_REPLACE[idx], REPLACE_WITH[idx]);
+    }
+    return input;
+  }
+
+  public static String oldEscapeHtmlEntities(String input) {
     return StringUtils.replaceEach(input, TO_REPLACE, REPLACE_WITH);
   }
 
