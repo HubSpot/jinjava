@@ -2,8 +2,10 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
@@ -123,5 +125,18 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
         )
       )
       .isEqualTo("onsdag, 6 november, 02:22 em");
+  }
+
+  @Test
+  public void itHandlesInvalidDateFormats() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ d | datetimeformat('%é') }}",
+      ImmutableMap.of("d", d)
+    );
+
+    assertThat(result.getOutput()).isEqualTo("");
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getMessage())
+      .contains("Invalid date format: [%é]");
   }
 }
