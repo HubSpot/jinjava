@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.objects.date;
 
-import static com.hubspot.jinjava.objects.date.StrftimeConversionComponent.pattern;
+import static com.hubspot.jinjava.objects.date.StrftimeFormatter.ConversionComponent.pattern;
 
 import com.google.common.collect.ImmutableMap;
 import java.time.ZonedDateTime;
@@ -22,13 +22,13 @@ public class StrftimeFormatter {
   /*
    * Mapped from http://strftime.org/, http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
    */
-  private static final Map<Character, StrftimeConversionComponent> COMPONENTS;
-  private static final Map<Character, StrftimeConversionComponent> NOMINATIVE_COMPONENTS;
+  private static final Map<Character, ConversionComponent> COMPONENTS;
+  private static final Map<Character, ConversionComponent> NOMINATIVE_COMPONENTS;
 
   static {
     COMPONENTS =
       ImmutableMap
-        .<Character, StrftimeConversionComponent>builder()
+        .<Character, ConversionComponent>builder()
         .put('a', pattern("EEE"))
         .put('A', pattern("EEEE"))
         .put('b', pattern("MMM"))
@@ -61,7 +61,7 @@ public class StrftimeFormatter {
 
     NOMINATIVE_COMPONENTS =
       ImmutableMap
-        .<Character, StrftimeConversionComponent>builder()
+        .<Character, ConversionComponent>builder()
         .put('B', pattern("LLLL"))
         .build();
   }
@@ -87,7 +87,7 @@ public class StrftimeFormatter {
 
       c = strftime.charAt(++i);
       boolean stripLeadingZero = false;
-      Map<Character, StrftimeConversionComponent> components = COMPONENTS;
+      Map<Character, ConversionComponent> components = COMPONENTS;
 
       if (c == '-') {
         stripLeadingZero = true;
@@ -162,5 +162,19 @@ public class StrftimeFormatter {
 
   public static String format(ZonedDateTime d, String strftime, Locale locale) {
     return formatter(strftime, locale).format(d);
+  }
+
+  interface ConversionComponent {
+    DateTimeFormatterBuilder append(
+      DateTimeFormatterBuilder builder,
+      boolean stripLeadingZero
+    );
+
+    static ConversionComponent pattern(String targetPattern) {
+      return (builder, stripLeadingZero) ->
+        builder.appendPattern(
+          stripLeadingZero ? targetPattern.substring(1) : targetPattern
+        );
+    }
   }
 }
