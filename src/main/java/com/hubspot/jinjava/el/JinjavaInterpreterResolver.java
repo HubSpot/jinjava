@@ -24,6 +24,7 @@ import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
 import com.hubspot.jinjava.objects.date.FormattedDate;
+import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
@@ -31,8 +32,6 @@ import de.odysseus.el.util.SimpleResolver;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -380,22 +379,13 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     JinjavaInterpreter interpreter,
     FormattedDate d
   ) {
-    DateTimeFormatter formatter = getFormatter(interpreter, d)
-      .withLocale(getLocale(interpreter, d));
-    return formatter.format(localizeDateTime(interpreter, d.getDate()));
-  }
+    ZonedDateTime zonedDateTime = localizeDateTime(interpreter, d.getDate());
+    Locale locale = getLocale(interpreter, d);
 
-  private static DateTimeFormatter getFormatter(
-    JinjavaInterpreter interpreter,
-    FormattedDate d
-  ) {
     if (!StringUtils.isBlank(d.getFormat())) {
       try {
-        return StrftimeFormatter.formatter(
-          d.getFormat(),
-          interpreter.getConfig().getLocale()
-        );
-      } catch (IllegalArgumentException e) {
+        return StrftimeFormatter.format(zonedDateTime, d.getFormat(), locale);
+      } catch (InvalidDateFormatException e) {
         interpreter.addError(
           new TemplateError(
             ErrorType.WARNING,
@@ -420,7 +410,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       }
     }
 
-    return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
+    return StrftimeFormatter.format(zonedDateTime, "medium", locale);
   }
 
   private static Locale getLocale(JinjavaInterpreter interpreter, FormattedDate d) {
