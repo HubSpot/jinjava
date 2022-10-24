@@ -8,7 +8,10 @@ public interface StrftimeConversionComponent {
     boolean stripLeadingZero
   );
 
-  static PatternStrftimeConversionComponent pattern(String targetPattern) {
-    return new PatternStrftimeConversionComponent(targetPattern);
+  static StrftimeConversionComponent pattern(String targetPattern) {
+    return (builder, stripLeadingZero) ->
+      builder.appendPattern(
+        stripLeadingZero ? targetPattern.substring(1) : targetPattern
+      );
   }
 }
