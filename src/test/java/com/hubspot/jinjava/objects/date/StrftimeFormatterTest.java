@@ -129,4 +129,15 @@ public class StrftimeFormatterTest {
     assertThat(StrftimeFormatter.toJavaDateTimeFormat("%d.%ğ.%Y"))
       .isEqualTo("dd.null.yyyy");
   }
+
+  @Test
+  public void itOutputsLiteralPercents() {
+    assertThat(StrftimeFormatter.format(d, "hi %% there")).isEqualTo("hi % there");
+    assertThat(StrftimeFormatter.format(d, "%%")).isEqualTo("%");
+  }
+
+  @Test
+  public void itIgnoresFinalStandalonePercent() {
+    assertThat(StrftimeFormatter.format(d, "%")).isEqualTo("%");
+  }
 }
