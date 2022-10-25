@@ -7,6 +7,7 @@ import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstLiteral;
 import de.odysseus.el.tree.impl.ast.AstNode;
+import de.odysseus.el.tree.impl.ast.AstNumber;
 import de.odysseus.el.tree.impl.ast.AstString;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -45,6 +46,11 @@ public class AstDict extends AstLiteral {
         } else {
           key = ((AstIdentifier) entryKey).getName();
         }
+      } else if (entryKey instanceof AstNumber) {
+        // This is a hack to treat numeric keys as string keys in the dictionary.
+        // In most cases this is adequate since the keys are typically treated as
+        // strings.
+        key = entryKey.eval(bindings, context).toString();
       } else {
         throw new TemplateStateException(
           "Dict key must be a string or identifier, was: " + entryKey
