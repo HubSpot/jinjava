@@ -39,6 +39,15 @@ public class EagerExecutionResult {
   }
 
   public String getPrefixToPreserveState() {
+    return getPrefixToPreserveState(
+      !JinjavaInterpreter
+        .getCurrentMaybe()
+        .map(interpreter -> interpreter.getContext().isDeferredExecutionMode())
+        .orElse(false)
+    );
+  }
+
+  public String getPrefixToPreserveState(boolean registerDeferredToken) {
     if (prefixToPreserveState != null) {
       return prefixToPreserveState;
     }
@@ -55,10 +64,7 @@ public class EagerExecutionResult {
             )
           ),
         JinjavaInterpreter.getCurrent(),
-        !JinjavaInterpreter
-          .getCurrentMaybe()
-          .map(interpreter -> interpreter.getContext().isDeferredExecutionMode())
-          .orElse(false)
+        registerDeferredToken
       ) +
       speculativeBindings
         .entrySet()
@@ -77,10 +83,7 @@ public class EagerExecutionResult {
             buildSetTag(
               Collections.singletonMap(pair.getKey(), pair.getValue()),
               JinjavaInterpreter.getCurrent(),
-              !JinjavaInterpreter
-                .getCurrentMaybe()
-                .map(interpreter -> interpreter.getContext().isDeferredExecutionMode())
-                .orElse(false)
+              registerDeferredToken
             )
         )
         .collect(Collectors.joining());

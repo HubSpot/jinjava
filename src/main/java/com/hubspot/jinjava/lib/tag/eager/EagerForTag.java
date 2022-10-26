@@ -138,21 +138,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     EagerExecutionResult eagerExecutionResult = runLoopOnce(tagNode, interpreter);
     if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
       // Defer any variables that we tried to modify during the loop
-      prefix =
-        EagerReconstructionUtils.buildSetTag(
-          eagerExecutionResult
-            .getSpeculativeBindings()
-            .entrySet()
-            .stream()
-            .collect(
-              Collectors.toMap(
-                Entry::getKey,
-                entry -> PyishObjectMapper.getAsPyishString(entry.getValue())
-              )
-            ),
-          interpreter,
-          true
-        );
+      prefix = eagerExecutionResult.getPrefixToPreserveState(true);
     }
     // Run for loop again now that the necessary values have been deferred
     eagerExecutionResult = runLoopOnce(tagNode, interpreter);
