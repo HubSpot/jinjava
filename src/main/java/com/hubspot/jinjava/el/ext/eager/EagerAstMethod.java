@@ -8,8 +8,8 @@ import de.odysseus.el.tree.impl.ast.AstMethod;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import de.odysseus.el.tree.impl.ast.AstProperty;
-import javax.el.ELContext;
-import javax.el.ELException;
+import jakarta.el.ELContext;
+import jakarta.el.ELException;
 
 public class EagerAstMethod extends AstMethod implements EvalResultHolder {
   protected Object evalResult;

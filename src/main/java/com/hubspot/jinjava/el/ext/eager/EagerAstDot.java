@@ -4,8 +4,8 @@ import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstDot;
 import de.odysseus.el.tree.impl.ast.AstNode;
-import javax.el.ELContext;
-import javax.el.ELException;
+import jakarta.el.ELContext;
+import jakarta.el.ELException;
 
 public class EagerAstDot extends AstDot implements EvalResultHolder {
   protected Object evalResult;

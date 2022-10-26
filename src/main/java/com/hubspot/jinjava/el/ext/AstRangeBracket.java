@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import javax.el.ELContext;
-import javax.el.ELException;
-import javax.el.PropertyNotFoundException;
+import jakarta.el.ELContext;
+import jakarta.el.ELException;
+import jakarta.el.PropertyNotFoundException;
 
 public class AstRangeBracket extends AstBracket {
   protected final AstNode rangeMax;

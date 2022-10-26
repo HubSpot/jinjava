@@ -1,8 +1,8 @@
 package com.hubspot.jinjava.el.ext;
 
 import java.util.List;
-import javax.el.ELContext;
-import javax.el.ListELResolver;
+import jakarta.el.ELContext;
+import jakarta.el.ListELResolver;
 
 public class JinjavaListELResolver extends ListELResolver {
 

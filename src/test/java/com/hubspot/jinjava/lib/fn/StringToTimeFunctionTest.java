@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.fn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.Assert.assertNull;
 
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.objects.date.PyishDate;
@@ -46,7 +47,7 @@ public class StringToTimeFunctionTest {
 
   @Test
   public void itReturnsNullOnNullInput() {
-    assertThat(Functions.stringToTime(null, "yyyy-MM-dd'T'HH:mm:ssZ")).isEqualTo(null);
+    assertNull(Functions.stringToTime(null, "yyyy-MM-dd'T'HH:mm:ssZ"));
   }
 
   @Test

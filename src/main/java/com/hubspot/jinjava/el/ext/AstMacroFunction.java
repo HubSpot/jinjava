@@ -13,8 +13,8 @@ import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstFunction;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import java.lang.reflect.InvocationTargetException;
-import javax.el.ELContext;
-import javax.el.ELException;
+import jakarta.el.ELContext;
+import jakarta.el.ELException;
 
 public class AstMacroFunction extends AstFunction {
 

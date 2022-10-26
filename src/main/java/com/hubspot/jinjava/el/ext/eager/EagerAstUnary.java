@@ -4,7 +4,7 @@ import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstUnary;
-import javax.el.ELContext;
+import jakarta.el.ELContext;
 
 public class EagerAstUnary extends AstUnary implements EvalResultHolder {
   protected Object evalResult;

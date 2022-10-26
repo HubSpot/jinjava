@@ -6,7 +6,7 @@ import com.hubspot.jinjava.el.ext.OrOperator;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBinary;
 import de.odysseus.el.tree.impl.ast.AstNode;
-import javax.el.ELContext;
+import jakarta.el.ELContext;
 
 public class EagerAstBinary extends AstBinary implements EvalResultHolder {
   protected Object evalResult;

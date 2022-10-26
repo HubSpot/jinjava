@@ -5,7 +5,7 @@ import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import java.util.StringJoiner;
-import javax.el.ELContext;
+import jakarta.el.ELContext;
 
 public class EagerAstList extends AstList implements EvalResultHolder {
   protected Object evalResult;

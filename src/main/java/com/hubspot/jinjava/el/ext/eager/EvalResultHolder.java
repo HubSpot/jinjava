@@ -10,8 +10,8 @@ import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import java.util.Collection;
 import java.util.function.Supplier;
-import javax.el.ELContext;
-import javax.el.ELException;
+import jakarta.el.ELContext;
+import jakarta.el.ELException;
 
 public interface EvalResultHolder {
   Object getEvalResult();

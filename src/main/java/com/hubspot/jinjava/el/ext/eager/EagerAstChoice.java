@@ -5,8 +5,8 @@ import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstChoice;
 import de.odysseus.el.tree.impl.ast.AstNode;
-import javax.el.ELContext;
-import javax.el.ELException;
+import jakarta.el.ELContext;
+import jakarta.el.ELException;
 
 public class EagerAstChoice extends AstChoice implements EvalResultHolder {
   protected Object evalResult;

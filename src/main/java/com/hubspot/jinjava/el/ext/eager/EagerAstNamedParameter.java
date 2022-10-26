@@ -5,7 +5,7 @@ import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstNode;
-import javax.el.ELContext;
+import jakarta.el.ELContext;
 
 public class EagerAstNamedParameter
   extends AstNamedParameter
