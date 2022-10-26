@@ -38,6 +38,10 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
     return entrySet();
   }
 
+  public Set<String> keys() {
+    return keySet();
+  }
+
   public void update(Map<? extends String, ? extends Object> m) {
     if (m == this) {
       throw new IllegalArgumentException("Can't update map object with itself");
