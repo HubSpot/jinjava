@@ -1,9 +1,11 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildBlockSetTag;
 import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildSetTag;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.LazyReference;
+import com.hubspot.jinjava.objects.serialization.PyishBlockSetSerializable;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import java.util.Collections;
@@ -51,11 +53,27 @@ public class EagerExecutionResult {
     if (prefixToPreserveState != null) {
       return prefixToPreserveState;
     }
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     prefixToPreserveState =
+      speculativeBindings
+        .entrySet()
+        .stream()
+        .filter(entry -> entry.getValue() instanceof PyishBlockSetSerializable)
+        .map(
+          entry ->
+            buildBlockSetTag(
+              entry.getKey(),
+              ((PyishBlockSetSerializable) entry.getValue()).getBlockSetBody(),
+              interpreter,
+              registerDeferredToken
+            )
+        )
+        .collect(Collectors.joining()) +
       buildSetTag(
         speculativeBindings
           .entrySet()
           .stream()
+          .filter(entry -> !(entry.getValue() instanceof PyishBlockSetSerializable))
           .filter(entry -> !(entry.getValue() instanceof LazyReference))
           .collect(
             Collectors.toMap(
@@ -63,7 +81,7 @@ public class EagerExecutionResult {
               entry -> PyishObjectMapper.getAsPyishString(entry.getValue())
             )
           ),
-        JinjavaInterpreter.getCurrent(),
+        interpreter,
         registerDeferredToken
       ) +
       speculativeBindings
@@ -82,7 +100,7 @@ public class EagerExecutionResult {
           pair ->
             buildSetTag(
               Collections.singletonMap(pair.getKey(), pair.getValue()),
-              JinjavaInterpreter.getCurrent(),
+              interpreter,
               registerDeferredToken
             )
         )
