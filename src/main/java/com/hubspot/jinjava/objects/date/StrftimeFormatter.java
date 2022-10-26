@@ -113,11 +113,7 @@ public class StrftimeFormatter {
     return result.toString();
   }
 
-  public static DateTimeFormatter formatter(String strftime) {
-    return formatter(strftime, Locale.ENGLISH);
-  }
-
-  public static DateTimeFormatter formatter(String strftime, Locale locale) {
+  private static DateTimeFormatter formatter(String strftime, Locale locale) {
     DateTimeFormatter fmt;
 
     if (strftime == null) {
