@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
@@ -127,6 +128,7 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
       StringBuilder result = new StringBuilder(
         prefixToPreserveState.toString() + joiner.toString()
       );
+      interpreter.getContext().setDynamicVariableResolver(s -> DeferredValue.instance());
       if (!tagNode.getChildren().isEmpty()) {
         result.append(
           EagerReconstructionUtils

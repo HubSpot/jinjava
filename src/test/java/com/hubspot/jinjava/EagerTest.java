@@ -1167,4 +1167,11 @@ public class EagerTest {
       "handles-deferred-for-loop-var-from-macro.expected"
     );
   }
+
+  @Test
+  public void itReconstructsNullVariablesInDeferredCaller() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-null-variables-in-deferred-caller"
+    );
+  }
 }

@@ -1,0 +1,10 @@
+{% if deferred %}
+{% macro foo(var) %}
+{% set second_list = [] %}
+{% do second_list.append(var) %}
+{{ caller() }}
+{% endmacro %}{% call foo(deferred) %}
+[]
+{{ second_list }}
+{% endcall %}
+{% endif %}
