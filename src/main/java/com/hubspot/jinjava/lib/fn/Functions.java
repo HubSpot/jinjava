@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -310,11 +311,9 @@ public class Functions {
     }
 
     try {
+      String convertedFormat = StrftimeFormatter.toJavaDateTimeFormat(datetimeFormat);
       return new PyishDate(
-        ZonedDateTime.parse(
-          datetimeString,
-          StrftimeFormatter.toDateTimeFormatter(datetimeFormat)
-        )
+        ZonedDateTime.parse(datetimeString, DateTimeFormatter.ofPattern(convertedFormat))
       );
     } catch (DateTimeParseException e) {
       throw new InterpretException(
@@ -359,9 +358,10 @@ public class Functions {
     }
 
     try {
+      String convertedFormat = StrftimeFormatter.toJavaDateTimeFormat(dateFormat);
       return new PyishDate(
         LocalDate
-          .parse(dateString, StrftimeFormatter.toDateTimeFormatter(dateFormat))
+          .parse(dateString, DateTimeFormatter.ofPattern(convertedFormat))
           .atTime(0, 0)
           .toInstant(ZoneOffset.UTC)
       );
