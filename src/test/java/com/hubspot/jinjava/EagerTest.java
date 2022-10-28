@@ -1167,4 +1167,11 @@ public class EagerTest {
       "handles-deferred-for-loop-var-from-macro.expected"
     );
   }
+
+  @Test
+  public void itReconstructsBlockSetVariablesInForLoop() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-block-set-variables-in-for-loop"
+    );
+  }
 }
