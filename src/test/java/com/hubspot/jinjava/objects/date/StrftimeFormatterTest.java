@@ -54,12 +54,12 @@ public class StrftimeFormatterTest {
 
   @Test
   public void testDateTime() {
-    assertThat(StrftimeFormatter.format(d, "%c")).isEqualTo("Wed Nov 06 14:22:00 2013");
+    assertThat(StrftimeFormatter.format(d, "%c")).isEqualTo("Nov 6, 2013, 2:22:00 PM");
   }
 
   @Test
   public void testDate() {
-    assertThat(StrftimeFormatter.format(d, "%x")).isEqualTo("11/06/13");
+    assertThat(StrftimeFormatter.format(d, "%x")).isEqualTo("11/6/13");
   }
 
   @Test
@@ -69,12 +69,12 @@ public class StrftimeFormatterTest {
 
   @Test
   public void testTime() {
-    assertThat(StrftimeFormatter.format(d, "%X")).isEqualTo("14:22:00");
+    assertThat(StrftimeFormatter.format(d, "%X")).isEqualTo("2:22:00 PM");
   }
 
   @Test
   public void testMicrosecs() {
-    assertThat(StrftimeFormatter.format(d, "%X %f")).isEqualTo("14:22:00 123000");
+    assertThat(StrftimeFormatter.format(d, "%X %f")).isEqualTo("2:22:00 PM 123000");
   }
 
   @Test
