@@ -1,9 +1,15 @@
 package com.hubspot.jinjava.objects.date;
 
+import static com.hubspot.jinjava.objects.date.StrftimeFormatter.ConversionComponent.pattern;
+
+import com.google.common.collect.ImmutableMap;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.FormatStyle;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -16,101 +22,98 @@ public class StrftimeFormatter {
   /*
    * Mapped from http://strftime.org/, http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
    */
-  private static final String[] CONVERSIONS = new String[255];
-  private static final String[] NOMINATIVE_CONVERSIONS = new String[255];
+  private static final Map<Character, ConversionComponent> COMPONENTS;
+  private static final Map<Character, ConversionComponent> NOMINATIVE_COMPONENTS;
 
   static {
-    CONVERSIONS['a'] = "EEE";
-    CONVERSIONS['A'] = "EEEE";
-    CONVERSIONS['b'] = "MMM";
-    CONVERSIONS['B'] = "MMMM";
-    CONVERSIONS['c'] = "EEE MMM dd HH:mm:ss yyyy";
-    CONVERSIONS['d'] = "dd";
-    CONVERSIONS['e'] = "d"; // The day of the month like with %d, but padded with blank (range 1 through 31).
-    CONVERSIONS['f'] = "SSSSSS";
-    CONVERSIONS['H'] = "HH";
-    CONVERSIONS['h'] = "hh";
-    CONVERSIONS['I'] = "hh";
-    CONVERSIONS['j'] = "DDD";
-    CONVERSIONS['k'] = "H"; // The hour as a decimal number, using a 24-hour clock like %H, but padded with blank (range 0 through 23).
-    CONVERSIONS['l'] = "h"; // The hour as a decimal number, using a 12-hour clock like %I, but padded with blank (range 1 through 12).
-    CONVERSIONS['m'] = "MM";
-    CONVERSIONS['M'] = "mm";
-    CONVERSIONS['p'] = "a";
-    CONVERSIONS['S'] = "ss";
-    CONVERSIONS['U'] = "ww";
-    CONVERSIONS['w'] = "e";
-    CONVERSIONS['W'] = "ww";
-    CONVERSIONS['x'] = "MM/dd/yy";
-    CONVERSIONS['X'] = "HH:mm:ss";
-    CONVERSIONS['y'] = "yy";
-    CONVERSIONS['Y'] = "yyyy";
-    CONVERSIONS['z'] = "Z";
-    CONVERSIONS['Z'] = "z";
-    CONVERSIONS['%'] = "%";
+    COMPONENTS =
+      ImmutableMap
+        .<Character, ConversionComponent>builder()
+        .put('a', pattern("EEE"))
+        .put('A', pattern("EEEE"))
+        .put('b', pattern("MMM"))
+        .put('B', pattern("MMMM"))
+        .put('c', pattern("EEE MMM dd HH:mm:ss yyyy"))
+        .put('d', pattern("dd"))
+        .put('e', pattern("d")) // The day of the month like with %d, but padded with blank (range 1 through 31).
+        .put('f', pattern("SSSSSS"))
+        .put('H', pattern("HH"))
+        .put('h', pattern("hh"))
+        .put('I', pattern("hh"))
+        .put('j', pattern("DDD"))
+        .put('k', pattern("H")) // The hour as a decimal number, using a 24-hour clock like %H, but padded with blank (range 0 through 23).
+        .put('l', pattern("h")) // The hour as a decimal number, using a 12-hour clock like %I, but padded with blank (range 1 through 12).
+        .put('m', pattern("MM"))
+        .put('M', pattern("mm"))
+        .put('p', pattern("a"))
+        .put('S', pattern("ss"))
+        .put('U', pattern("ww"))
+        .put('w', pattern("e"))
+        .put('W', pattern("ww"))
+        .put('x', pattern("MM/dd/yy"))
+        .put('X', pattern("HH:mm:ss"))
+        .put('y', pattern("yy"))
+        .put('Y', pattern("yyyy"))
+        .put('z', pattern("Z"))
+        .put('Z', pattern("z"))
+        .put('%', (builder, stripLeadingZero) -> builder.appendLiteral("%"))
+        .build();
 
-    NOMINATIVE_CONVERSIONS['B'] = "LLLL";
+    NOMINATIVE_COMPONENTS =
+      ImmutableMap
+        .<Character, ConversionComponent>builder()
+        .put('B', pattern("LLLL"))
+        .build();
   }
 
   /**
-   * Parses a string in python strftime format, returning the equivalent string in java date time format.
+   * Build a {@link DateTimeFormatter} that matches the given Python <code>strftime</code> pattern.
    *
-   * @param strftime
-   * @return date formatted as string
+   * @see <a href="https://strftime.org/">Python <code>strftime</code> cheatsheet</a>
    */
-  public static String toJavaDateTimeFormat(String strftime) {
+  public static DateTimeFormatter toDateTimeFormatter(String strftime) {
     if (!StringUtils.contains(strftime, '%')) {
-      return strftime;
+      return DateTimeFormatter.ofPattern(strftime);
     }
 
-    StringBuilder result = new StringBuilder();
+    DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
 
     for (int i = 0; i < strftime.length(); i++) {
       char c = strftime.charAt(i);
-      if (c == '%' && strftime.length() > i + 1) {
-        c = strftime.charAt(++i);
-        boolean stripLeadingZero = false;
-        String[] conversions = CONVERSIONS;
-
-        if (c == '-') {
-          stripLeadingZero = true;
-          c = strftime.charAt(++i);
-        }
-
-        if (c == 'O') {
-          c = strftime.charAt(++i);
-          conversions = NOMINATIVE_CONVERSIONS;
-        }
-
-        if (c > 255) {
-          // If the date format has invalid character that is > ascii (255) then
-          // maintain the behaviour similar to invalid ascii char <= 255 i.e. append null
-          result.append(conversions[0]);
-        } else {
-          if (stripLeadingZero) {
-            result.append(conversions[c].substring(1));
-          } else {
-            result.append(conversions[c]);
-          }
-        } // < 255
-      } else if (Character.isLetter(c)) {
-        result.append("'");
-        while (Character.isLetter(c)) {
-          result.append(c);
-          if (++i < strftime.length()) {
-            c = strftime.charAt(i);
-          } else {
-            c = 0;
-          }
-        }
-        result.append("'");
-        --i; // re-consume last char
-      } else {
-        result.append(c);
+      if (c != '%' || strftime.length() <= i + 1) {
+        builder.appendLiteral(c);
+        continue;
       }
+
+      c = strftime.charAt(++i);
+      boolean stripLeadingZero = false;
+      Map<Character, ConversionComponent> components = COMPONENTS;
+
+      if (c == '-') {
+        stripLeadingZero = true;
+        c = strftime.charAt(++i);
+      }
+
+      if (c == 'O') {
+        c = strftime.charAt(++i);
+        components = NOMINATIVE_COMPONENTS;
+      }
+
+      final char finalChar = c;
+
+      Optional
+        .ofNullable(components.get(finalChar))
+        .orElseThrow(
+          () ->
+            new InvalidDateFormatException(
+              strftime,
+              String.format("unknown format code '%s'", finalChar)
+            )
+        )
+        .append(builder, stripLeadingZero);
     }
 
-    return result.toString();
+    return builder.toFormatter();
   }
 
   private static DateTimeFormatter formatter(String strftime, Locale locale) {
@@ -135,7 +138,7 @@ public class StrftimeFormatter {
         break;
       default:
         try {
-          fmt = DateTimeFormatter.ofPattern(toJavaDateTimeFormat(strftime));
+          fmt = toDateTimeFormatter(strftime);
           break;
         } catch (IllegalArgumentException e) {
           throw new InvalidDateFormatException(strftime, e);
@@ -159,5 +162,19 @@ public class StrftimeFormatter {
 
   public static String format(ZonedDateTime d, String strftime, Locale locale) {
     return formatter(strftime, locale).format(d);
+  }
+
+  interface ConversionComponent {
+    DateTimeFormatterBuilder append(
+      DateTimeFormatterBuilder builder,
+      boolean stripLeadingZero
+    );
+
+    static ConversionComponent pattern(String targetPattern) {
+      return (builder, stripLeadingZero) ->
+        builder.appendPattern(
+          stripLeadingZero ? targetPattern.substring(1) : targetPattern
+        );
+    }
   }
 }

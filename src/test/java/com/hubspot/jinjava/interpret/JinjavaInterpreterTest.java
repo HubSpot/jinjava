@@ -394,7 +394,7 @@ public class JinjavaInterpreterTest {
 
     assertThat(result.getErrors())
       .extracting(TemplateError::getMessage)
-      .containsOnly("Invalid date format: [not a real format]");
+      .containsOnly("Invalid date format 'not a real format'");
   }
 
   @Test
