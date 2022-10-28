@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.objects.date;
 
-import static com.hubspot.jinjava.objects.date.StrftimeFormatter.ConversionComponent.localized;
 import static com.hubspot.jinjava.objects.date.StrftimeFormatter.ConversionComponent.pattern;
 
 import com.google.common.collect.ImmutableMap;
@@ -34,7 +33,7 @@ public class StrftimeFormatter {
         .put('A', pattern("EEEE"))
         .put('b', pattern("MMM"))
         .put('B', pattern("MMMM"))
-        .put('c', localized(FormatStyle.MEDIUM, FormatStyle.MEDIUM))
+        .put('c', pattern("EEE MMM dd HH:mm:ss yyyy"))
         .put('d', pattern("dd"))
         .put('e', pattern("d")) // The day of the month like with %d, but padded with blank (range 1 through 31).
         .put('f', pattern("SSSSSS"))
@@ -51,8 +50,8 @@ public class StrftimeFormatter {
         .put('U', pattern("ww"))
         .put('w', pattern("e"))
         .put('W', pattern("ww"))
-        .put('x', localized(FormatStyle.SHORT, null))
-        .put('X', localized(null, FormatStyle.MEDIUM))
+        .put('x', pattern("MM/dd/yy"))
+        .put('X', pattern("HH:mm:ss"))
         .put('y', pattern("yy"))
         .put('Y', pattern("yyyy"))
         .put('z', pattern("Z"))
@@ -176,10 +175,6 @@ public class StrftimeFormatter {
         builder.appendPattern(
           stripLeadingZero ? targetPattern.substring(1) : targetPattern
         );
-    }
-
-    static ConversionComponent localized(FormatStyle dateStyle, FormatStyle timeStyle) {
-      return (builder, stripLeadingZero) -> builder.appendLocalized(dateStyle, timeStyle);
     }
   }
 }
