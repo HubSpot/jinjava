@@ -11,7 +11,6 @@ import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.ForTag;
-import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
@@ -23,7 +22,6 @@ import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -138,21 +136,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     EagerExecutionResult eagerExecutionResult = runLoopOnce(tagNode, interpreter);
     if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
       // Defer any variables that we tried to modify during the loop
-      prefix =
-        EagerReconstructionUtils.buildSetTag(
-          eagerExecutionResult
-            .getSpeculativeBindings()
-            .entrySet()
-            .stream()
-            .collect(
-              Collectors.toMap(
-                Entry::getKey,
-                entry -> PyishObjectMapper.getAsPyishString(entry.getValue())
-              )
-            ),
-          interpreter,
-          true
-        );
+      prefix = eagerExecutionResult.getPrefixToPreserveState(true);
     }
     // Run for loop again now that the necessary values have been deferred
     eagerExecutionResult = runLoopOnce(tagNode, interpreter);
