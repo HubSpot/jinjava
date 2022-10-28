@@ -116,7 +116,7 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
           "en-US"
         )
       )
-      .isEqualTo("10/11/18 13:09:45 - Thu Oct 11 13:09:45 2018");
+      .isEqualTo("10/11/18 1:09:45 PM - Oct 11, 2018, 1:09:45 PM");
     assertThat(
         filter.filter(
           1539277785000L,
@@ -126,7 +126,7 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
           "de-DE"
         )
       )
-      .isEqualTo("10/11/18 13:09:45 - Do. Okt. 11 13:09:45 2018");
+      .isEqualTo("11.10.18 13:09:45 - 11.10.2018, 13:09:45");
   }
 
   @Test
