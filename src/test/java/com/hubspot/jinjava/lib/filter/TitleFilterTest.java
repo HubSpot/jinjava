@@ -33,7 +33,7 @@ public class TitleFilterTest {
   @Test
   public void itIgnoresParenthesesWhenCapitalizing() {
     assertThat(new TitleFilter().filter("test (company) name", null))
-            .isEqualTo("Test (Company) Name");
+      .isEqualTo("Test (Company) Name");
   }
 
   @Test

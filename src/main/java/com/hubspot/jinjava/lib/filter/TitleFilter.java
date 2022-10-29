@@ -22,7 +22,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
   snippets = { @JinjavaSnippet(code = "{{ \"My title should be titlecase\"|title }} ") }
 )
 public class TitleFilter implements Filter {
-
   private static final Splitter WORD_SPLITTER = Splitter.on(' ');
 
   @Override
