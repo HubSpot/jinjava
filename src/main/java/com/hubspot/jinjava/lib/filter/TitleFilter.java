@@ -1,10 +1,10 @@
 package com.hubspot.jinjava.lib.filter;
 
+import com.google.common.base.Splitter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import org.apache.commons.lang3.text.WordUtils;
 
 /**
  * Return a titlecased version of the value. I.e. words will start with uppercase letters, all remaining characters are lowercase.
@@ -23,6 +23,8 @@ import org.apache.commons.lang3.text.WordUtils;
 )
 public class TitleFilter implements Filter {
 
+  private static final Splitter WORD_SPLITTER = Splitter.on(' ');
+
   @Override
   public String getName() {
     return "title";
@@ -30,10 +32,36 @@ public class TitleFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if (var instanceof String) {
-      String value = (String) var;
-      return WordUtils.capitalize(value.toLowerCase());
+    if (var == null) {
+      return null;
     }
-    return var;
+
+    String value = var.toString();
+
+    char[] chars = value.toCharArray();
+    boolean titleCased = false;
+
+    for (int i = 0; i < chars.length; i++) {
+      if (chars[i] == ' ') {
+        titleCased = false;
+        continue;
+      }
+
+      char original = chars[i];
+      if (titleCased) {
+        chars[i] = Character.toLowerCase(original);
+      } else {
+        if (charCanBeTitlecased(original)) {
+          chars[i] = Character.toTitleCase(original);
+          titleCased = true;
+        }
+      }
+    }
+
+    return new String(chars);
+  }
+
+  private boolean charCanBeTitlecased(char c) {
+    return Character.toLowerCase(c) != Character.toTitleCase(c);
   }
 }
