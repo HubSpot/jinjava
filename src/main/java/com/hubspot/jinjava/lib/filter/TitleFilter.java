@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.filter;
 
-import com.google.common.base.Splitter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -22,7 +21,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
   snippets = { @JinjavaSnippet(code = "{{ \"My title should be titlecase\"|title }} ") }
 )
 public class TitleFilter implements Filter {
-  private static final Splitter WORD_SPLITTER = Splitter.on(' ');
 
   @Override
   public String getName() {
