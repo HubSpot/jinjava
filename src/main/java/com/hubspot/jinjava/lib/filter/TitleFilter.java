@@ -39,7 +39,7 @@ public class TitleFilter implements Filter {
     boolean titleCased = false;
 
     for (int i = 0; i < chars.length; i++) {
-      if (chars[i] == ' ') {
+      if (Character.isWhitespace(chars[i])) {
         titleCased = false;
         continue;
       }

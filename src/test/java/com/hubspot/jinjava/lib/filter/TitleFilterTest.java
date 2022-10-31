@@ -41,4 +41,10 @@ public class TitleFilterTest {
     assertThat(new TitleFilter().filter("@@@@mcoley t@est !@#$%^&*()_+plop", null))
       .isEqualTo("@@@@Mcoley T@est !@#$%^&*()_+Plop");
   }
+
+  @Test
+  public void itRespectsNewlinesAndTabs() {
+    assertThat(new TitleFilter().filter("test\t(company)\nname", null))
+      .isEqualTo("Test\t(Company)\nName");
+  }
 }
