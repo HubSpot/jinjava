@@ -1174,4 +1174,11 @@ public class EagerTest {
       "reconstructs-block-set-variables-in-for-loop"
     );
   }
+
+  @Test
+  public void itReconstructsNullVariablesInDeferredCaller() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-null-variables-in-deferred-caller"
+    );
+  }
 }
