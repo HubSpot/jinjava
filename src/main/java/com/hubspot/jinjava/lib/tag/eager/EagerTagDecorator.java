@@ -1,7 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -222,7 +222,8 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
             .getDeferredWords()
             .stream()
             .filter(
-              word -> !(interpreter.getContext().get(word) instanceof DeferredValue)
+              word ->
+                !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
             )
             .collect(Collectors.toSet())
         )
