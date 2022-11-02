@@ -200,7 +200,7 @@ public class EagerExpressionResolver {
         // val is still null
       }
       // don't defer numbers, values such as true/false, etc.
-      return interpreter.resolveELExpression(w, interpreter.getLineNumber()) == null;
+      return interpreter.resolveELExpressionSilently(w) == null;
     } catch (ELException | DeferredValueException | TemplateSyntaxException e) {
       return true;
     }
