@@ -608,7 +608,7 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return Value of expression.
    */
   public Object resolveELExpressionSilently(String expression) {
-    return expressionResolver.resolveExpression(expression, false);
+    return expressionResolver.resolveExpressionSilently(expression);
   }
 
   /**
