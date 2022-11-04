@@ -56,6 +56,7 @@ public class OutputList {
       try {
         val.append(node.getValue());
       } catch (OutputTooBigException e) {
+        ENGINE_LOG.error("OutputTooBigException",e);
         JinjavaInterpreter
           .getCurrent()
           .addError(TemplateError.fromOutputTooBigException(e));

@@ -72,7 +72,13 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
     EagerExecutionResult eagerExecutionResult,
     JinjavaInterpreter interpreter
   ) {
-    String deferredResult = eagerExecutionResult.getResult().toString();
+    String deferredResult;
+    try {
+      deferredResult = eagerExecutionResult.getResult().toString();
+    } catch (Exception e) {
+      ENGINE_LOG.error("Exception {} for: {}", e.getClass().getSimpleName(), tagNode.getHelpers());
+      throw e;
+    }
     if (deferredResult.length() > 10_000) {
       ENGINE_LOG.warn(
         "{} deferredResult string size: {} {}",

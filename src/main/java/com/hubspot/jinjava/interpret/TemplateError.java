@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.interpret;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.interpret.errorcategory.TemplateErrorCategory;
@@ -158,6 +160,7 @@ public class TemplateError {
   }
 
   public static TemplateError fromOutputTooBigException(Exception ex) {
+    ENGINE_LOG.error("OutputTooBigException",ex);
     return new TemplateError(
       ErrorType.FATAL,
       ErrorReason.OUTPUT_TOO_BIG,
