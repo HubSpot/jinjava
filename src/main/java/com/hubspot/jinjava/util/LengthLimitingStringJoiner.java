@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.util;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import java.util.StringJoiner;
 
@@ -26,6 +28,7 @@ public class LengthLimitingStringJoiner {
     long newLength =
       joiner.length() + newElement.length() + (joiner.length() > 0 ? delimiterLength : 0);
     if (maxLength > 0 && newLength > maxLength) {
+      ENGINE_LOG.error("Output too big max={} size={}", maxLength, newLength);
       throw new OutputTooBigException(maxLength, newLength);
     }
     joiner.add(newElement);

@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.tree.output;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.TemplateError;
@@ -19,6 +21,7 @@ public class OutputList {
 
   public void addNode(OutputNode node) {
     if (maxOutputSize > 0 && currentSize + node.getSize() > maxOutputSize) {
+      ENGINE_LOG.error("Output too big max={} size={}", maxOutputSize, currentSize + node.getSize());
       throw new OutputTooBigException(maxOutputSize, currentSize + node.getSize());
     }
 
@@ -29,6 +32,7 @@ public class OutputList {
       BlockPlaceholderOutputNode blockNode = (BlockPlaceholderOutputNode) node;
 
       if (maxOutputSize > 0 && currentSize + blockNode.getSize() > maxOutputSize) {
+        ENGINE_LOG.error("Output too big max={} size={}", maxOutputSize, currentSize + blockNode.getSize());
         throw new OutputTooBigException(maxOutputSize, currentSize + blockNode.getSize());
       }
 

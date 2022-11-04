@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -71,6 +73,14 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
     JinjavaInterpreter interpreter
   ) {
     String deferredResult = eagerExecutionResult.getResult().toString();
+    if (deferredResult.length() > 10_000) {
+      ENGINE_LOG.warn(
+        "{} deferredResult string size: {} {}",
+        tagNode.getHelpers(),
+        deferredResult.length(),
+        deferredResult.substring(0, 2000)
+      );
+    }
     if (WhitespaceUtils.isWrappedWith(deferredResult, "[", "]")) {
       deferredResult = deferredResult.substring(1, deferredResult.length() - 1);
     }

@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.objects.serialization;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
 import com.fasterxml.jackson.core.JsonFactoryBuilder;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -55,6 +57,7 @@ public class PyishObjectMapper {
       .map(interpreter -> interpreter.getConfig().getMaxStringLength())
       .filter(max -> max > 0);
     if (maxStringLength.map(max -> string.length() > max).orElse(false)) {
+      ENGINE_LOG.error("Output too big max={} size={}", maxStringLength.get(), string.length());
       throw new OutputTooBigException(maxStringLength.get(), string.length());
     }
     if (
