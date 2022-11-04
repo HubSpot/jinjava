@@ -25,10 +25,16 @@ public class PyList extends ForwardingList<Object> implements PyWrapper {
   }
 
   public boolean append(Object e) {
+    if (this == e) {
+      return false;
+    }
     return add(e);
   }
 
   public void insert(int i, Object e) {
+    if (this == e) {
+      return;
+    }
     if (i >= list.size()) {
       throw createOutOfRangeException(i);
     }

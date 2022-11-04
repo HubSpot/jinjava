@@ -239,4 +239,26 @@ public class PyListTest extends BaseJinjavaTest {
       )
       .isEqualTo("-1");
   }
+
+  @Test
+  public void itDisallowsInsertingSelf() {
+    assertThat(
+        jinjava.render(
+          "{% set test = [1,2] %}" + "{% do test.insert(0, test) %}" + "{{ test }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo("[1, 2]");
+  }
+
+  @Test
+  public void itDisallowsAppendingSelf() {
+    assertThat(
+        jinjava.render(
+          "{% set test = [1, 2] %}" + "{% do test.append(test) %}" + "{{ test }}",
+          Collections.emptyMap()
+        )
+      )
+      .isEqualTo("[1, 2]");
+  }
 }

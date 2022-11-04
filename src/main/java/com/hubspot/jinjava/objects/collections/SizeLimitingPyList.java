@@ -9,6 +9,7 @@ import com.hubspot.jinjava.objects.PyWrapper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 public class SizeLimitingPyList extends PyList implements PyWrapper {
   private int maxSize;
@@ -20,6 +21,9 @@ public class SizeLimitingPyList extends PyList implements PyWrapper {
 
   public SizeLimitingPyList(List<Object> list, int maxSize) {
     super(list);
+    if (list == null) {
+      throw new IllegalArgumentException("list is null");
+    }
     if (maxSize <= 0) {
       throw new IllegalArgumentException("maxSize must be >= 1");
     }
@@ -43,13 +47,19 @@ public class SizeLimitingPyList extends PyList implements PyWrapper {
   }
 
   @Override
-  public boolean addAll(int index, Collection<?> elements) {
+  public boolean addAll(int index, @Nonnull Collection<?> elements) {
+    if (elements == null || elements.isEmpty()) {
+      return false;
+    }
     checkSize(size() + elements.size());
     return super.addAll(index, elements);
   }
 
   @Override
-  public boolean addAll(Collection<?> elements) {
+  public boolean addAll(@Nonnull Collection<?> elements) {
+    if (elements == null || elements.isEmpty()) {
+      return false;
+    }
     checkSize(size() + elements.size());
     return super.addAll(elements);
   }
