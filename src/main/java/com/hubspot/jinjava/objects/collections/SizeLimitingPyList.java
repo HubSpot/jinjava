@@ -35,13 +35,13 @@ public class SizeLimitingPyList extends PyList implements PyWrapper {
   }
 
   @Override
-  public boolean add(@Nonnull Object element) {
+  public boolean add(Object element) {
     checkSize(size() + 1);
     return super.add(element);
   }
 
   @Override
-  public void add(int index, @Nonnull Object element) {
+  public void add(int index, Object element) {
     checkSize(size() + 1);
     super.add(index, element);
   }
