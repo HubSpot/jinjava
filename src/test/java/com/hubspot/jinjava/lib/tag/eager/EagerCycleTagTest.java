@@ -51,7 +51,7 @@ public class EagerCycleTagTest extends CycleTagTest {
   }
 
   @Test
-  public void itHandlesDeferredCycle() {
+  public void itAddCycleTagAsADeferredToken() {
     String template =
       "{% for item in deferred %}{% cycle 'item-1','item-2' %}{% endfor %}";
     assertThat(interpreter.render(template)).isEqualTo(template);
@@ -63,5 +63,13 @@ public class EagerCycleTagTest extends CycleTagTest {
     assertThat(maybeDeferredToken.isPresent());
     assertThat(maybeDeferredToken.get().getToken().getImage())
       .isEqualTo("{% cycle 'item-1','item-2' %}");
+  }
+
+  @Test
+  public void itHandlesDeferredCycle() {
+    interpreter.getContext().put("deferred", DeferredValue.instance());
+    String template =
+      "{% set l = [] %}{% for item in deferred %}{% cycle l.append(deferred),5 %}{% endfor %}{{ l }}";
+    assertThat(interpreter.render(template)).isEqualTo(template);
   }
 }
