@@ -76,4 +76,15 @@ public class FormatDatetimeFilterTest {
       )
       .isEqualTo("November 10, 2022 at 5:49:07 PM EST");
   }
+
+  @Test
+  public void itUsesFullFormat() {
+    assertThat(
+        jinjava.render(
+          "{{ d | format_datetime('full') }}",
+          ImmutableMap.of("d", DATE_TIME)
+        )
+      )
+      .isEqualTo("Thursday, November 10, 2022 at 5:49:07 PM Eastern Standard Time");
+  }
 }
