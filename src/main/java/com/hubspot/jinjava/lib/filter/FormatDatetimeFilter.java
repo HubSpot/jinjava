@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.filter;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
+import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -28,7 +29,11 @@ public class FormatDatetimeFilter implements Filter {
         formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL);
         break;
       default:
-        formatter = DateTimeFormatter.ofPattern(format);
+        try {
+          formatter = DateTimeFormatter.ofPattern(format);
+        } catch (IllegalArgumentException e) {
+          throw new InvalidDateFormatException(format, e);
+        }
         break;
     }
 

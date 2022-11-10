@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -97,5 +98,18 @@ public class FormatDatetimeFilterTest {
         )
       )
       .isEqualTo("02022.November.10 AD 05:49 PM");
+  }
+
+  @Test
+  public void itHandlesInvalidFormats() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ d | format_datetime('fake pattern') }}",
+      ImmutableMap.of("d", DATE_TIME)
+    );
+    assertThat(result.getOutput()).isEqualTo("");
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getMessage())
+      .contains("Invalid date format")
+      .contains("Unknown pattern letter: f");
   }
 }
