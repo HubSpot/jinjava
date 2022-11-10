@@ -65,4 +65,15 @@ public class FormatDatetimeFilterTest {
       )
       .isEqualTo("11/10/22, 5:49 PM");
   }
+
+  @Test
+  public void itUsesLongFormat() {
+    assertThat(
+        jinjava.render(
+          "{{ d | format_datetime('long') }}",
+          ImmutableMap.of("d", DATE_TIME)
+        )
+      )
+      .isEqualTo("November 10, 2022 at 5:49:07 PM EST");
+  }
 }

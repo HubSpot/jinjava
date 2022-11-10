@@ -21,6 +21,9 @@ public class FormatDatetimeFilter implements Filter {
       case "medium":
         formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
         break;
+      case "long":
+        formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);
+        break;
       default:
         throw new RuntimeException("Not yet implemented");
     }
