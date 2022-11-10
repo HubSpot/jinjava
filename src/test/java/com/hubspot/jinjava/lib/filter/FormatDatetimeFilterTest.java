@@ -19,6 +19,14 @@ public class FormatDatetimeFilterTest {
   }
 
   @Test
+  public void itFormatsNumbers() {
+    assertThat(
+        jinjava.render("{{ d | format_datetime }}", ImmutableMap.of("d", 1668120547000L))
+      )
+      .isEqualTo("Nov 10, 2022, 5:49:07 PM");
+  }
+
+  @Test
   public void itFormatsZonedDateTime() {
     ZonedDateTime zonedDateTime = ZonedDateTime.of(
       2022,
