@@ -57,6 +57,18 @@ public class FormatDatetimeFilterTest {
   }
 
   @Test
+  public void itHandlesInvalidDateInput() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ d | format_datetime }}",
+      ImmutableMap.of("d", "nonsense")
+    );
+    assertThat(result.getOutput()).isEqualTo("");
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getMessage())
+      .contains("Input to function must be a date object, was: class java.lang.String");
+  }
+
+  @Test
   public void itUsesShortFormat() {
     assertThat(
         jinjava.render(
