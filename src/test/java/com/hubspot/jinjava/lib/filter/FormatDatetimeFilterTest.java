@@ -11,6 +11,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class FormatDatetimeFilterTest {
+  private static final ZonedDateTime DATE_TIME = ZonedDateTime.of(
+    2022,
+    11,
+    10,
+    17,
+    49,
+    7,
+    0,
+    ZoneId.of("America/New_York")
+  );
   Jinjava jinjava;
 
   @Before
@@ -39,19 +49,8 @@ public class FormatDatetimeFilterTest {
 
   @Test
   public void itFormatsZonedDateTime() {
-    ZonedDateTime zonedDateTime = ZonedDateTime.of(
-      2022,
-      11,
-      10,
-      17,
-      49,
-      7,
-      0,
-      ZoneId.of("America/New_York")
-    );
-
     assertThat(
-        jinjava.render("{{ d | format_datetime }}", ImmutableMap.of("d", zonedDateTime))
+        jinjava.render("{{ d | format_datetime }}", ImmutableMap.of("d", DATE_TIME))
       )
       .isEqualTo("Nov 10, 2022, 5:49:07 PM");
   }
