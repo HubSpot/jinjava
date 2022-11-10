@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.objects.date.PyishDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import org.junit.Before;
@@ -22,6 +23,16 @@ public class FormatDatetimeFilterTest {
   public void itFormatsNumbers() {
     assertThat(
         jinjava.render("{{ d | format_datetime }}", ImmutableMap.of("d", 1668120547000L))
+      )
+      .isEqualTo("Nov 10, 2022, 5:49:07 PM");
+  }
+
+  @Test
+  public void itFormatsPyishDates() {
+    PyishDate pyishDate = new PyishDate(1668120547000L);
+
+    assertThat(
+        jinjava.render("{{ d | format_datetime }}", ImmutableMap.of("d", pyishDate))
       )
       .isEqualTo("Nov 10, 2022, 5:49:07 PM");
   }
