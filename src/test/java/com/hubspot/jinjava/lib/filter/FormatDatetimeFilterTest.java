@@ -87,4 +87,15 @@ public class FormatDatetimeFilterTest {
       )
       .isEqualTo("Thursday, November 10, 2022 at 5:49:07 PM Eastern Standard Time");
   }
+
+  @Test
+  public void itUsesCustomFormats() {
+    assertThat(
+        jinjava.render(
+          "{{ d | format_datetime('yyyyy.MMMM.dd GGG hh:mm a') }}",
+          ImmutableMap.of("d", DATE_TIME)
+        )
+      )
+      .isEqualTo("02022.November.10 AD 05:49 PM");
+  }
 }

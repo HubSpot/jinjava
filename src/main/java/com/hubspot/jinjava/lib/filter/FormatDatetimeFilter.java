@@ -28,7 +28,8 @@ public class FormatDatetimeFilter implements Filter {
         formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL);
         break;
       default:
-        throw new RuntimeException("Not yet implemented");
+        formatter = DateTimeFormatter.ofPattern(format);
+        break;
     }
 
     return formatter.format(Functions.getDateTimeArg(var, ZoneId.of("America/New_York")));
