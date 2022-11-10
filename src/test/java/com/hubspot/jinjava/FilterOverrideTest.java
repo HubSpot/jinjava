@@ -12,11 +12,12 @@ public class FilterOverrideTest {
   @Test
   public void itAllowsUsersToOverrideBuiltInFilters() {
     Jinjava jinjava = new Jinjava();
-    assertThat(jinjava.render("{{ 5 | add(6) }}", new HashMap<>())).isEqualTo("11");
+    String template = "{{ 5 | add(6) }}";
+
+    assertThat(jinjava.render(template, new HashMap<>())).isEqualTo("11");
 
     jinjava.getGlobalContext().registerClasses(DescriptiveAddFilter.class);
-    assertThat(jinjava.render("{{ 5 | add(6) }}", new HashMap<>()))
-      .isEqualTo("5 + 6 = 11");
+    assertThat(jinjava.render(template, new HashMap<>())).isEqualTo("5 + 6 = 11");
   }
 
   public static class DescriptiveAddFilter implements Filter {
