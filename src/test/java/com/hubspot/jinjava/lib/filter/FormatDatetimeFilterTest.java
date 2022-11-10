@@ -54,4 +54,15 @@ public class FormatDatetimeFilterTest {
       )
       .isEqualTo("Nov 10, 2022, 5:49:07 PM");
   }
+
+  @Test
+  public void itUsesShortFormat() {
+    assertThat(
+        jinjava.render(
+          "{{ d | format_datetime('short') }}",
+          ImmutableMap.of("d", DATE_TIME)
+        )
+      )
+      .isEqualTo("11/10/22, 5:49 PM");
+  }
 }
