@@ -17,19 +17,7 @@ public class FormatDatetimeFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     String format = arg(args, 0).orElse("medium");
     ZoneId zoneId = arg(args, 1)
-      .map(
-        zone -> {
-          try {
-            return ZoneId.of(zone);
-          } catch (DateTimeException e) {
-            throw new InvalidArgumentException(
-              JinjavaInterpreter.getCurrent(),
-              "format_datetime",
-              "Invalid time zone: " + zone
-            );
-          }
-        }
-      )
+      .map(FormatDatetimeFilter::parseZone)
       .orElse(ZoneOffset.UTC);
 
     return buildFormatter(format).format(Functions.getDateTimeArg(var, zoneId));
@@ -42,6 +30,18 @@ public class FormatDatetimeFilter implements Filter {
 
   private static Optional<String> arg(String[] args, int index) {
     return args.length > index ? Optional.ofNullable(args[index]) : Optional.empty();
+  }
+
+  private static ZoneId parseZone(String zone) {
+    try {
+      return ZoneId.of(zone);
+    } catch (DateTimeException e) {
+      throw new InvalidArgumentException(
+        JinjavaInterpreter.getCurrent(),
+        "format_datetime",
+        "Invalid time zone: " + zone
+      );
+    }
   }
 
   private static DateTimeFormatter buildFormatter(String format) {
