@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.filter;
 
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
@@ -9,6 +10,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Locale;
 import java.util.Optional;
 
 public class FormatDatetimeFilter implements Filter {
@@ -19,8 +21,20 @@ public class FormatDatetimeFilter implements Filter {
     ZoneId zoneId = arg(args, 1)
       .map(FormatDatetimeFilter::parseZone)
       .orElse(ZoneOffset.UTC);
+    Locale locale = arg(args, 2)
+      .map(Locale::forLanguageTag)
+      .orElseGet(
+        () ->
+          JinjavaInterpreter
+            .getCurrentMaybe()
+            .map(JinjavaInterpreter::getConfig)
+            .map(JinjavaConfig::getLocale)
+            .orElse(Locale.ENGLISH)
+      );
 
-    return buildFormatter(format).format(Functions.getDateTimeArg(var, zoneId));
+    return buildFormatter(format)
+      .withLocale(locale)
+      .format(Functions.getDateTimeArg(var, zoneId));
   }
 
   @Override

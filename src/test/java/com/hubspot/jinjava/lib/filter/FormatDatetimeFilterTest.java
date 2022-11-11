@@ -158,4 +158,15 @@ public class FormatDatetimeFilterTest {
     assertThat(result.getErrors()).hasSize(1);
     assertThat(result.getErrors().get(0).getMessage()).contains("Invalid time zone: ");
   }
+
+  @Test
+  public void itUsesGivenLocale() {
+    assertThat(
+        jinjava.render(
+          "{{ d | format_datetime('medium', 'America/New_York', 'de-DE') }}",
+          ImmutableMap.of("d", DATE_TIME)
+        )
+      )
+      .isEqualTo("10.11.2022, 17:49:07");
+  }
 }
