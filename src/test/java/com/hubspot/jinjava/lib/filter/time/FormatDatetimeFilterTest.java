@@ -1,4 +1,4 @@
-package com.hubspot.jinjava.lib.filter;
+package com.hubspot.jinjava.lib.filter.time;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

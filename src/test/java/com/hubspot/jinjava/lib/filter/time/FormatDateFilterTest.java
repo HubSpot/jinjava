@@ -1,4 +1,4 @@
-package com.hubspot.jinjava.lib.filter;
+package com.hubspot.jinjava.lib.filter.time;
 
 import com.hubspot.jinjava.Jinjava;
 import org.junit.Before;

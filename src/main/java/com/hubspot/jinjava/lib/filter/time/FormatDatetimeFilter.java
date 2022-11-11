@@ -1,8 +1,9 @@
-package com.hubspot.jinjava.lib.filter;
+package com.hubspot.jinjava.lib.filter.time;
 
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.filter.Filter;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import java.time.DateTimeException;
