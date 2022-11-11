@@ -2,14 +2,18 @@ package com.hubspot.jinjava.lib.filter.time;
 
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.filter.Filter;
+import java.time.format.DateTimeFormatter;
 
 public class FormatDateFilter implements Filter {
   private static final String NAME = "format_date";
-  private static final DatetimeFormatHelper
+  private static final DatetimeFormatHelper HELPER = new DatetimeFormatHelper(
+    NAME,
+    DateTimeFormatter::ofLocalizedDate
+  );
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    return null;
+    return HELPER.format(var, interpreter, args);
   }
 
   @Override
