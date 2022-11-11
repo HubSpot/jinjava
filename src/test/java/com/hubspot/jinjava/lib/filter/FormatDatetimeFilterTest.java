@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.objects.date.PyishDate;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,11 +16,11 @@ public class FormatDatetimeFilterTest {
     2022,
     11,
     10,
-    17,
+    22,
     49,
     7,
     0,
-    ZoneId.of("America/New_York")
+    ZoneOffset.UTC
   );
   Jinjava jinjava;
 
@@ -35,7 +35,7 @@ public class FormatDatetimeFilterTest {
     assertThat(
         jinjava.render("{{ d | format_datetime }}", ImmutableMap.of("d", 1668120547000L))
       )
-      .isEqualTo("Nov 10, 2022, 5:49:07 PM");
+      .isEqualTo("Nov 10, 2022, 10:49:07 PM");
   }
 
   @Test
@@ -45,7 +45,7 @@ public class FormatDatetimeFilterTest {
     assertThat(
         jinjava.render("{{ d | format_datetime }}", ImmutableMap.of("d", pyishDate))
       )
-      .isEqualTo("Nov 10, 2022, 5:49:07 PM");
+      .isEqualTo("Nov 10, 2022, 10:49:07 PM");
   }
 
   @Test
@@ -53,7 +53,7 @@ public class FormatDatetimeFilterTest {
     assertThat(
         jinjava.render("{{ d | format_datetime }}", ImmutableMap.of("d", DATE_TIME))
       )
-      .isEqualTo("Nov 10, 2022, 5:49:07 PM");
+      .isEqualTo("Nov 10, 2022, 10:49:07 PM");
   }
 
   @Test
@@ -76,7 +76,7 @@ public class FormatDatetimeFilterTest {
           ImmutableMap.of("d", DATE_TIME)
         )
       )
-      .isEqualTo("11/10/22, 5:49 PM");
+      .isEqualTo("11/10/22, 10:49 PM");
   }
 
   @Test
@@ -87,7 +87,7 @@ public class FormatDatetimeFilterTest {
           ImmutableMap.of("d", DATE_TIME)
         )
       )
-      .isEqualTo("November 10, 2022 at 5:49:07 PM EST");
+      .isEqualTo("November 10, 2022 at 10:49:07 PM Z");
   }
 
   @Test
@@ -98,7 +98,7 @@ public class FormatDatetimeFilterTest {
           ImmutableMap.of("d", DATE_TIME)
         )
       )
-      .isEqualTo("Thursday, November 10, 2022 at 5:49:07 PM Eastern Standard Time");
+      .isEqualTo("Thursday, November 10, 2022 at 10:49:07 PM Z");
   }
 
   @Test
@@ -109,7 +109,7 @@ public class FormatDatetimeFilterTest {
           ImmutableMap.of("d", DATE_TIME)
         )
       )
-      .isEqualTo("02022.November.10 AD 05:49 PM");
+      .isEqualTo("02022.November.10 AD 10:49 PM");
   }
 
   @Test

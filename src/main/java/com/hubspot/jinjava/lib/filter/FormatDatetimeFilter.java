@@ -3,7 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Optional;
@@ -13,9 +13,7 @@ public class FormatDatetimeFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     String format = arg(args, 0).orElse("medium");
-
-    return buildFormatter(format)
-      .format(Functions.getDateTimeArg(var, ZoneId.of("America/New_York")));
+    return buildFormatter(format).format(Functions.getDateTimeArg(var, ZoneOffset.UTC));
   }
 
   @Override
