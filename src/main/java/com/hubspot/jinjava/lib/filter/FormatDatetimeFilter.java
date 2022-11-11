@@ -15,6 +15,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 public class FormatDatetimeFilter implements Filter {
+  private static final String NAME = "format_datetime";
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
@@ -40,7 +41,7 @@ public class FormatDatetimeFilter implements Filter {
 
   @Override
   public String getName() {
-    return "format_datetime";
+    return NAME;
   }
 
   private static Optional<String> arg(String[] args, int index) {
@@ -53,7 +54,7 @@ public class FormatDatetimeFilter implements Filter {
     } catch (DateTimeException e) {
       throw new InvalidArgumentException(
         JinjavaInterpreter.getCurrent(),
-        "format_datetime",
+        NAME,
         "Invalid time zone: " + zone
       );
     }
@@ -65,7 +66,7 @@ public class FormatDatetimeFilter implements Filter {
     } catch (IllformedLocaleException e) {
       throw new InvalidArgumentException(
         JinjavaInterpreter.getCurrent(),
-        "format_datetime",
+        NAME,
         "Invalid locale: " + locale
       );
     }
