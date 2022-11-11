@@ -135,4 +135,16 @@ public class FormatDatetimeFilterTest {
       )
       .isEqualTo("November 10, 2022 at 5:49:07 PM EST");
   }
+
+  @Test
+  public void itHandlesInvalidTimeZones() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ d | format_datetime('long', 'not a real time zone') }}",
+      ImmutableMap.of("d", DATE_TIME)
+    );
+    assertThat(result.getOutput()).isEqualTo("");
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getMessage())
+      .contains("Invalid time zone: not a real time zone");
+  }
 }

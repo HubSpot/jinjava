@@ -1,8 +1,10 @@
 package com.hubspot.jinjava.lib.filter;
 
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
+import java.time.DateTimeException;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -14,7 +16,21 @@ public class FormatDatetimeFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     String format = arg(args, 0).orElse("medium");
-    ZoneId zoneId = arg(args, 1).map(ZoneId::of).orElse(ZoneOffset.UTC);
+    ZoneId zoneId = arg(args, 1)
+      .map(
+        zone -> {
+          try {
+            return ZoneId.of(zone);
+          } catch (DateTimeException e) {
+            throw new InvalidArgumentException(
+              JinjavaInterpreter.getCurrent(),
+              "format_datetime",
+              "Invalid time zone: " + zone
+            );
+          }
+        }
+      )
+      .orElse(ZoneOffset.UTC);
 
     return buildFormatter(format).format(Functions.getDateTimeArg(var, zoneId));
   }
