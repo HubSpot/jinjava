@@ -81,6 +81,17 @@ public class FormatDatetimeFilterTest {
   }
 
   @Test
+  public void itUsesMediumFormat() {
+    assertThat(
+        jinjava.render(
+          "{{ d | format_datetime('medium') }}",
+          ImmutableMap.of("d", DATE_TIME)
+        )
+      )
+      .isEqualTo("Nov 10, 2022, 10:49:07 PM");
+  }
+
+  @Test
   public void itUsesLongFormat() {
     assertThat(
         jinjava.render(
