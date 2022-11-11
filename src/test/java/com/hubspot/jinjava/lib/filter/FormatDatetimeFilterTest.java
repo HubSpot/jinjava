@@ -169,4 +169,16 @@ public class FormatDatetimeFilterTest {
       )
       .isEqualTo("10.11.2022, 17:49:07");
   }
+
+  @Test
+  public void itHandlesInvalidLocales() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ d | format_datetime('medium', 'America/New_York', 'not a real locale') }}",
+      ImmutableMap.of("d", DATE_TIME)
+    );
+    assertThat(result.getOutput()).isEqualTo("");
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getMessage())
+      .contains("Invalid locale: not a real locale");
+  }
 }

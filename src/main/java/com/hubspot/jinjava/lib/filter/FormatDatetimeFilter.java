@@ -10,6 +10,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.IllformedLocaleException;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -22,7 +23,7 @@ public class FormatDatetimeFilter implements Filter {
       .map(FormatDatetimeFilter::parseZone)
       .orElse(ZoneOffset.UTC);
     Locale locale = arg(args, 2)
-      .map(Locale::forLanguageTag)
+      .map(FormatDatetimeFilter::parseLocale)
       .orElseGet(
         () ->
           JinjavaInterpreter
@@ -54,6 +55,18 @@ public class FormatDatetimeFilter implements Filter {
         JinjavaInterpreter.getCurrent(),
         "format_datetime",
         "Invalid time zone: " + zone
+      );
+    }
+  }
+
+  private static Locale parseLocale(String locale) {
+    try {
+      return new Locale.Builder().setLanguageTag(locale).build();
+    } catch (IllformedLocaleException e) {
+      throw new InvalidArgumentException(
+        JinjavaInterpreter.getCurrent(),
+        "format_datetime",
+        "Invalid locale: " + locale
       );
     }
   }
