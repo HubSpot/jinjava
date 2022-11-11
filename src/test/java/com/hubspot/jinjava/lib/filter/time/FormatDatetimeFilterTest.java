@@ -22,6 +22,7 @@ public class FormatDatetimeFilterTest {
     0,
     ZoneOffset.UTC
   );
+
   Jinjava jinjava;
 
   @Before
