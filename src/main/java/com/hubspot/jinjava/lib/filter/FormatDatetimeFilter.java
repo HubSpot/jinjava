@@ -14,6 +14,20 @@ public class FormatDatetimeFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     String format = arg(args, 0).orElse("medium");
 
+    return buildFormatter(format)
+      .format(Functions.getDateTimeArg(var, ZoneId.of("America/New_York")));
+  }
+
+  @Override
+  public String getName() {
+    return "format_datetime";
+  }
+
+  private static Optional<String> arg(String[] args, int index) {
+    return args.length > index ? Optional.ofNullable(args[index]) : Optional.empty();
+  }
+
+  private static DateTimeFormatter buildFormatter(String format) {
     final DateTimeFormatter formatter;
     switch (format) {
       case "short":
@@ -36,16 +50,6 @@ public class FormatDatetimeFilter implements Filter {
         }
         break;
     }
-
-    return formatter.format(Functions.getDateTimeArg(var, ZoneId.of("America/New_York")));
-  }
-
-  @Override
-  public String getName() {
-    return "format_datetime";
-  }
-
-  private static Optional<String> arg(String[] args, int index) {
-    return args.length > index ? Optional.ofNullable(args[index]) : Optional.empty();
+    return formatter;
   }
 }
