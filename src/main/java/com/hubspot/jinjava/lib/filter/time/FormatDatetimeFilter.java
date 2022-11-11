@@ -43,7 +43,7 @@ import java.time.format.DateTimeFormatter;
 )
 public class FormatDatetimeFilter implements Filter {
   private static final String NAME = "format_datetime";
-  private static final DatetimeFormatHelper HELPER = new DatetimeFormatHelper(
+  private static final DateTimeFormatHelper HELPER = new DateTimeFormatHelper(
     NAME,
     DateTimeFormatter::ofLocalizedDateTime
   );

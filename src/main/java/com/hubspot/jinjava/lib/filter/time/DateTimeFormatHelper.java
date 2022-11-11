@@ -14,11 +14,11 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 
-final class DatetimeFormatHelper {
+final class DateTimeFormatHelper {
   private final String name;
   private final Function<FormatStyle, DateTimeFormatter> cannedFormatterFunction;
 
-  DatetimeFormatHelper(
+  DateTimeFormatHelper(
     String name,
     Function<FormatStyle, DateTimeFormatter> cannedFormatterFunction
   ) {
