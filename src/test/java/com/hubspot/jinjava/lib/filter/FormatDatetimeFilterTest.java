@@ -124,4 +124,15 @@ public class FormatDatetimeFilterTest {
       .contains("Invalid date format")
       .contains("Unknown pattern letter: f");
   }
+
+  @Test
+  public void itUsesGivenTimeZone() {
+    assertThat(
+        jinjava.render(
+          "{{ d | format_datetime('long', 'America/New_York') }}",
+          ImmutableMap.of("d", DATE_TIME)
+        )
+      )
+      .isEqualTo("November 10, 2022 at 5:49:07 PM EST");
+  }
 }
