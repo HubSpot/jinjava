@@ -5,6 +5,7 @@ import com.hubspot.jinjava.lib.filter.Filter;
 
 public class FormatDateFilter implements Filter {
   private static final String NAME = "format_date";
+  private static final DatetimeFormatHelper
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
