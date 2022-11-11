@@ -147,4 +147,15 @@ public class FormatDatetimeFilterTest {
     assertThat(result.getErrors().get(0).getMessage())
       .contains("Invalid time zone: not a real time zone");
   }
+
+  @Test
+  public void itHandlesEmptyTimeZones() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ d | format_datetime('long', '') }}",
+      ImmutableMap.of("d", DATE_TIME)
+    );
+    assertThat(result.getOutput()).isEqualTo("");
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getMessage()).contains("Invalid time zone: ");
+  }
 }
