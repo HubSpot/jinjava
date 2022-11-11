@@ -188,4 +188,37 @@ public class FormatTimeFilterTest {
     assertThat(result.getErrors()).hasSize(1);
     assertThat(result.getErrors().get(0).getMessage()).contains("Invalid locale: ");
   }
+
+  @Test
+  public void itUsesMediumIfNullFormatPassed() {
+    assertThat(
+        jinjava.render(
+          "{{ d | format_time(null, 'America/New_York', 'de-DE') }}",
+          ImmutableMap.of("d", DATE_TIME)
+        )
+      )
+      .isEqualTo("17:49:07");
+  }
+
+  @Test
+  public void itUsesUtcIfNullZonePassed() {
+    assertThat(
+        jinjava.render(
+          "{{ d | format_time('short', null, 'de-DE') }}",
+          ImmutableMap.of("d", DATE_TIME)
+        )
+      )
+      .isEqualTo("22:49");
+  }
+
+  @Test
+  public void itUsesJinjavaConfigIfNullLocalePassed() {
+    assertThat(
+        jinjava.render(
+          "{{ d | format_time('short', 'America/New_York', null) }}",
+          ImmutableMap.of("d", DATE_TIME)
+        )
+      )
+      .isEqualTo("5:49 PM");
+  }
 }
