@@ -181,4 +181,15 @@ public class FormatDatetimeFilterTest {
     assertThat(result.getErrors().get(0).getMessage())
       .contains("Invalid locale: not a real locale");
   }
+
+  @Test
+  public void itHandlesEmptyLocales() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ d | format_datetime('medium', 'America/New_York', '') }}",
+      ImmutableMap.of("d", DATE_TIME)
+    );
+    assertThat(result.getOutput()).isEqualTo("");
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors().get(0).getMessage()).contains("Invalid locale: ");
+  }
 }
