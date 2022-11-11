@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.filter.time;
 
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
@@ -32,14 +31,7 @@ final class DatetimeFormatHelper {
     ZoneId zoneId = arg(args, 1).map(this::parseZone).orElse(ZoneOffset.UTC);
     Locale locale = arg(args, 2)
       .map(this::parseLocale)
-      .orElseGet(
-        () ->
-          JinjavaInterpreter
-            .getCurrentMaybe()
-            .map(JinjavaInterpreter::getConfig)
-            .map(JinjavaConfig::getLocale)
-            .orElse(Locale.ENGLISH)
-      );
+      .orElseGet(() -> interpreter.getConfig().getLocale());
 
     return buildFormatter(format)
       .withLocale(locale)
