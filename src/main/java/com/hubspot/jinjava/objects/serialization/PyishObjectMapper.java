@@ -57,22 +57,6 @@ public class PyishObjectMapper {
     if (maxStringLength.map(max -> string.length() > max).orElse(false)) {
       throw new OutputTooBigException(maxStringLength.get(), string.length());
     }
-    if (
-      interpreterMaybe
-        .map(
-          interpreter ->
-            interpreter
-              .getConfig()
-              .getTokenScannerSymbols()
-              .getExpressionEnd()
-              .equals("}}")
-        )
-        .orElse(true) &&
-      string.contains("}}") &&
-      !string.contains("{{")
-    ) {
-      return String.join("} ", string.split("}(?=})"));
-    }
     return string;
   }
 
