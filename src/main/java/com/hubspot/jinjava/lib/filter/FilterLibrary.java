@@ -16,6 +16,9 @@
 package com.hubspot.jinjava.lib.filter;
 
 import com.hubspot.jinjava.lib.SimpleLibrary;
+import com.hubspot.jinjava.lib.filter.time.FormatDateFilter;
+import com.hubspot.jinjava.lib.filter.time.FormatDatetimeFilter;
+import com.hubspot.jinjava.lib.filter.time.FormatTimeFilter;
 import java.util.Set;
 
 public class FilterLibrary extends SimpleLibrary<Filter> {
@@ -57,6 +60,9 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
       FloatFilter.class,
       ForceEscapeFilter.class,
       FormatFilter.class,
+      FormatDateFilter.class,
+      FormatDatetimeFilter.class,
+      FormatTimeFilter.class,
       FromJsonFilter.class,
       FromYamlFilter.class,
       GroupByFilter.class,
