@@ -89,6 +89,7 @@ public class MacroFunction extends AbstractCallableMethod {
       ) {
         String tempVarName = MacroFunctionTempVariable.getVarName(
           getName(),
+          hashCode(),
           currentCallCount
         );
         interpreter
