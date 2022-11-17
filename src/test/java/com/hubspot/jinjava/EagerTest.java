@@ -1181,4 +1181,17 @@ public class EagerTest {
       "reconstructs-null-variables-in-deferred-caller"
     );
   }
+
+  @Test
+  public void itUsesUniqueMacroNames() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "uses-unique-macro-names"
+    );
+  }
+
+  @Test
+  public void itUsesUniqueMacroNamesSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput("uses-unique-macro-names.expected");
+  }
 }

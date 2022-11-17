@@ -1,0 +1,10 @@
+{% set myname = deferred %}
+
+{% set __macro_foo_97643642_temp_variable_0__ %}
+Goodbye {{ myname }}
+{% endset %}{% set a = filter:upper.filter(__macro_foo_97643642_temp_variable_0__, ____int3rpr3t3r____) %}
+{% set __ignored__ %}{% set current_path = 'macro-with-filter.jinja' %}
+{% set __macro_foo_927217348_temp_variable_0__ %}Hello {{ myname }}{% endset %}{% set b = filter:upper.filter(__macro_foo_927217348_temp_variable_0__, ____int3rpr3t3r____) %}
+{% set current_path = '' %}{% endset %}
+{{ a }}
+{{ b }}

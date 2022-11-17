@@ -1,0 +1,4 @@
+{% macro foo() -%}
+Hello {{ myname }}
+{%- endmacro %}
+{% set b = foo()|upper %}
