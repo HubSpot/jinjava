@@ -151,10 +151,10 @@ public class EagerForTagTest extends ForTagTest {
     );
     assertThat(result)
       .isEqualTo(
-        "{% set foo = {'a': 'a'} %}{% for i in range(0, deferred) %}\n" +
+        "{% set foo = {'a': 'a'}  %}{% for i in range(0, deferred) %}\n" +
         "bar{{ foo }}\n" +
         "{% do foo.clear() %}\n" +
-        "{% do foo.update({'b': 'b'}) %}\n" +
+        "{% do foo.update({'b': 'b'} ) %}\n" +
         "{% endfor %}\n" +
         "{{ foo }}"
       );
