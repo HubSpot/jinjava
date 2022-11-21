@@ -126,6 +126,15 @@ public class JinjavaInterpreter implements PyishSerializable {
     scopeDepth = orig.getScopeDepth() + 1;
   }
 
+  public static void checkStringLength(String string) {
+    Optional<Long> maxStringLength = getCurrentMaybe()
+      .map(interpreter -> interpreter.getConfig().getMaxStringLength())
+      .filter(max -> max > 0);
+    if (maxStringLength.map(max -> string.length() > max).orElse(false)) {
+      throw new OutputTooBigException(maxStringLength.get(), string.length());
+    }
+  }
+
   /**
    * @deprecated use {{@link #getConfig()}}
    */
