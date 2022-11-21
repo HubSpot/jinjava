@@ -36,7 +36,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   public final String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     try {
       String output = innerInterpret(tagNode, interpreter);
-      JinjavaInterpreter.checkStringLength(output);
+      JinjavaInterpreter.checkOutputSize(output);
       return output;
     } catch (DeferredValueException | TemplateSyntaxException | OutputTooBigException e) {
       try {

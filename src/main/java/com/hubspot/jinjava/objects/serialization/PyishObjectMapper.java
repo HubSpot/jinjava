@@ -50,7 +50,7 @@ public class PyishObjectMapper {
     throws JsonProcessingException {
     String string = PYISH_OBJECT_WRITER.writeValueAsString(val);
     Optional<JinjavaInterpreter> interpreterMaybe = JinjavaInterpreter.getCurrentMaybe();
-    JinjavaInterpreter.checkStringLength(string);
+    JinjavaInterpreter.checkOutputSize(string);
     if (
       interpreterMaybe
         .map(

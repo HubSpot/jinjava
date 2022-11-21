@@ -7,6 +7,7 @@ import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
@@ -107,7 +108,7 @@ public class EagerExpressionResolver {
           return pyishString;
         }
       }
-    } catch (JsonProcessingException ignored) {}
+    } catch (JsonProcessingException | OutputTooBigException ignored) {}
     throw new DeferredValueException("Can not convert deferred result to string");
   }
 

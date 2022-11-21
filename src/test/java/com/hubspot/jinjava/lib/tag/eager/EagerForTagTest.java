@@ -87,13 +87,13 @@ public class EagerForTagTest extends ForTagTest {
 
   @Test
   public void itLimitsLength() {
-    interpreter.render(
+    String out = interpreter.render(
       String.format(
         "{%% for item in (range(1000, %s)) + deferred %%}{%% endfor %%}",
         MAX_OUTPUT_SIZE
       )
     );
-    assertThat(interpreter.getContext().getDeferredNodes()).hasSize(1);
+    assertThat(interpreter.getContext().getDeferredTokens()).hasSize(1);
   }
 
   @Test
@@ -102,11 +102,11 @@ public class EagerForTagTest extends ForTagTest {
         interpreter.render(
           String.format(
             "{%% for item in range(%d) %%}1234567890{%% endfor %%}",
-            MAX_OUTPUT_SIZE / 10
+            MAX_OUTPUT_SIZE / 10 - 1
           )
         )
       )
-      .hasSize((int) MAX_OUTPUT_SIZE);
+      .hasSize((int) MAX_OUTPUT_SIZE - 10);
     assertThat(interpreter.getContext().getDeferredTokens()).isEmpty();
     assertThat(interpreter.getContext().getDeferredNodes()).isEmpty();
     assertThat(interpreter.getErrors()).isEmpty();
