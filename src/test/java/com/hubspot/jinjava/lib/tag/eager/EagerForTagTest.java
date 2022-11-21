@@ -93,9 +93,31 @@ public class EagerForTagTest extends ForTagTest {
         MAX_OUTPUT_SIZE
       )
     );
-    assertThat(interpreter.getErrors()).hasSize(1);
-    assertThat(interpreter.getErrors().get(0).getReason())
-      .isEqualTo(ErrorReason.OUTPUT_TOO_BIG);
+    assertThat(interpreter.getContext().getDeferredNodes()).hasSize(1);
+  }
+
+  @Test
+  public void itUsesDeferredExecutionModeWhenChildrenAreLarge() {
+    assertThat(
+        interpreter.render(
+          String.format(
+            "{%% for item in range(%d) %%}1234567890{%% endfor %%}",
+            MAX_OUTPUT_SIZE / 10
+          )
+        )
+      )
+      .hasSize((int) MAX_OUTPUT_SIZE);
+    assertThat(interpreter.getContext().getDeferredTokens()).isEmpty();
+    assertThat(interpreter.getContext().getDeferredNodes()).isEmpty();
+    assertThat(interpreter.getErrors()).isEmpty();
+    String tooBigInput = String.format(
+      "{%% for item in range(%d) %%}1234567890{%% endfor %%}",
+      MAX_OUTPUT_SIZE / 10 + 1
+    );
+    assertThat(interpreter.render(tooBigInput)).isEqualTo(tooBigInput);
+    assertThat(interpreter.getContext().getDeferredTokens()).hasSize(1);
+    assertThat(interpreter.getContext().getDeferredNodes()).isEmpty();
+    assertThat(interpreter.getErrors()).isEmpty();
   }
 
   @Test
