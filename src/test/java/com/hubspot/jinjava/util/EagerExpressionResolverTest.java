@@ -60,6 +60,7 @@ public class EagerExpressionResolverTest {
         .withLegacyOverrides(
           LegacyOverrides.newBuilder().withEvaluateMapKeys(evaluateMapKeys).build()
         )
+        .withNestedInterpretationEnabled(true)
         .build()
     );
     jinjava
@@ -625,6 +626,19 @@ public class EagerExpressionResolverTest {
       .isEqualTo("deferred");
     assertThat(eagerResolveExpression("null ? foo : deferred").toString())
       .isEqualTo("deferred");
+  }
+
+  @Test
+  public void itGetsDeferredWordsFromNestedExpression() {
+    context.put("foo", 4);
+    EagerExpressionResult eagerExpressionResult = eagerResolveExpression(
+      "deferred.append('{{ foo }}')"
+    );
+    interpreter.getContext().setThrowInterpreterErrors(true);
+    String partiallyResolved = eagerExpressionResult.toString();
+    assertThat(partiallyResolved).isEqualTo("deferred.append('{{ foo }}')");
+    assertThat(eagerExpressionResult.getDeferredWords())
+      .containsExactlyInAnyOrder("deferred.append", "foo");
   }
 
   @Test
