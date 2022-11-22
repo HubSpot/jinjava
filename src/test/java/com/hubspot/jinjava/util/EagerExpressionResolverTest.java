@@ -677,6 +677,11 @@ public class EagerExpressionResolverTest {
       .containsExactlyInAnyOrder("deferred.append", "foo.append", "bar");
   }
 
+  @Test(expected = DeferredValueException.class)
+  public void itFailsWhenThereIsANestedTag() {
+    eagerResolveExpression("deferred.append('{% do foo.append(bar) %}')");
+  }
+
   @Test
   public void itHandlesDeferredNamedParameter() {
     context.put("foo", "foo");
