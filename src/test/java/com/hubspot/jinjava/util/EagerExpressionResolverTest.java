@@ -666,6 +666,18 @@ public class EagerExpressionResolverTest {
   }
 
   @Test
+  public void itGetsMultipleDeferredWordsNestedExpression() {
+    EagerExpressionResult eagerExpressionResult = eagerResolveExpression(
+      "deferred.append('{{ foo.append(bar) }}')"
+    );
+    interpreter.getContext().setThrowInterpreterErrors(true);
+    String partiallyResolved = eagerExpressionResult.toString();
+    assertThat(partiallyResolved).isEqualTo("deferred.append('{{ foo.append(bar) }}')");
+    assertThat(eagerExpressionResult.getDeferredWords())
+      .containsExactlyInAnyOrder("deferred.append", "foo.append", "bar");
+  }
+
+  @Test
   public void itHandlesDeferredNamedParameter() {
     context.put("foo", "foo");
     EagerExpressionResult result = eagerResolveExpression("[x=foo, y=deferred]");
