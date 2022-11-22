@@ -9,8 +9,13 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
+import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
+import com.hubspot.jinjava.tree.ExpressionNode;
+import com.hubspot.jinjava.tree.Node;
+import com.hubspot.jinjava.tree.parse.ExpressionToken;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,6 +28,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.el.ELException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -116,6 +122,10 @@ public class EagerExpressionResolver {
     String partiallyResolved,
     JinjavaInterpreter interpreter
   ) {
+    TokenScannerSymbols scannerSymbols = interpreter.getConfig().getTokenScannerSymbols();
+    boolean nestedInterpretationEnabled = interpreter
+      .getConfig()
+      .isNestedInterpretationEnabled();
     boolean throwInterpreterErrorsStart = interpreter
       .getContext()
       .getThrowInterpreterErrors();
@@ -133,6 +143,15 @@ public class EagerExpressionResolver {
         c = value[curPos];
         if (inQuote) {
           if (c == quoteChar && prevChar != '\\') {
+            String quoted = partiallyResolved.substring(prevQuotePos, curPos);
+            if (nestedInterpretationEnabled) {
+              getDeferredWordsInsideNestedExpression(
+                interpreter,
+                scannerSymbols,
+                words,
+                quoted
+              );
+            }
             inQuote = false;
             prevQuotePos = curPos;
           }
@@ -158,6 +177,55 @@ public class EagerExpressionResolver {
     } finally {
       interpreter.getContext().setThrowInterpreterErrors(throwInterpreterErrorsStart);
     }
+  }
+
+  private static void getDeferredWordsInsideNestedExpression(
+    JinjavaInterpreter interpreter,
+    TokenScannerSymbols scannerSymbols,
+    Set<String> words,
+    String quoted
+  ) {
+    if (
+      quoted.contains(scannerSymbols.getExpressionStartWithTag()) &&
+      quoted.contains(scannerSymbols.getExpressionEndWithTag())
+    ) {
+      throw new DeferredValueException(
+        "Cannot get words inside nested interpretation tags"
+      );
+    }
+
+    if (
+      quoted.contains(scannerSymbols.getExpressionStart()) &&
+      quoted.contains(scannerSymbols.getExpressionEnd())
+    ) {
+      List<ExpressionNode> expressionNodes = getExpressionNodes(quoted, interpreter);
+      words.addAll(
+        expressionNodes
+          .stream()
+          .map(expressionNode -> ((ExpressionToken) expressionNode.getMaster()).getExpr())
+          .map(expr -> findDeferredWords(expr, interpreter))
+          .flatMap(Set::stream)
+          .collect(Collectors.toSet())
+      );
+    }
+  }
+
+  private static List<ExpressionNode> getExpressionNodes(
+    String input,
+    JinjavaInterpreter interpreter
+  ) {
+    Node root = interpreter.parse(input);
+    return getExpressionNodes(root).collect(Collectors.toList());
+  }
+
+  private static Stream<ExpressionNode> getExpressionNodes(Node parent) {
+    if (parent instanceof ExpressionNode) {
+      return Stream.of((ExpressionNode) parent);
+    }
+    return parent
+      .getChildren()
+      .stream()
+      .flatMap(EagerExpressionResolver::getExpressionNodes);
   }
 
   // Knowing that there are no quotes between start and end,
