@@ -1201,4 +1201,12 @@ public class EagerTest {
       "reconstructs-words-from-inside-nested-expressions"
     );
   }
+
+  @Test
+  public void itReconstructsWordsFromInsideNestedExpressionsSecondPass() {
+    interpreter.getContext().put("deferred", new PyList(new ArrayList<>()));
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "reconstructs-words-from-inside-nested-expressions.expected"
+    );
+  }
 }

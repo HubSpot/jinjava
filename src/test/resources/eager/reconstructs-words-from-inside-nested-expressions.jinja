@@ -2,3 +2,4 @@
 {% set bar = 'b' %}
 {% do deferred.append('{{ foo }}') %}
 {{ deferred[0] }}
+{% print deferred[0] %}
