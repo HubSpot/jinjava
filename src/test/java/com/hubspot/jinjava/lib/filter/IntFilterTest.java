@@ -6,6 +6,7 @@ import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormatSymbols;
 import java.time.ZoneOffset;
 import java.util.Locale;
 import org.junit.Before;
@@ -110,7 +111,16 @@ public class IntFilterTest extends BaseInterpretingTest {
   @Test
   public void itInterpretsFrenchCommasAndPeriodsWithFrenchLocale() {
     interpreter = new Jinjava(FRENCH_LOCALE_CONFIG).newInterpreter();
-    assertThat(filter.filter("123\u00A0123,12", interpreter)).isEqualTo(123123);
+    assertThat(
+        filter.filter(
+          String.format(
+            "123%c123,12",
+            DecimalFormatSymbols.getInstance(Locale.FRENCH).getGroupingSeparator()
+          ),
+          interpreter
+        )
+      )
+      .isEqualTo(123123);
   }
 
   @Test
