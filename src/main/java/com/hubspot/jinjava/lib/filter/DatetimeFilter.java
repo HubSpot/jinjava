@@ -18,7 +18,11 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
-@JinjavaDoc(value = "", aliasOf = "datetimeformat")
+/**
+ * @deprecated Superseded by {@link com.hubspot.jinjava.lib.filter.time.FormatDatetimeFilter}
+ */
+@Deprecated
+@JinjavaDoc(value = "", aliasOf = "datetimeformat", deprecated = true)
 public class DatetimeFilter extends DateTimeFormatFilter {
 
   @Override
