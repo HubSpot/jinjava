@@ -4,8 +4,6 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.OutputTooBigException;
-import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.ElseIfTag;
 import com.hubspot.jinjava.lib.tag.ElseTag;
@@ -33,22 +31,8 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
   }
 
   @Override
-  public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    try {
-      return getTag().interpret(tagNode, interpreter);
-    } catch (DeferredValueException | TemplateSyntaxException e) {
-      try {
-        return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
-          eagerInterpret(tagNode, interpreter, e),
-          interpreter
-        );
-      } catch (OutputTooBigException e1) {
-        interpreter.addError(TemplateError.fromOutputTooBigException(e1));
-        throw new DeferredValueException(
-          String.format("Output too big for eager execution: %s", e1.getMessage())
-        );
-      }
-    }
+  public String innerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    return getTag().interpret(tagNode, interpreter);
   }
 
   @Override

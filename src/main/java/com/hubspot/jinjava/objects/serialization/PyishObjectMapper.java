@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.io.IOException;
 import java.util.Objects;
@@ -51,12 +50,7 @@ public class PyishObjectMapper {
     throws JsonProcessingException {
     String string = PYISH_OBJECT_WRITER.writeValueAsString(val);
     Optional<JinjavaInterpreter> interpreterMaybe = JinjavaInterpreter.getCurrentMaybe();
-    Optional<Long> maxStringLength = interpreterMaybe
-      .map(interpreter -> interpreter.getConfig().getMaxStringLength())
-      .filter(max -> max > 0);
-    if (maxStringLength.map(max -> string.length() > max).orElse(false)) {
-      throw new OutputTooBigException(maxStringLength.get(), string.length());
-    }
+    JinjavaInterpreter.checkOutputSize(string);
     if (
       interpreterMaybe
         .map(

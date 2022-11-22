@@ -6,7 +6,6 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
-import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.Node;
@@ -34,22 +33,33 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   }
 
   @Override
-  public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+  public final String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     try {
-      return tag.interpret(tagNode, interpreter);
-    } catch (DeferredValueException | TemplateSyntaxException e) {
+      String output = innerInterpret(tagNode, interpreter);
+      JinjavaInterpreter.checkOutputSize(output);
+      return output;
+    } catch (DeferredValueException | TemplateSyntaxException | OutputTooBigException e) {
       try {
         return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
-          eagerInterpret(tagNode, interpreter, e),
+          eagerInterpret(
+            tagNode,
+            interpreter,
+            e instanceof InterpretException
+              ? (InterpretException) e
+              : new InterpretException("Exception with default render", e)
+          ),
           interpreter
         );
       } catch (OutputTooBigException e1) {
-        interpreter.addError(TemplateError.fromOutputTooBigException(e1));
         throw new DeferredValueException(
           String.format("Output too big for eager execution: %s", e1.getMessage())
         );
       }
     }
+  }
+
+  protected String innerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    return tag.interpret(tagNode, interpreter);
   }
 
   @Override
@@ -166,6 +176,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
    * @return The image of the token which has been evaluated as much as possible.
    */
   public final String getEagerImage(Token token, JinjavaInterpreter interpreter) {
+    interpreter.setLineNumber(token.getLineNumber());
     String eagerImage;
     if (token instanceof TagToken) {
       eagerImage = getEagerTagImage((TagToken) token, interpreter);
