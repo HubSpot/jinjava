@@ -1194,4 +1194,11 @@ public class EagerTest {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput("uses-unique-macro-names.expected");
   }
+
+  @Test
+  public void itReconstructsWordsFromInsideNestedExpressions() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-words-from-inside-nested-expressions"
+    );
+  }
 }
