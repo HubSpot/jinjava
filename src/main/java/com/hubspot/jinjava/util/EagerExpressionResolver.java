@@ -133,7 +133,7 @@ public class EagerExpressionResolver {
       interpreter.getContext().setThrowInterpreterErrors(true);
       Set<String> words = new HashSet<>();
       char[] value = partiallyResolved.toCharArray();
-      int prevQuotePos = 0;
+      int prevQuotePos = -1;
       int curPos = 0;
       char c;
       char prevChar = 0;
@@ -143,13 +143,12 @@ public class EagerExpressionResolver {
         c = value[curPos];
         if (inQuote) {
           if (c == quoteChar && prevChar != '\\') {
-            String quoted = partiallyResolved.substring(prevQuotePos, curPos);
             if (nestedInterpretationEnabled) {
               getDeferredWordsInsideNestedExpression(
                 interpreter,
                 scannerSymbols,
                 words,
-                quoted
+                partiallyResolved.substring(prevQuotePos, curPos + 1)
               );
             }
             inQuote = false;
@@ -161,17 +160,23 @@ public class EagerExpressionResolver {
           words.addAll(
             findDeferredWordsInSubstring(
               partiallyResolved,
-              prevQuotePos,
+              prevQuotePos + 1,
               curPos,
               interpreter
             )
           );
+          prevQuotePos = curPos;
         }
         prevChar = c;
         curPos++;
       }
       words.addAll(
-        findDeferredWordsInSubstring(partiallyResolved, prevQuotePos, curPos, interpreter)
+        findDeferredWordsInSubstring(
+          partiallyResolved,
+          prevQuotePos + 1,
+          curPos,
+          interpreter
+        )
       );
       return words;
     } finally {
@@ -198,7 +203,10 @@ public class EagerExpressionResolver {
       quoted.contains(scannerSymbols.getExpressionStart()) &&
       quoted.contains(scannerSymbols.getExpressionEnd())
     ) {
-      List<ExpressionNode> expressionNodes = getExpressionNodes(quoted, interpreter);
+      List<ExpressionNode> expressionNodes = getExpressionNodes(
+        WhitespaceUtils.unquoteAndUnescape(quoted),
+        interpreter
+      );
       words.addAll(
         expressionNodes
           .stream()
