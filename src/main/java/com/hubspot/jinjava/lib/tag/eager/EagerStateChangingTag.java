@@ -18,7 +18,7 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
   }
 
   @Override
-  public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+  public String innerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     return eagerInterpret(tagNode, interpreter, null);
   }
 
