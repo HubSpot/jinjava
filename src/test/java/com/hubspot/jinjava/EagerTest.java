@@ -485,7 +485,7 @@ public class EagerTest {
     assertThat(deferredValue2).isInstanceOf(DeferredValue.class);
     assertThat(output)
       .contains(
-        "{% set varSetInside = {'key': 'value'}[deferredValue2.nonexistentprop] %}"
+        "{% set varSetInside = {'key': 'value'} [deferredValue2.nonexistentprop] %}"
       );
   }
 

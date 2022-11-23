@@ -41,6 +41,6 @@ public class PyishPrettyPrinter extends DefaultPrettyPrinter {
     if (!this._objectIndenter.isInline()) {
       --this._nesting;
     }
-    jg.writeRaw('}');
+    jg.writeRaw("} ");
   }
 }
