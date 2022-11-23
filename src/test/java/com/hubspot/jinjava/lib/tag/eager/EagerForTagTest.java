@@ -87,15 +87,37 @@ public class EagerForTagTest extends ForTagTest {
 
   @Test
   public void itLimitsLength() {
-    interpreter.render(
+    String out = interpreter.render(
       String.format(
         "{%% for item in (range(1000, %s)) + deferred %%}{%% endfor %%}",
         MAX_OUTPUT_SIZE
       )
     );
-    assertThat(interpreter.getErrors()).hasSize(1);
-    assertThat(interpreter.getErrors().get(0).getReason())
-      .isEqualTo(ErrorReason.OUTPUT_TOO_BIG);
+    assertThat(interpreter.getContext().getDeferredTokens()).hasSize(1);
+  }
+
+  @Test
+  public void itUsesDeferredExecutionModeWhenChildrenAreLarge() {
+    assertThat(
+        interpreter.render(
+          String.format(
+            "{%% for item in range(%d) %%}1234567890{%% endfor %%}",
+            MAX_OUTPUT_SIZE / 10 - 1
+          )
+        )
+      )
+      .hasSize((int) MAX_OUTPUT_SIZE - 10);
+    assertThat(interpreter.getContext().getDeferredTokens()).isEmpty();
+    assertThat(interpreter.getContext().getDeferredNodes()).isEmpty();
+    assertThat(interpreter.getErrors()).isEmpty();
+    String tooBigInput = String.format(
+      "{%% for item in range(%d) %%}1234567890{%% endfor %%}",
+      MAX_OUTPUT_SIZE / 10 + 1
+    );
+    assertThat(interpreter.render(tooBigInput)).isEqualTo(tooBigInput);
+    assertThat(interpreter.getContext().getDeferredTokens()).hasSize(1);
+    assertThat(interpreter.getContext().getDeferredNodes()).isEmpty();
+    assertThat(interpreter.getErrors()).isEmpty();
   }
 
   @Test
@@ -151,10 +173,10 @@ public class EagerForTagTest extends ForTagTest {
     );
     assertThat(result)
       .isEqualTo(
-        "{% set foo = {'a': 'a'} %}{% for i in range(0, deferred) %}\n" +
+        "{% set foo = {'a': 'a'}  %}{% for i in range(0, deferred) %}\n" +
         "bar{{ foo }}\n" +
         "{% do foo.clear() %}\n" +
-        "{% do foo.update({'b': 'b'}) %}\n" +
+        "{% do foo.update({'b': 'b'} ) %}\n" +
         "{% endfor %}\n" +
         "{{ foo }}"
       );

@@ -113,9 +113,6 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     );
     assertThatThrownBy(() -> eagerTagDecorator.interpret(tagNode, interpreter))
       .isInstanceOf(DeferredValueException.class);
-    assertThat(interpreter.getErrors()).hasSize(1);
-    assertThat(interpreter.getErrors().get(0).getReason())
-      .isEqualTo(ErrorReason.OUTPUT_TOO_BIG);
   }
 
   @Test

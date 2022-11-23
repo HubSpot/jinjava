@@ -7,6 +7,10 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 
+/**
+ * @deprecated Superseded by {@link com.hubspot.jinjava.lib.filter.time.FormatDatetimeFilter}
+ */
+@Deprecated
 @JinjavaDoc(
   value = "Formats a date object",
   input = @JinjavaParam(
@@ -38,7 +42,8 @@ import com.hubspot.jinjava.objects.date.StrftimeFormatter;
     @JinjavaSnippet(
       code = "{% content.updated|datetimeformat('%a %A %w %d %e %b %B %m %y %Y %H %I %k %l %p %M %S %f %z %Z %j %U %W %c %x %X %%') %}"
     )
-  }
+  },
+  deprecated = true
 )
 public class DateTimeFormatFilter implements Filter {
 
@@ -49,10 +54,6 @@ public class DateTimeFormatFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    if (args.length > 0) {
-      return Functions.dateTimeFormat(var, args);
-    } else {
-      return Functions.dateTimeFormat(var);
-    }
+    return Functions.dateTimeFormat(var, args);
   }
 }

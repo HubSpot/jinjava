@@ -45,6 +45,12 @@ public class AstDictTest {
   }
 
   @Test
+  public void itDoesKeysMethodCall() {
+    interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
+    assertThat(interpreter.resolveELExpression("foo.keys()", -1)).isInstanceOf(Set.class);
+  }
+
+  @Test
   public void itHandlesEmptyMaps() {
     interpreter.getContext().put("foo", ImmutableMap.of());
     assertThat(interpreter.resolveELExpression("foo.FATAL", -1)).isNull();

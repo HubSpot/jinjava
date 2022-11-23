@@ -19,6 +19,9 @@ public class SizeLimitingPyMap extends PyMap implements PyWrapper {
 
   public SizeLimitingPyMap(Map<String, Object> map, int maxSize) {
     super(map);
+    if (map == null) {
+      throw new IllegalArgumentException("map is null");
+    }
     if (maxSize <= 0) {
       throw new IllegalArgumentException("maxSize must be >= 1");
     }

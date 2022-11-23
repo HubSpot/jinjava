@@ -5,7 +5,7 @@ Hello {{ myname }}
 bar: {{ bar }}
 ---
 {% set myname = deferred + 7 %}{% set __ignored__ %}{% set current_path = 'macro-and-set.jinja' %}{% set simple = {} %}
-{% set bar = myname + 19 %}{% set simple = {} %}{% do simple.update({'bar': bar}) %}
+{% set bar = myname + 19 %}{% set simple = {}  %}{% do simple.update({'bar': bar}) %}
 Hello {{ myname }}
 {% do simple.update({'import_resource_path': 'macro-and-set.jinja'}) %}{% set current_path = '' %}{% endset %}simple.foo: {% set deferred_import_resource_path = 'macro-and-set.jinja' %}{% macro simple.foo() %}Hello {{ myname }}{% endmacro %}{% set deferred_import_resource_path = null %}{{ simple.foo() }}
 simple.bar: {{ simple.bar }}

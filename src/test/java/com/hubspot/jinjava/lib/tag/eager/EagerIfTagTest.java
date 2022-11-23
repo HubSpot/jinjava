@@ -66,7 +66,8 @@ public class EagerIfTagTest extends IfTagTest {
       .findAny();
     assertThat(maybeEagerTagToken).isPresent();
     assertThat(maybeEagerTagToken.get().getSetDeferredWords()).isEmpty();
-    assertThat(maybeEagerTagToken.get().getUsedDeferredWords()).isEmpty();
+    assertThat(maybeEagerTagToken.get().getUsedDeferredWords())
+      .containsExactly("deferred");
   }
 
   @Test
@@ -81,7 +82,8 @@ public class EagerIfTagTest extends IfTagTest {
       .findAny();
     assertThat(maybeEagerTagToken).isPresent();
     assertThat(maybeEagerTagToken.get().getSetDeferredWords()).isEmpty();
-    assertThat(maybeEagerTagToken.get().getUsedDeferredWords()).isEmpty();
+    assertThat(maybeEagerTagToken.get().getUsedDeferredWords())
+      .containsExactly("deferred");
   }
 
   @Test
@@ -96,6 +98,7 @@ public class EagerIfTagTest extends IfTagTest {
       .findAny();
     assertThat(maybeEagerTagToken).isPresent();
     assertThat(maybeEagerTagToken.get().getSetDeferredWords()).isEmpty();
-    assertThat(maybeEagerTagToken.get().getUsedDeferredWords()).isEmpty();
+    assertThat(maybeEagerTagToken.get().getUsedDeferredWords())
+      .containsExactly("deferred");
   }
 }

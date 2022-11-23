@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.objects.date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -53,12 +54,12 @@ public class StrftimeFormatterTest {
 
   @Test
   public void testDateTime() {
-    assertThat(StrftimeFormatter.format(d, "%c")).isEqualTo("Wed Nov 06 14:22:00 2013");
+    assertThat(StrftimeFormatter.format(d, "%c")).isEqualTo("Nov 6, 2013, 2:22:00 PM");
   }
 
   @Test
   public void testDate() {
-    assertThat(StrftimeFormatter.format(d, "%x")).isEqualTo("11/06/13");
+    assertThat(StrftimeFormatter.format(d, "%x")).isEqualTo("11/6/13");
   }
 
   @Test
@@ -68,12 +69,12 @@ public class StrftimeFormatterTest {
 
   @Test
   public void testTime() {
-    assertThat(StrftimeFormatter.format(d, "%X")).isEqualTo("14:22:00");
+    assertThat(StrftimeFormatter.format(d, "%X")).isEqualTo("2:22:00 PM");
   }
 
   @Test
   public void testMicrosecs() {
-    assertThat(StrftimeFormatter.format(d, "%X %f")).isEqualTo("14:22:00 123000");
+    assertThat(StrftimeFormatter.format(d, "%X %f")).isEqualTo("2:22:00 PM 123000");
   }
 
   @Test
@@ -92,12 +93,7 @@ public class StrftimeFormatterTest {
 
   @Test
   public void testFinnishMonths() {
-    assertThat(
-        StrftimeFormatter
-          .formatter("long")
-          .withLocale(Locale.forLanguageTag("fi"))
-          .format(d)
-      )
+    assertThat(StrftimeFormatter.format(d, "long", Locale.forLanguageTag("fi")))
       .startsWith("6. marraskuuta 2013 klo 14.22.00");
   }
 
@@ -118,23 +114,36 @@ public class StrftimeFormatterTest {
     ZonedDateTime zonedDateTime = ZonedDateTime.parse("2019-06-06T14:22:00.000+00:00");
 
     assertThat(
-        StrftimeFormatter
-          .formatter("%OB")
-          .withLocale(Locale.forLanguageTag("ru"))
-          .format(zonedDateTime)
+        StrftimeFormatter.format(zonedDateTime, "%OB", Locale.forLanguageTag("ru"))
       )
       .isIn("Июнь", "июнь");
   }
 
   @Test
-  public void testJavaFormatWithInvalidChar() {
-    assertThat(StrftimeFormatter.toJavaDateTimeFormat("%d.%é.%Y"))
-      .isEqualTo("dd.null.yyyy");
+  public void itThrowsOnInvalidFormats() {
+    assertThatExceptionOfType(InvalidDateFormatException.class)
+      .isThrownBy(() -> StrftimeFormatter.format(d, "%d.%é.%Y"))
+      .withMessage("Invalid date format '%d.%é.%Y'");
+
+    assertThatExceptionOfType(InvalidDateFormatException.class)
+      .isThrownBy(() -> StrftimeFormatter.format(d, "%d.%ğ.%Y"))
+      .withMessage("Invalid date format '%d.%ğ.%Y'");
   }
 
   @Test
-  public void testJavaFormatWithGT255Char() {
-    assertThat(StrftimeFormatter.toJavaDateTimeFormat("%d.%ğ.%Y"))
-      .isEqualTo("dd.null.yyyy");
+  public void itOutputsLiteralPercents() {
+    assertThat(StrftimeFormatter.format(d, "hi %% there")).isEqualTo("hi % there");
+    assertThat(StrftimeFormatter.format(d, "%%")).isEqualTo("%");
+  }
+
+  @Test
+  public void itIgnoresFinalStandalonePercent() {
+    assertThat(StrftimeFormatter.format(d, "%")).isEqualTo("%");
+  }
+
+  @Test
+  public void itAllowsLiteralCharacters() {
+    assertThat(StrftimeFormatter.format(d, "1: day %d month %B"))
+      .isEqualTo("1: day 06 month November");
   }
 }

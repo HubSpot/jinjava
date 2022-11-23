@@ -2,8 +2,12 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.RenderResult;
+import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
@@ -102,6 +106,30 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itConvertsToLocaleSpecificDateTimeFormat() {
+    assertThat(
+        filter.filter(
+          1539277785000L,
+          interpreter,
+          "%x %X - %c",
+          "America/New_York",
+          "en-US"
+        )
+      )
+      .isEqualTo("10/11/18 1:09:45 PM - Oct 11, 2018, 1:09:45 PM");
+    assertThat(
+        filter.filter(
+          1539277785000L,
+          interpreter,
+          "%x %X - %c",
+          "America/New_York",
+          "de-DE"
+        )
+      )
+      .isEqualTo("11.10.18 13:09:45 - 11.10.2018, 13:09:45");
+  }
+
+  @Test
   public void itDefaultsToEnglishForBadLocaleValues() {
     interpreter.getContext().put("d", d);
 
@@ -123,5 +151,21 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
         )
       )
       .isEqualTo("onsdag, 6 november, 02:22 em");
+  }
+
+  @Test
+  public void itHandlesInvalidDateFormats() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ d | datetimeformat('%é') }}",
+      ImmutableMap.of("d", d)
+    );
+
+    assertThat(result.getOutput()).isEqualTo("");
+    assertThat(result.getErrors()).hasSize(1);
+
+    TemplateError error = result.getErrors().get(0);
+    assertThat(error.getSeverity()).isEqualTo(ErrorType.FATAL);
+    assertThat(error.getMessage())
+      .contains("Invalid date format '%é': unknown format code 'é'");
   }
 }

@@ -7,11 +7,7 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.OutputTooBigException;
-import com.hubspot.jinjava.interpret.TemplateError;
-import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.ForTag;
-import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
@@ -23,7 +19,6 @@ import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -39,7 +34,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
   }
 
   @Override
-  public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+  public String innerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     Set<DeferredToken> addedTokens = new HashSet<>();
     EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
       eagerInterpreter -> {
@@ -53,42 +48,28 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       interpreter,
       EagerChildContextConfig.newBuilder().withCheckForContextChanges(true).build()
     );
-    try {
-      if (
-        result.getResult().getResolutionState() == ResolutionState.NONE ||
-        (
-          !result.getResult().isFullyResolved() &&
-          !result.getSpeculativeBindings().isEmpty()
-        )
-      ) {
-        EagerIfTag.resetBindingsForNextBranch(interpreter, result);
-        interpreter.getContext().removeDeferredTokens(addedTokens);
-        throw new DeferredValueException(
-          result.getResult().getResolutionState() == ResolutionState.NONE
-            ? result.getResult().toString()
-            : "Modification inside partially evaluated for loop"
-        );
-      }
-      if (result.getResult().isFullyResolved()) {
-        return result.getResult().toString(true);
-      } else {
-        return EagerReconstructionUtils.wrapInChildScope(
-          result.getResult().toString(true),
-          interpreter
-        );
-      }
-    } catch (DeferredValueException | TemplateSyntaxException e) {
-      try {
-        return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
-          eagerInterpret(tagNode, interpreter, e),
-          interpreter
-        );
-      } catch (OutputTooBigException e1) {
-        interpreter.addError(TemplateError.fromOutputTooBigException(e1));
-        throw new DeferredValueException(
-          String.format("Output too big for eager execution: %s", e1.getMessage())
-        );
-      }
+    if (
+      result.getResult().getResolutionState() == ResolutionState.NONE ||
+      (
+        !result.getResult().isFullyResolved() &&
+        !result.getSpeculativeBindings().isEmpty()
+      )
+    ) {
+      EagerIfTag.resetBindingsForNextBranch(interpreter, result);
+      interpreter.getContext().removeDeferredTokens(addedTokens);
+      throw new DeferredValueException(
+        result.getResult().getResolutionState() == ResolutionState.NONE
+          ? result.getResult().toString()
+          : "Modification inside partially evaluated for loop"
+      );
+    }
+    if (result.getResult().isFullyResolved()) {
+      return result.getResult().toString(true);
+    } else {
+      return EagerReconstructionUtils.wrapInChildScope(
+        result.getResult().toString(true),
+        interpreter
+      );
     }
   }
 
@@ -138,21 +119,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     EagerExecutionResult eagerExecutionResult = runLoopOnce(tagNode, interpreter);
     if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
       // Defer any variables that we tried to modify during the loop
-      prefix =
-        EagerReconstructionUtils.buildSetTag(
-          eagerExecutionResult
-            .getSpeculativeBindings()
-            .entrySet()
-            .stream()
-            .collect(
-              Collectors.toMap(
-                Entry::getKey,
-                entry -> PyishObjectMapper.getAsPyishString(entry.getValue())
-              )
-            ),
-          interpreter,
-          true
-        );
+      prefix = eagerExecutionResult.getPrefixToPreserveState(true);
     }
     // Run for loop again now that the necessary values have been deferred
     eagerExecutionResult = runLoopOnce(tagNode, interpreter);

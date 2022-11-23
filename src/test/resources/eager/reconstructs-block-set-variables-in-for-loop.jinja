@@ -1,0 +1,6 @@
+{% for i in range(deferred) %}
+{%- macro foo() %}
+{{ deferred }}
+{% endmacro %}
+{{ foo()|int + 3 }}
+{% endfor %}

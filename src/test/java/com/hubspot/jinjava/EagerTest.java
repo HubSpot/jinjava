@@ -485,7 +485,7 @@ public class EagerTest {
     assertThat(deferredValue2).isInstanceOf(DeferredValue.class);
     assertThat(output)
       .contains(
-        "{% set varSetInside = {'key': 'value'}[deferredValue2.nonexistentprop] %}"
+        "{% set varSetInside = {'key': 'value'} [deferredValue2.nonexistentprop] %}"
       );
   }
 
@@ -1166,5 +1166,32 @@ public class EagerTest {
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "handles-deferred-for-loop-var-from-macro.expected"
     );
+  }
+
+  @Test
+  public void itReconstructsBlockSetVariablesInForLoop() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-block-set-variables-in-for-loop"
+    );
+  }
+
+  @Test
+  public void itReconstructsNullVariablesInDeferredCaller() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-null-variables-in-deferred-caller"
+    );
+  }
+
+  @Test
+  public void itUsesUniqueMacroNames() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "uses-unique-macro-names"
+    );
+  }
+
+  @Test
+  public void itUsesUniqueMacroNamesSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput("uses-unique-macro-names.expected");
   }
 }

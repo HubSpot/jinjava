@@ -126,6 +126,17 @@ public class JinjavaInterpreter implements PyishSerializable {
     scopeDepth = orig.getScopeDepth() + 1;
   }
 
+  public static void checkOutputSize(String string) {
+    Optional<Long> maxStringLength = getCurrentMaybe()
+      .map(interpreter -> interpreter.getConfig().getMaxOutputSize())
+      .filter(max -> max > 0);
+    if (
+      maxStringLength.map(max -> string != null && string.length() > max).orElse(false)
+    ) {
+      throw new OutputTooBigException(maxStringLength.get(), string.length());
+    }
+  }
+
   /**
    * @deprecated use {{@link #getConfig()}}
    */
@@ -598,6 +609,17 @@ public class JinjavaInterpreter implements PyishSerializable {
 
   public JinjavaConfig getConfig() {
     return config;
+  }
+
+  /**
+   * Resolve expression against current context, but does not add the expression to the set of resolved expressions.
+   *
+   * @param expression
+   *          Jinja expression.
+   * @return Value of expression.
+   */
+  public Object resolveELExpressionSilently(String expression) {
+    return expressionResolver.resolveExpressionSilently(expression);
   }
 
   /**
