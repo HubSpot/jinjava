@@ -1183,6 +1183,21 @@ public class EagerTest {
   }
 
   @Test
+  public void itReconstructsNamespaceForSetTagsUsingPeriod() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-namespace-for-set-tags-using-period"
+    );
+  }
+
+  @Test
+  public void itReconstructsNamespaceForSetTagsUsingPeriodSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "reconstructs-namespace-for-set-tags-using-period.expected"
+    );
+  }
+
+  @Test
   public void itUsesUniqueMacroNames() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "uses-unique-macro-names"
