@@ -364,6 +364,30 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
       .contains(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY);
   }
 
+  @Test
+  public void itDiscardsSessionBindings() {
+    interpreter.getContext().put("foo", "bar");
+    EagerExecutionResult withSessionBindings = EagerReconstructionUtils.executeInChildContext(
+      eagerInterpreter -> {
+        interpreter.getContext().put("foo", "foobar");
+        return EagerExpressionResult.fromString("");
+      },
+      interpreter,
+      EagerChildContextConfig.newBuilder().withDiscardSessionBindings(false).build()
+    );
+    EagerExecutionResult withoutSessionBindings = EagerReconstructionUtils.executeInChildContext(
+      eagerInterpreter -> {
+        interpreter.getContext().put("foo", "foobar");
+        return EagerExpressionResult.fromString("");
+      },
+      interpreter,
+      EagerChildContextConfig.newBuilder().withDiscardSessionBindings(true).build()
+    );
+    assertThat(withSessionBindings.getSpeculativeBindings())
+      .containsEntry("foo", "foobar");
+    assertThat(withoutSessionBindings.getSpeculativeBindings()).doesNotContainKey("foo");
+  }
+
   private static MacroFunction getMockMacroFunction(String image) {
     MacroFunction mockMacroFunction = mock(MacroFunction.class);
     when(mockMacroFunction.getName()).thenReturn("foo");

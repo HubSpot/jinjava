@@ -175,7 +175,7 @@ public class EagerReconstructionUtils {
     }
 
     // Don't create new call stacks to prevent hitting max recursion with this silent new scope
-    Map<String, Object> sessionBindings;
+    Map<String, Object> speculativeBindings;
     try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
       if (eagerChildContextConfig.forceDeferredExecutionMode) {
         interpreter.getContext().setDeferredExecutionMode(true);
@@ -184,10 +184,13 @@ public class EagerReconstructionUtils {
         .getContext()
         .setPartialMacroEvaluation(eagerChildContextConfig.partialMacroEvaluation);
       result = function.apply(interpreter);
-      sessionBindings = interpreter.getContext().getSessionBindings();
+      speculativeBindings =
+        eagerChildContextConfig.discardSessionBindings
+          ? Collections.emptyMap()
+          : interpreter.getContext().getSessionBindings();
     }
-    sessionBindings =
-      sessionBindings
+    speculativeBindings =
+      speculativeBindings
         .entrySet()
         .stream()
         .filter(
@@ -201,7 +204,7 @@ public class EagerReconstructionUtils {
         )
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     if (eagerChildContextConfig.checkForContextChanges) {
-      sessionBindings.putAll(
+      speculativeBindings.putAll(
         interpreter
           .getContext()
           .entrySet()
@@ -257,8 +260,8 @@ public class EagerReconstructionUtils {
           )
       );
     }
-    sessionBindings =
-      sessionBindings
+    speculativeBindings =
+      speculativeBindings
         .entrySet()
         .stream()
         .filter(entry -> !metaContextVariables.contains(entry.getKey()))
@@ -268,7 +271,7 @@ public class EagerReconstructionUtils {
         ) // these are already set recursively
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
-    return new EagerExecutionResult(result, sessionBindings);
+    return new EagerExecutionResult(result, speculativeBindings);
   }
 
   private static Object getObjectOrHashCode(Object o) {
@@ -744,17 +747,21 @@ public class EagerReconstructionUtils {
 
   public static class EagerChildContextConfig {
     private final boolean takeNewValue;
+
+    private final boolean discardSessionBindings;
     private final boolean partialMacroEvaluation;
     private final boolean checkForContextChanges;
     private final boolean forceDeferredExecutionMode;
 
     private EagerChildContextConfig(
       boolean takeNewValue,
+      boolean discardSessionBindings,
       boolean partialMacroEvaluation,
       boolean checkForContextChanges,
       boolean forceDeferredExecutionMode
     ) {
       this.takeNewValue = takeNewValue;
+      this.discardSessionBindings = discardSessionBindings;
       this.partialMacroEvaluation = partialMacroEvaluation;
       this.checkForContextChanges = checkForContextChanges;
       this.forceDeferredExecutionMode = forceDeferredExecutionMode;
@@ -766,6 +773,8 @@ public class EagerReconstructionUtils {
 
     public static class Builder {
       private boolean takeNewValue;
+
+      private boolean discardSessionBindings;
       private boolean partialMacroEvaluation;
       private boolean checkForContextChanges;
       private boolean forceDeferredExecutionMode;
@@ -774,6 +783,11 @@ public class EagerReconstructionUtils {
 
       public Builder withTakeNewValue(boolean takeNewValue) {
         this.takeNewValue = takeNewValue;
+        return this;
+      }
+
+      public Builder withDiscardSessionBindings(boolean discardSessionBindings) {
+        this.discardSessionBindings = discardSessionBindings;
         return this;
       }
 
@@ -795,6 +809,7 @@ public class EagerReconstructionUtils {
       public EagerChildContextConfig build() {
         return new EagerChildContextConfig(
           takeNewValue,
+          discardSessionBindings,
           partialMacroEvaluation,
           checkForContextChanges,
           forceDeferredExecutionMode
