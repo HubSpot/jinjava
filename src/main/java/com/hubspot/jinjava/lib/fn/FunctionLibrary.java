@@ -2,6 +2,9 @@ package com.hubspot.jinjava.lib.fn;
 
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.lib.SimpleLibrary;
+import com.hubspot.jinjava.lib.filter.time.FormatDateFilter;
+import com.hubspot.jinjava.lib.filter.time.FormatDatetimeFilter;
+import com.hubspot.jinjava.lib.filter.time.FormatTimeFilter;
 import java.util.Set;
 
 public class FunctionLibrary extends SimpleLibrary<ELFunctionDefinition> {
@@ -18,6 +21,36 @@ public class FunctionLibrary extends SimpleLibrary<ELFunctionDefinition> {
         "datetimeformat",
         Functions.class,
         "dateTimeFormat",
+        Object.class,
+        String[].class
+      )
+    );
+    register(
+      new ELFunctionDefinition(
+        "",
+        "format_date",
+        FormatDateFilter.class,
+        "format",
+        Object.class,
+        String[].class
+      )
+    );
+    register(
+      new ELFunctionDefinition(
+        "",
+        "format_time",
+        FormatTimeFilter.class,
+        "format",
+        Object.class,
+        String[].class
+      )
+    );
+    register(
+      new ELFunctionDefinition(
+        "",
+        "format_datetime",
+        FormatDatetimeFilter.class,
+        "format",
         Object.class,
         String[].class
       )
