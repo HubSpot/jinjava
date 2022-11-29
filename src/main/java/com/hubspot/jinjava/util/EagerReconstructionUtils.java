@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.util;
 
+import com.google.common.collect.Sets;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -20,6 +21,7 @@ import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
+import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishBlockSetSerializable;
@@ -723,6 +725,21 @@ public class EagerReconstructionUtils {
         interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag()
       )
     );
+  }
+
+  public static void removeMetaContextVariables(
+    Stream<String> varStream,
+    Context context
+  ) {
+    Set<String> metaSetVars = Sets
+      .intersection(
+        context.getMetaContextVariables(),
+        varStream
+          .filter(var -> !EagerExecutionMode.STATIC_META_CONTEXT_VARIABLES.contains(var))
+          .collect(Collectors.toSet())
+      )
+      .immutableCopy();
+    context.getMetaContextVariables().removeAll(metaSetVars);
   }
 
   public static class EagerChildContextConfig {
