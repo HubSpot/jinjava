@@ -60,6 +60,7 @@ public class EagerExpressionResolverTest {
         .withLegacyOverrides(
           LegacyOverrides.newBuilder().withEvaluateMapKeys(evaluateMapKeys).build()
         )
+        .withNestedInterpretationEnabled(true)
         .build()
     );
     jinjava
@@ -625,6 +626,60 @@ public class EagerExpressionResolverTest {
       .isEqualTo("deferred");
     assertThat(eagerResolveExpression("null ? foo : deferred").toString())
       .isEqualTo("deferred");
+  }
+
+  @Test
+  public void itGetsDeferredWordsFromNestedExpression() {
+    EagerExpressionResult eagerExpressionResult = eagerResolveExpression(
+      "deferred.append('{{ foo }}')"
+    );
+    interpreter.getContext().setThrowInterpreterErrors(true);
+    String partiallyResolved = eagerExpressionResult.toString();
+    assertThat(partiallyResolved).isEqualTo("deferred.append('{{ foo }}')");
+    assertThat(eagerExpressionResult.getDeferredWords())
+      .containsExactlyInAnyOrder("deferred.append", "foo");
+  }
+
+  @Test
+  public void itGetsDeferredWordsFromAdjacentNestedExpression() {
+    EagerExpressionResult eagerExpressionResult = eagerResolveExpression(
+      "deferred.append('{{ foo }} and {{ bar }}')"
+    );
+    interpreter.getContext().setThrowInterpreterErrors(true);
+    String partiallyResolved = eagerExpressionResult.toString();
+    assertThat(partiallyResolved).isEqualTo("deferred.append('{{ foo }} and {{ bar }}')");
+    assertThat(eagerExpressionResult.getDeferredWords())
+      .containsExactlyInAnyOrder("deferred.append", "foo", "bar");
+  }
+
+  @Test
+  public void itGetsDeferredWordsFromMultipleNestedExpression() {
+    EagerExpressionResult eagerExpressionResult = eagerResolveExpression(
+      "deferred.append('{{ foo ~ \\'and {{ bar }}\\' }}')"
+    );
+    interpreter.getContext().setThrowInterpreterErrors(true);
+    String partiallyResolved = eagerExpressionResult.toString();
+    assertThat(partiallyResolved)
+      .isEqualTo("deferred.append('{{ foo ~ \\'and {{ bar }}\\' }}')");
+    assertThat(eagerExpressionResult.getDeferredWords())
+      .containsExactlyInAnyOrder("deferred.append", "foo", "bar");
+  }
+
+  @Test
+  public void itGetsMultipleDeferredWordsNestedExpression() {
+    EagerExpressionResult eagerExpressionResult = eagerResolveExpression(
+      "deferred.append('{{ foo.append(bar) }}')"
+    );
+    interpreter.getContext().setThrowInterpreterErrors(true);
+    String partiallyResolved = eagerExpressionResult.toString();
+    assertThat(partiallyResolved).isEqualTo("deferred.append('{{ foo.append(bar) }}')");
+    assertThat(eagerExpressionResult.getDeferredWords())
+      .containsExactlyInAnyOrder("deferred.append", "foo.append", "bar");
+  }
+
+  @Test(expected = DeferredValueException.class)
+  public void itFailsWhenThereIsANestedTag() {
+    eagerResolveExpression("deferred.append('{% do foo.append(bar) %}')");
   }
 
   @Test

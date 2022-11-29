@@ -1209,4 +1209,19 @@ public class EagerTest {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput("uses-unique-macro-names.expected");
   }
+
+  @Test
+  public void itReconstructsWordsFromInsideNestedExpressions() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-words-from-inside-nested-expressions"
+    );
+  }
+
+  @Test
+  public void itReconstructsWordsFromInsideNestedExpressionsSecondPass() {
+    interpreter.getContext().put("deferred", new PyList(new ArrayList<>()));
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "reconstructs-words-from-inside-nested-expressions.expected"
+    );
+  }
 }
