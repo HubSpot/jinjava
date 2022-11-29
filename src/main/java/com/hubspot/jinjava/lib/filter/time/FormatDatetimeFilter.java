@@ -50,7 +50,11 @@ public class FormatDatetimeFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    return HELPER.format(var, interpreter, args);
+    return format(var, args);
+  }
+
+  public static Object format(Object var, String... args) {
+    return HELPER.format(var, args);
   }
 
   @Override

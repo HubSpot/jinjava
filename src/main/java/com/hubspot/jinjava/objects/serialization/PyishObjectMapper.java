@@ -12,7 +12,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.Optional;
 
 public class PyishObjectMapper {
   public static final ObjectWriter PYISH_OBJECT_WRITER;
@@ -49,24 +48,7 @@ public class PyishObjectMapper {
   public static String getAsPyishStringOrThrow(Object val)
     throws JsonProcessingException {
     String string = PYISH_OBJECT_WRITER.writeValueAsString(val);
-    Optional<JinjavaInterpreter> interpreterMaybe = JinjavaInterpreter.getCurrentMaybe();
     JinjavaInterpreter.checkOutputSize(string);
-    if (
-      interpreterMaybe
-        .map(
-          interpreter ->
-            interpreter
-              .getConfig()
-              .getTokenScannerSymbols()
-              .getExpressionEnd()
-              .equals("}}")
-        )
-        .orElse(true) &&
-      string.contains("}}") &&
-      !string.contains("{{")
-    ) {
-      return String.join("} ", string.split("}(?=})"));
-    }
     return string;
   }
 

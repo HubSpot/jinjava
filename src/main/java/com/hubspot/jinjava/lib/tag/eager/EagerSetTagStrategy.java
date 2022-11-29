@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Triple;
 
 public abstract class EagerSetTagStrategy {
@@ -112,6 +113,7 @@ public abstract class EagerSetTagStrategy {
 
   protected String getPrefixToPreserveState(
     EagerExecutionResult eagerExecutionResult,
+    String[] variables,
     JinjavaInterpreter interpreter
   ) {
     StringBuilder prefixToPreserveState = new StringBuilder();
@@ -122,7 +124,12 @@ public abstract class EagerSetTagStrategy {
     }
     prefixToPreserveState.append(
       EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
-        eagerExecutionResult.getResult().getDeferredWords(),
+        Stream
+          .concat(
+            eagerExecutionResult.getResult().getDeferredWords().stream(),
+            Arrays.stream(variables).filter(var -> var.contains("."))
+          )
+          .collect(Collectors.toSet()),
         interpreter
       )
     );

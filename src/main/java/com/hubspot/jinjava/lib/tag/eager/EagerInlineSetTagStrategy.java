@@ -86,6 +86,7 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
       .add(tagNode.getSymbols().getExpressionEndWithTag());
     String prefixToPreserveState = getPrefixToPreserveState(
       eagerExecutionResult,
+      variables,
       interpreter
     );
 
