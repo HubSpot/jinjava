@@ -104,7 +104,9 @@ public class EagerReconstructionUtils {
           .filter(e -> !metaContextVariables.contains(e.getKey()))
           .filter(
             entry ->
-              !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
+              !(entry.getValue() instanceof DeferredValue) &&
+              entry.getValue() != null &&
+              getObjectOrHashCode(entry.getValue()) != null
           )
           .collect(
             Collectors.toMap(
