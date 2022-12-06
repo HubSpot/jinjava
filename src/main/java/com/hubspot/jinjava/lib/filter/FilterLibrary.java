@@ -112,6 +112,7 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
       TrimFilter.class,
       TruncateFilter.class,
       TruncateHtmlFilter.class,
+      UnescapeHtmlFilter.class,
       UnionFilter.class,
       UniqueFilter.class,
       UnixTimestampFilter.class,
