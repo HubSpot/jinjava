@@ -29,6 +29,7 @@ import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -102,18 +103,16 @@ public class EagerReconstructionUtils {
           .entrySet()
           .stream()
           .filter(e -> !metaContextVariables.contains(e.getKey()))
-          .filter(
-            entry ->
-              !(entry.getValue() instanceof DeferredValue) &&
-              entry.getValue() != null &&
-              getObjectOrHashCode(entry.getValue()) != null
+          .filter(e -> !(e.getValue() instanceof DeferredValue))
+          .map(
+            e ->
+              new AbstractMap.SimpleImmutableEntry<>(
+                e.getKey(),
+                getObjectOrHashCode(e.getValue())
+              )
           )
-          .collect(
-            Collectors.toMap(
-              Entry::getKey,
-              entry -> getObjectOrHashCode(entry.getValue())
-            )
-          );
+          .filter(e -> e.getValue() != null)
+          .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
       initiallyResolvedAsStrings = new HashMap<>();
       // This creates a stringified snapshot of the context
       // so it can be disabled via the config because it may cause performance issues.
