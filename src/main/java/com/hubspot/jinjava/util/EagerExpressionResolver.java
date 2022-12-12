@@ -7,10 +7,15 @@ import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
+import com.hubspot.jinjava.tree.ExpressionNode;
+import com.hubspot.jinjava.tree.Node;
+import com.hubspot.jinjava.tree.parse.ExpressionToken;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,6 +28,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.el.ELException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -107,7 +113,7 @@ public class EagerExpressionResolver {
           return pyishString;
         }
       }
-    } catch (JsonProcessingException ignored) {}
+    } catch (JsonProcessingException | OutputTooBigException ignored) {}
     throw new DeferredValueException("Can not convert deferred result to string");
   }
 
@@ -116,6 +122,10 @@ public class EagerExpressionResolver {
     String partiallyResolved,
     JinjavaInterpreter interpreter
   ) {
+    TokenScannerSymbols scannerSymbols = interpreter.getConfig().getTokenScannerSymbols();
+    boolean nestedInterpretationEnabled = interpreter
+      .getConfig()
+      .isNestedInterpretationEnabled();
     boolean throwInterpreterErrorsStart = interpreter
       .getContext()
       .getThrowInterpreterErrors();
@@ -123,7 +133,7 @@ public class EagerExpressionResolver {
       interpreter.getContext().setThrowInterpreterErrors(true);
       Set<String> words = new HashSet<>();
       char[] value = partiallyResolved.toCharArray();
-      int prevQuotePos = 0;
+      int prevQuotePos = -1;
       int curPos = 0;
       char c;
       char prevChar = 0;
@@ -133,6 +143,14 @@ public class EagerExpressionResolver {
         c = value[curPos];
         if (inQuote) {
           if (c == quoteChar && prevChar != '\\') {
+            if (nestedInterpretationEnabled) {
+              getDeferredWordsInsideNestedExpression(
+                interpreter,
+                scannerSymbols,
+                words,
+                partiallyResolved.substring(prevQuotePos, curPos + 1)
+              );
+            }
             inQuote = false;
             prevQuotePos = curPos;
           }
@@ -142,22 +160,80 @@ public class EagerExpressionResolver {
           words.addAll(
             findDeferredWordsInSubstring(
               partiallyResolved,
-              prevQuotePos,
+              prevQuotePos + 1,
               curPos,
               interpreter
             )
           );
+          prevQuotePos = curPos;
         }
         prevChar = c;
         curPos++;
       }
       words.addAll(
-        findDeferredWordsInSubstring(partiallyResolved, prevQuotePos, curPos, interpreter)
+        findDeferredWordsInSubstring(
+          partiallyResolved,
+          prevQuotePos + 1,
+          curPos,
+          interpreter
+        )
       );
       return words;
     } finally {
       interpreter.getContext().setThrowInterpreterErrors(throwInterpreterErrorsStart);
     }
+  }
+
+  private static void getDeferredWordsInsideNestedExpression(
+    JinjavaInterpreter interpreter,
+    TokenScannerSymbols scannerSymbols,
+    Set<String> words,
+    String quoted
+  ) {
+    if (
+      quoted.contains(scannerSymbols.getExpressionStartWithTag()) &&
+      quoted.contains(scannerSymbols.getExpressionEndWithTag())
+    ) {
+      throw new DeferredValueException(
+        "Cannot get words inside nested interpretation tags"
+      );
+    }
+
+    if (
+      quoted.contains(scannerSymbols.getExpressionStart()) &&
+      quoted.contains(scannerSymbols.getExpressionEnd())
+    ) {
+      List<ExpressionNode> expressionNodes = getExpressionNodes(
+        WhitespaceUtils.unquoteAndUnescape(quoted),
+        interpreter
+      );
+      words.addAll(
+        expressionNodes
+          .stream()
+          .map(expressionNode -> ((ExpressionToken) expressionNode.getMaster()).getExpr())
+          .map(expr -> findDeferredWords(expr, interpreter))
+          .flatMap(Set::stream)
+          .collect(Collectors.toSet())
+      );
+    }
+  }
+
+  private static List<ExpressionNode> getExpressionNodes(
+    String input,
+    JinjavaInterpreter interpreter
+  ) {
+    Node root = interpreter.parse(input);
+    return getExpressionNodes(root).collect(Collectors.toList());
+  }
+
+  private static Stream<ExpressionNode> getExpressionNodes(Node parent) {
+    if (parent instanceof ExpressionNode) {
+      return Stream.of((ExpressionNode) parent);
+    }
+    return parent
+      .getChildren()
+      .stream()
+      .flatMap(EagerExpressionResolver::getExpressionNodes);
   }
 
   // Knowing that there are no quotes between start and end,

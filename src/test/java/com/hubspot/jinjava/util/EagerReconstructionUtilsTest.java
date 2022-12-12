@@ -15,6 +15,7 @@ import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
+import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.mode.DefaultExecutionMode;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
@@ -30,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -335,6 +337,55 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         )
       )
       .isEmpty();
+  }
+
+  @Test
+  public void itDoesNotRemoveStaticMetaContextVariables() {
+    String variableName = "foo";
+    interpreter.getContext().getMetaContextVariables().add(variableName);
+    assertThat(interpreter.getContext().getMetaContextVariables()).contains(variableName);
+    EagerReconstructionUtils.removeMetaContextVariables(
+      Stream.of(variableName),
+      interpreter.getContext()
+    );
+    assertThat(interpreter.getContext().getMetaContextVariables())
+      .doesNotContain(variableName);
+  }
+
+  @Test
+  public void itRemovesOtherMetaContextVariables() {
+    assertThat(interpreter.getContext().getMetaContextVariables())
+      .contains(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY);
+    EagerReconstructionUtils.removeMetaContextVariables(
+      Stream.of(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY),
+      interpreter.getContext()
+    );
+    assertThat(interpreter.getContext().getMetaContextVariables())
+      .contains(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY);
+  }
+
+  @Test
+  public void itDiscardsSessionBindings() {
+    interpreter.getContext().put("foo", "bar");
+    EagerExecutionResult withSessionBindings = EagerReconstructionUtils.executeInChildContext(
+      eagerInterpreter -> {
+        interpreter.getContext().put("foo", "foobar");
+        return EagerExpressionResult.fromString("");
+      },
+      interpreter,
+      EagerChildContextConfig.newBuilder().withDiscardSessionBindings(false).build()
+    );
+    EagerExecutionResult withoutSessionBindings = EagerReconstructionUtils.executeInChildContext(
+      eagerInterpreter -> {
+        interpreter.getContext().put("foo", "foobar");
+        return EagerExpressionResult.fromString("");
+      },
+      interpreter,
+      EagerChildContextConfig.newBuilder().withDiscardSessionBindings(true).build()
+    );
+    assertThat(withSessionBindings.getSpeculativeBindings())
+      .containsEntry("foo", "foobar");
+    assertThat(withoutSessionBindings.getSpeculativeBindings()).doesNotContainKey("foo");
   }
 
   private static MacroFunction getMockMacroFunction(String image) {

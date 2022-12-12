@@ -18,7 +18,7 @@ public class PyishObjectMapperTest {
     map.put("foo", "bar");
     map.put(null, "null");
     assertThat(PyishObjectMapper.getAsPyishString(map))
-      .isEqualTo("{'': 'null', 'foo': 'bar'}");
+      .isEqualTo("{'': 'null', 'foo': 'bar'} ");
   }
 
   @Test
@@ -28,7 +28,7 @@ public class PyishObjectMapperTest {
     map.put("bar", ImmutableMap.of("foobar", new ArrayList<>()));
     String result = PyishObjectMapper.getAsPyishString(map.items());
     assertThat(result)
-      .isEqualTo("[fn:map_entry('bar', {'foobar': []}), fn:map_entry('foo', 'bar')]");
+      .isEqualTo("[fn:map_entry('bar', {'foobar': []} ), fn:map_entry('foo', 'bar')]");
   }
 
   @Test
@@ -37,6 +37,6 @@ public class PyishObjectMapperTest {
     map.put("foo", "bar");
     map.put("foobar", null);
     assertThat(PyishObjectMapper.getAsPyishString(map))
-      .isEqualTo("{'foobar': null, 'foo': 'bar'}");
+      .isEqualTo("{'foobar': null, 'foo': 'bar'} ");
   }
 }

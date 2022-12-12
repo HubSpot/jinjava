@@ -485,7 +485,7 @@ public class EagerTest {
     assertThat(deferredValue2).isInstanceOf(DeferredValue.class);
     assertThat(output)
       .contains(
-        "{% set varSetInside = {'key': 'value'}[deferredValue2.nonexistentprop] %}"
+        "{% set varSetInside = {'key': 'value'} [deferredValue2.nonexistentprop] %}"
       );
   }
 
@@ -1179,6 +1179,49 @@ public class EagerTest {
   public void itReconstructsNullVariablesInDeferredCaller() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "reconstructs-null-variables-in-deferred-caller"
+    );
+  }
+
+  @Test
+  public void itReconstructsNamespaceForSetTagsUsingPeriod() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-namespace-for-set-tags-using-period"
+    );
+  }
+
+  @Test
+  public void itReconstructsNamespaceForSetTagsUsingPeriodSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "reconstructs-namespace-for-set-tags-using-period.expected"
+    );
+  }
+
+  @Test
+  public void itUsesUniqueMacroNames() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "uses-unique-macro-names"
+    );
+  }
+
+  @Test
+  public void itUsesUniqueMacroNamesSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput("uses-unique-macro-names.expected");
+  }
+
+  @Test
+  public void itReconstructsWordsFromInsideNestedExpressions() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-words-from-inside-nested-expressions"
+    );
+  }
+
+  @Test
+  public void itReconstructsWordsFromInsideNestedExpressionsSecondPass() {
+    interpreter.getContext().put("deferred", new PyList(new ArrayList<>()));
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "reconstructs-words-from-inside-nested-expressions.expected"
     );
   }
 }

@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.util;
 
+import com.google.common.collect.Sets;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -20,6 +21,7 @@ import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
+import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishBlockSetSerializable;
@@ -27,6 +29,7 @@ import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,16 +103,16 @@ public class EagerReconstructionUtils {
           .entrySet()
           .stream()
           .filter(e -> !metaContextVariables.contains(e.getKey()))
-          .filter(
-            entry ->
-              !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
+          .filter(e -> !(e.getValue() instanceof DeferredValue))
+          .map(
+            e ->
+              new AbstractMap.SimpleImmutableEntry<>(
+                e.getKey(),
+                getObjectOrHashCode(e.getValue())
+              )
           )
-          .collect(
-            Collectors.toMap(
-              Entry::getKey,
-              entry -> getObjectOrHashCode(entry.getValue())
-            )
-          );
+          .filter(e -> e.getValue() != null)
+          .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
       initiallyResolvedAsStrings = new HashMap<>();
       // This creates a stringified snapshot of the context
       // so it can be disabled via the config because it may cause performance issues.
@@ -173,7 +176,7 @@ public class EagerReconstructionUtils {
     }
 
     // Don't create new call stacks to prevent hitting max recursion with this silent new scope
-    Map<String, Object> sessionBindings;
+    Map<String, Object> speculativeBindings;
     try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
       if (eagerChildContextConfig.forceDeferredExecutionMode) {
         interpreter.getContext().setDeferredExecutionMode(true);
@@ -182,10 +185,13 @@ public class EagerReconstructionUtils {
         .getContext()
         .setPartialMacroEvaluation(eagerChildContextConfig.partialMacroEvaluation);
       result = function.apply(interpreter);
-      sessionBindings = interpreter.getContext().getSessionBindings();
+      speculativeBindings =
+        eagerChildContextConfig.discardSessionBindings
+          ? Collections.emptyMap()
+          : interpreter.getContext().getSessionBindings();
     }
-    sessionBindings =
-      sessionBindings
+    speculativeBindings =
+      speculativeBindings
         .entrySet()
         .stream()
         .filter(
@@ -199,7 +205,7 @@ public class EagerReconstructionUtils {
         )
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     if (eagerChildContextConfig.checkForContextChanges) {
-      sessionBindings.putAll(
+      speculativeBindings.putAll(
         interpreter
           .getContext()
           .entrySet()
@@ -255,8 +261,8 @@ public class EagerReconstructionUtils {
           )
       );
     }
-    sessionBindings =
-      sessionBindings
+    speculativeBindings =
+      speculativeBindings
         .entrySet()
         .stream()
         .filter(entry -> !metaContextVariables.contains(entry.getKey()))
@@ -266,7 +272,7 @@ public class EagerReconstructionUtils {
         ) // these are already set recursively
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
-    return new EagerExecutionResult(result, sessionBindings);
+    return new EagerExecutionResult(result, speculativeBindings);
   }
 
   private static Object getObjectOrHashCode(Object o) {
@@ -725,19 +731,38 @@ public class EagerReconstructionUtils {
     );
   }
 
+  public static void removeMetaContextVariables(
+    Stream<String> varStream,
+    Context context
+  ) {
+    Set<String> metaSetVars = Sets
+      .intersection(
+        context.getMetaContextVariables(),
+        varStream
+          .filter(var -> !EagerExecutionMode.STATIC_META_CONTEXT_VARIABLES.contains(var))
+          .collect(Collectors.toSet())
+      )
+      .immutableCopy();
+    context.getMetaContextVariables().removeAll(metaSetVars);
+  }
+
   public static class EagerChildContextConfig {
     private final boolean takeNewValue;
+
+    private final boolean discardSessionBindings;
     private final boolean partialMacroEvaluation;
     private final boolean checkForContextChanges;
     private final boolean forceDeferredExecutionMode;
 
     private EagerChildContextConfig(
       boolean takeNewValue,
+      boolean discardSessionBindings,
       boolean partialMacroEvaluation,
       boolean checkForContextChanges,
       boolean forceDeferredExecutionMode
     ) {
       this.takeNewValue = takeNewValue;
+      this.discardSessionBindings = discardSessionBindings;
       this.partialMacroEvaluation = partialMacroEvaluation;
       this.checkForContextChanges = checkForContextChanges;
       this.forceDeferredExecutionMode = forceDeferredExecutionMode;
@@ -749,6 +774,8 @@ public class EagerReconstructionUtils {
 
     public static class Builder {
       private boolean takeNewValue;
+
+      private boolean discardSessionBindings;
       private boolean partialMacroEvaluation;
       private boolean checkForContextChanges;
       private boolean forceDeferredExecutionMode;
@@ -757,6 +784,11 @@ public class EagerReconstructionUtils {
 
       public Builder withTakeNewValue(boolean takeNewValue) {
         this.takeNewValue = takeNewValue;
+        return this;
+      }
+
+      public Builder withDiscardSessionBindings(boolean discardSessionBindings) {
+        this.discardSessionBindings = discardSessionBindings;
         return this;
       }
 
@@ -778,6 +810,7 @@ public class EagerReconstructionUtils {
       public EagerChildContextConfig build() {
         return new EagerChildContextConfig(
           takeNewValue,
+          discardSessionBindings,
           partialMacroEvaluation,
           checkForContextChanges,
           forceDeferredExecutionMode

@@ -1,7 +1,5 @@
 package com.hubspot.jinjava.objects.serialization;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
 import com.fasterxml.jackson.core.JsonFactoryBuilder;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,11 +9,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.Optional;
 
 public class PyishObjectMapper {
   public static final ObjectWriter PYISH_OBJECT_WRITER;
@@ -52,30 +48,7 @@ public class PyishObjectMapper {
   public static String getAsPyishStringOrThrow(Object val)
     throws JsonProcessingException {
     String string = PYISH_OBJECT_WRITER.writeValueAsString(val);
-    Optional<JinjavaInterpreter> interpreterMaybe = JinjavaInterpreter.getCurrentMaybe();
-    Optional<Long> maxStringLength = interpreterMaybe
-      .map(interpreter -> interpreter.getConfig().getMaxStringLength())
-      .filter(max -> max > 0);
-    if (maxStringLength.map(max -> string.length() > max).orElse(false)) {
-      ENGINE_LOG.error("Output too big max={} size={}", maxStringLength.get(), string.length());
-      throw new OutputTooBigException(maxStringLength.get(), string.length());
-    }
-    if (
-      interpreterMaybe
-        .map(
-          interpreter ->
-            interpreter
-              .getConfig()
-              .getTokenScannerSymbols()
-              .getExpressionEnd()
-              .equals("}}")
-        )
-        .orElse(true) &&
-      string.contains("}}") &&
-      !string.contains("{{")
-    ) {
-      return String.join("} ", string.split("}(?=})"));
-    }
+    JinjavaInterpreter.checkOutputSize(string);
     return string;
   }
 
