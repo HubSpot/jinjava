@@ -29,7 +29,6 @@ import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
-import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -98,78 +97,9 @@ public class EagerReconstructionUtils {
     final Map<String, String> initiallyResolvedAsStrings;
     if (eagerChildContextConfig.checkForContextChanges) {
       initiallyResolvedHashes =
-        interpreter
-          .getContext()
-          .entrySet()
-          .stream()
-          .filter(e -> !metaContextVariables.contains(e.getKey()))
-          .filter(e -> !(e.getValue() instanceof DeferredValue))
-          .map(
-            e ->
-              new AbstractMap.SimpleImmutableEntry<>(
-                e.getKey(),
-                getObjectOrHashCode(e.getValue())
-              )
-          )
-          .filter(e -> e.getValue() != null)
-          .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-      initiallyResolvedAsStrings = new HashMap<>();
-      // This creates a stringified snapshot of the context
-      // so it can be disabled via the config because it may cause performance issues.
-      Stream<Entry<String, Object>> entryStream;
-      if (!interpreter.getConfig().getExecutionMode().useEagerContextReverting()) {
-        entryStream =
-          interpreter
-            .getContext()
-            .getCombinedScope()
-            .entrySet()
-            .stream()
-            .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
-            .filter(
-              entry ->
-                EagerExpressionResolver.isResolvableObject(entry.getValue(), 4, 400) // TODO make this configurable
-            );
-      } else {
-        entryStream =
-          interpreter
-            .getContext()
-            .entrySet()
-            .stream()
-            .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
-            .filter(
-              entry ->
-                EagerExpressionResolver.isResolvableObject(entry.getValue(), 4, 400) // TODO make this configurable
-            );
-      }
-      entryStream.forEach(
-        entry -> {
-          RevertibleObject revertibleObject = interpreter
-            .getRevertibleObjects()
-            .get(entry.getKey());
-          Object hashCode = initiallyResolvedHashes.get(entry.getKey());
-          try {
-            if (
-              revertibleObject == null || !hashCode.equals(revertibleObject.getHashCode())
-            ) {
-              revertibleObject =
-                new RevertibleObject(
-                  hashCode,
-                  PyishObjectMapper.getAsPyishStringOrThrow(entry.getValue())
-                );
-              interpreter.getRevertibleObjects().put(entry.getKey(), revertibleObject);
-            }
-            revertibleObject
-              .getPyishString()
-              .ifPresent(
-                pyishString -> initiallyResolvedAsStrings.put(entry.getKey(), pyishString)
-              );
-          } catch (Exception e) {
-            interpreter
-              .getRevertibleObjects()
-              .put(entry.getKey(), new RevertibleObject(hashCode));
-          }
-        }
-      );
+        getInitiallyResolvedHashes(interpreter, metaContextVariables);
+      initiallyResolvedAsStrings =
+        getInitiallyResolvedAsStrings(interpreter, initiallyResolvedHashes);
     } else {
       initiallyResolvedHashes = Collections.emptyMap();
       initiallyResolvedAsStrings = Collections.emptyMap();
@@ -262,17 +192,156 @@ public class EagerReconstructionUtils {
       );
     }
     speculativeBindings =
-      speculativeBindings
-        .entrySet()
-        .stream()
-        .filter(entry -> !metaContextVariables.contains(entry.getKey()))
-        .filter(
-          entry ->
-            !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
-        ) // these are already set recursively
-        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+      filterSpeculativeBindings(speculativeBindings, metaContextVariables);
 
     return new EagerExecutionResult(result, speculativeBindings);
+  }
+
+  private static Map<String, String> getInitiallyResolvedAsStrings(
+    JinjavaInterpreter interpreter,
+    Map<String, Object> initiallyResolvedHashes
+  ) {
+    Map<String, String> initiallyResolvedAsStrings = new HashMap<>();
+    // This creates a stringified snapshot of the context
+    // so it can be disabled via the config because it may cause performance issues.
+    Stream<Entry<String, Object>> entryStream;
+    if (!interpreter.getConfig().getExecutionMode().useEagerContextReverting()) {
+      entryStream =
+        interpreter
+          .getContext()
+          .getCombinedScope()
+          .entrySet()
+          .stream()
+          .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
+          .filter(
+            entry -> EagerExpressionResolver.isResolvableObject(entry.getValue(), 4, 400) // TODO make this configurable
+          );
+    } else {
+      entryStream =
+        interpreter
+          .getContext()
+          .entrySet()
+          .stream()
+          .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
+          .filter(
+            entry -> EagerExpressionResolver.isResolvableObject(entry.getValue(), 4, 400) // TODO make this configurable
+          );
+    }
+    entryStream.forEach(
+      entry ->
+        putInitiallyResolvedAsString(
+          interpreter,
+          entry,
+          initiallyResolvedHashes,
+          initiallyResolvedAsStrings
+        )
+    );
+    return initiallyResolvedAsStrings;
+  }
+
+  private static void putInitiallyResolvedAsString(
+    JinjavaInterpreter interpreter,
+    Entry<String, Object> entry,
+    Map<String, Object> initiallyResolvedHashes,
+    Map<String, String> initiallyResolvedAsStrings
+  ) {
+    RevertibleObject revertibleObject = interpreter
+      .getRevertibleObjects()
+      .get(entry.getKey());
+    Object hashCode = initiallyResolvedHashes.get(entry.getKey());
+    try {
+      if (revertibleObject == null || !hashCode.equals(revertibleObject.getHashCode())) {
+        revertibleObject =
+          new RevertibleObject(
+            hashCode,
+            PyishObjectMapper.getAsPyishStringOrThrow(entry.getValue())
+          );
+        interpreter.getRevertibleObjects().put(entry.getKey(), revertibleObject);
+      }
+      revertibleObject
+        .getPyishString()
+        .ifPresent(
+          pyishString -> initiallyResolvedAsStrings.put(entry.getKey(), pyishString)
+        );
+    } catch (Exception e) {
+      interpreter
+        .getRevertibleObjects()
+        .put(entry.getKey(), new RevertibleObject(hashCode));
+    }
+  }
+
+  private static Map<String, Object> getInitiallyResolvedHashes(
+    JinjavaInterpreter interpreter,
+    Set<String> metaContextVariables
+  ) {
+    Set<Entry<String, Object>> entrySet = interpreter.getContext().entrySet();
+    Map<String, Object> resolved = new HashMap<>();
+    for (Entry<String, Object> entry : entrySet) {
+      if (metaContextVariables.contains(entry.getKey())) {
+        continue;
+      }
+      if (entry.getValue() instanceof DeferredValue || entry.getValue() == null) {
+        continue;
+      }
+      resolved.put(entry.getKey(), getObjectOrHashCode(entry.getValue()));
+    }
+    return resolved;
+  }
+
+  private static Object mapSpeculativeValue(
+    Map.Entry<String, Object> entry,
+    EagerChildContextConfig eagerChildContextConfig,
+    Map<String, Object> initiallyResolvedHashes,
+    Map<String, String> initiallyResolvedAsStrings,
+    JinjavaInterpreter interpreter
+  ) {
+    if (eagerChildContextConfig.takeNewValue) {
+      if (entry.getValue() instanceof DeferredValue) {
+        return ((DeferredValue) entry.getValue()).getOriginalValue();
+      }
+      return entry.getValue();
+    }
+
+    if (
+      entry.getValue() instanceof DeferredValue &&
+      initiallyResolvedHashes
+        .get(entry.getKey())
+        .equals(
+          getObjectOrHashCode(((DeferredValue) entry.getValue()).getOriginalValue())
+        )
+    ) {
+      return ((DeferredValue) entry.getValue()).getOriginalValue();
+    }
+
+    // This is necessary if a state-changing function, such as .update()
+    // or .append() is run against a variable in the context.
+    // It will revert the effects when takeNewValue is false.
+    if (initiallyResolvedAsStrings.containsKey(entry.getKey())) {
+      // convert to new list or map
+      try {
+        return interpreter.resolveELExpression(
+          initiallyResolvedAsStrings.get(entry.getKey()),
+          interpreter.getLineNumber()
+        );
+      } catch (DeferredValueException ignored) {}
+    }
+
+    // Previous value could not be mapped to a string
+    throw new DeferredValueException(entry.getKey());
+  }
+
+  private static Map<String, Object> filterSpeculativeBindings(
+    Map<String, Object> speculativeBindings,
+    Set<String> metaContextVariables
+  ) {
+    return speculativeBindings
+      .entrySet()
+      .stream()
+      .filter(entry -> !metaContextVariables.contains(entry.getKey()))
+      .filter(
+        entry -> !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
+      ) // these are already set recursively
+      .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
   }
 
   private static Object getObjectOrHashCode(Object o) {
