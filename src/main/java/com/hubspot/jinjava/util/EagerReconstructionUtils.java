@@ -29,6 +29,7 @@ import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -136,35 +137,49 @@ public class EagerReconstructionUtils {
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     if (eagerChildContextConfig.checkForContextChanges) {
       speculativeBindings.putAll(
-        interpreter
-          .getContext()
-          .entrySet()
-          .stream()
-          .filter(e -> initiallyResolvedHashes.containsKey(e.getKey()))
-          .filter(
-            e ->
-              !initiallyResolvedHashes
-                .get(e.getKey())
-                .equals(getObjectOrHashCode(e.getValue()))
-          )
-          .collect(
-            Collectors.toMap(
-              Entry::getKey,
-              e ->
-                mapSpeculativeValue(
-                  e,
-                  eagerChildContextConfig,
-                  initiallyResolvedHashes,
-                  initiallyResolvedAsStrings,
-                  interpreter
-                )
-            )
-          )
+        getChangedValues(
+          interpreter,
+          eagerChildContextConfig,
+          initiallyResolvedHashes,
+          initiallyResolvedAsStrings
+        )
       );
     }
     speculativeBindings =
       filterSpeculativeBindings(speculativeBindings, metaContextVariables);
     return new EagerExecutionResult(result, speculativeBindings);
+  }
+
+  private static Map<String, Object> getChangedValues(
+    JinjavaInterpreter interpreter,
+    EagerChildContextConfig eagerChildContextConfig,
+    Map<String, Object> initiallyResolvedHashes,
+    Map<String, String> initiallyResolvedAsStrings
+  ) {
+    Set<Entry<String, Object>> initialEntrySet = initiallyResolvedHashes.entrySet();
+    Context context = interpreter.getContext();
+    Map<String, Object> changedValues = new HashMap<>();
+    for (Entry<String, Object> entry : initialEntrySet) {
+      Object newValue = context.get(entry.getKey());
+      if (newValue == null) {
+        continue;
+      }
+      if (entry.getValue().equals(getObjectOrHashCode(newValue))) {
+        continue;
+      }
+      // New value different, changes.
+      changedValues.put(
+        entry.getKey(),
+        mapSpeculativeValue(
+          new AbstractMap.SimpleImmutableEntry<>(entry.getKey(), newValue),
+          eagerChildContextConfig,
+          initiallyResolvedHashes,
+          initiallyResolvedAsStrings,
+          interpreter
+        )
+      );
+    }
+    return changedValues;
   }
 
   private static Map<String, String> getInitiallyResolvedAsStrings(
