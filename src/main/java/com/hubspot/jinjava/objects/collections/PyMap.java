@@ -58,4 +58,15 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
     }
     super.putAll(m);
   }
+
+  @Override
+  public int hashCode() {
+    int h = 0;
+    for (Entry<String, Object> entry : map.entrySet()) {
+      if (entry.getValue() != map && entry.getValue() != this) {
+        h += entry.hashCode();
+      }
+    }
+    return h;
+  }
 }
