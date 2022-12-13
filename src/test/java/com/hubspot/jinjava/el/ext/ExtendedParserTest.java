@@ -3,8 +3,13 @@ package com.hubspot.jinjava.el.ext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
+import com.hubspot.jinjava.lib.exptest.IsEvenExpTest;
+import com.hubspot.jinjava.lib.exptest.IsFalseExpTest;
+import com.hubspot.jinjava.lib.exptest.IsTrueExpTest;
 import de.odysseus.el.tree.impl.Builder;
+import de.odysseus.el.tree.impl.Builder.Feature;
 import de.odysseus.el.tree.impl.ast.AstBinary;
+import de.odysseus.el.tree.impl.ast.AstDot;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstMethod;
 import de.odysseus.el.tree.impl.ast.AstNested;
@@ -127,6 +132,39 @@ public class ExtendedParserTest {
     assertThat(astNode).isInstanceOf(AstDict.class);
   }
 
+  @Test
+  public void itResolvesAlternateExpTestSyntax() {
+    AstNode regularSyntax = buildExpressionNodes("#{2 is even}");
+
+    assertThat(regularSyntax).isInstanceOf(AstMethod.class);
+    assertThat(regularSyntax.getChild(0)).isInstanceOf(AstDot.class);
+    assertThat(regularSyntax.getChild(1)).isInstanceOf(AstParameters.class);
+    AstNode alternateSyntax = buildExpressionNodes(
+      "#{exptest:even.evaluate(2, ____int3rpr3t3r____)}"
+    );
+
+    assertThat(alternateSyntax).isInstanceOf(AstMethod.class);
+    assertThat(alternateSyntax.getChild(0)).isInstanceOf(AstDot.class);
+    assertThat(alternateSyntax.getChild(1)).isInstanceOf(AstParameters.class);
+  }
+
+  @Test
+  public void itResolvesAlternateExpTestSyntaxForTrueAndFalseExpTests() {
+    AstNode falseExpTest = buildExpressionNodes(
+      "#{exptest:false.evaluate(2, ____int3rpr3t3r____)}"
+    );
+    assertThat(falseExpTest).isInstanceOf(AstMethod.class);
+    assertThat(falseExpTest.getChild(0)).isInstanceOf(AstDot.class);
+    assertThat(falseExpTest.getChild(1)).isInstanceOf(AstParameters.class);
+
+    AstNode trueExpTest = buildExpressionNodes(
+      "#{exptest:true.evaluate(2, ____int3rpr3t3r____)}"
+    );
+    assertThat(trueExpTest).isInstanceOf(AstMethod.class);
+    assertThat(trueExpTest.getChild(0)).isInstanceOf(AstDot.class);
+    assertThat(trueExpTest.getChild(1)).isInstanceOf(AstParameters.class);
+  }
+
   private void assertForExpression(
     AstNode astNode,
     String leftExpected,
@@ -164,7 +202,10 @@ public class ExtendedParserTest {
   }
 
   private AstNode buildExpressionNodes(String input) {
-    ExtendedCustomParser extendedParser = new ExtendedCustomParser(new Builder(), input);
+    ExtendedCustomParser extendedParser = new ExtendedCustomParser(
+      new Builder(Feature.METHOD_INVOCATIONS),
+      input
+    );
     extendedParser.consumeTokenExpose();
     extendedParser.consumeTokenExpose();
 
