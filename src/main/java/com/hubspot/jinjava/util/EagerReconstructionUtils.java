@@ -150,50 +150,20 @@ public class EagerReconstructionUtils {
           .collect(
             Collectors.toMap(
               Entry::getKey,
-              e -> {
-                if (eagerChildContextConfig.takeNewValue) {
-                  if (e.getValue() instanceof DeferredValue) {
-                    return ((DeferredValue) e.getValue()).getOriginalValue();
-                  }
-                  return e.getValue();
-                }
-
-                if (
-                  e.getValue() instanceof DeferredValue &&
-                  initiallyResolvedHashes
-                    .get(e.getKey())
-                    .equals(
-                      getObjectOrHashCode(
-                        ((DeferredValue) e.getValue()).getOriginalValue()
-                      )
-                    )
-                ) {
-                  return ((DeferredValue) e.getValue()).getOriginalValue();
-                }
-
-                // This is necessary if a state-changing function, such as .update()
-                // or .append() is run against a variable in the context.
-                // It will revert the effects when takeNewValue is false.
-                if (initiallyResolvedAsStrings.containsKey(e.getKey())) {
-                  // convert to new list or map
-                  try {
-                    return interpreter.resolveELExpression(
-                      initiallyResolvedAsStrings.get(e.getKey()),
-                      interpreter.getLineNumber()
-                    );
-                  } catch (DeferredValueException ignored) {}
-                }
-
-                // Previous value could not be mapped to a string
-                throw new DeferredValueException(e.getKey());
-              }
+              e ->
+                mapSpeculativeValue(
+                  e,
+                  eagerChildContextConfig,
+                  initiallyResolvedHashes,
+                  initiallyResolvedAsStrings,
+                  interpreter
+                )
             )
           )
       );
     }
     speculativeBindings =
       filterSpeculativeBindings(speculativeBindings, metaContextVariables);
-
     return new EagerExecutionResult(result, speculativeBindings);
   }
 
