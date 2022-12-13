@@ -121,18 +121,20 @@ public class EagerReconstructionUtils {
           ? Collections.emptyMap()
           : interpreter.getContext().getSessionBindings();
     }
+
     speculativeBindings =
       speculativeBindings
         .entrySet()
         .stream()
         .filter(
-          entry ->
-            entry.getValue() != null &&
-            !entry.getValue().equals(interpreter.getContext().get(entry.getKey()))
-        )
-        .filter(
-          entry ->
-            !(interpreter.getContext().get(entry.getKey()) instanceof DeferredValue)
+          entry -> {
+            Object newValue = interpreter.getContext().get(entry.getKey());
+            return (
+              entry.getValue() != null &&
+              !entry.getValue().equals(newValue) &&
+              !(newValue instanceof DeferredValue)
+            );
+          }
         )
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     if (eagerChildContextConfig.checkForContextChanges) {
