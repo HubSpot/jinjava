@@ -281,14 +281,16 @@ public class ExtendedParser extends Parser {
     switch (getToken().getSymbol()) {
       case IDENTIFIER:
         String name = consumeToken().getImage();
-        if (
-          getToken().getSymbol() == COLON &&
-          lookahead(0).getSymbol() == IDENTIFIER &&
-          (lookahead(1).getSymbol() == LPAREN || (isPossibleExpTestOrFilter(name)))
-        ) { // ns:f(...)
-          consumeToken();
-          name += ":" + getToken().getImage();
-          consumeToken();
+        if (getToken().getSymbol() == COLON) {
+          Symbol lookahead = lookahead(0).getSymbol();
+          if (
+            (lookahead == IDENTIFIER || lookahead == FALSE || lookahead == TRUE) &&
+            (lookahead(1).getSymbol() == LPAREN || (isPossibleExpTestOrFilter(name)))
+          ) { // ns:f(...)
+            consumeToken();
+            name += ":" + getToken().getImage();
+            consumeToken();
+          }
         }
         if (getToken().getSymbol() == LPAREN) { // function
           v = function(name, params());
