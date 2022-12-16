@@ -125,21 +125,27 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       );
     }
 
-    EagerExecutionResult eagerExecutionResult = runLoopOnce(tagNode, interpreter);
-    if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
+    EagerExecutionResult firstRunResult = runLoopOnce(tagNode, interpreter);
+    if (!firstRunResult.getSpeculativeBindings().isEmpty()) {
       // Defer any variables that we tried to modify during the loop
-      prefix = eagerExecutionResult.getPrefixToPreserveState(true);
+      prefix = firstRunResult.getPrefixToPreserveState(true);
     }
     // Run for loop again now that the necessary values have been deferred
-    eagerExecutionResult = runLoopOnce(tagNode, interpreter);
-    if (!eagerExecutionResult.getSpeculativeBindings().isEmpty()) {
+    EagerExecutionResult secondRunResult = runLoopOnce(tagNode, interpreter);
+    if (
+      secondRunResult
+        .getSpeculativeBindings()
+        .keySet()
+        .stream()
+        .anyMatch(key -> !firstRunResult.getSpeculativeBindings().containsKey(key))
+    ) {
       throw new DeferredValueException(
         "Modified values in deferred for loop: " +
-        String.join(", ", eagerExecutionResult.getSpeculativeBindings().keySet())
+        String.join(", ", secondRunResult.getSpeculativeBindings().keySet())
       );
     }
 
-    result.append(eagerExecutionResult.asTemplateString());
+    result.append(secondRunResult.asTemplateString());
     result.append(EagerReconstructionUtils.reconstructEnd(tagNode));
     return prefix + result;
   }
