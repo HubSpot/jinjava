@@ -45,7 +45,11 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         return expressionResult;
       },
       interpreter,
-      EagerChildContextConfig.newBuilder().withCheckForContextChanges(true).build()
+      EagerChildContextConfig
+        .newBuilder()
+        .withCheckForContextChanges(true)
+        .withCreateReconstructedContext(true)
+        .build()
     );
     if (
       result.getResult().getResolutionState() == ResolutionState.NONE ||

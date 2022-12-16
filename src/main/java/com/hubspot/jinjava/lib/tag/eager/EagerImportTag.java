@@ -9,6 +9,7 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.ImportTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.loader.RelativePathResolver;
@@ -16,7 +17,9 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -92,7 +95,13 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
 
       // If the template depends on deferred values it should not be rendered,
       // and all defined variables and macros should be deferred too.
-      if (!child.getContext().getDeferredNodes().isEmpty()) {
+      if (
+        !child.getContext().getDeferredNodes().isEmpty() ||
+        (
+          interpreter.getContext().isDeferredExecutionMode() &&
+          !child.getContext().getGlobalMacros().isEmpty()
+        )
+      ) {
         ImportTag.handleDeferredNodesDuringImport(
           node,
           currentImportAlias,
@@ -164,13 +173,28 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     String currentImportAlias,
     Map<String, Object> childBindings
   ) {
+    if (Strings.isNullOrEmpty(currentImportAlias)) {
+      // defer imported variables
+      EagerReconstructionUtils.buildSetTag(
+        childBindings
+          .entrySet()
+          .stream()
+          .filter(
+            entry ->
+              !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
+          )
+          .collect(Collectors.toMap(Entry::getKey, entry -> "")),
+        interpreter,
+        true
+      );
+    }
     return EagerReconstructionUtils.buildSetTag(
       childBindings
         .entrySet()
         .stream()
+        .filter(entry -> entry.getValue() instanceof DeferredValue)
         .filter(entry -> !interpreter.getContext().containsKey(entry.getKey()))
         .filter(entry -> !entry.getKey().equals(currentImportAlias))
-        .filter(entry -> entry.getValue() instanceof DeferredValue)
         .collect(
           Collectors.toMap(
             Entry::getKey,
@@ -341,15 +365,32 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     JinjavaInterpreter parent
   ) {
     childBindings.remove(SetTag.IGNORED_VARIABLE_NAME);
+    for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
+      if (parent.getContext().isDeferredExecutionMode()) {
+        macro.setDeferred(true);
+      }
+    }
     if (StringUtils.isBlank(currentImportAlias)) {
       for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
         parent.getContext().addGlobalMacro(macro);
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
       childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
-      parent
-        .getContext()
-        .putAll(ImportTag.getChildBindingsWithoutImportResourcePath(childBindings));
+      Map<String, Object> childBindingsWithoutImportResourcePath = ImportTag.getChildBindingsWithoutImportResourcePath(
+        childBindings
+      );
+      if (parent.getContext().isDeferredExecutionMode()) {
+        childBindingsWithoutImportResourcePath
+          .keySet()
+          .forEach(
+            key ->
+              parent
+                .getContext()
+                .put(key, DeferredValue.instance(parent.getContext().get(key)))
+          );
+      } else {
+        parent.getContext().putAll(childBindingsWithoutImportResourcePath);
+      }
     } else {
       childBindings.putAll(child.getContext().getGlobalMacros());
       Map<String, Object> mapForCurrentContextAlias = getMapForCurrentContextAlias(
