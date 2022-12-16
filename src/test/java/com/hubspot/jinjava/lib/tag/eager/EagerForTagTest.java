@@ -16,6 +16,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class EagerForTagTest extends ForTagTest {
@@ -219,6 +220,7 @@ public class EagerForTagTest extends ForTagTest {
   }
 
   @Test
+  //  @Ignore // Not needed since append is disallowed in deferred execution mode
   public void itDoesNotSwallowDeferredValueException() {
     interpreter.getContext().registerTag(new EagerDoTag());
     interpreter.getContext().registerTag(new EagerIfTag());
@@ -229,7 +231,7 @@ public class EagerForTagTest extends ForTagTest {
       "{% for i in range(401) %}" +
       "{{ my_list.append(i) }}" +
       "{% endfor %}" +
-      "{% for i in [0, 1] %}" +
+      "{% for i in my_list.append(1) ? [0, 1] : [0] %}" +
       "{% for j in deferred %}" +
       "{% if loop.first %}" +
       "{% do my_list.append(1) %}" +

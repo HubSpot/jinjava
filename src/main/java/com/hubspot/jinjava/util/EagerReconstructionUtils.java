@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class EagerReconstructionUtils {
+  public static final String CANNOT_RECONSTRUCT_MESSAGE = "Cannot reconstruct value";
 
   /**
    * Execute the specified functions within a protected context.
@@ -209,7 +210,9 @@ public class EagerReconstructionUtils {
                 ((DeferredValue) contextValue).getOriginalValue()
               )
             ) {
-              throw new DeferredValueException(entry.getKey());
+              throw new DeferredValueException(
+                String.format("%s: %s", CANNOT_RECONSTRUCT_MESSAGE, entry.getKey())
+              );
             }
             return new AbstractMap.SimpleImmutableEntry<>(
               entry.getKey(),
@@ -366,7 +369,9 @@ public class EagerReconstructionUtils {
     }
 
     // Previous value could not be mapped to a string
-    throw new DeferredValueException(e.getKey());
+    throw new DeferredValueException(
+      String.format("%s: %s", CANNOT_RECONSTRUCT_MESSAGE, e.getKey())
+    );
   }
 
   private static Object getObjectOrHashCode(
@@ -459,7 +464,6 @@ public class EagerReconstructionUtils {
               .newBuilder()
               .withForceDeferredExecutionMode(true)
               .withCheckForContextChanges(true)
-              .withCreateReconstructedContext(true)
               .build()
           )
       )

@@ -82,6 +82,12 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     JinjavaInterpreter interpreter,
     InterpretException e
   ) {
+    if (
+      e instanceof DeferredValueException &&
+      e.getMessage().startsWith(EagerReconstructionUtils.CANNOT_RECONSTRUCT_MESSAGE)
+    ) {
+      throw e;
+    }
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxOutputSize()
     );
