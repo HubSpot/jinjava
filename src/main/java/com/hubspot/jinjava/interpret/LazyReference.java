@@ -3,7 +3,7 @@ package com.hubspot.jinjava.interpret;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 
 public class LazyReference extends LazyExpression implements PyishSerializable {
-  private final String referenceKey;
+  private String referenceKey;
 
   protected LazyReference(Context referenceContext, String referenceKey) {
     super(() -> referenceContext.get(referenceKey), "", Memoization.ON);
@@ -17,6 +17,10 @@ public class LazyReference extends LazyExpression implements PyishSerializable {
 
   public String getReferenceKey() {
     return referenceKey;
+  }
+
+  public void setReferenceKey(String referenceKey) {
+    this.referenceKey = referenceKey;
   }
 
   @Override

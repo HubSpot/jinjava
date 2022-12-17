@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredLazyReference;
+import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
@@ -20,6 +21,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -146,23 +148,53 @@ public class DeferredValueUtils {
     referentialDefers.forEach(
       word -> {
         Object wordValue = context.get(word);
+
         if (
           !(wordValue instanceof DeferredValue) &&
           !EagerExpressionResolver.isPrimitive(wordValue)
         ) {
+          DeferredLazyReference deferredLazyReference = DeferredLazyReference.instance(
+            context,
+            word
+          );
           Context temp = context;
+          Set<Entry<String, Object>> matchingEntries = new HashSet<>();
           while (temp.getParent() != null) {
             temp
               .getScope()
               .entrySet()
               .stream()
-              .filter(entry -> !entry.getKey().equals(word))
+              //              .filter(entry -> !entry.getKey().equals(word))
               .filter(entry -> entry.getValue() == wordValue)
               .forEach(
-                entry -> entry.setValue(DeferredLazyReference.instance(context, word))
+                entry -> {
+                  matchingEntries.add(entry);
+                  deferredLazyReference
+                    .getOriginalValue()
+                    .setReferenceKey(entry.getKey());
+                }
               );
+            //              .forEach(
+            //                entry -> entry.setValue(DeferredLazyReference.instance(context, word))
+            //              );
             temp = temp.getParent();
           }
+          matchingEntries.forEach(
+            entry -> {
+              if (
+                deferredLazyReference
+                  .getOriginalValue()
+                  .getReferenceKey()
+                  .equals(entry.getKey())
+              ) {
+                Object val = entry.getValue();
+                context.put(entry.getKey(), DeferredLazyReferenceSource.instance(val));
+                entry.setValue(DeferredLazyReferenceSource.instance(val));
+              } else {
+                entry.setValue(deferredLazyReference);
+              }
+            }
+          );
         }
       }
     );

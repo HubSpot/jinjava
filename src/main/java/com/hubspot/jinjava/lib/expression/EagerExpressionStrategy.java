@@ -1,6 +1,8 @@
 package com.hubspot.jinjava.lib.expression;
 
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.DeferredLazyReference;
+import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -8,12 +10,15 @@ import com.hubspot.jinjava.lib.filter.EscapeFilter;
 import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
+import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.Logging;
+import java.util.AbstractMap;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -91,6 +96,98 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
             .collect(Collectors.toSet())
         )
       );
+    prefixToPreserveState.append(
+      EagerReconstructionUtils.buildSetTag(
+        interpreter
+          .getContext()
+          .getScope()
+          .entrySet()
+          .stream()
+          .filter(
+            entry ->
+              entry.getValue() instanceof DeferredLazyReferenceSource &&
+              !((DeferredLazyReferenceSource) entry.getValue()).isReconstructed()
+          )
+          .peek(
+            entry ->
+              ((DeferredLazyReferenceSource) entry.getValue()).setReconstructed(true)
+          )
+          .collect(
+            Collectors.toMap(
+              Entry::getKey,
+              entry ->
+                PyishObjectMapper.getAsPyishString(
+                  ((DeferredLazyReferenceSource) entry.getValue()).getOriginalValue()
+                )
+            )
+          ),
+        //                  eagerExecutionResult
+        //                    .getResult()
+        //                    .getDeferredWords()
+        //                    .stream()
+        //                    .map(w -> w.split("\\.", 2)[0])
+        //                    .map(word -> interpreter.getContext().getScope().get(word))
+        //                    .filter(value -> value instanceof DeferredLazyReference)
+        //                    .map(value -> (DeferredLazyReference) value)
+        //                    .map(DeferredLazyReference::getOriginalValue)
+        //                    .distinct()
+        //                    .filter(lazyReference -> lazyReference.)
+        ////                    .filter(lazyReference -> !(interpreter.getContext().get(lazyReference.getReferenceKey()) instanceof DeferredValue))
+        //                    .peek(lazyReference -> interpreter.)
+        //                    .collect(
+        //                      Collectors.toMap(
+        //                        LazyReference::getReferenceKey,
+        //                        val -> PyishObjectMapper.getAsPyishString(val.get())
+        //                      )
+        //                    ),
+        interpreter,
+        false
+      )
+    );
+    prefixToPreserveState.append(
+      EagerReconstructionUtils.buildSetTag(
+        eagerExecutionResult
+          .getResult()
+          .getDeferredWords()
+          .stream()
+          .map(w -> w.split("\\.", 2)[0])
+          .map(
+            word ->
+              new AbstractMap.SimpleImmutableEntry<>(
+                word,
+                interpreter.getContext().get(word)
+              )
+          )
+          .filter(entry -> entry.getValue() instanceof DeferredLazyReference)
+          .collect(
+            Collectors.toMap(
+              Entry::getKey,
+              entry ->
+                PyishObjectMapper.getAsPyishString(
+                  ((DeferredLazyReference) entry.getValue()).getOriginalValue()
+                )
+            )
+          ),
+        interpreter,
+        false
+      )
+    );
+    //    prefixToPreserveState.append(
+    //      EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
+    //        eagerExecutionResult
+    //          .getResult()
+    //          .getDeferredWords()
+    //          .stream()
+    //          .map(w -> w.split("\\.", 2)[0])
+    //          .map(word -> interpreter.getContext().get(word))
+    //          .filter(value -> value instanceof DeferredLazyReference)
+    //          .map(value -> (DeferredLazyReference) value)
+    //          .map(DeferredLazyReference::getOriginalValue)
+    //          .map(LazyReference::getReferenceKey)
+    //          .collect(Collectors.toSet()),
+    //        interpreter
+    //      )
+    //    );
     // There is only a preserving prefix because it couldn't be entirely evaluated.
     return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
       prefixToPreserveState.toString() + helpers,

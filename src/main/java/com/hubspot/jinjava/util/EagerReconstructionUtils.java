@@ -5,12 +5,14 @@ import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.DeferredLazyReference;
+import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.LazyExpression;
+import com.hubspot.jinjava.interpret.LazyReference;
 import com.hubspot.jinjava.interpret.RevertibleObject;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
@@ -153,8 +155,26 @@ public class EagerReconstructionUtils {
       result = function.apply(interpreter);
       speculativeBindings =
         eagerChildContextConfig.discardSessionBindings
-          ? Collections.emptyMap()
+          ? new HashMap<>()
           : interpreter.getContext().getSessionBindings();
+      //      speculativeBindings.putAll(
+      //        interpreter
+      //          .getContext()
+      //          .getScope()
+      //          .entrySet()
+      //          .stream()
+      //          .filter(
+      //            e ->
+      //              e.getValue() instanceof DeferredLazyReferenceSource &&
+      //              !(((DeferredLazyReferenceSource) e.getValue()).isReconstructed())
+      //          )
+      //          .collect(
+      //            Collectors.toMap(
+      //              Entry::getKey,
+      //              entry -> ((DeferredLazyReferenceSource) entry.getValue()).getOriginalValue()
+      //            )
+      //          )
+      //      );
     }
     if (eagerChildContextConfig.createReconstructedContext) {
       speculativeBindings =
@@ -185,6 +205,33 @@ public class EagerReconstructionUtils {
     Set<String> metaContextVariables,
     Map<String, Object> speculativeBindings
   ) {
+    speculativeBindings.putAll(
+      interpreter
+        .getContext()
+        .getScope()
+        .entrySet()
+        .stream()
+        .filter(
+          e ->
+            e.getValue() instanceof DeferredLazyReferenceSource &&
+            !(((DeferredLazyReferenceSource) e.getValue()).isReconstructed())
+        )
+        .peek(e -> ((DeferredLazyReferenceSource) e.getValue()).setReconstructed(true))
+        .collect(
+          Collectors.toMap(
+            Entry::getKey,
+            entry -> ((DeferredLazyReferenceSource) entry.getValue()).getOriginalValue()
+          )
+        )
+    );
+    //    speculativeBindings.putAll(
+    //      speculativeBindings
+    //        .values()
+    //        .stream()
+    //        .filter(o -> o instanceof DeferredLazyReference)
+    //        .map(o -> ((DeferredLazyReference) o).getOriginalValue())
+    //        .collect(Collectors.toMap(LazyReference::getReferenceKey, Function.identity()))
+    //    );
     return speculativeBindings
       .entrySet()
       .stream()
@@ -478,7 +525,10 @@ public class EagerReconstructionUtils {
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
-    Set<String> filteredDeferredWords = deferredWords;
+    Set<String> filteredDeferredWords = deferredWords
+      .stream()
+      .map(w -> w.split("\\.", 2)[0])
+      .collect(Collectors.toSet()); // get base prop
     if (interpreter.getContext().isDeferredExecutionMode()) {
       Context parent = interpreter.getContext().getParent();
       while (parent.isDeferredExecutionMode()) {
@@ -499,7 +549,6 @@ public class EagerReconstructionUtils {
 
     filteredDeferredWords
       .stream()
-      .map(w -> w.split("\\.", 2)[0]) // get base prop
       .filter(w -> !metaContextVariables.contains(w))
       .filter(w -> interpreter.getContext().get(w) instanceof PyishBlockSetSerializable)
       .forEach(
@@ -508,7 +557,6 @@ public class EagerReconstructionUtils {
       );
     filteredDeferredWords
       .stream()
-      .map(w -> w.split("\\.", 2)[0]) // get base prop
       .filter(
         w -> {
           Object value = interpreter.getContext().get(w);
@@ -551,26 +599,29 @@ public class EagerReconstructionUtils {
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
+    Set<String> filteredDeferredWords = deferredWords
+      .stream()
+      .map(w -> w.split("\\.", 2)[0])
+      .collect(Collectors.toSet()); // get base prop
     if (interpreter.getContext().isDeferredExecutionMode()) {
       Context parent = interpreter.getContext().getParent();
       while (parent.isDeferredExecutionMode()) {
         parent = parent.getParent();
       }
       final Context finalParent = parent;
-      deferredWords =
-        deferredWords
+      filteredDeferredWords =
+        filteredDeferredWords
           .stream()
           .filter(word -> interpreter.getContext().get(word) != finalParent.get(word))
           .collect(Collectors.toSet());
     }
-    if (deferredWords.isEmpty()) {
+    if (filteredDeferredWords.isEmpty()) {
       return "";
     }
     Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
     Map<String, String> deferredMap = new HashMap<>();
-    deferredWords
+    filteredDeferredWords
       .stream()
-      .map(w -> w.split("\\.", 2)[0]) // get base prop
       .filter(
         w ->
           interpreter.getContext().containsKey(w) &&
@@ -583,7 +634,7 @@ public class EagerReconstructionUtils {
           deferredMap.put(w, PyishObjectMapper.getAsPyishString(value));
         }
       );
-    deferredWords
+    filteredDeferredWords
       .stream()
       .map(w -> w.split("\\.", 2)[0]) // get base prop
       .filter(w -> (interpreter.getContext().get(w) instanceof DeferredLazyReference))
