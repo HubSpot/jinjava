@@ -179,22 +179,24 @@ public class DeferredValueUtils {
             //              );
             temp = temp.getParent();
           }
-          matchingEntries.forEach(
-            entry -> {
-              if (
-                deferredLazyReference
-                  .getOriginalValue()
-                  .getReferenceKey()
-                  .equals(entry.getKey())
-              ) {
-                Object val = entry.getValue();
-                context.put(entry.getKey(), DeferredLazyReferenceSource.instance(val));
-                entry.setValue(DeferredLazyReferenceSource.instance(val));
-              } else {
-                entry.setValue(deferredLazyReference);
+          if (matchingEntries.size() > 1) { // at least one duplicate
+            matchingEntries.forEach(
+              entry -> {
+                if (
+                  deferredLazyReference
+                    .getOriginalValue()
+                    .getReferenceKey()
+                    .equals(entry.getKey())
+                ) {
+                  Object val = entry.getValue();
+                  context.put(entry.getKey(), DeferredLazyReferenceSource.instance(val));
+                  entry.setValue(DeferredLazyReferenceSource.instance(val));
+                } else {
+                  entry.setValue(deferredLazyReference);
+                }
               }
-            }
-          );
+            );
+          }
         }
       }
     );
