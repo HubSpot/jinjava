@@ -30,8 +30,13 @@ public class FileSizeFormatFilterTest extends BaseJinjavaTest {
       )
       .isEqualTo("3.4 MiB");
     assertThat(
-      jinjava.render("{{1000000000|filesizeformat}}", new HashMap<String, Object>())
-    )
+        jinjava.render("{{1000000000|filesizeformat}}", new HashMap<String, Object>())
+      )
       .isEqualTo("1.0 GB");
+  }
+
+  @Test
+  public void testFileSizeFormat() {
+    jinjava.render("{{3309735582|filesizeformat}}", new HashMap<String, Object>());
   }
 }
