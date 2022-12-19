@@ -97,10 +97,11 @@ public class EagerReconstructionUtils {
     final Map<String, Object> initiallyResolvedHashes;
     final Map<String, String> initiallyResolvedAsStrings;
     if (eagerChildContextConfig.checkForContextChanges) {
+      Set<Entry<String, Object>> entrySet = interpreter.getContext().entrySet();
       initiallyResolvedHashes =
-        getInitiallyResolvedHashes(interpreter, metaContextVariables);
+        getInitiallyResolvedHashes(entrySet, metaContextVariables);
       initiallyResolvedAsStrings =
-        getInitiallyResolvedAsStrings(interpreter, initiallyResolvedHashes);
+        getInitiallyResolvedAsStrings(interpreter, entrySet, initiallyResolvedHashes);
     } else {
       initiallyResolvedHashes = Collections.emptyMap();
       initiallyResolvedAsStrings = Collections.emptyMap();
@@ -186,6 +187,7 @@ public class EagerReconstructionUtils {
 
   private static Map<String, String> getInitiallyResolvedAsStrings(
     JinjavaInterpreter interpreter,
+    Set<Entry<String, Object>> entrySet,
     Map<String, Object> initiallyResolvedHashes
   ) {
     Map<String, String> initiallyResolvedAsStrings = new HashMap<>();
@@ -205,9 +207,7 @@ public class EagerReconstructionUtils {
           );
     } else {
       entryStream =
-        interpreter
-          .getContext()
-          .entrySet()
+        entrySet
           .stream()
           .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
           .filter(
@@ -258,10 +258,9 @@ public class EagerReconstructionUtils {
   }
 
   private static Map<String, Object> getInitiallyResolvedHashes(
-    JinjavaInterpreter interpreter,
+    Set<Entry<String, Object>> entrySet,
     Set<String> metaContextVariables
   ) {
-    Set<Entry<String, Object>> entrySet = interpreter.getContext().entrySet();
     Map<String, Object> resolved = new HashMap<>();
     for (Entry<String, Object> entry : entrySet) {
       if (metaContextVariables.contains(entry.getKey())) {
