@@ -602,6 +602,40 @@ public class ExpressionResolverTest {
     assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
+  @Test
+  public void itResolvesAlternateExpTestSyntax() {
+    assertThat(interpreter.render("{% if 2 is even %}yes{% endif %}")).isEqualTo("yes");
+
+    assertThat(
+        interpreter.render(
+          "{% if exptest:even.evaluate(2, ____int3rpr3t3r____) %}yes{% endif %}"
+        )
+      )
+      .isEqualTo("yes");
+    assertThat(
+        interpreter.render(
+          "{% if exptest:false.evaluate(false, ____int3rpr3t3r____) %}yes{% endif %}"
+        )
+      )
+      .isEqualTo("yes");
+  }
+
+  @Test
+  public void itResolvesAlternateExpTestSyntaxForTrueAndFalseExpTests() {
+    assertThat(
+        interpreter.render(
+          "{% if exptest:false.evaluate(false, ____int3rpr3t3r____) %}yes{% endif %}"
+        )
+      )
+      .isEqualTo("yes");
+    assertThat(
+        interpreter.render(
+          "{% if exptest:true.evaluate(true, ____int3rpr3t3r____) %}yes{% endif %}"
+        )
+      )
+      .isEqualTo("yes");
+  }
+
   public String result(String value, TestClass testClass) {
     testClass.touch();
     return value;
