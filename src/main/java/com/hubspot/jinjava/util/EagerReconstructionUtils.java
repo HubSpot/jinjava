@@ -157,24 +157,6 @@ public class EagerReconstructionUtils {
         eagerChildContextConfig.discardSessionBindings
           ? new HashMap<>()
           : interpreter.getContext().getSessionBindings();
-      //      speculativeBindings.putAll(
-      //        interpreter
-      //          .getContext()
-      //          .getScope()
-      //          .entrySet()
-      //          .stream()
-      //          .filter(
-      //            e ->
-      //              e.getValue() instanceof DeferredLazyReferenceSource &&
-      //              !(((DeferredLazyReferenceSource) e.getValue()).isReconstructed())
-      //          )
-      //          .collect(
-      //            Collectors.toMap(
-      //              Entry::getKey,
-      //              entry -> ((DeferredLazyReferenceSource) entry.getValue()).getOriginalValue()
-      //            )
-      //          )
-      //      );
     }
     if (eagerChildContextConfig.createReconstructedContext) {
       speculativeBindings =
@@ -224,14 +206,6 @@ public class EagerReconstructionUtils {
           )
         )
     );
-    //    speculativeBindings.putAll(
-    //      speculativeBindings
-    //        .values()
-    //        .stream()
-    //        .filter(o -> o instanceof DeferredLazyReference)
-    //        .map(o -> ((DeferredLazyReference) o).getOriginalValue())
-    //        .collect(Collectors.toMap(LazyReference::getReferenceKey, Function.identity()))
-    //    );
     return speculativeBindings
       .entrySet()
       .stream()
@@ -906,6 +880,67 @@ public class EagerReconstructionUtils {
       .getCurrentMaybe()
       .map(interpreter -> interpreter.getContext().isDeferredExecutionMode())
       .orElse(false);
+  }
+
+  public static String reconstructDeferredReferences(
+    JinjavaInterpreter interpreter,
+    EagerExecutionResult eagerExecutionResult
+  ) {
+    String extraStuff =
+      buildSetTag(
+        interpreter
+          .getContext()
+          .getScope()
+          .entrySet()
+          .stream()
+          .filter(
+            entry ->
+              entry.getValue() instanceof DeferredLazyReferenceSource &&
+              !((DeferredLazyReferenceSource) entry.getValue()).isReconstructed()
+          )
+          .peek(
+            entry ->
+              ((DeferredLazyReferenceSource) entry.getValue()).setReconstructed(true)
+          )
+          .collect(
+            Collectors.toMap(
+              Entry::getKey,
+              entry ->
+                PyishObjectMapper.getAsPyishString(
+                  ((DeferredLazyReferenceSource) entry.getValue()).getOriginalValue()
+                )
+            )
+          ),
+        interpreter,
+        false
+      ) +
+      buildSetTag(
+        eagerExecutionResult
+          .getResult()
+          .getDeferredWords()
+          .stream()
+          .map(w -> w.split("\\.", 2)[0])
+          .map(
+            word ->
+              new AbstractMap.SimpleImmutableEntry<>(
+                word,
+                interpreter.getContext().get(word)
+              )
+          )
+          .filter(entry -> entry.getValue() instanceof DeferredLazyReference)
+          .collect(
+            Collectors.toMap(
+              Entry::getKey,
+              entry ->
+                PyishObjectMapper.getAsPyishString(
+                  ((DeferredLazyReference) entry.getValue()).getOriginalValue()
+                )
+            )
+          ),
+        interpreter,
+        false
+      );
+    return extraStuff;
   }
 
   public static class EagerChildContextConfig {
