@@ -114,7 +114,6 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
           EagerChildContextConfig
             .newBuilder()
             .withForceDeferredExecutionMode(true)
-            .withCheckForContextChanges(true)
             .build()
         )
         .asTemplateString()

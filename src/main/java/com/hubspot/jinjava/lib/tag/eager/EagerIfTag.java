@@ -64,7 +64,6 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
           EagerChildContextConfig
             .newBuilder()
             .withForceDeferredExecutionMode(true)
-            .withCheckForContextChanges(true)
             .build()
         )
         .asTemplateString()
@@ -118,7 +117,6 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
           EagerChildContextConfig
             .newBuilder()
             .withForceDeferredExecutionMode(true)
-            .withCheckForContextChanges(true)
             .build()
         );
         sb.append(result.getResult());

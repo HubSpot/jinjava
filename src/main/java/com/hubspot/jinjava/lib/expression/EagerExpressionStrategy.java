@@ -44,7 +44,6 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         .withPartialMacroEvaluation(
           interpreter.getConfig().isNestedInterpretationEnabled()
         )
-        .withCheckForContextChanges(interpreter.getContext().isDeferredExecutionMode())
         .build()
     );
 

@@ -35,11 +35,7 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
       eagerInterpreter ->
         EagerExpressionResolver.resolveExpression('[' + expression + ']', interpreter),
       interpreter,
-      EagerChildContextConfig
-        .newBuilder()
-        .withTakeNewValue(true)
-        .withCheckForContextChanges(interpreter.getContext().isDeferredExecutionMode())
-        .build()
+      EagerChildContextConfig.newBuilder().withTakeNewValue(true).build()
     );
   }
 

@@ -80,7 +80,6 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         .withTakeNewValue(true)
         .withForceDeferredExecutionMode(true)
         .withCheckForContextChanges(true)
-        .withCreateReconstructedContext(true)
         .build()
     );
 
@@ -110,7 +109,6 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         .newBuilder()
         .withForceDeferredExecutionMode(true)
         .withCheckForContextChanges(true)
-        .withCreateReconstructedContext(true)
         .build()
     );
     assertThat(result.getResult().toString()).isEqualTo("function return");
@@ -381,7 +379,7 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
       EagerChildContextConfig
         .newBuilder()
         .withDiscardSessionBindings(false)
-        .withCreateReconstructedContext(true)
+        .withCheckForContextChanges(true)
         .build()
     );
     EagerExecutionResult withoutSessionBindings = EagerReconstructionUtils.executeInChildContext(
@@ -393,7 +391,7 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
       EagerChildContextConfig
         .newBuilder()
         .withDiscardSessionBindings(true)
-        .withCreateReconstructedContext(true)
+        .withCheckForContextChanges(true)
         .build()
     );
     assertThat(withSessionBindings.getSpeculativeBindings())

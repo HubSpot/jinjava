@@ -56,11 +56,7 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
     EagerExecutionResult eagerExecutionResult = EagerReconstructionUtils.executeInChildContext(
       eagerInterpreter -> EagerExpressionResolver.resolveExpression(expr, interpreter),
       interpreter,
-      EagerChildContextConfig
-        .newBuilder()
-        .withTakeNewValue(true)
-        .withCheckForContextChanges(interpreter.getContext().isDeferredExecutionMode())
-        .build()
+      EagerChildContextConfig.newBuilder().withTakeNewValue(true).build()
     );
     StringBuilder prefixToPreserveState = new StringBuilder();
     if (interpreter.getContext().isDeferredExecutionMode()) {

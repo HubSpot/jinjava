@@ -62,7 +62,6 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
           .withPartialMacroEvaluation(
             interpreter.getConfig().isNestedInterpretationEnabled()
           )
-          .withCheckForContextChanges(interpreter.getContext().isDeferredExecutionMode())
           .build()
       );
       StringBuilder prefixToPreserveState = new StringBuilder();
@@ -140,7 +139,6 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
               interpreter,
               EagerChildContextConfig
                 .newBuilder()
-                .withCheckForContextChanges(true)
                 .withForceDeferredExecutionMode(true)
                 .build()
             )

@@ -45,11 +45,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         return expressionResult;
       },
       interpreter,
-      EagerChildContextConfig
-        .newBuilder()
-        .withCheckForContextChanges(true)
-        .withCreateReconstructedContext(true)
-        .build()
+      EagerChildContextConfig.newBuilder().withCheckForContextChanges(true).build()
     );
     if (
       result.getResult().getResolutionState() == ResolutionState.NONE ||
@@ -164,11 +160,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         );
       },
       interpreter,
-      EagerChildContextConfig
-        .newBuilder()
-        .withForceDeferredExecutionMode(true)
-        .withCheckForContextChanges(true)
-        .build()
+      EagerChildContextConfig.newBuilder().withForceDeferredExecutionMode(true).build()
     );
   }
 

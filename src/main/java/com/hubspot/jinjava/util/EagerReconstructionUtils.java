@@ -82,7 +82,6 @@ public class EagerReconstructionUtils {
       EagerChildContextConfig
         .newBuilder()
         .withTakeNewValue(takeNewValue)
-        .withCheckForContextChanges(checkForContextChanges)
         .withForceDeferredExecutionMode(checkForContextChanges)
         .withPartialMacroEvaluation(partialMacroEvaluation)
         .build()
@@ -98,7 +97,7 @@ public class EagerReconstructionUtils {
     Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
     final Map<String, Object> initiallyResolvedHashes;
     final Map<String, String> initiallyResolvedAsStrings;
-    if (eagerChildContextConfig.createReconstructedContext) {
+    if (eagerChildContextConfig.checkForContextChanges) {
       initiallyResolvedHashes =
         interpreter
           .getContext()
@@ -157,7 +156,7 @@ public class EagerReconstructionUtils {
           ? new HashMap<>()
           : interpreter.getContext().getSessionBindings();
     }
-    if (eagerChildContextConfig.createReconstructedContext) {
+    if (eagerChildContextConfig.checkForContextChanges) {
       speculativeBindings =
         getAllSpeculativeBindings(
           interpreter,
@@ -401,7 +400,7 @@ public class EagerReconstructionUtils {
     if (o instanceof LazyExpression) {
       o = ((LazyExpression) o).get();
     }
-    if (eagerChildContextConfig.createReconstructedContext) {
+    if (eagerChildContextConfig.checkForContextChanges) {
       if (o instanceof PyList && !((PyList) o).toList().contains(o)) {
         return o.hashCode();
       }
@@ -483,7 +482,6 @@ public class EagerReconstructionUtils {
             EagerChildContextConfig
               .newBuilder()
               .withForceDeferredExecutionMode(true)
-              .withCheckForContextChanges(true)
               .build()
           )
       )
@@ -963,9 +961,8 @@ public class EagerReconstructionUtils {
 
     private final boolean discardSessionBindings;
     private final boolean partialMacroEvaluation;
-    private final boolean checkForContextChanges;
 
-    private final boolean createReconstructedContext;
+    private final boolean checkForContextChanges;
     private final boolean forceDeferredExecutionMode;
 
     private EagerChildContextConfig(
@@ -973,14 +970,12 @@ public class EagerReconstructionUtils {
       boolean discardSessionBindings,
       boolean partialMacroEvaluation,
       boolean checkForContextChanges,
-      boolean createReconstructedContext,
       boolean forceDeferredExecutionMode
     ) {
       this.takeNewValue = takeNewValue;
       this.discardSessionBindings = discardSessionBindings;
       this.partialMacroEvaluation = partialMacroEvaluation;
       this.checkForContextChanges = checkForContextChanges;
-      this.createReconstructedContext = createReconstructedContext;
       this.forceDeferredExecutionMode = forceDeferredExecutionMode;
     }
 
@@ -994,8 +989,6 @@ public class EagerReconstructionUtils {
       private boolean discardSessionBindings;
       private boolean partialMacroEvaluation;
       private boolean checkForContextChanges;
-
-      private boolean createReconstructedContext;
       private boolean forceDeferredExecutionMode;
 
       private Builder() {}
@@ -1020,11 +1013,6 @@ public class EagerReconstructionUtils {
         return this;
       }
 
-      public Builder withCreateReconstructedContext(boolean createReconstructedContext) {
-        this.createReconstructedContext = createReconstructedContext;
-        return this;
-      }
-
       public Builder withForceDeferredExecutionMode(boolean forceDeferredExecutionMode) {
         this.forceDeferredExecutionMode = forceDeferredExecutionMode;
         return this;
@@ -1036,7 +1024,6 @@ public class EagerReconstructionUtils {
           discardSessionBindings,
           partialMacroEvaluation,
           checkForContextChanges,
-          createReconstructedContext,
           forceDeferredExecutionMode
         );
       }

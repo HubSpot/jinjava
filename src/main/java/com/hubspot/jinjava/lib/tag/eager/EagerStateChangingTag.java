@@ -44,7 +44,6 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
             interpreter,
             EagerChildContextConfig
               .newBuilder()
-              .withCheckForContextChanges(true)
               .withForceDeferredExecutionMode(true)
               .build()
           )

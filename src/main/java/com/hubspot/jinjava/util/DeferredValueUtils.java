@@ -164,7 +164,6 @@ public class DeferredValueUtils {
               .getScope()
               .entrySet()
               .stream()
-              //              .filter(entry -> !entry.getKey().equals(word))
               .filter(entry -> entry.getValue() == wordValue)
               .forEach(
                 entry -> {
@@ -174,9 +173,6 @@ public class DeferredValueUtils {
                     .setReferenceKey(entry.getKey());
                 }
               );
-            //              .forEach(
-            //                entry -> entry.setValue(DeferredLazyReference.instance(context, word))
-            //              );
             temp = temp.getParent();
           }
           if (matchingEntries.size() > 1) { // at least one duplicate
