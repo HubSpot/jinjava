@@ -21,7 +21,11 @@ public class OutputList {
 
   public void addNode(OutputNode node) {
     if (maxOutputSize > 0 && currentSize + node.getSize() > maxOutputSize) {
-      ENGINE_LOG.error("Output too big max={} size={}", maxOutputSize, currentSize + node.getSize());
+      ENGINE_LOG.error(
+        "Output too big max={} size={}",
+        maxOutputSize,
+        currentSize + node.getSize()
+      );
       throw new OutputTooBigException(maxOutputSize, currentSize + node.getSize());
     }
 
@@ -32,7 +36,11 @@ public class OutputList {
       BlockPlaceholderOutputNode blockNode = (BlockPlaceholderOutputNode) node;
 
       if (maxOutputSize > 0 && currentSize + blockNode.getSize() > maxOutputSize) {
-        ENGINE_LOG.error("Output too big max={} size={}", maxOutputSize, currentSize + blockNode.getSize());
+        ENGINE_LOG.error(
+          "Output too big max={} size={}",
+          maxOutputSize,
+          currentSize + blockNode.getSize()
+        );
         throw new OutputTooBigException(maxOutputSize, currentSize + blockNode.getSize());
       }
 
@@ -56,7 +64,7 @@ public class OutputList {
       try {
         val.append(node.getValue());
       } catch (OutputTooBigException e) {
-        ENGINE_LOG.error("OutputTooBigException",e);
+        ENGINE_LOG.error("OutputTooBigException", e);
         JinjavaInterpreter
           .getCurrent()
           .addError(TemplateError.fromOutputTooBigException(e));

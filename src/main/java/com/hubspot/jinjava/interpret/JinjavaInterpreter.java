@@ -308,7 +308,7 @@ public class JinjavaInterpreter implements PyishSerializable {
           output.addNode(out);
         }
       } catch (OutputTooBigException e) {
-        ENGINE_LOG.error("OutputTooBigException",e);
+        ENGINE_LOG.error("OutputTooBigException", e);
         addError(TemplateError.fromOutputTooBigException(e));
         return output.getValue();
       } catch (CollectionTooBigException e) {
@@ -382,7 +382,7 @@ public class JinjavaInterpreter implements PyishSerializable {
               hasNestedExtends = true;
             }
           } catch (OutputTooBigException e) {
-            ENGINE_LOG.error("OutputTooBigException",e);
+            ENGINE_LOG.error("OutputTooBigException", e);
             addError(TemplateError.fromOutputTooBigException(e));
             return output.getValue();
           }

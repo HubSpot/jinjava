@@ -160,7 +160,7 @@ public class TemplateError {
   }
 
   public static TemplateError fromOutputTooBigException(Exception ex) {
-    ENGINE_LOG.error("OutputTooBigException",ex);
+    ENGINE_LOG.error("OutputTooBigException", ex);
     return new TemplateError(
       ErrorType.FATAL,
       ErrorReason.OUTPUT_TOO_BIG,
