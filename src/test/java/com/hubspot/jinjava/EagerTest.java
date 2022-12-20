@@ -1139,6 +1139,13 @@ public class EagerTest {
   }
 
   @Test
+  public void itHandlesReferenceModificationWhenSourceIsLost() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-reference-modification-when-source-is-lost"
+    );
+  }
+
+  @Test
   public void itDoesNotReferentialDeferForSetVars() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "does-not-referential-defer-for-set-vars"
