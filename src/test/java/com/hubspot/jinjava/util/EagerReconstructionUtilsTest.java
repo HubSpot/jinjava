@@ -11,6 +11,7 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
@@ -79,6 +80,7 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         .withTakeNewValue(true)
         .withForceDeferredExecutionMode(true)
         .withCheckForContextChanges(true)
+        .withCreateReconstructedContext(true)
         .build()
     );
 
@@ -108,6 +110,7 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         .newBuilder()
         .withForceDeferredExecutionMode(true)
         .withCheckForContextChanges(true)
+        .withCreateReconstructedContext(true)
         .build()
     );
     assertThat(result.getResult().toString()).isEqualTo("function return");
@@ -163,12 +166,14 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
     Set<String> deferredWords = new HashSet<>();
     deferredWords.add("foo.append");
     context.put("foo", new PyList(new ArrayList<>()));
-    context.setDeferredExecutionMode(true);
-    String result = EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
-      deferredWords,
-      interpreter
-    );
-    assertThat(result).isEqualTo("");
+    try (InterpreterScopeClosable c = interpreter.enterScope()) {
+      interpreter.getContext().setDeferredExecutionMode(true);
+      String result = EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
+        deferredWords,
+        interpreter
+      );
+      assertThat(result).isEqualTo("");
+    }
   }
 
   @Test
@@ -373,7 +378,11 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         return EagerExpressionResult.fromString("");
       },
       interpreter,
-      EagerChildContextConfig.newBuilder().withDiscardSessionBindings(false).build()
+      EagerChildContextConfig
+        .newBuilder()
+        .withDiscardSessionBindings(false)
+        .withCreateReconstructedContext(true)
+        .build()
     );
     EagerExecutionResult withoutSessionBindings = EagerReconstructionUtils.executeInChildContext(
       eagerInterpreter -> {
@@ -381,7 +390,11 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         return EagerExpressionResult.fromString("");
       },
       interpreter,
-      EagerChildContextConfig.newBuilder().withDiscardSessionBindings(true).build()
+      EagerChildContextConfig
+        .newBuilder()
+        .withDiscardSessionBindings(true)
+        .withCreateReconstructedContext(true)
+        .build()
     );
     assertThat(withSessionBindings.getSpeculativeBindings())
       .containsEntry("foo", "foobar");

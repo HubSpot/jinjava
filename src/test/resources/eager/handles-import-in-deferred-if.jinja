@@ -1,8 +1,10 @@
-{% set myname = 'person' %}
+{% set primary_line_height = 100 %}
+{% set secondary_line_height = 200 %}
 {% if deferred %}
-{%- import "macro-and-set.jinja" as simple -%}
+{% import "../settag/set-val.jinja" as simple %}
 {% else %}
-{%- import "macro-and-set.jinja" as simple -%}
+{% import "../settag/set-val.jinja" %}
 {% endif %}
-simple.foo: {{ simple.foo() }}
-simple.bar: {{ simple.bar }}
+simple.primary_line_height (deferred): {{ simple.primary_line_height }}
+primary_line_height (deferred): {{ primary_line_height }}
+secondary_line_height: {{ secondary_line_height }}

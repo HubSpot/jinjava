@@ -1,8 +1,8 @@
 {% set foo = [0, 1] %}{% if deferred == true %}
 [0, 1]
-{% set foo = [0, 1, 2] %}
+{% do foo.append(2) %}
 {% else %}
 [0, 1]
-{% set foo = [0, 1, 3] %}
+{% do foo.append(3) %}
 {% endif %}
 {{ foo }}

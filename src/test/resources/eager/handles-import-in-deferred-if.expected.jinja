@@ -1,9 +1,8 @@
-{% if deferred %}{% set __ignored__ %}{% set current_path = 'macro-and-set.jinja' %}{% set simple = {} %}
-{% set bar = 'person19' %}{% do simple.update({'bar': bar}) %}
-Hello person
-{% do simple.update({'bar': 'person19','import_resource_path': 'macro-and-set.jinja'}) %}{% set current_path = '' %}{% endset %}{% else %}{% set __ignored__ %}{% set current_path = 'macro-and-set.jinja' %}{% set simple = {} %}
-{% set bar = 'person19' %}{% do simple.update({'bar': bar}) %}
-Hello person
-{% do simple.update({'bar': 'person19','import_resource_path': 'macro-and-set.jinja'}) %}{% set current_path = '' %}{% endset %}{% endif %}
-simple.foo: {{ simple.foo() }}
-simple.bar: {{ simple.bar }}
+{% set primary_line_height = 100 %}{% if deferred %}
+{% set __ignored__ %}{% set current_path = '../settag/set-val.jinja' %}{% set simple = {} %}{% for __ignored__ in [0] %}{% set primary_line_height = 42 %}{% do simple.update({'primary_line_height': primary_line_height}) %}{% do simple.update({'primary_line_height': 42,'import_resource_path': '../settag/set-val.jinja'}) %}{% endfor %}{% set current_path = '' %}{% endset %}
+{% else %}
+{% set __ignored__ %}{% set current_path = '../settag/set-val.jinja' %}{% set primary_line_height = 42 %}{% set current_path = '' %}{% endset %}
+{% endif %}
+simple.primary_line_height (deferred): {{ simple.primary_line_height }}
+primary_line_height (deferred): {{ primary_line_height }}
+secondary_line_height: 200

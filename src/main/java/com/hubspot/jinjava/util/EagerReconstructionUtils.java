@@ -12,7 +12,6 @@ import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.LazyExpression;
-import com.hubspot.jinjava.interpret.LazyReference;
 import com.hubspot.jinjava.interpret.RevertibleObject;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
@@ -512,7 +511,15 @@ public class EagerReconstructionUtils {
       filteredDeferredWords =
         deferredWords
           .stream()
-          .filter(word -> interpreter.getContext().get(word) != finalParent.get(word))
+          .filter(
+            word -> {
+              Object parentValue = finalParent.get(word);
+              return (
+                !(parentValue instanceof DeferredValue) &&
+                interpreter.getContext().get(word) != finalParent.get(word)
+              );
+            }
+          )
           .collect(Collectors.toSet());
     }
     if (filteredDeferredWords.isEmpty()) {
@@ -586,7 +593,15 @@ public class EagerReconstructionUtils {
       filteredDeferredWords =
         filteredDeferredWords
           .stream()
-          .filter(word -> interpreter.getContext().get(word) != finalParent.get(word))
+          .filter(
+            word -> {
+              Object parentValue = finalParent.get(word);
+              return (
+                !(parentValue instanceof DeferredValue) &&
+                interpreter.getContext().get(word) != finalParent.get(word)
+              );
+            }
+          )
           .collect(Collectors.toSet());
     }
     if (filteredDeferredWords.isEmpty()) {

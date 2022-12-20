@@ -27,6 +27,9 @@ public class ExpectedTemplateInterpreter {
   public String assertExpectedOutput(String name) {
     String template = getFixtureTemplate(name);
     String output = JinjavaInterpreter.getCurrent().render(template);
+    assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
+      .as("Ensure no deferred nodes were created")
+      .isEmpty();
     assertThat(output.trim()).isEqualTo(expected(name).trim());
     assertThat(JinjavaInterpreter.getCurrent().render(output).trim())
       .isEqualTo(expected(name).trim());
@@ -36,6 +39,9 @@ public class ExpectedTemplateInterpreter {
   public String assertExpectedOutputNonIdempotent(String name) {
     String template = getFixtureTemplate(name);
     String output = JinjavaInterpreter.getCurrent().render(template);
+    assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
+      .as("Ensure no deferred nodes were created")
+      .isEmpty();
     assertThat(output.trim()).isEqualTo(expected(name).trim());
     return output;
   }
@@ -61,6 +67,9 @@ public class ExpectedTemplateInterpreter {
       preserveInterpreter.getContext().putAll(interpreter.getContext());
       String template = getFixtureTemplate(name);
       String output = JinjavaInterpreter.getCurrent().render(template);
+      assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
+        .as("Ensure no deferred nodes were created")
+        .isEmpty();
       assertThat(output.trim()).isEqualTo(expected(name).trim());
       return output;
     } finally {

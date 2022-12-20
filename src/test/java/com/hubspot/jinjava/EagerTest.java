@@ -937,7 +937,7 @@ public class EagerTest {
 
   @Test
   public void itDefersChangesWithinDeferredSetBlock() {
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "defers-changes-within-deferred-set-block"
     );
   }
@@ -951,6 +951,16 @@ public class EagerTest {
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "defers-changes-within-deferred-set-block.expected"
     );
+  }
+
+  @Test
+  public void itHandlesImportWithMacrosInDeferredIf() {
+    String template = expectedTemplateInterpreter.getFixtureTemplate(
+      "handles-import-with-macros-in-deferred-if"
+    );
+    JinjavaInterpreter.getCurrent().render(template);
+    assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
+      .isNotEmpty();
   }
 
   @Test
@@ -993,9 +1003,13 @@ public class EagerTest {
 
   @Test
   public void itHandlesSameNameImportVar() {
-    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "handles-same-name-import-var"
+    String template = expectedTemplateInterpreter.getFixtureTemplate(
+      "handles-import-with-macros-in-deferred-if"
     );
+    JinjavaInterpreter.getCurrent().render(template);
+    // No longer allows importing a file that uses the same alias as a variable declared in the import file
+    assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
+      .isNotEmpty();
   }
 
   @Test
@@ -1177,7 +1191,7 @@ public class EagerTest {
 
   @Test
   public void itReconstructsNullVariablesInDeferredCaller() {
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "reconstructs-null-variables-in-deferred-caller"
     );
   }

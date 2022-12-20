@@ -9,7 +9,6 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
-import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.ImportTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.loader.RelativePathResolver;
@@ -17,9 +16,7 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
-import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
-import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -122,32 +119,24 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       } else if (!Strings.isNullOrEmpty(currentImportAlias)) {
         // Since some values got deferred, output a DoTag that will load the currentImportAlias on the context.
         finalOutput =
-          (
-            newPathSetter +
-            getSetTagForDeferredChildBindings(
-              interpreter,
-              currentImportAlias,
-              childBindings
-            ) +
-            EagerReconstructionUtils.buildSetTag(
-              ImmutableMap.of(currentImportAlias, "{}"),
-              interpreter,
-              true
-            ) +
-            output +
-            getDoTagToPreserve(interpreter, currentImportAlias) +
-            initialPathSetter
+          getFinalOutputWithAlias(
+            interpreter,
+            currentImportAlias,
+            initialPathSetter,
+            newPathSetter,
+            output,
+            childBindings
           );
       } else {
         finalOutput =
-          newPathSetter +
-          getSetTagForDeferredChildBindings(
+          getFinalOutputWithoutAlias(
             interpreter,
             currentImportAlias,
+            initialPathSetter,
+            newPathSetter,
+            output,
             childBindings
-          ) +
-          output +
-          initialPathSetter;
+          );
       }
       return EagerReconstructionUtils.buildBlockSetTag(
         SetTag.IGNORED_VARIABLE_NAME,
@@ -166,6 +155,56 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       interpreter.getContext().getCurrentPathStack().pop();
       interpreter.getContext().getImportPathStack().pop();
     }
+  }
+
+  private String getFinalOutputWithoutAlias(
+    JinjavaInterpreter interpreter,
+    String currentImportAlias,
+    String initialPathSetter,
+    String newPathSetter,
+    String output,
+    Map<String, Object> childBindings
+  ) {
+    return (
+      newPathSetter +
+      getSetTagForDeferredChildBindings(interpreter, currentImportAlias, childBindings) +
+      output +
+      initialPathSetter
+    );
+  }
+
+  private String getFinalOutputWithAlias(
+    JinjavaInterpreter interpreter,
+    String currentImportAlias,
+    String initialPathSetter,
+    String newPathSetter,
+    String output,
+    Map<String, Object> childBindings
+  ) {
+    return (
+      newPathSetter +
+      getSetTagForDeferredChildBindings(interpreter, currentImportAlias, childBindings) +
+      EagerReconstructionUtils.buildSetTag(
+        ImmutableMap.of(currentImportAlias, "{}"),
+        interpreter,
+        true
+      ) +
+      wrapInChildScopeIfNecessary(interpreter, output, currentImportAlias) +
+      initialPathSetter
+    );
+  }
+
+  private static String wrapInChildScopeIfNecessary(
+    JinjavaInterpreter interpreter,
+    String output,
+    String currentImportAlias
+  ) {
+    String combined = output + getDoTagToPreserve(interpreter, currentImportAlias);
+    // So that any set variables other than the alias won't exist outside the child's scope
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      return EagerReconstructionUtils.wrapInChildScope(combined, interpreter);
+    }
+    return combined;
   }
 
   private String getSetTagForDeferredChildBindings(
@@ -323,7 +362,12 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         throw new InterpretException("Encountered a problem with import alias maps");
       }
     }
-    currentMap.put(allAliases[allAliases.length - 1], new PyMap(new HashMap<>()));
+    currentMap.put(
+      allAliases[allAliases.length - 1],
+      child.getContext().isDeferredExecutionMode()
+        ? DeferredValue.instance(new PyMap(new HashMap<>()))
+        : new PyMap(new HashMap<>())
+    );
   }
 
   @SuppressWarnings("unchecked")
@@ -352,7 +396,15 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       return newMap;
     } else {
       Map<String, Object> newMap = new PyMap(new HashMap<>());
-      child.getContext().getParent().put(currentImportAlias, newMap);
+      child
+        .getContext()
+        .getParent()
+        .put(
+          currentImportAlias,
+          child.getContext().isDeferredExecutionMode()
+            ? DeferredValue.instance(newMap)
+            : newMap
+        );
       return newMap;
     }
   }
@@ -392,6 +444,21 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         parent.getContext().putAll(childBindingsWithoutImportResourcePath);
       }
     } else {
+      if (
+        child.getContext().isDeferredExecutionMode() &&
+        child
+          .getContext()
+          .getDeferredTokens()
+          .stream()
+          .flatMap(deferredToken -> deferredToken.getSetDeferredWords().stream())
+          .collect(Collectors.toSet())
+          .contains(currentImportAlias)
+      ) {
+        // since a child scope will be used, the import alias would not be properly reconstructed
+        throw new DeferredValueException(
+          "Same-named variable as import alias: " + currentImportAlias
+        );
+      }
       childBindings.putAll(child.getContext().getGlobalMacros());
       Map<String, Object> mapForCurrentContextAlias = getMapForCurrentContextAlias(
         currentImportAlias,
