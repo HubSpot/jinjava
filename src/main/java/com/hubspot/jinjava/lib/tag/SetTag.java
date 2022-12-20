@@ -115,12 +115,10 @@ public class SetTag implements Tag, FlexibleTag {
 
     String[] varTokens = var.split(",");
 
-    if (varTokens.length > 1) {
-      expr = "[" + expr + "]";
-    }
     try {
-      Object exprVals = interpreter.resolveELExpression(
-        expr,
+      @SuppressWarnings("unchecked")
+      List<?> exprVals = (List<Object>) interpreter.resolveELExpression(
+        "[" + expr + "]",
         tagNode.getMaster().getLineNumber()
       );
       executeSet((TagToken) tagNode.getMaster(), interpreter, varTokens, exprVals, false);
@@ -186,13 +184,12 @@ public class SetTag implements Tag, FlexibleTag {
     TagToken tagToken,
     JinjavaInterpreter interpreter,
     String[] varTokens,
-    Object resolvedValue,
+    List<?> resolvedList,
     boolean allowDeferredValueOverride
   ) {
     if (varTokens.length > 1) {
       // handle multi-variable assignment
-      @SuppressWarnings("unchecked")
-      List<Object> resolvedList = (List<Object>) resolvedValue;
+
       if (resolvedList == null || varTokens.length != resolvedList.size()) {
         throw new TemplateSyntaxException(
           tagToken.getImage(),
@@ -224,7 +221,11 @@ public class SetTag implements Tag, FlexibleTag {
           throw new DeferredValueException(varTokens[0]);
         }
       }
-      setVariable(interpreter, varTokens[0], resolvedValue);
+      setVariable(
+        interpreter,
+        varTokens[0],
+        resolvedList != null ? resolvedList.get(0) : null
+      );
     }
   }
 
