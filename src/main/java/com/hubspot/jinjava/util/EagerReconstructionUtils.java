@@ -93,37 +93,23 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter,
     EagerChildContextConfig eagerChildContextConfig
   ) {
-    EagerExpressionResult result;
-    Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
-    final Map<String, Object> initiallyResolvedHashes;
-    final Map<String, String> initiallyResolvedAsStrings;
+    final Set<String> metaContextVariables = interpreter
+      .getContext()
+      .getMetaContextVariables();
+    final EagerExecutionResult initialResult;
+    final Map<String, Object> speculativeBindings;
     if (eagerChildContextConfig.checkForContextChanges) {
-      Set<Entry<String, Object>> entrySet = interpreter.getContext().entrySet();
-      initiallyResolvedHashes =
-        getInitiallyResolvedHashes(entrySet, metaContextVariables);
-      initiallyResolvedAsStrings =
-        getInitiallyResolvedAsStrings(interpreter, entrySet, initiallyResolvedHashes);
-    } else {
-      initiallyResolvedHashes = Collections.emptyMap();
-      initiallyResolvedAsStrings = Collections.emptyMap();
-    }
-
-    // Don't create new call stacks to prevent hitting max recursion with this silent new scope
-    Map<String, Object> speculativeBindings;
-    try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
-      if (eagerChildContextConfig.forceDeferredExecutionMode) {
-        interpreter.getContext().setDeferredExecutionMode(true);
-      }
-      interpreter
-        .getContext()
-        .setPartialMacroEvaluation(eagerChildContextConfig.partialMacroEvaluation);
-      result = function.apply(interpreter);
-      speculativeBindings =
-        eagerChildContextConfig.discardSessionBindings
-          ? new HashMap<>()
-          : interpreter.getContext().getSessionBindings();
-    }
-    if (eagerChildContextConfig.checkForContextChanges) {
+      final Set<Entry<String, Object>> entrySet = interpreter.getContext().entrySet();
+      final Map<String, Object> initiallyResolvedHashes = getInitiallyResolvedHashes(
+        entrySet,
+        metaContextVariables
+      );
+      final Map<String, String> initiallyResolvedAsStrings = getInitiallyResolvedAsStrings(
+        interpreter,
+        entrySet,
+        initiallyResolvedHashes
+      );
+      initialResult = applyFunction(function, interpreter, eagerChildContextConfig);
       speculativeBindings =
         getAllSpeculativeBindings(
           interpreter,
@@ -131,19 +117,41 @@ public class EagerReconstructionUtils {
           metaContextVariables,
           initiallyResolvedHashes,
           initiallyResolvedAsStrings,
-          speculativeBindings
+          initialResult.getSpeculativeBindings()
         );
     } else {
+      initialResult = applyFunction(function, interpreter, eagerChildContextConfig);
       speculativeBindings =
         getBasicSpeculativeBindings(
           interpreter,
           eagerChildContextConfig,
           metaContextVariables,
-          speculativeBindings
+          initialResult.getSpeculativeBindings()
         );
     }
+    return new EagerExecutionResult(initialResult.getResult(), speculativeBindings);
+  }
 
-    return new EagerExecutionResult(result, speculativeBindings);
+  private static EagerExecutionResult applyFunction(
+    Function<JinjavaInterpreter, EagerExpressionResult> function,
+    JinjavaInterpreter interpreter,
+    EagerChildContextConfig eagerChildContextConfig
+  ) {
+    // Don't create new call stacks to prevent hitting max recursion with this silent new scope
+    try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
+      if (eagerChildContextConfig.forceDeferredExecutionMode) {
+        interpreter.getContext().setDeferredExecutionMode(true);
+      }
+      interpreter
+        .getContext()
+        .setPartialMacroEvaluation(eagerChildContextConfig.partialMacroEvaluation);
+      return new EagerExecutionResult(
+        function.apply(interpreter),
+        eagerChildContextConfig.discardSessionBindings
+          ? new HashMap<>()
+          : interpreter.getContext().getSessionBindings()
+      );
+    }
   }
 
   private static Map<String, String> getInitiallyResolvedAsStrings(
