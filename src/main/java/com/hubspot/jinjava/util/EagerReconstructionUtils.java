@@ -98,10 +98,9 @@ public class EagerReconstructionUtils {
     final Map<String, Object> initiallyResolvedHashes;
     final Map<String, String> initiallyResolvedAsStrings;
     if (eagerChildContextConfig.checkForContextChanges) {
+      Set<Entry<String, Object>> entrySet = interpreter.getContext().entrySet();
       initiallyResolvedHashes =
-        interpreter
-          .getContext()
-          .entrySet()
+        entrySet
           .stream()
           .filter(e -> !metaContextVariables.contains(e.getKey()))
           .filter(
@@ -111,7 +110,7 @@ public class EagerReconstructionUtils {
           .collect(
             Collectors.toMap(
               Entry::getKey,
-              entry -> getObjectOrHashCode(entry.getValue(), eagerChildContextConfig)
+              entry -> getObjectOrHashCode(entry.getValue())
             )
           );
       initiallyResolvedAsStrings = new HashMap<>();
@@ -285,7 +284,7 @@ public class EagerReconstructionUtils {
           e ->
             !initiallyResolvedHashes
               .get(e.getKey())
-              .equals(getObjectOrHashCode(e.getValue(), eagerChildContextConfig))
+              .equals(getObjectOrHashCode(e.getValue()))
         )
         .collect(
           Collectors.toMap(
@@ -364,12 +363,7 @@ public class EagerReconstructionUtils {
       e.getValue() instanceof DeferredValue &&
       initiallyResolvedHashes
         .get(e.getKey())
-        .equals(
-          getObjectOrHashCode(
-            ((DeferredValue) e.getValue()).getOriginalValue(),
-            eagerChildContextConfig
-          )
-        )
+        .equals(getObjectOrHashCode(((DeferredValue) e.getValue()).getOriginalValue()))
     ) {
       return ((DeferredValue) e.getValue()).getOriginalValue();
     }
@@ -393,20 +387,15 @@ public class EagerReconstructionUtils {
     );
   }
 
-  private static Object getObjectOrHashCode(
-    Object o,
-    EagerChildContextConfig eagerChildContextConfig
-  ) {
+  private static Object getObjectOrHashCode(Object o) {
     if (o instanceof LazyExpression) {
       o = ((LazyExpression) o).get();
     }
-    if (eagerChildContextConfig.checkForContextChanges) {
-      if (o instanceof PyList && !((PyList) o).toList().contains(o)) {
-        return o.hashCode();
-      }
-      if (o instanceof PyMap && !((PyMap) o).toMap().containsValue(o)) {
-        return o.hashCode() + ((PyMap) o).keySet().hashCode();
-      }
+    if (o instanceof PyList && !((PyList) o).toList().contains(o)) {
+      return o.hashCode();
+    }
+    if (o instanceof PyMap && !((PyMap) o).toMap().containsValue(o)) {
+      return o.hashCode() + ((PyMap) o).keySet().hashCode();
     }
     return o;
   }
