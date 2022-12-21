@@ -55,16 +55,18 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       if (currentImportAlias.isEmpty()) {
         throw e;
       }
-      interpreter
-        .getContext()
-        .handleDeferredToken(
+      return (
+        initialPathSetter +
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
           new DeferredToken(
             tagToken,
             Collections.singleton(helper.get(0)),
             Collections.singleton(currentImportAlias)
           )
-        );
-      return (initialPathSetter + tagToken.getImage());
+        ) +
+        tagToken.getImage()
+      );
     }
     if (!maybeTemplateFile.isPresent()) {
       return "";

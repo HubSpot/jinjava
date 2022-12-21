@@ -180,10 +180,10 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
   ) {
     if (interpreter.getContext().isDeferredExecutionMode()) {
       String reconstructedTag = reconstructCycleTag(resolvedExpression, tagToken);
-
-      interpreter
-        .getContext()
-        .handleDeferredToken(
+      return (
+        reconstructedTag +
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
           new DeferredToken(
             new TagToken(
               reconstructedTag,
@@ -193,8 +193,8 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
             ),
             deferredWords
           )
-        );
-      return reconstructedTag;
+        )
+      );
     }
     Integer forindex = (Integer) interpreter.retraceVariable(
       CycleTag.LOOP_INDEX,

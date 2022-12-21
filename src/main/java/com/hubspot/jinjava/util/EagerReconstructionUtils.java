@@ -376,9 +376,9 @@ public class EagerReconstructionUtils {
     String image = result.toString();
     // Don't defer if we're sticking with the new value
     if (registerDeferredToken) {
-      interpreter
-        .getContext()
-        .handleDeferredToken(
+      return (
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
           new DeferredToken(
             new TagToken(
               image,
@@ -390,7 +390,9 @@ public class EagerReconstructionUtils {
             Collections.emptySet(),
             deferredValuesToSet.keySet()
           )
-        );
+        ) +
+        image
+      );
     }
     return image;
   }
@@ -437,9 +439,9 @@ public class EagerReconstructionUtils {
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag());
     String image = blockSetTokenBuilder + value + endTokenBuilder;
     if (registerDeferredToken) {
-      interpreter
-        .getContext()
-        .handleDeferredToken(
+      return (
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
           new DeferredToken(
             new TagToken(
               blockSetTokenBuilder.toString(),
@@ -450,7 +452,9 @@ public class EagerReconstructionUtils {
             Collections.emptySet(),
             Collections.singleton(name)
           )
-        );
+        ) +
+        image
+      );
     }
     return image;
   }
@@ -580,9 +584,20 @@ public class EagerReconstructionUtils {
       .orElse(false);
   }
 
+  public static String handleDeferredTokenAndReconstructReferences(
+    JinjavaInterpreter interpreter,
+    DeferredToken deferredToken
+  ) {
+    interpreter.getContext().handleDeferredToken(deferredToken);
+    return reconstructDeferredReferences(
+      interpreter,
+      deferredToken.getUsedDeferredWords()
+    );
+  }
+
   public static String reconstructDeferredReferences(
     JinjavaInterpreter interpreter,
-    EagerExecutionResult eagerExecutionResult
+    Set<String> usedDeferredWords
   ) {
     return (
       buildSetTag(
@@ -613,9 +628,7 @@ public class EagerReconstructionUtils {
         false
       ) +
       buildSetTag(
-        eagerExecutionResult
-          .getResult()
-          .getDeferredWords()
+        usedDeferredWords
           .stream()
           .map(w -> w.split("\\.", 2)[0])
           .map(

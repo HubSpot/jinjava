@@ -103,9 +103,9 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
         .add(tagNode.getTag().getName())
         .add(eagerExecutionResult.getResult().toString().trim())
         .add(tagNode.getSymbols().getExpressionEndWithTag());
-      interpreter
-        .getContext()
-        .handleDeferredToken(
+      prefixToPreserveState.append(
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
           new DeferredToken(
             new TagToken(
               joiner.toString(),
@@ -123,10 +123,9 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
               )
               .collect(Collectors.toSet())
           )
-        );
-      StringBuilder result = new StringBuilder(
-        prefixToPreserveState.toString() + joiner.toString()
+        )
       );
+      StringBuilder result = new StringBuilder(prefixToPreserveState + joiner.toString());
       interpreter.getContext().setDynamicVariableResolver(s -> DeferredValue.instance());
       if (!tagNode.getChildren().isEmpty()) {
         result.append(

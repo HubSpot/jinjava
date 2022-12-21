@@ -112,15 +112,11 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
       .add(tagNode.getTag().getName())
       .add(variables[0])
       .add(tagNode.getSymbols().getExpressionEndWithTag());
-    String prefixToPreserveState = getPrefixToPreserveState(
-      eagerExecutionResult,
-      variables,
-      interpreter
-    );
 
-    interpreter
-      .getContext()
-      .handleDeferredToken(
+    String prefixToPreserveState =
+      getPrefixToPreserveState(eagerExecutionResult, variables, interpreter) +
+      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+        interpreter,
         new DeferredToken(
           new TagToken(
             joiner.toString(),

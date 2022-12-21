@@ -94,6 +94,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     // We know this has to start as false otherwise IfTag would have chosen
     // the first branch.
     boolean definitelyExecuted = false;
+    StringBuilder prefixToPreserveState = new StringBuilder();
     StringBuilder sb = new StringBuilder();
     sb.append(
       getEagerImage(
@@ -159,9 +160,9 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
           .filter(key -> !(interpreter.getContext().get(key) instanceof DeferredValue))
           .collect(Collectors.toSet());
       if (!bindingsToDefer.isEmpty()) {
-        interpreter
-          .getContext()
-          .handleDeferredToken(
+        prefixToPreserveState.append(
+          EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+            interpreter,
             new DeferredToken(
               new NoteToken(
                 "",
@@ -171,7 +172,8 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
               ),
               bindingsToDefer
             )
-          );
+          )
+        );
       }
       return sb.toString();
     }

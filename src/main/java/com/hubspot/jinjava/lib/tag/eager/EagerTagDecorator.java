@@ -213,14 +213,14 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       joiner.add(resolvedString);
     }
     joiner.add(tagToken.getSymbols().getExpressionEndWithTag());
-    String reconstructedFromContext = EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
-      eagerExpressionResult.getDeferredWords(),
-      interpreter
-    );
 
-    interpreter
-      .getContext()
-      .handleDeferredToken(
+    String prefixToPreserveState =
+      EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
+        eagerExpressionResult.getDeferredWords(),
+        interpreter
+      ) +
+      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+        interpreter,
         new DeferredToken(
           new TagToken(
             joiner.toString(),
@@ -239,6 +239,6 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         )
       );
 
-    return (reconstructedFromContext + joiner.toString());
+    return (prefixToPreserveState + joiner.toString());
   }
 }

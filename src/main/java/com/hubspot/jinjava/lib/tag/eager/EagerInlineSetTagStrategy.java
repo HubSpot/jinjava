@@ -83,15 +83,10 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
       .add("=")
       .add(deferredResult)
       .add(tagNode.getSymbols().getExpressionEndWithTag());
-    String prefixToPreserveState = getPrefixToPreserveState(
-      eagerExecutionResult,
-      variables,
-      interpreter
-    );
-
-    interpreter
-      .getContext()
-      .handleDeferredToken(
+    String prefixToPreserveState =
+      getPrefixToPreserveState(eagerExecutionResult, variables, interpreter) +
+      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+        interpreter,
         new DeferredToken(
           new TagToken(
             joiner.toString(),

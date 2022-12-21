@@ -97,9 +97,9 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
       .add(tagToken.getTagName())
       .add(eagerExecutionResult.getResult().toString().trim())
       .add(tagToken.getSymbols().getExpressionEndWithTag());
-    interpreter
-      .getContext()
-      .handleDeferredToken(
+    prefixToPreserveState.append(
+      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+        interpreter,
         new DeferredToken(
           new TagToken(
             joiner.toString(),
@@ -117,11 +117,6 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
             )
             .collect(Collectors.toSet())
         )
-      );
-    prefixToPreserveState.append(
-      EagerReconstructionUtils.reconstructDeferredReferences(
-        interpreter,
-        eagerExecutionResult
       )
     );
     // Possible set tag in front of this one.

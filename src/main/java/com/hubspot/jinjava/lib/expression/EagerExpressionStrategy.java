@@ -69,9 +69,9 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       eagerExecutionResult.getResult().toString(),
       interpreter
     );
-    interpreter
-      .getContext()
-      .handleDeferredToken(
+    prefixToPreserveState.append(
+      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+        interpreter,
         new DeferredToken(
           new ExpressionToken(
             helpers,
@@ -89,11 +89,6 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
             )
             .collect(Collectors.toSet())
         )
-      );
-    prefixToPreserveState.append(
-      EagerReconstructionUtils.reconstructDeferredReferences(
-        interpreter,
-        eagerExecutionResult
       )
     );
     // There is only a preserving prefix because it couldn't be entirely evaluated.

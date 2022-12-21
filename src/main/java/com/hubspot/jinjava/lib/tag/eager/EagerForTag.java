@@ -194,18 +194,20 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       .add("in")
       .add(eagerExpressionResult.toString())
       .add(tagToken.getSymbols().getExpressionEndWithTag());
+    StringBuilder prefixToPreserveState = new StringBuilder();
     String newlyDeferredFunctionImages = EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
       eagerExpressionResult.getDeferredWords(),
       interpreter
     );
+    prefixToPreserveState.append(newlyDeferredFunctionImages);
     EagerReconstructionUtils.removeMetaContextVariables(
       loopVars.stream(),
       interpreter.getContext()
     );
 
-    interpreter
-      .getContext()
-      .handleDeferredToken(
+    prefixToPreserveState.append(
+      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+        interpreter,
         new DeferredToken(
           new TagToken(
             joiner.toString(),
@@ -223,7 +225,8 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
             .collect(Collectors.toSet()),
           new HashSet<>(loopVars)
         )
-      );
-    return (newlyDeferredFunctionImages + joiner.toString());
+      )
+    );
+    return (prefixToPreserveState + joiner.toString());
   }
 }
