@@ -1004,7 +1004,7 @@ public class EagerTest {
   @Test
   public void itHandlesSameNameImportVar() {
     String template = expectedTemplateInterpreter.getFixtureTemplate(
-      "handles-import-with-macros-in-deferred-if"
+      "handles-same-name-import-var"
     );
     JinjavaInterpreter.getCurrent().render(template);
     // No longer allows importing a file that uses the same alias as a variable declared in the import file

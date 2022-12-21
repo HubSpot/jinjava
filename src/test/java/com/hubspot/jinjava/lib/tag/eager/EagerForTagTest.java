@@ -217,7 +217,6 @@ public class EagerForTagTest extends ForTagTest {
   }
 
   @Test
-  //  @Ignore // Not needed since append is disallowed in deferred execution mode
   public void itDoesNotSwallowDeferredValueException() {
     interpreter.getContext().registerTag(new EagerDoTag());
     interpreter.getContext().registerTag(new EagerIfTag());

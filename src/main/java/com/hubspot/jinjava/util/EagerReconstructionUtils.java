@@ -584,7 +584,7 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter,
     EagerExecutionResult eagerExecutionResult
   ) {
-    String extraStuff =
+    return (
       buildSetTag(
         interpreter
           .getContext()
@@ -637,7 +637,7 @@ public class EagerReconstructionUtils {
           ),
         interpreter,
         false
-      );
-    return extraStuff;
+      )
+    );
   }
 }
