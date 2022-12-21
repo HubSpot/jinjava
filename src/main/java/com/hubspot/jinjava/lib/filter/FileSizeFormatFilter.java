@@ -53,19 +53,19 @@ public class FileSizeFormatFilter implements Filter {
     }
 
     String[] sizes = binary ? BINARY_SIZES : DECIMAL_SIZES;
-    int unit = 1;
+    long unit = 1;
     String prefix = "";
 
     for (int i = 0; i < sizes.length; i++) {
-      unit = (int) Math.pow(base, i + 2);
+      unit = (long) Math.pow(base, i + 2);
       prefix = sizes[i];
 
       if (bytes < unit) {
-        return String.format("%.1f %s", (base * bytes / unit), prefix);
+        return String.format("%.1f %s", (double) (base * bytes / unit), prefix);
       }
     }
 
-    return String.format("%.1f %s", (base * bytes / unit), prefix);
+    return String.format("%.1f %s", (double) (base * bytes / unit), prefix);
   }
 
   private static final String[] BINARY_SIZES = {

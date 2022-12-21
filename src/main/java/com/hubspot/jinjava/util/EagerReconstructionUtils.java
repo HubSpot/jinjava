@@ -100,41 +100,9 @@ public class EagerReconstructionUtils {
     if (eagerChildContextConfig.checkForContextChanges) {
       Set<Entry<String, Object>> entrySet = interpreter.getContext().entrySet();
       initiallyResolvedHashes =
-        entrySet
-          .stream()
-          .filter(e -> !metaContextVariables.contains(e.getKey()))
-          .filter(
-            entry ->
-              !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
-          )
-          .collect(
-            Collectors.toMap(
-              Entry::getKey,
-              entry -> getObjectOrHashCode(entry.getValue())
-            )
-          );
-      initiallyResolvedAsStrings = new HashMap<>();
-      // This creates a stringified snapshot of the context
-      // so it can be disabled via the config because it may cause performance issues.
-      Stream<Entry<String, Object>> entryStream =
-        (
-          interpreter.getConfig().getExecutionMode().useEagerContextReverting()
-            ? interpreter.getContext().entrySet()
-            : interpreter.getContext().getCombinedScope().entrySet()
-        ).stream()
-          .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
-          .filter(
-            entry -> EagerExpressionResolver.isResolvableObject(entry.getValue(), 4, 400) // TODO make this configurable
-          );
-      entryStream.forEach(
-        entry ->
-          cacheRevertibleObject(
-            interpreter,
-            initiallyResolvedHashes,
-            initiallyResolvedAsStrings,
-            entry
-          )
-      );
+        getInitiallyResolvedHashes(entrySet, metaContextVariables);
+      initiallyResolvedAsStrings =
+        getInitiallyResolvedAsStrings(interpreter, entrySet, initiallyResolvedHashes);
     } else {
       initiallyResolvedHashes = Collections.emptyMap();
       initiallyResolvedAsStrings = Collections.emptyMap();
@@ -178,6 +146,51 @@ public class EagerReconstructionUtils {
     return new EagerExecutionResult(result, speculativeBindings);
   }
 
+  private static Map<String, String> getInitiallyResolvedAsStrings(
+    JinjavaInterpreter interpreter,
+    Set<Entry<String, Object>> entrySet,
+    Map<String, Object> initiallyResolvedHashes
+  ) {
+    Map<String, String> initiallyResolvedAsStrings = new HashMap<>();
+    // This creates a stringified snapshot of the context
+    // so it can be disabled via the config because it may cause performance issues.
+    Stream<Entry<String, Object>> entryStream =
+      (
+        interpreter.getConfig().getExecutionMode().useEagerContextReverting()
+          ? entrySet
+          : interpreter.getContext().getCombinedScope().entrySet()
+      ).stream()
+        .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
+        .filter(
+          entry -> EagerExpressionResolver.isResolvableObject(entry.getValue(), 4, 400) // TODO make this configurable
+        );
+    entryStream.forEach(
+      entry ->
+        cacheRevertibleObject(
+          interpreter,
+          initiallyResolvedHashes,
+          initiallyResolvedAsStrings,
+          entry
+        )
+    );
+    return initiallyResolvedAsStrings;
+  }
+
+  private static Map<String, Object> getInitiallyResolvedHashes(
+    Set<Entry<String, Object>> entrySet,
+    Set<String> metaContextVariables
+  ) {
+    return entrySet
+      .stream()
+      .filter(entry -> !metaContextVariables.contains(entry.getKey()))
+      .filter(
+        entry -> !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
+      )
+      .collect(
+        Collectors.toMap(Entry::getKey, entry -> getObjectOrHashCode(entry.getValue()))
+      );
+  }
+
   private static Map<String, Object> getBasicSpeculativeBindings(
     JinjavaInterpreter interpreter,
     EagerChildContextConfig eagerChildContextConfig,
@@ -191,11 +204,13 @@ public class EagerReconstructionUtils {
         .entrySet()
         .stream()
         .filter(
-          e ->
-            e.getValue() instanceof DeferredLazyReferenceSource &&
-            !(((DeferredLazyReferenceSource) e.getValue()).isReconstructed())
+          entry ->
+            entry.getValue() instanceof DeferredLazyReferenceSource &&
+            !(((DeferredLazyReferenceSource) entry.getValue()).isReconstructed())
         )
-        .peek(e -> ((DeferredLazyReferenceSource) e.getValue()).setReconstructed(true))
+        .peek(
+          entry -> ((DeferredLazyReferenceSource) entry.getValue()).setReconstructed(true)
+        )
         .collect(
           Collectors.toMap(
             Entry::getKey,
@@ -279,23 +294,23 @@ public class EagerReconstructionUtils {
         .getContext()
         .entrySet()
         .stream()
-        .filter(e -> initiallyResolvedHashes.containsKey(e.getKey()))
+        .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
         .filter(
-          e ->
+          entry ->
             !initiallyResolvedHashes
-              .get(e.getKey())
-              .equals(getObjectOrHashCode(e.getValue()))
+              .get(entry.getKey())
+              .equals(getObjectOrHashCode(entry.getValue()))
         )
         .collect(
           Collectors.toMap(
             Entry::getKey,
-            e ->
+            entry ->
               getOriginalValue(
                 interpreter,
                 eagerChildContextConfig,
                 initiallyResolvedHashes,
                 initiallyResolvedAsStrings,
-                e
+                entry
               )
           )
         )
