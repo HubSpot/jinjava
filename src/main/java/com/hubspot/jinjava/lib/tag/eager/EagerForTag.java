@@ -9,11 +9,11 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.ForTag;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
-import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.HashSet;
@@ -35,7 +35,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
   @Override
   public String innerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     Set<DeferredToken> addedTokens = new HashSet<>();
-    EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
+    EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
       eagerInterpreter -> {
         EagerExpressionResult expressionResult = EagerExpressionResult.fromSupplier(
           () -> getTag().interpretUnchecked(tagNode, eagerInterpreter),
@@ -45,7 +45,10 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         return expressionResult;
       },
       interpreter,
-      EagerChildContextConfig.newBuilder().withCheckForContextChanges(true).build()
+      EagerContextWatcher
+        .EagerChildContextConfig.newBuilder()
+        .withCheckForContextChanges(!interpreter.getContext().isDeferredExecutionMode())
+        .build()
     );
     if (
       result.getResult().getResolutionState() == ResolutionState.NONE ||
@@ -80,7 +83,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
   ) {
     if (
       e instanceof DeferredValueException &&
-      e.getMessage().startsWith(EagerReconstructionUtils.CANNOT_RECONSTRUCT_MESSAGE)
+      e.getMessage().startsWith(EagerContextWatcher.CANNOT_RECONSTRUCT_MESSAGE)
     ) {
       throw e;
     }
@@ -100,7 +103,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       // separate getEagerImage from renderChildren because the token gets evaluated once
       // while the children are evaluated 0...n times.
       result.append(
-        EagerReconstructionUtils
+        EagerContextWatcher
           .executeInChildContext(
             eagerInterpreter ->
               EagerExpressionResult.fromString(
@@ -115,7 +118,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
                 )
               ),
             interpreter,
-            EagerChildContextConfig.newBuilder().build()
+            EagerContextWatcher.EagerChildContextConfig.newBuilder().build()
           )
           .asTemplateString()
       );
@@ -150,7 +153,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     TagNode tagNode,
     JinjavaInterpreter interpreter
   ) {
-    return EagerReconstructionUtils.executeInChildContext(
+    return EagerContextWatcher.executeInChildContext(
       eagerInterpreter -> {
         if (!(eagerInterpreter.getContext().get("loop") instanceof DeferredValue)) {
           eagerInterpreter.getContext().put("loop", DeferredValue.instance());
@@ -160,7 +163,10 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         );
       },
       interpreter,
-      EagerChildContextConfig.newBuilder().withForceDeferredExecutionMode(true).build()
+      EagerContextWatcher
+        .EagerChildContextConfig.newBuilder()
+        .withForceDeferredExecutionMode(true)
+        .build()
     );
   }
 

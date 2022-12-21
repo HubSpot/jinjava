@@ -10,9 +10,9 @@ import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
+import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
-import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.Logging;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -34,12 +34,12 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     JinjavaInterpreter interpreter
   ) {
     interpreter.getContext().checkNumberOfDeferredTokens();
-    EagerExecutionResult eagerExecutionResult = EagerReconstructionUtils.executeInChildContext(
+    EagerExecutionResult eagerExecutionResult = EagerContextWatcher.executeInChildContext(
       eagerInterpreter ->
         EagerExpressionResolver.resolveExpression(master.getExpr(), interpreter),
       interpreter,
-      EagerChildContextConfig
-        .newBuilder()
+      EagerContextWatcher
+        .EagerChildContextConfig.newBuilder()
         .withTakeNewValue(true)
         .withPartialMacroEvaluation(
           interpreter.getConfig().isNestedInterpretationEnabled()

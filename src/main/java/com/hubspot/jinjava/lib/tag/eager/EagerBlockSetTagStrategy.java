@@ -7,10 +7,10 @@ import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
-import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.Collections;
 import java.util.Optional;
@@ -31,7 +31,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
     String expression,
     JinjavaInterpreter interpreter
   ) {
-    EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
+    EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
       eagerInterpreter ->
         EagerExpressionResult.fromSupplier(
           () -> {
@@ -44,7 +44,10 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
           eagerInterpreter
         ),
       interpreter,
-      EagerChildContextConfig.newBuilder().withTakeNewValue(true).build()
+      EagerContextWatcher
+        .EagerChildContextConfig.newBuilder()
+        .withTakeNewValue(true)
+        .build()
     );
     if (result.getResult().getResolutionState() == ResolutionState.NONE) {
       throw new DeferredValueException(result.getResult().toString());
