@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.util;
 
+import com.hubspot.jinjava.interpret.CannotReconstructValueException;
 import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -23,7 +24,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class EagerContextWatcher {
-  public static final String CANNOT_RECONSTRUCT_MESSAGE = "Cannot reconstruct value";
 
   /**
    * Execute the specified functions within a protected context.
@@ -204,9 +204,7 @@ public class EagerContextWatcher {
                 ((DeferredValue) contextValue).getOriginalValue()
               )
             ) {
-              throw new DeferredValueException(
-                String.format("%s: %s", CANNOT_RECONSTRUCT_MESSAGE, entry.getKey())
-              );
+              throw new CannotReconstructValueException(entry.getKey());
             }
             return new AbstractMap.SimpleImmutableEntry<>(
               entry.getKey(),
@@ -358,9 +356,7 @@ public class EagerContextWatcher {
     }
 
     // Previous value could not be mapped to a string
-    throw new DeferredValueException(
-      String.format("%s: %s", CANNOT_RECONSTRUCT_MESSAGE, e.getKey())
-    );
+    throw new CannotReconstructValueException(e.getKey());
   }
 
   private static Object getObjectOrHashCode(Object o) {

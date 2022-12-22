@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.hubspot.jinjava.interpret.CannotReconstructValueException;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -81,10 +82,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     JinjavaInterpreter interpreter,
     InterpretException e
   ) {
-    if (
-      e instanceof DeferredValueException &&
-      e.getMessage().startsWith(EagerContextWatcher.CANNOT_RECONSTRUCT_MESSAGE)
-    ) {
+    if (e instanceof CannotReconstructValueException) {
       throw e;
     }
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
