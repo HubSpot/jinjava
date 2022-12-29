@@ -249,11 +249,13 @@ public class EagerContextWatcher {
         )
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     speculativeBindings.putAll(
-      interpreter
-        .getContext()
-        .entrySet()
+      initiallyResolvedHashes
+        .keySet()
         .stream()
-        .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
+        .map(
+          key ->
+            new AbstractMap.SimpleImmutableEntry<>(key, interpreter.getContext().get(key))
+        )
         .filter(
           entry ->
             !initiallyResolvedHashes
