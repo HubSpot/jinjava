@@ -58,7 +58,7 @@ public class DictSortFilter implements Filter {
 
     boolean sortByKey = true;
     if (args.length > 1) {
-      sortByKey = "value".equalsIgnoreCase(args[1]);
+      sortByKey = !"value".equalsIgnoreCase(args[1]);
     }
 
     @SuppressWarnings("unchecked")
