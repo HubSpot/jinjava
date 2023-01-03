@@ -167,7 +167,9 @@ public class EagerReconstructionUtils {
       if (newValue == null) {
         continue;
       }
-      if (entry.getValue().equals(getObjectOrHashCode(newValue))) {
+      if (
+        entry.getValue() != null && entry.getValue().equals(getObjectOrHashCode(newValue))
+      ) {
         continue;
       }
       // New value different, changes.
