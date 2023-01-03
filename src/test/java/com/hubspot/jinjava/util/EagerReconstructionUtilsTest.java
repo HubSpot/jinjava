@@ -2,7 +2,11 @@ package com.hubspot.jinjava.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.anyMap;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -11,6 +15,7 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.LazyExpression;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
@@ -386,6 +391,22 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
     assertThat(withSessionBindings.getSpeculativeBindings())
       .containsEntry("foo", "foobar");
     assertThat(withoutSessionBindings.getSpeculativeBindings()).doesNotContainKey("foo");
+  }
+
+  @Test
+  public void itDoesNotBreakOnNullLazyExpressions() {
+    interpreter.getContext().put("foo", LazyExpression.of(() -> null, ""));
+    EagerReconstructionUtils.executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResult.fromString(interpreter.render("{% set foo = 'bar' %}")),
+      interpreter,
+      EagerChildContextConfig
+        .newBuilder()
+        .withDiscardSessionBindings(false)
+        .withCheckForContextChanges(true)
+        .withTakeNewValue(true)
+        .build()
+    );
   }
 
   private static MacroFunction getMockMacroFunction(String image) {
