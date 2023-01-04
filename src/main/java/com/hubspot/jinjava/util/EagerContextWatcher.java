@@ -141,15 +141,17 @@ public class EagerContextWatcher {
     Set<Entry<String, Object>> entrySet,
     Set<String> metaContextVariables
   ) {
-    return entrySet
+    Map<String, Object> mapOfHashes = new HashMap<>();
+    entrySet
       .stream()
       .filter(entry -> !metaContextVariables.contains(entry.getKey()))
       .filter(
         entry -> !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
       )
-      .collect(
-        Collectors.toMap(Entry::getKey, entry -> getObjectOrHashCode(entry.getValue()))
-      );
+      .forEach(
+        entry -> mapOfHashes.put(entry.getKey(), getObjectOrHashCode(entry.getValue()))
+      ); // Avoid NPE when getObjectOrHashCode(entry.getValue()) is null)
+    return mapOfHashes;
   }
 
   private static Map<String, Object> getBasicSpeculativeBindings(
@@ -258,9 +260,10 @@ public class EagerContextWatcher {
         )
         .filter(
           entry ->
-            !initiallyResolvedHashes
-              .get(entry.getKey())
-              .equals(getObjectOrHashCode(entry.getValue()))
+            !Objects.equals(
+              initiallyResolvedHashes.get(entry.getKey()),
+              getObjectOrHashCode(entry.getValue())
+            )
         )
         .collect(
           Collectors.toMap(
