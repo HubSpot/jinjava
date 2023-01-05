@@ -33,7 +33,7 @@ import java.util.Map;
     ),
     @JinjavaParam(value = "unit", desc = "Which temporal unit to use", required = true)
   },
-  snippets = { @JinjavaSnippet(code = "{% begin|between_times(end, 'hours') %}") }
+  snippets = { @JinjavaSnippet(code = "{{ begin|between_times(end, 'hours') }}") }
 )
 public class BetweenTimesFilter extends BaseDateFilter {
 

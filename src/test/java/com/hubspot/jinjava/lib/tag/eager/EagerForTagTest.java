@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 
 import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.ExpectedNodeInterpreter;
@@ -9,7 +8,6 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.lib.tag.ForTagTest;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -229,7 +227,7 @@ public class EagerForTagTest extends ForTagTest {
       "{% for i in range(401) %}" +
       "{{ my_list.append(i) }}" +
       "{% endfor %}" +
-      "{% for i in [0, 1] %}" +
+      "{% for i in my_list.append(1) ? [0, 1] : [0] %}" +
       "{% for j in deferred %}" +
       "{% if loop.first %}" +
       "{% do my_list.append(1) %}" +

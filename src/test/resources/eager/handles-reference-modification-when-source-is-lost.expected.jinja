@@ -1,0 +1,14 @@
+{% set a_list = ['a'] %}{% for i in [0] %}{% set b_list = a_list %}{% do b_list.append(deferred) %}
+{% endfor %}
+{{ a_list }}
+---
+{% for __ignored__ in [0] %}
+
+{% set a_list = [] %}{% for i in [0] %}
+{% if deferred %}
+{% set b_list = a_list %}
+{% do b_list.append(1) %}
+{% endif %}
+{% endfor %}
+{{ a_list }}
+{% endfor %}

@@ -2,7 +2,11 @@ package com.hubspot.jinjava.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.anyMap;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -11,6 +15,8 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
+import com.hubspot.jinjava.interpret.LazyExpression;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
@@ -24,7 +30,6 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
-import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -66,7 +71,7 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
   @Test
   public void itExecutesInChildContextAndTakesNewValue() {
     context.put("foo", new PyList(new ArrayList<>()));
-    EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
+    EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
       (
         interpreter1 -> {
           ((List<Integer>) interpreter1.getContext().get("foo")).add(1);
@@ -74,8 +79,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         }
       ),
       interpreter,
-      EagerChildContextConfig
-        .newBuilder()
+      EagerContextWatcher
+        .EagerChildContextConfig.newBuilder()
         .withTakeNewValue(true)
         .withForceDeferredExecutionMode(true)
         .withCheckForContextChanges(true)
@@ -93,7 +98,7 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
   @Test
   public void itExecutesInChildContextAndDefersNewValue() {
     context.put("foo", new ArrayList<Integer>());
-    EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
+    EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
       (
         interpreter1 -> {
           context.put(
@@ -104,8 +109,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         }
       ),
       interpreter,
-      EagerChildContextConfig
-        .newBuilder()
+      EagerContextWatcher
+        .EagerChildContextConfig.newBuilder()
         .withForceDeferredExecutionMode(true)
         .withCheckForContextChanges(true)
         .build()
@@ -163,12 +168,14 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
     Set<String> deferredWords = new HashSet<>();
     deferredWords.add("foo.append");
     context.put("foo", new PyList(new ArrayList<>()));
-    context.setDeferredExecutionMode(true);
-    String result = EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
-      deferredWords,
-      interpreter
-    );
-    assertThat(result).isEqualTo("");
+    try (InterpreterScopeClosable c = interpreter.enterScope()) {
+      interpreter.getContext().setDeferredExecutionMode(true);
+      String result = EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
+        deferredWords,
+        interpreter
+      );
+      assertThat(result).isEqualTo("");
+    }
   }
 
   @Test
@@ -367,25 +374,49 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
   @Test
   public void itDiscardsSessionBindings() {
     interpreter.getContext().put("foo", "bar");
-    EagerExecutionResult withSessionBindings = EagerReconstructionUtils.executeInChildContext(
+    EagerExecutionResult withSessionBindings = EagerContextWatcher.executeInChildContext(
       eagerInterpreter -> {
         interpreter.getContext().put("foo", "foobar");
         return EagerExpressionResult.fromString("");
       },
       interpreter,
-      EagerChildContextConfig.newBuilder().withDiscardSessionBindings(false).build()
+      EagerContextWatcher
+        .EagerChildContextConfig.newBuilder()
+        .withDiscardSessionBindings(false)
+        .withCheckForContextChanges(true)
+        .build()
     );
-    EagerExecutionResult withoutSessionBindings = EagerReconstructionUtils.executeInChildContext(
+    EagerExecutionResult withoutSessionBindings = EagerContextWatcher.executeInChildContext(
       eagerInterpreter -> {
         interpreter.getContext().put("foo", "foobar");
         return EagerExpressionResult.fromString("");
       },
       interpreter,
-      EagerChildContextConfig.newBuilder().withDiscardSessionBindings(true).build()
+      EagerContextWatcher
+        .EagerChildContextConfig.newBuilder()
+        .withDiscardSessionBindings(true)
+        .withCheckForContextChanges(true)
+        .build()
     );
     assertThat(withSessionBindings.getSpeculativeBindings())
       .containsEntry("foo", "foobar");
     assertThat(withoutSessionBindings.getSpeculativeBindings()).doesNotContainKey("foo");
+  }
+
+  @Test
+  public void itDoesNotBreakOnNullLazyExpressions() {
+    interpreter.getContext().put("foo", LazyExpression.of(() -> null, ""));
+    EagerContextWatcher.executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResult.fromString(interpreter.render("{% set foo = 'bar' %}")),
+      interpreter,
+      EagerContextWatcher
+        .EagerChildContextConfig.newBuilder()
+        .withDiscardSessionBindings(false)
+        .withCheckForContextChanges(true)
+        .withTakeNewValue(true)
+        .build()
+    );
   }
 
   private static MacroFunction getMockMacroFunction(String image) {

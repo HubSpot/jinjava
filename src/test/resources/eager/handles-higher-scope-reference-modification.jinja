@@ -7,11 +7,11 @@ C: {{ c_list }}.
 {%- macro b(b_list) %}
 {%- do b_list.append(deferred ? 'b' : '') %}
 {{ c(b_list) }}
-{%- do b_list.append(deferred ? 'b' : '') %}
+{%- do b_list.append(deferred ? 'B' : '') %}
 B: {{ b_list }}.
 {%- endmacro %}
 {{ b(a_list) }}
-{%- do a_list.append(deferred ? 'a' : '') %}
+{%- do a_list.append(deferred ? 'A' : '') %}
 A: {{ a_list }}.
 ---
 {% set a_list = [] %}
@@ -24,8 +24,8 @@ A: {{ a_list }}.
 {%- do c_list.append(deferred ? 'c' : '') %}
 C: {{ c_list }}.
 {%- endfor %}
-{%- do b_list.append(deferred ? 'b' : '') %}
+{%- do b_list.append(deferred ? 'B' : '') %}
 B: {{ b_list }}.
 {%- endfor %}
-{%- do a_list.append(deferred ? 'a' : '') %}
+{%- do a_list.append(deferred ? 'A' : '') %}
 A: {{ a_list }}.

@@ -13,6 +13,7 @@ public class DeferredValueImpl implements DeferredValue {
     this.originalValue = originalValue;
   }
 
+  @Override
   public Object getOriginalValue() {
     return originalValue;
   }

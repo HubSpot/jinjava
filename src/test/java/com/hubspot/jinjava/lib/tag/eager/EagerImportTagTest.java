@@ -462,11 +462,11 @@ public class EagerImportTagTest extends ImportTagTest {
     );
     assertThat(result)
       .isEqualTo(
-        "{% if deferred %}{% set __ignored__ %}{% set current_path = 'import-tree-b.jinja' %}{% set a,foo_b = {'foo_a': 'a', 'import_resource_path': 'import-tree-a.jinja', 'something': 'somn'} ,null %}{% set b = {} %}{% set __ignored__ %}{% set current_path = 'import-tree-a.jinja' %}{% set a = {} %}{% set something = 'somn' %}{% do a.update({'something': something}) %}\n" +
+        "{% if deferred %}{% set __ignored__ %}{% set current_path = 'import-tree-b.jinja' %}{% set a,foo_b = {'foo_a': 'a', 'import_resource_path': 'import-tree-a.jinja', 'something': 'somn'} ,null %}{% set b = {} %}{% for __ignored__ in [0] %}{% set __ignored__ %}{% set current_path = 'import-tree-a.jinja' %}{% set a = {} %}{% for __ignored__ in [0] %}{% set something = 'somn' %}{% do a.update({'something': something}) %}\n" +
         "{% set foo_a = 'a' %}{% do a.update({'foo_a': foo_a}) %}\n" +
-        "{% do a.update({'foo_a': 'a','import_resource_path': 'import-tree-a.jinja','something': 'somn'}) %}{% set current_path = 'import-tree-b.jinja' %}{% endset %}\n" +
+        "{% do a.update({'foo_a': 'a','import_resource_path': 'import-tree-a.jinja','something': 'somn'}) %}{% endfor %}{% set current_path = 'import-tree-b.jinja' %}{% endset %}\n" +
         "{% set foo_b = 'b' + a.foo_a %}{% do b.update({'foo_b': foo_b}) %}\n" +
-        "{% do b.update({'a': a,'foo_b': foo_b,'import_resource_path': 'import-tree-b.jinja'}) %}{% set current_path = '' %}{% endset %}{% endif %}"
+        "{% do b.update({'a': a,'foo_b': foo_b,'import_resource_path': 'import-tree-b.jinja'}) %}{% endfor %}{% set current_path = '' %}{% endset %}{% endif %}"
       );
 
     removeDeferredContextKeys();
@@ -673,6 +673,75 @@ public class EagerImportTagTest extends ImportTagTest {
       "{{ macros.doer() }}"
     );
     assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
+  }
+
+  @Test
+  public void itDoesNotSilentlyOverrideMacroWithoutAlias() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% import 'macro-a.jinja' %}\n" +
+      "{{ doer() }}\n" +
+      "{% if deferred %}\n" +
+      "  {% import 'macro-b.jinja' %}\n" +
+      "{% endif %}\n" +
+      "{{ doer() }}"
+    );
+    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
+  }
+
+  @Test
+  public void itDoesNotSilentlyOverrideVariable() {
+    setupResourceLocator();
+    String result = interpreter
+      .render(
+        "{% import 'var-a.jinja' as vars %}" +
+        "{{ vars.foo }}" +
+        "{% if deferred %}" +
+        "  {%- import 'var-b.jinja' as vars %}" +
+        "{% endif %}" +
+        "{{ vars.foo }}"
+      )
+      .trim();
+    assertThat(interpreter.getContext().getDeferredNodes()).isEmpty();
+    assertThat(result)
+      .isEqualTo(
+        "a" +
+        "{% set vars = {'foo': 'a', 'import_resource_path': 'var-a.jinja'}  %}{% if deferred %}" +
+        "{% set __ignored__ %}{% set current_path = 'var-b.jinja' %}{% set vars = {} %}{% for __ignored__ in [0] %}{% set foo = 'b' %}{% do vars.update({'foo': foo}) %}\n" +
+        "{% do vars.update({'foo': 'b','import_resource_path': 'var-b.jinja'}) %}{% endfor %}{% set current_path = '' %}{% endset %}" +
+        "{% endif %}" +
+        "{{ vars.foo }}"
+      );
+    interpreter.getContext().put("deferred", "resolved");
+    assertThat(interpreter.render(result)).isEqualTo("ab");
+  }
+
+  @Test
+  public void itDoesNotSilentlyOverrideVariableWithoutAlias() {
+    setupResourceLocator();
+    String result = interpreter
+      .render(
+        "{% import 'var-a.jinja' %}" +
+        "{{ foo }}" +
+        "{% if deferred %}" +
+        "  {%- import 'var-b.jinja' %}" +
+        "{% endif %}" +
+        "{{ foo }}"
+      )
+      .trim();
+    assertThat(interpreter.getContext().getDeferredNodes()).isEmpty();
+    assertThat(result)
+      .isEqualTo(
+        "a" +
+        "{% set foo = 'a' %}{% if deferred %}" +
+        "{% set __ignored__ %}{% set current_path = 'var-b.jinja' %}{% set foo = 'b' %}\n" +
+        "{% set current_path = '' %}{% endset %}" +
+        "{% endif %}" +
+        "{{ foo }}"
+      );
+
+    interpreter.getContext().put("deferred", "resolved");
+    assertThat(interpreter.render(result)).isEqualTo("ab");
   }
 
   private static JinjavaInterpreter getChildInterpreter(

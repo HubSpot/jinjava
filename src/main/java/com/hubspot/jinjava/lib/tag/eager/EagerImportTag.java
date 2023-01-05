@@ -55,16 +55,18 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       if (currentImportAlias.isEmpty()) {
         throw e;
       }
-      interpreter
-        .getContext()
-        .handleDeferredToken(
+      return (
+        initialPathSetter +
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
           new DeferredToken(
             tagToken,
             Collections.singleton(helper.get(0)),
             Collections.singleton(currentImportAlias)
           )
-        );
-      return (initialPathSetter + tagToken.getImage());
+        ) +
+        tagToken.getImage()
+      );
     }
     if (!maybeTemplateFile.isPresent()) {
       return "";
@@ -92,7 +94,13 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
 
       // If the template depends on deferred values it should not be rendered,
       // and all defined variables and macros should be deferred too.
-      if (!child.getContext().getDeferredNodes().isEmpty()) {
+      if (
+        !child.getContext().getDeferredNodes().isEmpty() ||
+        (
+          interpreter.getContext().isDeferredExecutionMode() &&
+          !child.getContext().getGlobalMacros().isEmpty()
+        )
+      ) {
         ImportTag.handleDeferredNodesDuringImport(
           node,
           currentImportAlias,
@@ -113,32 +121,24 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       } else if (!Strings.isNullOrEmpty(currentImportAlias)) {
         // Since some values got deferred, output a DoTag that will load the currentImportAlias on the context.
         finalOutput =
-          (
-            newPathSetter +
-            getSetTagForDeferredChildBindings(
-              interpreter,
-              currentImportAlias,
-              childBindings
-            ) +
-            EagerReconstructionUtils.buildSetTag(
-              ImmutableMap.of(currentImportAlias, "{}"),
-              interpreter,
-              true
-            ) +
-            output +
-            getDoTagToPreserve(interpreter, currentImportAlias) +
-            initialPathSetter
+          getFinalOutputWithAlias(
+            interpreter,
+            currentImportAlias,
+            initialPathSetter,
+            newPathSetter,
+            output,
+            childBindings
           );
       } else {
         finalOutput =
-          newPathSetter +
-          getSetTagForDeferredChildBindings(
+          getFinalOutputWithoutAlias(
             interpreter,
             currentImportAlias,
+            initialPathSetter,
+            newPathSetter,
+            output,
             childBindings
-          ) +
-          output +
-          initialPathSetter;
+          );
       }
       return EagerReconstructionUtils.buildBlockSetTag(
         SetTag.IGNORED_VARIABLE_NAME,
@@ -159,18 +159,83 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     }
   }
 
+  private String getFinalOutputWithoutAlias(
+    JinjavaInterpreter interpreter,
+    String currentImportAlias,
+    String initialPathSetter,
+    String newPathSetter,
+    String output,
+    Map<String, Object> childBindings
+  ) {
+    return (
+      newPathSetter +
+      getSetTagForDeferredChildBindings(interpreter, currentImportAlias, childBindings) +
+      output +
+      initialPathSetter
+    );
+  }
+
+  private String getFinalOutputWithAlias(
+    JinjavaInterpreter interpreter,
+    String currentImportAlias,
+    String initialPathSetter,
+    String newPathSetter,
+    String output,
+    Map<String, Object> childBindings
+  ) {
+    return (
+      newPathSetter +
+      getSetTagForDeferredChildBindings(interpreter, currentImportAlias, childBindings) +
+      EagerReconstructionUtils.buildSetTag(
+        ImmutableMap.of(currentImportAlias, "{}"),
+        interpreter,
+        true
+      ) +
+      wrapInChildScopeIfNecessary(interpreter, output, currentImportAlias) +
+      initialPathSetter
+    );
+  }
+
+  private static String wrapInChildScopeIfNecessary(
+    JinjavaInterpreter interpreter,
+    String output,
+    String currentImportAlias
+  ) {
+    String combined = output + getDoTagToPreserve(interpreter, currentImportAlias);
+    // So that any set variables other than the alias won't exist outside the child's scope
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      return EagerReconstructionUtils.wrapInChildScope(combined, interpreter);
+    }
+    return combined;
+  }
+
   private String getSetTagForDeferredChildBindings(
     JinjavaInterpreter interpreter,
     String currentImportAlias,
     Map<String, Object> childBindings
   ) {
+    if (Strings.isNullOrEmpty(currentImportAlias)) {
+      // defer imported variables
+      EagerReconstructionUtils.buildSetTag(
+        childBindings
+          .entrySet()
+          .stream()
+          .filter(
+            entry ->
+              !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
+          )
+          .collect(Collectors.toMap(Entry::getKey, entry -> "")),
+        interpreter,
+        true
+      );
+    }
     return EagerReconstructionUtils.buildSetTag(
       childBindings
         .entrySet()
         .stream()
+        .filter(entry -> entry.getValue() instanceof DeferredValue)
         .filter(entry -> !interpreter.getContext().containsKey(entry.getKey()))
         .filter(entry -> !entry.getKey().equals(currentImportAlias))
-        .filter(entry -> entry.getValue() instanceof DeferredValue)
         .collect(
           Collectors.toMap(
             Entry::getKey,
@@ -299,7 +364,12 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         throw new InterpretException("Encountered a problem with import alias maps");
       }
     }
-    currentMap.put(allAliases[allAliases.length - 1], new PyMap(new HashMap<>()));
+    currentMap.put(
+      allAliases[allAliases.length - 1],
+      child.getContext().isDeferredExecutionMode()
+        ? DeferredValue.instance(new PyMap(new HashMap<>()))
+        : new PyMap(new HashMap<>())
+    );
   }
 
   @SuppressWarnings("unchecked")
@@ -328,7 +398,15 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       return newMap;
     } else {
       Map<String, Object> newMap = new PyMap(new HashMap<>());
-      child.getContext().getParent().put(currentImportAlias, newMap);
+      child
+        .getContext()
+        .getParent()
+        .put(
+          currentImportAlias,
+          child.getContext().isDeferredExecutionMode()
+            ? DeferredValue.instance(newMap)
+            : newMap
+        );
       return newMap;
     }
   }
@@ -341,16 +419,48 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     JinjavaInterpreter parent
   ) {
     childBindings.remove(SetTag.IGNORED_VARIABLE_NAME);
+    for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
+      if (parent.getContext().isDeferredExecutionMode()) {
+        macro.setDeferred(true);
+      }
+    }
     if (StringUtils.isBlank(currentImportAlias)) {
       for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
         parent.getContext().addGlobalMacro(macro);
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
       childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
-      parent
-        .getContext()
-        .putAll(ImportTag.getChildBindingsWithoutImportResourcePath(childBindings));
+      Map<String, Object> childBindingsWithoutImportResourcePath = ImportTag.getChildBindingsWithoutImportResourcePath(
+        childBindings
+      );
+      if (parent.getContext().isDeferredExecutionMode()) {
+        childBindingsWithoutImportResourcePath
+          .keySet()
+          .forEach(
+            key ->
+              parent
+                .getContext()
+                .put(key, DeferredValue.instance(parent.getContext().get(key)))
+          );
+      } else {
+        parent.getContext().putAll(childBindingsWithoutImportResourcePath);
+      }
     } else {
+      if (
+        child.getContext().isDeferredExecutionMode() &&
+        child
+          .getContext()
+          .getDeferredTokens()
+          .stream()
+          .flatMap(deferredToken -> deferredToken.getSetDeferredWords().stream())
+          .collect(Collectors.toSet())
+          .contains(currentImportAlias)
+      ) {
+        // since a child scope will be used, the import alias would not be properly reconstructed
+        throw new DeferredValueException(
+          "Same-named variable as import alias: " + currentImportAlias
+        );
+      }
       childBindings.putAll(child.getContext().getGlobalMacros());
       Map<String, Object> mapForCurrentContextAlias = getMapForCurrentContextAlias(
         currentImportAlias,

@@ -23,7 +23,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 @JinjavaDoc(
   value = "Convert a value to lowercase",
   input = @JinjavaParam(value = "s", desc = "String to make lowercase", required = true),
-  snippets = { @JinjavaSnippet(code = "{{ \"Text to MAKE Lowercase\"|lowercase }}") }
+  snippets = { @JinjavaSnippet(code = "{{ \"Text to MAKE Lowercase\"|lower }}") }
 )
 public class LowerFilter implements Filter {
 

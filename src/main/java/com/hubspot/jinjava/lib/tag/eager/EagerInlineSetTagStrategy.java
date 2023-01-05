@@ -9,9 +9,9 @@ import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
-import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.Arrays;
@@ -34,14 +34,13 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
     String expression,
     JinjavaInterpreter interpreter
   ) {
-    EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
+    EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
       eagerInterpreter ->
         EagerExpressionResolver.resolveExpression('[' + expression + ']', interpreter),
       interpreter,
-      EagerChildContextConfig
-        .newBuilder()
+      EagerContextWatcher
+        .EagerChildContextConfig.newBuilder()
         .withTakeNewValue(true)
-        .withCheckForContextChanges(interpreter.getContext().isDeferredExecutionMode())
         .build()
     );
     try {
@@ -128,15 +127,10 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
       .add("=")
       .add(deferredResult)
       .add(tagNode.getSymbols().getExpressionEndWithTag());
-    String prefixToPreserveState = getPrefixToPreserveState(
-      eagerExecutionResult,
-      variables,
-      interpreter
-    );
-
-    interpreter
-      .getContext()
-      .handleDeferredToken(
+    String prefixToPreserveState =
+      getPrefixToPreserveState(eagerExecutionResult, variables, interpreter) +
+      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+        interpreter,
         new DeferredToken(
           new TagToken(
             joiner.toString(),

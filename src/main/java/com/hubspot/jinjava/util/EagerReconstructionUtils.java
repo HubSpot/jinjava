@@ -5,13 +5,10 @@ import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.DeferredLazyReference;
+import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredValue;
-import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
-import com.hubspot.jinjava.interpret.LazyExpression;
-import com.hubspot.jinjava.interpret.RevertibleObject;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.AutoEscapeTag;
@@ -22,12 +19,11 @@ import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
-import com.hubspot.jinjava.objects.collections.PyList;
-import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishBlockSetSerializable;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.EagerContextWatcher.EagerChildContextConfig;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import java.util.AbstractMap;
 import java.util.Collections;
@@ -45,6 +41,7 @@ import java.util.stream.Stream;
 public class EagerReconstructionUtils {
 
   /**
+   * @deprecated Use {@link EagerContextWatcher#executeInChildContext(Function, JinjavaInterpreter, EagerChildContextConfig)}
    * Execute the specified functions within a protected context.
    * Additionally, if the execution causes existing values on the context to become
    *   deferred, then their previous values will wrapped in a <code>set</code>
@@ -67,6 +64,7 @@ public class EagerReconstructionUtils {
    *  <code>prefixToPreserveState</code> is either blank or a <code>set</code> tag
    *    that preserves the state within the output for a second rendering pass.
    */
+  @Deprecated
   public static EagerExecutionResult executeInChildContext(
     Function<JinjavaInterpreter, EagerExpressionResult> function,
     JinjavaInterpreter interpreter,
@@ -80,7 +78,6 @@ public class EagerReconstructionUtils {
       EagerChildContextConfig
         .newBuilder()
         .withTakeNewValue(takeNewValue)
-        .withCheckForContextChanges(checkForContextChanges)
         .withForceDeferredExecutionMode(checkForContextChanges)
         .withPartialMacroEvaluation(partialMacroEvaluation)
         .build()
@@ -92,255 +89,11 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter,
     EagerChildContextConfig eagerChildContextConfig
   ) {
-    EagerExpressionResult result;
-    Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
-    final Map<String, Object> initiallyResolvedHashes;
-    final Map<String, String> initiallyResolvedAsStrings;
-    if (eagerChildContextConfig.checkForContextChanges) {
-      Set<Entry<String, Object>> entrySet = interpreter.getContext().entrySet();
-      initiallyResolvedHashes =
-        getInitiallyResolvedHashes(entrySet, metaContextVariables);
-      initiallyResolvedAsStrings =
-        getInitiallyResolvedAsStrings(interpreter, entrySet, initiallyResolvedHashes);
-    } else {
-      initiallyResolvedHashes = Collections.emptyMap();
-      initiallyResolvedAsStrings = Collections.emptyMap();
-    }
-
-    // Don't create new call stacks to prevent hitting max recursion with this silent new scope
-    Map<String, Object> speculativeBindings;
-    try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
-      if (eagerChildContextConfig.forceDeferredExecutionMode) {
-        interpreter.getContext().setDeferredExecutionMode(true);
-      }
-      interpreter
-        .getContext()
-        .setPartialMacroEvaluation(eagerChildContextConfig.partialMacroEvaluation);
-      result = function.apply(interpreter);
-      speculativeBindings =
-        eagerChildContextConfig.discardSessionBindings
-          ? Collections.emptyMap()
-          : interpreter.getContext().getSessionBindings();
-    }
-
-    speculativeBindings =
-      speculativeBindings
-        .entrySet()
-        .stream()
-        .filter(
-          entry -> {
-            Object newValue = interpreter.getContext().get(entry.getKey());
-            return (
-              entry.getValue() != null &&
-              !entry.getValue().equals(newValue) &&
-              !(newValue instanceof DeferredValue)
-            );
-          }
-        )
-        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-    if (eagerChildContextConfig.checkForContextChanges) {
-      speculativeBindings.putAll(
-        getChangedValues(
-          interpreter,
-          eagerChildContextConfig,
-          initiallyResolvedHashes,
-          initiallyResolvedAsStrings
-        )
-      );
-    }
-    speculativeBindings =
-      filterSpeculativeBindings(speculativeBindings, metaContextVariables);
-    return new EagerExecutionResult(result, speculativeBindings);
-  }
-
-  private static Map<String, Object> getChangedValues(
-    JinjavaInterpreter interpreter,
-    EagerChildContextConfig eagerChildContextConfig,
-    Map<String, Object> initiallyResolvedHashes,
-    Map<String, String> initiallyResolvedAsStrings
-  ) {
-    Set<Entry<String, Object>> initialEntrySet = initiallyResolvedHashes.entrySet();
-    Context context = interpreter.getContext();
-    Map<String, Object> changedValues = new HashMap<>();
-    for (Entry<String, Object> entry : initialEntrySet) {
-      Object newValue = context.get(entry.getKey());
-      if (newValue == null) {
-        continue;
-      }
-      if (entry.getValue().equals(getObjectOrHashCode(newValue))) {
-        continue;
-      }
-      // New value different, changes.
-      changedValues.put(
-        entry.getKey(),
-        mapSpeculativeValue(
-          new AbstractMap.SimpleImmutableEntry<>(entry.getKey(), newValue),
-          eagerChildContextConfig,
-          initiallyResolvedHashes,
-          initiallyResolvedAsStrings,
-          interpreter
-        )
-      );
-    }
-    return changedValues;
-  }
-
-  private static Map<String, String> getInitiallyResolvedAsStrings(
-    JinjavaInterpreter interpreter,
-    Set<Entry<String, Object>> entrySet,
-    Map<String, Object> initiallyResolvedHashes
-  ) {
-    Map<String, String> initiallyResolvedAsStrings = new HashMap<>();
-    // This creates a stringified snapshot of the context
-    // so it can be disabled via the config because it may cause performance issues.
-    Stream<Entry<String, Object>> entryStream;
-    if (!interpreter.getConfig().getExecutionMode().useEagerContextReverting()) {
-      entryStream =
-        interpreter
-          .getContext()
-          .getCombinedScope()
-          .entrySet()
-          .stream()
-          .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
-          .filter(
-            entry -> EagerExpressionResolver.isResolvableObject(entry.getValue(), 4, 400) // TODO make this configurable
-          );
-    } else {
-      entryStream =
-        entrySet
-          .stream()
-          .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
-          .filter(
-            entry -> EagerExpressionResolver.isResolvableObject(entry.getValue(), 4, 400) // TODO make this configurable
-          );
-    }
-    entryStream.forEach(
-      entry ->
-        putInitiallyResolvedAsString(
-          interpreter,
-          entry,
-          initiallyResolvedHashes,
-          initiallyResolvedAsStrings
-        )
+    return EagerContextWatcher.executeInChildContext(
+      function,
+      interpreter,
+      eagerChildContextConfig
     );
-    return initiallyResolvedAsStrings;
-  }
-
-  private static void putInitiallyResolvedAsString(
-    JinjavaInterpreter interpreter,
-    Entry<String, Object> entry,
-    Map<String, Object> initiallyResolvedHashes,
-    Map<String, String> initiallyResolvedAsStrings
-  ) {
-    RevertibleObject revertibleObject = interpreter
-      .getRevertibleObjects()
-      .get(entry.getKey());
-    Object hashCode = initiallyResolvedHashes.get(entry.getKey());
-    try {
-      if (revertibleObject == null || !hashCode.equals(revertibleObject.getHashCode())) {
-        revertibleObject =
-          new RevertibleObject(
-            hashCode,
-            PyishObjectMapper.getAsPyishStringOrThrow(entry.getValue())
-          );
-        interpreter.getRevertibleObjects().put(entry.getKey(), revertibleObject);
-      }
-      revertibleObject
-        .getPyishString()
-        .ifPresent(
-          pyishString -> initiallyResolvedAsStrings.put(entry.getKey(), pyishString)
-        );
-    } catch (Exception e) {
-      interpreter
-        .getRevertibleObjects()
-        .put(entry.getKey(), new RevertibleObject(hashCode));
-    }
-  }
-
-  private static Map<String, Object> getInitiallyResolvedHashes(
-    Set<Entry<String, Object>> entrySet,
-    Set<String> metaContextVariables
-  ) {
-    Map<String, Object> resolved = new HashMap<>();
-    for (Entry<String, Object> entry : entrySet) {
-      if (metaContextVariables.contains(entry.getKey())) {
-        continue;
-      }
-      if (entry.getValue() instanceof DeferredValue || entry.getValue() == null) {
-        continue;
-      }
-      resolved.put(entry.getKey(), getObjectOrHashCode(entry.getValue()));
-    }
-    return resolved;
-  }
-
-  private static Object mapSpeculativeValue(
-    Map.Entry<String, Object> entry,
-    EagerChildContextConfig eagerChildContextConfig,
-    Map<String, Object> initiallyResolvedHashes,
-    Map<String, String> initiallyResolvedAsStrings,
-    JinjavaInterpreter interpreter
-  ) {
-    if (eagerChildContextConfig.takeNewValue) {
-      if (entry.getValue() instanceof DeferredValue) {
-        return ((DeferredValue) entry.getValue()).getOriginalValue();
-      }
-      return entry.getValue();
-    }
-
-    if (
-      entry.getValue() instanceof DeferredValue &&
-      initiallyResolvedHashes
-        .get(entry.getKey())
-        .equals(
-          getObjectOrHashCode(((DeferredValue) entry.getValue()).getOriginalValue())
-        )
-    ) {
-      return ((DeferredValue) entry.getValue()).getOriginalValue();
-    }
-
-    // This is necessary if a state-changing function, such as .update()
-    // or .append() is run against a variable in the context.
-    // It will revert the effects when takeNewValue is false.
-    if (initiallyResolvedAsStrings.containsKey(entry.getKey())) {
-      // convert to new list or map
-      try {
-        return interpreter.resolveELExpression(
-          initiallyResolvedAsStrings.get(entry.getKey()),
-          interpreter.getLineNumber()
-        );
-      } catch (DeferredValueException ignored) {}
-    }
-
-    // Previous value could not be mapped to a string
-    throw new DeferredValueException(entry.getKey());
-  }
-
-  private static Map<String, Object> filterSpeculativeBindings(
-    Map<String, Object> speculativeBindings,
-    Set<String> metaContextVariables
-  ) {
-    return speculativeBindings
-      .entrySet()
-      .stream()
-      .filter(entry -> !metaContextVariables.contains(entry.getKey()))
-      .filter(
-        entry -> !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
-      ) // these are already set recursively
-      .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-  }
-
-  private static Object getObjectOrHashCode(Object o) {
-    if (o instanceof LazyExpression) {
-      o = ((LazyExpression) o).get();
-    }
-    if (o instanceof PyList && !((PyList) o).toList().contains(o)) {
-      return o.hashCode();
-    }
-    if (o instanceof PyMap && !((PyMap) o).toMap().containsValue(o)) {
-      return o.hashCode() + ((PyMap) o).keySet().hashCode();
-    }
-    return o;
   }
 
   /**
@@ -404,17 +157,16 @@ public class EagerReconstructionUtils {
       .peek(entry -> entry.getValue().setDeferred(true))
       .map(
         entry ->
-          executeInChildContext(
+          EagerContextWatcher.executeInChildContext(
             eagerInterpreter ->
               EagerExpressionResult.fromString(
                 new EagerMacroFunction(entry.getKey(), entry.getValue(), interpreter)
                 .reconstructImage()
               ),
             interpreter,
-            EagerChildContextConfig
-              .newBuilder()
+            EagerContextWatcher
+              .EagerChildContextConfig.newBuilder()
               .withForceDeferredExecutionMode(true)
-              .withCheckForContextChanges(true)
               .build()
           )
       )
@@ -429,7 +181,10 @@ public class EagerReconstructionUtils {
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
-    Set<String> filteredDeferredWords = deferredWords;
+    Set<String> filteredDeferredWords = deferredWords
+      .stream()
+      .map(w -> w.split("\\.", 2)[0])
+      .collect(Collectors.toSet()); // get base prop
     if (interpreter.getContext().isDeferredExecutionMode()) {
       Context parent = interpreter.getContext().getParent();
       while (parent.isDeferredExecutionMode()) {
@@ -439,7 +194,15 @@ public class EagerReconstructionUtils {
       filteredDeferredWords =
         deferredWords
           .stream()
-          .filter(word -> interpreter.getContext().get(word) != finalParent.get(word))
+          .filter(
+            word -> {
+              Object parentValue = finalParent.get(word);
+              return (
+                !(parentValue instanceof DeferredValue) &&
+                interpreter.getContext().get(word) != finalParent.get(word)
+              );
+            }
+          )
           .collect(Collectors.toSet());
     }
     if (filteredDeferredWords.isEmpty()) {
@@ -450,7 +213,6 @@ public class EagerReconstructionUtils {
 
     filteredDeferredWords
       .stream()
-      .map(w -> w.split("\\.", 2)[0]) // get base prop
       .filter(w -> !metaContextVariables.contains(w))
       .filter(w -> interpreter.getContext().get(w) instanceof PyishBlockSetSerializable)
       .forEach(
@@ -459,7 +221,6 @@ public class EagerReconstructionUtils {
       );
     filteredDeferredWords
       .stream()
-      .map(w -> w.split("\\.", 2)[0]) // get base prop
       .filter(
         w -> {
           Object value = interpreter.getContext().get(w);
@@ -502,26 +263,37 @@ public class EagerReconstructionUtils {
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
+    Set<String> filteredDeferredWords = deferredWords
+      .stream()
+      .map(w -> w.split("\\.", 2)[0])
+      .collect(Collectors.toSet()); // get base prop
     if (interpreter.getContext().isDeferredExecutionMode()) {
       Context parent = interpreter.getContext().getParent();
       while (parent.isDeferredExecutionMode()) {
         parent = parent.getParent();
       }
       final Context finalParent = parent;
-      deferredWords =
-        deferredWords
+      filteredDeferredWords =
+        filteredDeferredWords
           .stream()
-          .filter(word -> interpreter.getContext().get(word) != finalParent.get(word))
+          .filter(
+            word -> {
+              Object parentValue = finalParent.get(word);
+              return (
+                !(parentValue instanceof DeferredValue) &&
+                interpreter.getContext().get(word) != finalParent.get(word)
+              );
+            }
+          )
           .collect(Collectors.toSet());
     }
-    if (deferredWords.isEmpty()) {
+    if (filteredDeferredWords.isEmpty()) {
       return "";
     }
     Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
     Map<String, String> deferredMap = new HashMap<>();
-    deferredWords
+    filteredDeferredWords
       .stream()
-      .map(w -> w.split("\\.", 2)[0]) // get base prop
       .filter(
         w ->
           interpreter.getContext().containsKey(w) &&
@@ -534,7 +306,7 @@ public class EagerReconstructionUtils {
           deferredMap.put(w, PyishObjectMapper.getAsPyishString(value));
         }
       );
-    deferredWords
+    filteredDeferredWords
       .stream()
       .map(w -> w.split("\\.", 2)[0]) // get base prop
       .filter(w -> (interpreter.getContext().get(w) instanceof DeferredLazyReference))
@@ -604,9 +376,9 @@ public class EagerReconstructionUtils {
     String image = result.toString();
     // Don't defer if we're sticking with the new value
     if (registerDeferredToken) {
-      interpreter
-        .getContext()
-        .handleDeferredToken(
+      return (
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
           new DeferredToken(
             new TagToken(
               image,
@@ -618,7 +390,9 @@ public class EagerReconstructionUtils {
             Collections.emptySet(),
             deferredValuesToSet.keySet()
           )
-        );
+        ) +
+        image
+      );
     }
     return image;
   }
@@ -665,9 +439,9 @@ public class EagerReconstructionUtils {
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag());
     String image = blockSetTokenBuilder + value + endTokenBuilder;
     if (registerDeferredToken) {
-      interpreter
-        .getContext()
-        .handleDeferredToken(
+      return (
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
           new DeferredToken(
             new TagToken(
               blockSetTokenBuilder.toString(),
@@ -678,7 +452,9 @@ public class EagerReconstructionUtils {
             Collections.emptySet(),
             Collections.singleton(name)
           )
-        );
+        ) +
+        image
+      );
     }
     return image;
   }
@@ -801,76 +577,80 @@ public class EagerReconstructionUtils {
     context.getMetaContextVariables().removeAll(metaSetVars);
   }
 
-  public static class EagerChildContextConfig {
-    private final boolean takeNewValue;
+  public static Boolean isDeferredExecutionMode() {
+    return JinjavaInterpreter
+      .getCurrentMaybe()
+      .map(interpreter -> interpreter.getContext().isDeferredExecutionMode())
+      .orElse(false);
+  }
 
-    private final boolean discardSessionBindings;
-    private final boolean partialMacroEvaluation;
-    private final boolean checkForContextChanges;
-    private final boolean forceDeferredExecutionMode;
+  public static String handleDeferredTokenAndReconstructReferences(
+    JinjavaInterpreter interpreter,
+    DeferredToken deferredToken
+  ) {
+    interpreter.getContext().handleDeferredToken(deferredToken);
+    return reconstructDeferredReferences(
+      interpreter,
+      deferredToken.getUsedDeferredWords()
+    );
+  }
 
-    private EagerChildContextConfig(
-      boolean takeNewValue,
-      boolean discardSessionBindings,
-      boolean partialMacroEvaluation,
-      boolean checkForContextChanges,
-      boolean forceDeferredExecutionMode
-    ) {
-      this.takeNewValue = takeNewValue;
-      this.discardSessionBindings = discardSessionBindings;
-      this.partialMacroEvaluation = partialMacroEvaluation;
-      this.checkForContextChanges = checkForContextChanges;
-      this.forceDeferredExecutionMode = forceDeferredExecutionMode;
-    }
-
-    public static Builder newBuilder() {
-      return new Builder();
-    }
-
-    public static class Builder {
-      private boolean takeNewValue;
-
-      private boolean discardSessionBindings;
-      private boolean partialMacroEvaluation;
-      private boolean checkForContextChanges;
-      private boolean forceDeferredExecutionMode;
-
-      private Builder() {}
-
-      public Builder withTakeNewValue(boolean takeNewValue) {
-        this.takeNewValue = takeNewValue;
-        return this;
-      }
-
-      public Builder withDiscardSessionBindings(boolean discardSessionBindings) {
-        this.discardSessionBindings = discardSessionBindings;
-        return this;
-      }
-
-      public Builder withPartialMacroEvaluation(boolean partialMacroEvaluation) {
-        this.partialMacroEvaluation = partialMacroEvaluation;
-        return this;
-      }
-
-      public Builder withCheckForContextChanges(boolean checkForContextChanges) {
-        this.checkForContextChanges = checkForContextChanges;
-        return this;
-      }
-
-      public Builder withForceDeferredExecutionMode(boolean forceDeferredExecutionMode) {
-        this.forceDeferredExecutionMode = forceDeferredExecutionMode;
-        return this;
-      }
-
-      public EagerChildContextConfig build() {
-        return new EagerChildContextConfig(
-          takeNewValue,
-          discardSessionBindings,
-          partialMacroEvaluation,
-          checkForContextChanges,
-          forceDeferredExecutionMode
-        );
-      }
-    }
+  public static String reconstructDeferredReferences(
+    JinjavaInterpreter interpreter,
+    Set<String> usedDeferredWords
+  ) {
+    return (
+      buildSetTag(
+        interpreter
+          .getContext()
+          .getScope()
+          .entrySet()
+          .stream()
+          .filter(
+            entry ->
+              entry.getValue() instanceof DeferredLazyReferenceSource &&
+              !((DeferredLazyReferenceSource) entry.getValue()).isReconstructed()
+          )
+          .peek(
+            entry ->
+              ((DeferredLazyReferenceSource) entry.getValue()).setReconstructed(true)
+          )
+          .collect(
+            Collectors.toMap(
+              Entry::getKey,
+              entry ->
+                PyishObjectMapper.getAsPyishString(
+                  ((DeferredLazyReferenceSource) entry.getValue()).getOriginalValue()
+                )
+            )
+          ),
+        interpreter,
+        false
+      ) +
+      buildSetTag(
+        usedDeferredWords
+          .stream()
+          .map(w -> w.split("\\.", 2)[0])
+          .map(
+            word ->
+              new AbstractMap.SimpleImmutableEntry<>(
+                word,
+                interpreter.getContext().get(word)
+              )
+          )
+          .filter(entry -> entry.getValue() instanceof DeferredLazyReference)
+          .collect(
+            Collectors.toMap(
+              Entry::getKey,
+              entry ->
+                PyishObjectMapper.getAsPyishString(
+                  ((DeferredLazyReference) entry.getValue()).getOriginalValue()
+                )
+            )
+          ),
+        interpreter,
+        false
+      )
+    );
   }
 }

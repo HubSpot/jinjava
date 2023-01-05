@@ -15,7 +15,7 @@ public class DeferredLazyReference implements DeferredValue {
   }
 
   @Override
-  public Object getOriginalValue() {
+  public LazyReference getOriginalValue() {
     return lazyReference;
   }
 }

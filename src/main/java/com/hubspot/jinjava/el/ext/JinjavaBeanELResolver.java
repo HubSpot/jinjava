@@ -2,7 +2,9 @@ package com.hubspot.jinjava.el.ext;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -31,6 +33,28 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     .add("notify")
     .add("notifyAll")
     .add("wait")
+    .build();
+
+  private static final Set<String> DEFERRED_EXECUTION_RESTRICTED_METHODS = ImmutableSet
+    .<String>builder()
+    .add("put")
+    .add("putAll")
+    .add("update")
+    .add("add")
+    .add("insert")
+    .add("pop")
+    .add("append")
+    .add("extend")
+    .add("clear")
+    .add("remove")
+    .add("addAll")
+    .add("removeAll")
+    .add("replace")
+    .add("replaceAll")
+    .add("putIfAbsent")
+    .add("sort")
+    .add("set")
+    .add("merge")
     .build();
 
   /**
@@ -83,6 +107,19 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     if (isRestrictedClass(base)) {
       throw new MethodNotFoundException(
         "Cannot find method '" + method + "' in " + base.getClass()
+      );
+    }
+
+    if (
+      DEFERRED_EXECUTION_RESTRICTED_METHODS.contains(method.toString()) &&
+      EagerReconstructionUtils.isDeferredExecutionMode()
+    ) {
+      throw new DeferredValueException(
+        String.format(
+          "Cannot run method '%s' in %s in deferred execution mode",
+          method,
+          base.getClass()
+        )
       );
     }
 
