@@ -1,9 +1,9 @@
 0
 META
-{% for meta in deferred %}
+{% set meta = 'META' %}{% for meta in deferred %}
 {{ meta }}{% endfor %}
 {{ meta }}
 {% set meta = [] %}{% if deferred %}
-{% set meta = [1] %}
+{% do meta.append(1) %}
 {% endif %}
 {{ meta }}

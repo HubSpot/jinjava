@@ -5,9 +5,9 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.PrintTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
-import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -53,13 +53,12 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
     JinjavaInterpreter interpreter,
     boolean includeExpressionResult
   ) {
-    EagerExecutionResult eagerExecutionResult = EagerReconstructionUtils.executeInChildContext(
+    EagerExecutionResult eagerExecutionResult = EagerContextWatcher.executeInChildContext(
       eagerInterpreter -> EagerExpressionResolver.resolveExpression(expr, interpreter),
       interpreter,
-      EagerChildContextConfig
-        .newBuilder()
+      EagerContextWatcher
+        .EagerChildContextConfig.newBuilder()
         .withTakeNewValue(true)
-        .withCheckForContextChanges(interpreter.getContext().isDeferredExecutionMode())
         .build()
     );
     StringBuilder prefixToPreserveState = new StringBuilder();
@@ -98,9 +97,9 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
       .add(tagToken.getTagName())
       .add(eagerExecutionResult.getResult().toString().trim())
       .add(tagToken.getSymbols().getExpressionEndWithTag());
-    interpreter
-      .getContext()
-      .handleDeferredToken(
+    prefixToPreserveState.append(
+      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+        interpreter,
         new DeferredToken(
           new TagToken(
             joiner.toString(),
@@ -118,7 +117,8 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
             )
             .collect(Collectors.toSet())
         )
-      );
+      )
+    );
     // Possible set tag in front of this one.
     return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
       prefixToPreserveState.toString() + joiner.toString(),

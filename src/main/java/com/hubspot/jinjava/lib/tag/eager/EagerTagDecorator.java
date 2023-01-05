@@ -12,10 +12,10 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.Token;
+import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
-import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.stream.Collectors;
@@ -95,7 +95,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       interpreter.getConfig().getMaxOutputSize()
     );
     result.append(
-      EagerReconstructionUtils
+      EagerContextWatcher
         .executeInChildContext(
           eagerInterpreter ->
             EagerExpressionResult.fromString(
@@ -111,10 +111,9 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
               renderChildren(tagNode, eagerInterpreter)
             ),
           interpreter,
-          EagerChildContextConfig
-            .newBuilder()
+          EagerContextWatcher
+            .EagerChildContextConfig.newBuilder()
             .withForceDeferredExecutionMode(true)
-            .withCheckForContextChanges(true)
             .build()
         )
         .asTemplateString()
@@ -214,14 +213,14 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       joiner.add(resolvedString);
     }
     joiner.add(tagToken.getSymbols().getExpressionEndWithTag());
-    String reconstructedFromContext = EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
-      eagerExpressionResult.getDeferredWords(),
-      interpreter
-    );
 
-    interpreter
-      .getContext()
-      .handleDeferredToken(
+    String prefixToPreserveState =
+      EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
+        eagerExpressionResult.getDeferredWords(),
+        interpreter
+      ) +
+      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+        interpreter,
         new DeferredToken(
           new TagToken(
             joiner.toString(),
@@ -240,6 +239,6 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
         )
       );
 
-    return (reconstructedFromContext + joiner.toString());
+    return (prefixToPreserveState + joiner.toString());
   }
 }

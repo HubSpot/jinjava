@@ -12,10 +12,10 @@ import com.hubspot.jinjava.lib.tag.FlexibleTag;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
-import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
@@ -49,20 +49,19 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
         interpreter.getPosition()
       );
       interpreter.getContext().addGlobalMacro(caller);
-      EagerExecutionResult eagerExecutionResult = EagerReconstructionUtils.executeInChildContext(
+      EagerExecutionResult eagerExecutionResult = EagerContextWatcher.executeInChildContext(
         eagerInterpreter ->
           EagerExpressionResolver.resolveExpression(
             tagNode.getHelpers().trim(),
             interpreter
           ),
         interpreter,
-        EagerChildContextConfig
-          .newBuilder()
+        EagerContextWatcher
+          .EagerChildContextConfig.newBuilder()
           .withTakeNewValue(true)
           .withPartialMacroEvaluation(
             interpreter.getConfig().isNestedInterpretationEnabled()
           )
-          .withCheckForContextChanges(interpreter.getContext().isDeferredExecutionMode())
           .build()
       );
       StringBuilder prefixToPreserveState = new StringBuilder();
@@ -104,9 +103,9 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
         .add(tagNode.getTag().getName())
         .add(eagerExecutionResult.getResult().toString().trim())
         .add(tagNode.getSymbols().getExpressionEndWithTag());
-      interpreter
-        .getContext()
-        .handleDeferredToken(
+      prefixToPreserveState.append(
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
           new DeferredToken(
             new TagToken(
               joiner.toString(),
@@ -124,23 +123,21 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
               )
               .collect(Collectors.toSet())
           )
-        );
-      StringBuilder result = new StringBuilder(
-        prefixToPreserveState.toString() + joiner.toString()
+        )
       );
+      StringBuilder result = new StringBuilder(prefixToPreserveState + joiner.toString());
       interpreter.getContext().setDynamicVariableResolver(s -> DeferredValue.instance());
       if (!tagNode.getChildren().isEmpty()) {
         result.append(
-          EagerReconstructionUtils
+          EagerContextWatcher
             .executeInChildContext(
               eagerInterpreter ->
                 EagerExpressionResult.fromString(
                   renderChildren(tagNode, eagerInterpreter)
                 ),
               interpreter,
-              EagerChildContextConfig
-                .newBuilder()
-                .withCheckForContextChanges(true)
+              EagerContextWatcher
+                .EagerChildContextConfig.newBuilder()
                 .withForceDeferredExecutionMode(true)
                 .build()
             )

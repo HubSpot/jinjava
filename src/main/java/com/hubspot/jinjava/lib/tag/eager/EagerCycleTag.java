@@ -6,9 +6,9 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.CycleTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
-import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.ArrayList;
@@ -44,14 +44,13 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       helper.add(sb.toString());
     }
     String expression = '[' + helper.get(0) + ']';
-    EagerExecutionResult eagerExecutionResult = EagerReconstructionUtils.executeInChildContext(
+    EagerExecutionResult eagerExecutionResult = EagerContextWatcher.executeInChildContext(
       eagerInterpreter ->
         EagerExpressionResolver.resolveExpression(expression, interpreter),
       interpreter,
-      EagerChildContextConfig
-        .newBuilder()
+      EagerContextWatcher
+        .EagerChildContextConfig.newBuilder()
         .withTakeNewValue(true)
-        .withCheckForContextChanges(interpreter.getContext().isDeferredExecutionMode())
         .build()
     );
 
@@ -181,10 +180,10 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
   ) {
     if (interpreter.getContext().isDeferredExecutionMode()) {
       String reconstructedTag = reconstructCycleTag(resolvedExpression, tagToken);
-
-      interpreter
-        .getContext()
-        .handleDeferredToken(
+      return (
+        reconstructedTag +
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
           new DeferredToken(
             new TagToken(
               reconstructedTag,
@@ -194,8 +193,8 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
             ),
             deferredWords
           )
-        );
-      return reconstructedTag;
+        )
+      );
     }
     Integer forindex = (Integer) interpreter.retraceVariable(
       CycleTag.LOOP_INDEX,

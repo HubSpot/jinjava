@@ -11,9 +11,9 @@ import com.hubspot.jinjava.lib.tag.IfTag;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.NoteToken;
+import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
-import com.hubspot.jinjava.util.EagerReconstructionUtils.EagerChildContextConfig;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.util.HashSet;
 import java.util.Set;
@@ -54,17 +54,16 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     );
 
     result.append(
-      EagerReconstructionUtils
+      EagerContextWatcher
         .executeInChildContext(
           eagerInterpreter ->
             EagerExpressionResult.fromString(
               eagerRenderBranches(tagNode, eagerInterpreter, e)
             ),
           interpreter,
-          EagerChildContextConfig
-            .newBuilder()
+          EagerContextWatcher
+            .EagerChildContextConfig.newBuilder()
             .withForceDeferredExecutionMode(true)
-            .withCheckForContextChanges(true)
             .build()
         )
         .asTemplateString()
@@ -95,6 +94,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     // We know this has to start as false otherwise IfTag would have chosen
     // the first branch.
     boolean definitelyExecuted = false;
+    StringBuilder prefixToPreserveState = new StringBuilder();
     StringBuilder sb = new StringBuilder();
     sb.append(
       getEagerImage(
@@ -109,16 +109,15 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       int branchEnd = findNextElseToken(tagNode, branchStart);
       if (!definitelyDrop) {
         int finalBranchStart = branchStart;
-        EagerExecutionResult result = EagerReconstructionUtils.executeInChildContext(
+        EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
           eagerInterpreter ->
             EagerExpressionResult.fromString(
               evaluateBranch(tagNode, finalBranchStart, branchEnd, interpreter)
             ),
           interpreter,
-          EagerChildContextConfig
-            .newBuilder()
+          EagerContextWatcher
+            .EagerChildContextConfig.newBuilder()
             .withForceDeferredExecutionMode(true)
-            .withCheckForContextChanges(true)
             .build()
         );
         sb.append(result.getResult());
@@ -161,9 +160,9 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
           .filter(key -> !(interpreter.getContext().get(key) instanceof DeferredValue))
           .collect(Collectors.toSet());
       if (!bindingsToDefer.isEmpty()) {
-        interpreter
-          .getContext()
-          .handleDeferredToken(
+        prefixToPreserveState.append(
+          EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+            interpreter,
             new DeferredToken(
               new NoteToken(
                 "",
@@ -173,7 +172,8 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
               ),
               bindingsToDefer
             )
-          );
+          )
+        );
       }
       return sb.toString();
     }
