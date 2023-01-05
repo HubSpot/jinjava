@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.util;
 
+import com.hubspot.immutables.utils.WireSafeEnum;
 import com.hubspot.jinjava.interpret.CannotReconstructValueException;
 import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -368,6 +369,11 @@ public class EagerContextWatcher {
     if (o instanceof LazyExpression) {
       o = ((LazyExpression) o).get();
     }
+
+    if (o instanceof WireSafeEnum) {
+      o = ((WireSafeEnum) o).asEnum().orElse(null);
+    }
+
     if (o instanceof PyList && !((PyList) o).toList().contains(o)) {
       return o.hashCode();
     }

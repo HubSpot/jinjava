@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.immutables.utils.WireSafeEnum;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.el.ext.NamedParameter;
 import com.hubspot.jinjava.interpret.CollectionTooBigException;
@@ -113,6 +114,10 @@ public class ExpressionResolver {
       // resolve the LazyExpression supplier automatically
       if (result instanceof LazyExpression) {
         result = ((LazyExpression) result).get();
+      }
+
+      if (result instanceof WireSafeEnum) {
+        result = ((WireSafeEnum) result).asEnum().orElse(null);
       }
 
       validateResult(result);

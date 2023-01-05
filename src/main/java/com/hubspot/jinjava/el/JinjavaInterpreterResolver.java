@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el;
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.immutables.utils.WireSafeEnum;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
@@ -219,6 +220,13 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
               }
             }
 
+            if (base instanceof WireSafeEnum) {
+              base = ((WireSafeEnum) base).asEnum().orElse(null);
+              if (base == null) {
+                return null;
+              }
+            }
+
             // java doesn't natively support negative array indices, so the
             // super class getValue returns null for them.  To make negative
             // indices work as they do in python, detect them here and convert
@@ -251,6 +259,13 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
             if (value instanceof LazyExpression) {
               value = ((LazyExpression) value).get();
+              if (value == null) {
+                return null;
+              }
+            }
+
+            if (value instanceof WireSafeEnum) {
+              value = ((WireSafeEnum) value).asEnum().orElse(null);
               if (value == null) {
                 return null;
               }
@@ -311,6 +326,13 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
     if (value instanceof LazyExpression) {
       value = ((LazyExpression) value).get();
+      if (value == null) {
+        return null;
+      }
+    }
+
+    if (value instanceof WireSafeEnum) {
+      value = ((WireSafeEnum) value).asEnum().orElse(null);
       if (value == null) {
         return null;
       }
