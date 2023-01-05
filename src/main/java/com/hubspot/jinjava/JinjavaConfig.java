@@ -19,6 +19,8 @@ import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
+import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
+import com.hubspot.jinjava.el.ObjectUnwrapper;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.InterpreterFactory;
@@ -68,6 +70,8 @@ public class JinjavaConfig {
   private final LegacyOverrides legacyOverrides;
   private final boolean enablePreciseDivideFilter;
   private final ObjectMapper objectMapper;
+
+  private final ObjectUnwrapper objectUnwrapper;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -123,6 +127,7 @@ public class JinjavaConfig {
     legacyOverrides = builder.legacyOverrides;
     enablePreciseDivideFilter = builder.enablePreciseDivideFilter;
     objectMapper = builder.objectMapper;
+    objectUnwrapper = builder.objectUnwrapper;
   }
 
   public Charset getCharset() {
@@ -221,6 +226,10 @@ public class JinjavaConfig {
     return objectMapper;
   }
 
+  public ObjectUnwrapper getObjectUnwrapper() {
+    return objectUnwrapper;
+  }
+
   /**
    * @deprecated  Replaced by {@link LegacyOverrides#isIterateOverMapKeys()}
    */
@@ -271,6 +280,8 @@ public class JinjavaConfig {
     private LegacyOverrides legacyOverrides = LegacyOverrides.NONE;
     private boolean enablePreciseDivideFilter = false;
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    private ObjectUnwrapper objectUnwrapper = new JinjavaObjectUnwrapper();
 
     private Builder() {}
 
@@ -424,6 +435,11 @@ public class JinjavaConfig {
 
     public Builder withObjectMapper(ObjectMapper objectMapper) {
       this.objectMapper = objectMapper;
+      return this;
+    }
+
+    public Builder withObjectUnwrapper(ObjectUnwrapper objectUnwrapper) {
+      this.objectUnwrapper = objectUnwrapper;
       return this;
     }
 
