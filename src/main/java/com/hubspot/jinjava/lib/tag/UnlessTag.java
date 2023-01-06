@@ -1,9 +1,6 @@
 package com.hubspot.jinjava.lib.tag;
 
-import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
-import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
-import com.hubspot.jinjava.doc.annotations.JinjavaParam;
-import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.*;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.ObjectTruthValue;
@@ -29,6 +26,7 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
   )
 )
 @JinjavaHasCodeBody
+@JinjavaTextMateSnippet(code = "{% unless ${1:condition} %}\n\t$0\n{% endunless %}")
 public class UnlessTag extends IfTag {
   public static final String TAG_NAME = "unless";
 

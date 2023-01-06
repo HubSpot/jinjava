@@ -90,7 +90,7 @@ import org.apache.commons.lang3.tuple.Pair;
 )
 @JinjavaHasCodeBody
 @JinjavaTextMateSnippet(
-  code = "{% for ${1:items} in ${2:list} %}\n" + "{{ ${1} }}$0\n" + "{% endfor %}"
+  code = "{% for ${1:items} in ${2:list} %}\n" + "$0\n" + "{% endfor %}"
 )
 public class ForTag implements Tag {
   public static final String TAG_NAME = "for";

@@ -3,10 +3,7 @@ package com.hubspot.jinjava.lib.tag;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
-import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
-import com.hubspot.jinjava.doc.annotations.JinjavaParam;
-import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.*;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -57,6 +54,7 @@ import org.apache.commons.lang3.StringUtils;
   }
 )
 @JinjavaHasCodeBody
+@JinjavaTextMateSnippet(code = "{% macro ${1:name}(${2:values) %}\n\t$0\n{% endmacro %}")
 public class MacroTag implements Tag {
   public static final String TAG_NAME = "macro";
 

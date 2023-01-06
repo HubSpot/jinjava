@@ -15,10 +15,7 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
-import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
-import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
-import com.hubspot.jinjava.doc.annotations.JinjavaParam;
-import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.*;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.TemplateError;
@@ -58,6 +55,7 @@ import org.apache.commons.lang3.StringUtils;
     )
   }
 )
+@JinjavaTextMateSnippet(code = "{% if '${1:condition}' %}\n\n{% endif %}")
 @JinjavaHasCodeBody
 public class IfTag implements Tag {
   public static final String TAG_NAME = "if";

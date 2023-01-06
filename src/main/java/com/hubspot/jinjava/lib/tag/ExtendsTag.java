@@ -18,6 +18,7 @@ package com.hubspot.jinjava.lib.tag;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -78,6 +79,7 @@ import java.io.IOException;
     )
   }
 )
+@JinjavaTextMateSnippet(code = "{% extends '${1:path}' %}")
 public class ExtendsTag implements Tag {
   public static final String TAG_NAME = "extends";
 

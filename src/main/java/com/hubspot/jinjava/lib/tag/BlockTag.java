@@ -15,10 +15,7 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
-import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
-import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
-import com.hubspot.jinjava.doc.annotations.JinjavaParam;
-import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.*;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.TagNode;
@@ -50,6 +47,7 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
   }
 )
 @JinjavaHasCodeBody
+@JinjavaTextMateSnippet(code = "{% block ${1:name} %}\n$0\n{% endblock $1 %}")
 public class BlockTag implements Tag {
   public static final String TAG_NAME = "block";
 
