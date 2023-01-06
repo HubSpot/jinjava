@@ -13,7 +13,6 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.LazyExpression;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -40,7 +39,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import javax.el.ArrayELResolver;
 import javax.el.CompositeELResolver;
 import javax.el.ELContext;
@@ -74,10 +72,12 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
   };
 
   private final JinjavaInterpreter interpreter;
+  private final ObjectUnwrapper objectUnwrapper;
 
   public JinjavaInterpreterResolver(JinjavaInterpreter interpreter) {
     super(interpreter.getConfig().getElResolver());
     this.interpreter = interpreter;
+    this.objectUnwrapper = interpreter.getConfig().getObjectUnwrapper();
   }
 
   @Override
@@ -203,20 +203,9 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
         } else {
           // Get property of base object.
           try {
-            if (base instanceof Optional) {
-              Optional<?> optBase = (Optional<?>) base;
-              if (!optBase.isPresent()) {
-                return null;
-              }
-
-              base = optBase.get();
-            }
-
-            if (base instanceof LazyExpression) {
-              base = ((LazyExpression) base).get();
-              if (base == null) {
-                return null;
-              }
+            base = objectUnwrapper.unwrapObject(base);
+            if (base == null) {
+              return null;
             }
 
             // java doesn't natively support negative array indices, so the
@@ -240,20 +229,9 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
             value = super.getValue(context, base, propertyName);
 
-            if (value instanceof Optional) {
-              Optional<?> optValue = (Optional<?>) value;
-              if (!optValue.isPresent()) {
-                return null;
-              }
-
-              value = optValue.get();
-            }
-
-            if (value instanceof LazyExpression) {
-              value = ((LazyExpression) value).get();
-              if (value == null) {
-                return null;
-              }
+            value = objectUnwrapper.unwrapObject(value);
+            if (value == null) {
+              return null;
             }
 
             if (value instanceof DeferredValue) {
@@ -309,11 +287,9 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       return value;
     }
 
-    if (value instanceof LazyExpression) {
-      value = ((LazyExpression) value).get();
-      if (value == null) {
-        return null;
-      }
+    value = objectUnwrapper.unwrapObject(value);
+    if (value == null) {
+      return null;
     }
 
     if (value instanceof PyWrapper) {

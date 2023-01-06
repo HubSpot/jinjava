@@ -13,7 +13,6 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.LazyExpression;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -40,6 +39,7 @@ public class ExpressionResolver {
   private final ExpressionFactory expressionFactory;
   private final JinjavaInterpreterResolver resolver;
   private final JinjavaELContext elContext;
+  private final ObjectUnwrapper objectUnwrapper;
 
   private static final String EXPRESSION_START_TOKEN = "#{";
   private static final String EXPRESSION_END_TOKEN = "}";
@@ -56,6 +56,7 @@ public class ExpressionResolver {
     for (ELFunctionDefinition fn : jinjava.getGlobalContext().getAllFunctions()) {
       this.elContext.setFunction(fn.getNamespace(), fn.getLocalName(), fn.getMethod());
     }
+    objectUnwrapper = interpreter.getConfig().getObjectUnwrapper();
   }
 
   /**
@@ -110,10 +111,7 @@ public class ExpressionResolver {
         );
       }
 
-      // resolve the LazyExpression supplier automatically
-      if (result instanceof LazyExpression) {
-        result = ((LazyExpression) result).get();
-      }
+      result = objectUnwrapper.unwrapObject(result);
 
       validateResult(result);
 

@@ -368,6 +368,7 @@ public class EagerContextWatcher {
     if (o instanceof LazyExpression) {
       o = ((LazyExpression) o).get();
     }
+
     if (o instanceof PyList && !((PyList) o).toList().contains(o)) {
       return o.hashCode();
     }
