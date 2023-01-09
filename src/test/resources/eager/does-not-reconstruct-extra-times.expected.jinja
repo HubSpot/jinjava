@@ -1,0 +1,6 @@
+{% set foo = deferred %}
+
+{% if deferred %}
+{% set foo = 'second' %}
+{% endif %}
+{{ foo }}
