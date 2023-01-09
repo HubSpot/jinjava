@@ -1,7 +1,25 @@
 {% set foo = 'first' %}
+{% for i in range(1) %}
+{# this should do nothing because it's in a for loop #}
+{% set foo = deferred %}
+{% endfor %}
+
+{# actually defer foo #}
 {% set foo = deferred %}
 
+{# make sure we don't reconstruct foo = 'first' in front of the for block #}
+{% for i in range(1) %}
+{% if deferred %}
+{{ foo }}
+{% set foo = 'second' %}
+{% endif %}
+{{ foo }}
+{% endfor %}
+{{ foo }}
+
+{# make sure we don't reconstruct foo = 'first' in front of the if block #}
 {% if deferred %}
 {% set foo = 'second' %}
 {% endif %}
 {{ foo }}
+
