@@ -15,7 +15,10 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
-import com.hubspot.jinjava.doc.annotations.*;
+import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
+import com.hubspot.jinjava.doc.annotations.JinjavaParam;
+import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.TemplateError;
