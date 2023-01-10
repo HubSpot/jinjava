@@ -69,13 +69,14 @@ public class JinjavaDocFactory {
 
       if (docAnnotation == null) {
         LOG.warn(
-          "Expression Test {} doesn't have a @{} annotation",
+          "Tag {} doesn't have a @{} annotation",
           tag.getName(),
           JINJAVA_DOC_CLASS.getName()
         );
-        doc.addExpTest(
-          new JinjavaDocExpTest(
+        doc.addTag(
+          new JinjavaDocTag(
             tag.getName(),
+            StringUtils.isBlank(tag.getEndTagName()),
             "",
             "",
             false,

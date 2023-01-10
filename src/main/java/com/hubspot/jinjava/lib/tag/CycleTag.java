@@ -18,6 +18,7 @@ package com.hubspot.jinjava.lib.tag;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.TagNode;
@@ -48,6 +49,7 @@ import java.util.List;
     )
   }
 )
+@JinjavaTextMateSnippet(code = "{% cycle '${1:string_to_print}' %}")
 public class CycleTag implements Tag {
   public static final String TAG_NAME = "cycle";
   public static final String LOOP_INDEX = "loop.index0";
