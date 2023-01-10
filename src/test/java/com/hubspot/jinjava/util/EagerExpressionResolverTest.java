@@ -682,6 +682,13 @@ public class EagerExpressionResolverTest {
     eagerResolveExpression("deferred.append('{% do foo.append(bar) %}')");
   }
 
+  @Test(expected = DeferredValueException.class)
+  public void itFailsWhenThereIsANestedTagFromSeparateQuoteBlocks() {
+    eagerResolveExpression(
+      "\"{% import '../../settings/localization/\" + deferred + \"-website.html' as config %}\""
+    );
+  }
+
   @Test
   public void itHandlesDeferredNamedParameter() {
     context.put("foo", "foo");
