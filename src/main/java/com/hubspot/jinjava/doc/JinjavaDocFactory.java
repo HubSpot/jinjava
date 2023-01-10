@@ -63,7 +63,31 @@ public class JinjavaDocFactory {
       if (tag instanceof EndTag) {
         continue;
       }
-      doc.addCodeSnippet(tag.getName(), getTagSnippet(tag));
+      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
+        tag.getClass()
+      );
+
+      if (docAnnotation == null) {
+        LOG.warn(
+          "Expression Test {} doesn't have a @{} annotation",
+          tag.getName(),
+          JINJAVA_DOC_CLASS.getName()
+        );
+        doc.addExpTest(
+          new JinjavaDocExpTest(
+            tag.getName(),
+            "",
+            "",
+            false,
+            new JinjavaDocParam[] {},
+            new JinjavaDocParam[] {},
+            new JinjavaDocSnippet[] {},
+            Collections.emptyMap()
+          )
+        );
+      } else if (!docAnnotation.hidden()) {
+        doc.addCodeSnippet(tag.getName(), getTagSnippet(tag));
+      }
     }
   }
 
@@ -330,7 +354,7 @@ public class JinjavaDocFactory {
       }
 
       for (JinjavaParam param : docAnnotation.params()) {
-        String paramValue = "${" + i + ":" + param.value() + "}";
+        String paramValue = param.value() + "=\"${" + i + ":" + param.value() + "}\"";
         if (param.value().equalsIgnoreCase("path")) {
           paramValue = "'" + paramValue + "'";
         } else if (param.value().equalsIgnoreCase("argument_names")) {
