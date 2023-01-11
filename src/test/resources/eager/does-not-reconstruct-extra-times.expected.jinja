@@ -1,0 +1,23 @@
+{% for __ignored__ in [0] %}
+
+{% set foo = deferred %}
+{% endfor %}
+
+
+{% set foo = deferred %}
+
+
+{% for __ignored__ in [0] %}
+{% if deferred %}
+{{ foo }}
+{% set foo = 'second' %}
+{% endif %}
+{{ foo }}
+{% endfor %}
+{{ foo }}
+
+
+{% if deferred %}
+{% set foo = 'second' %}
+{% endif %}
+{{ foo }}

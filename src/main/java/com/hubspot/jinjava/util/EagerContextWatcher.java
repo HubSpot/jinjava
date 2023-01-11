@@ -73,12 +73,17 @@ public class EagerContextWatcher {
           initialResult.getSpeculativeBindings()
         );
     } else {
+      Set<String> ignoredKeys = getKeysToIgnore(
+        interpreter,
+        metaContextVariables,
+        eagerChildContextConfig
+      );
       initialResult = applyFunction(function, interpreter, eagerChildContextConfig);
       speculativeBindings =
         getBasicSpeculativeBindings(
           interpreter,
           eagerChildContextConfig,
-          metaContextVariables,
+          ignoredKeys,
           initialResult.getSpeculativeBindings()
         );
     }
@@ -154,10 +159,35 @@ public class EagerContextWatcher {
     return mapOfHashes;
   }
 
+  private static Set<String> getKeysToIgnore(
+    JinjavaInterpreter interpreter,
+    Set<String> metaContextVariables,
+    EagerChildContextConfig eagerChildContextConfig
+  ) {
+    // We don't need to reconstruct already deferred keys.
+    // This ternary expression is an optimization to call entrySet fewer times
+    return (
+        interpreter.getContext().isDeferredExecutionMode() &&
+        !eagerChildContextConfig.takeNewValue
+      )
+      ? Stream
+        .concat(
+          metaContextVariables.stream(),
+          interpreter
+            .getContext()
+            .entrySet()
+            .stream()
+            .filter(entry -> entry.getValue() instanceof DeferredValue)
+            .map(Entry::getKey)
+        )
+        .collect(Collectors.toSet())
+      : metaContextVariables;
+  }
+
   private static Map<String, Object> getBasicSpeculativeBindings(
     JinjavaInterpreter interpreter,
     EagerChildContextConfig eagerChildContextConfig,
-    Set<String> metaContextVariables,
+    Set<String> ignoredKeys,
     Map<String, Object> speculativeBindings
   ) {
     speculativeBindings.putAll(
@@ -184,7 +214,7 @@ public class EagerContextWatcher {
     return speculativeBindings
       .entrySet()
       .stream()
-      .filter(entry -> !metaContextVariables.contains(entry.getKey()))
+      .filter(entry -> !ignoredKeys.contains(entry.getKey()))
       .filter(entry -> !"loop".equals(entry.getKey()))
       .map(
         entry -> {

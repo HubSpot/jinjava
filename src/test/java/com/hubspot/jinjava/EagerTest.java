@@ -1245,4 +1245,9 @@ public class EagerTest {
       "reconstructs-words-from-inside-nested-expressions.expected"
     );
   }
+
+  @Test
+  public void itDoesNotReconstructExtraTimes() {
+    expectedTemplateInterpreter.assertExpectedOutput("does-not-reconstruct-extra-times");
+  }
 }
