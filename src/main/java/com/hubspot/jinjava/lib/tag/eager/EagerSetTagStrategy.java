@@ -61,6 +61,13 @@ public abstract class EagerSetTagStrategy {
         return maybeResolved.get();
       }
     }
+    eagerExecutionResult =
+      getDeferredEagerExecutionResult(
+        tagNode,
+        expression,
+        interpreter,
+        eagerExecutionResult
+      );
     Triple<String, String, String> triple = getPrefixTokenAndSuffix(
       tagNode,
       variables,
@@ -80,6 +87,13 @@ public abstract class EagerSetTagStrategy {
     TagNode tagNode,
     String expression,
     JinjavaInterpreter interpreter
+  );
+
+  protected abstract EagerExecutionResult getDeferredEagerExecutionResult(
+    TagNode tagNode,
+    String expression,
+    JinjavaInterpreter interpreter,
+    EagerExecutionResult firstResult
   );
 
   protected abstract Optional<String> resolveSet(

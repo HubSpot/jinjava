@@ -9,6 +9,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import com.hubspot.jinjava.util.WhitespaceUtils;
@@ -32,21 +33,46 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
     String expression,
     JinjavaInterpreter interpreter
   ) {
+    return EagerContextWatcher.executeInChildContext(
+      eagerInterpreter -> getEagerExpressionResult(expression, interpreter),
+      interpreter,
+      EagerContextWatcher
+        .EagerChildContextConfig.newBuilder()
+        .withTakeNewValue(true)
+        .build()
+    );
+  }
+
+  @Override
+  protected EagerExecutionResult getDeferredEagerExecutionResult(
+    TagNode tagNode,
+    String expression,
+    JinjavaInterpreter interpreter,
+    EagerExecutionResult firstResult
+  ) {
+    // Preserve identifiers when reconstructing to maintain proper object references
     try (
       TemporaryValueClosable<Boolean> c = interpreter
         .getContext()
         .withPreserveAllIdentifiers(true)
     ) {
       return EagerContextWatcher.executeInChildContext(
-        eagerInterpreter ->
-          EagerExpressionResolver.resolveExpression('[' + expression + ']', interpreter),
+        eagerInterpreter -> getEagerExpressionResult(expression, interpreter),
         interpreter,
         EagerContextWatcher
           .EagerChildContextConfig.newBuilder()
           .withTakeNewValue(true)
+          .withForceDeferredExecutionMode(true)
           .build()
       );
     }
+  }
+
+  private static EagerExpressionResult getEagerExpressionResult(
+    String expression,
+    JinjavaInterpreter interpreter
+  ) {
+    return EagerExpressionResolver.resolveExpression('[' + expression + ']', interpreter);
   }
 
   @Override

@@ -56,6 +56,16 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
   }
 
   @Override
+  protected EagerExecutionResult getDeferredEagerExecutionResult(
+    TagNode tagNode,
+    String expression,
+    JinjavaInterpreter interpreter,
+    EagerExecutionResult firstResult
+  ) {
+    return firstResult;
+  }
+
+  @Override
   protected Optional<String> resolveSet(
     TagNode tagNode,
     String[] variables,
