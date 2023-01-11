@@ -484,9 +484,8 @@ public class EagerTest {
     DeferredValueUtils.findAndMarkDeferredProperties(localContext);
     assertThat(deferredValue2).isInstanceOf(DeferredValue.class);
     assertThat(output)
-      .contains(
-        "{% set varSetInside = {'key': 'value'} [deferredValue2.nonexistentprop] %}"
-      );
+      .contains("{% set imported = {'map': {'key': 'value'} }  %}")
+      .contains("{% set varSetInside = imported.map[deferredValue2.nonexistentprop] %}");
   }
 
   @Test

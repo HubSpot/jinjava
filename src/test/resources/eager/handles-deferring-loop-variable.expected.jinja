@@ -7,7 +7,7 @@
 {% endif %}
 2
 {% endfor %}
-{% for i in [0, 1] %}
+{% set foo = [0, 1] %}{% set foo = [0, 1] %}{% for i in foo %}
 {% if deferred && loop.isLast() %}last time!
 {% endif %}
 {{ loop.index }}
