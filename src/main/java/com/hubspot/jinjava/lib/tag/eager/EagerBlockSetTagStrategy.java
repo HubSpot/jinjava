@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.collect.Sets;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
@@ -31,28 +32,34 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
     String expression,
     JinjavaInterpreter interpreter
   ) {
-    EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
-      eagerInterpreter ->
-        EagerExpressionResult.fromSupplier(
-          () -> {
-            StringBuilder sb = new StringBuilder();
-            for (Node child : tagNode.getChildren()) {
-              sb.append(child.render(eagerInterpreter).getValue());
-            }
-            return sb.toString();
-          },
-          eagerInterpreter
-        ),
-      interpreter,
-      EagerContextWatcher
-        .EagerChildContextConfig.newBuilder()
-        .withTakeNewValue(true)
-        .build()
-    );
-    if (result.getResult().getResolutionState() == ResolutionState.NONE) {
-      throw new DeferredValueException(result.getResult().toString());
+    try (
+      TemporaryValueClosable<Boolean> c = interpreter
+        .getContext()
+        .withPreserveAllIdentifiers(interpreter.getContext().isDeferredExecutionMode())
+    ) {
+      EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
+        eagerInterpreter ->
+          EagerExpressionResult.fromSupplier(
+            () -> {
+              StringBuilder sb = new StringBuilder();
+              for (Node child : tagNode.getChildren()) {
+                sb.append(child.render(eagerInterpreter).getValue());
+              }
+              return sb.toString();
+            },
+            eagerInterpreter
+          ),
+        interpreter,
+        EagerContextWatcher
+          .EagerChildContextConfig.newBuilder()
+          .withTakeNewValue(true)
+          .build()
+      );
+      if (result.getResult().getResolutionState() == ResolutionState.NONE) {
+        throw new DeferredValueException(result.getResult().toString());
+      }
+      return result;
     }
-    return result;
   }
 
   @Override

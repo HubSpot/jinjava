@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -31,15 +32,21 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
     String expression,
     JinjavaInterpreter interpreter
   ) {
-    return EagerContextWatcher.executeInChildContext(
-      eagerInterpreter ->
-        EagerExpressionResolver.resolveExpression('[' + expression + ']', interpreter),
-      interpreter,
-      EagerContextWatcher
-        .EagerChildContextConfig.newBuilder()
-        .withTakeNewValue(true)
-        .build()
-    );
+    try (
+      TemporaryValueClosable<Boolean> c = interpreter
+        .getContext()
+        .withPreserveAllIdentifiers(interpreter.getContext().isDeferredExecutionMode())
+    ) {
+      return EagerContextWatcher.executeInChildContext(
+        eagerInterpreter ->
+          EagerExpressionResolver.resolveExpression('[' + expression + ']', interpreter),
+        interpreter,
+        EagerContextWatcher
+          .EagerChildContextConfig.newBuilder()
+          .withTakeNewValue(true)
+          .build()
+      );
+    }
   }
 
   @Override
