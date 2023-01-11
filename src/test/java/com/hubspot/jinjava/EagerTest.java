@@ -1250,4 +1250,19 @@ public class EagerTest {
   public void itDoesNotReconstructExtraTimes() {
     expectedTemplateInterpreter.assertExpectedOutput("does-not-reconstruct-extra-times");
   }
+
+  @Test
+  public void itCorrectlyPreservesIdentifiersInInlineSet() {
+    // This doesn't need to happen in block sets, because they only store string values
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "correctly-preserves-identifiers-in-inline-set"
+    );
+  }
+
+  @Test
+  public void itCorrectlyPreservesIdentifiersInForLoop() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "correctly-preserves-identifiers-in-for-loop"
+    );
+  }
 }

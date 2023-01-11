@@ -35,7 +35,7 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
     try (
       TemporaryValueClosable<Boolean> c = interpreter
         .getContext()
-        .withPreserveAllIdentifiers(interpreter.getContext().isDeferredExecutionMode())
+        .withPreserveAllIdentifiers(true)
     ) {
       return EagerContextWatcher.executeInChildContext(
         eagerInterpreter ->
