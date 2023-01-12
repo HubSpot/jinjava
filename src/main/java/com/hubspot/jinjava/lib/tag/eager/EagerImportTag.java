@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -214,7 +215,13 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     String currentImportAlias,
     Map<String, Object> childBindings
   ) {
-    if (Strings.isNullOrEmpty(currentImportAlias)) {
+    if (
+      Strings.isNullOrEmpty(currentImportAlias) &&
+      interpreter.getContext().isDeferredExecutionMode()
+    ) {
+      Set<String> metaContextVariables = interpreter
+        .getContext()
+        .getMetaContextVariables();
       // defer imported variables
       EagerReconstructionUtils.buildSetTag(
         childBindings
@@ -224,6 +231,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
             entry ->
               !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
           )
+          .filter(entry -> !metaContextVariables.contains(entry.getKey()))
           .collect(Collectors.toMap(Entry::getKey, entry -> "")),
         interpreter,
         true

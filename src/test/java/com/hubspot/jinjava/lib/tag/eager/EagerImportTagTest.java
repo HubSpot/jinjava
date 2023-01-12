@@ -744,6 +744,20 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(interpreter.render(result)).isEqualTo("ab");
   }
 
+  @Test
+  public void itDoesNotDeferImportedVariablesWhenNotInDeferredExecutionMode() {
+    setupResourceLocator();
+    String result = interpreter
+      .render("{% import 'set-two-variables.jinja' %}" + "{{ foo }} {{ bar }}")
+      .trim();
+    assertThat(result)
+      .isEqualTo(
+        "{% set __ignored__ %}{% set current_path = 'set-two-variables.jinja' %}{% set foo = deferred %}\n" +
+        "\n" +
+        "{% set current_path = '' %}{% endset %}{{ foo }} bar"
+      );
+  }
+
   private static JinjavaInterpreter getChildInterpreter(
     JinjavaInterpreter interpreter,
     String alias
