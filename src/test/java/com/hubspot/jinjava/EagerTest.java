@@ -1264,4 +1264,11 @@ public class EagerTest {
       "correctly-preserves-identifiers-in-for-loop"
     );
   }
+
+  @Test
+  public void itCorrectlyPreservesIdentifiersInMacroFunction() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "correctly-preserves-identifiers-in-macro-function"
+    );
+  }
 }

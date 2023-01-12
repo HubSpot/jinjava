@@ -1,15 +1,12 @@
-{% set list = [] %}
-{% macro bar() %}
-{% set map1 = {} %}
-{% set map2 = {} %}
-{% do list.append(map1) %}
-{% if deferred %}
-{% do list.append(map2) %}
+{% set list = [{'a': 'A'} ] %}{% set __macro_bar_93535367_temp_variable_1__ %}
+{% set map1 = {}  %}
+{% set map2 = {}  %}
+{% set map1 = {}  %}{% do list.append(map1) %}
+{% set map2 = {}  %}{% if deferred %}
+{% set map2 = {}  %}{% do list.append(map2) %}
 {% endif %}
-{% do map1.update({'a': 'A'}) %}
-{% do map2.update({'b': 'B'}) %}
+{% do map1.update({'a': 'A'} ) %}
+{% do map2.update({'b': 'B'} ) %}
 {{ list }}
-{% endmacro %}
-
-{% set foobar = bar() %}
+{% endset %}{% set foobar = __macro_bar_93535367_temp_variable_1__ %}
 {{ list }}

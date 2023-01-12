@@ -133,13 +133,13 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
   }
 
   @Test
-  public void itDoesNotGoIntoDeferredExecutionModeWithMacro() {
+  public void itGoesIntoDeferredExecutionModeWithMacro() {
     assertExpectedOutput(
       "{% macro def() %}{{ is_deferred_execution_mode() }}{% endmacro %}" +
       "{{ def() }}" +
       "{% if deferred %}{{ def() }}{% endif %}" +
       "{{ def() }}",
-      "false{% if deferred %}false{% endif %}false"
+      "false{% if deferred %}true{% endif %}false"
     );
   }
 

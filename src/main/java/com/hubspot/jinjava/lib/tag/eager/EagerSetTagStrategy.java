@@ -131,7 +131,10 @@ public abstract class EagerSetTagStrategy {
     JinjavaInterpreter interpreter
   ) {
     StringBuilder prefixToPreserveState = new StringBuilder();
-    if (interpreter.getContext().isDeferredExecutionMode()) {
+    if (
+      interpreter.getContext().isDeferredExecutionMode() ||
+      !eagerExecutionResult.getResult().isFullyResolved()
+    ) {
       prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
     } else {
       interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());

@@ -50,6 +50,7 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
     JinjavaInterpreter interpreter,
     EagerExecutionResult firstResult
   ) {
+    EagerReconstructionUtils.resetSpeculativeBindings(interpreter, firstResult);
     // Preserve identifiers when reconstructing to maintain proper object references
     try (
       TemporaryValueClosable<Boolean> c = interpreter

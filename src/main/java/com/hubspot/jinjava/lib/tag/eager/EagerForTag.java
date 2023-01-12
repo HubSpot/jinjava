@@ -58,7 +58,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         !result.getSpeculativeBindings().isEmpty()
       )
     ) {
-      EagerIfTag.resetBindingsForNextBranch(interpreter, result);
+      EagerReconstructionUtils.resetSpeculativeBindings(interpreter, result);
       interpreter.getContext().removeDeferredTokens(addedTokens);
       throw new DeferredValueException(
         result.getResult().getResolutionState() == ResolutionState.NONE
