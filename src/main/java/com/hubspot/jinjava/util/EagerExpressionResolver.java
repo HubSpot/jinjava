@@ -129,6 +129,7 @@ public class EagerExpressionResolver {
     boolean throwInterpreterErrorsStart = interpreter
       .getContext()
       .getThrowInterpreterErrors();
+    FoundQuotedExpressionTags foundQuotedExpressionTags = new FoundQuotedExpressionTags();
     try {
       interpreter.getContext().setThrowInterpreterErrors(true);
       Set<String> words = new HashSet<>();
@@ -148,7 +149,9 @@ public class EagerExpressionResolver {
                 interpreter,
                 scannerSymbols,
                 words,
-                partiallyResolved.substring(prevQuotePos, curPos + 1)
+                partiallyResolved.substring(prevQuotePos, curPos + 1),
+                prevQuotePos,
+                foundQuotedExpressionTags
               );
             }
             inQuote = false;
@@ -178,6 +181,12 @@ public class EagerExpressionResolver {
           interpreter
         )
       );
+
+      if (foundQuotedExpressionTags.fullTagMayExist()) {
+        throw new DeferredValueException(
+          "Cannot get words inside nested interpretation tags"
+        );
+      }
       return words;
     } finally {
       interpreter.getContext().setThrowInterpreterErrors(throwInterpreterErrorsStart);
@@ -188,15 +197,21 @@ public class EagerExpressionResolver {
     JinjavaInterpreter interpreter,
     TokenScannerSymbols scannerSymbols,
     Set<String> words,
-    String quoted
+    String quoted,
+    int offset,
+    FoundQuotedExpressionTags foundQuotedExpressionTags
   ) {
-    if (
-      quoted.contains(scannerSymbols.getExpressionStartWithTag()) &&
-      quoted.contains(scannerSymbols.getExpressionEndWithTag())
-    ) {
-      throw new DeferredValueException(
-        "Cannot get words inside nested interpretation tags"
-      );
+    if (foundQuotedExpressionTags.firstStartTagFoundLocation == null) {
+      int startWithIndex = quoted.indexOf(scannerSymbols.getExpressionStartWithTag());
+      if (startWithIndex >= 0) {
+        foundQuotedExpressionTags.firstStartTagFoundLocation = startWithIndex + offset;
+      }
+    }
+    if (foundQuotedExpressionTags.firstStartTagFoundLocation != null) {
+      int endWithIndex = quoted.indexOf(scannerSymbols.getExpressionEndWithTag());
+      if (endWithIndex >= 0) {
+        foundQuotedExpressionTags.lastEndTagFoundLocation = endWithIndex + offset;
+      }
     }
 
     if (
@@ -475,6 +490,19 @@ public class EagerExpressionResolver {
       ResolutionState(boolean fullyResolved) {
         this.fullyResolved = fullyResolved;
       }
+    }
+  }
+
+  private static class FoundQuotedExpressionTags {
+    Integer firstStartTagFoundLocation;
+    Integer lastEndTagFoundLocation;
+
+    boolean fullTagMayExist() {
+      return (
+        firstStartTagFoundLocation != null &&
+        lastEndTagFoundLocation != null &&
+        firstStartTagFoundLocation < lastEndTagFoundLocation
+      );
     }
   }
 }
