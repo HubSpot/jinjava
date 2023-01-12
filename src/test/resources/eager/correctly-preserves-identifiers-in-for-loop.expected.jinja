@@ -1,0 +1,8 @@
+{% set dict = {}  %}{% set dict = {}  %}{% for item in [dict] %}
+{% if deferred %}
+{% do item.update({'c': 'd'} ) %}
+{% endif %}
+{{ item }}
+{% endfor %}
+
+{% do dict.update({'a': 'b'} ) %}

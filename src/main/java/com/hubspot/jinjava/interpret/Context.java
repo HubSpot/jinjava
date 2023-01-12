@@ -107,6 +107,8 @@ public class Context extends ScopeMap<String, Object> {
   private boolean validationMode = false;
   private boolean deferredExecutionMode = false;
   private boolean deferLargeObjects = false;
+
+  private boolean preserveAllIdentifiers = false;
   private boolean throwInterpreterErrors = false;
   private boolean partialMacroEvaluation = false;
   private boolean unwrapRawOverride = false;
@@ -211,6 +213,7 @@ public class Context extends ScopeMap<String, Object> {
       this.dynamicVariableResolver = parent.dynamicVariableResolver;
       this.deferredExecutionMode = parent.deferredExecutionMode;
       this.deferLargeObjects = parent.deferLargeObjects;
+      this.preserveAllIdentifiers = parent.preserveAllIdentifiers;
       this.throwInterpreterErrors = parent.throwInterpreterErrors;
     }
   }
@@ -726,6 +729,26 @@ public class Context extends ScopeMap<String, Object> {
       this::setDeferLargeObjects
     );
     this.deferLargeObjects = deferLargeObjects;
+    return temporaryValueClosable;
+  }
+
+  public boolean isPreserveAllIdentifiers() {
+    return preserveAllIdentifiers;
+  }
+
+  public Context setPreserveAllIdentifiers(boolean preserveAllIdentifiers) {
+    this.preserveAllIdentifiers = preserveAllIdentifiers;
+    return this;
+  }
+
+  public TemporaryValueClosable<Boolean> withPreserveAllIdentifiers(
+    boolean preserveAllIdentifiers
+  ) {
+    TemporaryValueClosable<Boolean> temporaryValueClosable = new TemporaryValueClosable<>(
+      this.preserveAllIdentifiers,
+      this::setPreserveAllIdentifiers
+    );
+    this.preserveAllIdentifiers = preserveAllIdentifiers;
     return temporaryValueClosable;
   }
 

@@ -192,7 +192,11 @@ public class EagerForTagTest extends ForTagTest {
     );
     assertThat(output.trim())
       .isEqualTo(
-        "{% for i in range(0, deferred) %}\n" + "{{ i }}\n" + "{% endfor %}\n" + "[0, 1]"
+        // now foo is being preserved because it may be used to fuel the collection we're looping through
+        "{% set foo = [0] %}{% set foo = [0] %}{% for i in range(foo.append(1) ? 0 : 1, deferred) %}\n" +
+        "{{ i }}\n" +
+        "{% endfor %}\n" +
+        "{{ foo }}"
       );
   }
 

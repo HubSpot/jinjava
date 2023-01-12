@@ -1,0 +1,7 @@
+{% set dict = {} %}
+
+{% set foo = (dict, deferred) %}
+
+{% do dict.update({'a': 'b'}) %}
+
+{{ foo }}
