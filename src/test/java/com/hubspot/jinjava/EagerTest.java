@@ -1271,4 +1271,11 @@ public class EagerTest {
       "correctly-preserves-identifiers-in-macro-function"
     );
   }
+
+  @Test
+  public void itDoesNotPreserveFilterAndExpTestIdentifiers() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "does-not-preserve-filter-and-exp-test-identifiers"
+    );
+  }
 }
