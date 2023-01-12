@@ -44,12 +44,7 @@ public interface EvalResultHolder {
     if (
       evalResult instanceof Collection &&
       ((Collection<?>) evalResult).size() > 100 && // TODO make size configurable
-      (
-        (JinjavaInterpreter) context
-          .getELResolver()
-          .getValue(context, null, ExtendedParser.INTERPRETER)
-      ).getContext()
-        .isDeferLargeObjects()
+      getJinjavaInterpreter(context).getContext().isDeferLargeObjects()
     ) {
       throw new DeferredValueException("Collection too big");
     }
@@ -62,6 +57,12 @@ public interface EvalResultHolder {
     DeferredParsingException deferredParsingException,
     boolean preserveIdentifier
   );
+
+  static JinjavaInterpreter getJinjavaInterpreter(ELContext context) {
+    return (JinjavaInterpreter) context
+      .getELResolver()
+      .getValue(context, null, ExtendedParser.INTERPRETER);
+  }
 
   static String reconstructNode(
     Bindings bindings,
