@@ -1,0 +1,12 @@
+{% set list = [] %}
+{% set temp = list %}
+{# create an object that is too deep for us to reconstruct via check on EagerExpressionResolver.isResolvableObject #}
+{% for i in range(20) %}
+{% set temp2 = [i] %}
+{% do temp.append(temp2) %}
+{% set temp = temp2 %}
+{% endfor %}
+{% for j in range(1) %}
+{% do list.append('END') %}
+{% endfor %}
+{{ list }}
