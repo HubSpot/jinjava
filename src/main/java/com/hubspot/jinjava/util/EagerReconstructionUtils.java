@@ -653,14 +653,4 @@ public class EagerReconstructionUtils {
       )
     );
   }
-
-  public static Set<String> resetSpeculativeBindings(
-    JinjavaInterpreter interpreter,
-    EagerExecutionResult result
-  ) {
-    result
-      .getSpeculativeBindings()
-      .forEach((k, v) -> interpreter.getContext().replace(k, v));
-    return result.getSpeculativeBindings().keySet();
-  }
 }

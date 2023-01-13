@@ -58,7 +58,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         !result.getSpeculativeBindings().isEmpty()
       )
     ) {
-      EagerReconstructionUtils.resetSpeculativeBindings(interpreter, result);
+      EagerIfTag.resetBindingsForNextBranch(interpreter, result);
       interpreter.getContext().removeDeferredTokens(addedTokens);
       throw new DeferredValueException(
         result.getResult().getResolutionState() == ResolutionState.NONE
@@ -98,34 +98,28 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
           interpreter.getContext().isDeferLargeObjects()
         )
     ) {
-      try (
-        TemporaryValueClosable<Boolean> c1 = interpreter
-          .getContext()
-          .withPreserveAllIdentifiers(true)
-      ) {
-        // separate getEagerImage from renderChildren because the token gets evaluated once
-        // while the children are evaluated 0...n times.
-        result.append(
-          EagerContextWatcher
-            .executeInChildContext(
-              eagerInterpreter ->
-                EagerExpressionResult.fromString(
-                  getEagerImage(
-                    buildToken(
-                      tagNode,
-                      e,
-                      interpreter.getLineNumber(),
-                      interpreter.getPosition()
-                    ),
-                    eagerInterpreter
-                  )
-                ),
-              interpreter,
-              EagerContextWatcher.EagerChildContextConfig.newBuilder().build()
-            )
-            .asTemplateString()
-        );
-      }
+      // separate getEagerImage from renderChildren because the token gets evaluated once
+      // while the children are evaluated 0...n times.
+      result.append(
+        EagerContextWatcher
+          .executeInChildContext(
+            eagerInterpreter ->
+              EagerExpressionResult.fromString(
+                getEagerImage(
+                  buildToken(
+                    tagNode,
+                    e,
+                    interpreter.getLineNumber(),
+                    interpreter.getPosition()
+                  ),
+                  eagerInterpreter
+                )
+              ),
+            interpreter,
+            EagerContextWatcher.EagerChildContextConfig.newBuilder().build()
+          )
+          .asTemplateString()
+      );
     }
 
     EagerExecutionResult firstRunResult = runLoopOnce(tagNode, interpreter);

@@ -55,6 +55,20 @@ public class EagerExecutionResult {
     }
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     prefixToPreserveState =
+      speculativeBindings
+        .entrySet()
+        .stream()
+        .filter(entry -> entry.getValue() instanceof PyishBlockSetSerializable)
+        .map(
+          entry ->
+            buildBlockSetTag(
+              entry.getKey(),
+              ((PyishBlockSetSerializable) entry.getValue()).getBlockSetBody(),
+              interpreter,
+              registerDeferredToken
+            )
+        )
+        .collect(Collectors.joining()) +
       buildSetTag(
         speculativeBindings
           .entrySet()
@@ -70,20 +84,6 @@ public class EagerExecutionResult {
         interpreter,
         registerDeferredToken
       ) +
-      speculativeBindings
-        .entrySet()
-        .stream()
-        .filter(entry -> entry.getValue() instanceof PyishBlockSetSerializable)
-        .map(
-          entry ->
-            buildBlockSetTag(
-              entry.getKey(),
-              ((PyishBlockSetSerializable) entry.getValue()).getBlockSetBody(),
-              interpreter,
-              registerDeferredToken
-            )
-        )
-        .collect(Collectors.joining()) +
       speculativeBindings
         .entrySet()
         .stream()
