@@ -17,6 +17,7 @@ import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.Re
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -162,6 +163,11 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         if (!(eagerInterpreter.getContext().get("loop") instanceof DeferredValue)) {
           eagerInterpreter.getContext().put("loop", DeferredValue.instance());
         }
+
+        getTag()
+          .getLoopVarsAndExpression((TagToken) tagNode.getMaster())
+          .getLeft()
+          .forEach(var -> interpreter.getContext().put(var, DeferredValue.instance()));
         return EagerExpressionResult.fromString(
           renderChildren(tagNode, eagerInterpreter)
         );
@@ -227,7 +233,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
                 !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
             )
             .collect(Collectors.toSet()),
-          new HashSet<>(loopVars)
+          Collections.emptySet()
         )
       )
     );
