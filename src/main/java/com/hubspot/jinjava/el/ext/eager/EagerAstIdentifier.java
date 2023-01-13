@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el.ext.eager;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.DeferredValueException;
+import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.lib.filter.Filter;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
@@ -26,6 +27,7 @@ public class EagerAstIdentifier extends AstIdentifier implements EvalResultHolde
           !ExtendedParser.INTERPRETER.equals(getName()) &&
           !EagerExpressionResolver.isPrimitive(result) &&
           !(result instanceof Filter) &&
+          !(result instanceof ExpTest) &&
           EvalResultHolder
             .getJinjavaInterpreter(context)
             .getContext()
