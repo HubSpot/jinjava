@@ -562,7 +562,7 @@ public class EagerReconstructionUtils {
     );
   }
 
-  public static void removeMetaContextVariables(
+  public static Set<String> removeMetaContextVariables(
     Stream<String> varStream,
     Context context
   ) {
@@ -575,6 +575,7 @@ public class EagerReconstructionUtils {
       )
       .immutableCopy();
     context.getMetaContextVariables().removeAll(metaSetVars);
+    return metaSetVars;
   }
 
   public static Boolean isDeferredExecutionMode() {

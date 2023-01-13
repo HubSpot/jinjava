@@ -163,14 +163,26 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         if (!(eagerInterpreter.getContext().get("loop") instanceof DeferredValue)) {
           eagerInterpreter.getContext().put("loop", DeferredValue.instance());
         }
-
-        getTag()
+        List<String> loopVars = getTag()
           .getLoopVarsAndExpression((TagToken) tagNode.getMaster())
-          .getLeft()
-          .forEach(var -> interpreter.getContext().put(var, DeferredValue.instance()));
-        return EagerExpressionResult.fromString(
-          renderChildren(tagNode, eagerInterpreter)
+          .getLeft();
+        Set<String> removedMetaContextVariables = EagerReconstructionUtils.removeMetaContextVariables(
+          loopVars.stream(),
+          interpreter.getContext()
         );
+        loopVars.forEach(
+          var -> interpreter.getContext().put(var, DeferredValue.instance())
+        );
+        try {
+          return EagerExpressionResult.fromString(
+            renderChildren(tagNode, eagerInterpreter)
+          );
+        } finally {
+          interpreter
+            .getContext()
+            .getMetaContextVariables()
+            .addAll(removedMetaContextVariables);
+        }
       },
       interpreter,
       EagerContextWatcher
@@ -210,10 +222,6 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       interpreter
     );
     prefixToPreserveState.append(newlyDeferredFunctionImages);
-    EagerReconstructionUtils.removeMetaContextVariables(
-      loopVars.stream(),
-      interpreter.getContext()
-    );
 
     prefixToPreserveState.append(
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(

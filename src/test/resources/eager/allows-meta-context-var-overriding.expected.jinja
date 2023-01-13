@@ -1,6 +1,6 @@
 0
 META
-{% set meta = 'META' %}{% for meta in deferred %}
+{% for meta in deferred %}
 {{ meta }}{% endfor %}
 {{ meta }}
 {% set meta = [] %}{% if deferred %}
