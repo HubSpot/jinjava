@@ -484,8 +484,9 @@ public class EagerTest {
     DeferredValueUtils.findAndMarkDeferredProperties(localContext);
     assertThat(deferredValue2).isInstanceOf(DeferredValue.class);
     assertThat(output)
-      .contains("{% set imported = {'map': {'key': 'value'} }  %}")
-      .contains("{% set varSetInside = imported.map[deferredValue2.nonexistentprop] %}");
+      .contains(
+        "{% set varSetInside = {'key': 'value'} [deferredValue2.nonexistentprop] %}"
+      );
   }
 
   @Test
@@ -1248,27 +1249,5 @@ public class EagerTest {
   @Test
   public void itDoesNotReconstructExtraTimes() {
     expectedTemplateInterpreter.assertExpectedOutput("does-not-reconstruct-extra-times");
-  }
-
-  @Test
-  public void itCorrectlyPreservesIdentifiersInInlineSet() {
-    // This doesn't need to happen in block sets, because they only store string values
-    expectedTemplateInterpreter.assertExpectedOutput(
-      "correctly-preserves-identifiers-in-inline-set"
-    );
-  }
-
-  @Test
-  public void itCorrectlyPreservesIdentifiersInForLoop() {
-    expectedTemplateInterpreter.assertExpectedOutput(
-      "correctly-preserves-identifiers-in-for-loop"
-    );
-  }
-
-  @Test
-  public void itCorrectlyPreservesIdentifiersInMacroFunction() {
-    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "correctly-preserves-identifiers-in-macro-function"
-    );
   }
 }

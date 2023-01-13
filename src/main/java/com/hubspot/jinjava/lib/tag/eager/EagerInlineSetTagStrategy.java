@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -9,7 +8,6 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
-import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import com.hubspot.jinjava.util.WhitespaceUtils;
@@ -34,46 +32,14 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
     JinjavaInterpreter interpreter
   ) {
     return EagerContextWatcher.executeInChildContext(
-      eagerInterpreter -> getEagerExpressionResult(expression, interpreter),
+      eagerInterpreter ->
+        EagerExpressionResolver.resolveExpression('[' + expression + ']', interpreter),
       interpreter,
       EagerContextWatcher
         .EagerChildContextConfig.newBuilder()
         .withTakeNewValue(true)
         .build()
     );
-  }
-
-  @Override
-  protected EagerExecutionResult getDeferredEagerExecutionResult(
-    TagNode tagNode,
-    String expression,
-    JinjavaInterpreter interpreter,
-    EagerExecutionResult firstResult
-  ) {
-    EagerReconstructionUtils.resetSpeculativeBindings(interpreter, firstResult);
-    // Preserve identifiers when reconstructing to maintain proper object references
-    try (
-      TemporaryValueClosable<Boolean> c = interpreter
-        .getContext()
-        .withPreserveAllIdentifiers(true)
-    ) {
-      return EagerContextWatcher.executeInChildContext(
-        eagerInterpreter -> getEagerExpressionResult(expression, interpreter),
-        interpreter,
-        EagerContextWatcher
-          .EagerChildContextConfig.newBuilder()
-          .withTakeNewValue(true)
-          .withForceDeferredExecutionMode(true)
-          .build()
-      );
-    }
-  }
-
-  private static EagerExpressionResult getEagerExpressionResult(
-    String expression,
-    JinjavaInterpreter interpreter
-  ) {
-    return EagerExpressionResolver.resolveExpression('[' + expression + ']', interpreter);
   }
 
   @Override

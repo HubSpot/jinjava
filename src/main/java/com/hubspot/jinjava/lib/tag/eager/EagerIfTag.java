@@ -121,9 +121,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
             .build()
         );
         sb.append(result.getResult());
-        bindingsToDefer.addAll(
-          EagerReconstructionUtils.resetSpeculativeBindings(interpreter, result)
-        );
+        bindingsToDefer.addAll(resetBindingsForNextBranch(interpreter, result));
       }
       if (branchEnd >= childrenSize || definitelyExecuted) {
         break;
@@ -180,6 +178,16 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       return sb.toString();
     }
     return sb.toString();
+  }
+
+  public static Set<String> resetBindingsForNextBranch(
+    JinjavaInterpreter interpreter,
+    EagerExecutionResult result
+  ) {
+    result
+      .getSpeculativeBindings()
+      .forEach((k, v) -> interpreter.getContext().replace(k, v));
+    return result.getSpeculativeBindings().keySet();
   }
 
   private String evaluateBranch(
