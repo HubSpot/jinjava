@@ -1271,4 +1271,11 @@ public class EagerTest {
       "correctly-preserves-identifiers-in-macro-function"
     );
   }
+
+  @Test
+  public void itOnlyDefersLoopItemOnCurrentContext() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "only-defers-loop-item-on-current-context"
+    );
+  }
 }
