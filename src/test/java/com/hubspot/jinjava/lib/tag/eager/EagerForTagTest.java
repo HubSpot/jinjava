@@ -57,8 +57,7 @@ public class EagerForTagTest extends ForTagTest {
       .filter(e -> ((TagToken) e.getToken()).getTagName().equals(tag.getName()))
       .findAny();
     assertThat(maybeDeferredToken).isPresent();
-    assertThat(maybeDeferredToken.get().getSetDeferredWords())
-      .containsExactlyInAnyOrder("item");
+    assertThat(maybeDeferredToken.get().getSetDeferredWords()).isEmpty();
     assertThat(maybeDeferredToken.get().getUsedDeferredWords()).contains("deferred");
   }
 
@@ -72,8 +71,7 @@ public class EagerForTagTest extends ForTagTest {
       .filter(e -> ((TagToken) e.getToken()).getTagName().equals(tag.getName()))
       .findAny();
     assertThat(maybeDeferredToken).isPresent();
-    assertThat(maybeDeferredToken.get().getSetDeferredWords())
-      .containsExactlyInAnyOrder("item", "item2");
+    assertThat(maybeDeferredToken.get().getSetDeferredWords()).isEmpty();
     assertThat(maybeDeferredToken.get().getUsedDeferredWords()).contains("deferred");
   }
 

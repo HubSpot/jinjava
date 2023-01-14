@@ -505,7 +505,7 @@ public class EagerTest {
           .flatMap(deferredToken -> deferredToken.getSetDeferredWords().stream())
           .collect(Collectors.toSet())
       )
-      .containsExactlyInAnyOrder("item");
+      .isEmpty();
     assertThat(
         localContext
           .getDeferredTokens()
@@ -974,7 +974,7 @@ public class EagerTest {
   public void itAllowsMetaContextVarOverriding() {
     interpreter.getContext().getMetaContextVariables().add("meta");
     interpreter.getContext().put("meta", "META");
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "allows-meta-context-var-overriding"
     );
   }
@@ -1255,6 +1255,13 @@ public class EagerTest {
   public void itAllowsModificationInResolvedForLoop() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "allows-modification-in-resolved-for-loop"
+    );
+  }
+
+  @Test
+  public void itOnlyDefersLoopItemOnCurrentContext() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "only-defers-loop-item-on-current-context"
     );
   }
 }

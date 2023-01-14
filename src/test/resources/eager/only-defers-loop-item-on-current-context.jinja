@@ -1,0 +1,14 @@
+{% set outer_val = 'start' %}
+{% for def in deferred %}
+{% set outer_list = [{'a': ['b']}] %}
+{% for map in outer_list %}
+{% set inner_list = map.a %}
+{% for x in inner_list %}
+{# make outer_val a speculative binding #}
+{% set outer_val = outer_val ~ '-' %}
+{% if outer_val == deferred %}
+{{ outer_val }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
