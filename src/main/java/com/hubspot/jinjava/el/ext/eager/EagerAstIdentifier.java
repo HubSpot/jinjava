@@ -1,10 +1,6 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.el.ext.ExtendedParser;
-import com.hubspot.jinjava.interpret.DeferredValueException;
-import com.hubspot.jinjava.lib.filter.Filter;
-import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import javax.el.ELContext;
@@ -20,21 +16,7 @@ public class EagerAstIdentifier extends AstIdentifier implements EvalResultHolde
   @Override
   public Object eval(Bindings bindings, ELContext context) {
     return EvalResultHolder.super.eval(
-      () -> {
-        Object result = super.eval(bindings, context);
-        if (
-          !ExtendedParser.INTERPRETER.equals(getName()) &&
-          !EagerExpressionResolver.isPrimitive(result) &&
-          !(result instanceof Filter) &&
-          EvalResultHolder
-            .getJinjavaInterpreter(context)
-            .getContext()
-            .isPreserveAllIdentifiers()
-        ) {
-          throw new DeferredValueException("Preserving all non-primitive identifiers");
-        }
-        return result;
-      },
+      () -> super.eval(bindings, context),
       bindings,
       context
     );

@@ -77,6 +77,7 @@ public class MacroFunction extends AbstractCallableMethod {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     Optional<String> importFile = getImportFile(interpreter);
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
+      interpreter.getContext().setDeferredExecutionMode(false);
       String result = getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
 
       if (
