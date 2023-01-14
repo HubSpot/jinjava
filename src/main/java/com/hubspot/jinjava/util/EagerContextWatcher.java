@@ -70,7 +70,7 @@ public class EagerContextWatcher {
           metaContextVariables,
           initiallyResolvedHashes,
           initiallyResolvedAsStrings,
-          initialResult.getSpeculativeBindings()
+          initialResult
         );
     } else {
       Set<String> ignoredKeys = getKeysToIgnore(
@@ -84,7 +84,7 @@ public class EagerContextWatcher {
           interpreter,
           eagerChildContextConfig,
           ignoredKeys,
-          initialResult.getSpeculativeBindings()
+          initialResult
         );
     }
     return new EagerExecutionResult(initialResult.getResult(), speculativeBindings);
@@ -188,30 +188,34 @@ public class EagerContextWatcher {
     JinjavaInterpreter interpreter,
     EagerChildContextConfig eagerChildContextConfig,
     Set<String> ignoredKeys,
-    Map<String, Object> speculativeBindings
+    EagerExecutionResult eagerExecutionResult
   ) {
-    speculativeBindings.putAll(
-      interpreter
-        .getContext()
-        .getScope()
-        .entrySet()
-        .stream()
-        .filter(
-          entry ->
-            entry.getValue() instanceof DeferredLazyReferenceSource &&
-            !(((DeferredLazyReferenceSource) entry.getValue()).isReconstructed())
-        )
-        .peek(
-          entry -> ((DeferredLazyReferenceSource) entry.getValue()).setReconstructed(true)
-        )
-        .collect(
-          Collectors.toMap(
-            Entry::getKey,
-            entry -> ((DeferredLazyReferenceSource) entry.getValue()).getOriginalValue()
+    eagerExecutionResult
+      .getSpeculativeBindings()
+      .putAll(
+        interpreter
+          .getContext()
+          .getScope()
+          .entrySet()
+          .stream()
+          .filter(
+            entry ->
+              entry.getValue() instanceof DeferredLazyReferenceSource &&
+              !(((DeferredLazyReferenceSource) entry.getValue()).isReconstructed())
           )
-        )
-    );
-    return speculativeBindings
+          .peek(
+            entry ->
+              ((DeferredLazyReferenceSource) entry.getValue()).setReconstructed(true)
+          )
+          .collect(
+            Collectors.toMap(
+              Entry::getKey,
+              entry -> ((DeferredLazyReferenceSource) entry.getValue()).getOriginalValue()
+            )
+          )
+      );
+    return eagerExecutionResult
+      .getSpeculativeBindings()
       .entrySet()
       .stream()
       .filter(entry -> !ignoredKeys.contains(entry.getKey()))
@@ -219,7 +223,10 @@ public class EagerContextWatcher {
       .map(
         entry -> {
           if (
-            eagerChildContextConfig.takeNewValue &&
+            (
+              eagerExecutionResult.getResult().isFullyResolved() ||
+              eagerChildContextConfig.takeNewValue
+            ) &&
             !(entry.getValue() instanceof DeferredValue) &&
             entry.getValue() != null
           ) {
@@ -264,22 +271,21 @@ public class EagerContextWatcher {
     Set<String> metaContextVariables,
     Map<String, Object> initiallyResolvedHashes,
     Map<String, String> initiallyResolvedAsStrings,
-    Map<String, Object> speculativeBindings
+    EagerExecutionResult eagerExecutionResult
   ) {
-    speculativeBindings =
-      speculativeBindings
-        .entrySet()
-        .stream()
-        .filter(
-          entry ->
-            entry.getValue() != null &&
-            !entry.getValue().equals(interpreter.getContext().get(entry.getKey()))
-        )
-        .filter(
-          entry ->
-            !(interpreter.getContext().get(entry.getKey()) instanceof DeferredValue)
-        )
-        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+    Map<String, Object> speculativeBindings = eagerExecutionResult
+      .getSpeculativeBindings()
+      .entrySet()
+      .stream()
+      .filter(
+        entry ->
+          entry.getValue() != null &&
+          !entry.getValue().equals(interpreter.getContext().get(entry.getKey()))
+      )
+      .filter(
+        entry -> !(interpreter.getContext().get(entry.getKey()) instanceof DeferredValue)
+      )
+      .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     speculativeBindings.putAll(
       initiallyResolvedHashes
         .keySet()
@@ -304,7 +310,8 @@ public class EagerContextWatcher {
                 eagerChildContextConfig,
                 initiallyResolvedHashes,
                 initiallyResolvedAsStrings,
-                entry
+                entry,
+                eagerExecutionResult.getResult().isFullyResolved()
               )
           )
         )
@@ -359,9 +366,10 @@ public class EagerContextWatcher {
     EagerChildContextConfig eagerChildContextConfig,
     Map<String, Object> initiallyResolvedHashes,
     Map<String, String> initiallyResolvedAsStrings,
-    Entry<String, Object> e
+    Entry<String, Object> e,
+    boolean isFullyResolved
   ) {
-    if (eagerChildContextConfig.takeNewValue) {
+    if (eagerChildContextConfig.takeNewValue || isFullyResolved) {
       if (e.getValue() instanceof DeferredValue) {
         return ((DeferredValue) e.getValue()).getOriginalValue();
       }

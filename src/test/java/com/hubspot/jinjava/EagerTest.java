@@ -1250,4 +1250,11 @@ public class EagerTest {
   public void itDoesNotReconstructExtraTimes() {
     expectedTemplateInterpreter.assertExpectedOutput("does-not-reconstruct-extra-times");
   }
+
+  @Test
+  public void itAllowsModificationInResolvedForLoop() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "allows-modification-in-resolved-for-loop"
+    );
+  }
 }
