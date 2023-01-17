@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class EagerTest {
@@ -1259,6 +1260,7 @@ public class EagerTest {
   }
 
   @Test
+  @Ignore // Test isn't necessary after https://github.com/HubSpot/jinjava/pull/988 got reverted
   public void itOnlyDefersLoopItemOnCurrentContext() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "only-defers-loop-item-on-current-context"
