@@ -562,7 +562,7 @@ public class EagerReconstructionUtils {
     );
   }
 
-  public static void removeMetaContextVariables(
+  public static Set<String> removeMetaContextVariables(
     Stream<String> varStream,
     Context context
   ) {
@@ -575,6 +575,7 @@ public class EagerReconstructionUtils {
       )
       .immutableCopy();
     context.getMetaContextVariables().removeAll(metaSetVars);
+    return metaSetVars;
   }
 
   public static Boolean isDeferredExecutionMode() {
@@ -652,5 +653,15 @@ public class EagerReconstructionUtils {
         false
       )
     );
+  }
+
+  public static Set<String> resetSpeculativeBindings(
+    JinjavaInterpreter interpreter,
+    EagerExecutionResult result
+  ) {
+    result
+      .getSpeculativeBindings()
+      .forEach((k, v) -> interpreter.getContext().replace(k, v));
+    return result.getSpeculativeBindings().keySet();
   }
 }

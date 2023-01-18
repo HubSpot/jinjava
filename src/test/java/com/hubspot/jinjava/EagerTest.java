@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class EagerTest {
@@ -505,7 +506,7 @@ public class EagerTest {
           .flatMap(deferredToken -> deferredToken.getSetDeferredWords().stream())
           .collect(Collectors.toSet())
       )
-      .containsExactlyInAnyOrder("item");
+      .isEmpty();
     assertThat(
         localContext
           .getDeferredTokens()
@@ -974,7 +975,7 @@ public class EagerTest {
   public void itAllowsMetaContextVarOverriding() {
     interpreter.getContext().getMetaContextVariables().add("meta");
     interpreter.getContext().put("meta", "META");
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "allows-meta-context-var-overriding"
     );
   }
@@ -1249,5 +1250,20 @@ public class EagerTest {
   @Test
   public void itDoesNotReconstructExtraTimes() {
     expectedTemplateInterpreter.assertExpectedOutput("does-not-reconstruct-extra-times");
+  }
+
+  @Test
+  public void itAllowsModificationInResolvedForLoop() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "allows-modification-in-resolved-for-loop"
+    );
+  }
+
+  @Test
+  @Ignore // Test isn't necessary after https://github.com/HubSpot/jinjava/pull/988 got reverted
+  public void itOnlyDefersLoopItemOnCurrentContext() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "only-defers-loop-item-on-current-context"
+    );
   }
 }

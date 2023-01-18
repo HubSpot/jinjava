@@ -17,6 +17,7 @@ import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.Re
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,7 +59,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         !result.getSpeculativeBindings().isEmpty()
       )
     ) {
-      EagerIfTag.resetBindingsForNextBranch(interpreter, result);
+      EagerReconstructionUtils.resetSpeculativeBindings(interpreter, result);
       interpreter.getContext().removeDeferredTokens(addedTokens);
       throw new DeferredValueException(
         result.getResult().getResolutionState() == ResolutionState.NONE
@@ -156,9 +157,26 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         if (!(eagerInterpreter.getContext().get("loop") instanceof DeferredValue)) {
           eagerInterpreter.getContext().put("loop", DeferredValue.instance());
         }
-        return EagerExpressionResult.fromString(
-          renderChildren(tagNode, eagerInterpreter)
+        List<String> loopVars = getTag()
+          .getLoopVarsAndExpression((TagToken) tagNode.getMaster())
+          .getLeft();
+        Set<String> removedMetaContextVariables = EagerReconstructionUtils.removeMetaContextVariables(
+          loopVars.stream(),
+          interpreter.getContext()
         );
+        loopVars.forEach(
+          var -> interpreter.getContext().put(var, DeferredValue.instance())
+        );
+        try {
+          return EagerExpressionResult.fromString(
+            renderChildren(tagNode, eagerInterpreter)
+          );
+        } finally {
+          interpreter
+            .getContext()
+            .getMetaContextVariables()
+            .addAll(removedMetaContextVariables);
+        }
       },
       interpreter,
       EagerContextWatcher
@@ -198,10 +216,6 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       interpreter
     );
     prefixToPreserveState.append(newlyDeferredFunctionImages);
-    EagerReconstructionUtils.removeMetaContextVariables(
-      loopVars.stream(),
-      interpreter.getContext()
-    );
 
     prefixToPreserveState.append(
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
@@ -221,7 +235,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
                 !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
             )
             .collect(Collectors.toSet()),
-          new HashSet<>(loopVars)
+          Collections.emptySet()
         )
       )
     );
