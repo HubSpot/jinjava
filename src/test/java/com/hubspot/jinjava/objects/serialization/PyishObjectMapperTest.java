@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.objects.serialization;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
@@ -52,7 +53,7 @@ public class PyishObjectMapperTest {
       list = temp;
     }
     list.add("a");
-    assertThat(PyishObjectMapper.getAsPyishString(original))
-      .isEqualTo("[0, [1, [2, [3, [4, []]]]]]");
+    assertThatThrownBy(() -> PyishObjectMapper.getAsPyishStringOrThrow(original))
+      .isInstanceOf(DepthAndWidthLimitingException.class);
   }
 }

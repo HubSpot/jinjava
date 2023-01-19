@@ -1,7 +1,7 @@
 package com.hubspot.jinjava.objects.serialization;
 
-import static com.hubspot.jinjava.objects.serialization.DepthAndWidthLimitingSerializerFactory.DEPTH_KEY;
-import static com.hubspot.jinjava.objects.serialization.DepthAndWidthLimitingSerializerFactory.WIDTH_KEY;
+import static com.hubspot.jinjava.objects.serialization.DepthAndWidthLimitingSerializerFactory.REMAINING_DEPTH_KEY;
+import static com.hubspot.jinjava.objects.serialization.DepthAndWidthLimitingSerializerFactory.REMAINING_WIDTH_KEY;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -39,10 +39,13 @@ public class WrappingMapEntrySerializer
     throws IOException {
     ObjectWriter objectWriter = PyishObjectMapper
       .PYISH_OBJECT_WRITER.withAttribute(
-        DEPTH_KEY,
-        serializerProvider.getAttribute(DEPTH_KEY)
+        REMAINING_DEPTH_KEY,
+        serializerProvider.getAttribute(REMAINING_DEPTH_KEY)
       )
-      .withAttribute(WIDTH_KEY, serializerProvider.getAttribute(WIDTH_KEY));
+      .withAttribute(
+        REMAINING_WIDTH_KEY,
+        serializerProvider.getAttribute(REMAINING_WIDTH_KEY)
+      );
     String key = objectWriter.writeValueAsString(entry.getKey());
     String value = objectWriter.writeValueAsString(entry.getValue());
     jsonGenerator.writeRawValue(String.format("fn:map_entry(%s, %s)", key, value));

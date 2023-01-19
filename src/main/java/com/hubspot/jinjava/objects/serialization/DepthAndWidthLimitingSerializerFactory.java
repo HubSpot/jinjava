@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.type.SimpleType;
 import com.google.common.base.Defaults;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -22,8 +23,8 @@ public class DepthAndWidthLimitingSerializerFactory {
   public static final SerializerFactory instance = getSerializerFactory(
     BeanSerializerFactory.instance
   );
-  public static final String DEPTH_KEY = "maxDepth";
-  public static final String WIDTH_KEY = "maxWidth";
+  public static final String REMAINING_DEPTH_KEY = "remainingDepth";
+  public static final String REMAINING_WIDTH_KEY = "remainingWidth";
 
   public static void checkDepthAndWidth(
     SerializerProvider provider,
@@ -31,17 +32,27 @@ public class DepthAndWidthLimitingSerializerFactory {
   )
     throws IOException {
     try {
-      AtomicInteger depth = (AtomicInteger) provider.getAttribute(DEPTH_KEY);
-      AtomicInteger width = (AtomicInteger) provider.getAttribute(WIDTH_KEY);
-      if (width.decrementAndGet() >= 0) {
-        if (depth.decrementAndGet() >= 0) {
-          action.run();
-          depth.incrementAndGet();
-        }
+      AtomicInteger depth = (AtomicInteger) provider.getAttribute(REMAINING_DEPTH_KEY);
+      AtomicInteger width = (AtomicInteger) provider.getAttribute(REMAINING_WIDTH_KEY);
+      if (width.decrementAndGet() >= 0 && depth.decrementAndGet() >= 0) {
+        action.run();
+        depth.incrementAndGet();
+      } else {
+        throw new DepthAndWidthLimitingException(depth);
       }
     } catch (IOException e) {
       throw e;
     } catch (Throwable e) {
+      if (
+        e instanceof InvocationTargetException &&
+        (
+          (InvocationTargetException) e
+        ).getTargetException() instanceof DepthAndWidthLimitingException
+      ) {
+        throw (DepthAndWidthLimitingException) (
+          (InvocationTargetException) e
+        ).getTargetException();
+      }
       throw new RuntimeException(e);
     }
   }
@@ -104,10 +115,7 @@ public class DepthAndWidthLimitingSerializerFactory {
     final Class<?> finalClazz = clazz;
     ProxyFactory factory = new ProxyFactory();
     factory.setSuperclass(finalClazz);
-    //    factory.setFilter(
-    //      method ->
-    //        isSerializeMethod(method) || method.getReturnType().isAssignableFrom(finalClazz)
-    //    );
+    factory.setFilter(method -> Modifier.isPublic(method.getModifiers()));
     factory.setInterfaces(new Class[] { DepthAndWidthLimiting.class });
 
     MethodHandler handler = (self, thisMethod, proceed, args) -> {

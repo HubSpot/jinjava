@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.io.IOException;
@@ -45,6 +46,9 @@ public class PyishObjectMapper {
     try {
       return getAsPyishStringOrThrow(val);
     } catch (JsonProcessingException e) {
+      if (e instanceof DepthAndWidthLimitingException) {
+        throw new DeferredValueException(String.format("%s: %s", e.getMessage(), val));
+      }
       return Objects.toString(val, "");
     }
   }
@@ -53,11 +57,11 @@ public class PyishObjectMapper {
     throws JsonProcessingException {
     String string = PYISH_OBJECT_WRITER
       .withAttribute(
-        DepthAndWidthLimitingSerializerFactory.DEPTH_KEY,
+        DepthAndWidthLimitingSerializerFactory.REMAINING_DEPTH_KEY,
         new AtomicInteger(6)
       )
       .withAttribute(
-        DepthAndWidthLimitingSerializerFactory.WIDTH_KEY,
+        DepthAndWidthLimitingSerializerFactory.REMAINING_WIDTH_KEY,
         new AtomicInteger(100)
       )
       .writeValueAsString(val);
