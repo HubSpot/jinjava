@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 
@@ -37,6 +38,21 @@ public class PyishObjectMapperTest {
     map.put("foo", "bar");
     map.put("foobar", null);
     assertThat(PyishObjectMapper.getAsPyishString(map))
+      .isEqualTo("{'foobar': null, 'foo': 'bar'} ");
+  }
+
+  @Test
+  public void itLimitsDepth() {
+    final List<Object> original = new ArrayList<>();
+    List<Object> list = original;
+    for (int i = 0; i < 20; i++) {
+      List<Object> temp = new ArrayList<>();
+      list.add(i);
+      list.add(temp);
+      list = temp;
+    }
+    list.add("a");
+    assertThat(PyishObjectMapper.getAsPyishString(original))
       .isEqualTo("{'foobar': null, 'foo': 'bar'} ");
   }
 }

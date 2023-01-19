@@ -12,6 +12,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PyishObjectMapper {
   public static final ObjectWriter PYISH_OBJECT_WRITER;
@@ -19,8 +20,11 @@ public class PyishObjectMapper {
   static {
     ObjectMapper mapper = new ObjectMapper(
       new JsonFactoryBuilder().quoteChar('\'').build()
-    )
-    .registerModule(
+    );
+    mapper.setSerializerFactory(DepthAndWidthLimitingSerializerFactory.instance);
+
+    mapper =
+      mapper.registerModule(
         new SimpleModule()
           .setSerializerModifier(PyishBeanSerializerModifier.INSTANCE)
           .addSerializer(PyishSerializable.class, PyishSerializer.INSTANCE)
@@ -47,7 +51,16 @@ public class PyishObjectMapper {
 
   public static String getAsPyishStringOrThrow(Object val)
     throws JsonProcessingException {
-    String string = PYISH_OBJECT_WRITER.writeValueAsString(val);
+    String string = PYISH_OBJECT_WRITER
+      .withAttribute(
+        DepthAndWidthLimitingSerializerFactory.DEPTH_KEY,
+        new AtomicInteger(6)
+      )
+      .withAttribute(
+        DepthAndWidthLimitingSerializerFactory.WIDTH_KEY,
+        new AtomicInteger(10)
+      )
+      .writeValueAsString(val);
     JinjavaInterpreter.checkOutputSize(string);
     return string;
   }
