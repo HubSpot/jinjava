@@ -13,7 +13,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class PyishObjectMapper {
   public static final ObjectWriter PYISH_OBJECT_WRITER;
@@ -65,15 +64,13 @@ public class PyishObjectMapper {
       .getCurrentMaybe()
       .map(
         interpreter ->
-          PYISH_OBJECT_WRITER
-            .withAttribute(
-              DepthAndWidthLimiting.REMAINING_DEPTH_KEY,
-              new AtomicInteger(interpreter.getConfig().getMaxSerializationDepth())
+          PYISH_OBJECT_WRITER.withAttribute(
+            DepthAndWidthLimiting.DEPTH_AND_WIDTH_TRACKER,
+            new DepthAndWidthTracker(
+              interpreter.getConfig().getMaxSerializationDepth(),
+              interpreter.getConfig().getMaxSerializationWidth()
             )
-            .withAttribute(
-              DepthAndWidthLimiting.REMAINING_WIDTH_KEY,
-              new AtomicInteger(interpreter.getConfig().getMaxSerializationWidth())
-            )
+          )
       )
       .orElse(PYISH_OBJECT_WRITER);
   }

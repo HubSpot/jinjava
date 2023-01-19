@@ -31,15 +31,10 @@ public class WrappingMapEntrySerializer
     SerializerProvider serializerProvider
   )
     throws IOException {
-    ObjectWriter objectWriter = PyishObjectMapper
-      .PYISH_OBJECT_WRITER.withAttribute(
-        REMAINING_DEPTH_KEY,
-        serializerProvider.getAttribute(REMAINING_DEPTH_KEY)
-      )
-      .withAttribute(
-        REMAINING_WIDTH_KEY,
-        serializerProvider.getAttribute(REMAINING_WIDTH_KEY)
-      );
+    ObjectWriter objectWriter = PyishObjectMapper.PYISH_OBJECT_WRITER.withAttribute(
+      DEPTH_AND_WIDTH_TRACKER,
+      serializerProvider.getAttribute(DEPTH_AND_WIDTH_TRACKER)
+    );
     String key = objectWriter.writeValueAsString(entry.getKey());
     String value = objectWriter.writeValueAsString(entry.getValue());
     jsonGenerator.writeRawValue(String.format("fn:map_entry(%s, %s)", key, value));

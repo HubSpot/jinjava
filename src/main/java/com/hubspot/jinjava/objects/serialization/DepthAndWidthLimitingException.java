@@ -1,15 +1,14 @@
 package com.hubspot.jinjava.objects.serialization;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class DepthAndWidthLimitingException extends JsonProcessingException {
 
-  protected DepthAndWidthLimitingException(AtomicInteger depth) {
+  protected DepthAndWidthLimitingException(DepthAndWidthTracker tracker) {
     super(
       String.format(
         "Maximum %s reached while serializing",
-        depth.get() <= 0 ? "depth" : "width"
+        tracker.getRemainingDepth() < 0 ? "depth" : "width"
       )
     );
   }

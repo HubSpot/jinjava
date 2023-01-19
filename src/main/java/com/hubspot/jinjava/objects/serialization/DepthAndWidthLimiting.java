@@ -4,23 +4,22 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public interface DepthAndWidthLimiting<T> {
-  String REMAINING_DEPTH_KEY = "remainingDepth";
-  String REMAINING_WIDTH_KEY = "remainingWidth";
+  String DEPTH_AND_WIDTH_TRACKER = "depthAndWidthTracker";
 
   static void checkDepthAndWidth(SerializerProvider provider, ThrowingRunnable action)
     throws IOException {
     try {
-      AtomicInteger depth = (AtomicInteger) provider.getAttribute(REMAINING_DEPTH_KEY);
-      AtomicInteger width = (AtomicInteger) provider.getAttribute(REMAINING_WIDTH_KEY);
-      if (width != null && depth != null) {
-        if (width.decrementAndGet() >= 0 && depth.decrementAndGet() >= 0) {
+      DepthAndWidthTracker tracker = (DepthAndWidthTracker) provider.getAttribute(
+        DEPTH_AND_WIDTH_TRACKER
+      );
+      if (tracker != null) {
+        if (tracker.acquire()) {
           action.run();
-          depth.incrementAndGet();
+          tracker.release();
         } else {
-          throw new DepthAndWidthLimitingException(depth);
+          throw new DepthAndWidthLimitingException(tracker);
         }
       } else {
         action.run();
