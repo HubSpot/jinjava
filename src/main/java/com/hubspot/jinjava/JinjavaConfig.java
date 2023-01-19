@@ -63,6 +63,10 @@ public class JinjavaConfig {
   private final int maxMapSize;
   private final int rangeLimit;
   private final int maxNumDeferredTokens;
+
+  private final int maxSerializationDepth;
+
+  private final int maxSerializationWidth;
   private final InterpreterFactory interpreterFactory;
   private TokenScannerSymbols tokenScannerSymbols;
   private final ELResolver elResolver;
@@ -120,6 +124,8 @@ public class JinjavaConfig {
     maxMapSize = builder.maxMapSize;
     rangeLimit = builder.rangeLimit;
     maxNumDeferredTokens = builder.maxNumDeferredTokens;
+    maxSerializationDepth = builder.maxSerializationDepth;
+    maxSerializationWidth = builder.maxSerializationWidth;
     interpreterFactory = builder.interpreterFactory;
     tokenScannerSymbols = builder.tokenScannerSymbols;
     elResolver = builder.elResolver;
@@ -164,6 +170,14 @@ public class JinjavaConfig {
 
   public int getMaxNumDeferredTokens() {
     return maxNumDeferredTokens;
+  }
+
+  public int getMaxSerializationDepth() {
+    return maxSerializationDepth;
+  }
+
+  public int getMaxSerializationWidth() {
+    return maxSerializationWidth;
   }
 
   public RandomNumberGeneratorStrategy getRandomNumberGeneratorStrategy() {
@@ -271,6 +285,9 @@ public class JinjavaConfig {
     private long maxStringLength = 0;
     private int rangeLimit = DEFAULT_RANGE_LIMIT;
     private int maxNumDeferredTokens = 1000;
+
+    private int maxSerializationDepth = 10;
+    private int maxSerializationWidth = 10000;
     private InterpreterFactory interpreterFactory = new JinjavaInterpreterFactory();
     private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
     private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
@@ -392,6 +409,16 @@ public class JinjavaConfig {
 
     public Builder withMaxNumDeferredTokens(int maxNumDeferredTokens) {
       this.maxNumDeferredTokens = maxNumDeferredTokens;
+      return this;
+    }
+
+    public Builder withMaxSerializationDepth(int maxSerializationDepth) {
+      this.maxSerializationDepth = maxSerializationDepth;
+      return this;
+    }
+
+    public Builder withMaxSerializationWidth(int maxSerializationWidth) {
+      this.maxSerializationWidth = maxSerializationWidth;
       return this;
     }
 

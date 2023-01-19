@@ -34,11 +34,15 @@ public class DepthAndWidthLimitingSerializerFactory {
     try {
       AtomicInteger depth = (AtomicInteger) provider.getAttribute(REMAINING_DEPTH_KEY);
       AtomicInteger width = (AtomicInteger) provider.getAttribute(REMAINING_WIDTH_KEY);
-      if (width.decrementAndGet() >= 0 && depth.decrementAndGet() >= 0) {
-        action.run();
-        depth.incrementAndGet();
+      if (width != null && depth != null) {
+        if (width.decrementAndGet() >= 0 && depth.decrementAndGet() >= 0) {
+          action.run();
+          depth.incrementAndGet();
+        } else {
+          throw new DepthAndWidthLimitingException(depth);
+        }
       } else {
-        throw new DepthAndWidthLimitingException(depth);
+        action.run();
       }
     } catch (IOException e) {
       throw e;

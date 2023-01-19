@@ -55,15 +55,21 @@ public class PyishObjectMapper {
 
   public static String getAsPyishStringOrThrow(Object val)
     throws JsonProcessingException {
-    String string = PYISH_OBJECT_WRITER
-      .withAttribute(
-        DepthAndWidthLimitingSerializerFactory.REMAINING_DEPTH_KEY,
-        new AtomicInteger(6)
+    String string = JinjavaInterpreter
+      .getCurrentMaybe()
+      .map(
+        interpreter ->
+          PYISH_OBJECT_WRITER
+            .withAttribute(
+              DepthAndWidthLimitingSerializerFactory.REMAINING_DEPTH_KEY,
+              new AtomicInteger(interpreter.getConfig().getMaxSerializationDepth())
+            )
+            .withAttribute(
+              DepthAndWidthLimitingSerializerFactory.REMAINING_WIDTH_KEY,
+              new AtomicInteger(interpreter.getConfig().getMaxSerializationWidth())
+            )
       )
-      .withAttribute(
-        DepthAndWidthLimitingSerializerFactory.REMAINING_WIDTH_KEY,
-        new AtomicInteger(100)
-      )
+      .orElse(PYISH_OBJECT_WRITER)
       .writeValueAsString(val);
     JinjavaInterpreter.checkOutputSize(string);
     return string;
