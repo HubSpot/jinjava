@@ -21,9 +21,7 @@ public class PyishBeanSerializerModifier extends BeanSerializerModifier {
     // For example, a Map implementation could then have custom string serialization.
     if (!(PyishSerializable.class.isAssignableFrom(beanDesc.getBeanClass()))) {
       if (Map.Entry.class.isAssignableFrom(beanDesc.getBeanClass())) {
-        //        return new WrappingMapEntrySerializer(
-        //          (com.fasterxml.jackson.databind.ser.impl.MapEntrySerializer) serializer
-        //        );
+        return WrappingMapEntrySerializer.INSTANCE;
       }
       return serializer;
     } else {

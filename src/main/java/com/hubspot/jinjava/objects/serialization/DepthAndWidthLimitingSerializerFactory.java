@@ -1,42 +1,29 @@
 package com.hubspot.jinjava.objects.serialization;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
-import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
-import com.fasterxml.jackson.databind.ser.impl.MapEntrySerializer;
-import com.fasterxml.jackson.databind.type.ArrayType;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.google.common.base.Defaults;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyFactory;
 
-public class DepthAndWidthLimitingSerializerFactory extends BeanSerializerFactory {
-  public static final DepthAndWidthLimitingSerializerFactory instance = new DepthAndWidthLimitingSerializerFactory(
-    null
+public class DepthAndWidthLimitingSerializerFactory {
+  public static final SerializerFactory instance = getSerializerFactory(
+    BeanSerializerFactory.instance
   );
   public static final String DEPTH_KEY = "maxDepth";
   public static final String WIDTH_KEY = "maxWidth";
-
-  protected DepthAndWidthLimitingSerializerFactory(SerializerFactoryConfig config) {
-    super(config);
-  }
 
   public static void checkDepthAndWidth(
     SerializerProvider provider,
@@ -59,220 +46,85 @@ public class DepthAndWidthLimitingSerializerFactory extends BeanSerializerFactor
     }
   }
 
-  @Override
-  protected JsonSerializer<?> buildContainerSerializer(
-    SerializerProvider prov,
-    JavaType type,
-    BeanDescription beanDesc,
-    boolean staticTyping
-  )
-    throws JsonMappingException {
-    return getLimitingSerializer(
-      super.buildContainerSerializer(prov, type, beanDesc, staticTyping)
-    );
-  }
-
-  @Override
-  protected JsonSerializer<?> buildCollectionSerializer(
-    SerializerProvider prov,
-    CollectionType type,
-    BeanDescription beanDesc,
-    boolean staticTyping,
-    TypeSerializer elementTypeSerializer,
-    JsonSerializer<Object> elementValueSerializer
-  )
-    throws JsonMappingException {
-    return getLimitingSerializer(
-      super.buildCollectionSerializer(
-        prov,
-        type,
-        beanDesc,
-        staticTyping,
-        elementTypeSerializer,
-        elementValueSerializer
-      )
-    );
-  }
-
-  @Override
-  public ContainerSerializer<?> buildIndexedListSerializer(
-    JavaType elemType,
-    boolean staticTyping,
-    TypeSerializer vts,
-    JsonSerializer<Object> valueSerializer
-  ) {
-    return getLimitingSerializer(
-      super.buildIndexedListSerializer(elemType, staticTyping, vts, valueSerializer)
-    );
-  }
-
-  @Override
-  public ContainerSerializer<?> buildCollectionSerializer(
-    JavaType elemType,
-    boolean staticTyping,
-    TypeSerializer vts,
-    JsonSerializer<Object> valueSerializer
-  ) {
-    return getLimitingSerializer(
-      super.buildCollectionSerializer(elemType, staticTyping, vts, valueSerializer)
-    );
-  }
-
-  @Override
-  protected JsonSerializer<?> buildMapSerializer(
-    SerializerProvider prov,
-    MapType type,
-    BeanDescription beanDesc,
-    boolean staticTyping,
-    JsonSerializer<Object> keySerializer,
-    TypeSerializer elementTypeSerializer,
-    JsonSerializer<Object> elementValueSerializer
-  )
-    throws JsonMappingException {
-    return getLimitingSerializer(
-      super.buildMapSerializer(
-        prov,
-        type,
-        beanDesc,
-        staticTyping,
-        keySerializer,
-        elementTypeSerializer,
-        elementValueSerializer
-      )
-    );
-  }
-
-  @Override
-  protected JsonSerializer<?> buildMapEntrySerializer(
-    SerializerProvider prov,
-    JavaType type,
-    BeanDescription beanDesc,
-    boolean staticTyping,
-    JavaType keyType,
-    JavaType valueType
-  )
-    throws JsonMappingException {
-    return getLimitingSerializer(
-      super.buildMapEntrySerializer(
-        prov,
-        type,
-        beanDesc,
-        staticTyping,
-        keyType,
-        valueType
-      )
-    );
-  }
-
-  @Override
-  protected JsonSerializer<?> buildArraySerializer(
-    SerializerProvider prov,
-    ArrayType type,
-    BeanDescription beanDesc,
-    boolean staticTyping,
-    TypeSerializer elementTypeSerializer,
-    JsonSerializer<Object> elementValueSerializer
-  )
-    throws JsonMappingException {
-    return getLimitingSerializer(
-      super.buildArraySerializer(
-        prov,
-        type,
-        beanDesc,
-        staticTyping,
-        elementTypeSerializer,
-        elementValueSerializer
-      )
-    );
-  }
-
-  @Override
-  protected JsonSerializer<?> buildIteratorSerializer(
-    SerializationConfig config,
-    JavaType type,
-    BeanDescription beanDesc,
-    boolean staticTyping,
-    JavaType valueType
-  )
-    throws JsonMappingException {
-    return getLimitingSerializer(
-      super.buildIteratorSerializer(config, type, beanDesc, staticTyping, valueType)
-    );
-  }
-
-  @Override
-  protected JsonSerializer<?> buildIterableSerializer(
-    SerializationConfig config,
-    JavaType type,
-    BeanDescription beanDesc,
-    boolean staticTyping,
-    JavaType valueType
-  )
-    throws JsonMappingException {
-    return getLimitingSerializer(
-      super.buildIterableSerializer(config, type, beanDesc, staticTyping, valueType)
-    );
-  }
-
-  @Override
-  public SerializerFactory withConfig(SerializerFactoryConfig config) {
-    if (this._factoryConfig == config) {
-      return this;
-    } else if (this.getClass() != DepthAndWidthLimitingSerializerFactory.class) {
-      throw new IllegalStateException(
-        "Subtype of DepthAndWidthLimitingSerializerFactory (" +
-        this.getClass().getName() +
-        ") has not properly overridden method 'withAdditionalSerializers': cannot instantiate subtype with additional serializer definitions"
-      );
-    } else {
-      return new DepthAndWidthLimitingSerializerFactory(config);
+  @SuppressWarnings("unchecked")
+  private static SerializerFactory getSerializerFactory(SerializerFactory delegate) {
+    ProxyFactory factory = new ProxyFactory();
+    factory.setSuperclass(SerializerFactory.class);
+    factory.setFilter(method -> Modifier.isPublic(method.getModifiers()));
+    MethodHandler handler = (self, thisMethod, proceed, args) -> {
+      if (returnsJsonSerializer(thisMethod)) {
+        return getLimitingSerializer(
+          (JsonSerializer<?>) thisMethod.invoke(delegate, args)
+        );
+      } else if (returnsSerializerFactory(thisMethod)) {
+        return getSerializerFactory(
+          (SerializerFactory) thisMethod.invoke(delegate, args)
+        );
+      } else {
+        return thisMethod.invoke(delegate, args);
+      }
+    };
+    try {
+      return ((SerializerFactory) factory.create(new Class[0], new Object[0], handler));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
   }
 
-  private static <T extends JsonSerializer<?>> T getLimitingSerializer(T serializer) {
-    // TODO better check
+  private static boolean returnsJsonSerializer(Method method) {
+    return JsonSerializer.class.isAssignableFrom(method.getReturnType());
+  }
+
+  private static boolean returnsSerializerFactory(Method method) {
+    return SerializerFactory.class.isAssignableFrom(method.getReturnType());
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T extends JsonSerializer<?>> T getLimitingSerializer(T serializer)
+    throws NoSuchMethodException {
     if (serializer instanceof DepthAndWidthLimiting) {
       return serializer;
     }
     Class<?> clazz = serializer.getClass();
-    while (Modifier.isFinal(clazz.getModifiers())) {
+    while (
+      Modifier.isFinal(clazz.getModifiers()) ||
+      Modifier.isFinal(
+        clazz
+          .getMethod(
+            "serialize",
+            Object.class,
+            JsonGenerator.class,
+            SerializerProvider.class
+          )
+          .getModifiers()
+      )
+    ) {
       clazz = clazz.getSuperclass();
     }
     final Class<?> finalClazz = clazz;
     ProxyFactory factory = new ProxyFactory();
     factory.setSuperclass(finalClazz);
-    factory.setFilter(
-      method ->
-        isSerializeMethod(method) || method.getReturnType().isAssignableFrom(finalClazz)
-    );
+    //    factory.setFilter(
+    //      method ->
+    //        isSerializeMethod(method) || method.getReturnType().isAssignableFrom(finalClazz)
+    //    );
     factory.setInterfaces(new Class[] { DepthAndWidthLimiting.class });
 
     MethodHandler handler = (self, thisMethod, proceed, args) -> {
       if (isSerializeMethod(thisMethod)) {
-        SerializerProvider serializerProvider = (SerializerProvider) args[2];
         checkDepthAndWidth(
-          serializerProvider,
-          () -> {
-            if (serializer instanceof MapEntrySerializer) {
-              WrappingMapEntrySerializer.serialize(
-                (Entry<?, ?>) args[0],
-                (JsonGenerator) args[1],
-                (SerializerProvider) args[2]
-              );
-            } else {
-              thisMethod.invoke(serializer, args);
-            }
-          }
+          (SerializerProvider) args[2],
+          () -> thisMethod.invoke(serializer, args)
         );
         return null;
-      } else {
+      } else if (thisMethod.getReturnType().isAssignableFrom(finalClazz)) {
         return getLimitingSerializer((T) thisMethod.invoke(serializer, args));
+      } else {
+        return thisMethod.invoke(serializer, args);
       }
     };
     try {
-      Class<?>[] parameterTypes = finalClazz
-        .getDeclaredConstructors()[0].getParameterTypes();
-
+      Class<?>[] parameterTypes = getConstructor(finalClazz).getParameterTypes();
       return (
         (T) factory.create(
           parameterTypes,
@@ -282,7 +134,10 @@ public class DepthAndWidthLimitingSerializerFactory extends BeanSerializerFactor
               type -> {
                 if (JavaType.class.isAssignableFrom(type)) {
                   return SimpleType.constructUnsafe(serializer.handledType());
-                } else if (finalClazz.isAssignableFrom(type)) {
+                } else if (
+                  JsonSerializer.class.isAssignableFrom(type) ||
+                  type.isAssignableFrom(finalClazz)
+                ) {
                   return serializer;
                 }
                 return Defaults.defaultValue(type);
@@ -295,6 +150,19 @@ public class DepthAndWidthLimitingSerializerFactory extends BeanSerializerFactor
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private static Constructor<?> getConstructor(Class<?> finalClazz) {
+    return Arrays
+      .stream(finalClazz.getDeclaredConstructors())
+      .filter(
+        constructor ->
+          Arrays
+            .stream(constructor.getParameterTypes())
+            .noneMatch(AnnotatedMember.class::isAssignableFrom)
+      )
+      .findAny()
+      .orElseGet(() -> finalClazz.getDeclaredConstructors()[0]);
   }
 
   private static boolean isSerializeMethod(Method method) {

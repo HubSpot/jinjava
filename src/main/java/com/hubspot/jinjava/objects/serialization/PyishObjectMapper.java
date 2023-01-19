@@ -58,7 +58,7 @@ public class PyishObjectMapper {
       )
       .withAttribute(
         DepthAndWidthLimitingSerializerFactory.WIDTH_KEY,
-        new AtomicInteger(10)
+        new AtomicInteger(100)
       )
       .writeValueAsString(val);
     JinjavaInterpreter.checkOutputSize(string);

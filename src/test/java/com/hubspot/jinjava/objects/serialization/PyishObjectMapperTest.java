@@ -53,6 +53,6 @@ public class PyishObjectMapperTest {
     }
     list.add("a");
     assertThat(PyishObjectMapper.getAsPyishString(original))
-      .isEqualTo("{'foobar': null, 'foo': 'bar'} ");
+      .isEqualTo("[0, [1, [2, [3, [4, []]]]]]");
   }
 }
