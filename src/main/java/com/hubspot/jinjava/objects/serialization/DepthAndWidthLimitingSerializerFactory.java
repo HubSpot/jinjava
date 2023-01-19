@@ -9,13 +9,10 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.google.common.base.Defaults;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyFactory;
 
@@ -23,43 +20,6 @@ public class DepthAndWidthLimitingSerializerFactory {
   public static final SerializerFactory instance = getSerializerFactory(
     BeanSerializerFactory.instance
   );
-  public static final String REMAINING_DEPTH_KEY = "remainingDepth";
-  public static final String REMAINING_WIDTH_KEY = "remainingWidth";
-
-  public static void checkDepthAndWidth(
-    SerializerProvider provider,
-    ThrowingRunnable action
-  )
-    throws IOException {
-    try {
-      AtomicInteger depth = (AtomicInteger) provider.getAttribute(REMAINING_DEPTH_KEY);
-      AtomicInteger width = (AtomicInteger) provider.getAttribute(REMAINING_WIDTH_KEY);
-      if (width != null && depth != null) {
-        if (width.decrementAndGet() >= 0 && depth.decrementAndGet() >= 0) {
-          action.run();
-          depth.incrementAndGet();
-        } else {
-          throw new DepthAndWidthLimitingException(depth);
-        }
-      } else {
-        action.run();
-      }
-    } catch (IOException e) {
-      throw e;
-    } catch (Throwable e) {
-      if (
-        e instanceof InvocationTargetException &&
-        (
-          (InvocationTargetException) e
-        ).getTargetException() instanceof DepthAndWidthLimitingException
-      ) {
-        throw (DepthAndWidthLimitingException) (
-          (InvocationTargetException) e
-        ).getTargetException();
-      }
-      throw new RuntimeException(e);
-    }
-  }
 
   @SuppressWarnings("unchecked")
   private static SerializerFactory getSerializerFactory(SerializerFactory delegate) {
@@ -124,7 +84,7 @@ public class DepthAndWidthLimitingSerializerFactory {
 
     MethodHandler handler = (self, thisMethod, proceed, args) -> {
       if (isSerializeMethod(thisMethod)) {
-        checkDepthAndWidth(
+        DepthAndWidthLimiting.checkDepthAndWidth(
           (SerializerProvider) args[2],
           () -> thisMethod.invoke(serializer, args)
         );
@@ -185,10 +145,5 @@ public class DepthAndWidthLimitingSerializerFactory {
       ) &&
       void.class.equals(method.getReturnType())
     );
-  }
-
-  @FunctionalInterface
-  interface ThrowingRunnable {
-    void run() throws Throwable;
   }
 }

@@ -55,24 +55,27 @@ public class PyishObjectMapper {
 
   public static String getAsPyishStringOrThrow(Object val)
     throws JsonProcessingException {
-    String string = JinjavaInterpreter
+    String string = getDepthAndWidthLimitingObjectWriter().writeValueAsString(val);
+    JinjavaInterpreter.checkOutputSize(string);
+    return string;
+  }
+
+  private static ObjectWriter getDepthAndWidthLimitingObjectWriter() {
+    return JinjavaInterpreter
       .getCurrentMaybe()
       .map(
         interpreter ->
           PYISH_OBJECT_WRITER
             .withAttribute(
-              DepthAndWidthLimitingSerializerFactory.REMAINING_DEPTH_KEY,
+              DepthAndWidthLimiting.REMAINING_DEPTH_KEY,
               new AtomicInteger(interpreter.getConfig().getMaxSerializationDepth())
             )
             .withAttribute(
-              DepthAndWidthLimitingSerializerFactory.REMAINING_WIDTH_KEY,
+              DepthAndWidthLimiting.REMAINING_WIDTH_KEY,
               new AtomicInteger(interpreter.getConfig().getMaxSerializationWidth())
             )
       )
-      .orElse(PYISH_OBJECT_WRITER)
-      .writeValueAsString(val);
-    JinjavaInterpreter.checkOutputSize(string);
-    return string;
+      .orElse(PYISH_OBJECT_WRITER);
   }
 
   public static class NullKeySerializer extends JsonSerializer<Object> {

@@ -1,8 +1,5 @@
 package com.hubspot.jinjava.objects.serialization;
 
-import static com.hubspot.jinjava.objects.serialization.DepthAndWidthLimitingSerializerFactory.REMAINING_DEPTH_KEY;
-import static com.hubspot.jinjava.objects.serialization.DepthAndWidthLimitingSerializerFactory.REMAINING_WIDTH_KEY;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -11,28 +8,25 @@ import java.io.IOException;
 import java.util.Map.Entry;
 
 public class WrappingMapEntrySerializer
-  extends JsonSerializer<Entry>
-  implements DepthAndWidthLimiting<Entry> {
+  extends JsonSerializer<Entry<?, ?>>
+  implements DepthAndWidthLimiting<Entry<?, ?>> {
   public static final WrappingMapEntrySerializer INSTANCE = new WrappingMapEntrySerializer();
 
   private WrappingMapEntrySerializer() {}
 
   @Override
   public void serialize(
-    Entry entry,
+    Entry<?, ?> entry,
     JsonGenerator jsonGenerator,
     SerializerProvider serializerProvider
   )
     throws IOException {
-    DepthAndWidthLimitingSerializerFactory.checkDepthAndWidth(
-      serializerProvider,
-      () -> innerSerialize(entry, jsonGenerator, serializerProvider)
-    );
+    DepthAndWidthLimiting.super.serialize(entry, jsonGenerator, serializerProvider);
   }
 
   @Override
   public void innerSerialize(
-    Entry entry,
+    Entry<?, ?> entry,
     JsonGenerator jsonGenerator,
     SerializerProvider serializerProvider
   )

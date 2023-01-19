@@ -21,10 +21,7 @@ public class PyishSerializer
     SerializerProvider serializerProvider
   )
     throws IOException {
-    DepthAndWidthLimitingSerializerFactory.checkDepthAndWidth(
-      serializerProvider,
-      () -> innerSerialize(object, jsonGenerator, serializerProvider)
-    );
+    DepthAndWidthLimiting.super.serialize(object, jsonGenerator, serializerProvider);
   }
 
   public void innerSerialize(
