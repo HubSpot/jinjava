@@ -2,6 +2,7 @@ package com.hubspot.jinjava.util;
 
 import com.google.common.base.Strings;
 import com.hubspot.jinjava.interpret.InterpretException;
+import javax.annotation.Nullable;
 
 public final class WhitespaceUtils {
   private static final char[] QUOTE_CHARS = new char[] { '\'', '"' };
@@ -140,6 +141,17 @@ public final class WhitespaceUtils {
     }
 
     return s.substring(start + prefix.length(), end - suffix.length() + 1);
+  }
+
+  @Nullable
+  public static StringBuilder quoteIfNotNull(CharSequence charSequence) {
+    if (charSequence != null) {
+      return new StringBuilder(charSequence.length() + 2)
+        .append('\'')
+        .append(charSequence)
+        .append('\'');
+    }
+    return null;
   }
 
   private WhitespaceUtils() {}

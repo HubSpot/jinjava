@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Primitives;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
@@ -17,6 +16,7 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -113,7 +113,7 @@ public class EagerExpressionResolver {
           return pyishString;
         }
       }
-    } catch (JsonProcessingException | OutputTooBigException ignored) {}
+    } catch (IOException | OutputTooBigException ignored) {}
     throw new DeferredValueException("Can not convert deferred result to string");
   }
 

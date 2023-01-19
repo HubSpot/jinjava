@@ -12,7 +12,6 @@ public class PyishSerializer extends JsonSerializer<Object> {
 
   private PyishSerializer() {}
 
-  @Override
   public void serialize(
     Object object,
     JsonGenerator jsonGenerator,
@@ -27,7 +26,7 @@ public class PyishSerializer extends JsonSerializer<Object> {
       .map(interpreter -> interpreter.wrap(object))
       .orElse(object);
     if (wrappedObject instanceof PyishSerializable) {
-      jsonGenerator.writeRawValue(((PyishSerializable) wrappedObject).toPyishString());
+      ((PyishSerializable) wrappedObject).writeSelf(jsonGenerator, serializerProvider);
     } else if (wrappedObject instanceof Boolean) {
       jsonGenerator.writeBoolean((Boolean) wrappedObject);
     } else if (wrappedObject instanceof Number) {
