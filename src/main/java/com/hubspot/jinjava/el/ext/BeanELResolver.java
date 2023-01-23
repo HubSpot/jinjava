@@ -151,7 +151,8 @@ public class BeanELResolver extends ELResolver {
     return null;
   }
 
-  private static Method findAccessibleMethod(Method method) {
+  // Changed modifier to protected
+  protected static Method findAccessibleMethod(Method method) {
     Method result = findPublicAccessibleMethod(method);
     if (result == null && method != null && Modifier.isPublic(method.getModifiers())) {
       result = method;
@@ -520,7 +521,7 @@ public class BeanELResolver extends ELResolver {
         params = new Object[0];
       }
       String name = method.toString();
-      Method target = findMethod(base, name, paramTypes, params.length);
+      Method target = findMethod(base, name, paramTypes, params, params.length);
       if (target == null) {
         throw new MethodNotFoundException(
           "Cannot find method " +
@@ -547,7 +548,14 @@ public class BeanELResolver extends ELResolver {
     return result;
   }
 
-  private Method findMethod(Object base, String name, Class<?>[] types, int paramCount) {
+  // Changed modifier to protected; Added `Object[] params` parameter
+  protected Method findMethod(
+    Object base,
+    String name,
+    Class<?>[] types,
+    Object[] params,
+    int paramCount
+  ) {
     if (types != null) {
       try {
         return findAccessibleMethod(base.getClass().getMethod(name, types));
@@ -658,11 +666,9 @@ public class BeanELResolver extends ELResolver {
    *
    * @param base
    *            The bean to analyze.
-   * @param property
-   *            The name of the property to analyze. Will be coerced to a String.
    * @return base != null
    */
-  private final boolean isResolvable(Object base) {
+  private boolean isResolvable(Object base) {
     return base != null;
   }
 
@@ -677,7 +683,7 @@ public class BeanELResolver extends ELResolver {
    * @throws PropertyNotFoundException
    *             if no BeanProperty can be found.
    */
-  private final BeanProperty toBeanProperty(Object base, Object property) {
+  private BeanProperty toBeanProperty(Object base, Object property) {
     BeanProperties beanProperties = cache.get(base.getClass());
     if (beanProperties == null) {
       BeanProperties newBeanProperties = new BeanProperties(base.getClass());
@@ -704,11 +710,11 @@ public class BeanELResolver extends ELResolver {
    * Note: this method is present in the reference implementation, so we're adding it here to ease
    * migration.
    *
-   * @param classLoader
+   * @param loader
    *            The classLoader used to load the beans.
    */
   @SuppressWarnings("unused")
-  private final void purgeBeanClasses(ClassLoader loader) {
+  private void purgeBeanClasses(ClassLoader loader) {
     Iterator<Class<?>> classes = cache.keySet().iterator();
     while (classes.hasNext()) {
       if (loader == classes.next().getClassLoader()) {

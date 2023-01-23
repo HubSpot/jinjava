@@ -6,19 +6,13 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import javax.el.BeanELResolver;
 import javax.el.ELContext;
-import javax.el.ELException;
-import javax.el.ExpressionFactory;
 import javax.el.MethodNotFoundException;
 
 /**
@@ -64,8 +58,6 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     .add("set")
     .add("merge")
     .build();
-
-  private ExpressionFactory defaultFactory;
 
   /**
    * Creates a new read/write {@link JinjavaBeanELResolver}.
@@ -132,12 +124,9 @@ public class JinjavaBeanELResolver extends BeanELResolver {
         )
       );
     }
-    Object result;
-    if (paramTypes == null) {
-      result = invokeBestMatch(context, base, method, params);
-    } else {
-      result = super.invoke(context, base, method, paramTypes, params);
-    }
+
+    Object result = super.invoke(context, base, method, paramTypes, params);
+
     if (isRestrictedClass(result)) {
       throw new MethodNotFoundException(
         "Cannot find method '" + method + "' in " + base.getClass()
@@ -147,54 +136,17 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     return result;
   }
 
-  protected Object invokeBestMatch(
-    ELContext context,
+  @Override
+  protected Method findMethod(
     Object base,
-    Object method,
-    Object[] params
+    String name,
+    Class<?>[] types,
+    Object[] params,
+    int paramCount
   ) {
-    if (context == null) {
-      throw new NullPointerException();
-    } else {
-      Object result = null;
-      if (base != null) {
-        if (params == null) {
-          params = new Object[0];
-        }
-
-        String name = method.toString();
-        Method target = this.findMethod(base, name, params, params.length);
-        if (target == null) {
-          throw new MethodNotFoundException(
-            "Cannot find method " +
-            name +
-            " with " +
-            params.length +
-            " parameters in " +
-            base.getClass()
-          );
-        }
-
-        try {
-          result =
-            target.invoke(
-              base,
-              this.coerceParams(this.getExpressionFactory(context), target, params)
-            );
-        } catch (InvocationTargetException var10) {
-          throw new ELException(var10.getCause());
-        } catch (IllegalAccessException var11) {
-          throw new ELException(var11);
-        }
-
-        context.setPropertyResolved(true);
-      }
-
-      return result;
+    if (types != null) {
+      return super.findMethod(base, name, types, params, paramCount);
     }
-  }
-
-  protected Method findMethod(Object base, String name, Object[] params, int paramCount) {
     Method varArgsMethod = null;
 
     Method[] methods = base.getClass().getMethods();
@@ -254,160 +206,6 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       }
     }
     return 1;
-  }
-
-  private static Method findAccessibleMethod(Method method) {
-    Method result = findPublicAccessibleMethod(method);
-    if (result == null && method != null && Modifier.isPublic(method.getModifiers())) {
-      result = method;
-
-      try {
-        method.setAccessible(true);
-      } catch (SecurityException var3) {
-        result = null;
-      }
-    }
-
-    return result;
-  }
-
-  private static Method findPublicAccessibleMethod(Method method) {
-    if (method != null && Modifier.isPublic(method.getModifiers())) {
-      if (
-        !method.isAccessible() &&
-        !Modifier.isPublic(method.getDeclaringClass().getModifiers())
-      ) {
-        Class[] arr$ = method.getDeclaringClass().getInterfaces();
-        int len$ = arr$.length;
-
-        for (int i$ = 0; i$ < len$; ++i$) {
-          Class<?> cls = arr$[i$];
-          Method mth = null;
-
-          try {
-            mth =
-              findPublicAccessibleMethod(
-                cls.getMethod(method.getName(), method.getParameterTypes())
-              );
-            if (mth != null) {
-              return mth;
-            }
-          } catch (NoSuchMethodException var8) {}
-        }
-
-        Class<?> cls = method.getDeclaringClass().getSuperclass();
-        if (cls != null) {
-          Method mth = null;
-
-          try {
-            mth =
-              findPublicAccessibleMethod(
-                cls.getMethod(method.getName(), method.getParameterTypes())
-              );
-            if (mth != null) {
-              return mth;
-            }
-          } catch (NoSuchMethodException var7) {}
-        }
-
-        return null;
-      } else {
-        return method;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  private Object[] coerceParams(
-    ExpressionFactory factory,
-    Method method,
-    Object[] params
-  ) {
-    Class<?>[] types = method.getParameterTypes();
-    Object[] args = new Object[types.length];
-    int varargIndex;
-    if (method.isVarArgs()) {
-      varargIndex = types.length - 1;
-      if (params.length < varargIndex) {
-        throw new ELException("Bad argument count");
-      }
-
-      for (int i = 0; i < varargIndex; ++i) {
-        this.coerceValue(args, i, factory, params[i], types[i]);
-      }
-
-      Class<?> varargType = types[varargIndex].getComponentType();
-      int length = params.length - varargIndex;
-      Object array = null;
-      if (length == 1) {
-        Object source = params[varargIndex];
-        if (source != null && source.getClass().isArray()) {
-          if (types[varargIndex].isInstance(source)) {
-            array = source;
-          } else {
-            length = Array.getLength(source);
-            array = Array.newInstance(varargType, length);
-
-            for (int i = 0; i < length; ++i) {
-              this.coerceValue(array, i, factory, Array.get(source, i), varargType);
-            }
-          }
-        } else {
-          array = Array.newInstance(varargType, 1);
-          this.coerceValue(array, 0, factory, source, varargType);
-        }
-      } else {
-        array = Array.newInstance(varargType, length);
-
-        for (int i = 0; i < length; ++i) {
-          this.coerceValue(array, i, factory, params[varargIndex + i], varargType);
-        }
-      }
-
-      args[varargIndex] = array;
-    } else {
-      if (params.length != args.length) {
-        throw new ELException("Bad argument count");
-      }
-
-      for (varargIndex = 0; varargIndex < args.length; ++varargIndex) {
-        this.coerceValue(
-            args,
-            varargIndex,
-            factory,
-            params[varargIndex],
-            types[varargIndex]
-          );
-      }
-    }
-
-    return args;
-  }
-
-  private void coerceValue(
-    Object array,
-    int index,
-    ExpressionFactory factory,
-    Object value,
-    Class<?> type
-  ) {
-    if (value != null || type.isPrimitive()) {
-      Array.set(array, index, factory.coerceToType(value, type));
-    }
-  }
-
-  private ExpressionFactory getExpressionFactory(ELContext context) {
-    Object obj = context.getContext(ExpressionFactory.class);
-    if (obj instanceof ExpressionFactory) {
-      return (ExpressionFactory) obj;
-    } else {
-      if (this.defaultFactory == null) {
-        this.defaultFactory = ExpressionFactory.newInstance();
-      }
-
-      return this.defaultFactory;
-    }
   }
 
   private String validatePropertyName(Object property) {
