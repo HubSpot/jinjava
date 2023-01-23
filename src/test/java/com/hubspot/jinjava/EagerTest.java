@@ -1241,12 +1241,10 @@ public class EagerTest {
 
   @Test
   public void itReconstructsWordsFromInsideNestedExpressionsSecondPass() {
-    //    interpreter.getContext().put("deferred", new PyList(new ArrayList<>()));
-    //    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-    //      "reconstructs-words-from-inside-nested-expressions.expected"
-    //    );
-    String foo = interpreter.render("{{ 'foo'.replace('foo', '') }}");
-    String bar = "";
+    interpreter.getContext().put("deferred", new PyList(new ArrayList<>()));
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "reconstructs-words-from-inside-nested-expressions.expected"
+    );
   }
 
   @Test

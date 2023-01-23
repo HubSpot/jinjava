@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -195,6 +196,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
   protected Method findMethod(Object base, String name, Object[] params, int paramCount) {
     Method varArgsMethod = null;
+
     Method[] methods = base.getClass().getMethods();
     List<Method> potentialMethods = new LinkedList<>();
 
@@ -211,20 +213,8 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     final Method finalVarArgsMethod = varArgsMethod;
     return potentialMethods
       .stream()
-      .filter(
-        method -> {
-          for (int i = 0; i < method.getParameterTypes().length; i++) {
-            if (
-              params[i] != null &&
-              !method.getParameterTypes()[i].isAssignableFrom(params[i].getClass())
-            ) {
-              return false;
-            }
-          }
-          return true;
-        }
-      )
-      .findAny()
+      .filter(method -> checkAssignableParameterTypes(params, method))
+      .min(JinjavaBeanELResolver::pickMoreSpecificMethod)
       .orElseGet(
         () ->
           potentialMethods
@@ -237,6 +227,33 @@ public class JinjavaBeanELResolver extends BeanELResolver {
                   : findAccessibleMethod(finalVarArgsMethod)
             )
       );
+  }
+
+  private static boolean checkAssignableParameterTypes(Object[] params, Method method) {
+    for (int i = 0; i < method.getParameterTypes().length; i++) {
+      Class<?> paramType = method.getParameterTypes()[i];
+      if (paramType.isPrimitive()) {
+        paramType = MethodType.methodType(paramType).wrap().returnType();
+      }
+      if (params[i] != null && !paramType.isAssignableFrom(params[i].getClass())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static int pickMoreSpecificMethod(Method methodA, Method methodB) {
+    Class<?>[] typesA = methodA.getParameterTypes();
+    Class<?>[] typesB = methodB.getParameterTypes();
+    for (int i = 0; i < typesA.length; i++) {
+      if (!typesA[i].isAssignableFrom(typesB[i])) {
+        if (typesB[i].isPrimitive()) {
+          return 1;
+        }
+        return -1;
+      }
+    }
+    return 1;
   }
 
   private static Method findAccessibleMethod(Method method) {
