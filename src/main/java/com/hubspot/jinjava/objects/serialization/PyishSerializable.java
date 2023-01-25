@@ -7,8 +7,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.hubspot.jinjava.objects.PyWrapper;
+import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public interface PyishSerializable extends PyWrapper {
   ObjectWriter SELF_WRITER = new ObjectMapper(
@@ -23,7 +25,7 @@ public interface PyishSerializable extends PyWrapper {
    * but this method can be overridden to provide a custom representation.
    * This should no longer be called directly,
    * {@link #writeSelf(JsonGenerator, SerializerProvider)} or
-   * {@link #appendPyishString(StringBuilder)} should instead be used.
+   * {@link #appendPyishString(Appendable)} should instead be used.
    * @return A pyish/json CharSequence representation of the object
    */
   @Deprecated
@@ -38,11 +40,13 @@ public interface PyishSerializable extends PyWrapper {
    * <p>
    * If the pyish string representation of this object is composed of several strings,
    * it's recommended to override this method instead of {@link #toPyishString()}
-   * @param sb StringBuilder to append the pyish string representation to.
-   * @return The same StringBuilder sb with an appended result
+   * @param appendable Appendable to append the pyish string representation to.
+   * @return The same appendable with an appended result
    */
-  default StringBuilder appendPyishString(StringBuilder sb) {
-    return sb.append(toPyishString());
+  @SuppressWarnings("unchecked")
+  default <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+    throws IOException {
+    return (T) appendable.append(toPyishString());
   }
 
   /**
@@ -60,7 +64,17 @@ public interface PyishSerializable extends PyWrapper {
     SerializerProvider serializerProvider
   )
     throws IOException {
-    jsonGenerator.writeRawValue(appendPyishString(new StringBuilder()).toString());
+    AtomicInteger remainingLength = (AtomicInteger) serializerProvider.getAttribute(
+      LengthLimitingWriter.REMAINING_LENGTH_ATTRIBUTE
+    );
+    jsonGenerator.writeRawValue(
+      appendPyishString(
+          remainingLength != null
+            ? new LengthLimitingStringBuilder(remainingLength.get())
+            : new StringBuilder()
+        )
+        .toString()
+    );
   }
 
   /**

@@ -46,7 +46,7 @@ public class PyishObjectMapper {
     try {
       return getAsPyishStringOrThrow(val);
     } catch (IOException e) {
-      if (e instanceof SizeLimitingJsonProcessingException) {
+      if (e instanceof LengthLimitingJsonProcessingException) {
         if (
           JinjavaInterpreter
             .getCurrentMaybe()
@@ -58,8 +58,8 @@ public class PyishObjectMapper {
           throw new DeferredValueException(String.format("%s: %s", e.getMessage(), val));
         } else {
           throw new OutputTooBigException(
-            ((SizeLimitingJsonProcessingException) e).getMaxSize(),
-            ((SizeLimitingJsonProcessingException) e).getAttemptedSize()
+            ((LengthLimitingJsonProcessingException) e).getMaxSize(),
+            ((LengthLimitingJsonProcessingException) e).getAttemptedSize()
           );
         }
       }
@@ -80,10 +80,10 @@ public class PyishObjectMapper {
       );
       objectWriter =
         objectWriter.withAttribute(
-          SizeLimitingWriter.REMAINING_LENGTH_ATTRIBUTE,
+          LengthLimitingWriter.REMAINING_LENGTH_ATTRIBUTE,
           remainingLength
         );
-      writer = new SizeLimitingWriter(new CharArrayWriter(), remainingLength);
+      writer = new LengthLimitingWriter(new CharArrayWriter(), remainingLength);
     } else {
       writer = new CharArrayWriter();
     }

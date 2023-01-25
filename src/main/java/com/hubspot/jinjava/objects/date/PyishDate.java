@@ -4,6 +4,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -158,8 +159,10 @@ public final class PyishDate
   }
 
   @Override
-  public StringBuilder appendPyishString(StringBuilder sb) {
-    return sb
+  @SuppressWarnings("unchecked")
+  public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+    throws IOException {
+    return (T) appendable
       .append('\'')
       .append(strftime(FULL_DATE_FORMAT))
       .append("'|strtotime(")

@@ -22,22 +22,22 @@ public class MapEntrySerializer extends JsonSerializer<Entry<?, ?>> {
   )
     throws IOException {
     AtomicInteger remainingLength = (AtomicInteger) serializerProvider.getAttribute(
-      SizeLimitingWriter.REMAINING_LENGTH_ATTRIBUTE
+      LengthLimitingWriter.REMAINING_LENGTH_ATTRIBUTE
     );
     String key;
     String value;
     if (remainingLength != null) {
       ObjectWriter objectWriter = PyishObjectMapper.PYISH_OBJECT_WRITER.withAttribute(
-        SizeLimitingWriter.REMAINING_LENGTH_ATTRIBUTE,
+        LengthLimitingWriter.REMAINING_LENGTH_ATTRIBUTE,
         remainingLength
       );
       key = objectWriter.writeValueAsString(entry.getKey());
-      SizeLimitingWriter sizeLimitingWriter = new SizeLimitingWriter(
+      LengthLimitingWriter lengthLimitingWriter = new LengthLimitingWriter(
         new CharArrayWriter(),
         remainingLength
       );
-      objectWriter.writeValue(sizeLimitingWriter, entry.getValue());
-      value = sizeLimitingWriter.toString();
+      objectWriter.writeValue(lengthLimitingWriter, entry.getValue());
+      value = lengthLimitingWriter.toString();
     } else {
       key = PyishObjectMapper.PYISH_OBJECT_WRITER.writeValueAsString(entry.getKey());
       value = PyishObjectMapper.PYISH_OBJECT_WRITER.writeValueAsString(entry.getValue());

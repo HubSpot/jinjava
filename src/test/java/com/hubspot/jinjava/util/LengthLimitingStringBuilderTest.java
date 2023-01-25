@@ -25,6 +25,9 @@ public class LengthLimitingStringBuilderTest {
   public void itHandlesNullStrings() {
     LengthLimitingStringBuilder sb = new LengthLimitingStringBuilder(10);
     sb.append(null);
-    assertThat(sb.length()).isEqualTo(0);
+    assertThat(sb.toString()).isEqualTo("null");
+    LengthLimitingStringBuilder sbLimited = new LengthLimitingStringBuilder(3);
+    assertThatThrownBy(() -> sbLimited.append(null))
+      .isInstanceOf(OutputTooBigException.class);
   }
 }

@@ -2,11 +2,11 @@ package com.hubspot.jinjava.objects.serialization;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-public class SizeLimitingJsonProcessingException extends JsonProcessingException {
+public class LengthLimitingJsonProcessingException extends JsonProcessingException {
   private final int maxSize;
   private final int attemptedSize;
 
-  protected SizeLimitingJsonProcessingException(int maxSize, int attemptedSize) {
+  protected LengthLimitingJsonProcessingException(int maxSize, int attemptedSize) {
     super(
       String.format(
         "Max length of %d chars reached when serializing. %d chars attempted.",

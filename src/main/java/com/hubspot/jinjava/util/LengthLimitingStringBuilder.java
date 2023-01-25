@@ -4,7 +4,8 @@ import com.hubspot.jinjava.interpret.OutputTooBigException;
 import java.io.Serializable;
 import java.util.stream.IntStream;
 
-public class LengthLimitingStringBuilder implements Serializable, CharSequence {
+public class LengthLimitingStringBuilder
+  implements Serializable, CharSequence, Appendable {
   private static final long serialVersionUID = -1891922886257965755L;
 
   private final StringBuilder builder;
@@ -50,14 +51,41 @@ public class LengthLimitingStringBuilder implements Serializable, CharSequence {
     append(String.valueOf(obj));
   }
 
-  public void append(String str) {
-    if (str == null) {
-      return;
+  @Override
+  public LengthLimitingStringBuilder append(CharSequence csq) {
+    int csqLength = 4; // null
+    if (csq != null) {
+      csqLength = csq.length();
     }
-    length += str.length();
+    length += csqLength;
+    checkLength();
+    builder.append(csq);
+    return this;
+  }
+
+  @Override
+  public Appendable append(CharSequence csq, int start, int end) {
+    int csqLength = 4; // null
+    if (csq != null) {
+      csqLength = end - start;
+    }
+    length += csqLength;
+    checkLength();
+    builder.append(csq, start, end);
+    return this;
+  }
+
+  @Override
+  public Appendable append(char c) {
+    length++;
+    checkLength();
+    builder.append(c);
+    return this;
+  }
+
+  private void checkLength() {
     if (maxLength > 0 && length > maxLength) {
       throw new OutputTooBigException(maxLength, length);
     }
-    builder.append(str);
   }
 }

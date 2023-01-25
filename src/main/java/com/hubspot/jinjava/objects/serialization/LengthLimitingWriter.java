@@ -5,13 +5,13 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SizeLimitingWriter extends Writer {
+public class LengthLimitingWriter extends Writer {
   public static final String REMAINING_LENGTH_ATTRIBUTE = "remainingLength";
   private final CharArrayWriter charArrayWriter;
   private final AtomicInteger remainingLength;
   private final int startingLength;
 
-  public SizeLimitingWriter(
+  public LengthLimitingWriter(
     CharArrayWriter charArrayWriter,
     AtomicInteger remainingLength
   ) {
@@ -21,28 +21,28 @@ public class SizeLimitingWriter extends Writer {
   }
 
   @Override
-  public void write(int c) throws SizeLimitingJsonProcessingException {
+  public void write(int c) throws LengthLimitingJsonProcessingException {
     checkMaxSize(1);
     charArrayWriter.write(c);
   }
 
   @Override
   public void write(char[] c, int off, int len)
-    throws SizeLimitingJsonProcessingException {
+    throws LengthLimitingJsonProcessingException {
     checkMaxSize(len);
     charArrayWriter.write(c, off, len);
   }
 
   @Override
   public void write(String str, int off, int len)
-    throws SizeLimitingJsonProcessingException {
+    throws LengthLimitingJsonProcessingException {
     checkMaxSize(len);
     charArrayWriter.write(str, off, len);
   }
 
-  private void checkMaxSize(int extra) throws SizeLimitingJsonProcessingException {
+  private void checkMaxSize(int extra) throws LengthLimitingJsonProcessingException {
     if (remainingLength.addAndGet(extra * -1) < 0) {
-      throw new SizeLimitingJsonProcessingException(
+      throw new LengthLimitingJsonProcessingException(
         startingLength,
         charArrayWriter.size() + extra
       );

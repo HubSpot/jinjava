@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.el.ext;
 
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
+import java.io.IOException;
 import java.util.Objects;
 
 public class NamedParameter implements PyishSerializable {
@@ -26,8 +27,10 @@ public class NamedParameter implements PyishSerializable {
   }
 
   @Override
-  public StringBuilder appendPyishString(StringBuilder sb) {
-    return sb
+  @SuppressWarnings("unchecked")
+  public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+    throws IOException {
+    return (T) appendable
       .append(name)
       .append('=')
       .append(PyishSerializable.writeValueAsString(value));

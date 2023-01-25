@@ -2,6 +2,7 @@ package com.hubspot.jinjava.objects;
 
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +21,11 @@ public class Namespace extends SizeLimitingPyMap implements PyishSerializable {
   }
 
   @Override
-  public StringBuilder appendPyishString(StringBuilder sb) {
-    return PyishSerializable.super.appendPyishString(sb.append("namespace(")).append(')');
+  @SuppressWarnings("unchecked")
+  public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+    throws IOException {
+    return (T) PyishSerializable
+      .super.appendPyishString((T) appendable.append("namespace("))
+      .append(')');
   }
 }
