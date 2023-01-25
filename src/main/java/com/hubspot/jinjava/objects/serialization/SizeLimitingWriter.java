@@ -43,8 +43,8 @@ public class SizeLimitingWriter extends Writer {
   private void checkMaxSize(int extra) throws SizeLimitingJsonProcessingException {
     if (remainingLength.addAndGet(extra * -1) < 0) {
       throw new SizeLimitingJsonProcessingException(
-        charArrayWriter.size() + extra,
-        startingLength
+        startingLength,
+        charArrayWriter.size() + extra
       );
     }
   }

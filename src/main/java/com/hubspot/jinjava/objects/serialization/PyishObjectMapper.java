@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.io.CharArrayWriter;
 import java.io.IOException;
@@ -48,7 +49,21 @@ public class PyishObjectMapper {
       return getAsPyishStringOrThrow(val);
     } catch (IOException e) {
       if (e instanceof SizeLimitingJsonProcessingException) {
-        throw new DeferredValueException(String.format("%s: %s", e.getMessage(), val));
+        if (
+          JinjavaInterpreter
+            .getCurrentMaybe()
+            .map(
+              interpreter -> interpreter.getConfig().getExecutionMode().useEagerParser()
+            )
+            .orElse(false)
+        ) {
+          throw new DeferredValueException(String.format("%s: %s", e.getMessage(), val));
+        } else {
+          throw new OutputTooBigException(
+            ((SizeLimitingJsonProcessingException) e).getMaxSize(),
+            ((SizeLimitingJsonProcessingException) e).getAttemptedSize()
+          );
+        }
       }
       return Objects.toString(val, "");
     }

@@ -36,10 +36,7 @@ public class MapEntrySerializer extends JsonSerializer<Entry<?, ?>> {
         new CharArrayWriter(),
         remainingLength
       );
-      objectWriter.writeValue(
-        new SizeLimitingWriter(new CharArrayWriter(), remainingLength),
-        entry.getValue()
-      );
+      objectWriter.writeValue(sizeLimitingWriter, entry.getValue());
       value = sizeLimitingWriter.toString();
     } else {
       key = PyishObjectMapper.PYISH_OBJECT_WRITER.writeValueAsString(entry.getKey());
