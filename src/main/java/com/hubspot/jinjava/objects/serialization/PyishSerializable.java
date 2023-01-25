@@ -16,23 +16,26 @@ public interface PyishSerializable extends PyWrapper {
   )
     .writer(PyishPrettyPrinter.INSTANCE)
     .with(PyishCharacterEscapes.INSTANCE);
+
   /**
    * Allows for a class to specify a custom string representation in Jinjava.
    * By default, this will get a json representation of the object,
    * but this method can be overridden to provide a custom representation.
-   * This method will be used by {@link #writeSelf(JsonGenerator, SerializerProvider)}
-   * to specify what will be written to the json generator.
+   * This should no longer be called directly,
+   * {@link #writeSelf(JsonGenerator, SerializerProvider)} or
+   * {@link #appendPyishString(StringBuilder)} should instead be used.
    * @return A pyish/json CharSequence representation of the object
    */
+  @Deprecated
   default CharSequence toPyishString() {
     return writeValueAsString(this);
   }
 
   /**
    * Allows for a class to append the custom string representation in Jinjava.
-   * This method can be overridden to append a custom representation.
    * This method will be used by {@link #writeSelf(JsonGenerator, SerializerProvider)}
    * to specify what will be written to the json generator.
+   * <p>
    * If the pyish string representation of this object is composed of several strings,
    * it's recommended to override this method instead of {@link #toPyishString()}
    * @param sb StringBuilder to append the pyish string representation to.
@@ -45,10 +48,12 @@ public interface PyishSerializable extends PyWrapper {
   /**
    * Allows for a class to specify how its pyish string representation will
    * be written to the json generator.
-   *
+   * <p>
    * If the pyish string representation of this object can be very large, it's recommended
    * to override this method instead of {@link #toPyishString()} so that jsonGenerator
    * can be written to multiple times, allowing multiple limit checks to occur.
+   * @param jsonGenerator The JsonGenerator to write to.
+   * @param serializerProvider Provides default value serialization and attributes stored on the ObjectWriter if needed.
    */
   default void writeSelf(
     JsonGenerator jsonGenerator,

@@ -311,7 +311,7 @@ public class EagerExpressionResolverTest {
     EagerExpressionResult eagerExpressionResult = eagerResolveExpression("date");
 
     assertThat(WhitespaceUtils.unquoteAndUnescape(eagerExpressionResult.toString()))
-      .isEqualTo(date.toPyishString());
+      .isEqualTo(date.appendPyishString(new StringBuilder()).toString());
     interpreter.render(
       "{% set foo = " +
       PyishObjectMapper.getAsPyishString(ImmutableMap.of("a", date)) +

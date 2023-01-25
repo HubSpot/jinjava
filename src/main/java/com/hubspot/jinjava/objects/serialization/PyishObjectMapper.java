@@ -24,10 +24,8 @@ public class PyishObjectMapper {
   static {
     ObjectMapper mapper = new ObjectMapper(
       new JsonFactoryBuilder().quoteChar('\'').build()
-    );
-
-    mapper =
-      mapper.registerModule(
+    )
+    .registerModule(
         new SimpleModule()
           .setSerializerModifier(PyishBeanSerializerModifier.INSTANCE)
           .addSerializer(PyishSerializable.class, PyishSerializer.INSTANCE)
