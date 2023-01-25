@@ -6,12 +6,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Beta
 public interface PyishSerializable extends PyWrapper {
   ObjectWriter SELF_WRITER = new ObjectMapper(
     new JsonFactoryBuilder().quoteChar('\'').build()

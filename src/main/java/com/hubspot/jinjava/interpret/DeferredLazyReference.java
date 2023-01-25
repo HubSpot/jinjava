@@ -1,5 +1,8 @@
 package com.hubspot.jinjava.interpret;
 
+import com.google.common.annotations.Beta;
+
+@Beta
 public class DeferredLazyReference implements DeferredValue {
   private final LazyReference lazyReference;
 

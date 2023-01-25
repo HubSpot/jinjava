@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.CallStack;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -7,6 +8,7 @@ import com.hubspot.jinjava.tree.parse.Token;
 import java.util.Collections;
 import java.util.Set;
 
+@Beta
 public class DeferredToken {
   private final Token token;
   // These words aren't yet DeferredValues, but are unresolved

@@ -4,11 +4,13 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.google.common.annotations.Beta;
 import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Beta
 public class MapEntrySerializer extends JsonSerializer<Entry<?, ?>> {
   public static final MapEntrySerializer INSTANCE = new MapEntrySerializer();
 
