@@ -5,11 +5,13 @@ import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
-import javax.el.BeanELResolver;
 import javax.el.ELContext;
 import javax.el.MethodNotFoundException;
 
@@ -132,6 +134,78 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     }
 
     return result;
+  }
+
+  @Override
+  protected Method findMethod(
+    Object base,
+    String name,
+    Class<?>[] types,
+    Object[] params,
+    int paramCount
+  ) {
+    if (types != null) {
+      return super.findMethod(base, name, types, params, paramCount);
+    }
+    Method varArgsMethod = null;
+
+    Method[] methods = base.getClass().getMethods();
+    List<Method> potentialMethods = new LinkedList<>();
+
+    for (Method method : methods) {
+      if (method.getName().equals(name)) {
+        int formalParamCount = method.getParameterTypes().length;
+        if (method.isVarArgs() && paramCount >= formalParamCount - 1) {
+          varArgsMethod = method;
+        } else if (paramCount == formalParamCount) {
+          potentialMethods.add(findAccessibleMethod(method));
+        }
+      }
+    }
+    final Method finalVarArgsMethod = varArgsMethod;
+    return potentialMethods
+      .stream()
+      .filter(method -> checkAssignableParameterTypes(params, method))
+      .min(JinjavaBeanELResolver::pickMoreSpecificMethod)
+      .orElseGet(
+        () ->
+          potentialMethods
+            .stream()
+            .findAny()
+            .orElseGet(
+              () ->
+                finalVarArgsMethod == null
+                  ? null
+                  : findAccessibleMethod(finalVarArgsMethod)
+            )
+      );
+  }
+
+  private static boolean checkAssignableParameterTypes(Object[] params, Method method) {
+    for (int i = 0; i < method.getParameterTypes().length; i++) {
+      Class<?> paramType = method.getParameterTypes()[i];
+      if (paramType.isPrimitive()) {
+        paramType = MethodType.methodType(paramType).wrap().returnType();
+      }
+      if (params[i] != null && !paramType.isAssignableFrom(params[i].getClass())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static int pickMoreSpecificMethod(Method methodA, Method methodB) {
+    Class<?>[] typesA = methodA.getParameterTypes();
+    Class<?>[] typesB = methodB.getParameterTypes();
+    for (int i = 0; i < typesA.length; i++) {
+      if (!typesA[i].isAssignableFrom(typesB[i])) {
+        if (typesB[i].isPrimitive()) {
+          return 1;
+        }
+        return -1;
+      }
+    }
+    return 1;
   }
 
   private String validatePropertyName(Object property) {
