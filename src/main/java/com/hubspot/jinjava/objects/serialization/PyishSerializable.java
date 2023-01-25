@@ -24,7 +24,7 @@ public interface PyishSerializable extends PyWrapper {
    * By default, this will get a json representation of the object,
    * but this method can be overridden to provide a custom representation.
    * This should no longer be called directly,
-   * {@link #writeSelf(JsonGenerator, SerializerProvider)} or
+   * {@link #writePyishSelf(JsonGenerator, SerializerProvider)} or
    * {@link #appendPyishString(Appendable)} should instead be used.
    * @return A pyish/json CharSequence representation of the object
    */
@@ -35,7 +35,7 @@ public interface PyishSerializable extends PyWrapper {
 
   /**
    * Allows for a class to append the custom string representation in Jinjava.
-   * This method will be used by {@link #writeSelf(JsonGenerator, SerializerProvider)}
+   * This method will be used by {@link #writePyishSelf(JsonGenerator, SerializerProvider)}
    * to specify what will be written to the json generator.
    * <p>
    * If the pyish string representation of this object is composed of several strings,
@@ -59,7 +59,7 @@ public interface PyishSerializable extends PyWrapper {
    * @param jsonGenerator The JsonGenerator to write to.
    * @param serializerProvider Provides default value serialization and attributes stored on the ObjectWriter if needed.
    */
-  default void writeSelf(
+  default void writePyishSelf(
     JsonGenerator jsonGenerator,
     SerializerProvider serializerProvider
   )
