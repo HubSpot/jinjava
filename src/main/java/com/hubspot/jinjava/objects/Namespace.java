@@ -20,7 +20,7 @@ public class Namespace extends SizeLimitingPyMap implements PyishSerializable {
   }
 
   @Override
-  public String toPyishString() {
-    return String.format("namespace(%s)", PyishSerializable.super.toPyishString());
+  public StringBuilder appendPyishString(StringBuilder sb) {
+    return PyishSerializable.super.appendPyishString(sb.append("namespace(")).append(')');
   }
 }

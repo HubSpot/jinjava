@@ -26,7 +26,10 @@ public class NamedParameter implements PyishSerializable {
   }
 
   @Override
-  public String toPyishString() {
-    return name + "=" + PyishSerializable.writeValueAsString(value);
+  public StringBuilder appendPyishString(StringBuilder sb) {
+    return sb
+      .append(name)
+      .append('=')
+      .append(PyishSerializable.writeValueAsString(value));
   }
 }

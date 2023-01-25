@@ -24,7 +24,7 @@ public class LazyReference extends LazyExpression implements PyishSerializable {
   }
 
   @Override
-  public String toPyishString() {
+  public CharSequence toPyishString() {
     return getReferenceKey();
   }
 }

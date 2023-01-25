@@ -158,11 +158,12 @@ public final class PyishDate
   }
 
   @Override
-  public String toPyishString() {
-    return String.format(
-      "'%s'|strtotime(%s)",
-      strftime(FULL_DATE_FORMAT),
-      PyishObjectMapper.getAsPyishString(FULL_DATE_FORMAT)
-    );
+  public StringBuilder appendPyishString(StringBuilder sb) {
+    return sb
+      .append('\'')
+      .append(strftime(FULL_DATE_FORMAT))
+      .append("'|strtotime(")
+      .append(PyishObjectMapper.getAsPyishString(FULL_DATE_FORMAT))
+      .append(')');
   }
 }

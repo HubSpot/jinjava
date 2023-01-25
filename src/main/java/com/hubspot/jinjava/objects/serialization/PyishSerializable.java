@@ -29,8 +29,23 @@ public interface PyishSerializable extends PyWrapper {
   }
 
   /**
+   * Allows for a class to append the custom string representation in Jinjava.
+   * This method can be overridden to append a custom representation.
+   * This method will be used by {@link #writeSelf(JsonGenerator, SerializerProvider)}
+   * to specify what will be written to the json generator.
+   * If the pyish string representation of this object is composed of several strings,
+   * it's recommended to override this method instead of {@link #toPyishString()}
+   * @param sb StringBuilder to append the pyish string representation to.
+   * @return The same StringBuilder sb with an appended result
+   */
+  default StringBuilder appendPyishString(StringBuilder sb) {
+    return sb.append(toPyishString());
+  }
+
+  /**
    * Allows for a class to specify how its pyish string representation will
    * be written to the json generator.
+   *
    * If the pyish string representation of this object can be very large, it's recommended
    * to override this method instead of {@link #toPyishString()} so that jsonGenerator
    * can be written to multiple times, allowing multiple limit checks to occur.
@@ -40,7 +55,7 @@ public interface PyishSerializable extends PyWrapper {
     SerializerProvider serializerProvider
   )
     throws IOException {
-    jsonGenerator.writeRawValue(toPyishString().toString());
+    jsonGenerator.writeRawValue(appendPyishString(new StringBuilder()).toString());
   }
 
   /**

@@ -112,7 +112,7 @@ public class RejectAttrFilterTest extends BaseJinjavaTest {
     }
 
     @Override
-    public String toPyishString() {
+    public CharSequence toPyishString() {
       return toString();
     }
   }
