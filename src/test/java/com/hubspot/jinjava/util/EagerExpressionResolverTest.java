@@ -908,7 +908,9 @@ public class EagerExpressionResolverTest {
     }
 
     @Override
-    public String toPyishString() {
+    @SuppressWarnings("unchecked")
+    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+      throws IOException {
       throw new DeferredValueException("Can't serialize");
     }
   }

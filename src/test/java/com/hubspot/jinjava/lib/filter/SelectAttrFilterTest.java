@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
+import java.io.IOException;
 import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
@@ -135,8 +136,10 @@ public class SelectAttrFilterTest extends BaseJinjavaTest {
     }
 
     @Override
-    public String toPyishString() {
-      return toString();
+    @SuppressWarnings("unchecked")
+    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+      throws IOException {
+      return (T) appendable.append(toString());
     }
   }
 
@@ -164,8 +167,10 @@ public class SelectAttrFilterTest extends BaseJinjavaTest {
     }
 
     @Override
-    public String toPyishString() {
-      return toString();
+    @SuppressWarnings("unchecked")
+    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+      throws IOException {
+      return (T) appendable.append(toString());
     }
   }
 }

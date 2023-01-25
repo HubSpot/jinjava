@@ -882,7 +882,9 @@ public class JinjavaInterpreter implements PyishSerializable {
   }
 
   @Override
-  public String toPyishString() {
-    return ExtendedParser.INTERPRETER;
+  @SuppressWarnings("unchecked")
+  public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+    throws IOException {
+    return (T) appendable.append(ExtendedParser.INTERPRETER);
   }
 }
