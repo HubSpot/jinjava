@@ -125,7 +125,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
         () ->
           eagerTagDecorator.getEagerTagImage((TagToken) tagNode.getMaster(), interpreter)
       )
-      .isInstanceOf(DeferredValueException.class);
+      .isInstanceOf(OutputTooBigException.class);
   }
 
   @Test

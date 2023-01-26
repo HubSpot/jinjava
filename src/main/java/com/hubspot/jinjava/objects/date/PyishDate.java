@@ -166,7 +166,7 @@ public final class PyishDate
       .append('\'')
       .append(strftime(FULL_DATE_FORMAT))
       .append("'|strtotime(")
-      .append(PyishObjectMapper.getAsPyishString(FULL_DATE_FORMAT))
+      .append(PyishObjectMapper.getAsPyishStringOrThrow(FULL_DATE_FORMAT))
       .append(')');
   }
 }
