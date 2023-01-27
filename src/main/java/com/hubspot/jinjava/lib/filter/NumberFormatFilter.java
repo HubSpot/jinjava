@@ -40,7 +40,7 @@ import java.util.Objects;
     @JinjavaSnippet(code = "{{ number|format_number(\"en-US\", 3) }}")
   }
 )
-public class NumberFilter implements Filter {
+public class NumberFormatFilter implements Filter {
   private static final String FORMAT_NUMBER_FILTER_NAME = "format_number";
 
   @Override
