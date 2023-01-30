@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.interpret.IncludeTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -48,6 +49,7 @@ import org.apache.commons.lang3.StringUtils;
     @JinjavaSnippet(code = "{% include \"hubspot/styles/patches/recommended.css\" %}")
   }
 )
+@JinjavaTextMateSnippet(code = "{% include '${1:path}' %}")
 public class IncludeTag implements Tag {
   public static final String TAG_NAME = "include";
 
