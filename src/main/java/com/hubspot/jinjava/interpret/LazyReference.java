@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.interpret;
 
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
+import java.io.IOException;
 
 public class LazyReference extends LazyExpression implements PyishSerializable {
   private String referenceKey;
@@ -24,7 +25,9 @@ public class LazyReference extends LazyExpression implements PyishSerializable {
   }
 
   @Override
-  public String toPyishString() {
-    return getReferenceKey();
+  @SuppressWarnings("unchecked")
+  public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+    throws IOException {
+    return (T) appendable.append(getReferenceKey());
   }
 }

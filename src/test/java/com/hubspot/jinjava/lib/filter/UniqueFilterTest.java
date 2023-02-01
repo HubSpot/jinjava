@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -71,8 +72,10 @@ public class UniqueFilterTest extends BaseJinjavaTest {
     }
 
     @Override
-    public String toPyishString() {
-      return toString();
+    @SuppressWarnings("unchecked")
+    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+      throws IOException {
+      return (T) appendable.append(toString());
     }
   }
 }
