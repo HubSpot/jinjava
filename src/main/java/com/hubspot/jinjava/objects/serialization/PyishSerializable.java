@@ -53,9 +53,9 @@ public interface PyishSerializable extends PyWrapper {
     );
     jsonGenerator.writeRawValue(
       appendPyishString(
-          remainingLength != null
-            ? new LengthLimitingStringBuilder(remainingLength.get())
-            : new StringBuilder()
+          remainingLength == null
+            ? new StringBuilder()
+            : new LengthLimitingStringBuilder(remainingLength.get())
         )
         .toString()
     );
