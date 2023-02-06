@@ -62,6 +62,7 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
       FormatFilter.class,
       FormatDateFilter.class,
       FormatDatetimeFilter.class,
+      FormatNumberFilter.class,
       FormatTimeFilter.class,
       FromJsonFilter.class,
       FromYamlFilter.class,
