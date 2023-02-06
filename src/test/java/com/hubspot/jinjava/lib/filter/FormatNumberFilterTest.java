@@ -7,13 +7,13 @@ import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 
-public class NumberFormatFilterTest extends BaseJinjavaTest {
+public class FormatNumberFilterTest extends BaseJinjavaTest {
 
   @Before
   public void setup() {}
 
   @Test
-  public void testNumberFormatFilter() {
+  public void testFormatNumberFilter() {
     assertThat(
         jinjava.render("{{1000|format_number('en-US')}}", new HashMap<String, Object>())
       )

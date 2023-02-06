@@ -82,7 +82,7 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
       Md5Filter.class,
       MinusTimeFilter.class,
       MultiplyFilter.class,
-      NumberFormatFilter.class,
+      FormatNumberFilter.class,
       PlusTimeFilter.class,
       PrettyPrintFilter.class,
       RandomFilter.class,

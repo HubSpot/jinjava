@@ -15,6 +15,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 
 @JinjavaDoc(
   value = "Formats a given number based on the locale passed in as a parameter.",
@@ -29,7 +30,7 @@ import java.util.Objects;
       desc = "Locale in which to format the number. The default is the page's locale."
     ),
     @JinjavaParam(
-      value = "decimal precision number",
+      value = "max decimal precision",
       type = "number",
       desc = "A number input that determines the decimal precision of the formatted value. If the number of decimal digits from the input value is less than the decimal precision number, use the number of decimal digits from the input value. Otherwise, use the decimal precision number. The default is the number of decimal digits from the input value."
     )
@@ -40,7 +41,7 @@ import java.util.Objects;
     @JinjavaSnippet(code = "{{ number|format_number(\"en-US\", 3) }}")
   }
 )
-public class NumberFormatFilter implements Filter {
+public class FormatNumberFilter implements Filter {
   private static final String FORMAT_NUMBER_FILTER_NAME = "format_number";
 
   @Override
@@ -77,12 +78,11 @@ public class NumberFormatFilter implements Filter {
       return var;
     }
 
-    int noOfDecimalPlacesInInput = Math.max(0, number.scale());
-    int decimalPrecisionNumber = args.length > 1
-      ? Integer.parseInt(args[1])
-      : noOfDecimalPlacesInInput;
+    Optional<Integer> maxDecimalPrecision = args.length > 1
+      ? Optional.of(Integer.parseInt(args[1]))
+      : Optional.empty();
 
-    return formatNumber(locale, number, noOfDecimalPlacesInInput, decimalPrecisionNumber);
+    return formatNumber(locale, number, maxDecimalPrecision);
   }
 
   private BigDecimal parseInput(Object input) throws Exception {
@@ -95,14 +95,18 @@ public class NumberFormatFilter implements Filter {
   private String formatNumber(
     Locale locale,
     BigDecimal number,
-    int noOfDecimalPlacesInInput,
-    int decimalPrecisionNumber
+    Optional<Integer> maxDecimalPrecision
   ) {
     NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+    int numDecimalPlacesInInput = Math.max(0, number.scale());
 
-    numberFormat.setMinimumFractionDigits(noOfDecimalPlacesInInput);
     numberFormat.setMaximumFractionDigits(
-      Math.min(noOfDecimalPlacesInInput, decimalPrecisionNumber)
+      Math.min(
+        numDecimalPlacesInInput,
+        maxDecimalPrecision.isPresent()
+          ? maxDecimalPrecision.get()
+          : numDecimalPlacesInInput
+      )
     );
 
     return numberFormat.format(number);
