@@ -68,6 +68,26 @@ public class PyishDateTest {
   }
 
   @Test
+  public void itPyishSerializesWithCustomDateFormat() {
+    PyishDate d1 = new PyishDate(ZonedDateTime.parse("2013-11-12T14:15:16.170+02:00"));
+    d1.setDateFormat("yyyy-MM-dd");
+    JinjavaInterpreter interpreter = new Jinjava().newInterpreter();
+    interpreter.render("{% set foo = " + PyishObjectMapper.getAsPyishString(d1) + "%}");
+    PyishDate reconstructed = (PyishDate) interpreter.getContext().get("foo");
+    assertThat(reconstructed.toString()).isEqualTo("2013-11-12");
+  }
+
+  @Test
+  public void itDoesntLoseSecondsOnReconstruction() {
+    PyishDate d1 = new PyishDate(ZonedDateTime.parse("2013-11-12T14:15:16.170+02:00"));
+    d1.setDateFormat("yyyy-MM-dd");
+    JinjavaInterpreter interpreter = new Jinjava().newInterpreter();
+    interpreter.render("{% set foo = " + PyishObjectMapper.getAsPyishString(d1) + "%}");
+    PyishDate reconstructed = (PyishDate) interpreter.getContext().get("foo");
+    assertThat(reconstructed.getSecond()).isEqualTo(16);
+  }
+
+  @Test
   public void testPyishDateToStringWithCustomDateFormatter() {
     PyishDate d1 = new PyishDate(ZonedDateTime.parse("2013-11-12T14:15:16.170+02:00"));
     JinjavaInterpreter interpreter = new Jinjava().newInterpreter();
