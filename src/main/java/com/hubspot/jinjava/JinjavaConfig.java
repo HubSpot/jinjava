@@ -19,7 +19,9 @@ import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
+import com.hubspot.jinjava.el.JinjavaNodePreProcessor;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
+import com.hubspot.jinjava.el.NodePreProcessor;
 import com.hubspot.jinjava.el.ObjectUnwrapper;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -72,6 +74,7 @@ public class JinjavaConfig {
   private final ObjectMapper objectMapper;
 
   private final ObjectUnwrapper objectUnwrapper;
+  private final NodePreProcessor nodePreProcessor;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -128,6 +131,7 @@ public class JinjavaConfig {
     enablePreciseDivideFilter = builder.enablePreciseDivideFilter;
     objectMapper = builder.objectMapper;
     objectUnwrapper = builder.objectUnwrapper;
+    nodePreProcessor = builder.nodePreProcessor;
   }
 
   public Charset getCharset() {
@@ -230,6 +234,10 @@ public class JinjavaConfig {
     return objectUnwrapper;
   }
 
+  public NodePreProcessor getNodePreProcessor() {
+    return nodePreProcessor;
+  }
+
   /**
    * @deprecated  Replaced by {@link LegacyOverrides#isIterateOverMapKeys()}
    */
@@ -282,6 +290,7 @@ public class JinjavaConfig {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private ObjectUnwrapper objectUnwrapper = new JinjavaObjectUnwrapper();
+    private NodePreProcessor nodePreProcessor = new JinjavaNodePreProcessor();
 
     private Builder() {}
 
@@ -440,6 +449,11 @@ public class JinjavaConfig {
 
     public Builder withObjectUnwrapper(ObjectUnwrapper objectUnwrapper) {
       this.objectUnwrapper = objectUnwrapper;
+      return this;
+    }
+
+    public Builder withNodePreProcessor(NodePreProcessor nodePreProcessor) {
+      this.nodePreProcessor = nodePreProcessor;
       return this;
     }
 
