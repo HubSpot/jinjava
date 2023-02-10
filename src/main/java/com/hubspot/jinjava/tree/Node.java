@@ -99,6 +99,6 @@ public abstract class Node implements Serializable {
   }
 
   public void preProcess(JinjavaInterpreter interpreter) {
-    interpreter.getConfig().getNodePreProcessor().preProcess(this, interpreter);
+    interpreter.getConfig().getNodePreProcessor().accept(this, interpreter);
   }
 }
