@@ -19,15 +19,18 @@ import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
+import com.hubspot.jinjava.el.JinjavaNodePreProcessor;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
 import com.hubspot.jinjava.el.ObjectUnwrapper;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.InterpreterFactory;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreterFactory;
 import com.hubspot.jinjava.mode.DefaultExecutionMode;
 import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
+import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import java.nio.charset.Charset;
@@ -38,6 +41,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import javax.el.ELResolver;
 
 public class JinjavaConfig {
@@ -72,6 +76,7 @@ public class JinjavaConfig {
   private final ObjectMapper objectMapper;
 
   private final ObjectUnwrapper objectUnwrapper;
+  private final BiConsumer<Node, JinjavaInterpreter> nodePreProcessor;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -128,6 +133,7 @@ public class JinjavaConfig {
     enablePreciseDivideFilter = builder.enablePreciseDivideFilter;
     objectMapper = builder.objectMapper;
     objectUnwrapper = builder.objectUnwrapper;
+    nodePreProcessor = builder.nodePreProcessor;
   }
 
   public Charset getCharset() {
@@ -230,6 +236,10 @@ public class JinjavaConfig {
     return objectUnwrapper;
   }
 
+  public BiConsumer<Node, JinjavaInterpreter> getNodePreProcessor() {
+    return nodePreProcessor;
+  }
+
   /**
    * @deprecated  Replaced by {@link LegacyOverrides#isIterateOverMapKeys()}
    */
@@ -282,6 +292,7 @@ public class JinjavaConfig {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private ObjectUnwrapper objectUnwrapper = new JinjavaObjectUnwrapper();
+    private BiConsumer<Node, JinjavaInterpreter> nodePreProcessor = new JinjavaNodePreProcessor();
 
     private Builder() {}
 
@@ -440,6 +451,13 @@ public class JinjavaConfig {
 
     public Builder withObjectUnwrapper(ObjectUnwrapper objectUnwrapper) {
       this.objectUnwrapper = objectUnwrapper;
+      return this;
+    }
+
+    public Builder withNodePreProcessor(
+      BiConsumer<Node, JinjavaInterpreter> nodePreProcessor
+    ) {
+      this.nodePreProcessor = nodePreProcessor;
       return this;
     }
 

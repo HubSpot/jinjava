@@ -15,7 +15,6 @@
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
-import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.parse.Token;
@@ -100,17 +99,6 @@ public abstract class Node implements Serializable {
   }
 
   public void preProcess(JinjavaInterpreter interpreter) {
-    interpreter.getContext().setCurrentNode(this);
-    checkForInterrupt();
-  }
-
-  public final void checkForInterrupt() {
-    if (Thread.currentThread().isInterrupted()) {
-      throw new InterpretException(
-        "Interrupt rendering " + getClass(),
-        master.getLineNumber(),
-        master.getStartPosition()
-      );
-    }
+    interpreter.getConfig().getNodePreProcessor().accept(this, interpreter);
   }
 }
