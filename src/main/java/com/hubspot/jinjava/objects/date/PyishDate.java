@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.objects.date;
 
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
@@ -50,7 +51,17 @@ public final class PyishDate
     this(
       ZonedDateTime.ofInstant(
         Instant.ofEpochMilli(
-          Optional.ofNullable(epochMillis).orElseGet(System::currentTimeMillis)
+          Optional
+            .ofNullable(epochMillis)
+            .orElseGet(
+              () ->
+                JinjavaInterpreter
+                  .getCurrentMaybe()
+                  .map(JinjavaInterpreter::getConfig)
+                  .map(JinjavaConfig::getDateTimeProvider)
+                  .map(DateTimeProvider::getCurrentTimeMillis)
+                  .orElse(System.currentTimeMillis())
+            )
         ),
         ZoneOffset.UTC
       )

@@ -20,12 +20,12 @@ public class UnixTimestampFilterTest extends BaseInterpretingTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
   @Test
-  public void itRendersFromDate() throws Exception {
+  public void itRendersFromDate() {
     assertThat(interpreter.renderFlat("{{ d|unixtimestamp }}")).isEqualTo(timestamp);
   }
 }

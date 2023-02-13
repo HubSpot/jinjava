@@ -13,6 +13,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.objects.Namespace;
+import com.hubspot.jinjava.objects.date.DateTimeProvider;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import com.hubspot.jinjava.tree.Node;
@@ -245,7 +246,14 @@ public class Functions {
           JinjavaInterpreter.getCurrent().getPosition()
         );
       }
-      d = ZonedDateTime.now(zoneOffset);
+      long currentMillis = JinjavaInterpreter
+        .getCurrentMaybe()
+        .map(JinjavaInterpreter::getConfig)
+        .map(JinjavaConfig::getDateTimeProvider)
+        .map(DateTimeProvider::getCurrentTimeMillis)
+        .orElse(System.currentTimeMillis());
+
+      d = ZonedDateTime.ofInstant(Instant.ofEpochMilli(currentMillis), zoneOffset);
     } else if (var instanceof Number) {
       d =
         ZonedDateTime.ofInstant(
