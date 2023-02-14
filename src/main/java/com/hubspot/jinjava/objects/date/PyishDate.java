@@ -112,6 +112,11 @@ public final class PyishDate
     this.dateFormat = dateFormat;
   }
 
+  public PyishDate withDateFormat(String dateFormat) {
+    setDateFormat(dateFormat);
+    return this;
+  }
+
   public Date toDate() {
     return Date.from(date.toInstant());
   }
@@ -163,10 +168,12 @@ public final class PyishDate
   public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
     throws IOException {
     return (T) appendable
-      .append('\'')
+      .append("('")
       .append(strftime(FULL_DATE_FORMAT))
       .append("'|strtotime(")
       .append(PyishObjectMapper.getAsPyishStringOrThrow(FULL_DATE_FORMAT))
+      .append(")).withDateFormat(")
+      .append(PyishObjectMapper.getAsPyishStringOrThrow(dateFormat))
       .append(')');
   }
 }
