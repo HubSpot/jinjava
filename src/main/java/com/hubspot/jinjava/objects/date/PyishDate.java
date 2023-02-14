@@ -60,7 +60,7 @@ public final class PyishDate
                   .map(JinjavaInterpreter::getConfig)
                   .map(JinjavaConfig::getDateTimeProvider)
                   .map(DateTimeProvider::getCurrentTimeMillis)
-                  .orElse(System.currentTimeMillis())
+                  .orElseGet(System::currentTimeMillis)
             )
         ),
         ZoneOffset.UTC
