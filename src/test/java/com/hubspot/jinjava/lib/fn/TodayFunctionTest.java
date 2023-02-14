@@ -10,12 +10,15 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
+import com.hubspot.jinjava.objects.date.FixedDateTimeProvider;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import org.junit.Test;
 
 public class TodayFunctionTest extends BaseInterpretingTest {
+  private static final String ZONE_NAME = "America/New_York";
+  private static final ZoneId ZONE_ID = ZoneId.of(ZONE_NAME);
 
   @Test
   public void itDefaultsToUtcTimezone() {
@@ -24,9 +27,31 @@ public class TodayFunctionTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itUsesFixedDateTimeProvider() {
+    long ts = 1233333414223L;
+
+    JinjavaInterpreter.pushCurrent(
+      new JinjavaInterpreter(
+        new Jinjava(),
+        new Context(),
+        JinjavaConfig
+          .newBuilder()
+          .withDateTimeProvider(new FixedDateTimeProvider(ts))
+          .build()
+      )
+    );
+    try {
+      assertThat(Functions.today(ZONE_NAME))
+        .isEqualTo(ZonedDateTime.of(2009, 1, 30, 0, 0, 0, 0, ZONE_ID));
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
+  }
+
+  @Test
   public void itParsesTimezones() {
-    ZonedDateTime zonedDateTime = Functions.today("America/New_York");
-    assertThat(zonedDateTime.getZone()).isEqualTo(ZoneId.of("America/New_York"));
+    ZonedDateTime zonedDateTime = Functions.today(ZONE_NAME);
+    assertThat(zonedDateTime.getZone()).isEqualTo(ZONE_ID);
   }
 
   @Test(expected = InvalidArgumentException.class)
@@ -52,7 +77,7 @@ public class TodayFunctionTest extends BaseInterpretingTest {
       )
     );
     try {
-      Functions.today("America/New_York");
+      Functions.today(ZONE_NAME);
     } finally {
       JinjavaInterpreter.popCurrent();
     }

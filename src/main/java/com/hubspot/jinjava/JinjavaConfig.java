@@ -29,6 +29,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreterFactory;
 import com.hubspot.jinjava.mode.DefaultExecutionMode;
 import com.hubspot.jinjava.mode.ExecutionMode;
+import com.hubspot.jinjava.objects.date.CurrentDateTimeProvider;
+import com.hubspot.jinjava.objects.date.DateTimeProvider;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
@@ -68,6 +70,7 @@ public class JinjavaConfig {
   private final int rangeLimit;
   private final int maxNumDeferredTokens;
   private final InterpreterFactory interpreterFactory;
+  private final DateTimeProvider dateTimeProvider;
   private TokenScannerSymbols tokenScannerSymbols;
   private final ELResolver elResolver;
   private final ExecutionMode executionMode;
@@ -130,6 +133,7 @@ public class JinjavaConfig {
     elResolver = builder.elResolver;
     executionMode = builder.executionMode;
     legacyOverrides = builder.legacyOverrides;
+    dateTimeProvider = builder.dateTimeProvider;
     enablePreciseDivideFilter = builder.enablePreciseDivideFilter;
     objectMapper = builder.objectMapper;
     objectUnwrapper = builder.objectUnwrapper;
@@ -260,6 +264,10 @@ public class JinjavaConfig {
     return enablePreciseDivideFilter;
   }
 
+  public DateTimeProvider getDateTimeProvider() {
+    return dateTimeProvider;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -277,6 +285,7 @@ public class JinjavaConfig {
     private boolean nestedInterpretationEnabled = true;
     private RandomNumberGeneratorStrategy randomNumberGeneratorStrategy =
       RandomNumberGeneratorStrategy.THREAD_LOCAL;
+    private DateTimeProvider dateTimeProvider = new CurrentDateTimeProvider();
     private boolean validationMode = false;
     private long maxStringLength = 0;
     private int rangeLimit = DEFAULT_RANGE_LIMIT;
@@ -325,6 +334,11 @@ public class JinjavaConfig {
       RandomNumberGeneratorStrategy randomNumberGeneratorStrategy
     ) {
       this.randomNumberGeneratorStrategy = randomNumberGeneratorStrategy;
+      return this;
+    }
+
+    public Builder withDateTimeProvider(DateTimeProvider dateTimeProvider) {
+      this.dateTimeProvider = dateTimeProvider;
       return this;
     }
 

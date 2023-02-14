@@ -156,9 +156,9 @@ public class JinjavaInterpreter implements PyishSerializable {
   /**
    * Creates a new variable scope, extending from the current scope. Allows you to create a nested
    * contextual scope which can override variables from higher levels.
-   *
+   * <p>
    * Should be used in a try/finally context, similar to lock-use patterns:
-   *
+   * <p>
    * <code>
    * interpreter.enterScope();
    * try (interpreter.enterScope()) {
