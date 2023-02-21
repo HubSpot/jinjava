@@ -1266,4 +1266,11 @@ public class EagerTest {
       "only-defers-loop-item-on-current-context"
     );
   }
+
+  @Test
+  public void itRunsMacroFunctionInDeferredExecutionMode() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "runs-macro-function-in-deferred-execution-mode"
+    );
+  }
 }
