@@ -29,7 +29,6 @@ import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,26 +36,24 @@ public class ForTagTest extends BaseInterpretingTest {
   public Tag tag;
 
   @Before
-  public void setup() throws Exception {
+  @Override
+  public void baseSetup() {
+    super.baseSetup();
     tag = new ForTag();
 
-    jinjava
-      .getGlobalContext()
-      .registerFunction(
-        new ELFunctionDefinition(
-          "",
-          "in_for_loop",
-          this.getClass().getDeclaredMethod("inForLoop")
-        )
-      );
-    interpreter =
-      new JinjavaInterpreter(jinjava, context, JinjavaConfig.newBuilder().build());
-    JinjavaInterpreter.pushCurrent(interpreter);
-  }
-
-  @After
-  public void teardown() {
-    JinjavaInterpreter.popCurrent();
+    try {
+      jinjava
+        .getGlobalContext()
+        .registerFunction(
+          new ELFunctionDefinition(
+            "",
+            "in_for_loop",
+            this.getClass().getDeclaredMethod("inForLoop")
+          )
+        );
+    } catch (NoSuchMethodException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Test
