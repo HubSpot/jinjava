@@ -1,0 +1,10 @@
+{% set list = [] %}{% if deferred %}
+
+{% set list = [] %}{% for __ignored__ in [0] %}{% do list.append(1) %}1{% set depth = 2 %}
+{% for __ignored__ in [0] %}{% do list.append(2) %}2{% set depth = 3 %}
+{% for __ignored__ in [0] %}{% do list.append(3) %}3{% endfor %}
+{% for __ignored__ in [0] %}{% do list.append(3) %}3{% endfor %}{% endfor %}
+{% for __ignored__ in [0] %}{% do list.append(2) %}2{% set depth = 3 %}
+{% for __ignored__ in [0] %}{% do list.append(3) %}3{% endfor %}
+{% for __ignored__ in [0] %}{% do list.append(3) %}3{% endfor %}{% endfor %}{% endfor %}
+{% endif %}
