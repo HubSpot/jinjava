@@ -236,4 +236,9 @@ public class EagerForTagTest extends ForTagTest {
     interpreter.render(input);
     assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
   }
+
+  public static boolean inForLoop() {
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+    return interpreter.getContext().isInForLoop();
+  }
 }
