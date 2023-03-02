@@ -540,7 +540,8 @@ public class TemplateError {
       startPosition,
       category,
       categoryErrors,
-      scopeDepth
+      scopeDepth,
+      sourceTemplate
     );
   }
 }

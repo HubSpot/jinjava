@@ -461,4 +461,46 @@ public class JinjavaInterpreterTest {
         StrftimeFormatter.format(date, "medium", Locale.forLanguageTag("en-US"))
       );
   }
+
+  @Test
+  public void itFiltersDuplicateErrors() {
+    TemplateError error1 = new TemplateError(
+      TemplateError.ErrorType.WARNING,
+      TemplateError.ErrorReason.OTHER,
+      TemplateError.ErrorItem.FILTER,
+      "the first error",
+      "list",
+      interpreter.getLineNumber(),
+      interpreter.getPosition(),
+      null
+    );
+
+    TemplateError copiedError1 = new TemplateError(
+      TemplateError.ErrorType.WARNING,
+      TemplateError.ErrorReason.OTHER,
+      TemplateError.ErrorItem.FILTER,
+      "the first error",
+      "list",
+      interpreter.getLineNumber(),
+      interpreter.getPosition(),
+      null
+    );
+
+    TemplateError error2 = new TemplateError(
+      TemplateError.ErrorType.WARNING,
+      TemplateError.ErrorReason.OTHER,
+      TemplateError.ErrorItem.FILTER,
+      "the second error",
+      "list",
+      interpreter.getLineNumber(),
+      interpreter.getPosition(),
+      null
+    );
+
+    interpreter.addError(error1);
+    interpreter.addError(error2);
+    interpreter.addError(copiedError1);
+
+    assertThat(interpreter.getErrors()).containsExactly(error1, error2);
+  }
 }
