@@ -29,6 +29,7 @@ import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,8 +37,26 @@ public class ForTagTest extends BaseInterpretingTest {
   public Tag tag;
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     tag = new ForTag();
+
+    jinjava
+      .getGlobalContext()
+      .registerFunction(
+        new ELFunctionDefinition(
+          "",
+          "in_for_loop",
+          this.getClass().getDeclaredMethod("inForLoop")
+        )
+      );
+    interpreter =
+      new JinjavaInterpreter(jinjava, context, JinjavaConfig.newBuilder().build());
+    JinjavaInterpreter.pushCurrent(interpreter);
+  }
+
+  @After
+  public void teardown() {
+    JinjavaInterpreter.popCurrent();
   }
 
   @Test
@@ -356,14 +375,6 @@ public class ForTagTest extends BaseInterpretingTest {
     Map<String, Object> context = Maps.newHashMap();
     String template =
       "{% set test = [1, 2] %}{{ in_for_loop() }} {% for i in test %}{{ in_for_loop() }} {% endfor %}{{ in_for_loop() }}";
-
-    jinjava.registerFunction(
-      new ELFunctionDefinition(
-        "",
-        "in_for_loop",
-        this.getClass().getDeclaredMethod("inForLoop")
-      )
-    );
 
     RenderResult rendered = jinjava.renderForResult(template, context);
     assertThat(rendered.getOutput()).isEqualTo("false true true false");
