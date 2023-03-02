@@ -54,6 +54,7 @@ import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -87,7 +88,9 @@ public class JinjavaInterpreter implements PyishSerializable {
   private int position = 0;
   private int scopeDepth = 1;
   private BlockInfo currentBlock;
-  private final List<TemplateError> errors = new LinkedList<>();
+  private final List<TemplateError> errors = new ArrayList<>();
+  private final Set<Integer> errorSet = new HashSet<>();
+
   private static final int MAX_ERROR_SIZE = 100;
 
   public JinjavaInterpreter(
@@ -738,9 +741,14 @@ public class JinjavaInterpreter implements PyishSerializable {
       templateError.setLineno(context.getCurrentPathStack().getTopLineNumber());
     }
 
-    // Limit the number of error.
+    // Limit the number of errors and filter duplicates
     if (errors.size() < MAX_ERROR_SIZE) {
-      this.errors.add(templateError.withScopeDepth(scopeDepth));
+      templateError = templateError.withScopeDepth(scopeDepth);
+      int errorCode = templateError.hashCode();
+      if (!errorSet.contains(errorCode)) {
+        this.errors.add(templateError);
+        this.errorSet.add(errorCode);
+      }
     }
   }
 
