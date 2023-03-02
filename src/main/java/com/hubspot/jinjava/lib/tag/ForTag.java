@@ -95,8 +95,9 @@ import org.apache.commons.lang3.tuple.Pair;
 public class ForTag implements Tag {
   public static final String TAG_NAME = "for";
 
+  public static final String LOOP = "loop";
+
   private static final long serialVersionUID = 6175143875754966497L;
-  private static final String LOOP = "loop";
   private static final Pattern IN_PATTERN = Pattern.compile("\\sin\\s");
   public static final String TOO_LARGE_EXCEPTION_MESSAGE = "Loop too large";
 

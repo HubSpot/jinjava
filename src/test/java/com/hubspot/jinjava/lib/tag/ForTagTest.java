@@ -16,6 +16,7 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
@@ -348,5 +349,28 @@ public class ForTagTest extends BaseInterpretingTest {
       .isEqualTo(TemplateError.ErrorType.FATAL);
     assertThat(rendered.getErrors().get(0).getMessage())
       .contains("Cannot modify collection in 'for' loop");
+  }
+
+  @Test
+  public void itAllowsCheckingOfWithinForLoop() throws NoSuchMethodException {
+    Map<String, Object> context = Maps.newHashMap();
+    String template =
+      "{% set test = [1, 2] %}{{ in_for_loop() }} {% for i in test %}{{ in_for_loop() }} {% endfor %}{{ in_for_loop() }}";
+
+    jinjava.registerFunction(
+      new ELFunctionDefinition(
+        "",
+        "in_for_loop",
+        this.getClass().getDeclaredMethod("inForLoop")
+      )
+    );
+
+    RenderResult rendered = jinjava.renderForResult(template, context);
+    assertThat(rendered.getOutput()).isEqualTo("false true true false");
+  }
+
+  public static boolean inForLoop() {
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+    return interpreter.getContext().isInForLoop();
   }
 }

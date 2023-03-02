@@ -29,6 +29,7 @@ import com.hubspot.jinjava.lib.filter.FilterLibrary;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.lib.fn.FunctionLibrary;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.lib.tag.ForTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.TagLibrary;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
@@ -798,5 +799,9 @@ public class Context extends ScopeMap<String, Object> {
 
   public void setCurrentNode(final Node currentNode) {
     this.currentNode = currentNode;
+  }
+
+  public boolean isInForLoop() {
+    return get(ForTag.LOOP) != null;
   }
 }
