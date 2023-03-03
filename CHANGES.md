@@ -1,4 +1,32 @@
 # Jinjava Releases #
+### 2023-03-03 Version 2.7.0 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.0/jar)) ###
+* [Use number operations for multiply and divide filters](https://github.com/HubSpot/jinjava/pull/766)
+* [Add config to require whitespace in tokens](https://github.com/HubSpot/jinjava/pull/773)
+* [Make reject filter the inverse of select filter](https://github.com/HubSpot/jinjava/pull/790)
+* [Make ObjectMapper configurable via JinjavaConfig](https://github.com/HubSpot/jinjava/pull/815)
+* [Limit rendering cycle detection to expression nodes](https://github.com/HubSpot/jinjava/pull/817)
+* [Add URL decode filter](https://github.com/HubSpot/jinjava/pull/840)
+* [Fix truthiness of numbers between 0 and 1](https://github.com/HubSpot/jinjava/pull/857)
+* [Fix macro function scoping inside of another macro function](https://github.com/HubSpot/jinjava/pull/869)
+* [Handle thread interrupts by throwing an InterpretException](https://github.com/HubSpot/jinjava/pull/870)
+* [Fix right-side inline whitespace trimming](https://github.com/HubSpot/jinjava/pull/885)
+* [Fix Jinjava functionality for duplicate macro functions and call tags](https://github.com/HubSpot/jinjava/pull/889)
+* [Fix custom operator precedence](https://github.com/HubSpot/jinjava/pull/902)
+* [Parse leading negatives in expression nodes](https://github.com/HubSpot/jinjava/pull/896)
+* [add keys function to dictionary](https://github.com/HubSpot/jinjava/pull/936)
+* [Update title filter to ignore special characters](https://github.com/HubSpot/jinjava/pull/945)
+* [add unescape_html filter](https://github.com/HubSpot/jinjava/pull/967)
+* [Move object unwrap behavior to config object](https://github.com/HubSpot/jinjava/pull/983)
+* [Get best invoke method based on parameters](https://github.com/HubSpot/jinjava/pull/996)
+* [Create format_number filter](https://github.com/HubSpot/jinjava/pull/999)
+* [Get current date and time from a provider](https://github.com/HubSpot/jinjava/pull/1007)
+* [Create context method for checking if in for loop](https://github.com/HubSpot/jinjava/pull/1015)
+* [Filter duplicate template errors](https://github.com/HubSpot/jinjava/pull/1016)
+* Fix various NullPointerExceptions in filters and functions
+* Various changes to reduce non-deterministic behavior
+* Various changes to improve datetime formatting and exception handling
+* Various PRs for eager execution to support two-phase rendering.
+
 ### 2021-10-29 Version 2.6.0 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.6.0/jar)) ###
 * [Create interface for object truth values](https://github.com/HubSpot/jinjava/pull/747)
 * [Catch concurrent modification in for loop](https://github.com/HubSpot/jinjava/pull/750)
