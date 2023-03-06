@@ -287,5 +287,6 @@
       <properties>
         <basepom.check.skip-pom-lint>true</basepom.check.skip-pom-lint>
       </properties>
+    </profile>
   </profiles>
 </project>
