@@ -710,6 +710,10 @@ public class JinjavaInterpreter implements PyishSerializable {
   }
 
   public void addError(TemplateError templateError) {
+    if (templateError == null) {
+      return;
+    }
+
     if (context.getThrowInterpreterErrors()) {
       if (templateError.getSeverity() == ErrorType.FATAL) {
         // Throw fatal errors when locating deferred words.
