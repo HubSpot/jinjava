@@ -67,7 +67,7 @@ public class ListFilterTest {
 
   @Test
   public void itHandlesBoolean() {
-    boolean[] array = {true, false, true};
+    boolean[] array = { true, false, true };
 
     Object result = filter.filter(array, null);
 
@@ -76,7 +76,7 @@ public class ListFilterTest {
 
   @Test
   public void itHandlesByte() {
-    byte[] array = {1, 2, 3};
+    byte[] array = { 1, 2, 3 };
 
     Object result = filter.filter(array, null);
 
@@ -85,7 +85,7 @@ public class ListFilterTest {
 
   @Test
   public void itHandlesChar() {
-    char[] array = {'a', 'b', 'c'};
+    char[] array = { 'a', 'b', 'c' };
 
     Object result = filter.filter(array, null);
 
@@ -94,7 +94,7 @@ public class ListFilterTest {
 
   @Test
   public void itHandlesShort() {
-    short[] array = {1, 2, 3};
+    short[] array = { 1, 2, 3 };
 
     Object result = filter.filter(array, null);
 
@@ -103,7 +103,7 @@ public class ListFilterTest {
 
   @Test
   public void itHandlesInt() {
-    int[] array = {1, 2, 3};
+    int[] array = { 1, 2, 3 };
 
     Object result = filter.filter(array, null);
 
@@ -112,7 +112,7 @@ public class ListFilterTest {
 
   @Test
   public void itHandlesLong() {
-    long[] array = {1L, 2L, 3L};
+    long[] array = { 1L, 2L, 3L };
 
     Object result = filter.filter(array, null);
 
@@ -121,7 +121,7 @@ public class ListFilterTest {
 
   @Test
   public void itHandlesFloat() {
-    float[] array = {1, 2, 3};
+    float[] array = { 1, 2, 3 };
 
     Object result = filter.filter(array, null);
 
@@ -130,7 +130,7 @@ public class ListFilterTest {
 
   @Test
   public void itHandlesDouble() {
-    double[] array = {1.0, 2.0, 3.0};
+    double[] array = { 1.0, 2.0, 3.0 };
 
     Object result = filter.filter(array, null);
 
@@ -139,7 +139,7 @@ public class ListFilterTest {
 
   @Test
   public void itHandlesString() {
-    String[] array = {"word", "word2", "word3"};
+    String[] array = { "word", "word2", "word3" };
 
     Object result = filter.filter(array, null);
 
@@ -170,5 +170,4 @@ public class ListFilterTest {
       assertEquals(classOfElements, resultList.get(i).getClass());
     }
   }
-  
 }
