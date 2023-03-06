@@ -286,6 +286,7 @@
       <id>basepom.oss-release</id>
       <properties>
         <basepom.check.skip-pom-lint>true</basepom.check.skip-pom-lint>
+        <basepom.check.skip-dependency-management>true</basepom.check.skip-dependency-management>
       </properties>
     </profile>
   </profiles>
