@@ -280,4 +280,13 @@
     <url>git@github.com:HubSpot/jinjava.git</url>
     <tag>HEAD</tag>
   </scm>
+
+  <profiles>
+    <profile>
+      <id>basepom.oss-release</id>
+      <properties>
+        <basepom.check.skip-pom-lint>true</basepom.check.skip-pom-lint>
+      </properties>
+    </profile>
+  </profiles>
 </project>
