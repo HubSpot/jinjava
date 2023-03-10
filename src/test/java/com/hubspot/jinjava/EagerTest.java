@@ -1273,4 +1273,19 @@ public class EagerTest {
       "runs-macro-function-in-deferred-execution-mode"
     );
   }
+
+  @Test
+  public void itKeepsMacroModificationsInScope() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "keeps-macro-modifications-in-scope"
+    );
+  }
+
+  @Test
+  public void itKeepsMacroModificationsInScopeSecondPass() {
+    interpreter.getContext().put("deferred", true);
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "keeps-macro-modifications-in-scope.expected"
+    );
+  }
 }
