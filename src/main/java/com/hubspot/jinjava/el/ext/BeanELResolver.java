@@ -337,7 +337,7 @@ public class BeanELResolver extends ELResolver {
     }
     Object result = null;
     if (isResolvable(base)) {
-      Method method = toBeanProperty(base, property).getReadMethod();
+      Method method = getReadMethod(base, property);
       if (method == null) {
         throw new PropertyNotFoundException("Cannot read property " + property);
       }
@@ -647,6 +647,10 @@ public class BeanELResolver extends ELResolver {
       }
     }
     return args;
+  }
+
+  protected Method getReadMethod(Object base, Object property) {
+    return toBeanProperty(base, property).getReadMethod();
   }
 
   private void coerceValue(
