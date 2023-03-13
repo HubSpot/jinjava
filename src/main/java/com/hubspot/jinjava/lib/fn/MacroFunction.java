@@ -9,6 +9,7 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.tree.Node;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -78,24 +79,25 @@ public class MacroFunction extends AbstractCallableMethod {
     Optional<String> importFile = getImportFile(interpreter);
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       String result = getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
-
       if (
-        !interpreter.getContext().isPartialMacroEvaluation() &&
-        (
-          !interpreter.getContext().getDeferredNodes().isEmpty() ||
-          !interpreter.getContext().getDeferredTokens().isEmpty()
-        )
+        !interpreter.getContext().getDeferredNodes().isEmpty() ||
+        !interpreter.getContext().getDeferredTokens().isEmpty()
       ) {
-        String tempVarName = MacroFunctionTempVariable.getVarName(
-          getName(),
-          hashCode(),
-          currentCallCount
-        );
-        interpreter
-          .getContext()
-          .getParent()
-          .put(tempVarName, new MacroFunctionTempVariable(result));
-        throw new DeferredParsingException(this, tempVarName);
+        if (!interpreter.getContext().isPartialMacroEvaluation()) {
+          String tempVarName = MacroFunctionTempVariable.getVarName(
+            getName(),
+            hashCode(),
+            currentCallCount
+          );
+          interpreter
+            .getContext()
+            .getParent()
+            .put(tempVarName, new MacroFunctionTempVariable(result));
+          throw new DeferredParsingException(this, tempVarName);
+        }
+        if (interpreter.getContext().isDeferredExecutionMode()) {
+          return EagerReconstructionUtils.wrapInChildScope(result, interpreter);
+        }
       }
 
       return result;
