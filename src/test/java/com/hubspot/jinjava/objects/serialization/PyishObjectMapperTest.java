@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,6 +87,41 @@ public class PyishObjectMapperTest {
         .isInstanceOf(LengthLimitingJsonProcessingException.class);
     } finally {
       JinjavaInterpreter.popCurrent();
+    }
+  }
+
+  @Test
+  public void itSerializesToSnakeCaseAccessibleMap() {
+    try {
+      Jinjava jinjava = new Jinjava(
+        JinjavaConfig
+          .newBuilder()
+          .withExecutionMode(EagerExecutionMode.instance())
+          .build()
+      );
+      JinjavaInterpreter.pushCurrent(jinjava.newInterpreter());
+      assertThat(PyishObjectMapper.getAsPyishString(new Foo("bar")))
+        .isEqualTo("{'fooBar': 'bar'} |allow_snake_case");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
+  }
+
+  @Test
+  public void itDoesNotConvertToSnakeCaseMapInDefaultExecutionMode() {
+    assertThat(PyishObjectMapper.getAsPyishString(new Foo("bar")).trim())
+      .isEqualTo("{'fooBar': 'bar'}");
+  }
+
+  static class Foo {
+    private final String bar;
+
+    public Foo(String bar) {
+      this.bar = bar;
+    }
+
+    public String getFooBar() {
+      return bar;
     }
   }
 }

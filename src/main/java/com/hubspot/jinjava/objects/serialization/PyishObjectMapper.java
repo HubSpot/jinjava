@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class PyishObjectMapper {
   public static final ObjectWriter PYISH_OBJECT_WRITER;
+  public static final String EAGER_EXECUTION_ATTRIBUTE = "eagerExecution";
 
   static {
     ObjectMapper mapper = new ObjectMapper(
@@ -75,7 +76,15 @@ public class PyishObjectMapper {
     } else {
       writer = new CharArrayWriter();
     }
-    objectWriter.writeValue(writer, val);
+    objectWriter
+      .withAttribute(
+        EAGER_EXECUTION_ATTRIBUTE,
+        JinjavaInterpreter
+          .getCurrentMaybe()
+          .map(interpreter -> interpreter.getConfig().getExecutionMode().useEagerParser())
+          .orElse(false)
+      )
+      .writeValue(writer, val);
     return writer.toString();
   }
 
