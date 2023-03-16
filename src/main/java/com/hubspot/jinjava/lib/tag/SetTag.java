@@ -22,6 +22,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.tree.Node;
@@ -136,17 +137,31 @@ public class SetTag implements Tag, FlexibleTag {
     if (filterPos >= 0) {
       var = tagNode.getHelpers().substring(0, filterPos).trim();
     }
-    StringBuilder sb = new StringBuilder();
-    for (Node child : tagNode.getChildren()) {
-      sb.append(child.render(interpreter));
+    String result;
+    if (IGNORED_VARIABLE_NAME.equals(var)) {
+      result = renderChildren(tagNode, interpreter);
+    } else {
+      try (InterpreterScopeClosable c = interpreter.enterScope()) {
+        result = renderChildren(tagNode, interpreter);
+      }
     }
     try {
-      executeSetBlock(tagNode, var, sb.toString(), filterPos >= 0, interpreter);
+      executeSetBlock(tagNode, var, result, filterPos >= 0, interpreter);
     } catch (DeferredValueException e) {
       DeferredValueUtils.deferVariables(new String[] { var }, interpreter.getContext());
       throw e;
     }
     return "";
+  }
+
+  private static String renderChildren(TagNode tagNode, JinjavaInterpreter interpreter) {
+    String result;
+    StringBuilder sb = new StringBuilder();
+    for (Node child : tagNode.getChildren()) {
+      sb.append(child.render(interpreter));
+    }
+    result = sb.toString();
+    return result;
   }
 
   private void executeSetBlock(
