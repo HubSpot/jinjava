@@ -111,6 +111,30 @@ public class PyishObjectMapperTest {
     assertThat(interpreter.render("{{ foo }}")).isEqualTo("{'fooBar': 'bar'}");
   }
 
+  @Test
+  public void itSerializesToSnakeCaseWhenLegacyOverrideIsSet() {
+    Jinjava jinjava = new Jinjava(
+      JinjavaConfig
+        .newBuilder()
+        .withLegacyOverrides(
+          LegacyOverrides
+            .newBuilder()
+            .withUsePyishObjectMapper(true)
+            .withUseSnakeCasePropertyNaming(true)
+            .build()
+        )
+        .build()
+    );
+    JinjavaInterpreter interpreter = jinjava.newInterpreter();
+    try {
+      JinjavaInterpreter.pushCurrent(interpreter);
+      interpreter.getContext().put("foo", new Foo("bar"));
+      assertThat(interpreter.render("{{ foo }}")).isEqualTo("{'foo_bar': 'bar'}");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
+  }
+
   static class Foo {
     private final String bar;
 
