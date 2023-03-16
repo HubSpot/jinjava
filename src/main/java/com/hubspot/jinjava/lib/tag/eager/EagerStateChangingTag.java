@@ -18,7 +18,7 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
   }
 
   @Override
-  public String innerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+  public final String innerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     return eagerInterpret(tagNode, interpreter, null);
   }
 
@@ -42,10 +42,7 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
             eagerInterpreter ->
               EagerExpressionResult.fromString(renderChildren(tagNode, eagerInterpreter)),
             interpreter,
-            EagerContextWatcher
-              .EagerChildContextConfig.newBuilder()
-              .withForceDeferredExecutionMode(true)
-              .build()
+            EagerContextWatcher.EagerChildContextConfig.newBuilder().build()
           )
           .asTemplateString()
       );

@@ -403,7 +403,7 @@ public class EagerReconstructionUtils {
    * @param name The name of the variable to set.
    * @param value The string value, potentially containing jinja code to put in the set tag block.
    * @param interpreter The Jinjava interpreter.
-   * @param registerDeferredToken Whether or not to register the returned {@link SetTag}
+   * @param registerDeferredToken Whether to register the returned {@link SetTag}
    *                           token as an {@link DeferredToken}.
    * @return A jinjava-syntax string that is the image of a block set tag that will
    *  be executed at a later time.
@@ -502,7 +502,7 @@ public class EagerReconstructionUtils {
           interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag()
         )
       ) {
-        output = wrapInTag(output, RawTag.TAG_NAME, interpreter);
+        output = wrapInTag(output, RawTag.TAG_NAME, interpreter, false);
       }
     }
     return output;
@@ -519,31 +519,64 @@ public class EagerReconstructionUtils {
         !interpreter.getContext().getParent().isAutoEscape()
       )
     ) {
-      output = wrapInTag(output, AutoEscapeTag.TAG_NAME, interpreter);
+      output = wrapInTag(output, AutoEscapeTag.TAG_NAME, interpreter, false);
     }
     return output;
   }
 
-  public static String wrapInTag(
-    String s,
+  /**
+   * Wrap the string output in a specified block-type tag.
+   * @param body The string body to wrap.
+   * @param tagNameToWrap The name of the tag which will wrap around the {@param body}.
+   * @param interpreter The Jinjava interpreter.
+   * @param registerDeferredToken Whether to register the returned Tag
+   *                           token as an {@link DeferredToken}.
+   * @return A jinjava-syntax string that is the image of a block set tag that will
+   *  be executed at a later time.
+   */public static String wrapInTag(
+    String body,
     String tagNameToWrap,
-    JinjavaInterpreter interpreter
+    JinjavaInterpreter interpreter,
+    boolean registerDeferredToken
   ) {
-    return (
-      String.format(
-        "%s %s %s",
-        interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag(),
-        tagNameToWrap,
-        interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag()
-      ) +
-      s +
-      String.format(
-        "%s end%s %s",
-        interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag(),
-        tagNameToWrap,
-        interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag()
-      )
+    Map<Library, Set<String>> disabled = interpreter.getConfig().getDisabled();
+    if (
+      disabled != null &&
+      disabled.containsKey(Library.TAG) &&
+      disabled.get(Library.TAG).contains(tagNameToWrap)
+    ) {
+      throw new DisabledException(String.format("%s tag disabled", tagNameToWrap));
+    }
+    LengthLimitingStringJoiner blockSetTokenBuilder = new LengthLimitingStringJoiner(
+      interpreter.getConfig().getMaxOutputSize(),
+      " "
     );
+    StringJoiner endTokenBuilder = new StringJoiner(" ");
+    blockSetTokenBuilder
+      .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
+      .add(tagNameToWrap)
+      .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag());
+    endTokenBuilder
+      .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
+      .add("end" + tagNameToWrap)
+      .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag());
+    String image = blockSetTokenBuilder + body + endTokenBuilder;
+    if (registerDeferredToken) {
+      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+        interpreter,
+        new DeferredToken(
+          new TagToken(
+            blockSetTokenBuilder.toString(),
+            interpreter.getLineNumber(),
+            interpreter.getPosition(),
+            interpreter.getConfig().getTokenScannerSymbols()
+          ),
+          Collections.emptySet(),
+          Collections.emptySet()
+        )
+      );
+    }
+    return image;
   }
 
   public static String wrapInChildScope(String toWrap, JinjavaInterpreter interpreter) {

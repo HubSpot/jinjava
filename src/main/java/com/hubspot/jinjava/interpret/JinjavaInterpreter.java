@@ -33,8 +33,8 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.ExtendsTag;
-import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerGenericTag;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
@@ -399,9 +399,9 @@ public class JinjavaInterpreter implements PyishSerializable {
     resolveBlockStubs(output);
     if (ignoredOutput.length() > 0) {
       return (
-        EagerReconstructionUtils.buildBlockSetTag(
-          SetTag.IGNORED_VARIABLE_NAME,
+        EagerReconstructionUtils.wrapInTag(
           ignoredOutput.toString(),
+          DoTag.TAG_NAME,
           this,
           false
         ) +

@@ -1,13 +1,12 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import static com.hubspot.jinjava.lib.tag.SetTag.IGNORED_VARIABLE_NAME;
-
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.FromTag;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
@@ -119,9 +118,9 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
             output +
             EagerReconstructionUtils.buildSetTag(newToOldImportNames, interpreter, true);
         }
-        return EagerReconstructionUtils.buildBlockSetTag(
-          IGNORED_VARIABLE_NAME,
+        return EagerReconstructionUtils.wrapInTag(
           output,
+          DoTag.TAG_NAME,
           interpreter,
           true
         );

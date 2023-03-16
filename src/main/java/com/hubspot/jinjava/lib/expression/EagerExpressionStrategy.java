@@ -5,7 +5,6 @@ import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
-import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
@@ -65,7 +64,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         interpreter
       )
     );
-    String helpers = wrapInExpression(
+    String deferredExpressionImage = wrapInExpression(
       eagerExecutionResult.getResult().toString(),
       interpreter
     );
@@ -74,7 +73,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         interpreter,
         new DeferredToken(
           new ExpressionToken(
-            helpers,
+            deferredExpressionImage,
             master.getLineNumber(),
             master.getStartPosition(),
             master.getSymbols()
@@ -93,7 +92,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     );
     // There is only a preserving prefix because it couldn't be entirely evaluated.
     return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
-      prefixToPreserveState.toString() + helpers,
+      prefixToPreserveState.toString() + deferredExpressionImage,
       interpreter
     );
   }
@@ -123,8 +122,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
           }
         }
       } else {
-        // Possible macro/set tag in front of this one. Includes result
-        result = wrapInRawOrExpressionIfNeeded(result, interpreter);
+        result = EagerReconstructionUtils.wrapInRawIfNeeded(result, interpreter);
       }
     }
 
@@ -145,24 +143,6 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
           error.getReason() == ErrorReason.DISABLED
       )
       .count();
-  }
-
-  private static String wrapInRawOrExpressionIfNeeded(
-    String output,
-    JinjavaInterpreter interpreter
-  ) {
-    JinjavaConfig config = interpreter.getConfig();
-    if (
-      config.getExecutionMode().isPreserveRawTags() &&
-      !interpreter.getContext().isUnwrapRawOverride() &&
-      (
-        output.contains(config.getTokenScannerSymbols().getExpressionStart()) ||
-        output.contains(config.getTokenScannerSymbols().getExpressionStartWithTag())
-      )
-    ) {
-      return EagerReconstructionUtils.wrapInTag(output, RawTag.TAG_NAME, interpreter);
-    }
-    return output;
   }
 
   private static String wrapInExpression(String output, JinjavaInterpreter interpreter) {

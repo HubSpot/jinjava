@@ -70,7 +70,7 @@ import org.apache.commons.lang3.StringUtils;
       code = "{% set name = 'Jack' %}\n" +
       "{% set message %}\n" +
       "My name is {{ name }}\n" +
-      "{% end_set %}"
+      "{% endset %}"
     )
   }
 )

@@ -1,12 +1,16 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.DoTag;
+import com.hubspot.jinjava.lib.tag.FlexibleTag;
+import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
-import org.apache.commons.lang3.StringUtils;
+import com.hubspot.jinjava.util.EagerContextWatcher;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 
-public class EagerDoTag extends EagerStateChangingTag<DoTag> {
+public class EagerDoTag extends EagerStateChangingTag<DoTag> implements FlexibleTag {
 
   public EagerDoTag() {
     super(new DoTag());
@@ -17,15 +21,51 @@ public class EagerDoTag extends EagerStateChangingTag<DoTag> {
   }
 
   @Override
-  public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
-    String expr = tagToken.getHelpers();
-    if (StringUtils.isBlank(expr)) {
-      throw new TemplateSyntaxException(
+  public String eagerInterpret(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    InterpretException e
+  ) {
+    if (hasEndTag((TagToken) tagNode.getMaster())) {
+      EagerExecutionResult eagerExecutionResult = EagerContextWatcher.executeInChildContext(
+        eagerInterpreter ->
+          EagerExpressionResult.fromSupplier(
+            () -> renderChildren(tagNode, interpreter),
+            eagerInterpreter
+          ),
         interpreter,
-        tagToken.getImage(),
-        "Tag 'do' expects expression"
+        EagerContextWatcher
+          .EagerChildContextConfig.newBuilder()
+          .withTakeNewValue(true)
+          .withCheckForContextChanges(!interpreter.getContext().isDeferredExecutionMode())
+          .build()
+      );
+      StringBuilder prefixToPreserveState = new StringBuilder();
+      if (interpreter.getContext().isDeferredExecutionMode()) {
+        prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
+      } else {
+        interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
+      }
+      if (eagerExecutionResult.getResult().isFullyResolved()) {
+        return (prefixToPreserveState.toString());
+      }
+      return EagerReconstructionUtils.wrapInTag(
+        eagerExecutionResult.asTemplateString(),
+        getName(),
+        interpreter,
+        true
       );
     }
-    return EagerPrintTag.interpretExpression(expr, tagToken, interpreter, false);
+    return EagerPrintTag.interpretExpression(
+      tagNode.getHelpers(),
+      (TagToken) tagNode.getMaster(),
+      interpreter,
+      false
+    );
+  }
+
+  @Override
+  public boolean hasEndTag(TagToken tagToken) {
+    return getTag().hasEndTag(tagToken);
   }
 }
