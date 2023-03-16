@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -19,7 +18,6 @@ import java.io.IOException;
   snippets = { @JinjavaSnippet(code = "{{object|fromJson}}") }
 )
 public class FromJsonFilter implements Filter {
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
@@ -31,7 +29,10 @@ public class FromJsonFilter implements Filter {
       throw new InvalidInputException(interpreter, this, InvalidReason.STRING);
     }
     try {
-      return OBJECT_MAPPER.readValue((String) var, Object.class);
+      return interpreter
+        .getConfig()
+        .getObjectMapper()
+        .readValue((String) var, Object.class);
     } catch (IOException e) {
       throw new InvalidInputException(interpreter, this, InvalidReason.JSON_READ);
     }

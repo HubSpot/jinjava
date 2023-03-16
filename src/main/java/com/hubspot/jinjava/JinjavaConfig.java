@@ -18,6 +18,7 @@ package com.hubspot.jinjava;
 import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaNodePreProcessor;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
@@ -44,6 +45,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import javax.annotation.Nullable;
 import javax.el.ELResolver;
 
 public class JinjavaConfig {
@@ -135,9 +137,19 @@ public class JinjavaConfig {
     legacyOverrides = builder.legacyOverrides;
     dateTimeProvider = builder.dateTimeProvider;
     enablePreciseDivideFilter = builder.enablePreciseDivideFilter;
-    objectMapper = builder.objectMapper;
+    objectMapper = setupObjectMapper(builder.objectMapper);
     objectUnwrapper = builder.objectUnwrapper;
     nodePreProcessor = builder.nodePreProcessor;
+  }
+
+  private ObjectMapper setupObjectMapper(@Nullable ObjectMapper objectMapper) {
+    if (objectMapper == null) {
+      objectMapper = new ObjectMapper();
+      if (legacyOverrides.isUseSnakeCasePropertyNaming()) {
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+      }
+    }
+    return objectMapper;
   }
 
   public Charset getCharset() {
@@ -298,7 +310,7 @@ public class JinjavaConfig {
     private ExecutionMode executionMode = DefaultExecutionMode.instance();
     private LegacyOverrides legacyOverrides = LegacyOverrides.NONE;
     private boolean enablePreciseDivideFilter = false;
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper = null;
 
     private ObjectUnwrapper objectUnwrapper = new JinjavaObjectUnwrapper();
     private BiConsumer<Node, JinjavaInterpreter> nodePreProcessor = new JinjavaNodePreProcessor();
