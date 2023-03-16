@@ -24,13 +24,8 @@ public class PyishBeanSerializerModifier extends BeanSerializerModifier {
       if (Map.Entry.class.isAssignableFrom(beanDesc.getBeanClass())) {
         return MapEntrySerializer.INSTANCE;
       }
-      if (
-        serializer instanceof BeanSerializer &&
-        Boolean.TRUE.equals(
-          config.getAttributes().getAttribute(PyishObjectMapper.EAGER_EXECUTION_ATTRIBUTE)
-        )
-      ) {
-        return BothCasingBeanSerializer.INSTANCE;
+      if (serializer instanceof BeanSerializer) {
+        return BothCasingBeanSerializer.wrapping(serializer);
       }
       return serializer;
     } else {

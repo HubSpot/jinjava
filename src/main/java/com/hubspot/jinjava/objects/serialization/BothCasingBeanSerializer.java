@@ -6,19 +6,39 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.hubspot.jinjava.lib.filter.AllowSnakeCaseFilter;
 import java.io.IOException;
 
-public class BothCasingBeanSerializer extends JsonSerializer<Object> {
-  public static final BothCasingBeanSerializer INSTANCE = new BothCasingBeanSerializer();
+public class BothCasingBeanSerializer<T> extends JsonSerializer<T> {
+  private final JsonSerializer<T> orignalSerializer;
 
-  private BothCasingBeanSerializer() {}
+  private BothCasingBeanSerializer(JsonSerializer<T> jsonSerializer) {
+    this.orignalSerializer = jsonSerializer;
+  }
+
+  public static <T> BothCasingBeanSerializer<T> wrapping(
+    JsonSerializer<T> jsonSerializer
+  ) {
+    return new BothCasingBeanSerializer<>(jsonSerializer);
+  }
 
   @Override
-  public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers)
+  public void serialize(
+    T value,
+    JsonGenerator gen,
+    SerializerProvider serializerProvider
+  )
     throws IOException {
-    StringBuilder sb = new StringBuilder();
-    sb
-      .append(PyishSerializable.writeValueAsString(value))
-      .append('|')
-      .append(AllowSnakeCaseFilter.NAME);
-    gen.writeRawValue(sb.toString());
+    if (
+      Boolean.TRUE.equals(
+        serializerProvider.getAttribute(PyishObjectMapper.EAGER_EXECUTION_ATTRIBUTE)
+      )
+    ) {
+      StringBuilder sb = new StringBuilder();
+      sb
+        .append(PyishSerializable.writeValueAsString(value))
+        .append('|')
+        .append(AllowSnakeCaseFilter.NAME);
+      gen.writeRawValue(sb.toString());
+    } else {
+      orignalSerializer.serialize(value, gen, serializerProvider);
+    }
   }
 }
