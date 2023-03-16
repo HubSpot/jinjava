@@ -138,13 +138,7 @@ public class SetTag implements Tag, FlexibleTag {
       var = tagNode.getHelpers().substring(0, filterPos).trim();
     }
     String result;
-    if (IGNORED_VARIABLE_NAME.equals(var)) {
-      result = renderChildren(tagNode, interpreter);
-    } else {
-      try (InterpreterScopeClosable c = interpreter.enterScope()) {
-        result = renderChildren(tagNode, interpreter);
-      }
-    }
+    result = renderChildren(tagNode, interpreter, var);
     try {
       executeSetBlock(tagNode, var, result, filterPos >= 0, interpreter);
     } catch (DeferredValueException e) {
@@ -152,6 +146,22 @@ public class SetTag implements Tag, FlexibleTag {
       throw e;
     }
     return "";
+  }
+
+  public static String renderChildren(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    String var
+  ) {
+    String result;
+    if (IGNORED_VARIABLE_NAME.equals(var)) {
+      result = renderChildren(tagNode, interpreter);
+    } else {
+      try (InterpreterScopeClosable c = interpreter.enterScope()) {
+        result = renderChildren(tagNode, interpreter);
+      }
+    }
+    return result;
   }
 
   private static String renderChildren(TagNode tagNode, JinjavaInterpreter interpreter) {

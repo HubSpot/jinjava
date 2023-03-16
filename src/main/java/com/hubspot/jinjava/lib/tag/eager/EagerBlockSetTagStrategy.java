@@ -4,7 +4,6 @@ import com.google.common.collect.Sets;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
-import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerContextWatcher;
@@ -28,19 +27,14 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
   @Override
   protected EagerExecutionResult getEagerExecutionResult(
     TagNode tagNode,
+    String[] variables,
     String expression,
     JinjavaInterpreter interpreter
   ) {
     EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
       eagerInterpreter ->
         EagerExpressionResult.fromSupplier(
-          () -> {
-            StringBuilder sb = new StringBuilder();
-            for (Node child : tagNode.getChildren()) {
-              sb.append(child.render(eagerInterpreter).getValue());
-            }
-            return sb.toString();
-          },
+          () -> SetTag.renderChildren(tagNode, eagerInterpreter, variables[0]),
           eagerInterpreter
         ),
       interpreter,
@@ -74,6 +68,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
       if (filterPos >= 0) {
         EagerExecutionResult filterResult = EagerInlineSetTagStrategy.INSTANCE.getEagerExecutionResult(
           tagNode,
+          variables,
           tagNode.getHelpers().trim(),
           interpreter
         );
@@ -164,6 +159,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
     if (filterPos >= 0) {
       EagerExecutionResult filterResult = EagerInlineSetTagStrategy.INSTANCE.getEagerExecutionResult(
         tagNode,
+        variables,
         tagNode.getHelpers().trim(),
         interpreter
       );

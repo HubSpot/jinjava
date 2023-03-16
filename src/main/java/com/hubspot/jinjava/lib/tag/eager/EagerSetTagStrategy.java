@@ -43,6 +43,7 @@ public abstract class EagerSetTagStrategy {
 
     EagerExecutionResult eagerExecutionResult = getEagerExecutionResult(
       tagNode,
+      variables,
       expression,
       interpreter
     );
@@ -78,6 +79,7 @@ public abstract class EagerSetTagStrategy {
 
   protected abstract EagerExecutionResult getEagerExecutionResult(
     TagNode tagNode,
+    String[] variables,
     String expression,
     JinjavaInterpreter interpreter
   );
