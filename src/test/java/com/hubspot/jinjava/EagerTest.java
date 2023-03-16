@@ -1290,12 +1290,17 @@ public class EagerTest {
   }
 
   @Test
-  public void itE() {
-    expectedTemplateInterpreter.assertExpectedOutput("e");
+  public void itDoesNotReconstructVariableInWrongScope() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "does-not-reconstruct-variable-in-wrong-scope"
+    );
   }
 
   @Test
-  public void itE2() {
-    expectedTemplateInterpreter.assertExpectedOutput("e2");
+  public void itDoesNotReconstructVariableInWrongScopeSecondPass() {
+    interpreter.getContext().put("deferred", true);
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "does-not-reconstruct-variable-in-wrong-scope.expected"
+    );
   }
 }

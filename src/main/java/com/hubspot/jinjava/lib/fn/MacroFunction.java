@@ -23,6 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  */
 public class MacroFunction extends AbstractCallableMethod {
+  public static final String KWARGS_KEY = "kwargs";
+  public static final String VARARGS_KEY = "varargs";
   protected final List<Node> content;
 
   protected final boolean caller;
@@ -71,33 +73,10 @@ public class MacroFunction extends AbstractCallableMethod {
     Map<String, Object> kwargMap,
     List<Object> varArgs
   ) {
-    int currentCallCount = callCount.getAndIncrement();
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     Optional<String> importFile = getImportFile(interpreter);
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
-      String result = getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
-      //      if (
-      //        !interpreter.getContext().getDeferredNodes().isEmpty() ||
-      //        !interpreter.getContext().getDeferredTokens().isEmpty()
-      //      ) {
-      //        if (!interpreter.getContext().isPartialMacroEvaluation()) {
-      //          String tempVarName = MacroFunctionTempVariable.getVarName(
-      //            getName(),
-      //            hashCode(),
-      //            currentCallCount
-      //          );
-      //          interpreter
-      //            .getContext()
-      //            .getParent()
-      //            .put(tempVarName, new MacroFunctionTempVariable(result));
-      //          throw new DeferredParsingException(this, tempVarName);
-      //        }
-      //        if (interpreter.getContext().isDeferredExecutionMode()) {
-      //          return EagerReconstructionUtils.wrapInChildScope(result, interpreter);
-      //        }
-      //      }
-
-      return result;
+      return getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
     } finally {
       importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop());
     }
@@ -162,9 +141,9 @@ public class MacroFunction extends AbstractCallableMethod {
       interpreter.getContext().put(argEntry.getKey(), argEntry.getValue());
     }
     // parameter map
-    interpreter.getContext().put("kwargs", kwargMap);
+    interpreter.getContext().put(KWARGS_KEY, kwargMap);
     // varargs list
-    interpreter.getContext().put("varargs", varArgs);
+    interpreter.getContext().put(VARARGS_KEY, varArgs);
 
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxOutputSize()

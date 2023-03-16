@@ -1,11 +1,3 @@
-{#{% set foo = [] %}
-{% if deferred %}
-{% for i in range(1) %}
-{% do foo.append('a') %}
-{% endfor %}
-{% endif %}
-#}
-
 {% macro foo(var) %}
 {% do my_list.append(var) %}
 {% endmacro %}

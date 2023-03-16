@@ -124,6 +124,6 @@ public class EagerExecutionResult {
   }
 
   public String asTemplateString() {
-    return getPrefixToPreserveState().toString() + result;
+    return getPrefixToPreserveState().toString() + result.toString(true);
   }
 }

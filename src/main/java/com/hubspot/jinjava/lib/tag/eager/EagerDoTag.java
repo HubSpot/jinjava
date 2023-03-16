@@ -9,6 +9,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.PrefixToPreserveState;
 
 public class EagerDoTag extends EagerStateChangingTag<DoTag> implements FlexibleTag {
 
@@ -40,9 +41,9 @@ public class EagerDoTag extends EagerStateChangingTag<DoTag> implements Flexible
           .withCheckForContextChanges(!interpreter.getContext().isDeferredExecutionMode())
           .build()
       );
-      StringBuilder prefixToPreserveState = new StringBuilder();
+      PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
       if (interpreter.getContext().isDeferredExecutionMode()) {
-        prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
+        prefixToPreserveState.withAll(eagerExecutionResult.getPrefixToPreserveState());
       } else {
         interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
       }

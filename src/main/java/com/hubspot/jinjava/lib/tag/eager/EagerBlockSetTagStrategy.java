@@ -42,6 +42,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
       EagerContextWatcher
         .EagerChildContextConfig.newBuilder()
         .withTakeNewValue(true)
+        .withDiscardSessionBindings(!SetTag.IGNORED_VARIABLE_NAME.equals(variables[0]))
         .build()
     );
     if (result.getResult().getResolutionState() == ResolutionState.NONE) {
