@@ -8,11 +8,12 @@ import com.hubspot.jinjava.interpret.LazyReference;
 import com.hubspot.jinjava.objects.serialization.PyishBlockSetSerializable;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import com.hubspot.jinjava.util.PrefixToPreserveState;
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * This represents the result of speculatively executing an expression, where if something
@@ -22,7 +23,7 @@ import org.apache.commons.lang3.tuple.Pair;
 public class EagerExecutionResult {
   private final EagerExpressionResult result;
   private final Map<String, Object> speculativeBindings;
-  private String prefixToPreserveState;
+  private PrefixToPreserveState prefixToPreserveState;
 
   public EagerExecutionResult(
     EagerExpressionResult result,
@@ -40,7 +41,7 @@ public class EagerExecutionResult {
     return speculativeBindings;
   }
 
-  public String getPrefixToPreserveState() {
+  public PrefixToPreserveState getPrefixToPreserveState() {
     return getPrefixToPreserveState(
       !JinjavaInterpreter
         .getCurrentMaybe()
@@ -49,66 +50,80 @@ public class EagerExecutionResult {
     );
   }
 
-  public String getPrefixToPreserveState(boolean registerDeferredToken) {
+  public PrefixToPreserveState getPrefixToPreserveState(boolean registerDeferredToken) {
     if (prefixToPreserveState != null) {
       return prefixToPreserveState;
     }
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
-    prefixToPreserveState =
+    prefixToPreserveState = new PrefixToPreserveState();
+    prefixToPreserveState.putAll(
       speculativeBindings
         .entrySet()
         .stream()
         .filter(entry -> entry.getValue() instanceof PyishBlockSetSerializable)
         .map(
           entry ->
-            buildBlockSetTag(
+            new AbstractMap.SimpleImmutableEntry<>(
               entry.getKey(),
-              ((PyishBlockSetSerializable) entry.getValue()).getBlockSetBody(),
-              interpreter,
-              registerDeferredToken
+              buildBlockSetTag(
+                entry.getKey(),
+                ((PyishBlockSetSerializable) entry.getValue()).getBlockSetBody(),
+                interpreter,
+                registerDeferredToken
+              )
             )
         )
-        .collect(Collectors.joining()) +
-      buildSetTag(
-        speculativeBindings
-          .entrySet()
-          .stream()
-          .filter(entry -> !(entry.getValue() instanceof PyishBlockSetSerializable))
-          .filter(entry -> !(entry.getValue() instanceof LazyReference))
-          .collect(
-            Collectors.toMap(
-              Entry::getKey,
-              entry -> PyishObjectMapper.getAsPyishString(entry.getValue())
-            )
-          ),
-        interpreter,
-        registerDeferredToken
-      ) +
-      speculativeBindings
-        .entrySet()
-        .stream()
-        .filter(entry -> (entry.getValue() instanceof LazyReference))
-        .map(
-          entry ->
-            Pair.of(entry.getKey(), PyishObjectMapper.getAsPyishString(entry.getValue()))
-        )
-        .sorted(
-          (a, b) ->
-            a.getValue().equals(b.getKey()) ? 1 : b.getValue().equals(a.getKey()) ? -1 : 0
-        )
-        .map(
-          pair ->
+        .collect(Collectors.toMap(Entry::getKey, Entry::getValue))
+    );
+    speculativeBindings
+      .entrySet()
+      .stream()
+      .filter(entry -> !(entry.getValue() instanceof PyishBlockSetSerializable))
+      .filter(entry -> !(entry.getValue() instanceof LazyReference))
+      .forEach(
+        entry ->
+          prefixToPreserveState.put(
+            entry.getKey(),
             buildSetTag(
-              Collections.singletonMap(pair.getKey(), pair.getValue()),
+              Collections.singletonMap(
+                entry.getKey(),
+                PyishObjectMapper.getAsPyishString(entry.getValue())
+              ),
+              interpreter,
+              false
+            )
+          )
+      );
+    speculativeBindings
+      .entrySet()
+      .stream()
+      .filter(entry -> (entry.getValue() instanceof LazyReference))
+      .map(
+        entry ->
+          new AbstractMap.SimpleImmutableEntry<>(
+            entry.getKey(),
+            PyishObjectMapper.getAsPyishString(entry.getValue())
+          )
+      )
+      .sorted(
+        (a, b) ->
+          a.getValue().equals(b.getKey()) ? 1 : b.getValue().equals(a.getKey()) ? -1 : 0
+      )
+      .forEach(
+        entry ->
+          prefixToPreserveState.put(
+            entry.getKey(),
+            buildSetTag(
+              Collections.singletonMap(entry.getKey(), entry.getValue()),
               interpreter,
               registerDeferredToken
             )
-        )
-        .collect(Collectors.joining());
+          )
+      );
     return prefixToPreserveState;
   }
 
   public String asTemplateString() {
-    return getPrefixToPreserveState() + result;
+    return getPrefixToPreserveState().toString() + result;
   }
 }

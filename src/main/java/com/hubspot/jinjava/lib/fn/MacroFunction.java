@@ -1,15 +1,12 @@
 package com.hubspot.jinjava.lib.fn;
 
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
-import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.el.ext.eager.MacroFunctionTempVariable;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.tree.Node;
-import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -26,17 +23,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  */
 public class MacroFunction extends AbstractCallableMethod {
-  private final List<Node> content;
+  protected final List<Node> content;
 
-  private final boolean caller;
+  protected final boolean caller;
 
-  private final Context localContextScope;
+  protected final Context localContextScope;
 
-  private final int definitionLineNumber;
+  protected final int definitionLineNumber;
 
-  private final int definitionStartPosition;
+  protected final int definitionStartPosition;
 
-  private boolean deferred;
+  protected boolean deferred;
 
   private AtomicInteger callCount = new AtomicInteger();
 
@@ -79,26 +76,26 @@ public class MacroFunction extends AbstractCallableMethod {
     Optional<String> importFile = getImportFile(interpreter);
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       String result = getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
-      if (
-        !interpreter.getContext().getDeferredNodes().isEmpty() ||
-        !interpreter.getContext().getDeferredTokens().isEmpty()
-      ) {
-        if (!interpreter.getContext().isPartialMacroEvaluation()) {
-          String tempVarName = MacroFunctionTempVariable.getVarName(
-            getName(),
-            hashCode(),
-            currentCallCount
-          );
-          interpreter
-            .getContext()
-            .getParent()
-            .put(tempVarName, new MacroFunctionTempVariable(result));
-          throw new DeferredParsingException(this, tempVarName);
-        }
-        if (interpreter.getContext().isDeferredExecutionMode()) {
-          return EagerReconstructionUtils.wrapInChildScope(result, interpreter);
-        }
-      }
+      //      if (
+      //        !interpreter.getContext().getDeferredNodes().isEmpty() ||
+      //        !interpreter.getContext().getDeferredTokens().isEmpty()
+      //      ) {
+      //        if (!interpreter.getContext().isPartialMacroEvaluation()) {
+      //          String tempVarName = MacroFunctionTempVariable.getVarName(
+      //            getName(),
+      //            hashCode(),
+      //            currentCallCount
+      //          );
+      //          interpreter
+      //            .getContext()
+      //            .getParent()
+      //            .put(tempVarName, new MacroFunctionTempVariable(result));
+      //          throw new DeferredParsingException(this, tempVarName);
+      //        }
+      //        if (interpreter.getContext().isDeferredExecutionMode()) {
+      //          return EagerReconstructionUtils.wrapInChildScope(result, interpreter);
+      //        }
+      //      }
 
       return result;
     } finally {

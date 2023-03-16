@@ -18,6 +18,7 @@ import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
+import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
@@ -214,11 +215,14 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     }
     joiner.add(tagToken.getSymbols().getExpressionEndWithTag());
 
-    String prefixToPreserveState =
-      EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
+    PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
+    prefixToPreserveState.putAll(
+      EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
         eagerExpressionResult.getDeferredWords(),
         interpreter
-      ) +
+      )
+    );
+    prefixToPreserveState.withAllInFront(
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
         interpreter,
         new DeferredToken(
@@ -237,7 +241,8 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
             )
             .collect(Collectors.toSet())
         )
-      );
+      )
+    );
 
     return (prefixToPreserveState + joiner.toString());
   }

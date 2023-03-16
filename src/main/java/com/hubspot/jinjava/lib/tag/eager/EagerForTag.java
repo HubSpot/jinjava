@@ -17,6 +17,7 @@ import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.Re
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
+import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -89,7 +90,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxOutputSize()
     );
-    String prefix = "";
+    PrefixToPreserveState prefix = new PrefixToPreserveState();
 
     try (
       TemporaryValueClosable<Boolean> c = interpreter
@@ -145,7 +146,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
 
     result.append(secondRunResult.asTemplateString());
     result.append(EagerReconstructionUtils.reconstructEnd(tagNode));
-    return prefix + result;
+    return prefix.toString() + result;
   }
 
   private EagerExecutionResult runLoopOnce(
@@ -210,35 +211,34 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       .add("in")
       .add(eagerExpressionResult.toString())
       .add(tagToken.getSymbols().getExpressionEndWithTag());
-    StringBuilder prefixToPreserveState = new StringBuilder();
-    String newlyDeferredFunctionImages = EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
-      eagerExpressionResult.getDeferredWords(),
-      interpreter
-    );
-    prefixToPreserveState.append(newlyDeferredFunctionImages);
-
-    prefixToPreserveState.append(
-      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
-        interpreter,
-        new DeferredToken(
-          new TagToken(
-            joiner.toString(),
-            tagToken.getLineNumber(),
-            tagToken.getStartPosition(),
-            tagToken.getSymbols()
-          ),
-          eagerExpressionResult
-            .getDeferredWords()
-            .stream()
-            .filter(
-              word ->
-                !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
-            )
-            .collect(Collectors.toSet()),
-          Collections.emptySet()
-        )
+    PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState(
+      EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
+        eagerExpressionResult.getDeferredWords(),
+        interpreter
       )
-    );
+    )
+    .withAllInFront(
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
+          new DeferredToken(
+            new TagToken(
+              joiner.toString(),
+              tagToken.getLineNumber(),
+              tagToken.getStartPosition(),
+              tagToken.getSymbols()
+            ),
+            eagerExpressionResult
+              .getDeferredWords()
+              .stream()
+              .filter(
+                word ->
+                  !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
+              )
+              .collect(Collectors.toSet()),
+            Collections.emptySet()
+          )
+        )
+      );
     return (prefixToPreserveState + joiner.toString());
   }
 }

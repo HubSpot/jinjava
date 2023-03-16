@@ -29,6 +29,7 @@ import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -111,11 +112,27 @@ public class EagerReconstructionUtils {
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
-    return (
-      reconstructMacroFunctionsBeforeDeferring(deferredWords, interpreter) +
-      reconstructBlockSetVariablesBeforeDeferring(deferredWords, interpreter) +
+    return String.join(
+      "",
+      reconstructFromContextBeforeDeferringAsMap(deferredWords, interpreter).values()
+    );
+  }
+
+  public static Map<String, String> reconstructFromContextBeforeDeferringAsMap(
+    Set<String> deferredWords,
+    JinjavaInterpreter interpreter
+  ) {
+    Map<String, String> reconstructedValues = new LinkedHashMap<>();
+    reconstructedValues.putAll(
+      reconstructMacroFunctionsBeforeDeferring(deferredWords, interpreter)
+    );
+    reconstructedValues.putAll(
+      reconstructBlockSetVariablesBeforeDeferring(deferredWords, interpreter)
+    );
+    reconstructedValues.putAll(
       reconstructInlineSetVariablesBeforeDeferring(deferredWords, interpreter)
     );
+    return reconstructedValues;
   }
 
   /**
@@ -129,7 +146,7 @@ public class EagerReconstructionUtils {
    * @return A jinjava-syntax string that is the images of any macro functions that must
    *  be evaluated at a later time.
    */
-  private static String reconstructMacroFunctionsBeforeDeferring(
+  private static Map<String, String> reconstructMacroFunctionsBeforeDeferring(
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
@@ -150,34 +167,37 @@ public class EagerReconstructionUtils {
       }
     }
 
-    String result = macroFunctions
+    Map<String, String> reconstructedMacros = macroFunctions
       .entrySet()
       .stream()
       .peek(entry -> toRemove.add(entry.getKey()))
       .peek(entry -> entry.getValue().setDeferred(true))
       .map(
         entry ->
-          EagerContextWatcher.executeInChildContext(
-            eagerInterpreter ->
-              EagerExpressionResult.fromString(
-                new EagerMacroFunction(entry.getKey(), entry.getValue(), interpreter)
-                .reconstructImage()
-              ),
-            interpreter,
-            EagerContextWatcher
-              .EagerChildContextConfig.newBuilder()
-              .withForceDeferredExecutionMode(true)
-              .build()
+          new AbstractMap.SimpleImmutableEntry<>(
+            entry.getKey(),
+            EagerContextWatcher.executeInChildContext(
+              eagerInterpreter ->
+                EagerExpressionResult.fromString(
+                  ((EagerMacroFunction) entry.getValue()).reconstructImage(entry.getKey())
+                ),
+              interpreter,
+              EagerContextWatcher
+                .EagerChildContextConfig.newBuilder()
+                .withForceDeferredExecutionMode(true)
+                .build()
+            )
           )
       )
-      .map(EagerExecutionResult::asTemplateString)
-      .collect(Collectors.joining());
+      .collect(
+        Collectors.toMap(Entry::getKey, entry -> entry.getValue().asTemplateString())
+      );
     // Remove macro functions from the set because they've been fully processed now.
     deferredWords.removeAll(toRemove);
-    return result;
+    return reconstructedMacros;
   }
 
-  private static String reconstructBlockSetVariablesBeforeDeferring(
+  private static Map<String, String> reconstructBlockSetVariablesBeforeDeferring(
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
@@ -206,7 +226,7 @@ public class EagerReconstructionUtils {
           .collect(Collectors.toSet());
     }
     if (filteredDeferredWords.isEmpty()) {
-      return "";
+      return Collections.emptyMap();
     }
     Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
     Map<String, PyishBlockSetSerializable> blockSetMap = new HashMap<>();
@@ -242,24 +262,27 @@ public class EagerReconstructionUtils {
           );
         }
       );
-    String blockSetTags = blockSetMap
+    Map<String, String> reconstructedBlockSetVars = blockSetMap
       .entrySet()
       .stream()
       .map(
         entry ->
-          buildBlockSetTag(
+          new AbstractMap.SimpleImmutableEntry<>(
             entry.getKey(),
-            entry.getValue().getBlockSetBody(),
-            interpreter,
-            false
+            buildBlockSetTag(
+              entry.getKey(),
+              entry.getValue().getBlockSetBody(),
+              interpreter,
+              false
+            )
           )
       )
-      .collect(Collectors.joining());
-    deferredWords.removeAll(blockSetMap.keySet());
-    return blockSetTags;
+      .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+    deferredWords.removeAll(reconstructedBlockSetVars.keySet());
+    return reconstructedBlockSetVars;
   }
 
-  private static String reconstructInlineSetVariablesBeforeDeferring(
+  private static Map<String, String> reconstructInlineSetVariablesBeforeDeferring(
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
@@ -288,7 +311,7 @@ public class EagerReconstructionUtils {
           .collect(Collectors.toSet());
     }
     if (filteredDeferredWords.isEmpty()) {
-      return "";
+      return Collections.emptyMap();
     }
     Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
     Map<String, String> deferredMap = new HashMap<>();
@@ -321,7 +344,20 @@ public class EagerReconstructionUtils {
           );
         }
       );
-    return buildSetTag(deferredMap, interpreter, false);
+    return deferredMap
+      .entrySet()
+      .stream()
+      .collect(
+        Collectors.toMap(
+          Entry::getKey,
+          entry ->
+            buildSetTag(
+              Collections.singletonMap(entry.getKey(), entry.getValue()),
+              interpreter,
+              false
+            )
+        )
+      );
   }
 
   /**
@@ -377,18 +413,20 @@ public class EagerReconstructionUtils {
     // Don't defer if we're sticking with the new value
     if (registerDeferredToken) {
       return (
-        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
-          interpreter,
-          new DeferredToken(
-            new TagToken(
-              image,
-              // TODO this line number won't be accurate, currently doesn't matter.
-              interpreter.getLineNumber(),
-              interpreter.getPosition(),
-              interpreter.getConfig().getTokenScannerSymbols()
-            ),
-            Collections.emptySet(),
-            deferredValuesToSet.keySet()
+        new PrefixToPreserveState(
+          EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+            interpreter,
+            new DeferredToken(
+              new TagToken(
+                image,
+                // TODO this line number won't be accurate, currently doesn't matter.
+                interpreter.getLineNumber(),
+                interpreter.getPosition(),
+                interpreter.getConfig().getTokenScannerSymbols()
+              ),
+              Collections.emptySet(),
+              deferredValuesToSet.keySet()
+            )
           )
         ) +
         image
@@ -440,17 +478,19 @@ public class EagerReconstructionUtils {
     String image = blockSetTokenBuilder + value + endTokenBuilder;
     if (registerDeferredToken) {
       return (
-        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
-          interpreter,
-          new DeferredToken(
-            new TagToken(
-              blockSetTokenBuilder.toString(),
-              interpreter.getLineNumber(),
-              interpreter.getPosition(),
-              interpreter.getConfig().getTokenScannerSymbols()
-            ),
-            Collections.emptySet(),
-            Collections.singleton(name)
+        new PrefixToPreserveState(
+          EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+            interpreter,
+            new DeferredToken(
+              new TagToken(
+                blockSetTokenBuilder.toString(),
+                interpreter.getLineNumber(),
+                interpreter.getPosition(),
+                interpreter.getConfig().getTokenScannerSymbols()
+              ),
+              Collections.emptySet(),
+              Collections.singleton(name)
+            )
           )
         ) +
         image
@@ -618,7 +658,7 @@ public class EagerReconstructionUtils {
       .orElse(false);
   }
 
-  public static String handleDeferredTokenAndReconstructReferences(
+  public static Map<String, String> handleDeferredTokenAndReconstructReferences(
     JinjavaInterpreter interpreter,
     DeferredToken deferredToken
   ) {
@@ -629,12 +669,12 @@ public class EagerReconstructionUtils {
     );
   }
 
-  public static String reconstructDeferredReferences(
+  public static Map<String, String> reconstructDeferredReferences(
     JinjavaInterpreter interpreter,
     Set<String> usedDeferredWords
   ) {
-    return (
-      buildSetTag(
+    return Stream
+      .concat(
         interpreter
           .getContext()
           .getScope()
@@ -648,20 +688,7 @@ public class EagerReconstructionUtils {
           .peek(
             entry ->
               ((DeferredLazyReferenceSource) entry.getValue()).setReconstructed(true)
-          )
-          .collect(
-            Collectors.toMap(
-              Entry::getKey,
-              entry ->
-                PyishObjectMapper.getAsPyishString(
-                  ((DeferredLazyReferenceSource) entry.getValue()).getOriginalValue()
-                )
-            )
           ),
-        interpreter,
-        false
-      ) +
-      buildSetTag(
         usedDeferredWords
           .stream()
           .map(w -> w.split("\\.", 2)[0])
@@ -673,19 +700,23 @@ public class EagerReconstructionUtils {
               )
           )
           .filter(entry -> entry.getValue() instanceof DeferredLazyReference)
-          .collect(
-            Collectors.toMap(
-              Entry::getKey,
-              entry ->
-                PyishObjectMapper.getAsPyishString(
-                  ((DeferredLazyReference) entry.getValue()).getOriginalValue()
-                )
-            )
-          ),
-        interpreter,
-        false
       )
-    );
+      .collect(
+        Collectors.toMap(
+          Entry::getKey,
+          entry ->
+            buildSetTag(
+              Collections.singletonMap(
+                entry.getKey(),
+                PyishObjectMapper.getAsPyishString(
+                  ((DeferredValue) entry.getValue()).getOriginalValue()
+                )
+              ),
+              interpreter,
+              false
+            )
+        )
+      );
   }
 
   public static Set<String> resetSpeculativeBindings(

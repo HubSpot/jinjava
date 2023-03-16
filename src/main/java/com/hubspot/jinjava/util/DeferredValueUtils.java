@@ -164,7 +164,15 @@ public class DeferredValueUtils {
               .getScope()
               .entrySet()
               .stream()
-              .filter(entry -> entry.getValue() == wordValue)
+              .filter(
+                entry ->
+                  entry.getValue() == wordValue ||
+                  (
+                    entry.getValue() instanceof DeferredLazyReferenceSource &&
+                    ((DeferredLazyReferenceSource) entry.getValue()).getOriginalValue() ==
+                    wordValue
+                  )
+              )
               .forEach(
                 entry -> {
                   matchingEntries.add(entry);
@@ -185,7 +193,13 @@ public class DeferredValueUtils {
                     .equals(entry.getKey())
                 ) {
                   Object val = entry.getValue();
-                  context.put(entry.getKey(), DeferredLazyReferenceSource.instance(val));
+                  if (val instanceof DeferredLazyReferenceSource) {
+                    return; // Already converted
+                  }
+                  context.replace(
+                    entry.getKey(),
+                    DeferredLazyReferenceSource.instance(val)
+                  );
                   entry.setValue(DeferredLazyReferenceSource.instance(val));
                 } else {
                   entry.setValue(deferredLazyReference);

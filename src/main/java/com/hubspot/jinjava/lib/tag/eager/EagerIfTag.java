@@ -15,6 +15,7 @@ import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
+import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -94,7 +95,6 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     // We know this has to start as false otherwise IfTag would have chosen
     // the first branch.
     boolean definitelyExecuted = false;
-    StringBuilder prefixToPreserveState = new StringBuilder();
     StringBuilder sb = new StringBuilder();
     sb.append(
       getEagerImage(
@@ -161,8 +161,9 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
           .stream()
           .filter(key -> !(interpreter.getContext().get(key) instanceof DeferredValue))
           .collect(Collectors.toSet());
+      PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
       if (!bindingsToDefer.isEmpty()) {
-        prefixToPreserveState.append(
+        prefixToPreserveState.withAllInFront(
           EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
             interpreter,
             new DeferredToken(
@@ -177,7 +178,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
           )
         );
       }
-      return sb.toString();
+      return prefixToPreserveState + sb.toString();
     }
     return sb.toString();
   }

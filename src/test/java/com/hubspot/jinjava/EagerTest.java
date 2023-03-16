@@ -1288,4 +1288,14 @@ public class EagerTest {
       "keeps-macro-modifications-in-scope.expected"
     );
   }
+
+  @Test
+  public void itE() {
+    expectedTemplateInterpreter.assertExpectedOutput("e");
+  }
+
+  @Test
+  public void itE2() {
+    expectedTemplateInterpreter.assertExpectedOutput("e2");
+  }
 }

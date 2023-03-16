@@ -1,0 +1,25 @@
+{#{% set foo = [] %}
+{% if deferred %}
+{% for i in range(1) %}
+{% do foo.append('a') %}
+{% endfor %}
+{% endif %}
+#}
+
+{% macro foo(var) %}
+{% do my_list.append(var) %}
+{% endmacro %}
+
+{% macro append_stuff() %}
+{{ foo('b') }}
+{{ foo('c') }}
+{% endmacro %}
+
+{% set my_list = [] %}
+{{ foo('a') }}
+{% if deferred %}
+{{ append_stuff() }}
+{% endif %}
+{{ foo('d') }}
+
+{{ my_list }}

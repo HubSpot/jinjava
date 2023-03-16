@@ -1,8 +1,9 @@
 package com.hubspot.jinjava.lib.fn.eager;
 
 import com.google.common.collect.ImmutableMap;
-import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
+import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.eager.MacroFunctionTempVariable;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -11,42 +12,44 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.MacroTag;
+import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
+import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
+import com.hubspot.jinjava.tree.Node;
+import com.hubspot.jinjava.util.EagerContextWatcher;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class EagerMacroFunction extends AbstractCallableMethod {
-  private String fullName;
-  private MacroFunction macroFunction;
-  private JinjavaInterpreter interpreter;
+public class EagerMacroFunction extends MacroFunction {
+  private AtomicInteger callCount = new AtomicInteger();
+  private boolean reconstructing = false;
 
   public EagerMacroFunction(
-    String fullName,
-    MacroFunction macroFunction,
-    JinjavaInterpreter interpreter
+    List<Node> content,
+    String name,
+    LinkedHashMap<String, Object> argNamesWithDefaults,
+    boolean caller,
+    Context localContextScope,
+    int lineNumber,
+    int startPosition
   ) {
     super(
-      macroFunction.getName(),
-      getLinkedHashmap(macroFunction.getArguments(), macroFunction.getDefaults())
+      content,
+      name,
+      argNamesWithDefaults,
+      caller,
+      localContextScope,
+      lineNumber,
+      startPosition
     );
-    this.fullName = fullName;
-    this.macroFunction = macroFunction;
-    this.interpreter = interpreter;
-  }
-
-  private static LinkedHashMap<String, Object> getLinkedHashmap(
-    List<String> args,
-    Map<String, Object> defaults
-  ) {
-    LinkedHashMap<String, Object> linkedHashMap = new LinkedHashMap<>();
-    for (String arg : args) {
-      linkedHashMap.put(arg, defaults.get(arg));
-    }
-    return linkedHashMap;
   }
 
   public Object doEvaluate(
@@ -54,24 +57,153 @@ public class EagerMacroFunction extends AbstractCallableMethod {
     Map<String, Object> kwargMap,
     List<Object> varArgs
   ) {
-    Optional<String> importFile = macroFunction.getImportFile(interpreter);
-    try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
-      interpreter.getContext().setDeferredExecutionMode(true);
-      return macroFunction.getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
-    } finally {
-      importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop());
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+    if (reconstructing) {
+      Optional<String> importFile = getImportFile(interpreter);
+      try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
+        interpreter.getContext().setDeferredExecutionMode(true);
+        return getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
+      } finally {
+        importFile.ifPresent(
+          path -> interpreter.getContext().getCurrentPathStack().pop()
+        );
+      }
     }
+
+    int currentCallCount = callCount.getAndIncrement();
+    Set<DeferredToken> addedTokens = new HashSet<>();
+    EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
+      eagerInterpreter -> {
+        EagerExpressionResult expressionResult = EagerExpressionResult.fromSupplier(
+          () -> super.doEvaluate(argMap, kwargMap, varArgs).toString(),
+          eagerInterpreter
+        );
+        addedTokens.addAll(eagerInterpreter.getContext().getDeferredTokens());
+        return expressionResult;
+      },
+      interpreter,
+      EagerContextWatcher
+        .EagerChildContextConfig.newBuilder()
+        .withCheckForContextChanges(!interpreter.getContext().isDeferredExecutionMode())
+        .build()
+    );
+    if (
+      !result.getResult().isFullyResolved() &&
+      (
+        !interpreter.getContext().isPartialMacroEvaluation() ||
+        !result.getSpeculativeBindings().isEmpty() ||
+        interpreter.getContext().isDeferredExecutionMode()
+      )
+    ) {
+      //        EagerReconstructionUtils.resetSpeculativeBindings(interpreter, result);
+      //        interpreter.getContext().removeDeferredTokens(addedTokens);
+      EagerExecutionResult firstRunResult = runLoopOnce(
+        argMap,
+        kwargMap,
+        varArgs,
+        interpreter
+      );
+      String tempVarName = MacroFunctionTempVariable.getVarName(
+        getName(),
+        hashCode(),
+        currentCallCount
+      );
+      interpreter
+        .getContext()
+        .getParent()
+        .put(
+          tempVarName,
+          new MacroFunctionTempVariable(firstRunResult.asTemplateString())
+        );
+      throw new DeferredParsingException(this, tempVarName);
+      //      }
+      //
+      //      if (
+      //        interpreter.getContext().isDeferredExecutionMode() ||
+      //        !result.getSpeculativeBindings().isEmpty()
+      //      ) {
+      //        return reconstructImage();
+      //        EagerReconstructionUtils.resetSpeculativeBindings(interpreter, result);
+      //        interpreter.getContext().removeDeferredTokens(addedTokens);
+      //        String prefix = "";
+      //
+      //        EagerExecutionResult firstRunResult = runLoopOnce(
+      //          argMap,
+      //          kwargMap,
+      //          varArgs,
+      //          interpreter
+      //        );
+      //        if (!firstRunResult.getSpeculativeBindings().isEmpty()) {
+      //          //          Set<String> toRemove = firstRunResult
+      //          //            .getSpeculativeBindings()
+      //          //            .keySet()
+      //          //            .stream()
+      //          //            .filter(key -> argMap.containsKey(key) || kwargMap.containsKey(key))
+      //          //            .collect(Collectors.toSet());
+      //          //          toRemove.forEach(key -> firstRunResult.getSpeculativeBindings().remove(key));
+      //          // Defer any variables that we tried to modify during the loop
+      //          prefix = firstRunResult.getPrefixToPreserveState(true);
+      //        }
+      //        // Run for loop again now that the necessary values have been deferred
+      //        EagerExecutionResult secondRunResult = runLoopOnce(
+      //          argMap,
+      //          kwargMap,
+      //          varArgs,
+      //          interpreter
+      //        );
+      //        if (
+      //          secondRunResult
+      //            .getSpeculativeBindings()
+      //            .keySet()
+      //            .stream()
+      //            .anyMatch(key -> !firstRunResult.getSpeculativeBindings().containsKey(key))
+      //        ) {
+      //          throw new DeferredValueException(
+      //            "Modified values in deferred for loop: " +
+      //            String.join(", ", secondRunResult.getSpeculativeBindings().keySet())
+      //          );
+      //        }
+      //        return (
+      //          prefix +
+      //          EagerReconstructionUtils.wrapInChildScope(
+      //            secondRunResult.getResult().toString(true),
+      //            interpreter
+      //          )
+      //        );
+      //      }
+    }
+    return result.getResult().toString(true);
   }
 
-  public String getStartTag(JinjavaInterpreter interpreter) {
+  private EagerExecutionResult runLoopOnce(
+    Map<String, Object> argMap,
+    Map<String, Object> kwargMap,
+    List<Object> varArgs,
+    JinjavaInterpreter interpreter
+  ) {
+    return EagerContextWatcher.executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResult.fromSupplier(
+          () -> super.doEvaluate(argMap, kwargMap, varArgs).toString(),
+          eagerInterpreter
+        ),
+      interpreter,
+      EagerContextWatcher
+        .EagerChildContextConfig.newBuilder()
+        .withForceDeferredExecutionMode(true)
+        .build()
+    );
+  }
+
+  private String getStartTag(String fullName, JinjavaInterpreter interpreter) {
     StringJoiner argJoiner = new StringJoiner(", ");
-    for (String arg : macroFunction.getArguments()) {
-      if (macroFunction.getDefaults().get(arg) != null) {
+    for (String arg : getArguments()) {
+      if (getDefaults().get(arg) != null) {
         argJoiner.add(
           String.format(
             "%s=%s",
             arg,
-            PyishObjectMapper.getAsPyishString(macroFunction.getDefaults().get(arg))
+            PyishObjectMapper.getAsPyishString(getDefaults().get(arg))
           )
         );
         continue;
@@ -86,12 +218,17 @@ public class EagerMacroFunction extends AbstractCallableMethod {
       .toString();
   }
 
-  public String getEndTag(JinjavaInterpreter interpreter) {
+  private String getEndTag(JinjavaInterpreter interpreter) {
     return new StringJoiner(" ")
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
       .add(String.format("end%s", MacroTag.TAG_NAME))
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag())
       .toString();
+  }
+
+  @Override
+  public String reconstructImage() {
+    return reconstructImage(getName());
   }
 
   /**
@@ -103,10 +240,11 @@ public class EagerMacroFunction extends AbstractCallableMethod {
    *  This image allows for the macro function to be recreated during a later
    *  rendering pass.
    */
-  public String reconstructImage() {
+  public String reconstructImage(String fullName) {
     String prefix = "";
     String suffix = "";
-    Optional<String> importFile = macroFunction.getImportFile(interpreter);
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+    Optional<String> importFile = getImportFile(interpreter);
     Object currentDeferredImportResource = null;
     if (importFile.isPresent()) {
       interpreter.getContext().getCurrentPathStack().pop();
@@ -142,44 +280,39 @@ public class EagerMacroFunction extends AbstractCallableMethod {
     String result;
     if (
       (
-        interpreter.getContext().getMacroStack().contains(macroFunction.getName()) &&
-        !differentMacroWithSameNameExists()
+        interpreter.getContext().getMacroStack().contains(getName()) &&
+        !differentMacroWithSameNameExists(interpreter)
       ) ||
-      (
-        !macroFunction.isCaller() &&
-        AstMacroFunction.checkAndPushMacroStack(interpreter, fullName)
-      )
+      (!isCaller() && AstMacroFunction.checkAndPushMacroStack(interpreter, fullName))
     ) {
       return "";
     } else {
       try (InterpreterScopeClosable c = interpreter.enterScope()) {
+        reconstructing = true;
         String evaluation = (String) evaluate(
-          macroFunction
-            .getArguments()
-            .stream()
-            .map(arg -> DeferredMacroValueImpl.instance())
-            .toArray()
+          getArguments().stream().map(arg -> DeferredMacroValueImpl.instance()).toArray()
         );
 
         if (!interpreter.getContext().getDeferredTokens().isEmpty()) {
           evaluation =
             (String) evaluate(
-              macroFunction
-                .getArguments()
+              getArguments()
                 .stream()
                 .map(arg -> DeferredMacroValueImpl.instance())
                 .toArray()
             );
         }
-        result = (getStartTag(interpreter) + evaluation + getEndTag(interpreter));
+        result =
+          (getStartTag(fullName, interpreter) + evaluation + getEndTag(interpreter));
       } catch (DeferredValueException e) {
         // In case something not eager-supported encountered a deferred value
-        result = macroFunction.reconstructImage();
+        result = super.reconstructImage();
       } finally {
+        reconstructing = false;
         interpreter
           .getContext()
           .put(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY, currentDeferredImportResource);
-        if (!macroFunction.isCaller()) {
+        if (!isCaller()) {
           interpreter.getContext().getMacroStack().pop();
         }
       }
@@ -187,24 +320,22 @@ public class EagerMacroFunction extends AbstractCallableMethod {
     return prefix + result + suffix;
   }
 
-  private boolean differentMacroWithSameNameExists() {
+  private boolean differentMacroWithSameNameExists(JinjavaInterpreter interpreter) {
     Context context = interpreter.getContext();
     if (context.getParent() == null) {
       return false;
     }
-    MacroFunction mostRecent = context.getGlobalMacro(macroFunction.getName());
-    if (macroFunction != mostRecent) {
+    MacroFunction mostRecent = context.getGlobalMacro(getName());
+    if (this != mostRecent) {
       return true;
     }
     while (
-      !context.getGlobalMacros().containsKey(macroFunction.getName()) &&
+      !context.getGlobalMacros().containsKey(getName()) &&
       context.getParent().getParent() != null
     ) {
       context = context.getParent();
     }
-    MacroFunction secondMostRecent = context
-      .getParent()
-      .getGlobalMacro(macroFunction.getName());
-    return secondMostRecent != null && secondMostRecent != macroFunction;
+    MacroFunction secondMostRecent = context.getParent().getGlobalMacro(getName());
+    return secondMostRecent != null && secondMostRecent != this;
   }
 }
