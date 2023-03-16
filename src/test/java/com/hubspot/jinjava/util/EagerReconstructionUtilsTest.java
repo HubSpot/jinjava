@@ -422,22 +422,6 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
   private EagerMacroFunction getMockMacroFunction(String image) {
     interpreter.render(image);
     return (EagerMacroFunction) interpreter.getContext().getGlobalMacro("foo");
-    //    LinkedHashMap<String, Object> argNamesWithDefaults = new LinkedHashMap<>();
-    //    argNamesWithDefaults.put("bar", null);
-    //    EagerMacroFunction mockMacroFunction = spy(
-    //      new EagerMacroFunction(null, "foo", argNamesWithDefaults, false, context, 0, 0)
-    //    );
-    //    when(
-    //        mockMacroFunction.getEvaluationResult(
-    //          anyMap(),
-    //          anyMap(),
-    //          anyList(),
-    //          eq(interpreter)
-    //        )
-    //      )
-    //      .thenAnswer(i -> image.substring(image.indexOf("%}") + 2, image.lastIndexOf("{%")));
-    //
-    //    return mockMacroFunction;
   }
 
   private static TagNode getMockTagNode(String endName) {

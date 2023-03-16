@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Function definition parsed from a jinjava template, stored in global macros registry in interpreter context.
@@ -36,8 +35,6 @@ public class MacroFunction extends AbstractCallableMethod {
   protected final int definitionStartPosition;
 
   protected boolean deferred;
-
-  private AtomicInteger callCount = new AtomicInteger();
 
   public MacroFunction(
     List<Node> content,

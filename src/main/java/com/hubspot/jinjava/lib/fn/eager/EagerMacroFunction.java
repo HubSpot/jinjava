@@ -299,4 +299,14 @@ public class EagerMacroFunction extends MacroFunction {
     MacroFunction secondMostRecent = context.getParent().getGlobalMacro(getName());
     return secondMostRecent != null && secondMostRecent != this;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    return super.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
 }
