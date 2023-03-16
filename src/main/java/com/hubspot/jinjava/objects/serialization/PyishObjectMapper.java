@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class PyishObjectMapper {
   public static final ObjectWriter PYISH_OBJECT_WRITER;
-  public static final String EAGER_EXECUTION_ATTRIBUTE = "eagerExecution";
+  public static final String ALLOW_SNAKE_CASE_ATTRIBUTE = "allowSnakeCase";
 
   static {
     ObjectMapper mapper = new ObjectMapper(
@@ -37,14 +37,18 @@ public class PyishObjectMapper {
 
   public static String getAsUnquotedPyishString(Object val) {
     if (val != null) {
-      return WhitespaceUtils.unquoteAndUnescape(getAsPyishString(val));
+      return WhitespaceUtils.unquoteAndUnescape(getAsPyishString(val, true));
     }
     return "";
   }
 
   public static String getAsPyishString(Object val) {
+    return getAsPyishString(val, false);
+  }
+
+  private static String getAsPyishString(Object val, boolean forOutput) {
     try {
-      return getAsPyishStringOrThrow(val);
+      return getAsPyishStringOrThrow(val, forOutput);
     } catch (IOException e) {
       if (e instanceof LengthLimitingJsonProcessingException) {
         throw new OutputTooBigException(
@@ -57,6 +61,11 @@ public class PyishObjectMapper {
   }
 
   public static String getAsPyishStringOrThrow(Object val) throws IOException {
+    return getAsPyishStringOrThrow(val, false);
+  }
+
+  public static String getAsPyishStringOrThrow(Object val, boolean forOutput)
+    throws IOException {
     ObjectWriter objectWriter = PYISH_OBJECT_WRITER;
     Writer writer;
     Optional<Long> maxOutputSize = JinjavaInterpreter
@@ -77,13 +86,7 @@ public class PyishObjectMapper {
       writer = new CharArrayWriter();
     }
     objectWriter
-      .withAttribute(
-        EAGER_EXECUTION_ATTRIBUTE,
-        JinjavaInterpreter
-          .getCurrentMaybe()
-          .map(interpreter -> interpreter.getConfig().getExecutionMode().useEagerParser())
-          .orElse(false)
-      )
+      .withAttribute(ALLOW_SNAKE_CASE_ATTRIBUTE, !forOutput)
       .writeValue(writer, val);
     return writer.toString();
   }

@@ -28,9 +28,11 @@ public class BothCasingBeanSerializer<T> extends JsonSerializer<T> {
     throws IOException {
     if (
       Boolean.TRUE.equals(
-        serializerProvider.getAttribute(PyishObjectMapper.EAGER_EXECUTION_ATTRIBUTE)
+        serializerProvider.getAttribute(PyishObjectMapper.ALLOW_SNAKE_CASE_ATTRIBUTE)
       )
     ) {
+      // if it's directly for output, then we don't want to add the additional filter characters,
+      // as doing so would make the "|allow_snake_case" appear in the final output.
       StringBuilder sb = new StringBuilder();
       sb
         .append(PyishSerializable.writeValueAsString(value))
