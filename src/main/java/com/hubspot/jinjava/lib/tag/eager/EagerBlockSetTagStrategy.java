@@ -32,7 +32,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
     String expression,
     JinjavaInterpreter interpreter
   ) {
-    EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
+    EagerExecutionResult firstRunResult = EagerContextWatcher.executeInChildContext(
       eagerInterpreter ->
         EagerExpressionResult.fromSupplier(
           () -> SetTag.renderChildren(tagNode, eagerInterpreter, variables[0]),
@@ -41,14 +41,35 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
       interpreter,
       EagerContextWatcher
         .EagerChildContextConfig.newBuilder()
-        .withTakeNewValue(true)
-        .withDiscardSessionBindings(!SetTag.IGNORED_VARIABLE_NAME.equals(variables[0]))
+        .withCheckForContextChanges(!interpreter.getContext().isDeferredExecutionMode())
         .build()
     );
-    if (result.getResult().getResolutionState() == ResolutionState.NONE) {
-      throw new DeferredValueException(result.getResult().toString());
+    if (firstRunResult.getResult().getResolutionState() == ResolutionState.NONE) {
+      throw new DeferredValueException(firstRunResult.getResult().toString());
     }
-    return result;
+    if (
+      !firstRunResult.getResult().isFullyResolved() &&
+      !firstRunResult.getSpeculativeBindings().isEmpty() ||
+      interpreter.getContext().isDeferredExecutionMode()
+    ) {
+      EagerExecutionResult secondRunResult = EagerContextWatcher.executeInChildContext(
+        eagerInterpreter ->
+          EagerExpressionResult.fromSupplier(
+            () -> SetTag.renderChildren(tagNode, eagerInterpreter, variables[0]),
+            eagerInterpreter
+          ),
+        interpreter,
+        EagerContextWatcher
+          .EagerChildContextConfig.newBuilder()
+          .withForceDeferredExecutionMode(true)
+          .build()
+      );
+      return new EagerExecutionResult(
+        secondRunResult.getResult(),
+        firstRunResult.getSpeculativeBindings()
+      );
+    }
+    return firstRunResult;
   }
 
   @Override

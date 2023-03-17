@@ -80,23 +80,25 @@ public class EagerMacroFunction extends MacroFunction {
     }
 
     int currentCallCount = callCount.getAndIncrement();
-    EagerExecutionResult result = eagerEvaluate(
+    EagerExecutionResult firstRunResult = eagerEvaluate(
       () -> super.doEvaluate(argMap, kwargMap, varArgs).toString(),
       interpreter
     );
     if (
-      !result.getResult().isFullyResolved() &&
+      !firstRunResult.getResult().isFullyResolved() &&
       (
         !interpreter.getContext().isPartialMacroEvaluation() ||
-        !result.getSpeculativeBindings().isEmpty() ||
+        !firstRunResult.getSpeculativeBindings().isEmpty() ||
         interpreter.getContext().isDeferredExecutionMode()
       )
     ) {
-      result =
-        eagerEvaluateInDeferredExecutionMode(
-          () -> super.doEvaluate(argMap, kwargMap, varArgs).toString(),
-          interpreter
-        );
+      //      EagerReconstructionUtils.resetSpeculativeBindings(interpreter, firstRunResult);
+      //      firstRunResult.getPrefixToPreserveState(true);
+      //      interpreter.getContext().removeDeferredTokens(addedTokens);
+      EagerExecutionResult secondRunResult = eagerEvaluateInDeferredExecutionMode(
+        () -> super.doEvaluate(argMap, kwargMap, varArgs).toString(),
+        interpreter
+      );
       String tempVarName = MacroFunctionTempVariable.getVarName(
         getName(),
         hashCode(),
@@ -105,10 +107,13 @@ public class EagerMacroFunction extends MacroFunction {
       interpreter
         .getContext()
         .getParent()
-        .put(tempVarName, new MacroFunctionTempVariable(result.asTemplateString()));
+        .put(
+          tempVarName,
+          new MacroFunctionTempVariable(secondRunResult.asTemplateString())
+        );
       throw new DeferredParsingException(this, tempVarName);
     }
-    return result.getResult().toString(true);
+    return firstRunResult.getResult().toString(true);
   }
 
   private String getEvaluationResultDirectly(

@@ -1303,4 +1303,25 @@ public class EagerTest {
       "does-not-reconstruct-variable-in-wrong-scope.expected"
     );
   }
+
+  @Test
+  public void itReconstructsDeferredVariableEventually() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-deferred-variable-eventually"
+    );
+  }
+
+  @Test
+  public void itDoesntDoubleAppendInDeferredSet() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "doesnt-double-append-in-deferred-set"
+    );
+  }
+
+  @Test
+  public void itDoesntDoubleAppendInDeferredMacro() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "doesnt-double-append-in-deferred-macro"
+    );
+  }
 }

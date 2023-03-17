@@ -90,7 +90,7 @@ public class EagerExecutionResult {
                 PyishObjectMapper.getAsPyishString(entry.getValue())
               ),
               interpreter,
-              false
+              registerDeferredToken
             )
           )
       );

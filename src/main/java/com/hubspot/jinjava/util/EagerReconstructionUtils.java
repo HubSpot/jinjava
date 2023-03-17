@@ -7,6 +7,7 @@ import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.DeferredLazyReference;
 import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredValueMarker;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
@@ -725,7 +726,17 @@ public class EagerReconstructionUtils {
   ) {
     result
       .getSpeculativeBindings()
-      .forEach((k, v) -> interpreter.getContext().replace(k, v));
+      .forEach((k, v) -> replace(interpreter.getContext(), k, v));
     return result.getSpeculativeBindings().keySet();
+  }
+
+  private static void replace(Context context, String k, Object v) {
+    Object replaced = context.getScope().replace(k, v);
+    if (replaced == null) {
+      replace(context.getParent(), k, v);
+    } else if (replaced instanceof DeferredValueMarker) {
+      context.getScope().remove(k);
+      replace(context.getParent(), k, v);
+    }
   }
 }

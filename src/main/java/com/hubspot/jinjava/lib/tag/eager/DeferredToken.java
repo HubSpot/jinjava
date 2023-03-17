@@ -5,13 +5,17 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.parse.Token;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class DeferredToken {
   private final Token token;
   // These words aren't yet DeferredValues, but are unresolved
   // so they should be replaced with DeferredValueImpls if they exist in the context
   private final Set<String> usedDeferredWords;
+
+  private final Set<String> untouchedUsedDeferredWords;
   // These words are those which will be set to a value which has been deferred.
   private final Set<String> setDeferredWords;
 
@@ -23,7 +27,8 @@ public class DeferredToken {
 
   public DeferredToken(Token token, Set<String> usedDeferredWords) {
     this.token = token;
-    this.usedDeferredWords = usedDeferredWords;
+    this.usedDeferredWords = getBases(usedDeferredWords);
+    untouchedUsedDeferredWords = new HashSet<>(this.usedDeferredWords);
     this.setDeferredWords = Collections.emptySet();
     importResourcePath = acquireImportResourcePath();
     macroStack = acquireMacroStack();
@@ -35,8 +40,9 @@ public class DeferredToken {
     Set<String> setDeferredWords
   ) {
     this.token = token;
-    this.usedDeferredWords = usedDeferredWords;
-    this.setDeferredWords = setDeferredWords;
+    this.usedDeferredWords = getBases(usedDeferredWords);
+    untouchedUsedDeferredWords = new HashSet<>(this.usedDeferredWords);
+    this.setDeferredWords = getBases(setDeferredWords);
     importResourcePath = acquireImportResourcePath();
     macroStack = acquireMacroStack();
   }
@@ -47,6 +53,10 @@ public class DeferredToken {
 
   public Set<String> getUsedDeferredWords() {
     return usedDeferredWords;
+  }
+
+  public Set<String> getUntouchedUsedDeferredWords() {
+    return untouchedUsedDeferredWords;
   }
 
   public Set<String> getSetDeferredWords() {
@@ -74,5 +84,12 @@ public class DeferredToken {
       .getCurrentMaybe()
       .map(interpreter -> interpreter.getContext().getMacroStack())
       .orElse(null);
+  }
+
+  private static Set<String> getBases(Set<String> original) {
+    return original
+      .stream()
+      .map(prop -> prop.split("\\.", 2)[0])
+      .collect(Collectors.toSet());
   }
 }

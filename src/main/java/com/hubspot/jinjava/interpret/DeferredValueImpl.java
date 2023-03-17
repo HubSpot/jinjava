@@ -7,9 +7,9 @@ public class DeferredValueImpl implements DeferredValue {
 
   private Object originalValue;
 
-  private DeferredValueImpl() {}
+  protected DeferredValueImpl() {}
 
-  private DeferredValueImpl(Object originalValue) {
+  protected DeferredValueImpl(Object originalValue) {
     this.originalValue = originalValue;
   }
 

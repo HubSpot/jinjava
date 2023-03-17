@@ -66,7 +66,10 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
           .build()
       );
       PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
-      if (interpreter.getContext().isDeferredExecutionMode()) {
+      if (
+        !eagerExecutionResult.getResult().isFullyResolved() ||
+        interpreter.getContext().isDeferredExecutionMode()
+      ) {
         prefixToPreserveState.putAll(eagerExecutionResult.getPrefixToPreserveState());
       } else {
         interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());

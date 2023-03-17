@@ -86,6 +86,152 @@ public class DeferredValueUtils {
     return findAndMarkDeferredProperties(context, null);
   }
 
+  public static DeferredToken findAndMarkDeferredProperties2(
+    Context context,
+    DeferredToken deferredToken
+  ) {
+    Set<String> referentialDefers = new HashSet<>();
+    Set<String> deferredProps = new HashSet<>();
+    if (
+      deferredToken.getMacroStack() == null ||
+      deferredToken.getMacroStack() == context.getMacroStack()
+    ) {
+      deferredProps.addAll(
+        getPropertiesUsedInDeferredNodes(
+          context,
+          deferredToken.getSetDeferredWords(),
+          false
+        )
+      );
+      referentialDefers.addAll(
+        getPropertiesUsedInDeferredNodes(
+          context,
+          deferredToken.getUntouchedUsedDeferredWords(),
+          true
+        )
+      );
+    } else {
+      List<String> macroArgs = deferredToken
+        .getMacroStack()
+        .peek()
+        .map(
+          name ->
+            Optional
+              .ofNullable(context.getGlobalMacro(name))
+              .map(AbstractCallableMethod::getArguments)
+              .orElseGet(
+                () ->
+                  context
+                    .getLocalMacro(name)
+                    .map(AbstractCallableMethod::getArguments)
+                    .orElse(Collections.emptyList())
+              )
+        )
+        .orElse(Collections.emptyList());
+      // Filter out macro args because we will want them to be deferred on the higher-level contexts later
+      referentialDefers.addAll(
+        getPropertiesUsedInDeferredNodes(
+            context,
+            deferredToken.getUntouchedUsedDeferredWords(),
+            true
+          )
+          .stream()
+          .filter(prop -> !macroArgs.contains(prop))
+          .collect(Collectors.toSet())
+      );
+    }
+    deferredProps.addAll(referentialDefers);
+    referentialDefers.forEach(
+      word -> {
+        Object wordValue = context.get(word);
+
+        if (
+          !(wordValue instanceof DeferredValue) &&
+          !EagerExpressionResolver.isPrimitive(wordValue)
+        ) {
+          DeferredLazyReference deferredLazyReference = DeferredLazyReference.instance(
+            context,
+            word
+          );
+          Context temp = context;
+          Set<Entry<String, Object>> matchingEntries = new HashSet<>();
+          while (temp.getParent() != null) {
+            temp
+              .getScope()
+              .entrySet()
+              .stream()
+              .filter(
+                entry ->
+                  entry.getValue() == wordValue ||
+                  (
+                    entry.getValue() instanceof DeferredLazyReferenceSource &&
+                    ((DeferredLazyReferenceSource) entry.getValue()).getOriginalValue() ==
+                    wordValue
+                  )
+              )
+              .forEach(
+                entry -> {
+                  matchingEntries.add(entry);
+                  deferredLazyReference
+                    .getOriginalValue()
+                    .setReferenceKey(entry.getKey());
+                }
+              );
+            temp = temp.getParent();
+          }
+          if (matchingEntries.size() > 1) { // at least one duplicate
+            matchingEntries.forEach(
+              entry -> {
+                if (
+                  deferredLazyReference
+                    .getOriginalValue()
+                    .getReferenceKey()
+                    .equals(entry.getKey())
+                ) {
+                  Object val = entry.getValue();
+                  if (val instanceof DeferredLazyReferenceSource) {
+                    return; // Already converted
+                  }
+                  context.replace(
+                    entry.getKey(),
+                    DeferredLazyReferenceSource.instance(val)
+                  );
+                  entry.setValue(DeferredLazyReferenceSource.instance(val));
+                } else {
+                  entry.setValue(deferredLazyReference);
+                }
+              }
+            );
+          }
+        }
+      }
+    );
+    if (!referentialDefers.isEmpty()) {
+      deferredToken
+        .getUsedDeferredWords()
+        .stream()
+        .filter(
+          key ->
+            context.getScope().containsKey(key) &&
+            !(context.getParent().getScope().get(key) instanceof DeferredValue)
+        )
+        .forEach(key -> deferredToken.getUntouchedUsedDeferredWords().remove(key));
+      //      deferredToken =
+      //        new DeferredToken(
+      //          deferredToken.getToken(),
+      //          deferredToken
+      //            .getUsedDeferredWords()
+      //            .stream()
+      //            .filter(word -> !context.getScope().containsKey(word))
+      //            .collect(Collectors.toSet()),
+      //          deferredToken.getSetDeferredWords()
+      //        );
+    }
+
+    markDeferredProperties(context, deferredProps);
+    return deferredToken;
+  }
+
   public static Set<String> findAndMarkDeferredProperties(
     Context context,
     DeferredToken deferredToken
@@ -244,6 +390,17 @@ public class DeferredValueUtils {
     return propertiesUsed.collect(Collectors.toSet());
   }
 
+  public static Set<String> getPropertiesUsedInDeferredNodes(
+    Context context,
+    Set<String> words,
+    boolean onlyAlreadyInContext
+  ) {
+    if (onlyAlreadyInContext) {
+      return words.stream().filter(context::containsKey).collect(Collectors.toSet());
+    }
+    return words;
+  }
+
   private static void markDeferredProperties(Context context, Set<String> props) {
     props
       .stream()
@@ -251,8 +408,13 @@ public class DeferredValueUtils {
       .filter(prop -> !context.getMetaContextVariables().contains(prop))
       .forEach(
         prop -> {
-          if (context.get(prop) != null) {
-            context.put(prop, DeferredValue.instance(context.get(prop)));
+          Object value = context.get(prop);
+          if (value != null) {
+            if (context.getScope().containsKey(prop)) {
+              context.put(prop, DeferredValue.instance(value));
+            } else {
+              context.put(prop, DeferredValue.instance(value));
+            }
           } else {
             //Handle set props
             context.put(prop, DeferredValue.instance());

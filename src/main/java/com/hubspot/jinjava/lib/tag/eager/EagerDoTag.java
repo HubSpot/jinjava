@@ -42,7 +42,10 @@ public class EagerDoTag extends EagerStateChangingTag<DoTag> implements Flexible
           .build()
       );
       PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
-      if (interpreter.getContext().isDeferredExecutionMode()) {
+      if (
+        !eagerExecutionResult.getResult().isFullyResolved() ||
+        interpreter.getContext().isDeferredExecutionMode()
+      ) {
         prefixToPreserveState.withAll(eagerExecutionResult.getPrefixToPreserveState());
       } else {
         interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
