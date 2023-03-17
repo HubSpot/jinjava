@@ -731,6 +731,9 @@ public class EagerReconstructionUtils {
   }
 
   private static void replace(Context context, String k, Object v) {
+    if (context == null) {
+      return;
+    }
     Object replaced = context.getScope().replace(k, v);
     if (replaced == null) {
       replace(context.getParent(), k, v);

@@ -8,6 +8,7 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredLazyReference;
 import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredValue;
+import com.hubspot.jinjava.interpret.DeferredValueMarker;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
@@ -91,12 +92,9 @@ public class DeferredValueUtils {
     DeferredToken deferredToken
   ) {
     Set<String> referentialDefers = new HashSet<>();
-    Set<String> deferredProps = new HashSet<>();
-    if (
-      deferredToken.getMacroStack() == null ||
-      deferredToken.getMacroStack() == context.getMacroStack()
-    ) {
-      deferredProps.addAll(
+    Set<String> setProps = new HashSet<>();
+    if (isInSameScope(context, deferredToken)) {
+      setProps.addAll(
         getPropertiesUsedInDeferredNodes(
           context,
           deferredToken.getSetDeferredWords(),
@@ -140,7 +138,7 @@ public class DeferredValueUtils {
           .collect(Collectors.toSet())
       );
     }
-    deferredProps.addAll(referentialDefers);
+    //    deferredProps.addAll(referentialDefers);
     referentialDefers.forEach(
       word -> {
         Object wordValue = context.get(word);
@@ -164,9 +162,8 @@ public class DeferredValueUtils {
                 entry ->
                   entry.getValue() == wordValue ||
                   (
-                    entry.getValue() instanceof DeferredLazyReferenceSource &&
-                    ((DeferredLazyReferenceSource) entry.getValue()).getOriginalValue() ==
-                    wordValue
+                    entry.getValue() instanceof DeferredValue &&
+                    ((DeferredValue) entry.getValue()).getOriginalValue() == wordValue
                   )
               )
               .forEach(
@@ -192,11 +189,14 @@ public class DeferredValueUtils {
                   if (val instanceof DeferredLazyReferenceSource) {
                     return; // Already converted
                   }
-                  context.replace(
-                    entry.getKey(),
-                    DeferredLazyReferenceSource.instance(val)
+                  DeferredLazyReferenceSource deferredLazyReferenceSource = DeferredLazyReferenceSource.instance(
+                    val instanceof DeferredValue
+                      ? ((DeferredValue) val).getOriginalValue()
+                      : val
                   );
-                  entry.setValue(DeferredLazyReferenceSource.instance(val));
+
+                  context.replace(entry.getKey(), deferredLazyReferenceSource);
+                  entry.setValue(deferredLazyReferenceSource);
                 } else {
                   entry.setValue(deferredLazyReference);
                 }
@@ -211,9 +211,12 @@ public class DeferredValueUtils {
         .getUsedDeferredWords()
         .stream()
         .filter(
-          key ->
-            context.getScope().containsKey(key) &&
-            !(context.getParent().getScope().get(key) instanceof DeferredValue)
+          key -> {
+            Object val = context.getScope().get(key);
+            return val != null && !(val instanceof DeferredValueMarker);
+          }
+          //            context.getScope().containsKey(key) &&
+          //            !(context.getParent().getScope().get(key) instanceof DeferredValue)
         )
         .forEach(key -> deferredToken.getUntouchedUsedDeferredWords().remove(key));
       //      deferredToken =
@@ -228,8 +231,57 @@ public class DeferredValueUtils {
       //        );
     }
 
-    markDeferredProperties(context, deferredProps);
+    markDeferredProperties(
+      context,
+      deferredToken,
+      Sets.union(setProps, referentialDefers)
+    );
+    //    markDeferredProperties(context, referentialDefers);
     return deferredToken;
+  }
+
+  private static void markDeferredProperties(
+    Context context,
+    DeferredToken deferredToken,
+    Set<String> wordsToDefer
+  ) {
+    wordsToDefer
+      .stream()
+      .filter(prop -> !(context.get(prop) instanceof DeferredValue))
+      .filter(prop -> !context.getMetaContextVariables().contains(prop))
+      .forEach(
+        prop -> context.put(prop, convertToDeferredValue(context, deferredToken, prop))
+      );
+  }
+
+  private static DeferredValue convertToDeferredValue(
+    Context context,
+    DeferredToken deferredToken,
+    String prop
+  ) {
+    DeferredValue deferredValue = DeferredValue.instance();
+    Object valueInScope = context.getScope().get(prop);
+    Object value = context.get(prop);
+    if (value != null) {
+      if (
+        (
+          context.getParent() != null && isInSameScope(context.getParent(), deferredToken)
+        ) ||
+        valueInScope == null
+      ) {
+        deferredValue = DeferredValueMarker.instance(value);
+      } else {
+        deferredValue = DeferredValue.instance(value);
+      }
+    }
+    return deferredValue;
+  }
+
+  private static boolean isInSameScope(Context context, DeferredToken deferredToken) {
+    return (
+      deferredToken.getMacroStack() == null ||
+      deferredToken.getMacroStack() == context.getMacroStack()
+    );
   }
 
   public static Set<String> findAndMarkDeferredProperties(
@@ -241,10 +293,7 @@ public class DeferredValueUtils {
     Set<String> setProps = getPropertiesSetInDeferredNodes(templateSource);
     Set<String> referentialDefers = new HashSet<>();
     if (deferredToken != null) {
-      if (
-        deferredToken.getMacroStack() == null ||
-        deferredToken.getMacroStack() == context.getMacroStack()
-      ) {
+      if (isInSameScope(context, deferredToken)) {
         deferredProps.addAll(
           getPropertiesUsedInDeferredNodes(
             context,
@@ -413,7 +462,7 @@ public class DeferredValueUtils {
             if (context.getScope().containsKey(prop)) {
               context.put(prop, DeferredValue.instance(value));
             } else {
-              context.put(prop, DeferredValue.instance(value));
+              context.put(prop, DeferredValueMarker.instance(value));
             }
           } else {
             //Handle set props

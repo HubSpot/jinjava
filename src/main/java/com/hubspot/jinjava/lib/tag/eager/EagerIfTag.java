@@ -155,6 +155,17 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       }
       branchStart = branchEnd + 1;
     }
+    PrefixToPreserveState prefixToPreserveState = deferBindings(
+      interpreter,
+      bindingsToDefer
+    );
+    return prefixToPreserveState + sb.toString();
+  }
+
+  public static PrefixToPreserveState deferBindings(
+    JinjavaInterpreter interpreter,
+    Set<String> bindingsToDefer
+  ) {
     if (!bindingsToDefer.isEmpty()) {
       bindingsToDefer =
         bindingsToDefer
@@ -178,9 +189,9 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
           )
         );
       }
-      return prefixToPreserveState + sb.toString();
+      return prefixToPreserveState;
     }
-    return sb.toString();
+    return new PrefixToPreserveState();
   }
 
   private String evaluateBranch(

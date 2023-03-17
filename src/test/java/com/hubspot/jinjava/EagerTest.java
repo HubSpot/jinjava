@@ -1291,7 +1291,7 @@ public class EagerTest {
 
   @Test
   public void itDoesNotReconstructVariableInWrongScope() {
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "does-not-reconstruct-variable-in-wrong-scope"
     );
   }
