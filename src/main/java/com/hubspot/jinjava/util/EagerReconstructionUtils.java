@@ -7,7 +7,7 @@ import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.DeferredLazyReference;
 import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredValue;
-import com.hubspot.jinjava.interpret.DeferredValueMarker;
+import com.hubspot.jinjava.interpret.DeferredValueShadow;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
@@ -23,6 +23,7 @@ import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.serialization.PyishBlockSetSerializable;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.parse.NoteToken;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerContextWatcher.EagerChildContextConfig;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
@@ -659,6 +660,38 @@ public class EagerReconstructionUtils {
       .orElse(false);
   }
 
+  public static PrefixToPreserveState deferWordsAndReconstructReferences(
+    JinjavaInterpreter interpreter,
+    Set<String> wordsToDefer
+  ) {
+    if (!wordsToDefer.isEmpty()) {
+      wordsToDefer =
+        wordsToDefer
+          .stream()
+          .filter(key -> !(interpreter.getContext().get(key) instanceof DeferredValue))
+          .collect(Collectors.toSet());
+      PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
+      if (!wordsToDefer.isEmpty()) {
+        prefixToPreserveState.withAllInFront(
+          handleDeferredTokenAndReconstructReferences(
+            interpreter,
+            new DeferredToken(
+              new NoteToken(
+                "",
+                interpreter.getLineNumber(),
+                interpreter.getPosition(),
+                interpreter.getConfig().getTokenScannerSymbols()
+              ),
+              wordsToDefer
+            )
+          )
+        );
+      }
+      return prefixToPreserveState;
+    }
+    return new PrefixToPreserveState();
+  }
+
   public static Map<String, String> handleDeferredTokenAndReconstructReferences(
     JinjavaInterpreter interpreter,
     DeferredToken deferredToken
@@ -720,6 +753,31 @@ public class EagerReconstructionUtils {
       );
   }
 
+  /**
+   * Reset variables to what they were before running the latest execution represented by {@param eagerExecutionResult}.
+   * Then re-defer those variables and reconstruct deferred lazy references to them.
+   * This method is needed in 2 circumstances:
+   * <p>
+   *   * When doing some eager execution and then needing to repeat the same execution in deferred execution mode.
+   *   <p>
+   *   * When rendering logic which takes place in its own child scope (for tag, macro function, set block) and there
+   *   speculative bindings. These must be deferred and the execution must run again so they don't get reconstructed
+   *   within the child scope, and can instead be reconstructed in their original scopes.
+   * @param interpreter The JinjavaInterpreter
+   * @param eagerExecutionResult The execution result which contains information about which bindings were modified
+   *                             during the execution.
+   * @return
+   */
+  public static PrefixToPreserveState resetAndDeferSpeculativeBindings(
+    JinjavaInterpreter interpreter,
+    EagerExecutionResult eagerExecutionResult
+  ) {
+    return deferWordsAndReconstructReferences(
+      interpreter,
+      resetSpeculativeBindings(interpreter, eagerExecutionResult)
+    );
+  }
+
   public static Set<String> resetSpeculativeBindings(
     JinjavaInterpreter interpreter,
     EagerExecutionResult result
@@ -737,7 +795,7 @@ public class EagerReconstructionUtils {
     Object replaced = context.getScope().replace(k, v);
     if (replaced == null) {
       replace(context.getParent(), k, v);
-    } else if (replaced instanceof DeferredValueMarker) {
+    } else if (replaced instanceof DeferredValueShadow) {
       context.getScope().remove(k);
       replace(context.getParent(), k, v);
     }

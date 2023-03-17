@@ -8,7 +8,6 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
-import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
@@ -44,14 +43,15 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
         .withCheckForContextChanges(!interpreter.getContext().isDeferredExecutionMode())
         .build()
     );
-    if (firstRunResult.getResult().getResolutionState() == ResolutionState.NONE) {
-      throw new DeferredValueException(firstRunResult.getResult().toString());
-    }
     if (
       !firstRunResult.getResult().isFullyResolved() &&
       !firstRunResult.getSpeculativeBindings().isEmpty() ||
       interpreter.getContext().isDeferredExecutionMode()
     ) {
+      EagerReconstructionUtils.resetAndDeferSpeculativeBindings(
+        interpreter,
+        firstRunResult
+      );
       EagerExecutionResult secondRunResult = EagerContextWatcher.executeInChildContext(
         eagerInterpreter ->
           EagerExpressionResult.fromSupplier(

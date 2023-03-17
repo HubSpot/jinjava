@@ -13,7 +13,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.MacroTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
-import com.hubspot.jinjava.lib.tag.eager.EagerIfTag;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.EagerContextWatcher;
@@ -25,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
@@ -95,22 +93,15 @@ public class EagerMacroFunction extends MacroFunction {
         interpreter.getContext().isDeferredExecutionMode()
       )
     ) {
-      Set<String> bindingsToDefer = EagerReconstructionUtils.resetSpeculativeBindings(
+      PrefixToPreserveState prefixToPreserveState = EagerReconstructionUtils.resetAndDeferSpeculativeBindings(
         interpreter,
         firstRunResult
       );
-      PrefixToPreserveState prefixToPreserveState = EagerIfTag.deferBindings(
-        interpreter,
-        bindingsToDefer
-      );
-
-      //      EagerReconstructionUtils.resetSpeculativeBindings(interpreter, firstRunResult);
-      //      firstRunResult.getPrefixToPreserveState(true);
-      //      interpreter.getContext().removeDeferredTokens(addedTokens);
-      EagerExecutionResult secondRunResult = eagerEvaluateInDeferredExecutionMode(
-        () -> super.doEvaluate(argMap, kwargMap, varArgs).toString(),
-        interpreter
-      );
+      firstRunResult =
+        eagerEvaluateInDeferredExecutionMode(
+          () -> super.doEvaluate(argMap, kwargMap, varArgs).toString(),
+          interpreter
+        );
 
       String tempVarName = MacroFunctionTempVariable.getVarName(
         getName(),
@@ -122,7 +113,9 @@ public class EagerMacroFunction extends MacroFunction {
         .getParent()
         .put(
           tempVarName,
-          new MacroFunctionTempVariable(secondRunResult.getResult().toString(true))
+          new MacroFunctionTempVariable(
+            prefixToPreserveState + firstRunResult.getResult().toString(true)
+          )
         );
       throw new DeferredParsingException(this, tempVarName);
     }

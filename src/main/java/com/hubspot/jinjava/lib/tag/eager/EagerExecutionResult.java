@@ -42,15 +42,6 @@ public class EagerExecutionResult {
   }
 
   public PrefixToPreserveState getPrefixToPreserveState() {
-    return getPrefixToPreserveState(
-      !JinjavaInterpreter
-        .getCurrentMaybe()
-        .map(interpreter -> interpreter.getContext().isDeferredExecutionMode())
-        .orElse(false)
-    );
-  }
-
-  public PrefixToPreserveState getPrefixToPreserveState(boolean registerDeferredToken) {
     if (prefixToPreserveState != null) {
       return prefixToPreserveState;
     }
@@ -69,7 +60,7 @@ public class EagerExecutionResult {
                 entry.getKey(),
                 ((PyishBlockSetSerializable) entry.getValue()).getBlockSetBody(),
                 interpreter,
-                registerDeferredToken
+                false
               )
             )
         )
@@ -90,7 +81,7 @@ public class EagerExecutionResult {
                 PyishObjectMapper.getAsPyishString(entry.getValue())
               ),
               interpreter,
-              registerDeferredToken
+              false
             )
           )
       );
@@ -116,7 +107,7 @@ public class EagerExecutionResult {
             buildSetTag(
               Collections.singletonMap(entry.getKey(), entry.getValue()),
               interpreter,
-              registerDeferredToken
+              false
             )
           )
       );

@@ -18,11 +18,11 @@ public class DeferredValueImpl implements DeferredValue {
     return originalValue;
   }
 
-  public static DeferredValue instance() {
+  protected static DeferredValue instance() {
     return INSTANCE;
   }
 
-  public static DeferredValue instance(Object originalValue) {
+  protected static DeferredValue instance(Object originalValue) {
     return new DeferredValueImpl(originalValue);
   }
 

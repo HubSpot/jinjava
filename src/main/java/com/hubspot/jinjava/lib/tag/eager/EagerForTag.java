@@ -90,7 +90,6 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxOutputSize()
     );
-    PrefixToPreserveState prefix = new PrefixToPreserveState();
 
     try (
       TemporaryValueClosable<Boolean> c = interpreter
@@ -125,10 +124,14 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     }
 
     EagerExecutionResult firstRunResult = runLoopOnce(tagNode, interpreter);
-    if (!firstRunResult.getSpeculativeBindings().isEmpty()) {
-      // Defer any variables that we tried to modify during the loop
-      prefix = firstRunResult.getPrefixToPreserveState(true);
-    }
+    PrefixToPreserveState prefixToPreserveState = firstRunResult
+      .getPrefixToPreserveState()
+      .withAllInFront(
+        EagerReconstructionUtils.resetAndDeferSpeculativeBindings(
+          interpreter,
+          firstRunResult
+        )
+      );
     // Run for loop again now that the necessary values have been deferred
     EagerExecutionResult secondRunResult = runLoopOnce(tagNode, interpreter);
     if (
@@ -146,7 +149,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
 
     result.append(secondRunResult.asTemplateString());
     result.append(EagerReconstructionUtils.reconstructEnd(tagNode));
-    return prefix.toString() + result;
+    return prefixToPreserveState.toString() + result;
   }
 
   private EagerExecutionResult runLoopOnce(
