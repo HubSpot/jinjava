@@ -35,6 +35,7 @@ import com.hubspot.jinjava.lib.tag.TagLibrary;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.DeferredValueUtils;
+import com.hubspot.jinjava.util.EagerDeferredValueUtils;
 import com.hubspot.jinjava.util.ScopeMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -390,7 +391,7 @@ public class Context extends ScopeMap<String, Object> {
   public void handleDeferredToken(DeferredToken deferredToken) {
     deferredTokens.add(deferredToken);
 
-    DeferredValueUtils.findAndMarkDeferredPropertiesInToken(this, deferredToken);
+    EagerDeferredValueUtils.findAndMarkDeferredPropertiesInToken(this, deferredToken);
 
     if (getParent() != null) {
       Context parent = getParent();
