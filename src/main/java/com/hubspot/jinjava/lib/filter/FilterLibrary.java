@@ -32,6 +32,7 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
     registerClasses(
       AbsFilter.class,
       AddFilter.class,
+      AllowSnakeCaseFilter.class,
       AttrFilter.class,
       Base64DecodeFilter.class,
       Base64EncodeFilter.class,

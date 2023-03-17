@@ -7,8 +7,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -86,6 +88,73 @@ public class PyishObjectMapperTest {
         .isInstanceOf(LengthLimitingJsonProcessingException.class);
     } finally {
       JinjavaInterpreter.popCurrent();
+    }
+  }
+
+  @Test
+  public void itSerializesToSnakeCaseAccessibleMap() {
+    assertThat(PyishObjectMapper.getAsPyishString(new Foo("bar")))
+      .isEqualTo("{'fooBar': 'bar'} |allow_snake_case");
+  }
+
+  @Test
+  public void itSerializesToSnakeCaseAccessibleMapWhenInMapEntry() {
+    assertThat(
+        PyishObjectMapper.getAsPyishString(
+          new AbstractMap.SimpleImmutableEntry<>("foo", new Foo("bar"))
+        )
+      )
+      .isEqualTo("fn:map_entry('foo', {'fooBar': 'bar'} |allow_snake_case)");
+  }
+
+  @Test
+  public void itDoesNotConvertToSnakeCaseMapWhenResultIsForOutput() {
+    Jinjava jinjava = new Jinjava(
+      JinjavaConfig
+        .newBuilder()
+        .withLegacyOverrides(
+          LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+        )
+        .build()
+    );
+    JinjavaInterpreter interpreter = jinjava.newInterpreter();
+    interpreter.getContext().put("foo", new Foo("bar"));
+    assertThat(interpreter.render("{{ foo }}")).isEqualTo("{'fooBar': 'bar'}");
+  }
+
+  @Test
+  public void itSerializesToSnakeCaseWhenLegacyOverrideIsSet() {
+    Jinjava jinjava = new Jinjava(
+      JinjavaConfig
+        .newBuilder()
+        .withLegacyOverrides(
+          LegacyOverrides
+            .newBuilder()
+            .withUsePyishObjectMapper(true)
+            .withUseSnakeCasePropertyNaming(true)
+            .build()
+        )
+        .build()
+    );
+    JinjavaInterpreter interpreter = jinjava.newInterpreter();
+    try {
+      JinjavaInterpreter.pushCurrent(interpreter);
+      interpreter.getContext().put("foo", new Foo("bar"));
+      assertThat(interpreter.render("{{ foo }}")).isEqualTo("{'foo_bar': 'bar'}");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
+  }
+
+  static class Foo {
+    private final String bar;
+
+    public Foo(String bar) {
+      this.bar = bar;
+    }
+
+    public String getFooBar() {
+      return bar;
     }
   }
 }

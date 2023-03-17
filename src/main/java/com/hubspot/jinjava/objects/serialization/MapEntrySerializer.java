@@ -26,11 +26,16 @@ public class MapEntrySerializer extends JsonSerializer<Entry<?, ?>> {
     );
     String key;
     String value;
+    ObjectWriter objectWriter = PyishObjectMapper.PYISH_OBJECT_WRITER.withAttribute(
+      PyishObjectMapper.ALLOW_SNAKE_CASE_ATTRIBUTE,
+      serializerProvider.getAttribute(PyishObjectMapper.ALLOW_SNAKE_CASE_ATTRIBUTE)
+    );
     if (remainingLength != null) {
-      ObjectWriter objectWriter = PyishObjectMapper.PYISH_OBJECT_WRITER.withAttribute(
-        LengthLimitingWriter.REMAINING_LENGTH_ATTRIBUTE,
-        remainingLength
-      );
+      objectWriter =
+        objectWriter.withAttribute(
+          LengthLimitingWriter.REMAINING_LENGTH_ATTRIBUTE,
+          remainingLength
+        );
       key = objectWriter.writeValueAsString(entry.getKey());
       LengthLimitingWriter lengthLimitingWriter = new LengthLimitingWriter(
         new CharArrayWriter(),
@@ -39,8 +44,8 @@ public class MapEntrySerializer extends JsonSerializer<Entry<?, ?>> {
       objectWriter.writeValue(lengthLimitingWriter, entry.getValue());
       value = lengthLimitingWriter.toString();
     } else {
-      key = PyishObjectMapper.PYISH_OBJECT_WRITER.writeValueAsString(entry.getKey());
-      value = PyishObjectMapper.PYISH_OBJECT_WRITER.writeValueAsString(entry.getValue());
+      key = objectWriter.writeValueAsString(entry.getKey());
+      value = objectWriter.writeValueAsString(entry.getValue());
     }
     jsonGenerator.writeRawValue(String.format("fn:map_entry(%s, %s)", key, value));
   }
