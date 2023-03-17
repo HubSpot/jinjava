@@ -10,6 +10,7 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,6 +95,16 @@ public class PyishObjectMapperTest {
   public void itSerializesToSnakeCaseAccessibleMap() {
     assertThat(PyishObjectMapper.getAsPyishString(new Foo("bar")))
       .isEqualTo("{'fooBar': 'bar'} |allow_snake_case");
+  }
+
+  @Test
+  public void itSerializesToSnakeCaseAccessibleMapWhenInMapEntry() {
+    assertThat(
+        PyishObjectMapper.getAsPyishString(
+          new AbstractMap.SimpleImmutableEntry<>("foo", new Foo("bar"))
+        )
+      )
+      .isEqualTo("fn:map_entry('foo', {'fooBar': 'bar'} |allow_snake_case)");
   }
 
   @Test
