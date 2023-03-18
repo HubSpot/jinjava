@@ -34,7 +34,6 @@ import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.TagLibrary;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.tree.Node;
-import com.hubspot.jinjava.util.DeferredTokenHandler;
 import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.ScopeMap;
 import java.util.ArrayList;
@@ -389,40 +388,7 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public void handleDeferredToken(DeferredToken deferredToken) {
-    Set<String> wordsWithoutDeferredSource = deferredToken
-      .getUsedDeferredWords()
-      .stream()
-      .filter(
-        word -> {
-          Object value = get(word);
-          return value != null && !(value instanceof DeferredValue);
-        }
-      )
-      .collect(Collectors.toCollection(HashSet::new));
-    handleDeferredToken(deferredToken, wordsWithoutDeferredSource);
-  }
-
-  protected void handleDeferredToken(
-    DeferredToken deferredToken,
-    Set<String> wordsWithoutDeferredSource
-  ) {
-    deferredTokens.add(deferredToken);
-
-    DeferredTokenHandler.deferPropertiesOnContext(
-      this,
-      deferredToken,
-      wordsWithoutDeferredSource
-    );
-
-    if (getParent() != null) {
-      Context parent = getParent();
-      //Ignore global context
-      if (parent.getParent() != null) {
-        parent.handleDeferredToken(deferredToken, wordsWithoutDeferredSource);
-      } else {
-        checkNumberOfDeferredTokens();
-      }
-    }
+    deferredToken.addTo(this);
   }
 
   public void removeDeferredTokens(Collection<DeferredToken> toRemove) {

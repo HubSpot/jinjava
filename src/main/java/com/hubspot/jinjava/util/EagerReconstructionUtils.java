@@ -696,7 +696,7 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter,
     DeferredToken deferredToken
   ) {
-    interpreter.getContext().handleDeferredToken(deferredToken);
+    deferredToken.addTo(interpreter.getContext());
     return reconstructDeferredReferences(
       interpreter,
       deferredToken.getUsedDeferredWords()
