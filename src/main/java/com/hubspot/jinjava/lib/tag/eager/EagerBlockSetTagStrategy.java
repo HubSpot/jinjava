@@ -31,7 +31,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
     String expression,
     JinjavaInterpreter interpreter
   ) {
-    EagerExecutionResult firstRunResult = EagerContextWatcher.executeInChildContext(
+    EagerExecutionResult eagerExecutionResult = EagerContextWatcher.executeInChildContext(
       eagerInterpreter ->
         EagerExpressionResult.fromSupplier(
           () -> SetTag.renderChildren(tagNode, eagerInterpreter, variables[0]),
@@ -40,36 +40,20 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
       interpreter,
       EagerContextWatcher
         .EagerChildContextConfig.newBuilder()
-        .withCheckForContextChanges(!interpreter.getContext().isDeferredExecutionMode())
+        .withTakeNewValue(true)
         .build()
     );
     if (
-      !firstRunResult.getResult().isFullyResolved() &&
-      !firstRunResult.getSpeculativeBindings().isEmpty() ||
+      !eagerExecutionResult.getResult().isFullyResolved() &&
+      !eagerExecutionResult.getSpeculativeBindings().isEmpty() ||
       interpreter.getContext().isDeferredExecutionMode()
     ) {
       EagerReconstructionUtils.resetAndDeferSpeculativeBindings(
         interpreter,
-        firstRunResult
-      );
-      EagerExecutionResult secondRunResult = EagerContextWatcher.executeInChildContext(
-        eagerInterpreter ->
-          EagerExpressionResult.fromSupplier(
-            () -> SetTag.renderChildren(tagNode, eagerInterpreter, variables[0]),
-            eagerInterpreter
-          ),
-        interpreter,
-        EagerContextWatcher
-          .EagerChildContextConfig.newBuilder()
-          .withForceDeferredExecutionMode(true)
-          .build()
-      );
-      return new EagerExecutionResult(
-        secondRunResult.getResult(),
-        firstRunResult.getSpeculativeBindings()
+        eagerExecutionResult
       );
     }
-    return firstRunResult;
+    return eagerExecutionResult;
   }
 
   @Override

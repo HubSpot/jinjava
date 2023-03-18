@@ -1,6 +1,6 @@
 1
 {% set bar = [1] %}{% set foo = '1' %}{% if deferred %}
-{% set bar = [1] %}{% set foo %}2{% do bar.append(2) %}{% endset %}
+{% set foo %}2{% do bar.append(2) %}{% endset %}
 {% endif %}
 Bar: {{ bar }}
 Foo: {{ foo }}

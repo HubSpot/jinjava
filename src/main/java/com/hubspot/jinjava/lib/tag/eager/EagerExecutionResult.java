@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildBlockSetTag;
 import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildSetTag;
 
+import com.hubspot.jinjava.interpret.DeferredValueShadow;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.LazyReference;
 import com.hubspot.jinjava.objects.serialization.PyishBlockSetSerializable;
@@ -10,6 +11,7 @@ import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.AbstractMap;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,9 +49,16 @@ public class EagerExecutionResult {
     }
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     prefixToPreserveState = new PrefixToPreserveState();
+    Collection<Entry<String, Object>> filteredEntries = speculativeBindings
+      .entrySet()
+      .stream()
+      .filter(
+        entry ->
+          !(interpreter.getContext().get(entry.getKey()) instanceof DeferredValueShadow)
+      )
+      .collect(Collectors.toList());
     prefixToPreserveState.putAll(
-      speculativeBindings
-        .entrySet()
+      filteredEntries
         .stream()
         .filter(entry -> entry.getValue() instanceof PyishBlockSetSerializable)
         .map(
@@ -66,8 +75,7 @@ public class EagerExecutionResult {
         )
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue))
     );
-    speculativeBindings
-      .entrySet()
+    filteredEntries
       .stream()
       .filter(entry -> !(entry.getValue() instanceof PyishBlockSetSerializable))
       .filter(entry -> !(entry.getValue() instanceof LazyReference))
@@ -85,8 +93,7 @@ public class EagerExecutionResult {
             )
           )
       );
-    speculativeBindings
-      .entrySet()
+    filteredEntries
       .stream()
       .filter(entry -> (entry.getValue() instanceof LazyReference))
       .map(

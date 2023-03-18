@@ -81,27 +81,27 @@ public class EagerMacroFunction extends MacroFunction {
     }
 
     int currentCallCount = callCount.getAndIncrement();
-    EagerExecutionResult firstRunResult = eagerEvaluate(
+    EagerExecutionResult eagerExecutionResult = eagerEvaluate(
       () -> super.doEvaluate(argMap, kwargMap, varArgs).toString(),
+      EagerChildContextConfig
+        .newBuilder()
+        .withCheckForContextChanges(!interpreter.getContext().isDeferredExecutionMode())
+        .withTakeNewValue(true)
+        .build(),
       interpreter
     );
     if (
-      !firstRunResult.getResult().isFullyResolved() &&
+      !eagerExecutionResult.getResult().isFullyResolved() &&
       (
         !interpreter.getContext().isPartialMacroEvaluation() ||
-        !firstRunResult.getSpeculativeBindings().isEmpty() ||
+        !eagerExecutionResult.getSpeculativeBindings().isEmpty() ||
         interpreter.getContext().isDeferredExecutionMode()
       )
     ) {
       PrefixToPreserveState prefixToPreserveState = EagerReconstructionUtils.resetAndDeferSpeculativeBindings(
         interpreter,
-        firstRunResult
+        eagerExecutionResult
       );
-      firstRunResult =
-        eagerEvaluateInDeferredExecutionMode(
-          () -> super.doEvaluate(argMap, kwargMap, varArgs).toString(),
-          interpreter
-        );
 
       String tempVarName = MacroFunctionTempVariable.getVarName(
         getName(),
@@ -114,12 +114,12 @@ public class EagerMacroFunction extends MacroFunction {
         .put(
           tempVarName,
           new MacroFunctionTempVariable(
-            prefixToPreserveState + firstRunResult.getResult().toString(true)
+            prefixToPreserveState + eagerExecutionResult.asTemplateString()
           )
         );
       throw new DeferredParsingException(this, tempVarName);
     }
-    return firstRunResult.getResult().toString(true);
+    return eagerExecutionResult.getResult().toString(true);
   }
 
   private String getEvaluationResultDirectly(
@@ -132,20 +132,6 @@ public class EagerMacroFunction extends MacroFunction {
     interpreter.getContext().getScope().remove(KWARGS_KEY);
     interpreter.getContext().getScope().remove(VARARGS_KEY);
     return evaluationResult;
-  }
-
-  private EagerExecutionResult eagerEvaluate(
-    Supplier<String> stringSupplier,
-    JinjavaInterpreter interpreter
-  ) {
-    return eagerEvaluate(
-      stringSupplier,
-      EagerChildContextConfig
-        .newBuilder()
-        .withCheckForContextChanges(!interpreter.getContext().isDeferredExecutionMode())
-        .build(),
-      interpreter
-    );
   }
 
   private EagerExecutionResult eagerEvaluateInDeferredExecutionMode(

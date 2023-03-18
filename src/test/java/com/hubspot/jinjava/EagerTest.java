@@ -1126,7 +1126,7 @@ public class EagerTest {
 
   @Test
   public void itHandlesHigherScopeReferenceModification() {
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "handles-higher-scope-reference-modification"
     );
   }
