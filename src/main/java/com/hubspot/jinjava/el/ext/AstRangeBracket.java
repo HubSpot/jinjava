@@ -117,6 +117,9 @@ public class AstRangeBracket extends AstBracket {
   }
 
   private String evalString(String base, Bindings bindings, ELContext context) {
+    if (base.length() == 0) {
+      return base;
+    }
     int startNum = intVal(property, 0, base.length(), bindings, context);
     int endNum = intVal(rangeMax, base.length(), base.length(), bindings, context);
     endNum = Math.min(endNum, base.length());
