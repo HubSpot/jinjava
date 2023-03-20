@@ -31,7 +31,7 @@ public class RangeStringTest {
   @Before
   public void setup() {
     jinjava = new Jinjava();
-    context = ImmutableMap.of("theString", "theSimpleString");
+    context = ImmutableMap.of("theString", "theSimpleString", "emptyString", "");
   }
 
   @Test
@@ -53,6 +53,11 @@ public class RangeStringTest {
   @Test
   public void testStringRangeNegative() {
     assertThat(jinjava.render("{{ theString[-7:-4] }}", context)).isEqualTo("eSt");
+  }
+
+  @Test
+  public void testStringEmpty() {
+    assertThat(jinjava.render("{{ emptyString[-1:0] }}", context)).isEmpty();
   }
 
   @Test
