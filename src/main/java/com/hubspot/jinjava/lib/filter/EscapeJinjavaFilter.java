@@ -58,6 +58,7 @@ public class EscapeJinjavaFilter implements Filter {
   public static String escapeFullJinjavaEntities(String input) {
     return input
       .replace("{{", BLBRACE + BLBRACE)
+      .replace("}}", BRBRACE + BRBRACE)
       .replaceAll("\\{([{%#])", BLBRACE + "$1")
       .replaceAll("([}%#])}", "$1" + BRBRACE);
   }
