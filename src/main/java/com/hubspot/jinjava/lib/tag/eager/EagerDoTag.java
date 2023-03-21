@@ -1,11 +1,13 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import org.apache.commons.lang3.StringUtils;
 
+@Beta
 public class EagerDoTag extends EagerStateChangingTag<DoTag> {
 
   public EagerDoTag() {
