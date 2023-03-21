@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -30,6 +31,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
+@Beta
 public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
 
   public EagerImportTag() {

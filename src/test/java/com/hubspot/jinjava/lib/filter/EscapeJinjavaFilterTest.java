@@ -37,7 +37,7 @@ public class EscapeJinjavaFilterTest extends BaseInterpretingTest {
         f.filter("{'foo': 'bar', '{{{ foo }}}': '{% bar %}'}", interpreter, "false")
       )
       .isEqualTo(
-        "{'foo': 'bar', '&lbrace;&lbrace;{ foo }&rbrace;}': '&lbrace;% bar %&rbrace;'}"
+        "{'foo': 'bar', '&lbrace;&lbrace;{ foo &rbrace;&rbrace;}': '&lbrace;% bar %&rbrace;'}"
       );
   }
 }

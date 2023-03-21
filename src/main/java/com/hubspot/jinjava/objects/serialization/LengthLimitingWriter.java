@@ -1,10 +1,12 @@
 package com.hubspot.jinjava.objects.serialization;
 
+import com.google.common.annotations.Beta;
 import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Beta
 public class LengthLimitingWriter extends Writer {
   public static final String REMAINING_LENGTH_ATTRIBUTE = "remainingLength";
   private final CharArrayWriter charArrayWriter;

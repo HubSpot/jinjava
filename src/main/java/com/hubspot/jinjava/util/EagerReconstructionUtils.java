@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.util;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.Sets;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
@@ -38,6 +39,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Beta
 public class EagerReconstructionUtils {
 
   /**

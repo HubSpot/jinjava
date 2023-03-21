@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.util;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Primitives;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
@@ -32,6 +33,7 @@ import java.util.stream.Stream;
 import javax.el.ELException;
 import org.apache.commons.lang3.StringUtils;
 
+@Beta
 public class EagerExpressionResolver {
   public static final String JINJAVA_NULL = "null";
   public static final String JINJAVA_EMPTY_STRING = "''";

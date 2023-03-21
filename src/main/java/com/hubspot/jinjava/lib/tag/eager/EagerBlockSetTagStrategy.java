@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.Sets;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.util.Optional;
 import org.apache.commons.lang3.tuple.Triple;
 
+@Beta
 public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
   public static final EagerBlockSetTagStrategy INSTANCE = new EagerBlockSetTagStrategy(
     new SetTag()

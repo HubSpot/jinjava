@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.fn.eager;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+@Beta
 public class EagerMacroFunction extends AbstractCallableMethod {
   private String fullName;
   private MacroFunction macroFunction;

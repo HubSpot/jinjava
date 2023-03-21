@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -24,6 +25,9 @@ public class ToJsonFilter implements Filter {
     try {
       return interpreter.getConfig().getObjectMapper().writeValueAsString(var);
     } catch (JsonProcessingException e) {
+      if (e.getCause() instanceof DeferredValueException) {
+        throw (DeferredValueException) e.getCause();
+      }
       throw new InvalidInputException(interpreter, this, InvalidReason.JSON_WRITE);
     }
   }

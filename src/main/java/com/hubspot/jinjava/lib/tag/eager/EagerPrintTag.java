@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -12,6 +13,7 @@ import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
+@Beta
 public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
 
   public EagerPrintTag() {
