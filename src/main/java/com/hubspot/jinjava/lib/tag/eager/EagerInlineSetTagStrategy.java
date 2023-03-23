@@ -30,6 +30,7 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
   @Override
   public EagerExecutionResult getEagerExecutionResult(
     TagNode tagNode,
+    String[] variables,
     String expression,
     JinjavaInterpreter interpreter
   ) {

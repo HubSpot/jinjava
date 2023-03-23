@@ -10,8 +10,8 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.ImportTag;
-import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
@@ -143,9 +143,9 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
             childBindings
           );
       }
-      return EagerReconstructionUtils.buildBlockSetTag(
-        SetTag.IGNORED_VARIABLE_NAME,
+      return EagerReconstructionUtils.wrapInTag(
         finalOutput,
+        DoTag.TAG_NAME,
         interpreter,
         true
       );
@@ -428,7 +428,6 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     JinjavaInterpreter child,
     JinjavaInterpreter parent
   ) {
-    childBindings.remove(SetTag.IGNORED_VARIABLE_NAME);
     for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
       if (parent.getContext().isDeferredExecutionMode()) {
         macro.setDeferred(true);
