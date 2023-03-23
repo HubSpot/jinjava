@@ -1,9 +1,11 @@
 package com.hubspot.jinjava.util;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.ForwardingMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Beta
 public class PrefixToPreserveState extends ForwardingMap<String, String> {
   private Map<String, String> reconstructedValues;
 
