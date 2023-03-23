@@ -1,5 +1,5 @@
-{% for __ignored__ in [0] %}
+{% set foo = 1 %}{% for i in [0] %}
 {% set foo = deferred %}
 {{ foo }}
 {% endfor %}
-1
+{{ foo }}

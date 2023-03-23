@@ -9,9 +9,9 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
-import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.Collections;
 import java.util.Optional;
 import org.apache.commons.lang3.tuple.Triple;
@@ -33,7 +33,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
     String expression,
     JinjavaInterpreter interpreter
   ) {
-    EagerExecutionResult eagerExecutionResult = EagerContextWatcher.executeInChildContext(
+    EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
       eagerInterpreter ->
         EagerExpressionResult.fromSupplier(
           () -> SetTag.renderChildren(tagNode, eagerInterpreter, variables[0]),
@@ -45,17 +45,10 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
         .withTakeNewValue(true)
         .build()
     );
-    if (
-      !eagerExecutionResult.getResult().isFullyResolved() &&
-      !eagerExecutionResult.getSpeculativeBindings().isEmpty() ||
-      interpreter.getContext().isDeferredExecutionMode()
-    ) {
-      EagerReconstructionUtils.resetAndDeferSpeculativeBindings(
-        interpreter,
-        eagerExecutionResult
-      );
+    if (result.getResult().getResolutionState() == ResolutionState.NONE) {
+      throw new DeferredValueException(result.getResult().toString());
     }
-    return eagerExecutionResult;
+    return result;
   }
 
   @Override
@@ -117,32 +110,23 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
       .add(variables[0])
       .add(tagNode.getSymbols().getExpressionEndWithTag());
 
-    PrefixToPreserveState prefixToPreserveState = getPrefixToPreserveState(
-        eagerExecutionResult,
-        variables,
-        interpreter
-      )
-      .withAllInFront(
-        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
-          interpreter,
-          new DeferredToken(
-            new TagToken(
-              joiner.toString(),
-              tagNode.getLineNumber(),
-              tagNode.getStartPosition(),
-              tagNode.getSymbols()
-            ),
-            Collections.emptySet(),
-            Sets.newHashSet(variables)
-          )
+    String prefixToPreserveState =
+      getPrefixToPreserveState(eagerExecutionResult, variables, interpreter) +
+      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+        interpreter,
+        new DeferredToken(
+          new TagToken(
+            joiner.toString(),
+            tagNode.getLineNumber(),
+            tagNode.getStartPosition(),
+            tagNode.getSymbols()
+          ),
+          Collections.emptySet(),
+          Sets.newHashSet(variables)
         )
       );
     String suffixToPreserveState = getSuffixToPreserveState(variables[0], interpreter);
-    return Triple.of(
-      prefixToPreserveState.toString(),
-      joiner.toString(),
-      suffixToPreserveState
-    );
+    return Triple.of(prefixToPreserveState, joiner.toString(), suffixToPreserveState);
   }
 
   @Override

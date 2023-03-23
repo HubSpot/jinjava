@@ -1,9 +1,9 @@
-{% set the_list = [] %}{% set __macro_appender_2138849093_temp_variable_0__ %}{% if deferred %}
-{% set some_list = the_list %}{% do some_list.append(deferred) %}
-{% endif %}{% endset %}{{ __macro_appender_2138849093_temp_variable_0__ }}
+{% set the_list = [] %}{% if deferred %}
+{% set the_list = [] %}{% set some_list = [] %}{% set the_list = [] %}{% set some_list = the_list %}{% do some_list.append(deferred) %}
+{% endif %}
 {{ the_list }}
 
 
-{% set foo = [1] %}{% do foo.append(deferred) %}
+{% set foo = [1] %}{% set foo = [1] %}{% do foo.append(deferred) %}
 {% do foo.append(2) %}
-{% set bar = foo %}{{ foo ~ 'and' ~ bar }}
+{% set bar = foo %}{% set bar = foo %}{{ foo ~ 'and' ~ bar }}

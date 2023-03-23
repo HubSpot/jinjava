@@ -3,19 +3,25 @@ package com.hubspot.jinjava.util;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.DeferredLazyReference;
+import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
+import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TextNode;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -77,9 +83,120 @@ public class DeferredValueUtils {
   }
 
   public static Set<String> findAndMarkDeferredProperties(Context context) {
+    return findAndMarkDeferredProperties(context, null);
+  }
+
+  public static Set<String> findAndMarkDeferredProperties(
+    Context context,
+    DeferredToken deferredToken
+  ) {
     String templateSource = rebuildTemplateForNodes(context.getDeferredNodes());
     Set<String> deferredProps = getPropertiesUsedInDeferredNodes(context, templateSource);
     Set<String> setProps = getPropertiesSetInDeferredNodes(templateSource);
+    Set<String> referentialDefers = new HashSet<>();
+    if (deferredToken != null) {
+      if (
+        deferredToken.getMacroStack() == null ||
+        deferredToken.getMacroStack() == context.getMacroStack()
+      ) {
+        deferredProps.addAll(
+          getPropertiesUsedInDeferredNodes(
+            context,
+            rebuildTemplateForEagerTagTokens(deferredToken, true),
+            false
+          )
+        );
+        referentialDefers.addAll(
+          getPropertiesUsedInDeferredNodes(
+            context,
+            rebuildTemplateForEagerTagTokens(deferredToken, false),
+            true
+          )
+        );
+      } else {
+        List<String> macroArgs = deferredToken
+          .getMacroStack()
+          .peek()
+          .map(
+            name ->
+              Optional
+                .ofNullable(context.getGlobalMacro(name))
+                .map(AbstractCallableMethod::getArguments)
+                .orElseGet(
+                  () ->
+                    context
+                      .getLocalMacro(name)
+                      .map(AbstractCallableMethod::getArguments)
+                      .orElse(Collections.emptyList())
+                )
+          )
+          .orElse(Collections.emptyList());
+        // Filter out macro args because we will want them to be deferred on the higher-level contexts later
+        referentialDefers.addAll(
+          getPropertiesUsedInDeferredNodes(
+              context,
+              rebuildTemplateForEagerTagTokens(deferredToken, false),
+              true
+            )
+            .stream()
+            .filter(prop -> !macroArgs.contains(prop))
+            .collect(Collectors.toSet())
+        );
+      }
+    }
+    deferredProps.addAll(referentialDefers);
+    referentialDefers.forEach(
+      word -> {
+        Object wordValue = context.get(word);
+
+        if (
+          !(wordValue instanceof DeferredValue) &&
+          !EagerExpressionResolver.isPrimitive(wordValue)
+        ) {
+          DeferredLazyReference deferredLazyReference = DeferredLazyReference.instance(
+            context,
+            word
+          );
+          Context temp = context;
+          Set<Entry<String, Object>> matchingEntries = new HashSet<>();
+          while (temp.getParent() != null) {
+            temp
+              .getScope()
+              .entrySet()
+              .stream()
+              .filter(entry -> entry.getValue() == wordValue)
+              .forEach(
+                entry -> {
+                  matchingEntries.add(entry);
+                  deferredLazyReference
+                    .getOriginalValue()
+                    .setReferenceKey(entry.getKey());
+                }
+              );
+            temp = temp.getParent();
+          }
+          if (matchingEntries.size() > 1) { // at least one duplicate
+            matchingEntries.forEach(
+              entry -> {
+                if (
+                  deferredLazyReference
+                    .getOriginalValue()
+                    .getReferenceKey()
+                    .equals(entry.getKey())
+                ) {
+                  Object val = entry.getValue();
+                  context.put(entry.getKey(), DeferredLazyReferenceSource.instance(val));
+                  entry.setValue(DeferredLazyReferenceSource.instance(val));
+                } else {
+                  entry.setValue(deferredLazyReference);
+                }
+              }
+            );
+          }
+        }
+      }
+    );
+
     markDeferredProperties(context, Sets.union(deferredProps, setProps));
     return deferredProps;
   }
@@ -120,9 +237,8 @@ public class DeferredValueUtils {
       .filter(prop -> !context.getMetaContextVariables().contains(prop))
       .forEach(
         prop -> {
-          Object value = context.get(prop);
-          if (value != null) {
-            context.put(prop, DeferredValue.instance(value));
+          if (context.get(prop) != null) {
+            context.put(prop, DeferredValue.instance(context.get(prop)));
           } else {
             //Handle set props
             context.put(prop, DeferredValue.instance());
@@ -150,6 +266,21 @@ public class DeferredValueUtils {
   private static String rebuildTemplateForNodes(Set<Node> nodes) {
     StringJoiner joiner = new StringJoiner(" ");
     getDeferredTags(nodes).stream().map(DeferredTag::getTag).forEach(joiner::add);
+    return joiner.toString();
+  }
+
+  private static String rebuildTemplateForEagerTagTokens(
+    DeferredToken deferredToken,
+    boolean fromSetWords
+  ) {
+    StringJoiner joiner = new StringJoiner(" ");
+
+    (
+      fromSetWords
+        ? deferredToken.getSetDeferredWords().stream()
+        : deferredToken.getUsedDeferredWords().stream()
+    ).map(h -> h + ".eager.helper")
+      .forEach(joiner::add);
     return joiner.toString();
   }
 

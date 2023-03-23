@@ -1,9 +1,0 @@
-{% set my_list = [] %}
-{% macro foo() %}
-{% do my_list.append('a') %}a
-{% if deferred %}
-{% do my_list.append('b') %}b
-{% endif %}
-{% endmacro %}
-{{ foo() }}
-{{ my_list }}

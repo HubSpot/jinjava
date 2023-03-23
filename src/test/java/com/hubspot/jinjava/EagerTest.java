@@ -1288,40 +1288,4 @@ public class EagerTest {
       "keeps-macro-modifications-in-scope.expected"
     );
   }
-
-  @Test
-  public void itDoesNotReconstructVariableInWrongScope() {
-    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "does-not-reconstruct-variable-in-wrong-scope"
-    );
-  }
-
-  @Test
-  public void itDoesNotReconstructVariableInWrongScopeSecondPass() {
-    interpreter.getContext().put("deferred", true);
-    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "does-not-reconstruct-variable-in-wrong-scope.expected"
-    );
-  }
-
-  @Test
-  public void itReconstructsDeferredVariableEventually() {
-    expectedTemplateInterpreter.assertExpectedOutput(
-      "reconstructs-deferred-variable-eventually"
-    );
-  }
-
-  @Test
-  public void itDoesntDoubleAppendInDeferredSet() {
-    expectedTemplateInterpreter.assertExpectedOutput(
-      "doesnt-double-append-in-deferred-set"
-    );
-  }
-
-  @Test
-  public void itDoesntDoubleAppendInDeferredMacro() {
-    expectedTemplateInterpreter.assertExpectedOutput(
-      "doesnt-double-append-in-deferred-macro"
-    );
-  }
 }
