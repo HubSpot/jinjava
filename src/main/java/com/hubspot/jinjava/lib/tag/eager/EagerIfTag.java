@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -18,6 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
+@Beta
 public class EagerIfTag extends EagerTagDecorator<IfTag> {
 
   public EagerIfTag() {

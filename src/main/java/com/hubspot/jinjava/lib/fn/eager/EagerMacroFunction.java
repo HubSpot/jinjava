@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.fn.eager;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
@@ -28,6 +29,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
+@Beta
 public class EagerMacroFunction extends MacroFunction {
   private AtomicInteger callCount = new AtomicInteger();
   private boolean reconstructing = false;

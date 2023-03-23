@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.expression;
 
+import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -18,6 +19,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
+@Beta
 public class EagerExpressionStrategy implements ExpressionStrategy {
   private static final long serialVersionUID = -6792345439237764193L;
 

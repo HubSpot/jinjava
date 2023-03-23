@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.InterpretException;
@@ -22,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
+@Beta
 public class EagerCallTag extends EagerStateChangingTag<CallTag> {
 
   public EagerCallTag() {

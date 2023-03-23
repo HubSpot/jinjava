@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildBlockSetTag;
 import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildSetTag;
 
+import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.DeferredValueShadow;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.LazyReference;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
  * got deferred, then the <code>prefixToPreserveState</code> can be added to the output
  * that would preserve the state for a second pass.
  */
+@Beta
 public class EagerExecutionResult {
   private final EagerExpressionResult result;
   private final Map<String, Object> speculativeBindings;

@@ -16,6 +16,7 @@
 
 package com.hubspot.jinjava.interpret;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
@@ -88,6 +89,8 @@ public class Context extends ScopeMap<String, Object> {
   private final Set<String> resolvedFunctions = new HashSet<>();
 
   private Set<Node> deferredNodes = new HashSet<>();
+
+  @Beta
   private Set<DeferredToken> deferredTokens = new HashSet<>();
 
   private final ExpTestLibrary expTestLibrary;
@@ -369,6 +372,7 @@ public class Context extends ScopeMap<String, Object> {
     return ImmutableSet.copyOf(deferredNodes);
   }
 
+  @Beta
   public void checkNumberOfDeferredTokens() {
     Context secondToLastContext = this;
     if (parent != null) {
@@ -387,10 +391,12 @@ public class Context extends ScopeMap<String, Object> {
     }
   }
 
+  @Beta
   public void handleDeferredToken(DeferredToken deferredToken) {
     deferredToken.addTo(this);
   }
 
+  @Beta
   public void removeDeferredTokens(Collection<DeferredToken> toRemove) {
     deferredTokens.removeAll(toRemove);
     if (getParent() != null) {
@@ -402,6 +408,7 @@ public class Context extends ScopeMap<String, Object> {
     }
   }
 
+  @Beta
   public Set<DeferredToken> getDeferredTokens() {
     return deferredTokens;
   }
