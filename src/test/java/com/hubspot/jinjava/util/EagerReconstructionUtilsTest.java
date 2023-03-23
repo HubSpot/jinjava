@@ -2,6 +2,9 @@ package com.hubspot.jinjava.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.anyMap;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -16,7 +19,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable
 import com.hubspot.jinjava.interpret.LazyExpression;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
-import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.loader.RelativePathResolver;
@@ -90,8 +92,7 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
     assertThat(result.getResult().toString()).isEqualTo("function return");
     // This will add an eager token because we normally don't call this method
     // unless we're in deferred execution mode.
-    assertThat(result.getPrefixToPreserveState().toString())
-      .isEqualTo("{% set foo = [1] %}");
+    assertThat(result.getPrefixToPreserveState()).isEqualTo("{% set foo = [1] %}");
   }
 
   @Test
@@ -115,8 +116,7 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         .build()
     );
     assertThat(result.getResult().toString()).isEqualTo("function return");
-    assertThat(result.getPrefixToPreserveState().toString())
-      .isEqualTo("{% set foo = [] %}");
+    assertThat(result.getPrefixToPreserveState()).isEqualTo("{% set foo = [] %}");
     assertThat(context.get("foo")).isInstanceOf(DeferredValue.class);
   }
 
@@ -419,9 +419,13 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
     );
   }
 
-  private EagerMacroFunction getMockMacroFunction(String image) {
-    interpreter.render(image);
-    return (EagerMacroFunction) interpreter.getContext().getGlobalMacro("foo");
+  private static MacroFunction getMockMacroFunction(String image) {
+    MacroFunction mockMacroFunction = mock(MacroFunction.class);
+    when(mockMacroFunction.getName()).thenReturn("foo");
+    when(mockMacroFunction.getArguments()).thenReturn(ImmutableList.of("bar"));
+    when(mockMacroFunction.getEvaluationResult(anyMap(), anyMap(), anyList(), any()))
+      .thenReturn(image.substring(image.indexOf("%}") + 2, image.lastIndexOf("{%")));
+    return mockMacroFunction;
   }
 
   private static TagNode getMockTagNode(String endName) {

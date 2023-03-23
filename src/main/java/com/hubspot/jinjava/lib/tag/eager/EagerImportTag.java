@@ -18,7 +18,6 @@ import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
-import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,14 +60,12 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       }
       return (
         initialPathSetter +
-        new PrefixToPreserveState(
-          EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
-            interpreter,
-            new DeferredToken(
-              tagToken,
-              Collections.singleton(helper.get(0)),
-              Collections.singleton(currentImportAlias)
-            )
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
+          new DeferredToken(
+            tagToken,
+            Collections.singleton(helper.get(0)),
+            Collections.singleton(currentImportAlias)
           )
         ) +
         tagToken.getImage()

@@ -5,7 +5,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
-import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -116,22 +115,19 @@ public abstract class EagerSetTagStrategy {
     JinjavaInterpreter interpreter
   );
 
-  protected PrefixToPreserveState getPrefixToPreserveState(
+  protected String getPrefixToPreserveState(
     EagerExecutionResult eagerExecutionResult,
     String[] variables,
     JinjavaInterpreter interpreter
   ) {
-    PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
-    if (
-      !eagerExecutionResult.getResult().isFullyResolved() ||
-      interpreter.getContext().isDeferredExecutionMode()
-    ) {
-      prefixToPreserveState.putAll(eagerExecutionResult.getPrefixToPreserveState());
+    StringBuilder prefixToPreserveState = new StringBuilder();
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
     } else {
       interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
     }
-    prefixToPreserveState.putAll(
-      EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
+    prefixToPreserveState.append(
+      EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
         Stream
           .concat(
             eagerExecutionResult.getResult().getDeferredWords().stream(),
@@ -141,7 +137,7 @@ public abstract class EagerSetTagStrategy {
         interpreter
       )
     );
-    return prefixToPreserveState;
+    return prefixToPreserveState.toString();
   }
 
   protected String getSuffixToPreserveState(

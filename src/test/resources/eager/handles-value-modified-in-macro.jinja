@@ -2,7 +2,7 @@
 {% macro counter(foo) %}
 {% set level = level + increment %}
 {% if level < foo %}
-{{ counter(foo) }}
+{{ counter() }}
 {% endif %}
 {{ level }}
 {% endmacro %}

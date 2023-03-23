@@ -17,7 +17,6 @@ import com.hubspot.jinjava.lib.tag.FromTag;
 import com.hubspot.jinjava.lib.tag.IfTag;
 import com.hubspot.jinjava.lib.tag.ImportTag;
 import com.hubspot.jinjava.lib.tag.IncludeTag;
-import com.hubspot.jinjava.lib.tag.MacroTag;
 import com.hubspot.jinjava.lib.tag.PrintTag;
 import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
@@ -71,9 +70,6 @@ public class EagerTagFactory {
         if (decorator.getTag().getClass() == clazz) {
           return Optional.of((EagerTagDecorator<T>) decorator);
         }
-      }
-      if (tag instanceof MacroTag) {
-        return Optional.of(new EagerGenericTag<>((T) new EagerMacroTag()));
       }
       return Optional.of(new EagerGenericTag<>(tag));
     } catch (NoSuchMethodException e) {

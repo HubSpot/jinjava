@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -10,13 +11,14 @@ import com.hubspot.jinjava.lib.tag.ElseTag;
 import com.hubspot.jinjava.lib.tag.IfTag;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.parse.NoteToken;
 import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
-import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 @Beta
@@ -94,6 +96,7 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     // We know this has to start as false otherwise IfTag would have chosen
     // the first branch.
     boolean definitelyExecuted = false;
+    StringBuilder prefixToPreserveState = new StringBuilder();
     StringBuilder sb = new StringBuilder();
     sb.append(
       getEagerImage(
@@ -154,11 +157,31 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       }
       branchStart = branchEnd + 1;
     }
-    PrefixToPreserveState prefixToPreserveState = EagerReconstructionUtils.deferWordsAndReconstructReferences(
-      interpreter,
-      bindingsToDefer
-    );
-    return prefixToPreserveState + sb.toString();
+    if (!bindingsToDefer.isEmpty()) {
+      bindingsToDefer =
+        bindingsToDefer
+          .stream()
+          .filter(key -> !(interpreter.getContext().get(key) instanceof DeferredValue))
+          .collect(Collectors.toSet());
+      if (!bindingsToDefer.isEmpty()) {
+        prefixToPreserveState.append(
+          EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+            interpreter,
+            new DeferredToken(
+              new NoteToken(
+                "",
+                interpreter.getLineNumber(),
+                interpreter.getPosition(),
+                interpreter.getConfig().getTokenScannerSymbols()
+              ),
+              bindingsToDefer
+            )
+          )
+        );
+      }
+      return sb.toString();
+    }
+    return sb.toString();
   }
 
   private String evaluateBranch(

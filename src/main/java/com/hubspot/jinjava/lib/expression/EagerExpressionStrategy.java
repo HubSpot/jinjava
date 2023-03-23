@@ -14,7 +14,6 @@ import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.Logging;
-import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -49,12 +48,9 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         .build()
     );
 
-    PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
-    if (
-      !eagerExecutionResult.getResult().isFullyResolved() ||
-      interpreter.getContext().isDeferredExecutionMode()
-    ) {
-      prefixToPreserveState.putAll(eagerExecutionResult.getPrefixToPreserveState());
+    StringBuilder prefixToPreserveState = new StringBuilder();
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
     } else {
       interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
     }
@@ -64,8 +60,8 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         prefixToPreserveState.toString() + postProcessResult(master, result, interpreter)
       );
     }
-    prefixToPreserveState.putAll(
-      EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
+    prefixToPreserveState.append(
+      EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
         eagerExecutionResult.getResult().getDeferredWords(),
         interpreter
       )
@@ -74,7 +70,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       eagerExecutionResult.getResult().toString(),
       interpreter
     );
-    prefixToPreserveState.withAllInFront(
+    prefixToPreserveState.append(
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
         interpreter,
         new DeferredToken(

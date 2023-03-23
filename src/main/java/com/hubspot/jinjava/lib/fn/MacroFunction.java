@@ -1,12 +1,15 @@
 package com.hubspot.jinjava.lib.fn;
 
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
+import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.eager.MacroFunctionTempVariable;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.tree.Node;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -14,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Function definition parsed from a jinjava template, stored in global macros registry in interpreter context.
@@ -22,19 +26,19 @@ import java.util.Optional;
  *
  */
 public class MacroFunction extends AbstractCallableMethod {
-  public static final String KWARGS_KEY = "kwargs";
-  public static final String VARARGS_KEY = "varargs";
-  protected final List<Node> content;
+  private final List<Node> content;
 
-  protected final boolean caller;
+  private final boolean caller;
 
-  protected final Context localContextScope;
+  private final Context localContextScope;
 
-  protected final int definitionLineNumber;
+  private final int definitionLineNumber;
 
-  protected final int definitionStartPosition;
+  private final int definitionStartPosition;
 
-  protected boolean deferred;
+  private boolean deferred;
+
+  private AtomicInteger callCount = new AtomicInteger();
 
   public MacroFunction(
     List<Node> content,
@@ -70,10 +74,33 @@ public class MacroFunction extends AbstractCallableMethod {
     Map<String, Object> kwargMap,
     List<Object> varArgs
   ) {
+    int currentCallCount = callCount.getAndIncrement();
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     Optional<String> importFile = getImportFile(interpreter);
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
-      return getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
+      String result = getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
+      if (
+        !interpreter.getContext().getDeferredNodes().isEmpty() ||
+        !interpreter.getContext().getDeferredTokens().isEmpty()
+      ) {
+        if (!interpreter.getContext().isPartialMacroEvaluation()) {
+          String tempVarName = MacroFunctionTempVariable.getVarName(
+            getName(),
+            hashCode(),
+            currentCallCount
+          );
+          interpreter
+            .getContext()
+            .getParent()
+            .put(tempVarName, new MacroFunctionTempVariable(result));
+          throw new DeferredParsingException(this, tempVarName);
+        }
+        if (interpreter.getContext().isDeferredExecutionMode()) {
+          return EagerReconstructionUtils.wrapInChildScope(result, interpreter);
+        }
+      }
+
+      return result;
     } finally {
       importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop());
     }
@@ -138,9 +165,9 @@ public class MacroFunction extends AbstractCallableMethod {
       interpreter.getContext().put(argEntry.getKey(), argEntry.getValue());
     }
     // parameter map
-    interpreter.getContext().put(KWARGS_KEY, kwargMap);
+    interpreter.getContext().put("kwargs", kwargMap);
     // varargs list
-    interpreter.getContext().put(VARARGS_KEY, varArgs);
+    interpreter.getContext().put("varargs", varArgs);
 
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxOutputSize()
