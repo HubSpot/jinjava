@@ -15,4 +15,8 @@ public interface DeferredValue {
   static DeferredValue instance(Object originalValue) {
     return DeferredValueImpl.instance(originalValue);
   }
+
+  static DeferredValueShadow shadowInstance(Object originalValue) {
+    return DeferredValueShadow.instance(originalValue);
+  }
 }

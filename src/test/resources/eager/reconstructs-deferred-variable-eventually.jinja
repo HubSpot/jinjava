@@ -1,0 +1,16 @@
+{% macro foo(var) %}
+{% do my_list.append(var) %}
+{% endmacro %}
+
+{% macro append_stuff() %}
+{% if deferred %}
+
+{{ foo('b') }}
+{{ foo('c') }}
+{% endif %}
+{% endmacro %}
+
+{% set my_list = [] %}
+{{ append_stuff() }}
+
+{{ my_list }}
