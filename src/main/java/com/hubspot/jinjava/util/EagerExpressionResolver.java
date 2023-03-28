@@ -53,20 +53,13 @@ public class EagerExpressionResolver {
     "false",
     "__macros__",
     ExtendedParser.INTERPRETER,
-    "exptest",
-    "filter"
-  );
-
-  private static final Set<Class<?>> RESOLVABLE_CLASSES = ImmutableSet.of(
-    String.class,
-    Boolean.class,
-    Number.class
+    "exptest"
   );
 
   private static final Pattern NAMED_PARAMETER_KEY_PATTERN = Pattern.compile(
     "[\\w.]+=([^=]|$)"
   );
-  private static final Pattern DICTIONARY_KEY_PATTERN = Pattern.compile("[\\w]+: ");
+  private static final Pattern DICTIONARY_KEY_PATTERN = Pattern.compile("\\w+: ");
 
   /**
    * Resolve the expression while handling deferred values.
@@ -74,7 +67,7 @@ public class EagerExpressionResolver {
    * partially resolved string as well as a set of any words that couldn't be resolved.
    * If a DeferredParsingException is thrown, the expression was partially resolved.
    * If a DeferredValueException is thrown, the expression could not be resolved at all.
-   *
+   * <p>
    * E.g with foo=3, bar=2:
    *   "range(0,foo)[-1] + deferred/bar" -> "2 + deferred/2"
    */
@@ -120,7 +113,7 @@ public class EagerExpressionResolver {
   }
 
   // Find any unresolved variables, functions, etc in this expression to mark as deferred.
-  private static Set<String> findDeferredWords(
+  public static Set<String> findDeferredWords(
     String partiallyResolved,
     JinjavaInterpreter interpreter
   ) {
@@ -487,7 +480,7 @@ public class EagerExpressionResolver {
       PARTIAL(false),
       NONE(false);
 
-      boolean fullyResolved;
+      final boolean fullyResolved;
 
       ResolutionState(boolean fullyResolved) {
         this.fullyResolved = fullyResolved;
