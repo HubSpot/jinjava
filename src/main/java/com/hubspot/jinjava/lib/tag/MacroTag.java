@@ -137,16 +137,7 @@ public class MacroTag implements Tag {
           .getContext()
           .put(Context.IMPORT_RESOURCE_PATH_KEY, contextImportResourcePath);
       }
-      macro =
-        new MacroFunction(
-          tagNode.getChildren(),
-          name,
-          argNamesWithDefaults,
-          false,
-          interpreter.getContext(),
-          interpreter.getLineNumber(),
-          interpreter.getPosition()
-        );
+      macro = constructMacroFunction(tagNode, interpreter, name, argNamesWithDefaults);
     } finally {
       if (scopeEntered) {
         interpreter.leaveScope();
@@ -200,6 +191,23 @@ public class MacroTag implements Tag {
     }
 
     return "";
+  }
+
+  protected MacroFunction constructMacroFunction(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    String name,
+    LinkedHashMap<String, Object> argNamesWithDefaults
+  ) {
+    return new MacroFunction(
+      tagNode.getChildren(),
+      name,
+      argNamesWithDefaults,
+      false,
+      interpreter.getContext(),
+      interpreter.getLineNumber(),
+      interpreter.getPosition()
+    );
   }
 
   public static boolean populateArgNames(
