@@ -130,13 +130,47 @@ public class EagerReconstructionUtils {
     reconstructedValues.putAll(
       reconstructMacroFunctionsBeforeDeferring(deferredWords, interpreter)
     );
+    Set<String> deferredWordBases = filterToRelevantBases(deferredWords, interpreter);
     reconstructedValues.putAll(
-      reconstructBlockSetVariablesBeforeDeferring(deferredWords, interpreter)
+      reconstructBlockSetVariablesBeforeDeferring(deferredWordBases, interpreter)
     );
     reconstructedValues.putAll(
-      reconstructInlineSetVariablesBeforeDeferring(deferredWords, interpreter)
+      reconstructInlineSetVariablesBeforeDeferring(deferredWordBases, interpreter)
     );
     return reconstructedValues;
+  }
+
+  private static Set<String> filterToRelevantBases(
+    Set<String> deferredWords,
+    JinjavaInterpreter interpreter
+  ) {
+    Map<String, Object> combinedScope = interpreter.getContext().getCombinedScope();
+    Set<String> deferredWordBases = deferredWords
+      .stream()
+      .map(w -> w.split("\\.", 2)[0])
+      .filter(combinedScope::containsKey)
+      .collect(Collectors.toSet());
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      Context parent = interpreter.getContext().getParent();
+      while (parent.isDeferredExecutionMode()) {
+        parent = parent.getParent();
+      }
+      final Context finalParent = parent;
+      deferredWordBases =
+        deferredWordBases
+          .stream()
+          .filter(
+            word -> {
+              Object parentValue = finalParent.get(word);
+              return (
+                !(parentValue instanceof DeferredValue) &&
+                interpreter.getContext().get(word) != finalParent.get(word)
+              );
+            }
+          )
+          .collect(Collectors.toSet());
+    }
+    return deferredWordBases;
   }
 
   /**
@@ -205,37 +239,13 @@ public class EagerReconstructionUtils {
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
-    Set<String> filteredDeferredWords = deferredWords
-      .stream()
-      .map(w -> w.split("\\.", 2)[0])
-      .collect(Collectors.toSet()); // get base prop
-    if (interpreter.getContext().isDeferredExecutionMode()) {
-      Context parent = interpreter.getContext().getParent();
-      while (parent.isDeferredExecutionMode()) {
-        parent = parent.getParent();
-      }
-      final Context finalParent = parent;
-      filteredDeferredWords =
-        deferredWords
-          .stream()
-          .filter(
-            word -> {
-              Object parentValue = finalParent.get(word);
-              return (
-                !(parentValue instanceof DeferredValue) &&
-                interpreter.getContext().get(word) != finalParent.get(word)
-              );
-            }
-          )
-          .collect(Collectors.toSet());
-    }
-    if (filteredDeferredWords.isEmpty()) {
+    if (deferredWords.isEmpty()) {
       return Collections.emptyMap();
     }
     Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
     Map<String, PyishBlockSetSerializable> blockSetMap = new HashMap<>();
 
-    filteredDeferredWords
+    deferredWords
       .stream()
       .filter(w -> !metaContextVariables.contains(w))
       .filter(w -> interpreter.getContext().get(w) instanceof PyishBlockSetSerializable)
@@ -243,7 +253,7 @@ public class EagerReconstructionUtils {
         w ->
           blockSetMap.put(w, (PyishBlockSetSerializable) interpreter.getContext().get(w))
       );
-    filteredDeferredWords
+    deferredWords
       .stream()
       .filter(
         w -> {
@@ -290,36 +300,12 @@ public class EagerReconstructionUtils {
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
-    Set<String> filteredDeferredWords = deferredWords
-      .stream()
-      .map(w -> w.split("\\.", 2)[0])
-      .collect(Collectors.toSet()); // get base prop
-    if (interpreter.getContext().isDeferredExecutionMode()) {
-      Context parent = interpreter.getContext().getParent();
-      while (parent.isDeferredExecutionMode()) {
-        parent = parent.getParent();
-      }
-      final Context finalParent = parent;
-      filteredDeferredWords =
-        filteredDeferredWords
-          .stream()
-          .filter(
-            word -> {
-              Object parentValue = finalParent.get(word);
-              return (
-                !(parentValue instanceof DeferredValue) &&
-                interpreter.getContext().get(word) != finalParent.get(word)
-              );
-            }
-          )
-          .collect(Collectors.toSet());
-    }
-    if (filteredDeferredWords.isEmpty()) {
+    if (deferredWords.isEmpty()) {
       return Collections.emptyMap();
     }
     Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
     Map<String, String> deferredMap = new HashMap<>();
-    filteredDeferredWords
+    deferredWords
       .stream()
       .filter(
         w ->
@@ -333,7 +319,7 @@ public class EagerReconstructionUtils {
           deferredMap.put(w, PyishObjectMapper.getAsPyishString(value));
         }
       );
-    filteredDeferredWords
+    deferredWords
       .stream()
       .map(w -> w.split("\\.", 2)[0]) // get base prop
       .filter(w -> (interpreter.getContext().get(w) instanceof DeferredLazyReference))
