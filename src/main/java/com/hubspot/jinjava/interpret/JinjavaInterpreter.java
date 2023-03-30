@@ -73,6 +73,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class JinjavaInterpreter implements PyishSerializable {
+  public static final String IGNORED_OUTPUT_FROM_EXTENDS_NOTE =
+    "ignored_output_from_extends";
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
   private final LinkedList<Node> extendParentRoots = new LinkedList<>();
   private final Map<String, RevertibleObject> revertibleObjects = new HashMap<>();
@@ -399,11 +401,15 @@ public class JinjavaInterpreter implements PyishSerializable {
     resolveBlockStubs(output);
     if (ignoredOutput.length() > 0) {
       return (
-        EagerReconstructionUtils.wrapInTag(
-          ignoredOutput.toString(),
-          DoTag.TAG_NAME,
-          this,
-          false
+        EagerReconstructionUtils.labelWithNotes(
+          EagerReconstructionUtils.wrapInTag(
+            ignoredOutput.toString(),
+            DoTag.TAG_NAME,
+            this,
+            false
+          ),
+          IGNORED_OUTPUT_FROM_EXTENDS_NOTE,
+          this
         ) +
         output.getValue()
       );
