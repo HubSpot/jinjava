@@ -26,6 +26,7 @@ import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.NoteToken;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.util.EagerContextWatcher.EagerChildContextConfig;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import java.util.AbstractMap;
@@ -563,7 +564,8 @@ public class EagerReconstructionUtils {
    *                           token as an {@link DeferredToken}.
    * @return A jinjava-syntax string that is the image of a block set tag that will
    *  be executed at a later time.
-   */public static String wrapInTag(
+   */
+  public static String wrapInTag(
     String body,
     String tagNameToWrap,
     JinjavaInterpreter interpreter,
@@ -577,12 +579,9 @@ public class EagerReconstructionUtils {
     ) {
       throw new DisabledException(String.format("%s tag disabled", tagNameToWrap));
     }
-    LengthLimitingStringJoiner blockSetTokenBuilder = new LengthLimitingStringJoiner(
-      interpreter.getConfig().getMaxOutputSize(),
-      " "
-    );
+    StringJoiner startTokenBuilder = new StringJoiner(" ");
     StringJoiner endTokenBuilder = new StringJoiner(" ");
-    blockSetTokenBuilder
+    startTokenBuilder
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
       .add(tagNameToWrap)
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag());
@@ -590,13 +589,13 @@ public class EagerReconstructionUtils {
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
       .add("end" + tagNameToWrap)
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag());
-    String image = blockSetTokenBuilder + body + endTokenBuilder;
+    String image = startTokenBuilder + body + endTokenBuilder;
     if (registerDeferredToken) {
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
         interpreter,
         new DeferredToken(
           new TagToken(
-            blockSetTokenBuilder.toString(),
+            startTokenBuilder.toString(),
             interpreter.getLineNumber(),
             interpreter.getPosition(),
             interpreter.getConfig().getTokenScannerSymbols()
@@ -607,6 +606,48 @@ public class EagerReconstructionUtils {
       );
     }
     return image;
+  }
+
+  /**
+   * Surround the {@param body} with notes to provide identifying information on what {@param body} is.
+   * If {@param noteIdentifier} is {@code foo} and {@param body} is {@code {{ bar }}}, the result will be:
+   * <p>
+   * {@code {# foo #}{{ bar }}{# endfoo #}}
+   * @param body The string body to wrap.
+   * @param noteIdentifier The identifier for the note.
+   * @param interpreter The Jinjava interpreter.
+   * @return A block surrounded with labelled notes
+   */
+  public static String labelWithNotes(
+    String body,
+    String noteIdentifier,
+    JinjavaInterpreter interpreter
+  ) {
+    return (
+      getStartLabel(noteIdentifier, interpreter.getConfig().getTokenScannerSymbols()) +
+      body +
+      getEndLabel(noteIdentifier, interpreter.getConfig().getTokenScannerSymbols())
+    );
+  }
+
+  public static String getStartLabel(String noteIdentifier, TokenScannerSymbols symbols) {
+    StringJoiner stringJoiner = new StringJoiner(" ");
+    return stringJoiner
+      .add(symbols.getOpeningComment())
+      .add("Start Label: ")
+      .add(noteIdentifier)
+      .add(symbols.getClosingComment())
+      .toString();
+  }
+
+  public static String getEndLabel(String noteIdentifier, TokenScannerSymbols symbols) {
+    StringJoiner stringJoiner = new StringJoiner(" ");
+    return stringJoiner
+      .add(symbols.getOpeningComment())
+      .add("End Label: ")
+      .add(noteIdentifier)
+      .add(symbols.getClosingComment())
+      .toString();
   }
 
   public static String wrapInChildScope(String toWrap, JinjavaInterpreter interpreter) {
