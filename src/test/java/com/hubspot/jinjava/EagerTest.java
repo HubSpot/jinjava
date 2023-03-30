@@ -1324,4 +1324,11 @@ public class EagerTest {
       "doesnt-double-append-in-deferred-macro"
     );
   }
+
+  @Test
+  public void itDoesNotReconstructVariableInSetInWrongScope() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "does-not-reconstruct-variable-in-set-in-wrong-scope"
+    );
+  }
 }
