@@ -28,6 +28,7 @@ import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.InterpreterFactory;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreterFactory;
+import com.hubspot.jinjava.interpret.timing.TimingLevel;
 import com.hubspot.jinjava.mode.DefaultExecutionMode;
 import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.objects.date.CurrentDateTimeProvider;
@@ -79,6 +80,8 @@ public class JinjavaConfig {
   private final LegacyOverrides legacyOverrides;
   private final boolean enablePreciseDivideFilter;
   private final ObjectMapper objectMapper;
+
+  private final TimingLevel timingLevel;
 
   private final ObjectUnwrapper objectUnwrapper;
   private final BiConsumer<Node, JinjavaInterpreter> nodePreProcessor;
@@ -140,6 +143,7 @@ public class JinjavaConfig {
     objectMapper = setupObjectMapper(builder.objectMapper);
     objectUnwrapper = builder.objectUnwrapper;
     nodePreProcessor = builder.nodePreProcessor;
+    timingLevel = builder.timingLevel;
   }
 
   private ObjectMapper setupObjectMapper(@Nullable ObjectMapper objectMapper) {
@@ -280,6 +284,10 @@ public class JinjavaConfig {
     return dateTimeProvider;
   }
 
+  public TimingLevel getTimingLevel() {
+    return timingLevel;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -311,6 +319,8 @@ public class JinjavaConfig {
     private LegacyOverrides legacyOverrides = LegacyOverrides.NONE;
     private boolean enablePreciseDivideFilter = false;
     private ObjectMapper objectMapper = null;
+
+    private TimingLevel timingLevel = TimingLevel.NONE;
 
     private ObjectUnwrapper objectUnwrapper = new JinjavaObjectUnwrapper();
     private BiConsumer<Node, JinjavaInterpreter> nodePreProcessor = new JinjavaNodePreProcessor();
@@ -484,6 +494,11 @@ public class JinjavaConfig {
       BiConsumer<Node, JinjavaInterpreter> nodePreProcessor
     ) {
       this.nodePreProcessor = nodePreProcessor;
+      return this;
+    }
+
+    public Builder withTimingLevel(TimingLevel timingLevel) {
+      this.timingLevel = timingLevel;
       return this;
     }
 

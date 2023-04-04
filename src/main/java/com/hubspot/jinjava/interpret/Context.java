@@ -20,6 +20,8 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
+import com.hubspot.jinjava.interpret.timing.TimingLevel;
+import com.hubspot.jinjava.interpret.timing.Timings;
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.lib.expression.DefaultExpressionStrategy;
 import com.hubspot.jinjava.lib.expression.ExpressionStrategy;
@@ -57,9 +59,10 @@ public class Context extends ScopeMap<String, Object> {
     "deferred_import_resource_path";
 
   public static final String IMPORT_RESOURCE_ALIAS_KEY = "import_resource_alias";
+  private final TimingLevel maxLevel;
 
   private SetMultimap<String, String> dependencies = HashMultimap.create();
-  private Map<Library, Set<String>> disabled;
+  private final Map<Library, Set<String>> disabled;
 
   public boolean isValidationMode() {
     return validationMode;
@@ -83,6 +86,8 @@ public class Context extends ScopeMap<String, Object> {
   private final CallStack macroStack;
   private final CallStack fromStack;
   private final CallStack currentPathStack;
+
+  private Timings timings;
 
   private final Set<String> resolvedExpressions = new HashSet<>();
   private final Set<String> resolvedValues = new HashSet<>();
@@ -119,15 +124,15 @@ public class Context extends ScopeMap<String, Object> {
   private Node currentNode;
 
   public Context() {
-    this(null, null, null, true);
+    this(null, null, null, true, TimingLevel.NONE);
   }
 
   public Context(Context parent) {
-    this(parent, null, null, true);
+    this(parent, null, null, true, TimingLevel.NONE);
   }
 
   public Context(Context parent, Map<String, ?> bindings) {
-    this(parent, bindings, null, true);
+    this(parent, bindings, null, true, TimingLevel.NONE);
   }
 
   public Context(
@@ -135,7 +140,7 @@ public class Context extends ScopeMap<String, Object> {
     Map<String, ?> bindings,
     Map<Library, Set<String>> disabled
   ) {
-    this(parent, bindings, disabled, true);
+    this(parent, bindings, disabled, true, TimingLevel.NONE);
   }
 
   public Context(
@@ -144,7 +149,18 @@ public class Context extends ScopeMap<String, Object> {
     Map<Library, Set<String>> disabled,
     boolean makeNewCallStacks
   ) {
+    this(parent, bindings, disabled, makeNewCallStacks, TimingLevel.NONE);
+  }
+
+  public Context(
+    Context parent,
+    Map<String, ?> bindings,
+    Map<Library, Set<String>> disabled,
+    boolean makeNewCallStacks,
+    TimingLevel maxLevel
+  ) {
     super(parent);
+    this.maxLevel = maxLevel;
     this.disabled = disabled;
 
     if (bindings != null) {
@@ -216,6 +232,7 @@ public class Context extends ScopeMap<String, Object> {
       this.deferredExecutionMode = parent.deferredExecutionMode;
       this.deferLargeObjects = parent.deferLargeObjects;
       this.throwInterpreterErrors = parent.throwInterpreterErrors;
+      this.timings = parent.getTimings();
     }
   }
 
@@ -227,6 +244,7 @@ public class Context extends ScopeMap<String, Object> {
     dependencies = HashMultimap.create();
     deferredNodes = new HashSet<>();
     deferredTokens = new HashSet<>();
+    timings.clear();
   }
 
   @Override
@@ -411,6 +429,10 @@ public class Context extends ScopeMap<String, Object> {
   @Beta
   public Set<DeferredToken> getDeferredTokens() {
     return deferredTokens;
+  }
+
+  public Timings getTimings() {
+    return timings;
   }
 
   public Map<String, Object> getCombinedScope() {

@@ -33,6 +33,8 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.interpret.timing.TimingBlock;
+import com.hubspot.jinjava.interpret.timing.TimingLevel;
 import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.ExtendsTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerGenericTag;
@@ -303,11 +305,16 @@ public class JinjavaInterpreter implements PyishSerializable {
         } else {
           OutputNode out;
           context.pushRenderStack(renderStr);
+          TimingBlock timingBlock = context
+            .getTimings()
+            .start(new TimingBlock(renderStr, "", lineNumber, position, TimingLevel.LOW));
           try {
             out = node.render(this);
           } catch (DeferredValueException e) {
             context.handleDeferredNode(node);
             out = new RenderedOutputNode(node.getMaster().getImage());
+          } finally {
+            context.getTimings().end(timingBlock);
           }
           context.popRenderStack();
           output.addNode(out);
@@ -847,27 +854,6 @@ public class JinjavaInterpreter implements PyishSerializable {
   public static void popCurrent() {
     if (!CURRENT_INTERPRETER.get().isEmpty()) {
       CURRENT_INTERPRETER.get().pop();
-    }
-  }
-
-  public void startRender(String name) {
-    RenderTimings renderTimings = (RenderTimings) getContext().get("request");
-    if (renderTimings != null) {
-      renderTimings.start(this, name);
-    }
-  }
-
-  public void endRender(String name) {
-    RenderTimings renderTimings = (RenderTimings) getContext().get("request");
-    if (renderTimings != null) {
-      renderTimings.end(this, name);
-    }
-  }
-
-  public void endRender(String name, Map<String, Object> data) {
-    RenderTimings renderTimings = (RenderTimings) getContext().get("request");
-    if (renderTimings != null) {
-      renderTimings.end(this, name, data);
     }
   }
 

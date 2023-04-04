@@ -17,6 +17,9 @@ package com.hubspot.jinjava.tree;
 
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.timing.TimingBlock;
+import com.hubspot.jinjava.interpret.timing.TimingLevel;
+import com.hubspot.jinjava.interpret.timing.Timings;
 import com.hubspot.jinjava.lib.expression.DefaultExpressionStrategy;
 import com.hubspot.jinjava.lib.expression.ExpressionStrategy;
 import com.hubspot.jinjava.tree.output.OutputNode;
@@ -43,12 +46,24 @@ public class ExpressionNode extends Node {
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
+    Timings timings = interpreter.getContext().getTimings();
+    TimingBlock timingBlock = timings.start(
+      new TimingBlock(
+        master.getImage(),
+        "",
+        interpreter.getLineNumber(),
+        interpreter.getPosition(),
+        TimingLevel.HIGH
+      )
+    );
     preProcess(interpreter);
     try {
       return expressionStrategy.interpretOutput(master, interpreter);
     } catch (DeferredValueException e) {
       interpreter.getContext().handleDeferredNode(this);
       return new RenderedOutputNode(master.getImage());
+    } finally {
+      timings.end(timingBlock);
     }
   }
 

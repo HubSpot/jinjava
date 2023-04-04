@@ -21,6 +21,9 @@ import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
+import com.hubspot.jinjava.interpret.timing.TimingBlock;
+import com.hubspot.jinjava.interpret.timing.TimingLevel;
+import com.hubspot.jinjava.interpret.timing.Timings;
 import com.hubspot.jinjava.lib.tag.FlexibleTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.output.OutputNode;
@@ -44,6 +47,16 @@ public class TagNode extends Node {
 
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
+    Timings timings = interpreter.getContext().getTimings();
+    TimingBlock timingBlock = timings.start(
+      new TimingBlock(
+        master.getImage(),
+        "",
+        master.getLineNumber(),
+        master.getStartPosition(),
+        TimingLevel.HIGH
+      )
+    );
     preProcess(interpreter);
     if (
       interpreter.getContext().isValidationMode() && !tag.isRenderedInValidationMode()
@@ -72,6 +85,8 @@ public class TagNode extends Node {
         master.getLineNumber(),
         master.getStartPosition()
       );
+    } finally {
+      timings.end(timingBlock);
     }
   }
 
