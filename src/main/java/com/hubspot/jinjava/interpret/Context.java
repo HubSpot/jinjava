@@ -216,6 +216,8 @@ public class Context extends ScopeMap<String, Object> {
       disabled = new HashMap<>();
     }
 
+    this.timings = new Timings(maxLevel);
+
     this.expTestLibrary =
       new ExpTestLibrary(parent == null, disabled.get(Library.EXP_TEST));
     this.filterLibrary = new FilterLibrary(parent == null, disabled.get(Library.FILTER));
