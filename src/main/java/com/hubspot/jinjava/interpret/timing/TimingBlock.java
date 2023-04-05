@@ -3,8 +3,10 @@ package com.hubspot.jinjava.interpret.timing;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class TimingBlock {
@@ -71,10 +73,10 @@ public class TimingBlock {
   }
 
   public long getDuration() {
-    return this.end - this.start;
+    return TimeUnit.NANOSECONDS.toMillis(this.end - this.start);
   }
 
-  public LinkedList<TimingBlock> getChildren() {
+  public List<TimingBlock> getChildren() {
     return children;
   }
 
@@ -98,13 +100,17 @@ public class TimingBlock {
     return block;
   }
 
-  public String toString(TimingLevel maxLevel) {
+  public String toString(TimingLevel maxLevel, int minMillis) {
     if (timingLevel.getValue() > maxLevel.getValue()) {
       return "";
     }
+    if (getDuration() < minMillis) {
+      return "";
+    }
+
     StringBuilder s = new StringBuilder(name)
       .append(": ")
-      .append(getDuration() / 1000)
+      .append(getDuration())
       .append(" ms.");
 
     if (data != null && !data.isEmpty()) {
@@ -122,7 +128,7 @@ public class TimingBlock {
     if (children.size() > 0) {
       StringBuilder childrenStringBuilder = new StringBuilder();
       for (TimingBlock b : children) {
-        for (String line : b.toString(maxLevel).split("\n")) {
+        for (String line : b.toString(maxLevel, minMillis).split("\n")) {
           if (!line.isEmpty()) {
             childrenStringBuilder.append('\t').append(line).append('\n');
           }

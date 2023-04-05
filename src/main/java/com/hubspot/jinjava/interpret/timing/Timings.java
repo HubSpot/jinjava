@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.interpret.timing;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 import java.util.StringJoiner;
 import java.util.function.Supplier;
@@ -7,6 +9,7 @@ import java.util.stream.Collectors;
 
 public class Timings {
   private final Stack<TimingBlock> blockStack = new Stack<>();
+  private final List<TimingBlock> blocks = new ArrayList<>();
   private final long start;
 
   private final TimingLevel maxLevel;
@@ -14,20 +17,24 @@ public class Timings {
   public Timings(TimingLevel maxLevel) {
     this.start = System.nanoTime();
     this.maxLevel = maxLevel;
-    blockStack.add(new TimingBlock("root", "", 0, 0, TimingLevel.LOW));
   }
 
   public TimingBlock start(TimingBlock block) {
     if (block.getLevel().getValue() < maxLevel.getValue()) {
-      blockStack.peek().startChild(block);
-      blockStack.push(block);
+      if (blockStack.isEmpty()) {
+        blockStack.push(block.start());
+        blocks.add(block);
+      } else {
+        blockStack.peek().startChild(block);
+        blockStack.push(block);
+      }
     }
     return block;
   }
 
   public void end(TimingBlock block) {
     block.end();
-    if (blockStack.peek() == block) {
+    if (!blockStack.isEmpty() && blockStack.peek() == block) {
       blockStack.pop();
     }
   }
@@ -36,8 +43,8 @@ public class Timings {
     return start;
   }
 
-  public Stack<TimingBlock> getBlocks() {
-    return blockStack;
+  public List<TimingBlock> getBlocks() {
+    return blocks;
   }
 
   public <I> I record(TimingBlock timingBlock, Supplier<I> func) {
@@ -66,14 +73,15 @@ public class Timings {
       .toString();
   }
 
-  public String toString(TimingLevel maxLevel) {
+  public String toString(TimingLevel maxLevel, int minMillis) {
     return getBlocks()
       .stream()
-      .map(b -> b.toString(maxLevel))
-      .collect(Collectors.joining(","));
+      .map(b -> b.toString(maxLevel, minMillis))
+      .collect(Collectors.joining("\n"));
   }
 
   public void clear() {
     this.blockStack.clear();
+    blockStack.add(new TimingBlock("root", "", 0, 0, TimingLevel.LOW));
   }
 }

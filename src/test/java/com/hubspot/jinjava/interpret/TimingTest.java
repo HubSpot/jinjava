@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.timing.TimingBlock;
 import com.hubspot.jinjava.interpret.timing.TimingLevel;
 import com.hubspot.jinjava.interpret.timing.Timings;
-import java.util.LinkedList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,9 +37,8 @@ public class TimingTest {
     timingBlock.putData("new", "zealand");
     timings.end(timingBlock);
 
-    assertThat(timings.getBlocks()).hasSize(1);
-    LinkedList<TimingBlock> children = timings.getBlocks().get(0).getChildren();
-    assertThat(children).hasSize(2);
+    assertThat(timings.getBlocks()).hasSize(2);
+    List<TimingBlock> children = timings.getBlocks();
     assertThat(children.get(0).getName()).isEqualTo("foo1");
     assertThat(children.get(0).getDuration()).isGreaterThan(9);
     assertThat(children.get(1).getName()).isEqualTo("foo2");
@@ -52,19 +51,30 @@ public class TimingTest {
       new TimingBlock("parent", "bar", 1, 1, TimingLevel.LOW)
     );
     sleep(10);
-    TimingBlock child = timings.start(
-      new TimingBlock("child", "bar", 1, 1, TimingLevel.LOW)
+    TimingBlock child1 = timings.start(
+      new TimingBlock("child1", "bar", 1, 1, TimingLevel.LOW)
     );
     sleep(10);
-    timings.end(child);
+    TimingBlock grandChild = timings.start(
+      new TimingBlock("grandChild1", "bar", 1, 1, TimingLevel.LOW)
+    );
+    sleep(20);
+    timings.end(grandChild);
+    timings.end(child1);
+
+    TimingBlock child2 = timings.start(
+      new TimingBlock("child2", "bar", 1, 1, TimingLevel.LOW)
+    );
+    sleep(10);
+    timings.end(child2);
+
     timings.end(parent);
 
-    LinkedList<TimingBlock> children = timings.getBlocks().get(0).getChildren();
     assertThat(timings.getBlocks()).hasSize(1);
-    assertThat(children).hasSize(1);
-    assertThat(children.get(0)).isEqualTo(parent);
-    assertThat(children.get(0).getChildren()).hasSize(1);
-    assertThat(children.get(0).getChildren().get(0)).isEqualTo(child);
+    assertThat(timings.getBlocks().get(0)).isEqualTo(parent);
+    assertThat(timings.getBlocks().get(0).getChildren()).containsExactly(child1, child2);
+    assertThat(timings.getBlocks().get(0).getChildren().get(0).getChildren())
+      .containsExactly(grandChild);
   }
 
   @Test
@@ -82,11 +92,39 @@ public class TimingTest {
     timings.end(child2);
     timings.end(parent);
 
-    assertThat(timings.toString(TimingLevel.ALL)).contains("child1").contains("child2");
+    assertThat(timings.toString(TimingLevel.ALL, 0))
+      .contains("child1")
+      .contains("child2");
 
-    assertThat(timings.toString(TimingLevel.LOW))
+    assertThat(timings.toString(TimingLevel.LOW, 0))
       .contains("child1")
       .doesNotContain("child2");
+  }
+
+  @Test
+  public void itFiltersToStringByDuration() {
+    TimingBlock parent = timings.start(
+      new TimingBlock("parent", "bar", 1, 1, TimingLevel.LOW)
+    );
+    TimingBlock child1 = timings.start(
+      new TimingBlock("slowKid", "bar", 1, 1, TimingLevel.LOW)
+    );
+    sleep(100);
+    timings.end(child1);
+    TimingBlock child2 = timings.start(
+      new TimingBlock("fastKid", "bar", 1, 1, TimingLevel.HIGH)
+    );
+    sleep(1);
+    timings.end(child2);
+    timings.end(parent);
+
+    assertThat(timings.toString(TimingLevel.ALL, 0))
+      .contains("slowKid")
+      .contains("fastKid");
+
+    assertThat(timings.toString(TimingLevel.ALL, 10))
+      .contains("slowKid")
+      .doesNotContain("fastKid");
   }
 
   @Test
@@ -97,8 +135,6 @@ public class TimingTest {
     );
     timings.end(parent);
 
-    LinkedList<TimingBlock> children = timings.getBlocks().get(0).getChildren();
-    assertThat(timings.getBlocks()).hasSize(1);
-    assertThat(children).hasSize(0);
+    assertThat(timings.getBlocks()).isEmpty();
   }
 }
