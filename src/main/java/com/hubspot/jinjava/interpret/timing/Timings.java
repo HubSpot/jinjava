@@ -67,5 +67,6 @@ public class Timings {
 
   public void clear() {
     this.blockStack.clear();
+    this.blocks.clear();
   }
 }

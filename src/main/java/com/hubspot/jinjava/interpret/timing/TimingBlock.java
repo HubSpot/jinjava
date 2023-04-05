@@ -64,12 +64,16 @@ public class TimingBlock {
   }
 
   public TimingBlock start() {
-    this.start = System.nanoTime();
+    if (start == 0) {
+      this.start = System.nanoTime();
+    }
     return this;
   }
 
   void end() {
-    this.end = System.nanoTime();
+    if (end == 0) {
+      this.end = System.nanoTime();
+    }
   }
 
   public long getDuration() {
