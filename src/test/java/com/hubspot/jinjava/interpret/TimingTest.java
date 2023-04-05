@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.timing.TimingBlock;
 import com.hubspot.jinjava.interpret.timing.TimingLevel;
 import com.hubspot.jinjava.interpret.timing.Timings;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +42,8 @@ public class TimingTest {
     assertThat(timings.getBlocks()).hasSize(2);
     List<TimingBlock> children = timings.getBlocks();
     assertThat(children.get(0).getName()).isEqualTo("foo1");
-    assertThat(children.get(0).getDuration()).isGreaterThan(9);
+    assertThat(children.get(0).getDuration())
+      .isGreaterThan(Duration.of(9, ChronoUnit.MILLIS));
     assertThat(children.get(1).getName()).isEqualTo("foo2");
     assertThat(children.get(1).getData()).isEqualTo(ImmutableMap.of("new", "zealand"));
   }
@@ -92,11 +95,11 @@ public class TimingTest {
     timings.end(child2);
     timings.end(parent);
 
-    assertThat(timings.toString(TimingLevel.ALL, 0))
+    assertThat(timings.toString(TimingLevel.ALL, Duration.ZERO))
       .contains("child1")
       .contains("child2");
 
-    assertThat(timings.toString(TimingLevel.LOW, 0))
+    assertThat(timings.toString(TimingLevel.LOW, Duration.ZERO))
       .contains("child1")
       .doesNotContain("child2");
   }
@@ -118,11 +121,11 @@ public class TimingTest {
     timings.end(child2);
     timings.end(parent);
 
-    assertThat(timings.toString(TimingLevel.ALL, 0))
+    assertThat(timings.toString(TimingLevel.ALL, Duration.ZERO))
       .contains("slowKid")
       .contains("fastKid");
 
-    assertThat(timings.toString(TimingLevel.ALL, 100))
+    assertThat(timings.toString(TimingLevel.ALL, Duration.of(100, ChronoUnit.MILLIS)))
       .contains("slowKid")
       .doesNotContain("fastKid");
   }

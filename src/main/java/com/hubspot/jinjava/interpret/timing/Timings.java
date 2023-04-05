@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.interpret.timing;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -58,10 +59,10 @@ public class Timings {
     }
   }
 
-  public String toString(TimingLevel maxLevel, int minMillis) {
+  public String toString(TimingLevel maxLevel, Duration minDuration) {
     return getBlocks()
       .stream()
-      .map(b -> b.toString(maxLevel, minMillis))
+      .map(b -> b.toString(maxLevel, minDuration))
       .collect(Collectors.joining("\n"));
   }
 

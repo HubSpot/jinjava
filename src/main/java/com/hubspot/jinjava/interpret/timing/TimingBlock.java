@@ -1,12 +1,13 @@
 package com.hubspot.jinjava.interpret.timing;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class TimingBlock {
@@ -15,8 +16,8 @@ public class TimingBlock {
   private final int lineNumber;
   private final TimingLevel timingLevel;
   private final int position;
-  private long start;
-  private long end;
+  private Instant start;
+  private Instant end;
 
   private Map<String, Object> data;
   final LinkedList<TimingBlock> children = new LinkedList<>();
@@ -51,11 +52,11 @@ public class TimingBlock {
     return position;
   }
 
-  public long getStart() {
+  public Instant getStart() {
     return start;
   }
 
-  public long getEnd() {
+  public Instant getEnd() {
     return end;
   }
 
@@ -64,20 +65,27 @@ public class TimingBlock {
   }
 
   public TimingBlock start() {
-    if (start == 0) {
-      this.start = System.nanoTime();
+    if (start == null) {
+      this.start = Instant.now();
     }
     return this;
   }
 
   void end() {
-    if (end == 0) {
-      this.end = System.nanoTime();
+    if (end == null) {
+      this.end = Instant.now();
     }
   }
 
-  public long getDuration() {
-    return TimeUnit.NANOSECONDS.toMillis(this.end - this.start);
+  /**
+   * Override the duration. Will not be overwritten by any subsequent calls to {@link #end()}
+   */
+  void end(Duration duration) {
+    end = start.plus(duration);
+  }
+
+  public Duration getDuration() {
+    return Duration.between(start, end);
   }
 
   public List<TimingBlock> getChildren() {
@@ -104,11 +112,11 @@ public class TimingBlock {
     return block;
   }
 
-  public String toString(TimingLevel maxLevel, int minMillis) {
+  public String toString(TimingLevel maxLevel, Duration minDuration) {
     if (timingLevel.getValue() > maxLevel.getValue()) {
       return "";
     }
-    if (getDuration() < minMillis) {
+    if (getDuration().toNanos() < minDuration.toNanos()) {
       return "";
     }
 
@@ -132,7 +140,7 @@ public class TimingBlock {
     if (children.size() > 0) {
       StringBuilder childrenStringBuilder = new StringBuilder();
       for (TimingBlock b : children) {
-        for (String line : b.toString(maxLevel, minMillis).split("\n")) {
+        for (String line : b.toString(maxLevel, minDuration).split("\n")) {
           if (!line.isEmpty()) {
             childrenStringBuilder.append('\t').append(line).append('\n');
           }
