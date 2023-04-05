@@ -109,7 +109,7 @@ public class TimingTest {
     TimingBlock child1 = timings.start(
       new TimingBlock("slowKid", "bar", 1, 1, TimingLevel.LOW)
     );
-    sleep(100);
+    sleep(200);
     timings.end(child1);
     TimingBlock child2 = timings.start(
       new TimingBlock("fastKid", "bar", 1, 1, TimingLevel.HIGH)
@@ -122,7 +122,7 @@ public class TimingTest {
       .contains("slowKid")
       .contains("fastKid");
 
-    assertThat(timings.toString(TimingLevel.ALL, 10))
+    assertThat(timings.toString(TimingLevel.ALL, 100))
       .contains("slowKid")
       .doesNotContain("fastKid");
   }
