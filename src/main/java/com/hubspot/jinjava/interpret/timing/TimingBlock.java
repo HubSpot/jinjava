@@ -29,7 +29,7 @@ public class TimingBlock {
     int position,
     TimingLevel timingLevel
   ) {
-    this.name = name == null ? null : name.substring(0, Math.min(name.length(), 20));
+    this.name = name == null ? null : name.substring(0, Math.min(name.length(), 50));
     this.fileName = fileName;
     this.lineNumber = lineNumber;
     this.position = position;

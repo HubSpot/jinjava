@@ -58,6 +58,8 @@ public class Context extends ScopeMap<String, Object> {
   public static final String DEFERRED_IMPORT_RESOURCE_PATH_KEY =
     "deferred_import_resource_path";
 
+  private static final TimingLevel DEFAULT_TIMING_LEVEL = TimingLevel.ALWAYS;
+
   public static final String IMPORT_RESOURCE_ALIAS_KEY = "import_resource_alias";
   private final TimingLevel maxLevel;
 
@@ -124,15 +126,15 @@ public class Context extends ScopeMap<String, Object> {
   private Node currentNode;
 
   public Context() {
-    this(null, null, null, true, TimingLevel.NONE);
+    this(null, null, null, true, DEFAULT_TIMING_LEVEL);
   }
 
   public Context(Context parent) {
-    this(parent, null, null, true, TimingLevel.NONE);
+    this(parent, null, null, true, DEFAULT_TIMING_LEVEL);
   }
 
   public Context(Context parent, Map<String, ?> bindings) {
-    this(parent, bindings, null, true, TimingLevel.NONE);
+    this(parent, bindings, null, true, DEFAULT_TIMING_LEVEL);
   }
 
   public Context(
@@ -140,7 +142,7 @@ public class Context extends ScopeMap<String, Object> {
     Map<String, ?> bindings,
     Map<Library, Set<String>> disabled
   ) {
-    this(parent, bindings, disabled, true, TimingLevel.NONE);
+    this(parent, bindings, disabled, true, DEFAULT_TIMING_LEVEL);
   }
 
   public Context(
@@ -149,7 +151,7 @@ public class Context extends ScopeMap<String, Object> {
     Map<Library, Set<String>> disabled,
     boolean makeNewCallStacks
   ) {
-    this(parent, bindings, disabled, makeNewCallStacks, TimingLevel.NONE);
+    this(parent, bindings, disabled, makeNewCallStacks, DEFAULT_TIMING_LEVEL);
   }
 
   public Context(

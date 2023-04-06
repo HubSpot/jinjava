@@ -143,7 +143,7 @@ public class TimingTest {
   @Test
   public void itIgnoresTimingsAboveMaxLevel() {
     timings = new Timings(TimingLevel.LOW);
-    timings.end(timings.start(new TimingBlock("parent", "", 1, 1, TimingLevel.LOW)));
+    timings.end(timings.start(new TimingBlock("parent", "", 1, 1, TimingLevel.HIGH)));
 
     assertThat(timings.getBlocks()).isEmpty();
   }
