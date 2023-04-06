@@ -33,9 +33,13 @@ public class TextNode extends Node {
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
     preProcess(interpreter);
-    return new RenderedOutputNode(
-      interpreter.getContext().isValidationMode() ? "" : master.output()
-    );
+    try {
+      return new RenderedOutputNode(
+        interpreter.getContext().isValidationMode() ? "" : master.output()
+      );
+    } finally {
+      postProcess(interpreter);
+    }
   }
 
   @Override

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaNodePreProcessor;
+import com.hubspot.jinjava.el.JinjavaNodeProcessor;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
 import com.hubspot.jinjava.el.ObjectUnwrapper;
 import com.hubspot.jinjava.interpret.Context;
@@ -82,6 +83,7 @@ public class JinjavaConfig {
 
   private final ObjectUnwrapper objectUnwrapper;
   private final BiConsumer<Node, JinjavaInterpreter> nodePreProcessor;
+  private final BiConsumer<Node, JinjavaInterpreter> nodePostProcessor;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -140,6 +142,7 @@ public class JinjavaConfig {
     objectMapper = setupObjectMapper(builder.objectMapper);
     objectUnwrapper = builder.objectUnwrapper;
     nodePreProcessor = builder.nodePreProcessor;
+    nodePostProcessor = builder.nodePostProcessor;
   }
 
   private ObjectMapper setupObjectMapper(@Nullable ObjectMapper objectMapper) {
@@ -256,6 +259,10 @@ public class JinjavaConfig {
     return nodePreProcessor;
   }
 
+  public BiConsumer<Node, JinjavaInterpreter> getNodePostProcessor() {
+    return nodePostProcessor;
+  }
+
   /**
    * @deprecated  Replaced by {@link LegacyOverrides#isIterateOverMapKeys()}
    */
@@ -314,6 +321,7 @@ public class JinjavaConfig {
 
     private ObjectUnwrapper objectUnwrapper = new JinjavaObjectUnwrapper();
     private BiConsumer<Node, JinjavaInterpreter> nodePreProcessor = new JinjavaNodePreProcessor();
+    private BiConsumer<Node, JinjavaInterpreter> nodePostProcessor = new JinjavaNodeProcessor();
 
     private Builder() {}
 
@@ -484,6 +492,13 @@ public class JinjavaConfig {
       BiConsumer<Node, JinjavaInterpreter> nodePreProcessor
     ) {
       this.nodePreProcessor = nodePreProcessor;
+      return this;
+    }
+
+    public Builder withNodePostProcessor(
+      BiConsumer<Node, JinjavaInterpreter> nodePostProcessor
+    ) {
+      this.nodePostProcessor = nodePreProcessor;
       return this;
     }
 

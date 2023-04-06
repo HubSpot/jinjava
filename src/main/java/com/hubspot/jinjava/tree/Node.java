@@ -92,7 +92,7 @@ public abstract class Node implements Serializable {
     }
 
     if (getChildren().size() > 0) {
-      t.append(prefix).append("end :: ").append(toString()).append('\n');
+      t.append(prefix).append("end :: ").append(this).append('\n');
     }
 
     return t.toString();
@@ -100,5 +100,9 @@ public abstract class Node implements Serializable {
 
   public void preProcess(JinjavaInterpreter interpreter) {
     interpreter.getConfig().getNodePreProcessor().accept(this, interpreter);
+  }
+
+  public void postProcess(JinjavaInterpreter interpreter) {
+    interpreter.getConfig().getNodePostProcessor().accept(this, interpreter);
   }
 }
