@@ -1,7 +1,13 @@
 package com.hubspot.jinjava.interpret.timing;
 
+import java.time.Duration;
+
 public enum TimingLevel {
   NONE(0),
+
+  /**
+   * Ignores the duration when calling {@link Timings#toString(TimingLevel, Duration)}
+   */
   ALWAYS(1),
   LOW(10),
   HIGH(20),

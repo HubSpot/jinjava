@@ -116,7 +116,9 @@ public class TimingBlock {
     if (timingLevel.getValue() > maxLevel.getValue()) {
       return "";
     }
-    if (getDuration().toNanos() < minDuration.toNanos()) {
+    if (
+      timingLevel != TimingLevel.ALWAYS && getDuration().toNanos() < minDuration.toNanos()
+    ) {
       return "";
     }
 

@@ -131,12 +131,19 @@ public class TimingTest {
   }
 
   @Test
+  public void itIncludesShortDurationsWithAlways() {
+    timings.end(timings.start(new TimingBlock("always", "", 1, 1, TimingLevel.ALWAYS)));
+    timings.end(timings.start(new TimingBlock("low", "", 1, 1, TimingLevel.LOW)));
+
+    assertThat(timings.toString(TimingLevel.LOW, Duration.of(50, ChronoUnit.MILLIS)))
+      .contains("always")
+      .doesNotContain("low");
+  }
+
+  @Test
   public void itIgnoresTimingsAboveMaxLevel() {
-    timings = new Timings(TimingLevel.NONE);
-    TimingBlock parent = timings.start(
-      new TimingBlock("parent", "bar", 1, 1, TimingLevel.LOW)
-    );
-    timings.end(parent);
+    timings = new Timings(TimingLevel.LOW);
+    timings.end(timings.start(new TimingBlock("parent", "", 1, 1, TimingLevel.LOW)));
 
     assertThat(timings.getBlocks()).isEmpty();
   }
