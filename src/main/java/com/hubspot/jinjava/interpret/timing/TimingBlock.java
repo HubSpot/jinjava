@@ -80,7 +80,7 @@ public class TimingBlock {
   /**
    * Override the duration. Will not be overwritten by any subsequent calls to {@link #end()}
    */
-  void end(Duration duration) {
+  public void end(Duration duration) {
     end = start.plus(duration);
   }
 
@@ -122,7 +122,7 @@ public class TimingBlock {
 
     StringBuilder s = new StringBuilder(name)
       .append(": ")
-      .append(getDuration())
+      .append(getDuration().toMillis())
       .append(" ms.");
 
     if (data != null && !data.isEmpty()) {

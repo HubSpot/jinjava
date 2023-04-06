@@ -2,6 +2,7 @@ package com.hubspot.jinjava.interpret.timing;
 
 public enum TimingLevel {
   NONE(0),
+  ALWAYS(1),
   LOW(10),
   HIGH(20),
   ALL(30);
