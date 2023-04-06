@@ -80,7 +80,7 @@ public class TimingBlock {
   /**
    * Override the duration. Will not be overwritten by any subsequent calls to {@link #end()}
    */
-  public void end(Duration duration) {
+  public void setDuration(Duration duration) {
     end = start.plus(duration);
   }
 

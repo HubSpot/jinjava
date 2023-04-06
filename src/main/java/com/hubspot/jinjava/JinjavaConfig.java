@@ -80,9 +80,7 @@ public class JinjavaConfig {
   private final LegacyOverrides legacyOverrides;
   private final boolean enablePreciseDivideFilter;
   private final ObjectMapper objectMapper;
-
   private final TimingLevel timingLevel;
-
   private final ObjectUnwrapper objectUnwrapper;
   private final BiConsumer<Node, JinjavaInterpreter> nodePreProcessor;
 
@@ -320,7 +318,7 @@ public class JinjavaConfig {
     private boolean enablePreciseDivideFilter = false;
     private ObjectMapper objectMapper = null;
 
-    private TimingLevel timingLevel = TimingLevel.NONE;
+    private TimingLevel timingLevel = TimingLevel.ALWAYS;
 
     private ObjectUnwrapper objectUnwrapper = new JinjavaObjectUnwrapper();
     private BiConsumer<Node, JinjavaInterpreter> nodePreProcessor = new JinjavaNodePreProcessor();
