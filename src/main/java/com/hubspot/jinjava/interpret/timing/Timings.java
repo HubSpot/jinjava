@@ -18,6 +18,7 @@ public class Timings {
   }
 
   public TimingBlock start(TimingBlock block) {
+    block.start();
     if (block.getLevel().getValue() < maxLevel.getValue()) {
       if (blockStack.isEmpty()) {
         blockStack.push(block.start());
