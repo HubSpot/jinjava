@@ -39,6 +39,10 @@ public class JinjavaProcessors {
     return new Builder();
   }
 
+  public static Builder newBuilder(JinjavaProcessors processors) {
+    return new Builder(processors);
+  }
+
   public static class Builder {
     private BiConsumer<Node, JinjavaInterpreter> nodePreProcessor = (n, i) -> {};
     private BiConsumer<Node, JinjavaInterpreter> nodePostProcessor = (n, i) -> {};
@@ -47,6 +51,13 @@ public class JinjavaProcessors {
     private BiConsumer<Filter, JinjavaInterpreter> filterPostProcessor = (n, i) -> {};
 
     private Builder() {}
+
+    private Builder(JinjavaProcessors processors) {
+      this.nodePreProcessor = processors.nodePreProcessor;
+      this.nodePostProcessor = processors.nodePostProcessor;
+      this.filterPreProcessor = processors.filterPreProcessor;
+      this.filterPostProcessor = processors.filterPostProcessor;
+    }
 
     public Builder withNodePreProcessor(BiConsumer<Node, JinjavaInterpreter> processor) {
       this.nodePreProcessor = processor;

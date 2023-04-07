@@ -20,7 +20,6 @@ import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
-import com.hubspot.jinjava.el.JinjavaNodePreProcessor;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
 import com.hubspot.jinjava.el.JinjavaProcessors;
 import com.hubspot.jinjava.el.ObjectUnwrapper;
@@ -82,7 +81,6 @@ public class JinjavaConfig {
   private final ObjectMapper objectMapper;
 
   private final ObjectUnwrapper objectUnwrapper;
-  private final BiConsumer<Node, JinjavaInterpreter> nodePreProcessor;
   private final JinjavaProcessors processors;
 
   public static Builder newBuilder() {
@@ -141,7 +139,6 @@ public class JinjavaConfig {
     enablePreciseDivideFilter = builder.enablePreciseDivideFilter;
     objectMapper = setupObjectMapper(builder.objectMapper);
     objectUnwrapper = builder.objectUnwrapper;
-    nodePreProcessor = builder.nodePreProcessor;
     processors = builder.processors;
   }
 
@@ -260,7 +257,7 @@ public class JinjavaConfig {
    */
   @Deprecated
   public BiConsumer<Node, JinjavaInterpreter> getNodePreProcessor() {
-    return nodePreProcessor;
+    return processors.getNodePreProcessor();
   }
 
   public JinjavaProcessors getProcessors() {
@@ -324,11 +321,7 @@ public class JinjavaConfig {
     private ObjectMapper objectMapper = null;
 
     private ObjectUnwrapper objectUnwrapper = new JinjavaObjectUnwrapper();
-    private BiConsumer<Node, JinjavaInterpreter> nodePreProcessor = new JinjavaNodePreProcessor();
-    private JinjavaProcessors processors = JinjavaProcessors
-      .newBuilder()
-      .withNodePreProcessor(nodePreProcessor)
-      .build();
+    private JinjavaProcessors processors = JinjavaProcessors.newBuilder().build();
 
     private Builder() {}
 
@@ -502,7 +495,11 @@ public class JinjavaConfig {
     public Builder withNodePreProcessor(
       BiConsumer<Node, JinjavaInterpreter> nodePreProcessor
     ) {
-      this.nodePreProcessor = nodePreProcessor;
+      this.processors =
+        JinjavaProcessors
+          .newBuilder(processors)
+          .withNodePreProcessor(nodePreProcessor)
+          .build();
       return this;
     }
 

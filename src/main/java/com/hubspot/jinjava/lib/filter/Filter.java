@@ -64,16 +64,19 @@ public interface Filter extends Importable {
       filterArgs[i] = stringArgs.get(i);
     }
 
-    if (var instanceof SafeString) {
-      return filter((SafeString) var, interpreter, filterArgs);
-    }
-
     JinjavaProcessors processors = interpreter.getConfig().getProcessors();
 
     try {
+      // Note that this doesn't catch all filters as some override this method
+      // a proxy would be needed to catch them all
       if (processors != null && processors.getFilterPreProcessor() != null) {
         processors.getFilterPreProcessor().accept(this, interpreter);
       }
+
+      if (var instanceof SafeString) {
+        return filter((SafeString) var, interpreter, filterArgs);
+      }
+
       return filter(var, interpreter, filterArgs);
     } finally {
       if (processors != null && processors.getFilterPostProcessor() != null) {
