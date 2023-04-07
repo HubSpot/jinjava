@@ -15,6 +15,7 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
+import com.hubspot.jinjava.el.JinjavaProcessors;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.objects.SafeString;
@@ -67,7 +68,18 @@ public interface Filter extends Importable {
       return filter((SafeString) var, interpreter, filterArgs);
     }
 
-    return filter(var, interpreter, filterArgs);
+    JinjavaProcessors processors = interpreter.getConfig().getProcessors();
+
+    try {
+      if (processors != null && processors.getFilterPreProcessor() != null) {
+        processors.getFilterPreProcessor().accept(this, interpreter);
+      }
+      return filter(var, interpreter, filterArgs);
+    } finally {
+      if (processors != null && processors.getFilterPostProcessor() != null) {
+        processors.getFilterPostProcessor().accept(this, interpreter);
+      }
+    }
   }
 
   default boolean preserveSafeString() {

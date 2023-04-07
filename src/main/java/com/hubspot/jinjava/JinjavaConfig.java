@@ -21,8 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaNodePreProcessor;
-import com.hubspot.jinjava.el.JinjavaNodeProcessor;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
+import com.hubspot.jinjava.el.JinjavaProcessors;
 import com.hubspot.jinjava.el.ObjectUnwrapper;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -83,7 +83,7 @@ public class JinjavaConfig {
 
   private final ObjectUnwrapper objectUnwrapper;
   private final BiConsumer<Node, JinjavaInterpreter> nodePreProcessor;
-  private final BiConsumer<Node, JinjavaInterpreter> nodePostProcessor;
+  private final JinjavaProcessors processors;
 
   public static Builder newBuilder() {
     return new Builder();
@@ -142,7 +142,7 @@ public class JinjavaConfig {
     objectMapper = setupObjectMapper(builder.objectMapper);
     objectUnwrapper = builder.objectUnwrapper;
     nodePreProcessor = builder.nodePreProcessor;
-    nodePostProcessor = builder.nodePostProcessor;
+    processors = builder.processors;
   }
 
   private ObjectMapper setupObjectMapper(@Nullable ObjectMapper objectMapper) {
@@ -255,12 +255,16 @@ public class JinjavaConfig {
     return objectUnwrapper;
   }
 
+  /**
+   * @deprecated Use {@link #getProcessors()} and {@link JinjavaProcessors#getNodePreProcessor()}
+   */
+  @Deprecated
   public BiConsumer<Node, JinjavaInterpreter> getNodePreProcessor() {
     return nodePreProcessor;
   }
 
-  public BiConsumer<Node, JinjavaInterpreter> getNodePostProcessor() {
-    return nodePostProcessor;
+  public JinjavaProcessors getProcessors() {
+    return processors;
   }
 
   /**
@@ -321,7 +325,10 @@ public class JinjavaConfig {
 
     private ObjectUnwrapper objectUnwrapper = new JinjavaObjectUnwrapper();
     private BiConsumer<Node, JinjavaInterpreter> nodePreProcessor = new JinjavaNodePreProcessor();
-    private BiConsumer<Node, JinjavaInterpreter> nodePostProcessor = new JinjavaNodeProcessor();
+    private JinjavaProcessors processors = JinjavaProcessors
+      .newBuilder()
+      .withNodePreProcessor(nodePreProcessor)
+      .build();
 
     private Builder() {}
 
@@ -488,6 +495,10 @@ public class JinjavaConfig {
       return this;
     }
 
+    @Deprecated
+    /**
+     * @deprecated use {@link #withProcessors(JinjavaProcessors)}
+     */
     public Builder withNodePreProcessor(
       BiConsumer<Node, JinjavaInterpreter> nodePreProcessor
     ) {
@@ -495,10 +506,8 @@ public class JinjavaConfig {
       return this;
     }
 
-    public Builder withNodePostProcessor(
-      BiConsumer<Node, JinjavaInterpreter> nodePostProcessor
-    ) {
-      this.nodePostProcessor = nodePreProcessor;
+    public Builder withProcessors(JinjavaProcessors jinjavaProcessors) {
+      this.processors = jinjavaProcessors;
       return this;
     }
 
