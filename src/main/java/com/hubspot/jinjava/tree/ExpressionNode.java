@@ -49,6 +49,8 @@ public class ExpressionNode extends Node {
     } catch (DeferredValueException e) {
       interpreter.getContext().handleDeferredNode(this);
       return new RenderedOutputNode(master.getImage());
+    } finally {
+      postProcess(interpreter);
     }
   }
 

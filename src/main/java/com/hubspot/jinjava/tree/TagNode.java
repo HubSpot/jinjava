@@ -45,12 +45,12 @@ public class TagNode extends Node {
   @Override
   public OutputNode render(JinjavaInterpreter interpreter) {
     preProcess(interpreter);
-    if (
-      interpreter.getContext().isValidationMode() && !tag.isRenderedInValidationMode()
-    ) {
-      return new RenderedOutputNode("");
-    }
     try {
+      if (
+        interpreter.getContext().isValidationMode() && !tag.isRenderedInValidationMode()
+      ) {
+        return new RenderedOutputNode("");
+      }
       if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
         interpreter.getContext().checkNumberOfDeferredTokens();
       }
@@ -72,6 +72,8 @@ public class TagNode extends Node {
         master.getLineNumber(),
         master.getStartPosition()
       );
+    } finally {
+      postProcess(interpreter);
     }
   }
 

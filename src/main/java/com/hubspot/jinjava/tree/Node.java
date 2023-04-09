@@ -15,6 +15,7 @@
  **********************************************************************/
 package com.hubspot.jinjava.tree;
 
+import com.hubspot.jinjava.el.JinjavaProcessors;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.parse.Token;
@@ -92,13 +93,23 @@ public abstract class Node implements Serializable {
     }
 
     if (getChildren().size() > 0) {
-      t.append(prefix).append("end :: ").append(toString()).append('\n');
+      t.append(prefix).append("end :: ").append(this).append('\n');
     }
 
     return t.toString();
   }
 
   public void preProcess(JinjavaInterpreter interpreter) {
-    interpreter.getConfig().getNodePreProcessor().accept(this, interpreter);
+    JinjavaProcessors processors = interpreter.getConfig().getProcessors();
+    if (processors != null && processors.getNodePreProcessor() != null) {
+      processors.getNodePreProcessor().accept(this, interpreter);
+    }
+  }
+
+  public void postProcess(JinjavaInterpreter interpreter) {
+    JinjavaProcessors processors = interpreter.getConfig().getProcessors();
+    if (processors != null && processors.getNodePostProcessor() != null) {
+      processors.getNodePostProcessor().accept(this, interpreter);
+    }
   }
 }
