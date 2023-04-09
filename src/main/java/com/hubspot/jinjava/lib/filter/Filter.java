@@ -15,7 +15,6 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.filter;
 
-import com.hubspot.jinjava.el.JinjavaProcessors;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.objects.SafeString;
@@ -64,26 +63,11 @@ public interface Filter extends Importable {
       filterArgs[i] = stringArgs.get(i);
     }
 
-    JinjavaProcessors processors = interpreter.getConfig().getProcessors();
-
-    try {
-      // Note that this doesn't catch all filters as some override this method
-      // a proxy would be needed to catch them all
-      // See https://github.com/HubSpot/jinjava/pull/1045#discussion_r1160717398
-      if (processors != null && processors.getFilterPreProcessor() != null) {
-        processors.getFilterPreProcessor().accept(this, interpreter);
-      }
-
-      if (var instanceof SafeString) {
-        return filter((SafeString) var, interpreter, filterArgs);
-      }
-
-      return filter(var, interpreter, filterArgs);
-    } finally {
-      if (processors != null && processors.getFilterPostProcessor() != null) {
-        processors.getFilterPostProcessor().accept(this, interpreter);
-      }
+    if (var instanceof SafeString) {
+      return filter((SafeString) var, interpreter, filterArgs);
     }
+
+    return filter(var, interpreter, filterArgs);
   }
 
   default boolean preserveSafeString() {
