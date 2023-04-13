@@ -209,10 +209,10 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
   ) {
     String combined = output + getDoTagToPreserve(interpreter, currentImportAlias);
     // So that any set variables other than the alias won't exist outside the child's scope
-    if (interpreter.getContext().isDeferredExecutionMode()) {
-      return EagerReconstructionUtils.wrapInChildScope(combined, interpreter);
-    }
-    return combined;
+    //    if (interpreter.getContext().isDeferredExecutionMode()) {
+    return EagerReconstructionUtils.wrapInChildScope(combined, interpreter);
+    //    }
+    //    return combined;
   }
 
   private String getSetTagForDeferredChildBindings(

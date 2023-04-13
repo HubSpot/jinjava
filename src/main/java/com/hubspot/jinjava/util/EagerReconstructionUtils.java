@@ -790,7 +790,8 @@ public class EagerReconstructionUtils {
    *   * When doing some eager execution and then needing to repeat the same execution in deferred execution mode.
    *   <p>
    *   * When rendering logic which takes place in its own child scope (for tag, macro function, set block) and there
-   *   speculative bindings. These must be deferred and the execution must run again so they don't get reconstructed
+   *   are speculative bindings.
+   *   These must be deferred and the execution must run again, so they don't get reconstructed
    *   within the child scope, and can instead be reconstructed in their original scopes.
    * @param interpreter The JinjavaInterpreter
    * @param eagerExecutionResult The execution result which contains information about which bindings were modified

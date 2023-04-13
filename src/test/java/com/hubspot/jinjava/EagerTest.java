@@ -1141,7 +1141,7 @@ public class EagerTest {
 
   @Test
   public void itHandlesReferenceModificationWhenSourceIsLost() {
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "handles-reference-modification-when-source-is-lost"
     );
   }
