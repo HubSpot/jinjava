@@ -72,11 +72,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
           return expressionResult;
         },
         interpreter,
-        EagerContextWatcher
-          .EagerChildContextConfig.newBuilder()
-          .withCheckForContextChanges(!interpreter.getContext().isDeferredExecutionMode())
-          .withTakeNewValue(true)
-          .build()
+        EagerContextWatcher.EagerChildContextConfig.newBuilder().build()
       );
       if (result.getResult().getResolutionState() == ResolutionState.NONE) {
         EagerReconstructionUtils.resetSpeculativeBindings(interpreter, collectionResult);
