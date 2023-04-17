@@ -11,6 +11,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.ForTagTest;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import java.util.List;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -215,7 +216,7 @@ public class EagerForTagTest extends ForTagTest {
   }
 
   @Test
-  public void itDoesNotSwallowDeferredValueException() {
+  public void itCanNowHandleModificationInPartiallyDeferredLoop() {
     interpreter.getContext().registerTag(new EagerDoTag());
     interpreter.getContext().registerTag(new EagerIfTag());
     interpreter.getContext().registerTag(new EagerSetTag());
@@ -223,18 +224,29 @@ public class EagerForTagTest extends ForTagTest {
     String input =
       "{% set my_list = [] %}" +
       "{% for i in range(401) %}" +
-      "{{ my_list.append(i) }}" +
+      "{% do my_list.append(i) %}" +
       "{% endfor %}" +
-      "{% for i in my_list.append(1) ? [0, 1] : [0] %}" +
+      "{% for i in my_list.append(-1) ? [0, 1] : [0] %}" +
       "{% for j in deferred %}" +
       "{% if loop.first %}" +
-      "{% do my_list.append(1) %}" +
+      "{% do my_list.append(i) %}" +
       "{% endif %}" +
       "{% endfor %}" +
       "{% endfor %}" +
       "{{ my_list }}";
-    interpreter.render(input);
-    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
+    String initialResult = interpreter.render(input);
+    assertThat(interpreter.getContext().getDeferredNodes()).isEmpty();
+    interpreter.getContext().put("deferred", ImmutableList.of(1, 2));
+    interpreter.render(initialResult);
+    assertThat(interpreter.getContext().get("my_list")).isInstanceOf(List.class);
+    assertThat((List<Long>) interpreter.getContext().get("my_list"))
+      .as(
+        "Appends 401 numbers and then appends '-1', running the 'i' loop twice," +
+        "which runs the 'j' loop, the first time appending the value of 'i', which will be '0', then '1'"
+      )
+      .hasSize(404)
+      .containsSequence(400L, -1L, 0L, 1L);
+    assertThat(interpreter.getContext().getDeferredNodes()).isEmpty();
   }
 
   public static boolean inForLoop() {
