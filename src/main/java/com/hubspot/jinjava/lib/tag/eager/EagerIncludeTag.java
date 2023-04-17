@@ -1,11 +1,9 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
-import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.IncludeTag;
 import com.hubspot.jinjava.loader.RelativePathResolver;
-import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
@@ -34,11 +32,9 @@ public class EagerIncludeTag extends EagerTagDecorator<IncludeTag> {
       final String initialPathSetter = EagerImportTag.getSetTagForCurrentPath(
         interpreter
       );
-      final String newPathSetter = EagerReconstructionUtils.buildSetTag(
-        ImmutableMap.of(
-          RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
-          PyishObjectMapper.getAsPyishString(templateFile)
-        ),
+      final String newPathSetter = EagerReconstructionUtils.buildBlockOrInlineSetTag(
+        RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
+        templateFile,
         interpreter,
         false
       );
