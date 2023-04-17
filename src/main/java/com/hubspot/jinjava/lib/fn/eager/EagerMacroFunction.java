@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.lib.fn.eager;
 
 import com.google.common.annotations.Beta;
-import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.eager.MacroFunctionTempVariable;
@@ -225,11 +224,9 @@ public class EagerMacroFunction extends MacroFunction {
           ((DeferredValue) currentDeferredImportResource).getOriginalValue();
       }
       prefix =
-        EagerReconstructionUtils.buildSetTag(
-          ImmutableMap.of(
-            Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
-            PyishObjectMapper.getAsPyishString(importFile.get())
-          ),
+        EagerReconstructionUtils.buildBlockOrInlineSetTag(
+          Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
+          importFile.get(),
           interpreter,
           false
         );
@@ -237,11 +234,9 @@ public class EagerMacroFunction extends MacroFunction {
         .getContext()
         .put(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY, importFile.get());
       suffix =
-        EagerReconstructionUtils.buildSetTag(
-          ImmutableMap.of(
-            Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
-            PyishObjectMapper.getAsPyishString(currentDeferredImportResource)
-          ),
+        EagerReconstructionUtils.buildBlockOrInlineSetTag(
+          Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
+          currentDeferredImportResource,
           interpreter,
           false
         );

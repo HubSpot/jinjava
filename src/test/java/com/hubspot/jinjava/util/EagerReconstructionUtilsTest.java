@@ -197,9 +197,9 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
 
   @Test
   public void itBuildsSetTagForDeferredAndRegisters() {
-    Map<String, String> deferredValuesToSet = ImmutableMap.of("foo", "'bar'");
-    String result = EagerReconstructionUtils.buildSetTag(
-      deferredValuesToSet,
+    String result = EagerReconstructionUtils.buildBlockOrInlineSetTag(
+      "foo",
+      "bar",
       interpreter,
       true
     );
@@ -216,9 +216,9 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
 
   @Test
   public void itBuildsSetTagForDeferredAndDoesntRegister() {
-    Map<String, String> deferredValuesToSet = ImmutableMap.of("foo", "'bar'");
-    String result = EagerReconstructionUtils.buildSetTag(
-      deferredValuesToSet,
+    String result = EagerReconstructionUtils.buildBlockOrInlineSetTag(
+      "foo",
+      "bar",
       interpreter,
       false
     );
@@ -252,9 +252,14 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
     for (int i = 0; i < MAX_OUTPUT_SIZE; i++) {
       tooLong.append(i);
     }
-    Map<String, String> deferredValuesToSet = ImmutableMap.of("foo", tooLong.toString());
     assertThatThrownBy(
-        () -> EagerReconstructionUtils.buildSetTag(deferredValuesToSet, interpreter, true)
+        () ->
+          EagerReconstructionUtils.buildBlockOrInlineSetTag(
+            "foo",
+            tooLong.toString(),
+            interpreter,
+            true
+          )
       )
       .isInstanceOf(OutputTooBigException.class);
   }

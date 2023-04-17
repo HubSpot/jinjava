@@ -1,5 +1,5 @@
 {% set primary_line_height = 100 %}{% if deferred %}
-{% do %}{% set current_path = '../settag/set-val.jinja' %}{% set simple = {} %}{% for __ignored__ in [0] %}{% set primary_line_height = 42 %}{% do simple.update({'primary_line_height': primary_line_height}) %}{% do simple.update({'primary_line_height': 42,'import_resource_path': '../settag/set-val.jinja'}) %}{% endfor %}{% set current_path = '' %}{% enddo %}
+{% do %}{% set current_path = '../settag/set-val.jinja' %}{% set simple = {}  %}{% for __ignored__ in [0] %}{% set primary_line_height = 42 %}{% do simple.update({'primary_line_height': primary_line_height}) %}{% do simple.update({'primary_line_height': 42,'import_resource_path': '../settag/set-val.jinja'}) %}{% endfor %}{% set current_path = '' %}{% enddo %}
 {% else %}
 {% do %}{% set current_path = '../settag/set-val.jinja' %}{% set primary_line_height = 42 %}{% set current_path = '' %}{% enddo %}
 {% endif %}

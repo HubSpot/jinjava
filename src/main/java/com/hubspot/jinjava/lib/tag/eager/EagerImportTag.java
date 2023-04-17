@@ -3,7 +3,6 @@ package com.hubspot.jinjava.lib.tag.eager;
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -192,8 +191,9 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     return (
       newPathSetter +
       getSetTagForDeferredChildBindings(interpreter, currentImportAlias, childBindings) +
-      EagerReconstructionUtils.buildSetTag(
-        ImmutableMap.of(currentImportAlias, "{}"),
+      EagerReconstructionUtils.buildBlockOrInlineSetTag(
+        currentImportAlias,
+        Collections.emptyMap(),
         interpreter,
         true
       ) +
@@ -239,44 +239,37 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         true
       );
     }
-    return EagerReconstructionUtils.buildSetTag(
-      childBindings
-        .entrySet()
-        .stream()
-        .filter(entry -> entry.getValue() instanceof DeferredValue)
-        .filter(entry -> !interpreter.getContext().containsKey(entry.getKey()))
-        .filter(entry -> !entry.getKey().equals(currentImportAlias))
-        .collect(
-          Collectors.toMap(
-            Entry::getKey,
-            entry ->
-              PyishObjectMapper.getAsPyishString(
-                ((DeferredValue) entry.getValue()).getOriginalValue()
-              )
+    return childBindings
+      .entrySet()
+      .stream()
+      .filter(entry -> entry.getValue() instanceof DeferredValue)
+      .filter(entry -> !interpreter.getContext().containsKey(entry.getKey()))
+      .filter(entry -> !entry.getKey().equals(currentImportAlias))
+      .map(
+        entry ->
+          EagerReconstructionUtils.buildBlockOrInlineSetTag(
+            entry.getKey(),
+            ((DeferredValue) entry.getValue()).getOriginalValue(),
+            interpreter,
+            false // false so that we don't defer them on higher context scopes; they only exist in the child scope
           )
-        ),
-      interpreter,
-      false // false so that we don't defer them on higher context scopes; they only exist in the child scope
-    );
+      )
+      .collect(Collectors.joining());
   }
 
   public static String getSetTagForCurrentPath(JinjavaInterpreter interpreter) {
-    return EagerReconstructionUtils.buildSetTag(
-      ImmutableMap.of(
-        RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
-        PyishObjectMapper.getAsPyishString(
-          interpreter
-            .getContext()
-            .getCurrentPathStack()
-            .peek()
-            .orElseGet(
-              () ->
-                (String) interpreter
-                  .getContext()
-                  .getOrDefault(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY, "")
-            )
-        )
-      ),
+    return EagerReconstructionUtils.buildBlockOrInlineSetTag(
+      RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
+      interpreter
+        .getContext()
+        .getCurrentPathStack()
+        .peek()
+        .orElseGet(
+          () ->
+            (String) interpreter
+              .getContext()
+              .getOrDefault(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY, "")
+        ),
       interpreter,
       false
     );

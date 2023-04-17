@@ -352,13 +352,40 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public void handleDeferredNode(Node node) {
+    if (
+      JinjavaInterpreter
+        .getCurrentMaybe()
+        .map(interpreter -> interpreter.getConfig().getExecutionMode().useEagerParser())
+        .orElse(false)
+    ) {
+      addDeferredNodeRecursively(node);
+    } else {
+      handleDeferredNodeAndDeferVariables(node);
+    }
+  }
+
+  private void addDeferredNodeRecursively(Node node) {
     deferredNodes.add(node);
-    Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(this);
     if (getParent() != null) {
       Context parent = getParent();
-      //Ignore global context
+      // Ignore global context
       if (parent.getParent() != null) {
-        //Place deferred values on the parent context
+        getParent().handleDeferredNode(node);
+      }
+    }
+  }
+
+  private void handleDeferredNodeAndDeferVariables(Node node) {
+    deferredNodes.add(node);
+    Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(
+      this,
+      node
+    );
+    if (getParent() != null) {
+      Context parent = getParent();
+      // Ignore global context
+      if (parent.getParent() != null) {
+        // Place deferred values on the parent context
         deferredProps
           .stream()
           .filter(key -> !parent.containsKey(key))
