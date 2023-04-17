@@ -4,7 +4,7 @@ C: {{ c_list }}.{% endmacro %}{{ c(b_list) }}{% set b_list = a_list %}{% do b_li
 B: {% set b_list = a_list %}{{ b_list }}.{% endset %}{{ __macro_b_125206_temp_variable_0__ }}{% do a_list.append(deferred ? 'A' : '') %}
 A: {{ a_list }}.
 ---
-{% set a_list = ['a', 'b'] %}{% for __ignored__ in [0] %}{% for __ignored__ in [0] %}{% set c_list = a_list %}{% do c_list.append(deferred ? 'c' : '') %}
+{% set a_list = ['a', 'b'] %}{% for __ignored__ in [0] %}{% for __ignored__ in [0] %}{% if !deferred %}{% set c_list = a_list %}{% do c_list.append(deferred ? 'c' : '') %}{% else %}{% set c_list = a_list %}{% do c_list.append(deferred ? 'c' : '') %}{% endif %}
 C: {% set c_list = a_list %}{{ c_list }}.{% endfor %}{% set b_list = a_list %}{% do b_list.append(deferred ? 'B' : '') %}
 B: {% set b_list = a_list %}{{ b_list }}.{% endfor %}{% do a_list.append(deferred ? 'A' : '') %}
 A: {{ a_list }}.

@@ -699,6 +699,9 @@ public class EagerReconstructionUtils {
               )
           )
           .filter(entry -> entry.getValue() instanceof DeferredLazyReference)
+          .peek(
+            entry -> ((DeferredLazyReference) entry.getValue()).setReconstructed(true)
+          )
       )
       .collect(
         Collectors.toMap(
