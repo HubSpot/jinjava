@@ -197,19 +197,22 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         interpreter,
         true
       ) +
-      wrapInChildScope(interpreter, output, currentImportAlias) +
+      wrapInChildScopeIfNecessary(interpreter, output, currentImportAlias) +
       initialPathSetter
     );
   }
 
-  private static String wrapInChildScope(
+  private static String wrapInChildScopeIfNecessary(
     JinjavaInterpreter interpreter,
     String output,
     String currentImportAlias
   ) {
     String combined = output + getDoTagToPreserve(interpreter, currentImportAlias);
     // So that any set variables other than the alias won't exist outside the child's scope
-    return EagerReconstructionUtils.wrapInChildScope(combined, interpreter);
+    if (interpreter.getContext().isDeferredExecutionMode()) {
+      return EagerReconstructionUtils.wrapInChildScope(combined, interpreter);
+    }
+    return combined;
   }
 
   private String getSetTagForDeferredChildBindings(
