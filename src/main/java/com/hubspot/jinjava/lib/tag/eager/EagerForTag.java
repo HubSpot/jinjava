@@ -39,63 +39,45 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
 
   @Override
   public String innerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    Pair<List<String>, String> loopVarsAndExpression = getTag()
-      .getLoopVarsAndExpression((TagToken) tagNode.getMaster());
-    EagerExecutionResult collectionResult = EagerContextWatcher.executeInChildContext(
-      eagerInterpreter ->
-        EagerExpressionResolver.resolveExpression(
-          '[' + loopVarsAndExpression.getRight() + ']',
-          interpreter
-        ),
+    Set<DeferredToken> addedTokens = new HashSet<>();
+    EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
+      eagerInterpreter -> {
+        EagerExpressionResult expressionResult = EagerExpressionResult.fromSupplier(
+          () -> getTag().interpretUnchecked(tagNode, eagerInterpreter),
+          eagerInterpreter
+        );
+        addedTokens.addAll(eagerInterpreter.getContext().getDeferredTokens());
+        return expressionResult;
+      },
       interpreter,
       EagerContextWatcher
         .EagerChildContextConfig.newBuilder()
         .withCheckForContextChanges(!interpreter.getContext().isDeferredExecutionMode())
         .build()
     );
-    if (collectionResult.getResult().isFullyResolved()) {
-      Set<DeferredToken> addedTokens = new HashSet<>();
-      EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
-        eagerInterpreter -> {
-          EagerExpressionResult expressionResult = EagerExpressionResult.fromSupplier(
-            () ->
-              getTag()
-                .renderForCollection(
-                  tagNode,
-                  eagerInterpreter,
-                  loopVarsAndExpression.getLeft(),
-                  collectionResult.getResult().toList().get(0)
-                ),
-            eagerInterpreter
-          );
-          addedTokens.addAll(eagerInterpreter.getContext().getDeferredTokens());
-          return expressionResult;
-        },
-        interpreter,
-        EagerContextWatcher.EagerChildContextConfig.newBuilder().build()
+    if (
+      result.getResult().getResolutionState() == ResolutionState.NONE ||
+      (
+        !result.getResult().isFullyResolved() &&
+        !result.getSpeculativeBindings().isEmpty()
+      )
+    ) {
+      EagerReconstructionUtils.resetSpeculativeBindings(interpreter, result);
+      interpreter.getContext().removeDeferredTokens(addedTokens);
+      throw new DeferredValueException(
+        result.getResult().getResolutionState() == ResolutionState.NONE
+          ? result.getResult().toString()
+          : "Modification inside partially evaluated for loop"
       );
-      if (result.getResult().getResolutionState() == ResolutionState.NONE) {
-        EagerReconstructionUtils.resetSpeculativeBindings(interpreter, collectionResult);
-        EagerReconstructionUtils.resetSpeculativeBindings(interpreter, result);
-        interpreter.getContext().removeDeferredTokens(addedTokens);
-        throw new DeferredValueException(result.getResult().toString());
-      }
-      if (result.getResult().isFullyResolved()) {
-        return result.getResult().toString(true);
-      } else {
-        return (
-          result
-            .getPrefixToPreserveState()
-            .withAllInFront(collectionResult.getPrefixToPreserveState()) +
-          EagerReconstructionUtils.wrapInChildScope(
-            result.getResult().toString(true),
-            interpreter
-          )
-        );
-      }
     }
-    EagerReconstructionUtils.resetSpeculativeBindings(interpreter, collectionResult);
-    throw new DeferredValueException(collectionResult.getResult().toString());
+    if (result.getResult().isFullyResolved()) {
+      return result.getResult().toString(true);
+    } else {
+      return EagerReconstructionUtils.wrapInChildScope(
+        result.getResult().toString(true),
+        interpreter
+      );
+    }
   }
 
   @Override

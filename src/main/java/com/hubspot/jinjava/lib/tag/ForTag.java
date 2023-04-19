@@ -44,6 +44,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -150,20 +151,6 @@ public class ForTag implements Tag {
         String.format("%s in %s", String.join(", ", loopVars), e.getDeferredEvalResult())
       );
     }
-    return renderForCollection(
-      tagNode,
-      interpreter,
-      loopVarsAndExpression.getLeft(),
-      collection
-    );
-  }
-
-  public String renderForCollection(
-    TagNode tagNode,
-    JinjavaInterpreter interpreter,
-    List<String> loopVars,
-    Object collection
-  ) {
     ForLoop loop = ObjectIterator.getLoop(collection);
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
@@ -203,8 +190,8 @@ public class ForTag implements Tag {
         } else {
           for (int loopVarIndex = 0; loopVarIndex < loopVars.size(); loopVarIndex++) {
             String loopVar = loopVars.get(loopVarIndex);
-            if (Entry.class.isAssignableFrom(val.getClass())) {
-              Entry<String, Object> entry = (Entry<String, Object>) val;
+            if (Map.Entry.class.isAssignableFrom(val.getClass())) {
+              Map.Entry<String, Object> entry = (Entry<String, Object>) val;
               Object entryVal = null;
 
               if (loopVars.indexOf(loopVar) == 0) {
