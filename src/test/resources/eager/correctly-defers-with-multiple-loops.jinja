@@ -1,7 +1,7 @@
 {% set my_list = [] %}
 {% for i in range(2) %}
 {% for j in deferred %}
-{% do my_list.append(1) %}
+{% do my_list.append(i) %}
 {% endfor %}
 {% endfor %}
 {{ my_list }}
