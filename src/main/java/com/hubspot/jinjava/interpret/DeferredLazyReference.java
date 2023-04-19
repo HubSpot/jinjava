@@ -3,9 +3,14 @@ package com.hubspot.jinjava.interpret;
 import com.google.common.annotations.Beta;
 
 @Beta
-public class DeferredLazyReference implements DeferredValue, Cloneable {
+public class DeferredLazyReference
+  implements DeferredValue, Cloneable, OneTimeReconstructible {
   private final LazyReference lazyReference;
   private boolean reconstructed;
+
+  private DeferredLazyReference(LazyReference lazyReference) {
+    this.lazyReference = lazyReference;
+  }
 
   private DeferredLazyReference(Context referenceContext, String referenceKey) {
     lazyReference = LazyReference.of(referenceContext, referenceKey);
@@ -36,7 +41,7 @@ public class DeferredLazyReference implements DeferredValue, Cloneable {
     try {
       return (DeferredLazyReference) super.clone();
     } catch (CloneNotSupportedException e) {
-      throw new AssertionError();
+      return new DeferredLazyReference(lazyReference);
     }
   }
 }

@@ -1,4 +1,6 @@
-{% set a_list = ['a', 'b'] %}{% for __ignored__ in [0] %}{% set b_list = a_list %}{% do b_list.append(deferred ? 'B' : '') %}
-{% set b_list = deferred %}
+{% set a_list = ['a', 'b'] %}{% for __ignored__ in [0] %}
+{% set b_list = a_list %}{% if deferred %}
+{% set b_list = [deferred] %}
+{% endif %}{% do b_list.append(deferred ? 'B' : '') %}
 B: {{ b_list }}.{% endfor %}{% do a_list.append(deferred ? 'A' : '') %}
 A: {{ a_list }}.
