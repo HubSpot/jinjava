@@ -1,4 +1,23 @@
-{% set foo = 'start' %}{% for i in [0, 1] %}
+{% set foo = 'start' %}{% for __ignored__ in [0] %}
+{% do %}{% set current_path = 'deferred-modification.jinja' %}{% set bar1 = {} %}{% for __ignored__ in [0] %}{% if deferred %}
+
+{% set foo = 'starta' %}{% do bar1.update({'foo': foo}) %}
+
+{% endif %}
+
+{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}{% do bar1.update({'foo': foo}) %}
+{% do bar1.update({'foo': foo,'import_resource_path': 'deferred-modification.jinja'}) %}{% endfor %}{% set current_path = '' %}{% enddo %}
+{{ bar1.foo }}
+{% do %}{% set current_path = 'deferred-modification.jinja' %}{% set bar2 = {} %}{% for __ignored__ in [0] %}{% if deferred %}
+
+{% set foo = filter:join.filter([foo, 'a'], ____int3rpr3t3r____, '') %}{% do bar2.update({'foo': foo}) %}
+
+{% endif %}
+
+{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}{% do bar2.update({'foo': foo}) %}
+{% do bar2.update({'import_resource_path': 'deferred-modification.jinja'}) %}{% endfor %}{% set current_path = '' %}{% enddo %}
+{{ bar2.foo }}
+
 {% do %}{% set current_path = 'deferred-modification.jinja' %}{% set bar1 = {} %}{% for __ignored__ in [0] %}{% if deferred %}
 
 {% set foo = filter:join.filter([foo, 'a'], ____int3rpr3t3r____, '') %}{% do bar1.update({'foo': foo}) %}

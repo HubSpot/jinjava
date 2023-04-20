@@ -4,6 +4,7 @@ import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildBlockSetTag
 import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildSetTag;
 
 import com.google.common.annotations.Beta;
+import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredValueShadow;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.LazyReference;
@@ -55,8 +56,13 @@ public class EagerExecutionResult {
       .entrySet()
       .stream()
       .filter(
-        entry ->
-          !(interpreter.getContext().get(entry.getKey()) instanceof DeferredValueShadow)
+        entry -> {
+          Object contextValue = interpreter.getContext().get(entry.getKey());
+          if (contextValue instanceof DeferredLazyReferenceSource) {
+            ((DeferredLazyReferenceSource) contextValue).setReconstructed(true);
+          }
+          return (contextValue != null && !(contextValue instanceof DeferredValueShadow));
+        }
       )
       .collect(Collectors.toList());
     prefixToPreserveState.putAll(

@@ -1141,7 +1141,7 @@ public class EagerTest {
 
   @Test
   public void itHandlesReferenceModificationWhenSourceIsLost() {
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "handles-reference-modification-when-source-is-lost"
     );
   }
@@ -1329,6 +1329,21 @@ public class EagerTest {
   public void itDoesNotReconstructVariableInSetInWrongScope() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "does-not-reconstruct-variable-in-set-in-wrong-scope"
+    );
+  }
+
+  @Test
+  public void itRreconstructsValueUsedInDeferredImportedMacro() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "reconstructs-value-used-in-deferred-imported-macro"
+    );
+  }
+
+  @Test
+  public void itRreconstructsValueUsedInDeferredImportedMacroSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-value-used-in-deferred-imported-macro.expected"
     );
   }
 }
