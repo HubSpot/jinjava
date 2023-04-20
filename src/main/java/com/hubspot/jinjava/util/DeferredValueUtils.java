@@ -13,8 +13,6 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TextNode;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -76,8 +74,8 @@ public class DeferredValueUtils {
     }
   }
 
-  public static Set<String> findAndMarkDeferredProperties(Context context) {
-    String templateSource = rebuildTemplateForNodes(context.getDeferredNodes());
+  public static Set<String> findAndMarkDeferredProperties(Context context, Node newNode) {
+    String templateSource = rebuildTemplateForNodes(newNode);
     Set<String> deferredProps = getPropertiesUsedInDeferredNodes(context, templateSource);
     Set<String> setProps = getPropertiesSetInDeferredNodes(templateSource);
     markDeferredProperties(context, Sets.union(deferredProps, setProps));
@@ -88,8 +86,8 @@ public class DeferredValueUtils {
     return findSetProperties(templateSource);
   }
 
-  public static Set<DeferredTag> getDeferredTags(Set<Node> deferredNodes) {
-    return getDeferredTags(new LinkedList<>(deferredNodes), 0);
+  public static Set<DeferredTag> getDeferredTagsRecursively(Node deferredNode) {
+    return getDeferredTags(deferredNode, 0);
   }
 
   public static Set<String> getPropertiesUsedInDeferredNodes(
@@ -131,25 +129,27 @@ public class DeferredValueUtils {
       );
   }
 
-  private static Set<DeferredTag> getDeferredTags(List<Node> nodes, int depth) {
+  private static Set<DeferredTag> getDeferredTags(Node node, int depth) {
     // precaution - templates are parsed with this render depth so in theory the depth should never be exceeded
-    Set<DeferredTag> deferredTags = new HashSet<>();
+    Set<DeferredTag> deferredTags = getDeferredTags(node).orElse(new HashSet<>());
     int maxRenderDepth = JinjavaInterpreter.getCurrent() == null
       ? 3
       : JinjavaInterpreter.getCurrent().getConfig().getMaxRenderDepth();
     if (depth > maxRenderDepth) {
       return deferredTags;
     }
-    for (Node node : nodes) {
-      getDeferredTags(node).ifPresent(deferredTags::addAll);
-      deferredTags.addAll(getDeferredTags(node.getChildren(), depth + 1));
-    }
+    node
+      .getChildren()
+      .forEach(child -> deferredTags.addAll(getDeferredTags(child, depth + 1)));
     return deferredTags;
   }
 
-  private static String rebuildTemplateForNodes(Set<Node> nodes) {
+  private static String rebuildTemplateForNodes(Node node) {
     StringJoiner joiner = new StringJoiner(" ");
-    getDeferredTags(nodes).stream().map(DeferredTag::getTag).forEach(joiner::add);
+    getDeferredTagsRecursively(node)
+      .stream()
+      .map(DeferredTag::getTag)
+      .forEach(joiner::add);
     return joiner.toString();
   }
 
