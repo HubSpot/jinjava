@@ -357,7 +357,11 @@ public class DeferredTest {
     String output = interpreter.render(template);
     assertThat(localContext).containsKey("deferredValue2");
     Object deferredValue2 = localContext.get("deferredValue2");
-    DeferredValueUtils.findAndMarkDeferredProperties(localContext);
+    localContext
+      .getDeferredNodes()
+      .forEach(
+        node -> DeferredValueUtils.findAndMarkDeferredProperties(localContext, node)
+      );
     assertThat(deferredValue2).isInstanceOf(DeferredValue.class);
     assertThat(output)
       .contains("{% set varSetInside = imported.map[deferredValue2.nonexistentprop] %}");

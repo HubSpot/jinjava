@@ -2,7 +2,8 @@ package com.hubspot.jinjava.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -23,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -41,9 +43,15 @@ public class DeferredValueUtilsTest {
         Optional.of(context)
       );
 
-    Set<String> deferredProperties = DeferredValueUtils.findAndMarkDeferredProperties(
-      context
-    );
+    Context finalContext = context;
+    Set<String> deferredProperties = context
+      .getDeferredNodes()
+      .stream()
+      .flatMap(
+        node ->
+          DeferredValueUtils.findAndMarkDeferredProperties(finalContext, node).stream()
+      )
+      .collect(Collectors.toSet());
 
     assertThat(deferredProperties).contains("java_bean");
   }
@@ -55,9 +63,13 @@ public class DeferredValueUtilsTest {
     );
     context.put("array", Lists.newArrayList("a", "b", "c"));
 
-    Set<String> deferredProperties = DeferredValueUtils.findAndMarkDeferredProperties(
-      context
-    );
+    Set<String> deferredProperties = context
+      .getDeferredNodes()
+      .stream()
+      .flatMap(
+        node -> DeferredValueUtils.findAndMarkDeferredProperties(context, node).stream()
+      )
+      .collect(Collectors.toSet());
     assertThat(deferredProperties).contains("array");
   }
 
@@ -68,9 +80,13 @@ public class DeferredValueUtilsTest {
     );
     context.put("dict", Collections.singletonMap("a", "x"));
 
-    Set<String> deferredProperties = DeferredValueUtils.findAndMarkDeferredProperties(
-      context
-    );
+    Set<String> deferredProperties = context
+      .getDeferredNodes()
+      .stream()
+      .flatMap(
+        node -> DeferredValueUtils.findAndMarkDeferredProperties(context, node).stream()
+      )
+      .collect(Collectors.toSet());
     assertThat(deferredProperties).contains("dict");
   }
 
@@ -92,7 +108,12 @@ public class DeferredValueUtilsTest {
         Optional.of(context)
       );
 
-    DeferredValueUtils.findAndMarkDeferredProperties(context);
+    Context finalContext = context;
+    context
+      .getDeferredNodes()
+      .forEach(
+        node -> DeferredValueUtils.findAndMarkDeferredProperties(finalContext, node)
+      );
     assertThat(context.containsKey("java_bean")).isTrue();
     assertThat(context.get("java_bean")).isInstanceOf(DeferredValue.class);
     DeferredValue deferredValue = (DeferredValue) context.get("java_bean");
@@ -114,8 +135,9 @@ public class DeferredValueUtilsTest {
       )
     );
     context.put("property", null);
-    DeferredValueUtils.findAndMarkDeferredProperties(context);
-
+    context
+      .getDeferredNodes()
+      .forEach(node -> DeferredValueUtils.findAndMarkDeferredProperties(context, node));
     assertThat(context.get("property")).isNull();
   }
 
@@ -134,7 +156,9 @@ public class DeferredValueUtilsTest {
     context.put("deferred", "deferred");
     context.put("not_deferred", "test_value");
 
-    DeferredValueUtils.findAndMarkDeferredProperties(context);
+    context
+      .getDeferredNodes()
+      .forEach(node -> DeferredValueUtils.findAndMarkDeferredProperties(context, node));
     assertThat(context.get("not_deferred")).isEqualTo("test_value");
   }
 
