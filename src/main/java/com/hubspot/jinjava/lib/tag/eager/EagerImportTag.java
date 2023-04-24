@@ -191,28 +191,33 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
   ) {
     return (
       newPathSetter +
-      getSetTagForDeferredChildBindings(interpreter, currentImportAlias, childBindings) +
       EagerReconstructionUtils.buildSetTag(
         ImmutableMap.of(currentImportAlias, "{}"),
         interpreter,
         true
       ) +
-      wrapInChildScopeIfNecessary(interpreter, output, currentImportAlias) +
+      wrapInChildScope(
+        interpreter,
+        getSetTagForDeferredChildBindings(
+          interpreter,
+          currentImportAlias,
+          childBindings
+        ) +
+        output,
+        currentImportAlias
+      ) +
       initialPathSetter
     );
   }
 
-  private static String wrapInChildScopeIfNecessary(
+  private static String wrapInChildScope(
     JinjavaInterpreter interpreter,
     String output,
     String currentImportAlias
   ) {
     String combined = output + getDoTagToPreserve(interpreter, currentImportAlias);
     // So that any set variables other than the alias won't exist outside the child's scope
-    if (interpreter.getContext().isDeferredExecutionMode()) {
-      return EagerReconstructionUtils.wrapInChildScope(combined, interpreter);
-    }
-    return combined;
+    return EagerReconstructionUtils.wrapInChildScope(combined, interpreter);
   }
 
   private String getSetTagForDeferredChildBindings(
@@ -246,7 +251,11 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       childBindings
         .entrySet()
         .stream()
-        .filter(entry -> entry.getValue() instanceof DeferredValue)
+        .filter(
+          entry ->
+            entry.getValue() instanceof DeferredValue &&
+            ((DeferredValue) entry.getValue()).getOriginalValue() != null
+        )
         .filter(entry -> !interpreter.getContext().containsKey(entry.getKey()))
         .filter(entry -> !entry.getKey().equals(currentImportAlias))
         .collect(
