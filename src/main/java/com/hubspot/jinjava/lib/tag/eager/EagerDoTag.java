@@ -40,6 +40,7 @@ public class EagerDoTag extends EagerStateChangingTag<DoTag> implements Flexible
         EagerContextWatcher
           .EagerChildContextConfig.newBuilder()
           .withTakeNewValue(true)
+          .withCheckForContextChanges(!interpreter.getContext().isDeferredExecutionMode())
           .build()
       );
       PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();

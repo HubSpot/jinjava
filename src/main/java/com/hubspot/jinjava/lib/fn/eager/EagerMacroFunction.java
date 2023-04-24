@@ -24,14 +24,10 @@ import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 
 @Beta
 public class EagerMacroFunction extends MacroFunction {
@@ -216,8 +212,6 @@ public class EagerMacroFunction extends MacroFunction {
    */
   public String reconstructImage(String fullName) {
     String prefix = "";
-    StringBuilder result = new StringBuilder();
-    String setTagForAliasedVariables = getSetTagForAliasedVariables(fullName);
     String suffix = "";
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     Optional<String> importFile = getImportFile(interpreter);
@@ -253,6 +247,7 @@ public class EagerMacroFunction extends MacroFunction {
         );
     }
 
+    String result;
     if (
       (
         interpreter.getContext().getMacroStack().contains(getName()) &&
@@ -267,19 +262,11 @@ public class EagerMacroFunction extends MacroFunction {
         String evaluation = (String) evaluate(
           getArguments().stream().map(arg -> DeferredMacroValueImpl.instance()).toArray()
         );
-        result
-          .append(getStartTag(fullName, interpreter))
-          .append(setTagForAliasedVariables)
-          .append(evaluation)
-          .append(getEndTag(interpreter));
+        result =
+          (getStartTag(fullName, interpreter) + evaluation + getEndTag(interpreter));
       } catch (DeferredValueException e) {
         // In case something not eager-supported encountered a deferred value
-        if (StringUtils.isNotEmpty(setTagForAliasedVariables)) {
-          throw new DeferredValueException(
-            "Aliased variables in not eagerly reconstructible macro function"
-          );
-        }
-        result.append(super.reconstructImage());
+        result = super.reconstructImage();
       } finally {
         reconstructing = false;
         interpreter
@@ -291,26 +278,6 @@ public class EagerMacroFunction extends MacroFunction {
       }
     }
     return prefix + result + suffix;
-  }
-
-  private String getSetTagForAliasedVariables(String fullName) {
-    int lastDotIdx = fullName.lastIndexOf('.');
-    if (lastDotIdx > 0) {
-      String aliasName = fullName.substring(0, lastDotIdx + 1);
-      Map<String, String> namesToAlias = localContextScope
-        .getCombinedScope()
-        .entrySet()
-        .stream()
-        .filter(entry -> entry.getValue() instanceof DeferredValue)
-        .map(Entry::getKey)
-        .collect(Collectors.toMap(Function.identity(), name -> aliasName + name));
-      return EagerReconstructionUtils.buildSetTag(
-        namesToAlias,
-        JinjavaInterpreter.getCurrent(),
-        false
-      );
-    }
-    return "";
   }
 
   private boolean differentMacroWithSameNameExists(JinjavaInterpreter interpreter) {

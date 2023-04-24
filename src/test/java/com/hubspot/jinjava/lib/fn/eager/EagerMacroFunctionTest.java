@@ -65,7 +65,6 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
 
   @Test
   public void itReconstructsForAliasedName() {
-    context.remove("deferred");
     String name = "foo";
     String fullName = "local." + name;
     String codeFormat = "{%% macro %s(bar) %%}It's: {{ bar }}{%% endmacro %%}";
