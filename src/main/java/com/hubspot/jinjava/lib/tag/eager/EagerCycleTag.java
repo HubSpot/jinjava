@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -10,12 +11,14 @@ import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
+import com.hubspot.jinjava.util.PrefixToPreserveState;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Beta
 public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
 
   public EagerCycleTag() {
@@ -54,9 +57,12 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
         .build()
     );
 
-    StringBuilder prefixToPreserveState = new StringBuilder();
-    if (interpreter.getContext().isDeferredExecutionMode()) {
-      prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
+    PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
+    if (
+      !eagerExecutionResult.getResult().isFullyResolved() ||
+      interpreter.getContext().isDeferredExecutionMode()
+    ) {
+      prefixToPreserveState.putAll(eagerExecutionResult.getPrefixToPreserveState());
     } else {
       interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
     }
@@ -77,8 +83,8 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       if (!eagerExecutionResult.getResult().isFullyResolved()) {
         resolvedValues =
           new HelperStringTokenizer(resolvedExpression).splitComma(true).allTokens();
-        prefixToPreserveState.append(
-          EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
+        prefixToPreserveState.putAll(
+          EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
             eagerExecutionResult.getResult().getDeferredWords(),
             interpreter
           )
@@ -182,16 +188,18 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       String reconstructedTag = reconstructCycleTag(resolvedExpression, tagToken);
       return (
         reconstructedTag +
-        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
-          interpreter,
-          new DeferredToken(
-            new TagToken(
-              reconstructedTag,
-              tagToken.getLineNumber(),
-              tagToken.getStartPosition(),
-              tagToken.getSymbols()
-            ),
-            deferredWords
+        new PrefixToPreserveState(
+          EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+            interpreter,
+            new DeferredToken(
+              new TagToken(
+                reconstructedTag,
+                tagToken.getLineNumber(),
+                tagToken.getStartPosition(),
+                tagToken.getSymbols()
+              ),
+              deferredWords
+            )
           )
         )
       );

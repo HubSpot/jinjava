@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.FlexibleTag;
@@ -11,6 +12,7 @@ import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+@Beta
 public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
 
   public EagerStateChangingTag(T tag) {
@@ -18,7 +20,7 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
   }
 
   @Override
-  public String innerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+  public final String innerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     return eagerInterpret(tagNode, interpreter, null);
   }
 
@@ -42,10 +44,7 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
             eagerInterpreter ->
               EagerExpressionResult.fromString(renderChildren(tagNode, eagerInterpreter)),
             interpreter,
-            EagerContextWatcher
-              .EagerChildContextConfig.newBuilder()
-              .withForceDeferredExecutionMode(true)
-              .build()
+            EagerContextWatcher.EagerChildContextConfig.newBuilder().build()
           )
           .asTemplateString()
       );

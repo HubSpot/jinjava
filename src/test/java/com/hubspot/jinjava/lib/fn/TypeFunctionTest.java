@@ -57,4 +57,9 @@ public class TypeFunctionTest {
   public void testSafeString() {
     assertThat(TypeFunction.type(new SafeString("foo"))).isEqualTo("str");
   }
+
+  @Test
+  public void testNull() {
+    assertThat(TypeFunction.type(null)).isEqualTo("null");
+  }
 }

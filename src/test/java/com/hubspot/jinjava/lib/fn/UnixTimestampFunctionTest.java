@@ -8,7 +8,9 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
+import com.hubspot.jinjava.objects.date.FixedDateTimeProvider;
 import java.time.ZonedDateTime;
+import org.assertj.core.data.Offset;
 import org.junit.Test;
 
 public class UnixTimestampFunctionTest {
@@ -24,14 +26,29 @@ public class UnixTimestampFunctionTest {
       .isLessThanOrEqualTo(System.currentTimeMillis());
     assertThat(Functions.unixtimestamp(epochMilliseconds)).isEqualTo(epochMilliseconds);
     assertThat(Functions.unixtimestamp(d)).isEqualTo(epochMilliseconds);
-    assertThat(
-        Math.abs(
-          Functions.unixtimestamp((Object) null) -
-          ZonedDateTime.now().toEpochSecond() *
-          1000
-        )
+    assertThat(Functions.unixtimestamp((Object) null))
+      .isCloseTo(System.currentTimeMillis(), Offset.offset(1000L));
+  }
+
+  @Test
+  public void itUsesFixedDateTimeProvider() {
+    long ts = 1233333414223L;
+
+    JinjavaInterpreter.pushCurrent(
+      new JinjavaInterpreter(
+        new Jinjava(),
+        new Context(),
+        JinjavaConfig
+          .newBuilder()
+          .withDateTimeProvider(new FixedDateTimeProvider(ts))
+          .build()
       )
-      .isLessThan(1000);
+    );
+    try {
+      assertThat(Functions.unixtimestamp((Object) null)).isEqualTo(ts);
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
   }
 
   @Test(expected = DeferredValueException.class)

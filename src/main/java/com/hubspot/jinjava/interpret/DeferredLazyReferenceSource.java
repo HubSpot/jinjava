@@ -1,20 +1,17 @@
 package com.hubspot.jinjava.interpret;
 
-public class DeferredLazyReferenceSource implements DeferredValue {
+import com.google.common.annotations.Beta;
+
+@Beta
+public class DeferredLazyReferenceSource extends DeferredValueImpl {
   private static final DeferredLazyReferenceSource INSTANCE = new DeferredLazyReferenceSource();
 
-  private Object originalValue;
   private boolean reconstructed;
 
   private DeferredLazyReferenceSource() {}
 
   private DeferredLazyReferenceSource(Object originalValue) {
-    this.originalValue = originalValue;
-  }
-
-  @Override
-  public Object getOriginalValue() {
-    return originalValue;
+    super(originalValue);
   }
 
   public static DeferredLazyReferenceSource instance() {

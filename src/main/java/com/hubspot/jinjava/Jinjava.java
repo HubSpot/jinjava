@@ -230,10 +230,10 @@ public class Jinjava {
     JinjavaInterpreter parentInterpreter = JinjavaInterpreter.getCurrent();
     if (parentInterpreter != null) {
       renderConfig = parentInterpreter.getConfig();
-      Map<String, Object> bindingsWithParentContext = new HashMap<>(bindings);
-      if (parentInterpreter.getContext() != null) {
-        bindingsWithParentContext.putAll(parentInterpreter.getContext());
-      }
+      Map<String, Object> bindingsWithParentContext = createBindingsWithParentContext(
+        bindings,
+        parentInterpreter.getContext()
+      );
       context =
         new Context(
           copyGlobalContext(),
@@ -318,6 +318,17 @@ public class Jinjava {
 
   public void registerExpTest(ExpTest t) {
     globalContext.registerExpTest(t);
+  }
+
+  protected Map<String, Object> createBindingsWithParentContext(
+    Map<String, ?> bindings,
+    Map<String, ?> bindingsFromParentContext
+  ) {
+    Map<String, Object> bindingsWithParentContext = new HashMap<>(bindings);
+    if (bindingsFromParentContext != null) {
+      bindingsWithParentContext.putAll(bindingsFromParentContext);
+    }
+    return bindingsWithParentContext;
   }
 
   private Context copyGlobalContext() {

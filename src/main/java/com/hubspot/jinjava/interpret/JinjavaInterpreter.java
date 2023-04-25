@@ -33,8 +33,8 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.ExtendsTag;
-import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerGenericTag;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
@@ -54,6 +54,7 @@ import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -72,6 +73,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class JinjavaInterpreter implements PyishSerializable {
+  public static final String IGNORED_OUTPUT_FROM_EXTENDS_NOTE =
+    "ignored_output_from_extends";
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
   private final LinkedList<Node> extendParentRoots = new LinkedList<>();
   private final Map<String, RevertibleObject> revertibleObjects = new HashMap<>();
@@ -87,7 +90,9 @@ public class JinjavaInterpreter implements PyishSerializable {
   private int position = 0;
   private int scopeDepth = 1;
   private BlockInfo currentBlock;
-  private final List<TemplateError> errors = new LinkedList<>();
+  private final List<TemplateError> errors = new ArrayList<>();
+  private final Set<Integer> errorSet = new HashSet<>();
+
   private static final int MAX_ERROR_SIZE = 100;
 
   public JinjavaInterpreter(
@@ -156,9 +161,9 @@ public class JinjavaInterpreter implements PyishSerializable {
   /**
    * Creates a new variable scope, extending from the current scope. Allows you to create a nested
    * contextual scope which can override variables from higher levels.
-   *
+   * <p>
    * Should be used in a try/finally context, similar to lock-use patterns:
-   *
+   * <p>
    * <code>
    * interpreter.enterScope();
    * try (interpreter.enterScope()) {
@@ -398,11 +403,15 @@ public class JinjavaInterpreter implements PyishSerializable {
     resolveBlockStubs(output);
     if (ignoredOutput.length() > 0) {
       return (
-        EagerReconstructionUtils.buildBlockSetTag(
-          SetTag.IGNORED_VARIABLE_NAME,
-          ignoredOutput.toString(),
-          this,
-          false
+        EagerReconstructionUtils.labelWithNotes(
+          EagerReconstructionUtils.wrapInTag(
+            ignoredOutput.toString(),
+            DoTag.TAG_NAME,
+            this,
+            false
+          ),
+          IGNORED_OUTPUT_FROM_EXTENDS_NOTE,
+          this
         ) +
         output.getValue()
       );
@@ -709,6 +718,10 @@ public class JinjavaInterpreter implements PyishSerializable {
   }
 
   public void addError(TemplateError templateError) {
+    if (templateError == null) {
+      return;
+    }
+
     if (context.getThrowInterpreterErrors()) {
       if (templateError.getSeverity() == ErrorType.FATAL) {
         // Throw fatal errors when locating deferred words.
@@ -740,15 +753,21 @@ public class JinjavaInterpreter implements PyishSerializable {
       templateError.setLineno(context.getCurrentPathStack().getTopLineNumber());
     }
 
-    // Limit the number of error.
+    // Limit the number of errors and filter duplicates
     if (errors.size() < MAX_ERROR_SIZE) {
-      this.errors.add(templateError.withScopeDepth(scopeDepth));
+      templateError = templateError.withScopeDepth(scopeDepth);
+      int errorCode = templateError.hashCode();
+      if (!errorSet.contains(errorCode)) {
+        this.errors.add(templateError);
+        this.errorSet.add(errorCode);
+      }
     }
   }
 
   public void removeLastError() {
     if (!errors.isEmpty()) {
-      errors.remove(errors.size() - 1);
+      TemplateError error = errors.remove(errors.size() - 1);
+      errorSet.remove(error.hashCode());
     }
   }
 
@@ -884,7 +903,9 @@ public class JinjavaInterpreter implements PyishSerializable {
   }
 
   @Override
-  public String toPyishString() {
-    return ExtendedParser.INTERPRETER;
+  @SuppressWarnings("unchecked")
+  public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+    throws IOException {
+    return (T) appendable.append(ExtendedParser.INTERPRETER);
   }
 }

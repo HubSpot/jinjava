@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.CannotReconstructValueException;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
@@ -17,6 +18,7 @@ import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.Re
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
+import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
+@Beta
 public class EagerForTag extends EagerTagDecorator<ForTag> {
 
   public EagerForTag() {
@@ -36,45 +39,63 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
 
   @Override
   public String innerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    Set<DeferredToken> addedTokens = new HashSet<>();
-    EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
-      eagerInterpreter -> {
-        EagerExpressionResult expressionResult = EagerExpressionResult.fromSupplier(
-          () -> getTag().interpretUnchecked(tagNode, eagerInterpreter),
-          eagerInterpreter
-        );
-        addedTokens.addAll(eagerInterpreter.getContext().getDeferredTokens());
-        return expressionResult;
-      },
+    Pair<List<String>, String> loopVarsAndExpression = getTag()
+      .getLoopVarsAndExpression((TagToken) tagNode.getMaster());
+    EagerExecutionResult collectionResult = EagerContextWatcher.executeInChildContext(
+      eagerInterpreter ->
+        EagerExpressionResolver.resolveExpression(
+          '[' + loopVarsAndExpression.getRight() + ']',
+          interpreter
+        ),
       interpreter,
       EagerContextWatcher
         .EagerChildContextConfig.newBuilder()
         .withCheckForContextChanges(!interpreter.getContext().isDeferredExecutionMode())
         .build()
     );
-    if (
-      result.getResult().getResolutionState() == ResolutionState.NONE ||
-      (
-        !result.getResult().isFullyResolved() &&
-        !result.getSpeculativeBindings().isEmpty()
-      )
-    ) {
-      EagerReconstructionUtils.resetSpeculativeBindings(interpreter, result);
-      interpreter.getContext().removeDeferredTokens(addedTokens);
-      throw new DeferredValueException(
-        result.getResult().getResolutionState() == ResolutionState.NONE
-          ? result.getResult().toString()
-          : "Modification inside partially evaluated for loop"
+    if (collectionResult.getResult().isFullyResolved()) {
+      Set<DeferredToken> addedTokens = new HashSet<>();
+      EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
+        eagerInterpreter -> {
+          EagerExpressionResult expressionResult = EagerExpressionResult.fromSupplier(
+            () ->
+              getTag()
+                .renderForCollection(
+                  tagNode,
+                  eagerInterpreter,
+                  loopVarsAndExpression.getLeft(),
+                  collectionResult.getResult().toList().get(0)
+                ),
+            eagerInterpreter
+          );
+          addedTokens.addAll(eagerInterpreter.getContext().getDeferredTokens());
+          return expressionResult;
+        },
+        interpreter,
+        EagerContextWatcher.EagerChildContextConfig.newBuilder().build()
       );
+      if (result.getResult().getResolutionState() == ResolutionState.NONE) {
+        EagerReconstructionUtils.resetSpeculativeBindings(interpreter, collectionResult);
+        EagerReconstructionUtils.resetSpeculativeBindings(interpreter, result);
+        interpreter.getContext().removeDeferredTokens(addedTokens);
+        throw new DeferredValueException(result.getResult().toString());
+      }
+      if (result.getResult().isFullyResolved()) {
+        return result.getResult().toString(true);
+      } else {
+        return (
+          result
+            .getPrefixToPreserveState()
+            .withAllInFront(collectionResult.getPrefixToPreserveState()) +
+          EagerReconstructionUtils.wrapInChildScope(
+            result.getResult().toString(true),
+            interpreter
+          )
+        );
+      }
     }
-    if (result.getResult().isFullyResolved()) {
-      return result.getResult().toString(true);
-    } else {
-      return EagerReconstructionUtils.wrapInChildScope(
-        result.getResult().toString(true),
-        interpreter
-      );
-    }
+    EagerReconstructionUtils.resetSpeculativeBindings(interpreter, collectionResult);
+    throw new DeferredValueException(collectionResult.getResult().toString());
   }
 
   @Override
@@ -89,7 +110,6 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     LengthLimitingStringBuilder result = new LengthLimitingStringBuilder(
       interpreter.getConfig().getMaxOutputSize()
     );
-    String prefix = "";
 
     try (
       TemporaryValueClosable<Boolean> c = interpreter
@@ -124,10 +144,14 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     }
 
     EagerExecutionResult firstRunResult = runLoopOnce(tagNode, interpreter);
-    if (!firstRunResult.getSpeculativeBindings().isEmpty()) {
-      // Defer any variables that we tried to modify during the loop
-      prefix = firstRunResult.getPrefixToPreserveState(true);
-    }
+    PrefixToPreserveState prefixToPreserveState = firstRunResult
+      .getPrefixToPreserveState()
+      .withAllInFront(
+        EagerReconstructionUtils.resetAndDeferSpeculativeBindings(
+          interpreter,
+          firstRunResult
+        )
+      );
     // Run for loop again now that the necessary values have been deferred
     EagerExecutionResult secondRunResult = runLoopOnce(tagNode, interpreter);
     if (
@@ -145,7 +169,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
 
     result.append(secondRunResult.asTemplateString());
     result.append(EagerReconstructionUtils.reconstructEnd(tagNode));
-    return prefix + result;
+    return prefixToPreserveState.toString() + result;
   }
 
   private EagerExecutionResult runLoopOnce(
@@ -210,35 +234,34 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       .add("in")
       .add(eagerExpressionResult.toString())
       .add(tagToken.getSymbols().getExpressionEndWithTag());
-    StringBuilder prefixToPreserveState = new StringBuilder();
-    String newlyDeferredFunctionImages = EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
-      eagerExpressionResult.getDeferredWords(),
-      interpreter
-    );
-    prefixToPreserveState.append(newlyDeferredFunctionImages);
-
-    prefixToPreserveState.append(
-      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
-        interpreter,
-        new DeferredToken(
-          new TagToken(
-            joiner.toString(),
-            tagToken.getLineNumber(),
-            tagToken.getStartPosition(),
-            tagToken.getSymbols()
-          ),
-          eagerExpressionResult
-            .getDeferredWords()
-            .stream()
-            .filter(
-              word ->
-                !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
-            )
-            .collect(Collectors.toSet()),
-          Collections.emptySet()
-        )
+    PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState(
+      EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
+        eagerExpressionResult.getDeferredWords(),
+        interpreter
       )
-    );
+    )
+    .withAllInFront(
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
+          new DeferredToken(
+            new TagToken(
+              joiner.toString(),
+              tagToken.getLineNumber(),
+              tagToken.getStartPosition(),
+              tagToken.getSymbols()
+            ),
+            eagerExpressionResult
+              .getDeferredWords()
+              .stream()
+              .filter(
+                word ->
+                  !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
+              )
+              .collect(Collectors.toSet()),
+            Collections.emptySet()
+          )
+        )
+      );
     return (prefixToPreserveState + joiner.toString());
   }
 }

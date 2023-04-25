@@ -17,11 +17,18 @@ public class DoTagTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itAddsTemplateErrorOnEmptyExpression() {
+  public void itAddsTemplateErrorOnEmptyExpressionAndNoEndTag() {
     String template = "{% do %}";
     RenderResult renderResult = jinjava.renderForResult(template, Maps.newHashMap());
     assertThat(renderResult.getErrors()).hasSize(1);
     assertThat(renderResult.getErrors().get(0).getReason())
       .isEqualTo(ErrorReason.SYNTAX_ERROR);
+  }
+
+  @Test
+  public void itEvaluatesDoBlockAndDiscardsResult() {
+    String template =
+      "{% do %}{% set foo = 1 %}{{ foo }}{% enddo %}{% if foo == 1 %}Yes{% endif %}";
+    assertThat(jinjava.render(template, Maps.newHashMap())).isEqualTo("Yes");
   }
 }

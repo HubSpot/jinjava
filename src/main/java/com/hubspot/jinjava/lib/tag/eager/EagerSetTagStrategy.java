@@ -1,9 +1,11 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Triple;
 
+@Beta
 public abstract class EagerSetTagStrategy {
   protected final SetTag setTag;
 
@@ -43,6 +46,7 @@ public abstract class EagerSetTagStrategy {
 
     EagerExecutionResult eagerExecutionResult = getEagerExecutionResult(
       tagNode,
+      variables,
       expression,
       interpreter
     );
@@ -78,6 +82,7 @@ public abstract class EagerSetTagStrategy {
 
   protected abstract EagerExecutionResult getEagerExecutionResult(
     TagNode tagNode,
+    String[] variables,
     String expression,
     JinjavaInterpreter interpreter
   );
@@ -111,19 +116,22 @@ public abstract class EagerSetTagStrategy {
     JinjavaInterpreter interpreter
   );
 
-  protected String getPrefixToPreserveState(
+  protected PrefixToPreserveState getPrefixToPreserveState(
     EagerExecutionResult eagerExecutionResult,
     String[] variables,
     JinjavaInterpreter interpreter
   ) {
-    StringBuilder prefixToPreserveState = new StringBuilder();
-    if (interpreter.getContext().isDeferredExecutionMode()) {
-      prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
+    PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
+    if (
+      !eagerExecutionResult.getResult().isFullyResolved() ||
+      interpreter.getContext().isDeferredExecutionMode()
+    ) {
+      prefixToPreserveState.putAll(eagerExecutionResult.getPrefixToPreserveState());
     } else {
       interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
     }
-    prefixToPreserveState.append(
-      EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
+    prefixToPreserveState.putAll(
+      EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
         Stream
           .concat(
             eagerExecutionResult.getResult().getDeferredWords().stream(),
@@ -133,7 +141,7 @@ public abstract class EagerSetTagStrategy {
         interpreter
       )
     );
-    return prefixToPreserveState.toString();
+    return prefixToPreserveState;
   }
 
   protected String getSuffixToPreserveState(

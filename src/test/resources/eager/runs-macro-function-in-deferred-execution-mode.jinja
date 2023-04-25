@@ -1,0 +1,12 @@
+{% macro modify(val) %}
+{% do holder.update({'val': holder.val + 1}) %}
+{% endmacro %}
+{% set holder = {'val': -1} %}
+{% for i in range(deferred) %}
+{% do modify(1) %}
+{% if holder.val >= 1 %}
+{{ i }}
+{% endif %}
+{% endfor %}
+
+{{ holder.val }}

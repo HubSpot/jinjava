@@ -1,0 +1,7 @@
+{% set my_list = ['a'] %}{% set foo %}
+a
+{% if deferred %}
+{% do my_list.append('b') %}b
+{% endif %}
+{% endset %}
+{{ my_list }}

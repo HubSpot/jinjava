@@ -299,6 +299,25 @@ public class SetTagTest extends BaseInterpretingTest {
     assertThat(result).isEqualTo("BAR");
   }
 
+  @Test
+  public void itRunsSetBlockInAChildScope() {
+    String template =
+      "{% set bar = 1 %}{% set foo %}{% set bar = 2 %}{% endset %}{{ bar }}";
+    final String result = interpreter.render(template);
+
+    assertThat(result).isEqualTo("1");
+  }
+
+  @Test
+  public void itDoesNotRunSetBlockInAChildScopeForIgnoredVariableName() {
+    // This is to preserve legacy behaviour used in Eager Execution
+    String template =
+      "{% set bar = 1 %}{% set __ignored__ %}{% set bar = 2 %}{% endset %}{{ bar }}";
+    final String result = interpreter.render(template);
+
+    assertThat(result).isEqualTo("2");
+  }
+
   private Node fixture(String name) {
     try {
       return new TreeParser(

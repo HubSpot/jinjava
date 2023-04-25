@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -9,14 +10,15 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.ImportTag;
-import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,6 +32,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
+@Beta
 public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
 
   public EagerImportTag() {
@@ -58,12 +61,14 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       }
       return (
         initialPathSetter +
-        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
-          interpreter,
-          new DeferredToken(
-            tagToken,
-            Collections.singleton(helper.get(0)),
-            Collections.singleton(currentImportAlias)
+        new PrefixToPreserveState(
+          EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+            interpreter,
+            new DeferredToken(
+              tagToken,
+              Collections.singleton(helper.get(0)),
+              Collections.singleton(currentImportAlias)
+            )
           )
         ) +
         tagToken.getImage()
@@ -141,9 +146,9 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
             childBindings
           );
       }
-      return EagerReconstructionUtils.buildBlockSetTag(
-        SetTag.IGNORED_VARIABLE_NAME,
+      return EagerReconstructionUtils.wrapInTag(
         finalOutput,
+        DoTag.TAG_NAME,
         interpreter,
         true
       );
@@ -186,28 +191,33 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
   ) {
     return (
       newPathSetter +
-      getSetTagForDeferredChildBindings(interpreter, currentImportAlias, childBindings) +
       EagerReconstructionUtils.buildSetTag(
         ImmutableMap.of(currentImportAlias, "{}"),
         interpreter,
         true
       ) +
-      wrapInChildScopeIfNecessary(interpreter, output, currentImportAlias) +
+      wrapInChildScope(
+        interpreter,
+        getSetTagForDeferredChildBindings(
+          interpreter,
+          currentImportAlias,
+          childBindings
+        ) +
+        output,
+        currentImportAlias
+      ) +
       initialPathSetter
     );
   }
 
-  private static String wrapInChildScopeIfNecessary(
+  private static String wrapInChildScope(
     JinjavaInterpreter interpreter,
     String output,
     String currentImportAlias
   ) {
     String combined = output + getDoTagToPreserve(interpreter, currentImportAlias);
     // So that any set variables other than the alias won't exist outside the child's scope
-    if (interpreter.getContext().isDeferredExecutionMode()) {
-      return EagerReconstructionUtils.wrapInChildScope(combined, interpreter);
-    }
-    return combined;
+    return EagerReconstructionUtils.wrapInChildScope(combined, interpreter);
   }
 
   private String getSetTagForDeferredChildBindings(
@@ -241,7 +251,11 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       childBindings
         .entrySet()
         .stream()
-        .filter(entry -> entry.getValue() instanceof DeferredValue)
+        .filter(
+          entry ->
+            entry.getValue() instanceof DeferredValue &&
+            ((DeferredValue) entry.getValue()).getOriginalValue() != null
+        )
         .filter(entry -> !interpreter.getContext().containsKey(entry.getKey()))
         .filter(entry -> !entry.getKey().equals(currentImportAlias))
         .collect(
@@ -426,7 +440,6 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     JinjavaInterpreter child,
     JinjavaInterpreter parent
   ) {
-    childBindings.remove(SetTag.IGNORED_VARIABLE_NAME);
     for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
       if (parent.getContext().isDeferredExecutionMode()) {
         macro.setDeferred(true);

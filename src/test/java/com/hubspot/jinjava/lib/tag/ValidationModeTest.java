@@ -114,7 +114,7 @@ public class ValidationModeTest {
       "{{ badCode( }}" + "{% for i in [1, 2, 3] %}" + "  {{ badCode( }}" + "{% endfor %}"
     );
 
-    assertThat(validatingInterpreter.getErrors().size()).isEqualTo(4);
+    assertThat(validatingInterpreter.getErrors().size()).isEqualTo(2);
   }
 
   @Test
@@ -130,7 +130,7 @@ public class ValidationModeTest {
       "done"
     );
 
-    assertThat(validatingInterpreter.getErrors().size()).isEqualTo(4);
+    assertThat(validatingInterpreter.getErrors().size()).isEqualTo(2);
     assertThat(output.trim()).isEqualTo("done");
   }
 

@@ -27,6 +27,14 @@ import org.apache.commons.lang3.StringUtils;
   "Use this filter if you need to display text that might contain such characters in Jinjava. " +
   "Marks return value as markup string.",
   input = @JinjavaParam(value = "s", desc = "String to escape", required = true),
+  params = {
+    @JinjavaParam(
+      value = "all_braces",
+      type = "boolean",
+      desc = "Whether to only escape all curly braces or just when there are default expression, tag, or comment marks",
+      defaultValue = "true"
+    )
+  },
   snippets = {
     @JinjavaSnippet(
       code = "{% set escape_string = \"{{This markup is printed as text}}\" %}\n" +
@@ -47,8 +55,19 @@ public class EscapeJinjavaFilter implements Filter {
     return StringUtils.replaceEach(input, TO_REPLACE, REPLACE_WITH);
   }
 
+  public static String escapeFullJinjavaEntities(String input) {
+    return input
+      .replace("{{", BLBRACE + BLBRACE)
+      .replace("}}", BRBRACE + BRBRACE)
+      .replaceAll("\\{([{%#])", BLBRACE + "$1")
+      .replaceAll("([}%#])}", "$1" + BRBRACE);
+  }
+
   @Override
   public Object filter(Object object, JinjavaInterpreter interpreter, String... arg) {
+    if (arg.length > 0 && "false".equals(arg[0])) {
+      return escapeFullJinjavaEntities(Objects.toString(object, ""));
+    }
     return escapeJinjavaEntities(Objects.toString(object, ""));
   }
 

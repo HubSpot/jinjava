@@ -1,10 +1,10 @@
-{% set b_list = ['a'] %}{% set a_list = ['a'] %}{% set b_list = a_list %}{% do b_list.append(deferred ? 'b' : '') %}
-{% set b_list = a_list %}{% set b_list = a_list %}{% macro c(c_list) %}{% do c_list.append(deferred ? 'c' : '') %}
-C: {{ c_list }}.{% endmacro %}{% set b_list = a_list %}{% set b_list = a_list %}{{ c(b_list) }}{% set b_list = a_list %}{% set b_list = a_list %}{% set b_list = a_list %}{% set b_list = a_list %}{% do b_list.append(deferred ? 'B' : '') %}
-B: {% set b_list = a_list %}{% set b_list = a_list %}{% set b_list = a_list %}{% set b_list = a_list %}{{ b_list }}.{% do a_list.append(deferred ? 'A' : '') %}
+{% set a_list = ['a'] %}{% set __macro_b_125206_temp_variable_0__ %}{% set b_list = a_list %}{% do b_list.append(deferred ? 'b' : '') %}
+{% set b_list = a_list %}{% macro c(c_list) %}{% do c_list.append(deferred ? 'c' : '') %}
+C: {{ c_list }}.{% endmacro %}{{ c(b_list) }}{% set b_list = a_list %}{% do b_list.append(deferred ? 'B' : '') %}
+B: {% set b_list = a_list %}{{ b_list }}.{% endset %}{{ __macro_b_125206_temp_variable_0__ }}{% do a_list.append(deferred ? 'A' : '') %}
 A: {{ a_list }}.
 ---
-{% set a_list = ['a'] %}{% set b_list = a_list %}{% for i in [0] %}{% set b_list = a_list %}{% set b_list = a_list %}{% do b_list.append('b') %}{% for __ignored__ in [0] %}{% set b_list = a_list %}{% set c_list = b_list %}{% do c_list.append(deferred ? 'c' : '') %}
-C: {{ c_list }}.{% endfor %}{% set b_list = a_list %}{% do b_list.append(deferred ? 'B' : '') %}
+{% set a_list = ['a', 'b'] %}{% for __ignored__ in [0] %}{% for __ignored__ in [0] %}{% set c_list = a_list %}{% do c_list.append(deferred ? 'c' : '') %}
+C: {% set c_list = a_list %}{{ c_list }}.{% endfor %}{% set b_list = a_list %}{% do b_list.append(deferred ? 'B' : '') %}
 B: {% set b_list = a_list %}{{ b_list }}.{% endfor %}{% do a_list.append(deferred ? 'A' : '') %}
 A: {{ a_list }}.

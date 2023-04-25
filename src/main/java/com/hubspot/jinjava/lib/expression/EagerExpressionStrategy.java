@@ -1,11 +1,11 @@
 package com.hubspot.jinjava.lib.expression;
 
+import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
-import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
@@ -14,10 +14,12 @@ import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.Logging;
+import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
+@Beta
 public class EagerExpressionStrategy implements ExpressionStrategy {
   private static final long serialVersionUID = -6792345439237764193L;
 
@@ -47,9 +49,12 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         .build()
     );
 
-    StringBuilder prefixToPreserveState = new StringBuilder();
-    if (interpreter.getContext().isDeferredExecutionMode()) {
-      prefixToPreserveState.append(eagerExecutionResult.getPrefixToPreserveState());
+    PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
+    if (
+      !eagerExecutionResult.getResult().isFullyResolved() ||
+      interpreter.getContext().isDeferredExecutionMode()
+    ) {
+      prefixToPreserveState.putAll(eagerExecutionResult.getPrefixToPreserveState());
     } else {
       interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
     }
@@ -59,22 +64,22 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         prefixToPreserveState.toString() + postProcessResult(master, result, interpreter)
       );
     }
-    prefixToPreserveState.append(
-      EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
+    prefixToPreserveState.putAll(
+      EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
         eagerExecutionResult.getResult().getDeferredWords(),
         interpreter
       )
     );
-    String helpers = wrapInExpression(
+    String deferredExpressionImage = wrapInExpression(
       eagerExecutionResult.getResult().toString(),
       interpreter
     );
-    prefixToPreserveState.append(
+    prefixToPreserveState.withAllInFront(
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
         interpreter,
         new DeferredToken(
           new ExpressionToken(
-            helpers,
+            deferredExpressionImage,
             master.getLineNumber(),
             master.getStartPosition(),
             master.getSymbols()
@@ -93,7 +98,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     );
     // There is only a preserving prefix because it couldn't be entirely evaluated.
     return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
-      prefixToPreserveState.toString() + helpers,
+      prefixToPreserveState.toString() + deferredExpressionImage,
       interpreter
     );
   }
@@ -123,8 +128,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
           }
         }
       } else {
-        // Possible macro/set tag in front of this one. Includes result
-        result = wrapInRawOrExpressionIfNeeded(result, interpreter);
+        result = EagerReconstructionUtils.wrapInRawIfNeeded(result, interpreter);
       }
     }
 
@@ -145,24 +149,6 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
           error.getReason() == ErrorReason.DISABLED
       )
       .count();
-  }
-
-  private static String wrapInRawOrExpressionIfNeeded(
-    String output,
-    JinjavaInterpreter interpreter
-  ) {
-    JinjavaConfig config = interpreter.getConfig();
-    if (
-      config.getExecutionMode().isPreserveRawTags() &&
-      !interpreter.getContext().isUnwrapRawOverride() &&
-      (
-        output.contains(config.getTokenScannerSymbols().getExpressionStart()) ||
-        output.contains(config.getTokenScannerSymbols().getExpressionStartWithTag())
-      )
-    ) {
-      return EagerReconstructionUtils.wrapInTag(output, RawTag.TAG_NAME, interpreter);
-    }
-    return output;
   }
 
   private static String wrapInExpression(String output, JinjavaInterpreter interpreter) {

@@ -24,6 +24,7 @@ import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -303,7 +304,7 @@ public class EagerExpressionResolverTest {
   }
 
   @Test
-  public void itSerializesDateProperly() {
+  public void itSerializesDateProperly() throws IOException {
     PyishDate date = new PyishDate(
       ZonedDateTime.ofInstant(Instant.ofEpochMilli(1234567890L), ZoneId.systemDefault())
     );
@@ -311,7 +312,7 @@ public class EagerExpressionResolverTest {
     EagerExpressionResult eagerExpressionResult = eagerResolveExpression("date");
 
     assertThat(WhitespaceUtils.unquoteAndUnescape(eagerExpressionResult.toString()))
-      .isEqualTo(date.toPyishString());
+      .isEqualTo(date.appendPyishString(new StringBuilder()).toString());
     interpreter.render(
       "{% set foo = " +
       PyishObjectMapper.getAsPyishString(ImmutableMap.of("a", date)) +
@@ -907,7 +908,9 @@ public class EagerExpressionResolverTest {
     }
 
     @Override
-    public String toPyishString() {
+    @SuppressWarnings("unchecked")
+    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+      throws IOException {
       throw new DeferredValueException("Can't serialize");
     }
   }

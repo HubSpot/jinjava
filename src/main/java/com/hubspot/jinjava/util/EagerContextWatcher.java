@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.util;
 
+import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.CannotReconstructValueException;
 import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -23,6 +24,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Beta
 public class EagerContextWatcher {
 
   /**
@@ -190,30 +192,33 @@ public class EagerContextWatcher {
     Set<String> ignoredKeys,
     EagerExecutionResult eagerExecutionResult
   ) {
-    eagerExecutionResult
-      .getSpeculativeBindings()
-      .putAll(
-        interpreter
-          .getContext()
-          .getScope()
-          .entrySet()
-          .stream()
-          .filter(
-            entry ->
-              entry.getValue() instanceof DeferredLazyReferenceSource &&
-              !(((DeferredLazyReferenceSource) entry.getValue()).isReconstructed())
-          )
-          .peek(
-            entry ->
-              ((DeferredLazyReferenceSource) entry.getValue()).setReconstructed(true)
-          )
-          .collect(
-            Collectors.toMap(
-              Entry::getKey,
-              entry -> ((DeferredLazyReferenceSource) entry.getValue()).getOriginalValue()
+    if (!eagerChildContextConfig.takeNewValue) {
+      eagerExecutionResult
+        .getSpeculativeBindings()
+        .putAll(
+          interpreter
+            .getContext()
+            .getScope()
+            .entrySet()
+            .stream()
+            .filter(
+              entry ->
+                entry.getValue() instanceof DeferredLazyReferenceSource &&
+                !(((DeferredLazyReferenceSource) entry.getValue()).isReconstructed())
             )
-          )
-      );
+            .peek(
+              entry ->
+                ((DeferredLazyReferenceSource) entry.getValue()).setReconstructed(true)
+            )
+            .collect(
+              Collectors.toMap(
+                Entry::getKey,
+                entry ->
+                  ((DeferredLazyReferenceSource) entry.getValue()).getOriginalValue()
+              )
+            )
+        );
+    }
     return eagerExecutionResult
       .getSpeculativeBindings()
       .entrySet()

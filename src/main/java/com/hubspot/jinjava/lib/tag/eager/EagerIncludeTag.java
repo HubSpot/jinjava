@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.IncludeTag;
@@ -10,6 +11,7 @@ import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 
+@Beta
 public class EagerIncludeTag extends EagerTagDecorator<IncludeTag> {
 
   public EagerIncludeTag(IncludeTag tag) {

@@ -482,7 +482,11 @@ public class EagerTest {
     String output = interpreter.render(template);
     assertThat(localContext).containsKey("deferredValue2");
     Object deferredValue2 = localContext.get("deferredValue2");
-    DeferredValueUtils.findAndMarkDeferredProperties(localContext);
+    localContext
+      .getDeferredNodes()
+      .forEach(
+        node -> DeferredValueUtils.findAndMarkDeferredProperties(localContext, node)
+      );
     assertThat(deferredValue2).isInstanceOf(DeferredValue.class);
     assertThat(output)
       .contains(
@@ -1141,7 +1145,7 @@ public class EagerTest {
 
   @Test
   public void itHandlesReferenceModificationWhenSourceIsLost() {
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "handles-reference-modification-when-source-is-lost"
     );
   }
@@ -1264,6 +1268,86 @@ public class EagerTest {
   public void itOnlyDefersLoopItemOnCurrentContext() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "only-defers-loop-item-on-current-context"
+    );
+  }
+
+  @Test
+  public void itRunsMacroFunctionInDeferredExecutionMode() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "runs-macro-function-in-deferred-execution-mode"
+    );
+  }
+
+  @Test
+  public void itKeepsMacroModificationsInScope() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "keeps-macro-modifications-in-scope"
+    );
+  }
+
+  @Test
+  public void itKeepsMacroModificationsInScopeSecondPass() {
+    interpreter.getContext().put("deferred", true);
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "keeps-macro-modifications-in-scope.expected"
+    );
+  }
+
+  @Test
+  public void itDoesNotReconstructVariableInWrongScope() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "does-not-reconstruct-variable-in-wrong-scope"
+    );
+  }
+
+  @Test
+  public void itDoesNotReconstructVariableInWrongScopeSecondPass() {
+    interpreter.getContext().put("deferred", true);
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "does-not-reconstruct-variable-in-wrong-scope.expected"
+    );
+  }
+
+  @Test
+  public void itReconstructsDeferredVariableEventually() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-deferred-variable-eventually"
+    );
+  }
+
+  @Test
+  public void itDoesntDoubleAppendInDeferredSet() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "doesnt-double-append-in-deferred-set"
+    );
+  }
+
+  @Test
+  public void itDoesntDoubleAppendInDeferredMacro() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "doesnt-double-append-in-deferred-macro"
+    );
+  }
+
+  @Test
+  public void itDoesNotReconstructVariableInSetInWrongScope() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "does-not-reconstruct-variable-in-set-in-wrong-scope"
+    );
+  }
+
+  @Test
+  public void itRreconstructsValueUsedInDeferredImportedMacro() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "reconstructs-value-used-in-deferred-imported-macro"
+    );
+  }
+
+  @Test
+  public void itRreconstructsValueUsedInDeferredImportedMacroSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-value-used-in-deferred-imported-macro.expected"
     );
   }
 }

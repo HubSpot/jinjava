@@ -79,4 +79,26 @@ public class DefaultFilterTest extends BaseJinjavaTest {
       )
       .isEqualTo("Type = str");
   }
+
+  @Test
+  public void itDefaultsNullToNull() {
+    assertThat(
+        jinjava.render(
+          "{% set d=d | default(null) %}{% if (d == null) %}default yields real null{% else %}default yields something other than null{% endif %}",
+          new HashMap<>()
+        )
+      )
+      .isEqualTo("default yields real null");
+  }
+
+  @Test
+  public void itDefaultsNullToNullWithTruthyParam() {
+    assertThat(
+        jinjava.render(
+          "{% set d=d | default(null, true) %}{% if (d == null) %}default with truthy yields real null{% else %}default with truthy yields something other than null{% endif %}",
+          new HashMap<>()
+        )
+      )
+      .isEqualTo("default with truthy yields real null");
+  }
 }

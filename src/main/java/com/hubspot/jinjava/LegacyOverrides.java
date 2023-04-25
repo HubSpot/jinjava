@@ -9,6 +9,7 @@ public class LegacyOverrides {
   private final boolean evaluateMapKeys;
   private final boolean iterateOverMapKeys;
   private final boolean usePyishObjectMapper;
+  private final boolean useSnakeCasePropertyNaming;
   private final boolean whitespaceRequiredWithinTokens;
   private final boolean useNaturalOperatorPrecedence;
   private final boolean parseWhitespaceControlStrictly;
@@ -17,6 +18,7 @@ public class LegacyOverrides {
     evaluateMapKeys = builder.evaluateMapKeys;
     iterateOverMapKeys = builder.iterateOverMapKeys;
     usePyishObjectMapper = builder.usePyishObjectMapper;
+    useSnakeCasePropertyNaming = builder.useSnakeCasePropertyNaming;
     whitespaceRequiredWithinTokens = builder.whitespaceRequiredWithinTokens;
     useNaturalOperatorPrecedence = builder.useNaturalOperatorPrecedence;
     parseWhitespaceControlStrictly = builder.parseWhitespaceControlStrictly;
@@ -38,6 +40,10 @@ public class LegacyOverrides {
     return usePyishObjectMapper;
   }
 
+  public boolean isUseSnakeCasePropertyNaming() {
+    return useSnakeCasePropertyNaming;
+  }
+
   public boolean isWhitespaceRequiredWithinTokens() {
     return whitespaceRequiredWithinTokens;
   }
@@ -54,6 +60,7 @@ public class LegacyOverrides {
     private boolean evaluateMapKeys = false;
     private boolean iterateOverMapKeys = false;
     private boolean usePyishObjectMapper = false;
+    private boolean useSnakeCasePropertyNaming = false;
     private boolean whitespaceRequiredWithinTokens = false;
     private boolean useNaturalOperatorPrecedence = false;
     private boolean parseWhitespaceControlStrictly = false;
@@ -69,6 +76,7 @@ public class LegacyOverrides {
         .withEvaluateMapKeys(legacyOverrides.evaluateMapKeys)
         .withIterateOverMapKeys(legacyOverrides.iterateOverMapKeys)
         .withUsePyishObjectMapper(legacyOverrides.usePyishObjectMapper)
+        .withUseSnakeCasePropertyNaming(legacyOverrides.useSnakeCasePropertyNaming)
         .withWhitespaceRequiredWithinTokens(
           legacyOverrides.whitespaceRequiredWithinTokens
         )
@@ -90,6 +98,11 @@ public class LegacyOverrides {
 
     public Builder withUsePyishObjectMapper(boolean usePyishObjectMapper) {
       this.usePyishObjectMapper = usePyishObjectMapper;
+      return this;
+    }
+
+    public Builder withUseSnakeCasePropertyNaming(boolean useSnakeCasePropertyNaming) {
+      this.useSnakeCasePropertyNaming = useSnakeCasePropertyNaming;
       return this;
     }
 

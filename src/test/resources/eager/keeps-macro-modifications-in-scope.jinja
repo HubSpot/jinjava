@@ -1,0 +1,15 @@
+{%- set list = [] %}
+{%- if deferred %}
+{%- macro inc(val, depth) %}
+{%- do list.append(depth) -%}
+{{ depth }}
+{%- if depth < 3 %}
+{%- set depth = depth + 1 %}
+{{ inc(val, depth) }}
+{{ inc(val, depth) }}
+{%- endif %}
+{%- endmacro %}
+
+{{ inc('a', 1) }}
+{% endif %}
+

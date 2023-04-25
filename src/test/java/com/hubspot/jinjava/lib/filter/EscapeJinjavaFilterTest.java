@@ -30,4 +30,14 @@ public class EscapeJinjavaFilterTest extends BaseInterpretingTest {
     assertThat(f.filter(new SafeString("{{ me & you }}"), interpreter))
       .isInstanceOf(SafeString.class);
   }
+
+  @Test
+  public void testDoesNotEscapeJson() {
+    assertThat(
+        f.filter("{'foo': 'bar', '{{{ foo }}}': '{% bar %}'}", interpreter, "false")
+      )
+      .isEqualTo(
+        "{'foo': 'bar', '&lbrace;&lbrace;{ foo &rbrace;&rbrace;}': '&lbrace;% bar %&rbrace;'}"
+      );
+  }
 }

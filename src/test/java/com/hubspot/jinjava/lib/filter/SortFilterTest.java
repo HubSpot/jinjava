@@ -6,6 +6,7 @@ import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -153,8 +154,10 @@ public class SortFilterTest extends BaseJinjavaTest {
     }
 
     @Override
-    public String toPyishString() {
-      return toString();
+    @SuppressWarnings("unchecked")
+    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+      throws IOException {
+      return (T) appendable.append(toString());
     }
   }
 
@@ -175,8 +178,10 @@ public class SortFilterTest extends BaseJinjavaTest {
     }
 
     @Override
-    public String toPyishString() {
-      return toString();
+    @SuppressWarnings("unchecked")
+    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+      throws IOException {
+      return (T) appendable.append(toString());
     }
   }
 }

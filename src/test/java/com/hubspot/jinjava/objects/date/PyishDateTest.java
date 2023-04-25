@@ -3,8 +3,11 @@ package com.hubspot.jinjava.objects.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -16,6 +19,28 @@ public class PyishDateTest {
   public void itUsesCurrentTimeWhenNoneProvided() {
     PyishDate d = new PyishDate((Long) null);
     assertThat(d.toDate()).isCloseTo(new Date(), 10000);
+  }
+
+  @Test
+  public void itUsesDateTimeProviderWhenNoTimeProvided() {
+    long ts = 123345414223L;
+
+    JinjavaInterpreter.pushCurrent(
+      new JinjavaInterpreter(
+        new Jinjava(),
+        new Context(),
+        JinjavaConfig
+          .newBuilder()
+          .withDateTimeProvider(new FixedDateTimeProvider(ts))
+          .build()
+      )
+    );
+    try {
+      PyishDate d = new PyishDate((Long) null);
+      assertThat(d.toDate()).isEqualTo(Date.from(Instant.ofEpochMilli(ts)));
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
   }
 
   @Test
@@ -65,6 +90,26 @@ public class PyishDateTest {
     JinjavaInterpreter interpreter = new Jinjava().newInterpreter();
     interpreter.render("{% set foo = " + PyishObjectMapper.getAsPyishString(d1) + "%}");
     assertThat(d1).isEqualTo(interpreter.getContext().get("foo"));
+  }
+
+  @Test
+  public void itPyishSerializesWithCustomDateFormat() {
+    PyishDate d1 = new PyishDate(ZonedDateTime.parse("2013-11-12T14:15:16.170+02:00"));
+    d1.setDateFormat("yyyy-MM-dd");
+    JinjavaInterpreter interpreter = new Jinjava().newInterpreter();
+    interpreter.render("{% set foo = " + PyishObjectMapper.getAsPyishString(d1) + "%}");
+    PyishDate reconstructed = (PyishDate) interpreter.getContext().get("foo");
+    assertThat(reconstructed.toString()).isEqualTo("2013-11-12");
+  }
+
+  @Test
+  public void itDoesntLoseSecondsOnReconstruction() {
+    PyishDate d1 = new PyishDate(ZonedDateTime.parse("2013-11-12T14:15:16.170+02:00"));
+    d1.setDateFormat("yyyy-MM-dd");
+    JinjavaInterpreter interpreter = new Jinjava().newInterpreter();
+    interpreter.render("{% set foo = " + PyishObjectMapper.getAsPyishString(d1) + "%}");
+    PyishDate reconstructed = (PyishDate) interpreter.getContext().get("foo");
+    assertThat(reconstructed.getSecond()).isEqualTo(16);
   }
 
   @Test

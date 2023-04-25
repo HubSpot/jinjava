@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Primitives;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
@@ -17,6 +17,7 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +33,7 @@ import java.util.stream.Stream;
 import javax.el.ELException;
 import org.apache.commons.lang3.StringUtils;
 
+@Beta
 public class EagerExpressionResolver {
   public static final String JINJAVA_NULL = "null";
   public static final String JINJAVA_EMPTY_STRING = "''";
@@ -51,20 +53,13 @@ public class EagerExpressionResolver {
     "false",
     "__macros__",
     ExtendedParser.INTERPRETER,
-    "exptest",
-    "filter"
-  );
-
-  private static final Set<Class<?>> RESOLVABLE_CLASSES = ImmutableSet.of(
-    String.class,
-    Boolean.class,
-    Number.class
+    "exptest"
   );
 
   private static final Pattern NAMED_PARAMETER_KEY_PATTERN = Pattern.compile(
     "[\\w.]+=([^=]|$)"
   );
-  private static final Pattern DICTIONARY_KEY_PATTERN = Pattern.compile("[\\w]+: ");
+  private static final Pattern DICTIONARY_KEY_PATTERN = Pattern.compile("\\w+: ");
 
   /**
    * Resolve the expression while handling deferred values.
@@ -72,7 +67,7 @@ public class EagerExpressionResolver {
    * partially resolved string as well as a set of any words that couldn't be resolved.
    * If a DeferredParsingException is thrown, the expression was partially resolved.
    * If a DeferredValueException is thrown, the expression could not be resolved at all.
-   *
+   * <p>
    * E.g with foo=3, bar=2:
    *   "range(0,foo)[-1] + deferred/bar" -> "2 + deferred/2"
    */
@@ -113,12 +108,12 @@ public class EagerExpressionResolver {
           return pyishString;
         }
       }
-    } catch (JsonProcessingException | OutputTooBigException ignored) {}
+    } catch (IOException | OutputTooBigException ignored) {}
     throw new DeferredValueException("Can not convert deferred result to string");
   }
 
   // Find any unresolved variables, functions, etc in this expression to mark as deferred.
-  private static Set<String> findDeferredWords(
+  public static Set<String> findDeferredWords(
     String partiallyResolved,
     JinjavaInterpreter interpreter
   ) {
@@ -485,7 +480,7 @@ public class EagerExpressionResolver {
       PARTIAL(false),
       NONE(false);
 
-      boolean fullyResolved;
+      final boolean fullyResolved;
 
       ResolutionState(boolean fullyResolved) {
         this.fullyResolved = fullyResolved;

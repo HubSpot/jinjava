@@ -7,6 +7,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -57,6 +58,7 @@ import org.apache.commons.lang3.StringUtils;
   }
 )
 @JinjavaHasCodeBody
+@JinjavaTextMateSnippet(code = "{% macro ${1:name}(${2:values) %}\n\t$0\n{% endmacro %}")
 public class MacroTag implements Tag {
   public static final String TAG_NAME = "macro";
 
@@ -135,16 +137,7 @@ public class MacroTag implements Tag {
           .getContext()
           .put(Context.IMPORT_RESOURCE_PATH_KEY, contextImportResourcePath);
       }
-      macro =
-        new MacroFunction(
-          tagNode.getChildren(),
-          name,
-          argNamesWithDefaults,
-          false,
-          interpreter.getContext(),
-          interpreter.getLineNumber(),
-          interpreter.getPosition()
-        );
+      macro = constructMacroFunction(tagNode, interpreter, name, argNamesWithDefaults);
     } finally {
       if (scopeEntered) {
         interpreter.leaveScope();
@@ -198,6 +191,23 @@ public class MacroTag implements Tag {
     }
 
     return "";
+  }
+
+  protected MacroFunction constructMacroFunction(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    String name,
+    LinkedHashMap<String, Object> argNamesWithDefaults
+  ) {
+    return new MacroFunction(
+      tagNode.getChildren(),
+      name,
+      argNamesWithDefaults,
+      false,
+      interpreter.getContext(),
+      interpreter.getLineNumber(),
+      interpreter.getPosition()
+    );
   }
 
   public static boolean populateArgNames(

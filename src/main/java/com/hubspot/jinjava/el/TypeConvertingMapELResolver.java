@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.el;
 
+import java.util.Iterator;
 import java.util.Map;
 import javax.el.ELContext;
 import javax.el.ELException;
@@ -21,14 +22,17 @@ public class TypeConvertingMapELResolver extends MapELResolver {
     }
 
     if (base instanceof Map && !((Map) base).isEmpty()) {
-      Class<?> keyClass = ((Map) base).keySet().iterator().next().getClass();
-      try {
-        value = ((Map) base).get(TYPE_CONVERTER.convert(property, keyClass));
-        if (value != null) {
-          context.setPropertyResolved(true);
+      Iterator<?> iterator = ((Map) base).keySet().iterator();
+      if (iterator.hasNext()) {
+        Class<?> keyClass = iterator.next().getClass();
+        try {
+          value = ((Map) base).get(TYPE_CONVERTER.convert(property, keyClass));
+          if (value != null) {
+            context.setPropertyResolved(true);
+          }
+        } catch (ELException ex) {
+          value = null;
         }
-      } catch (ELException ex) {
-        value = null;
       }
     }
 

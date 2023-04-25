@@ -54,8 +54,9 @@ public class EscapeFilterTest extends BaseInterpretingTest {
 
     assertThat(newResult).isEqualTo(oldResult);
     System.out.printf("New: %d Old:%d\n", newTime.toMillis(), oldTime.toMillis());
-    int speedUpFactor = 2; // On M1, it is between 50 and 100 times faster.
-    assertThat(newTime.toMillis()).isLessThan(oldTime.toMillis() / speedUpFactor);
+    double speedUpFactor = getVersion() < 17 ? 1.5d : 1; // On M1, it is between 50 and 100 times faster. Difference is much smaller on java 17
+    assertThat(newTime.toMillis())
+      .isLessThan((long) (oldTime.toMillis() / speedUpFactor));
   }
 
   private static String fixture(String name) {
@@ -64,5 +65,18 @@ public class EscapeFilterTest extends BaseInterpretingTest {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private static int getVersion() {
+    String version = System.getProperty("java.version");
+    if (version.startsWith("1.")) {
+      version = version.substring(2, 3);
+    } else {
+      int dotIndex = version.indexOf(".");
+      if (dotIndex != -1) {
+        version = version.substring(0, dotIndex);
+      }
+    }
+    return Integer.parseInt(version);
   }
 }

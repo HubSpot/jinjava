@@ -44,7 +44,6 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.ConcurrentModificationException;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -90,13 +89,14 @@ import org.apache.commons.lang3.tuple.Pair;
 )
 @JinjavaHasCodeBody
 @JinjavaTextMateSnippet(
-  code = "{% for ${1:items} in ${2:list} %}\n" + "{{ ${1} }}$0\n" + "{% endfor %}"
+  code = "{% for ${1:items} in ${2:list} %}\n" + "$0\n" + "{% endfor %}"
 )
 public class ForTag implements Tag {
   public static final String TAG_NAME = "for";
 
+  public static final String LOOP = "loop";
+
   private static final long serialVersionUID = 6175143875754966497L;
-  private static final String LOOP = "loop";
   private static final Pattern IN_PATTERN = Pattern.compile("\\sin\\s");
   public static final String TOO_LARGE_EXCEPTION_MESSAGE = "Loop too large";
 
@@ -150,6 +150,20 @@ public class ForTag implements Tag {
         String.format("%s in %s", String.join(", ", loopVars), e.getDeferredEvalResult())
       );
     }
+    return renderForCollection(
+      tagNode,
+      interpreter,
+      loopVarsAndExpression.getLeft(),
+      collection
+    );
+  }
+
+  public String renderForCollection(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    List<String> loopVars,
+    Object collection
+  ) {
     ForLoop loop = ObjectIterator.getLoop(collection);
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
@@ -189,8 +203,8 @@ public class ForTag implements Tag {
         } else {
           for (int loopVarIndex = 0; loopVarIndex < loopVars.size(); loopVarIndex++) {
             String loopVar = loopVars.get(loopVarIndex);
-            if (Map.Entry.class.isAssignableFrom(val.getClass())) {
-              Map.Entry<String, Object> entry = (Entry<String, Object>) val;
+            if (Entry.class.isAssignableFrom(val.getClass())) {
+              Entry<String, Object> entry = (Entry<String, Object>) val;
               Object entryVal = null;
 
               if (loopVars.indexOf(loopVar) == 0) {

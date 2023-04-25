@@ -16,6 +16,7 @@
 
 package com.hubspot.jinjava.interpret;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
@@ -29,6 +30,7 @@ import com.hubspot.jinjava.lib.filter.FilterLibrary;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.lib.fn.FunctionLibrary;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.lib.tag.ForTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.TagLibrary;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
@@ -87,6 +89,8 @@ public class Context extends ScopeMap<String, Object> {
   private final Set<String> resolvedFunctions = new HashSet<>();
 
   private Set<Node> deferredNodes = new HashSet<>();
+
+  @Beta
   private Set<DeferredToken> deferredTokens = new HashSet<>();
 
   private final ExpTestLibrary expTestLibrary;
@@ -348,13 +352,40 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public void handleDeferredNode(Node node) {
+    if (
+      JinjavaInterpreter
+        .getCurrentMaybe()
+        .map(interpreter -> interpreter.getConfig().getExecutionMode().useEagerParser())
+        .orElse(false)
+    ) {
+      addDeferredNodeRecursively(node);
+    } else {
+      handleDeferredNodeAndDeferVariables(node);
+    }
+  }
+
+  private void addDeferredNodeRecursively(Node node) {
     deferredNodes.add(node);
-    Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(this);
     if (getParent() != null) {
       Context parent = getParent();
-      //Ignore global context
+      // Ignore global context
       if (parent.getParent() != null) {
-        //Place deferred values on the parent context
+        getParent().handleDeferredNode(node);
+      }
+    }
+  }
+
+  private void handleDeferredNodeAndDeferVariables(Node node) {
+    deferredNodes.add(node);
+    Set<String> deferredProps = DeferredValueUtils.findAndMarkDeferredProperties(
+      this,
+      node
+    );
+    if (getParent() != null) {
+      Context parent = getParent();
+      // Ignore global context
+      if (parent.getParent() != null) {
+        // Place deferred values on the parent context
         deferredProps
           .stream()
           .filter(key -> !parent.containsKey(key))
@@ -368,6 +399,7 @@ public class Context extends ScopeMap<String, Object> {
     return ImmutableSet.copyOf(deferredNodes);
   }
 
+  @Beta
   public void checkNumberOfDeferredTokens() {
     Context secondToLastContext = this;
     if (parent != null) {
@@ -386,26 +418,12 @@ public class Context extends ScopeMap<String, Object> {
     }
   }
 
+  @Beta
   public void handleDeferredToken(DeferredToken deferredToken) {
-    deferredTokens.add(deferredToken);
-
-    if (
-      deferredToken.getImportResourcePath() == null ||
-      deferredToken.getImportResourcePath().equals(get(Context.IMPORT_RESOURCE_PATH_KEY))
-    ) {
-      DeferredValueUtils.findAndMarkDeferredProperties(this, deferredToken);
-    }
-    if (getParent() != null) {
-      Context parent = getParent();
-      //Ignore global context
-      if (parent.getParent() != null) {
-        parent.handleDeferredToken(deferredToken);
-      } else {
-        checkNumberOfDeferredTokens();
-      }
-    }
+    deferredToken.addTo(this);
   }
 
+  @Beta
   public void removeDeferredTokens(Collection<DeferredToken> toRemove) {
     deferredTokens.removeAll(toRemove);
     if (getParent() != null) {
@@ -417,6 +435,7 @@ public class Context extends ScopeMap<String, Object> {
     }
   }
 
+  @Beta
   public Set<DeferredToken> getDeferredTokens() {
     return deferredTokens;
   }
@@ -798,5 +817,9 @@ public class Context extends ScopeMap<String, Object> {
 
   public void setCurrentNode(final Node currentNode) {
     this.currentNode = currentNode;
+  }
+
+  public boolean isInForLoop() {
+    return get(ForTag.LOOP) != null;
   }
 }

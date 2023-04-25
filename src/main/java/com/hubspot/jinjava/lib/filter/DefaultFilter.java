@@ -86,7 +86,7 @@ public class DefaultFilter extends AbstractFilter implements AdvancedFilter {
       return object;
     }
 
-    return defaultValue instanceof PyWrapper
+    return (defaultValue instanceof PyWrapper) || (defaultValue == null)
       ? defaultValue
       : Objects.toString(defaultValue);
   }

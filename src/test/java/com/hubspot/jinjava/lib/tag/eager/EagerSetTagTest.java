@@ -159,7 +159,7 @@ public class EagerSetTagTest extends SetTagTest {
           .flatMap(deferredToken -> deferredToken.getUsedDeferredWords().stream())
           .collect(Collectors.toSet())
       )
-      .containsExactlyInAnyOrder("deferred", "foo", "add.filter");
+      .containsExactlyInAnyOrder("deferred", "foo", "add");
   }
 
   @Test
@@ -211,7 +211,7 @@ public class EagerSetTagTest extends SetTagTest {
           .flatMap(deferredToken -> deferredToken.getUsedDeferredWords().stream())
           .collect(Collectors.toSet())
       )
-      .containsExactlyInAnyOrder("deferred", "foo", "add.filter");
+      .containsExactlyInAnyOrder("deferred", "foo", "add");
     context.remove("foo");
     context.put("deferred", 2);
     context.setDeferredExecutionMode(false);

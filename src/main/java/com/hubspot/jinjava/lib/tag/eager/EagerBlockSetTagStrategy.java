@@ -1,21 +1,22 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.Sets;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
-import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
-import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
+import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.Collections;
 import java.util.Optional;
 import org.apache.commons.lang3.tuple.Triple;
 
+@Beta
 public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
   public static final EagerBlockSetTagStrategy INSTANCE = new EagerBlockSetTagStrategy(
     new SetTag()
@@ -28,19 +29,14 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
   @Override
   protected EagerExecutionResult getEagerExecutionResult(
     TagNode tagNode,
+    String[] variables,
     String expression,
     JinjavaInterpreter interpreter
   ) {
-    EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
+    EagerExecutionResult eagerExecutionResult = EagerContextWatcher.executeInChildContext(
       eagerInterpreter ->
         EagerExpressionResult.fromSupplier(
-          () -> {
-            StringBuilder sb = new StringBuilder();
-            for (Node child : tagNode.getChildren()) {
-              sb.append(child.render(eagerInterpreter).getValue());
-            }
-            return sb.toString();
-          },
+          () -> SetTag.renderChildren(tagNode, eagerInterpreter, variables[0]),
           eagerInterpreter
         ),
       interpreter,
@@ -49,10 +45,17 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
         .withTakeNewValue(true)
         .build()
     );
-    if (result.getResult().getResolutionState() == ResolutionState.NONE) {
-      throw new DeferredValueException(result.getResult().toString());
+    if (
+      !eagerExecutionResult.getResult().isFullyResolved() &&
+      !eagerExecutionResult.getSpeculativeBindings().isEmpty() ||
+      interpreter.getContext().isDeferredExecutionMode()
+    ) {
+      EagerReconstructionUtils.resetAndDeferSpeculativeBindings(
+        interpreter,
+        eagerExecutionResult
+      );
     }
-    return result;
+    return eagerExecutionResult;
   }
 
   @Override
@@ -74,6 +77,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
       if (filterPos >= 0) {
         EagerExecutionResult filterResult = EagerInlineSetTagStrategy.INSTANCE.getEagerExecutionResult(
           tagNode,
+          variables,
           tagNode.getHelpers().trim(),
           interpreter
         );
@@ -113,23 +117,32 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
       .add(variables[0])
       .add(tagNode.getSymbols().getExpressionEndWithTag());
 
-    String prefixToPreserveState =
-      getPrefixToPreserveState(eagerExecutionResult, variables, interpreter) +
-      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
-        interpreter,
-        new DeferredToken(
-          new TagToken(
-            joiner.toString(),
-            tagNode.getLineNumber(),
-            tagNode.getStartPosition(),
-            tagNode.getSymbols()
-          ),
-          Collections.emptySet(),
-          Sets.newHashSet(variables)
+    PrefixToPreserveState prefixToPreserveState = getPrefixToPreserveState(
+        eagerExecutionResult,
+        variables,
+        interpreter
+      )
+      .withAllInFront(
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
+          new DeferredToken(
+            new TagToken(
+              joiner.toString(),
+              tagNode.getLineNumber(),
+              tagNode.getStartPosition(),
+              tagNode.getSymbols()
+            ),
+            Collections.emptySet(),
+            Sets.newHashSet(variables)
+          )
         )
       );
     String suffixToPreserveState = getSuffixToPreserveState(variables[0], interpreter);
-    return Triple.of(prefixToPreserveState, joiner.toString(), suffixToPreserveState);
+    return Triple.of(
+      prefixToPreserveState.toString(),
+      joiner.toString(),
+      suffixToPreserveState
+    );
   }
 
   @Override
@@ -164,6 +177,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
     if (filterPos >= 0) {
       EagerExecutionResult filterResult = EagerInlineSetTagStrategy.INSTANCE.getEagerExecutionResult(
         tagNode,
+        variables,
         tagNode.getHelpers().trim(),
         interpreter
       );

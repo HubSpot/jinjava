@@ -1,9 +1,11 @@
 package com.hubspot.jinjava.objects.date;
 
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -50,7 +52,17 @@ public final class PyishDate
     this(
       ZonedDateTime.ofInstant(
         Instant.ofEpochMilli(
-          Optional.ofNullable(epochMillis).orElseGet(System::currentTimeMillis)
+          Optional
+            .ofNullable(epochMillis)
+            .orElseGet(
+              () ->
+                JinjavaInterpreter
+                  .getCurrentMaybe()
+                  .map(JinjavaInterpreter::getConfig)
+                  .map(JinjavaConfig::getDateTimeProvider)
+                  .map(DateTimeProvider::getCurrentTimeMillis)
+                  .orElseGet(System::currentTimeMillis)
+            )
         ),
         ZoneOffset.UTC
       )
@@ -111,6 +123,11 @@ public final class PyishDate
     this.dateFormat = dateFormat;
   }
 
+  public PyishDate withDateFormat(String dateFormat) {
+    setDateFormat(dateFormat);
+    return this;
+  }
+
   public Date toDate() {
     return Date.from(date.toInstant());
   }
@@ -158,11 +175,16 @@ public final class PyishDate
   }
 
   @Override
-  public String toPyishString() {
-    return String.format(
-      "'%s'|strtotime(%s)",
-      strftime(FULL_DATE_FORMAT),
-      PyishObjectMapper.getAsPyishString(FULL_DATE_FORMAT)
-    );
+  @SuppressWarnings("unchecked")
+  public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+    throws IOException {
+    return (T) appendable
+      .append("('")
+      .append(strftime(FULL_DATE_FORMAT))
+      .append("'|strtotime(")
+      .append(PyishObjectMapper.getAsPyishStringOrThrow(FULL_DATE_FORMAT))
+      .append(")).withDateFormat(")
+      .append(PyishObjectMapper.getAsPyishStringOrThrow(dateFormat))
+      .append(')');
   }
 }

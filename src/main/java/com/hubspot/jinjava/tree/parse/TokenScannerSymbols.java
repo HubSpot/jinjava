@@ -22,6 +22,7 @@ public abstract class TokenScannerSymbols implements Serializable {
 
   private String expressionStart = null;
   private String expressionStartWithTag = null;
+  private String openingComment = null;
   private String closingComment = null;
   private String expressionEnd = null;
   private String expressionEndWithTag = null;
@@ -106,6 +107,13 @@ public abstract class TokenScannerSymbols implements Serializable {
       expressionEndWithTag = String.valueOf(getTagChar()) + getPostfixChar();
     }
     return expressionEndWithTag;
+  }
+
+  public String getOpeningComment() {
+    if (openingComment == null) {
+      openingComment = String.valueOf(getPrefixChar()) + getNoteChar();
+    }
+    return openingComment;
   }
 
   public String getClosingComment() {

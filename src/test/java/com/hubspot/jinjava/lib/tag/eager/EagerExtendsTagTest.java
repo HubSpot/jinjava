@@ -71,7 +71,7 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
 
   @Test
   public void itReconstructsDeferredOutsideBlock() {
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "reconstructs-deferred-outside-block"
     );
   }

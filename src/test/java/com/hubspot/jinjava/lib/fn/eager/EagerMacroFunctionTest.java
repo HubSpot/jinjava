@@ -49,13 +49,8 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
   public void itReconstructsImage() {
     String name = "foo";
     String code = "{% macro foo(bar) %}It's: {{ bar }}{% endmacro %}";
-    MacroFunction macroFunction = makeMacroFunction(name, code);
-    EagerMacroFunction eagerMacroFunction = new EagerMacroFunction(
-      name,
-      macroFunction,
-      interpreter
-    );
-    assertThat(eagerMacroFunction.reconstructImage()).isEqualTo(code);
+    EagerMacroFunction eagerMacroFunction = makeMacroFunction(name, code);
+    assertThat(eagerMacroFunction.reconstructImage(name)).isEqualTo(code);
   }
 
   @Test
@@ -63,31 +58,22 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
     context.put("foobar", "resolved");
     String name = "foo";
     String code = "{% macro foo(bar) %}{{ foobar }} and {{ bar }}{% endmacro %}";
-    MacroFunction macroFunction = makeMacroFunction(name, code);
-    EagerMacroFunction eagerMacroFunction = new EagerMacroFunction(
-      name,
-      macroFunction,
-      interpreter
-    );
-    assertThat(eagerMacroFunction.reconstructImage())
+    EagerMacroFunction eagerMacroFunction = makeMacroFunction(name, code);
+    assertThat(eagerMacroFunction.reconstructImage(name))
       .isEqualTo("{% macro foo(bar) %}resolved and {{ bar }}{% endmacro %}");
   }
 
   @Test
   public void itReconstructsForAliasedName() {
+    context.remove("deferred");
     String name = "foo";
     String fullName = "local." + name;
     String codeFormat = "{%% macro %s(bar) %%}It's: {{ bar }}{%% endmacro %%}";
-    MacroFunction macroFunction = makeMacroFunction(
+    EagerMacroFunction eagerMacroFunction = makeMacroFunction(
       name,
       String.format(codeFormat, name)
     );
-    EagerMacroFunction eagerMacroFunction = new EagerMacroFunction(
-      fullName,
-      macroFunction,
-      interpreter
-    );
-    assertThat(eagerMacroFunction.reconstructImage())
+    assertThat(eagerMacroFunction.reconstructImage(fullName))
       .isEqualTo(String.format(codeFormat, fullName));
   }
 
@@ -95,27 +81,23 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
   public void itReconstructsImageWithNamedParams() {
     String name = "foo";
     String code = "{% macro foo(bar, baz=0) %}It's: {{ bar }}, {{ baz }}{% endmacro %}";
-    MacroFunction macroFunction = makeMacroFunction(name, code);
-    EagerMacroFunction eagerMacroFunction = new EagerMacroFunction(
-      name,
-      macroFunction,
-      interpreter
-    );
-    assertThat(eagerMacroFunction.reconstructImage()).isEqualTo(code);
+    EagerMacroFunction eagerMacroFunction = makeMacroFunction(name, code);
+    assertThat(eagerMacroFunction.reconstructImage(name)).isEqualTo(code);
   }
 
   @Test
   public void itPartiallyEvaluatesMacroFunction() {
     // Put this test here because it's only used in eager execution
     context.put("deferred", DeferredValue.instance());
-    MacroFunction macroFunction = makeMacroFunction(
+    EagerMacroFunction eagerMacroFunction = makeMacroFunction(
       "foo",
       "{% macro foo(bar) %}It's: {{ bar }}, {{ deferred }}{% endmacro %}"
     );
-    assertThatThrownBy(() -> macroFunction.evaluate("Bar"))
+    assertThatThrownBy(() -> eagerMacroFunction.evaluate("Bar"))
       .isInstanceOf(DeferredValueException.class);
     try (TemporaryValueClosable<Boolean> ignored = context.withPartialMacroEvaluation()) {
-      assertThat(macroFunction.evaluate("Bar")).isEqualTo("It's: Bar, {{ deferred }}");
+      assertThat(eagerMacroFunction.evaluate("Bar"))
+        .isEqualTo("It's: Bar, {{ deferred }}");
     }
   }
 
@@ -124,14 +106,9 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
     String name = "rec";
     String code =
       "{% macro rec(num=0) %}{% if num > 0 %}{{ num }}-{{ rec(num - 1)}}{% endif %}{% endmacro %}";
-    MacroFunction macroFunction = makeMacroFunction(name, code);
+    EagerMacroFunction eagerMacroFunction = makeMacroFunction(name, code);
     String output;
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
-      EagerMacroFunction eagerMacroFunction = new EagerMacroFunction(
-        name,
-        macroFunction,
-        interpreter
-      );
       output = eagerMacroFunction.reconstructImage();
     }
     assertThat(interpreter.render(output + "{{ rec(5) }}")).isEqualTo("5-4-3-2-1-");
@@ -155,23 +132,18 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
     interpreter.getContext().addGlobalMacro(foo1Macro);
     interpreter.getContext().addGlobalMacro(barMacro);
 
-    MacroFunction foo2Macro;
+    EagerMacroFunction foo2Macro;
     String output;
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       foo2Macro = makeMacroFunction("foo", foo2Code);
-      EagerMacroFunction eagerMacroFunction = new EagerMacroFunction(
-        "foo",
-        foo2Macro,
-        interpreter
-      );
-      output = eagerMacroFunction.reconstructImage();
+      output = foo2Macro.reconstructImage();
     }
     assertThat(interpreter.render(output + "{{ foo('Foo') }}"))
       .isEqualTo("~^This is the Foo^~");
   }
 
-  private MacroFunction makeMacroFunction(String name, String code) {
+  private EagerMacroFunction makeMacroFunction(String name, String code) {
     interpreter.render(code);
-    return interpreter.getContext().getGlobalMacro(name);
+    return (EagerMacroFunction) interpreter.getContext().getGlobalMacro(name);
   }
 }
