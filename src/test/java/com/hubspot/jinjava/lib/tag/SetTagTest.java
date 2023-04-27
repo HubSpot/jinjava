@@ -318,15 +318,6 @@ public class SetTagTest extends BaseInterpretingTest {
     assertThat(result).isEqualTo("2");
   }
 
-  @Test
-  public void itDoesNotSet() {
-    // This is to preserve legacy behaviour used in Eager Execution
-    String template = "{% set bar={} %}{% do bar.update({'a': 'a'}) %}{{ bar }}";
-    final String result = interpreter.render(template);
-
-    assertThat(result).isEqualTo("2");
-  }
-
   private Node fixture(String name) {
     try {
       return new TreeParser(

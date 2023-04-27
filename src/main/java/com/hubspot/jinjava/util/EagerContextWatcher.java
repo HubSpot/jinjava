@@ -1,7 +1,5 @@
 package com.hubspot.jinjava.util;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.CannotReconstructValueException;
 import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
@@ -91,11 +89,6 @@ public class EagerContextWatcher {
           initialResult
         );
     }
-    ENGINE_LOG.warn(
-      "speculativeBindings: {}, func: {} ",
-      speculativeBindings,
-      initialResult.getResult()
-    );
     return new EagerExecutionResult(initialResult.getResult(), speculativeBindings);
   }
 
