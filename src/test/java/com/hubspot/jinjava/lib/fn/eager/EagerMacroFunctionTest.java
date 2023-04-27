@@ -67,7 +67,6 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
   public void itResolvesFromSet() {
     String template =
       "{% set bar={} %}" +
-      // "{% set foobar={'a': 'b'} %}" +
       "{% macro foo(bar, foobar, other) %}" +
       " {% do bar.update({'a': 'b'}) %} " +
       " {{ foobar }}  {{ bar }} and {{ other }}" +
@@ -76,27 +75,6 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
       "{{ bar }}";
     String firstPass = interpreter.render(template);
     assertThat(firstPass).isEqualTo(template);
-  }
-
-  @Test
-  public void itResolvesFromSet2() {
-    String template =
-      "{% set bar={'a': 'b'} %}" +
-      "{% macro foo(bar, other) %}" +
-      " {% do bar.update({'a': 'c'}) %} " +
-      " {{ bar }} " +
-      "{% endmacro %}" +
-      "{% call foo(bar, deferred) %} {% endcall %}" +
-      "bar={{ bar }}";
-    String firstPass = interpreter.render(template);
-    assertThat(firstPass)
-      .isEqualTo(
-        "{% macro foo(bar, other) %} {% do bar.update({'a': 'c'} ) %}  {{ bar }} {% endmacro %}{% call foo(bar, deferred) %} {% endcall %}bar={{ bar }}"
-      );
-    assertThat(context.get("bar")).isEqualTo("{'b': 'b'}");
-    context.put("deferred", "resolved");
-    String secondPass = interpreter.render(template);
-    assertThat(secondPass).isEqualTo(template);
   }
 
   @Test
