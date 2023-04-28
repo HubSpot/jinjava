@@ -3,7 +3,7 @@ package com.hubspot.jinjava.objects.serialization;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -29,7 +29,7 @@ public class PyishObjectMapperTest {
   }
 
   @Test
-  public void itSerializesMapEntrySet() throws JsonProcessingException {
+  public void itSerializesMapEntrySet() {
     SizeLimitingPyMap map = new SizeLimitingPyMap(new HashMap<>(), 10);
     map.put("foo", "bar");
     map.put("bar", ImmutableMap.of("foobar", new ArrayList<>()));
@@ -39,7 +39,7 @@ public class PyishObjectMapperTest {
   }
 
   @Test
-  public void itSerializesMapEntrySetWithLimit() throws JsonProcessingException {
+  public void itSerializesMapEntrySetWithLimit() {
     SizeLimitingPyMap map = new SizeLimitingPyMap(new HashMap<>(), 10);
     map.put("foo", "bar");
     map.put("bar", ImmutableMap.of("foobar", new ArrayList<>()));
@@ -85,7 +85,8 @@ public class PyishObjectMapperTest {
       JinjavaInterpreter.pushCurrent(jinjava.newInterpreter());
       assertThatThrownBy(() -> PyishObjectMapper.getAsPyishStringOrThrow(original))
         .as("The string to be serialized is larger than the max output size")
-        .isInstanceOf(LengthLimitingJsonProcessingException.class);
+        .isInstanceOf(JsonMappingException.class)
+        .hasMessageContaining("Max length of 10000 chars reached");
     } finally {
       JinjavaInterpreter.popCurrent();
     }
