@@ -1,4 +1,4 @@
-{% do %}{% set current_path = 'uses-deferred-value-in-macro.jinja' %}{% set macros = {} %}{% for __ignored__ in [0] %}{% set value = deferred %}{% do macros.update({'value': value}) %}
+{% do %}{% set current_path = 'uses-deferred-value-in-macro.jinja' %}{% set macros = {}  %}{% for __ignored__ in [0] %}{% set value = deferred %}{% do macros.update({'value': value}) %}
 
 {% do macros.update({'import_resource_path': 'uses-deferred-value-in-macro.jinja','value': value}) %}{% endfor %}{% set current_path = '' %}{% enddo %}
 

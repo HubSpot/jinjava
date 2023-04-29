@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildBlockSetTag;
+import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildBlockOrInlineSetTag;
 import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildSetTag;
 
 import com.google.common.annotations.Beta;
@@ -8,7 +8,6 @@ import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredValueShadow;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.LazyReference;
-import com.hubspot.jinjava.objects.serialization.PyishBlockSetSerializable;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
@@ -65,40 +64,14 @@ public class EagerExecutionResult {
         }
       )
       .collect(Collectors.toList());
-    prefixToPreserveState.putAll(
-      filteredEntries
-        .stream()
-        .filter(entry -> entry.getValue() instanceof PyishBlockSetSerializable)
-        .map(
-          entry ->
-            new AbstractMap.SimpleImmutableEntry<>(
-              entry.getKey(),
-              buildBlockSetTag(
-                entry.getKey(),
-                ((PyishBlockSetSerializable) entry.getValue()).getBlockSetBody(),
-                interpreter,
-                false
-              )
-            )
-        )
-        .collect(Collectors.toMap(Entry::getKey, Entry::getValue))
-    );
     filteredEntries
       .stream()
-      .filter(entry -> !(entry.getValue() instanceof PyishBlockSetSerializable))
       .filter(entry -> !(entry.getValue() instanceof LazyReference))
       .forEach(
         entry ->
           prefixToPreserveState.put(
             entry.getKey(),
-            buildSetTag(
-              Collections.singletonMap(
-                entry.getKey(),
-                PyishObjectMapper.getAsPyishString(entry.getValue())
-              ),
-              interpreter,
-              false
-            )
+            buildBlockOrInlineSetTag(entry.getKey(), entry.getValue(), interpreter, false)
           )
       );
     filteredEntries

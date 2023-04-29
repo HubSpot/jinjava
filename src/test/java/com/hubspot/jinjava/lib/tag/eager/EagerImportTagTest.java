@@ -462,7 +462,7 @@ public class EagerImportTagTest extends ImportTagTest {
     );
     assertThat(result)
       .isEqualTo(
-        "{% if deferred %}{% do %}{% set current_path = 'import-tree-b.jinja' %}{% set b = {} %}{% for __ignored__ in [0] %}{% set a = {'foo_a': 'a', 'import_resource_path': 'import-tree-a.jinja', 'something': 'somn'}  %}{% do %}{% set current_path = 'import-tree-a.jinja' %}{% set a = {} %}{% for __ignored__ in [0] %}{% set something = 'somn' %}{% do a.update({'something': something}) %}\n" +
+        "{% if deferred %}{% do %}{% set current_path = 'import-tree-b.jinja' %}{% set b = {}  %}{% for __ignored__ in [0] %}{% set a = {'foo_a': 'a', 'import_resource_path': 'import-tree-a.jinja', 'something': 'somn'}  %}{% do %}{% set current_path = 'import-tree-a.jinja' %}{% set a = {}  %}{% for __ignored__ in [0] %}{% set something = 'somn' %}{% do a.update({'something': something}) %}\n" +
         "{% set foo_a = 'a' %}{% do a.update({'foo_a': foo_a}) %}\n" +
         "{% do a.update({'foo_a': 'a','import_resource_path': 'import-tree-a.jinja','something': 'somn'}) %}{% endfor %}{% set current_path = 'import-tree-b.jinja' %}{% enddo %}\n" +
         "{% set foo_b = 'b' + a.foo_a %}{% do b.update({'foo_b': foo_b}) %}\n" +
@@ -707,7 +707,7 @@ public class EagerImportTagTest extends ImportTagTest {
       .isEqualTo(
         "a" +
         "{% set vars = {'foo': 'a', 'import_resource_path': 'var-a.jinja'}  %}{% if deferred %}" +
-        "{% do %}{% set current_path = 'var-b.jinja' %}{% set vars = {} %}{% for __ignored__ in [0] %}{% set foo = 'b' %}{% do vars.update({'foo': foo}) %}\n" +
+        "{% do %}{% set current_path = 'var-b.jinja' %}{% set vars = {}  %}{% for __ignored__ in [0] %}{% set foo = 'b' %}{% do vars.update({'foo': foo}) %}\n" +
         "{% do vars.update({'foo': 'b','import_resource_path': 'var-b.jinja'}) %}{% endfor %}{% set current_path = '' %}{% enddo %}" +
         "{% endif %}" +
         "{{ vars.foo }}"
