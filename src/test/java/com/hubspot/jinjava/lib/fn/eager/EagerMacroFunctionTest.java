@@ -66,12 +66,12 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
   @Test
   public void itResolvesFromSet() {
     String template =
-      "{% set bar={} %}" +
-      "{% macro foo(bar, foobar, other) %}" +
-      " {% do bar.update({'a': 'b'}) %} " +
-      " {{ foobar }}  {{ bar }} and {{ other }}" +
+      "{% macro foo(foobar, other) %}" +
+      " {% do foobar.update({'a': 'b'} ) %} " +
+      " {{ foobar }}  and {{ other }}" +
       "{% endmacro %}" +
-      "{% call foo(bar, foobar, deferred) %} {% endcall %}" +
+      "{% set bar = {}  %}" +
+      "{% call foo(bar, deferred) %} {% endcall %}" +
       "{{ bar }}";
     String firstPass = interpreter.render(template);
     assertThat(firstPass).isEqualTo(template);
