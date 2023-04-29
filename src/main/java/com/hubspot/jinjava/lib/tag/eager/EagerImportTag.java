@@ -190,14 +190,22 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
   ) {
     return (
       newPathSetter +
-      getSetTagForDeferredChildBindings(interpreter, currentImportAlias, childBindings) +
       EagerReconstructionUtils.buildBlockOrInlineSetTag(
         currentImportAlias,
         Collections.emptyMap(),
         interpreter,
         true
       ) +
-      wrapInChildScope(interpreter, output, currentImportAlias) +
+      wrapInChildScope(
+        interpreter,
+        getSetTagForDeferredChildBindings(
+          interpreter,
+          currentImportAlias,
+          childBindings
+        ) +
+        output,
+        currentImportAlias
+      ) +
       initialPathSetter
     );
   }
@@ -242,7 +250,11 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     return childBindings
       .entrySet()
       .stream()
-      .filter(entry -> entry.getValue() instanceof DeferredValue)
+      .filter(
+        entry ->
+          entry.getValue() instanceof DeferredValue &&
+          ((DeferredValue) entry.getValue()).getOriginalValue() != null
+      )
       .filter(entry -> !interpreter.getContext().containsKey(entry.getKey()))
       .filter(entry -> !entry.getKey().equals(currentImportAlias))
       .map(

@@ -1335,4 +1335,19 @@ public class EagerTest {
       "does-not-reconstruct-variable-in-set-in-wrong-scope"
     );
   }
+
+  @Test
+  public void itRreconstructsValueUsedInDeferredImportedMacro() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "reconstructs-value-used-in-deferred-imported-macro"
+    );
+  }
+
+  @Test
+  public void itRreconstructsValueUsedInDeferredImportedMacroSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-value-used-in-deferred-imported-macro.expected"
+    );
+  }
 }
