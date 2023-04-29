@@ -1337,6 +1337,21 @@ public class EagerTest {
   }
 
   @Test
+  public void itRreconstructsValueUsedInDeferredImportedMacro() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "reconstructs-value-used-in-deferred-imported-macro"
+    );
+  }
+
+  @Test
+  public void itRreconstructsValueUsedInDeferredImportedMacroSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-value-used-in-deferred-imported-macro.expected"
+    );
+  }
+
+  @Test
   public void itAllowsDeferredLazyReferenceToGetOverridden() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "allows-deferred-lazy-reference-to-get-overridden"

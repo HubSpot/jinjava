@@ -60,7 +60,7 @@ public class EagerExecutionResult {
           if (contextValue instanceof DeferredLazyReferenceSource) {
             ((DeferredLazyReferenceSource) contextValue).setReconstructed(true);
           }
-          return (contextValue != null && !(contextValue instanceof DeferredValueShadow));
+          return !(contextValue instanceof DeferredValueShadow);
         }
       )
       .collect(Collectors.toList());
