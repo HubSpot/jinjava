@@ -64,6 +64,20 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itResolvesFromSet() {
+    String template =
+      "{% macro foo(foobar, other) %}" +
+      " {% do foobar.update({'a': 'b'} ) %} " +
+      " {{ foobar }}  and {{ other }}" +
+      "{% endmacro %}" +
+      "{% set bar = {}  %}" +
+      "{% call foo(bar, deferred) %} {% endcall %}" +
+      "{{ bar }}";
+    String firstPass = interpreter.render(template);
+    assertThat(firstPass).isEqualTo(template);
+  }
+
+  @Test
   public void itReconstructsForAliasedName() {
     context.remove("deferred");
     String name = "foo";
