@@ -1350,4 +1350,19 @@ public class EagerTest {
       "reconstructs-value-used-in-deferred-imported-macro.expected"
     );
   }
+
+  @Test
+  public void itAllowsDeferredLazyReferenceToGetOverridden() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "allows-deferred-lazy-reference-to-get-overridden"
+    );
+  }
+
+  @Test
+  public void itAllowsDeferredLazyReferenceToGetOverriddenSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "allows-deferred-lazy-reference-to-get-overridden.expected"
+    );
+  }
 }
