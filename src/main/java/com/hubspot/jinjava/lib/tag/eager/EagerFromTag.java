@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
-import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
@@ -10,7 +9,6 @@ import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.FromTag;
 import com.hubspot.jinjava.loader.RelativePathResolver;
-import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
@@ -59,13 +57,9 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
           }
         );
       return (
-        EagerReconstructionUtils.buildSetTag(
-          ImmutableMap.of(
-            RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
-            PyishObjectMapper.getAsPyishString(
-              interpreter.getContext().get(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY)
-            )
-          ),
+        EagerReconstructionUtils.buildBlockOrInlineSetTag(
+          RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
+          interpreter.getContext().get(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY),
           interpreter,
           false
         ) +
