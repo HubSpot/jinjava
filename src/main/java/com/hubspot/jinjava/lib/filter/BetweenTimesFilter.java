@@ -6,6 +6,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.PyishDate;
@@ -52,8 +53,8 @@ public class BetweenTimesFilter extends BaseDateFilter {
       );
     }
 
-    ZonedDateTime start = getZonedDateTime(var);
-    ZonedDateTime end = getZonedDateTime(args[0]);
+    ZonedDateTime start = getZonedDateTime(var, "begin");
+    ZonedDateTime end = getZonedDateTime(args[0], "end");
 
     Object args1 = args[1];
     if (args1 == null) {
@@ -64,12 +65,24 @@ public class BetweenTimesFilter extends BaseDateFilter {
     return temporalUnit.between(start, end);
   }
 
-  private ZonedDateTime getZonedDateTime(Object var) {
+  private ZonedDateTime getZonedDateTime(Object var, String position) {
     if (var instanceof ZonedDateTime) {
       return (ZonedDateTime) var;
     } else if (var instanceof PyishDate) {
       return ((PyishDate) var).toDateTime();
     } else {
+      JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+
+      interpreter.addError(
+        TemplateError.fromMissingFilterArgException(
+          new InvalidArgumentException(
+            interpreter,
+            getName() + " filter called with null " + position,
+            getName()
+          )
+        )
+      );
+
       return Functions.getDateTimeArg(var, ZoneOffset.UTC);
     }
   }

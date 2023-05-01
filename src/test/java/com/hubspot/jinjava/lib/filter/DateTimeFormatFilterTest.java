@@ -30,29 +30,31 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itUsesTodayIfNoDateProvided() throws Exception {
+  public void itUsesTodayIfNoDateProvided() {
     assertThat(filter.filter(null, interpreter))
       .isEqualTo(StrftimeFormatter.format(ZonedDateTime.now(ZoneOffset.UTC)));
+    assertThat(interpreter.getErrors().get(0).getMessage())
+      .contains("datetimeformat filter called with null datetime");
   }
 
   @Test
-  public void itSupportsLongAsInput() throws Exception {
+  public void itSupportsLongAsInput() {
     assertThat(filter.filter(d, interpreter)).isEqualTo(StrftimeFormatter.format(d));
   }
 
   @Test
-  public void itUsesDefaultFormatStringIfNoneSpecified() throws Exception {
+  public void itUsesDefaultFormatStringIfNoneSpecified() {
     assertThat(filter.filter(d, interpreter)).isEqualTo("14:22 / 06-11-2013");
   }
 
   @Test
-  public void itUsesSpecifiedFormatString() throws Exception {
+  public void itUsesSpecifiedFormatString() {
     assertThat(filter.filter(d, interpreter, "%B %d, %Y, at %I:%M %p"))
       .isEqualTo("November 06, 2013, at 02:22 PM");
   }
 
   @Test
-  public void itHandlesVarsAndLiterals() throws Exception {
+  public void itHandlesVarsAndLiterals() {
     interpreter.getContext().put("d", d);
     interpreter.getContext().put("foo", "%Y-%m");
 
@@ -64,7 +66,7 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itSupportsTimezones() throws Exception {
+  public void itSupportsTimezones() {
     assertThat(filter.filter(1539277785000L, interpreter, "%B %d, %Y, at %I:%M %p"))
       .isEqualTo("October 11, 2018, at 05:09 PM");
     assertThat(
@@ -83,7 +85,7 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
   }
 
   @Test(expected = InvalidArgumentException.class)
-  public void itThrowsExceptionOnInvalidTimezone() throws Exception {
+  public void itThrowsExceptionOnInvalidTimezone() {
     filter.filter(
       1539277785000L,
       interpreter,
@@ -93,7 +95,7 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
   }
 
   @Test(expected = InvalidDateFormatException.class)
-  public void itThrowsExceptionOnInvalidDateformat() throws Exception {
+  public void itThrowsExceptionOnInvalidDateformat() {
     filter.filter(1539277785000L, interpreter, "Not a format");
   }
 
