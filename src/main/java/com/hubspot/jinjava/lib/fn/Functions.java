@@ -303,7 +303,7 @@ public class Functions {
       JinjavaInterpreter
         .getCurrent()
         .addError(
-          TemplateError.fromInvalidArgumentException(
+          TemplateError.fromMissingFilterArgException(
             new InvalidArgumentException(
               JinjavaInterpreter.getCurrent(),
               "unixtimestamp",
