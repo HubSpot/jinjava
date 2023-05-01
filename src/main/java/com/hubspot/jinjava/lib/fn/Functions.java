@@ -315,8 +315,7 @@ public class Functions {
               "unixtimestamp filter called with null value"
             )
           )
-        )
-      );
+        );
 
       if (!interpreter.getConfig().getUseCurrentTimeForNullDateTimeFilterArgs()) {
         filterVar = JinjavaConfig.DEFAULT_DATE_TIME_FILTER_ARG;
