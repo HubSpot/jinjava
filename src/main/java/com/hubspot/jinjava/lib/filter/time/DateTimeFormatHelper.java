@@ -94,19 +94,23 @@ final class DateTimeFormatHelper {
     }
   }
 
-  public void checkForNullVar(Object var, String name) {
+  public Object checkForNullVar(Object var, String name) {
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+
     if (var == null) {
-      JinjavaInterpreter
-        .getCurrent()
-        .addError(
-          TemplateError.fromMissingFilterArgException(
-            new InvalidArgumentException(
-              JinjavaInterpreter.getCurrent(),
-              name,
-              name + " filter called with null value"
-            )
+      interpreter.addError(
+        TemplateError.fromMissingFilterArgException(
+          new InvalidArgumentException(
+            JinjavaInterpreter.getCurrent(),
+            name,
+            name + " filter called with null datetime"
           )
-        );
+        )
+      );
+      if (!interpreter.getConfig().getUseCurrentTimeForNullDateTimeFilterArgs()) {
+        return JinjavaConfig.DEFAULT_DATE_TIME_FILTER_ARG;
+      }
     }
+    return var;
   }
 }

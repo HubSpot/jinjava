@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.filter;
 
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -73,15 +74,21 @@ public class BetweenTimesFilter extends BaseDateFilter {
     } else {
       JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
 
-      interpreter.addError(
-        TemplateError.fromMissingFilterArgException(
-          new InvalidArgumentException(
-            interpreter,
-            getName() + " filter called with null " + position,
-            getName()
+      if (var == null) {
+        interpreter.addError(
+          TemplateError.fromMissingFilterArgException(
+            new InvalidArgumentException(
+              interpreter,
+              getName() + " filter called with null " + position,
+              getName()
+            )
           )
-        )
-      );
+        );
+
+        if (!interpreter.getConfig().getUseCurrentTimeForNullDateTimeFilterArgs()) {
+          var = JinjavaConfig.DEFAULT_DATE_TIME_FILTER_ARG;
+        }
+      }
 
       return Functions.getDateTimeArg(var, ZoneOffset.UTC);
     }

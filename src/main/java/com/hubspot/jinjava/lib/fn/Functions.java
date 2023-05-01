@@ -43,6 +43,7 @@ public class Functions {
   public static final String STRING_TO_DATE_FUNCTION = "stringToDate";
 
   public static final int DEFAULT_RANGE_LIMIT = 1000;
+  private static final String DATETIMEFORMAT_FILTER = "datetimeformat";
 
   @JinjavaDoc(
     value = "Only usable within blocks, will render the contents of the parent block by calling super.",
@@ -187,14 +188,15 @@ public class Functions {
   public static String dateTimeFormat(Object var, String... format) {
     ZoneId zoneOffset = ZoneId.of("UTC");
 
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     if (format.length > 1 && format[1] != null) {
       String timezone = format[1];
       try {
         zoneOffset = ZoneId.of(timezone);
       } catch (DateTimeException e) {
         throw new InvalidArgumentException(
-          JinjavaInterpreter.getCurrent(),
-          "datetimeformat",
+          interpreter,
+          DATETIMEFORMAT_FILTER,
           String.format("Invalid timezone: %s", timezone)
         );
       }
@@ -205,17 +207,18 @@ public class Functions {
     }
 
     if (var == null) {
-      JinjavaInterpreter
-        .getCurrent()
-        .addError(
-          TemplateError.fromMissingFilterArgException(
-            new InvalidArgumentException(
-              JinjavaInterpreter.getCurrent(),
-              "datetimeformat",
-              "datetimeformat filter called with null datetime"
-            )
+      interpreter.addError(
+        TemplateError.fromMissingFilterArgException(
+          new InvalidArgumentException(
+            interpreter,
+            DATETIMEFORMAT_FILTER,
+            DATETIMEFORMAT_FILTER + " filter called with null datetime"
           )
-        );
+        )
+      );
+      if (!interpreter.getConfig().getUseCurrentTimeForNullDateTimeFilterArgs()) {
+        var = JinjavaConfig.DEFAULT_DATE_TIME_FILTER_ARG;
+      }
     }
 
     ZonedDateTime d = getDateTimeArg(var, zoneOffset);
@@ -299,19 +302,23 @@ public class Functions {
   public static long unixtimestamp(Object... var) {
     Object filterVar = var == null || var.length == 0 ? null : var[0];
 
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+
     if (filterVar == null) {
-      JinjavaInterpreter
-        .getCurrent()
-        .addError(
-          TemplateError.fromInvalidArgumentException(
-            new InvalidArgumentException(
-              JinjavaInterpreter.getCurrent(),
-              "unixtimestamp",
-              "unixtimestamp filter called with null value"
-            )
+      interpreter.addError(
+        TemplateError.fromMissingFilterArgException(
+          new InvalidArgumentException(
+            interpreter,
+            "unixtimestamp",
+            "unixtimestamp filter called with null datetime"
           )
-        );
+        )
+      );
     }
+    if (!interpreter.getConfig().getUseCurrentTimeForNullDateTimeFilterArgs()) {
+      filterVar = JinjavaConfig.DEFAULT_DATE_TIME_FILTER_ARG;
+    }
+
     ZonedDateTime d = getDateTimeArg(filterVar, ZoneOffset.UTC);
 
     if (d == null) {

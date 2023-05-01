@@ -40,6 +40,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -49,6 +50,17 @@ import javax.annotation.Nullable;
 import javax.el.ELResolver;
 
 public class JinjavaConfig {
+  public static final ZonedDateTime DEFAULT_DATE_TIME_FILTER_ARG = ZonedDateTime.of(
+    2024,
+    6,
+    1,
+    0,
+    0,
+    0,
+    0,
+    ZoneId.of("UTC")
+  );
+
   private final Charset charset;
   private final Locale locale;
   private final ZoneId timeZone;
@@ -73,6 +85,7 @@ public class JinjavaConfig {
   private final int maxNumDeferredTokens;
   private final InterpreterFactory interpreterFactory;
   private final DateTimeProvider dateTimeProvider;
+  private final boolean useCurrentTimeForNullDateTimeFilterArgs;
   private TokenScannerSymbols tokenScannerSymbols;
   private final ELResolver elResolver;
   private final ExecutionMode executionMode;
@@ -140,6 +153,8 @@ public class JinjavaConfig {
     objectMapper = setupObjectMapper(builder.objectMapper);
     objectUnwrapper = builder.objectUnwrapper;
     processors = builder.processors;
+    useCurrentTimeForNullDateTimeFilterArgs =
+      builder.useCurrentTimeForNullDateTimeFilterArgs;
   }
 
   private ObjectMapper setupObjectMapper(@Nullable ObjectMapper objectMapper) {
@@ -288,6 +303,10 @@ public class JinjavaConfig {
     return dateTimeProvider;
   }
 
+  public boolean getUseCurrentTimeForNullDateTimeFilterArgs() {
+    return useCurrentTimeForNullDateTimeFilterArgs;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -322,6 +341,7 @@ public class JinjavaConfig {
 
     private ObjectUnwrapper objectUnwrapper = new JinjavaObjectUnwrapper();
     private JinjavaProcessors processors = JinjavaProcessors.newBuilder().build();
+    private boolean useCurrentTimeForNullDateTimeFilterArgs = true;
 
     private Builder() {}
 
@@ -505,6 +525,11 @@ public class JinjavaConfig {
 
     public Builder withProcessors(JinjavaProcessors jinjavaProcessors) {
       this.processors = jinjavaProcessors;
+      return this;
+    }
+
+    public Builder withUseCurrentTimeForNullDateTileFilterArgs(boolean useCurrentTime) {
+      this.useCurrentTimeForNullDateTimeFilterArgs = useCurrentTime;
       return this;
     }
 

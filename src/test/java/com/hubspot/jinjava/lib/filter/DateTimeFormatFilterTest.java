@@ -4,7 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
@@ -27,6 +30,27 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
     Locale.setDefault(Locale.ENGLISH);
     filter = new DateTimeFormatFilter();
     d = ZonedDateTime.parse("2013-11-06T14:22:00.000+00:00[UTC]");
+  }
+
+  @Test
+  public void itUsesDeprecationDateIfNoDateProvided() {
+    Jinjava jinjava = new Jinjava(
+      JinjavaConfig
+        .newBuilder()
+        .withUseCurrentTimeForNullDateTileFilterArgs(false)
+        .build()
+    );
+
+    JinjavaInterpreter interpreter = jinjava.newInterpreter();
+    JinjavaInterpreter.pushCurrent(interpreter);
+    try {
+      assertThat(filter.filter(null, interpreter))
+        .isEqualTo(StrftimeFormatter.format(JinjavaConfig.DEFAULT_DATE_TIME_FILTER_ARG));
+      assertThat(interpreter.getErrors().get(0).getMessage())
+        .contains("datetimeformat filter called with null datetime");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
   }
 
   @Test
