@@ -317,9 +317,10 @@ public class Functions {
           )
         )
       );
-    }
-    if (!interpreter.getConfig().getUseCurrentTimeForNullDateTimeFilterArgs()) {
-      filterVar = JinjavaConfig.DEFAULT_DATE_TIME_FILTER_ARG;
+
+      if (!interpreter.getConfig().getUseCurrentTimeForNullDateTimeFilterArgs()) {
+        filterVar = JinjavaConfig.DEFAULT_DATE_TIME_FILTER_ARG;
+      }
     }
 
     ZonedDateTime d = getDateTimeArg(filterVar, ZoneOffset.UTC);
