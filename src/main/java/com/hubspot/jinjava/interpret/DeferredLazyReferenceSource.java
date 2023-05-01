@@ -3,7 +3,9 @@ package com.hubspot.jinjava.interpret;
 import com.google.common.annotations.Beta;
 
 @Beta
-public class DeferredLazyReferenceSource extends DeferredValueImpl {
+public class DeferredLazyReferenceSource
+  extends DeferredValueImpl
+  implements OneTimeReconstructible {
   private static final DeferredLazyReferenceSource INSTANCE = new DeferredLazyReferenceSource();
 
   private boolean reconstructed;

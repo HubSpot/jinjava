@@ -305,12 +305,15 @@ public class Functions {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
 
     if (filterVar == null) {
-      interpreter.addError(
-        TemplateError.fromMissingFilterArgException(
-          new InvalidArgumentException(
-            interpreter,
-            "unixtimestamp",
-            "unixtimestamp filter called with null datetime"
+      JinjavaInterpreter
+        .getCurrent()
+        .addError(
+          TemplateError.fromMissingFilterArgException(
+            new InvalidArgumentException(
+              JinjavaInterpreter.getCurrent(),
+              "unixtimestamp",
+              "unixtimestamp filter called with null value"
+            )
           )
         )
       );

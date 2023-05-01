@@ -6,12 +6,12 @@ import com.google.common.collect.Sets;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
-import com.hubspot.jinjava.interpret.DeferredLazyReference;
 import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueShadow;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.OneTimeReconstructible;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.AutoEscapeTag;
@@ -132,9 +132,7 @@ public class EagerReconstructionUtils {
       reconstructMacroFunctionsBeforeDeferring(deferredWords, interpreter)
     );
     Set<String> deferredWordBases = filterToRelevantBases(deferredWords, interpreter);
-    //    reconstructedValues.putAll(
-    //      reconstructBlockSetVariablesBeforeDeferring(deferredWordBases, interpreter)
-    //    );
+
     reconstructedValues.putAll(
       reconstructSetVariablesBeforeDeferring(deferredWordBases, interpreter)
     );
@@ -672,48 +670,47 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter,
     Set<String> usedDeferredWords
   ) {
-    return Stream
-      .concat(
-        interpreter
-          .getContext()
-          .getScope()
-          .entrySet()
-          .stream()
-          .filter(
-            entry ->
-              entry.getValue() instanceof DeferredLazyReferenceSource &&
-              !((DeferredLazyReferenceSource) entry.getValue()).isReconstructed()
+    return interpreter
+      .getContext()
+      .getScope()
+      .entrySet()
+      .stream()
+      .filter(
+        entry ->
+          entry.getValue() instanceof OneTimeReconstructible &&
+          !((OneTimeReconstructible) entry.getValue()).isReconstructed()
+      )
+      .filter(
+        entry ->
+          // Always reconstruct the DeferredLazyReferenceSource, but only reconstruct DeferredLazyReferences when they are used
+          entry.getValue() instanceof DeferredLazyReferenceSource ||
+          usedDeferredWords.contains(entry.getKey())
+      )
+      .peek(entry -> ((OneTimeReconstructible) entry.getValue()).setReconstructed(true))
+      .map(
+        entry ->
+          new AbstractMap.SimpleImmutableEntry<>(
+            entry.getKey(),
+            PyishObjectMapper.getAsPyishString(
+              ((DeferredValue) entry.getValue()).getOriginalValue()
+            )
           )
-          .peek(
-            entry ->
-              ((DeferredLazyReferenceSource) entry.getValue()).setReconstructed(true)
-          ),
-        usedDeferredWords
-          .stream()
-          .map(w -> w.split("\\.", 2)[0])
-          .map(
-            word ->
-              new AbstractMap.SimpleImmutableEntry<>(
-                word,
-                interpreter.getContext().get(word)
-              )
-          )
-          .filter(entry -> entry.getValue() instanceof DeferredLazyReference)
+      )
+      .sorted(
+        (a, b) ->
+          a.getValue().equals(b.getKey()) ? 1 : b.getValue().equals(a.getKey()) ? -1 : 0
       )
       .collect(
         Collectors.toMap(
           Entry::getKey,
           entry ->
             buildSetTag(
-              Collections.singletonMap(
-                entry.getKey(),
-                PyishObjectMapper.getAsPyishString(
-                  ((DeferredValue) entry.getValue()).getOriginalValue()
-                )
-              ),
+              Collections.singletonMap(entry.getKey(), entry.getValue()),
               interpreter,
               false
-            )
+            ),
+          (a, b) -> b,
+          LinkedHashMap::new
         )
       );
   }
