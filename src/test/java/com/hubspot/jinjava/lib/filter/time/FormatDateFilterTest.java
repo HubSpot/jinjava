@@ -248,7 +248,11 @@ public class FormatDateFilterTest {
   public void itDefaultsToCurrentDateOnMissingFilterArg() {
     jinjava =
       new Jinjava(
-        JinjavaConfig.newBuilder().withDateTimeProvider(() -> 1233333414223L).build()
+        JinjavaConfig
+          .newBuilder()
+          .withDateTimeProvider(() -> 1233333414223L)
+          .withUseCurrentTimeForNullDateTileFilterArgs(true)
+          .build()
       );
 
     assertThat(
@@ -266,6 +270,7 @@ public class FormatDateFilterTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withDateTimeProvider(() -> 1233333414223L)
           .withUseCurrentTimeForNullDateTileFilterArgs(false)
           .build()
       );
