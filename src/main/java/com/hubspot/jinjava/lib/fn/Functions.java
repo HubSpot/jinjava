@@ -204,6 +204,20 @@ public class Functions {
       zoneOffset = ((PyishDate) var).toDateTime().getZone();
     }
 
+    if (var == null) {
+      JinjavaInterpreter
+        .getCurrent()
+        .addError(
+          TemplateError.fromMissingFilterArgException(
+            new InvalidArgumentException(
+              JinjavaInterpreter.getCurrent(),
+              "datetimeformat",
+              "datetimeformat filter called with null datetime"
+            )
+          )
+        );
+    }
+
     ZonedDateTime d = getDateTimeArg(var, zoneOffset);
     if (d == null) {
       return "";
@@ -283,10 +297,22 @@ public class Functions {
     }
   )
   public static long unixtimestamp(Object... var) {
-    ZonedDateTime d = getDateTimeArg(
-      var == null || var.length == 0 ? null : var[0],
-      ZoneOffset.UTC
-    );
+    Object filterVar = var == null || var.length == 0 ? null : var[0];
+
+    if (filterVar == null) {
+      JinjavaInterpreter
+        .getCurrent()
+        .addError(
+          TemplateError.fromInvalidArgumentException(
+            new InvalidArgumentException(
+              JinjavaInterpreter.getCurrent(),
+              "unixtimestamp",
+              "unixtimestamp filter called with null value"
+            )
+          )
+        );
+    }
+    ZonedDateTime d = getDateTimeArg(filterVar, ZoneOffset.UTC);
 
     if (d == null) {
       return 0;
