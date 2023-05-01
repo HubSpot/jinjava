@@ -9,12 +9,14 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 
 public class PyishObjectMapperTest {
@@ -87,6 +89,25 @@ public class PyishObjectMapperTest {
         .as("The string to be serialized is larger than the max output size")
         .isInstanceOf(JsonMappingException.class)
         .hasMessageContaining("Max length of 10000 chars reached");
+
+      assertThatThrownBy(() -> PyishObjectMapper.getAsPyishString(original))
+        .isInstanceOf(OutputTooBigException.class);
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
+  }
+
+  @Test
+  public void itLimitsOutputSize() {
+    String input = RandomStringUtils.random(10002);
+    try {
+      Jinjava jinjava = new Jinjava(
+        JinjavaConfig.newBuilder().withMaxOutputSize(10000).build()
+      );
+      JinjavaInterpreter.pushCurrent(jinjava.newInterpreter());
+      assertThatThrownBy(() -> PyishObjectMapper.getAsPyishString(input))
+        .isInstanceOf(OutputTooBigException.class)
+        .hasMessageContaining("over limit of 10000 bytes");
     } finally {
       JinjavaInterpreter.popCurrent();
     }
