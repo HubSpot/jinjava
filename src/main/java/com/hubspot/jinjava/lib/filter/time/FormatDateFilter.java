@@ -48,6 +48,7 @@ public class FormatDateFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    HELPER.checkForNullVar(var, NAME);
     return format(var, args);
   }
 

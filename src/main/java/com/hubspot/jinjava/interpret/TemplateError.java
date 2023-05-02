@@ -136,6 +136,19 @@ public class TemplateError {
     );
   }
 
+  public static TemplateError fromMissingFilterArgException(InvalidArgumentException ex) {
+    return new TemplateError(
+      ErrorType.WARNING,
+      ErrorReason.INVALID_ARGUMENT,
+      ErrorItem.FILTER,
+      ex.getMessage(),
+      ex.getName(),
+      ex.getLineNumber(),
+      ex.getStartPosition(),
+      ex
+    );
+  }
+
   public static TemplateError fromException(Exception ex) {
     int lineNumber = -1;
     int startPosition = -1;

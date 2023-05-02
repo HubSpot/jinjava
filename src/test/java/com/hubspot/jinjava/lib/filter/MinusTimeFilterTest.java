@@ -10,15 +10,9 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Map;
-import org.junit.Before;
 import org.junit.Test;
 
 public class MinusTimeFilterTest extends BaseJinjavaTest {
-
-  @Before
-  public void setup() {
-    jinjava.getGlobalContext().registerClasses(EscapeJsFilter.class);
-  }
 
   @Test
   public void itSubtractsTime() {

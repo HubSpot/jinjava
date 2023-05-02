@@ -21,7 +21,11 @@ A: {{ a_list }}.
 {%- do b_list.append('b') %}
 {%- for j in range(1) %}
 {%- set c_list = b_list %}
+{%- if !deferred %}
 {%- do c_list.append(deferred ? 'c' : '') %}
+{%- else %}
+{%- do c_list.append(deferred ? 'c' : '') %}
+{%- endif %}
 C: {{ c_list }}.
 {%- endfor %}
 {%- do b_list.append(deferred ? 'B' : '') %}

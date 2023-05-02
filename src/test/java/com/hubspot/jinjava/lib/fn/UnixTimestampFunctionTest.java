@@ -11,6 +11,7 @@ import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.date.FixedDateTimeProvider;
 import java.time.ZonedDateTime;
 import org.assertj.core.data.Offset;
+import org.junit.After;
 import org.junit.Test;
 
 public class UnixTimestampFunctionTest {
@@ -19,8 +20,20 @@ public class UnixTimestampFunctionTest {
   );
   private final long epochMilliseconds = d.toEpochSecond() * 1000 + 345;
 
+  @After
+  public void tearDown() {
+    JinjavaInterpreter.popCurrent();
+  }
+
   @Test
   public void itGetsUnixTimestamps() {
+    JinjavaInterpreter.pushCurrent(
+      new JinjavaInterpreter(
+        new Jinjava(),
+        new Context(),
+        JinjavaConfig.newBuilder().build()
+      )
+    );
     assertThat(Functions.unixtimestamp())
       .isGreaterThan(0)
       .isLessThanOrEqualTo(System.currentTimeMillis());
@@ -44,11 +57,7 @@ public class UnixTimestampFunctionTest {
           .build()
       )
     );
-    try {
-      assertThat(Functions.unixtimestamp((Object) null)).isEqualTo(ts);
-    } finally {
-      JinjavaInterpreter.popCurrent();
-    }
+    assertThat(Functions.unixtimestamp((Object) null)).isEqualTo(ts);
   }
 
   @Test(expected = DeferredValueException.class)
@@ -63,10 +72,6 @@ public class UnixTimestampFunctionTest {
           .build()
       )
     );
-    try {
-      Functions.unixtimestamp((Object) null);
-    } finally {
-      JinjavaInterpreter.popCurrent();
-    }
+    Functions.unixtimestamp((Object) null);
   }
 }

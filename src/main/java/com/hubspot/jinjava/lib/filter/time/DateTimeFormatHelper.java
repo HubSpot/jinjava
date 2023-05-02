@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter.time;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import java.time.DateTimeException;
@@ -90,6 +91,22 @@ final class DateTimeFormatHelper {
         } catch (IllegalArgumentException e) {
           throw new InvalidDateFormatException(format, e);
         }
+    }
+  }
+
+  public void checkForNullVar(Object var, String name) {
+    if (var == null) {
+      JinjavaInterpreter
+        .getCurrent()
+        .addError(
+          TemplateError.fromMissingFilterArgException(
+            new InvalidArgumentException(
+              JinjavaInterpreter.getCurrent(),
+              name,
+              name + " filter called with null value"
+            )
+          )
+        );
     }
   }
 }

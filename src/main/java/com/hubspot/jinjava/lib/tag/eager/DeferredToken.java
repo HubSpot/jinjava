@@ -106,15 +106,14 @@ public class DeferredToken {
     Context context,
     Set<String> wordsWithoutDeferredSource
   ) {
-    wordsWithoutDeferredSource.forEach(word -> deferDuplicatePointers(context, word));
-    wordsWithoutDeferredSource.removeAll(
-      markDeferredWordsAndFindSources(context, wordsWithoutDeferredSource)
-    );
-
     if (isInSameScope(context)) {
       // set props are only deferred when within the scope which the variable is set in
-      markDeferredWordsAndFindSources(context, getSetDeferredWords());
+      markDeferredWordsAndFindSources(context, getSetDeferredWords(), true);
     }
+    wordsWithoutDeferredSource.forEach(word -> deferDuplicatePointers(context, word));
+    wordsWithoutDeferredSource.removeAll(
+      markDeferredWordsAndFindSources(context, wordsWithoutDeferredSource, false)
+    );
   }
 
   private boolean isInSameScope(Context context) {
@@ -167,7 +166,7 @@ public class DeferredToken {
             ) {
               convertToDeferredLazyReferenceSource(context, entry);
             } else {
-              entry.setValue(deferredLazyReference);
+              entry.setValue(deferredLazyReference.clone());
             }
           }
         );
@@ -193,11 +192,22 @@ public class DeferredToken {
 
   private static Collection<String> markDeferredWordsAndFindSources(
     Context context,
-    Set<String> wordsToDefer
+    Set<String> wordsToDefer,
+    boolean replacing
   ) {
     return wordsToDefer
       .stream()
-      .filter(prop -> !(context.get(prop) instanceof DeferredValue))
+      .filter(
+        prop -> {
+          Object val = context.get(prop);
+          if (replacing) {
+            return (
+              !(val instanceof DeferredValue) || context.getScope().containsKey(prop)
+            );
+          }
+          return !(val instanceof DeferredValue);
+        }
+      )
       .filter(prop -> !context.getMetaContextVariables().contains(prop))
       .filter(
         prop -> {
@@ -212,6 +222,9 @@ public class DeferredToken {
   private static DeferredValue convertToDeferredValue(Context context, String prop) {
     Object valueInScope = context.getScope().get(prop);
     Object value = context.get(prop);
+    if (value instanceof DeferredValue) {
+      value = ((DeferredValue) value).getOriginalValue();
+    }
     if (value != null) {
       if (valueInScope == null) {
         return DeferredValue.shadowInstance(value);

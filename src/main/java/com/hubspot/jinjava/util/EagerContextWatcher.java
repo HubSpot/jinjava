@@ -2,12 +2,12 @@ package com.hubspot.jinjava.util;
 
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.CannotReconstructValueException;
-import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.LazyExpression;
+import com.hubspot.jinjava.interpret.OneTimeReconstructible;
 import com.hubspot.jinjava.interpret.RevertibleObject;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.objects.collections.PyList;
@@ -203,18 +203,16 @@ public class EagerContextWatcher {
             .stream()
             .filter(
               entry ->
-                entry.getValue() instanceof DeferredLazyReferenceSource &&
-                !(((DeferredLazyReferenceSource) entry.getValue()).isReconstructed())
+                entry.getValue() instanceof OneTimeReconstructible &&
+                !(((OneTimeReconstructible) entry.getValue()).isReconstructed())
             )
             .peek(
-              entry ->
-                ((DeferredLazyReferenceSource) entry.getValue()).setReconstructed(true)
+              entry -> ((OneTimeReconstructible) entry.getValue()).setReconstructed(true)
             )
             .collect(
               Collectors.toMap(
                 Entry::getKey,
-                entry ->
-                  ((DeferredLazyReferenceSource) entry.getValue()).getOriginalValue()
+                entry -> ((OneTimeReconstructible) entry.getValue()).getOriginalValue()
               )
             )
         );
