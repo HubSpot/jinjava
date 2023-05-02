@@ -28,8 +28,8 @@ public class FeaturesTest {
       new Features(
         FeatureConfig
           .newBuilder()
-          .add(ALWAYS_OFF, FeatureStrategies.ALWAYS_OFF)
-          .add(ALWAYS_ON, FeatureStrategies.ALWAYS_ON)
+          .add(ALWAYS_OFF, FeatureStrategies.INACTIVE)
+          .add(ALWAYS_ON, FeatureStrategies.ACTIVE)
           .add(DATE_PAST, DateTimeFeatureActivationStrategy.of(LocalDateTime.MIN))
           .add(DATE_FUTURE, DateTimeFeatureActivationStrategy.of(LocalDateTime.MAX))
           .add(DELEGATING, DelegatingFeatureActivationStrategy.of(() -> delegateActive))
