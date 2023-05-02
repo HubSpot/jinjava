@@ -12,7 +12,7 @@ public class FeatureConfig {
   }
 
   public FeatureActivationStrategy getFeature(String name) {
-    return features.getOrDefault(name, DisabledFeatureActivationStrategy.getInstance());
+    return features.getOrDefault(name, FeatureStrategies.ALWAYS_OFF);
   }
 
   public static FeatureConfig.Builder newBuilder() {
