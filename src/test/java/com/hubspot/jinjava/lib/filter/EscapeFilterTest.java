@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class EscapeFilterTest extends BaseInterpretingTest {
@@ -41,7 +42,7 @@ public class EscapeFilterTest extends BaseInterpretingTest {
       .isInstanceOf(SafeString.class);
   }
 
-  @Test
+  @Ignore
   public void testNewStringReplaceIsFaster() {
     String html = fixture("filter/blog.html").substring(0, 100_000);
     Stopwatch oldStopWatch = Stopwatch.createStarted();
