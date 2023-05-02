@@ -1,10 +1,16 @@
 package com.hubspot.jinjava.lib.filter;
 
+import static com.hubspot.jinjava.lib.filter.time.DateTimeFormatHelper.FIXED_DATE_TIME_FILTER_NULL_ARG;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.features.DateTimeFeatureActivationStrategy;
+import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
@@ -169,5 +175,36 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
     assertThat(error.getSeverity()).isEqualTo(ErrorType.FATAL);
     assertThat(error.getMessage())
       .contains("Invalid date format '%é': unknown format code 'é'");
+  }
+
+  @Test
+  public void itUsesDeprecationDateIfNoDateProvided() {
+    ZonedDateTime now = ZonedDateTime.now();
+
+    Jinjava jinjava = new Jinjava(
+      JinjavaConfig
+        .newBuilder()
+        .withFeatureConfig(
+          FeatureConfig
+            .newBuilder()
+            .add(
+              FIXED_DATE_TIME_FILTER_NULL_ARG,
+              DateTimeFeatureActivationStrategy.of(now)
+            )
+            .build()
+        )
+        .build()
+    );
+
+    JinjavaInterpreter interpreter = jinjava.newInterpreter();
+    JinjavaInterpreter.pushCurrent(interpreter);
+    try {
+      assertThat(filter.filter(null, interpreter))
+        .isEqualTo(StrftimeFormatter.format(now));
+      assertThat(interpreter.getErrors().get(0).getMessage())
+        .contains("datetimeformat filter called with null datetime");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
   }
 }

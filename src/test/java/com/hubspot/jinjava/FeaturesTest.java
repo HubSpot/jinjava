@@ -8,6 +8,8 @@ import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.features.FeatureStrategies;
 import com.hubspot.jinjava.features.Features;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,8 +32,18 @@ public class FeaturesTest {
           .newBuilder()
           .add(ALWAYS_OFF, FeatureStrategies.INACTIVE)
           .add(ALWAYS_ON, FeatureStrategies.ACTIVE)
-          .add(DATE_PAST, DateTimeFeatureActivationStrategy.of(LocalDateTime.MIN))
-          .add(DATE_FUTURE, DateTimeFeatureActivationStrategy.of(LocalDateTime.MAX))
+          .add(
+            DATE_PAST,
+            DateTimeFeatureActivationStrategy.of(
+              ZonedDateTime.of(LocalDateTime.MIN, ZoneId.systemDefault())
+            )
+          )
+          .add(
+            DATE_FUTURE,
+            DateTimeFeatureActivationStrategy.of(
+              ZonedDateTime.of(LocalDateTime.MAX, ZoneId.systemDefault())
+            )
+          )
           .add(DELEGATING, DelegatingFeatureActivationStrategy.of(() -> delegateActive))
           .build()
       );

@@ -1,24 +1,24 @@
 package com.hubspot.jinjava.features;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 public class DateTimeFeatureActivationStrategy implements FeatureActivationStrategy {
-  private final LocalDateTime activateAt;
+  private final ZonedDateTime activateAt;
 
-  public static DateTimeFeatureActivationStrategy of(LocalDateTime activateAt) {
+  public static DateTimeFeatureActivationStrategy of(ZonedDateTime activateAt) {
     return new DateTimeFeatureActivationStrategy(activateAt);
   }
 
-  private DateTimeFeatureActivationStrategy(LocalDateTime activateAt) {
+  private DateTimeFeatureActivationStrategy(ZonedDateTime activateAt) {
     this.activateAt = activateAt;
   }
 
   @Override
   public boolean isActive() {
-    return LocalDateTime.now().isAfter(activateAt);
+    return ZonedDateTime.now().isAfter(activateAt);
   }
 
-  public LocalDateTime getActivateAt() {
+  public ZonedDateTime getActivateAt() {
     return activateAt;
   }
 }

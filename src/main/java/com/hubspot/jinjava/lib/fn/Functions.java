@@ -1,11 +1,15 @@
 package com.hubspot.jinjava.lib.fn;
 
+import static com.hubspot.jinjava.lib.filter.time.DateTimeFormatHelper.FIXED_DATE_TIME_FILTER_NULL_ARG;
+
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.el.ext.NamedParameter;
+import com.hubspot.jinjava.features.DateTimeFeatureActivationStrategy;
+import com.hubspot.jinjava.features.FeatureActivationStrategy;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
@@ -186,6 +190,7 @@ public class Functions {
   )
   public static String dateTimeFormat(Object var, String... format) {
     ZoneId zoneOffset = ZoneId.of("UTC");
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
 
     if (format.length > 1 && format[1] != null) {
       String timezone = format[1];
@@ -193,7 +198,7 @@ public class Functions {
         zoneOffset = ZoneId.of(timezone);
       } catch (DateTimeException e) {
         throw new InvalidArgumentException(
-          JinjavaInterpreter.getCurrent(),
+          interpreter,
           "datetimeformat",
           String.format("Invalid timezone: %s", timezone)
         );
@@ -205,17 +210,24 @@ public class Functions {
     }
 
     if (var == null) {
-      JinjavaInterpreter
-        .getCurrent()
-        .addError(
-          TemplateError.fromMissingFilterArgException(
-            new InvalidArgumentException(
-              JinjavaInterpreter.getCurrent(),
-              "datetimeformat",
-              "datetimeformat filter called with null datetime"
-            )
+      interpreter.addError(
+        TemplateError.fromMissingFilterArgException(
+          new InvalidArgumentException(
+            interpreter,
+            "datetimeformat",
+            "datetimeformat filter called with null datetime"
           )
-        );
+        )
+      );
+
+      FeatureActivationStrategy feat = interpreter
+        .getConfig()
+        .getFeatures()
+        .getActivationStrategy(FIXED_DATE_TIME_FILTER_NULL_ARG);
+
+      if (feat.isActive()) {
+        var = ((DateTimeFeatureActivationStrategy) feat).getActivateAt();
+      }
     }
 
     ZonedDateTime d = getDateTimeArg(var, zoneOffset);
@@ -300,18 +312,28 @@ public class Functions {
     Object filterVar = var == null || var.length == 0 ? null : var[0];
 
     if (filterVar == null) {
-      JinjavaInterpreter
-        .getCurrent()
-        .addError(
-          TemplateError.fromMissingFilterArgException(
-            new InvalidArgumentException(
-              JinjavaInterpreter.getCurrent(),
-              "unixtimestamp",
-              "unixtimestamp filter called with null value"
-            )
+      JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+
+      interpreter.addError(
+        TemplateError.fromMissingFilterArgException(
+          new InvalidArgumentException(
+            interpreter,
+            "unixtimestamp",
+            "unixtimestamp filter called with null datetime"
           )
-        );
+        )
+      );
+
+      FeatureActivationStrategy feat = interpreter
+        .getConfig()
+        .getFeatures()
+        .getActivationStrategy(FIXED_DATE_TIME_FILTER_NULL_ARG);
+
+      if (feat.isActive()) {
+        filterVar = ((DateTimeFeatureActivationStrategy) feat).getActivateAt();
+      }
     }
+
     ZonedDateTime d = getDateTimeArg(filterVar, ZoneOffset.UTC);
 
     if (d == null) {
