@@ -23,6 +23,8 @@ import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
 import com.hubspot.jinjava.el.JinjavaProcessors;
 import com.hubspot.jinjava.el.ObjectUnwrapper;
+import com.hubspot.jinjava.features.FeatureConfig;
+import com.hubspot.jinjava.features.Features;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.InterpreterFactory;
@@ -79,6 +81,8 @@ public class JinjavaConfig {
   private final LegacyOverrides legacyOverrides;
   private final boolean enablePreciseDivideFilter;
   private final ObjectMapper objectMapper;
+
+  private final Features features;
 
   private final ObjectUnwrapper objectUnwrapper;
   private final JinjavaProcessors processors;
@@ -140,6 +144,7 @@ public class JinjavaConfig {
     objectMapper = setupObjectMapper(builder.objectMapper);
     objectUnwrapper = builder.objectUnwrapper;
     processors = builder.processors;
+    features = new Features(builder.featureConfig);
   }
 
   private ObjectMapper setupObjectMapper(@Nullable ObjectMapper objectMapper) {
@@ -322,6 +327,7 @@ public class JinjavaConfig {
 
     private ObjectUnwrapper objectUnwrapper = new JinjavaObjectUnwrapper();
     private JinjavaProcessors processors = JinjavaProcessors.newBuilder().build();
+    private FeatureConfig featureConfig = FeatureConfig.newBuilder().build();
 
     private Builder() {}
 
@@ -505,6 +511,11 @@ public class JinjavaConfig {
 
     public Builder withProcessors(JinjavaProcessors jinjavaProcessors) {
       this.processors = jinjavaProcessors;
+      return this;
+    }
+
+    public Builder withFeatureConfig(FeatureConfig featureConfig) {
+      this.featureConfig = featureConfig;
       return this;
     }
 
