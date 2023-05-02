@@ -293,6 +293,10 @@ public class JinjavaConfig {
     return dateTimeProvider;
   }
 
+  public Features getFeatures() {
+    return features;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;

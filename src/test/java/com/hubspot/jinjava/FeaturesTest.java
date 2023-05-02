@@ -43,7 +43,7 @@ public class FeaturesTest {
   }
 
   @Test
-  public void itHasDisabledFeature() {
+  public void itDoesNotHaveDisabledFeature() {
     assertThat(features.isActive(ALWAYS_OFF)).isFalse();
   }
 
@@ -53,7 +53,7 @@ public class FeaturesTest {
   }
 
   @Test
-  public void itHasFutureEnabledFeature() {
+  public void itDoesNotHaveFutureEnabledFeature() {
     assertThat(features.isActive(DATE_FUTURE)).isFalse();
   }
 
