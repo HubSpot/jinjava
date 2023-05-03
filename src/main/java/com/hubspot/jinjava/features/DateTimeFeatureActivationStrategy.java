@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.features;
 
+import com.hubspot.jinjava.interpret.Context;
 import java.time.ZonedDateTime;
 
 public class DateTimeFeatureActivationStrategy implements FeatureActivationStrategy {
@@ -14,7 +15,7 @@ public class DateTimeFeatureActivationStrategy implements FeatureActivationStrat
   }
 
   @Override
-  public boolean isActive() {
+  public boolean isActive(Context context) {
     return ZonedDateTime.now().isAfter(activateAt);
   }
 
