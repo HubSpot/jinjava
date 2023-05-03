@@ -1,6 +1,8 @@
 package com.hubspot.jinjava.lib.filter.time;
 
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.features.DateTimeFeatureActivationStrategy;
+import com.hubspot.jinjava.features.FeatureActivationStrategy;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
@@ -16,7 +18,9 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 
-final class DateTimeFormatHelper {
+public final class DateTimeFormatHelper {
+  public static final String FIXED_DATE_TIME_FILTER_NULL_ARG =
+    "FIXED_DATE_TIME_FILTER_NULL_ARG";
   private final String name;
   private final Function<FormatStyle, DateTimeFormatter> cannedFormatterFunction;
 
@@ -94,19 +98,30 @@ final class DateTimeFormatHelper {
     }
   }
 
-  public void checkForNullVar(Object var, String name) {
-    if (var == null) {
-      JinjavaInterpreter
-        .getCurrent()
-        .addError(
-          TemplateError.fromMissingFilterArgException(
-            new InvalidArgumentException(
-              JinjavaInterpreter.getCurrent(),
-              name,
-              name + " filter called with null value"
-            )
-          )
-        );
+  public Object checkForNullVar(Object var, String name) {
+    if (var != null) {
+      return var;
     }
+
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+
+    interpreter.addError(
+      TemplateError.fromMissingFilterArgException(
+        new InvalidArgumentException(
+          interpreter,
+          name,
+          name + " filter called with null datetime"
+        )
+      )
+    );
+
+    FeatureActivationStrategy feat = interpreter
+      .getConfig()
+      .getFeatures()
+      .getActivationStrategy(FIXED_DATE_TIME_FILTER_NULL_ARG);
+
+    return feat.isActive(interpreter.getContext())
+      ? ((DateTimeFeatureActivationStrategy) feat).getActivateAt()
+      : null;
   }
 }

@@ -1,10 +1,15 @@
 package com.hubspot.jinjava.lib.filter.time;
 
+import static com.hubspot.jinjava.lib.filter.time.DateTimeFormatHelper.FIXED_DATE_TIME_FILTER_NULL_ARG;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.features.DateTimeFeatureActivationStrategy;
+import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.interpret.RenderResult;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -217,6 +222,70 @@ public class FormatDateFilterTest {
         jinjava.render(
           "{{ d | format_date('short', 'America/New_York', null) }}",
           ImmutableMap.of("d", DATE_TIME)
+        )
+      )
+      .isEqualTo("11/10/22");
+  }
+
+  @Test
+  public void itWarnsOnMissingFilterArg() {
+    RenderResult renderResult = jinjava.renderForResult(
+      "{{ d | format_date('short', 'America/New_York', null) }}",
+      ImmutableMap.of("d", DATE_TIME)
+    );
+    assertThat(renderResult.getOutput()).isEqualTo("11/10/22");
+
+    assertThat(renderResult.getErrors()).isEmpty();
+
+    renderResult =
+      jinjava.renderForResult(
+        "{{ d | format_date('short', 'America/New_York', null) }}",
+        ImmutableMap.of()
+      );
+    assertThat(renderResult.getErrors().get(0)).isInstanceOf(TemplateError.class);
+    assertThat(renderResult.getErrors().get(0).getMessage())
+      .isEqualTo("format_date filter called with null datetime");
+  }
+
+  @Test
+  public void itDefaultsToCurrentDateOnMissingFilterArg() {
+    jinjava =
+      new Jinjava(
+        JinjavaConfig.newBuilder().withDateTimeProvider(() -> 1233333414223L).build()
+      );
+
+    assertThat(
+        jinjava.render(
+          "{{ d | format_date('short', 'America/New_York', null) }}",
+          ImmutableMap.of()
+        )
+      )
+      .isEqualTo("1/30/09");
+  }
+
+  @Test
+  public void itDefaultsToDeprecationDateOnMissingFilterArg() {
+    jinjava =
+      new Jinjava(
+        JinjavaConfig
+          .newBuilder()
+          .withDateTimeProvider(() -> 1233333414223L)
+          .withFeatureConfig(
+            FeatureConfig
+              .newBuilder()
+              .add(
+                FIXED_DATE_TIME_FILTER_NULL_ARG,
+                DateTimeFeatureActivationStrategy.of(DATE_TIME)
+              )
+              .build()
+          )
+          .build()
+      );
+
+    assertThat(
+        jinjava.render(
+          "{{ d | format_date('short', 'America/New_York', null) }}",
+          ImmutableMap.of()
         )
       )
       .isEqualTo("11/10/22");
