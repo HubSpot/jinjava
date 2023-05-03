@@ -225,7 +225,7 @@ public class Functions {
         .getFeatures()
         .getActivationStrategy(FIXED_DATE_TIME_FILTER_NULL_ARG);
 
-      if (feat.isActive()) {
+      if (feat.isActive(interpreter.getContext())) {
         var = ((DateTimeFeatureActivationStrategy) feat).getActivateAt();
       }
     }
@@ -329,7 +329,7 @@ public class Functions {
         .getFeatures()
         .getActivationStrategy(FIXED_DATE_TIME_FILTER_NULL_ARG);
 
-      if (feat.isActive()) {
+      if (feat.isActive(interpreter.getContext())) {
         filterVar = ((DateTimeFeatureActivationStrategy) feat).getActivateAt();
       }
     }

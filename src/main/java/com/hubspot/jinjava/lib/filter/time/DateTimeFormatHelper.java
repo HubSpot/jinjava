@@ -120,7 +120,7 @@ public final class DateTimeFormatHelper {
       .getFeatures()
       .getActivationStrategy(FIXED_DATE_TIME_FILTER_NULL_ARG);
 
-    return feat.isActive()
+    return feat.isActive(interpreter.getContext())
       ? ((DateTimeFeatureActivationStrategy) feat).getActivateAt()
       : null;
   }

@@ -93,7 +93,7 @@ public class BetweenTimesFilter extends BaseDateFilter {
           .getFeatures()
           .getActivationStrategy(FIXED_DATE_TIME_FILTER_NULL_ARG);
 
-        if (feat.isActive()) {
+        if (feat.isActive(interpreter.getContext())) {
           var = ((DateTimeFeatureActivationStrategy) feat).getActivateAt();
         }
       }
