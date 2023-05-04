@@ -36,20 +36,22 @@ public class StripTagsFilter implements Filter {
     }
     int numDeferredTokensStart = interpreter.getContext().getDeferredTokens().size();
 
-    String val = interpreter.renderFlat((String) object);
-    if (interpreter.getContext().getDeferredTokens().size() > numDeferredTokensStart) {
-      throw new DeferredValueException("Deferred in StripTagsFilter");
+    try (JinjavaInterpreter.InterpreterScopeClosable c = interpreter.enterScope()) {
+      String val = interpreter.renderFlat((String) object);
+      if (interpreter.getContext().getDeferredTokens().size() > numDeferredTokensStart) {
+        throw new DeferredValueException("Deferred in StripTagsFilter");
+      }
+
+      String cleanedVal = Jsoup.parse(val).text();
+      cleanedVal = Jsoup.clean(cleanedVal, Whitelist.none());
+
+      // backwards compatibility with Jsoup.parse
+      cleanedVal = cleanedVal.replaceAll("&nbsp;", " ");
+
+      String normalizedVal = WHITESPACE.matcher(cleanedVal).replaceAll(" ");
+
+      return normalizedVal;
     }
-
-    String cleanedVal = Jsoup.parse(val).text();
-    cleanedVal = Jsoup.clean(cleanedVal, Whitelist.none());
-
-    // backwards compatibility with Jsoup.parse
-    cleanedVal = cleanedVal.replaceAll("&nbsp;", " ");
-
-    String normalizedVal = WHITESPACE.matcher(cleanedVal).replaceAll(" ");
-
-    return normalizedVal;
   }
 
   @Override
