@@ -1,8 +1,12 @@
 package com.hubspot.jinjava.lib.filter;
 
+import static com.hubspot.jinjava.lib.filter.time.DateTimeFormatHelper.FIXED_DATE_TIME_FILTER_NULL_ARG;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.features.DateTimeFeatureActivationStrategy;
+import com.hubspot.jinjava.features.FeatureActivationStrategy;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -73,15 +77,26 @@ public class BetweenTimesFilter extends BaseDateFilter {
     } else {
       JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
 
-      interpreter.addError(
-        TemplateError.fromMissingFilterArgException(
-          new InvalidArgumentException(
-            interpreter,
-            getName() + " filter called with null " + position,
-            getName()
+      if (var == null) {
+        interpreter.addError(
+          TemplateError.fromMissingFilterArgException(
+            new InvalidArgumentException(
+              interpreter,
+              getName() + " filter called with null " + position,
+              getName()
+            )
           )
-        )
-      );
+        );
+
+        FeatureActivationStrategy feat = interpreter
+          .getConfig()
+          .getFeatures()
+          .getActivationStrategy(FIXED_DATE_TIME_FILTER_NULL_ARG);
+
+        if (feat.isActive(interpreter.getContext())) {
+          var = ((DateTimeFeatureActivationStrategy) feat).getActivateAt();
+        }
+      }
 
       return Functions.getDateTimeArg(var, ZoneOffset.UTC);
     }

@@ -48,12 +48,11 @@ public class FormatDateFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    HELPER.checkForNullVar(var, NAME);
     return format(var, args);
   }
 
   public static Object format(Object var, String... args) {
-    return HELPER.format(var, args);
+    return HELPER.format(HELPER.checkForNullVar(var, NAME), args);
   }
 
   @Override

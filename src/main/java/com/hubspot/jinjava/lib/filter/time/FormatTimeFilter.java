@@ -52,8 +52,7 @@ public class FormatTimeFilter implements Filter {
   }
 
   public static Object format(Object var, String... args) {
-    HELPER.checkForNullVar(var, NAME);
-    return HELPER.format(var, args);
+    return HELPER.format(HELPER.checkForNullVar(var, NAME), args);
   }
 
   @Override
