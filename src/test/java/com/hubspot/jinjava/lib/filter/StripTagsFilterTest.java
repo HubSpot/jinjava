@@ -2,9 +2,12 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
@@ -12,27 +15,31 @@ import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StripTagsFilterTest {
-  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-  JinjavaInterpreter interpreter;
+  private JinjavaInterpreter interpreter;
 
   @InjectMocks
-  StripTagsFilter filter;
+  private StripTagsFilter filter;
 
   @Before
   public void setup() {
-    when(interpreter.getContext().getDeferredTokens()).thenReturn(Collections.emptySet());
-    when(interpreter.renderFlat(anyString())).thenAnswer(new ReturnsArgumentAt(0));
+    JinjavaConfig config = JinjavaConfig.newBuilder().build();
+    Jinjava jinjava = new Jinjava(config);
+    this.interpreter = new JinjavaInterpreter(jinjava.newInterpreter());
+    JinjavaInterpreter.pushCurrent(interpreter);
+  }
+
+  @After
+  public void teardown() {
+    JinjavaInterpreter.popCurrent();
   }
 
   @Test
@@ -97,9 +104,26 @@ public class StripTagsFilterTest {
   }
 
   @Test
+  public void itExecutesJinjavaInsideTag() {
+    assertThat(
+        filter.filter("{% for i in [1, 2, 3] %}<div>{{i}}</div>{% endfor %}", interpreter)
+      )
+      .isEqualTo("1 2 3");
+  }
+
+  @Test
+  public void itIsolatesJinjavaScopeWhenExecutingCodeInsideTag() {
+    filter.filter("{% set test = 'hello' %}", interpreter);
+    assertThat(interpreter.getContext().get("test")).isNull();
+  }
+
+  @Test
   public void itThrowsDeferredValueExceptionWhenDeferredTokensAreLeft() {
     AtomicInteger counter = new AtomicInteger();
-    when(interpreter.getContext().getDeferredTokens())
+    JinjavaInterpreter mockedInterpreter = mock(JinjavaInterpreter.class);
+    Context mockedContext = mock(Context.class);
+    when(mockedInterpreter.getContext()).thenReturn(mockedContext);
+    when(mockedContext.getDeferredTokens())
       .thenAnswer(
         i ->
           counter.getAndIncrement() == 0
@@ -116,7 +140,7 @@ public class StripTagsFilterTest {
               )
             )
       );
-    assertThatThrownBy(() -> filter.filter("{{ deferred && other }}", interpreter))
+    assertThatThrownBy(() -> filter.filter("{{ deferred && other }}", mockedInterpreter))
       .isInstanceOf(DeferredValueException.class);
   }
 }
