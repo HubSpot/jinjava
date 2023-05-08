@@ -41,7 +41,7 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
     InterpretException e
   ) {
     interpreter.getContext().checkNumberOfDeferredTokens();
-    try (InterpreterScopeClosable c = interpreter.enterScope()) {
+    try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
       MacroFunction caller = new MacroFunction(
         tagNode.getChildren(),
         "caller",
