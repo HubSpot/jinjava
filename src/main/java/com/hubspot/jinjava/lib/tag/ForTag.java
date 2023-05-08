@@ -15,8 +15,6 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
@@ -167,7 +165,6 @@ public class ForTag implements Tag {
     Object collection
   ) {
     ForLoop loop = ObjectIterator.getLoop(collection);
-    int loopCount = 0;
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       if (interpreter.isValidationMode() && !loop.hasNext()) {
@@ -181,7 +178,6 @@ public class ForTag implements Tag {
         interpreter.getConfig().getMaxOutputSize()
       );
       while (loop.hasNext()) {
-        ++loopCount;
         Object val;
         try {
           val = interpreter.wrap(loop.next());
@@ -278,8 +274,6 @@ public class ForTag implements Tag {
         }
       }
       return checkLoopVariable(interpreter, buff);
-    } finally {
-      ENGINE_LOG.error("Loop count {}", loopCount);
     }
   }
 
