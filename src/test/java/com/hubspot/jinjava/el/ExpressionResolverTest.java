@@ -636,6 +636,12 @@ public class ExpressionResolverTest {
       .isEqualTo("yes");
   }
 
+  @Test
+  public void itAddsErrorRenderingUnclosedExpression() {
+    interpreter.resolveELExpression("{", 1);
+    assertThat(interpreter.getErrors().get(0).getMessage()).contains("Error parsing '{': syntax error at position 4, encountered 'null', expected '}'");
+  }
+
   public String result(String value, TestClass testClass) {
     testClass.touch();
     return value;
