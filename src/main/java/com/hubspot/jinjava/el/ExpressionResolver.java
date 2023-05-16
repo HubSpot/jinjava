@@ -141,7 +141,10 @@ public class ExpressionResolver {
         TemplateError.fromException(
           new TemplateSyntaxException(
             expression.substring(
-              Math.max(e.getPosition() - EXPRESSION_START_TOKEN.length(), 0)
+              Math.min(
+                expression.length(),
+                Math.max(e.getPosition() - EXPRESSION_START_TOKEN.length(), 0)
+              )
             ),
             "Error parsing '" + expression + "': " + errorMessage,
             interpreter.getLineNumber(),
