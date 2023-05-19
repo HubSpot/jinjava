@@ -26,7 +26,7 @@
       <dependency>
         <groupId>org.jsoup</groupId>
         <artifactId>jsoup</artifactId>
-        <version>1.14.2</version>
+        <version>1.15.3</version>
       </dependency>
       <dependency>
         <groupId>de.odysseus.juel</groupId>
@@ -232,6 +232,7 @@
                 <includes>
                   <include>de.odysseus.juel:juel-api</include>
                   <include>de.odysseus.juel:juel-impl</include>
+                  <include>org.jsoup:jsoup</include>
                 </includes>
               </artifactSet>
               <relocations>
@@ -242,6 +243,10 @@
                 <relocation>
                   <pattern>de.odysseus.el</pattern>
                   <shadedPattern>jinjava.de.odysseus.el</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.jsoup</pattern>
+                  <shadedPattern>jinjava.org.jsoup</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
