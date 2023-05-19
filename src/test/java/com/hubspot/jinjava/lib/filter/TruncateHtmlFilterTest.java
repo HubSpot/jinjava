@@ -26,9 +26,7 @@ public class TruncateHtmlFilterTest extends BaseInterpretingTest {
       "33"
     );
     assertThat(result)
-      .isEqualTo(
-        "<h1>HTML Ipsum Presents</h1> \n<p><strong>Pellentesque...</strong></p>"
-      );
+      .isEqualTo("<h1>HTML Ipsum Presents</h1>\n<p><strong>Pellentesque...</strong></p>");
   }
 
   @Test
@@ -39,9 +37,7 @@ public class TruncateHtmlFilterTest extends BaseInterpretingTest {
       "35"
     );
     assertThat(result)
-      .isEqualTo(
-        "<h1>HTML Ipsum Presents</h1> \n<p><strong>Pellentesque...</strong></p>"
-      );
+      .isEqualTo("<h1>HTML Ipsum Presents</h1>\n<p><strong>Pellentesque...</strong></p>");
 
     result =
       (String) filter.filter(
@@ -53,7 +49,7 @@ public class TruncateHtmlFilterTest extends BaseInterpretingTest {
       );
     assertThat(result)
       .isEqualTo(
-        "<h1>HTML Ipsum Presents</h1> \n<p><strong>Pellentesque ha...</strong></p>"
+        "<h1>HTML Ipsum Presents</h1>\n<p><strong>Pellentesque ha...</strong></p>"
       );
   }
 
@@ -66,9 +62,7 @@ public class TruncateHtmlFilterTest extends BaseInterpretingTest {
       ImmutableMap.of("breakwords", false)
     );
     assertThat(result)
-      .isEqualTo(
-        "<h1>HTML Ipsum Presents</h1> \n<p><strong>Pellentesque...</strong></p>"
-      );
+      .isEqualTo("<h1>HTML Ipsum Presents</h1>\n<p><strong>Pellentesque...</strong></p>");
 
     result =
       (String) filter.filter(
@@ -79,7 +73,7 @@ public class TruncateHtmlFilterTest extends BaseInterpretingTest {
       );
     assertThat(result)
       .isEqualTo(
-        "<h1>HTML Ipsum Presents</h1> \n<p><strong>PellentesqueTEST</strong></p>"
+        "<h1>HTML Ipsum Presents</h1>\n<p><strong>PellentesqueTEST</strong></p>"
       );
   }
 
