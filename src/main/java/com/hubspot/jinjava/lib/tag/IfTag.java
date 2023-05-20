@@ -15,6 +15,7 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
+import com.google.common.base.Stopwatch;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -29,6 +30,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.ObjectTruthValue;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 
 @JinjavaDoc(
@@ -73,6 +75,7 @@ public class IfTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    Stopwatch totalStopWatch = Stopwatch.createStarted();
     if (StringUtils.isBlank(tagNode.getHelpers())) {
       throw new TemplateSyntaxException(
         tagNode.getMaster().getImage(),
@@ -124,6 +127,10 @@ public class IfTag implements Tag {
         }
       }
     } finally {
+      tagNode.addExtraInfo(
+        "t",
+        String.valueOf(totalStopWatch.elapsed(TimeUnit.MILLISECONDS))
+      );
       interpreter.getContext().setValidationMode(parentValidationMode);
     }
 

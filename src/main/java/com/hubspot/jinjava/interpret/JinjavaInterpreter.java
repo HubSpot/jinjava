@@ -252,6 +252,9 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return rendered result
    */
   public String render(String template) {
+    if (template.contains("{% for row in filtered_products.products %}")) {
+      ENGINE_LOG.info(template);
+    }
     return render(parse(template), true);
   }
 
