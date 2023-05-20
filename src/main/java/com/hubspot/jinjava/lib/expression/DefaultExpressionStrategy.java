@@ -41,6 +41,10 @@ public class DefaultExpressionStrategy implements ExpressionStrategy {
       result = EscapeFilter.escapeHtmlEntities(result);
     }
 
+    if (result.isEmpty() && interpreter.getConfig().isRenderBackUnknownTokens()) {
+      result = master.getImage();
+    }
+
     return new RenderedOutputNode(result);
   }
 }

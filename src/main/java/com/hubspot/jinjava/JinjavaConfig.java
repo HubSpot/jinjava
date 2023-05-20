@@ -65,6 +65,7 @@ public class JinjavaConfig {
 
   private final Map<Context.Library, Set<String>> disabled;
   private final boolean failOnUnknownTokens;
+  private final boolean renderBackUnknownTokens;
   private final boolean nestedInterpretationEnabled;
   private final RandomNumberGeneratorStrategy randomNumberGenerator;
   private final boolean validationMode;
@@ -125,6 +126,7 @@ public class JinjavaConfig {
     enableRecursiveMacroCalls = builder.enableRecursiveMacroCalls;
     maxMacroRecursionDepth = builder.maxMacroRecursionDepth;
     failOnUnknownTokens = builder.failOnUnknownTokens;
+    renderBackUnknownTokens = builder.renderBackUnknownTokens;
     maxOutputSize = builder.maxOutputSize;
     nestedInterpretationEnabled = builder.nestedInterpretationEnabled;
     randomNumberGenerator = builder.randomNumberGeneratorStrategy;
@@ -221,6 +223,10 @@ public class JinjavaConfig {
     return failOnUnknownTokens;
   }
 
+  public boolean isRenderBackUnknownTokens() {
+    return renderBackUnknownTokens;
+  }
+
   public boolean isNestedInterpretationEnabled() {
     return nestedInterpretationEnabled;
   }
@@ -311,6 +317,7 @@ public class JinjavaConfig {
     private boolean enableRecursiveMacroCalls;
     private int maxMacroRecursionDepth;
     private boolean failOnUnknownTokens;
+    private boolean renderBackUnknownTokens;
     private boolean nestedInterpretationEnabled = true;
     private RandomNumberGeneratorStrategy randomNumberGeneratorStrategy =
       RandomNumberGeneratorStrategy.THREAD_LOCAL;
@@ -407,6 +414,11 @@ public class JinjavaConfig {
 
     public Builder withFailOnUnknownTokens(boolean failOnUnknownTokens) {
       this.failOnUnknownTokens = failOnUnknownTokens;
+      return this;
+    }
+
+    public Builder withRenderBackUnknownTokens(boolean renderBackUnknownTokens) {
+      this.renderBackUnknownTokens = renderBackUnknownTokens;
       return this;
     }
 

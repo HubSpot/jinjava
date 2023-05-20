@@ -130,6 +130,21 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itRenderBackUnknownTokensAsIsForMissingBinding() {
+    final JinjavaConfig config = JinjavaConfig
+      .newBuilder()
+      .withRenderBackUnknownTokens(true)
+      .build();
+    JinjavaInterpreter jinjavaInterpreter = new Jinjava(config).newInterpreter();
+    jinjavaInterpreter.getContext().put("subject", "this");
+
+    String template = "{{ subject }} expression has an {{ unknown }} token";
+    Node node = new TreeParser(jinjavaInterpreter, template).buildTree();
+    assertThat(jinjavaInterpreter.render(node))
+      .isEqualTo("this expression has an {{ unknown }} token");
+  }
+
+  @Test
   public void itFailsOnUnknownTokensVariables() throws Exception {
     final JinjavaConfig config = JinjavaConfig
       .newBuilder()
