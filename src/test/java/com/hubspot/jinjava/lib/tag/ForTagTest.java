@@ -377,6 +377,19 @@ public class ForTagTest extends BaseInterpretingTest {
     assertThat(rendered.getOutput()).isEqualTo("false true true false");
   }
 
+  @Test
+  public void forLoopNestedForPerf() throws IOException {
+    long startMs = System.currentTimeMillis();
+    String template = Resources.toString(
+      Resources.getResource("tags/fortag/perf-fors.jinja"),
+      StandardCharsets.UTF_8
+    );
+    RenderResult rendered = jinjava.renderForResult(template, context);
+    long durationMs = System.currentTimeMillis() - startMs;
+    assertThat(rendered.getOutput()).isEqualTo("40000");
+    assertThat(durationMs).isLessThan(250L);
+  }
+
   public static boolean inForLoop() {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     return interpreter.getContext().isInForLoop();

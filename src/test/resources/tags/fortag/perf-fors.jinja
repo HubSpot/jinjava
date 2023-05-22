@@ -1,0 +1,16 @@
+{%- set startMs = unixtimestamp() %}
+{%- set size = 200 %}
+{%- set count = {val: 0} %}
+{%- set obj = {a: 'a', a: 'b', c: 'c', d: "d"} %}
+{%- for i in range(size) %}
+  {%- for j in range(size) %}
+    {%- if obj.a | trim == obj.a | trim &&
+           obj.a | trim | length == obj.a | trim | length &&
+           obj.a | trim | length == obj.a | trim | length &&
+           obj.b | trim == obj.b | trim &&
+           obj.c | trim != obj.d | trim %}
+      {%- do count.update({val: count.val + 1 }) %}
+    {%- endif %}
+  {%- endfor %}
+{%- endfor -%}
+{{ count.val }} {{ unixtimestamp() - startMs }}
