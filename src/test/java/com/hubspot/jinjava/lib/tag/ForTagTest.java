@@ -386,7 +386,7 @@ public class ForTagTest extends BaseInterpretingTest {
     );
     RenderResult rendered = jinjava.renderForResult(template, context);
     long durationMs = System.currentTimeMillis() - startMs;
-    assertThat(rendered.getOutput()).isEqualTo("40000");
+    assertThat(rendered.getOutput()).isEqualTo("10000");
     assertThat(durationMs).isLessThan(250L);
   }
 

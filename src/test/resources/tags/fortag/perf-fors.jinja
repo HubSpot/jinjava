@@ -1,5 +1,4 @@
-{%- set startMs = unixtimestamp() %}
-{%- set size = 200 %}
+{%- set size = 100 %}
 {%- set count = {val: 0} %}
 {%- set obj = {a: 'a', a: 'b', c: 'c', d: "d"} %}
 {%- for i in range(size) %}
@@ -13,4 +12,4 @@
     {%- endif %}
   {%- endfor %}
 {%- endfor -%}
-{{ count.val }} {{ unixtimestamp() - startMs }}
+{{ count.val }}

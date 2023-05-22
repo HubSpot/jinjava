@@ -32,7 +32,6 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -148,7 +147,8 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     Map<String, Object> kwargs = new LinkedHashMap<>();
 
     // 2 -> Ignore the Left Value (0) and the JinjavaInterpreter (1)
-    for (Object param : Arrays.asList(astParams).subList(2, astParams.length)) {
+    for (int i = 2; i < astParams.length; ++i) {
+      Object param = astParams[i];
       if (param instanceof NamedParameter) {
         NamedParameter namedParameter = (NamedParameter) param;
         kwargs.put(namedParameter.getName(), namedParameter.getValue());
