@@ -43,6 +43,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -63,7 +64,13 @@ public class JinjavaConfig {
   private final boolean enableRecursiveMacroCalls;
   private final int maxMacroRecursionDepth;
 
-  private final Map<Context.Library, Set<String>> disabled;
+  private final Map<Library, Set<String>> disabled;
+
+  private final Set<String> restrictedMethods;
+
+  private final Set<String> restrictedProperties;
+  private final Set<String> deferredExecutionRestrictedMethods;
+
   private final boolean failOnUnknownTokens;
   private final boolean nestedInterpretationEnabled;
   private final RandomNumberGeneratorStrategy randomNumberGenerator;
@@ -120,6 +127,9 @@ public class JinjavaConfig {
     timeZone = builder.timeZone;
     maxRenderDepth = builder.maxRenderDepth;
     disabled = builder.disabled;
+    restrictedMethods = builder.restrictedMethods;
+    restrictedProperties = builder.restrictedProperties;
+    deferredExecutionRestrictedMethods = builder.deferredExecutionRestrictedMethods;
     trimBlocks = builder.trimBlocks;
     lstripBlocks = builder.lstripBlocks;
     enableRecursiveMacroCalls = builder.enableRecursiveMacroCalls;
@@ -217,6 +227,18 @@ public class JinjavaConfig {
     return disabled;
   }
 
+  public Set<String> getRestrictedMethods() {
+    return restrictedMethods;
+  }
+
+  public Set<String> getRestrictedProperties() {
+    return restrictedProperties;
+  }
+
+  public Set<String> getDeferredExecutionRestrictedMethods() {
+    return deferredExecutionRestrictedMethods;
+  }
+
   public boolean isFailOnUnknownTokens() {
     return failOnUnknownTokens;
   }
@@ -305,6 +327,10 @@ public class JinjavaConfig {
     private long maxOutputSize = 0; // in bytes
     private Map<Context.Library, Set<String>> disabled = new HashMap<>();
 
+    private Set<String> restrictedMethods = new HashSet<>();
+    private Set<String> restrictedProperties = new HashSet<>();
+    private Set<String> deferredExecutionRestrictedMethods = new HashSet<>();
+
     private boolean trimBlocks;
     private boolean lstripBlocks;
 
@@ -352,6 +378,23 @@ public class JinjavaConfig {
 
     public Builder withDisabled(Map<Context.Library, Set<String>> disabled) {
       this.disabled = disabled;
+      return this;
+    }
+
+    public Builder withRestrictedMethods(Set<String> restrictedMethods) {
+      this.restrictedMethods = restrictedMethods;
+      return this;
+    }
+
+    public Builder withRestrictedProperties(Set<String> restrictedProperties) {
+      this.restrictedProperties = restrictedProperties;
+      return this;
+    }
+
+    public Builder withDeferredExecutionRestrictedMethods(
+      Set<String> deferredExecutionRestrictedMethods
+    ) {
+      this.deferredExecutionRestrictedMethods = deferredExecutionRestrictedMethods;
       return this;
     }
 

@@ -1,8 +1,12 @@
 package com.hubspot.jinjava.el.ext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.JinjavaELContext;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import javax.el.ELContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,10 +15,17 @@ public class JinjavaBeanELResolverTest {
   private JinjavaBeanELResolver jinjavaBeanELResolver;
   private ELContext elContext;
 
+  JinjavaInterpreter interpreter = mock(JinjavaInterpreter.class);
+  JinjavaConfig config = mock(JinjavaConfig.class);
+
   @Before
   public void setUp() throws Exception {
     jinjavaBeanELResolver = new JinjavaBeanELResolver();
     elContext = new JinjavaELContext();
+    elContext
+      .getELResolver()
+      .setValue(elContext, null, ExtendedParser.INTERPRETER, interpreter);
+    when(interpreter.getConfig()).thenReturn(config);
   }
 
   @Test
