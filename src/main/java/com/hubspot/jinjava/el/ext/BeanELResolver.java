@@ -16,7 +16,6 @@
  */
 package com.hubspot.jinjava.el.ext;
 
-import com.hubspot.algebra.Result;
 import java.beans.FeatureDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -301,13 +300,8 @@ public class BeanELResolver extends ELResolver {
     }
     Class<?> result = null;
     if (isResolvable(base)) {
-      Result<BeanProperty, String> beanProperty = toBeanProperty(base, property);
-      if (beanProperty.isOk()) {
-        result = beanProperty.unwrapOrElseThrow().getPropertyType();
-        context.setPropertyResolved(true);
-      } else {
-        throw propertyNotFoundException;
-      }
+      result = toBeanProperty(base, property).getPropertyType();
+      context.setPropertyResolved(true);
     }
     return result;
   }
@@ -346,12 +340,12 @@ public class BeanELResolver extends ELResolver {
     }
     Object result = null;
     if (isResolvable(base)) {
-      Result<Method, String> method = getReadMethod(base, property);
-      if (method.isErr()) {
-        return method;
+      Method method = getReadMethod(base, property);
+      if (method == null) {
+        throw new PropertyNotFoundException("Cannot read property " + property);
       }
       try {
-        result = method.unwrapOrElseThrow().invoke(base);
+        result = method.invoke(base);
       } catch (InvocationTargetException e) {
         throw new ELException(e.getCause());
       } catch (Exception e) {
@@ -394,11 +388,8 @@ public class BeanELResolver extends ELResolver {
     }
     boolean result = readOnly;
     if (isResolvable(base)) {
-      Result<BeanProperty, String> beanProperty = toBeanProperty(base, property);
-      if (beanProperty.isOk()) {
-        result |= beanProperty.unwrapOrElseThrow().isReadOnly();
-        context.setPropertyResolved(true);
-      }
+      result |= toBeanProperty(base, property).isReadOnly();
+      context.setPropertyResolved(true);
     }
     return result;
   }
@@ -443,12 +434,7 @@ public class BeanELResolver extends ELResolver {
       if (readOnly) {
         throw new PropertyNotWritableException("resolver is read-only");
       }
-      Result<BeanProperty, String> beanProperty = toBeanProperty(base, property);
-
-      Method method = null;
-      if (beanProperty.isOk()) {
-        method = beanProperty.unwrapOrElseThrow().getWriteMethod();
-      }
+      Method method = toBeanProperty(base, property).getWriteMethod();
       if (method == null) {
         throw new PropertyNotWritableException("Cannot write property: " + property);
       }
@@ -666,8 +652,8 @@ public class BeanELResolver extends ELResolver {
     return args;
   }
 
-  protected Result<Method, String> getReadMethod(Object base, Object property) {
-    return toBeanProperty(base, property).flatMapOk(bp -> Result.ok(bp.getReadMethod()));
+  protected Method getReadMethod(Object base, Object property) {
+    return toBeanProperty(base, property).getReadMethod();
   }
 
   private void coerceValue(
@@ -704,7 +690,7 @@ public class BeanELResolver extends ELResolver {
    * @throws PropertyNotFoundException
    *             if no BeanProperty can be found.
    */
-  private Result<BeanProperty, String> toBeanProperty(Object base, Object property) {
+  private BeanProperty toBeanProperty(Object base, Object property) {
     BeanProperties beanProperties = cache.get(base.getClass());
     if (beanProperties == null) {
       BeanProperties newBeanProperties = new BeanProperties(base.getClass());
@@ -717,12 +703,11 @@ public class BeanELResolver extends ELResolver {
       ? null
       : beanProperties.getBeanProperty(property.toString());
     if (beanProperty == null) {
-      return Result.err("Could not find property " + property + " in " + base.getClass());
-      //      throw new PropertyNotFoundException(
-      //        "Could not find property " + property + " in " + base.getClass()
-      //      );
+      throw new PropertyNotFoundException(
+        "Could not find property " + property + " in " + base.getClass()
+      );
     }
-    return Result.ok(beanProperty);
+    return beanProperty;
   }
 
   /**

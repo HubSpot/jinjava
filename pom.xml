@@ -81,11 +81,6 @@
         <artifactId>jackson-dataformat-yaml</artifactId>
         <version>2.12.6</version>
       </dependency>
-      <dependency>
-        <groupId>com.hubspot</groupId>
-        <artifactId>algebra</artifactId>
-        <version>1.2</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -153,10 +148,6 @@
     <dependency>
       <groupId>ch.obermuhlner</groupId>
       <artifactId>big-math</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.hubspot</groupId>
-      <artifactId>algebra</artifactId>
     </dependency>
 
     <dependency>
