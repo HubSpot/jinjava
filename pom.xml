@@ -19,6 +19,15 @@
     <dep.javassist.version>3.24.1-GA</dep.javassist.version>
 
     <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
+    <basepom.test.add.opens>--add-opens=java.base/java.lang=ALL-UNNAMED
+      --add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
+      --add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED
+      --add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED
+      --add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED
+      --add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
+      --add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED
+      --add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED
+      --add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</basepom.test.add.opens>
   </properties>
 
   <dependencyManagement>
