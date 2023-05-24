@@ -38,7 +38,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     .add("wait")
     .build();
 
-  private static final Set<String> DEFAULT_DEFERRED_EXECUTION_RESTRICTED_METHODS = ImmutableSet
+  private static final Set<String> DEFERRED_EXECUTION_RESTRICTED_METHODS = ImmutableSet
     .<String>builder()
     .add("put")
     .add("putAll")
@@ -126,13 +126,8 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       );
     }
 
-    Set<String> allDeferredExecutionRestrictedMethods = Sets.union(
-      interpreter.getConfig().getDeferredExecutionRestrictedMethods(),
-      DEFAULT_DEFERRED_EXECUTION_RESTRICTED_METHODS
-    );
-
     if (
-      allDeferredExecutionRestrictedMethods.contains(method.toString()) &&
+      DEFERRED_EXECUTION_RESTRICTED_METHODS.contains(method.toString()) &&
       EagerReconstructionUtils.isDeferredExecutionMode()
     ) {
       throw new DeferredValueException(

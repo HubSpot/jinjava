@@ -69,7 +69,6 @@ public class JinjavaConfig {
   private final Set<String> restrictedMethods;
 
   private final Set<String> restrictedProperties;
-  private final Set<String> deferredExecutionRestrictedMethods;
 
   private final boolean failOnUnknownTokens;
   private final boolean nestedInterpretationEnabled;
@@ -129,7 +128,6 @@ public class JinjavaConfig {
     disabled = builder.disabled;
     restrictedMethods = builder.restrictedMethods;
     restrictedProperties = builder.restrictedProperties;
-    deferredExecutionRestrictedMethods = builder.deferredExecutionRestrictedMethods;
     trimBlocks = builder.trimBlocks;
     lstripBlocks = builder.lstripBlocks;
     enableRecursiveMacroCalls = builder.enableRecursiveMacroCalls;
@@ -235,10 +233,6 @@ public class JinjavaConfig {
     return restrictedProperties;
   }
 
-  public Set<String> getDeferredExecutionRestrictedMethods() {
-    return deferredExecutionRestrictedMethods;
-  }
-
   public boolean isFailOnUnknownTokens() {
     return failOnUnknownTokens;
   }
@@ -329,7 +323,6 @@ public class JinjavaConfig {
 
     private Set<String> restrictedMethods = new HashSet<>();
     private Set<String> restrictedProperties = new HashSet<>();
-    private Set<String> deferredExecutionRestrictedMethods = new HashSet<>();
 
     private boolean trimBlocks;
     private boolean lstripBlocks;
@@ -388,13 +381,6 @@ public class JinjavaConfig {
 
     public Builder withRestrictedProperties(Set<String> restrictedProperties) {
       this.restrictedProperties = restrictedProperties;
-      return this;
-    }
-
-    public Builder withDeferredExecutionRestrictedMethods(
-      Set<String> deferredExecutionRestrictedMethods
-    ) {
-      this.deferredExecutionRestrictedMethods = deferredExecutionRestrictedMethods;
       return this;
     }
 
