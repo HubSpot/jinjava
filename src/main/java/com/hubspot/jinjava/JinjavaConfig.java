@@ -19,6 +19,7 @@ import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
 import com.hubspot.jinjava.el.JinjavaProcessors;
@@ -43,7 +44,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -321,8 +321,8 @@ public class JinjavaConfig {
     private long maxOutputSize = 0; // in bytes
     private Map<Context.Library, Set<String>> disabled = new HashMap<>();
 
-    private Set<String> restrictedMethods = new HashSet<>();
-    private Set<String> restrictedProperties = new HashSet<>();
+    private Set<String> restrictedMethods = ImmutableSet.of();
+    private Set<String> restrictedProperties = ImmutableSet.of();
 
     private boolean trimBlocks;
     private boolean lstripBlocks;
@@ -375,12 +375,12 @@ public class JinjavaConfig {
     }
 
     public Builder withRestrictedMethods(Set<String> restrictedMethods) {
-      this.restrictedMethods = restrictedMethods;
+      this.restrictedMethods = ImmutableSet.copyOf(restrictedMethods);
       return this;
     }
 
     public Builder withRestrictedProperties(Set<String> restrictedProperties) {
-      this.restrictedProperties = restrictedProperties;
+      this.restrictedProperties = ImmutableSet.copyOf(restrictedProperties);
       return this;
     }
 
