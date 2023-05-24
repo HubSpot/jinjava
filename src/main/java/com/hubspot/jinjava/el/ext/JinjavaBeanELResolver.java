@@ -2,7 +2,6 @@ package com.hubspot.jinjava.el.ext;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
@@ -109,12 +108,11 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       .getELResolver()
       .getValue(context, null, ExtendedParser.INTERPRETER);
 
-    Set<String> allRestrictedMethods = Sets.union(
-      interpreter.getConfig().getRestrictedMethods(),
-      DEFAULT_RESTRICTED_METHODS
-    );
-
-    if (method == null || allRestrictedMethods.contains(method.toString())) {
+    if (
+      method == null ||
+      DEFAULT_RESTRICTED_METHODS.contains(method.toString()) ||
+      interpreter.getConfig().getRestrictedMethods().contains(method.toString())
+    ) {
       throw new MethodNotFoundException(
         "Cannot find method '" + method + "' in " + base.getClass()
       );
@@ -229,12 +227,10 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       .getELResolver()
       .getValue(context, null, ExtendedParser.INTERPRETER);
 
-    Set<String> allRestrictedProperties = Sets.union(
-      interpreter.getConfig().getRestrictedProperties(),
-      DEFAULT_RESTRICTED_PROPERTIES
-    );
-
-    if (allRestrictedProperties.contains(propertyName)) {
+    if (
+      DEFAULT_RESTRICTED_PROPERTIES.contains(propertyName) ||
+      interpreter.getConfig().getRestrictedProperties().contains(propertyName)
+    ) {
       return null;
     }
 
