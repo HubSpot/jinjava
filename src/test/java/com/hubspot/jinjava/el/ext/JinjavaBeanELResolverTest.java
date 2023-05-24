@@ -1,13 +1,17 @@
 package com.hubspot.jinjava.el.ext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.JinjavaELContext;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import javax.el.ELContext;
+import javax.el.MethodNotFoundException;
+import javax.el.PropertyNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -152,5 +156,26 @@ public class JinjavaBeanELResolverTest {
         )
       )
       .isEqualTo("int Integer"); // should be "Number int", but we can't figure that out
+  }
+
+  @Test
+  public void itThrowsExceptionWhenMethodIsRestrictedFromConfig() {
+    when(config.getRestrictedMethods()).thenReturn(ImmutableSet.of("foo"));
+    assertThatThrownBy(
+        () ->
+          jinjavaBeanELResolver.invoke(elContext, "abcd", "foo", null, new Object[] { 1 })
+      )
+      .isInstanceOf(MethodNotFoundException.class)
+      .hasMessageStartingWith("Cannot find method 'foo'");
+  }
+
+  @Test
+  public void itThrowsExceptionWhenPropertyIsRestrictedFromConfig() {
+    when(config.getRestrictedProperties()).thenReturn(ImmutableSet.of("property1"));
+    assertThatThrownBy(
+        () -> jinjavaBeanELResolver.getValue(elContext, "abcd", "property1")
+      )
+      .isInstanceOf(PropertyNotFoundException.class)
+      .hasMessageStartingWith("Could not find property");
   }
 }
