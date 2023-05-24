@@ -73,27 +73,23 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
   @Override
   public Class<?> getType(ELContext context, Object base, Object property) {
-    return super.getType(context, base, validatePropertyName(context, property));
+    return super.getType(context, base, validatePropertyName(property));
   }
 
   @Override
   public Object getValue(ELContext context, Object base, Object property) {
-    Object result = super.getValue(
-      context,
-      base,
-      validatePropertyName(context, property)
-    );
+    Object result = super.getValue(context, base, validatePropertyName(property));
     return result instanceof Class ? null : result;
   }
 
   @Override
   public boolean isReadOnly(ELContext context, Object base, Object property) {
-    return super.isReadOnly(context, base, validatePropertyName(context, property));
+    return super.isReadOnly(context, base, validatePropertyName(property));
   }
 
   @Override
   public void setValue(ELContext context, Object base, Object property, Object value) {
-    super.setValue(context, base, validatePropertyName(context, property), value);
+    super.setValue(context, base, validatePropertyName(property), value);
   }
 
   @Override
@@ -104,14 +100,15 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     Class<?>[] paramTypes,
     Object[] params
   ) {
-    JinjavaInterpreter interpreter = (JinjavaInterpreter) context
-      .getELResolver()
-      .getValue(context, null, ExtendedParser.INTERPRETER);
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
 
     if (
       method == null ||
       DEFAULT_RESTRICTED_METHODS.contains(method.toString()) ||
-      interpreter.getConfig().getRestrictedMethods().contains(method.toString())
+      (
+        interpreter != null &&
+        interpreter.getConfig().getRestrictedMethods().contains(method.toString())
+      )
     ) {
       throw new MethodNotFoundException(
         "Cannot find method '" + method + "' in " + base.getClass()
@@ -220,16 +217,17 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     return 1;
   }
 
-  private String validatePropertyName(ELContext context, Object property) {
+  private String validatePropertyName(Object property) {
     String propertyName = transformPropertyName(property);
 
-    JinjavaInterpreter interpreter = (JinjavaInterpreter) context
-      .getELResolver()
-      .getValue(context, null, ExtendedParser.INTERPRETER);
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
 
     if (
       DEFAULT_RESTRICTED_PROPERTIES.contains(propertyName) ||
-      interpreter.getConfig().getRestrictedProperties().contains(propertyName)
+      (
+        interpreter != null &&
+        interpreter.getConfig().getRestrictedProperties().contains(propertyName)
+      )
     ) {
       return null;
     }

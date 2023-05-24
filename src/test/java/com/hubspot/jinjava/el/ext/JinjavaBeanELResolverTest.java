@@ -26,9 +26,6 @@ public class JinjavaBeanELResolverTest {
   public void setUp() throws Exception {
     jinjavaBeanELResolver = new JinjavaBeanELResolver();
     elContext = new JinjavaELContext();
-    elContext
-      .getELResolver()
-      .setValue(elContext, null, ExtendedParser.INTERPRETER, interpreter);
     when(interpreter.getConfig()).thenReturn(config);
   }
 
@@ -160,6 +157,7 @@ public class JinjavaBeanELResolverTest {
 
   @Test
   public void itThrowsExceptionWhenMethodIsRestrictedFromConfig() {
+    JinjavaInterpreter.pushCurrent(interpreter);
     when(config.getRestrictedMethods()).thenReturn(ImmutableSet.of("foo"));
     assertThatThrownBy(
         () ->
@@ -167,15 +165,18 @@ public class JinjavaBeanELResolverTest {
       )
       .isInstanceOf(MethodNotFoundException.class)
       .hasMessageStartingWith("Cannot find method 'foo'");
+    JinjavaInterpreter.popCurrent();
   }
 
   @Test
   public void itThrowsExceptionWhenPropertyIsRestrictedFromConfig() {
+    JinjavaInterpreter.pushCurrent(interpreter);
     when(config.getRestrictedProperties()).thenReturn(ImmutableSet.of("property1"));
     assertThatThrownBy(
         () -> jinjavaBeanELResolver.getValue(elContext, "abcd", "property1")
       )
       .isInstanceOf(PropertyNotFoundException.class)
       .hasMessageStartingWith("Could not find property");
+    JinjavaInterpreter.popCurrent();
   }
 }
