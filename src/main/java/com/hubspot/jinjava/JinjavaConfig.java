@@ -19,6 +19,7 @@ import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
 import com.hubspot.jinjava.el.JinjavaProcessors;
@@ -63,7 +64,12 @@ public class JinjavaConfig {
   private final boolean enableRecursiveMacroCalls;
   private final int maxMacroRecursionDepth;
 
-  private final Map<Context.Library, Set<String>> disabled;
+  private final Map<Library, Set<String>> disabled;
+
+  private final Set<String> restrictedMethods;
+
+  private final Set<String> restrictedProperties;
+
   private final boolean failOnUnknownTokens;
   private final boolean nestedInterpretationEnabled;
   private final RandomNumberGeneratorStrategy randomNumberGenerator;
@@ -120,6 +126,8 @@ public class JinjavaConfig {
     timeZone = builder.timeZone;
     maxRenderDepth = builder.maxRenderDepth;
     disabled = builder.disabled;
+    restrictedMethods = builder.restrictedMethods;
+    restrictedProperties = builder.restrictedProperties;
     trimBlocks = builder.trimBlocks;
     lstripBlocks = builder.lstripBlocks;
     enableRecursiveMacroCalls = builder.enableRecursiveMacroCalls;
@@ -217,6 +225,14 @@ public class JinjavaConfig {
     return disabled;
   }
 
+  public Set<String> getRestrictedMethods() {
+    return restrictedMethods;
+  }
+
+  public Set<String> getRestrictedProperties() {
+    return restrictedProperties;
+  }
+
   public boolean isFailOnUnknownTokens() {
     return failOnUnknownTokens;
   }
@@ -305,6 +321,9 @@ public class JinjavaConfig {
     private long maxOutputSize = 0; // in bytes
     private Map<Context.Library, Set<String>> disabled = new HashMap<>();
 
+    private Set<String> restrictedMethods = ImmutableSet.of();
+    private Set<String> restrictedProperties = ImmutableSet.of();
+
     private boolean trimBlocks;
     private boolean lstripBlocks;
 
@@ -352,6 +371,16 @@ public class JinjavaConfig {
 
     public Builder withDisabled(Map<Context.Library, Set<String>> disabled) {
       this.disabled = disabled;
+      return this;
+    }
+
+    public Builder withRestrictedMethods(Set<String> restrictedMethods) {
+      this.restrictedMethods = ImmutableSet.copyOf(restrictedMethods);
+      return this;
+    }
+
+    public Builder withRestrictedProperties(Set<String> restrictedProperties) {
+      this.restrictedProperties = ImmutableSet.copyOf(restrictedProperties);
       return this;
     }
 
