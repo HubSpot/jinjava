@@ -249,7 +249,7 @@ public class SetTag implements Tag, FlexibleTag {
       setVariable(
         interpreter,
         varTokens[0],
-        resolvedList != null ? resolvedList.get(0) : null
+        resolvedList != null && resolvedList.size() > 0 ? resolvedList.get(0) : null
       );
     }
   }
