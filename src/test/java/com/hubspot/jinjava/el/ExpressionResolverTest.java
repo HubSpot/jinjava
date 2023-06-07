@@ -637,6 +637,22 @@ public class ExpressionResolverTest {
   }
 
   @Test
+  public void itResolvesAlternateExpTestSyntaxForInExpTests() {
+    assertThat(
+        interpreter.render(
+          "{% if exptest:in.evaluate(1, ____int3rpr3t3r____, [1]) %}yes{% endif %}"
+        )
+      )
+      .isEqualTo("yes");
+    assertThat(
+        interpreter.render(
+          "{% if exptest:in.evaluate(2, ____int3rpr3t3r____, [1]) %}yes{% else %}no{% endif %}"
+        )
+      )
+      .isEqualTo("no");
+  }
+
+  @Test
   public void itAddsErrorRenderingUnclosedExpression() {
     interpreter.resolveELExpression("{", 1);
     assertThat(interpreter.getErrors().get(0).getMessage())
