@@ -284,7 +284,7 @@ public class ExtendedParser extends Parser {
         if (getToken().getSymbol() == COLON) {
           Symbol lookahead = lookahead(0).getSymbol();
           if (
-            (lookahead == IDENTIFIER || lookahead == FALSE || lookahead == TRUE) &&
+            (isPossibleExpTest(lookahead)) &&
             (lookahead(1).getSymbol() == LPAREN || (isPossibleExpTestOrFilter(name)))
           ) { // ns:f(...)
             consumeToken();
