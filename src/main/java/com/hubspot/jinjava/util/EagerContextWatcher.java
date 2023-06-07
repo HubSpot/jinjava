@@ -212,7 +212,7 @@ public class EagerContextWatcher {
             .collect(
               Collectors.toMap(
                 Entry::getKey,
-                entry -> ((OneTimeReconstructible) entry.getValue()).getOriginalValue()
+                entry -> entry.getValue() //((OneTimeReconstructible) entry.getValue()).getOriginalValue()
               )
             )
         );
@@ -247,7 +247,7 @@ public class EagerContextWatcher {
             }
             return new AbstractMap.SimpleImmutableEntry<>(
               entry.getKey(),
-              ((DeferredValue) contextValue).getOriginalValue()
+              contextValue //((DeferredValue) contextValue).getOriginalValue()
             );
           }
           return null;
@@ -265,10 +265,10 @@ public class EagerContextWatcher {
       .collect(
         Collectors.toMap(
           Entry::getKey,
-          entry ->
-            entry.getValue() instanceof DeferredValue
-              ? ((DeferredValue) entry.getValue()).getOriginalValue()
-              : entry.getValue()
+          entry -> entry.getValue()
+          //            entry.getValue() instanceof DeferredValue
+          //              ? ((DeferredValue) entry.getValue()).getOriginalValue()
+          //              : entry.getValue()
         )
       );
   }
@@ -330,10 +330,15 @@ public class EagerContextWatcher {
         .entrySet()
         .stream()
         .filter(entry -> !metaContextVariables.contains(entry.getKey()))
+        .filter(entry -> entry.getValue() != null)
         .filter(
           entry ->
-            !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
-        ) // these are already set recursively
+            !(
+              entry.getValue() instanceof DeferredValue &&
+              ((DeferredValue) entry.getValue()).getOriginalValue() == null
+            )
+        )
+        // these are already set recursively
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     return speculativeBindings;
   }
@@ -379,7 +384,7 @@ public class EagerContextWatcher {
   ) {
     if (eagerChildContextConfig.takeNewValue || isFullyResolved) {
       if (e.getValue() instanceof DeferredValue) {
-        return ((DeferredValue) e.getValue()).getOriginalValue();
+        //        return ((DeferredValue) e.getValue()).getOriginalValue();
       }
       return e.getValue();
     }
@@ -390,7 +395,7 @@ public class EagerContextWatcher {
         .get(e.getKey())
         .equals(getObjectOrHashCode(((DeferredValue) e.getValue()).getOriginalValue()))
     ) {
-      return ((DeferredValue) e.getValue()).getOriginalValue();
+      return e.getValue(); //((DeferredValue) e.getValue()).getOriginalValue();
     }
 
     // This is necessary if a state-changing function, such as .update()

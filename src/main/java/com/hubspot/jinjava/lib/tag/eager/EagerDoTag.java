@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
-import com.google.common.collect.Sets;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.DoTag;
@@ -12,7 +11,6 @@ import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
-import java.util.Collections;
 
 @Beta
 public class EagerDoTag extends EagerStateChangingTag<DoTag> implements FlexibleTag {
@@ -45,10 +43,7 @@ public class EagerDoTag extends EagerStateChangingTag<DoTag> implements Flexible
           .build()
       );
       PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
-      if (
-        !eagerExecutionResult.getResult().isFullyResolved() ||
-        interpreter.getContext().isDeferredExecutionMode()
-      ) {
+      if (interpreter.getContext().isDeferredExecutionMode()) {
         prefixToPreserveState.withAll(eagerExecutionResult.getPrefixToPreserveState());
       } else {
         interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
@@ -56,28 +51,12 @@ public class EagerDoTag extends EagerStateChangingTag<DoTag> implements Flexible
       if (eagerExecutionResult.getResult().isFullyResolved()) {
         return (prefixToPreserveState.toString());
       }
-      String wrappedDoTag = EagerReconstructionUtils.wrapInTag(
-        eagerExecutionResult.getResult().toString(true),
+      return EagerReconstructionUtils.wrapInTag(
+        eagerExecutionResult.getResult().toString(),
         getName(),
         interpreter,
-        false
+        true
       );
-      prefixToPreserveState.withAllInFront(
-        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
-          interpreter,
-          new DeferredToken(
-            new TagToken(
-              wrappedDoTag,
-              tagNode.getLineNumber(),
-              tagNode.getStartPosition(),
-              tagNode.getSymbols()
-            ),
-            Collections.emptySet(),
-            Sets.newHashSet(eagerExecutionResult.getSpeculativeBindings().keySet())
-          )
-        )
-      );
-      return prefixToPreserveState.toString() + wrappedDoTag;
     }
     return EagerPrintTag.interpretExpression(
       tagNode.getHelpers(),

@@ -1,5 +1,7 @@
 {% do %}
-{% set strings = ['a']  %}
-{{ 1 + 1 ~ deferred }}
+{% set list1 = ['a'] %}
+{% set list2 = ['b'] %}
+{% do list2.append(deferred) %}
 {% enddo %}
-{{ strings[0] }}:
+L1: {{ list1 }}
+L2: {{ list2 }}

@@ -270,6 +270,9 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter,
     boolean registerDeferredToken
   ) {
+    if (value instanceof DeferredValue) {
+      value = ((DeferredValue) value).getOriginalValue();
+    }
     if (value instanceof PyishBlockSetSerializable) {
       return buildBlockSetTag(
         name,
@@ -747,7 +750,14 @@ public class EagerReconstructionUtils {
   ) {
     result
       .getSpeculativeBindings()
-      .forEach((k, v) -> replace(interpreter.getContext(), k, v));
+      .forEach(
+        (k, v) -> {
+          if (v instanceof DeferredValue) {
+            v = ((DeferredValue) v).getOriginalValue();
+          }
+          replace(interpreter.getContext(), k, v);
+        }
+      );
     return result.getSpeculativeBindings().keySet();
   }
 
