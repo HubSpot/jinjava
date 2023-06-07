@@ -1365,4 +1365,10 @@ public class EagerTest {
       "allows-deferred-lazy-reference-to-get-overridden.expected"
     );
   }
+
+  @Test
+  public void itE() {
+    interpreter.getContext().put("request", DeferredValue.instance());
+    expectedTemplateInterpreter.assertExpectedOutput("e");
+  }
 }

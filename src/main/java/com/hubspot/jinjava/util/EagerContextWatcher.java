@@ -226,15 +226,12 @@ public class EagerContextWatcher {
       .map(
         entry -> {
           if (
-            (
-              eagerExecutionResult.getResult().isFullyResolved() ||
-              eagerChildContextConfig.takeNewValue
-            ) &&
-            !(entry.getValue() instanceof DeferredValue) &&
-            entry.getValue() != null
+            eagerExecutionResult.getResult().isFullyResolved() ||
+            eagerChildContextConfig.takeNewValue
           ) {
             return entry;
           }
+
           Object contextValue = interpreter.getContext().get(entry.getKey());
           if (
             contextValue instanceof DeferredValue &&
@@ -257,6 +254,14 @@ public class EagerContextWatcher {
         }
       )
       .filter(Objects::nonNull)
+      .filter(entry -> entry.getValue() != null)
+      .filter(
+        entry ->
+          !(
+            entry.getValue() instanceof DeferredValue &&
+            ((DeferredValue) entry.getValue()).getOriginalValue() == null
+          )
+      )
       .collect(
         Collectors.toMap(
           Entry::getKey,
