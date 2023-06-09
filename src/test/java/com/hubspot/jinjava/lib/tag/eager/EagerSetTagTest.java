@@ -219,6 +219,13 @@ public class EagerSetTagTest extends SetTagTest {
   }
 
   @Test
+  public void itUnwrapsRawTags() {
+    String template = "{% set foo %}{% raw %}{%{% endraw %}{% endset %}";
+    interpreter.render(template);
+    assertThat(interpreter.getContext().get("foo")).isEqualTo("{%");
+  }
+
+  @Test
   @Override
   @Ignore
   public void itThrowsAndDefersVarWhenValContainsDeferred() {
