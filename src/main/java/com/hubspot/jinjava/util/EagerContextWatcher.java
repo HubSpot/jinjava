@@ -247,13 +247,7 @@ public class EagerContextWatcher {
       )
       .filter(Objects::nonNull)
       .filter(entry -> entry.getValue() != null)
-      .filter(
-        entry ->
-          !(
-            entry.getValue() instanceof DeferredValue &&
-            ((DeferredValue) entry.getValue()).getOriginalValue() == null
-          )
-      )
+      .filter(entry -> !isDeferredWithOriginalValueNull(entry))
       .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
   }
 
@@ -315,16 +309,20 @@ public class EagerContextWatcher {
         .stream()
         .filter(entry -> !metaContextVariables.contains(entry.getKey()))
         .filter(entry -> entry.getValue() != null)
-        .filter(
-          entry ->
-            !(
-              entry.getValue() instanceof DeferredValue &&
-              ((DeferredValue) entry.getValue()).getOriginalValue() == null
-            )
-        )
-        // these are already set recursively
+        .filter(entry -> !isDeferredWithOriginalValueNull(entry))
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     return speculativeBindings;
+  }
+
+  /**
+   * This is an optimization used to filter so that we don't reconstruct unnecessary tags like {@code {% set num = null %}}
+   * because {@code num} is already null when it hasn't been set to anything.
+   */
+  private static boolean isDeferredWithOriginalValueNull(Entry<String, Object> entry) {
+    return (
+      entry.getValue() instanceof DeferredValue &&
+      ((DeferredValue) entry.getValue()).getOriginalValue() == null
+    );
   }
 
   private static void cacheRevertibleObject(
