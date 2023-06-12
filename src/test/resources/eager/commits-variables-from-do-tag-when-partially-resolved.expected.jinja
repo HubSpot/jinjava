@@ -1,0 +1,7 @@
+{% do %}
+
+
+{% set list2 = ['b'] %}{% do list2.append(deferred) %}
+{% enddo %}
+L1: ['a']
+L2: {{ list2 }}

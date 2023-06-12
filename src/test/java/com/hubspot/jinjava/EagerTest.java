@@ -1367,8 +1367,17 @@ public class EagerTest {
   }
 
   @Test
-  public void itE() {
-    interpreter.getContext().put("request", DeferredValue.instance());
-    expectedTemplateInterpreter.assertExpectedOutput("e");
+  public void itCommitsVariablesFromDoTagWhenPartiallyResolved() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "commits-variables-from-do-tag-when-partially-resolved"
+    );
+  }
+
+  @Test
+  public void itCommitsVariablesFromDoTagWhenPartiallyResolvedSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "commits-variables-from-do-tag-when-partially-resolved.expected"
+    );
   }
 }

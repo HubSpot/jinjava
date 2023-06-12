@@ -209,12 +209,7 @@ public class EagerContextWatcher {
             .peek(
               entry -> ((OneTimeReconstructible) entry.getValue()).setReconstructed(true)
             )
-            .collect(
-              Collectors.toMap(
-                Entry::getKey,
-                entry -> entry.getValue() //((OneTimeReconstructible) entry.getValue()).getOriginalValue()
-              )
-            )
+            .collect(Collectors.toMap(Entry::getKey, Entry::getValue))
         );
     }
     return eagerExecutionResult
@@ -245,10 +240,7 @@ public class EagerContextWatcher {
             ) {
               throw new CannotReconstructValueException(entry.getKey());
             }
-            return new AbstractMap.SimpleImmutableEntry<>(
-              entry.getKey(),
-              contextValue //((DeferredValue) contextValue).getOriginalValue()
-            );
+            return new AbstractMap.SimpleImmutableEntry<>(entry.getKey(), contextValue);
           }
           return null;
         }
@@ -262,15 +254,7 @@ public class EagerContextWatcher {
             ((DeferredValue) entry.getValue()).getOriginalValue() == null
           )
       )
-      .collect(
-        Collectors.toMap(
-          Entry::getKey,
-          entry -> entry.getValue()
-          //            entry.getValue() instanceof DeferredValue
-          //              ? ((DeferredValue) entry.getValue()).getOriginalValue()
-          //              : entry.getValue()
-        )
-      );
+      .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
   }
 
   private static Map<String, Object> getAllSpeculativeBindings(
@@ -383,9 +367,6 @@ public class EagerContextWatcher {
     boolean isFullyResolved
   ) {
     if (eagerChildContextConfig.takeNewValue || isFullyResolved) {
-      if (e.getValue() instanceof DeferredValue) {
-        //        return ((DeferredValue) e.getValue()).getOriginalValue();
-      }
       return e.getValue();
     }
 
@@ -395,7 +376,7 @@ public class EagerContextWatcher {
         .get(e.getKey())
         .equals(getObjectOrHashCode(((DeferredValue) e.getValue()).getOriginalValue()))
     ) {
-      return e.getValue(); //((DeferredValue) e.getValue()).getOriginalValue();
+      return e.getValue();
     }
 
     // This is necessary if a state-changing function, such as .update()
