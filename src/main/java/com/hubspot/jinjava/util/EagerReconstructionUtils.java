@@ -773,4 +773,16 @@ public class EagerReconstructionUtils {
       replace(context.getParent(), k, v);
     }
   }
+
+  public static void commitSpeculativeBindings(
+    JinjavaInterpreter interpreter,
+    EagerExecutionResult result
+  ) {
+    result
+      .getSpeculativeBindings()
+      .entrySet()
+      .stream()
+      .filter(entry -> !(entry.getValue() instanceof DeferredValueShadow))
+      .forEach(entry -> interpreter.getContext().put(entry.getKey(), entry.getValue()));
+  }
 }

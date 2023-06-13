@@ -247,7 +247,7 @@ public class EagerContextWatcher {
       )
       .filter(Objects::nonNull)
       .filter(entry -> entry.getValue() != null)
-      .filter(entry -> !isDeferredWithOriginalValueNull(entry))
+      .filter(entry -> !isDeferredWithOriginalValueNull(entry.getValue()))
       .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
   }
 
@@ -309,7 +309,7 @@ public class EagerContextWatcher {
         .stream()
         .filter(entry -> !metaContextVariables.contains(entry.getKey()))
         .filter(entry -> entry.getValue() != null)
-        .filter(entry -> !isDeferredWithOriginalValueNull(entry))
+        .filter(entry -> !isDeferredWithOriginalValueNull(entry.getValue()))
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     return speculativeBindings;
   }
@@ -318,10 +318,9 @@ public class EagerContextWatcher {
    * This is an optimization used to filter so that we don't reconstruct unnecessary tags like {@code {% set num = null %}}
    * because {@code num} is already null when it hasn't been set to anything.
    */
-  private static boolean isDeferredWithOriginalValueNull(Entry<String, Object> entry) {
+  private static boolean isDeferredWithOriginalValueNull(Object value) {
     return (
-      entry.getValue() instanceof DeferredValue &&
-      ((DeferredValue) entry.getValue()).getOriginalValue() == null
+      value instanceof DeferredValue && ((DeferredValue) value).getOriginalValue() == null
     );
   }
 

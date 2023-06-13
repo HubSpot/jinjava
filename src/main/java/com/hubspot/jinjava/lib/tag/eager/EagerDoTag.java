@@ -46,13 +46,16 @@ public class EagerDoTag extends EagerStateChangingTag<DoTag> implements Flexible
       if (interpreter.getContext().isDeferredExecutionMode()) {
         prefixToPreserveState.withAll(eagerExecutionResult.getPrefixToPreserveState());
       } else {
-        interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
+        EagerReconstructionUtils.commitSpeculativeBindings(
+          interpreter,
+          eagerExecutionResult
+        );
       }
       if (eagerExecutionResult.getResult().isFullyResolved()) {
         return (prefixToPreserveState.toString());
       }
       return EagerReconstructionUtils.wrapInTag(
-        eagerExecutionResult.getResult().toString(),
+        eagerExecutionResult.asTemplateString(),
         getName(),
         interpreter,
         true
