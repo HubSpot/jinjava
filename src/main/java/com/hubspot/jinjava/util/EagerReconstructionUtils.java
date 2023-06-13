@@ -782,6 +782,8 @@ public class EagerReconstructionUtils {
       .getSpeculativeBindings()
       .entrySet()
       .stream()
+      // Filter DeferredValueShadow because these are just used to mark that a value became deferred within this scope
+      // The original key will be a DeferredValueImpl already on its original scope
       .filter(entry -> !(entry.getValue() instanceof DeferredValueShadow))
       .forEach(entry -> interpreter.getContext().put(entry.getKey(), entry.getValue()));
   }

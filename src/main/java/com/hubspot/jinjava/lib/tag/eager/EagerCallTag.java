@@ -74,7 +74,10 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
       ) {
         prefixToPreserveState.putAll(eagerExecutionResult.getPrefixToPreserveState());
       } else {
-        interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
+        EagerReconstructionUtils.commitSpeculativeBindings(
+          interpreter,
+          eagerExecutionResult
+        );
       }
       if (eagerExecutionResult.getResult().isFullyResolved()) {
         // Possible macro/set tag in front of this one.

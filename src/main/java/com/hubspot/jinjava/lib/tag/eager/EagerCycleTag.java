@@ -64,7 +64,10 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     ) {
       prefixToPreserveState.putAll(eagerExecutionResult.getPrefixToPreserveState());
     } else {
-      interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
+      EagerReconstructionUtils.commitSpeculativeBindings(
+        interpreter,
+        eagerExecutionResult
+      );
     }
     String resolvedExpression;
     List<String> resolvedValues; // can only be retrieved if the EagerExpressionResult are fully resolved.
