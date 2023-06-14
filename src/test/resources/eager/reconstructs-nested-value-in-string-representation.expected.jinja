@@ -1,0 +1,5 @@
+{% set foo = 'I am foo' %}{% set bar = 'I am bar' %}{% set map_with_vals = {'foo': 'Foo is {{ foo }}.'}  %}{% if deferred %}
+{% do map_with_vals.put('bar', 'Bar is {{ bar }}.') %}
+{% endif %}
+map.foo: {{ map_with_vals.foo }}
+map.bar: {{ map_with_vals.bar }}

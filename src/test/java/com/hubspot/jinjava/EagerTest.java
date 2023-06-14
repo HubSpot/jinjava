@@ -1390,4 +1390,11 @@ public class EagerTest {
       "finds-deferred-words-inside-reconstructed-string"
     );
   }
+
+  @Test
+  public void itReconstructsNestedValueInStringRepresentation() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-nested-value-in-string-representation"
+    );
+  }
 }
