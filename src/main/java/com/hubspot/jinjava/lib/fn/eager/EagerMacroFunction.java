@@ -233,8 +233,7 @@ public class EagerMacroFunction extends MacroFunction {
         EagerReconstructionUtils.buildBlockOrInlineSetTag(
           Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
           importFile.get(),
-          interpreter,
-          false
+          interpreter
         );
       interpreter
         .getContext()
@@ -243,8 +242,7 @@ public class EagerMacroFunction extends MacroFunction {
         EagerReconstructionUtils.buildBlockOrInlineSetTag(
           Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
           currentDeferredImportResource,
-          interpreter,
-          false
+          interpreter
         );
     }
 

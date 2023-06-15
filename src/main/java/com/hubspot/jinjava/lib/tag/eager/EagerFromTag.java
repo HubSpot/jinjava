@@ -60,8 +60,7 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
         EagerReconstructionUtils.buildBlockOrInlineSetTag(
           RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
           interpreter.getContext().get(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY),
-          interpreter,
-          false
+          interpreter
         ) +
         tagToken.getImage()
       );

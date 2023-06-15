@@ -71,7 +71,7 @@ public class EagerExecutionResult {
         entry ->
           prefixToPreserveState.put(
             entry.getKey(),
-            buildBlockOrInlineSetTag(entry.getKey(), entry.getValue(), interpreter, false)
+            buildBlockOrInlineSetTag(entry.getKey(), entry.getValue(), interpreter)
           )
       );
     filteredEntries

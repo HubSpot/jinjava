@@ -258,11 +258,26 @@ public class EagerReconstructionUtils {
             buildBlockOrInlineSetTag(
               word,
               interpreter.getContext().get(word),
-              interpreter,
-              false
+              interpreter
             )
         )
       );
+  }
+
+  public static String buildBlockOrInlineSetTag(
+    String name,
+    Object value,
+    JinjavaInterpreter interpreter
+  ) {
+    return buildBlockOrInlineSetTag(name, value, interpreter, false);
+  }
+
+  public static String buildBlockOrInlineSetTagAndRegisterDeferredToken(
+    String name,
+    Object value,
+    JinjavaInterpreter interpreter
+  ) {
+    return buildBlockOrInlineSetTag(name, value, interpreter, true);
   }
 
   public static String buildBlockOrInlineSetTag(
@@ -285,8 +300,13 @@ public class EagerReconstructionUtils {
         registerDeferredToken
       );
     }
+    String pyishStringRepresentation = PyishObjectMapper.getAsPyishString(value);
+    Set<String> dependentWords = EagerExpressionResolver.findDeferredWords(
+      pyishStringRepresentation,
+      interpreter
+    );
     return buildSetTag(
-      ImmutableMap.of(name, PyishObjectMapper.getAsPyishString(value)),
+      ImmutableMap.of(name, pyishStringRepresentation),
       interpreter,
       registerDeferredToken
     );
