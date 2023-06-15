@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
@@ -23,6 +24,17 @@ public class SelectAttrFilterTest extends BaseJinjavaTest {
           new User(0, false, "foo@bar.com", new Option(0, "option0")),
           new User(1, true, "bar@bar.com", new Option(1, "option1")),
           new User(2, false, null, new Option(2, "option2"))
+        )
+      );
+    jinjava
+      .getGlobalContext()
+      .put(
+        "numbers",
+        Lists.newArrayList(
+          ImmutableMap.of("number", 1),
+          ImmutableMap.of("number", 2),
+          ImmutableMap.of("number", 3),
+          ImmutableMap.of("number", 4)
         )
       );
   }
@@ -99,6 +111,50 @@ public class SelectAttrFilterTest extends BaseJinjavaTest {
         )
       )
       .isEqualTo("[2]");
+  }
+
+  @Test
+  public void selectAttrWithSymbolicLtExp() {
+    assertThat(
+        jinjava.render(
+          "{{ numbers|selectattr('number', '<', '3')|map('number') }}",
+          new HashMap<String, Object>()
+        )
+      )
+      .isEqualTo("[1, 2]");
+  }
+
+  @Test
+  public void selectAttrWithSymbolicLeExp() {
+    assertThat(
+        jinjava.render(
+          "{{ numbers|selectattr('number', '<=', '3')|map('number') }}",
+          new HashMap<String, Object>()
+        )
+      )
+      .isEqualTo("[1, 2, 3]");
+  }
+
+  @Test
+  public void selectAttrWithSymbolicGtExp() {
+    assertThat(
+        jinjava.render(
+          "{{ numbers|selectattr('number', '>', '3')|map('number') }}",
+          new HashMap<String, Object>()
+        )
+      )
+      .isEqualTo("[4]");
+  }
+
+  @Test
+  public void selectAttrWithSymbolicGeExp() {
+    assertThat(
+        jinjava.render(
+          "{{ numbers|selectattr('number', '>=', '3')|map('number') }}",
+          new HashMap<String, Object>()
+        )
+      )
+      .isEqualTo("[3, 4]");
   }
 
   public static class User implements PyishSerializable {
