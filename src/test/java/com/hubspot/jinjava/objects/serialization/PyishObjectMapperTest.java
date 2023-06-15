@@ -88,7 +88,10 @@ public class PyishObjectMapperTest {
       assertThatThrownBy(() -> PyishObjectMapper.getAsPyishStringOrThrow(original))
         .as("The string to be serialized is larger than the max output size")
         .isInstanceOf(JsonMappingException.class)
+        .hasCauseInstanceOf(LengthLimitingJsonProcessingException.class)
         .hasMessageContaining("Max length of 10000 chars reached");
+      assertThatThrownBy(() -> PyishObjectMapper.getAsPyishString(original))
+        .isInstanceOf(OutputTooBigException.class);
     } finally {
       JinjavaInterpreter.popCurrent();
     }

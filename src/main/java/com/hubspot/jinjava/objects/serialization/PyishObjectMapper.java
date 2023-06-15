@@ -66,10 +66,14 @@ public class PyishObjectMapper {
     try {
       return getAsPyishStringOrThrow(val, forOutput);
     } catch (IOException e) {
-      if (e instanceof LengthLimitingJsonProcessingException) {
+      IOException unwrapped = e;
+      if (unwrapped.getCause() instanceof LengthLimitingJsonProcessingException) {
+        unwrapped = (LengthLimitingJsonProcessingException) unwrapped.getCause();
+      }
+      if (unwrapped instanceof LengthLimitingJsonProcessingException) {
         throw new OutputTooBigException(
-          ((LengthLimitingJsonProcessingException) e).getMaxSize(),
-          ((LengthLimitingJsonProcessingException) e).getAttemptedSize()
+          ((LengthLimitingJsonProcessingException) unwrapped).getMaxSize(),
+          ((LengthLimitingJsonProcessingException) unwrapped).getAttemptedSize()
         );
       }
       return Objects.toString(val, "");
