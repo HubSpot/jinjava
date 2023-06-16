@@ -1,0 +1,11 @@
+{% set list0 = ['a'] %}{% do %}
+{% set list1 = ['b'] %}
+{% set list2 = ['c'] %}
+{% do list2.append(deferred) %}
+{% unless deferred %}
+{% set list0 = ['a', 'a'] %}
+{% endunless %}
+{% enddo %}
+L0: {{ list0 }}
+L1: {{ list1 }}
+L2: {{ list2 }}

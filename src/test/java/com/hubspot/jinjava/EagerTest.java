@@ -1365,4 +1365,29 @@ public class EagerTest {
       "allows-deferred-lazy-reference-to-get-overridden.expected"
     );
   }
+
+  @Test
+  public void itCommitsVariablesFromDoTagWhenPartiallyResolved() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "commits-variables-from-do-tag-when-partially-resolved"
+    );
+  }
+
+  @Test
+  public void itCommitsVariablesFromDoTagWhenPartiallyResolvedSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "commits-variables-from-do-tag-when-partially-resolved.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "commits-variables-from-do-tag-when-partially-resolved.expected"
+    );
+  }
+
+  @Test
+  public void itFindsDeferredWordsInsideReconstructedString() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "finds-deferred-words-inside-reconstructed-string"
+    );
+  }
 }

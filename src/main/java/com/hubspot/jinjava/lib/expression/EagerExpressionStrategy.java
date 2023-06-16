@@ -56,7 +56,10 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
     ) {
       prefixToPreserveState.putAll(eagerExecutionResult.getPrefixToPreserveState());
     } else {
-      interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
+      EagerReconstructionUtils.commitSpeculativeBindings(
+        interpreter,
+        eagerExecutionResult
+      );
     }
     if (eagerExecutionResult.getResult().isFullyResolved()) {
       String result = eagerExecutionResult.getResult().toString(true);

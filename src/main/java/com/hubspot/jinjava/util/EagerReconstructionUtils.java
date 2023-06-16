@@ -270,6 +270,9 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter,
     boolean registerDeferredToken
   ) {
+    if (value instanceof DeferredValue) {
+      value = ((DeferredValue) value).getOriginalValue();
+    }
     if (value instanceof PyishBlockSetSerializable) {
       return buildBlockSetTag(
         name,
@@ -747,7 +750,14 @@ public class EagerReconstructionUtils {
   ) {
     result
       .getSpeculativeBindings()
-      .forEach((k, v) -> replace(interpreter.getContext(), k, v));
+      .forEach(
+        (k, v) -> {
+          if (v instanceof DeferredValue) {
+            v = ((DeferredValue) v).getOriginalValue();
+          }
+          replace(interpreter.getContext(), k, v);
+        }
+      );
     return result.getSpeculativeBindings().keySet();
   }
 
@@ -762,5 +772,19 @@ public class EagerReconstructionUtils {
       context.getScope().remove(k);
       replace(context.getParent(), k, v);
     }
+  }
+
+  public static void commitSpeculativeBindings(
+    JinjavaInterpreter interpreter,
+    EagerExecutionResult result
+  ) {
+    result
+      .getSpeculativeBindings()
+      .entrySet()
+      .stream()
+      // Filter DeferredValueShadow because these are just used to mark that a value became deferred within this scope
+      // The original key will be a DeferredValueImpl already on its original scope
+      .filter(entry -> !(entry.getValue() instanceof DeferredValueShadow))
+      .forEach(entry -> interpreter.getContext().put(entry.getKey(), entry.getValue()));
   }
 }
