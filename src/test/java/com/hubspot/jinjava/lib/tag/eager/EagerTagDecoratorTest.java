@@ -2,9 +2,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -15,8 +13,11 @@ import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
+import com.hubspot.jinjava.objects.collections.PyList;
+import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.After;
@@ -156,5 +157,37 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
 
   public static void modifyContext(String key, Object value) {
     ((List<Object>) JinjavaInterpreter.getCurrent().getContext().get(key)).add(value);
+  }
+
+  static class TooBig extends PyList implements PyishSerializable {
+
+    public TooBig(List<Object> list) {
+      super(list);
+    }
+
+    @Override
+    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+      throws IOException {
+      throw new OutputTooBigException(1, 1);
+    }
+  }
+
+  @Test
+  public void itDefersNodeWhenOutputTooBigIsThrownWithinInnerInterpret() {
+    TooBig tooBig = new TooBig(new ArrayList<>());
+    interpreter =
+      new JinjavaInterpreter(
+        jinjava,
+        context,
+        JinjavaConfig
+          .newBuilder()
+          .withExecutionMode(EagerExecutionMode.instance())
+          .build()
+      );
+    interpreter.getContext().put("too_big", tooBig);
+    interpreter.render(
+      "{% for i in range(2) %}{% do too_big.append(deferred) %}{% endfor %}"
+    );
+    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
   }
 }

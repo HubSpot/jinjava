@@ -38,27 +38,38 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   @Override
   public final String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     try {
-      String output = innerInterpret(tagNode, interpreter);
-      JinjavaInterpreter.checkOutputSize(output);
-      return output;
-    } catch (DeferredValueException | TemplateSyntaxException | OutputTooBigException e) {
+      String output;
       try {
-        return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
-          eagerInterpret(
-            tagNode,
-            interpreter,
-            e instanceof InterpretException
-              ? (InterpretException) e
-              : new InterpretException("Exception with default render", e)
-          ),
-          interpreter
-        );
-      } catch (OutputTooBigException e1) {
-        throw new DeferredValueException(
-          String.format("Output too big for eager execution: %s", e1.getMessage())
-        );
+        output = innerInterpret(tagNode, interpreter);
+      } catch (DeferredValueException | TemplateSyntaxException e) {
+        return wrapEagerInterpret(tagNode, interpreter, e);
       }
+      if (JinjavaInterpreter.isOutputTooLarge(output)) {
+        return wrapEagerInterpret(tagNode, interpreter, null);
+      }
+      return output;
+    } catch (OutputTooBigException e) {
+      throw new DeferredValueException(
+        String.format("Output too big for eager execution: %s", e.getMessage())
+      );
     }
+  }
+
+  private String wrapEagerInterpret(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    RuntimeException e
+  ) {
+    return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
+      eagerInterpret(
+        tagNode,
+        interpreter,
+        e instanceof InterpretException
+          ? (InterpretException) e
+          : new InterpretException("Exception with default render", e)
+      ),
+      interpreter
+    );
   }
 
   protected String innerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
