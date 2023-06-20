@@ -24,6 +24,7 @@ import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.serialization.PyishBlockSetSerializable;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
+import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.NoteToken;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -270,7 +271,10 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter,
     boolean registerDeferredToken
   ) {
-    if (value instanceof DeferredValue) {
+    if (
+      value instanceof DeferredValue &&
+      !(value instanceof PyishBlockSetSerializable || value instanceof PyishSerializable)
+    ) {
       value = ((DeferredValue) value).getOriginalValue();
     }
     if (value instanceof PyishBlockSetSerializable) {
