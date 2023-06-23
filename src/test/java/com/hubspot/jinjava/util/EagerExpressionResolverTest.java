@@ -25,6 +25,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -913,5 +914,11 @@ public class EagerExpressionResolverTest {
       throws IOException {
       throw new DeferredValueException("Can't serialize");
     }
+  }
+
+  @Test
+  public void itCountsBigDecimalAsPrimitive() {
+    assertThat(EagerExpressionResolver.isResolvableObject(new BigDecimal("2.1E7")))
+      .isTrue();
   }
 }

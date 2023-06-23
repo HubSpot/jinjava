@@ -340,7 +340,10 @@ public class EagerExpressionResolver {
 
   public static boolean isPrimitive(Object val) {
     return (
-      val == null || Primitives.isWrapperType(val.getClass()) || val instanceof String
+      val == null ||
+      Primitives.isWrapperType(val.getClass()) ||
+      val instanceof String ||
+      val instanceof Number
     );
   }
 
