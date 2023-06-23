@@ -154,79 +154,7 @@ public class ExpressionResolver {
         )
       );
     } catch (ELException e) {
-      if (e.getCause() != null && e.getCause() instanceof DeferredValueException) {
-        throw (DeferredValueException) e.getCause();
-      }
-      if (e.getCause() != null && e.getCause() instanceof TemplateSyntaxException) {
-        interpreter.addError(
-          TemplateError.fromException((TemplateSyntaxException) e.getCause())
-        );
-      } else if (e.getCause() != null && e.getCause() instanceof InvalidInputException) {
-        interpreter.addError(
-          TemplateError.fromInvalidInputException((InvalidInputException) e.getCause())
-        );
-      } else if (
-        e.getCause() != null && e.getCause() instanceof InvalidArgumentException
-      ) {
-        interpreter.addError(
-          TemplateError.fromInvalidArgumentException(
-            (InvalidArgumentException) e.getCause()
-          )
-        );
-      } else if (
-        e.getCause() != null && e.getCause() instanceof CollectionTooBigException
-      ) {
-        interpreter.addError(
-          new TemplateError(
-            ErrorType.FATAL,
-            ErrorReason.COLLECTION_TOO_BIG,
-            e.getCause().getMessage(),
-            null,
-            interpreter.getLineNumber(),
-            interpreter.getPosition(),
-            e
-          )
-        );
-        // rethrow because this is a hard limit and it will likely only happen in loops that we need to terminate
-        throw e;
-      } else if (
-        e.getCause() != null && e.getCause() instanceof IndexOutOfRangeException
-      ) {
-        interpreter.addError(
-          new TemplateError(
-            ErrorType.WARNING,
-            ErrorReason.EXCEPTION,
-            ErrorItem.FUNCTION,
-            e.getMessage(),
-            null,
-            interpreter.getLineNumber(),
-            interpreter.getPosition(),
-            e
-          )
-        );
-      } else {
-        String originatingException = getRootCauseMessage(e);
-        final String combinedMessage = String.format(
-          "%s%nOriginating Exception:%n%s",
-          e.getMessage(),
-          originatingException
-        );
-        interpreter.addError(
-          TemplateError.fromException(
-            new TemplateSyntaxException(
-              expression,
-              (
-                  e.getCause() == null ||
-                  StringUtils.endsWith(originatingException, e.getCause().getMessage())
-                )
-                ? e.getMessage()
-                : combinedMessage,
-              interpreter.getLineNumber(),
-              e
-            )
-          )
-        );
-      }
+      handleELException(expression, e);
     } catch (DisabledException e) {
       interpreter.addError(
         new TemplateError(
@@ -267,6 +195,78 @@ public class ExpressionResolver {
     }
 
     return null;
+  }
+
+  private void handleELException(String expression, ELException e) {
+    if (e.getCause() != null && e.getCause() instanceof DeferredValueException) {
+      throw (DeferredValueException) e.getCause();
+    }
+    if (e.getCause() != null && e.getCause() instanceof TemplateSyntaxException) {
+      interpreter.addError(
+        TemplateError.fromException((TemplateSyntaxException) e.getCause())
+      );
+    } else if (e.getCause() != null && e.getCause() instanceof InvalidInputException) {
+      interpreter.addError(
+        TemplateError.fromInvalidInputException((InvalidInputException) e.getCause())
+      );
+    } else if (e.getCause() != null && e.getCause() instanceof InvalidArgumentException) {
+      interpreter.addError(
+        TemplateError.fromInvalidArgumentException(
+          (InvalidArgumentException) e.getCause()
+        )
+      );
+    } else if (
+      e.getCause() != null && e.getCause() instanceof CollectionTooBigException
+    ) {
+      interpreter.addError(
+        new TemplateError(
+          ErrorType.FATAL,
+          ErrorReason.COLLECTION_TOO_BIG,
+          e.getCause().getMessage(),
+          null,
+          interpreter.getLineNumber(),
+          interpreter.getPosition(),
+          e
+        )
+      );
+      // rethrow because this is a hard limit and it will likely only happen in loops that we need to terminate
+      throw e;
+    } else if (e.getCause() != null && e.getCause() instanceof IndexOutOfRangeException) {
+      interpreter.addError(
+        new TemplateError(
+          ErrorType.WARNING,
+          ErrorReason.EXCEPTION,
+          ErrorItem.FUNCTION,
+          e.getMessage(),
+          null,
+          interpreter.getLineNumber(),
+          interpreter.getPosition(),
+          e
+        )
+      );
+    } else {
+      String originatingException = getRootCauseMessage(e);
+      final String combinedMessage = String.format(
+        "%s%nOriginating Exception:%n%s",
+        e.getMessage(),
+        originatingException
+      );
+      interpreter.addError(
+        TemplateError.fromException(
+          new TemplateSyntaxException(
+            expression,
+            (
+                e.getCause() == null ||
+                StringUtils.endsWith(originatingException, e.getCause().getMessage())
+              )
+              ? e.getMessage()
+              : combinedMessage,
+            interpreter.getLineNumber(),
+            e
+          )
+        )
+      );
+    }
   }
 
   private void validateResult(Object result) {
