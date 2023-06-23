@@ -13,6 +13,7 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -238,6 +239,19 @@ public class ExpressionResolver {
           ErrorReason.EXCEPTION,
           ErrorItem.FUNCTION,
           e.getMessage(),
+          null,
+          interpreter.getLineNumber(),
+          interpreter.getPosition(),
+          e
+        )
+      );
+    } else if (e.getCause() != null && e.getCause() instanceof OutputTooBigException) {
+      interpreter.addError(
+        new TemplateError(
+          ErrorType.FATAL,
+          ErrorReason.OUTPUT_TOO_BIG,
+          ErrorItem.FUNCTION,
+          e.getCause().getMessage(),
           null,
           interpreter.getLineNumber(),
           interpreter.getPosition(),
