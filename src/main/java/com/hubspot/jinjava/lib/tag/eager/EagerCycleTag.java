@@ -86,11 +86,10 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       if (!eagerExecutionResult.getResult().isFullyResolved()) {
         resolvedValues =
           new HelperStringTokenizer(resolvedExpression).splitComma(true).allTokens();
-        prefixToPreserveState.putAll(
-          EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
-            eagerExecutionResult.getResult().getDeferredWords(),
-            interpreter
-          )
+        EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+          prefixToPreserveState,
+          eagerExecutionResult.getResult().getDeferredWords(),
+          interpreter
         );
       } else {
         List<?> objects = eagerExecutionResult.getResult().toList();

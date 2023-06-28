@@ -163,13 +163,14 @@ public class EagerReconstructionUtils {
    * @param deferredWords set of words that will need to be deferred based on the
    *                      previously performed operation.
    * @param interpreter the Jinjava interpreter.
+   * @return The PrefixToPreserveState to allow method chaining
    */
-  public static void hydrateReconstructionFromContextBeforeDeferring(
+  public static PrefixToPreserveState hydrateReconstructionFromContextBeforeDeferring(
     PrefixToPreserveState prefixToPreserveState,
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
-    hydrateReconstructionFromContextBeforeDeferring(
+    return hydrateReconstructionFromContextBeforeDeferring(
       prefixToPreserveState,
       deferredWords,
       interpreter,
@@ -177,7 +178,7 @@ public class EagerReconstructionUtils {
     );
   }
 
-  private static void hydrateReconstructionFromContextBeforeDeferring(
+  private static PrefixToPreserveState hydrateReconstructionFromContextBeforeDeferring(
     PrefixToPreserveState prefixToPreserveState,
     Set<String> deferredWords,
     JinjavaInterpreter interpreter,
@@ -191,16 +192,17 @@ public class EagerReconstructionUtils {
       );
       Set<String> deferredWordBases = filterToRelevantBases(deferredWords, interpreter);
       if (deferredWordBases.isEmpty()) {
-        return;
+        return prefixToPreserveState;
       }
 
-      hydrateReconstructionOfVariablesBeforeDeferring(
+      return hydrateReconstructionOfVariablesBeforeDeferring(
         prefixToPreserveState,
         deferredWordBases,
         interpreter,
         depth
       );
     }
+    return prefixToPreserveState;
   }
 
   private static Set<String> filterToRelevantBases(
@@ -245,8 +247,9 @@ public class EagerReconstructionUtils {
    * @param deferredWords Set of words that were encountered and their evaluation has
    *                      to be deferred for a later render.
    * @param interpreter The Jinjava interpreter.
+   * @return The PrefixToPreserveState to allow method chaining
    */
-  private static void hydrateReconstructionOfMacroFunctionsBeforeDeferring(
+  private static PrefixToPreserveState hydrateReconstructionOfMacroFunctionsBeforeDeferring(
     PrefixToPreserveState prefixToPreserveState,
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
@@ -297,9 +300,10 @@ public class EagerReconstructionUtils {
     prefixToPreserveState.withAll(reconstructedMacros);
     // Remove macro functions from the set because they've been fully processed now.
     deferredWords.removeAll(toRemove);
+    return prefixToPreserveState;
   }
 
-  private static void hydrateReconstructionOfVariablesBeforeDeferring(
+  private static PrefixToPreserveState hydrateReconstructionOfVariablesBeforeDeferring(
     PrefixToPreserveState prefixToPreserveState,
     Set<String> deferredWords,
     JinjavaInterpreter interpreter,
@@ -327,6 +331,7 @@ public class EagerReconstructionUtils {
             depth
           )
       );
+    return prefixToPreserveState;
   }
 
   public static String buildBlockOrInlineSetTag(
@@ -345,13 +350,13 @@ public class EagerReconstructionUtils {
     return buildBlockOrInlineSetTag(name, value, interpreter, true);
   }
 
-  public static void hydrateBlockOrInlineSetTagRecursively(
+  public static PrefixToPreserveState hydrateBlockOrInlineSetTagRecursively(
     PrefixToPreserveState prefixToPreserveState,
     String name,
     Object value,
     JinjavaInterpreter interpreter
   ) {
-    hydrateBlockOrInlineSetTagRecursively(
+    return hydrateBlockOrInlineSetTagRecursively(
       prefixToPreserveState,
       name,
       value,
@@ -360,7 +365,7 @@ public class EagerReconstructionUtils {
     );
   }
 
-  private static void hydrateBlockOrInlineSetTagRecursively(
+  private static PrefixToPreserveState hydrateBlockOrInlineSetTagRecursively(
     PrefixToPreserveState prefixToPreserveState,
     String name,
     Object value,
@@ -383,7 +388,7 @@ public class EagerReconstructionUtils {
           false
         )
       );
-      return;
+      return prefixToPreserveState;
     }
     String pyishStringRepresentation = PyishObjectMapper.getAsPyishString(value);
 
@@ -408,9 +413,10 @@ public class EagerReconstructionUtils {
       name,
       buildSetTag(ImmutableMap.of(name, pyishStringRepresentation), interpreter, false)
     );
+    return prefixToPreserveState;
   }
 
-  private static String buildBlockOrInlineSetTag(
+  public static String buildBlockOrInlineSetTag(
     String name,
     Object value,
     JinjavaInterpreter interpreter,

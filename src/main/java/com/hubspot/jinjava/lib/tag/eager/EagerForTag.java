@@ -234,13 +234,13 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       .add("in")
       .add(eagerExpressionResult.toString())
       .add(tagToken.getSymbols().getExpressionEndWithTag());
-    PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState(
-      EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
+    PrefixToPreserveState prefixToPreserveState = EagerReconstructionUtils
+      .hydrateReconstructionFromContextBeforeDeferring(
+        new PrefixToPreserveState(),
         eagerExpressionResult.getDeferredWords(),
         interpreter
       )
-    )
-    .withAllInFront(
+      .withAllInFront(
         EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
           interpreter,
           new DeferredToken(

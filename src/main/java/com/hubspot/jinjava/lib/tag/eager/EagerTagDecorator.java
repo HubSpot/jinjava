@@ -229,11 +229,10 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     joiner.add(tagToken.getSymbols().getExpressionEndWithTag());
 
     PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
-    prefixToPreserveState.putAll(
-      EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
-        eagerExpressionResult.getDeferredWords(),
-        interpreter
-      )
+    EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+      prefixToPreserveState,
+      eagerExpressionResult.getDeferredWords(),
+      interpreter
     );
     prefixToPreserveState.withAllInFront(
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
