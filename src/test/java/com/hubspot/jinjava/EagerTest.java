@@ -1397,4 +1397,11 @@ public class EagerTest {
       "reconstructs-nested-value-in-string-representation"
     );
   }
+
+  @Test
+  public void itReconstructsNestedValueInStringRepresentationSecondPass() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-nested-value-in-string-representation.expected"
+    );
+  }
 }

@@ -67,11 +67,10 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         prefixToPreserveState.toString() + postProcessResult(master, result, interpreter)
       );
     }
-    prefixToPreserveState.putAll(
-      EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
-        eagerExecutionResult.getResult().getDeferredWords(),
-        interpreter
-      )
+    EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+      prefixToPreserveState,
+      eagerExecutionResult.getResult().getDeferredWords(),
+      interpreter
     );
     String deferredExpressionImage = wrapInExpression(
       eagerExecutionResult.getResult().toString(),

@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildBlockOrInlineSetTag;
 import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildSetTag;
 
 import com.google.common.annotations.Beta;
@@ -10,6 +9,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.LazyReference;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -69,9 +69,11 @@ public class EagerExecutionResult {
       .filter(entry -> !(entry.getValue() instanceof LazyReference))
       .forEach(
         entry ->
-          prefixToPreserveState.put(
+          EagerReconstructionUtils.hydrateBlockOrInlineSetTagRecursively(
+            prefixToPreserveState,
             entry.getKey(),
-            buildBlockOrInlineSetTag(entry.getKey(), entry.getValue(), interpreter)
+            entry.getValue(),
+            interpreter
           )
       );
     filteredEntries

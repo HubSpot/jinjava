@@ -107,13 +107,15 @@ public class EagerReconstructionUtils {
    * Reconstruct the macro functions and variables from the context before they
    * get deferred.
    * Those macro functions and variables found within {@code deferredWords} are
-   * reconstructed with {@link MacroTag}(s) and a {@link SetTag}, respectively to
+   * reconstructed with {@link MacroTag}(s) and {@link SetTag}(s), respectively to
    * preserve the context within the Jinjava template itself.
    * @param deferredWords set of words that will need to be deferred based on the
    *                      previously performed operation.
    * @param interpreter the Jinjava interpreter.
-   * @return a Jinjava-syntax string of 0 or more macro tags and 0 or 1 set tags.
+   * @return a Jinjava-syntax string of 0 or more macro tags and 0 or more set tags.
+   * @deprecated use {@link #hydrateReconstructionFromContextBeforeDeferring(PrefixToPreserveState, Set, JinjavaInterpreter)}
    */
+  @Deprecated
   public static String reconstructFromContextBeforeDeferring(
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
@@ -124,12 +126,25 @@ public class EagerReconstructionUtils {
     );
   }
 
-  public static Map<String, String> reconstructFromContextBeforeDeferringAsMap(
+  /**
+   * Reconstruct the macro functions and variables from the context before they
+   * get deferred.
+   * Those macro functions and variables found within {@code deferredWords} are
+   * reconstructed with {@link MacroTag}(s) and {@link SetTag}(s), respectively to
+   * preserve the context within the Jinjava template itself.
+   * @param deferredWords set of words that will need to be deferred based on the
+   *                      previously performed operation.
+   * @param interpreter the Jinjava interpreter.
+   * @return a PrefixToPreserveState map of 0 or more macro tags and 0 or more set tags.
+   * @deprecated use {@link #hydrateReconstructionFromContextBeforeDeferring(PrefixToPreserveState, Set, JinjavaInterpreter)}
+   */
+  @Deprecated
+  public static PrefixToPreserveState reconstructFromContextBeforeDeferringAsMap(
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
   ) {
     PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
-    reconstructFromContextBeforeDeferringAsMap(
+    hydrateReconstructionFromContextBeforeDeferring(
       prefixToPreserveState,
       deferredWords,
       interpreter,
@@ -138,14 +153,38 @@ public class EagerReconstructionUtils {
     return prefixToPreserveState;
   }
 
-  private static void reconstructFromContextBeforeDeferringAsMap(
+  /**
+   * Reconstruct the macro functions and variables from the context before they
+   * get deferred.
+   * Those macro functions and variables found within {@code deferredWords} are
+   * reconstructed with {@link MacroTag}(s) and {@link SetTag}(s), respectively to
+   * preserve the context within the Jinjava template itself.
+   * @param prefixToPreserveState This PrefixToPreserveState will be hydrated with the Macro tag images and set tag images
+   * @param deferredWords set of words that will need to be deferred based on the
+   *                      previously performed operation.
+   * @param interpreter the Jinjava interpreter.
+   */
+  public static void hydrateReconstructionFromContextBeforeDeferring(
+    PrefixToPreserveState prefixToPreserveState,
+    Set<String> deferredWords,
+    JinjavaInterpreter interpreter
+  ) {
+    hydrateReconstructionFromContextBeforeDeferring(
+      prefixToPreserveState,
+      deferredWords,
+      interpreter,
+      0
+    );
+  }
+
+  private static void hydrateReconstructionFromContextBeforeDeferring(
     PrefixToPreserveState prefixToPreserveState,
     Set<String> deferredWords,
     JinjavaInterpreter interpreter,
     int depth
   ) {
     if (depth <= interpreter.getConfig().getMaxRenderDepth()) {
-      reconstructMacroFunctionsBeforeDeferring(
+      hydrateReconstructionOfMacroFunctionsBeforeDeferring(
         prefixToPreserveState,
         deferredWords,
         interpreter
@@ -155,7 +194,7 @@ public class EagerReconstructionUtils {
         return;
       }
 
-      reconstructSetVariablesBeforeDeferring(
+      hydrateReconstructionOfVariablesBeforeDeferring(
         prefixToPreserveState,
         deferredWordBases,
         interpreter,
@@ -202,13 +241,12 @@ public class EagerReconstructionUtils {
    * and remove those macro functions from the deferredWords set.
    * These macro functions are either global or local macro functions, with local
    * meaning they've been imported under an alias such as "simple.multiply()".
+   * @param prefixToPreserveState This PrefixToPreserveState will be hydrated with the Macro tag images
    * @param deferredWords Set of words that were encountered and their evaluation has
    *                      to be deferred for a later render.
    * @param interpreter The Jinjava interpreter.
-   * @return A jinjava-syntax string that is the images of any macro functions that must
-   *  be evaluated at a later time.
    */
-  private static void reconstructMacroFunctionsBeforeDeferring(
+  private static void hydrateReconstructionOfMacroFunctionsBeforeDeferring(
     PrefixToPreserveState prefixToPreserveState,
     Set<String> deferredWords,
     JinjavaInterpreter interpreter
@@ -261,7 +299,7 @@ public class EagerReconstructionUtils {
     deferredWords.removeAll(toRemove);
   }
 
-  private static void reconstructSetVariablesBeforeDeferring(
+  private static void hydrateReconstructionOfVariablesBeforeDeferring(
     PrefixToPreserveState prefixToPreserveState,
     Set<String> deferredWords,
     JinjavaInterpreter interpreter,
@@ -281,7 +319,7 @@ public class EagerReconstructionUtils {
       )
       .forEach(
         entry ->
-          buildBlockOrInlineSetTagRecursively(
+          hydrateBlockOrInlineSetTagRecursively(
             prefixToPreserveState,
             entry.getKey(),
             entry.getValue(),
@@ -307,24 +345,49 @@ public class EagerReconstructionUtils {
     return buildBlockOrInlineSetTag(name, value, interpreter, true);
   }
 
-  private static void buildBlockOrInlineSetTagRecursively(
+  public static void hydrateBlockOrInlineSetTagRecursively(
+    PrefixToPreserveState prefixToPreserveState,
+    String name,
+    Object value,
+    JinjavaInterpreter interpreter
+  ) {
+    hydrateBlockOrInlineSetTagRecursively(
+      prefixToPreserveState,
+      name,
+      value,
+      interpreter,
+      0
+    );
+  }
+
+  private static void hydrateBlockOrInlineSetTagRecursively(
     PrefixToPreserveState prefixToPreserveState,
     String name,
     Object value,
     JinjavaInterpreter interpreter,
     int depth
   ) {
-    if (value instanceof DeferredValue || value instanceof PyishBlockSetSerializable) {
+    if (
+      value instanceof DeferredValue &&
+      !(value instanceof PyishBlockSetSerializable || value instanceof PyishSerializable)
+    ) {
+      value = ((DeferredValue) value).getOriginalValue();
+    }
+    if (value instanceof PyishBlockSetSerializable) {
       prefixToPreserveState.put(
         name,
-        buildBlockOrInlineSetTag(name, value, interpreter, false)
+        buildBlockSetTag(
+          name,
+          ((PyishBlockSetSerializable) value).getBlockSetBody(),
+          interpreter,
+          false
+        )
       );
       return;
     }
     String pyishStringRepresentation = PyishObjectMapper.getAsPyishString(value);
 
     if (
-      depth > 0 &&
       depth < interpreter.getConfig().getMaxRenderDepth() &&
       interpreter.getConfig().isNestedInterpretationEnabled()
     ) {
@@ -333,7 +396,7 @@ public class EagerReconstructionUtils {
         interpreter
       );
       if (!dependentWords.isEmpty()) {
-        reconstructFromContextBeforeDeferringAsMap(
+        hydrateReconstructionFromContextBeforeDeferring(
           prefixToPreserveState,
           dependentWords,
           interpreter,
