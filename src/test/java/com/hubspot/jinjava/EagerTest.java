@@ -1053,7 +1053,10 @@ public class EagerTest {
 
   @Test
   public void itFullyDefersFilteredMacro() {
-    expectedTemplateInterpreter.assertExpectedOutput("fully-defers-filtered-macro");
+    // Macro and set tag reconstruction are flipped so not exactly idempotent, but functionally identical
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "fully-defers-filtered-macro"
+    );
   }
 
   @Test

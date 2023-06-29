@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el.ext.eager;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -53,7 +54,13 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
       );
       throw new DeferredParsingException(
         this,
-        getPartiallyResolved(bindings, context, e, true) // Need this to always be true because the macro function may modify the identifier
+        getPartiallyResolved(
+          bindings,
+          context,
+          e,
+          IdentifierPreservationStrategy.PRESERVING
+        ), // Need this to always be true because the macro function may modify the identifier
+        IdentifierPreservationStrategy.PRESERVING
       );
     }
   }
@@ -145,7 +152,7 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
     Bindings bindings,
     ELContext context,
     DeferredParsingException deferredParsingException,
-    boolean preserveIdentifier
+    IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
     if (
       deferredParsingException != null &&
@@ -154,10 +161,7 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
       return deferredParsingException.getDeferredEvalResult();
     }
     String paramString;
-    if (
-      deferredParsingException != null &&
-      deferredParsingException.getSourceNode() == params
-    ) {
+    if (EvalResultHolder.exceptionMatchesNode(deferredParsingException, params)) {
       paramString = deferredParsingException.getDeferredEvalResult();
     } else {
       paramString =
@@ -165,7 +169,7 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
           bindings,
           context,
           deferredParsingException,
-          preserveIdentifier
+          identifierPreservationStrategy
         );
     }
 

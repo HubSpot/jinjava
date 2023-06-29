@@ -782,7 +782,7 @@ public class EagerExpressionResolverTest {
   @Test
   public void itHandlesRandom() {
     assertThat(eagerResolveExpression("range(1)|random").toString())
-      .isEqualTo("filter:random.filter([0], ____int3rpr3t3r____)");
+      .isEqualTo("filter:random.filter(range(1), ____int3rpr3t3r____)");
   }
 
   @Test

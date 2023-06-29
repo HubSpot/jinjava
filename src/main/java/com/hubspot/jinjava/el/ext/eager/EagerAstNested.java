@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.Node;
 import de.odysseus.el.tree.impl.ast.AstNode;
@@ -71,7 +72,7 @@ public class EagerAstNested extends AstRightValue implements EvalResultHolder {
     Bindings bindings,
     ELContext context,
     DeferredParsingException deferredParsingException,
-    boolean preserveIdentifier
+    IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
     return String.format(
       "(%s)",
@@ -80,7 +81,7 @@ public class EagerAstNested extends AstRightValue implements EvalResultHolder {
         context,
         (EvalResultHolder) child,
         deferredParsingException,
-        preserveIdentifier
+        identifierPreservationStrategy
       )
     );
   }

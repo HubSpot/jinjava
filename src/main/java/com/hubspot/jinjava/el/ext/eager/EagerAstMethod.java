@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstMethod;
@@ -41,7 +42,13 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
       );
       throw new DeferredParsingException(
         this,
-        getPartiallyResolved(bindings, context, e, true) // Need this to always be true because the method may modify the identifier
+        getPartiallyResolved(
+          bindings,
+          context,
+          e,
+          IdentifierPreservationStrategy.PRESERVING
+        ), // Need this to always be true because the method may modify the identifier
+        IdentifierPreservationStrategy.PRESERVING
       );
     }
   }
@@ -71,7 +78,7 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
     Bindings bindings,
     ELContext context,
     DeferredParsingException deferredParsingException,
-    boolean preserveIdentifier
+    IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
     String propertyResult;
     propertyResult =
@@ -79,13 +86,10 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
           bindings,
           context,
           deferredParsingException,
-          preserveIdentifier
+          identifierPreservationStrategy
         );
     String paramString;
-    if (
-      deferredParsingException != null &&
-      deferredParsingException.getSourceNode() == params
-    ) {
+    if (EvalResultHolder.exceptionMatchesNode(deferredParsingException, params)) {
       paramString = deferredParsingException.getDeferredEvalResult();
     } else {
       paramString =
@@ -93,7 +97,7 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
           bindings,
           context,
           deferredParsingException,
-          preserveIdentifier
+          identifierPreservationStrategy
         );
     }
 

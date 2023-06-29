@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBracket;
 import de.odysseus.el.tree.impl.ast.AstNode;
@@ -63,7 +64,7 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
     Bindings bindings,
     ELContext context,
     DeferredParsingException deferredParsingException,
-    boolean preserveIdentifier
+    IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
     return String.format(
       "%s[%s]",
@@ -72,14 +73,14 @@ public class EagerAstBracket extends AstBracket implements EvalResultHolder {
         context,
         (EvalResultHolder) prefix,
         deferredParsingException,
-        preserveIdentifier
+        identifierPreservationStrategy
       ),
       EvalResultHolder.reconstructNode(
         bindings,
         context,
         (EvalResultHolder) property,
         deferredParsingException,
-        false
+        IdentifierPreservationStrategy.RESOLVING
       )
     );
   }

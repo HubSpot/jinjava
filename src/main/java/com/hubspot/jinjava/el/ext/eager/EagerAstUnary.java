@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstUnary;
@@ -36,7 +37,7 @@ public class EagerAstUnary extends AstUnary implements EvalResultHolder {
     Bindings bindings,
     ELContext context,
     DeferredParsingException deferredParsingException,
-    boolean preserveIdentifier
+    IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
     return (
       operator.toString() +
@@ -45,7 +46,7 @@ public class EagerAstUnary extends AstUnary implements EvalResultHolder {
         context,
         child,
         deferredParsingException,
-        false
+        IdentifierPreservationStrategy.RESOLVING
       )
     );
   }
