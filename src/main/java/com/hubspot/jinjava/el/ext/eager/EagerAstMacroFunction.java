@@ -12,7 +12,6 @@ import de.odysseus.el.tree.impl.ast.AstParameters;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.StringJoiner;
 import javax.el.ELContext;
 import javax.el.ELException;
 
@@ -154,26 +153,23 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
     ) {
       return deferredParsingException.getDeferredEvalResult();
     }
-    StringBuilder sb = new StringBuilder();
-    sb.append(getName());
-    try {
-      StringJoiner paramString = new StringJoiner(", ");
-      for (int i = 0; i < ((AstParameters) params).getCardinality(); i++) {
-        paramString.add(
-          EvalResultHolder.reconstructNode(
-            bindings,
-            context,
-            (EvalResultHolder) ((AstParameters) params).getChild(i),
-            deferredParsingException,
-            preserveIdentifier
-          )
+    String paramString;
+    if (
+      deferredParsingException != null &&
+      deferredParsingException.getSourceNode() == params
+    ) {
+      paramString = deferredParsingException.getDeferredEvalResult();
+    } else {
+      paramString =
+        params.getPartiallyResolved(
+          bindings,
+          context,
+          deferredParsingException,
+          preserveIdentifier
         );
-      }
-      sb.append(String.format("(%s)", paramString));
-    } catch (DeferredParsingException dpe) {
-      sb.append(String.format("(%s)", dpe.getDeferredEvalResult()));
     }
-    return sb.toString();
+
+    return (getName() + String.format("(%s)", paramString));
   }
 
   @Override

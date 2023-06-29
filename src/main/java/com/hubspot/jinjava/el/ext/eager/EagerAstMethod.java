@@ -2,10 +2,8 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.interpret.DeferredValueException;
-import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstMethod;
-import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import de.odysseus.el.tree.impl.ast.AstProperty;
 import javax.el.ELContext;
@@ -90,16 +88,13 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
     ) {
       paramString = deferredParsingException.getDeferredEvalResult();
     } else {
-      try {
-        paramString =
-          EagerExpressionResolver.getValueAsJinjavaStringSafe(
-            ((AstNode) params).eval(bindings, context)
-          );
-        // remove brackets so they can get replaced with parentheses
-        paramString = paramString.substring(1, paramString.length() - 1);
-      } catch (DeferredParsingException e) {
-        paramString = e.getDeferredEvalResult();
-      }
+      paramString =
+        params.getPartiallyResolved(
+          bindings,
+          context,
+          deferredParsingException,
+          preserveIdentifier
+        );
     }
 
     return (propertyResult + String.format("(%s)", paramString));

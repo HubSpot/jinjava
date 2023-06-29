@@ -70,7 +70,7 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
               context,
               node,
               deferredParsingException,
-              false
+              preserveIdentifier
             )
           )
       );
