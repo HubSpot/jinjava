@@ -250,7 +250,7 @@ public class DeferredToken {
       .orElse(null);
   }
 
-  private static Set<String> getBases(Set<String> original) {
+  public static Set<String> getBases(Set<String> original) {
     return original
       .stream()
       .map(prop -> prop.split("\\.", 2)[0])

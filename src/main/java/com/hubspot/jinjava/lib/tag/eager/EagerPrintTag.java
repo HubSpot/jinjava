@@ -90,11 +90,10 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
         )
       );
     }
-    prefixToPreserveState.putAll(
-      EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
-        eagerExecutionResult.getResult().getDeferredWords(),
-        interpreter
-      )
+    EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+      prefixToPreserveState,
+      eagerExecutionResult.getResult().getDeferredWords(),
+      interpreter
     );
 
     LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(

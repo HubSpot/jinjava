@@ -190,11 +190,10 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
   ) {
     return (
       newPathSetter +
-      EagerReconstructionUtils.buildBlockOrInlineSetTag(
+      EagerReconstructionUtils.buildBlockOrInlineSetTagAndRegisterDeferredToken(
         currentImportAlias,
         Collections.emptyMap(),
-        interpreter,
-        true
+        interpreter
       ) +
       wrapInChildScope(
         interpreter,
@@ -259,11 +258,10 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       .filter(entry -> !entry.getKey().equals(currentImportAlias))
       .map(
         entry ->
-          EagerReconstructionUtils.buildBlockOrInlineSetTag(
+          EagerReconstructionUtils.buildBlockOrInlineSetTag( // don't register deferred token so that we don't defer them on higher context scopes; they only exist in the child scope
             entry.getKey(),
             ((DeferredValue) entry.getValue()).getOriginalValue(),
-            interpreter,
-            false // false so that we don't defer them on higher context scopes; they only exist in the child scope
+            interpreter
           )
       )
       .collect(Collectors.joining());
@@ -282,8 +280,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
               .getContext()
               .getOrDefault(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY, "")
         ),
-      interpreter,
-      false
+      interpreter
     );
   }
 

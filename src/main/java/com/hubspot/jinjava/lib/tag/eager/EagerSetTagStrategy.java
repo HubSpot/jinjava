@@ -136,16 +136,15 @@ public abstract class EagerSetTagStrategy {
         eagerExecutionResult
       );
     }
-    prefixToPreserveState.putAll(
-      EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
-        Stream
-          .concat(
-            eagerExecutionResult.getResult().getDeferredWords().stream(),
-            Arrays.stream(variables).filter(var -> var.contains("."))
-          )
-          .collect(Collectors.toSet()),
-        interpreter
-      )
+    EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+      prefixToPreserveState,
+      Stream
+        .concat(
+          eagerExecutionResult.getResult().getDeferredWords().stream(),
+          Arrays.stream(variables).filter(var -> var.contains("."))
+        )
+        .collect(Collectors.toSet()),
+      interpreter
     );
     return prefixToPreserveState;
   }
