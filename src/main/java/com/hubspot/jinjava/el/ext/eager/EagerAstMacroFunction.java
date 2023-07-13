@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el.ext.eager;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -12,7 +13,6 @@ import de.odysseus.el.tree.impl.ast.AstParameters;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.StringJoiner;
 import javax.el.ELContext;
 import javax.el.ELException;
 
@@ -54,7 +54,13 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
       );
       throw new DeferredParsingException(
         this,
-        getPartiallyResolved(bindings, context, e, true) // Need this to always be true because the macro function may modify the identifier
+        getPartiallyResolved(
+          bindings,
+          context,
+          e,
+          IdentifierPreservationStrategy.PRESERVING
+        ), // Need this to always be true because the macro function may modify the identifier
+        IdentifierPreservationStrategy.PRESERVING
       );
     }
   }
@@ -146,7 +152,7 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
     Bindings bindings,
     ELContext context,
     DeferredParsingException deferredParsingException,
-    boolean preserveIdentifier
+    IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
     if (
       deferredParsingException != null &&
@@ -154,26 +160,20 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
     ) {
       return deferredParsingException.getDeferredEvalResult();
     }
-    StringBuilder sb = new StringBuilder();
-    sb.append(getName());
-    try {
-      StringJoiner paramString = new StringJoiner(", ");
-      for (int i = 0; i < ((AstParameters) params).getCardinality(); i++) {
-        paramString.add(
-          EvalResultHolder.reconstructNode(
-            bindings,
-            context,
-            (EvalResultHolder) ((AstParameters) params).getChild(i),
-            deferredParsingException,
-            preserveIdentifier
-          )
+    String paramString;
+    if (EvalResultHolder.exceptionMatchesNode(deferredParsingException, params)) {
+      paramString = deferredParsingException.getDeferredEvalResult();
+    } else {
+      paramString =
+        params.getPartiallyResolved(
+          bindings,
+          context,
+          deferredParsingException,
+          identifierPreservationStrategy
         );
-      }
-      sb.append(String.format("(%s)", paramString));
-    } catch (DeferredParsingException dpe) {
-      sb.append(String.format("(%s)", dpe.getDeferredEvalResult()));
     }
-    return sb.toString();
+
+    return (getName() + String.format("(%s)", paramString));
   }
 
   @Override

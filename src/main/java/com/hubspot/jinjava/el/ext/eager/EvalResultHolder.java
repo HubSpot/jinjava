@@ -2,6 +2,7 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
@@ -34,7 +35,12 @@ public interface EvalResultHolder {
       );
       throw new DeferredParsingException(
         this,
-        getPartiallyResolved(bindings, context, e, false)
+        getPartiallyResolved(
+          bindings,
+          context,
+          e,
+          IdentifierPreservationStrategy.RESOLVING
+        )
       );
     }
   }
@@ -60,7 +66,7 @@ public interface EvalResultHolder {
     Bindings bindings,
     ELContext context,
     DeferredParsingException deferredParsingException,
-    boolean preserveIdentifier
+    IdentifierPreservationStrategy identifierPreservationStrategy
   );
 
   static String reconstructNode(
@@ -68,19 +74,23 @@ public interface EvalResultHolder {
     ELContext context,
     EvalResultHolder astNode,
     DeferredParsingException exception,
-    boolean preserveIdentifier
+    IdentifierPreservationStrategy preserveIdentifier
   ) {
     if (astNode == null) {
       return "";
     }
-    preserveIdentifier |=
-      astNode instanceof AstIdentifier &&
-      ExtendedParser.INTERPRETER.equals(((AstIdentifier) astNode).getName());
+    preserveIdentifier =
+      IdentifierPreservationStrategy.preserving(
+        preserveIdentifier.isPreserving() ||
+        astNode instanceof AstIdentifier &&
+        ExtendedParser.INTERPRETER.equals(((AstIdentifier) astNode).getName())
+      );
     if (
-      preserveIdentifier &&
+      preserveIdentifier.isPreserving() &&
       !astNode.hasEvalResult() &&
-      !(exception != null && exception.getSourceNode() == astNode)
+      !(exceptionMatchesNode(exception, astNode))
     ) {
+      // Evaluate to determine if the result is primitive. If so, we don't need to preserve the identifier
       try {
         EagerExpressionResolver.getValueAsJinjavaStringSafe(
           ((AstNode) astNode).eval(bindings, context)
@@ -89,10 +99,16 @@ public interface EvalResultHolder {
     }
     Object evalResult = astNode.getEvalResult();
     if (
-      !preserveIdentifier ||
+      exceptionMatchesNode(exception, astNode) &&
+      exception.getIdentifierPreservationStrategy().isPreserving()
+    ) {
+      return exception.getDeferredEvalResult();
+    }
+    if (
+      !preserveIdentifier.isPreserving() ||
       (astNode.hasEvalResult() && EagerExpressionResolver.isPrimitive(evalResult))
     ) {
-      if (exception != null && exception.getSourceNode() == astNode) {
+      if (exceptionMatchesNode(exception, astNode)) {
         return exception.getDeferredEvalResult();
       }
       if (!astNode.hasEvalResult()) {
@@ -106,7 +122,12 @@ public interface EvalResultHolder {
         return EagerExpressionResolver.getValueAsJinjavaStringSafe(evalResult);
       } catch (DeferredValueException ignored) {}
     }
-    return astNode.getPartiallyResolved(bindings, context, exception, true);
+    return astNode.getPartiallyResolved(
+      bindings,
+      context,
+      exception,
+      IdentifierPreservationStrategy.PRESERVING
+    );
   }
 
   static DeferredParsingException convertToDeferredParsingException(
@@ -126,5 +147,15 @@ public interface EvalResultHolder {
       return (DeferredParsingException) deferredValueException;
     }
     return null;
+  }
+
+  static boolean exceptionMatchesNode(
+    DeferredParsingException deferredParsingException,
+    Object astNode
+  ) {
+    return (
+      deferredParsingException != null &&
+      deferredParsingException.getSourceNode() == astNode
+    );
   }
 }

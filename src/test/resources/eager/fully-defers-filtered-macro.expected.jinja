@@ -1,5 +1,6 @@
 {% macro flashy(foo) %}{{ filter:upper.filter(foo, ____int3rpr3t3r____) }}
-  A flashy {{ deferred }}.{% endmacro %}{{ flashy(flashy('bar')) }}
+  A flashy {{ deferred }}.{% endmacro %}{% set __macro_flashy_1625622909_temp_variable_0__ %}BAR
+  A flashy {{ deferred }}.{% endset %}{{ flashy(__macro_flashy_1625622909_temp_variable_0__) }}
 ---
 
 {% set __macro_silly_2092874071_temp_variable_0__ %}A silly {{ deferred }}.{% endset %}{{ filter:upper.filter(__macro_silly_2092874071_temp_variable_0__, ____int3rpr3t3r____) }}

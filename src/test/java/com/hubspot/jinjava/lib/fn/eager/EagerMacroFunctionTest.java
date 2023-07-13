@@ -81,7 +81,7 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
   public void itResolvesFromSet() {
     String template =
       "{% macro foo(foobar, other) %}" +
-      " {% do foobar.update({'a': 'b'} ) %} " +
+      " {% do foobar.update({'a': 'b'}) %} " +
       " {{ foobar }}  and {{ other }}" +
       "{% endmacro %}" +
       "{% set bar = {}  %}" +

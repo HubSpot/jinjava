@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el.ext.eager;
 import com.hubspot.jinjava.el.ext.AstDict;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
@@ -34,7 +35,7 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
     Bindings bindings,
     ELContext context,
     DeferredParsingException deferredParsingException,
-    boolean preserveIdentifier
+    IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
     JinjavaInterpreter interpreter = (JinjavaInterpreter) context
       .getELResolver()
@@ -52,7 +53,9 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
               context,
               (EvalResultHolder) key,
               deferredParsingException,
-              !interpreter.getConfig().getLegacyOverrides().isEvaluateMapKeys()
+              IdentifierPreservationStrategy.preserving(
+                !interpreter.getConfig().getLegacyOverrides().isEvaluateMapKeys()
+              )
             )
           );
         } else {
@@ -69,7 +72,7 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
               context,
               (EvalResultHolder) value,
               deferredParsingException,
-              preserveIdentifier
+              identifierPreservationStrategy
             )
           );
         } else {

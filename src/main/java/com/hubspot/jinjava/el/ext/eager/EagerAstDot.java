@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstDot;
 import de.odysseus.el.tree.impl.ast.AstNode;
@@ -52,11 +53,17 @@ public class EagerAstDot extends AstDot implements EvalResultHolder {
     Bindings bindings,
     ELContext context,
     DeferredParsingException e,
-    boolean preserveIdentifier
+    IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
     return String.format(
       "%s.%s",
-      EvalResultHolder.reconstructNode(bindings, context, base, e, preserveIdentifier),
+      EvalResultHolder.reconstructNode(
+        bindings,
+        context,
+        base,
+        e,
+        identifierPreservationStrategy
+      ),
       property
     );
   }
