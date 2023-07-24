@@ -1407,4 +1407,21 @@ public class EagerTest {
       "reconstructs-nested-value-in-string-representation.expected"
     );
   }
+
+  @Test
+  public void itDefersLoopSettingMetaContextVar() {
+    interpreter.getContext().getMetaContextVariables().add("content");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "defers-loop-setting-meta-context-var"
+    );
+  }
+
+  @Test
+  public void itDefersLoopSettingMetaContextVarSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    interpreter.getContext().getMetaContextVariables().add("content");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "defers-loop-setting-meta-context-var.expected"
+    );
+  }
 }
