@@ -26,8 +26,6 @@ public class JinjavaDocFactory {
   private static final Class JINJAVA_DOC_CLASS =
     com.hubspot.jinjava.doc.annotations.JinjavaDoc.class;
 
-  private static final String GUICE_CLASS_INDICATOR = "$$EnhancerByGuice$$";
-
   private final Jinjava jinjava;
 
   public JinjavaDocFactory(Jinjava jinjava) {
@@ -320,11 +318,7 @@ public class JinjavaDocFactory {
   private com.hubspot.jinjava.doc.annotations.JinjavaDoc getJinjavaDocAnnotation(
     Class<?> clazz
   ) {
-    if (
-      clazz.getName().contains(GUICE_CLASS_INDICATOR) && clazz.getSuperclass() != null
-    ) {
-      clazz = clazz.getSuperclass();
-    }
+    clazz = InjectedContextFunctionProxy.removeGuiceWrapping(clazz);
 
     return clazz.getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
   }
