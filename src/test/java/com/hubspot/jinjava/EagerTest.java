@@ -1403,6 +1403,7 @@ public class EagerTest {
 
   @Test
   public void itReconstructsNestedValueInStringRepresentationSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
       "reconstructs-nested-value-in-string-representation.expected"
     );
