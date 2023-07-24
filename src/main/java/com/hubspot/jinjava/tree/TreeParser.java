@@ -36,6 +36,7 @@ import com.hubspot.jinjava.tree.parse.TextToken;
 import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.tree.parse.TokenScanner;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
+import com.hubspot.jinjava.tree.parse.UnclosedToken;
 import org.apache.commons.lang3.StringUtils;
 
 public class TreeParser {
@@ -97,6 +98,20 @@ public class TreeParser {
     Token token = scanner.next();
 
     if (token.getType() == symbols.getFixed()) {
+      if (token instanceof UnclosedToken) {
+        interpreter.addError(
+          new TemplateError(
+            ErrorType.WARNING,
+            ErrorReason.SYNTAX_ERROR,
+            ErrorItem.TAG,
+            "Unclosed token",
+            "token",
+            token.getLineNumber(),
+            token.getStartPosition(),
+            null
+          )
+        );
+      }
       return text((TextToken) token);
     } else if (token.getType() == symbols.getExprStart()) {
       return expression((ExpressionToken) token);
