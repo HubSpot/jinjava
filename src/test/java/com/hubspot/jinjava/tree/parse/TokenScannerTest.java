@@ -305,6 +305,23 @@ public class TokenScannerTest {
     assertThat(tokens).isNotEmpty();
   }
 
+  @Test
+  public void itTreatsEscapedQuotesSameWhenNotInQuotes() {
+    List<Token> tokens = tokens("tag-with-all-escaped-quotes");
+    assertThat(tokens).hasSize(8);
+    assertThat(tokens.stream().map(Token::getType).collect(Collectors.toList()))
+      .containsExactly(
+        symbols.getNote(),
+        symbols.getFixed(),
+        symbols.getTag(),
+        symbols.getFixed(),
+        symbols.getTag(),
+        symbols.getFixed(),
+        symbols.getTag(),
+        symbols.getFixed()
+      );
+  }
+
   private List<Token> tokens(String fixture) {
     TokenScanner t = fixture(fixture);
     return Lists.newArrayList(t);
