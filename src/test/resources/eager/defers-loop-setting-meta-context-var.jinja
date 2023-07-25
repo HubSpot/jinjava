@@ -1,0 +1,11 @@
+{% macro render(content, query) -%}
+{%- if query -%}
+{{ content.foo }}
+{%- endif -%}
+{% endmacro %}
+
+{% set looper = [{'foo': 'a'}, {'foo': 'b'}] %}
+{% for content in looper %}
+{{ render(content, deferred) }}
+{% endfor %}
+
