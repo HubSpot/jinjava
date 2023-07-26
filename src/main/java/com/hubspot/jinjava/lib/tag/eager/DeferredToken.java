@@ -11,7 +11,6 @@ import com.hubspot.jinjava.interpret.DeferredValueShadow;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
-import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,55 +24,69 @@ public class DeferredToken {
 
   public static class DeferredTokenBuilder {
     private final Token token;
-    private Stream<String> usedDeferredWords = Stream.empty();
-    private Stream<String> setDeferredWords = Stream.empty();
+    private Stream<String> usedDeferredWords;
+    private Stream<String> setDeferredWords;
 
     private DeferredTokenBuilder(Token token) {
       this.token = token;
-    }
-
-    public static DeferredTokenBuilder fromToken(Token token) {
-      return new DeferredTokenBuilder(token);
     }
 
     public DeferredToken build() {
       JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
       return new DeferredToken(
         token,
-        usedDeferredWords
-          .map(prop -> prop.split("\\.", 2)[0])
-          .distinct()
-          .filter(
-            word ->
-              !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
-          )
-          .collect(Collectors.toSet()),
-        setDeferredWords.map(prop -> prop.split("\\.", 2)[0]).collect(Collectors.toSet()),
+        usedDeferredWords != null
+          ? usedDeferredWords
+            .map(prop -> prop.split("\\.", 2)[0])
+            .distinct()
+            .filter(
+              word ->
+                interpreter == null ||
+                !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
+            )
+            .collect(Collectors.toSet())
+          : Collections.emptySet(),
+        setDeferredWords != null
+          ? setDeferredWords
+            .map(prop -> prop.split("\\.", 2)[0])
+            .collect(Collectors.toSet())
+          : Collections.emptySet(),
         acquireImportResourcePath(),
         acquireMacroStack()
       );
     }
 
-    public DeferredTokenBuilder addUsedDeferredWordsFromPrefixAndResult(
-      PrefixToPreserveState prefixToPreserveState,
-      EagerExecutionResult eagerExecutionResult
-    ) {
-      return addUsedDeferredWords(prefixToPreserveState.getNestedDependentWords())
-        .addUsedDeferredWords(eagerExecutionResult.getResult().getDeferredWords());
-    }
-
     public DeferredTokenBuilder addUsedDeferredWords(
       Collection<String> usedDeferredWordsToAdd
     ) {
-      usedDeferredWords =
-        Stream.concat(usedDeferredWords, usedDeferredWordsToAdd.stream());
+      return addUsedDeferredWords(usedDeferredWordsToAdd.stream());
+    }
+
+    public DeferredTokenBuilder addUsedDeferredWords(
+      Stream<String> usedDeferredWordsToAdd
+    ) {
+      if (usedDeferredWords == null) {
+        usedDeferredWords = usedDeferredWordsToAdd;
+      } else {
+        usedDeferredWords = Stream.concat(usedDeferredWords, usedDeferredWordsToAdd);
+      }
       return this;
     }
 
     public DeferredTokenBuilder addSetDeferredWords(
       Collection<String> setDeferredWordsToAdd
     ) {
-      setDeferredWords = Stream.concat(setDeferredWords, setDeferredWordsToAdd.stream());
+      return addSetDeferredWords(setDeferredWordsToAdd.stream());
+    }
+
+    public DeferredTokenBuilder addSetDeferredWords(
+      Stream<String> setDeferredWordsToAdd
+    ) {
+      if (setDeferredWords == null) {
+        setDeferredWords = setDeferredWordsToAdd;
+      } else {
+        setDeferredWords = Stream.concat(setDeferredWords, setDeferredWordsToAdd);
+      }
       return this;
     }
   }
@@ -92,10 +105,22 @@ public class DeferredToken {
   // Used to determine if in separate file
   private final String importResourcePath;
 
+  public static DeferredTokenBuilder builderFromToken(Token token) {
+    return new DeferredTokenBuilder(token);
+  }
+
+  /**
+   * @deprecated Use {@link #builderFromToken(Token)}
+   */
+  @Deprecated
   public DeferredToken(Token token, Set<String> usedDeferredWords) {
     this(token, usedDeferredWords, Collections.emptySet());
   }
 
+  /**
+   * @deprecated Use {@link #builderFromToken(Token)}
+   */
+  @Deprecated
   public DeferredToken(
     Token token,
     Set<String> usedDeferredWords,

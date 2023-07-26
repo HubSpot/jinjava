@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
-import com.google.common.collect.Sets;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
@@ -12,8 +11,8 @@ import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
-import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Triple;
 
 @Beta
@@ -125,16 +124,17 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
       .withAllInFront(
         EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
           interpreter,
-          new DeferredToken(
-            new TagToken(
-              joiner.toString(),
-              tagNode.getLineNumber(),
-              tagNode.getStartPosition(),
-              tagNode.getSymbols()
-            ),
-            Collections.emptySet(),
-            Sets.newHashSet(variables)
-          )
+          DeferredToken
+            .builderFromToken(
+              new TagToken(
+                joiner.toString(),
+                tagNode.getLineNumber(),
+                tagNode.getStartPosition(),
+                tagNode.getSymbols()
+              )
+            )
+            .addSetDeferredWords(Stream.of(variables))
+            .build()
         )
       );
     String suffixToPreserveState = getSuffixToPreserveState(variables[0], interpreter);

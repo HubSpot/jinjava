@@ -2,7 +2,6 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -20,7 +19,6 @@ import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 @Beta
@@ -237,22 +235,17 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     prefixToPreserveState.withAllInFront(
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
         interpreter,
-        new DeferredToken(
-          new TagToken(
-            joiner.toString(),
-            tagToken.getLineNumber(),
-            tagToken.getStartPosition(),
-            tagToken.getSymbols()
-          ),
-          eagerExpressionResult
-            .getDeferredWords()
-            .stream()
-            .filter(
-              word ->
-                !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
+        DeferredToken
+          .builderFromToken(
+            new TagToken(
+              joiner.toString(),
+              tagToken.getLineNumber(),
+              tagToken.getStartPosition(),
+              tagToken.getSymbols()
             )
-            .collect(Collectors.toSet())
-        )
+          )
+          .addUsedDeferredWords(eagerExpressionResult.getDeferredWords())
+          .build()
       )
     );
 

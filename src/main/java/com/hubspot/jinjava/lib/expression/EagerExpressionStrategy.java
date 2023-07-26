@@ -2,7 +2,6 @@ package com.hubspot.jinjava.lib.expression;
 
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.JinjavaConfig;
-import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
@@ -16,7 +15,6 @@ import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.Logging;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 @Beta
@@ -67,35 +65,30 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         prefixToPreserveState.toString() + postProcessResult(master, result, interpreter)
       );
     }
+
+    String deferredExpressionImage = wrapInExpression(
+      eagerExecutionResult.getResult().toString(),
+      interpreter
+    );
     EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
       prefixToPreserveState,
       eagerExecutionResult.getResult().getDeferredWords(),
       interpreter
     );
-    String deferredExpressionImage = wrapInExpression(
-      eagerExecutionResult.getResult().toString(),
-      interpreter
-    );
     prefixToPreserveState.withAllInFront(
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
         interpreter,
-        new DeferredToken(
-          new ExpressionToken(
-            deferredExpressionImage,
-            master.getLineNumber(),
-            master.getStartPosition(),
-            master.getSymbols()
-          ),
-          eagerExecutionResult
-            .getResult()
-            .getDeferredWords()
-            .stream()
-            .filter(
-              word ->
-                !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
+        DeferredToken
+          .builderFromToken(
+            new ExpressionToken(
+              deferredExpressionImage,
+              master.getLineNumber(),
+              master.getStartPosition(),
+              master.getSymbols()
             )
-            .collect(Collectors.toSet())
-        )
+          )
+          .addUsedDeferredWords(eagerExecutionResult.getResult().getDeferredWords())
+          .build()
       )
     );
     // There is only a preserving prefix because it couldn't be entirely evaluated.

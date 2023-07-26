@@ -129,15 +129,16 @@ public class StripTagsFilterTest {
           counter.getAndIncrement() == 0
             ? Collections.emptySet()
             : Collections.singleton(
-              new DeferredToken(
-                new ExpressionToken(
-                  "{{ deferred && other }}",
-                  0,
-                  0,
-                  new DefaultTokenScannerSymbols()
-                ),
-                Collections.emptySet()
-              )
+              DeferredToken
+                .builderFromToken(
+                  new ExpressionToken(
+                    "{{ deferred && other }}",
+                    0,
+                    0,
+                    new DefaultTokenScannerSymbols()
+                  )
+                )
+                .build()
             )
       );
     assertThatThrownBy(() -> filter.filter("{{ deferred && other }}", mockedInterpreter))
