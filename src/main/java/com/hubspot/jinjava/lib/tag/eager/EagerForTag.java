@@ -19,7 +19,6 @@ import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -259,8 +258,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
                 word ->
                   !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
               )
-              .collect(Collectors.toSet()),
-            Collections.emptySet()
+              .collect(Collectors.toSet())
           )
         )
       );

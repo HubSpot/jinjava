@@ -5,20 +5,79 @@ import com.hubspot.jinjava.interpret.CallStack;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredLazyReference;
 import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
+import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueShadow;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
+import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Beta
 public class DeferredToken {
+
+  public static class DeferredTokenBuilder {
+    private final Token token;
+    private Stream<String> usedDeferredWords = Stream.empty();
+    private Stream<String> setDeferredWords = Stream.empty();
+
+    private DeferredTokenBuilder(Token token) {
+      this.token = token;
+    }
+
+    public static DeferredTokenBuilder fromToken(Token token) {
+      return new DeferredTokenBuilder(token);
+    }
+
+    public DeferredToken build() {
+      JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+      return new DeferredToken(
+        token,
+        usedDeferredWords
+          .map(prop -> prop.split("\\.", 2)[0])
+          .distinct()
+          .filter(
+            word ->
+              !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
+          )
+          .collect(Collectors.toSet()),
+        setDeferredWords.map(prop -> prop.split("\\.", 2)[0]).collect(Collectors.toSet()),
+        acquireImportResourcePath(),
+        acquireMacroStack()
+      );
+    }
+
+    public DeferredTokenBuilder addUsedDeferredWordsFromPrefixAndResult(
+      PrefixToPreserveState prefixToPreserveState,
+      EagerExecutionResult eagerExecutionResult
+    ) {
+      return addUsedDeferredWords(prefixToPreserveState.getNestedDependentWords())
+        .addUsedDeferredWords(eagerExecutionResult.getResult().getDeferredWords());
+    }
+
+    public DeferredTokenBuilder addUsedDeferredWords(
+      Collection<String> usedDeferredWordsToAdd
+    ) {
+      usedDeferredWords =
+        Stream.concat(usedDeferredWords, usedDeferredWordsToAdd.stream());
+      return this;
+    }
+
+    public DeferredTokenBuilder addSetDeferredWords(
+      Collection<String> setDeferredWordsToAdd
+    ) {
+      setDeferredWords = Stream.concat(setDeferredWords, setDeferredWordsToAdd.stream());
+      return this;
+    }
+  }
+
   private final Token token;
   // These words aren't yet DeferredValues, but are unresolved
   // so they should be replaced with DeferredValueImpls if they exist in the context
@@ -34,11 +93,7 @@ public class DeferredToken {
   private final String importResourcePath;
 
   public DeferredToken(Token token, Set<String> usedDeferredWords) {
-    this.token = token;
-    this.usedDeferredWords = getBases(usedDeferredWords);
-    this.setDeferredWords = Collections.emptySet();
-    importResourcePath = acquireImportResourcePath();
-    macroStack = acquireMacroStack();
+    this(token, usedDeferredWords, Collections.emptySet());
   }
 
   public DeferredToken(
@@ -46,11 +101,27 @@ public class DeferredToken {
     Set<String> usedDeferredWords,
     Set<String> setDeferredWords
   ) {
+    this(
+      token,
+      getBases(usedDeferredWords),
+      getBases(setDeferredWords),
+      acquireImportResourcePath(),
+      acquireMacroStack()
+    );
+  }
+
+  private DeferredToken(
+    Token token,
+    Set<String> usedDeferredWordBases,
+    Set<String> setDeferredWordBases,
+    String importResourcePath,
+    CallStack macroStack
+  ) {
     this.token = token;
-    this.usedDeferredWords = getBases(usedDeferredWords);
-    this.setDeferredWords = getBases(setDeferredWords);
-    importResourcePath = acquireImportResourcePath();
-    macroStack = acquireMacroStack();
+    this.usedDeferredWords = usedDeferredWordBases;
+    this.setDeferredWords = setDeferredWordBases;
+    this.importResourcePath = importResourcePath;
+    this.macroStack = macroStack;
   }
 
   public Token getToken() {

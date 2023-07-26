@@ -692,7 +692,6 @@ public class EagerReconstructionUtils {
             interpreter.getPosition(),
             interpreter.getConfig().getTokenScannerSymbols()
           ),
-          Collections.emptySet(),
           Collections.emptySet()
         )
       );
