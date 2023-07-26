@@ -3,3 +3,13 @@
 {% endif %}
 map.foo: {{ map_with_vals.foo }}
 map.bar: {{ map_with_vals.bar }}
+
+{% set a = 'a' %}{% set aa = '{{ a }}' %}{% if deferred %}
+{% set aaa = '{{ aa }}' %}
+{{ aa }}
+{% endif %}
+
+{% set b = 'b' %}{% set bb = '{{ b }}' %}{% if deferred %}
+{% set bbb = {'b': '{{ bb }}'}  %}
+{'b': '{{ bb }}'}
+{% endif %}
