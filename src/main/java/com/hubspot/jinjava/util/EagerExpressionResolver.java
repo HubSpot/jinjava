@@ -393,6 +393,23 @@ public class EagerExpressionResolver {
       } else {
         asString = PyishObjectMapper.getAsPyishString(resolvedObject);
       }
+      if (
+        !forOutput &&
+        interpreter != null &&
+        interpreter.getConfig().isNestedInterpretationEnabled() &&
+        asString.contains(
+          interpreter.getConfig().getTokenScannerSymbols().getExpressionStart()
+        )
+      ) {
+        Set<String> dependentWords = EagerExpressionResolver.findDeferredWords(
+          asString,
+          interpreter
+        );
+        if (!dependentWords.isEmpty()) {
+          deferredWords.addAll(dependentWords);
+          return asString;
+        }
+      }
       return asString;
     }
 
