@@ -68,17 +68,15 @@ public class TokenScanner extends AbstractIterator<Token> {
       }
 
       if (inBlock > 0) {
-        if (inQuote != 0) {
+        if (c == '\\') {
+          ++currPost;
+          continue;
+        } else if (inQuote != 0) {
           if (inQuote == c) {
             inQuote = 0;
-            continue;
-          } else if (c == '\\') {
-            ++currPost;
-            continue;
-          } else {
-            continue;
           }
-        } else if (inQuote == 0 && (c == '\'' || c == '"')) {
+          continue;
+        } else if (c == '\'' || c == '"') {
           inQuote = c;
           continue;
         }
