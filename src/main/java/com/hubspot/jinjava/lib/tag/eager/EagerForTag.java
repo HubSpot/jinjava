@@ -64,7 +64,9 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
                   tagNode,
                   eagerInterpreter,
                   loopVarsAndExpression.getLeft(),
-                  collectionResult.getResult().toList().get(0)
+                  !collectionResult.getResult().toList().isEmpty()
+                    ? collectionResult.getResult().toList().get(0)
+                    : Collections.emptyList()
                 ),
             eagerInterpreter
           );
