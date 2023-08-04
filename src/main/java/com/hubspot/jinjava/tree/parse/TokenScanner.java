@@ -226,6 +226,13 @@ public class TokenScanner extends AbstractIterator<Token> {
     int type = symbols.getFixed();
     if (inComment > 0) {
       type = symbols.getNote();
+    } else if (inBlock > 0) {
+      return new UnclosedToken(
+        String.valueOf(is, tokenStart, tokenLength),
+        currLine,
+        tokenStart - lastNewlinePos + 1,
+        symbols
+      );
     }
     return Token.newToken(
       type,
