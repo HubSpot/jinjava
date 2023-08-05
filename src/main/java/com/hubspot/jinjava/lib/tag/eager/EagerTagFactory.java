@@ -63,9 +63,11 @@ public class EagerTagFactory {
       if (TAG_CLASSES_TO_SKIP.contains(clazz)) {
         return Optional.empty();
       }
-      if (EAGER_TAG_OVERRIDES.containsKey(clazz)) {
-        EagerTagDecorator<?> decorator = EAGER_TAG_OVERRIDES
-          .get(clazz)
+      Class<? extends EagerTagDecorator<? extends Tag>> eagerOverrideClass = EAGER_TAG_OVERRIDES.get(
+        clazz
+      );
+      if (eagerOverrideClass != null) {
+        EagerTagDecorator<?> decorator = eagerOverrideClass
           .getDeclaredConstructor(clazz)
           .newInstance(tag);
         if (decorator.getTag().getClass() == clazz) {
