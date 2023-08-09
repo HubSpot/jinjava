@@ -1499,4 +1499,11 @@ public class EagerTest {
       "allows-variable-sharing-alias-name"
     );
   }
+
+  @Test
+  public void itAllowsModificationInAliasedMacro() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "allows-modification-in-aliased-macro"
+    );
+  }
 }
