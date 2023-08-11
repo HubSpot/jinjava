@@ -500,15 +500,7 @@ public class EagerReconstructionUtils {
           EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
             interpreter,
             DeferredToken
-              .builderFromToken(
-                new TagToken(
-                  image,
-                  // TODO this line number won't be accurate, currently doesn't matter.
-                  interpreter.getLineNumber(),
-                  interpreter.getPosition(),
-                  interpreter.getConfig().getTokenScannerSymbols()
-                )
-              )
+              .builderFromImage(image, TagToken.class, interpreter)
               .addSetDeferredWords(deferredValuesToSet.keySet())
               .build()
           )
@@ -566,13 +558,10 @@ public class EagerReconstructionUtils {
           EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
             interpreter,
             DeferredToken
-              .builderFromToken(
-                new TagToken(
-                  blockSetTokenBuilder.toString(),
-                  interpreter.getLineNumber(),
-                  interpreter.getPosition(),
-                  interpreter.getConfig().getTokenScannerSymbols()
-                )
+              .builderFromImage(
+                blockSetTokenBuilder.toString(),
+                TagToken.class,
+                interpreter
               )
               .addSetDeferredWords(Stream.of(name))
               .build()
@@ -688,14 +677,7 @@ public class EagerReconstructionUtils {
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
         interpreter,
         DeferredToken
-          .builderFromToken(
-            new TagToken(
-              startTokenBuilder.toString(),
-              interpreter.getLineNumber(),
-              interpreter.getPosition(),
-              interpreter.getConfig().getTokenScannerSymbols()
-            )
-          )
+          .builderFromImage(startTokenBuilder.toString(), TagToken.class, interpreter)
           .build()
       );
     }
@@ -799,14 +781,7 @@ public class EagerReconstructionUtils {
           handleDeferredTokenAndReconstructReferences(
             interpreter,
             DeferredToken
-              .builderFromToken(
-                new NoteToken(
-                  "",
-                  interpreter.getLineNumber(),
-                  interpreter.getPosition(),
-                  interpreter.getConfig().getTokenScannerSymbols()
-                )
-              )
+              .builderFromImage("", NoteToken.class, interpreter)
               .addUsedDeferredWords(wordsToDefer)
               .build()
           )

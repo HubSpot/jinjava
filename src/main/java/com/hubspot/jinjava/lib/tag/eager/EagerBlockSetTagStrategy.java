@@ -125,14 +125,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
         EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
           interpreter,
           DeferredToken
-            .builderFromToken(
-              new TagToken(
-                joiner.toString(),
-                tagNode.getLineNumber(),
-                tagNode.getStartPosition(),
-                tagNode.getSymbols()
-              )
-            )
+            .builderFromImage(joiner.toString(), tagNode.getMaster())
             .addSetDeferredWords(Stream.of(variables))
             .build()
         )

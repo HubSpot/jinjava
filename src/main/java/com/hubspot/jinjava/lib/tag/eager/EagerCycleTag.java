@@ -192,14 +192,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
           EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
             interpreter,
             DeferredToken
-              .builderFromToken(
-                new TagToken(
-                  reconstructedTag,
-                  tagToken.getLineNumber(),
-                  tagToken.getStartPosition(),
-                  tagToken.getSymbols()
-                )
-              )
+              .builderFromImage(reconstructedTag, tagToken)
               .addUsedDeferredWords(eagerExpressionResult.getDeferredWords())
               .build()
           )

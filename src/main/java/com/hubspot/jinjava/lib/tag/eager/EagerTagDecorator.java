@@ -236,14 +236,7 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
         interpreter,
         DeferredToken
-          .builderFromToken(
-            new TagToken(
-              joiner.toString(),
-              tagToken.getLineNumber(),
-              tagToken.getStartPosition(),
-              tagToken.getSymbols()
-            )
-          )
+          .builderFromImage(joiner.toString(), tagToken)
           .addUsedDeferredWords(eagerExpressionResult.getDeferredWords())
           .build()
       )

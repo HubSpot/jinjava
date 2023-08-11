@@ -94,14 +94,7 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
         interpreter,
         DeferredToken
-          .builderFromToken(
-            new TagToken(
-              joiner.toString(),
-              tagNode.getLineNumber(),
-              tagNode.getStartPosition(),
-              tagNode.getSymbols()
-            )
-          )
+          .builderFromImage(joiner.toString(), tagNode.getMaster())
           .addUsedDeferredWords(eagerExecutionResult.getResult().getDeferredWords())
           .addSetDeferredWords(Arrays.stream(variables).map(String::trim))
           .build()

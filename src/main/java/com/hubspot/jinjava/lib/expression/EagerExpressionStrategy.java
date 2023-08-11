@@ -79,14 +79,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
         interpreter,
         DeferredToken
-          .builderFromToken(
-            new ExpressionToken(
-              deferredExpressionImage,
-              master.getLineNumber(),
-              master.getStartPosition(),
-              master.getSymbols()
-            )
-          )
+          .builderFromImage(deferredExpressionImage, master)
           .addUsedDeferredWords(eagerExecutionResult.getResult().getDeferredWords())
           .build()
       )

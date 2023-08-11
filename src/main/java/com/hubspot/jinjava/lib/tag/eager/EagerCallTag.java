@@ -113,14 +113,7 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
         EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
           interpreter,
           DeferredToken
-            .builderFromToken(
-              new TagToken(
-                joiner.toString(),
-                tagNode.getLineNumber(),
-                tagNode.getStartPosition(),
-                tagNode.getSymbols()
-              )
-            )
+            .builderFromImage(joiner.toString(), tagNode.getMaster())
             .addUsedDeferredWords(eagerExecutionResult.getResult().getDeferredWords())
             .build()
         )

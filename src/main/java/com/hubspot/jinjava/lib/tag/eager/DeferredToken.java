@@ -10,7 +10,9 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueShadow;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.parse.Token;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -105,8 +107,83 @@ public class DeferredToken {
   // Used to determine if in separate file
   private final String importResourcePath;
 
+  /**
+   * Create a {@link DeferredTokenBuilder} with the provided {@link Token} {@code token}
+   * @param token A {@link Token} with a deferred image
+   * @return DeferredTokenBuilder
+   */
   public static DeferredTokenBuilder builderFromToken(Token token) {
     return new DeferredTokenBuilder(token);
+  }
+
+  /**
+   * Create a {@link DeferredTokenBuilder} with a {@link Token} constructed using the constructor of {@code tokenClass} using
+   * the provided {@code image} and line number, position, and symbols taken from the {@code interpreter}.
+   * @param image The deferred token image
+   * @param tokenClass Class of {@link Token} to create
+   * @param interpreter The {@link JinjavaInterpreter}
+   * @return DeferredTokenBuilder
+   * @param <T> generic type of the {@tokenClass}, which extends {@link Token}
+   */
+  public static <T extends Token> DeferredTokenBuilder builderFromImage(
+    String image,
+    Class<T> tokenClass,
+    JinjavaInterpreter interpreter
+  ) {
+    return builderFromToken(
+      constructToken(
+        tokenClass,
+        image,
+        interpreter.getLineNumber(),
+        interpreter.getPosition(),
+        interpreter.getConfig().getTokenScannerSymbols()
+      )
+    );
+  }
+
+  /**
+   * Create a {@link DeferredTokenBuilder} with a {@link Token} constructed using the provided {@code image}
+   * and line number, position, and symbols taken from the {@code originalToken}.
+   * @param image The deferred token image
+   * @param originalToken Original {@link Token} to reference for attributes
+   * @return DeferredTokenBuilder
+   */
+  public static DeferredTokenBuilder builderFromImage(String image, Token originalToken) {
+    return builderFromToken(
+      constructToken(
+        originalToken.getClass(),
+        image,
+        originalToken.getLineNumber(),
+        originalToken.getStartPosition(),
+        originalToken.getSymbols()
+      )
+    );
+  }
+
+  private static <T extends Token> T constructToken(
+    Class<T> tokenClass,
+    String image,
+    int lineNumber,
+    int startPosition,
+    TokenScannerSymbols symbols
+  ) {
+    try {
+      return tokenClass
+        .getDeclaredConstructor(
+          String.class,
+          int.class,
+          int.class,
+          TokenScannerSymbols.class
+        )
+        .newInstance(image, lineNumber, startPosition, symbols);
+    } catch (
+      InstantiationException
+      | IllegalAccessException
+      | InvocationTargetException
+      | NoSuchMethodException e
+    ) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**

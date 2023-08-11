@@ -107,14 +107,7 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
         interpreter,
         DeferredToken
-          .builderFromToken(
-            new TagToken(
-              joiner.toString(),
-              tagToken.getLineNumber(),
-              tagToken.getStartPosition(),
-              tagToken.getSymbols()
-            )
-          )
+          .builderFromImage(joiner.toString(), tagToken)
           .addUsedDeferredWords(eagerExecutionResult.getResult().getDeferredWords())
           .build()
       )
