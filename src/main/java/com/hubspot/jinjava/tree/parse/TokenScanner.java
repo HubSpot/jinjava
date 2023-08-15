@@ -18,10 +18,18 @@ package com.hubspot.jinjava.tree.parse;
 import static com.hubspot.jinjava.util.CharArrayUtils.charArrayRegionMatches;
 
 import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.JinjavaConfig;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TokenScanner extends AbstractIterator<Token> {
   private final JinjavaConfig config;
+
+  private static final Map<String, String> DEFAULT_RAW_TOKENS = ImmutableMap.of(
+    "raw",
+    "endraw"
+  );
 
   private final char[] is;
   private final int length;
@@ -33,6 +41,8 @@ public class TokenScanner extends AbstractIterator<Token> {
   private int lastStart = 0;
   private int inComment = 0;
   private int inRaw = 0;
+
+  private String rawOpenTagName = null;
   private int inBlock = 0;
   private char inQuote = 0;
   private int currLine = 1;
@@ -51,6 +61,7 @@ public class TokenScanner extends AbstractIterator<Token> {
     lastStart = 0;
     inComment = 0;
     inRaw = 0;
+    rawOpenTagName = null;
     inBlock = 0;
     inQuote = 0;
     currLine = 1;
@@ -214,11 +225,7 @@ public class TokenScanner extends AbstractIterator<Token> {
       }
     }
 
-    if (pos + 5 >= length) {
-      return false;
-    }
-
-    return charArrayRegionMatches(is, pos - 1, "endraw");
+    return charArrayRegionMatches(is, pos - 1, getRawTokens().get(rawOpenTagName));
   }
 
   private Token getEndToken() {
@@ -260,11 +267,15 @@ public class TokenScanner extends AbstractIterator<Token> {
       }
 
       TagToken tt = (TagToken) t;
-      if ("raw".equals(tt.getTagName())) {
+      if (getRawTokens().containsKey(tt.getTagName())) {
         inRaw = 1;
+        rawOpenTagName = tt.getTagName();
         return tt;
-      } else if ("endraw".equals(tt.getTagName())) {
+      } else if (
+        inRaw > 0 && getRawTokens().get(rawOpenTagName).equals(tt.getTagName())
+      ) {
         inRaw = 0;
+        rawOpenTagName = null;
         return tt;
       }
     }
@@ -284,6 +295,13 @@ public class TokenScanner extends AbstractIterator<Token> {
     } else {
       return kind == tokenKind;
     }
+  }
+
+  private Map<String, String> getRawTokens() {
+    Map<String, String> rawTokens = new HashMap<>();
+    rawTokens.putAll(DEFAULT_RAW_TOKENS);
+    rawTokens.putAll(config.getRawTokens());
+    return rawTokens;
   }
 
   @Override
