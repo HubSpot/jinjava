@@ -19,6 +19,7 @@ import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
@@ -93,6 +94,8 @@ public class JinjavaConfig {
   private final ObjectUnwrapper objectUnwrapper;
   private final JinjavaProcessors processors;
 
+  private final Map<String, String> rawTokens;
+
   public static Builder newBuilder() {
     return new Builder();
   }
@@ -153,6 +156,7 @@ public class JinjavaConfig {
     objectUnwrapper = builder.objectUnwrapper;
     processors = builder.processors;
     features = new Features(builder.featureConfig);
+    rawTokens = builder.rawTokens;
   }
 
   private ObjectMapper setupObjectMapper(@Nullable ObjectMapper objectMapper) {
@@ -313,6 +317,10 @@ public class JinjavaConfig {
     return features;
   }
 
+  public Map<String, String> getRawTokens() {
+    return rawTokens;
+  }
+
   public static class Builder {
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
@@ -351,6 +359,8 @@ public class JinjavaConfig {
     private ObjectUnwrapper objectUnwrapper = new JinjavaObjectUnwrapper();
     private JinjavaProcessors processors = JinjavaProcessors.newBuilder().build();
     private FeatureConfig featureConfig = FeatureConfig.newBuilder().build();
+
+    private Map<String, String> rawTokens = ImmutableMap.of();
 
     private Builder() {}
 
@@ -549,6 +559,11 @@ public class JinjavaConfig {
 
     public Builder withFeatureConfig(FeatureConfig featureConfig) {
       this.featureConfig = featureConfig;
+      return this;
+    }
+
+    public Builder withRawTokens(Map<String, String> rawTokens) {
+      this.rawTokens = rawTokens;
       return this;
     }
 
