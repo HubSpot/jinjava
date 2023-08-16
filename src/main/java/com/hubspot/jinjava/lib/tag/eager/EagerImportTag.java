@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 @Beta
@@ -63,11 +64,11 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         new PrefixToPreserveState(
           EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
             interpreter,
-            new DeferredToken(
-              tagToken,
-              Collections.singleton(helper.get(0)),
-              Collections.singleton(currentImportAlias)
-            )
+            DeferredToken
+              .builderFromToken(tagToken)
+              .addUsedDeferredWords(Stream.of(helper.get(0)))
+              .addSetDeferredWords(Stream.of(currentImportAlias))
+              .build()
           )
         ) +
         tagToken.getImage()

@@ -212,16 +212,17 @@ public class DeferredValueUtilsTest {
   public void itDefersSetWordsInDeferredTokens() {
     Context context = new Context();
     context.put("var_a", "a");
-    DeferredToken deferredToken = new DeferredToken(
-      new TagToken(
-        "{% set var_a, var_b = deferred, deferred %}",
-        1,
-        1,
-        new DefaultTokenScannerSymbols()
-      ),
-      ImmutableSet.of(),
-      ImmutableSet.of("var_a", "var_b")
-    );
+    DeferredToken deferredToken = DeferredToken
+      .builderFromToken(
+        new TagToken(
+          "{% set var_a, var_b = deferred, deferred %}",
+          1,
+          1,
+          new DefaultTokenScannerSymbols()
+        )
+      )
+      .addSetDeferredWords(ImmutableSet.of("var_a", "var_b"))
+      .build();
     context.handleDeferredToken(deferredToken);
     assertThat(context.get("var_a")).isInstanceOf(DeferredValue.class);
     assertThat(context.get("var_b")).isInstanceOf(DeferredValue.class);
@@ -231,15 +232,18 @@ public class DeferredValueUtilsTest {
   public void itDefersUsedWordsInDeferredTokens() {
     Context context = new Context();
     context.put("var_a", "a");
-    DeferredToken deferredToken = new DeferredToken(
-      new ExpressionToken(
-        "{{ var_a.append(deferred|int)}}",
-        1,
-        1,
-        new DefaultTokenScannerSymbols()
-      ),
-      ImmutableSet.of("var_a", "int")
-    );
+    DeferredToken deferredToken = DeferredToken
+      .builderFromToken(
+        new ExpressionToken(
+          "{{ var_a.append(deferred|int)}}",
+          1,
+          1,
+          new DefaultTokenScannerSymbols()
+        )
+      )
+      .addUsedDeferredWords(ImmutableSet.of("var_a", "int"))
+      .build();
+
     context.handleDeferredToken(deferredToken);
     assertThat(context.get("var_a")).isInstanceOf(DeferredValue.class);
     assertThat(context.containsKey("int")).isFalse();

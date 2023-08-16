@@ -11,7 +11,6 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
-import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -129,15 +128,13 @@ public class StripTagsFilterTest {
           counter.getAndIncrement() == 0
             ? Collections.emptySet()
             : Collections.singleton(
-              new DeferredToken(
-                new ExpressionToken(
+              DeferredToken
+                .builderFromImage(
                   "{{ deferred && other }}",
-                  0,
-                  0,
-                  new DefaultTokenScannerSymbols()
-                ),
-                Collections.emptySet()
-              )
+                  ExpressionToken.class,
+                  interpreter
+                )
+                .build()
             )
       );
     assertThatThrownBy(() -> filter.filter("{{ deferred && other }}", mockedInterpreter))
