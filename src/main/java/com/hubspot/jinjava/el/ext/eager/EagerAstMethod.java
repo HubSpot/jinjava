@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.el.ext.eager;
 
+import com.hubspot.jinjava.el.ext.DeferredInvocationResolutionException;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -80,6 +81,9 @@ public class EagerAstMethod extends AstMethod implements EvalResultHolder {
     DeferredParsingException deferredParsingException,
     IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
+    if (deferredParsingException instanceof DeferredInvocationResolutionException) {
+      return deferredParsingException.getDeferredEvalResult();
+    }
     String propertyResult;
     propertyResult =
       (property).getPartiallyResolved(

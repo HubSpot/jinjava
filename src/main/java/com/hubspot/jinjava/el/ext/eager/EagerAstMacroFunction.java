@@ -1,13 +1,13 @@
 package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
+import com.hubspot.jinjava.el.ext.DeferredInvocationResolutionException;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.fn.MacroFunction;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import java.lang.reflect.Array;
@@ -154,10 +154,7 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
     DeferredParsingException deferredParsingException,
     IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
-    if (
-      deferredParsingException != null &&
-      deferredParsingException.getSourceNode() instanceof MacroFunction
-    ) {
+    if (deferredParsingException instanceof DeferredInvocationResolutionException) {
       return deferredParsingException.getDeferredEvalResult();
     }
     String paramString;
