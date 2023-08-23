@@ -79,7 +79,9 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
       }
       if (next instanceof Entry) {
         Entry nextEntry = (Entry) next;
-        h += nextEntry.getKey().hashCode();
+        if (nextEntry.getKey() != null) {
+          h += nextEntry.getKey().hashCode();
+        }
         valueIterator.add(nextEntry.getValue());
         valueIterator.previous();
       } else if (next instanceof Iterable) {

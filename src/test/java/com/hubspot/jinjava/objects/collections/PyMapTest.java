@@ -11,6 +11,7 @@ import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import org.junit.Test;
@@ -409,5 +410,20 @@ public class PyMapTest extends BaseJinjavaTest {
     map.put("map1key2", new PyList(ImmutableList.of((map2))));
 
     assertThat(map.hashCode()).isEqualTo(-413943561);
+  }
+
+  @Test
+  public void itComputesHashCodeWithNullKeysAndValues() {
+    PyMap map = new PyMap(new HashMap<>());
+    map.put(null, "value1");
+
+    PyMap map2 = new PyMap(new HashMap<>());
+    map2.put("map2key1", map);
+
+    PyList list = new PyList(new ArrayList<>());
+    list.add(null);
+    map.put("map1key2", new PyList(list));
+
+    assertThat(map.hashCode()).isEqualTo(-687497624);
   }
 }
