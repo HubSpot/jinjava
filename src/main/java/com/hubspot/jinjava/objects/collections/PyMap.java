@@ -76,7 +76,14 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
         int code = System.identityHashCode(subMap);
         if (!visited.contains(code)) {
           visited.add(code);
-          subMap.entrySet().forEach(valueIterator::add);
+          subMap
+            .entrySet()
+            .forEach(
+              e -> {
+                valueIterator.add(e);
+                valueIterator.previous();
+              }
+            );
         }
       } else {
         h += entry.hashCode();

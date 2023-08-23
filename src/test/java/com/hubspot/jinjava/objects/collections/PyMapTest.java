@@ -381,6 +381,27 @@ public class PyMapTest extends BaseJinjavaTest {
     PyMap pyMap2 = new PyMap(map2);
 
     pyMap.put("key2", pyMap2);
-    assertThat(pyMap.hashCode()).isEqualTo(-824725166);
+    assertThat(pyMap.hashCode()).isEqualTo(-1649450332);
+  }
+
+  @Test
+  public void itComputesHashCodeWhenContainedWithinItselfWithFurtherEntries() {
+    Map<String, Object> map = new HashMap<>();
+    map.put("key1", "value1");
+    PyMap pyMap = new PyMap(map);
+
+    Map<String, Object> map2 = new HashMap<>();
+    map2.put("key1", pyMap);
+
+    PyMap pyMap2 = new PyMap(map2);
+
+    pyMap.put("key2", pyMap2);
+
+    int originalHashCode = pyMap.hashCode();
+    pyMap2.put("newKey", "newValue");
+    int newHashCode = pyMap.hashCode();
+    assertThat(originalHashCode).isNotEqualTo(newHashCode);
+
+    assertThat(pyMap.hashCode()).isEqualTo(-1649450332);
   }
 }
