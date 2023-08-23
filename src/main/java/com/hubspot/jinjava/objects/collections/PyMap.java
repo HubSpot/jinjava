@@ -95,7 +95,7 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
               valueIterator.previous();
             }
           );
-      } else {
+      } else if (next != null) {
         h += next.hashCode();
       }
     }
