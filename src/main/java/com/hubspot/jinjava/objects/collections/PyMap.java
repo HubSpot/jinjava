@@ -3,9 +3,15 @@ package com.hubspot.jinjava.objects.collections;
 import com.google.common.collect.ForwardingMap;
 import com.hubspot.jinjava.objects.PyWrapper;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
+  private final ThreadLocal<Semaphore> semaphore = ThreadLocal.withInitial(
+    () -> new Semaphore(1)
+  );
+
   private final Map<String, Object> map;
 
   public PyMap(Map<String, Object> map) {
@@ -61,12 +67,14 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
 
   @Override
   public int hashCode() {
-    int h = 0;
-    for (Entry<String, Object> entry : map.entrySet()) {
-      if (entry.getValue() != map && entry.getValue() != this) {
-        h += entry.hashCode();
+    if (semaphore.get().tryAcquire()) {
+      try {
+        return super.hashCode();
+      } finally {
+        semaphore.get().release();
       }
+    } else {
+      return Objects.hashCode(null);
     }
-    return h;
   }
 }

@@ -7,8 +7,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Semaphore;
 
 public class PyList extends ForwardingList<Object> implements PyWrapper {
+  private final ThreadLocal<Semaphore> semaphore = ThreadLocal.withInitial(
+    () -> new Semaphore(1)
+  );
   private final List<Object> list;
 
   public PyList(List<Object> list) {
@@ -98,5 +102,18 @@ public class PyList extends ForwardingList<Object> implements PyWrapper {
     return new IndexOutOfRangeException(
       String.format("Index %d is out of range for list of size %d", index, list.size())
     );
+  }
+
+  @Override
+  public int hashCode() {
+    if (semaphore.get().tryAcquire()) {
+      try {
+        return super.hashCode();
+      } finally {
+        semaphore.get().release();
+      }
+    } else {
+      return Objects.hashCode(null);
+    }
   }
 }
