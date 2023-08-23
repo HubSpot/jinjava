@@ -5,12 +5,9 @@ import com.hubspot.jinjava.objects.PyWrapper;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.Semaphore;
 
 public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
-  private final ThreadLocal<Semaphore> semaphore = ThreadLocal.withInitial(
-    () -> new Semaphore(1)
-  );
+  private boolean computingHashCode = false;
 
   private final Map<String, Object> map;
 
@@ -65,16 +62,20 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
     super.putAll(m);
   }
 
+  /**
+   * This is not thread-safe
+   * @return hashCode, preventing recursion
+   */
   @Override
   public int hashCode() {
-    if (semaphore.get().tryAcquire()) {
-      try {
-        return super.hashCode();
-      } finally {
-        semaphore.get().release();
-      }
-    } else {
+    if (computingHashCode) {
       return Objects.hashCode(null);
+    }
+    try {
+      computingHashCode = true;
+      return super.hashCode();
+    } finally {
+      computingHashCode = false;
     }
   }
 }

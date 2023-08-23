@@ -7,12 +7,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Semaphore;
 
 public class PyList extends ForwardingList<Object> implements PyWrapper {
-  private final ThreadLocal<Semaphore> semaphore = ThreadLocal.withInitial(
-    () -> new Semaphore(1)
-  );
+  private boolean computingHashCode = false;
   private final List<Object> list;
 
   public PyList(List<Object> list) {
@@ -104,16 +101,20 @@ public class PyList extends ForwardingList<Object> implements PyWrapper {
     );
   }
 
+  /**
+   * This is not thread-safe
+   * @return hashCode, preventing recursion
+   */
   @Override
   public int hashCode() {
-    if (semaphore.get().tryAcquire()) {
-      try {
-        return super.hashCode();
-      } finally {
-        semaphore.get().release();
-      }
-    } else {
+    if (computingHashCode) {
       return Objects.hashCode(null);
+    }
+    try {
+      computingHashCode = true;
+      return super.hashCode();
+    } finally {
+      computingHashCode = false;
     }
   }
 }
