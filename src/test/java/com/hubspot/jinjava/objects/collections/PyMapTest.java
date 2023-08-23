@@ -12,6 +12,7 @@ import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 
 public class PyMapTest extends BaseJinjavaTest {
@@ -366,5 +367,20 @@ public class PyMapTest extends BaseJinjavaTest {
         )
       )
       .isEqualTo("value2");
+  }
+
+  @Test
+  public void itComputesHashCodeWhenContainedWithinItself() {
+    Map<String, Object> map = new HashMap<>();
+    map.put("key1", "value1");
+    PyMap pyMap = new PyMap(map);
+
+    Map<String, Object> map2 = new HashMap<>();
+    map2.put("key1", pyMap);
+
+    PyMap pyMap2 = new PyMap(map2);
+
+    pyMap.put("key2", pyMap2);
+    assertThat(pyMap.hashCode()).isEqualTo(-824725166);
   }
 }

@@ -2,6 +2,10 @@ package com.hubspot.jinjava.objects.collections;
 
 import com.google.common.collect.ForwardingMap;
 import com.hubspot.jinjava.objects.PyWrapper;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -62,8 +66,19 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
   @Override
   public int hashCode() {
     int h = 0;
-    for (Entry<String, Object> entry : map.entrySet()) {
-      if (entry.getValue() != map && entry.getValue() != this) {
+    List<Entry<?, ?>> valueList = new ArrayList<>(map.entrySet());
+    ListIterator<Entry<?, ?>> valueIterator = valueList.listIterator();
+    Set<Integer> visited = new HashSet<>();
+    while (valueIterator.hasNext()) {
+      Entry<?, ?> entry = valueIterator.next();
+      if (entry.getValue() instanceof Map) {
+        Map<?, ?> subMap = (Map<?, ?>) entry.getValue();
+        int code = System.identityHashCode(subMap);
+        if (!visited.contains(code)) {
+          visited.add(code);
+          subMap.entrySet().forEach(valueIterator::add);
+        }
+      } else {
         h += entry.hashCode();
       }
     }
