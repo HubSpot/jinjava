@@ -66,27 +66,37 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
   @Override
   public int hashCode() {
     int h = 0;
-    List<Entry<?, ?>> valueList = new ArrayList<>(map.entrySet());
-    ListIterator<Entry<?, ?>> valueIterator = valueList.listIterator();
+    List<Object> valueList = new ArrayList<>(map.entrySet());
+    ListIterator<Object> valueIterator = valueList.listIterator();
     Set<Integer> visited = new HashSet<>();
     while (valueIterator.hasNext()) {
-      Entry<?, ?> entry = valueIterator.next();
-      if (entry.getValue() instanceof Map) {
-        Map<?, ?> subMap = (Map<?, ?>) entry.getValue();
-        int code = System.identityHashCode(subMap);
-        if (!visited.contains(code)) {
-          visited.add(code);
-          subMap
-            .entrySet()
-            .forEach(
-              e -> {
-                valueIterator.add(e);
-                valueIterator.previous();
-              }
-            );
-        }
+      Object next = valueIterator.next();
+      int code = System.identityHashCode(next);
+      if (visited.contains(code)) {
+        continue;
       } else {
-        h += entry.hashCode();
+        visited.add(code);
+      }
+      if (next instanceof Entry) {
+        Entry nextEntry = (Entry) next;
+        h += nextEntry.getKey().hashCode();
+        valueIterator.add(nextEntry.getValue());
+        valueIterator.previous();
+      } else if (next instanceof Iterable) {
+        for (Object o : (Iterable) next) {
+          valueIterator.add(o);
+          valueIterator.previous();
+        }
+      } else if (next instanceof Map) {
+        ((Map) next).entrySet()
+          .forEach(
+            e -> {
+              valueIterator.add(e);
+              valueIterator.previous();
+            }
+          );
+      } else {
+        h += next.hashCode();
       }
     }
     return h;

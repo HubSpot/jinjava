@@ -3,6 +3,7 @@ package com.hubspot.jinjava.objects.collections;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -378,7 +379,7 @@ public class PyMapTest extends BaseJinjavaTest {
 
     map.put("map1key2", map2);
 
-    assertThat(map.hashCode()).isEqualTo(-1920255282);
+    assertThat(map.hashCode()).isEqualTo(-413943561);
   }
 
   @Test
@@ -395,5 +396,18 @@ public class PyMapTest extends BaseJinjavaTest {
     map2.put("newKey", "newValue");
     int newHashCode = map.hashCode();
     assertThat(originalHashCode).isNotEqualTo(newHashCode);
+  }
+
+  @Test
+  public void itComputesHashCodeWhenContainedWithinItselfInsideList() {
+    PyMap map = new PyMap(new HashMap<>());
+    map.put("map1key1", "value1");
+
+    PyMap map2 = new PyMap(new HashMap<>());
+    map2.put("map2key1", map);
+
+    map.put("map1key2", new PyList(ImmutableList.of((map2))));
+
+    assertThat(map.hashCode()).isEqualTo(-413943561);
   }
 }
