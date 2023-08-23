@@ -12,7 +12,6 @@ import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 import org.junit.Test;
 
 public class PyMapTest extends BaseJinjavaTest {
@@ -371,37 +370,30 @@ public class PyMapTest extends BaseJinjavaTest {
 
   @Test
   public void itComputesHashCodeWhenContainedWithinItself() {
-    Map<String, Object> map = new HashMap<>();
-    map.put("key1", "value1");
-    PyMap pyMap = new PyMap(map);
+    PyMap map = new PyMap(new HashMap<>());
+    map.put("map1key1", "value1");
 
-    Map<String, Object> map2 = new HashMap<>();
-    map2.put("key1", pyMap);
+    PyMap map2 = new PyMap(new HashMap<>());
+    map2.put("map2key1", map);
 
-    PyMap pyMap2 = new PyMap(map2);
+    map.put("map1key2", map2);
 
-    pyMap.put("key2", pyMap2);
-    assertThat(pyMap.hashCode()).isEqualTo(-1649450332);
+    assertThat(map.hashCode()).isEqualTo(-1920255282);
   }
 
   @Test
   public void itComputesHashCodeWhenContainedWithinItselfWithFurtherEntries() {
-    Map<String, Object> map = new HashMap<>();
-    map.put("key1", "value1");
-    PyMap pyMap = new PyMap(map);
+    PyMap map = new PyMap(new HashMap<>());
+    map.put("map1key1", "value1");
 
-    Map<String, Object> map2 = new HashMap<>();
-    map2.put("key1", pyMap);
+    PyMap map2 = new PyMap(new HashMap<>());
+    map2.put("map2key1", map);
 
-    PyMap pyMap2 = new PyMap(map2);
+    map.put("map1key2", map2);
 
-    pyMap.put("key2", pyMap2);
-
-    int originalHashCode = pyMap.hashCode();
-    pyMap2.put("newKey", "newValue");
-    int newHashCode = pyMap.hashCode();
+    int originalHashCode = map.hashCode();
+    map2.put("newKey", "newValue");
+    int newHashCode = map.hashCode();
     assertThat(originalHashCode).isNotEqualTo(newHashCode);
-
-    assertThat(pyMap.hashCode()).isEqualTo(-1649450332);
   }
 }
