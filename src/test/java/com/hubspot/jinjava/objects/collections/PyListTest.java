@@ -6,6 +6,7 @@ import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
+import java.util.ArrayList;
 import java.util.Collections;
 import org.junit.Test;
 
@@ -260,5 +261,39 @@ public class PyListTest extends BaseJinjavaTest {
         )
       )
       .isEqualTo("[1, 2]");
+  }
+
+  @Test
+  public void itComputesHashCodeWhenListContainsItself() {
+    PyList list1 = new PyList(new ArrayList<>());
+    PyList list2 = new PyList(new ArrayList<>());
+    list1.add(list2);
+    int initialHashCode = list1.hashCode();
+    list2.add(list1);
+    int hashCodeWithInfiniteRecursion = list1.hashCode();
+    assertThat(initialHashCode).isNotEqualTo(hashCodeWithInfiniteRecursion);
+    assertThat(list1.hashCode())
+      .isEqualTo(hashCodeWithInfiniteRecursion)
+      .describedAs("Hash code should be consistent on multiple calls");
+    assertThat(list2.hashCode())
+      .isEqualTo(list1.hashCode())
+      .describedAs(
+        "The two lists are currently the same as they are both a list1 of a single infinitely recurring list"
+      );
+    list1.add(123456);
+    assertThat(list2.hashCode())
+      .isNotEqualTo(list1.hashCode())
+      .describedAs(
+        "The two lists are no longer the same as list1 has 2 elements while list2 has one"
+      );
+    PyList copy = list1.copy();
+    assertThat(copy.hashCode())
+      .isNotEqualTo(list1.hashCode())
+      .describedAs(
+        "copy is not the same as list1 because it is a list of a list of recursion, whereas list1 is a list of recursion"
+      );
+    assertThat(list1.copy().hashCode())
+      .isEqualTo(copy.hashCode())
+      .describedAs("All copies should have the same hash code");
   }
 }

@@ -3,9 +3,12 @@ package com.hubspot.jinjava.objects.collections;
 import com.google.common.collect.ForwardingMap;
 import com.hubspot.jinjava.objects.PyWrapper;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
+  private boolean computingHashCode = false;
+
   private final Map<String, Object> map;
 
   public PyMap(Map<String, Object> map) {
@@ -59,14 +62,20 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
     super.putAll(m);
   }
 
+  /**
+   * This is not thread-safe
+   * @return hashCode, preventing recursion
+   */
   @Override
   public int hashCode() {
-    int h = 0;
-    for (Entry<String, Object> entry : map.entrySet()) {
-      if (entry.getValue() != map && entry.getValue() != this) {
-        h += entry.hashCode();
-      }
+    if (computingHashCode) {
+      return Objects.hashCode(null);
     }
-    return h;
+    try {
+      computingHashCode = true;
+      return super.hashCode();
+    } finally {
+      computingHashCode = false;
+    }
   }
 }

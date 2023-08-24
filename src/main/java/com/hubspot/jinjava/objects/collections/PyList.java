@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class PyList extends ForwardingList<Object> implements PyWrapper {
+  private boolean computingHashCode = false;
   private final List<Object> list;
 
   public PyList(List<Object> list) {
@@ -98,5 +99,22 @@ public class PyList extends ForwardingList<Object> implements PyWrapper {
     return new IndexOutOfRangeException(
       String.format("Index %d is out of range for list of size %d", index, list.size())
     );
+  }
+
+  /**
+   * This is not thread-safe
+   * @return hashCode, preventing recursion
+   */
+  @Override
+  public int hashCode() {
+    if (computingHashCode) {
+      return Objects.hashCode(null);
+    }
+    try {
+      computingHashCode = true;
+      return super.hashCode();
+    } finally {
+      computingHashCode = false;
+    }
   }
 }
