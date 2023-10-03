@@ -1425,4 +1425,11 @@ public class EagerTest {
       "defers-loop-setting-meta-context-var.expected"
     );
   }
+
+  @Test
+  public void itAllowsVariableSharingAliasName() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "allows-variable-sharing-alias-name"
+    );
+  }
 }
