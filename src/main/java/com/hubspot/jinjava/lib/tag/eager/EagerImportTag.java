@@ -98,7 +98,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         return "";
       }
       return EagerReconstructionUtils.wrapInTag(
-        eagerImportingStrategy.getFinalOutput(newPathSetter, output, childBindings),
+        eagerImportingStrategy.getFinalOutput(newPathSetter, output, child),
         DoTag.TAG_NAME,
         interpreter,
         true

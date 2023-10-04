@@ -12,11 +12,7 @@ public interface EagerImportingStrategy {
   void setup(JinjavaInterpreter child);
 
   void integrateChild(JinjavaInterpreter child);
-  String getFinalOutput(
-    String newPathSetter,
-    String output,
-    Map<String, Object> childBindings
-  );
+  String getFinalOutput(String newPathSetter, String output, JinjavaInterpreter child);
 
   static String getSetTagForDeferredChildBindings(
     JinjavaInterpreter interpreter,

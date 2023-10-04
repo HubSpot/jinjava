@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
+import com.hubspot.jinjava.lib.tag.eager.importing.AliasedEagerImportingStrategy;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
@@ -154,30 +155,22 @@ public abstract class EagerSetTagStrategy {
     JinjavaInterpreter interpreter
   ) {
     StringBuilder suffixToPreserveState = new StringBuilder();
-    Optional<String> maybeFullImportAlias = interpreter
-      .getContext()
-      .getImportResourceAlias();
-    if (maybeFullImportAlias.isPresent()) {
-      String currentImportAlias = maybeFullImportAlias
-        .get()
-        .substring(maybeFullImportAlias.get().lastIndexOf(".") + 1);
-      String filteredVariables = Arrays
-        .stream(variables.split(","))
-        .filter(var -> !var.equals(currentImportAlias))
-        .collect(Collectors.joining(","));
-      if (!filteredVariables.isEmpty()) {
-        String updateString = getUpdateString(filteredVariables);
-        suffixToPreserveState.append(
-          interpreter.render(
-            EagerReconstructionUtils.buildDoUpdateTag(
-              currentImportAlias,
-              updateString,
-              interpreter
-            )
+    Optional<String> maybeTemporaryImportAlias = AliasedEagerImportingStrategy.getTemporaryImportAlias(
+      interpreter.getContext()
+    );
+    if (maybeTemporaryImportAlias.isPresent()) {
+      String updateString = getUpdateString(variables);
+      suffixToPreserveState.append(
+        interpreter.render(
+          EagerReconstructionUtils.buildDoUpdateTag(
+            maybeTemporaryImportAlias.get(),
+            updateString,
+            interpreter
           )
-        );
-      }
+        )
+      );
     }
+
     return suffixToPreserveState.toString();
   }
 

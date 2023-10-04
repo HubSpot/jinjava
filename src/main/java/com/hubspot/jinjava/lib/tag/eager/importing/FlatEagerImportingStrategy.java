@@ -67,7 +67,7 @@ public class FlatEagerImportingStrategy implements EagerImportingStrategy {
   public String getFinalOutput(
     String newPathSetter,
     String output,
-    Map<String, Object> childBindings
+    JinjavaInterpreter child
   ) {
     if (importingData.getOriginalInterpreter().getContext().isDeferredExecutionMode()) {
       Set<String> metaContextVariables = importingData
@@ -76,7 +76,9 @@ public class FlatEagerImportingStrategy implements EagerImportingStrategy {
         .getMetaContextVariables();
       // defer imported variables
       EagerReconstructionUtils.buildSetTag(
-        childBindings
+        child
+          .getContext()
+          .getSessionBindings()
           .entrySet()
           .stream()
           .filter(
@@ -94,7 +96,7 @@ public class FlatEagerImportingStrategy implements EagerImportingStrategy {
       EagerImportingStrategy.getSetTagForDeferredChildBindings(
         importingData.getOriginalInterpreter(),
         null,
-        childBindings
+        child.getContext().getSessionBindings()
       ) +
       output +
       importingData.getInitialPathSetter()

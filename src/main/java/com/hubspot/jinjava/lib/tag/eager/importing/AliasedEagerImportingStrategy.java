@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager.importing;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -12,18 +13,33 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
+  private static final String TEMPORARY_IMPORT_ALIAS_FORMAT = "__temp_import_alias_%d__";
+
+  public static Optional<String> getTemporaryImportAlias(Context context) {
+    return context
+      .getImportResourceAlias()
+      .map(AliasedEagerImportingStrategy::getTemporaryImportAlias);
+  }
+
+  private static String getTemporaryImportAlias(String fullAlias) {
+    return String.format(
+      TEMPORARY_IMPORT_ALIAS_FORMAT,
+      Math.abs(Objects.hashCode(fullAlias))
+    );
+  }
+
   private final ImportingData importingData;
   private final String currentImportAlias;
+  private final String fullImportAlias;
 
   @VisibleForTesting
   public AliasedEagerImportingStrategy(
@@ -32,6 +48,16 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
   ) {
     this.importingData = importingData;
     this.currentImportAlias = currentImportAlias;
+    Optional<String> maybeParentImportAlias = importingData
+      .getOriginalInterpreter()
+      .getContext()
+      .getImportResourceAlias();
+    if (maybeParentImportAlias.isPresent()) {
+      fullImportAlias =
+        String.format("%s.%s", maybeParentImportAlias.get(), currentImportAlias);
+    } else {
+      fullImportAlias = currentImportAlias;
+    }
   }
 
   @Override
@@ -54,26 +80,17 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
 
   @Override
   public void setup(JinjavaInterpreter child) {
-    Optional<String> maybeParentImportAlias = importingData
+    child.getContext().getScope().put(Context.IMPORT_RESOURCE_ALIAS_KEY, fullImportAlias);
+    child.getContext().put(Context.IMPORT_RESOURCE_ALIAS_KEY, fullImportAlias);
+    constructFullAliasPathMap(currentImportAlias, child);
+    Map<String, Object> currentContextAliasMap = getMapForCurrentContextAlias(
+      currentImportAlias,
+      child
+    );
+    importingData
       .getOriginalInterpreter()
       .getContext()
-      .getImportResourceAlias();
-    if (maybeParentImportAlias.isPresent()) {
-      child
-        .getContext()
-        .getScope()
-        .put(
-          Context.IMPORT_RESOURCE_ALIAS_KEY,
-          String.format("%s.%s", maybeParentImportAlias.get(), currentImportAlias)
-        );
-    } else {
-      child
-        .getContext()
-        .getScope()
-        .put(Context.IMPORT_RESOURCE_ALIAS_KEY, currentImportAlias);
-    }
-    constructFullAliasPathMap(currentImportAlias, child);
-    getMapForCurrentContextAlias(currentImportAlias, child);
+      .put(getTemporaryImportAlias(fullImportAlias), DeferredValue.instance());
   }
 
   @Override
@@ -84,46 +101,16 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
         macro.setDeferred(true);
       }
     }
-    if (
-      child.getContext().isDeferredExecutionMode() &&
-      child
-        .getContext()
-        .getDeferredTokens()
-        .stream()
-        .flatMap(deferredToken -> deferredToken.getSetDeferredWords().stream())
-        .collect(Collectors.toSet())
-        .contains(currentImportAlias)
-    ) {
-      // since a child scope will be used, the import alias would not be properly reconstructed
-      throw new DeferredValueException(
-        "Same-named variable as import alias: " + currentImportAlias
-      );
-    }
     Map<String, Object> childBindings = child.getContext().getSessionBindings();
     childBindings.putAll(child.getContext().getGlobalMacros());
+    String temporaryImportAlias = getTemporaryImportAlias(fullImportAlias);
     Map<String, Object> mapForCurrentContextAlias = getMapForCurrentContextAlias(
       currentImportAlias,
       child
     );
     // Remove layers from self down to original import alias to prevent reference loops
-    Arrays
-      .stream(
-        child
-          .getContext()
-          .getImportResourceAlias()
-          .orElse(currentImportAlias)
-          .split("\\.")
-      )
-      .filter(
-        key ->
-          mapForCurrentContextAlias ==
-          (
-            childBindings.get(key) instanceof DeferredValue
-              ? ((DeferredValue) childBindings.get(key)).getOriginalValue()
-              : childBindings.get(key)
-          )
-      )
-      .forEach(childBindings::remove);
+    childBindings.remove(temporaryImportAlias);
+    importingData.getOriginalInterpreter().getContext().remove(temporaryImportAlias);
     // Remove meta keys
     childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
     childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
@@ -134,24 +121,29 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
   public String getFinalOutput(
     String newPathSetter,
     String output,
-    Map<String, Object> childBindings
+    JinjavaInterpreter child
   ) {
+    String temporaryImportAlias = getTemporaryImportAlias(fullImportAlias);
     return (
       newPathSetter +
-      EagerReconstructionUtils.buildBlockOrInlineSetTagAndRegisterDeferredToken(
-        currentImportAlias,
+      EagerReconstructionUtils.buildBlockOrInlineSetTag(
+        temporaryImportAlias,
         Collections.emptyMap(),
         importingData.getOriginalInterpreter()
       ) +
       wrapInChildScope(
-        importingData.getOriginalInterpreter(),
         EagerImportingStrategy.getSetTagForDeferredChildBindings(
           importingData.getOriginalInterpreter(),
           currentImportAlias,
-          childBindings
+          child.getContext()
         ) +
         output,
-        currentImportAlias
+        child
+      ) +
+      EagerReconstructionUtils.buildSetTag(
+        ImmutableMap.of(currentImportAlias, temporaryImportAlias),
+        importingData.getOriginalInterpreter(),
+        true
       ) +
       importingData.getInitialPathSetter()
     );
@@ -229,30 +221,28 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
     }
   }
 
-  private static String wrapInChildScope(
-    JinjavaInterpreter interpreter,
-    String output,
-    String currentImportAlias
-  ) {
-    String combined = output + getDoTagToPreserve(interpreter, currentImportAlias);
+  private String wrapInChildScope(String output, JinjavaInterpreter child) {
+    String combined =
+      output + getDoTagToPreserve(importingData.getOriginalInterpreter(), child);
     // So that any set variables other than the alias won't exist outside the child's scope
-    return EagerReconstructionUtils.wrapInChildScope(combined, interpreter);
+    return EagerReconstructionUtils.wrapInChildScope(
+      combined,
+      importingData.getOriginalInterpreter()
+    );
   }
 
-  @SuppressWarnings("unchecked")
-  private static String getDoTagToPreserve(
+  private String getDoTagToPreserve(
     JinjavaInterpreter interpreter,
-    String currentImportAlias
+    JinjavaInterpreter child
   ) {
     StringJoiner keyValueJoiner = new StringJoiner(",");
-    Object currentAliasMap = interpreter
-      .getContext()
-      .getSessionBindings()
-      .get(currentImportAlias);
-    for (Map.Entry<String, Object> entry : (
-      (Map<String, Object>) ((DeferredValue) currentAliasMap).getOriginalValue()
-    ).entrySet()) {
-      if (entry.getKey().equals(currentImportAlias)) {
+    String temporaryImportAlias = getTemporaryImportAlias(fullImportAlias);
+    Map<String, Object> currentAliasMap = getMapForCurrentContextAlias(
+      currentImportAlias,
+      child
+    );
+    for (Map.Entry<String, Object> entry : currentAliasMap.entrySet()) {
+      if (entry.getKey().equals(temporaryImportAlias)) {
         continue;
       }
       if (entry.getValue() instanceof DeferredValue) {
@@ -269,7 +259,7 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
     }
     if (keyValueJoiner.length() > 0) {
       return EagerReconstructionUtils.buildDoUpdateTag(
-        currentImportAlias,
+        temporaryImportAlias,
         "{" + keyValueJoiner.toString() + "}",
         interpreter
       );
