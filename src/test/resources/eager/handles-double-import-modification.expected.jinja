@@ -1,20 +1,20 @@
-{% do %}{% set current_path = 'deferred-modification.jinja' %}{% set bar1 = {}  %}{% for __ignored__ in [0] %}{% if deferred %}
+{% do %}{% set current_path = 'deferred-modification.jinja' %}{% set __temp_import_alias_3016318__ = {}  %}{% for __ignored__ in [0] %}{% if deferred %}
 
-{% set foo = 'a' %}{% do bar1.update({'foo': foo}) %}
+{% set foo = 'a' %}{% do __temp_import_alias_3016318__.update({'foo': foo}) %}
 
 {% endif %}
 
-{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}{% do bar1.update({'foo': foo}) %}
-{% do bar1.update({'foo': foo,'import_resource_path': 'deferred-modification.jinja'}) %}{% endfor %}{% set current_path = '' %}{% enddo %}
+{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}{% do __temp_import_alias_3016318__.update({'foo': foo}) %}
+{% do __temp_import_alias_3016318__.update({'foo': foo,'import_resource_path': 'deferred-modification.jinja'}) %}{% endfor %}{% set bar1 = __temp_import_alias_3016318__ %}{% set current_path = '' %}{% enddo %}
 ---
-{% do %}{% set current_path = 'deferred-modification.jinja' %}{% set bar2 = {}  %}{% for __ignored__ in [0] %}{% if deferred %}
+{% do %}{% set current_path = 'deferred-modification.jinja' %}{% set __temp_import_alias_3016319__ = {}  %}{% for __ignored__ in [0] %}{% if deferred %}
 
-{% set foo = 'a' %}{% do bar2.update({'foo': foo}) %}
+{% set foo = 'a' %}{% do __temp_import_alias_3016319__.update({'foo': foo}) %}
 
 {% endif %}
 
-{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}{% do bar2.update({'foo': foo}) %}
-{% do bar2.update({'foo': foo,'import_resource_path': 'deferred-modification.jinja'}) %}{% endfor %}{% set current_path = '' %}{% enddo %}
+{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}{% do __temp_import_alias_3016319__.update({'foo': foo}) %}
+{% do __temp_import_alias_3016319__.update({'foo': foo,'import_resource_path': 'deferred-modification.jinja'}) %}{% endfor %}{% set bar2 = __temp_import_alias_3016319__ %}{% set current_path = '' %}{% enddo %}
 ---
 {{ bar1.foo }}
 {{ bar2.foo }}

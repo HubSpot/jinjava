@@ -426,11 +426,11 @@ public class EagerImportTagTest extends ImportTagTest {
     );
     assertThat(result)
       .isEqualTo(
-        "{% if deferred %}{% do %}{% set current_path = 'import-tree-b.jinja' %}{% set b = {}  %}{% for __ignored__ in [0] %}{% set a = {'foo_a': 'a', 'import_resource_path': 'import-tree-a.jinja', 'something': 'somn'}  %}{% do %}{% set current_path = 'import-tree-a.jinja' %}{% set a = {}  %}{% for __ignored__ in [0] %}{% set something = 'somn' %}{% do a.update({'something': something}) %}\n" +
-        "{% set foo_a = 'a' %}{% do a.update({'foo_a': foo_a}) %}\n" +
-        "{% do a.update({'foo_a': 'a','import_resource_path': 'import-tree-a.jinja','something': 'somn'}) %}{% endfor %}{% set current_path = 'import-tree-b.jinja' %}{% enddo %}\n" +
-        "{% set foo_b = 'b' + a.foo_a %}{% do b.update({'foo_b': foo_b}) %}\n" +
-        "{% do b.update({'a': a,'foo_b': foo_b,'import_resource_path': 'import-tree-b.jinja'}) %}{% endfor %}{% set current_path = '' %}{% enddo %}{% endif %}"
+        "{% if deferred %}{% do %}{% set current_path = 'import-tree-b.jinja' %}{% set __temp_import_alias_98__ = {}  %}{% for __ignored__ in [0] %}{% set a = {'foo_a': 'a', 'import_resource_path': 'import-tree-a.jinja', 'something': 'somn'}  %}{% do %}{% set current_path = 'import-tree-a.jinja' %}{% set __temp_import_alias_95701__ = {}  %}{% for __ignored__ in [0] %}{% set something = 'somn' %}{% do __temp_import_alias_95701__.update({'something': something}) %}\n" +
+        "{% set foo_a = 'a' %}{% do __temp_import_alias_95701__.update({'foo_a': foo_a}) %}\n" +
+        "{% do __temp_import_alias_95701__.update({'foo_a': 'a','import_resource_path': 'import-tree-a.jinja','something': 'somn'}) %}{% endfor %}{% set a = __temp_import_alias_95701__ %}{% set current_path = 'import-tree-b.jinja' %}{% enddo %}\n" +
+        "{% set foo_b = 'b' + a.foo_a %}{% do __temp_import_alias_98__.update({'foo_b': foo_b}) %}\n" +
+        "{% do __temp_import_alias_98__.update({'a': a,'foo_b': foo_b,'import_resource_path': 'import-tree-b.jinja'}) %}{% endfor %}{% set b = __temp_import_alias_98__ %}{% set current_path = '' %}{% enddo %}{% endif %}"
       );
 
     removeDeferredContextKeys();
@@ -671,8 +671,8 @@ public class EagerImportTagTest extends ImportTagTest {
       .isEqualTo(
         "a" +
         "{% set vars = {'foo': 'a', 'import_resource_path': 'var-a.jinja'}  %}{% if deferred %}" +
-        "{% do %}{% set current_path = 'var-b.jinja' %}{% set vars = {}  %}{% for __ignored__ in [0] %}{% set foo = 'b' %}{% do vars.update({'foo': foo}) %}\n" +
-        "{% do vars.update({'foo': 'b','import_resource_path': 'var-b.jinja'}) %}{% endfor %}{% set current_path = '' %}{% enddo %}" +
+        "{% do %}{% set current_path = 'var-b.jinja' %}{% set __temp_import_alias_3612204__ = {}  %}{% for __ignored__ in [0] %}{% set foo = 'b' %}{% do __temp_import_alias_3612204__.update({'foo': foo}) %}\n" +
+        "{% do __temp_import_alias_3612204__.update({'foo': 'b','import_resource_path': 'var-b.jinja'}) %}{% endfor %}{% set vars = __temp_import_alias_3612204__ %}{% set current_path = '' %}{% enddo %}" +
         "{% endif %}" +
         "{{ vars.foo }}"
       );

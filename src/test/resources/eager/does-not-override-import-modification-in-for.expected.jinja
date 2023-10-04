@@ -1,40 +1,40 @@
 {% set foo = 'start' %}{% for __ignored__ in [0] %}
-{% do %}{% set current_path = 'deferred-modification.jinja' %}{% set bar1 = {}  %}{% for __ignored__ in [0] %}{% if deferred %}
+{% do %}{% set current_path = 'deferred-modification.jinja' %}{% set __temp_import_alias_3016318__ = {}  %}{% for __ignored__ in [0] %}{% if deferred %}
 
-{% set foo = 'starta' %}{% do bar1.update({'foo': foo}) %}
+{% set foo = 'starta' %}{% do __temp_import_alias_3016318__.update({'foo': foo}) %}
 
 {% endif %}
 
-{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}{% do bar1.update({'foo': foo}) %}
-{% do bar1.update({'foo': foo,'import_resource_path': 'deferred-modification.jinja'}) %}{% endfor %}{% set current_path = '' %}{% enddo %}
+{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}{% do __temp_import_alias_3016318__.update({'foo': foo}) %}
+{% do __temp_import_alias_3016318__.update({'foo': foo,'import_resource_path': 'deferred-modification.jinja'}) %}{% endfor %}{% set bar1 = __temp_import_alias_3016318__ %}{% set current_path = '' %}{% enddo %}
 {{ bar1.foo }}
-{% do %}{% set current_path = 'deferred-modification.jinja' %}{% set bar2 = {}  %}{% for __ignored__ in [0] %}{% if deferred %}
+{% do %}{% set current_path = 'deferred-modification.jinja' %}{% set __temp_import_alias_3016319__ = {}  %}{% for __ignored__ in [0] %}{% if deferred %}
 
-{% set foo = filter:join.filter([foo, 'a'], ____int3rpr3t3r____, '') %}{% do bar2.update({'foo': foo}) %}
+{% set foo = filter:join.filter([foo, 'a'], ____int3rpr3t3r____, '') %}{% do __temp_import_alias_3016319__.update({'foo': foo}) %}
 
 {% endif %}
 
-{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}{% do bar2.update({'foo': foo}) %}
-{% do bar2.update({'import_resource_path': 'deferred-modification.jinja'}) %}{% endfor %}{% set current_path = '' %}{% enddo %}
+{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}{% do __temp_import_alias_3016319__.update({'foo': foo}) %}
+{% do __temp_import_alias_3016319__.update({'import_resource_path': 'deferred-modification.jinja'}) %}{% endfor %}{% set bar2 = __temp_import_alias_3016319__ %}{% set current_path = '' %}{% enddo %}
 {{ bar2.foo }}
 
-{% do %}{% set current_path = 'deferred-modification.jinja' %}{% set bar1 = {}  %}{% for __ignored__ in [0] %}{% if deferred %}
+{% do %}{% set current_path = 'deferred-modification.jinja' %}{% set __temp_import_alias_3016318__ = {}  %}{% for __ignored__ in [0] %}{% if deferred %}
 
-{% set foo = filter:join.filter([foo, 'a'], ____int3rpr3t3r____, '') %}{% do bar1.update({'foo': foo}) %}
+{% set foo = filter:join.filter([foo, 'a'], ____int3rpr3t3r____, '') %}{% do __temp_import_alias_3016318__.update({'foo': foo}) %}
 
 {% endif %}
 
-{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}{% do bar1.update({'foo': foo}) %}
-{% do bar1.update({'import_resource_path': 'deferred-modification.jinja'}) %}{% endfor %}{% set current_path = '' %}{% enddo %}
+{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}{% do __temp_import_alias_3016318__.update({'foo': foo}) %}
+{% do __temp_import_alias_3016318__.update({'import_resource_path': 'deferred-modification.jinja'}) %}{% endfor %}{% set bar1 = __temp_import_alias_3016318__ %}{% set current_path = '' %}{% enddo %}
 {{ bar1.foo }}
-{% do %}{% set current_path = 'deferred-modification.jinja' %}{% set bar2 = {}  %}{% for __ignored__ in [0] %}{% if deferred %}
+{% do %}{% set current_path = 'deferred-modification.jinja' %}{% set __temp_import_alias_3016319__ = {}  %}{% for __ignored__ in [0] %}{% if deferred %}
 
-{% set foo = filter:join.filter([foo, 'a'], ____int3rpr3t3r____, '') %}{% do bar2.update({'foo': foo}) %}
+{% set foo = filter:join.filter([foo, 'a'], ____int3rpr3t3r____, '') %}{% do __temp_import_alias_3016319__.update({'foo': foo}) %}
 
 {% endif %}
 
-{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}{% do bar2.update({'foo': foo}) %}
-{% do bar2.update({'import_resource_path': 'deferred-modification.jinja'}) %}{% endfor %}{% set current_path = '' %}{% enddo %}
+{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}{% do __temp_import_alias_3016319__.update({'foo': foo}) %}
+{% do __temp_import_alias_3016319__.update({'import_resource_path': 'deferred-modification.jinja'}) %}{% endfor %}{% set bar2 = __temp_import_alias_3016319__ %}{% set current_path = '' %}{% enddo %}
 {{ bar2.foo }}
 {% endfor %}
 {{ foo }}

@@ -1,4 +1,7 @@
-{% import 'filters.jinja' as filters %}
+{% do %}{% set current_path = 'filters.jinja' %}{% set __temp_import_alias_854547461__ = {}  %}{% for __ignored__ in [0] %}
+{% set bar = deferred %}{% do __temp_import_alias_854547461__.update({'bar': bar}) %}
+
+{% set filters = {}  %}{% do filters.update(deferred) %}
+{% do __temp_import_alias_854547461__.update({'bar': bar,'import_resource_path': 'filters.jinja','filters': filters,'foo': 123}) %}{% endfor %}{% set filters = __temp_import_alias_854547461__ %}{% set current_path = '' %}{% enddo %}
 
 {{ filters }}
-

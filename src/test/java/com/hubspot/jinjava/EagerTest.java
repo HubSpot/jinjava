@@ -1428,7 +1428,7 @@ public class EagerTest {
 
   @Test
   public void itAllowsVariableSharingAliasName() {
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "allows-variable-sharing-alias-name"
     );
   }
