@@ -3,6 +3,9 @@ package com.hubspot.jinjava.objects.date;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Locale;
@@ -145,5 +148,18 @@ public class StrftimeFormatterTest {
   public void itAllowsLiteralCharacters() {
     assertThat(StrftimeFormatter.format(d, "1: day %d month %B"))
       .isEqualTo("1: day 06 month November");
+  }
+
+  @Test
+  public void itUsesInterpreterLocaleAsDefault() {
+    try {
+      Jinjava jinjava = new Jinjava(
+        JinjavaConfig.newBuilder().withLocale(Locale.FRENCH).build()
+      );
+      JinjavaInterpreter.pushCurrent(jinjava.newInterpreter());
+      assertThat(StrftimeFormatter.format(d, "%B %-d, %Y")).isEqualTo("novembre 6, 2013");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
   }
 }

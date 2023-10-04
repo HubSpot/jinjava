@@ -1,7 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
-import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -20,7 +19,6 @@ import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.LinkedHashMap;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 @Beta
@@ -74,7 +72,10 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
       ) {
         prefixToPreserveState.putAll(eagerExecutionResult.getPrefixToPreserveState());
       } else {
-        interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
+        EagerReconstructionUtils.commitSpeculativeBindings(
+          interpreter,
+          eagerExecutionResult
+        );
       }
       if (eagerExecutionResult.getResult().isFullyResolved()) {
         // Possible macro/set tag in front of this one.
@@ -93,11 +94,10 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
         );
       }
       caller.setDeferred(true);
-      prefixToPreserveState.putAll(
-        EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
-          eagerExecutionResult.getResult().getDeferredWords(),
-          interpreter
-        )
+      EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+        prefixToPreserveState,
+        eagerExecutionResult.getResult().getDeferredWords(),
+        interpreter
       );
 
       LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
@@ -112,23 +112,10 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
       prefixToPreserveState.withAllInFront(
         EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
           interpreter,
-          new DeferredToken(
-            new TagToken(
-              joiner.toString(),
-              tagNode.getLineNumber(),
-              tagNode.getStartPosition(),
-              tagNode.getSymbols()
-            ),
-            eagerExecutionResult
-              .getResult()
-              .getDeferredWords()
-              .stream()
-              .filter(
-                word ->
-                  !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
-              )
-              .collect(Collectors.toSet())
-          )
+          DeferredToken
+            .builderFromImage(joiner.toString(), tagNode.getMaster())
+            .addUsedDeferredWords(eagerExecutionResult.getResult().getDeferredWords())
+            .build()
         )
       );
       StringBuilder result = new StringBuilder(prefixToPreserveState + joiner.toString());

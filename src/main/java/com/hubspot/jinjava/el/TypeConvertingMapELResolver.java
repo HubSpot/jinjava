@@ -23,8 +23,18 @@ public class TypeConvertingMapELResolver extends MapELResolver {
 
     if (base instanceof Map && !((Map) base).isEmpty()) {
       Iterator<?> iterator = ((Map) base).keySet().iterator();
-      if (iterator.hasNext()) {
-        Class<?> keyClass = iterator.next().getClass();
+      Class<?> keyClass = null;
+      while (iterator.hasNext()) {
+        Object nextObject = iterator.next();
+        if (nextObject != null) {
+          keyClass = nextObject.getClass();
+          break;
+        }
+      }
+
+      if (keyClass == null) {
+        value = ((Map) base).get(property);
+      } else {
         try {
           value = ((Map) base).get(TYPE_CONVERTER.convert(property, keyClass));
           if (value != null) {

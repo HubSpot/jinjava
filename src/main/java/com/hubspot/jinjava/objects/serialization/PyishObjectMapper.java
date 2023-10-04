@@ -2,6 +2,7 @@ package com.hubspot.jinjava.objects.serialization;
 
 import com.fasterxml.jackson.core.JsonFactoryBuilder;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -66,11 +67,17 @@ public class PyishObjectMapper {
     try {
       return getAsPyishStringOrThrow(val, forOutput);
     } catch (IOException e) {
-      if (e instanceof LengthLimitingJsonProcessingException) {
+      Throwable unwrapped = e;
+      if (e instanceof JsonMappingException) {
+        unwrapped = unwrapped.getCause();
+      }
+      if (unwrapped instanceof LengthLimitingJsonProcessingException) {
         throw new OutputTooBigException(
-          ((LengthLimitingJsonProcessingException) e).getMaxSize(),
-          ((LengthLimitingJsonProcessingException) e).getAttemptedSize()
+          ((LengthLimitingJsonProcessingException) unwrapped).getMaxSize(),
+          ((LengthLimitingJsonProcessingException) unwrapped).getAttemptedSize()
         );
+      } else if (unwrapped instanceof OutputTooBigException) {
+        throw (OutputTooBigException) unwrapped;
       }
       return Objects.toString(val, "");
     }

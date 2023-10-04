@@ -9,13 +9,13 @@ import com.hubspot.jinjava.lib.tag.CycleTag;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Beta
@@ -64,7 +64,10 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     ) {
       prefixToPreserveState.putAll(eagerExecutionResult.getPrefixToPreserveState());
     } else {
-      interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
+      EagerReconstructionUtils.commitSpeculativeBindings(
+        interpreter,
+        eagerExecutionResult
+      );
     }
     String resolvedExpression;
     List<String> resolvedValues; // can only be retrieved if the EagerExpressionResult are fully resolved.
@@ -83,11 +86,10 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       if (!eagerExecutionResult.getResult().isFullyResolved()) {
         resolvedValues =
           new HelperStringTokenizer(resolvedExpression).splitComma(true).allTokens();
-        prefixToPreserveState.putAll(
-          EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
-            eagerExecutionResult.getResult().getDeferredWords(),
-            interpreter
-          )
+        EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+          prefixToPreserveState,
+          eagerExecutionResult.getResult().getDeferredWords(),
+          interpreter
         );
       } else {
         List<?> objects = eagerExecutionResult.getResult().toList();
@@ -118,8 +120,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
           interpreter,
           resolvedValues,
           resolvedExpression,
-          eagerExecutionResult.getResult().isFullyResolved(),
-          eagerExecutionResult.getResult().getDeferredWords()
+          eagerExecutionResult.getResult()
         )
       );
     } else if (helper.size() == 3) {
@@ -181,8 +182,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     JinjavaInterpreter interpreter,
     List<String> values,
     String resolvedExpression,
-    boolean fullyResolved,
-    Set<String> deferredWords
+    EagerExpressionResult eagerExpressionResult
   ) {
     if (interpreter.getContext().isDeferredExecutionMode()) {
       String reconstructedTag = reconstructCycleTag(resolvedExpression, tagToken);
@@ -191,15 +191,10 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
         new PrefixToPreserveState(
           EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
             interpreter,
-            new DeferredToken(
-              new TagToken(
-                reconstructedTag,
-                tagToken.getLineNumber(),
-                tagToken.getStartPosition(),
-                tagToken.getSymbols()
-              ),
-              deferredWords
-            )
+            DeferredToken
+              .builderFromImage(reconstructedTag, tagToken)
+              .addUsedDeferredWords(eagerExpressionResult.getDeferredWords())
+              .build()
           )
         )
       );
@@ -214,14 +209,17 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     }
     if (values.size() == 1) {
       String var = values.get(0);
-      if (!fullyResolved) {
+      if (!eagerExpressionResult.isFullyResolved()) {
         return getIsIterable(var, forindex, tagToken);
       } else {
         return var;
       }
     }
     String item = values.get(forindex % values.size());
-    if (!fullyResolved && EagerExpressionResolver.shouldBeEvaluated(item, interpreter)) {
+    if (
+      !eagerExpressionResult.isFullyResolved() &&
+      EagerExpressionResolver.shouldBeEvaluated(item, interpreter)
+    ) {
       return String.format("{{ %s }}", values.get(forindex % values.size()));
     }
     return item;

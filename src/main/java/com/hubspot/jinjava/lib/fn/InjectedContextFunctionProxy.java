@@ -13,6 +13,7 @@ import javassist.CtNewMethod;
 import javassist.bytecode.AccessFlag;
 
 public class InjectedContextFunctionProxy {
+  private static final String GUICE_CLASS_INDICATOR = "$$EnhancerByGuice$$";
 
   public static ELFunctionDefinition defineProxy(
     String namespace,
@@ -20,15 +21,17 @@ public class InjectedContextFunctionProxy {
     Method m,
     Object injectedInstance
   ) {
+    Class<?> injectedInstanceClass = removeGuiceWrapping(injectedInstance.getClass());
     try {
       ClassPool pool = ClassPool.getDefault();
 
-      String ccName =
-        InjectedContextFunctionProxy.class.getSimpleName() +
-        "$$" +
-        namespace +
-        "$$" +
-        name;
+      String ccName = String.format(
+        "%s$$%s$$%s$$%s",
+        injectedInstanceClass.getName(),
+        InjectedContextFunctionProxy.class.getSimpleName(),
+        namespace,
+        name
+      );
       Class<?> injectedClass = null;
 
       try {
@@ -96,5 +99,14 @@ public class InjectedContextFunctionProxy {
       Throwables.throwIfUnchecked(e);
       throw new RuntimeException(e);
     }
+  }
+
+  public static Class<?> removeGuiceWrapping(Class<?> clazz) {
+    if (
+      clazz.getName().contains(GUICE_CLASS_INDICATOR) && clazz.getSuperclass() != null
+    ) {
+      clazz = clazz.getSuperclass();
+    }
+    return clazz;
   }
 }

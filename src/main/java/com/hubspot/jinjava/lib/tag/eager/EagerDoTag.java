@@ -43,13 +43,13 @@ public class EagerDoTag extends EagerStateChangingTag<DoTag> implements Flexible
           .build()
       );
       PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
-      if (
-        !eagerExecutionResult.getResult().isFullyResolved() ||
-        interpreter.getContext().isDeferredExecutionMode()
-      ) {
+      if (interpreter.getContext().isDeferredExecutionMode()) {
         prefixToPreserveState.withAll(eagerExecutionResult.getPrefixToPreserveState());
       } else {
-        interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
+        EagerReconstructionUtils.commitSpeculativeBindings(
+          interpreter,
+          eagerExecutionResult
+        );
       }
       if (eagerExecutionResult.getResult().isFullyResolved()) {
         return (prefixToPreserveState.toString());

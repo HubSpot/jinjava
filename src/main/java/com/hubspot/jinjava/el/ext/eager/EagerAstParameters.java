@@ -2,7 +2,9 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstNode;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import javax.el.ELContext;
+import javax.el.ELException;
 
 public class EagerAstParameters extends AstParameters implements EvalResultHolder {
   protected Object evalResult;
@@ -43,11 +46,24 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
       ).getContext()
         .withPartialMacroEvaluation(false)
     ) {
-      return (Object[]) EvalResultHolder.super.eval(
-        () -> super.eval(bindings, context),
-        bindings,
-        context
-      );
+      try {
+        setEvalResult(super.eval(bindings, context));
+        return (Object[]) checkEvalResultSize(context);
+      } catch (DeferredValueException | ELException originalException) {
+        DeferredParsingException e = EvalResultHolder.convertToDeferredParsingException(
+          originalException
+        );
+        throw new DeferredParsingException(
+          this,
+          getPartiallyResolved(
+            bindings,
+            context,
+            e,
+            IdentifierPreservationStrategy.PRESERVING
+          ), // Need this to always be true because a function may modify the identifier
+          IdentifierPreservationStrategy.PRESERVING
+        );
+      }
     }
   }
 
@@ -56,7 +72,7 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
     Bindings bindings,
     ELContext context,
     DeferredParsingException deferredParsingException,
-    boolean preserveIdentifier
+    IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
     StringJoiner joiner = new StringJoiner(", ");
     nodes
@@ -70,7 +86,7 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
               context,
               node,
               deferredParsingException,
-              false
+              identifierPreservationStrategy
             )
           )
       );

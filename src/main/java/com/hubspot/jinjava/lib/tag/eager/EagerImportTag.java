@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 @Beta
@@ -63,11 +64,11 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         new PrefixToPreserveState(
           EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
             interpreter,
-            new DeferredToken(
-              tagToken,
-              Collections.singleton(helper.get(0)),
-              Collections.singleton(currentImportAlias)
-            )
+            DeferredToken
+              .builderFromToken(tagToken)
+              .addUsedDeferredWords(Stream.of(helper.get(0)))
+              .addSetDeferredWords(Stream.of(currentImportAlias))
+              .build()
           )
         ) +
         tagToken.getImage()
@@ -190,11 +191,10 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
   ) {
     return (
       newPathSetter +
-      EagerReconstructionUtils.buildBlockOrInlineSetTag(
+      EagerReconstructionUtils.buildBlockOrInlineSetTagAndRegisterDeferredToken(
         currentImportAlias,
         Collections.emptyMap(),
-        interpreter,
-        true
+        interpreter
       ) +
       wrapInChildScope(
         interpreter,
@@ -259,11 +259,10 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       .filter(entry -> !entry.getKey().equals(currentImportAlias))
       .map(
         entry ->
-          EagerReconstructionUtils.buildBlockOrInlineSetTag(
+          EagerReconstructionUtils.buildBlockOrInlineSetTag( // don't register deferred token so that we don't defer them on higher context scopes; they only exist in the child scope
             entry.getKey(),
             ((DeferredValue) entry.getValue()).getOriginalValue(),
-            interpreter,
-            false // false so that we don't defer them on higher context scopes; they only exist in the child scope
+            interpreter
           )
       )
       .collect(Collectors.joining());
@@ -282,8 +281,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
               .getContext()
               .getOrDefault(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY, "")
         ),
-      interpreter,
-      false
+      interpreter
     );
   }
 

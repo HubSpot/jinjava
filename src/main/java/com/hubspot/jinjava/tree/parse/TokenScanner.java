@@ -68,17 +68,15 @@ public class TokenScanner extends AbstractIterator<Token> {
       }
 
       if (inBlock > 0) {
-        if (inQuote != 0) {
+        if (c == '\\') {
+          ++currPost;
+          continue;
+        } else if (inQuote != 0) {
           if (inQuote == c) {
             inQuote = 0;
-            continue;
-          } else if (c == '\\') {
-            ++currPost;
-            continue;
-          } else {
-            continue;
           }
-        } else if (inQuote == 0 && (c == '\'' || c == '"')) {
+          continue;
+        } else if (c == '\'' || c == '"') {
           inQuote = c;
           continue;
         }
@@ -228,6 +226,13 @@ public class TokenScanner extends AbstractIterator<Token> {
     int type = symbols.getFixed();
     if (inComment > 0) {
       type = symbols.getNote();
+    } else if (inBlock > 0) {
+      return new UnclosedToken(
+        String.valueOf(is, tokenStart, tokenLength),
+        currLine,
+        tokenStart - lastNewlinePos + 1,
+        symbols
+      );
     }
     return Token.newToken(
       type,

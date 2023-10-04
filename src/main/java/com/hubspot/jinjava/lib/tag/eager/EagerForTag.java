@@ -3,7 +3,6 @@ package com.hubspot.jinjava.lib.tag.eager;
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.CannotReconstructValueException;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
-import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
@@ -23,7 +22,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 @Beta
@@ -64,7 +62,9 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
                   tagNode,
                   eagerInterpreter,
                   loopVarsAndExpression.getLeft(),
-                  collectionResult.getResult().toList().get(0)
+                  !collectionResult.getResult().toList().isEmpty()
+                    ? collectionResult.getResult().toList().get(0)
+                    : Collections.emptyList()
                 ),
             eagerInterpreter
           );
@@ -78,7 +78,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         EagerReconstructionUtils.resetSpeculativeBindings(interpreter, collectionResult);
         EagerReconstructionUtils.resetSpeculativeBindings(interpreter, result);
         interpreter.getContext().removeDeferredTokens(addedTokens);
-        throw new DeferredValueException(result.getResult().toString());
+        throw new DeferredValueException(result.getResult().toString(true));
       }
       if (result.getResult().isFullyResolved()) {
         return result.getResult().toString(true);
@@ -95,7 +95,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       }
     }
     EagerReconstructionUtils.resetSpeculativeBindings(interpreter, collectionResult);
-    throw new DeferredValueException(collectionResult.getResult().toString());
+    throw new DeferredValueException(collectionResult.getResult().toString(true));
   }
 
   @Override
@@ -234,34 +234,20 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       .add("in")
       .add(eagerExpressionResult.toString())
       .add(tagToken.getSymbols().getExpressionEndWithTag());
-    PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState(
-      EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
-        eagerExpressionResult.getDeferredWords(),
-        interpreter
+    PrefixToPreserveState prefixToPreserveState = EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+      new PrefixToPreserveState(),
+      eagerExpressionResult.getDeferredWords(),
+      interpreter
+    );
+    prefixToPreserveState.withAllInFront(
+      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+        interpreter,
+        DeferredToken
+          .builderFromImage(joiner.toString(), tagToken)
+          .addUsedDeferredWords(eagerExpressionResult.getDeferredWords())
+          .build()
       )
-    )
-    .withAllInFront(
-        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
-          interpreter,
-          new DeferredToken(
-            new TagToken(
-              joiner.toString(),
-              tagToken.getLineNumber(),
-              tagToken.getStartPosition(),
-              tagToken.getSymbols()
-            ),
-            eagerExpressionResult
-              .getDeferredWords()
-              .stream()
-              .filter(
-                word ->
-                  !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
-              )
-              .collect(Collectors.toSet()),
-            Collections.emptySet()
-          )
-        )
-      );
+    );
     return (prefixToPreserveState + joiner.toString());
   }
 }

@@ -2,6 +2,7 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.NoInvokeELContext;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstChoice;
 import de.odysseus.el.tree.impl.ast.AstNode;
@@ -46,7 +47,12 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
       }
       throw new DeferredParsingException(
         this,
-        getPartiallyResolved(bindings, context, e, false)
+        getPartiallyResolved(
+          bindings,
+          context,
+          e,
+          IdentifierPreservationStrategy.RESOLVING
+        )
       );
     }
   }
@@ -72,7 +78,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
     Bindings bindings,
     ELContext context,
     DeferredParsingException deferredParsingException,
-    boolean preserveIdentifier
+    IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
     return (
       EvalResultHolder.reconstructNode(
@@ -80,7 +86,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
         context,
         question,
         deferredParsingException,
-        false
+        IdentifierPreservationStrategy.RESOLVING
       ) +
       " ? " +
       EvalResultHolder.reconstructNode(
@@ -88,7 +94,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
         new NoInvokeELContext(context),
         yes,
         deferredParsingException,
-        preserveIdentifier
+        identifierPreservationStrategy
       ) +
       " : " +
       EvalResultHolder.reconstructNode(
@@ -96,7 +102,7 @@ public class EagerAstChoice extends AstChoice implements EvalResultHolder {
         new NoInvokeELContext(context),
         no,
         deferredParsingException,
-        preserveIdentifier
+        identifierPreservationStrategy
       )
     );
   }

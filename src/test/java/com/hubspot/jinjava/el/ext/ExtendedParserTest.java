@@ -3,9 +3,6 @@ package com.hubspot.jinjava.el.ext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-import com.hubspot.jinjava.lib.exptest.IsEvenExpTest;
-import com.hubspot.jinjava.lib.exptest.IsFalseExpTest;
-import com.hubspot.jinjava.lib.exptest.IsTrueExpTest;
 import de.odysseus.el.tree.impl.Builder;
 import de.odysseus.el.tree.impl.Builder.Feature;
 import de.odysseus.el.tree.impl.ast.AstBinary;
@@ -163,6 +160,16 @@ public class ExtendedParserTest {
     assertThat(trueExpTest).isInstanceOf(AstMethod.class);
     assertThat(trueExpTest.getChild(0)).isInstanceOf(AstDot.class);
     assertThat(trueExpTest.getChild(1)).isInstanceOf(AstParameters.class);
+  }
+
+  @Test
+  public void itResolvesAlternateExpTestSyntaxForInExpTest() {
+    AstNode inExpTest = buildExpressionNodes(
+      "#{exptest:in.evaluate(2, ____int3rpr3t3r____, [])}"
+    );
+    assertThat(inExpTest).isInstanceOf(AstMethod.class);
+    assertThat(inExpTest.getChild(0)).isInstanceOf(AstDot.class);
+    assertThat(inExpTest.getChild(1)).isInstanceOf(AstParameters.class);
   }
 
   private void assertForExpression(

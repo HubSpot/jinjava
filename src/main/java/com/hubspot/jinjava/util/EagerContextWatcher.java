@@ -209,12 +209,7 @@ public class EagerContextWatcher {
             .peek(
               entry -> ((OneTimeReconstructible) entry.getValue()).setReconstructed(true)
             )
-            .collect(
-              Collectors.toMap(
-                Entry::getKey,
-                entry -> ((OneTimeReconstructible) entry.getValue()).getOriginalValue()
-              )
-            )
+            .collect(Collectors.toMap(Entry::getKey, Entry::getValue))
         );
     }
     return eagerExecutionResult
@@ -226,15 +221,12 @@ public class EagerContextWatcher {
       .map(
         entry -> {
           if (
-            (
-              eagerExecutionResult.getResult().isFullyResolved() ||
-              eagerChildContextConfig.takeNewValue
-            ) &&
-            !(entry.getValue() instanceof DeferredValue) &&
-            entry.getValue() != null
+            eagerExecutionResult.getResult().isFullyResolved() ||
+            eagerChildContextConfig.takeNewValue
           ) {
             return entry;
           }
+
           Object contextValue = interpreter.getContext().get(entry.getKey());
           if (
             contextValue instanceof DeferredValue &&
@@ -248,24 +240,15 @@ public class EagerContextWatcher {
             ) {
               throw new CannotReconstructValueException(entry.getKey());
             }
-            return new AbstractMap.SimpleImmutableEntry<>(
-              entry.getKey(),
-              ((DeferredValue) contextValue).getOriginalValue()
-            );
+            return new AbstractMap.SimpleImmutableEntry<>(entry.getKey(), contextValue);
           }
           return null;
         }
       )
       .filter(Objects::nonNull)
-      .collect(
-        Collectors.toMap(
-          Entry::getKey,
-          entry ->
-            entry.getValue() instanceof DeferredValue
-              ? ((DeferredValue) entry.getValue()).getOriginalValue()
-              : entry.getValue()
-        )
-      );
+      .filter(entry -> entry.getValue() != null)
+      .filter(entry -> !isDeferredWithOriginalValueNull(entry.getValue()))
+      .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
   }
 
   private static Map<String, Object> getAllSpeculativeBindings(
@@ -325,12 +308,20 @@ public class EagerContextWatcher {
         .entrySet()
         .stream()
         .filter(entry -> !metaContextVariables.contains(entry.getKey()))
-        .filter(
-          entry ->
-            !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
-        ) // these are already set recursively
+        .filter(entry -> entry.getValue() != null)
+        .filter(entry -> !isDeferredWithOriginalValueNull(entry.getValue()))
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     return speculativeBindings;
+  }
+
+  /**
+   * This is an optimization used to filter so that we don't reconstruct unnecessary tags like {@code {% set num = null %}}
+   * because {@code num} is already null when it hasn't been set to anything.
+   */
+  private static boolean isDeferredWithOriginalValueNull(Object value) {
+    return (
+      value instanceof DeferredValue && ((DeferredValue) value).getOriginalValue() == null
+    );
   }
 
   private static void cacheRevertibleObject(
@@ -373,9 +364,6 @@ public class EagerContextWatcher {
     boolean isFullyResolved
   ) {
     if (eagerChildContextConfig.takeNewValue || isFullyResolved) {
-      if (e.getValue() instanceof DeferredValue) {
-        return ((DeferredValue) e.getValue()).getOriginalValue();
-      }
       return e.getValue();
     }
 
@@ -385,7 +373,7 @@ public class EagerContextWatcher {
         .get(e.getKey())
         .equals(getObjectOrHashCode(((DeferredValue) e.getValue()).getOriginalValue()))
     ) {
-      return ((DeferredValue) e.getValue()).getOriginalValue();
+      return e.getValue();
     }
 
     // This is necessary if a state-changing function, such as .update()

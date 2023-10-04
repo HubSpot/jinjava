@@ -19,6 +19,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -167,8 +168,12 @@ public class SetTag implements Tag, FlexibleTag {
   private static String renderChildren(TagNode tagNode, JinjavaInterpreter interpreter) {
     String result;
     StringBuilder sb = new StringBuilder();
-    for (Node child : tagNode.getChildren()) {
-      sb.append(child.render(interpreter));
+    try (
+      TemporaryValueClosable<Boolean> c = interpreter.getContext().withUnwrapRawOverride()
+    ) {
+      for (Node child : tagNode.getChildren()) {
+        sb.append(child.render(interpreter));
+      }
     }
     result = sb.toString();
     return result;
@@ -249,7 +254,7 @@ public class SetTag implements Tag, FlexibleTag {
       setVariable(
         interpreter,
         varTokens[0],
-        resolvedList != null ? resolvedList.get(0) : null
+        resolvedList != null && resolvedList.size() > 0 ? resolvedList.get(0) : null
       );
     }
   }

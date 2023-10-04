@@ -1,4 +1,23 @@
 # Jinjava Releases #
+### 2023-08-11 Version 2.7.1 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.1/jar)) ###
+* [Introduce `{% do %}` blocks](https://github.com/HubSpot/jinjava/pull/1030)
+* [Add warnings for unclosed tokens](https://github.com/HubSpot/jinjava/pull/1093)
+* [Fix `|default(null)` behavior](https://github.com/HubSpot/jinjava/pull/1008)
+* [Improve EscapeJinjavaFilter](https://github.com/HubSpot/jinjava/pull/1027)
+* [Improve BeanELResolver Extensibility](https://github.com/HubSpot/jinjava/pull/1028)
+* [Add snake_case serialization config option](https://github.com/HubSpot/jinjava/pull/1031)
+* [Add generic node pre/post processors](https://github.com/HubSpot/jinjava/pull/1045)
+* [Upgrade jackson to 2.14.0](https://github.com/HubSpot/jinjava/pull/1051)
+* [Upgrade jsoup to 1.15.3](https://github.com/HubSpot/jinjava/pull/927)
+* [Upgrade guava to 31.1](https://github.com/HubSpot/jinjava/pull/1103)
+* [Add feature flags to JinjavaConfig](https://github.com/HubSpot/jinjava/pull/1066)
+* [Make restricted methods and properties configurable](https://github.com/HubSpot/jinjava/pull/1076)
+* [Gracefully handle invalid escaped quotes](https://github.com/HubSpot/jinjava/pull/1098)
+* [Warn when datetime filters use null arguments](https://github.com/HubSpot/jinjava/pull/1064)
+* [Fix interpreter scope inside striptags filter](https://github.com/HubSpot/jinjava/pull/1068)
+* Fix various RuntimeExceptions in filters and functions
+* Various PRs for eager execution to support two-phase rendering.
+
 ### 2023-03-03 Version 2.7.0 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.0/jar)) ###
 * [Use number operations for multiply and divide filters](https://github.com/HubSpot/jinjava/pull/766)
 * [Add config to require whitespace in tokens](https://github.com/HubSpot/jinjava/pull/773)

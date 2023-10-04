@@ -4,6 +4,8 @@ import static com.hubspot.jinjava.objects.date.StrftimeFormatter.ConversionCompo
 import static com.hubspot.jinjava.objects.date.StrftimeFormatter.ConversionComponent.pattern;
 
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -158,7 +160,15 @@ public class StrftimeFormatter {
   }
 
   public static String format(ZonedDateTime d, String strftime) {
-    return format(d, strftime, Locale.ENGLISH);
+    return format(
+      d,
+      strftime,
+      JinjavaInterpreter
+        .getCurrentMaybe()
+        .map(JinjavaInterpreter::getConfig)
+        .map(JinjavaConfig::getLocale)
+        .orElse(Locale.ENGLISH)
+    );
   }
 
   public static String format(ZonedDateTime d, String strftime, Locale locale) {

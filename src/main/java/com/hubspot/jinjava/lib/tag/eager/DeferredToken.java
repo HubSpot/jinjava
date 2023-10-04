@@ -5,20 +5,94 @@ import com.hubspot.jinjava.interpret.CallStack;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredLazyReference;
 import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
+import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueShadow;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.tree.parse.Token;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Beta
 public class DeferredToken {
+
+  public static class DeferredTokenBuilder {
+    private final Token token;
+    private Stream<String> usedDeferredWords;
+    private Stream<String> setDeferredWords;
+
+    private DeferredTokenBuilder(Token token) {
+      this.token = token;
+    }
+
+    public DeferredToken build() {
+      JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+      return new DeferredToken(
+        token,
+        usedDeferredWords != null
+          ? usedDeferredWords
+            .map(prop -> prop.split("\\.", 2)[0])
+            .distinct()
+            .filter(
+              word ->
+                interpreter == null ||
+                !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
+            )
+            .collect(Collectors.toSet())
+          : Collections.emptySet(),
+        setDeferredWords != null
+          ? setDeferredWords
+            .map(prop -> prop.split("\\.", 2)[0])
+            .collect(Collectors.toSet())
+          : Collections.emptySet(),
+        acquireImportResourcePath(),
+        acquireMacroStack()
+      );
+    }
+
+    public DeferredTokenBuilder addUsedDeferredWords(
+      Collection<String> usedDeferredWordsToAdd
+    ) {
+      return addUsedDeferredWords(usedDeferredWordsToAdd.stream());
+    }
+
+    public DeferredTokenBuilder addUsedDeferredWords(
+      Stream<String> usedDeferredWordsToAdd
+    ) {
+      if (usedDeferredWords == null) {
+        usedDeferredWords = usedDeferredWordsToAdd;
+      } else {
+        usedDeferredWords = Stream.concat(usedDeferredWords, usedDeferredWordsToAdd);
+      }
+      return this;
+    }
+
+    public DeferredTokenBuilder addSetDeferredWords(
+      Collection<String> setDeferredWordsToAdd
+    ) {
+      return addSetDeferredWords(setDeferredWordsToAdd.stream());
+    }
+
+    public DeferredTokenBuilder addSetDeferredWords(
+      Stream<String> setDeferredWordsToAdd
+    ) {
+      if (setDeferredWords == null) {
+        setDeferredWords = setDeferredWordsToAdd;
+      } else {
+        setDeferredWords = Stream.concat(setDeferredWords, setDeferredWordsToAdd);
+      }
+      return this;
+    }
+  }
+
   private final Token token;
   // These words aren't yet DeferredValues, but are unresolved
   // so they should be replaced with DeferredValueImpls if they exist in the context
@@ -33,24 +107,123 @@ public class DeferredToken {
   // Used to determine if in separate file
   private final String importResourcePath;
 
-  public DeferredToken(Token token, Set<String> usedDeferredWords) {
-    this.token = token;
-    this.usedDeferredWords = getBases(usedDeferredWords);
-    this.setDeferredWords = Collections.emptySet();
-    importResourcePath = acquireImportResourcePath();
-    macroStack = acquireMacroStack();
+  /**
+   * Create a {@link DeferredTokenBuilder} with the provided {@link Token} {@code token}
+   * @param token A {@link Token} with a deferred image
+   * @return DeferredTokenBuilder
+   */
+  public static DeferredTokenBuilder builderFromToken(Token token) {
+    return new DeferredTokenBuilder(token);
   }
 
+  /**
+   * Create a {@link DeferredTokenBuilder} with a {@link Token} constructed using the constructor of {@code tokenClass} using
+   * the provided {@code image} and line number, position, and symbols taken from the {@code interpreter}.
+   * @param image The deferred token image
+   * @param tokenClass Class of {@link Token} to create
+   * @param interpreter The {@link JinjavaInterpreter}
+   * @return DeferredTokenBuilder
+   * @param <T> generic type of the {@tokenClass}, which extends {@link Token}
+   */
+  public static <T extends Token> DeferredTokenBuilder builderFromImage(
+    String image,
+    Class<T> tokenClass,
+    JinjavaInterpreter interpreter
+  ) {
+    return builderFromToken(
+      constructToken(
+        tokenClass,
+        image,
+        interpreter.getLineNumber(),
+        interpreter.getPosition(),
+        interpreter.getConfig().getTokenScannerSymbols()
+      )
+    );
+  }
+
+  /**
+   * Create a {@link DeferredTokenBuilder} with a {@link Token} constructed using the provided {@code image}
+   * and line number, position, and symbols taken from the {@code originalToken}.
+   * @param image The deferred token image
+   * @param originalToken Original {@link Token} to reference for attributes
+   * @return DeferredTokenBuilder
+   */
+  public static DeferredTokenBuilder builderFromImage(String image, Token originalToken) {
+    return builderFromToken(
+      constructToken(
+        originalToken.getClass(),
+        image,
+        originalToken.getLineNumber(),
+        originalToken.getStartPosition(),
+        originalToken.getSymbols()
+      )
+    );
+  }
+
+  private static <T extends Token> T constructToken(
+    Class<T> tokenClass,
+    String image,
+    int lineNumber,
+    int startPosition,
+    TokenScannerSymbols symbols
+  ) {
+    try {
+      return tokenClass
+        .getDeclaredConstructor(
+          String.class,
+          int.class,
+          int.class,
+          TokenScannerSymbols.class
+        )
+        .newInstance(image, lineNumber, startPosition, symbols);
+    } catch (
+      InstantiationException
+      | IllegalAccessException
+      | InvocationTargetException
+      | NoSuchMethodException e
+    ) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * @deprecated Use {@link #builderFromToken(Token)}
+   */
+  @Deprecated
+  public DeferredToken(Token token, Set<String> usedDeferredWords) {
+    this(token, usedDeferredWords, Collections.emptySet());
+  }
+
+  /**
+   * @deprecated Use {@link #builderFromToken(Token)}
+   */
+  @Deprecated
   public DeferredToken(
     Token token,
     Set<String> usedDeferredWords,
     Set<String> setDeferredWords
   ) {
+    this(
+      token,
+      getBases(usedDeferredWords),
+      getBases(setDeferredWords),
+      acquireImportResourcePath(),
+      acquireMacroStack()
+    );
+  }
+
+  private DeferredToken(
+    Token token,
+    Set<String> usedDeferredWordBases,
+    Set<String> setDeferredWordBases,
+    String importResourcePath,
+    CallStack macroStack
+  ) {
     this.token = token;
-    this.usedDeferredWords = getBases(usedDeferredWords);
-    this.setDeferredWords = getBases(setDeferredWords);
-    importResourcePath = acquireImportResourcePath();
-    macroStack = acquireMacroStack();
+    this.usedDeferredWords = usedDeferredWordBases;
+    this.setDeferredWords = setDeferredWordBases;
+    this.importResourcePath = importResourcePath;
+    this.macroStack = macroStack;
   }
 
   public Token getToken() {
@@ -250,7 +423,7 @@ public class DeferredToken {
       .orElse(null);
   }
 
-  private static Set<String> getBases(Set<String> original) {
+  public static Set<String> getBases(Set<String> original) {
     return original
       .stream()
       .map(prop -> prop.split("\\.", 2)[0])

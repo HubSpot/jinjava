@@ -2,7 +2,6 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -20,7 +19,6 @@ import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 @Beta
@@ -38,27 +36,38 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
   @Override
   public final String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     try {
-      String output = innerInterpret(tagNode, interpreter);
-      JinjavaInterpreter.checkOutputSize(output);
-      return output;
-    } catch (DeferredValueException | TemplateSyntaxException | OutputTooBigException e) {
+      String output;
       try {
-        return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
-          eagerInterpret(
-            tagNode,
-            interpreter,
-            e instanceof InterpretException
-              ? (InterpretException) e
-              : new InterpretException("Exception with default render", e)
-          ),
-          interpreter
-        );
-      } catch (OutputTooBigException e1) {
-        throw new DeferredValueException(
-          String.format("Output too big for eager execution: %s", e1.getMessage())
-        );
+        output = innerInterpret(tagNode, interpreter);
+      } catch (DeferredValueException | TemplateSyntaxException e) {
+        return wrapEagerInterpret(tagNode, interpreter, e);
       }
+      if (JinjavaInterpreter.isOutputTooLarge(output)) {
+        return wrapEagerInterpret(tagNode, interpreter, null);
+      }
+      return output;
+    } catch (OutputTooBigException e) {
+      throw new DeferredValueException(
+        String.format("Output too big for eager execution: %s", e.getMessage())
+      );
     }
+  }
+
+  private String wrapEagerInterpret(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    RuntimeException e
+  ) {
+    return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
+      eagerInterpret(
+        tagNode,
+        interpreter,
+        e instanceof InterpretException
+          ? (InterpretException) e
+          : new InterpretException("Exception with default render", e)
+      ),
+      interpreter
+    );
   }
 
   protected String innerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
@@ -218,31 +227,18 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
     joiner.add(tagToken.getSymbols().getExpressionEndWithTag());
 
     PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
-    prefixToPreserveState.putAll(
-      EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
-        eagerExpressionResult.getDeferredWords(),
-        interpreter
-      )
+    EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+      prefixToPreserveState,
+      eagerExpressionResult.getDeferredWords(),
+      interpreter
     );
     prefixToPreserveState.withAllInFront(
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
         interpreter,
-        new DeferredToken(
-          new TagToken(
-            joiner.toString(),
-            tagToken.getLineNumber(),
-            tagToken.getStartPosition(),
-            tagToken.getSymbols()
-          ),
-          eagerExpressionResult
-            .getDeferredWords()
-            .stream()
-            .filter(
-              word ->
-                !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
-            )
-            .collect(Collectors.toSet())
-        )
+        DeferredToken
+          .builderFromImage(joiner.toString(), tagToken)
+          .addUsedDeferredWords(eagerExpressionResult.getDeferredWords())
+          .build()
       )
     );
 

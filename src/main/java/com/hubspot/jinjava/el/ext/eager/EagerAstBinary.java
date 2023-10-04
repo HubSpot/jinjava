@@ -2,6 +2,7 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.NoInvokeELContext;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import com.hubspot.jinjava.el.ext.OrOperator;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBinary;
@@ -48,7 +49,7 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
     Bindings bindings,
     ELContext context,
     DeferredParsingException deferredParsingException,
-    boolean preserveIdentifier
+    IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
     return (
       EvalResultHolder.reconstructNode(
@@ -56,7 +57,7 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
         context,
         left,
         deferredParsingException,
-        false
+        IdentifierPreservationStrategy.RESOLVING
       ) +
       String.format(" %s ", operator.toString()) +
       EvalResultHolder.reconstructNode(
@@ -66,7 +67,7 @@ public class EagerAstBinary extends AstBinary implements EvalResultHolder {
           : context,
         right,
         deferredParsingException,
-        false
+        IdentifierPreservationStrategy.RESOLVING
       )
     );
   }

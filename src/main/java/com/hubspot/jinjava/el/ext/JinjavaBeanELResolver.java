@@ -19,12 +19,12 @@ import javax.el.MethodNotFoundException;
  * {@link BeanELResolver} supporting snake case property names.
  */
 public class JinjavaBeanELResolver extends BeanELResolver {
-  private static final Set<String> RESTRICTED_PROPERTIES = ImmutableSet
+  private static final Set<String> DEFAULT_RESTRICTED_PROPERTIES = ImmutableSet
     .<String>builder()
     .add("class")
     .build();
 
-  private static final Set<String> RESTRICTED_METHODS = ImmutableSet
+  private static final Set<String> DEFAULT_RESTRICTED_METHODS = ImmutableSet
     .<String>builder()
     .add("class")
     .add("clone")
@@ -100,7 +100,16 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     Class<?>[] paramTypes,
     Object[] params
   ) {
-    if (method == null || RESTRICTED_METHODS.contains(method.toString())) {
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+
+    if (
+      method == null ||
+      DEFAULT_RESTRICTED_METHODS.contains(method.toString()) ||
+      (
+        interpreter != null &&
+        interpreter.getConfig().getRestrictedMethods().contains(method.toString())
+      )
+    ) {
       throw new MethodNotFoundException(
         "Cannot find method '" + method + "' in " + base.getClass()
       );
@@ -211,7 +220,15 @@ public class JinjavaBeanELResolver extends BeanELResolver {
   private String validatePropertyName(Object property) {
     String propertyName = transformPropertyName(property);
 
-    if (RESTRICTED_PROPERTIES.contains(propertyName)) {
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
+
+    if (
+      DEFAULT_RESTRICTED_PROPERTIES.contains(propertyName) ||
+      (
+        interpreter != null &&
+        interpreter.getConfig().getRestrictedProperties().contains(propertyName)
+      )
+    ) {
       return null;
     }
 

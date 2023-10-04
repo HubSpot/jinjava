@@ -54,7 +54,10 @@ public abstract class EagerSetTagStrategy {
       eagerExecutionResult.getResult().isFullyResolved() &&
       !interpreter.getContext().isDeferredExecutionMode()
     ) {
-      interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
+      EagerReconstructionUtils.commitSpeculativeBindings(
+        interpreter,
+        eagerExecutionResult
+      );
       Optional<String> maybeResolved = resolveSet(
         tagNode,
         variables,
@@ -128,18 +131,20 @@ public abstract class EagerSetTagStrategy {
     ) {
       prefixToPreserveState.putAll(eagerExecutionResult.getPrefixToPreserveState());
     } else {
-      interpreter.getContext().putAll(eagerExecutionResult.getSpeculativeBindings());
+      EagerReconstructionUtils.commitSpeculativeBindings(
+        interpreter,
+        eagerExecutionResult
+      );
     }
-    prefixToPreserveState.putAll(
-      EagerReconstructionUtils.reconstructFromContextBeforeDeferringAsMap(
-        Stream
-          .concat(
-            eagerExecutionResult.getResult().getDeferredWords().stream(),
-            Arrays.stream(variables).filter(var -> var.contains("."))
-          )
-          .collect(Collectors.toSet()),
-        interpreter
-      )
+    EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+      prefixToPreserveState,
+      Stream
+        .concat(
+          eagerExecutionResult.getResult().getDeferredWords().stream(),
+          Arrays.stream(variables).filter(var -> var.contains("."))
+        )
+        .collect(Collectors.toSet()),
+      interpreter
     );
     return prefixToPreserveState;
   }

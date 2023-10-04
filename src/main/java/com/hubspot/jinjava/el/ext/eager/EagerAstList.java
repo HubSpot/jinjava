@@ -2,6 +2,7 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.AstList;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import java.util.StringJoiner;
@@ -45,7 +46,7 @@ public class EagerAstList extends AstList implements EvalResultHolder {
     Bindings bindings,
     ELContext context,
     DeferredParsingException deferredParsingException,
-    boolean preserveIdentifier
+    IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
     StringJoiner joiner = new StringJoiner(", ");
     for (int i = 0; i < elements.getCardinality(); i++) {
@@ -55,7 +56,7 @@ public class EagerAstList extends AstList implements EvalResultHolder {
           context,
           (EvalResultHolder) elements.getChild(i),
           deferredParsingException,
-          preserveIdentifier
+          identifierPreservationStrategy
         )
       );
     }

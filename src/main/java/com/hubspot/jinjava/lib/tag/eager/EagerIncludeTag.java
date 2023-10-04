@@ -35,8 +35,7 @@ public class EagerIncludeTag extends EagerTagDecorator<IncludeTag> {
       final String newPathSetter = EagerReconstructionUtils.buildBlockOrInlineSetTag(
         RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
         templateFile,
-        interpreter,
-        false
+        interpreter
       );
       return newPathSetter + output + initialPathSetter;
     }

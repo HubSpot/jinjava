@@ -1,0 +1,5 @@
+{% for __ignored__ in [0] %}
+{% macro render(content, query) %}{% if query %}{{ content.foo }}{% endif %}{% endmacro %}{% set content = {'foo': 'a'}  %}{{ render(content, deferred) }}
+
+{% macro render(content, query) %}{% if query %}{{ content.foo }}{% endif %}{% endmacro %}{% set content = {'foo': 'b'}  %}{{ render(content, deferred) }}
+{% endfor %}

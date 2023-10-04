@@ -2,6 +2,7 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import com.hubspot.jinjava.el.ext.AstRangeBracket;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
@@ -42,7 +43,7 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
     Bindings bindings,
     ELContext context,
     DeferredParsingException deferredParsingException,
-    boolean preserveIdentifier
+    IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
     return (
       EvalResultHolder.reconstructNode(
@@ -50,7 +51,7 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
         context,
         (EvalResultHolder) prefix,
         deferredParsingException,
-        preserveIdentifier
+        identifierPreservationStrategy
       ) +
       "[" +
       EvalResultHolder.reconstructNode(
@@ -58,7 +59,7 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
         context,
         (EvalResultHolder) property,
         deferredParsingException,
-        false
+        IdentifierPreservationStrategy.RESOLVING
       ) +
       ":" +
       EvalResultHolder.reconstructNode(
@@ -66,7 +67,7 @@ public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultH
         context,
         (EvalResultHolder) rangeMax,
         deferredParsingException,
-        false
+        IdentifierPreservationStrategy.RESOLVING
       ) +
       "]"
     );

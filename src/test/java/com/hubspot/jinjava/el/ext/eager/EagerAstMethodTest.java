@@ -70,6 +70,27 @@ public class EagerAstMethodTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itPreservesNonDeferredIdentifier() {
+    try {
+      interpreter.resolveELExpression("deferred.modify(foo_map)", -1);
+      fail("Should throw DeferredParsingException");
+    } catch (DeferredParsingException e) {
+      assertThat(e.getDeferredEvalResult()).isEqualTo("deferred.modify(foo_map)");
+    }
+  }
+
+  @Test
+  public void itPreservesNonDeferredIdentifierWhenSecondParamIsDeferred() {
+    try {
+      interpreter.resolveELExpression("foo_list.modify(foo_map, deferred)", -1);
+      fail("Should throw DeferredParsingException");
+    } catch (DeferredParsingException e) {
+      assertThat(e.getDeferredEvalResult())
+        .isEqualTo("foo_list.modify(foo_map, deferred)");
+    }
+  }
+
+  @Test
   public void itPreservesAstDot() {
     try {
       interpreter.resolveELExpression("foo_map.foo_list.append(deferred)", -1);

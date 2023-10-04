@@ -4,7 +4,6 @@ package com.hubspot.jinjava.lib.tag.eager;
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
 import com.google.common.annotations.Beta;
-import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
@@ -19,7 +18,6 @@ import com.hubspot.jinjava.util.PrefixToPreserveState;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Triple;
 
 @Beta
@@ -133,33 +131,20 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
       .add(deferredResult)
       .add(tagNode.getSymbols().getExpressionEndWithTag());
     PrefixToPreserveState prefixToPreserveState = getPrefixToPreserveState(
-        eagerExecutionResult,
-        variables,
-        interpreter
+      eagerExecutionResult,
+      variables,
+      interpreter
+    );
+    prefixToPreserveState.withAllInFront(
+      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+        interpreter,
+        DeferredToken
+          .builderFromImage(joiner.toString(), tagNode.getMaster())
+          .addUsedDeferredWords(eagerExecutionResult.getResult().getDeferredWords())
+          .addSetDeferredWords(Arrays.stream(variables).map(String::trim))
+          .build()
       )
-      .withAllInFront(
-        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
-          interpreter,
-          new DeferredToken(
-            new TagToken(
-              joiner.toString(),
-              tagNode.getLineNumber(),
-              tagNode.getStartPosition(),
-              tagNode.getSymbols()
-            ),
-            eagerExecutionResult
-              .getResult()
-              .getDeferredWords()
-              .stream()
-              .filter(
-                word ->
-                  !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
-              )
-              .collect(Collectors.toSet()),
-            Arrays.stream(variables).map(String::trim).collect(Collectors.toSet())
-          )
-        )
-      );
+    );
     String suffixToPreserveState = getSuffixToPreserveState(
       String.join(",", Arrays.asList(variables)),
       interpreter

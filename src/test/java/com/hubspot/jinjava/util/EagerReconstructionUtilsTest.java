@@ -197,11 +197,10 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
 
   @Test
   public void itBuildsSetTagForDeferredAndRegisters() {
-    String result = EagerReconstructionUtils.buildBlockOrInlineSetTag(
+    String result = EagerReconstructionUtils.buildBlockOrInlineSetTagAndRegisterDeferredToken(
       "foo",
       "bar",
-      interpreter,
-      true
+      interpreter
     );
     assertThat(result).isEqualTo("{% set foo = 'bar' %}");
     assertThat(context.getDeferredTokens()).hasSize(1);
@@ -219,8 +218,7 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
     String result = EagerReconstructionUtils.buildBlockOrInlineSetTag(
       "foo",
       "bar",
-      interpreter,
-      false
+      interpreter
     );
     assertThat(result).isEqualTo("{% set foo = 'bar' %}");
     assertThat(context.getDeferredTokens()).isEmpty();
@@ -254,11 +252,10 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
     }
     assertThatThrownBy(
         () ->
-          EagerReconstructionUtils.buildBlockOrInlineSetTag(
+          EagerReconstructionUtils.buildBlockOrInlineSetTagAndRegisterDeferredToken(
             "foo",
             tooLong.toString(),
-            interpreter,
-            true
+            interpreter
           )
       )
       .isInstanceOf(OutputTooBigException.class);

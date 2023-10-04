@@ -165,6 +165,29 @@ public class TreeParserTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itWarnsAgainstUnclosedExpression() {
+    String expression = "foo {{ this is an unclosed expression %}";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.getErrors()).hasSize(1);
+    assertThat(interpreter.getErrors().get(0).getSeverity()).isEqualTo(ErrorType.WARNING);
+    assertThat(interpreter.getErrors().get(0).getMessage()).isEqualTo("Unclosed token");
+    assertThat(interpreter.getErrors().get(0).getFieldName()).isEqualTo("token");
+    assertThat(interpreter.render(tree))
+      .isEqualTo("foo {{ this is an unclosed expression %}");
+  }
+
+  @Test
+  public void itWarnsAgainstUnclosedTag() {
+    String expression = "foo {% this is an unclosed tag }}";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.getErrors()).hasSize(1);
+    assertThat(interpreter.getErrors().get(0).getSeverity()).isEqualTo(ErrorType.WARNING);
+    assertThat(interpreter.getErrors().get(0).getMessage()).isEqualTo("Unclosed token");
+    assertThat(interpreter.getErrors().get(0).getFieldName()).isEqualTo("token");
+    assertThat(interpreter.render(tree)).isEqualTo("foo {% this is an unclosed tag }}");
+  }
+
+  @Test
   public void itWarnsTwiceAgainstUnclosedForTag() {
     String expression = "{% for item in list %}\n{% for elem in items %}";
     final Node tree = new TreeParser(interpreter, expression).buildTree();

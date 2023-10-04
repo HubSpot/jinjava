@@ -340,7 +340,10 @@ public class EagerExpressionResolver {
 
   public static boolean isPrimitive(Object val) {
     return (
-      val == null || Primitives.isWrapperType(val.getClass()) || val instanceof String
+      val == null ||
+      Primitives.isWrapperType(val.getClass()) ||
+      val instanceof String ||
+      val instanceof Number
     );
   }
 
@@ -389,6 +392,23 @@ public class EagerExpressionResolver {
         asString = interpreter.getAsString(resolvedObject);
       } else {
         asString = PyishObjectMapper.getAsPyishString(resolvedObject);
+      }
+      if (
+        !forOutput &&
+        interpreter != null &&
+        interpreter.getConfig().isNestedInterpretationEnabled() &&
+        asString.contains(
+          interpreter.getConfig().getTokenScannerSymbols().getExpressionStart()
+        )
+      ) {
+        Set<String> dependentWords = EagerExpressionResolver.findDeferredWords(
+          asString,
+          interpreter
+        );
+        if (!dependentWords.isEmpty()) {
+          deferredWords.addAll(dependentWords);
+          return asString;
+        }
       }
       return asString;
     }

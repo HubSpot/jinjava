@@ -2,7 +2,7 @@ package com.hubspot.jinjava.lib.fn.eager;
 
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
-import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.DeferredInvocationResolutionException;
 import com.hubspot.jinjava.el.ext.eager.MacroFunctionTempVariable;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
@@ -122,7 +122,7 @@ public class EagerMacroFunction extends MacroFunction {
             prefixToPreserveState + eagerExecutionResult.asTemplateString()
           )
         );
-      throw new DeferredParsingException(this, tempVarName);
+      throw new DeferredInvocationResolutionException(tempVarName);
     }
     return eagerExecutionResult.getResult().toString(true);
   }
@@ -233,8 +233,7 @@ public class EagerMacroFunction extends MacroFunction {
         EagerReconstructionUtils.buildBlockOrInlineSetTag(
           Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
           importFile.get(),
-          interpreter,
-          false
+          interpreter
         );
       interpreter
         .getContext()
@@ -243,8 +242,7 @@ public class EagerMacroFunction extends MacroFunction {
         EagerReconstructionUtils.buildBlockOrInlineSetTag(
           Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY,
           currentDeferredImportResource,
-          interpreter,
-          false
+          interpreter
         );
     }
 

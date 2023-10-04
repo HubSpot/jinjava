@@ -1053,7 +1053,10 @@ public class EagerTest {
 
   @Test
   public void itFullyDefersFilteredMacro() {
-    expectedTemplateInterpreter.assertExpectedOutput("fully-defers-filtered-macro");
+    // Macro and set tag reconstruction are flipped so not exactly idempotent, but functionally identical
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "fully-defers-filtered-macro"
+    );
   }
 
   @Test
@@ -1363,6 +1366,63 @@ public class EagerTest {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
       "allows-deferred-lazy-reference-to-get-overridden.expected"
+    );
+  }
+
+  @Test
+  public void itCommitsVariablesFromDoTagWhenPartiallyResolved() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "commits-variables-from-do-tag-when-partially-resolved"
+    );
+  }
+
+  @Test
+  public void itCommitsVariablesFromDoTagWhenPartiallyResolvedSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "commits-variables-from-do-tag-when-partially-resolved.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "commits-variables-from-do-tag-when-partially-resolved.expected"
+    );
+  }
+
+  @Test
+  public void itFindsDeferredWordsInsideReconstructedString() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "finds-deferred-words-inside-reconstructed-string"
+    );
+  }
+
+  @Test
+  public void itReconstructsNestedValueInStringRepresentation() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-nested-value-in-string-representation"
+    );
+  }
+
+  @Test
+  public void itReconstructsNestedValueInStringRepresentationSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-nested-value-in-string-representation.expected"
+    );
+  }
+
+  @Test
+  public void itDefersLoopSettingMetaContextVar() {
+    interpreter.getContext().getMetaContextVariables().add("content");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "defers-loop-setting-meta-context-var"
+    );
+  }
+
+  @Test
+  public void itDefersLoopSettingMetaContextVarSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    interpreter.getContext().getMetaContextVariables().add("content");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "defers-loop-setting-meta-context-var.expected"
     );
   }
 }

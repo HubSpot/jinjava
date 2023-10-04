@@ -40,6 +40,7 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
@@ -50,6 +51,7 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -155,12 +157,7 @@ public class ForTag implements Tag {
         String.format("%s in %s", String.join(", ", loopVars), e.getDeferredEvalResult())
       );
     }
-    return renderForCollection(
-      tagNode,
-      interpreter,
-      loopVarsAndExpression.getLeft(),
-      collection
-    );
+    return renderForCollection(tagNode, interpreter, loopVars, collection);
   }
 
   public String renderForCollection(
@@ -175,6 +172,10 @@ public class ForTag implements Tag {
     ForLoop loop = ObjectIterator.getLoop(collection);
     int count = 0;
 
+    Set<String> removedMetaContextVariables = EagerReconstructionUtils.removeMetaContextVariables(
+      loopVars.stream(),
+      interpreter.getContext()
+    );
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       if (interpreter.isValidationMode() && !loop.hasNext()) {
         loop = ObjectIterator.getLoop(new DummyObject());
@@ -311,6 +312,11 @@ public class ForTag implements Tag {
         totalStopWatch.elapsed(TimeUnit.MILLISECONDS)
       );
       return checkLoopVariable(interpreter, buff);
+    } finally {
+      interpreter
+        .getContext()
+        .getMetaContextVariables()
+        .addAll(removedMetaContextVariables);
     }
   }
 
