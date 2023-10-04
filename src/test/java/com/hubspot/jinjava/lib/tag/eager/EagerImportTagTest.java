@@ -9,6 +9,7 @@ import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.lib.filter.Filter;
 import com.hubspot.jinjava.lib.tag.ImportTag;
 import com.hubspot.jinjava.lib.tag.ImportTagTest;
@@ -22,12 +23,12 @@ import com.hubspot.jinjava.loader.LocationResolver;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
-import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -165,20 +166,20 @@ public class EagerImportTagTest extends ImportTagTest {
   @Test
   @SuppressWarnings("unchecked")
   public void itHandlesMultiLayerAliasedAndDeferred() {
+    setupResourceLocator();
     String child2Alias = "double_child";
-    JinjavaInterpreter child = getChildInterpreter(interpreter, CONTEXT_VAR);
-    JinjavaInterpreter child2 = getChildInterpreter(child, child2Alias);
+    RenderResult result = jinjava.renderForResult(
+      "{% import 'layer-one.jinja' as context_var %}",
+      new HashMap<>()
+    );
 
-    child2.render("{% set foo = 'foo val' %}");
-    child.render("{% set bar = 'bar val' %}");
-    child2.render("{% set foo_d = deferred %}");
-
-    getAliasedStrategy(child2Alias, child).integrateChild(child2);
-    getAliasedStrategy(CONTEXT_VAR, interpreter).integrateChild(child);
-
-    assertThat(interpreter.getContext().get(CONTEXT_VAR)).isInstanceOf(PyMap.class);
+    assertThat(result.getContext().get(CONTEXT_VAR)).isInstanceOf(DeferredValue.class);
     assertThat(
-        ((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get(child2Alias)
+        (
+          (Map<String, Object>) (
+            (DeferredValue) result.getContext().get(CONTEXT_VAR)
+          ).getOriginalValue()
+        ).get(child2Alias)
       )
       .isInstanceOf(DeferredValue.class);
     assertThat(
@@ -186,7 +187,11 @@ public class EagerImportTagTest extends ImportTagTest {
           (
             (Map<String, Object>) (
               (DeferredValue) (
-                (Map<String, Object>) (interpreter.getContext().get(CONTEXT_VAR))
+                (
+                  (Map<String, Object>) (
+                    (DeferredValue) result.getContext().get(CONTEXT_VAR)
+                  ).getOriginalValue()
+                )
               ).get(child2Alias)
             ).getOriginalValue()
           ).get("foo")
@@ -195,45 +200,11 @@ public class EagerImportTagTest extends ImportTagTest {
       .isEqualTo("foo val");
 
     assertThat(
-        (((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get("bar"))
-      )
-      .isEqualTo("bar val");
-  }
-
-  @Test
-  @SuppressWarnings("unchecked")
-  public void itHandlesMultiLayerAliasedAndNullDeferred() {
-    String child2Alias = "double_child";
-    JinjavaInterpreter child = getChildInterpreter(interpreter, CONTEXT_VAR);
-    JinjavaInterpreter child2 = getChildInterpreter(child, child2Alias);
-
-    child2.render("{% set foo = 'foo val' %}");
-    child.render("{% set bar = 'bar val' %}");
-    child2.render("{% set foo_d = deferred %}");
-
-    getAliasedStrategy(child2Alias, child).integrateChild(child2);
-    getAliasedStrategy(CONTEXT_VAR, interpreter).integrateChild(child);
-
-    assertThat(interpreter.getContext().get(CONTEXT_VAR)).isInstanceOf(PyMap.class);
-    assertThat(
-        ((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get(child2Alias)
-      )
-      .isInstanceOf(DeferredValue.class);
-    assertThat(
         (
-          (
-            (Map<String, Object>) (
-              (DeferredValue) (
-                (Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)
-              ).get(child2Alias)
-            ).getOriginalValue()
-          ).get("foo")
-        )
-      )
-      .isEqualTo("foo val");
-
-    assertThat(
-        (((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get("bar"))
+          (Map<String, Object>) (
+            (DeferredValue) result.getContext().get(CONTEXT_VAR)
+          ).getOriginalValue()
+        ).get("bar")
       )
       .isEqualTo("bar val");
   }
