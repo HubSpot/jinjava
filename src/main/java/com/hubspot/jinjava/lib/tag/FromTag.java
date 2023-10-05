@@ -167,7 +167,11 @@ public class FromTag implements Tag {
       Object val = child.getContext().getGlobalMacro(importMapping.getKey());
 
       if (val != null) {
-        interpreter.getContext().addGlobalMacro((MacroFunction) val);
+        MacroFunction toImport = (MacroFunction) val;
+        if (!importMapping.getKey().equals(importMapping.getValue())) {
+          toImport = new MacroFunction(toImport, importMapping.getValue());
+        }
+        interpreter.getContext().addGlobalMacro(toImport);
       } else {
         val = child.getContext().get(importMapping.getKey());
 

@@ -13,11 +13,10 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Beta
@@ -100,11 +99,10 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
         }
 
         FromTag.integrateChild(imports, child, interpreter);
-        Map<String, String> newToOldImportNames = renameMacros(imports, interpreter)
-          .entrySet()
-          .stream()
-          .filter(e -> !e.getKey().equals(e.getValue()))
-          .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+        Map<String, String> newToOldImportNames = getNewToOldWithoutMacros(
+          imports,
+          interpreter
+        );
         if (child.getContext().getDeferredTokens().isEmpty() || output == null) {
           return "";
         } else if (newToOldImportNames.size() > 0) {
@@ -132,33 +130,19 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
     }
   }
 
-  private static Map<String, String> renameMacros(
+  private static Map<String, String> getNewToOldWithoutMacros(
     Map<String, String> oldToNewImportNames,
     JinjavaInterpreter interpreter
   ) {
-    Set<String> toRemove = new HashSet<>();
-    Map<String, MacroFunction> macroFunctions = oldToNewImportNames
+    return oldToNewImportNames
       .entrySet()
       .stream()
+      .filter(e -> !e.getKey().equals(e.getValue()))
       .filter(
         e ->
-          !e.getKey().equals(e.getValue()) &&
-          !interpreter.getContext().containsKey(e.getKey()) &&
-          interpreter.getContext().isGlobalMacro(e.getKey())
+          interpreter.getContext().containsKey(e.getValue()) ||
+          !interpreter.getContext().isGlobalMacro(e.getValue())
       )
-      .peek(entry -> toRemove.add(entry.getKey()))
-      .collect(
-        Collectors.toMap(
-          Map.Entry::getValue,
-          e -> interpreter.getContext().getGlobalMacro(e.getKey())
-        )
-      );
-
-    macroFunctions.forEach(
-      (key, value) ->
-        interpreter.getContext().addGlobalMacro(new MacroFunction(value, key))
-    );
-    toRemove.forEach(oldToNewImportNames::remove);
-    return oldToNewImportNames;
+      .collect(Collectors.toMap(Entry::getValue, Entry::getKey)); // flip order
   }
 }
