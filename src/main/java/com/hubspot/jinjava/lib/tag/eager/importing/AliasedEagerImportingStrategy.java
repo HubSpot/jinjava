@@ -22,12 +22,19 @@ import java.util.StringJoiner;
 import java.util.stream.Stream;
 
 public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
-  private static final String TEMPORARY_IMPORT_ALIAS_FORMAT = "__temp_import_alias_%d__";
+  private static final String TEMPORARY_IMPORT_ALIAS_PREFIX = "__temp_import_alias_";
+  private static final String TEMPORARY_IMPORT_ALIAS_FORMAT =
+    TEMPORARY_IMPORT_ALIAS_PREFIX + "%d__";
 
   public static Optional<String> getTemporaryImportAlias(Context context) {
     return context
       .getImportResourceAlias()
       .map(AliasedEagerImportingStrategy::getTemporaryImportAlias);
+  }
+
+  public static boolean isTemporaryImportAlias(String varName) {
+    // This is just faster than checking a regex
+    return varName.startsWith(TEMPORARY_IMPORT_ALIAS_PREFIX);
   }
 
   private static String getTemporaryImportAlias(String fullAlias) {
@@ -83,10 +90,7 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
     child.getContext().getScope().put(Context.IMPORT_RESOURCE_ALIAS_KEY, fullImportAlias);
     child.getContext().put(Context.IMPORT_RESOURCE_ALIAS_KEY, fullImportAlias);
     constructFullAliasPathMap(currentImportAlias, child);
-    Map<String, Object> currentContextAliasMap = getMapForCurrentContextAlias(
-      currentImportAlias,
-      child
-    );
+    getMapForCurrentContextAlias(currentImportAlias, child);
     importingData
       .getOriginalInterpreter()
       .getContext()
@@ -133,7 +137,7 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
       ) +
       wrapInChildScope(
         EagerImportingStrategy.getSetTagForDeferredChildBindings(
-          importingData.getOriginalInterpreter(),
+          child,
           currentImportAlias,
           child.getContext()
         ) +

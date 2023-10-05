@@ -150,23 +150,30 @@ public abstract class EagerSetTagStrategy {
     return prefixToPreserveState;
   }
 
-  protected String getSuffixToPreserveState(
+  public static String getSuffixToPreserveState(
     String variables,
     JinjavaInterpreter interpreter
   ) {
+    if (variables.isEmpty()) {
+      return "";
+    }
     StringBuilder suffixToPreserveState = new StringBuilder();
     Optional<String> maybeTemporaryImportAlias = AliasedEagerImportingStrategy.getTemporaryImportAlias(
       interpreter.getContext()
     );
-    if (maybeTemporaryImportAlias.isPresent()) {
+    if (
+      maybeTemporaryImportAlias.isPresent() &&
+      !AliasedEagerImportingStrategy.isTemporaryImportAlias(variables) &&
+      !interpreter.getContext().getMetaContextVariables().contains(variables)
+    ) {
       String updateString = getUpdateString(variables);
+
+      // Don't need to render because the temporary import alias's value is always deferred, and rendering will do nothing
       suffixToPreserveState.append(
-        interpreter.render(
-          EagerReconstructionUtils.buildDoUpdateTag(
-            maybeTemporaryImportAlias.get(),
-            updateString,
-            interpreter
-          )
+        EagerReconstructionUtils.buildDoUpdateTag(
+          maybeTemporaryImportAlias.get(),
+          updateString,
+          interpreter
         )
       );
     }

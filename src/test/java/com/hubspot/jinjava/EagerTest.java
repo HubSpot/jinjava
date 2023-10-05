@@ -1008,13 +1008,17 @@ public class EagerTest {
 
   @Test
   public void itHandlesSameNameImportVar() {
-    String template = expectedTemplateInterpreter.getFixtureTemplate(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "handles-same-name-import-var"
     );
-    JinjavaInterpreter.getCurrent().render(template);
-    // No longer allows importing a file that uses the same alias as a variable declared in the import file
-    assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
-      .isNotEmpty();
+  }
+
+  @Test
+  public void itHandlesSameNameImportVarSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-same-name-import-var.expected"
+    );
   }
 
   @Test
