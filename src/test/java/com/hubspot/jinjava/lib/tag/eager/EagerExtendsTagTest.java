@@ -54,6 +54,9 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
     expectedTemplateInterpreter.assertExpectedOutput(
       "defers-block-in-extends-child.expected"
     );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "defers-block-in-extends-child.expected"
+    );
   }
 
   @Test
@@ -65,6 +68,9 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
   public void itDefersSuperBlockWithDeferredSecondPass() {
     context.put("deferred", "Resolved now");
     expectedTemplateInterpreter.assertExpectedOutput(
+      "defers-super-block-with-deferred.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "defers-super-block-with-deferred.expected"
     );
   }
@@ -81,6 +87,9 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
     context.put("deferred", "Resolved now");
 
     expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-deferred-outside-block.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "reconstructs-deferred-outside-block.expected"
     );
   }

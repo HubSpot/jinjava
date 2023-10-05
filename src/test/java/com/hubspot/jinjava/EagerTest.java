@@ -551,6 +551,9 @@ public class EagerTest {
     expectedTemplateInterpreter.assertExpectedOutput(
       "sets-multiple-vars-deferred-in-child.expected"
     );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "sets-multiple-vars-deferred-in-child.expected"
+    );
   }
 
   @Test
@@ -657,6 +660,8 @@ public class EagerTest {
 
   @Test
   public void itEagerlyDefersMacroSecondPass() {
+    localContext.put("foo", "I am foo");
+    localContext.put("bar", "I am bar");
     localContext.put("deferred", true);
     expectedTemplateInterpreter.assertExpectedOutput("eagerly-defers-macro.expected");
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
@@ -801,6 +806,9 @@ public class EagerTest {
     expectedTemplateInterpreter.assertExpectedOutput(
       "handles-deferred-import-vars.expected"
     );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-deferred-import-vars.expected"
+    );
   }
 
   @Test
@@ -820,6 +828,9 @@ public class EagerTest {
   public void itHandlesDeferredFromImportAsSecondPass() {
     localContext.put("deferred", 1);
     expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferred-from-import-as.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "handles-deferred-from-import-as.expected"
     );
   }
@@ -889,6 +900,9 @@ public class EagerTest {
     expectedTemplateInterpreter.assertExpectedOutput(
       "handles-deferred-in-namespace.expected"
     );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-deferred-in-namespace.expected"
+    );
   }
 
   @Test
@@ -916,6 +930,9 @@ public class EagerTest {
   public void itHandlesBlockSetInDeferredIfSecondPass() {
     localContext.put("deferred", 1);
     expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-block-set-in-deferred-if.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "handles-block-set-in-deferred-if.expected"
     );
   }
@@ -1001,6 +1018,9 @@ public class EagerTest {
   @Test
   public void itHandlesDoubleImportModificationSecondPass() {
     interpreter.getContext().put("deferred", false);
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-double-import-modification.expected"
+    );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "handles-double-import-modification.expected"
     );
@@ -1016,6 +1036,9 @@ public class EagerTest {
   @Test
   public void itHandlesSameNameImportVarSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-same-name-import-var.expected"
+    );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "handles-same-name-import-var.expected"
     );
@@ -1069,6 +1092,9 @@ public class EagerTest {
     expectedTemplateInterpreter.assertExpectedOutput(
       "fully-defers-filtered-macro.expected"
     );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "fully-defers-filtered-macro.expected"
+    );
   }
 
   @Test
@@ -1103,6 +1129,7 @@ public class EagerTest {
   @Test
   public void itReconstructsMapNodeSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-map-node.expected");
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "reconstructs-map-node.expected"
     );
@@ -1123,6 +1150,9 @@ public class EagerTest {
   @Test
   public void itDefersCallTagWithDeferredArgumentSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "defers-call-tag-with-deferred-argument.expected"
+    );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "defers-call-tag-with-deferred-argument.expected"
     );
@@ -1145,6 +1175,9 @@ public class EagerTest {
   @Test
   public void itHandlesHigherScopeReferenceModificationSecondPass() {
     interpreter.getContext().put("deferred", "b");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-higher-scope-reference-modification.expected"
+    );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "handles-higher-scope-reference-modification.expected"
     );
@@ -1181,6 +1214,9 @@ public class EagerTest {
   @Test
   public void itDoesNotOverrideImportModificationInForSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "does-not-override-import-modification-in-for.expected"
+    );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "does-not-override-import-modification-in-for.expected"
     );
@@ -1196,6 +1232,9 @@ public class EagerTest {
   @Test
   public void itHandlesDeferredForLoopVarFromMacroSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferred-for-loop-var-from-macro.expected"
+    );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "handles-deferred-for-loop-var-from-macro.expected"
     );
@@ -1225,6 +1264,9 @@ public class EagerTest {
   @Test
   public void itReconstructsNamespaceForSetTagsUsingPeriodSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-namespace-for-set-tags-using-period.expected"
+    );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "reconstructs-namespace-for-set-tags-using-period.expected"
     );
@@ -1241,6 +1283,9 @@ public class EagerTest {
   public void itUsesUniqueMacroNamesSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput("uses-unique-macro-names.expected");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "uses-unique-macro-names.expected"
+    );
   }
 
   @Test
@@ -1298,6 +1343,9 @@ public class EagerTest {
     expectedTemplateInterpreter.assertExpectedOutput(
       "keeps-macro-modifications-in-scope.expected"
     );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "keeps-macro-modifications-in-scope.expected"
+    );
   }
 
   @Test
@@ -1310,6 +1358,9 @@ public class EagerTest {
   @Test
   public void itDoesNotReconstructVariableInWrongScopeSecondPass() {
     interpreter.getContext().put("deferred", true);
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "does-not-reconstruct-variable-in-wrong-scope.expected"
+    );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "does-not-reconstruct-variable-in-wrong-scope.expected"
     );
@@ -1356,6 +1407,9 @@ public class EagerTest {
     expectedTemplateInterpreter.assertExpectedOutput(
       "reconstructs-value-used-in-deferred-imported-macro.expected"
     );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "reconstructs-value-used-in-deferred-imported-macro.expected"
+    );
   }
 
   @Test
@@ -1369,6 +1423,9 @@ public class EagerTest {
   public void itAllowsDeferredLazyReferenceToGetOverriddenSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
+      "allows-deferred-lazy-reference-to-get-overridden.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "allows-deferred-lazy-reference-to-get-overridden.expected"
     );
   }
@@ -1411,6 +1468,9 @@ public class EagerTest {
     expectedTemplateInterpreter.assertExpectedOutput(
       "reconstructs-nested-value-in-string-representation.expected"
     );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "reconstructs-nested-value-in-string-representation.expected"
+    );
   }
 
   @Test
@@ -1425,6 +1485,9 @@ public class EagerTest {
   public void itDefersLoopSettingMetaContextVarSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
     interpreter.getContext().getMetaContextVariables().add("content");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "defers-loop-setting-meta-context-var.expected"
+    );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "defers-loop-setting-meta-context-var.expected"
     );

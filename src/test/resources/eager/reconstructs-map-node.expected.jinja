@@ -1,10 +1,8 @@
 {% if deferred %}
 {% set foo = [fn:map_entry('foo', 'ff'), fn:map_entry('bar', 'bb')] %}
 {% endif %}
-First key is {{ foo[0].key }}.
-{% set my_list = [] %}{% for __ignored__ in [0] %}{% do my_list.append(deferred) %}
-foo ff{% do my_list.append(deferred) %}
-bar bb{% endfor %}
+{% set my_list = [] %}{% for key, val in foo %}{% do my_list.append(deferred) %}
+{{ key ~ ' ' ~ val }}{% endfor %}
 {{ my_list }}
 
 {% set my_list = [] %}{% for __ignored__ in [0] %}{% do my_list.append(deferred) %}
