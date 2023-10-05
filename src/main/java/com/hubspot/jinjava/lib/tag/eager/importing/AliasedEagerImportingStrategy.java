@@ -112,7 +112,6 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
       currentImportAlias,
       child
     );
-    // Remove layers from self down to original import alias to prevent reference loops
     childBindings.remove(temporaryImportAlias);
     importingData.getOriginalInterpreter().getContext().remove(temporaryImportAlias);
     // Remove meta keys
