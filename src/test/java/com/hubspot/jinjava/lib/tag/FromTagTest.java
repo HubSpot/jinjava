@@ -59,6 +59,14 @@ public class FromTagTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itImportsAliasedMacroName() {
+    assertThat(fixture("from-alias-macro"))
+      .contains("wrap-spacer:")
+      .contains("<td height=\"42\">")
+      .contains("wrap-padding: padding-left:42px;padding-right:42px");
+  }
+
+  @Test
   public void importedCycleDected() {
     fixture("from-recursion");
     assertTrue(
