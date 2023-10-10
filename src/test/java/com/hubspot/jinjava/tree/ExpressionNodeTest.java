@@ -138,10 +138,10 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
     JinjavaInterpreter jinjavaInterpreter = new Jinjava(config).newInterpreter();
     jinjavaInterpreter.getContext().put("subject", "this");
 
-    String template = "{{ subject | capitalize() }} expression has an {{ unknown | lower() }} token";
+    String template = "{{ subject | capitalize() }} expression has a {{ unknown | lower() }} token but {{ unknown | default(\"replaced\") }}";
     Node node = new TreeParser(jinjavaInterpreter, template).buildTree();
     assertThat(jinjavaInterpreter.render(node))
-      .isEqualTo("This expression has an {{ unknown | lower() }} token");
+      .isEqualTo("This expression has a {{ unknown | lower() }} token but replaced");
   }
 
   @Test
