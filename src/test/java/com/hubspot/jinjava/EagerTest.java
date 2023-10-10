@@ -1501,9 +1501,12 @@ public class EagerTest {
   }
 
   @Test
-  public void itAllowsModificationInAliasedMacro() {
-    expectedTemplateInterpreter.assertExpectedOutput(
-      "allows-modification-in-aliased-macro"
+  public void itFailsOnModificationInAliasedMacro() {
+    String input = expectedTemplateInterpreter.getFixtureTemplate(
+      "fails-on-modification-in-aliased-macro"
     );
+    interpreter.render(input);
+    // We don't support this
+    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
   }
 }

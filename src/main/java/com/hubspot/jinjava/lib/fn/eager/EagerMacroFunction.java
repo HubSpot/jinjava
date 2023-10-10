@@ -71,15 +71,6 @@ public class EagerMacroFunction extends MacroFunction {
           interpreter
         );
         if (!result.getResult().isFullyResolved()) {
-          if (
-            result
-              .getSpeculativeBindings()
-              .keySet()
-              .stream()
-              .anyMatch(key -> localContextScope.getScope().containsKey(key))
-          ) {
-            throw new DeferredValueException("e");
-          }
           result =
             eagerEvaluateInDeferredExecutionMode(
               () -> getEvaluationResultDirectly(argMap, kwargMap, varArgs, interpreter),
@@ -303,7 +294,7 @@ public class EagerMacroFunction extends MacroFunction {
         .getCombinedScope()
         .entrySet()
         .stream()
-        //        .filter(entry -> entry.getValue() instanceof DeferredValue)
+        .filter(entry -> entry.getValue() instanceof DeferredValue)
         .map(Entry::getKey)
         .collect(Collectors.toMap(Function.identity(), name -> aliasName + name));
       return EagerReconstructionUtils.buildSetTag(
