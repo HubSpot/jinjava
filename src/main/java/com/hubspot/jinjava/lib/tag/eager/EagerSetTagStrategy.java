@@ -5,6 +5,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.eager.importing.AliasedEagerImportingStrategy;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.Arrays;
@@ -166,16 +167,24 @@ public abstract class EagerSetTagStrategy {
       !AliasedEagerImportingStrategy.isTemporaryImportAlias(variables) &&
       !interpreter.getContext().getMetaContextVariables().contains(variables)
     ) {
-      String updateString = getUpdateString(variables);
-
+      if (!interpreter.getContext().containsKey(maybeTemporaryImportAlias.get())) {
+        maybeTemporaryImportAlias = interpreter.getContext().getImportResourceAlias();
+      }
       // Don't need to render because the temporary import alias's value is always deferred, and rendering will do nothing
-      suffixToPreserveState.append(
-        EagerReconstructionUtils.buildDoUpdateTag(
-          maybeTemporaryImportAlias.get(),
-          updateString,
-          interpreter
-        )
+
+      String doUpdateImage = EagerReconstructionUtils.buildDoUpdateTag(
+        maybeTemporaryImportAlias.get(),
+        getUpdateString(variables),
+        interpreter
       );
+      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+        interpreter,
+        DeferredToken
+          .builderFromImage(doUpdateImage, TagToken.class, interpreter)
+          .addUsedDeferredWords(Stream.of(maybeTemporaryImportAlias.get()))
+          .build()
+      );
+      suffixToPreserveState.append(doUpdateImage);
     }
 
     return suffixToPreserveState.toString();

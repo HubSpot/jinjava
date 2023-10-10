@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.fn.eager;
 
+import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildSetTag;
+
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.el.ext.DeferredInvocationResolutionException;
@@ -12,14 +14,18 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.MacroTag;
+import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
+import com.hubspot.jinjava.lib.tag.eager.importing.AliasedEagerImportingStrategy;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.Node;
+import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerContextWatcher.EagerChildContextConfig;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 @Beta
@@ -71,15 +78,15 @@ public class EagerMacroFunction extends MacroFunction {
           interpreter
         );
         if (!result.getResult().isFullyResolved()) {
-          if (
-            result
-              .getSpeculativeBindings()
-              .keySet()
-              .stream()
-              .anyMatch(key -> localContextScope.getScope().containsKey(key))
-          ) {
-            throw new DeferredValueException("e");
-          }
+          //          if (
+          //            result
+          //              .getSpeculativeBindings()
+          //              .keySet()
+          //              .stream()
+          //              .anyMatch(key -> localContextScope.getScope().containsKey(key))
+          //          ) {
+          //            throw new DeferredValueException("e");
+          //          }
           result =
             eagerEvaluateInDeferredExecutionMode(
               () -> getEvaluationResultDirectly(argMap, kwargMap, varArgs, interpreter),
@@ -116,6 +123,47 @@ public class EagerMacroFunction extends MacroFunction {
         interpreter,
         eagerExecutionResult
       );
+      Optional<String> maybeTempImportAlias = AliasedEagerImportingStrategy.getTemporaryImportAlias(
+        localContextScope
+      );
+      Optional<String> maybeActualImportAlias = localContextScope.getImportResourceAlias();
+      if (
+        maybeTempImportAlias.isPresent() &&
+        maybeActualImportAlias.isPresent() &&
+        interpreter
+          .getContext()
+          .getDeferredTokens()
+          .stream()
+          .anyMatch(
+            deferredToken ->
+              deferredToken.getUsedDeferredWords().contains(maybeTempImportAlias.get())
+          )
+      ) {
+        String reconstructTemporaryAliasSetTag = buildSetTag(
+          Collections.singletonMap(
+            maybeTempImportAlias.get(),
+            maybeActualImportAlias.get()
+          ),
+          interpreter,
+          false
+        );
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
+          DeferredToken
+            .builderFromImage(
+              reconstructTemporaryAliasSetTag,
+              TagToken.class,
+              interpreter
+            )
+            .addUsedDeferredWords(Stream.of(maybeActualImportAlias.get()))
+            .addSetDeferredWords(Stream.of(maybeTempImportAlias.get()))
+            .build()
+        );
+        prefixToPreserveState.put(
+          maybeTempImportAlias.get(),
+          reconstructTemporaryAliasSetTag
+        );
+      }
 
       String tempVarName = MacroFunctionTempVariable.getVarName(
         getName(),
@@ -303,7 +351,7 @@ public class EagerMacroFunction extends MacroFunction {
         .getCombinedScope()
         .entrySet()
         .stream()
-        //        .filter(entry -> entry.getValue() instanceof DeferredValue)
+        .filter(entry -> entry.getValue() instanceof DeferredValue)
         .map(Entry::getKey)
         .collect(Collectors.toMap(Function.identity(), name -> aliasName + name));
       return EagerReconstructionUtils.buildSetTag(

@@ -112,12 +112,24 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
       currentImportAlias,
       child
     );
-    childBindings.remove(temporaryImportAlias);
-    importingData.getOriginalInterpreter().getContext().remove(temporaryImportAlias);
+    //    childBindings.remove(temporaryImportAlias);
+    //    importingData.getOriginalInterpreter().getContext().remove(temporaryImportAlias);
     // Remove meta keys
-    childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-    childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
-    mapForCurrentContextAlias.putAll(childBindings);
+    //    childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
+    //    childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
+    childBindings
+      .entrySet()
+      .stream()
+      .filter(
+        entry ->
+          !(
+            entry.getKey().equals(Context.GLOBAL_MACROS_SCOPE_KEY) ||
+            entry.getKey().equals(Context.IMPORT_RESOURCE_ALIAS_KEY) ||
+            AliasedEagerImportingStrategy.isTemporaryImportAlias(entry.getKey())
+          )
+      )
+      .forEach(entry -> mapForCurrentContextAlias.put(entry.getKey(), entry.getValue()));
+    //    mapForCurrentContextAlias.putAll(childBindings);
   }
 
   @Override
