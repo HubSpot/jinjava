@@ -47,34 +47,65 @@ public class ExpectedTemplateInterpreter {
   }
 
   public String assertExpectedNonEagerOutput(String name) {
-    JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
-      jinjava,
-      jinjava.getGlobalContextCopy(),
-      JinjavaConfig
-        .newBuilder()
-        .withExecutionMode(DefaultExecutionMode.instance())
-        .withNestedInterpretationEnabled(true)
-        .withLegacyOverrides(
-          LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
-        )
-        .withMaxMacroRecursionDepth(20)
-        .withEnableRecursiveMacroCalls(true)
-        .build()
-    );
+    String output;
     try {
+      JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
+        jinjava,
+        jinjava.getGlobalContextCopy(),
+        JinjavaConfig
+          .newBuilder()
+          .withExecutionMode(DefaultExecutionMode.instance())
+          .withNestedInterpretationEnabled(true)
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+          )
+          .withMaxMacroRecursionDepth(20)
+          .withEnableRecursiveMacroCalls(true)
+          .build()
+      );
       JinjavaInterpreter.pushCurrent(preserveInterpreter);
 
       preserveInterpreter.getContext().putAll(interpreter.getContext());
       String template = getFixtureTemplate(name);
-      String output = JinjavaInterpreter.getCurrent().render(template);
+      output = JinjavaInterpreter.getCurrent().render(template);
       assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
         .as("Ensure no deferred nodes were created")
         .isEmpty();
       assertThat(output.trim()).isEqualTo(expected(name).trim());
-      return output;
     } finally {
       JinjavaInterpreter.popCurrent();
     }
+    if (name.contains(".expected")) {
+      String originalName = name.replace(".expected", "");
+      try {
+        JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
+          jinjava,
+          jinjava.getGlobalContextCopy(),
+          JinjavaConfig
+            .newBuilder()
+            .withExecutionMode(DefaultExecutionMode.instance())
+            .withNestedInterpretationEnabled(true)
+            .withLegacyOverrides(
+              LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+            )
+            .withMaxMacroRecursionDepth(20)
+            .withEnableRecursiveMacroCalls(true)
+            .build()
+        );
+        JinjavaInterpreter.pushCurrent(preserveInterpreter);
+
+        preserveInterpreter.getContext().putAll(interpreter.getContext());
+        String template = getFixtureTemplate(originalName);
+        output = JinjavaInterpreter.getCurrent().render(template);
+        assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
+          .as("Ensure no deferred nodes were created")
+          .isEmpty();
+        assertThat(output.trim()).isEqualTo(expected(name).trim());
+      } finally {
+        JinjavaInterpreter.popCurrent();
+      }
+    }
+    return output;
   }
 
   public String getFixtureTemplate(String name) {

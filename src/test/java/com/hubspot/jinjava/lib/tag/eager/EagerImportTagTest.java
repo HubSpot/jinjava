@@ -2,24 +2,33 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.base.Strings;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.lib.filter.Filter;
 import com.hubspot.jinjava.lib.tag.ImportTag;
 import com.hubspot.jinjava.lib.tag.ImportTagTest;
 import com.hubspot.jinjava.lib.tag.Tag;
+import com.hubspot.jinjava.lib.tag.eager.importing.AliasedEagerImportingStrategy;
+import com.hubspot.jinjava.lib.tag.eager.importing.EagerImportingStrategy;
+import com.hubspot.jinjava.lib.tag.eager.importing.EagerImportingStrategyFactory;
+import com.hubspot.jinjava.lib.tag.eager.importing.FlatEagerImportingStrategy;
+import com.hubspot.jinjava.lib.tag.eager.importing.ImportingData;
 import com.hubspot.jinjava.loader.LocationResolver;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
-import com.hubspot.jinjava.objects.collections.PyMap;
+import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
+import com.hubspot.jinjava.tree.parse.TagToken;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -32,6 +41,8 @@ import org.junit.Test;
 public class EagerImportTagTest extends ImportTagTest {
   private static final String CONTEXT_VAR = "context_var";
   private static final String TEMPLATE_FILE = "template.jinja";
+
+  private TagToken tagToken;
 
   @Before
   public void eagerSetup() throws Exception {
@@ -57,6 +68,36 @@ public class EagerImportTagTest extends ImportTagTest {
     context.registerTag(tag);
     context.put("deferred", DeferredValue.instance());
     JinjavaInterpreter.pushCurrent(interpreter);
+    tagToken =
+      new TagToken(
+        String.format("{%% import foo as %s %%}", CONTEXT_VAR),
+        0,
+        0,
+        new DefaultTokenScannerSymbols()
+      );
+  }
+
+  private AliasedEagerImportingStrategy getAliasedStrategy(
+    String alias,
+    JinjavaInterpreter parentInterpreter
+  ) {
+    ImportingData importingData = EagerImportingStrategyFactory.getImportingData(
+      tagToken,
+      parentInterpreter
+    );
+
+    return new AliasedEagerImportingStrategy(importingData, alias);
+  }
+
+  private FlatEagerImportingStrategy getFlatStrategy(
+    JinjavaInterpreter parentInterpreter
+  ) {
+    ImportingData importingData = EagerImportingStrategyFactory.getImportingData(
+      tagToken,
+      parentInterpreter
+    );
+
+    return new FlatEagerImportingStrategy(importingData);
   }
 
   @After
@@ -70,7 +111,7 @@ public class EagerImportTagTest extends ImportTagTest {
     Map<String, Object> childBindings = child.getContext().getSessionBindings();
     assertThat(childBindings.get(Context.IMPORT_RESOURCE_ALIAS_KEY))
       .isEqualTo(CONTEXT_VAR);
-    EagerImportTag.integrateChild(CONTEXT_VAR, childBindings, child, interpreter);
+    getAliasedStrategy(CONTEXT_VAR, interpreter).integrateChild(child);
     assertThat(interpreter.getContext().get(CONTEXT_VAR)).isInstanceOf(Map.class);
     assertThat(((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).keySet())
       .doesNotContain(Context.IMPORT_RESOURCE_ALIAS_KEY);
@@ -83,18 +124,8 @@ public class EagerImportTagTest extends ImportTagTest {
     JinjavaInterpreter child2 = getChildInterpreter(child, "");
     child2.getContext().put("foo", "foo val");
     child.getContext().put("bar", "bar val");
-    EagerImportTag.integrateChild(
-      "",
-      child2.getContext().getSessionBindings(),
-      child2,
-      child
-    );
-    EagerImportTag.integrateChild(
-      "",
-      child.getContext().getSessionBindings(),
-      child,
-      interpreter
-    );
+    getFlatStrategy(child).integrateChild(child2);
+    getFlatStrategy(interpreter).integrateChild(child);
     assertThat(interpreter.getContext().get("foo")).isEqualTo("foo val");
     assertThat(interpreter.getContext().get("bar")).isEqualTo("bar val");
   }
@@ -109,18 +140,9 @@ public class EagerImportTagTest extends ImportTagTest {
     child2.render("{% set foo = 'foo val' %}");
     child.render("{% set bar = 'bar val' %}");
 
-    EagerImportTag.integrateChild(
-      child2Alias,
-      child2.getContext().getSessionBindings(),
-      child2,
-      child
-    );
-    EagerImportTag.integrateChild(
-      CONTEXT_VAR,
-      child.getContext().getSessionBindings(),
-      child,
-      interpreter
-    );
+    getAliasedStrategy(child2Alias, child).integrateChild(child2);
+    getAliasedStrategy(CONTEXT_VAR, interpreter).integrateChild(child);
+
     assertThat(interpreter.getContext().get(CONTEXT_VAR)).isInstanceOf(Map.class);
     assertThat(
         ((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get(child2Alias)
@@ -144,29 +166,20 @@ public class EagerImportTagTest extends ImportTagTest {
   @Test
   @SuppressWarnings("unchecked")
   public void itHandlesMultiLayerAliasedAndDeferred() {
+    setupResourceLocator();
     String child2Alias = "double_child";
-    JinjavaInterpreter child = getChildInterpreter(interpreter, CONTEXT_VAR);
-    JinjavaInterpreter child2 = getChildInterpreter(child, child2Alias);
-
-    child2.render("{% set foo = 'foo val' %}");
-    child.render("{% set bar = 'bar val' %}");
-    child2.render("{% set foo_d = deferred %}");
-
-    EagerImportTag.integrateChild(
-      child2Alias,
-      child2.getContext().getSessionBindings(),
-      child2,
-      child
+    RenderResult result = jinjava.renderForResult(
+      "{% import 'layer-one.jinja' as context_var %}",
+      new HashMap<>()
     );
-    EagerImportTag.integrateChild(
-      CONTEXT_VAR,
-      child.getContext().getSessionBindings(),
-      child,
-      interpreter
-    );
-    assertThat(interpreter.getContext().get(CONTEXT_VAR)).isInstanceOf(PyMap.class);
+
+    assertThat(result.getContext().get(CONTEXT_VAR)).isInstanceOf(DeferredValue.class);
     assertThat(
-        ((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get(child2Alias)
+        (
+          (Map<String, Object>) (
+            (DeferredValue) result.getContext().get(CONTEXT_VAR)
+          ).getOriginalValue()
+        ).get(child2Alias)
       )
       .isInstanceOf(DeferredValue.class);
     assertThat(
@@ -174,7 +187,11 @@ public class EagerImportTagTest extends ImportTagTest {
           (
             (Map<String, Object>) (
               (DeferredValue) (
-                (Map<String, Object>) (interpreter.getContext().get(CONTEXT_VAR))
+                (
+                  (Map<String, Object>) (
+                    (DeferredValue) result.getContext().get(CONTEXT_VAR)
+                  ).getOriginalValue()
+                )
               ).get(child2Alias)
             ).getOriginalValue()
           ).get("foo")
@@ -183,54 +200,11 @@ public class EagerImportTagTest extends ImportTagTest {
       .isEqualTo("foo val");
 
     assertThat(
-        (((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get("bar"))
-      )
-      .isEqualTo("bar val");
-  }
-
-  @Test
-  @SuppressWarnings("unchecked")
-  public void itHandlesMultiLayerAliasedAndNullDeferred() {
-    String child2Alias = "double_child";
-    JinjavaInterpreter child = getChildInterpreter(interpreter, CONTEXT_VAR);
-    JinjavaInterpreter child2 = getChildInterpreter(child, child2Alias);
-
-    child2.render("{% set foo = 'foo val' %}");
-    child.render("{% set bar = 'bar val' %}");
-    child2.render("{% set foo_d = deferred %}");
-
-    EagerImportTag.integrateChild(
-      child2Alias,
-      child2.getContext().getSessionBindings(),
-      child2,
-      child
-    );
-    EagerImportTag.integrateChild(
-      CONTEXT_VAR,
-      child.getContext().getSessionBindings(),
-      child,
-      interpreter
-    );
-    assertThat(interpreter.getContext().get(CONTEXT_VAR)).isInstanceOf(PyMap.class);
-    assertThat(
-        ((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get(child2Alias)
-      )
-      .isInstanceOf(DeferredValue.class);
-    assertThat(
         (
-          (
-            (Map<String, Object>) (
-              (DeferredValue) (
-                (Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)
-              ).get(child2Alias)
-            ).getOriginalValue()
-          ).get("foo")
-        )
-      )
-      .isEqualTo("foo val");
-
-    assertThat(
-        (((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get("bar"))
+          (Map<String, Object>) (
+            (DeferredValue) result.getContext().get(CONTEXT_VAR)
+          ).getOriginalValue()
+        ).get("bar")
       )
       .isEqualTo("bar val");
   }
@@ -243,18 +217,8 @@ public class EagerImportTagTest extends ImportTagTest {
     child2.getContext().put("foo", DeferredValue.instance("foo val"));
     child.getContext().put("bar", DeferredValue.instance("bar val"));
 
-    EagerImportTag.integrateChild(
-      "",
-      child2.getContext().getSessionBindings(),
-      child2,
-      child
-    );
-    EagerImportTag.integrateChild(
-      "",
-      child.getContext().getSessionBindings(),
-      child,
-      interpreter
-    );
+    getFlatStrategy(child).integrateChild(child2);
+    getFlatStrategy(interpreter).integrateChild(child);
     assertThat(interpreter.getContext().get("foo")).isInstanceOf(DeferredValue.class);
     assertThat(
         (((DeferredValue) (interpreter.getContext().get("foo"))).getOriginalValue())
@@ -271,34 +235,19 @@ public class EagerImportTagTest extends ImportTagTest {
   @Test
   @SuppressWarnings("unchecked")
   public void itHandlesMultiLayerSomeAliased() {
-    String child2Alias = "";
     String child3Alias = "triple_child";
     JinjavaInterpreter child = getChildInterpreter(interpreter, CONTEXT_VAR);
-    JinjavaInterpreter child2 = getChildInterpreter(child, child2Alias);
+    JinjavaInterpreter child2 = getChildInterpreter(child, "");
     JinjavaInterpreter child3 = getChildInterpreter(child2, child3Alias);
 
     child2.render("{% set foo = 'foo val' %}");
     child.render("{% set bar = 'bar val' %}");
     child3.render("{% set foobar = 'foobar val' %}");
 
-    EagerImportTag.integrateChild(
-      child3Alias,
-      child3.getContext().getSessionBindings(),
-      child3,
-      child2
-    );
-    EagerImportTag.integrateChild(
-      child2Alias,
-      child2.getContext().getSessionBindings(),
-      child2,
-      child
-    );
-    EagerImportTag.integrateChild(
-      CONTEXT_VAR,
-      child.getContext().getSessionBindings(),
-      child,
-      interpreter
-    );
+    getAliasedStrategy(child3Alias, child2).integrateChild(child3);
+    getFlatStrategy(child).integrateChild(child2);
+    getAliasedStrategy(CONTEXT_VAR, interpreter).integrateChild(child);
+
     assertThat(interpreter.getContext().get(CONTEXT_VAR)).isInstanceOf(Map.class);
     assertThat(
         ((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get(child3Alias)
@@ -337,24 +286,10 @@ public class EagerImportTagTest extends ImportTagTest {
     child.render("{% set bar = 'bar val' %}");
     child2B.render("{% set foo_b = 'foo_b val' %}");
 
-    EagerImportTag.integrateChild(
-      child2Alias,
-      child2.getContext().getSessionBindings(),
-      child2,
-      child
-    );
-    EagerImportTag.integrateChild(
-      child2BAlias,
-      child2B.getContext().getSessionBindings(),
-      child2B,
-      child
-    );
-    EagerImportTag.integrateChild(
-      CONTEXT_VAR,
-      child.getContext().getSessionBindings(),
-      child,
-      interpreter
-    );
+    getAliasedStrategy(child2Alias, child).integrateChild(child2);
+    getAliasedStrategy(child2BAlias, child).integrateChild(child2B);
+    getAliasedStrategy(CONTEXT_VAR, interpreter).integrateChild(child);
+
     assertThat(interpreter.getContext().get(CONTEXT_VAR)).isInstanceOf(Map.class);
     assertThat(
         ((Map<String, Object>) interpreter.getContext().get(CONTEXT_VAR)).get(child2Alias)
@@ -462,11 +397,11 @@ public class EagerImportTagTest extends ImportTagTest {
     );
     assertThat(result)
       .isEqualTo(
-        "{% if deferred %}{% do %}{% set current_path = 'import-tree-b.jinja' %}{% set b = {}  %}{% for __ignored__ in [0] %}{% set a = {'foo_a': 'a', 'import_resource_path': 'import-tree-a.jinja', 'something': 'somn'}  %}{% do %}{% set current_path = 'import-tree-a.jinja' %}{% set a = {}  %}{% for __ignored__ in [0] %}{% set something = 'somn' %}{% do a.update({'something': something}) %}\n" +
-        "{% set foo_a = 'a' %}{% do a.update({'foo_a': foo_a}) %}\n" +
-        "{% do a.update({'foo_a': 'a','import_resource_path': 'import-tree-a.jinja','something': 'somn'}) %}{% endfor %}{% set current_path = 'import-tree-b.jinja' %}{% enddo %}\n" +
-        "{% set foo_b = 'b' + a.foo_a %}{% do b.update({'foo_b': foo_b}) %}\n" +
-        "{% do b.update({'a': a,'foo_b': foo_b,'import_resource_path': 'import-tree-b.jinja'}) %}{% endfor %}{% set current_path = '' %}{% enddo %}{% endif %}"
+        "{% if deferred %}{% do %}{% set current_path = 'import-tree-b.jinja' %}{% set __temp_import_alias_98__ = {}  %}{% for __ignored__ in [0] %}{% do %}{% set current_path = 'import-tree-a.jinja' %}{% set __temp_import_alias_95701__ = {}  %}{% for __ignored__ in [0] %}{% set something = 'somn' %}{% do __temp_import_alias_95701__.update({'something': something}) %}\n" +
+        "{% set foo_a = 'a' %}{% do __temp_import_alias_95701__.update({'foo_a': foo_a}) %}\n" +
+        "{% do __temp_import_alias_95701__.update({'foo_a': 'a','import_resource_path': 'import-tree-a.jinja','something': 'somn'}) %}{% endfor %}{% set a = __temp_import_alias_95701__ %}{% set current_path = 'import-tree-b.jinja' %}{% enddo %}\n" +
+        "{% set foo_b = 'b' + a.foo_a %}{% do __temp_import_alias_98__.update({'foo_b': foo_b}) %}\n" +
+        "{% do __temp_import_alias_98__.update({'a': a,'foo_b': foo_b,'import_resource_path': 'import-tree-b.jinja'}) %}{% endfor %}{% set b = __temp_import_alias_98__ %}{% set current_path = '' %}{% enddo %}{% endif %}"
       );
 
     removeDeferredContextKeys();
@@ -707,8 +642,8 @@ public class EagerImportTagTest extends ImportTagTest {
       .isEqualTo(
         "a" +
         "{% set vars = {'foo': 'a', 'import_resource_path': 'var-a.jinja'}  %}{% if deferred %}" +
-        "{% do %}{% set current_path = 'var-b.jinja' %}{% set vars = {}  %}{% for __ignored__ in [0] %}{% set foo = 'b' %}{% do vars.update({'foo': foo}) %}\n" +
-        "{% do vars.update({'foo': 'b','import_resource_path': 'var-b.jinja'}) %}{% endfor %}{% set current_path = '' %}{% enddo %}" +
+        "{% do %}{% set current_path = 'var-b.jinja' %}{% set __temp_import_alias_3612204__ = {}  %}{% for __ignored__ in [0] %}{% set foo = 'b' %}{% do __temp_import_alias_3612204__.update({'foo': foo}) %}\n" +
+        "{% do __temp_import_alias_3612204__.update({'foo': 'b','import_resource_path': 'var-b.jinja'}) %}{% endfor %}{% set vars = __temp_import_alias_3612204__ %}{% set current_path = '' %}{% enddo %}" +
         "{% endif %}" +
         "{{ vars.foo }}"
       );
@@ -758,7 +693,7 @@ public class EagerImportTagTest extends ImportTagTest {
       );
   }
 
-  private static JinjavaInterpreter getChildInterpreter(
+  private JinjavaInterpreter getChildInterpreter(
     JinjavaInterpreter interpreter,
     String alias
   ) {
@@ -767,7 +702,13 @@ public class EagerImportTagTest extends ImportTagTest {
       .getInterpreterFactory()
       .newInstance(interpreter);
     child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, TEMPLATE_FILE);
-    EagerImportTag.setupImportAlias(alias, child, interpreter);
+    EagerImportingStrategy eagerImportingStrategy;
+    if (Strings.isNullOrEmpty(alias)) {
+      eagerImportingStrategy = getFlatStrategy(interpreter);
+    } else {
+      eagerImportingStrategy = getAliasedStrategy(alias, interpreter);
+    }
+    eagerImportingStrategy.setup(child);
     return child;
   }
 

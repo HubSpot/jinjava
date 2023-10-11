@@ -2,8 +2,7 @@
 {% if deferred %}
 {% set foo = {'foo': 'ff', 'bar': 'bb'}.items() %}
 {% endif %}
-First key is {{ foo[0].key }}.
-{% for key, val in {'foo': 'ff', 'bar': 'bb'}.items() -%}
+{% for key, val in foo -%}
 {% do my_list.append(deferred) %}
 {{ key ~ ' ' ~ val }}
 {%- endfor %}
