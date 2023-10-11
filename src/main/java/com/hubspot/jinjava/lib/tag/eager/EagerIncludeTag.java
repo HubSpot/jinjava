@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.IncludeTag;
+import com.hubspot.jinjava.lib.tag.eager.importing.EagerImportingStrategyFactory;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
@@ -29,7 +30,7 @@ public class EagerIncludeTag extends EagerTagDecorator<IncludeTag> {
         tagNode.getStartPosition()
       );
       templateFile = interpreter.resolveResourceLocation(templateFile);
-      final String initialPathSetter = EagerImportTag.getSetTagForCurrentPath(
+      final String initialPathSetter = EagerImportingStrategyFactory.getSetTagForCurrentPath(
         interpreter
       );
       final String newPathSetter = EagerReconstructionUtils.buildBlockOrInlineSetTag(

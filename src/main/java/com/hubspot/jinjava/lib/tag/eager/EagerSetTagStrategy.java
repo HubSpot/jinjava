@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
+import com.hubspot.jinjava.lib.tag.eager.importing.AliasedEagerImportingStrategy;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
@@ -149,35 +150,34 @@ public abstract class EagerSetTagStrategy {
     return prefixToPreserveState;
   }
 
-  protected String getSuffixToPreserveState(
+  public static String getSuffixToPreserveState(
     String variables,
     JinjavaInterpreter interpreter
   ) {
-    StringBuilder suffixToPreserveState = new StringBuilder();
-    Optional<String> maybeFullImportAlias = interpreter
-      .getContext()
-      .getImportResourceAlias();
-    if (maybeFullImportAlias.isPresent()) {
-      String currentImportAlias = maybeFullImportAlias
-        .get()
-        .substring(maybeFullImportAlias.get().lastIndexOf(".") + 1);
-      String filteredVariables = Arrays
-        .stream(variables.split(","))
-        .filter(var -> !var.equals(currentImportAlias))
-        .collect(Collectors.joining(","));
-      if (!filteredVariables.isEmpty()) {
-        String updateString = getUpdateString(filteredVariables);
-        suffixToPreserveState.append(
-          interpreter.render(
-            EagerReconstructionUtils.buildDoUpdateTag(
-              currentImportAlias,
-              updateString,
-              interpreter
-            )
-          )
-        );
-      }
+    if (variables.isEmpty()) {
+      return "";
     }
+    StringBuilder suffixToPreserveState = new StringBuilder();
+    Optional<String> maybeTemporaryImportAlias = AliasedEagerImportingStrategy.getTemporaryImportAlias(
+      interpreter.getContext()
+    );
+    if (
+      maybeTemporaryImportAlias.isPresent() &&
+      !AliasedEagerImportingStrategy.isTemporaryImportAlias(variables) &&
+      !interpreter.getContext().getMetaContextVariables().contains(variables)
+    ) {
+      String updateString = getUpdateString(variables);
+
+      // Don't need to render because the temporary import alias's value is always deferred, and rendering will do nothing
+      suffixToPreserveState.append(
+        EagerReconstructionUtils.buildDoUpdateTag(
+          maybeTemporaryImportAlias.get(),
+          updateString,
+          interpreter
+        )
+      );
+    }
+
     return suffixToPreserveState.toString();
   }
 

@@ -21,6 +21,8 @@ import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
+import com.hubspot.jinjava.lib.tag.eager.EagerSetTagStrategy;
+import com.hubspot.jinjava.lib.tag.eager.importing.AliasedEagerImportingStrategy;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.serialization.PyishBlockSetSerializable;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
@@ -474,11 +476,15 @@ public class EagerReconstructionUtils {
 
     StringJoiner vars = new StringJoiner(",");
     StringJoiner values = new StringJoiner(",");
+    StringJoiner varsRequiringSuffix = new StringJoiner(",");
     deferredValuesToSet.forEach(
       (key, value) -> {
         // This ensures they are properly aligned to each other.
         vars.add(key);
         values.add(value);
+        if (!AliasedEagerImportingStrategy.isTemporaryImportAlias(value)) {
+          varsRequiringSuffix.add(key);
+        }
       }
     );
     LengthLimitingStringJoiner result = new LengthLimitingStringJoiner(
@@ -493,6 +499,10 @@ public class EagerReconstructionUtils {
       .add(values.toString())
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag());
     String image = result.toString();
+    String suffix = EagerSetTagStrategy.getSuffixToPreserveState(
+      varsRequiringSuffix.toString(),
+      interpreter
+    );
     // Don't defer if we're sticking with the new value
     if (registerDeferredToken) {
       return (
@@ -505,10 +515,11 @@ public class EagerReconstructionUtils {
               .build()
           )
         ) +
-        image
+        image +
+        suffix
       );
     }
-    return image;
+    return (image + suffix);
   }
 
   /**
@@ -552,6 +563,7 @@ public class EagerReconstructionUtils {
       .add("end" + SetTag.TAG_NAME)
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag());
     String image = blockSetTokenBuilder + value + endTokenBuilder;
+    String suffix = EagerSetTagStrategy.getSuffixToPreserveState(name, interpreter);
     if (registerDeferredToken) {
       return (
         new PrefixToPreserveState(
@@ -567,10 +579,11 @@ public class EagerReconstructionUtils {
               .build()
           )
         ) +
-        image
+        image +
+        suffix
       );
     }
-    return image;
+    return image + suffix;
   }
 
   public static String buildDoUpdateTag(
