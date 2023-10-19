@@ -224,6 +224,13 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.getErrors().get(1).getLineno()).isEqualTo(1);
   }
 
+  @Test
+  public void itHandlesEscapedCharacters() throws Exception {
+    String expression = "{{'h\\u0003'}}";
+    Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo("h\\u0003");
+  }
+
   Node parse(String fixture) {
     try {
       return new TreeParser(
