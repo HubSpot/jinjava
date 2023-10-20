@@ -2,6 +2,6 @@
 {% set bar = deferred %}{% do __temp_import_alias_854547461__.update({'bar': bar}) %}
 
 {% set filters = {}  %}{% do __temp_import_alias_854547461__.update({'filters': filters}) %}{% do filters.update(deferred) %}
-{% do __temp_import_alias_854547461__.update({'bar': bar,'import_resource_path': 'filters.jinja','filters': filters,'foo': 123}) %}{% endfor %}{% set filters = __temp_import_alias_854547461__ %}{% set current_path = '' %}{% enddo %}
+{% do __temp_import_alias_854547461__.update({'bar': bar,'foo': 123,'import_resource_path': 'filters.jinja','filters': filters}) %}{% endfor %}{% set filters = __temp_import_alias_854547461__ %}{% set current_path = '' %}{% enddo %}
 
 {{ filters }}

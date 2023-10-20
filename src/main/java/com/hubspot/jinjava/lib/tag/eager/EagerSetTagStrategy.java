@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.eager.importing.AliasedEagerImportingStrategy;
@@ -166,6 +167,11 @@ public abstract class EagerSetTagStrategy {
       !AliasedEagerImportingStrategy.isTemporaryImportAlias(variables) &&
       !interpreter.getContext().getMetaContextVariables().contains(variables)
     ) {
+      if (!interpreter.getContext().containsKey(maybeTemporaryImportAlias.get())) {
+        throw new DeferredValueException(
+          "Cannot modify temporary import alias outside of import tag"
+        );
+      }
       String updateString = getUpdateString(variables);
 
       // Don't need to render because the temporary import alias's value is always deferred, and rendering will do nothing

@@ -1,0 +1,5 @@
+{% set settings = {} %}
+
+{% macro load_settings() %}
+{% do settings.put('foo', 'bar') %}
+{% endmacro %}
