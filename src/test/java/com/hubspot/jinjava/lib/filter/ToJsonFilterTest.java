@@ -66,10 +66,9 @@ public class ToJsonFilterTest extends BaseInterpretingTest {
       JinjavaConfig.newBuilder().withObjectMapper(new ObjectMapper()).build()
     );
     JinjavaInterpreter interpreter = jinjava.newInterpreter();
+    String expectedOutput = """
+{"testArray":[4,1,2],"another":"ab","testString":"testString","nested":{"innerKey2":"v2","innerKey1":"v1"}}""";
     assertThat(filter.filter(testMap, interpreter))
-      .isEqualTo(
-        """
-{"testArray":[4,1,2],"another":"ab","testString":"testString","nested":{"innerKey2":"v2","innerKey1":"v1"}}"""
-        );
+      .isEqualTo(expectedOutput);
   }
 }
