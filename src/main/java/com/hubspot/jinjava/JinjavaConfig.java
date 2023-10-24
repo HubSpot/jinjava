@@ -17,8 +17,10 @@ package com.hubspot.jinjava;
 
 import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
@@ -161,6 +163,10 @@ public class JinjavaConfig {
       if (legacyOverrides.isUseSnakeCasePropertyNaming()) {
         objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
       }
+      return objectMapper
+        .copy()
+        .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
+        .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
     }
     return objectMapper;
   }
