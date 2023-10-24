@@ -1,9 +1,9 @@
 package com.hubspot.jinjava.tree.output;
 
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,18 +49,73 @@ public class OutputList {
   }
 
   public String getValue() {
-    boolean preventAccidentalExpressions = JinjavaInterpreter
-      .getCurrentMaybe()
-      .map(JinjavaInterpreter::getConfig)
-      .map(JinjavaConfig::getFeatures)
-      .map(
-        features ->
-          features.getActivationStrategy(PREVENT_ACCIDENTAL_EXPRESSIONS).isActive(null)
-      )
-      .orElse(false);
-
     LengthLimitingStringBuilder val = new LengthLimitingStringBuilder(maxOutputSize);
 
+    return JinjavaInterpreter
+      .getCurrentMaybe()
+      .map(JinjavaInterpreter::getConfig)
+      .filter(
+        config ->
+          config
+            .getFeatures()
+            .getActivationStrategy(PREVENT_ACCIDENTAL_EXPRESSIONS)
+            .isActive(null)
+      )
+      .map(
+        config -> joinNodesWithoutAddingExpressions(val, config.getTokenScannerSymbols())
+      )
+      .orElseGet(() -> joinNodes(val));
+  }
+
+  private String joinNodesWithoutAddingExpressions(
+    LengthLimitingStringBuilder val,
+    TokenScannerSymbols tokenScannerSymbols
+  ) {
+    @SuppressWarnings("StringBufferReplaceableByString")
+    String separator = new StringBuilder()
+      .append('\n')
+      .append(tokenScannerSymbols.getPrefixChar())
+      .append(tokenScannerSymbols.getNoteChar())
+      .append(tokenScannerSymbols.getTrimChar())
+      .append(' ')
+      .append(tokenScannerSymbols.getNoteChar())
+      .append(tokenScannerSymbols.getExprEndChar())
+      .toString();
+    String prev = null;
+    String cur;
+    for (OutputNode node : nodes) {
+      try {
+        cur = node.getValue();
+        if (
+          prev != null &&
+          prev.length() > 0 &&
+          prev.charAt(prev.length() - 1) == tokenScannerSymbols.getExprStartChar()
+        ) {
+          if (
+            cur.length() > 0 &&
+            (
+              cur.charAt(0) == tokenScannerSymbols.getTag() ||
+              cur.charAt(0) == tokenScannerSymbols.getExprStartChar() ||
+              cur.charAt(0) == tokenScannerSymbols.getNoteChar()
+            )
+          ) {
+            val.append(separator);
+          }
+        }
+        prev = cur;
+        val.append(node.getValue());
+      } catch (OutputTooBigException e) {
+        JinjavaInterpreter
+          .getCurrent()
+          .addError(TemplateError.fromOutputTooBigException(e));
+        return val.toString();
+      }
+    }
+
+    return val.toString();
+  }
+
+  private String joinNodes(LengthLimitingStringBuilder val) {
     for (OutputNode node : nodes) {
       try {
         val.append(node.getValue());
