@@ -344,7 +344,7 @@ public class EagerImportTagTest extends ImportTagTest {
     context.put("b_val", "b");
     context.put("c_val", "c");
     String result = interpreter.render(
-      "{% import 'import-tree-c.jinja' as c %}{{ c|dictsort(false, 'key') }}"
+      "{% import 'import-tree-c.jinja' as c %}{{ c.b|dictsort(false, 'key') }}{{ c.foo_b }}{{ c.import_resource_path }}"
     );
     assertThat(interpreter.render("{{ c.b.a.foo_a }}")).isEqualTo("{{ c.b.a.foo_a }}");
     assertThat(interpreter.render("{{ c.b.foo_b }}")).isEqualTo("{{ c.b.foo_b }}");
@@ -355,7 +355,7 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(interpreter.render(result).trim())
       .isEqualTo(
         interpreter.render(
-          "{% import 'import-tree-c.jinja' as c %}{{ c|dictsort(false, 'key') }}"
+          "{% import 'import-tree-c.jinja' as c %}{{ c.b|dictsort(false, 'key') }}{{ c.foo_b }}{{ c.import_resource_path }}"
         )
       );
   }
