@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-
 import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
 import com.google.common.annotations.Beta;

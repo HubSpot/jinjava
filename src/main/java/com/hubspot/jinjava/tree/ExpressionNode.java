@@ -45,7 +45,8 @@ public class ExpressionNode extends Node {
   public OutputNode render(JinjavaInterpreter interpreter) {
     preProcess(interpreter);
     try {
-      return expressionStrategy.interpretOutput(master, interpreter);
+      RenderedOutputNode output = expressionStrategy.interpretOutput(master, interpreter);
+      return output;
     } catch (DeferredValueException e) {
       interpreter.getContext().handleDeferredNode(this);
       return new RenderedOutputNode(master.getImage());
