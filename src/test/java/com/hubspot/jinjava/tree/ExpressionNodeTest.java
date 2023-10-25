@@ -11,6 +11,8 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 
 public class ExpressionNodeTest extends BaseInterpretingTest {
@@ -208,6 +210,34 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
 
     context.setAutoEscape(true);
     assertThat(val("{{ a }}")).isEqualTo("foo &lt; bar");
+  }
+
+  @Test
+  public void itTestsMapSerializedInOrder() {
+    Jinjava jinjava = new Jinjava();
+    JinjavaInterpreter interpreter = jinjava.newInterpreter();
+    context = interpreter.getContext();
+    Map<String, String> fooMap = new HashMap<>();
+    fooMap.put("bbc", "b");
+    fooMap.put("abc", "a");
+    context.put("a", fooMap);
+
+    String output = new TreeParser(interpreter, "{{a}}")
+      .buildTree()
+      .getChildren()
+      .getFirst()
+      .render(interpreter)
+      .getValue();
+    assertThat(output).isEqualTo("{abc=a, bbc=b}");
+  }
+
+  @Test
+  public void itTestsMapSerializedInOrderWithLegacy() {
+    Map<String, String> fooMap = new HashMap<>();
+    fooMap.put("bbc", "b");
+    fooMap.put("abc", "a");
+    context.put("a", fooMap);
+    assertThat(val("{{ a }}")).isEqualTo("{'abc': 'a', 'bbc': 'b'}");
   }
 
   private String val(String jinja) {
