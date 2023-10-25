@@ -259,9 +259,6 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return rendered result
    */
   public String render(String template) {
-    if (template.contains("{% for row in filtered_products.products %}")) {
-      ENGINE_LOG.info(template);
-    }
     return render(parse(template), true);
   }
 
@@ -323,7 +320,6 @@ public class JinjavaInterpreter implements PyishSerializable {
           output.addNode(out);
         }
       } catch (OutputTooBigException e) {
-        ENGINE_LOG.error("OutputTooBigException", e);
         addError(TemplateError.fromOutputTooBigException(e));
         return output.getValue();
       } catch (CollectionTooBigException e) {
@@ -397,7 +393,6 @@ public class JinjavaInterpreter implements PyishSerializable {
               hasNestedExtends = true;
             }
           } catch (OutputTooBigException e) {
-            ENGINE_LOG.error("OutputTooBigException", e);
             addError(TemplateError.fromOutputTooBigException(e));
             return output.getValue();
           }

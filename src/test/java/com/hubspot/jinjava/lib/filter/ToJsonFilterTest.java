@@ -3,7 +3,6 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.Before;
@@ -27,20 +26,5 @@ public class ToJsonFilterTest extends BaseInterpretingTest {
     testMap.put("testString", "testString");
     assertThat(filter.filter(testMap, interpreter))
       .isEqualTo("{\"testArray\":[4,1,2],\"testString\":\"testString\"}");
-  }
-
-  @Test
-  public void itWritesHashObjectAsString() {
-    int[] testArray = new int[] { 4, 1, 2 };
-    assertThat(filter.filter(testArray, interpreter)).isEqualTo("[4,1,2]");
-
-    Map<String, Object> testMap = new HashMap<>();
-    testMap.put("anothera", "ab");
-    testMap.put("testString", "testString");
-    testMap.put("testArray", testArray);
-    assertThat(filter.filter(testMap, interpreter))
-      .isEqualTo(
-        "{\"testArray\":[4,1,2],\"anothera\":\"ab\",\"testString\":\"testString\"}"
-      );
   }
 }

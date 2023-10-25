@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
+import de.odysseus.el.misc.LocalMessages;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstBracket;
 import de.odysseus.el.tree.impl.ast.AstNode;
@@ -17,7 +18,6 @@ import javax.el.PropertyNotFoundException;
 
 public class AstRangeBracket extends AstBracket {
   protected final AstNode rangeMax;
-  private static PropertyNotFoundException propertyNotFoundException = null;
 
   public AstRangeBracket(
     AstNode base,
@@ -35,14 +35,9 @@ public class AstRangeBracket extends AstBracket {
   public Object eval(Bindings bindings, ELContext context) {
     Object base = prefix.eval(bindings, context);
     if (base == null) {
-      if (propertyNotFoundException == null) {
-        propertyNotFoundException =
-          new PropertyNotFoundException("error.property.base.null");
-      }
-      throw propertyNotFoundException;
-      //      throw new PropertyNotFoundException(
-      //        LocalMessages.get("error.property.base.null", prefix)
-      //      );
+      throw new PropertyNotFoundException(
+        LocalMessages.get("error.property.base.null", prefix)
+      );
     }
     boolean baseIsString = base.getClass().equals(String.class);
     if (

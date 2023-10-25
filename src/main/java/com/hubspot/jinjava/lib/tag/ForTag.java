@@ -15,9 +15,6 @@
  **********************************************************************/
 package com.hubspot.jinjava.lib.tag;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
@@ -38,7 +35,6 @@ import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
-import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.ForLoop;
@@ -52,7 +48,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
@@ -166,11 +161,7 @@ public class ForTag implements Tag {
     List<String> loopVars,
     Object collection
   ) {
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    Stopwatch totalStopWatch = Stopwatch.createStarted();
-    Stopwatch childStopWatch = Stopwatch.createUnstarted();
     ForLoop loop = ObjectIterator.getLoop(collection);
-    int count = 0;
 
     Set<String> removedMetaContextVariables = EagerReconstructionUtils.removeMetaContextVariables(
       loopVars.stream(),
@@ -188,7 +179,6 @@ public class ForTag implements Tag {
         interpreter.getConfig().getMaxOutputSize()
       );
       while (loop.hasNext()) {
-        ++count;
         Object val;
         try {
           val = interpreter.wrap(loop.next());
@@ -259,27 +249,11 @@ public class ForTag implements Tag {
         }
 
         for (Node node : tagNode.getChildren()) {
-          node.addExtraInfo("count", String.valueOf(count));
           if (interpreter.getContext().isValidationMode()) {
             node.render(interpreter);
           } else {
             try {
-              stopwatch.stop();
-              childStopWatch.start();
-              long startMs = System.currentTimeMillis();
-              OutputNode res = node.render(interpreter);
-              long durationMs = System.currentTimeMillis() - startMs;
-              if (durationMs > 1) {
-                ENGINE_LOG.info(
-                  "{} {} {}ms",
-                  count,
-                  node.getMaster().getImage().replace("\n", "").trim(),
-                  durationMs
-                );
-              }
-              childStopWatch.stop();
-              stopwatch.start();
-              buff.append(res);
+              buff.append(node.render(interpreter));
             } catch (OutputTooBigException e) {
               if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
                 throw new DeferredValueException(TOO_LARGE_EXCEPTION_MESSAGE);
@@ -300,17 +274,6 @@ public class ForTag implements Tag {
           throw new DeferredValueException(TOO_LARGE_EXCEPTION_MESSAGE);
         }
       }
-      tagNode.addExtraInfo(
-        "info",
-        "loop:" +
-        count +
-        ",d:" +
-        stopwatch.elapsed(TimeUnit.MILLISECONDS) +
-        ",c:" +
-        childStopWatch.elapsed(TimeUnit.MILLISECONDS) +
-        ",t:" +
-        totalStopWatch.elapsed(TimeUnit.MILLISECONDS)
-      );
       return checkLoopVariable(interpreter, buff);
     } finally {
       interpreter

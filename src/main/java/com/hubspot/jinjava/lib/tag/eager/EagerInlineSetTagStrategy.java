@@ -1,11 +1,8 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -36,7 +33,7 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
     String expression,
     JinjavaInterpreter interpreter
   ) {
-    EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
+    return EagerContextWatcher.executeInChildContext(
       eagerInterpreter ->
         EagerExpressionResolver.resolveExpression('[' + expression + ']', interpreter),
       interpreter,
@@ -45,18 +42,6 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
         .withTakeNewValue(true)
         .build()
     );
-    try {
-      JinjavaInterpreter.checkOutputSize(result.getResult().toString());
-    } catch (OutputTooBigException e) {
-      ENGINE_LOG.error(
-        "{} OutputTooBigException {} for: {}",
-        getClass().getSimpleName(),
-        e.getMessage(),
-        expression
-      );
-    }
-
-    return result;
   }
 
   @Override
@@ -86,36 +71,7 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
     EagerExecutionResult eagerExecutionResult,
     JinjavaInterpreter interpreter
   ) {
-    String deferredResult;
-    try {
-      deferredResult = eagerExecutionResult.getResult().toString();
-    } catch (OutputTooBigException e) {
-      ENGINE_LOG.error(
-        "{} OutputTooBigException {} for: {}",
-        getClass().getSimpleName(),
-        e.getMessage(),
-        tagNode.reconstructImage(),
-        e
-      );
-      throw e;
-    } catch (Exception e) {
-      ENGINE_LOG.error(
-        "{} Exception {} for: {}",
-        getClass().getSimpleName(),
-        e.getClass().getSimpleName(),
-        tagNode.reconstructImage()
-      );
-      throw e;
-    }
-    if (deferredResult.length() > 10_000) {
-      ENGINE_LOG.warn(
-        "{} DeferredResult is too big for \"{}\". DeferredResult string size: {} {}",
-        getClass().getSimpleName(),
-        tagNode.reconstructImage(),
-        deferredResult.length(),
-        deferredResult.substring(0, 2000)
-      );
-    }
+    String deferredResult = eagerExecutionResult.getResult().toString();
     if (WhitespaceUtils.isWrappedWith(deferredResult, "[", "]")) {
       deferredResult = deferredResult.substring(1, deferredResult.length() - 1);
     }

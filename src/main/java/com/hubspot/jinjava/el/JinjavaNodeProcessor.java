@@ -8,6 +8,4 @@ public class JinjavaNodeProcessor implements BiConsumer<Node, JinjavaInterpreter
 
   @Override
   public void accept(Node node, JinjavaInterpreter interpreter) {}
-
-  public void addInfo(String key, Object info) {}
 }
