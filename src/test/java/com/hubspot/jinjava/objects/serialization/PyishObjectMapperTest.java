@@ -65,7 +65,7 @@ public class PyishObjectMapperTest {
     map.put("foo", "bar");
     map.put("foobar", null);
     assertThat(PyishObjectMapper.getAsPyishString(map))
-      .isEqualTo("{'foobar': null, 'foo': 'bar'} ");
+      .isEqualTo("{'foo': 'bar', 'foobar': null} ");
   }
 
   @Test

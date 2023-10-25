@@ -7,7 +7,10 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.objects.PyWrapper;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SizeLimitingPyMap extends PyMap implements PyWrapper {
   private int maxSize;
@@ -37,6 +40,37 @@ public class SizeLimitingPyMap extends PyMap implements PyWrapper {
     }
 
     return super.put(s, o);
+  }
+
+  @Override
+  public String toString() {
+    if (isEmpty()) {
+      return "{}";
+    }
+
+    List<Entry<String, Object>> list = entrySet()
+      .stream()
+      //.map(e -> e.getKey() == null ? Map.entry("", e.getValue()) : e)
+      .sorted(Entry.comparingByKey())
+      .collect(Collectors.toList());
+    Iterator<Entry<String, Object>> i = list.iterator();
+    if (!i.hasNext()) {
+      return "{}";
+    }
+    StringBuilder sb = new StringBuilder();
+    sb.append('{');
+    for (;;) {
+      Entry<String, Object> e = i.next();
+      String key = e.getKey();
+      Object value = e.getValue();
+      sb.append(key);
+      sb.append('=');
+      sb.append(value == this ? "(this Map)" : value);
+      if (!i.hasNext()) {
+        return sb.append('}').toString();
+      }
+      sb.append(',').append(' ');
+    }
   }
 
   @Override

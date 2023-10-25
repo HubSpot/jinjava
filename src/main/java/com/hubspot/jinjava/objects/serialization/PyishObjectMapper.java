@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonFactoryBuilder;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.annotations.Beta;
@@ -49,6 +51,12 @@ public class PyishObjectMapper {
           .addSerializer(PyishSerializable.class, PyishSerializer.INSTANCE)
       );
     mapper.getSerializerProvider().setNullKeySerializer(new NullKeySerializer());
+    mapper.setConfig(
+      mapper
+        .getSerializationConfig()
+        .with(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+        .with(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+    );
     return mapper;
   }
 
