@@ -35,11 +35,22 @@ public class SizeLimitingPyMap extends PyMap implements PyWrapper {
 
   @Override
   public Object put(String s, Object o) {
+    if (s == null) {
+      s = "";
+    }
     if (!delegate().containsKey(s)) {
       checkSize(delegate().size() + 1);
     }
 
     return super.put(s, o);
+  }
+
+  @Override
+  public Object get(Object s) {
+    if (s == null) {
+      s = "";
+    }
+    return super.get(s);
   }
 
   @Override
