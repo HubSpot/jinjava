@@ -122,4 +122,10 @@ public abstract class TokenScannerSymbols implements Serializable {
     }
     return closingComment;
   }
+
+  public static boolean isNoteTagOrExprChar(TokenScannerSymbols symbols, char c) {
+    return (
+      c == symbols.getNote() || c == symbols.getTag() || c == symbols.getExprStartChar()
+    );
+  }
 }

@@ -71,16 +71,7 @@ public class OutputList {
     LengthLimitingStringBuilder val,
     TokenScannerSymbols tokenScannerSymbols
   ) {
-    @SuppressWarnings("StringBufferReplaceableByString")
-    String separator = new StringBuilder()
-      .append('\n')
-      .append(tokenScannerSymbols.getPrefixChar())
-      .append(tokenScannerSymbols.getNoteChar())
-      .append(tokenScannerSymbols.getTrimChar())
-      .append(' ')
-      .append(tokenScannerSymbols.getNoteChar())
-      .append(tokenScannerSymbols.getExprEndChar())
-      .toString();
+    String separator = getWhitespaceSeparator(tokenScannerSymbols);
     String prev = null;
     String cur;
     for (OutputNode node : nodes) {
@@ -93,11 +84,7 @@ public class OutputList {
         ) {
           if (
             cur.length() > 0 &&
-            (
-              cur.charAt(0) == tokenScannerSymbols.getTag() ||
-              cur.charAt(0) == tokenScannerSymbols.getExprStartChar() ||
-              cur.charAt(0) == tokenScannerSymbols.getNoteChar()
-            )
+            TokenScannerSymbols.isNoteTagOrExprChar(tokenScannerSymbols, cur.charAt(0))
           ) {
             val.append(separator);
           }
@@ -113,6 +100,20 @@ public class OutputList {
     }
 
     return val.toString();
+  }
+
+  private static String getWhitespaceSeparator(TokenScannerSymbols tokenScannerSymbols) {
+    @SuppressWarnings("StringBufferReplaceableByString")
+    String separator = new StringBuilder()
+      .append('\n')
+      .append(tokenScannerSymbols.getPrefixChar())
+      .append(tokenScannerSymbols.getNoteChar())
+      .append(tokenScannerSymbols.getTrimChar())
+      .append(' ')
+      .append(tokenScannerSymbols.getNoteChar())
+      .append(tokenScannerSymbols.getExprEndChar())
+      .toString();
+    return separator;
   }
 
   private String joinNodes(LengthLimitingStringBuilder val) {
