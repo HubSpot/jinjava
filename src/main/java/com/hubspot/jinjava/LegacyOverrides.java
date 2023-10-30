@@ -3,9 +3,20 @@ package com.hubspot.jinjava;
 /**
  * This class allows Jinjava to be configured to override legacy behaviour.
  * LegacyOverrides.NONE signifies that none of the legacy functionality will be overridden.
+ * LegacyOverrides.ALL signifies that all new functionality will be used; avoid legacy "bugs".
  */
 public class LegacyOverrides {
   public static final LegacyOverrides NONE = new LegacyOverrides.Builder().build();
+  public static final LegacyOverrides ALL = new LegacyOverrides.Builder()
+    .withEvaluateMapKeys(true)
+    .withIterateOverMapKeys(true)
+    .withUsePyishObjectMapper(true)
+    .withUseSnakeCasePropertyNaming(true)
+    .withWhitespaceRequiredWithinTokens(true)
+    .withUseNaturalOperatorPrecedence(true)
+    .withParseWhitespaceControlStrictly(true)
+    .withAllowAdjacentTextNodes(true)
+    .build();
   private final boolean evaluateMapKeys;
   private final boolean iterateOverMapKeys;
   private final boolean usePyishObjectMapper;
