@@ -13,6 +13,7 @@ public class LegacyOverrides {
   private final boolean whitespaceRequiredWithinTokens;
   private final boolean useNaturalOperatorPrecedence;
   private final boolean parseWhitespaceControlStrictly;
+  private final boolean allowAdjacentTextNodes;
 
   private LegacyOverrides(Builder builder) {
     evaluateMapKeys = builder.evaluateMapKeys;
@@ -22,6 +23,7 @@ public class LegacyOverrides {
     whitespaceRequiredWithinTokens = builder.whitespaceRequiredWithinTokens;
     useNaturalOperatorPrecedence = builder.useNaturalOperatorPrecedence;
     parseWhitespaceControlStrictly = builder.parseWhitespaceControlStrictly;
+    allowAdjacentTextNodes = builder.allowAdjacentTextNodes;
   }
 
   public static Builder newBuilder() {
@@ -56,6 +58,10 @@ public class LegacyOverrides {
     return parseWhitespaceControlStrictly;
   }
 
+  public boolean isAllowAdjacentTextNodes() {
+    return allowAdjacentTextNodes;
+  }
+
   public static class Builder {
     private boolean evaluateMapKeys = false;
     private boolean iterateOverMapKeys = false;
@@ -64,6 +70,7 @@ public class LegacyOverrides {
     private boolean whitespaceRequiredWithinTokens = false;
     private boolean useNaturalOperatorPrecedence = false;
     private boolean parseWhitespaceControlStrictly = false;
+    private boolean allowAdjacentTextNodes = false;
 
     private Builder() {}
 
@@ -83,7 +90,8 @@ public class LegacyOverrides {
         .withUseNaturalOperatorPrecedence(legacyOverrides.useNaturalOperatorPrecedence)
         .withParseWhitespaceControlStrictly(
           legacyOverrides.parseWhitespaceControlStrictly
-        );
+        )
+        .withAllowAdjacentTextNodes(legacyOverrides.allowAdjacentTextNodes);
     }
 
     public Builder withEvaluateMapKeys(boolean evaluateMapKeys) {
@@ -124,6 +132,11 @@ public class LegacyOverrides {
       boolean parseWhitespaceControlStrictly
     ) {
       this.parseWhitespaceControlStrictly = parseWhitespaceControlStrictly;
+      return this;
+    }
+
+    public Builder withAllowAdjacentTextNodes(boolean allowAdjacentTextNodes) {
+      this.allowAdjacentTextNodes = allowAdjacentTextNodes;
       return this;
     }
   }
