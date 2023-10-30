@@ -6,6 +6,7 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
@@ -232,10 +233,36 @@ public class TreeParserTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itMergesTextNodesWhileRespectingTrim() {
+    String expression = "{% print 'A' -%}\n{#- note -#}\nB\n{%- print 'C' %}";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo("ABC");
+  }
+
+  @Test
   public void itTrimsExpressions() {
     String expression = "A\n{{- 'B' -}}\nC";
     final Node tree = new TreeParser(interpreter, expression).buildTree();
     assertThat(interpreter.render(tree)).isEqualTo("ABC");
+  }
+
+  @Test
+  public void itDoesNotMergeAdjacentTextNodesWhenLegacyOverrideIsApplied() {
+    String expression = "A\n{%- if true -%}\n{# comment #}\nB{% endif %}";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo("AB");
+    interpreter =
+      new Jinjava(
+        JinjavaConfig
+          .newBuilder()
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withAllowAdjacentTextNodes(true).build()
+          )
+          .build()
+      )
+      .newInterpreter();
+    final Node overriddenTree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(overriddenTree)).isEqualTo("A\nB");
   }
 
   Node parse(String fixture) {
