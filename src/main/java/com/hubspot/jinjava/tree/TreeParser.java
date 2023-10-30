@@ -68,7 +68,9 @@ public class TreeParser {
           !interpreter.getConfig().getLegacyOverrides().isAllowAdjacentTextNodes()
         ) {
           // merge adjacent text nodes so whitespace control properly applies
-          getLastSibling().getMaster().mergeImageAndContent(node.getMaster());
+          ((TextToken) getLastSibling().getMaster()).mergeImageAndContent(
+              (TextToken) node.getMaster()
+            );
         } else {
           parent.getChildren().add(node);
         }

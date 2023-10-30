@@ -29,6 +29,13 @@ public class TextToken extends Token {
     super(image, lineNumber, startPosition, symbols);
   }
 
+  public void mergeImageAndContent(TextToken otherToken) {
+    String thisOutput = output();
+    String otherTokenOutput = otherToken.output();
+    this.image = thisOutput + otherTokenOutput;
+    this.content = image;
+  }
+
   @Override
   public int getType() {
     return getSymbols().getFixed();

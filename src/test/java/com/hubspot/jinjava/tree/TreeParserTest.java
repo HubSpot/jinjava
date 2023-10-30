@@ -233,6 +233,13 @@ public class TreeParserTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itMergesTextNodesWhileRespectingTrim() {
+    String expression = "{% print 'A' -%}\n{#- note -#}\nB\n{%- print 'C' %}";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo("ABC");
+  }
+
+  @Test
   public void itTrimsExpressions() {
     String expression = "A\n{{- 'B' -}}\nC";
     final Node tree = new TreeParser(interpreter, expression).buildTree();
