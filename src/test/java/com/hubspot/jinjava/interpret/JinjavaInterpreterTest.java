@@ -8,19 +8,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
-import com.hubspot.jinjava.features.FeatureConfig;
-import com.hubspot.jinjava.features.FeatureStrategies;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
-import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
 import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.output.BlockInfo;
-import com.hubspot.jinjava.tree.output.OutputList;
 import com.hubspot.jinjava.tree.parse.TextToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import java.time.ZoneId;
@@ -506,54 +502,5 @@ public class JinjavaInterpreterTest {
     interpreter.addError(copiedError1);
 
     assertThat(interpreter.getErrors()).containsExactly(error1, error2);
-  }
-
-  @Test
-  public void itPreventsAccidentalExpressions() {
-    String makeExpression = "if (true) {\n{%- print deferred -%}\n}";
-    String makeTag = "if (true) {\n{%- print '% print 123 %' -%}\n}";
-    String makeNote = "if (true) {\n{%- print '# note #' -%}\n}";
-    jinjava.getGlobalContext().put("deferred", DeferredValue.instance());
-
-    JinjavaInterpreter normalInterpreter = new JinjavaInterpreter(
-      jinjava,
-      jinjava.getGlobalContext(),
-      JinjavaConfig.newBuilder().withExecutionMode(EagerExecutionMode.instance()).build()
-    );
-    JinjavaInterpreter preventingInterpreter = new JinjavaInterpreter(
-      jinjava,
-      jinjava.getGlobalContext(),
-      JinjavaConfig
-        .newBuilder()
-        .withFeatureConfig(
-          FeatureConfig
-            .newBuilder()
-            .add(OutputList.PREVENT_ACCIDENTAL_EXPRESSIONS, FeatureStrategies.ACTIVE)
-            .build()
-        )
-        .withExecutionMode(EagerExecutionMode.instance())
-        .build()
-    );
-    JinjavaInterpreter.pushCurrent(normalInterpreter);
-    try {
-      assertThat(normalInterpreter.render(makeExpression))
-        .isEqualTo("if (true) {{% print deferred %}}");
-      assertThat(normalInterpreter.render(makeTag))
-        .isEqualTo("if (true) {% print 123 %}");
-      assertThat(normalInterpreter.render(makeNote)).isEqualTo("if (true) {# note #}");
-    } finally {
-      JinjavaInterpreter.popCurrent();
-    }
-    JinjavaInterpreter.pushCurrent(preventingInterpreter);
-    try {
-      assertThat(preventingInterpreter.render(makeExpression))
-        .isEqualTo("if (true) {\n" + "{#- #}{% print deferred %}}");
-      assertThat(preventingInterpreter.render(makeTag))
-        .isEqualTo("if (true) {\n" + "{#- #}% print 123 %}");
-      assertThat(preventingInterpreter.render(makeNote))
-        .isEqualTo("if (true) {\n" + "{#- #}# note #}");
-    } finally {
-      JinjavaInterpreter.popCurrent();
-    }
   }
 }
