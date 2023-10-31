@@ -62,18 +62,7 @@ public class TreeParser {
       Node node = nextNode();
 
       if (node != null) {
-        if (
-          node instanceof TextNode &&
-          getLastSibling() instanceof TextNode &&
-          !interpreter.getConfig().getLegacyOverrides().isAllowAdjacentTextNodes()
-        ) {
-          // merge adjacent text nodes so whitespace control properly applies
-          ((TextToken) getLastSibling().getMaster()).mergeImageAndContent(
-              (TextToken) node.getMaster()
-            );
-        } else {
-          parent.getChildren().add(node);
-        }
+        parent.getChildren().add(node);
       }
     }
 
