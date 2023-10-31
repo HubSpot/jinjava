@@ -3,9 +3,20 @@ package com.hubspot.jinjava;
 /**
  * This class allows Jinjava to be configured to override legacy behaviour.
  * LegacyOverrides.NONE signifies that none of the legacy functionality will be overridden.
+ * LegacyOverrides.ALL signifies that all new functionality will be used; avoid legacy "bugs".
  */
 public class LegacyOverrides {
   public static final LegacyOverrides NONE = new LegacyOverrides.Builder().build();
+  public static final LegacyOverrides ALL = new LegacyOverrides.Builder()
+    .withEvaluateMapKeys(true)
+    .withIterateOverMapKeys(true)
+    .withUsePyishObjectMapper(true)
+    .withUseSnakeCasePropertyNaming(true)
+    .withWhitespaceRequiredWithinTokens(true)
+    .withUseNaturalOperatorPrecedence(true)
+    .withParseWhitespaceControlStrictly(true)
+    .withAllowAdjacentTextNodes(true)
+    .build();
   private final boolean evaluateMapKeys;
   private final boolean iterateOverMapKeys;
   private final boolean usePyishObjectMapper;
@@ -13,6 +24,7 @@ public class LegacyOverrides {
   private final boolean whitespaceRequiredWithinTokens;
   private final boolean useNaturalOperatorPrecedence;
   private final boolean parseWhitespaceControlStrictly;
+  private final boolean allowAdjacentTextNodes;
 
   private LegacyOverrides(Builder builder) {
     evaluateMapKeys = builder.evaluateMapKeys;
@@ -22,6 +34,7 @@ public class LegacyOverrides {
     whitespaceRequiredWithinTokens = builder.whitespaceRequiredWithinTokens;
     useNaturalOperatorPrecedence = builder.useNaturalOperatorPrecedence;
     parseWhitespaceControlStrictly = builder.parseWhitespaceControlStrictly;
+    allowAdjacentTextNodes = builder.allowAdjacentTextNodes;
   }
 
   public static Builder newBuilder() {
@@ -56,6 +69,10 @@ public class LegacyOverrides {
     return parseWhitespaceControlStrictly;
   }
 
+  public boolean isAllowAdjacentTextNodes() {
+    return allowAdjacentTextNodes;
+  }
+
   public static class Builder {
     private boolean evaluateMapKeys = false;
     private boolean iterateOverMapKeys = false;
@@ -64,6 +81,7 @@ public class LegacyOverrides {
     private boolean whitespaceRequiredWithinTokens = false;
     private boolean useNaturalOperatorPrecedence = false;
     private boolean parseWhitespaceControlStrictly = false;
+    private boolean allowAdjacentTextNodes = false;
 
     private Builder() {}
 
@@ -83,7 +101,8 @@ public class LegacyOverrides {
         .withUseNaturalOperatorPrecedence(legacyOverrides.useNaturalOperatorPrecedence)
         .withParseWhitespaceControlStrictly(
           legacyOverrides.parseWhitespaceControlStrictly
-        );
+        )
+        .withAllowAdjacentTextNodes(legacyOverrides.allowAdjacentTextNodes);
     }
 
     public Builder withEvaluateMapKeys(boolean evaluateMapKeys) {
@@ -124,6 +143,11 @@ public class LegacyOverrides {
       boolean parseWhitespaceControlStrictly
     ) {
       this.parseWhitespaceControlStrictly = parseWhitespaceControlStrictly;
+      return this;
+    }
+
+    public Builder withAllowAdjacentTextNodes(boolean allowAdjacentTextNodes) {
+      this.allowAdjacentTextNodes = allowAdjacentTextNodes;
       return this;
     }
   }
