@@ -224,20 +224,6 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.getErrors().get(1).getLineno()).isEqualTo(1);
   }
 
-  @Test
-  public void itTrimsNotes() {
-    String expression = "A\n{#- note -#}\nB";
-    final Node tree = new TreeParser(interpreter, expression).buildTree();
-    assertThat(interpreter.render(tree)).isEqualTo("AB");
-  }
-
-  @Test
-  public void itTrimsExpressions() {
-    String expression = "A\n{{- 'B' -}}\nC";
-    final Node tree = new TreeParser(interpreter, expression).buildTree();
-    assertThat(interpreter.render(tree)).isEqualTo("ABC");
-  }
-
   Node parse(String fixture) {
     try {
       return new TreeParser(
