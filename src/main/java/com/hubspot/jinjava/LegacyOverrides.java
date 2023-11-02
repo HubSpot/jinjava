@@ -16,6 +16,7 @@ public class LegacyOverrides {
     .withUseNaturalOperatorPrecedence(true)
     .withParseWhitespaceControlStrictly(true)
     .withAllowAdjacentTextNodes(true)
+    .withUseTrimmingForNotesAndExpressions(true)
     .build();
   private final boolean evaluateMapKeys;
   private final boolean iterateOverMapKeys;
@@ -25,6 +26,7 @@ public class LegacyOverrides {
   private final boolean useNaturalOperatorPrecedence;
   private final boolean parseWhitespaceControlStrictly;
   private final boolean allowAdjacentTextNodes;
+  private final boolean useTrimmingForNotesAndExpressions;
 
   private LegacyOverrides(Builder builder) {
     evaluateMapKeys = builder.evaluateMapKeys;
@@ -35,6 +37,7 @@ public class LegacyOverrides {
     useNaturalOperatorPrecedence = builder.useNaturalOperatorPrecedence;
     parseWhitespaceControlStrictly = builder.parseWhitespaceControlStrictly;
     allowAdjacentTextNodes = builder.allowAdjacentTextNodes;
+    useTrimmingForNotesAndExpressions = builder.useTrimmingForNotesAndExpressions;
   }
 
   public static Builder newBuilder() {
@@ -73,6 +76,10 @@ public class LegacyOverrides {
     return allowAdjacentTextNodes;
   }
 
+  public boolean isUseTrimmingForNotesAndExpressions() {
+    return useTrimmingForNotesAndExpressions;
+  }
+
   public static class Builder {
     private boolean evaluateMapKeys = false;
     private boolean iterateOverMapKeys = false;
@@ -82,6 +89,7 @@ public class LegacyOverrides {
     private boolean useNaturalOperatorPrecedence = false;
     private boolean parseWhitespaceControlStrictly = false;
     private boolean allowAdjacentTextNodes = false;
+    private boolean useTrimmingForNotesAndExpressions = false;
 
     private Builder() {}
 
@@ -102,7 +110,10 @@ public class LegacyOverrides {
         .withParseWhitespaceControlStrictly(
           legacyOverrides.parseWhitespaceControlStrictly
         )
-        .withAllowAdjacentTextNodes(legacyOverrides.allowAdjacentTextNodes);
+        .withAllowAdjacentTextNodes(legacyOverrides.allowAdjacentTextNodes)
+        .withUseTrimmingForNotesAndExpressions(
+          legacyOverrides.useTrimmingForNotesAndExpressions
+        );
     }
 
     public Builder withEvaluateMapKeys(boolean evaluateMapKeys) {
@@ -148,6 +159,13 @@ public class LegacyOverrides {
 
     public Builder withAllowAdjacentTextNodes(boolean allowAdjacentTextNodes) {
       this.allowAdjacentTextNodes = allowAdjacentTextNodes;
+      return this;
+    }
+
+    public Builder withUseTrimmingForNotesAndExpressions(
+      boolean useTrimmingForNotesAndExpressions
+    ) {
+      this.useTrimmingForNotesAndExpressions = useTrimmingForNotesAndExpressions;
       return this;
     }
   }

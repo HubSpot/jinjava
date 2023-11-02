@@ -229,7 +229,22 @@ public class TreeParserTest extends BaseInterpretingTest {
   public void itTrimsNotes() {
     String expression = "A\n{#- note -#}\nB";
     final Node tree = new TreeParser(interpreter, expression).buildTree();
-    assertThat(interpreter.render(tree)).isEqualTo("AB");
+    assertThat(interpreter.render(tree)).isEqualTo("A\n\nB");
+    interpreter =
+      new Jinjava(
+        JinjavaConfig
+          .newBuilder()
+          .withLegacyOverrides(
+            LegacyOverrides
+              .newBuilder()
+              .withUseTrimmingForNotesAndExpressions(true)
+              .build()
+          )
+          .build()
+      )
+      .newInterpreter();
+    final Node newTree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(newTree)).isEqualTo("AB");
   }
 
   @Test
@@ -243,7 +258,22 @@ public class TreeParserTest extends BaseInterpretingTest {
   public void itTrimsExpressions() {
     String expression = "A\n{{- 'B' -}}\nC";
     final Node tree = new TreeParser(interpreter, expression).buildTree();
-    assertThat(interpreter.render(tree)).isEqualTo("ABC");
+    assertThat(interpreter.render(tree)).isEqualTo("A\nB\nC");
+    interpreter =
+      new Jinjava(
+        JinjavaConfig
+          .newBuilder()
+          .withLegacyOverrides(
+            LegacyOverrides
+              .newBuilder()
+              .withUseTrimmingForNotesAndExpressions(true)
+              .build()
+          )
+          .build()
+      )
+      .newInterpreter();
+    final Node newTree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(newTree)).isEqualTo("ABC");
   }
 
   @Test

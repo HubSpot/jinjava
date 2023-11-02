@@ -17,6 +17,7 @@ package com.hubspot.jinjava.tree;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MissingEndTagException;
@@ -102,7 +103,7 @@ public class TreeParser {
 
   private Node nextNode() {
     Token token = scanner.next();
-    if (token.isLeftTrim()) {
+    if (token.isLeftTrim() && isTrimmingEnabledForToken(token, interpreter.getConfig())) {
       final Node lastSibling = getLastSibling();
       if (lastSibling instanceof TextNode) {
         lastSibling.getMaster().setRightTrim(true);
@@ -182,7 +183,11 @@ public class TreeParser {
     final Node lastSibling = getLastSibling();
 
     // if last sibling was a tag and has rightTrimAfterEnd, strip whitespace
-    if (lastSibling != null && isRightTrim(lastSibling)) {
+    if (
+      lastSibling != null &&
+      isRightTrim(lastSibling) &&
+      isTrimmingEnabledForToken(lastSibling.getMaster(), interpreter.getConfig())
+    ) {
       textToken.setLeftTrim(true);
     }
 
@@ -314,5 +319,12 @@ public class TreeParser {
         )
       );
     }
+  }
+
+  private boolean isTrimmingEnabledForToken(Token token, JinjavaConfig jinjavaConfig) {
+    if (token instanceof TagToken || token instanceof TextToken) {
+      return true;
+    }
+    return jinjavaConfig.getLegacyOverrides().isUseTrimmingForNotesAndExpressions();
   }
 }
