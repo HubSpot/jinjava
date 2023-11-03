@@ -24,6 +24,12 @@ public class RenderFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    if (args.length > 0) {
+      /*
+       This means a render limit length has been provided.
+       Here we begin a left to right render where we add to an HTML string until the length reaches a certain limit.
+       */
+    }
     return interpreter.render(Objects.toString(var));
   }
 }
