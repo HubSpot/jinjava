@@ -29,6 +29,7 @@ public class RenderFilter implements Filter {
        This means a render limit length has been provided.
        Here we begin a left to right render where we add to an HTML string until the length reaches a certain limit.
        */
+      return interpreter.render(Objects.toString(var));
     }
     return interpreter.render(Objects.toString(var));
   }
