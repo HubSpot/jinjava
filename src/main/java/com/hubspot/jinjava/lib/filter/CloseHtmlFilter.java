@@ -8,17 +8,13 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 @JinjavaDoc(
   value = "Closes open HTML tags in a string",
   input = @JinjavaParam(value = "s", desc = "String to close", required = true),
-  snippets = {
-    @JinjavaSnippet(
-      code = "{{ \"<p> Hello, world\"|closehtml }}"
-    )
-  }
+  snippets = { @JinjavaSnippet(code = "{{ \"<p> Hello, world\"|closehtml }}") }
 )
-public class CloseHtmlFilter implements Filter{
+public class CloseHtmlFilter implements Filter {
 
   @Override
   public String getName() {
-    return "render";
+    return "closehtml";
   }
 
   @Override
