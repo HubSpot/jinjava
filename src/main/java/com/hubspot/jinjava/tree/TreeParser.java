@@ -17,6 +17,7 @@ package com.hubspot.jinjava.tree;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MissingEndTagException;
@@ -62,9 +63,15 @@ public class TreeParser {
       Node node = nextNode();
 
       if (node != null) {
-        if (node instanceof TextNode && getLastSibling() instanceof TextNode) {
+        if (
+          node instanceof TextNode &&
+          getLastSibling() instanceof TextNode &&
+          !interpreter.getConfig().getLegacyOverrides().isAllowAdjacentTextNodes()
+        ) {
           // merge adjacent text nodes so whitespace control properly applies
-          getLastSibling().getMaster().mergeImageAndContent(node.getMaster());
+          ((TextToken) getLastSibling().getMaster()).mergeImageAndContent(
+              (TextToken) node.getMaster()
+            );
         } else {
           parent.getChildren().add(node);
         }
@@ -96,6 +103,12 @@ public class TreeParser {
 
   private Node nextNode() {
     Token token = scanner.next();
+    if (token.isLeftTrim() && isTrimmingEnabledForToken(token, interpreter.getConfig())) {
+      final Node lastSibling = getLastSibling();
+      if (lastSibling instanceof TextNode) {
+        lastSibling.getMaster().setRightTrim(true);
+      }
+    }
 
     if (token.getType() == symbols.getFixed()) {
       if (token instanceof UnclosedToken) {
@@ -170,7 +183,11 @@ public class TreeParser {
     final Node lastSibling = getLastSibling();
 
     // if last sibling was a tag and has rightTrimAfterEnd, strip whitespace
-    if (lastSibling instanceof TagNode && isRightTrim((TagNode) lastSibling)) {
+    if (
+      lastSibling != null &&
+      isRightTrim(lastSibling) &&
+      isTrimmingEnabledForToken(lastSibling.getMaster(), interpreter.getConfig())
+    ) {
       textToken.setLeftTrim(true);
     }
 
@@ -186,18 +203,21 @@ public class TreeParser {
     return n;
   }
 
-  private boolean isRightTrim(TagNode lastSibling) {
-    return (
-        lastSibling.getEndName() == null ||
-        (
-          lastSibling.getTag() instanceof FlexibleTag &&
-          !((FlexibleTag) lastSibling.getTag()).hasEndTag(
-              (TagToken) lastSibling.getMaster()
-            )
+  private boolean isRightTrim(Node lastSibling) {
+    if (lastSibling instanceof TagNode) {
+      return (
+          ((TagNode) lastSibling).getEndName() == null ||
+          (
+            ((TagNode) lastSibling).getTag() instanceof FlexibleTag &&
+            !((FlexibleTag) ((TagNode) lastSibling).getTag()).hasEndTag(
+                (TagToken) lastSibling.getMaster()
+              )
+          )
         )
-      )
-      ? lastSibling.getMaster().isRightTrim()
-      : lastSibling.getMaster().isRightTrimAfterEnd();
+        ? lastSibling.getMaster().isRightTrim()
+        : lastSibling.getMaster().isRightTrimAfterEnd();
+    }
+    return lastSibling.getMaster().isRightTrim();
   }
 
   private Node expression(ExpressionToken expressionToken) {
@@ -242,14 +262,6 @@ public class TreeParser {
     if (tag instanceof EndTag) {
       endTag(tag, tagToken);
       return null;
-    } else {
-      // if a tag has left trim, mark the last sibling to trim right whitespace
-      if (tagToken.isLeftTrim()) {
-        final Node lastSibling = getLastSibling();
-        if (lastSibling instanceof TextNode) {
-          lastSibling.getMaster().setRightTrim(true);
-        }
-      }
     }
 
     TagNode node = new TagNode(tag, tagToken, symbols);
@@ -268,16 +280,6 @@ public class TreeParser {
   }
 
   private void endTag(Tag tag, TagToken tagToken) {
-    final Node lastSibling = getLastSibling();
-
-    if (
-      parent instanceof TagNode &&
-      tagToken.isLeftTrim() &&
-      lastSibling instanceof TextNode
-    ) {
-      lastSibling.getMaster().setRightTrim(true);
-    }
-
     if (parent.getMaster() != null) { // root node
       parent.getMaster().setRightTrimAfterEnd(tagToken.isRightTrim());
     }
@@ -317,5 +319,12 @@ public class TreeParser {
         )
       );
     }
+  }
+
+  private boolean isTrimmingEnabledForToken(Token token, JinjavaConfig jinjavaConfig) {
+    if (token instanceof TagToken || token instanceof TextToken) {
+      return true;
+    }
+    return jinjavaConfig.getLegacyOverrides().isUseTrimmingForNotesAndExpressions();
   }
 }
