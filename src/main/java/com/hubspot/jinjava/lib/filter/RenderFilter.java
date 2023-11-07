@@ -5,6 +5,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.Objects;
+import org.apache.commons.lang3.math.NumberUtils;
 
 @JinjavaDoc(
   value = "Renders a template string early to be used by other filters and functions",
@@ -25,11 +26,11 @@ public class RenderFilter implements Filter {
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     if (args.length > 0) {
-      /*
-       This means a render limit length has been provided.
-       Here we begin a left to right render where we add to an HTML string until the length reaches a certain limit.
-       */
-      return interpreter.render(Objects.toString(var));
+      String firstArg = args[0];
+      return interpreter.render(
+        Objects.toString(var),
+        NumberUtils.toLong(firstArg, JinjavaInterpreter.NO_LIMIT)
+      );
     }
     return interpreter.render(Objects.toString(var));
   }

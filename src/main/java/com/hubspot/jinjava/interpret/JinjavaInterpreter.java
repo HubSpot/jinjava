@@ -75,6 +75,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 public class JinjavaInterpreter implements PyishSerializable {
   public static final String IGNORED_OUTPUT_FROM_EXTENDS_NOTE =
     "ignored_output_from_extends";
+  public static final long NO_LIMIT = -1;
+
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
   private final LinkedList<Node> extendParentRoots = new LinkedList<>();
   private final Map<String, RevertibleObject> revertibleObjects = new HashMap<>();
@@ -94,7 +96,6 @@ public class JinjavaInterpreter implements PyishSerializable {
   private final Set<Integer> errorSet = new HashSet<>();
 
   private static final int MAX_ERROR_SIZE = 100;
-  private static final long NO_LIMIT = -1;
 
   public JinjavaInterpreter(
     Jinjava application,
@@ -260,7 +261,11 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return rendered result
    */
   public String render(String template) {
-    return render(parse(template), true);
+    return render(template, NO_LIMIT);
+  }
+
+  public String render(String template, long renderLimit) {
+    return render(parse(template), true, renderLimit);
   }
 
   /**
@@ -287,7 +292,7 @@ public class JinjavaInterpreter implements PyishSerializable {
   }
 
   /**
-   * Rendee the given root node to a certain limit, processing extend parents.
+   * Render the given root node to a certain limit, processing extend parents.
    * @param root
    *          node to render
    * @param renderLimit
