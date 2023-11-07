@@ -75,8 +75,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 public class JinjavaInterpreter implements PyishSerializable {
   public static final String IGNORED_OUTPUT_FROM_EXTENDS_NOTE =
     "ignored_output_from_extends";
-  public static final long NO_LIMIT = -1;
-
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
   private final LinkedList<Node> extendParentRoots = new LinkedList<>();
   private final Map<String, RevertibleObject> revertibleObjects = new HashMap<>();
@@ -261,7 +259,7 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return rendered result
    */
   public String render(String template) {
-    return render(template, NO_LIMIT);
+    return render(template, config.getMaxOutputSize());
   }
 
   public String render(String template, long renderLimit) {
@@ -276,7 +274,7 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return rendered result
    */
   public String render(Node root) {
-    return render(root, true, NO_LIMIT);
+    return render(root, true, config.getMaxOutputSize());
   }
 
   /**
@@ -288,7 +286,7 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return
    */
   public String render(Node root, boolean processExtendRoots) {
-    return render(root, processExtendRoots, NO_LIMIT);
+    return render(root, processExtendRoots, config.getMaxOutputSize());
   }
 
   /**
@@ -315,11 +313,7 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return rendered result
    */
   public String render(Node root, boolean processExtendRoots, long renderLimit) {
-    long maxOutput = (renderLimit == NO_LIMIT)
-      ? config.getMaxOutputSize()
-      : (Math.min(renderLimit, config.getMaxOutputSize()));
-    OutputList output = new OutputList(maxOutput);
-
+    OutputList output = new OutputList(renderLimit);
     for (Node node : root.getChildren()) {
       lineNumber = node.getLineNumber();
       position = node.getStartPosition();
@@ -375,8 +369,8 @@ public class JinjavaInterpreter implements PyishSerializable {
         return output.getValue();
       }
     }
-    StringBuilder ignoredOutput = new StringBuilder();
 
+    StringBuilder ignoredOutput = new StringBuilder();
     // render all extend parents, keeping the last as the root output
     if (processExtendRoots) {
       Set<String> extendPaths = new HashSet<>();
@@ -441,6 +435,7 @@ public class JinjavaInterpreter implements PyishSerializable {
     }
 
     resolveBlockStubs(output);
+
     if (ignoredOutput.length() > 0) {
       return (
         EagerReconstructionUtils.labelWithNotes(
@@ -456,7 +451,6 @@ public class JinjavaInterpreter implements PyishSerializable {
         output.getValue()
       );
     }
-
     return output.getValue();
   }
 

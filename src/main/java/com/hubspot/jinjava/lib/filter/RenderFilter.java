@@ -27,10 +27,7 @@ public class RenderFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     if (args.length > 0) {
       String firstArg = args[0];
-      return interpreter.render(
-        Objects.toString(var),
-        NumberUtils.toLong(firstArg, JinjavaInterpreter.NO_LIMIT)
-      );
+      return interpreter.render(Objects.toString(var), NumberUtils.toLong(firstArg, 0));
     }
     return interpreter.render(Objects.toString(var));
   }

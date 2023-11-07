@@ -20,4 +20,18 @@ public class RenderFilterTest extends BaseInterpretingTest {
 
     assertThat(filter.filter(stringToRender, interpreter)).isEqualTo("world");
   }
+
+  @Test
+  public void itRendersObjectWithinLimit() {
+    String stringToRender = "{% if null %}Hello{% else %}world{% endif %}";
+
+    assertThat(filter.filter(stringToRender, interpreter, "5")).isEqualTo("world");
+  }
+
+  @Test
+  public void itDoesNotRenderObjectOverLimit() {
+    String stringToRender = "{% if null %}Hello{% else %}world{% endif %}";
+
+    assertThat(filter.filter(stringToRender, interpreter, "4")).isEqualTo("");
+  }
 }
