@@ -94,6 +94,7 @@ public class JinjavaInterpreter implements PyishSerializable {
   private final Set<Integer> errorSet = new HashSet<>();
 
   private static final int MAX_ERROR_SIZE = 100;
+  private static final long NO_LIMIT = -1;
 
   public JinjavaInterpreter(
     Jinjava application,
@@ -263,14 +264,38 @@ public class JinjavaInterpreter implements PyishSerializable {
   }
 
   /**
-   * Render the given root node, processing extend parents. Equivalent to render(root, true)
+   * Render the given root node, processing extend parents. Equivalent to render(root, true, -1)
    *
    * @param root
    *          node to render
    * @return rendered result
    */
   public String render(Node root) {
-    return render(root, true);
+    return render(root, true, NO_LIMIT);
+  }
+
+  /**
+   * Render the given root node with an option to process extend parents.
+   * Equivalent to render(root, processExtendRoots, -1).
+   * @param root
+   *          node to render
+   * @param processExtendRoots
+   * @return
+   */
+  public String render(Node root, boolean processExtendRoots) {
+    return render(root, processExtendRoots, NO_LIMIT);
+  }
+
+  /**
+   * Rendee the given root node to a certain limit, processing extend parents.
+   * @param root
+   *          node to render
+   * @param renderLimit
+   *          the number of characters in response text
+   * @return
+   */
+  public String render(Node root, long renderLimit) {
+    return render(root, true, renderLimit);
   }
 
   /**
@@ -280,10 +305,15 @@ public class JinjavaInterpreter implements PyishSerializable {
    *          node to render
    * @param processExtendRoots
    *          if true, also render all extend parents
+   * @param renderLimit
+   *          the number of characters the result may contain
    * @return rendered result
    */
-  public String render(Node root, boolean processExtendRoots) {
-    OutputList output = new OutputList(config.getMaxOutputSize());
+  public String render(Node root, boolean processExtendRoots, long renderLimit) {
+    long maxOutput = (renderLimit == NO_LIMIT)
+      ? config.getMaxOutputSize()
+      : (Math.min(renderLimit, config.getMaxOutputSize()));
+    OutputList output = new OutputList(maxOutput);
 
     for (Node node : root.getChildren()) {
       lineNumber = node.getLineNumber();
