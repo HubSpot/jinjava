@@ -407,15 +407,18 @@ public class Context extends ScopeMap<String, Object> {
         secondToLastContext = secondToLastContext.parent;
       }
     }
-    int maxNumDeferredTokens = JinjavaInterpreter
+    int currentNumDeferredTokens = secondToLastContext.deferredTokens.size();
+    JinjavaInterpreter
       .getCurrentMaybe()
       .map(i -> i.getConfig().getMaxNumDeferredTokens())
-      .orElse(1000);
-    if (secondToLastContext.deferredTokens.size() >= maxNumDeferredTokens) {
-      throw new DeferredValueException(
-        "Too many Deferred Tokens, max is " + maxNumDeferredTokens
+      .filter(maxNumDeferredTokens -> currentNumDeferredTokens >= maxNumDeferredTokens)
+      .ifPresent(
+        maxNumDeferredTokens -> {
+          throw new DeferredValueException(
+            "Too many Deferred Tokens, max is " + maxNumDeferredTokens
+          );
+        }
       );
-    }
   }
 
   @Beta
