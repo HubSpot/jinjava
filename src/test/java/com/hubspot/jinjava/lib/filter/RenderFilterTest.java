@@ -49,4 +49,13 @@ public class RenderFilterTest extends BaseInterpretingTest {
     assertThat(filter.filter(stringToRender, interpreter, "15"))
       .isEqualTo("<p>Hello</p>");
   }
+
+  @Test
+  public void itDoesNotAlwaysCompleteHtmlTags() {
+    String stringToRender =
+      "<p> Hello, {% if null %}world{% else %}world!{% endif %} </p>";
+
+    assertThat(filter.filter(stringToRender, interpreter, "17"))
+      .isEqualTo("<p> Hello, world!");
+  }
 }
