@@ -21,4 +21,17 @@ public class CloseHtmlFilterTest extends BaseInterpretingTest {
     String openTags = "<p>Hello, world!";
     assertThat(f.filter(openTags, interpreter)).isEqualTo("<p>Hello, world!</p>");
   }
+
+  @Test
+  public void itIgnoresClosedTags() {
+    String openTags = "<p>Hello, world!</p>";
+    assertThat(f.filter(openTags, interpreter)).isEqualTo("<p>Hello, world!</p>");
+  }
+
+  @Test
+  public void itClosesMultipleTags() {
+    String openTags = "<h1><p>Hello, world!";
+    assertThat(f.filter(openTags, interpreter))
+      .isEqualTo("<h1><p>Hello, world!</p></h1>");
+  }
 }
