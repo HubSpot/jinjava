@@ -67,19 +67,23 @@ public class PyishObjectMapper {
     try {
       return getAsPyishStringOrThrow(val, forOutput);
     } catch (IOException e) {
-      Throwable unwrapped = e;
-      if (e instanceof JsonMappingException) {
-        unwrapped = unwrapped.getCause();
-      }
-      if (unwrapped instanceof LengthLimitingJsonProcessingException) {
-        throw new OutputTooBigException(
-          ((LengthLimitingJsonProcessingException) unwrapped).getMaxSize(),
-          ((LengthLimitingJsonProcessingException) unwrapped).getAttemptedSize()
-        );
-      } else if (unwrapped instanceof OutputTooBigException) {
-        throw (OutputTooBigException) unwrapped;
-      }
+      handleLengthLimitingException(e);
       return Objects.toString(val, "");
+    }
+  }
+
+  public static void handleLengthLimitingException(IOException e) {
+    Throwable unwrapped = e;
+    if (e instanceof JsonMappingException) {
+      unwrapped = unwrapped.getCause();
+    }
+    if (unwrapped instanceof LengthLimitingJsonProcessingException) {
+      throw new OutputTooBigException(
+        ((LengthLimitingJsonProcessingException) unwrapped).getMaxSize(),
+        ((LengthLimitingJsonProcessingException) unwrapped).getAttemptedSize()
+      );
+    } else if (unwrapped instanceof OutputTooBigException) {
+      throw (OutputTooBigException) unwrapped;
     }
   }
 

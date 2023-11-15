@@ -15,8 +15,6 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import org.apache.commons.lang3.StringUtils;
-
 public class NoteToken extends Token {
   private static final long serialVersionUID = -3859011447900311329L;
 
@@ -39,7 +37,7 @@ public class NoteToken extends Token {
    */
   @Override
   protected void parse() {
-    if (StringUtils.isNotEmpty(image)) {
+    if (image.length() > 4) { // {# #}
       handleTrim(image.substring(2, image.length() - 2));
     }
     content = "";

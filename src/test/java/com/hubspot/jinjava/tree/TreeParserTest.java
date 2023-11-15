@@ -248,6 +248,72 @@ public class TreeParserTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itAllowsTrailingNote() {
+    String expression = "A\n{# ";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo("A\n");
+    interpreter =
+      new Jinjava(
+        JinjavaConfig
+          .newBuilder()
+          .withLegacyOverrides(
+            LegacyOverrides
+              .newBuilder()
+              .withUseTrimmingForNotesAndExpressions(true)
+              .build()
+          )
+          .build()
+      )
+      .newInterpreter();
+    final Node newTree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(newTree)).isEqualTo("A\n");
+  }
+
+  @Test
+  public void itAllowsTrailingExpression() {
+    String expression = "A\n{{ ";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo("A\n{{ ");
+    interpreter =
+      new Jinjava(
+        JinjavaConfig
+          .newBuilder()
+          .withLegacyOverrides(
+            LegacyOverrides
+              .newBuilder()
+              .withUseTrimmingForNotesAndExpressions(true)
+              .build()
+          )
+          .build()
+      )
+      .newInterpreter();
+    final Node newTree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(newTree)).isEqualTo("A\n{{ ");
+  }
+
+  @Test
+  public void itAllowsTrailingTag() {
+    String expression = "A\n{% ";
+    final Node tree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(tree)).isEqualTo("A\n{% ");
+    interpreter =
+      new Jinjava(
+        JinjavaConfig
+          .newBuilder()
+          .withLegacyOverrides(
+            LegacyOverrides
+              .newBuilder()
+              .withUseTrimmingForNotesAndExpressions(true)
+              .build()
+          )
+          .build()
+      )
+      .newInterpreter();
+    final Node newTree = new TreeParser(interpreter, expression).buildTree();
+    assertThat(interpreter.render(newTree)).isEqualTo("A\n{% ");
+  }
+
+  @Test
   public void itMergesTextNodesWhileRespectingTrim() {
     String expression = "{% print 'A' -%}\n{#- note -#}\nB\n{%- print 'C' %}";
     final Node tree = new TreeParser(interpreter, expression).buildTree();
