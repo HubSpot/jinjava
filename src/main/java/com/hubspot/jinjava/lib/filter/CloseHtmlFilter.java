@@ -4,6 +4,8 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.util.Objects;
+import org.jsoup.Jsoup;
 
 @JinjavaDoc(
   value = "Closes open HTML tags in a string",
@@ -19,10 +21,6 @@ public class CloseHtmlFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-    /*
-    Closes open HTML tags.
-     */
-
-    return null;
+    return Jsoup.parse(Objects.toString(var)).toString();
   }
 }
