@@ -2,9 +2,7 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
-import com.hubspot.jinjava.BaseJinjavaTest;
 import org.junit.Before;
 import org.junit.Test;
 

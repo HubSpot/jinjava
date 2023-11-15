@@ -6,7 +6,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.Objects;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Safelist;
 
 @JinjavaDoc(
   value = "Closes open HTML tags in a string",
