@@ -301,7 +301,10 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return rendered result
    */
   private String render(Node root, boolean processExtendRoots, long renderLimit) {
-    OutputList output = new OutputList(renderLimit);
+    long safeRenderSize = (config.getMaxOutputSize() == 0)
+      ? renderLimit
+      : Math.min(renderLimit, config.getMaxOutputSize());
+    OutputList output = new OutputList(safeRenderSize);
     for (Node node : root.getChildren()) {
       lineNumber = node.getLineNumber();
       position = node.getStartPosition();
