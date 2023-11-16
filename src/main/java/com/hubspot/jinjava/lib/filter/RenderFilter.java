@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.filter;
 
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -27,7 +28,13 @@ public class RenderFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     if (args.length > 0) {
       String firstArg = args[0];
-      return interpreter.render(Objects.toString(var), NumberUtils.toLong(firstArg, 0));
+      return interpreter.render(
+        Objects.toString(var),
+        NumberUtils.toLong(
+          firstArg,
+          JinjavaConfig.newBuilder().build().getMaxOutputSize()
+        )
+      );
     }
     return interpreter.render(Objects.toString(var));
   }

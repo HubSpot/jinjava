@@ -267,7 +267,7 @@ public class JinjavaInterpreter implements PyishSerializable {
   }
 
   /**
-   * Render the given root node, processing extend parents. Equivalent to render(root, true, -1)
+   * Render the given root node, processing extend parents. Equivalent to render(root, true)
    *
    * @param root
    *          node to render
@@ -279,7 +279,7 @@ public class JinjavaInterpreter implements PyishSerializable {
 
   /**
    * Render the given root node with an option to process extend parents.
-   * Equivalent to render(root, processExtendRoots, -1).
+   * Equivalent to render(root, processExtendRoots).
    * @param root
    *          node to render
    * @param processExtendRoots
@@ -287,18 +287,6 @@ public class JinjavaInterpreter implements PyishSerializable {
    */
   public String render(Node root, boolean processExtendRoots) {
     return render(root, processExtendRoots, config.getMaxOutputSize());
-  }
-
-  /**
-   * Render the given root node to a certain limit, processing extend parents.
-   * @param root
-   *          node to render
-   * @param renderLimit
-   *          the number of characters in response text
-   * @return
-   */
-  public String render(Node root, long renderLimit) {
-    return render(root, true, renderLimit);
   }
 
   /**
@@ -312,7 +300,7 @@ public class JinjavaInterpreter implements PyishSerializable {
    *          the number of characters the result may contain
    * @return rendered result
    */
-  public String render(Node root, boolean processExtendRoots, long renderLimit) {
+  private String render(Node root, boolean processExtendRoots, long renderLimit) {
     OutputList output = new OutputList(renderLimit);
     for (Node node : root.getChildren()) {
       lineNumber = node.getLineNumber();
