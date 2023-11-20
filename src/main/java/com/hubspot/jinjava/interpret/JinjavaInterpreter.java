@@ -301,10 +301,7 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return rendered result
    */
   private String render(Node root, boolean processExtendRoots, long renderLimit) {
-    long safeRenderSize = (config.getMaxOutputSize() == 0)
-      ? renderLimit
-      : Math.min(renderLimit, config.getMaxOutputSize());
-    OutputList output = new OutputList(safeRenderSize);
+    OutputList output = new OutputList(clampOutputSizeSafely(renderLimit));
     for (Node node : root.getChildren()) {
       lineNumber = node.getLineNumber();
       position = node.getStartPosition();
@@ -925,6 +922,20 @@ public class JinjavaInterpreter implements PyishSerializable {
         templateError.getMessage()
       );
     }
+  }
+
+  private long clampOutputSizeSafely(long providedLimit) {
+    long configMaxOutput = config.getMaxOutputSize();
+
+    if (configMaxOutput == 0) {
+      return providedLimit;
+    }
+
+    if (providedLimit <= 0) {
+      return configMaxOutput;
+    }
+
+    return Math.min(providedLimit, configMaxOutput);
   }
 
   @Override
