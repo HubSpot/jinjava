@@ -50,6 +50,7 @@ import com.hubspot.jinjava.tree.output.OutputList;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.RenderLimitUtils;
 import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -301,7 +302,9 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return rendered result
    */
   private String render(Node root, boolean processExtendRoots, long renderLimit) {
-    OutputList output = new OutputList(clampOutputSizeSafely(renderLimit));
+    OutputList output = new OutputList(
+      RenderLimitUtils.clampProvidedRenderLimitToConfig(renderLimit, config)
+    );
     for (Node node : root.getChildren()) {
       lineNumber = node.getLineNumber();
       position = node.getStartPosition();
@@ -922,20 +925,6 @@ public class JinjavaInterpreter implements PyishSerializable {
         templateError.getMessage()
       );
     }
-  }
-
-  private long clampOutputSizeSafely(long providedLimit) {
-    long configMaxOutput = config.getMaxOutputSize();
-
-    if (configMaxOutput == 0) {
-      return providedLimit;
-    }
-
-    if (providedLimit <= 0) {
-      return configMaxOutput;
-    }
-
-    return Math.min(providedLimit, configMaxOutput);
   }
 
   @Override
