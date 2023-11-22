@@ -243,6 +243,7 @@ public class Jinjava {
     } else {
       context = new Context(copyGlobalContext(), bindings, renderConfig.getDisabled());
     }
+    context.resetResolveExpressionTimes();
 
     JinjavaInterpreter interpreter = globalConfig
       .getInterpreterFactory()

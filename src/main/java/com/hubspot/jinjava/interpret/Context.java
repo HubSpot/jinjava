@@ -61,6 +61,10 @@ public class Context extends ScopeMap<String, Object> {
   private SetMultimap<String, String> dependencies = HashMultimap.create();
   private Map<Library, Set<String>> disabled;
 
+  private static final ThreadLocal<Long> EXPRESSION_COUNT_THREAD_LOCAL = ThreadLocal.withInitial(
+    () -> 0L
+  );
+
   public boolean isValidationMode() {
     return validationMode;
   }
@@ -307,10 +311,24 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public void addResolvedExpression(String expression) {
+    EXPRESSION_COUNT_THREAD_LOCAL.set(EXPRESSION_COUNT_THREAD_LOCAL.get() + 1L);
+    //    ENGINE_LOG.warn(
+    //      "Adding expressions: {} {}",
+    //      EXPRESSION_COUNT_THREAD_LOCAL.get(),
+    //      expression
+    //    );
     resolvedExpressions.add(expression);
     if (getParent() != null) {
       getParent().addResolvedExpression(expression);
     }
+  }
+
+  public long getResolveExpressionTimes() {
+    return EXPRESSION_COUNT_THREAD_LOCAL.get();
+  }
+
+  public void resetResolveExpressionTimes() {
+    EXPRESSION_COUNT_THREAD_LOCAL.set(0L);
   }
 
   public Set<String> getResolvedExpressions() {
