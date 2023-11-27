@@ -20,4 +20,42 @@ public class RenderFilterTest extends BaseInterpretingTest {
 
     assertThat(filter.filter(stringToRender, interpreter)).isEqualTo("world");
   }
+
+  @Test
+  public void itRendersObjectWithinLimit() {
+    String stringToRender = "{% if null %}Hello{% else %}world{% endif %}";
+
+    assertThat(filter.filter(stringToRender, interpreter, "5")).isEqualTo("world");
+  }
+
+  @Test
+  public void itDoesNotRenderObjectOverLimit() {
+    String stringToRender = "{% if null %}Hello{% else %}world{% endif %}";
+
+    assertThat(filter.filter(stringToRender, interpreter, "4")).isEqualTo("");
+  }
+
+  @Test
+  public void itRendersPartialObjectOverLimit() {
+    String stringToRender = "Hello{% if null %}Hello{% else %}world{% endif %}";
+
+    assertThat(filter.filter(stringToRender, interpreter, "7")).isEqualTo("Hello");
+  }
+
+  @Test
+  public void itCountsHtmlTags() {
+    String stringToRender = "<p>Hello</p>{% if null %}Hello{% else %}world{% endif %}";
+
+    assertThat(filter.filter(stringToRender, interpreter, "15"))
+      .isEqualTo("<p>Hello</p>");
+  }
+
+  @Test
+  public void itDoesNotAlwaysCompleteHtmlTags() {
+    String stringToRender =
+      "<p> Hello, {% if null %}world{% else %}world!{% endif %} </p>";
+
+    assertThat(filter.filter(stringToRender, interpreter, "17"))
+      .isEqualTo("<p> Hello, world!");
+  }
 }
