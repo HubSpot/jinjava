@@ -28,6 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -555,5 +556,25 @@ public class JinjavaInterpreterTest {
     } finally {
       JinjavaInterpreter.popCurrent();
     }
+  }
+
+  @Test
+  public void itTests() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ d }}",
+      ImmutableMap.of("d", "my test")
+    );
+
+    assertThat(result.getOutput()).isEqualTo("my test");
+    assertThat(result.getContext().getResolvedExpressions()).isEqualTo(Set.of("d"));
+
+    result =
+      jinjava.renderForResult(
+        "{% set d={a: 0,\n 'b': 1} %}{{ 'abc '~d }}",
+        ImmutableMap.of()
+      );
+
+    assertThat(result.getOutput()).isEqualTo("abc {a=0, b=1}");
+    assertThat(result.getContext().getResolvedExpressions()).isEqualTo(Set.of("d"));
   }
 }
