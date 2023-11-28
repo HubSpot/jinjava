@@ -50,6 +50,7 @@ import com.hubspot.jinjava.tree.output.OutputList;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.RenderLimitUtils;
 import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -259,7 +260,11 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return rendered result
    */
   public String render(String template) {
-    return render(parse(template), true);
+    return render(template, config.getMaxOutputSize());
+  }
+
+  public String render(String template, long renderLimit) {
+    return render(parse(template), true, renderLimit);
   }
 
   /**
@@ -270,7 +275,19 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return rendered result
    */
   public String render(Node root) {
-    return render(root, true);
+    return render(root, true, config.getMaxOutputSize());
+  }
+
+  /**
+   * Render the given root node with an option to process extend parents.
+   * Equivalent to render(root, processExtendRoots).
+   * @param root
+   *          node to render
+   * @param processExtendRoots
+   * @return
+   */
+  public String render(Node root, boolean processExtendRoots) {
+    return render(root, processExtendRoots, config.getMaxOutputSize());
   }
 
   /**
@@ -280,11 +297,14 @@ public class JinjavaInterpreter implements PyishSerializable {
    *          node to render
    * @param processExtendRoots
    *          if true, also render all extend parents
+   * @param renderLimit
+   *          the number of characters the result may contain
    * @return rendered result
    */
-  public String render(Node root, boolean processExtendRoots) {
-    OutputList output = new OutputList(config.getMaxOutputSize());
-
+  private String render(Node root, boolean processExtendRoots, long renderLimit) {
+    OutputList output = new OutputList(
+      RenderLimitUtils.clampProvidedRenderLimitToConfig(renderLimit, config)
+    );
     for (Node node : root.getChildren()) {
       lineNumber = node.getLineNumber();
       position = node.getStartPosition();
@@ -340,8 +360,8 @@ public class JinjavaInterpreter implements PyishSerializable {
         return output.getValue();
       }
     }
-    StringBuilder ignoredOutput = new StringBuilder();
 
+    StringBuilder ignoredOutput = new StringBuilder();
     // render all extend parents, keeping the last as the root output
     if (processExtendRoots) {
       Set<String> extendPaths = new HashSet<>();
@@ -406,6 +426,7 @@ public class JinjavaInterpreter implements PyishSerializable {
     }
 
     resolveBlockStubs(output);
+
     if (ignoredOutput.length() > 0) {
       return (
         EagerReconstructionUtils.labelWithNotes(
@@ -421,7 +442,6 @@ public class JinjavaInterpreter implements PyishSerializable {
         output.getValue()
       );
     }
-
     return output.getValue();
   }
 
