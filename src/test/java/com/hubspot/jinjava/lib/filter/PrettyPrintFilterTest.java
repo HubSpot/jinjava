@@ -2,8 +2,13 @@ package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -11,17 +16,21 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class PrettyPrintFilterTest {
+  JinjavaInterpreter i;
   PrettyPrintFilter f;
 
   @Before
   public void setup() {
+    JinjavaConfig config = JinjavaConfig.newBuilder().build();
+    Jinjava jinjava = new Jinjava(config);
+    Context context = jinjava.getGlobalContext();
+    i = new JinjavaInterpreter(jinjava, context, config);
     f = new PrettyPrintFilter();
   }
 
   @Test
   public void ppString() {
-    assertThat(f.filter("foobar", null))
-      .isEqualTo("{% raw %}(String: foobar){% endraw %}");
+    assertThat(f.filter("foobar", i)).isEqualTo("{% raw %}(String: foobar){% endraw %}");
   }
 
   @Test
@@ -54,10 +63,27 @@ public class PrettyPrintFilterTest {
 
   @Test
   public void ppObject() {
-    assertThat(f.filter(new MyClass(), null))
-      .isEqualTo("{% raw %}(MyClass: {bar=123, foo=foofoo}){% endraw %}");
+    MyClass myClass = new MyClass();
+    assertThat(f.filter(myClass, i))
+      .isEqualTo(
+        String.format(
+          "{%% raw %%}(MyClass: {\n" +
+          "  &quot;foo&quot; : &quot;%s&quot;,\n" +
+          "  &quot;bar&quot; : %d,\n" +
+          "  &quot;nestedClass&quot; : {\n" +
+          "    &quot;fooField&quot; : &quot;%s&quot;,\n" +
+          "    &quot;barField&quot; : %d\n" +
+          "  }\n" +
+          "}){%% endraw %%}",
+          myClass.getFoo(),
+          myClass.getBar(),
+          myClass.getNestedClass().getFooField(),
+          myClass.getNestedClass().getBarField()
+        )
+      );
   }
 
+  @JsonPropertyOrder({ "foo", "bar", "nestedClass" })
   public static class MyClass {
 
     public String getFoo() {
@@ -65,6 +91,22 @@ public class PrettyPrintFilterTest {
     }
 
     public int getBar() {
+      return 123;
+    }
+
+    public MyNestedClass getNestedClass() {
+      return new MyNestedClass();
+    }
+  }
+
+  @JsonPropertyOrder({ "fooField", "barField" })
+  public static class MyNestedClass {
+
+    public String getFooField() {
+      return "foofieldfoofield";
+    }
+
+    public int getBarField() {
       return 123;
     }
   }
