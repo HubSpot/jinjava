@@ -1,25 +1,13 @@
 package com.hubspot.jinjava.lib.filter;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
+import com.fasterxml.jackson.databind.node.POJONode;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
-import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 
 @JinjavaDoc(
   value = "Pretty print a variable. Useful for debugging.",
@@ -60,50 +48,11 @@ public class PrettyPrintFilter implements Filter {
     ) {
       varStr = Objects.toString(var);
     } else {
-      varStr = objPropsToString(var);
+      varStr = new POJONode(var).toPrettyString();
     }
 
-    return StringEscapeUtils.escapeHtml4(
+    return EscapeFilter.escapeHtmlEntities(
       "{% raw %}(" + var.getClass().getSimpleName() + ": " + varStr + "){% endraw %}"
     );
-  }
-
-  private String objPropsToString(Object var) {
-    List<String> props = new LinkedList<>();
-
-    try {
-      BeanInfo beanInfo = Introspector.getBeanInfo(var.getClass());
-
-      for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-        try {
-          if (pd.getPropertyType() != null && pd.getPropertyType().equals(Class.class)) {
-            continue;
-          }
-
-          Method readMethod = pd.getReadMethod();
-          if (
-            readMethod != null && !readMethod.getDeclaringClass().equals(Object.class)
-          ) {
-            props.add(pd.getName() + "=" + readMethod.invoke(var));
-          }
-        } catch (Exception e) {
-          if (
-            e instanceof InvocationTargetException &&
-            (
-              (InvocationTargetException) e
-            ).getTargetException() instanceof DeferredValueException
-          ) {
-            throw (DeferredValueException) (
-              (InvocationTargetException) e
-            ).getTargetException();
-          }
-          ENGINE_LOG.error("Error reading bean value", e);
-        }
-      }
-    } catch (IntrospectionException e) {
-      ENGINE_LOG.error("Error inspecting bean", e);
-    }
-
-    return '{' + StringUtils.join(props, ", ") + '}';
   }
 }
