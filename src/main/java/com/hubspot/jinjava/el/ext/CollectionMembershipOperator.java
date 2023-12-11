@@ -9,6 +9,7 @@ import de.odysseus.el.tree.impl.ast.AstBinary;
 import de.odysseus.el.tree.impl.ast.AstBinary.SimpleOperator;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -47,13 +48,28 @@ public class CollectionMembershipOperator extends SimpleOperator {
 
     if (Map.class.isAssignableFrom(o2.getClass())) {
       Map map = (Map) o2;
-      if (!map.isEmpty()) {
-        try {
-          Class<?> keyClass = map.keySet().iterator().next().getClass();
-          return map.containsKey(converter.convert(o1, keyClass));
-        } catch (ELException | NoSuchElementException e) {
-          return Boolean.FALSE;
+      if (map.isEmpty()) {
+        return Boolean.FALSE;
+      }
+      Iterator iterator = map.keySet().iterator();
+      Object key = iterator.next();
+      if (key == null) {
+        if (o1 == null) {
+          return Boolean.TRUE;
+        } else {
+          if (iterator.hasNext()) {
+            // Must be non-null this time.
+            key = iterator.next();
+          } else {
+            return Boolean.FALSE;
+          }
         }
+      }
+      try {
+        Class<?> keyClass = key.getClass();
+        return map.containsKey(converter.convert(o1, keyClass));
+      } catch (ELException | NoSuchElementException e) {
+        return Boolean.FALSE;
       }
     }
 
