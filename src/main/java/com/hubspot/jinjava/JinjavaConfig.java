@@ -19,7 +19,6 @@ import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
@@ -158,8 +157,7 @@ public class JinjavaConfig {
 
   private ObjectMapper setupObjectMapper(@Nullable ObjectMapper objectMapper) {
     if (objectMapper == null) {
-      objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-
+      objectMapper = new ObjectMapper();
       if (legacyOverrides.isUseSnakeCasePropertyNaming()) {
         objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
       }

@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -55,6 +56,7 @@ public class PrettyPrintFilter implements Filter {
           interpreter
             .getConfig()
             .getObjectMapper()
+            .registerModule(new JavaTimeModule())
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(var);
       } catch (JsonProcessingException e) {
