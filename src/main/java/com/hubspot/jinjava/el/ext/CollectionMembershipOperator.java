@@ -48,8 +48,12 @@ public class CollectionMembershipOperator extends SimpleOperator {
     if (Map.class.isAssignableFrom(o2.getClass())) {
       Map map = (Map) o2;
       if (!map.isEmpty()) {
+        Object key = map.keySet().iterator().next();
+        if (key == null) {
+          return Boolean.FALSE;
+        }
         try {
-          Class<?> keyClass = map.keySet().iterator().next().getClass();
+          Class<?> keyClass = key.getClass();
           return map.containsKey(converter.convert(o1, keyClass));
         } catch (ELException | NoSuchElementException e) {
           return Boolean.FALSE;
