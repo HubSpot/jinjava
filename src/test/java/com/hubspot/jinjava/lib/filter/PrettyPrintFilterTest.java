@@ -3,6 +3,8 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
@@ -21,7 +23,10 @@ public class PrettyPrintFilterTest {
 
   @Before
   public void setup() {
-    JinjavaConfig config = JinjavaConfig.newBuilder().build();
+    JinjavaConfig config = JinjavaConfig
+      .newBuilder()
+      .withObjectMapper(new ObjectMapper().registerModule(new JavaTimeModule()))
+      .build();
     Jinjava jinjava = new Jinjava(config);
     Context context = jinjava.getGlobalContext();
     i = new JinjavaInterpreter(jinjava, context, config);
