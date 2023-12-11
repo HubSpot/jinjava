@@ -1,9 +1,11 @@
 package com.hubspot.jinjava.lib.filter;
 
-import com.fasterxml.jackson.databind.node.POJONode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.InvalidInputException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import java.util.Map;
@@ -48,7 +50,16 @@ public class PrettyPrintFilter implements Filter {
     ) {
       varStr = Objects.toString(var);
     } else {
-      varStr = new POJONode(var).toPrettyString();
+      try {
+        varStr =
+          interpreter
+            .getConfig()
+            .getObjectMapper()
+            .writerWithDefaultPrettyPrinter()
+            .writeValueAsString(var);
+      } catch (JsonProcessingException e) {
+        throw new InvalidInputException(interpreter, this, InvalidReason.JSON_WRITE);
+      }
     }
 
     return EscapeFilter.escapeHtmlEntities(

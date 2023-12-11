@@ -64,6 +64,7 @@ public class PrettyPrintFilterTest {
   @Test
   public void ppObject() {
     MyClass myClass = new MyClass();
+
     assertThat(f.filter(myClass, i))
       .isEqualTo(
         String.format(
@@ -73,7 +74,8 @@ public class PrettyPrintFilterTest {
           "  &quot;nestedClass&quot; : {\n" +
           "    &quot;fooField&quot; : &quot;%s&quot;,\n" +
           "    &quot;barField&quot; : %d\n" +
-          "  }\n" +
+          "  },\n" +
+          "  &quot;date&quot; : 1702252800.000000000\n" +
           "}){%% endraw %%}",
           myClass.getFoo(),
           myClass.getBar(),
@@ -92,6 +94,10 @@ public class PrettyPrintFilterTest {
 
     public int getBar() {
       return 123;
+    }
+
+    public ZonedDateTime getDate() {
+      return ZonedDateTime.of(2023, 12, 11, 0, 0, 0, 0, ZonedDateTime.now().getZone());
     }
 
     public MyNestedClass getNestedClass() {
