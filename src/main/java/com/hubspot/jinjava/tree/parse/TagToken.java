@@ -44,6 +44,13 @@ public class TagToken extends Token {
   @Override
   protected void parse() {
     if (image.length() < 4) {
+      if (image.equals("{%}")) {
+        tagName = "";
+        rawTagName = "";
+        helpers = "";
+        content = "";
+        return;
+      }
       throw new TemplateSyntaxException(
         image,
         "Malformed tag token",

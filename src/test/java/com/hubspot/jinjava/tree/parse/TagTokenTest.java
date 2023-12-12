@@ -38,4 +38,11 @@ public class TagTokenTest {
       assertThat(e).hasMessageContaining("Malformed");
     }
   }
+
+  @Test
+  public void testParseEmptyTagWithHelpers() {
+    TagToken t = new TagToken("{%}", 1, 2, SYMBOLS);
+    assertThat(t.getTagName()).isEqualTo("");
+    assertThat(t.getHelpers().trim()).isEqualTo("");
+  }
 }
