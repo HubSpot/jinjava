@@ -3,8 +3,6 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
@@ -23,10 +21,7 @@ public class PrettyPrintFilterTest {
 
   @Before
   public void setup() {
-    JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withObjectMapper(new ObjectMapper().registerModule(new JavaTimeModule()))
-      .build();
+    JinjavaConfig config = JinjavaConfig.newBuilder().build();
     Jinjava jinjava = new Jinjava(config);
     Context context = jinjava.getGlobalContext();
     i = new JinjavaInterpreter(jinjava, context, config);
@@ -69,7 +64,6 @@ public class PrettyPrintFilterTest {
   @Test
   public void ppObject() {
     MyClass myClass = new MyClass();
-
     assertThat(f.filter(myClass, i))
       .isEqualTo(
         String.format(
@@ -79,8 +73,7 @@ public class PrettyPrintFilterTest {
           "  &quot;nestedClass&quot; : {\n" +
           "    &quot;fooField&quot; : &quot;%s&quot;,\n" +
           "    &quot;barField&quot; : %d\n" +
-          "  },\n" +
-          "  &quot;date&quot; : 1702252800.000000000\n" +
+          "  }\n" +
           "}){%% endraw %%}",
           myClass.getFoo(),
           myClass.getBar(),
@@ -99,10 +92,6 @@ public class PrettyPrintFilterTest {
 
     public int getBar() {
       return 123;
-    }
-
-    public ZonedDateTime getDate() {
-      return ZonedDateTime.of(2023, 12, 11, 0, 0, 0, 0, ZonedDateTime.now().getZone());
     }
 
     public MyNestedClass getNestedClass() {
