@@ -246,7 +246,7 @@ public class JinjavaConfig {
   }
 
   public long getMaxStringLength() {
-    return maxStringLength;
+    return maxStringLength == 0 ? getMaxOutputSize() : maxStringLength;
   }
 
   public InterpreterFactory getInterpreterFactory() {

@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import static com.hubspot.jinjava.lib.filter.ReplaceFilter.checkLength;
+
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 import com.google.re2j.PatternSyntaxException;
@@ -71,6 +73,10 @@ public class RegexReplaceFilter implements Filter {
 
     if (var instanceof String) {
       String s = (String) var;
+      // Minor optimization, avoid checking short strings
+      if (s.length() > 100) {
+        checkLength(interpreter, s, this);
+      }
       String toReplace = args[0];
       String replaceWith = args[1];
 
