@@ -3,6 +3,8 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.InvalidInputException;
+import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import org.apache.commons.lang3.StringUtils;
@@ -66,6 +68,17 @@ public class ReplaceFilter implements Filter {
     }
 
     String s = var.toString();
+    long maxStringLength = interpreter.getConfig().getMaxStringLength();
+    if (maxStringLength > 0 && s.length() > maxStringLength) {
+      throw new InvalidInputException(
+        interpreter,
+        this,
+        InvalidReason.LENGTH,
+        s.length(),
+        maxStringLength
+      );
+    }
+
     String toReplace = args[0];
     String replaceWith = args[1];
     Integer count = null;

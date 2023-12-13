@@ -1,9 +1,13 @@
 package com.hubspot.jinjava.lib.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.InterpretException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.objects.SafeString;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,5 +55,23 @@ public class ReplaceFilterTest extends BaseInterpretingTest {
   public void replaceBoolean() {
     assertThat(filter.filter(true, interpreter, "true", "TRUEEE").toString())
       .isEqualTo("TRUEEE");
+  }
+
+  @Test
+  public void itLimitsLongInput() {
+    assertThatThrownBy(
+        () ->
+          filter.filter(
+            "123456789OO",
+            new Jinjava(JinjavaConfig.newBuilder().withMaxStringLength(10).build())
+            .newInterpreter(),
+            "O",
+            "0"
+          )
+      )
+      .isInstanceOf(InvalidInputException.class)
+      .hasMessageContaining(
+        "Invalid input for 'replace': input with length '11' exceeds maximum allowed length of '10'"
+      );
   }
 }
