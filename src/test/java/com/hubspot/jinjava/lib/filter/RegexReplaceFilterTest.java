@@ -61,10 +61,14 @@ public class RegexReplaceFilterTest extends BaseInterpretingTest {
 
   @Test
   public void itLimitsLongInput() {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < 101; i++) {
+      sb.append('a');
+    }
     assertThatThrownBy(
         () ->
           filter.filter(
-            "123456789OO",
+            sb.toString(),
             new Jinjava(JinjavaConfig.newBuilder().withMaxStringLength(10).build())
             .newInterpreter(),
             "O",
@@ -73,7 +77,7 @@ public class RegexReplaceFilterTest extends BaseInterpretingTest {
       )
       .isInstanceOf(InvalidInputException.class)
       .hasMessageContaining(
-        "Invalid input for 'regex_replace': input with length '11' exceeds maximum allowed length of '10'"
+        "Invalid input for 'regex_replace': input with length '101' exceeds maximum allowed length of '10'"
       );
   }
 }

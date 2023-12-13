@@ -7,6 +7,7 @@ import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
+import com.hubspot.jinjava.lib.Importable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -68,15 +69,9 @@ public class ReplaceFilter implements Filter {
     }
 
     String s = var.toString();
-    long maxStringLength = interpreter.getConfig().getMaxStringLength();
-    if (maxStringLength > 0 && s.length() > maxStringLength) {
-      throw new InvalidInputException(
-        interpreter,
-        this,
-        InvalidReason.LENGTH,
-        s.length(),
-        maxStringLength
-      );
+    // Minor optimization, avoid checking short strings
+    if (s.length() > 100) {
+      checkLength(interpreter, s, this);
     }
 
     String toReplace = args[0];
@@ -91,6 +86,23 @@ public class ReplaceFilter implements Filter {
       return StringUtils.replace(s, toReplace, replaceWith);
     } else {
       return StringUtils.replace(s, toReplace, replaceWith, count);
+    }
+  }
+
+  static void checkLength(
+    JinjavaInterpreter interpreter,
+    String s,
+    Importable importable
+  ) {
+    long maxStringLength = interpreter.getConfig().getMaxStringLength();
+    if (maxStringLength > 0 && s.length() > maxStringLength) {
+      throw new InvalidInputException(
+        interpreter,
+        importable,
+        InvalidReason.LENGTH,
+        s.length(),
+        maxStringLength
+      );
     }
   }
 }

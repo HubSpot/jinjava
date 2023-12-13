@@ -59,10 +59,14 @@ public class ReplaceFilterTest extends BaseInterpretingTest {
 
   @Test
   public void itLimitsLongInput() {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < 101; i++) {
+      sb.append('a');
+    }
     assertThatThrownBy(
         () ->
           filter.filter(
-            "123456789OO",
+            sb.toString(),
             new Jinjava(JinjavaConfig.newBuilder().withMaxStringLength(10).build())
             .newInterpreter(),
             "O",
@@ -71,7 +75,7 @@ public class ReplaceFilterTest extends BaseInterpretingTest {
       )
       .isInstanceOf(InvalidInputException.class)
       .hasMessageContaining(
-        "Invalid input for 'replace': input with length '11' exceeds maximum allowed length of '10'"
+        "Invalid input for 'replace': input with length '101' exceeds maximum allowed length of '10'"
       );
   }
 }
