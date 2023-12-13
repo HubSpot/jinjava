@@ -18,7 +18,7 @@ public enum InvalidReason {
   ),
   ENUM("with value '%s' must be one of: %s"),
   CIDR("with value '%s' must be a valid CIDR address"),
-  LENGTH("with length '%s' exceeds maximum allowed length of");
+  LENGTH("with length '%s' exceeds maximum allowed length of '%s'");
 
   private final String errorMessage;
 

@@ -4,7 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
+import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.objects.SafeString;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,5 +57,23 @@ public class RegexReplaceFilterTest extends BaseInterpretingTest {
           .toString()
       )
       .isEqualTo("Itcosts");
+  }
+
+  @Test
+  public void itLimitsLongInput() {
+    assertThatThrownBy(
+        () ->
+          filter.filter(
+            "123456789OO",
+            new Jinjava(JinjavaConfig.newBuilder().withMaxStringLength(10).build())
+            .newInterpreter(),
+            "O",
+            "0"
+          )
+      )
+      .isInstanceOf(InvalidInputException.class)
+      .hasMessageContaining(
+        "Invalid input for 'regex_replace': input with length '11' exceeds maximum allowed length of '10'"
+      );
   }
 }
