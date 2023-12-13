@@ -71,6 +71,16 @@ public class RegexReplaceFilter implements Filter {
 
     if (var instanceof String) {
       String s = (String) var;
+      long maxStringLength = interpreter.getConfig().getMaxStringLength();
+      if (maxStringLength > 0 && s.length() > maxStringLength) {
+        throw new InvalidInputException(
+          interpreter,
+          this,
+          InvalidReason.LENGTH,
+          s.length(),
+          maxStringLength
+        );
+      }
       String toReplace = args[0];
       String replaceWith = args[1];
 
