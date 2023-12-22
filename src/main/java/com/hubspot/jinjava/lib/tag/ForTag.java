@@ -27,6 +27,7 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
+import com.hubspot.jinjava.interpret.NullValue;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -200,7 +201,11 @@ public class ForTag implements Tag {
 
         // set item variables
         if (loopVars.size() == 1) {
-          interpreter.getContext().put(loopVars.get(0), val);
+          if (val == null && interpreter.getContext().get(loopVars.get(0)) != null) {
+            interpreter.getContext().put(loopVars.get(0), NullValue.INSTANCE);
+          } else {
+            interpreter.getContext().put(loopVars.get(0), val);
+          }
         } else {
           for (int loopVarIndex = 0; loopVarIndex < loopVars.size(); loopVarIndex++) {
             String loopVar = loopVars.get(loopVarIndex);

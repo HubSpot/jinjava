@@ -377,6 +377,18 @@ public class ForTagTest extends BaseInterpretingTest {
     assertThat(rendered.getOutput()).isEqualTo("false true true false");
   }
 
+  @Test
+  public void forLoopWithNullValues() {
+    context.put("number", -1);
+    context.put("the_list", Lists.newArrayList(1L, 2L, null, null, null));
+    TagNode tagNode = (TagNode) fixture("loop-last-var");
+    Document dom = Jsoup.parseBodyFragment(tag.interpret(tagNode, interpreter));
+
+    assertThat(dom.select("h3")).hasSize(4);
+    dom.outputSettings().prettyPrint(true).indentAmount(4);
+    assertThat(dom.html()).contains("seven: null");
+  }
+
   public static boolean inForLoop() {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     return interpreter.getContext().isInForLoop();
