@@ -381,12 +381,13 @@ public class ForTagTest extends BaseInterpretingTest {
   public void forLoopWithNullValues() {
     context.put("number", -1);
     context.put("the_list", Lists.newArrayList(1L, 2L, null, null, null));
-    TagNode tagNode = (TagNode) fixture("loop-last-var");
-    Document dom = Jsoup.parseBodyFragment(tag.interpret(tagNode, interpreter));
-
-    assertThat(dom.select("h3")).hasSize(4);
-    dom.outputSettings().prettyPrint(true).indentAmount(4);
-    assertThat(dom.html()).contains("seven: null");
+    String template = "{% for number in the_list %} {{ number }} {% endfor %}";
+    TagNode tagNode = (TagNode) new TreeParser(interpreter, template)
+      .buildTree()
+      .getChildren()
+      .getFirst();
+    String result = tag.interpret(tagNode, interpreter);
+    assertThat(result).isEqualTo(" 1  2  null  null  null ");
   }
 
   public static boolean inForLoop() {

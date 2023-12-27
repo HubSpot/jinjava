@@ -8,7 +8,9 @@ package com.hubspot.jinjava.interpret;
 public final class NullValue {
   public static final NullValue INSTANCE = new NullValue();
 
-  static NullValue instance() {
+  private NullValue() {}
+
+  public static NullValue instance() {
     return INSTANCE;
   }
 
