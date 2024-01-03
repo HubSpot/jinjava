@@ -12,7 +12,11 @@ public abstract class BaseJinjavaTest {
         JinjavaConfig
           .newBuilder()
           .withLegacyOverrides(
-            LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+            LegacyOverrides
+              .newBuilder()
+              .withUsePyishObjectMapper(true)
+              .withKeepNullableLoopValues(true)
+              .build()
           )
           .build()
       );

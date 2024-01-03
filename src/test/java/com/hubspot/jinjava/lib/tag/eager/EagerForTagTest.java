@@ -32,7 +32,11 @@ public class EagerForTagTest extends ForTagTest {
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
           .withExecutionMode(EagerExecutionMode.instance())
           .withLegacyOverrides(
-            LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+            LegacyOverrides
+              .newBuilder()
+              .withUsePyishObjectMapper(true)
+              .withKeepNullableLoopValues(true)
+              .build()
           )
           .build()
       );
