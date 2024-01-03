@@ -17,6 +17,7 @@ public class LegacyOverrides {
     .withParseWhitespaceControlStrictly(true)
     .withAllowAdjacentTextNodes(true)
     .withUseTrimmingForNotesAndExpressions(true)
+    .withKeepNullableLoopValues(true)
     .build();
   private final boolean evaluateMapKeys;
   private final boolean iterateOverMapKeys;
@@ -27,6 +28,7 @@ public class LegacyOverrides {
   private final boolean parseWhitespaceControlStrictly;
   private final boolean allowAdjacentTextNodes;
   private final boolean useTrimmingForNotesAndExpressions;
+  private final boolean keepNullableLoopValues;
 
   private LegacyOverrides(Builder builder) {
     evaluateMapKeys = builder.evaluateMapKeys;
@@ -38,6 +40,7 @@ public class LegacyOverrides {
     parseWhitespaceControlStrictly = builder.parseWhitespaceControlStrictly;
     allowAdjacentTextNodes = builder.allowAdjacentTextNodes;
     useTrimmingForNotesAndExpressions = builder.useTrimmingForNotesAndExpressions;
+    keepNullableLoopValues = builder.keepNullableLoopValues;
   }
 
   public static Builder newBuilder() {
@@ -80,6 +83,10 @@ public class LegacyOverrides {
     return useTrimmingForNotesAndExpressions;
   }
 
+  public boolean isKeepNullableLoopValues() {
+    return keepNullableLoopValues;
+  }
+
   public static class Builder {
     private boolean evaluateMapKeys = false;
     private boolean iterateOverMapKeys = false;
@@ -90,6 +97,7 @@ public class LegacyOverrides {
     private boolean parseWhitespaceControlStrictly = false;
     private boolean allowAdjacentTextNodes = false;
     private boolean useTrimmingForNotesAndExpressions = false;
+    private boolean keepNullableLoopValues = false;
 
     private Builder() {}
 
@@ -166,6 +174,11 @@ public class LegacyOverrides {
       boolean useTrimmingForNotesAndExpressions
     ) {
       this.useTrimmingForNotesAndExpressions = useTrimmingForNotesAndExpressions;
+      return this;
+    }
+
+    public Builder withKeepNullableLoopValues(boolean keepNullableLoopValues) {
+      this.keepNullableLoopValues = keepNullableLoopValues;
       return this;
     }
   }
