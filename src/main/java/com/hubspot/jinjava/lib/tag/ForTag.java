@@ -201,7 +201,11 @@ public class ForTag implements Tag {
 
         // set item variables
         if (loopVars.size() == 1) {
-          if (val == null && interpreter.getContext().get(loopVars.get(0)) != null) {
+          if (
+            val == null &&
+            interpreter.getContext().get(loopVars.get(0)) != null &&
+            interpreter.getConfig().getLegacyOverrides().isKeepNullableLoopValues()
+          ) {
             interpreter.getContext().put(loopVars.get(0), NullValue.INSTANCE);
           } else {
             interpreter.getContext().put(loopVars.get(0), val);
