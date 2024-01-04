@@ -115,14 +115,18 @@ public class TruthyTypeConverter extends TypeConverterImpl {
 
   private String coerceCollection(Collection value) {
     Iterator<?> it = value.iterator();
-    if (!it.hasNext()) return "[]";
+    if (!it.hasNext()) {
+      return "[]";
+    }
 
     LengthLimitingStringBuilder sb = new LengthLimitingStringBuilder(1_000_000L);
     sb.append('[');
     for (;;) {
       Object e = it.next();
       sb.append(e == this ? "(this Collection)" : e);
-      if (!it.hasNext()) return sb.append(']').toString();
+      if (!it.hasNext()) {
+        return sb.append(']').toString();
+      }
       sb.append(',');
       sb.append(' ');
     }
