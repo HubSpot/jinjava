@@ -1,11 +1,14 @@
 package com.hubspot.jinjava.el;
 
 import com.hubspot.jinjava.objects.DummyObject;
+import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.ObjectTruthValue;
 import de.odysseus.el.misc.TypeConverterImpl;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Iterator;
 import javax.el.ELException;
 
 public class TruthyTypeConverter extends TypeConverterImpl {
@@ -93,7 +96,36 @@ public class TruthyTypeConverter extends TypeConverterImpl {
     if (value instanceof DummyObject) {
       return "";
     }
-    return super.coerceToString(value);
+    if (value == null) {
+      return "";
+    }
+    if (value instanceof String) {
+      return (String) value;
+    }
+    if (value instanceof Enum<?>) {
+      return ((Enum<?>) value).name();
+    }
+
+    if (value instanceof Collection) {
+      return coerceCollection((Collection) value);
+    }
+
+    return value.toString();
+  }
+
+  private String coerceCollection(Collection value) {
+    Iterator<?> it = value.iterator();
+    if (!it.hasNext()) return "[]";
+
+    LengthLimitingStringBuilder sb = new LengthLimitingStringBuilder(1_000_000L);
+    sb.append('[');
+    for (;;) {
+      Object e = it.next();
+      sb.append(e == this ? "(this Collection)" : e);
+      if (!it.hasNext()) return sb.append(']').toString();
+      sb.append(',');
+      sb.append(' ');
+    }
   }
 
   @Override
