@@ -16,7 +16,6 @@
   <properties>
     <basepom.check.skip-prettier>false</basepom.check.skip-prettier>
 
-    <basepom.prettier.node-version>12.13.0</basepom.prettier.node-version>
     <basepom.prettier.prettier-java-version>0.7.0</basepom.prettier.prettier-java-version>
     <basepom.prettier.extract-to-target-directory>false</basepom.prettier.extract-to-target-directory>
 
