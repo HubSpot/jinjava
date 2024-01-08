@@ -5,11 +5,14 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
 import de.odysseus.el.misc.TypeConverterImpl;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Iterator;
 import javax.el.ELException;
 
 public class TruthyTypeConverter extends TypeConverterImpl {
   private static final long serialVersionUID = 1L;
+  public static final int MAX_COLLECTION_STRING_LENGTH = 1_000_000;
 
   @Override
   protected Boolean coerceToBoolean(Object value) {
@@ -93,7 +96,44 @@ public class TruthyTypeConverter extends TypeConverterImpl {
     if (value instanceof DummyObject) {
       return "";
     }
-    return super.coerceToString(value);
+    if (value == null) {
+      return "";
+    }
+    if (value instanceof String) {
+      return (String) value;
+    }
+    if (value instanceof Enum<?>) {
+      return ((Enum<?>) value).name();
+    }
+
+    if (value instanceof Collection) {
+      return coerceCollection((Collection) value);
+    }
+
+    return value.toString();
+  }
+
+  private String coerceCollection(Collection value) {
+    Iterator<?> it = value.iterator();
+    if (!it.hasNext()) {
+      return "[]";
+    }
+
+    StringBuilder sb = new StringBuilder();
+
+    sb.append('[');
+    for (;;) {
+      Object e = it.next();
+      sb.append(e == this ? "(this Collection)" : e);
+      if (sb.length() > MAX_COLLECTION_STRING_LENGTH) {
+        return sb.append(", ...]").toString();
+      }
+      if (!it.hasNext()) {
+        return sb.append(']').toString();
+      }
+      sb.append(',');
+      sb.append(' ');
+    }
   }
 
   @Override
