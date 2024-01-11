@@ -1509,4 +1509,19 @@ public class EagerTest {
     // We don't support this
     assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
   }
+
+  @Test
+  public void itHandlesDeferredModificationInCaller() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferred-modification-in-caller"
+    );
+  }
+
+  @Test
+  public void itHandlesDeferredModificationInCallerSecondPass() {
+    interpreter.getContext().put("deferred", "c");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferred-modification-in-caller.expected"
+    );
+  }
 }
