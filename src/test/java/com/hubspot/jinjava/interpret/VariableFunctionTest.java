@@ -21,6 +21,7 @@ import java.util.Map;
 import org.junit.Test;
 
 public class VariableFunctionTest {
+
   private static final DynamicVariableResolver VARIABLE_FUNCTION = s -> {
     switch (s) {
       case "name":

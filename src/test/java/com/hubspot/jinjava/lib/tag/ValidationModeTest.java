@@ -25,6 +25,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationModeTest {
+
   JinjavaInterpreter interpreter;
   JinjavaInterpreter validatingInterpreter;
 
@@ -34,6 +35,7 @@ public class ValidationModeTest {
   ValidationFilter validationFilter;
 
   class ValidationFilter implements Filter {
+
     private int executionCount = 0;
 
     @Override
@@ -235,6 +237,7 @@ public class ValidationModeTest {
   }
 
   private class InstrumentedMacroFunction extends MacroFunction {
+
     private int invocationCount = 0;
 
     InstrumentedMacroFunction(

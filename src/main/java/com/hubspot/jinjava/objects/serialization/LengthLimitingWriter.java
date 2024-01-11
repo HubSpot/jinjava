@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Beta
 public class LengthLimitingWriter extends Writer {
+
   public static final String REMAINING_LENGTH_ATTRIBUTE = "remainingLength";
   private final CharArrayWriter charArrayWriter;
   private final AtomicInteger remainingLength;

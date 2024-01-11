@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class IfTagTest extends BaseInterpretingTest {
+
   public Tag tag;
 
   @Before
@@ -132,6 +133,7 @@ public class IfTagTest extends BaseInterpretingTest {
   }
 
   private class TestObject implements HasObjectTruthValue {
+
     private boolean objectTruthValue = false;
 
     public TestObject setObjectTruthValue(boolean objectTruthValue) {

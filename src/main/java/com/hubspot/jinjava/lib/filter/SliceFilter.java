@@ -33,7 +33,7 @@ import org.apache.commons.lang3.math.NumberUtils;
       type = "object",
       desc = "Specifies which object to use to fill missing values on final iteration",
       required = false
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -48,7 +48,7 @@ import org.apache.commons.lang3.math.NumberUtils;
       "    </ul>\n" +
       "  {% endfor %}\n" +
       "</div>\n"
-    )
+    ),
   }
 )
 public class SliceFilter implements Filter {

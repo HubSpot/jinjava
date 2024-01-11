@@ -22,16 +22,16 @@ public class FileSizeFormatFilterTest extends BaseJinjavaTest {
     assertThat(jinjava.render("{{1000|filesizeformat}}", new HashMap<String, Object>()))
       .isEqualTo("1.0 KB");
     assertThat(
-        jinjava.render("{{1024|filesizeformat(true)}}", new HashMap<String, Object>())
-      )
+      jinjava.render("{{1024|filesizeformat(true)}}", new HashMap<String, Object>())
+    )
       .isEqualTo("1.0 KiB");
     assertThat(
-        jinjava.render("{{3531836|filesizeformat(true)}}", new HashMap<String, Object>())
-      )
+      jinjava.render("{{3531836|filesizeformat(true)}}", new HashMap<String, Object>())
+    )
       .isEqualTo("3.4 MiB");
     assertThat(
-        jinjava.render("{{1000000000|filesizeformat}}", new HashMap<String, Object>())
-      )
+      jinjava.render("{{1000000000|filesizeformat}}", new HashMap<String, Object>())
+    )
       .isEqualTo("1.0 GB");
   }
 }

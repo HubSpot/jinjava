@@ -21,8 +21,10 @@ public class CollectionNonMembershipOperator extends SimpleOperator {
     return TOKEN.getImage();
   }
 
-  public static final CollectionNonMembershipOperator NOT_IN_OP = new CollectionNonMembershipOperator();
-  public static final CollectionMembershipOperator IN_OP = new CollectionMembershipOperator();
+  public static final CollectionNonMembershipOperator NOT_IN_OP =
+    new CollectionNonMembershipOperator();
+  public static final CollectionMembershipOperator IN_OP =
+    new CollectionMembershipOperator();
   public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("not in");
 
   public static final ExtensionHandler HANDLER = getHandler(false);
@@ -30,7 +32,6 @@ public class CollectionNonMembershipOperator extends SimpleOperator {
 
   private static ExtensionHandler getHandler(boolean eager) {
     return new ExtensionHandler(ExtensionPoint.CMP) {
-
       @Override
       public AstNode createAstNode(AstNode... children) {
         return eager

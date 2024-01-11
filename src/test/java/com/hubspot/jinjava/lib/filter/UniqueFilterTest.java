@@ -25,14 +25,14 @@ public class UniqueFilterTest extends BaseJinjavaTest {
   @Test
   public void itFiltersDuplicatesFromSeqByAttr() {
     assertThat(
-        render(
-          "name",
-          new MyClass("a"),
-          new MyClass("b"),
-          new MyClass("a"),
-          new MyClass("c")
-        )
+      render(
+        "name",
+        new MyClass("a"),
+        new MyClass("b"),
+        new MyClass("a"),
+        new MyClass("c")
       )
+    )
       .isEqualTo("[Name:a][Name:b][Name:c]");
   }
 
@@ -56,6 +56,7 @@ public class UniqueFilterTest extends BaseJinjavaTest {
   }
 
   public static class MyClass implements PyishSerializable {
+
     private final String name;
 
     public MyClass(String name) {

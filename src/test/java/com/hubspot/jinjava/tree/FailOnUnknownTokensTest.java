@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class FailOnUnknownTokensTest {
+
   private static Jinjava jinjava;
 
   @Before

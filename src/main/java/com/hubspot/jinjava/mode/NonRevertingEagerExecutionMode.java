@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.mode;
 
 public class NonRevertingEagerExecutionMode extends EagerExecutionMode {
+
   private static final ExecutionMode INSTANCE = new NonRevertingEagerExecutionMode();
 
   protected NonRevertingEagerExecutionMode() {}

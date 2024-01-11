@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class FullSnippetsTest {
+
   private JinjavaInterpreter interpreter;
   private Jinjava jinjava;
   private ExpectedTemplateInterpreter expectedTemplateInterpreter;
@@ -36,8 +37,7 @@ public class FullSnippetsTest {
           String fullName,
           Charset encoding,
           JinjavaInterpreter interpreter
-        )
-          throws IOException {
+        ) throws IOException {
           return Resources.toString(
             Resources.getResource(String.format("tags/macrotag/%s", fullName)),
             StandardCharsets.UTF_8

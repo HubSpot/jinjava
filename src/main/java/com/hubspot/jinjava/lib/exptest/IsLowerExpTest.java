@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
       code = "{% if variable is lower %}\n" +
       "   <!--code to render if variable value is lowercased-->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsLowerExpTest implements ExpTest {

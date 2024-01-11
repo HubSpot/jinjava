@@ -23,6 +23,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StripTagsFilterTest {
+
   private JinjavaInterpreter interpreter;
 
   @InjectMocks
@@ -105,8 +106,8 @@ public class StripTagsFilterTest {
   @Test
   public void itExecutesJinjavaInsideTag() {
     assertThat(
-        filter.filter("{% for i in [1, 2, 3] %}<div>{{i}}</div>{% endfor %}", interpreter)
-      )
+      filter.filter("{% for i in [1, 2, 3] %}<div>{{i}}</div>{% endfor %}", interpreter)
+    )
       .isEqualTo("1 2 3");
   }
 
@@ -123,19 +124,18 @@ public class StripTagsFilterTest {
     Context mockedContext = mock(Context.class);
     when(mockedInterpreter.getContext()).thenReturn(mockedContext);
     when(mockedContext.getDeferredTokens())
-      .thenAnswer(
-        i ->
-          counter.getAndIncrement() == 0
-            ? Collections.emptySet()
-            : Collections.singleton(
-              DeferredToken
-                .builderFromImage(
-                  "{{ deferred && other }}",
-                  ExpressionToken.class,
-                  interpreter
-                )
-                .build()
-            )
+      .thenAnswer(i ->
+        counter.getAndIncrement() == 0
+          ? Collections.emptySet()
+          : Collections.singleton(
+            DeferredToken
+              .builderFromImage(
+                "{{ deferred && other }}",
+                ExpressionToken.class,
+                interpreter
+              )
+              .build()
+          )
       );
     assertThatThrownBy(() -> filter.filter("{{ deferred && other }}", mockedInterpreter))
       .isInstanceOf(DeferredValueException.class);

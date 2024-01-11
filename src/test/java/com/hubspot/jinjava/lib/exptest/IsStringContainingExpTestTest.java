@@ -8,38 +8,39 @@ import com.hubspot.jinjava.objects.SafeString;
 import org.junit.Test;
 
 public class IsStringContainingExpTestTest extends BaseJinjavaTest {
+
   private static final String CONTAINING_TEMPLATE = "{{ var is string_containing arg }}";
 
   @Test
   public void itReturnsTrueForContainedString() {
     assertThat(
-        jinjava.render(
-          CONTAINING_TEMPLATE,
-          ImmutableMap.of("var", "testing", "arg", "esti")
-        )
+      jinjava.render(
+        CONTAINING_TEMPLATE,
+        ImmutableMap.of("var", "testing", "arg", "esti")
       )
+    )
       .isEqualTo("true");
     assertThat(
-        jinjava.render(CONTAINING_TEMPLATE, ImmutableMap.of("var", "testing", "arg", ""))
-      )
+      jinjava.render(CONTAINING_TEMPLATE, ImmutableMap.of("var", "testing", "arg", ""))
+    )
       .isEqualTo("true");
     assertThat(
-        jinjava.render(
-          CONTAINING_TEMPLATE,
-          ImmutableMap.of("var", "testing", "arg", "testing")
-        )
+      jinjava.render(
+        CONTAINING_TEMPLATE,
+        ImmutableMap.of("var", "testing", "arg", "testing")
       )
+    )
       .isEqualTo("true");
   }
 
   @Test
   public void itReturnsFalseForExcludedString() {
     assertThat(
-        jinjava.render(
-          CONTAINING_TEMPLATE,
-          ImmutableMap.of("var", "testing", "arg", "blah")
-        )
+      jinjava.render(
+        CONTAINING_TEMPLATE,
+        ImmutableMap.of("var", "testing", "arg", "blah")
       )
+    )
       .isEqualTo("false");
   }
 
@@ -52,11 +53,11 @@ public class IsStringContainingExpTestTest extends BaseJinjavaTest {
   @Test
   public void itWorksForSafeString() {
     assertThat(
-        jinjava.render(
-          CONTAINING_TEMPLATE,
-          ImmutableMap.of("var", "testing", "arg", new SafeString("testing"))
-        )
+      jinjava.render(
+        CONTAINING_TEMPLATE,
+        ImmutableMap.of("var", "testing", "arg", new SafeString("testing"))
       )
+    )
       .isEqualTo("true");
   }
 }

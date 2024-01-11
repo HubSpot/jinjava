@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ReplaceFilterTest extends BaseInterpretingTest {
+
   ReplaceFilter filter;
 
   @Before
@@ -44,10 +45,10 @@ public class ReplaceFilterTest extends BaseInterpretingTest {
   @Test
   public void replaceSafeStringWithCount() {
     assertThat(
-        filter
-          .filter(new SafeString("aaaaargh"), interpreter, "a", "d'oh, ", "2")
-          .toString()
-      )
+      filter
+        .filter(new SafeString("aaaaargh"), interpreter, "a", "d'oh, ", "2")
+        .toString()
+    )
       .isEqualTo("d'oh, d'oh, aaargh");
   }
 
@@ -63,15 +64,14 @@ public class ReplaceFilterTest extends BaseInterpretingTest {
     for (int i = 0; i < 101; i++) {
       sb.append('a');
     }
-    assertThatThrownBy(
-        () ->
-          filter.filter(
-            sb.toString(),
-            new Jinjava(JinjavaConfig.newBuilder().withMaxStringLength(10).build())
+    assertThatThrownBy(() ->
+        filter.filter(
+          sb.toString(),
+          new Jinjava(JinjavaConfig.newBuilder().withMaxStringLength(10).build())
             .newInterpreter(),
-            "O",
-            "0"
-          )
+          "O",
+          "0"
+        )
       )
       .isInstanceOf(InvalidInputException.class)
       .hasMessageContaining(

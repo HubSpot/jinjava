@@ -12,6 +12,7 @@ import org.junit.Test;
 
 @SuppressWarnings("unchecked")
 public class AdditionOperatorTest {
+
   private JinjavaInterpreter interpreter;
 
   @Before
@@ -38,30 +39,30 @@ public class AdditionOperatorTest {
   @Test
   public void itCombinesTwoLists() {
     assertThat(
-        (Collection<Object>) interpreter.resolveELExpression(
-          "['foo', 'bar'] + ['other', 'one']",
-          -1
-        )
+      (Collection<Object>) interpreter.resolveELExpression(
+        "['foo', 'bar'] + ['other', 'one']",
+        -1
       )
+    )
       .containsExactly("foo", "bar", "other", "one");
   }
 
   @Test
   public void itAddsToList() {
     assertThat(
-        (Collection<Object>) interpreter.resolveELExpression("['foo'] + 'bar'", -1)
-      )
+      (Collection<Object>) interpreter.resolveELExpression("['foo'] + 'bar'", -1)
+    )
       .containsExactly("foo", "bar");
   }
 
   @Test
   public void itCombinesTwoDicts() {
     assertThat(
-        (Map<Object, Object>) interpreter.resolveELExpression(
-          "{'k1':'v1'} + {'k2':'v2'}",
-          -1
-        )
+      (Map<Object, Object>) interpreter.resolveELExpression(
+        "{'k1':'v1'} + {'k2':'v2'}",
+        -1
       )
+    )
       .containsOnly(entry("k1", "v1"), entry("k2", "v2"));
   }
 }

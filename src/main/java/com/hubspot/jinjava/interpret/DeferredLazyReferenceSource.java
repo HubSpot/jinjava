@@ -6,7 +6,9 @@ import com.google.common.annotations.Beta;
 public class DeferredLazyReferenceSource
   extends DeferredValueImpl
   implements OneTimeReconstructible {
-  private static final DeferredLazyReferenceSource INSTANCE = new DeferredLazyReferenceSource();
+
+  private static final DeferredLazyReferenceSource INSTANCE =
+    new DeferredLazyReferenceSource();
 
   private boolean reconstructed;
 

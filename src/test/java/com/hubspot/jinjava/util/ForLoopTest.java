@@ -23,9 +23,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ForLoopTest {
+
   private static final int NULL_VAL = Integer.MIN_VALUE;
 
   public static class AIterator implements Iterator<String> {
+
     int i = 0;
 
     @Override

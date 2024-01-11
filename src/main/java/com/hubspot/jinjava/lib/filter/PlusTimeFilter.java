@@ -32,7 +32,7 @@ import java.util.Map;
       desc = "The amount to add to the datetime",
       required = true
     ),
-    @JinjavaParam(value = "unit", desc = "Which temporal unit to use", required = true)
+    @JinjavaParam(value = "unit", desc = "Which temporal unit to use", required = true),
   },
   snippets = { @JinjavaSnippet(code = "{% mydatetime|plus_time(3, 'days') %}") }
 )

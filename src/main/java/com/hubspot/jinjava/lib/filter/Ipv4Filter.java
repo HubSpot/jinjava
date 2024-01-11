@@ -19,7 +19,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
       defaultValue = "prefix",
       desc = "Name of function. " +
       "Supported functions: 'prefix', 'netmask', 'network', 'address', 'broadcast'"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -33,7 +33,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
       desc = "This example shows how to filter list of ipv4 addresses",
       code = "{{ ['192.108.0.1', null, True, 13, '2000::'] | ipv4 }}",
       output = "['192.108.0.']"
-    )
+    ),
   }
 )
 public class Ipv4Filter extends IpAddrFilter {

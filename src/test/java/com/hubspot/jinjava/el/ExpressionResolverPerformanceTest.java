@@ -17,6 +17,7 @@ public class ExpressionResolverPerformanceTest {
   }
 
   public static class PerformanceTester {
+
     private JinjavaInterpreter interpreter;
     private Context context;
     private long startTime;

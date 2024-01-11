@@ -23,7 +23,7 @@ import java.util.Objects;
     @JinjavaSnippet(
       code = "{% set this_var =\"Variable that I want to debug\" %}\n" +
       "{{ this_var|pprint }}"
-    )
+    ),
   }
 )
 public class PrettyPrintFilter implements Filter {

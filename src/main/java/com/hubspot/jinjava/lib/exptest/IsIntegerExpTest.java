@@ -15,7 +15,7 @@ import java.math.BigInteger;
       code = "{% if num is integer %}\n" +
       "      <!--code to render if num contains an integral value-->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsIntegerExpTest implements ExpTest {

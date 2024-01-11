@@ -46,8 +46,8 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
           interpreter
         ),
       interpreter,
-      EagerContextWatcher
-        .EagerChildContextConfig.newBuilder()
+      EagerContextWatcher.EagerChildContextConfig
+        .newBuilder()
         .withCheckForContextChanges(!interpreter.getContext().isDeferredExecutionMode())
         .build()
     );
@@ -184,12 +184,13 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         List<String> loopVars = getTag()
           .getLoopVarsAndExpression((TagToken) tagNode.getMaster())
           .getLeft();
-        Set<String> removedMetaContextVariables = EagerReconstructionUtils.removeMetaContextVariables(
-          loopVars.stream(),
-          interpreter.getContext()
-        );
-        loopVars.forEach(
-          var -> interpreter.getContext().put(var, DeferredValue.instance())
+        Set<String> removedMetaContextVariables =
+          EagerReconstructionUtils.removeMetaContextVariables(
+            loopVars.stream(),
+            interpreter.getContext()
+          );
+        loopVars.forEach(var ->
+          interpreter.getContext().put(var, DeferredValue.instance())
         );
         try {
           return EagerExpressionResult.fromString(
@@ -203,8 +204,8 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         }
       },
       interpreter,
-      EagerContextWatcher
-        .EagerChildContextConfig.newBuilder()
+      EagerContextWatcher.EagerChildContextConfig
+        .newBuilder()
         .withForceDeferredExecutionMode(true)
         .build()
     );
@@ -217,10 +218,8 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     List<String> loopVars = loopVarsAndExpression.getLeft();
     String loopExpression = loopVarsAndExpression.getRight();
 
-    EagerExpressionResult eagerExpressionResult = EagerExpressionResolver.resolveExpression(
-      loopExpression,
-      interpreter
-    );
+    EagerExpressionResult eagerExpressionResult =
+      EagerExpressionResolver.resolveExpression(loopExpression, interpreter);
 
     LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
       interpreter.getConfig().getMaxOutputSize(),
@@ -234,11 +233,12 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       .add("in")
       .add(eagerExpressionResult.toString())
       .add(tagToken.getSymbols().getExpressionEndWithTag());
-    PrefixToPreserveState prefixToPreserveState = EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
-      new PrefixToPreserveState(),
-      eagerExpressionResult.getDeferredWords(),
-      interpreter
-    );
+    PrefixToPreserveState prefixToPreserveState =
+      EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+        new PrefixToPreserveState(),
+        eagerExpressionResult.getDeferredWords(),
+        interpreter
+      );
     prefixToPreserveState.withAllInFront(
       EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
         interpreter,

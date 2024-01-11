@@ -11,6 +11,7 @@ import java.util.Iterator;
 import javax.el.ELException;
 
 public class TruthyTypeConverter extends TypeConverterImpl {
+
   private static final long serialVersionUID = 1L;
   public static final int MAX_COLLECTION_STRING_LENGTH = 1_000_000;
 

@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class FeaturesTest {
+
   private static final String ALWAYS_OFF = "alwaysOff";
   private static final String ALWAYS_ON = "alwaysOn";
   private static final String DATE_PAST = "datePast";

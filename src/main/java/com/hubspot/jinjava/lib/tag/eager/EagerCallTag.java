@@ -39,33 +39,39 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
     InterpretException e
   ) {
     interpreter.getContext().checkNumberOfDeferredTokens();
+    MacroFunction caller;
+    EagerExecutionResult eagerExecutionResult;
+    PrefixToPreserveState prefixToPreserveState;
+    LengthLimitingStringJoiner joiner;
     try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
-      MacroFunction caller = new MacroFunction(
-        tagNode.getChildren(),
-        "caller",
-        new LinkedHashMap<>(),
-        true,
-        interpreter.getContext(),
-        interpreter.getLineNumber(),
-        interpreter.getPosition()
-      );
+      caller =
+        new MacroFunction(
+          tagNode.getChildren(),
+          "caller",
+          new LinkedHashMap<>(),
+          true,
+          interpreter.getContext(),
+          interpreter.getLineNumber(),
+          interpreter.getPosition()
+        );
       interpreter.getContext().addGlobalMacro(caller);
-      EagerExecutionResult eagerExecutionResult = EagerContextWatcher.executeInChildContext(
-        eagerInterpreter ->
-          EagerExpressionResolver.resolveExpression(
-            tagNode.getHelpers().trim(),
-            interpreter
-          ),
-        interpreter,
-        EagerContextWatcher
-          .EagerChildContextConfig.newBuilder()
-          .withTakeNewValue(true)
-          .withPartialMacroEvaluation(
-            interpreter.getConfig().isNestedInterpretationEnabled()
-          )
-          .build()
-      );
-      PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
+      eagerExecutionResult =
+        EagerContextWatcher.executeInChildContext(
+          eagerInterpreter ->
+            EagerExpressionResolver.resolveExpression(
+              tagNode.getHelpers().trim(),
+              interpreter
+            ),
+          interpreter,
+          EagerContextWatcher.EagerChildContextConfig
+            .newBuilder()
+            .withTakeNewValue(true)
+            .withPartialMacroEvaluation(
+              interpreter.getConfig().isNestedInterpretationEnabled()
+            )
+            .build()
+        );
+      prefixToPreserveState = new PrefixToPreserveState();
       if (
         !eagerExecutionResult.getResult().isFullyResolved() ||
         interpreter.getContext().isDeferredExecutionMode()
@@ -93,63 +99,70 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
           )
         );
       }
+
       caller.setDeferred(true);
+      // caller() needs to exist here so that the macro function can be reconstructed
       EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
         prefixToPreserveState,
         eagerExecutionResult.getResult().getDeferredWords(),
         interpreter
       );
+    }
 
-      LengthLimitingStringJoiner joiner = new LengthLimitingStringJoiner(
-        interpreter.getConfig().getMaxOutputSize(),
-        " "
-      );
-      joiner
-        .add(tagNode.getSymbols().getExpressionStartWithTag())
-        .add(tagNode.getTag().getName())
-        .add(eagerExecutionResult.getResult().toString().trim())
-        .add(tagNode.getSymbols().getExpressionEndWithTag());
-      prefixToPreserveState.withAllInFront(
-        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
-          interpreter,
-          DeferredToken
-            .builderFromImage(joiner.toString(), tagNode.getMaster())
-            .addUsedDeferredWords(eagerExecutionResult.getResult().getDeferredWords())
-            .build()
-        )
-      );
-      StringBuilder result = new StringBuilder(prefixToPreserveState + joiner.toString());
-      interpreter.getContext().setDynamicVariableResolver(s -> DeferredValue.instance());
-      if (!tagNode.getChildren().isEmpty()) {
-        result.append(
-          EagerContextWatcher
-            .executeInChildContext(
-              eagerInterpreter ->
-                EagerExpressionResult.fromString(
-                  renderChildren(tagNode, eagerInterpreter)
-                ),
-              interpreter,
-              EagerContextWatcher
-                .EagerChildContextConfig.newBuilder()
-                .withForceDeferredExecutionMode(true)
-                .build()
-            )
-            .asTemplateString()
-        );
-      }
-      if (
-        StringUtils.isNotBlank(tagNode.getEndName()) &&
-        (
-          !(getTag() instanceof FlexibleTag) ||
-          ((FlexibleTag) getTag()).hasEndTag((TagToken) tagNode.getMaster())
-        )
-      ) {
-        result.append(EagerReconstructionUtils.reconstructEnd(tagNode));
-      } // Possible set tag in front of this one.
-      return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
-        result.toString(),
-        interpreter
+    // Now preserve those variables from the scope the call tag was called in
+    prefixToPreserveState.withAllInFront(
+      new EagerExecutionResult(
+        eagerExecutionResult.getResult(),
+        eagerExecutionResult.getSpeculativeBindings()
+      )
+        .getPrefixToPreserveState()
+    );
+    joiner =
+      new LengthLimitingStringJoiner(interpreter.getConfig().getMaxOutputSize(), " ");
+    joiner
+      .add(tagNode.getSymbols().getExpressionStartWithTag())
+      .add(tagNode.getTag().getName())
+      .add(eagerExecutionResult.getResult().toString().trim())
+      .add(tagNode.getSymbols().getExpressionEndWithTag());
+    prefixToPreserveState.withAllInFront(
+      EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+        interpreter,
+        DeferredToken
+          .builderFromImage(joiner.toString(), tagNode.getMaster())
+          .addUsedDeferredWords(eagerExecutionResult.getResult().getDeferredWords())
+          .build()
+      )
+    );
+
+    StringBuilder result = new StringBuilder(prefixToPreserveState + joiner.toString());
+    interpreter.getContext().setDynamicVariableResolver(s -> DeferredValue.instance());
+    if (!tagNode.getChildren().isEmpty()) {
+      result.append(
+        EagerContextWatcher
+          .executeInChildContext(
+            eagerInterpreter ->
+              EagerExpressionResult.fromString(renderChildren(tagNode, eagerInterpreter)),
+            interpreter,
+            EagerContextWatcher.EagerChildContextConfig
+              .newBuilder()
+              .withForceDeferredExecutionMode(true)
+              .build()
+          )
+          .asTemplateString()
       );
     }
+    if (
+      StringUtils.isNotBlank(tagNode.getEndName()) &&
+      (
+        !(getTag() instanceof FlexibleTag) ||
+        ((FlexibleTag) getTag()).hasEndTag((TagToken) tagNode.getMaster())
+      )
+    ) {
+      result.append(EagerReconstructionUtils.reconstructEnd(tagNode));
+    } // Possible set tag in front of this one.
+    return EagerReconstructionUtils.wrapInAutoEscapeIfNeeded(
+      result.toString(),
+      interpreter
+    );
   }
 }

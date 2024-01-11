@@ -20,41 +20,41 @@ public class Base64FilterTest extends BaseJinjavaTest {
   @Test
   public void itEncodesWithUtf16Le() {
     assertThat(
-        jinjava.render(
-          "{{ '\uD801\uDC37'|b64encode(encoding='utf-16le') }}",
-          Collections.emptyMap()
-        )
+      jinjava.render(
+        "{{ '\uD801\uDC37'|b64encode(encoding='utf-16le') }}",
+        Collections.emptyMap()
       )
+    )
       .isEqualTo("Adg33A==");
   }
 
   @Test
   public void itDecodesWithUtf16Le() {
     assertThat(
-        jinjava.render(
-          "{{ 'Adg33A=='|b64decode(encoding='utf-16le') }}",
-          Collections.emptyMap()
-        )
+      jinjava.render(
+        "{{ 'Adg33A=='|b64decode(encoding='utf-16le') }}",
+        Collections.emptyMap()
       )
+    )
       .isEqualTo("\uD801\uDC37");
   }
 
   @Test
   public void itEncodesAndDecodesDefaultCharset() {
     assertThat(
-        jinjava.render("{{ 123456789|b64encode|b64decode }}", Collections.emptyMap())
-      )
+      jinjava.render("{{ 123456789|b64encode|b64decode }}", Collections.emptyMap())
+    )
       .isEqualTo("123456789");
   }
 
   @Test
   public void itEncodesAndDecodesUtf16Le() {
     assertThat(
-        jinjava.render(
-          "{{ 123456789|b64encode(encoding='utf-16le')|b64decode(encoding='utf-16le') }}",
-          Collections.emptyMap()
-        )
+      jinjava.render(
+        "{{ 123456789|b64encode(encoding='utf-16le')|b64decode(encoding='utf-16le') }}",
+        Collections.emptyMap()
       )
+    )
       .isEqualTo("123456789");
   }
 

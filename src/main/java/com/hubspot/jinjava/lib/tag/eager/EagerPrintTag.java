@@ -57,8 +57,8 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
     EagerExecutionResult eagerExecutionResult = EagerContextWatcher.executeInChildContext(
       eagerInterpreter -> EagerExpressionResolver.resolveExpression(expr, interpreter),
       interpreter,
-      EagerContextWatcher
-        .EagerChildContextConfig.newBuilder()
+      EagerContextWatcher.EagerChildContextConfig
+        .newBuilder()
         .withTakeNewValue(true)
         .build()
     );

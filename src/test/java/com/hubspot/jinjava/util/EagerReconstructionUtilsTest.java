@@ -43,6 +43,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
+
   private static final long MAX_OUTPUT_SIZE = 50L;
 
   @Before
@@ -77,8 +78,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         }
       ),
       interpreter,
-      EagerContextWatcher
-        .EagerChildContextConfig.newBuilder()
+      EagerContextWatcher.EagerChildContextConfig
+        .newBuilder()
         .withTakeNewValue(true)
         .withForceDeferredExecutionMode(true)
         .withCheckForContextChanges(true)
@@ -108,8 +109,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         }
       ),
       interpreter,
-      EagerContextWatcher
-        .EagerChildContextConfig.newBuilder()
+      EagerContextWatcher.EagerChildContextConfig
+        .newBuilder()
         .withForceDeferredExecutionMode(true)
         .withCheckForContextChanges(true)
         .build()
@@ -197,11 +198,12 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
 
   @Test
   public void itBuildsSetTagForDeferredAndRegisters() {
-    String result = EagerReconstructionUtils.buildBlockOrInlineSetTagAndRegisterDeferredToken(
-      "foo",
-      "bar",
-      interpreter
-    );
+    String result =
+      EagerReconstructionUtils.buildBlockOrInlineSetTagAndRegisterDeferredToken(
+        "foo",
+        "bar",
+        interpreter
+      );
     assertThat(result).isEqualTo("{% set foo = 'bar' %}");
     assertThat(context.getDeferredTokens()).hasSize(1);
     DeferredToken deferredToken = context
@@ -250,13 +252,12 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
     for (int i = 0; i < MAX_OUTPUT_SIZE; i++) {
       tooLong.append(i);
     }
-    assertThatThrownBy(
-        () ->
-          EagerReconstructionUtils.buildBlockOrInlineSetTagAndRegisterDeferredToken(
-            "foo",
-            tooLong.toString(),
-            interpreter
-          )
+    assertThatThrownBy(() ->
+        EagerReconstructionUtils.buildBlockOrInlineSetTagAndRegisterDeferredToken(
+          "foo",
+          tooLong.toString(),
+          interpreter
+        )
       )
       .isInstanceOf(OutputTooBigException.class);
   }
@@ -269,11 +270,11 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
       .withExecutionMode(PreserveRawExecutionMode.instance())
       .build();
     assertThat(
-        EagerReconstructionUtils.wrapInRawIfNeeded(
-          toWrap,
-          new JinjavaInterpreter(jinjava, context, preserveRawConfig)
-        )
+      EagerReconstructionUtils.wrapInRawIfNeeded(
+        toWrap,
+        new JinjavaInterpreter(jinjava, context, preserveRawConfig)
       )
+    )
       .isEqualTo(String.format("{%% raw %%}%s{%% endraw %%}", toWrap));
   }
 
@@ -285,11 +286,11 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
       .withExecutionMode(PreserveRawExecutionMode.instance())
       .build();
     assertThat(
-        EagerReconstructionUtils.wrapInRawIfNeeded(
-          toWrap,
-          new JinjavaInterpreter(jinjava, context, preserveRawConfig)
-        )
+      EagerReconstructionUtils.wrapInRawIfNeeded(
+        toWrap,
+        new JinjavaInterpreter(jinjava, context, preserveRawConfig)
       )
+    )
       .isEqualTo(toWrap);
   }
 
@@ -301,11 +302,11 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
       .build();
     String toWrap = "{{ foo }}";
     assertThat(
-        EagerReconstructionUtils.wrapInRawIfNeeded(
-          toWrap,
-          new JinjavaInterpreter(jinjava, context, defaultConfig)
-        )
+      EagerReconstructionUtils.wrapInRawIfNeeded(
+        toWrap,
+        new JinjavaInterpreter(jinjava, context, defaultConfig)
       )
+    )
       .isEqualTo(toWrap);
   }
 
@@ -340,11 +341,11 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
       .getContext()
       .put(Context.IMPORT_RESOURCE_ALIAS_KEY, DeferredValue.instance());
     assertThat(
-        EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
-          Collections.singleton(Context.IMPORT_RESOURCE_ALIAS_KEY),
-          interpreter
-        )
+      EagerReconstructionUtils.reconstructFromContextBeforeDeferring(
+        Collections.singleton(Context.IMPORT_RESOURCE_ALIAS_KEY),
+        interpreter
       )
+    )
       .isEmpty();
   }
 
@@ -382,24 +383,25 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         return EagerExpressionResult.fromString("");
       },
       interpreter,
-      EagerContextWatcher
-        .EagerChildContextConfig.newBuilder()
+      EagerContextWatcher.EagerChildContextConfig
+        .newBuilder()
         .withDiscardSessionBindings(false)
         .withCheckForContextChanges(true)
         .build()
     );
-    EagerExecutionResult withoutSessionBindings = EagerContextWatcher.executeInChildContext(
-      eagerInterpreter -> {
-        interpreter.getContext().put("foo", "foobar");
-        return EagerExpressionResult.fromString("");
-      },
-      interpreter,
-      EagerContextWatcher
-        .EagerChildContextConfig.newBuilder()
-        .withDiscardSessionBindings(true)
-        .withCheckForContextChanges(true)
-        .build()
-    );
+    EagerExecutionResult withoutSessionBindings =
+      EagerContextWatcher.executeInChildContext(
+        eagerInterpreter -> {
+          interpreter.getContext().put("foo", "foobar");
+          return EagerExpressionResult.fromString("");
+        },
+        interpreter,
+        EagerContextWatcher.EagerChildContextConfig
+          .newBuilder()
+          .withDiscardSessionBindings(true)
+          .withCheckForContextChanges(true)
+          .build()
+      );
     assertThat(withSessionBindings.getSpeculativeBindings())
       .containsEntry("foo", "foobar");
     assertThat(withoutSessionBindings.getSpeculativeBindings()).doesNotContainKey("foo");
@@ -412,8 +414,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
       eagerInterpreter ->
         EagerExpressionResult.fromString(interpreter.render("{% set foo = 'bar' %}")),
       interpreter,
-      EagerContextWatcher
-        .EagerChildContextConfig.newBuilder()
+      EagerContextWatcher.EagerChildContextConfig
+        .newBuilder()
         .withDiscardSessionBindings(false)
         .withCheckForContextChanges(true)
         .withTakeNewValue(true)

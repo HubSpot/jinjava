@@ -43,8 +43,11 @@ import org.apache.commons.lang3.math.NumberUtils;
  * @see JinjavaParam
  */
 public abstract class AbstractFilter implements Filter {
-  private static final Map<Class, Map<String, JinjavaParam>> NAMED_ARGUMENTS_CACHE = new ConcurrentHashMap<>();
-  private static final Map<Class, Map<String, Object>> DEFAULT_VALUES_CACHE = new ConcurrentHashMap<>();
+
+  private static final Map<Class, Map<String, JinjavaParam>> NAMED_ARGUMENTS_CACHE =
+    new ConcurrentHashMap<>();
+  private static final Map<Class, Map<String, Object>> DEFAULT_VALUES_CACHE =
+    new ConcurrentHashMap<>();
 
   private final Map<String, JinjavaParam> namedArguments;
   private final Map<String, Object> defaultValues;
@@ -114,8 +117,8 @@ public abstract class AbstractFilter implements Filter {
 
     //Parse args based on their declared types
     Map<String, Object> parsedArgs = new HashMap<>();
-    namedArgs.forEach(
-      (k, v) -> parsedArgs.put(k, parseArg(interpreter, namedArguments.get(k), v))
+    namedArgs.forEach((k, v) ->
+      parsedArgs.put(k, parseArg(interpreter, namedArguments.get(k), v))
     );
 
     validateArgs(interpreter, parsedArgs);
@@ -204,9 +207,8 @@ public abstract class AbstractFilter implements Filter {
       .ofNullable(namedArguments)
       .map(Map::keySet)
       .map(ArrayList::new)
-      .flatMap(
-        argNames ->
-          Optional.ofNullable(argNames.size() > position ? argNames.get(position) : null)
+      .flatMap(argNames ->
+        Optional.ofNullable(argNames.size() > position ? argNames.get(position) : null)
       )
       .orElse(null);
   }
@@ -220,12 +222,13 @@ public abstract class AbstractFilter implements Filter {
     }
 
     if (jinjavaDoc != null) {
-      ImmutableMap.Builder<String, JinjavaParam> namedArgsBuilder = ImmutableMap.builder();
+      ImmutableMap.Builder<String, JinjavaParam> namedArgsBuilder =
+        ImmutableMap.builder();
 
       Arrays
         .stream(jinjavaDoc.params())
-        .forEachOrdered(
-          jinjavaParam -> namedArgsBuilder.put(jinjavaParam.value(), jinjavaParam)
+        .forEachOrdered(jinjavaParam ->
+          namedArgsBuilder.put(jinjavaParam.value(), jinjavaParam)
         );
 
       return namedArgsBuilder.build();

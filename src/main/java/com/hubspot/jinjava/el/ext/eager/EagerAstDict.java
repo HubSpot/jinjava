@@ -14,6 +14,7 @@ import java.util.StringJoiner;
 import javax.el.ELContext;
 
 public class EagerAstDict extends AstDict implements EvalResultHolder {
+
   protected Object evalResult;
   protected boolean hasEvalResult;
 
@@ -41,50 +42,46 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
       .getELResolver()
       .getValue(context, null, ExtendedParser.INTERPRETER);
     StringJoiner joiner = new StringJoiner(", ");
-    dict.forEach(
-      (key, value) -> {
-        StringJoiner kvJoiner = new StringJoiner(": ");
-        if (key instanceof AstIdentifier) {
-          kvJoiner.add(((AstIdentifier) key).getName());
-        } else if (key instanceof EvalResultHolder) {
-          kvJoiner.add(
-            EvalResultHolder.reconstructNode(
-              bindings,
-              context,
-              (EvalResultHolder) key,
-              deferredParsingException,
-              IdentifierPreservationStrategy.preserving(
-                !interpreter.getConfig().getLegacyOverrides().isEvaluateMapKeys()
-              )
+    dict.forEach((key, value) -> {
+      StringJoiner kvJoiner = new StringJoiner(": ");
+      if (key instanceof AstIdentifier) {
+        kvJoiner.add(((AstIdentifier) key).getName());
+      } else if (key instanceof EvalResultHolder) {
+        kvJoiner.add(
+          EvalResultHolder.reconstructNode(
+            bindings,
+            context,
+            (EvalResultHolder) key,
+            deferredParsingException,
+            IdentifierPreservationStrategy.preserving(
+              !interpreter.getConfig().getLegacyOverrides().isEvaluateMapKeys()
             )
-          );
-        } else {
-          kvJoiner.add(
-            EagerExpressionResolver.getValueAsJinjavaStringSafe(
-              key.eval(bindings, context)
-            )
-          );
-        }
-        if (value instanceof EvalResultHolder) {
-          kvJoiner.add(
-            EvalResultHolder.reconstructNode(
-              bindings,
-              context,
-              (EvalResultHolder) value,
-              deferredParsingException,
-              identifierPreservationStrategy
-            )
-          );
-        } else {
-          kvJoiner.add(
-            EagerExpressionResolver.getValueAsJinjavaStringSafe(
-              value.eval(bindings, context)
-            )
-          );
-        }
-        joiner.add(kvJoiner.toString());
+          )
+        );
+      } else {
+        kvJoiner.add(
+          EagerExpressionResolver.getValueAsJinjavaStringSafe(key.eval(bindings, context))
+        );
       }
-    );
+      if (value instanceof EvalResultHolder) {
+        kvJoiner.add(
+          EvalResultHolder.reconstructNode(
+            bindings,
+            context,
+            (EvalResultHolder) value,
+            deferredParsingException,
+            identifierPreservationStrategy
+          )
+        );
+      } else {
+        kvJoiner.add(
+          EagerExpressionResolver.getValueAsJinjavaStringSafe(
+            value.eval(bindings, context)
+          )
+        );
+      }
+      joiner.add(kvJoiner.toString());
+    });
     String joined = joiner.toString();
     if (joined.endsWith("}")) {
       // prevent 2 closing braces from being interpreted as a closing expression token

@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class EagerAstIdentifierTest extends BaseInterpretingTest {
+
   private JinjavaELContext elContext;
 
   @Before
@@ -29,7 +30,7 @@ public class EagerAstIdentifierTest extends BaseInterpretingTest {
         new ValueExpression[] {
           jinjava
             .getEagerExpressionFactory()
-            .createValueExpression(elContext, "#{foo}", Object.class)
+            .createValueExpression(elContext, "#{foo}", Object.class),
         }
       ),
       elContext

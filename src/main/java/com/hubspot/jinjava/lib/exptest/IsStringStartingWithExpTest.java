@@ -20,7 +20,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
       code = "{% if variable is string_startingwith 'foo' %}\n" +
       "      <!--code to render if variable starts with 'foo'-->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsStringStartingWithExpTest extends IsStringExpTest {

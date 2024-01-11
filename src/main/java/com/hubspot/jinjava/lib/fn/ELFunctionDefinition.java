@@ -5,6 +5,7 @@ import com.hubspot.jinjava.lib.Importable;
 import java.lang.reflect.Method;
 
 public class ELFunctionDefinition implements Importable {
+
   private String namespace;
   private String localName;
   private Method method;

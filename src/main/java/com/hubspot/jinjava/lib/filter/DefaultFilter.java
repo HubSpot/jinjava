@@ -44,7 +44,7 @@ import java.util.Objects;
       type = "boolean",
       defaultValue = "False",
       desc = "Set to True to use with variables which evaluate to false"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -54,10 +54,11 @@ import java.util.Objects;
     @JinjavaSnippet(
       desc = "If you want to use default with variables that evaluate to false you have to set the second parameter to true",
       code = "{{ ''|default('the string was empty', true) }}"
-    )
+    ),
   }
 )
 public class DefaultFilter extends AbstractFilter implements AdvancedFilter {
+
   public static final String DEFAULT_VALUE_PARAM = "default_value";
   public static final String TRUTHY_PARAM = "truthy";
 

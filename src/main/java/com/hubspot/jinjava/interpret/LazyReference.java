@@ -4,6 +4,7 @@ import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import java.io.IOException;
 
 public class LazyReference extends LazyExpression implements PyishSerializable {
+
   private String referenceKey;
 
   protected LazyReference(Context referenceContext, String referenceKey) {

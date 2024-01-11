@@ -15,7 +15,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
       "{% else %}\n" +
       "       The variable is not a number.\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsNumberExpTest implements ExpTest {

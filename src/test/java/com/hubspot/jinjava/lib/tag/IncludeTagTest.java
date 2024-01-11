@@ -126,8 +126,7 @@ public class IncludeTagTest extends BaseInterpretingTest {
           String fullName,
           Charset encoding,
           JinjavaInterpreter interpreter
-        )
-          throws IOException {
+        ) throws IOException {
           return Resources.toString(
             Resources.getResource(String.format("%s", fullName)),
             StandardCharsets.UTF_8

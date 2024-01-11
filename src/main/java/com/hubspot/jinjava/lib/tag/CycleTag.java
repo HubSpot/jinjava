@@ -38,7 +38,7 @@ import java.util.List;
     @JinjavaParam(
       value = "string_to_print",
       desc = "A comma separated list of strings to print with each interation. The list will repeat if there are more iterations than string parameter values."
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -46,11 +46,12 @@ import java.util.List;
       code = "{% for content in contents %}\n" +
       "    <div class=\"post-item {% cycle \'odd\',\'even\' %}\">Blog post content</div>\n" +
       "{% endfor %}"
-    )
+    ),
   }
 )
 @JinjavaTextMateSnippet(code = "{% cycle '${1:string_to_print}' %}")
 public class CycleTag implements Tag {
+
   public static final String TAG_NAME = "cycle";
   public static final String LOOP_INDEX = "loop.index0";
 

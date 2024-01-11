@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
  */
 @Beta
 public class EagerExecutionResult {
+
   private final EagerExpressionResult result;
   private final Map<String, Object> speculativeBindings;
   private PrefixToPreserveState prefixToPreserveState;
@@ -54,52 +55,46 @@ public class EagerExecutionResult {
     Collection<Entry<String, Object>> filteredEntries = speculativeBindings
       .entrySet()
       .stream()
-      .filter(
-        entry -> {
-          Object contextValue = interpreter.getContext().get(entry.getKey());
-          if (contextValue instanceof DeferredLazyReferenceSource) {
-            ((DeferredLazyReferenceSource) contextValue).setReconstructed(true);
-          }
-          return !(contextValue instanceof DeferredValueShadow);
+      .filter(entry -> {
+        Object contextValue = interpreter.getContext().get(entry.getKey());
+        if (contextValue instanceof DeferredLazyReferenceSource) {
+          ((DeferredLazyReferenceSource) contextValue).setReconstructed(true);
         }
-      )
+        return !(contextValue instanceof DeferredValueShadow);
+      })
       .collect(Collectors.toList());
     filteredEntries
       .stream()
       .filter(entry -> !(entry.getValue() instanceof LazyReference))
-      .forEach(
-        entry ->
-          EagerReconstructionUtils.hydrateBlockOrInlineSetTagRecursively(
-            prefixToPreserveState,
-            entry.getKey(),
-            entry.getValue(),
-            interpreter
-          )
+      .forEach(entry ->
+        EagerReconstructionUtils.hydrateBlockOrInlineSetTagRecursively(
+          prefixToPreserveState,
+          entry.getKey(),
+          entry.getValue(),
+          interpreter
+        )
       );
     filteredEntries
       .stream()
       .filter(entry -> (entry.getValue() instanceof LazyReference))
-      .map(
-        entry ->
-          new AbstractMap.SimpleImmutableEntry<>(
-            entry.getKey(),
-            PyishObjectMapper.getAsPyishString(entry.getValue())
-          )
+      .map(entry ->
+        new AbstractMap.SimpleImmutableEntry<>(
+          entry.getKey(),
+          PyishObjectMapper.getAsPyishString(entry.getValue())
+        )
       )
-      .sorted(
-        (a, b) ->
-          a.getValue().equals(b.getKey()) ? 1 : b.getValue().equals(a.getKey()) ? -1 : 0
+      .sorted((a, b) ->
+        a.getValue().equals(b.getKey()) ? 1 : b.getValue().equals(a.getKey()) ? -1 : 0
       )
-      .forEach(
-        entry ->
-          prefixToPreserveState.put(
-            entry.getKey(),
-            buildSetTag(
-              Collections.singletonMap(entry.getKey(), entry.getValue()),
-              interpreter,
-              false
-            )
+      .forEach(entry ->
+        prefixToPreserveState.put(
+          entry.getKey(),
+          buildSetTag(
+            Collections.singletonMap(entry.getKey(), entry.getValue()),
+            interpreter,
+            false
           )
+        )
       );
     return prefixToPreserveState;
   }

@@ -31,6 +31,7 @@ import java.math.RoundingMode;
   snippets = { @JinjavaSnippet(code = "{{ 25|log(5) }}") }
 )
 public class LogFilter implements Filter {
+
   private static final MathContext PRECISION = new MathContext(50);
 
   @Override

@@ -35,7 +35,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
       type = "number",
       desc = "The divisor to check if the value is divisible by",
       required = true
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -44,7 +44,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
       "{% if num|divisible(2) %}\n" +
       "    The number is divisble by 2\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class DivisibleFilter implements Filter {

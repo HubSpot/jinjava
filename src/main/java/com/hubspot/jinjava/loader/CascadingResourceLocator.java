@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 public class CascadingResourceLocator implements ResourceLocator {
+
   private Iterable<ResourceLocator> locators;
 
   public CascadingResourceLocator(ResourceLocator... locators) {
@@ -17,8 +18,7 @@ public class CascadingResourceLocator implements ResourceLocator {
     String fullName,
     Charset encoding,
     JinjavaInterpreter interpreter
-  )
-    throws IOException {
+  ) throws IOException {
     for (ResourceLocator locator : locators) {
       try {
         return locator.getString(fullName, encoding, interpreter);

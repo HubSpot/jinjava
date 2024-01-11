@@ -39,10 +39,10 @@ import java.math.BigDecimal;
       type = "number",
       desc = "The number added to the base number",
       required = true
-    )
+    ),
   },
   snippets = {
-    @JinjavaSnippet(code = "{% set my_num = 40 %} \n" + "{{ my_num|add(13) }}")
+    @JinjavaSnippet(code = "{% set my_num = 40 %} \n" + "{{ my_num|add(13) }}"),
   }
 )
 public class AddFilter implements Filter {

@@ -33,8 +33,8 @@ public class TypeFunctionTest {
   @Test
   public void testDate() {
     assertThat(
-        TypeFunction.type(ZonedDateTime.parse("2013-11-06T14:22:00.000+00:00[UTC]"))
-      )
+      TypeFunction.type(ZonedDateTime.parse("2013-11-06T14:22:00.000+00:00[UTC]"))
+    )
       .isEqualTo("datetime");
   }
 

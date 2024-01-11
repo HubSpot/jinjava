@@ -30,6 +30,7 @@ import java.math.MathContext;
   snippets = { @JinjavaSnippet(code = "{{ 125|root(3) }}") }
 )
 public class RootFilter implements Filter {
+
   private static final MathContext PRECISION = new MathContext(50);
 
   @Override

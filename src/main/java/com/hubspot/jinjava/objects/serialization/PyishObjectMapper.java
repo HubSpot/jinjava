@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Beta
 public class PyishObjectMapper {
+
   public static final ObjectWriter PYISH_OBJECT_WRITER;
   public static final ObjectWriter SNAKE_CASE_PYISH_OBJECT_WRITER;
   public static final String ALLOW_SNAKE_CASE_ATTRIBUTE = "allowSnakeCase";
@@ -43,7 +44,7 @@ public class PyishObjectMapper {
     ObjectMapper mapper = new ObjectMapper(
       new JsonFactoryBuilder().quoteChar('\'').build()
     )
-    .registerModule(
+      .registerModule(
         new SimpleModule()
           .setSerializerModifier(PyishBeanSerializerModifier.INSTANCE)
           .addSerializer(PyishSerializable.class, PyishSerializer.INSTANCE)
@@ -95,9 +96,8 @@ public class PyishObjectMapper {
     throws IOException {
     boolean useSnakeCaseMappingOverride = JinjavaInterpreter
       .getCurrentMaybe()
-      .map(
-        interpreter ->
-          interpreter.getConfig().getLegacyOverrides().isUseSnakeCasePropertyNaming()
+      .map(interpreter ->
+        interpreter.getConfig().getLegacyOverrides().isUseSnakeCasePropertyNaming()
       )
       .orElse(false);
     ObjectWriter objectWriter = useSnakeCaseMappingOverride
@@ -136,8 +136,7 @@ public class PyishObjectMapper {
       Object o,
       JsonGenerator jsonGenerator,
       SerializerProvider serializerProvider
-    )
-      throws IOException {
+    ) throws IOException {
       jsonGenerator.writeFieldName("");
     }
   }

@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class FromJsonFilterTest extends BaseInterpretingTest {
+
   private FromJsonFilter filter;
 
   @Before

@@ -8,6 +8,7 @@ import org.junit.Test;
 public class InjectedContextFunctionProxyTest {
 
   public static class MyClass {
+
     private String state;
 
     public MyClass(String state) {
@@ -20,6 +21,7 @@ public class InjectedContextFunctionProxyTest {
   }
 
   public static class OtherClass {
+
     private String state;
 
     public OtherClass(String state) {

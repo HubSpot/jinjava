@@ -16,7 +16,7 @@ import java.util.Objects;
   snippets = {
     @JinjavaSnippet(
       code = "{% set number_to_string = 45 %}\n" + "{{ number_to_string|string }}"
-    )
+    ),
   }
 )
 public class StringFilter implements Filter {

@@ -18,6 +18,7 @@ package com.hubspot.jinjava.util;
 import java.util.Iterator;
 
 public class ForLoop implements Iterator<Object> {
+
   private static final int NULL_VALUE = Integer.MIN_VALUE;
 
   private int index = -1;

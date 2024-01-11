@@ -17,6 +17,7 @@ import org.apache.commons.lang3.tuple.Triple;
 
 @Beta
 public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
+
   public static final EagerBlockSetTagStrategy INSTANCE = new EagerBlockSetTagStrategy(
     new SetTag()
   );
@@ -39,8 +40,8 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
           eagerInterpreter
         ),
       interpreter,
-      EagerContextWatcher
-        .EagerChildContextConfig.newBuilder()
+      EagerContextWatcher.EagerChildContextConfig
+        .newBuilder()
         .withTakeNewValue(true)
         .build()
     );
@@ -74,12 +75,13 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
         true
       );
       if (filterPos >= 0) {
-        EagerExecutionResult filterResult = EagerInlineSetTagStrategy.INSTANCE.getEagerExecutionResult(
-          tagNode,
-          variables,
-          tagNode.getHelpers().trim(),
-          interpreter
-        );
+        EagerExecutionResult filterResult =
+          EagerInlineSetTagStrategy.INSTANCE.getEagerExecutionResult(
+            tagNode,
+            variables,
+            tagNode.getHelpers().trim(),
+            interpreter
+          );
         if (filterResult.getResult().isFullyResolved()) {
           setTag.executeSet(
             (TagToken) tagNode.getMaster(),
@@ -117,10 +119,10 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
       .add(tagNode.getSymbols().getExpressionEndWithTag());
 
     PrefixToPreserveState prefixToPreserveState = getPrefixToPreserveState(
-        eagerExecutionResult,
-        variables,
-        interpreter
-      )
+      eagerExecutionResult,
+      variables,
+      interpreter
+    )
       .withAllInFront(
         EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
           interpreter,
@@ -168,12 +170,13 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
     int filterPos = tagNode.getHelpers().indexOf('|');
     String filterSetPostfix = "";
     if (filterPos >= 0) {
-      EagerExecutionResult filterResult = EagerInlineSetTagStrategy.INSTANCE.getEagerExecutionResult(
-        tagNode,
-        variables,
-        tagNode.getHelpers().trim(),
-        interpreter
-      );
+      EagerExecutionResult filterResult =
+        EagerInlineSetTagStrategy.INSTANCE.getEagerExecutionResult(
+          tagNode,
+          variables,
+          tagNode.getHelpers().trim(),
+          interpreter
+        );
       if (filterResult.getResult().isFullyResolved()) {
         setTag.executeSet(
           (TagToken) tagNode.getMaster(),
@@ -203,12 +206,13 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
     EagerExecutionResult eagerExecutionResult,
     JinjavaInterpreter interpreter
   ) {
-    Triple<String, String, String> triple = EagerInlineSetTagStrategy.INSTANCE.getPrefixTokenAndSuffix(
-      tagNode,
-      variables,
-      eagerExecutionResult,
-      interpreter
-    );
+    Triple<String, String, String> triple =
+      EagerInlineSetTagStrategy.INSTANCE.getPrefixTokenAndSuffix(
+        tagNode,
+        variables,
+        eagerExecutionResult,
+        interpreter
+      );
     if (
       eagerExecutionResult.getResult().isFullyResolved() &&
       interpreter.getContext().isDeferredExecutionMode()

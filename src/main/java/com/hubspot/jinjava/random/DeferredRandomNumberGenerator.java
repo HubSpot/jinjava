@@ -10,6 +10,7 @@ import java.util.stream.LongStream;
  * A random number generator that throws {@link com.hubspot.jinjava.interpret.DeferredValueException} for all supported methods.
  */
 public class DeferredRandomNumberGenerator extends Random {
+
   private static final String EXCEPTION_MESSAGE = "Generating random number";
 
   @Override

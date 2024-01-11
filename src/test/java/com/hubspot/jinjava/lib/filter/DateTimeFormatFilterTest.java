@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class DateTimeFormatFilterTest extends BaseInterpretingTest {
+
   DateTimeFormatFilter filter;
 
   ZonedDateTime d;
@@ -76,17 +77,17 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
     assertThat(filter.filter(1539277785000L, interpreter, "%B %d, %Y, at %I:%M %p"))
       .isEqualTo("October 11, 2018, at 05:09 PM");
     assertThat(
-        filter.filter(
-          1539277785000L,
-          interpreter,
-          "%B %d, %Y, at %I:%M %p",
-          "America/New_York"
-        )
+      filter.filter(
+        1539277785000L,
+        interpreter,
+        "%B %d, %Y, at %I:%M %p",
+        "America/New_York"
       )
+    )
       .isEqualTo("October 11, 2018, at 01:09 PM");
     assertThat(
-        filter.filter(1539277785000L, interpreter, "%B %d, %Y, at %I:%M %p", "UTC+8")
-      )
+      filter.filter(1539277785000L, interpreter, "%B %d, %Y, at %I:%M %p", "UTC+8")
+    )
       .isEqualTo("October 12, 2018, at 01:09 AM");
   }
 
@@ -116,24 +117,24 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
   @Test
   public void itConvertsToLocaleSpecificDateTimeFormat() {
     assertThat(
-        filter.filter(
-          1539277785000L,
-          interpreter,
-          "%x %X - %c",
-          "America/New_York",
-          "en-US"
-        )
+      filter.filter(
+        1539277785000L,
+        interpreter,
+        "%x %X - %c",
+        "America/New_York",
+        "en-US"
       )
+    )
       .isEqualTo("10/11/18 1:09:45 PM - Oct 11, 2018, 1:09:45 PM");
     assertThat(
-        filter.filter(
-          1539277785000L,
-          interpreter,
-          "%x %X - %c",
-          "America/New_York",
-          "de-DE"
-        )
+      filter.filter(
+        1539277785000L,
+        interpreter,
+        "%x %X - %c",
+        "America/New_York",
+        "de-DE"
       )
+    )
       .isEqualTo("11.10.18 13:09:45 - 11.10.2018, 13:09:45");
   }
 
@@ -142,10 +143,8 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
     interpreter.getContext().put("d", d);
 
     assertThat(
-        interpreter.renderFlat(
-          "{{ d|datetimeformat('%A, %e %B', 'UTC', 'not_a_locale') }}"
-        )
-      )
+      interpreter.renderFlat("{{ d|datetimeformat('%A, %e %B', 'UTC', 'not_a_locale') }}")
+    )
       .isEqualTo(Functions.dateTimeFormat(d, "%A, %e %B", "UTC", "America/Los_Angeles"));
   }
 
@@ -154,10 +153,8 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
     interpreter.getContext().put("d", d);
 
     assertThat(
-        interpreter.renderFlat(
-          "{{ d|datetimeformat('%A, %e %B, %I:%M %p', null, 'sv') }}"
-        )
-      )
+      interpreter.renderFlat("{{ d|datetimeformat('%A, %e %B, %I:%M %p', null, 'sv') }}")
+    )
       .isEqualTo("onsdag, 6 november, 02:22 em");
   }
 

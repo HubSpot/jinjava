@@ -7,6 +7,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import org.junit.Test;
 
 public class TagTokenTest {
+
   private static final TokenScannerSymbols SYMBOLS = new DefaultTokenScannerSymbols();
 
   @Test

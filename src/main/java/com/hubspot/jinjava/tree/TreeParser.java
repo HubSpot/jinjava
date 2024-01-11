@@ -41,6 +41,7 @@ import com.hubspot.jinjava.tree.parse.UnclosedToken;
 import org.apache.commons.lang3.StringUtils;
 
 public class TreeParser {
+
   private final PeekingIterator<Token> scanner;
   private final JinjavaInterpreter interpreter;
   private final TokenScannerSymbols symbols;

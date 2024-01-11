@@ -12,8 +12,7 @@ public class ClasspathResourceLocator implements ResourceLocator {
     String fullName,
     Charset encoding,
     JinjavaInterpreter interpreter
-  )
-    throws IOException {
+  ) throws IOException {
     try {
       return Resources.toString(Resources.getResource(fullName), encoding);
     } catch (IllegalArgumentException e) {

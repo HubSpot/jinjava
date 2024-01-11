@@ -16,6 +16,7 @@ import java.util.Map.Entry;
   value = "Get a string that describes the type of the object, similar to Python's type()"
 )
 public class TypeFunction {
+
   private static Map<Class<?>, String> CLASS_TYPE_TO_NAME = ImmutableMap
     .<Class<?>, String>builder()
     .put(AstDict.class, "dict")

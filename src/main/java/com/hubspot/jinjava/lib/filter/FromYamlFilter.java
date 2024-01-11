@@ -19,6 +19,7 @@ import java.io.IOException;
   snippets = { @JinjavaSnippet(code = "{{object|fromYaml}}") }
 )
 public class FromYamlFilter implements Filter {
+
   private static final YAMLMapper OBJECT_MAPPER = new YAMLMapper();
 
   @Override

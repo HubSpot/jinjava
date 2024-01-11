@@ -12,6 +12,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TruncateFilterTest {
+
   @Mock
   JinjavaInterpreter interpreter;
 
@@ -27,10 +28,10 @@ public class TruncateFilterTest {
   @Test
   public void itTruncatesText() throws Exception {
     assertThat(
-        filter
-          .filter(StringUtils.rightPad("", 256, 'x') + "y", interpreter, "255", "True")
-          .toString()
-      )
+      filter
+        .filter(StringUtils.rightPad("", 256, 'x') + "y", interpreter, "255", "True")
+        .toString()
+    )
       .hasSize(258)
       .endsWith("x...");
   }

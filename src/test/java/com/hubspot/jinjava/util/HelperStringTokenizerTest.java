@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 public class HelperStringTokenizerTest {
+
   private HelperStringTokenizer tk;
 
   @Test
@@ -104,10 +105,10 @@ public class HelperStringTokenizerTest {
   @Test
   public void itDoesntReturnTrailingNull() {
     assertThat(
-        new HelperStringTokenizer("product in collections.frontpage.products   ")
-          .splitComma(true)
-          .allTokens()
-      )
+      new HelperStringTokenizer("product in collections.frontpage.products   ")
+        .splitComma(true)
+        .allTokens()
+    )
       .containsExactly("product", "in", "collections.frontpage.products")
       .doesNotContainNull();
   }

@@ -20,13 +20,13 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
       value = "name",
       desc = "The dictionary attribute name to access",
       required = true
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
       desc = "The filter example below is equivalent to rendering a variable that exists within a dictionary, such as content.absolute_url.",
       code = "{{ content|attr('absolute_url') }}"
-    )
+    ),
   }
 )
 public class AttrFilter implements Filter {

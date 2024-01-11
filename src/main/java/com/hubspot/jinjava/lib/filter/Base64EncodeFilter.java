@@ -30,7 +30,7 @@ import org.apache.commons.net.util.Charsets;
       type = "string",
       desc = "The string encoding charset to use.",
       defaultValue = "UTF-8"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -40,10 +40,11 @@ import org.apache.commons.net.util.Charsets;
     @JinjavaSnippet(
       desc = "Encode a value with UTF-16 Little Endian encoding into a Base 64 ASCII string",
       code = "{{ '\uD801\uDC37'|b64encode(encoding='utf-16le') }}"
-    )
+    ),
   }
 )
 public class Base64EncodeFilter implements Filter {
+
   public static final String NAME = "b64encode";
   public static final String AVAILABLE_CHARSETS = Joiner
     .on(", ")

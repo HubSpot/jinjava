@@ -14,7 +14,7 @@ import java.math.BigDecimal;
       code = "{% if num is float %}\n" +
       "      <!--code to render if num contains an floating point value-->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsFloatExpTest implements ExpTest {

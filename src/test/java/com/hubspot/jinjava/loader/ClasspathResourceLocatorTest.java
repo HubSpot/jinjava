@@ -11,9 +11,9 @@ public class ClasspathResourceLocatorTest extends BaseInterpretingTest {
   @Test
   public void testLoadFromClasspath() throws Exception {
     assertThat(
-        new ClasspathResourceLocator()
+      new ClasspathResourceLocator()
         .getString("loader/cp/foo/bar.jinja", StandardCharsets.UTF_8, interpreter)
-      )
+    )
       .isEqualTo("hello world.");
   }
 

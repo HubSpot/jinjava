@@ -44,19 +44,16 @@ public class EscapeJsFilterTest extends BaseJinjavaTest {
   @Test
   public void testHandlesDoubleQuotes() {
     assertThat(
-        jinjava.render(
-          "{{ 'Testing a \"quote for the week\"'|escapejs }}",
-          new HashMap<>()
-        )
-      )
+      jinjava.render("{{ 'Testing a \"quote for the week\"'|escapejs }}", new HashMap<>())
+    )
       .isEqualTo("Testing a \\\"quote for the week\\\"");
   }
 
   @Test
   public void testSafeStringCanBeEscaped() {
     assertThat(
-        jinjava.render("{{ 'Testing\nlineb\"reak\n'|safe|escapejs }}", new HashMap<>())
-      )
+      jinjava.render("{{ 'Testing\nlineb\"reak\n'|safe|escapejs }}", new HashMap<>())
+    )
       .isEqualTo("Testing\\nlineb\\\"reak\\n");
   }
 }

@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class DictSortFilterTest extends BaseJinjavaTest {
+
   private static Map<String, Object> context;
 
   @BeforeClass

@@ -36,7 +36,7 @@ import java.util.Collection;
       "{% for num in nums|reverse %}\n" +
       "    {{ num }}\n" +
       "{% endfor %}"
-    )
+    ),
   }
 )
 public class ReverseFilter implements Filter {

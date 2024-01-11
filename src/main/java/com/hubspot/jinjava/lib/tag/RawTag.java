@@ -15,10 +15,11 @@ import org.apache.commons.lang3.StringUtils;
       code = "{% raw %}\n" +
       "    The personalization token for a contact's first name is {{ contact.firstname }}\n" +
       "{% endraw %}"
-    )
+    ),
   }
 )
 public class RawTag implements Tag {
+
   public static final String TAG_NAME = "raw";
 
   private static final long serialVersionUID = -6963360187396753883L;

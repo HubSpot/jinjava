@@ -24,7 +24,7 @@ import java.util.List;
       code = "{% for content in contents|shuffle %}\n" +
       "    <div class=\"post-item\">Markup of each post</div>\n" +
       "{% endfor %}"
-    )
+    ),
   }
 )
 public class ShuffleFilter implements Filter {

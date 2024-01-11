@@ -35,7 +35,7 @@ import java.util.Map;
     @JinjavaSnippet(
       code = "{% set services = ['Web design', 'SEO', 'Inbound Marketing', 'PPC'] %}\n" +
       "{{ services|length }}"
-    )
+    ),
   }
 )
 public class LengthFilter implements Filter {

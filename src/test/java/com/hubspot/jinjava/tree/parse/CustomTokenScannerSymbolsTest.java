@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class CustomTokenScannerSymbolsTest {
+
   private Jinjava jinjava;
   private JinjavaConfig config;
 
@@ -33,25 +34,25 @@ public class CustomTokenScannerSymbolsTest {
   @Test
   public void itRendersFiltersWithCustomTokens() {
     assertThat(
-        jinjava.render(
-          "<% set d=d | default(\"some random value\") %><< d >>",
-          new HashMap<>()
-        )
+      jinjava.render(
+        "<% set d=d | default(\"some random value\") %><< d >>",
+        new HashMap<>()
       )
+    )
       .isEqualTo("some random value");
     assertThat(jinjava.render("<< [1, 2, 3, 3]|union(null) >>", new HashMap<>()))
       .isEqualTo("[1, 2, 3]");
     assertThat(jinjava.render("<< numbers|select('equalto', 3) >>", new HashMap<>()))
       .isEqualTo("[3]");
     assertThat(
-        jinjava.render(
-          "<< users|map(attribute='username')|join(', ') >>",
-          ImmutableMap.of(
-            "users",
-            (Object) Lists.newArrayList(new User("foo"), new User("bar"))
-          )
+      jinjava.render(
+        "<< users|map(attribute='username')|join(', ') >>",
+        ImmutableMap.of(
+          "users",
+          (Object) Lists.newArrayList(new User("foo"), new User("bar"))
         )
       )
+    )
       .isEqualTo("foo, bar");
   }
 

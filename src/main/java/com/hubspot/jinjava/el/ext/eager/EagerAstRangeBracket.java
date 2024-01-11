@@ -8,6 +8,7 @@ import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
 
 public class EagerAstRangeBracket extends AstRangeBracket implements EvalResultHolder {
+
   protected Object evalResult;
   protected boolean hasEvalResult;
 

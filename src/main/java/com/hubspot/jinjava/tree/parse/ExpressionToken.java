@@ -19,6 +19,7 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class ExpressionToken extends Token {
+
   private static final long serialVersionUID = 6336768632140743908L;
   private String expr;
 

@@ -11,6 +11,7 @@ import javax.el.ELContext;
 public class EagerAstNamedParameter
   extends AstNamedParameter
   implements EvalResultHolder {
+
   protected boolean hasEvalResult;
   protected Object evalResult;
   protected final AstIdentifier name;

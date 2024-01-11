@@ -17,27 +17,27 @@ public class FormatNumberFilterTest extends BaseJinjavaTest {
   @Test
   public void testFormatNumberFilter() {
     assertThat(
-        jinjava.render("{{1000|format_number('en-US')}}", new HashMap<String, Object>())
-      )
+      jinjava.render("{{1000|format_number('en-US')}}", new HashMap<String, Object>())
+    )
       .isEqualTo("1,000");
     assertThat(
-        jinjava.render(
-          "{{ 1000.333|format_number('en-US') }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ 1000.333|format_number('en-US') }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("1,000.333");
     assertThat(
-        jinjava.render(
-          "{{ 1000.333|format_number('en-US', 2) }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ 1000.333|format_number('en-US', 2) }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("1,000.33");
 
     assertThat(
-        jinjava.render("{{ 1000|format_number('fr') }}", new HashMap<String, Object>())
-      )
+      jinjava.render("{{ 1000|format_number('fr') }}", new HashMap<String, Object>())
+    )
       .isEqualTo(
         String.format(
           "1%s000",
@@ -45,11 +45,8 @@ public class FormatNumberFilterTest extends BaseJinjavaTest {
         )
       );
     assertThat(
-        jinjava.render(
-          "{{ 1000.333|format_number('fr') }}",
-          new HashMap<String, Object>()
-        )
-      )
+      jinjava.render("{{ 1000.333|format_number('fr') }}", new HashMap<String, Object>())
+    )
       .isEqualTo(
         String.format(
           "1%s000,333",
@@ -57,11 +54,11 @@ public class FormatNumberFilterTest extends BaseJinjavaTest {
         )
       );
     assertThat(
-        jinjava.render(
-          "{{ 1000.333|format_number('fr', 2) }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ 1000.333|format_number('fr', 2) }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo(
         String.format(
           "1%s000,33",
@@ -70,22 +67,19 @@ public class FormatNumberFilterTest extends BaseJinjavaTest {
       );
 
     assertThat(
-        jinjava.render("{{ 1000|format_number('es') }}", new HashMap<String, Object>())
-      )
+      jinjava.render("{{ 1000|format_number('es') }}", new HashMap<String, Object>())
+    )
       .isEqualTo("1.000");
     assertThat(
-        jinjava.render(
-          "{{ 1000.333|format_number('es') }}",
-          new HashMap<String, Object>()
-        )
-      )
+      jinjava.render("{{ 1000.333|format_number('es') }}", new HashMap<String, Object>())
+    )
       .isEqualTo("1.000,333");
     assertThat(
-        jinjava.render(
-          "{{ 1000.333|format_number('es', 2) }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ 1000.333|format_number('es', 2) }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("1.000,33");
   }
 }

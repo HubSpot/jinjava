@@ -5,6 +5,7 @@ import java.util.Optional;
 
 @Beta
 public class RevertibleObject {
+
   private final Object hashCode;
   private final Optional<String> pyishString;
 

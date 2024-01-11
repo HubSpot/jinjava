@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class StrftimeFormatterTest {
+
   ZonedDateTime d;
 
   @Before
@@ -117,8 +118,8 @@ public class StrftimeFormatterTest {
     ZonedDateTime zonedDateTime = ZonedDateTime.parse("2019-06-06T14:22:00.000+00:00");
 
     assertThat(
-        StrftimeFormatter.format(zonedDateTime, "%OB", Locale.forLanguageTag("ru"))
-      )
+      StrftimeFormatter.format(zonedDateTime, "%OB", Locale.forLanguageTag("ru"))
+    )
       .isIn("Июнь", "июнь");
   }
 

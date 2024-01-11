@@ -31,12 +31,12 @@ import org.apache.commons.lang3.StringUtils;
       value = "to_remove",
       desc = "String to remove from the original string",
       required = true
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
       code = "{% set my_string = \"Hello world.\" %}\n" + "{{ my_string|cut(' world') }}"
-    )
+    ),
   }
 )
 public class CutFilter implements Filter {

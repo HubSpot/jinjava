@@ -34,8 +34,8 @@ public class StringToTimeFilterTest extends BaseJinjavaTest {
     Map<String, Object> vars = ImmutableMap.of("datetime", datetime, "format", format);
 
     assertThat(
-        jinjava.renderForResult("{{ datetime|strtotime(format) }}", vars).getErrors()
-      )
+      jinjava.renderForResult("{{ datetime|strtotime(format) }}", vars).getErrors()
+    )
       .hasSize(1);
   }
 }

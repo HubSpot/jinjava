@@ -56,7 +56,7 @@ public class TemplateErrorTest {
   @Test
   public void itSetsFieldNameCaseForSyntaxErrorInFor() {
     RenderResult renderResult = new Jinjava()
-    .renderForResult("{% for item inna navigation %}{% endfor %}", ImmutableMap.of());
+      .renderForResult("{% for item inna navigation %}{% endfor %}", ImmutableMap.of());
     assertThat(renderResult.getErrors().get(0).getFieldName())
       .isEqualTo("item inna navigation");
   }

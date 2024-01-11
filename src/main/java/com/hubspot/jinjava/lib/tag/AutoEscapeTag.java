@@ -16,10 +16,11 @@ import org.apache.commons.lang3.StringUtils;
   snippets = {
     @JinjavaSnippet(
       code = "{% autoescape %}\n" + "<div>Code to escape</div>\n" + "{% endautoescape %}"
-    )
+    ),
   }
 )
 public class AutoEscapeTag implements Tag {
+
   public static final String TAG_NAME = "autoescape";
 
   private static final long serialVersionUID = 786006577642541285L;

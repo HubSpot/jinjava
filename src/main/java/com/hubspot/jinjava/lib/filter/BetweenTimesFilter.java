@@ -36,7 +36,7 @@ import java.util.Map;
       desc = "Datetime object or timestamp at the end of the period",
       required = true
     ),
-    @JinjavaParam(value = "unit", desc = "Which temporal unit to use", required = true)
+    @JinjavaParam(value = "unit", desc = "Which temporal unit to use", required = true),
   },
   snippets = { @JinjavaSnippet(code = "{{ begin|between_times(end, 'hours') }}") }
 )

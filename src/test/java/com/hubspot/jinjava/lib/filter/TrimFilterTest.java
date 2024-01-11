@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TrimFilterTest extends BaseInterpretingTest {
+
   TrimFilter filter;
 
   @Before

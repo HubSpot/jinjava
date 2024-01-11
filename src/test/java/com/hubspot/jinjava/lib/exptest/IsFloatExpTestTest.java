@@ -34,17 +34,14 @@ public class IsFloatExpTestTest extends BaseJinjavaTest {
     assertThat(jinjava.render("{{ (4|add(-4.5)) is float }}", new HashMap<>()))
       .isEqualTo("true");
     assertThat(
-        jinjava.render(
-          "{{ (4|add(4.0000000000000000000001)) is float }}",
-          new HashMap<>()
-        )
-      )
+      jinjava.render("{{ (4|add(4.0000000000000000000001)) is float }}", new HashMap<>())
+    )
       .isEqualTo("true");
     assertThat(jinjava.render("{{ (4|add(40.0)) is float }}", new HashMap<>()))
       .isEqualTo("true");
     assertThat(
-        jinjava.render("{{ (4|add(1000000000000000000)) is float }}", new HashMap<>())
-      )
+      jinjava.render("{{ (4|add(1000000000000000000)) is float }}", new HashMap<>())
+    )
       .isEqualTo("false");
   }
 }

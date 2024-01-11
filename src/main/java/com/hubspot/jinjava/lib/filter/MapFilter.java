@@ -28,7 +28,7 @@ import java.util.Map;
       value = "attribute",
       desc = "Filter to apply to an object or dict attribute to lookup",
       required = true
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -38,10 +38,11 @@ import java.util.Map;
     @JinjavaSnippet(
       desc = "Alternatively you can let it invoke a filter by passing the name of the filter and the arguments afterwards. A good example would be applying a text conversion filter on a sequence",
       code = "{% set seq = ['item1', 'item2', 'item3'] %}\n" + "{{ seq|map('upper') }}"
-    )
+    ),
   }
 )
 public class MapFilter implements AdvancedFilter {
+
   private static final String ATTRIBUTE_ARGUMENT = "attribute";
 
   @Override

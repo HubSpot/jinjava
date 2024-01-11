@@ -20,8 +20,8 @@ public class FormatFilterTest extends BaseJinjavaTest {
   @Test
   public void testFormatFilter() {
     assertThat(
-        jinjava.render("{{ '%s - %s'|format(\"Hello?\", \"Foo!\") }}", new HashMap<>())
-      )
+      jinjava.render("{{ '%s - %s'|format(\"Hello?\", \"Foo!\") }}", new HashMap<>())
+    )
       .isEqualTo("Hello? - Foo!");
   }
 
@@ -33,8 +33,8 @@ public class FormatFilterTest extends BaseJinjavaTest {
 
   @Test
   public void itThrowsExceptionOnMissingFormatArgument() {
-    assertThatThrownBy(
-        () -> jinjava.render("{{ '%s %s'|format(10000) }}", new HashMap<>())
+    assertThatThrownBy(() ->
+        jinjava.render("{{ '%s %s'|format(10000) }}", new HashMap<>())
       )
       .isInstanceOf(FatalTemplateErrorsException.class)
       .hasMessageContaining("Missing format argument");
@@ -49,8 +49,7 @@ public class FormatFilterTest extends BaseJinjavaTest {
 
   @Test
   public void itThrowsExceptionOnFormat() {
-    assertThatThrownBy(
-        () -> jinjava.render("{{ '%0.0f'|format(1000) }}", new HashMap<>())
+    assertThatThrownBy(() -> jinjava.render("{{ '%0.0f'|format(1000) }}", new HashMap<>())
       )
       .isInstanceOf(FatalTemplateErrorsException.class)
       .hasMessageContaining("'%0.0f' is missing a width");

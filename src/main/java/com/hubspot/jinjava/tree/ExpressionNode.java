@@ -24,6 +24,7 @@ import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
 
 public class ExpressionNode extends Node {
+
   private static final long serialVersionUID = -6063173739682221042L;
 
   private final ExpressionStrategy expressionStrategy;

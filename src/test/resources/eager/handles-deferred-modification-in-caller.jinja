@@ -1,0 +1,11 @@
+{% macro callerino() -%}
+ {% do my_list.append('b') -%}
+ {{ caller() }}
+ {%- do my_list.append('d') -%}
+{%- endmacro %}
+{% set my_list = ['a'] %}
+{% call callerino() -%}
+  {%- do my_list.append(deferred) -%}
+  {{ my_list }}
+{%- endcall %}
+{{ my_list }}

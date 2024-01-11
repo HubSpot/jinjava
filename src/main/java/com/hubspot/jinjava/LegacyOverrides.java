@@ -6,6 +6,7 @@ package com.hubspot.jinjava;
  * LegacyOverrides.ALL signifies that all new functionality will be used; avoid legacy "bugs".
  */
 public class LegacyOverrides {
+
   public static final LegacyOverrides NONE = new LegacyOverrides.Builder().build();
   public static final LegacyOverrides ALL = new LegacyOverrides.Builder()
     .withEvaluateMapKeys(true)
@@ -88,6 +89,7 @@ public class LegacyOverrides {
   }
 
   public static class Builder {
+
     private boolean evaluateMapKeys = false;
     private boolean iterateOverMapKeys = false;
     private boolean usePyishObjectMapper = false;

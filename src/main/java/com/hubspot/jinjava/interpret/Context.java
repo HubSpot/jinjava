@@ -51,6 +51,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class Context extends ScopeMap<String, Object> {
+
   public static final String GLOBAL_MACROS_SCOPE_KEY = "__macros__";
   public static final String IMPORT_RESOURCE_PATH_KEY = "import_resource_path";
   public static final String DEFERRED_IMPORT_RESOURCE_PATH_KEY =
@@ -74,7 +75,7 @@ public class Context extends ScopeMap<String, Object> {
     EXP_TEST,
     FILTER,
     FUNCTION,
-    TAG
+    TAG,
   }
 
   private final CallStack extendPathStack;
@@ -412,13 +413,11 @@ public class Context extends ScopeMap<String, Object> {
       .getCurrentMaybe()
       .map(i -> i.getConfig().getMaxNumDeferredTokens())
       .filter(maxNumDeferredTokens -> currentNumDeferredTokens >= maxNumDeferredTokens)
-      .ifPresent(
-        maxNumDeferredTokens -> {
-          throw new DeferredValueException(
-            "Too many Deferred Tokens, max is " + maxNumDeferredTokens
-          );
-        }
-      );
+      .ifPresent(maxNumDeferredTokens -> {
+        throw new DeferredValueException(
+          "Too many Deferred Tokens, max is " + maxNumDeferredTokens
+        );
+      });
   }
 
   @Beta
@@ -800,6 +799,7 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public static class TemporaryValueClosable<T> implements AutoCloseable {
+
     private final T previousValue;
     private final Consumer<T> resetValueConsumer;
 

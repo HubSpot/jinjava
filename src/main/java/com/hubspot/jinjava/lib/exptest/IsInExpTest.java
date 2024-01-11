@@ -21,7 +21,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
   snippets = {
     @JinjavaSnippet(code = "{{ 2 is in [1, 2, 3] }}"),
     @JinjavaSnippet(code = "{{ 'b' is in 'abc' }}"),
-    @JinjavaSnippet(code = "{{ 'k2' is in {'k1':'v1', 'k2':'v2'} }}")
+    @JinjavaSnippet(code = "{{ 'k2' is in {'k1':'v1', 'k2':'v2'} }}"),
   }
 )
 public class IsInExpTest extends CollectionExpTest {

@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class FloatFilterTest extends BaseInterpretingTest {
+
   private static final Locale FRENCH_LOCALE = new Locale("fr", "FR");
   private static final JinjavaConfig FRENCH_LOCALE_CONFIG = new JinjavaConfig(
     StandardCharsets.UTF_8,
@@ -116,14 +117,14 @@ public class FloatFilterTest extends BaseInterpretingTest {
   public void itInterpretsFrenchCommasAndPeriodsWithFrenchLocale() {
     interpreter = new Jinjava(FRENCH_LOCALE_CONFIG).newInterpreter();
     assertThat(
-        filter.filter(
-          String.format(
-            "123%c123,45",
-            DecimalFormatSymbols.getInstance(Locale.FRENCH).getGroupingSeparator()
-          ),
-          interpreter
-        )
+      filter.filter(
+        String.format(
+          "123%c123,45",
+          DecimalFormatSymbols.getInstance(Locale.FRENCH).getGroupingSeparator()
+        ),
+        interpreter
       )
+    )
       .isEqualTo(123123.45f);
   }
 }

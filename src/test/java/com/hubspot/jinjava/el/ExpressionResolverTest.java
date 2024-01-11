@@ -34,6 +34,7 @@ import org.junit.Test;
 
 @SuppressWarnings("unchecked")
 public class ExpressionResolverTest {
+
   private JinjavaInterpreter interpreter;
   private Context context;
   private Jinjava jinjava;
@@ -70,11 +71,11 @@ public class ExpressionResolverTest {
   public void itCanCompareStrings() {
     context.put("foo", "white");
     assertThat(
-        interpreter.resolveELExpression(
-          "'2013-12-08 16:00:00+00:00' > '2013-12-08 13:00:00+00:00'",
-          -1
-        )
+      interpreter.resolveELExpression(
+        "'2013-12-08 16:00:00+00:00' > '2013-12-08 13:00:00+00:00'",
+        -1
       )
+    )
       .isEqualTo(Boolean.TRUE);
     assertThat(interpreter.resolveELExpression("foo == \"white\"", -1))
       .isEqualTo(Boolean.TRUE);
@@ -190,6 +191,7 @@ public class ExpressionResolverTest {
   }
 
   public static final class MyCustomMap implements Map<String, String> {
+
     Map<String, String> data = ImmutableMap.of("foo", "bar", "two", "2", "size", "777");
 
     @Override
@@ -273,6 +275,7 @@ public class ExpressionResolverTest {
   }
 
   public static class MyCustomList<T> extends ForwardingList<T> implements PyWrapper {
+
     private final List<T> list;
 
     public MyCustomList(List<T> list) {
@@ -315,8 +318,8 @@ public class ExpressionResolverTest {
     assertThat(interpreter.resolveELExpression("\"<hr>\" in bar or \"<hr/>\" in bar", -1))
       .isEqualTo(true);
     assertThat(
-        interpreter.resolveELExpression("\"<har>\" in foo or \"<har/>\" in foo", -1)
-      )
+      interpreter.resolveELExpression("\"<har>\" in foo or \"<har/>\" in foo", -1)
+    )
       .isEqualTo(false);
   }
 
@@ -548,8 +551,8 @@ public class ExpressionResolverTest {
       new NestedOptionalProperty(new OptionalProperty(new MyClass(new Date(0)), "foo"))
     );
     assertThat(
-        Objects.toString(interpreter.resolveELExpression("myobj.nested.nested.date", -1))
-      )
+      Objects.toString(interpreter.resolveELExpression("myobj.nested.nested.date", -1))
+    )
       .isEqualTo("1970-01-01 00:00:00");
     assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
@@ -607,48 +610,48 @@ public class ExpressionResolverTest {
     assertThat(interpreter.render("{% if 2 is even %}yes{% endif %}")).isEqualTo("yes");
 
     assertThat(
-        interpreter.render(
-          "{% if exptest:even.evaluate(2, ____int3rpr3t3r____) %}yes{% endif %}"
-        )
+      interpreter.render(
+        "{% if exptest:even.evaluate(2, ____int3rpr3t3r____) %}yes{% endif %}"
       )
+    )
       .isEqualTo("yes");
     assertThat(
-        interpreter.render(
-          "{% if exptest:false.evaluate(false, ____int3rpr3t3r____) %}yes{% endif %}"
-        )
+      interpreter.render(
+        "{% if exptest:false.evaluate(false, ____int3rpr3t3r____) %}yes{% endif %}"
       )
+    )
       .isEqualTo("yes");
   }
 
   @Test
   public void itResolvesAlternateExpTestSyntaxForTrueAndFalseExpTests() {
     assertThat(
-        interpreter.render(
-          "{% if exptest:false.evaluate(false, ____int3rpr3t3r____) %}yes{% endif %}"
-        )
+      interpreter.render(
+        "{% if exptest:false.evaluate(false, ____int3rpr3t3r____) %}yes{% endif %}"
       )
+    )
       .isEqualTo("yes");
     assertThat(
-        interpreter.render(
-          "{% if exptest:true.evaluate(true, ____int3rpr3t3r____) %}yes{% endif %}"
-        )
+      interpreter.render(
+        "{% if exptest:true.evaluate(true, ____int3rpr3t3r____) %}yes{% endif %}"
       )
+    )
       .isEqualTo("yes");
   }
 
   @Test
   public void itResolvesAlternateExpTestSyntaxForInExpTests() {
     assertThat(
-        interpreter.render(
-          "{% if exptest:in.evaluate(1, ____int3rpr3t3r____, [1]) %}yes{% endif %}"
-        )
+      interpreter.render(
+        "{% if exptest:in.evaluate(1, ____int3rpr3t3r____, [1]) %}yes{% endif %}"
       )
+    )
       .isEqualTo("yes");
     assertThat(
-        interpreter.render(
-          "{% if exptest:in.evaluate(2, ____int3rpr3t3r____, [1]) %}yes{% else %}no{% endif %}"
-        )
+      interpreter.render(
+        "{% if exptest:in.evaluate(2, ____int3rpr3t3r____, [1]) %}yes{% else %}no{% endif %}"
       )
+    )
       .isEqualTo("no");
   }
 
@@ -667,6 +670,7 @@ public class ExpressionResolverTest {
   }
 
   public static class TestClass {
+
     private boolean touched = false;
     private String name = "Amazing test class";
 
@@ -684,6 +688,7 @@ public class ExpressionResolverTest {
   }
 
   public static final class MyClass {
+
     private Date date;
 
     MyClass(Date date) {
@@ -700,6 +705,7 @@ public class ExpressionResolverTest {
   }
 
   public static final class OptionalProperty {
+
     private MyClass nested;
     private String val;
 
@@ -718,6 +724,7 @@ public class ExpressionResolverTest {
   }
 
   public static final class NestedOptionalProperty {
+
     private OptionalProperty nested;
 
     public NestedOptionalProperty(OptionalProperty nested) {

@@ -29,20 +29,22 @@ import java.util.Set;
 
 @Beta
 public class EagerTagFactory {
-  public static final Map<Class<? extends Tag>, Class<? extends EagerTagDecorator<? extends Tag>>> EAGER_TAG_OVERRIDES = ImmutableMap
-    .<Class<? extends Tag>, Class<? extends EagerTagDecorator<?>>>builder()
-    .put(SetTag.class, EagerSetTag.class)
-    .put(DoTag.class, EagerDoTag.class)
-    .put(PrintTag.class, EagerPrintTag.class)
-    .put(FromTag.class, EagerFromTag.class)
-    .put(ImportTag.class, EagerImportTag.class)
-    .put(IncludeTag.class, EagerIncludeTag.class)
-    .put(ForTag.class, EagerForTag.class)
-    .put(CycleTag.class, EagerCycleTag.class)
-    .put(IfTag.class, EagerIfTag.class)
-    .put(UnlessTag.class, EagerUnlessTag.class)
-    .put(CallTag.class, EagerCallTag.class)
-    .build();
+
+  public static final Map<Class<? extends Tag>, Class<? extends EagerTagDecorator<? extends Tag>>> EAGER_TAG_OVERRIDES =
+    ImmutableMap
+      .<Class<? extends Tag>, Class<? extends EagerTagDecorator<?>>>builder()
+      .put(SetTag.class, EagerSetTag.class)
+      .put(DoTag.class, EagerDoTag.class)
+      .put(PrintTag.class, EagerPrintTag.class)
+      .put(FromTag.class, EagerFromTag.class)
+      .put(ImportTag.class, EagerImportTag.class)
+      .put(IncludeTag.class, EagerIncludeTag.class)
+      .put(ForTag.class, EagerForTag.class)
+      .put(CycleTag.class, EagerCycleTag.class)
+      .put(IfTag.class, EagerIfTag.class)
+      .put(UnlessTag.class, EagerUnlessTag.class)
+      .put(CallTag.class, EagerCallTag.class)
+      .build();
   // These classes don't need an eager decorator.
   public static final Set<Class<? extends Tag>> TAG_CLASSES_TO_SKIP = ImmutableSet
     .<Class<? extends Tag>>builder()
@@ -63,9 +65,8 @@ public class EagerTagFactory {
       if (TAG_CLASSES_TO_SKIP.contains(clazz)) {
         return Optional.empty();
       }
-      Class<? extends EagerTagDecorator<? extends Tag>> eagerOverrideClass = EAGER_TAG_OVERRIDES.get(
-        clazz
-      );
+      Class<? extends EagerTagDecorator<? extends Tag>> eagerOverrideClass =
+        EAGER_TAG_OVERRIDES.get(clazz);
       if (eagerOverrideClass != null) {
         EagerTagDecorator<?> decorator = eagerOverrideClass
           .getDeclaredConstructor(clazz)

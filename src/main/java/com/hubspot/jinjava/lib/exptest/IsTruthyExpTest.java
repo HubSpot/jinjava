@@ -14,7 +14,7 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
       code = "{% if variable is truthy %}\n" +
       "      <!--code to render a boolean variable is True-->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsTruthyExpTest implements ExpTest {

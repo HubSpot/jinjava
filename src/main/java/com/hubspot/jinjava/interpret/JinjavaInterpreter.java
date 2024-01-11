@@ -74,6 +74,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class JinjavaInterpreter implements PyishSerializable {
+
   public static final String IGNORED_OUTPUT_FROM_EXTENDS_NOTE =
     "ignored_output_from_extends";
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
@@ -828,17 +829,15 @@ public class JinjavaInterpreter implements PyishSerializable {
     childErrors
       .stream()
       .limit(MAX_ERROR_SIZE - errors.size())
-      .forEach(
-        error -> {
-          if (!error.getSourceTemplate().isPresent()) {
-            error.setMessage(getWrappedErrorMessage(childTemplateName, error));
-            error.setSourceTemplate(childTemplateName);
-          }
-          error.setStartPosition(this.getPosition());
-          error.setLineno(this.getLineNumber());
-          this.addError(error);
+      .forEach(error -> {
+        if (!error.getSourceTemplate().isPresent()) {
+          error.setMessage(getWrappedErrorMessage(childTemplateName, error));
+          error.setSourceTemplate(childTemplateName);
         }
-      );
+        error.setStartPosition(this.getPosition());
+        error.setLineno(this.getLineNumber());
+        this.addError(error);
+      });
   }
 
   // We cannot just remove this, other projects may depend on it.
@@ -851,9 +850,8 @@ public class JinjavaInterpreter implements PyishSerializable {
     return Lists.newArrayList(errors);
   }
 
-  private static final ThreadLocal<Stack<JinjavaInterpreter>> CURRENT_INTERPRETER = ThreadLocal.withInitial(
-    Stack::new
-  );
+  private static final ThreadLocal<Stack<JinjavaInterpreter>> CURRENT_INTERPRETER =
+    ThreadLocal.withInitial(Stack::new);
 
   public static JinjavaInterpreter getCurrent() {
     if (CURRENT_INTERPRETER.get().isEmpty()) {

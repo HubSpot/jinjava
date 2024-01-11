@@ -25,14 +25,14 @@ import org.apache.commons.lang3.math.NumberUtils;
       type = "number",
       defaultValue = "0",
       desc = "Value to return if the conversion fails"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
       desc = "This example converts a text field string value to a integer",
       code = "{% text \"my_text\" value='25', export_to_template_context=True %}\n" +
       "{% widget_data.my_text.value|int + 28 %}"
-    )
+    ),
   }
 )
 public class IntFilter implements Filter {

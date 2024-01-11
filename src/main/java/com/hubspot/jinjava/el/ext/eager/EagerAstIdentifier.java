@@ -7,6 +7,7 @@ import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import javax.el.ELContext;
 
 public class EagerAstIdentifier extends AstIdentifier implements EvalResultHolder {
+
   protected Object evalResult;
   protected boolean hasEvalResult;
 

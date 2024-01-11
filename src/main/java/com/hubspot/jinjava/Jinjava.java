@@ -61,6 +61,7 @@ import javax.el.ExpressionFactory;
  * @author jstehler
  */
 public class Jinjava {
+
   private ExpressionFactory expressionFactory;
   private ExpressionFactory eagerExpressionFactory;
   private ResourceLocator resourceLocator;
