@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TagTest {
+
   Jinjava jinjava;
 
   String script;

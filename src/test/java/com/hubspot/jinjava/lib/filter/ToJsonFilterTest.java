@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ToJsonFilterTest extends BaseInterpretingTest {
+
   private ToJsonFilter filter;
 
   @Before
@@ -44,7 +45,7 @@ public class ToJsonFilterTest extends BaseInterpretingTest {
     }
     interpreter =
       new Jinjava(JinjavaConfig.newBuilder().withMaxOutputSize(500).build())
-      .newInterpreter();
+        .newInterpreter();
     assertThat(filter.filter(original, interpreter)).asString().contains("[[]]]]");
     for (int i = 0; i < 400; i++) {
       List<List<?>> nested = new ArrayList<>();

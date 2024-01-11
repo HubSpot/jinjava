@@ -122,10 +122,10 @@ public class PyishObjectMapperTest {
   @Test
   public void itSerializesToSnakeCaseAccessibleMapWhenInMapEntry() {
     assertThat(
-        PyishObjectMapper.getAsPyishString(
-          new AbstractMap.SimpleImmutableEntry<>("foo", new Foo("bar"))
-        )
+      PyishObjectMapper.getAsPyishString(
+        new AbstractMap.SimpleImmutableEntry<>("foo", new Foo("bar"))
       )
+    )
       .isEqualTo("fn:map_entry('foo', {'fooBar': 'bar'} |allow_snake_case)");
   }
 
@@ -169,6 +169,7 @@ public class PyishObjectMapperTest {
   }
 
   static class Foo {
+
     private final String bar;
 
     public Foo(String bar) {

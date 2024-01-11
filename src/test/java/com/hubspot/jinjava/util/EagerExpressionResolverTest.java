@@ -42,6 +42,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class EagerExpressionResolverTest {
+
   private static final TokenScannerSymbols SYMBOLS = new DefaultTokenScannerSymbols();
 
   private JinjavaInterpreter interpreter;
@@ -320,10 +321,10 @@ public class EagerExpressionResolverTest {
       " %}"
     );
     assertThat(
-        (
-          (PyishDate) ((Map<String, Object>) interpreter.getContext().get("foo")).get("a")
-        ).toDateTime()
-      )
+      (
+        (PyishDate) ((Map<String, Object>) interpreter.getContext().get("foo")).get("a")
+      ).toDateTime()
+    )
       .isEqualTo(date.toDateTime());
   }
 
@@ -371,14 +372,14 @@ public class EagerExpressionResolverTest {
   @Test
   public void itOutputsEmptyForVoidFunctions() throws Exception {
     assertThat(
-        WhitespaceUtils.unquoteAndUnescape(interpreter.render("{{ void_function(2) }}"))
-      )
+      WhitespaceUtils.unquoteAndUnescape(interpreter.render("{{ void_function(2) }}"))
+    )
       .isEmpty();
     assertThat(
-        WhitespaceUtils.unquoteAndUnescape(
-          eagerResolveExpression("void_function(2)").toString()
-        )
+      WhitespaceUtils.unquoteAndUnescape(
+        eagerResolveExpression("void_function(2)").toString()
       )
+    )
       .isEmpty();
   }
 
@@ -571,10 +572,10 @@ public class EagerExpressionResolverTest {
   public void itHandlesPyishSerializable() {
     context.put("foo", new SomethingPyish("yes"));
     assertThat(
-        interpreter.render(
-          String.format("{{ %s.name }}", eagerResolveExpression("foo").toString())
-        )
+      interpreter.render(
+        String.format("{{ %s.name }}", eagerResolveExpression("foo").toString())
       )
+    )
       .isEqualTo("yes");
   }
 
@@ -736,7 +737,6 @@ public class EagerExpressionResolverTest {
       new PyList(
         Collections.singletonList(
           new AbstractCallableMethod("echo", map) {
-
             @Override
             public Object doEvaluate(
               Map<String, Object> argMap,
@@ -758,10 +758,10 @@ public class EagerExpressionResolverTest {
   @Test
   public void itHandlesOrOperator() {
     assertThat(
-        WhitespaceUtils.unquoteAndUnescape(
-          eagerResolveExpression("false == true || (true) ? 'yes' : 'no'").toString()
-        )
+      WhitespaceUtils.unquoteAndUnescape(
+        eagerResolveExpression("false == true || (true) ? 'yes' : 'no'").toString()
       )
+    )
       .isEqualTo("yes");
   }
 
@@ -870,6 +870,7 @@ public class EagerExpressionResolverTest {
   }
 
   private static class Foo {
+
     private final String bar;
 
     Foo(String bar) {
@@ -886,6 +887,7 @@ public class EagerExpressionResolverTest {
   }
 
   public class SomethingPyish implements PyishSerializable {
+
     private String name;
 
     public SomethingPyish(String name) {
@@ -898,6 +900,7 @@ public class EagerExpressionResolverTest {
   }
 
   public class SomethingExceptionallyPyish implements PyishSerializable {
+
     private String name;
 
     public SomethingExceptionallyPyish(String name) {

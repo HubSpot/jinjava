@@ -36,7 +36,7 @@ public class PowerOfTest {
       { "{% set x = base ** negativeExponent %}{{x}}", "0" },
       { "{% set x = 2 ** -8 %}{{x}}", "0" },
       { "{% set x = negativeBase ** oddExponent %}{{x}}", "-128" },
-      { "{% set x = -2 ** 7 %}{{x}}", "-128" }
+      { "{% set x = -2 ** 7 %}{{x}}", "-128" },
     };
 
     for (String[] testCase : testCases) {
@@ -66,7 +66,7 @@ public class PowerOfTest {
       { "{% set x = base ** negativeExponent %}{{x}}", "0.00390625" },
       { "{% set x = 2 ** -8.0 %}{{x}}", "0.00390625" },
       { "{% set x = negativeBase ** oddExponent %}{{x}}", "-128.0" },
-      { "{% set x = -2 ** 7.0 %}{{x}}", "-128.0" }
+      { "{% set x = -2 ** 7.0 %}{{x}}", "-128.0" },
     };
 
     for (String[] testCase : testCases) {

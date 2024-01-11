@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class IpAddrFilterTest extends BaseInterpretingTest {
+
   private IpAddrFilter ipAddrFilter;
   private Ipv4Filter ipv4Filter;
   private Ipv6Filter ipv6Filter;
@@ -46,8 +47,8 @@ public class IpAddrFilterTest extends BaseInterpretingTest {
   @Test
   public void itAcceptsValidIpV6Address() {
     assertThat(
-        ipAddrFilter.filter("1200:0000:AB00:1234:0000:2552:7777:1313", interpreter)
-      )
+      ipAddrFilter.filter("1200:0000:AB00:1234:0000:2552:7777:1313", interpreter)
+    )
       .isEqualTo(true);
     assertThat(ipAddrFilter.filter("21DA:D3:0:2F3B:2AA:FF:FE28:9C5A", interpreter))
       .isEqualTo(true);
@@ -59,8 +60,8 @@ public class IpAddrFilterTest extends BaseInterpretingTest {
     assertThat(ipAddrFilter.filter("1200::AB00:1234::2552:7777:1313", interpreter))
       .isEqualTo(false);
     assertThat(
-        ipAddrFilter.filter("1200:0000:AB00:1234:O000:2552:7777:1313", interpreter)
-      )
+      ipAddrFilter.filter("1200:0000:AB00:1234:O000:2552:7777:1313", interpreter)
+    )
       .isEqualTo(false);
     assertThat(ipAddrFilter.filter("1200::AB00:1234::2552:7777:1313:1232", interpreter))
       .isEqualTo(false);
@@ -76,12 +77,12 @@ public class IpAddrFilterTest extends BaseInterpretingTest {
   @Test
   public void itReturnsIpv6AddressPrefix() {
     assertThat(
-        ipAddrFilter.filter(
-          "1200:0000:AB00:1234:0000:2552:7777:1313/43",
-          interpreter,
-          "prefix"
-        )
+      ipAddrFilter.filter(
+        "1200:0000:AB00:1234:0000:2552:7777:1313/43",
+        interpreter,
+        "prefix"
       )
+    )
       .isEqualTo(43);
   }
 
@@ -100,12 +101,12 @@ public class IpAddrFilterTest extends BaseInterpretingTest {
   @Test
   public void itReturnsIpv6AddressNetMask() {
     assertThat(
-        ipAddrFilter.filter(
-          "1200:0000:AB00:1234:0000:2552:7777:1313/43",
-          interpreter,
-          "netmask"
-        )
+      ipAddrFilter.filter(
+        "1200:0000:AB00:1234:0000:2552:7777:1313/43",
+        interpreter,
+        "netmask"
       )
+    )
       .isEqualTo("ffff:ffff:ffe0::");
   }
 
@@ -118,12 +119,12 @@ public class IpAddrFilterTest extends BaseInterpretingTest {
   @Test
   public void itReturnsIpv6AddressBroadcast() {
     assertThat(
-        ipAddrFilter.filter(
-          "1200:0000:AB00:1234:0000:2552:7777:1313/43",
-          interpreter,
-          "broadcast"
-        )
+      ipAddrFilter.filter(
+        "1200:0000:AB00:1234:0000:2552:7777:1313/43",
+        interpreter,
+        "broadcast"
       )
+    )
       .isEqualTo("1200:0:ab1f:ffff:ffff:ffff:ffff:ffff");
   }
 
@@ -138,20 +139,20 @@ public class IpAddrFilterTest extends BaseInterpretingTest {
   @Test
   public void itReturnsIpv6AddressAddress() {
     assertThat(
-        ipAddrFilter.filter(
-          "1200:0000:AB00:1234:0000:2552:7777:1313/43",
-          interpreter,
-          "address"
-        )
+      ipAddrFilter.filter(
+        "1200:0000:AB00:1234:0000:2552:7777:1313/43",
+        interpreter,
+        "address"
       )
+    )
       .isEqualTo("1200:0000:AB00:1234:0000:2552:7777:1313");
     assertThat(
-        ipAddrFilter.filter(
-          "1200:0000:AB00:1234:0000:2552:7777:1314",
-          interpreter,
-          "address"
-        )
+      ipAddrFilter.filter(
+        "1200:0000:AB00:1234:0000:2552:7777:1314",
+        interpreter,
+        "address"
       )
+    )
       .isEqualTo("1200:0000:AB00:1234:0000:2552:7777:1314");
   }
 
@@ -164,12 +165,12 @@ public class IpAddrFilterTest extends BaseInterpretingTest {
   @Test
   public void itReturnsIpv6AddressNetwork() {
     assertThat(
-        ipAddrFilter.filter(
-          "1200:0000:AB00:1234:0000:2552:7777:1313/43",
-          interpreter,
-          "network"
-        )
+      ipAddrFilter.filter(
+        "1200:0000:AB00:1234:0000:2552:7777:1313/43",
+        interpreter,
+        "network"
       )
+    )
       .isEqualTo("1200:0:ab00::");
   }
 
@@ -182,27 +183,27 @@ public class IpAddrFilterTest extends BaseInterpretingTest {
   @Test
   public void itReturnsIpv6AddressGateway() {
     assertThat(
-        ipAddrFilter.filter(
-          "1200:0000:AB00:1234:0000:2552:7777:1313/43",
-          interpreter,
-          "gateway"
-        )
+      ipAddrFilter.filter(
+        "1200:0000:AB00:1234:0000:2552:7777:1313/43",
+        interpreter,
+        "gateway"
       )
+    )
       .isEqualTo("1200:0:ab00::1");
   }
 
   @Test
   public void itAddsErrorOnInvalidCidrAddress() {
-    assertThatThrownBy(
-        () -> ipAddrFilter.filter("192.168.0.1/200", interpreter, "broadcast")
+    assertThatThrownBy(() ->
+        ipAddrFilter.filter("192.168.0.1/200", interpreter, "broadcast")
       )
       .hasMessageContaining("must be a valid CIDR address");
   }
 
   @Test
   public void itAddsErrorOnInvalidFunctionName() {
-    assertThatThrownBy(
-        () -> ipAddrFilter.filter("192.168.0.1/20", interpreter, "notAFunction")
+    assertThatThrownBy(() ->
+        ipAddrFilter.filter("192.168.0.1/20", interpreter, "notAFunction")
       )
       .hasMessageContaining("must be one of");
   }
@@ -402,19 +403,19 @@ public class IpAddrFilterTest extends BaseInterpretingTest {
   @Test
   public void itWorksWithSafeString() throws Exception {
     assertThat(
-        ipAddrFilter.filter(
-          new SafeString("1200:0000:AB00:1234:0000:2552:7777:1313"),
-          interpreter
-        )
+      ipAddrFilter.filter(
+        new SafeString("1200:0000:AB00:1234:0000:2552:7777:1313"),
+        interpreter
       )
+    )
       .isEqualTo(true);
     assertThat(ipAddrFilter.filter(new SafeString("255.182.100.abc"), interpreter))
       .isEqualTo(false);
     assertThat(ipAddrFilter.filter(new SafeString("   128.0.0.1   "), interpreter))
       .isEqualTo(true);
     assertThat(
-        ipAddrFilter.filter(new SafeString("255.182.100.1/10"), interpreter, "netmask")
-      )
+      ipAddrFilter.filter(new SafeString("255.182.100.1/10"), interpreter, "netmask")
+    )
       .isEqualTo("255.192.0.0");
   }
 

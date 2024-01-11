@@ -4,6 +4,7 @@ import com.hubspot.jinjava.interpret.Context;
 import java.time.ZonedDateTime;
 
 public class DateTimeFeatureActivationStrategy implements FeatureActivationStrategy {
+
   private final ZonedDateTime activateAt;
 
   public static DateTimeFeatureActivationStrategy of(ZonedDateTime activateAt) {

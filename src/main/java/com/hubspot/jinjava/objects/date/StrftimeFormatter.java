@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author jstehler
  */
 public class StrftimeFormatter {
+
   public static final String DEFAULT_DATE_FORMAT = "%H:%M / %d-%m-%Y";
   /*
    * Mapped from http://strftime.org/, http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
@@ -106,12 +107,11 @@ public class StrftimeFormatter {
 
       Optional
         .ofNullable(components.get(finalChar))
-        .orElseThrow(
-          () ->
-            new InvalidDateFormatException(
-              strftime,
-              String.format("unknown format code '%s'", finalChar)
-            )
+        .orElseThrow(() ->
+          new InvalidDateFormatException(
+            strftime,
+            String.format("unknown format code '%s'", finalChar)
+          )
         )
         .append(builder, stripLeadingZero);
     }

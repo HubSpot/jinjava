@@ -25,7 +25,7 @@ import org.apache.commons.lang3.math.NumberUtils;
       desc = "Number of items to include in the batch",
       defaultValue = "0"
     ),
-    @JinjavaParam(value = "fill_with", desc = "Value used to fill up missing items")
+    @JinjavaParam(value = "fill_with", desc = "Value used to fill up missing items"),
   },
   snippets = {
     @JinjavaSnippet(
@@ -51,7 +51,7 @@ import org.apache.commons.lang3.math.NumberUtils;
       "    <td>&nbsp;</td>\n" +
       "  </tr>\n" +
       "</table>"
-    )
+    ),
   }
 )
 public class BatchFilter implements Filter {

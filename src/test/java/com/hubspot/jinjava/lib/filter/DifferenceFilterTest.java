@@ -17,12 +17,12 @@ public class DifferenceFilterTest extends BaseJinjavaTest {
   @Test
   public void itComputesSetDifferences() {
     assertThat(
-        jinjava.render("{{ [1, 2, 3, 3, 4]|difference([1, 2, 5, 6]) }}", new HashMap<>())
-      )
+      jinjava.render("{{ [1, 2, 3, 3, 4]|difference([1, 2, 5, 6]) }}", new HashMap<>())
+    )
       .isEqualTo("[3, 4]");
     assertThat(
-        jinjava.render("{{ ['do', 'ray']|difference(['ray', 'me']) }}", new HashMap<>())
-      )
+      jinjava.render("{{ ['do', 'ray']|difference(['ray', 'me']) }}", new HashMap<>())
+    )
       .isEqualTo("['do']");
   }
 

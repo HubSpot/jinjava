@@ -32,6 +32,7 @@ import com.hubspot.jinjava.util.ObjectTruthValue;
 @JinjavaHasCodeBody
 @JinjavaTextMateSnippet(code = "{% unless ${1:condition} %}\n\t$0\n{% endunless %}")
 public class UnlessTag extends IfTag {
+
   public static final String TAG_NAME = "unless";
 
   private static final long serialVersionUID = 1562284758153763419L;

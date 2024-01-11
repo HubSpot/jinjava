@@ -16,6 +16,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class EagerExtendsTagTest extends ExtendsTagTest {
+
   private ExpectedTemplateInterpreter expectedTemplateInterpreter;
 
   @Before

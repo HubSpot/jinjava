@@ -18,6 +18,7 @@ import org.apache.commons.lang3.tuple.Triple;
 
 @Beta
 public abstract class EagerSetTagStrategy {
+
   protected final SetTag setTag;
 
   protected EagerSetTagStrategy(SetTag setTag) {
@@ -159,9 +160,8 @@ public abstract class EagerSetTagStrategy {
       return "";
     }
     StringBuilder suffixToPreserveState = new StringBuilder();
-    Optional<String> maybeTemporaryImportAlias = AliasedEagerImportingStrategy.getTemporaryImportAlias(
-      interpreter.getContext()
-    );
+    Optional<String> maybeTemporaryImportAlias =
+      AliasedEagerImportingStrategy.getTemporaryImportAlias(interpreter.getContext());
     if (
       maybeTemporaryImportAlias.isPresent() &&
       !AliasedEagerImportingStrategy.isTemporaryImportAlias(variables) &&

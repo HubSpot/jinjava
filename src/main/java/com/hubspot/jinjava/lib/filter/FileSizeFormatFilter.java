@@ -21,10 +21,10 @@ import org.apache.commons.lang3.math.NumberUtils;
       type = "boolean",
       defaultValue = "False",
       desc = "Use binary prefixes (Mebi, Gibi)"
-    )
+    ),
   },
   snippets = {
-    @JinjavaSnippet(code = "{% set bytes = 100000 %}\n" + "{{ bytes|filesizeformat }}")
+    @JinjavaSnippet(code = "{% set bytes = 100000 %}\n" + "{{ bytes|filesizeformat }}"),
   }
 )
 public class FileSizeFormatFilter implements Filter {
@@ -76,7 +76,7 @@ public class FileSizeFormatFilter implements Filter {
     "PiB",
     "EiB",
     "ZiB",
-    "YiB"
+    "YiB",
   };
   private static final String[] DECIMAL_SIZES = {
     "KB",
@@ -86,6 +86,6 @@ public class FileSizeFormatFilter implements Filter {
     "PB",
     "EB",
     "ZB",
-    "YB"
+    "YB",
   };
 }

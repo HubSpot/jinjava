@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class EscapeJinjavaFilterTest extends BaseInterpretingTest {
+
   EscapeJinjavaFilter f;
 
   @Before
@@ -34,8 +35,8 @@ public class EscapeJinjavaFilterTest extends BaseInterpretingTest {
   @Test
   public void testDoesNotEscapeJson() {
     assertThat(
-        f.filter("{'foo': 'bar', '{{{ foo }}}': '{% bar %}'}", interpreter, "false")
-      )
+      f.filter("{'foo': 'bar', '{{{ foo }}}': '{% bar %}'}", interpreter, "false")
+    )
       .isEqualTo(
         "{'foo': 'bar', '&lbrace;&lbrace;{ foo &rbrace;&rbrace;}': '&lbrace;% bar %&rbrace;'}"
       );

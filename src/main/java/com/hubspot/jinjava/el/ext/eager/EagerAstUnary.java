@@ -8,6 +8,7 @@ import de.odysseus.el.tree.impl.ast.AstUnary;
 import javax.el.ELContext;
 
 public class EagerAstUnary extends AstUnary implements EvalResultHolder {
+
   protected Object evalResult;
   protected boolean hasEvalResult;
   protected final EvalResultHolder child;

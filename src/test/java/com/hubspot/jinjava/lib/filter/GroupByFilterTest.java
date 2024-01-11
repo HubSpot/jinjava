@@ -41,6 +41,7 @@ public class GroupByFilterTest extends BaseJinjavaTest {
   }
 
   public static class Person {
+
     private String gender;
     private String firstName;
     private String lastName;

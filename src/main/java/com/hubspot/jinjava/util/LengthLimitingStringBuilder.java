@@ -6,6 +6,7 @@ import java.util.stream.IntStream;
 
 public class LengthLimitingStringBuilder
   implements Serializable, CharSequence, Appendable {
+
   private static final long serialVersionUID = -1891922886257965755L;
 
   private final StringBuilder builder;

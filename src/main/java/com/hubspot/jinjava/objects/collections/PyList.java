@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class PyList extends ForwardingList<Object> implements PyWrapper {
+
   private boolean computingHashCode = false;
   private final List<Object> list;
 

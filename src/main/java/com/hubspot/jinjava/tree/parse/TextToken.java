@@ -18,6 +18,7 @@ package com.hubspot.jinjava.tree.parse;
 import org.apache.commons.lang3.StringUtils;
 
 public class TextToken extends Token {
+
   private static final long serialVersionUID = -6168990984496468543L;
 
   public TextToken(

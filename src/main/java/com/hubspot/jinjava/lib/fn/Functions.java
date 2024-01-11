@@ -43,6 +43,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 public class Functions {
+
   public static final String STRING_TO_TIME_FUNCTION = "stringToTime";
   public static final String STRING_TO_DATE_FUNCTION = "stringToDate";
 
@@ -58,7 +59,7 @@ public class Functions {
         "    ...\n" +
         "    {{ super() }}\n" +
         "{% endblock %}"
-      )
+      ),
     }
   )
   public static String renderSuperBlock() {
@@ -91,12 +92,12 @@ public class Functions {
         value = "kwargs",
         type = "NamedParameter...",
         desc = "Keyword arguments to put into the namespace dictionary"
-      )
+      ),
     },
     snippets = {
       @JinjavaSnippet(code = "{% set ns = namespace() %}"),
       @JinjavaSnippet(code = "{% set ns = namespace(b=false) %}"),
-      @JinjavaSnippet(code = "{% set ns = namespace(my_map, b=false) %}")
+      @JinjavaSnippet(code = "{% set ns = namespace(my_map, b=false) %}"),
     }
   )
   public static Namespace createNamespace(Object... parameters) {
@@ -118,8 +119,8 @@ public class Functions {
     namespace.putAll(
       Arrays
         .stream(parameters)
-        .filter(
-          p -> p instanceof NamedParameter && ((NamedParameter) p).getValue() != null
+        .filter(p ->
+          p instanceof NamedParameter && ((NamedParameter) p).getValue() != null
         )
         .map(p -> (NamedParameter) p)
         .collect(Collectors.toMap(NamedParameter::getName, NamedParameter::getValue))
@@ -135,7 +136,7 @@ public class Functions {
     value = "converts a key-value pair into a Map.Entry",
     params = {
       @JinjavaParam(value = "key", type = "object"),
-      @JinjavaParam(value = "value", type = "object")
+      @JinjavaParam(value = "value", type = "object"),
     },
     hidden = true
   )
@@ -151,7 +152,7 @@ public class Functions {
         type = "string",
         defaultValue = "utc",
         desc = "timezone"
-      )
+      ),
     }
   )
   public static ZonedDateTime today(String... var) {
@@ -185,7 +186,7 @@ public class Functions {
         value = "timezone",
         defaultValue = "utc",
         desc = "Time zone of output date"
-      )
+      ),
     }
   )
   public static String dateTimeFormat(Object var, String... format) {
@@ -305,7 +306,7 @@ public class Functions {
   @JinjavaDoc(
     value = "gets the unix timestamp milliseconds value of a datetime",
     params = {
-      @JinjavaParam(value = "var", type = "date", defaultValue = "current time")
+      @JinjavaParam(value = "var", type = "date", defaultValue = "current time"),
     }
   )
   public static long unixtimestamp(Object... var) {
@@ -351,7 +352,7 @@ public class Functions {
         value = "var",
         type = "datetimeFormat",
         desc = "format of the datetime string"
-      )
+      ),
     }
   )
   public static PyishDate stringToTime(String datetimeString, String datetimeFormat) {
@@ -400,7 +401,7 @@ public class Functions {
         value = "dateFormat",
         type = "string",
         desc = "format of the date string"
-      )
+      ),
     }
   )
   public static PyishDate stringToDate(String dateString, String dateFormat) {
@@ -469,7 +470,7 @@ public class Functions {
         value = "end",
         defaultValue = "...",
         desc = "The characters that will be added to indicate where the text was truncated"
-      )
+      ),
     }
   )
   public static Object truncate(Object var, Object... arg) {
@@ -558,7 +559,7 @@ public class Functions {
     params = {
       @JinjavaParam(value = "start", type = "number", defaultValue = "0"),
       @JinjavaParam(value = "end", type = "number"),
-      @JinjavaParam(value = "step", type = "number", defaultValue = "1")
+      @JinjavaParam(value = "step", type = "number", defaultValue = "1"),
     }
   )
   public static List<Integer> range(Object arg1, Object... args) {

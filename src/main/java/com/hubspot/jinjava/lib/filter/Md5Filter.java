@@ -35,6 +35,7 @@ import java.security.NoSuchAlgorithmException;
   snippets = { @JinjavaSnippet(code = "{{ content.absolute_url|md5 }}") }
 )
 public class Md5Filter implements Filter {
+
   private static final String[] NOSTR = {
     "0",
     "1",
@@ -51,7 +52,7 @@ public class Md5Filter implements Filter {
     "c",
     "d",
     "e",
-    "f"
+    "f",
   };
   private static final String MD5 = "MD5";
 

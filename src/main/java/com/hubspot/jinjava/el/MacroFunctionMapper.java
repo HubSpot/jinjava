@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.el.FunctionMapper;
 
 public class MacroFunctionMapper extends FunctionMapper {
+
   private final JinjavaInterpreter interpreter;
   private Map<String, Method> map = Collections.emptyMap();
 

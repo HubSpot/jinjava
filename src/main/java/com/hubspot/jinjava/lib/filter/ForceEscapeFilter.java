@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
     @JinjavaSnippet(
       code = "{% set escape_string = \"<div>This markup is printed as text</div>\" %}\n" +
       "{{ escape_string|forceescape }}\n"
-    )
+    ),
   }
 )
 public class ForceEscapeFilter implements Filter {

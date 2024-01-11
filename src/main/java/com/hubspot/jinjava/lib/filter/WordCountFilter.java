@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
     @JinjavaSnippet(
       code = "{%  set count_words = \"Count the number of words in this variable\" %}\n" +
       "{{ count_words|wordcount }}"
-    )
+    ),
   }
 )
 public class WordCountFilter implements Filter {

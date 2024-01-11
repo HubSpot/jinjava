@@ -10,6 +10,7 @@ import java.util.Objects;
 
 @Beta
 public class PyishSerializer extends JsonSerializer<Object> {
+
   public static final PyishSerializer INSTANCE = new PyishSerializer();
 
   private PyishSerializer() {}
@@ -18,8 +19,7 @@ public class PyishSerializer extends JsonSerializer<Object> {
     Object object,
     JsonGenerator jsonGenerator,
     SerializerProvider serializerProvider
-  )
-    throws IOException {
+  ) throws IOException {
     jsonGenerator.setPrettyPrinter(PyishPrettyPrinter.INSTANCE);
     jsonGenerator.setCharacterEscapes(PyishCharacterEscapes.INSTANCE);
     String string;

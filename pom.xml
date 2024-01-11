@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.hubspot</groupId>
     <artifactId>basepom</artifactId>
-    <version>56.1</version>
+    <version>56.2</version>
   </parent>
 
   <groupId>com.hubspot.jinjava</groupId>
@@ -14,11 +14,6 @@
   <description>Jinja templating engine implemented in Java</description>
 
   <properties>
-    <basepom.check.skip-prettier>false</basepom.check.skip-prettier>
-
-    <basepom.prettier.prettier-java-version>0.7.0</basepom.prettier.prettier-java-version>
-    <basepom.prettier.extract-to-target-directory>false</basepom.prettier.extract-to-target-directory>
-
     <dep.javassist.version>3.24.1-GA</dep.javassist.version>
     <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
     <dep.guava.version>31.1-jre</dep.guava.version>

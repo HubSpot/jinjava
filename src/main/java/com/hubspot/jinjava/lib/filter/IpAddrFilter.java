@@ -35,7 +35,7 @@ import org.apache.commons.net.util.SubnetUtils;
       type = "string",
       defaultValue = "prefix",
       desc = "Name of function. Supported functions: 'prefix', 'netmask', 'network', 'address', 'broadcast'"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -49,10 +49,11 @@ import org.apache.commons.net.util.SubnetUtils;
       desc = "This example shows how to filter list of ip addresses",
       code = "{{ ['192.108.0.1', null, True, 13, '2000::'] | ipaddr }}",
       output = "['192.108.0.1', '2000::']"
-    )
+    ),
   }
 )
 public class IpAddrFilter implements Filter {
+
   private static final Pattern IP4_PATTERN = Pattern.compile(
     "(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])"
   );

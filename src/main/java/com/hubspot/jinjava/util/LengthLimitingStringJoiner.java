@@ -4,6 +4,7 @@ import com.hubspot.jinjava.interpret.OutputTooBigException;
 import java.util.StringJoiner;
 
 public class LengthLimitingStringJoiner {
+
   private final StringJoiner joiner;
   private final int delimiterLength;
   private final long maxLength;

@@ -24,7 +24,7 @@ import java.util.Base64;
       type = "string",
       desc = "The string encoding charset to use.",
       defaultValue = "UTF-8"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -34,10 +34,11 @@ import java.util.Base64;
     @JinjavaSnippet(
       desc = "Decode a Base 64-encoded ASCII string into a UTF-16 Little Endian string",
       code = "{{ 'Adg33A=='|b64decode(encoding='utf-16le') }}"
-    )
+    ),
   }
 )
 public class Base64DecodeFilter implements Filter {
+
   public static final String NAME = "b64decode";
 
   @Override

@@ -29,7 +29,7 @@ import org.apache.commons.lang3.text.WordUtils;
       type = "boolean",
       defaultValue = "True",
       desc = "If true, long words will be broken when wrapped"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -37,7 +37,7 @@ import org.apache.commons.lang3.text.WordUtils;
       code = "<pre>\n" +
       "    {{ \"Lorem ipsum dolor sit amet, consectetur adipiscing elit\"|wordwrap(10) }}\n" +
       "</pre>"
-    )
+    ),
   }
 )
 public class WordWrapFilter implements Filter {

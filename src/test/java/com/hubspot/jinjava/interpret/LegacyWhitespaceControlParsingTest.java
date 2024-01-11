@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class LegacyWhitespaceControlParsingTest {
+
   Jinjava legacy;
   Jinjava modern;
 

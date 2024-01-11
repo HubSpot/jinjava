@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.objects.date;
 
 public class InvalidDateFormatException extends IllegalArgumentException {
+
   private static final long serialVersionUID = -1577669116818659228L;
 
   private final String format;

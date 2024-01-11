@@ -11,6 +11,7 @@ import javax.el.ELContext;
 import org.apache.commons.lang3.StringUtils;
 
 public class AstList extends AstLiteral {
+
   protected final AstParameters elements;
 
   public AstList(AstParameters elements) {

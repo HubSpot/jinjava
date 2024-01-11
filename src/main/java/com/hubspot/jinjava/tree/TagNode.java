@@ -29,6 +29,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 
 public class TagNode extends Node {
+
   private static final long serialVersionUID = -6971280448795354252L;
 
   private final Tag tag;

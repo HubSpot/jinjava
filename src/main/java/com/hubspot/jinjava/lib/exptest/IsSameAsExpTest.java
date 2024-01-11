@@ -20,7 +20,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
       code = "{% if var_one is sameas var_two %}\n" +
       "    <!--code to render if variables have the same value as one another-->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsSameAsExpTest implements ExpTest {

@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class IndentFilterTest extends BaseJinjavaTest {
+
   private final Map<String, Object> VARS = new HashMap<>();
 
   @Before
@@ -27,11 +28,11 @@ public class IndentFilterTest extends BaseJinjavaTest {
   @Test
   public void itIndentsFirstline() {
     assertThat(
-        jinjava.render(
-          "{% set d=multiLine | indent(indentfirst= True, width=1) %}{{ d }}",
-          VARS
-        )
+      jinjava.render(
+        "{% set d=multiLine | indent(indentfirst= True, width=1) %}{{ d }}",
+        VARS
       )
+    )
       .isEqualTo(" 1\n" + " 2\n" + " 3");
   }
 }

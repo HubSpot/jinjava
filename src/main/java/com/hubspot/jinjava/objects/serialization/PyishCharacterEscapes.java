@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 @Beta
 public class PyishCharacterEscapes extends CharacterEscapes {
+
   public static final PyishCharacterEscapes INSTANCE = new PyishCharacterEscapes();
   private final int[] asciiEscapes;
 

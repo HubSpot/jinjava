@@ -18,6 +18,7 @@ import org.apache.commons.lang3.tuple.Triple;
 
 @Beta
 public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
+
   public static final EagerInlineSetTagStrategy INSTANCE = new EagerInlineSetTagStrategy(
     new SetTag()
   );
@@ -37,8 +38,8 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
       eagerInterpreter ->
         EagerExpressionResolver.resolveExpression('[' + expression + ']', interpreter),
       interpreter,
-      EagerContextWatcher
-        .EagerChildContextConfig.newBuilder()
+      EagerContextWatcher.EagerChildContextConfig
+        .newBuilder()
         .withTakeNewValue(true)
         .build()
     );

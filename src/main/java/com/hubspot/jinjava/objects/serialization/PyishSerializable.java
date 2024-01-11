@@ -48,17 +48,16 @@ public interface PyishSerializable extends PyWrapper {
   default void writePyishSelf(
     JsonGenerator jsonGenerator,
     SerializerProvider serializerProvider
-  )
-    throws IOException {
+  ) throws IOException {
     AtomicInteger remainingLength = (AtomicInteger) serializerProvider.getAttribute(
       LengthLimitingWriter.REMAINING_LENGTH_ATTRIBUTE
     );
     jsonGenerator.writeRawValue(
       appendPyishString(
-          remainingLength == null
-            ? new StringBuilder()
-            : new LengthLimitingStringBuilder(remainingLength.get())
-        )
+        remainingLength == null
+          ? new StringBuilder()
+          : new LengthLimitingStringBuilder(remainingLength.get())
+      )
         .toString()
     );
   }

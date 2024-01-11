@@ -3,6 +3,7 @@ package com.hubspot.jinjava.objects.date;
 import java.time.ZonedDateTime;
 
 public class FormattedDate {
+
   private final String format;
   private final String language;
   private final ZonedDateTime date;

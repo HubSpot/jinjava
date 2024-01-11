@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class RelativePathResolver implements LocationResolver {
+
   public static final String CURRENT_PATH_CONTEXT_KEY = "current_path";
 
   @Override
@@ -14,9 +15,8 @@ public class RelativePathResolver implements LocationResolver {
         .getContext()
         .getCurrentPathStack()
         .peek()
-        .orElseGet(
-          () ->
-            (String) interpreter.getContext().getOrDefault(CURRENT_PATH_CONTEXT_KEY, "")
+        .orElseGet(() ->
+          (String) interpreter.getContext().getOrDefault(CURRENT_PATH_CONTEXT_KEY, "")
         );
 
       Path templatePath = Paths.get(parentPath);

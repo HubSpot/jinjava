@@ -8,35 +8,36 @@ import com.hubspot.jinjava.objects.SafeString;
 import org.junit.Test;
 
 public class IsStringStartingWithExpTestTest extends BaseJinjavaTest {
+
   private static final String STARTING_TEMPLATE = "{{ var is string_startingwith arg }}";
 
   @Test
   public void itReturnsTrueForContainedString() {
     assertThat(
-        jinjava.render(STARTING_TEMPLATE, ImmutableMap.of("var", "testing", "arg", "tes"))
-      )
+      jinjava.render(STARTING_TEMPLATE, ImmutableMap.of("var", "testing", "arg", "tes"))
+    )
       .isEqualTo("true");
     assertThat(
-        jinjava.render(STARTING_TEMPLATE, ImmutableMap.of("var", "testing", "arg", ""))
-      )
+      jinjava.render(STARTING_TEMPLATE, ImmutableMap.of("var", "testing", "arg", ""))
+    )
       .isEqualTo("true");
     assertThat(
-        jinjava.render(
-          STARTING_TEMPLATE,
-          ImmutableMap.of("var", "testing", "arg", "testing")
-        )
+      jinjava.render(
+        STARTING_TEMPLATE,
+        ImmutableMap.of("var", "testing", "arg", "testing")
       )
+    )
       .isEqualTo("true");
   }
 
   @Test
   public void itReturnsFalseForExcludedString() {
     assertThat(
-        jinjava.render(
-          STARTING_TEMPLATE,
-          ImmutableMap.of("var", "testing", "arg", "esting")
-        )
+      jinjava.render(
+        STARTING_TEMPLATE,
+        ImmutableMap.of("var", "testing", "arg", "esting")
       )
+    )
       .isEqualTo("false");
   }
 
@@ -49,11 +50,11 @@ public class IsStringStartingWithExpTestTest extends BaseJinjavaTest {
   @Test
   public void itWorksForSafeString() {
     assertThat(
-        jinjava.render(
-          STARTING_TEMPLATE,
-          ImmutableMap.of("var", "testing", "arg", new SafeString("tes"))
-        )
+      jinjava.render(
+        STARTING_TEMPLATE,
+        ImmutableMap.of("var", "testing", "arg", new SafeString("tes"))
       )
+    )
       .isEqualTo("true");
   }
 }

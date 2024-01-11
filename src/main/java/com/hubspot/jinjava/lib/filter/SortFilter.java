@@ -39,7 +39,7 @@ import org.apache.commons.lang3.BooleanUtils;
       defaultValue = "False",
       desc = "Determines whether or not the sorting is case sensitive"
     ),
-    @JinjavaParam(value = "attribute", desc = "Specifies an attribute to sort by")
+    @JinjavaParam(value = "attribute", desc = "Specifies an attribute to sort by"),
   },
   snippets = {
     @JinjavaSnippet(
@@ -51,10 +51,11 @@ import org.apache.commons.lang3.BooleanUtils;
       "{% for item in my_posts|sort(False, False,'name') %}\n" +
       "    {{ item.name }}<br>\n" +
       "{% endfor %}"
-    )
+    ),
   }
 )
 public class SortFilter implements Filter {
+
   private static final Splitter DOT_SPLITTER = Splitter.on('.').omitEmptyStrings();
   private static final Joiner DOT_JOINER = Joiner.on('.');
 
@@ -118,6 +119,7 @@ public class SortFilter implements Filter {
   }
 
   private static class ObjectComparator implements Comparator<Object>, Serializable {
+
     private final boolean reverse;
     private final boolean caseSensitive;
 

@@ -8,6 +8,7 @@ import com.hubspot.jinjava.objects.SafeString;
 import org.junit.Test;
 
 public class IsUpperExpTestTest extends BaseJinjavaTest {
+
   private static final String STARTING_TEMPLATE = "{{ var is upper }}";
   private static final String SAFE_TEMPLATE = "{{ (var|safe) is upper }}";
 
@@ -26,8 +27,8 @@ public class IsUpperExpTestTest extends BaseJinjavaTest {
   @Test
   public void itWorksForSafeStrings() {
     assertThat(
-        jinjava.render(STARTING_TEMPLATE, ImmutableMap.of("var", new SafeString("UPPER")))
-      )
+      jinjava.render(STARTING_TEMPLATE, ImmutableMap.of("var", new SafeString("UPPER")))
+    )
       .isEqualTo("true");
     assertThat(jinjava.render(SAFE_TEMPLATE, ImmutableMap.of("var", "UPPER")))
       .isEqualTo("true");

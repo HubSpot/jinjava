@@ -7,6 +7,7 @@ import javax.el.ELException;
 import javax.el.MapELResolver;
 
 public class TypeConvertingMapELResolver extends MapELResolver {
+
   private static final TruthyTypeConverter TYPE_CONVERTER = new TruthyTypeConverter();
 
   public TypeConvertingMapELResolver(boolean readOnly) {

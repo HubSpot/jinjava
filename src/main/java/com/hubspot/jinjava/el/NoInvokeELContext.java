@@ -6,6 +6,7 @@ import javax.el.FunctionMapper;
 import javax.el.VariableMapper;
 
 public class NoInvokeELContext extends ELContext {
+
   private ELContext delegate;
   private NoInvokeELResolver elResolver;
 

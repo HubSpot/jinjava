@@ -48,7 +48,7 @@ import com.hubspot.jinjava.lib.fn.Functions;
       value = "end",
       defaultValue = "...",
       desc = "The characters that will be added to indicate where the text was truncated"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -58,7 +58,7 @@ import com.hubspot.jinjava.lib.fn.Functions;
     @JinjavaSnippet(
       code = "{{ \"I only want to show the first sentence. Not the second.\"|truncate(35, True, '..') }}",
       output = "I only want to show the first sente.."
-    )
+    ),
   }
 )
 public class TruncateFilter implements Filter {

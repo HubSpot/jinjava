@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class TemplateError {
+
   private static final Pattern GENERIC_TOSTRING_PATTERN = Pattern.compile(
     "@[0-9a-z]{4,}$"
   );
@@ -17,7 +18,7 @@ public class TemplateError {
 
   public enum ErrorType {
     FATAL,
-    WARNING
+    WARNING,
   }
 
   public enum ErrorReason {
@@ -32,7 +33,7 @@ public class TemplateError {
     OUTPUT_TOO_BIG,
     OVER_LIMIT,
     COLLECTION_TOO_BIG,
-    OTHER
+    OTHER,
   }
 
   public enum ErrorItem {
@@ -43,7 +44,7 @@ public class TemplateError {
     PROPERTY,
     FILTER,
     EXPRESSION_TEST,
-    OTHER
+    OTHER,
   }
 
   private final ErrorType severity;

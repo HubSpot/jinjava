@@ -35,7 +35,7 @@ import org.apache.commons.lang3.math.NumberUtils;
       value = "count",
       type = "number",
       desc = "Replace only the first N occurrences"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -45,7 +45,7 @@ import org.apache.commons.lang3.math.NumberUtils;
     @JinjavaSnippet(
       code = "{{ \"aaaaargh\"|replace(\"a\", \"d'oh, \", 2) }}",
       output = "d'oh, d'oh, aaargh"
-    )
+    ),
   }
 )
 public class ReplaceFilter implements Filter {

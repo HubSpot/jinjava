@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 public class DeferredToken {
 
   public static class DeferredTokenBuilder {
+
     private final Token token;
     private Stream<String> usedDeferredWords;
     private Stream<String> setDeferredWords;
@@ -41,10 +42,9 @@ public class DeferredToken {
           ? usedDeferredWords
             .map(prop -> prop.split("\\.", 2)[0])
             .distinct()
-            .filter(
-              word ->
-                interpreter == null ||
-                !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
+            .filter(word ->
+              interpreter == null ||
+              !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
             )
             .collect(Collectors.toSet())
           : Collections.emptySet(),
@@ -251,12 +251,10 @@ public class DeferredToken {
       context,
       usedDeferredWords
         .stream()
-        .filter(
-          word -> {
-            Object value = context.get(word);
-            return value != null && !(value instanceof DeferredValue);
-          }
-        )
+        .filter(word -> {
+          Object value = context.get(word);
+          return value != null && !(value instanceof DeferredValue);
+        })
         .collect(Collectors.toCollection(HashSet::new))
     );
   }
@@ -312,37 +310,32 @@ public class DeferredToken {
           .getScope()
           .entrySet()
           .stream()
-          .filter(
-            entry ->
-              entry.getValue() == wordValue ||
-              (
-                entry.getValue() instanceof DeferredValue &&
-                ((DeferredValue) entry.getValue()).getOriginalValue() == wordValue
-              )
+          .filter(entry ->
+            entry.getValue() == wordValue ||
+            (
+              entry.getValue() instanceof DeferredValue &&
+              ((DeferredValue) entry.getValue()).getOriginalValue() == wordValue
+            )
           )
-          .forEach(
-            entry -> {
-              matchingEntries.add(entry);
-              deferredLazyReference.getOriginalValue().setReferenceKey(entry.getKey());
-            }
-          );
+          .forEach(entry -> {
+            matchingEntries.add(entry);
+            deferredLazyReference.getOriginalValue().setReferenceKey(entry.getKey());
+          });
         temp = temp.getParent();
       }
       if (matchingEntries.size() > 1) { // at least one duplicate
-        matchingEntries.forEach(
-          entry -> {
-            if (
-              deferredLazyReference
-                .getOriginalValue()
-                .getReferenceKey()
-                .equals(entry.getKey())
-            ) {
-              convertToDeferredLazyReferenceSource(context, entry);
-            } else {
-              entry.setValue(deferredLazyReference.clone());
-            }
+        matchingEntries.forEach(entry -> {
+          if (
+            deferredLazyReference
+              .getOriginalValue()
+              .getReferenceKey()
+              .equals(entry.getKey())
+          ) {
+            convertToDeferredLazyReferenceSource(context, entry);
+          } else {
+            entry.setValue(deferredLazyReference.clone());
           }
-        );
+        });
       }
     }
   }
@@ -355,9 +348,10 @@ public class DeferredToken {
     if (val instanceof DeferredLazyReferenceSource) {
       return;
     }
-    DeferredLazyReferenceSource deferredLazyReferenceSource = DeferredLazyReferenceSource.instance(
-      val instanceof DeferredValue ? ((DeferredValue) val).getOriginalValue() : val
-    );
+    DeferredLazyReferenceSource deferredLazyReferenceSource =
+      DeferredLazyReferenceSource.instance(
+        val instanceof DeferredValue ? ((DeferredValue) val).getOriginalValue() : val
+      );
 
     context.replace(entry.getKey(), deferredLazyReferenceSource);
     entry.setValue(deferredLazyReferenceSource);
@@ -370,25 +364,21 @@ public class DeferredToken {
   ) {
     return wordsToDefer
       .stream()
-      .filter(
-        prop -> {
-          Object val = context.get(prop);
-          if (replacing) {
-            return (
-              !(val instanceof DeferredValue) || context.getScope().containsKey(prop)
-            );
-          }
-          return !(val instanceof DeferredValue);
+      .filter(prop -> {
+        Object val = context.get(prop);
+        if (replacing) {
+          return (
+            !(val instanceof DeferredValue) || context.getScope().containsKey(prop)
+          );
         }
-      )
+        return !(val instanceof DeferredValue);
+      })
       .filter(prop -> !context.getMetaContextVariables().contains(prop))
-      .filter(
-        prop -> {
-          DeferredValue deferredValue = convertToDeferredValue(context, prop);
-          context.put(prop, deferredValue);
-          return !(deferredValue instanceof DeferredValueShadow);
-        }
-      )
+      .filter(prop -> {
+        DeferredValue deferredValue = convertToDeferredValue(context, prop);
+        context.put(prop, deferredValue);
+        return !(deferredValue instanceof DeferredValueShadow);
+      })
       .collect(Collectors.toList());
   }
 

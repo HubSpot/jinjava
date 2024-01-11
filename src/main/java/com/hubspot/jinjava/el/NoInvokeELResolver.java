@@ -12,6 +12,7 @@ import javax.el.ELResolver;
  * so disallows modification and invocation which may result in modification of values.
  */
 public class NoInvokeELResolver extends ELResolver {
+
   private ELResolver delegate;
 
   public NoInvokeELResolver(ELResolver delegate) {

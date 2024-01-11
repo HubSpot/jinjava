@@ -43,7 +43,7 @@ import org.apache.commons.lang3.StringUtils;
     @JinjavaParam(
       value = "import_name",
       desc = "Give a name to the imported file to access macros from"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -60,11 +60,12 @@ import org.apache.commons.lang3.StringUtils;
       code = "{% import 'custom/page/web_page_basic/my_macros.html' as header_footer %}\n" +
       "{{ header_footer.header('h1', 'My page title') }}\n" +
       "{{ header_footer.footer('h3', 'Company footer info') }}"
-    )
+    ),
   }
 )
 @JinjavaTextMateSnippet(code = "{% import '${1:path}' ${2: as ${3:import_name}} %}")
 public class ImportTag implements Tag {
+
   public static final String TAG_NAME = "import";
 
   private static final long serialVersionUID = 8433638845398005260L;
@@ -184,8 +185,7 @@ public class ImportTag implements Tag {
   ) {
     node
       .getChildren()
-      .forEach(
-        deferredChild -> interpreter.getContext().handleDeferredNode(deferredChild)
+      .forEach(deferredChild -> interpreter.getContext().handleDeferredNode(deferredChild)
       );
     if (StringUtils.isBlank(contextVar)) {
       for (MacroFunction macro : child.getContext().getGlobalMacros().values()) {
@@ -213,8 +213,7 @@ public class ImportTag implements Tag {
   public static Node parseTemplateAsNode(
     JinjavaInterpreter interpreter,
     String templateFile
-  )
-    throws IOException {
+  ) throws IOException {
     interpreter
       .getContext()
       .getCurrentPathStack()

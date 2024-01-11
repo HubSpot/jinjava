@@ -24,16 +24,17 @@ import java.util.Objects;
       value = "args",
       type = "String...",
       desc = "Values to insert into string"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
       desc = "%s can be replaced with other variables or values",
       code = "{{ \"Hi %s %s\"|format(contact.firstname, contact.lastname) }} "
-    )
+    ),
   }
 )
 public class FormatFilter implements AdvancedFilter {
+
   public static final String NAME = "format";
 
   @Override

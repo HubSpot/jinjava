@@ -28,7 +28,6 @@ public class AdvancedFilterTest extends BaseJinjavaTest {
   public void testOnlyKwargs() {
     Object[] expectedArgs = new Object[] {};
     Map<String, Object> expectedKwargs = new HashMap<String, Object>() {
-
       {
         put("named10", "str");
         put("named2", 3L);
@@ -41,11 +40,11 @@ public class AdvancedFilterTest extends BaseJinjavaTest {
       .registerFilter(new MyMirrorFilter(expectedArgs, expectedKwargs));
 
     assertThat(
-        jinjava.render(
-          "{{ 'test'|mirror(named2=3, named10='str', namedB=true) }}",
-          new HashMap<>()
-        )
+      jinjava.render(
+        "{{ 'test'|mirror(named2=3, named10='str', namedB=true) }}",
+        new HashMap<>()
       )
+    )
       .isEqualTo("test");
   }
 
@@ -53,7 +52,6 @@ public class AdvancedFilterTest extends BaseJinjavaTest {
   public void itTestsNullKwargs() {
     Object[] expectedArgs = new Object[] {};
     Map<String, Object> expectedKwargs = new HashMap<String, Object>() {
-
       {
         put("named1", null);
       }
@@ -71,7 +69,6 @@ public class AdvancedFilterTest extends BaseJinjavaTest {
   public void testMixedArgsAndKwargs() {
     Object[] expectedArgs = new Object[] { 1L, 2L };
     Map<String, Object> expectedKwargs = new HashMap<String, Object>() {
-
       {
         put("named", "test");
       }
@@ -89,7 +86,6 @@ public class AdvancedFilterTest extends BaseJinjavaTest {
   public void testUnorderedArgsAndKwargs() {
     Object[] expectedArgs = new Object[] { "1", 2L };
     Map<String, Object> expectedKwargs = new HashMap<String, Object>() {
-
       {
         put("named", "test");
       }
@@ -100,8 +96,8 @@ public class AdvancedFilterTest extends BaseJinjavaTest {
       .registerFilter(new MyMirrorFilter(expectedArgs, expectedKwargs));
 
     assertThat(
-        jinjava.render("{{ 'test'|mirror('1', named='test', 2) }}", new HashMap<>())
-      )
+      jinjava.render("{{ 'test'|mirror('1', named='test', 2) }}", new HashMap<>())
+    )
       .isEqualTo("test");
   }
 
@@ -109,7 +105,6 @@ public class AdvancedFilterTest extends BaseJinjavaTest {
   public void testRepeatedKwargs() {
     Object[] expectedArgs = new Object[] { true };
     Map<String, Object> expectedKwargs = new HashMap<String, Object>() {
-
       {
         put("named", "overwrite");
       }
@@ -120,15 +115,16 @@ public class AdvancedFilterTest extends BaseJinjavaTest {
       .registerFilter(new MyMirrorFilter(expectedArgs, expectedKwargs));
 
     assertThat(
-        jinjava.render(
-          "{{ 'test'|mirror(true, named='test', named='overwrite') }}",
-          new HashMap<>()
-        )
+      jinjava.render(
+        "{{ 'test'|mirror(true, named='test', named='overwrite') }}",
+        new HashMap<>()
       )
+    )
       .isEqualTo("test");
   }
 
   private static class MyMirrorFilter implements AdvancedFilter {
+
     private Object[] expectedArgs;
     private Map<String, Object> expectedKwargs;
 

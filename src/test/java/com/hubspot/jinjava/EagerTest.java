@@ -33,6 +33,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class EagerTest {
+
   private JinjavaInterpreter interpreter;
   private Jinjava jinjava;
   private ExpectedTemplateInterpreter expectedTemplateInterpreter;
@@ -56,8 +57,7 @@ public class EagerTest {
           String fullName,
           Charset encoding,
           JinjavaInterpreter interpreter
-        )
-          throws IOException {
+        ) throws IOException {
           return Resources.toString(
             Resources.getResource(String.format("tags/macrotag/%s", fullName)),
             StandardCharsets.UTF_8
@@ -117,10 +117,10 @@ public class EagerTest {
   @Test
   public void itDefersNodeWhenModifiedInForLoop() {
     assertThat(
-        interpreter.render(
-          "{% set bar = 'bar' %}{% set foo = 0 %}{% for i in deferred %}{{ bar ~ foo ~ bar }} {% set foo = foo + 1 %}{% endfor %}"
-        )
+      interpreter.render(
+        "{% set bar = 'bar' %}{% set foo = 0 %}{% for i in deferred %}{{ bar ~ foo ~ bar }} {% set foo = foo + 1 %}{% endfor %}"
       )
+    )
       .isEqualTo(
         "{% set foo = 0 %}{% for i in deferred %}{{ 'bar' ~ foo ~ 'bar' }} {% set foo = foo + 1 %}{% endfor %}"
       );
@@ -364,9 +364,8 @@ public class EagerTest {
     DeferredValue varInScopeDeferred = (DeferredValue) varInScope;
     assertThat(varInScopeDeferred.getOriginalValue()).isEqualTo("outside if statement");
 
-    HashMap<String, Object> deferredContext = DeferredValueUtils.getDeferredContextWithOriginalValues(
-      localContext
-    );
+    HashMap<String, Object> deferredContext =
+      DeferredValueUtils.getDeferredContextWithOriginalValues(localContext);
     deferredContext.forEach(localContext::put);
     String secondRender = interpreter.render(output);
     assertThat(secondRender).isEqualTo("outside if statement entered if statement");
@@ -396,9 +395,8 @@ public class EagerTest {
     assertThat(output.trim())
       .isEqualTo("{% if deferred == 'testvalue' %} true {% else %} false {% endif %}");
 
-    HashMap<String, Object> deferredContext = DeferredValueUtils.getDeferredContextWithOriginalValues(
-      localContext
-    );
+    HashMap<String, Object> deferredContext =
+      DeferredValueUtils.getDeferredContextWithOriginalValues(localContext);
     deferredContext.forEach(localContext::put);
     String secondRender = interpreter.render(output);
     assertThat(secondRender.trim()).isEqualTo("true");
@@ -421,9 +419,8 @@ public class EagerTest {
     );
     localContext.put("deferredValue", DeferredValue.instance("resolved"));
     String output = interpreter.render(template);
-    HashMap<String, Object> deferredContext = DeferredValueUtils.getDeferredContextWithOriginalValues(
-      localContext
-    );
+    HashMap<String, Object> deferredContext =
+      DeferredValueUtils.getDeferredContextWithOriginalValues(localContext);
     deferredContext.forEach(localContext::put);
     String secondRender = interpreter.render(output);
     assertThat(secondRender.trim()).isEqualTo("inside first scope".trim());
@@ -438,9 +435,8 @@ public class EagerTest {
     localContext.put("deferredValue", DeferredValue.instance("resolved"));
     String output = interpreter.render(template);
 
-    HashMap<String, Object> deferredContext = DeferredValueUtils.getDeferredContextWithOriginalValues(
-      localContext
-    );
+    HashMap<String, Object> deferredContext =
+      DeferredValueUtils.getDeferredContextWithOriginalValues(localContext);
     deferredContext.forEach(localContext::put);
     String secondRender = interpreter.render(output);
     assertThat(secondRender.trim())
@@ -484,8 +480,8 @@ public class EagerTest {
     Object deferredValue2 = localContext.get("deferredValue2");
     localContext
       .getDeferredNodes()
-      .forEach(
-        node -> DeferredValueUtils.findAndMarkDeferredProperties(localContext, node)
+      .forEach(node ->
+        DeferredValueUtils.findAndMarkDeferredProperties(localContext, node)
       );
     assertThat(deferredValue2).isInstanceOf(DeferredValue.class);
     assertThat(output)
@@ -504,20 +500,20 @@ public class EagerTest {
   public void itEvaluatesNonEagerSet() {
     expectedTemplateInterpreter.assertExpectedOutput("evaluates-non-eager-set");
     assertThat(
-        localContext
-          .getDeferredTokens()
-          .stream()
-          .flatMap(deferredToken -> deferredToken.getSetDeferredWords().stream())
-          .collect(Collectors.toSet())
-      )
+      localContext
+        .getDeferredTokens()
+        .stream()
+        .flatMap(deferredToken -> deferredToken.getSetDeferredWords().stream())
+        .collect(Collectors.toSet())
+    )
       .isEmpty();
     assertThat(
-        localContext
-          .getDeferredTokens()
-          .stream()
-          .flatMap(deferredToken -> deferredToken.getUsedDeferredWords().stream())
-          .collect(Collectors.toSet())
-      )
+      localContext
+        .getDeferredTokens()
+        .stream()
+        .flatMap(deferredToken -> deferredToken.getUsedDeferredWords().stream())
+        .collect(Collectors.toSet())
+    )
       .contains("deferred");
   }
 
@@ -786,7 +782,7 @@ public class EagerTest {
     JinjavaInterpreter.pushCurrent(noNestedInterpreter);
     try {
       new ExpectedTemplateInterpreter(jinjava, noNestedInterpreter, "eager")
-      .assertExpectedOutput("wraps-certain-output-in-raw");
+        .assertExpectedOutput("wraps-certain-output-in-raw");
       assertThat(noNestedInterpreter.getErrors()).isEmpty();
     } finally {
       JinjavaInterpreter.popCurrent();
@@ -863,7 +859,7 @@ public class EagerTest {
     try {
       JinjavaInterpreter.pushCurrent(eagerInterpreter);
       new ExpectedTemplateInterpreter(jinjava, eagerInterpreter, "eager")
-      .assertExpectedOutput("handles-unknown-function-errors");
+        .assertExpectedOutput("handles-unknown-function-errors");
     } finally {
       JinjavaInterpreter.popCurrent();
     }
@@ -871,7 +867,7 @@ public class EagerTest {
       JinjavaInterpreter.pushCurrent(defaultInterpreter);
 
       new ExpectedTemplateInterpreter(jinjava, defaultInterpreter, "eager")
-      .assertExpectedOutput("handles-unknown-function-errors");
+        .assertExpectedOutput("handles-unknown-function-errors");
     } finally {
       JinjavaInterpreter.popCurrent();
     }

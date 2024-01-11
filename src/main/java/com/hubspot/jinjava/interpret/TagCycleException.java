@@ -3,6 +3,7 @@ package com.hubspot.jinjava.interpret;
 import java.util.Optional;
 
 public class TagCycleException extends TemplateStateException {
+
   private static final long serialVersionUID = -3058494056577268723L;
 
   private final String path;

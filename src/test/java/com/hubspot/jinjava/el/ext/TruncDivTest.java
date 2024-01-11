@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TruncDivTest {
+
   private Jinjava jinja;
 
   @Before
@@ -39,7 +40,7 @@ public class TruncDivTest {
       { "{% set x = dividend // negativeDivisor %}{{x}}", "-3" },
       { "{% set x = 5 // -2 %}{{x}}", "-3" },
       { "{% set x = negativeDividend // negativeDivisor %}{{x}}", "2" },
-      { "{% set x = -5 // -2 %}{{x}}", "2" }
+      { "{% set x = -5 // -2 %}{{x}}", "2" },
     };
 
     for (String[] testCase : testCases) {
@@ -71,7 +72,7 @@ public class TruncDivTest {
       { "{% set x = dividend // negativeDivisor %}{{x}}", "-3.0" },
       { "{% set x = 5.0 // -2 %}{{x}}", "-3.0" },
       { "{% set x = negativeDividend // negativeDivisor %}{{x}}", "2.0" },
-      { "{% set x = -5.0 // -2 %}{{x}}", "2.0" }
+      { "{% set x = -5.0 // -2 %}{{x}}", "2.0" },
     };
 
     for (String[] testCase : testCases) {

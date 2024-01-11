@@ -10,6 +10,7 @@ import de.odysseus.el.tree.impl.ast.AstBinary.SimpleOperator;
 import de.odysseus.el.tree.impl.ast.AstNode;
 
 public class PowerOfOperator extends SimpleOperator {
+
   public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("**");
   public static final PowerOfOperator OP = new PowerOfOperator();
 
@@ -50,7 +51,6 @@ public class PowerOfOperator extends SimpleOperator {
 
   public static ExtensionHandler getHandler(boolean eager) {
     return new ExtensionHandler(ExtensionPoint.MUL) {
-
       @Override
       public AstNode createAstNode(AstNode... children) {
         return eager

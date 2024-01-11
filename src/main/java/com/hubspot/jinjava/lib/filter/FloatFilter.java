@@ -22,14 +22,14 @@ import org.apache.commons.lang3.math.NumberUtils;
       type = "float",
       defaultValue = "0.0",
       desc = "Value to return if conversion fails"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
       desc = "This example converts a text field string value to a float",
       code = "{% text \"my_text\" value='25', export_to_template_context=True %}\n" +
       "{% widget_data.my_text.value|float + 28 %}"
-    )
+    ),
   }
 )
 public class FloatFilter implements Filter {

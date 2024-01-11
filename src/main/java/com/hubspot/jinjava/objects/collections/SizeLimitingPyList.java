@@ -12,6 +12,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 public class SizeLimitingPyList extends PyList implements PyWrapper {
+
   private int maxSize;
   private boolean hasWarned;
 

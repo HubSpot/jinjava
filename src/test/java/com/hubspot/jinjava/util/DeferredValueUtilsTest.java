@@ -47,9 +47,8 @@ public class DeferredValueUtilsTest {
     Set<String> deferredProperties = context
       .getDeferredNodes()
       .stream()
-      .flatMap(
-        node ->
-          DeferredValueUtils.findAndMarkDeferredProperties(finalContext, node).stream()
+      .flatMap(node ->
+        DeferredValueUtils.findAndMarkDeferredProperties(finalContext, node).stream()
       )
       .collect(Collectors.toSet());
 
@@ -66,8 +65,8 @@ public class DeferredValueUtilsTest {
     Set<String> deferredProperties = context
       .getDeferredNodes()
       .stream()
-      .flatMap(
-        node -> DeferredValueUtils.findAndMarkDeferredProperties(context, node).stream()
+      .flatMap(node ->
+        DeferredValueUtils.findAndMarkDeferredProperties(context, node).stream()
       )
       .collect(Collectors.toSet());
     assertThat(deferredProperties).contains("array");
@@ -83,8 +82,8 @@ public class DeferredValueUtilsTest {
     Set<String> deferredProperties = context
       .getDeferredNodes()
       .stream()
-      .flatMap(
-        node -> DeferredValueUtils.findAndMarkDeferredProperties(context, node).stream()
+      .flatMap(node ->
+        DeferredValueUtils.findAndMarkDeferredProperties(context, node).stream()
       )
       .collect(Collectors.toSet());
     assertThat(deferredProperties).contains("dict");
@@ -111,8 +110,8 @@ public class DeferredValueUtilsTest {
     Context finalContext = context;
     context
       .getDeferredNodes()
-      .forEach(
-        node -> DeferredValueUtils.findAndMarkDeferredProperties(finalContext, node)
+      .forEach(node ->
+        DeferredValueUtils.findAndMarkDeferredProperties(finalContext, node)
       );
     assertThat(context.containsKey("java_bean")).isTrue();
     assertThat(context.get("java_bean")).isInstanceOf(DeferredValue.class);
@@ -180,9 +179,8 @@ public class DeferredValueUtilsTest {
     context.put("java_bean_undeferred", javaBean);
     context.put("nested_map_undeferred", nestedMap);
 
-    HashMap<String, Object> result = DeferredValueUtils.getDeferredContextWithOriginalValues(
-      context
-    );
+    HashMap<String, Object> result =
+      DeferredValueUtils.getDeferredContextWithOriginalValues(context);
     assertThat(result).contains(entry("simple_var", "SimpleVar"));
     assertThat(result).contains(entry("java_bean", javaBean));
     assertThat(result).contains(entry("simple_bool", true));
@@ -202,9 +200,8 @@ public class DeferredValueUtilsTest {
     context.put("simple_var", DeferredValue.instance());
     context.put("java_bean", DeferredValue.instance());
 
-    HashMap<String, Object> result = DeferredValueUtils.getDeferredContextWithOriginalValues(
-      context
-    );
+    HashMap<String, Object> result =
+      DeferredValueUtils.getDeferredContextWithOriginalValues(context);
     assertThat(result).isEmpty();
   }
 
@@ -306,6 +303,7 @@ public class DeferredValueUtilsTest {
   }
 
   private class JavaBean {
+
     String propertyOne;
     String propertyTwo;
 

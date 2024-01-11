@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el.ext;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 
 public class DeferredParsingException extends DeferredValueException {
+
   private final String deferredEvalResult;
   private final Object sourceNode;
   private final IdentifierPreservationStrategy identifierPreservationStrategy;

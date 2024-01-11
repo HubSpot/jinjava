@@ -33,8 +33,7 @@ public class FromTagTest extends BaseInterpretingTest {
           String fullName,
           Charset encoding,
           JinjavaInterpreter interpreter
-        )
-          throws IOException {
+        ) throws IOException {
           return Resources.toString(
             Resources.getResource(String.format("tags/macrotag/%s", fullName)),
             StandardCharsets.UTF_8

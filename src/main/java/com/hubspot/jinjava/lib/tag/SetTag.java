@@ -54,7 +54,7 @@ import org.apache.commons.lang3.StringUtils;
       value = "expr",
       type = "expression",
       desc = "The value stored in the variable (string, number, boolean, or sequence"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -73,11 +73,12 @@ import org.apache.commons.lang3.StringUtils;
       "{% set message %}\n" +
       "My name is {{ name }}\n" +
       "{% endset %}"
-    )
+    ),
   }
 )
 @JinjavaTextMateSnippet(code = "{% set ${1:var} = ${2:expr} %}")
 public class SetTag implements Tag, FlexibleTag {
+
   public static final String TAG_NAME = "set";
   public static final String IGNORED_VARIABLE_NAME = "__ignored__";
 

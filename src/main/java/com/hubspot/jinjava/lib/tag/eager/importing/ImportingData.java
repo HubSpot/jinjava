@@ -5,6 +5,7 @@ import com.hubspot.jinjava.tree.parse.TagToken;
 import java.util.List;
 
 public class ImportingData {
+
   private final JinjavaInterpreter originalInterpreter;
   private final TagToken tagToken;
   private final List<String> helpers;

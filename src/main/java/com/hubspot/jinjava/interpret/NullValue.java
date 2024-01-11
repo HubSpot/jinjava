@@ -6,6 +6,7 @@ package com.hubspot.jinjava.interpret;
  * we treat it as the there is not key "a" in the map.
  */
 public final class NullValue {
+
   public static final NullValue INSTANCE = new NullValue();
 
   private NullValue() {}

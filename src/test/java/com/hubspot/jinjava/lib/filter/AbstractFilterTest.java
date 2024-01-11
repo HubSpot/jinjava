@@ -15,6 +15,7 @@ import java.util.Map;
 import org.junit.Test;
 
 public class AbstractFilterTest extends BaseInterpretingTest {
+
   private ArgCapturingFilter filter;
 
   public static class NoJinjavaDocFilter extends ArgCapturingFilter {}
@@ -37,7 +38,7 @@ public class AbstractFilterTest extends BaseInterpretingTest {
     params = {
       @JinjavaParam(value = "1st", desc = "1st"),
       @JinjavaParam(value = "2nd", desc = "2nd"),
-      @JinjavaParam(value = "3rd", desc = "3rd")
+      @JinjavaParam(value = "3rd", desc = "3rd"),
     }
   )
   public static class TwoParamTypesFilter extends ArgCapturingFilter {}
@@ -65,7 +66,7 @@ public class AbstractFilterTest extends BaseInterpretingTest {
       @JinjavaParam(value = "double", type = "double", desc = "double"),
       @JinjavaParam(value = "number", type = "number", desc = "number"),
       @JinjavaParam(value = "object", type = "object", desc = "object"),
-      @JinjavaParam(value = "dict", type = "dict", desc = "dict")
+      @JinjavaParam(value = "dict", type = "dict", desc = "dict"),
     }
   )
   public static class AllParamTypesFilter extends ArgCapturingFilter {}
@@ -107,8 +108,8 @@ public class AbstractFilterTest extends BaseInterpretingTest {
   public void itValidatesRequiredArgs() {
     filter = new AllParamTypesFilter();
 
-    assertThatThrownBy(
-        () -> filter.filter(null, interpreter, new Object[] {}, Collections.emptyMap())
+    assertThatThrownBy(() ->
+        filter.filter(null, interpreter, new Object[] {}, Collections.emptyMap())
       )
       .hasMessageContaining("Argument named 'boolean' is required");
   }
@@ -117,14 +118,13 @@ public class AbstractFilterTest extends BaseInterpretingTest {
   public void itErrorsOnTooManyArgs() {
     filter = new AllParamTypesFilter();
 
-    assertThatThrownBy(
-        () ->
-          filter.filter(
-            null,
-            interpreter,
-            new Object[] { true, null, null, null, null, null, null, null, null },
-            Collections.emptyMap()
-          )
+    assertThatThrownBy(() ->
+        filter.filter(
+          null,
+          interpreter,
+          new Object[] { true, null, null, null, null, null, null, null, null },
+          Collections.emptyMap()
+        )
       )
       .hasMessageContaining("Argument at index")
       .hasMessageContaining("is invalid");
@@ -134,19 +134,19 @@ public class AbstractFilterTest extends BaseInterpretingTest {
   public void itErrorsUnknownNamedArg() {
     filter = new AllParamTypesFilter();
 
-    assertThatThrownBy(
-        () ->
-          filter.filter(
-            null,
-            interpreter,
-            new Object[] { true },
-            ImmutableMap.of("unknown", "unknown")
-          )
+    assertThatThrownBy(() ->
+        filter.filter(
+          null,
+          interpreter,
+          new Object[] { true },
+          ImmutableMap.of("unknown", "unknown")
+        )
       )
       .hasMessageContaining("Argument named 'unknown' is invalid");
   }
 
   public static class ArgCapturingFilter extends AbstractFilter {
+
     public Map<String, Object> parsedArgs;
 
     @Override

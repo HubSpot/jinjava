@@ -14,18 +14,16 @@ public class EagerTagFactoryTest {
 
   @Test
   public void itGetsEagerTagDecoratorForOverrides() {
-    Set<EagerTagDecorator<?>> eagerTagDecoratorSet = EagerTagFactory
-      .EAGER_TAG_OVERRIDES.keySet()
+    Set<EagerTagDecorator<?>> eagerTagDecoratorSet = EagerTagFactory.EAGER_TAG_OVERRIDES
+      .keySet()
       .stream()
-      .map(
-        clazz -> {
-          try {
-            return clazz.getDeclaredConstructor().newInstance();
-          } catch (Exception ignored) {
-            return null;
-          }
+      .map(clazz -> {
+        try {
+          return clazz.getDeclaredConstructor().newInstance();
+        } catch (Exception ignored) {
+          return null;
         }
-      )
+      })
       .filter(Objects::nonNull)
       .map(EagerTagFactory::getEagerTagDecorator)
       .filter(Optional::isPresent)
@@ -34,19 +32,18 @@ public class EagerTagFactoryTest {
     assertThat(eagerTagDecoratorSet.size())
       .isEqualTo(EagerTagFactory.EAGER_TAG_OVERRIDES.keySet().size());
     assertThat(
-        eagerTagDecoratorSet
-          .stream()
-          .map(e -> e.getTag().getClass())
-          .collect(Collectors.toSet())
-      )
+      eagerTagDecoratorSet
+        .stream()
+        .map(e -> e.getTag().getClass())
+        .collect(Collectors.toSet())
+    )
       .isEqualTo(EagerTagFactory.EAGER_TAG_OVERRIDES.keySet());
   }
 
   @Test
   public void itGetsEagerTagDecoratorForNonOverride() {
-    Optional<? extends EagerTagDecorator<? extends Tag>> maybeEagerGenericTag = EagerTagFactory.getEagerTagDecorator(
-      new IfchangedTag()
-    );
+    Optional<? extends EagerTagDecorator<? extends Tag>> maybeEagerGenericTag =
+      EagerTagFactory.getEagerTagDecorator(new IfchangedTag());
     assertThat(maybeEagerGenericTag).isPresent();
     assertThat(maybeEagerGenericTag.get()).isInstanceOf(EagerGenericTag.class);
     assertThat(maybeEagerGenericTag.get().getTag()).isInstanceOf(IfchangedTag.class);

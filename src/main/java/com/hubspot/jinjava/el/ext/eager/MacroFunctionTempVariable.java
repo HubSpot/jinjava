@@ -4,6 +4,7 @@ import com.hubspot.jinjava.objects.serialization.PyishBlockSetSerializable;
 import java.util.Objects;
 
 public class MacroFunctionTempVariable implements PyishBlockSetSerializable {
+
   private static final String CONTEXT_KEY_PREFIX = "__macro_%s_%d_temp_variable_%d__";
   private final String deferredResult;
 

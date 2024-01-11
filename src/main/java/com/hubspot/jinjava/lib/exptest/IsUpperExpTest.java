@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
       code = "{% if variable is upper %}\n" +
       "    <!-- code to render if variable value is uppercased -->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsUpperExpTest implements ExpTest {

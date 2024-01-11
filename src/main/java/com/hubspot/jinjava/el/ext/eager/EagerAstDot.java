@@ -9,6 +9,7 @@ import javax.el.ELContext;
 import javax.el.ELException;
 
 public class EagerAstDot extends AstDot implements EvalResultHolder {
+
   protected Object evalResult;
   protected boolean hasEvalResult;
   protected final EvalResultHolder base;

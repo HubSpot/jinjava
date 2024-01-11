@@ -11,6 +11,7 @@ import de.odysseus.el.tree.impl.ast.AstUnary;
 import de.odysseus.el.tree.impl.ast.AstUnary.SimpleOperator;
 
 public class AbsOperator extends SimpleOperator {
+
   public static final ExtensionToken TOKEN = new Scanner.ExtensionToken("+");
   public static final AbsOperator OP = new AbsOperator();
 
@@ -47,7 +48,6 @@ public class AbsOperator extends SimpleOperator {
 
   public static ExtensionHandler getHandler(boolean eager) {
     return new ExtensionHandler(ExtensionPoint.UNARY) {
-
       @Override
       public AstNode createAstNode(AstNode... children) {
         return eager ? new EagerAstUnary(children[0], OP) : new AstUnary(children[0], OP);

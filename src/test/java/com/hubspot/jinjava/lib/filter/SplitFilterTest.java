@@ -9,6 +9,7 @@ import org.junit.Test;
 
 @SuppressWarnings("unchecked")
 public class SplitFilterTest extends BaseInterpretingTest {
+
   SplitFilter filter;
 
   @Before

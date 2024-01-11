@@ -30,9 +30,8 @@ public class EagerIncludeTag extends EagerTagDecorator<IncludeTag> {
         tagNode.getStartPosition()
       );
       templateFile = interpreter.resolveResourceLocation(templateFile);
-      final String initialPathSetter = EagerImportingStrategyFactory.getSetTagForCurrentPath(
-        interpreter
-      );
+      final String initialPathSetter =
+        EagerImportingStrategyFactory.getSetTagForCurrentPath(interpreter);
       final String newPathSetter = EagerReconstructionUtils.buildBlockOrInlineSetTag(
         RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
         templateFile,

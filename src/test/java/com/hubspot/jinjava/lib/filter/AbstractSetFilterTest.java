@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class AbstractSetFilterTest extends BaseJinjavaTest {
+
   private static final IntersectFilter concreteSetFilter = new IntersectFilter();
 
   @Before

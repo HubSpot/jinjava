@@ -26,13 +26,13 @@ import org.apache.commons.lang3.StringUtils;
       type = "boolean",
       defaultValue = "True",
       desc = "Automatically prepend a space in front of the item"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
       code = "{% set html_attributes = {'class': 'bold', 'id': 'sidebar'} %}\n" +
       "<div {{ html_attributes|xmlattr }}></div>"
-    )
+    ),
   }
 )
 public class XmlAttrFilter implements Filter {

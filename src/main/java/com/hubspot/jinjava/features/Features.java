@@ -3,6 +3,7 @@ package com.hubspot.jinjava.features;
 import com.hubspot.jinjava.interpret.Context;
 
 public class Features {
+
   private final FeatureConfig featureConfig;
 
   public Features(FeatureConfig featureConfig) {

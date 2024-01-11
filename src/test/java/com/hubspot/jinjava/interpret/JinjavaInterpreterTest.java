@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class JinjavaInterpreterTest {
+
   private Jinjava jinjava;
   private JinjavaInterpreter interpreter;
   private TokenScannerSymbols symbols;
@@ -102,6 +103,7 @@ public class JinjavaInterpreterTest {
   // Ex VariableChain stuff
 
   static class Foo {
+
     private String bar;
 
     public Foo(String bar) {
@@ -154,10 +156,10 @@ public class JinjavaInterpreterTest {
   @Test
   public void triesBeanMethodFirst() {
     assertThat(
-        interpreter
-          .resolveProperty(ZonedDateTime.parse("2013-09-19T12:12:12+00:00"), "year")
-          .toString()
-      )
+      interpreter
+        .resolveProperty(ZonedDateTime.parse("2013-09-19T12:12:12+00:00"), "year")
+        .toString()
+    )
       .isEqualTo("2013");
   }
 
@@ -298,7 +300,7 @@ public class JinjavaInterpreterTest {
       "{% set a, b = {}, [] %}{% macro a.foo()%} 1-{{ b.bar() }}. {% endmacro %} {{ a.foo() }}";
 
     RenderResult renderResult = new Jinjava()
-    .renderForResult(input, ImmutableMap.of("deferred", DeferredValue.instance()));
+      .renderForResult(input, ImmutableMap.of("deferred", DeferredValue.instance()));
     assertThat(renderResult.getOutput().trim()).isEqualTo("1-.");
     // Does not contain an error about 'a.foo()' being unknown.
     assertThat(renderResult.getErrors()).hasSize(1);
@@ -307,20 +309,19 @@ public class JinjavaInterpreterTest {
   @Test
   public void itThrowsFatalErrors() {
     interpreter.getContext().setThrowInterpreterErrors(true);
-    assertThatThrownBy(
-        () ->
-          interpreter.addError(
-            new TemplateError(
-              ErrorType.FATAL,
-              ErrorReason.UNKNOWN,
-              ErrorItem.PROPERTY,
-              "",
-              "",
-              interpreter.getLineNumber(),
-              interpreter.getPosition(),
-              new RuntimeException()
-            )
+    assertThatThrownBy(() ->
+        interpreter.addError(
+          new TemplateError(
+            ErrorType.FATAL,
+            ErrorReason.UNKNOWN,
+            ErrorItem.PROPERTY,
+            "",
+            "",
+            interpreter.getLineNumber(),
+            interpreter.getPosition(),
+            new RuntimeException()
           )
+        )
       )
       .isInstanceOf(TemplateSyntaxException.class);
     assertThat(interpreter.getErrors()).isEmpty();

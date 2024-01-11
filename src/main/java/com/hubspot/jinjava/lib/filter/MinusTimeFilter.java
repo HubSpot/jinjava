@@ -32,7 +32,7 @@ import java.util.Map;
       desc = "The amount to subtract from the datetime",
       required = true
     ),
-    @JinjavaParam(value = "unit", desc = "Which temporal unit to use", required = true)
+    @JinjavaParam(value = "unit", desc = "Which temporal unit to use", required = true),
   },
   snippets = { @JinjavaSnippet(code = "{% mydatetime|minus_time(3, 'days') %}") }
 )

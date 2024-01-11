@@ -27,7 +27,7 @@ import org.apache.commons.lang3.BooleanUtils;
       type = "enum key|value",
       defaultValue = "key",
       desc = "Sort by dict key or value"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -35,7 +35,7 @@ import org.apache.commons.lang3.BooleanUtils;
       code = "{% for item in contact|dictsort(false, 'value') %}\n" +
       "    {{item}}\n" +
       "{% endfor %}"
-    )
+    ),
   }
 )
 public class DictSortFilter implements Filter {
@@ -72,6 +72,7 @@ public class DictSortFilter implements Filter {
 
   private static class MapEntryComparator
     implements Comparator<Map.Entry<String, Object>>, Serializable {
+
     private static final long serialVersionUID = 1L;
 
     private final boolean caseSensitive;

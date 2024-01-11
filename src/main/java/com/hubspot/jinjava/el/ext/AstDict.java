@@ -14,6 +14,7 @@ import java.util.Objects;
 import javax.el.ELContext;
 
 public class AstDict extends AstLiteral {
+
   protected final Map<AstNode, AstNode> dict;
 
   public AstDict(Map<AstNode, AstNode> dict) {

@@ -21,7 +21,7 @@ import java.util.Map;
     @JinjavaParam(
       value = "attr",
       type = "Optional attribute on object to use as unique identifier"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -32,7 +32,7 @@ import java.util.Map;
     @JinjavaSnippet(
       desc = "Filter out duplicate blog posts",
       code = "{% for content in contents|unique(attr='slug') %}\n" + "\n{% endfor %}"
-    )
+    ),
   }
 )
 public class UniqueFilter implements Filter {

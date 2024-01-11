@@ -39,7 +39,7 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
     @JinjavaParam(
       value = "block_name",
       desc = "A unique name for the block that should be used in both the parent and child template"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -47,12 +47,13 @@ import com.hubspot.jinjava.util.WhitespaceUtils;
       "{% block my_sidebar %}\n" +
       "   <!--Content that will render within a block of the same name in the parent template-->\n" +
       "{% endblock %}"
-    )
+    ),
   }
 )
 @JinjavaHasCodeBody
 @JinjavaTextMateSnippet(code = "{% block ${1:name} %}\n$0\n{% endblock $1 %}")
 public class BlockTag implements Tag {
+
   public static final String TAG_NAME = "block";
 
   private static final long serialVersionUID = -2362317415797088108L;

@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class FormatDateFilterTest {
+
   private static final ZonedDateTime DATE_TIME = ZonedDateTime.of(
     2022,
     11,
@@ -39,8 +40,8 @@ public class FormatDateFilterTest {
   @Test
   public void itFormatsNumbers() {
     assertThat(
-        jinjava.render("{{ d | format_date }}", ImmutableMap.of("d", 1668120547000L))
-      )
+      jinjava.render("{{ d | format_date }}", ImmutableMap.of("d", 1668120547000L))
+    )
       .isEqualTo("Nov 10, 2022");
   }
 
@@ -73,43 +74,43 @@ public class FormatDateFilterTest {
   @Test
   public void itUsesShortFormat() {
     assertThat(
-        jinjava.render("{{ d | format_date('short') }}", ImmutableMap.of("d", DATE_TIME))
-      )
+      jinjava.render("{{ d | format_date('short') }}", ImmutableMap.of("d", DATE_TIME))
+    )
       .isEqualTo("11/10/22");
   }
 
   @Test
   public void itUsesMediumFormat() {
     assertThat(
-        jinjava.render("{{ d | format_date('medium') }}", ImmutableMap.of("d", DATE_TIME))
-      )
+      jinjava.render("{{ d | format_date('medium') }}", ImmutableMap.of("d", DATE_TIME))
+    )
       .isEqualTo("Nov 10, 2022");
   }
 
   @Test
   public void itUsesLongFormat() {
     assertThat(
-        jinjava.render("{{ d | format_date('long') }}", ImmutableMap.of("d", DATE_TIME))
-      )
+      jinjava.render("{{ d | format_date('long') }}", ImmutableMap.of("d", DATE_TIME))
+    )
       .isEqualTo("November 10, 2022");
   }
 
   @Test
   public void itUsesFullFormat() {
     assertThat(
-        jinjava.render("{{ d | format_date('full') }}", ImmutableMap.of("d", DATE_TIME))
-      )
+      jinjava.render("{{ d | format_date('full') }}", ImmutableMap.of("d", DATE_TIME))
+    )
       .isEqualTo("Thursday, November 10, 2022");
   }
 
   @Test
   public void itUsesCustomFormats() {
     assertThat(
-        jinjava.render(
-          "{{ d | format_date('yyyyy.MMMM.dd') }}",
-          ImmutableMap.of("d", DATE_TIME)
-        )
+      jinjava.render(
+        "{{ d | format_date('yyyyy.MMMM.dd') }}",
+        ImmutableMap.of("d", DATE_TIME)
       )
+    )
       .isEqualTo("02022.November.10");
   }
 
@@ -129,11 +130,11 @@ public class FormatDateFilterTest {
   @Test
   public void itUsesGivenTimeZone() {
     assertThat(
-        jinjava.render(
-          "{{ d | format_date('long', 'Asia/Jakarta') }}",
-          ImmutableMap.of("d", DATE_TIME)
-        )
+      jinjava.render(
+        "{{ d | format_date('long', 'Asia/Jakarta') }}",
+        ImmutableMap.of("d", DATE_TIME)
       )
+    )
       .isEqualTo("November 11, 2022");
   }
 
@@ -163,11 +164,11 @@ public class FormatDateFilterTest {
   @Test
   public void itUsesGivenLocale() {
     assertThat(
-        jinjava.render(
-          "{{ d | format_date('medium', 'America/New_York', 'de-DE') }}",
-          ImmutableMap.of("d", DATE_TIME)
-        )
+      jinjava.render(
+        "{{ d | format_date('medium', 'America/New_York', 'de-DE') }}",
+        ImmutableMap.of("d", DATE_TIME)
       )
+    )
       .isEqualTo("10.11.2022");
   }
 
@@ -197,33 +198,33 @@ public class FormatDateFilterTest {
   @Test
   public void itUsesMediumIfNullFormatPassed() {
     assertThat(
-        jinjava.render(
-          "{{ d | format_date(null, 'America/New_York', 'de-DE') }}",
-          ImmutableMap.of("d", DATE_TIME)
-        )
+      jinjava.render(
+        "{{ d | format_date(null, 'America/New_York', 'de-DE') }}",
+        ImmutableMap.of("d", DATE_TIME)
       )
+    )
       .isEqualTo("10.11.2022");
   }
 
   @Test
   public void itUsesUtcIfNullZonePassed() {
     assertThat(
-        jinjava.render(
-          "{{ d | format_date('short', null, 'de-DE') }}",
-          ImmutableMap.of("d", DATE_TIME)
-        )
+      jinjava.render(
+        "{{ d | format_date('short', null, 'de-DE') }}",
+        ImmutableMap.of("d", DATE_TIME)
       )
+    )
       .isEqualTo("10.11.22");
   }
 
   @Test
   public void itUsesJinjavaConfigIfNullLocalePassed() {
     assertThat(
-        jinjava.render(
-          "{{ d | format_date('short', 'America/New_York', null) }}",
-          ImmutableMap.of("d", DATE_TIME)
-        )
+      jinjava.render(
+        "{{ d | format_date('short', 'America/New_York', null) }}",
+        ImmutableMap.of("d", DATE_TIME)
       )
+    )
       .isEqualTo("11/10/22");
   }
 
@@ -255,11 +256,11 @@ public class FormatDateFilterTest {
       );
 
     assertThat(
-        jinjava.render(
-          "{{ d | format_date('short', 'America/New_York', null) }}",
-          ImmutableMap.of()
-        )
+      jinjava.render(
+        "{{ d | format_date('short', 'America/New_York', null) }}",
+        ImmutableMap.of()
       )
+    )
       .isEqualTo("1/30/09");
   }
 
@@ -283,11 +284,11 @@ public class FormatDateFilterTest {
       );
 
     assertThat(
-        jinjava.render(
-          "{{ d | format_date('short', 'America/New_York', null) }}",
-          ImmutableMap.of()
-        )
+      jinjava.render(
+        "{{ d | format_date('short', 'America/New_York', null) }}",
+        ImmutableMap.of()
       )
+    )
       .isEqualTo("11/10/22");
   }
 }

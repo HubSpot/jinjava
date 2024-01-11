@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.doc;
 
 public class JinjavaDocParam {
+
   private final String name;
   private final String type;
   private final String desc;

@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Variable {
+
   private static final Splitter DOT_SPLITTER = Splitter.on('.');
 
   private final JinjavaInterpreter interpreter;

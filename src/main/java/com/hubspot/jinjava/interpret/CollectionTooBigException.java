@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.interpret;
 
 public class CollectionTooBigException extends RuntimeException {
+
   private final int maxSize;
   private final int size;
 

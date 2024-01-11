@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.function.Supplier;
 
 public class LazyExpression implements Supplier {
+
   private final Supplier supplier;
   private final String image;
   private final Memoization memoization;
@@ -11,7 +12,7 @@ public class LazyExpression implements Supplier {
 
   public enum Memoization {
     ON,
-    OFF
+    OFF,
   }
 
   protected LazyExpression(Supplier supplier, String image, Memoization memoization) {

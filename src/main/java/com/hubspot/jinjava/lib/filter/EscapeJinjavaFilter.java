@@ -33,16 +33,17 @@ import org.apache.commons.lang3.StringUtils;
       type = "boolean",
       desc = "Whether to only escape all curly braces or just when there are default expression, tag, or comment marks",
       defaultValue = "true"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
       code = "{% set escape_string = \"{{This markup is printed as text}}\" %}\n" +
       "{{ escape_string|escape_jinjava }}"
-    )
+    ),
   }
 )
 public class EscapeJinjavaFilter implements Filter {
+
   private static final String SLBRACE = "{";
   private static final String BLBRACE = "&lbrace;";
   private static final String SRBRACE = "}";

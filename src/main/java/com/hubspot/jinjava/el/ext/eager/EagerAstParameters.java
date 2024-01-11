@@ -16,6 +16,7 @@ import javax.el.ELContext;
 import javax.el.ELException;
 
 public class EagerAstParameters extends AstParameters implements EvalResultHolder {
+
   protected Object evalResult;
   protected boolean hasEvalResult;
   protected final List<AstNode> nodes;
@@ -78,17 +79,16 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
     nodes
       .stream()
       .map(node -> (EvalResultHolder) node)
-      .forEach(
-        node ->
-          joiner.add(
-            EvalResultHolder.reconstructNode(
-              bindings,
-              context,
-              node,
-              deferredParsingException,
-              identifierPreservationStrategy
-            )
+      .forEach(node ->
+        joiner.add(
+          EvalResultHolder.reconstructNode(
+            bindings,
+            context,
+            node,
+            deferredParsingException,
+            identifierPreservationStrategy
           )
+        )
       );
     return joiner.toString();
   }

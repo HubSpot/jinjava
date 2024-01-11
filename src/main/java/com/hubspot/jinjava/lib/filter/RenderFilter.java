@@ -14,7 +14,7 @@ import org.apache.commons.lang3.math.NumberUtils;
   snippets = {
     @JinjavaSnippet(
       code = "{{ \"{% if my_val %} Hello {% else %} world {% endif %}\"|render }}"
-    )
+    ),
   }
 )
 public class RenderFilter implements Filter {

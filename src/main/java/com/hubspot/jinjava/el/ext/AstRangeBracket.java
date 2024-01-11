@@ -17,6 +17,7 @@ import javax.el.ELException;
 import javax.el.PropertyNotFoundException;
 
 public class AstRangeBracket extends AstBracket {
+
   protected final AstNode rangeMax;
 
   public AstRangeBracket(

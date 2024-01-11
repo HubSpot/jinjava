@@ -33,13 +33,13 @@ public class SortFilterTest extends BaseJinjavaTest {
   public void sortWithNamedAttributes() throws Exception {
     // even if named attributes were never supported for this filter, ensure parameters are passed in order and it works
     assertThat(
-        render(
-          "(reverse=false, case_sensitive=false, attribute='foo.date')",
-          new MyBar(new MyFoo(new Date(250L))),
-          new MyBar(new MyFoo(new Date(0L))),
-          new MyBar(new MyFoo(new Date(100000000L)))
-        )
+      render(
+        "(reverse=false, case_sensitive=false, attribute='foo.date')",
+        new MyBar(new MyFoo(new Date(250L))),
+        new MyBar(new MyFoo(new Date(0L))),
+        new MyBar(new MyFoo(new Date(100000000L)))
       )
+    )
       .isEqualTo("0250100000000");
   }
 
@@ -51,26 +51,26 @@ public class SortFilterTest extends BaseJinjavaTest {
   @Test
   public void sortWithAttr() {
     assertThat(
-        render(
-          "(false, false, 'date')",
-          new MyFoo(new Date(250L)),
-          new MyFoo(new Date(0L)),
-          new MyFoo(new Date(100000000L))
-        )
+      render(
+        "(false, false, 'date')",
+        new MyFoo(new Date(250L)),
+        new MyFoo(new Date(0L)),
+        new MyFoo(new Date(100000000L))
       )
+    )
       .isEqualTo("0250100000000");
   }
 
   @Test
   public void sortWithNestedAttr() {
     assertThat(
-        render(
-          "(false, false, 'foo.date')",
-          new MyBar(new MyFoo(new Date(250L))),
-          new MyBar(new MyFoo(new Date(0L))),
-          new MyBar(new MyFoo(new Date(100000000L)))
-        )
+      render(
+        "(false, false, 'foo.date')",
+        new MyBar(new MyFoo(new Date(250L))),
+        new MyBar(new MyFoo(new Date(0L))),
+        new MyBar(new MyFoo(new Date(100000000L)))
       )
+    )
       .isEqualTo("0250100000000");
   }
 
@@ -138,6 +138,7 @@ public class SortFilterTest extends BaseJinjavaTest {
   }
 
   public static class MyFoo implements PyishSerializable {
+
     private Date date;
 
     MyFoo(Date date) {
@@ -162,6 +163,7 @@ public class SortFilterTest extends BaseJinjavaTest {
   }
 
   public static class MyBar implements PyishSerializable {
+
     private MyFoo foo;
 
     MyBar(MyFoo foo) {

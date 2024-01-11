@@ -11,8 +11,8 @@ public class DAliasedDefaultFilterTest extends BaseJinjavaTest {
   @Test
   public void itSetsDefaultStringValues() {
     assertThat(
-        jinjava.render("{% set d=d |d(\"some random value\") %}{{ d }}", new HashMap<>())
-      )
+      jinjava.render("{% set d=d |d(\"some random value\") %}{{ d }}", new HashMap<>())
+    )
       .isEqualTo("some random value");
   }
 }

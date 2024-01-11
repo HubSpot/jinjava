@@ -21,7 +21,7 @@ import java.util.Set;
       type = "sequence",
       desc = "The second list",
       required = true
-    )
+    ),
   },
   snippets = { @JinjavaSnippet(code = "{{ [1, 2, 3]|union([2, 3, 4]) }}") }
 )

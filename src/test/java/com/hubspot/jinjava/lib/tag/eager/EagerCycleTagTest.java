@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class EagerCycleTagTest extends CycleTagTest {
+
   private static final long MAX_OUTPUT_SIZE = 500L;
   private Tag tag;
 

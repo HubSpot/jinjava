@@ -52,6 +52,7 @@ import javax.annotation.Nullable;
 import javax.el.ELResolver;
 
 public class JinjavaConfig {
+
   private final Charset charset;
   private final Locale locale;
   private final ZoneId timeZone;
@@ -314,6 +315,7 @@ public class JinjavaConfig {
   }
 
   public static class Builder {
+
     private Charset charset = StandardCharsets.UTF_8;
     private Locale locale = Locale.ENGLISH;
     private ZoneId timeZone = ZoneOffset.UTC;
@@ -495,8 +497,8 @@ public class JinjavaConfig {
     @Deprecated
     public Builder withIterateOverMapKeys(boolean iterateOverMapKeys) {
       return withLegacyOverrides(
-        LegacyOverrides
-          .Builder.from(legacyOverrides)
+        LegacyOverrides.Builder
+          .from(legacyOverrides)
           .withIterateOverMapKeys(iterateOverMapKeys)
           .build()
       );

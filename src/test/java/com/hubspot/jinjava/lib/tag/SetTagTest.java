@@ -23,6 +23,7 @@ import org.junit.Test;
 
 @SuppressWarnings("unchecked")
 public class SetTagTest extends BaseInterpretingTest {
+
   public Tag tag;
 
   @Before

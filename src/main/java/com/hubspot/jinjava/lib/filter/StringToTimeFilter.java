@@ -21,7 +21,7 @@ import com.hubspot.jinjava.lib.fn.Functions;
       value = "datetimeFormat",
       desc = "Format of the datetime string",
       required = true
-    )
+    ),
   },
   snippets = { @JinjavaSnippet(code = "{% mydatetime|unixtimestamp %}") }
 )

@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.interpret;
 
 public class TemplateSyntaxException extends InterpretException {
+
   private static final long serialVersionUID = 1L;
 
   private final String code;

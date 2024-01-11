@@ -13,7 +13,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
       code = "{% if variable is undefined %}\n" +
       "      <!--code to render if variable is undefined-->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsUndefinedExpTest implements ExpTest {

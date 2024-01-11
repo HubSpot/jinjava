@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class RenderResult {
+
   private final String output;
   private final Context context;
   private final List<TemplateError> errors;

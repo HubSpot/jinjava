@@ -9,6 +9,7 @@ import java.util.StringJoiner;
 import javax.el.ELContext;
 
 public class EagerAstList extends AstList implements EvalResultHolder {
+
   protected Object evalResult;
   protected boolean hasEvalResult;
 

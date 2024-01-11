@@ -15,6 +15,7 @@ import javax.el.ValueReference;
  * be an EvalResultHolder or wrapped with this decorator.
  */
 public class EagerAstNodeDecorator extends AstNode implements EvalResultHolder {
+
   private final AstNode astNode;
   protected Object evalResult;
   protected boolean hasEvalResult;

@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.Test;
 
 public class IsEqualToExpTestTest extends BaseJinjavaTest {
+
   private static final String EQUAL_TEMPLATE = "{{ %s is equalto %s }}";
 
   @Test
@@ -22,37 +23,37 @@ public class IsEqualToExpTestTest extends BaseJinjavaTest {
   @Test
   public void itEquatesStrings() {
     assertThat(
-        jinjava.render(
-          String.format(EQUAL_TEMPLATE, "\"jinjava\"", "\"jinjava\""),
-          new HashMap<>()
-        )
+      jinjava.render(
+        String.format(EQUAL_TEMPLATE, "\"jinjava\"", "\"jinjava\""),
+        new HashMap<>()
       )
+    )
       .isEqualTo("true");
     assertThat(
-        jinjava.render(
-          String.format(EQUAL_TEMPLATE, "\"jinjava\"", "\"not jinjava\""),
-          new HashMap<>()
-        )
+      jinjava.render(
+        String.format(EQUAL_TEMPLATE, "\"jinjava\"", "\"not jinjava\""),
+        new HashMap<>()
       )
+    )
       .isEqualTo("false");
   }
 
   @Test
   public void itEquatesCollectionsToStrings() {
     assertThat(
-        jinjava.render(
-          String.format(EQUAL_TEMPLATE, "\"[1, 2, 3]\"", "[1, 2, 3]"),
-          new HashMap<>()
-        )
+      jinjava.render(
+        String.format(EQUAL_TEMPLATE, "\"[1, 2, 3]\"", "[1, 2, 3]"),
+        new HashMap<>()
       )
+    )
       .isEqualTo("true");
 
     assertThat(
-        jinjava.render(
-          String.format(EQUAL_TEMPLATE, "\"[1, 2, 3]\"", "[1, 2, 4]"),
-          new HashMap<>()
-        )
+      jinjava.render(
+        String.format(EQUAL_TEMPLATE, "\"[1, 2, 3]\"", "[1, 2, 4]"),
+        new HashMap<>()
       )
+    )
       .isEqualTo("false");
   }
 
@@ -84,32 +85,32 @@ public class IsEqualToExpTestTest extends BaseJinjavaTest {
   @Test
   public void itEquatesBooleans() {
     assertThat(
-        jinjava.render(String.format(EQUAL_TEMPLATE, "true", "true"), new HashMap<>())
-      )
+      jinjava.render(String.format(EQUAL_TEMPLATE, "true", "true"), new HashMap<>())
+    )
       .isEqualTo("true");
     assertThat(
-        jinjava.render(String.format(EQUAL_TEMPLATE, "true", "false"), new HashMap<>())
-      )
+      jinjava.render(String.format(EQUAL_TEMPLATE, "true", "false"), new HashMap<>())
+    )
       .isEqualTo("false");
   }
 
   @Test
   public void itEquatesDifferentTypes() {
     assertThat(
-        jinjava.render(String.format(EQUAL_TEMPLATE, "4", "\"4\""), new HashMap<>())
-      )
+      jinjava.render(String.format(EQUAL_TEMPLATE, "4", "\"4\""), new HashMap<>())
+    )
       .isEqualTo("true");
     assertThat(
-        jinjava.render(String.format(EQUAL_TEMPLATE, "4", "\"5\""), new HashMap<>())
-      )
+      jinjava.render(String.format(EQUAL_TEMPLATE, "4", "\"5\""), new HashMap<>())
+    )
       .isEqualTo("false");
     assertThat(
-        jinjava.render(String.format(EQUAL_TEMPLATE, "'c'", "\"c\""), new HashMap<>())
-      )
+      jinjava.render(String.format(EQUAL_TEMPLATE, "'c'", "\"c\""), new HashMap<>())
+    )
       .isEqualTo("true");
     assertThat(
-        jinjava.render(String.format(EQUAL_TEMPLATE, "'c'", "\"b\""), new HashMap<>())
-      )
+      jinjava.render(String.format(EQUAL_TEMPLATE, "'c'", "\"b\""), new HashMap<>())
+    )
       .isEqualTo("false");
   }
 

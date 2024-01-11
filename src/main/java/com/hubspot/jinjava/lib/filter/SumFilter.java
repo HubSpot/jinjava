@@ -28,7 +28,7 @@ import java.util.Objects;
     @JinjavaParam(
       value = "attribute",
       desc = "Specify an optional attribute of dict to sum"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -37,7 +37,7 @@ import java.util.Objects;
     @JinjavaSnippet(
       desc = "Sum up only certain attributes",
       code = "Total: {{ items|sum(attribute='price') }}"
-    )
+    ),
   }
 )
 public class SumFilter implements AdvancedFilter {

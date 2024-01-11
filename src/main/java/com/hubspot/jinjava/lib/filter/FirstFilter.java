@@ -19,7 +19,7 @@ import com.hubspot.jinjava.util.ObjectIterator;
     @JinjavaSnippet(
       code = "{% set my_sequence = ['Item 1', 'Item 2', 'Item 3'] %}\n" +
       "{{ my_sequence|first }}"
-    )
+    ),
   }
 )
 public class FirstFilter implements Filter {

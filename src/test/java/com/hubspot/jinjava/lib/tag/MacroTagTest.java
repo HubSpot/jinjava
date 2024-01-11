@@ -60,11 +60,11 @@ public class MacroTagTest extends BaseInterpretingTest {
     assertThat(fn.getArguments()).containsExactly("link", "text");
 
     assertThat(
-        snippet("{{section_link('mylink', 'mytext')}}")
-          .render(interpreter)
-          .getValue()
-          .trim()
-      )
+      snippet("{{section_link('mylink', 'mytext')}}")
+        .render(interpreter)
+        .getValue()
+        .trim()
+    )
       .isEqualTo("link: mylink, text: mytext");
   }
 
@@ -83,11 +83,8 @@ public class MacroTagTest extends BaseInterpretingTest {
 
     interpreter.getContext().put("mylink", DeferredValue.instance());
     assertThat(
-        snippet("{{section_link(mylink, 'mytext')}}")
-          .render(interpreter)
-          .getValue()
-          .trim()
-      )
+      snippet("{{section_link(mylink, 'mytext')}}").render(interpreter).getValue().trim()
+    )
       .isEqualTo("{{section_link(mylink, 'mytext')}}");
   }
 
@@ -120,20 +117,20 @@ public class MacroTagTest extends BaseInterpretingTest {
     assertThat(fn.getDefaults()).contains(entry("last", false));
 
     assertThat(
-        snippet("{{ article('mytitle','mythumb','mylink','mysummary') }}")
-          .render(interpreter)
-          .getValue()
-          .trim()
-      )
+      snippet("{{ article('mytitle','mythumb','mylink','mysummary') }}")
+        .render(interpreter)
+        .getValue()
+        .trim()
+    )
       .isEqualTo(
         "title: mytitle, thumb: mythumb, link: mylink, summary: mysummary, last: false"
       );
     assertThat(
-        snippet("{{ article('mytitle','mythumb','mylink','mysummary', last=true) }}")
-          .render(interpreter)
-          .getValue()
-          .trim()
-      )
+      snippet("{{ article('mytitle','mythumb','mylink','mysummary', last=true) }}")
+        .render(interpreter)
+        .getValue()
+        .trim()
+    )
       .isEqualTo(
         "title: mytitle, thumb: mythumb, link: mylink, summary: mysummary, last: true"
       );
@@ -213,7 +210,7 @@ public class MacroTagTest extends BaseInterpretingTest {
     // I need a different configuration here therefore
     interpreter =
       new Jinjava(JinjavaConfig.newBuilder().withEnableRecursiveMacroCalls(true).build())
-      .newInterpreter();
+        .newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
 
     try {
@@ -237,7 +234,7 @@ public class MacroTagTest extends BaseInterpretingTest {
           .withMaxMacroRecursionDepth(10)
           .build()
       )
-      .newInterpreter();
+        .newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
 
     try {
@@ -261,7 +258,7 @@ public class MacroTagTest extends BaseInterpretingTest {
           .withValidationMode(true)
           .build()
       )
-      .newInterpreter();
+        .newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
 
     try {
@@ -284,7 +281,7 @@ public class MacroTagTest extends BaseInterpretingTest {
           .withMaxMacroRecursionDepth(2)
           .build()
       )
-      .newInterpreter();
+        .newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
 
     try {
@@ -355,7 +352,7 @@ public class MacroTagTest extends BaseInterpretingTest {
           .withMaxMacroRecursionDepth(2)
           .build()
       )
-      .newInterpreter();
+        .newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
     try {
       String result = interpreter.render(fixtureText("scoping"));

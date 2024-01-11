@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 
 @Beta
 public abstract class EagerTagDecorator<T extends Tag> implements Tag {
+
   private final T tag;
 
   public EagerTagDecorator(T tag) {
@@ -123,8 +124,8 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
               renderChildren(tagNode, eagerInterpreter)
             ),
           interpreter,
-          EagerContextWatcher
-            .EagerChildContextConfig.newBuilder()
+          EagerContextWatcher.EagerChildContextConfig
+            .newBuilder()
             .withForceDeferredExecutionMode(true)
             .build()
         )
@@ -216,10 +217,11 @@ public abstract class EagerTagDecorator<T extends Tag> implements Tag {
       .add(tagToken.getSymbols().getExpressionStartWithTag())
       .add(tagToken.getTagName());
 
-    EagerExpressionResult eagerExpressionResult = EagerExpressionResolver.resolveExpression(
-      tagToken.getHelpers().trim(),
-      interpreter
-    );
+    EagerExpressionResult eagerExpressionResult =
+      EagerExpressionResolver.resolveExpression(
+        tagToken.getHelpers().trim(),
+        interpreter
+      );
     String resolvedString = eagerExpressionResult.toString();
     if (StringUtils.isNotBlank(resolvedString)) {
       joiner.add(resolvedString);

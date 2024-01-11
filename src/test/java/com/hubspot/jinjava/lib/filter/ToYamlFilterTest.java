@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ToYamlFilterTest extends BaseInterpretingTest {
+
   private ToYamlFilter filter;
 
   @Before

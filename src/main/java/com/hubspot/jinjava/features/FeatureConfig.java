@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FeatureConfig {
+
   Map<String, FeatureActivationStrategy> features;
 
   private FeatureConfig(Map<String, FeatureActivationStrategy> features) {
@@ -20,6 +21,7 @@ public class FeatureConfig {
   }
 
   public static class Builder {
+
     private final Map<String, FeatureActivationStrategy> features = new HashMap<>();
 
     public Builder add(String name, FeatureActivationStrategy strategy) {

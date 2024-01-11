@@ -33,7 +33,7 @@ import org.apache.commons.lang3.BooleanUtils;
     @JinjavaSnippet(
       desc = "This example converts a text string value to a boolean",
       code = "{% if \"true\"|bool == true %}hello world{% endif %}"
-    )
+    ),
   }
 )
 public class BoolFilter implements Filter {

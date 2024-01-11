@@ -15,7 +15,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
       code = "{% if variable is sequence %}\n" +
       "      <!--code to render if items in a variable is a sequence-->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsSequenceExpTest implements ExpTest {

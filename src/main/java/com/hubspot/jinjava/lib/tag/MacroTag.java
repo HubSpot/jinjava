@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
     @JinjavaParam(
       value = "argument_names",
       desc = "Named arguments that are dynamically, when the macro is run"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -54,12 +54,13 @@ import org.apache.commons.lang3.StringUtils;
     @JinjavaSnippet(
       desc = "The macro can then be called like a function. The macro is printed for anchor tags in CSS.",
       code = "a { {{ trans(\"all .2s ease-in-out\") }} }"
-    )
+    ),
   }
 )
 @JinjavaHasCodeBody
 @JinjavaTextMateSnippet(code = "{% macro ${1:name}(${2:values) %}\n\t$0\n{% endmacro %}")
 public class MacroTag implements Tag {
+
   public static final String TAG_NAME = "macro";
 
   private static final long serialVersionUID = 8397609322126956077L;

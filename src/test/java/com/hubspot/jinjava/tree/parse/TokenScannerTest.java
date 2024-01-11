@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TokenScannerTest {
+
   private JinjavaConfig config;
   private String script;
 
@@ -208,10 +209,10 @@ public class TokenScannerTest {
     assertThat(tokens).hasSize(2);
     assertThat(tokens.get(tokens.size() - 1)).isInstanceOf(TextToken.class);
     assertThat(
-        StringUtils
-          .substringBetween(tokens.get(tokens.size() - 1).toString(), "{~", "~}")
-          .trim()
-      )
+      StringUtils
+        .substringBetween(tokens.get(tokens.size() - 1).toString(), "{~", "~}")
+        .trim()
+    )
       .isEqualTo("and here's some extra.");
   }
 

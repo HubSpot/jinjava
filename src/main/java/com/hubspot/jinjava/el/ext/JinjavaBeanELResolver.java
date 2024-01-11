@@ -19,6 +19,7 @@ import javax.el.MethodNotFoundException;
  * {@link BeanELResolver} supporting snake case property names.
  */
 public class JinjavaBeanELResolver extends BeanELResolver {
+
   private static final Set<String> DEFAULT_RESTRICTED_PROPERTIES = ImmutableSet
     .<String>builder()
     .add("class")
@@ -176,17 +177,13 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       .stream()
       .filter(method -> checkAssignableParameterTypes(params, method))
       .min(JinjavaBeanELResolver::pickMoreSpecificMethod)
-      .orElseGet(
-        () ->
-          potentialMethods
-            .stream()
-            .findAny()
-            .orElseGet(
-              () ->
-                finalVarArgsMethod == null
-                  ? null
-                  : findAccessibleMethod(finalVarArgsMethod)
-            )
+      .orElseGet(() ->
+        potentialMethods
+          .stream()
+          .findAny()
+          .orElseGet(() ->
+            finalVarArgsMethod == null ? null : findAccessibleMethod(finalVarArgsMethod)
+          )
       );
   }
 

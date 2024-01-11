@@ -9,13 +9,13 @@ import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELException;
 
 public class NamedParameterOperator {
+
   public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("=");
 
   public static final ExtensionHandler HANDLER = getHandler(false);
 
   public static ExtensionHandler getHandler(boolean eager) {
     return new ExtensionHandler(ExtensionPoint.ADD) {
-
       @Override
       public AstNode createAstNode(AstNode... children) {
         if (!(children[0] instanceof AstIdentifier)) {

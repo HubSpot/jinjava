@@ -36,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
  * Resolves Jinja expressions.
  */
 public class ExpressionResolver {
+
   private final JinjavaInterpreter interpreter;
   private final ExpressionFactory expressionFactory;
   private final JinjavaInterpreterResolver resolver;
@@ -92,8 +93,8 @@ public class ExpressionResolver {
     if (WhitespaceUtils.isWrappedWith(expression, "[", "]")) {
       Arrays
         .stream(expression.substring(1, expression.length() - 1).split(","))
-        .forEach(
-          substring -> interpreter.getContext().addResolvedExpression(substring.trim())
+        .forEach(substring ->
+          interpreter.getContext().addResolvedExpression(substring.trim())
         );
     }
     try {

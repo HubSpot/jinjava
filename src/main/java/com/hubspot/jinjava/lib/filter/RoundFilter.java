@@ -30,7 +30,7 @@ import org.apache.commons.lang3.math.NumberUtils;
       type = "enum common|ceil|floor",
       defaultValue = "common",
       desc = "Method of rounding: 'common' rounds either up or down, 'ceil' always rounds up, and 'floor' always rounds down."
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -43,7 +43,7 @@ import org.apache.commons.lang3.math.NumberUtils;
       code = "{{ 42.55|round|int }}",
       output = "43",
       desc = "If you need a real integer, pipe it through int"
-    )
+    ),
   }
 )
 public class RoundFilter implements Filter {

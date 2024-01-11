@@ -18,6 +18,7 @@ package com.hubspot.jinjava.tree.parse;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 
 public class TagToken extends Token {
+
   private static final long serialVersionUID = -4927751270481832992L;
 
   private String tagName;

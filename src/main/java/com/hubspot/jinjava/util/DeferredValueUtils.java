@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DeferredValueUtils {
+
   private static final String TEMPLATE_TAG_REGEX = "(\\w+(?:\\.\\w+)*)";
   private static final Pattern TEMPLATE_TAG_PATTERN = Pattern.compile(TEMPLATE_TAG_REGEX);
 
@@ -40,21 +41,19 @@ public class DeferredValueUtils {
     Set<String> keysToKeep
   ) {
     HashMap<String, Object> deferredContext = new HashMap<>(context.size());
-    context.forEach(
-      (contextKey, contextItem) -> {
-        if (keysToKeep.size() > 0 && !keysToKeep.contains(contextKey)) {
-          return;
-        }
-        if (contextItem instanceof DeferredValue) {
-          if (((DeferredValue) contextItem).getOriginalValue() != null) {
-            deferredContext.put(
-              contextKey,
-              ((DeferredValue) contextItem).getOriginalValue()
-            );
-          }
+    context.forEach((contextKey, contextItem) -> {
+      if (keysToKeep.size() > 0 && !keysToKeep.contains(contextKey)) {
+        return;
+      }
+      if (contextItem instanceof DeferredValue) {
+        if (((DeferredValue) contextItem).getOriginalValue() != null) {
+          deferredContext.put(
+            contextKey,
+            ((DeferredValue) contextItem).getOriginalValue()
+          );
         }
       }
-    );
+    });
     return deferredContext;
   }
 
@@ -116,17 +115,15 @@ public class DeferredValueUtils {
       .stream()
       .filter(prop -> !(context.get(prop) instanceof DeferredValue))
       .filter(prop -> !context.getMetaContextVariables().contains(prop))
-      .forEach(
-        prop -> {
-          Object value = context.get(prop);
-          if (value != null) {
-            context.put(prop, DeferredValue.instance(value));
-          } else {
-            //Handle set props
-            context.put(prop, DeferredValue.instance());
-          }
+      .forEach(prop -> {
+        Object value = context.get(prop);
+        if (value != null) {
+          context.put(prop, DeferredValue.instance(value));
+        } else {
+          //Handle set props
+          context.put(prop, DeferredValue.instance());
         }
-      );
+      });
   }
 
   private static Set<DeferredTag> getDeferredTags(Node node, int depth) {
@@ -210,6 +207,7 @@ public class DeferredValueUtils {
   }
 
   private static class DeferredTag {
+
     String tag;
     String normalizedTag;
 

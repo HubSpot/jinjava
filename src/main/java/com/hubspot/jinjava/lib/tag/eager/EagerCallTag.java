@@ -63,8 +63,8 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
               interpreter
             ),
           interpreter,
-          EagerContextWatcher
-            .EagerChildContextConfig.newBuilder()
+          EagerContextWatcher.EagerChildContextConfig
+            .newBuilder()
             .withTakeNewValue(true)
             .withPartialMacroEvaluation(
               interpreter.getConfig().isNestedInterpretationEnabled()
@@ -115,7 +115,7 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
         eagerExecutionResult.getResult(),
         eagerExecutionResult.getSpeculativeBindings()
       )
-      .getPrefixToPreserveState()
+        .getPrefixToPreserveState()
     );
     joiner =
       new LengthLimitingStringJoiner(interpreter.getConfig().getMaxOutputSize(), " ");
@@ -143,8 +143,8 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
             eagerInterpreter ->
               EagerExpressionResult.fromString(renderChildren(tagNode, eagerInterpreter)),
             interpreter,
-            EagerContextWatcher
-              .EagerChildContextConfig.newBuilder()
+            EagerContextWatcher.EagerChildContextConfig
+              .newBuilder()
               .withForceDeferredExecutionMode(true)
               .build()
           )

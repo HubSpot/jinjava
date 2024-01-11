@@ -39,7 +39,7 @@ import java.util.Map;
       code = "{% for content in contents|random %}\n" +
       "    <div class=\"post-item\">Post item markup</div>" +
       "{% endfor %}"
-    )
+    ),
   }
 )
 public class RandomFilter implements Filter {

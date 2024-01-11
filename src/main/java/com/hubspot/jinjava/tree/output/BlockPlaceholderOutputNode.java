@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import java.nio.charset.Charset;
 
 public class BlockPlaceholderOutputNode implements OutputNode {
+
   private final String blockName;
   private String output;
 

@@ -29,8 +29,8 @@ public class JoinFilterTest extends BaseJinjavaTest {
   @Test
   public void testJoinAttrs() {
     assertThat(
-        jinjava.render("{{ users|join(', ', attribute='username') }}", new HashMap<>())
-      )
+      jinjava.render("{{ users|join(', ', attribute='username') }}", new HashMap<>())
+    )
       .isEqualTo("foo, bar");
   }
 
@@ -49,6 +49,7 @@ public class JoinFilterTest extends BaseJinjavaTest {
   }
 
   public static class User {
+
     private String username;
 
     public User(String username) {

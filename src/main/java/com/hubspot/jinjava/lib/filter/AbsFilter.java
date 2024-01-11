@@ -33,7 +33,7 @@ import java.math.BigInteger;
     required = true
   ),
   snippets = {
-    @JinjavaSnippet(code = "{% set my_number = -53 %}\n" + "{{ my_number|abs }}")
+    @JinjavaSnippet(code = "{% set my_number = -53 %}\n" + "{{ my_number|abs }}"),
   }
 )
 public class AbsFilter implements Filter {

@@ -17,12 +17,12 @@ public class IntersectFilterTest extends BaseJinjavaTest {
   @Test
   public void itComputesSetIntersections() {
     assertThat(
-        jinjava.render("{{ [1, 1, 2, 3]|intersect([1, 2, 5, 6]) }}", new HashMap<>())
-      )
+      jinjava.render("{{ [1, 1, 2, 3]|intersect([1, 2, 5, 6]) }}", new HashMap<>())
+    )
       .isEqualTo("[1, 2]");
     assertThat(
-        jinjava.render("{{ ['do', 'ray']|intersect(['ray', 'me']) }}", new HashMap<>())
-      )
+      jinjava.render("{{ ['do', 'ray']|intersect(['ray', 'me']) }}", new HashMap<>())
+    )
       .isEqualTo("['ray']");
   }
 

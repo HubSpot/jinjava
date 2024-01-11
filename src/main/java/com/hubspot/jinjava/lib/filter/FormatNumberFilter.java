@@ -33,15 +33,16 @@ import java.util.Optional;
       value = "max decimal precision",
       type = "number",
       desc = "A number input that determines the decimal precision of the formatted value. If the number of decimal digits from the input value is less than the decimal precision number, use the number of decimal digits from the input value. Otherwise, use the decimal precision number. The default is the number of decimal digits from the input value."
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(code = "{{ number|format_number }}"),
     @JinjavaSnippet(code = "{{ number|format_number(\"en-US\") }}"),
-    @JinjavaSnippet(code = "{{ number|format_number(\"en-US\", 3) }}")
+    @JinjavaSnippet(code = "{{ number|format_number(\"en-US\", 3) }}"),
   }
 )
 public class FormatNumberFilter implements Filter {
+
   private static final String FORMAT_NUMBER_FILTER_NAME = "format_number";
 
   @Override

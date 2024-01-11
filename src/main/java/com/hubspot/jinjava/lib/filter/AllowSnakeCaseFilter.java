@@ -20,6 +20,7 @@ import java.util.Map;
   snippets = { @JinjavaSnippet(code = "{{ {'fooBar': 'baz'}|allow_snake_case }}") }
 )
 public class AllowSnakeCaseFilter implements Filter {
+
   public static final String NAME = "allow_snake_case";
 
   @Override

@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class RegexReplaceFilterTest extends BaseInterpretingTest {
+
   RegexReplaceFilter filter;
 
   @Before
@@ -28,8 +29,8 @@ public class RegexReplaceFilterTest extends BaseInterpretingTest {
 
   @Test
   public void expectsNotNullArgs() {
-    assertThatThrownBy(
-        () -> filter.filter("foo", interpreter, new String[] { null, null })
+    assertThatThrownBy(() ->
+        filter.filter("foo", interpreter, new String[] { null, null })
       )
       .hasMessageContaining("both a valid regex");
   }
@@ -52,10 +53,10 @@ public class RegexReplaceFilterTest extends BaseInterpretingTest {
   @Test
   public void itMatchesRegexAndReplacesStringForSafeString() {
     assertThat(
-        filter
-          .filter(new SafeString("It costs $300"), interpreter, "[^a-zA-Z]", "")
-          .toString()
-      )
+      filter
+        .filter(new SafeString("It costs $300"), interpreter, "[^a-zA-Z]", "")
+        .toString()
+    )
       .isEqualTo("Itcosts");
   }
 
@@ -65,15 +66,14 @@ public class RegexReplaceFilterTest extends BaseInterpretingTest {
     for (int i = 0; i < 101; i++) {
       sb.append('a');
     }
-    assertThatThrownBy(
-        () ->
-          filter.filter(
-            sb.toString(),
-            new Jinjava(JinjavaConfig.newBuilder().withMaxStringLength(10).build())
+    assertThatThrownBy(() ->
+        filter.filter(
+          sb.toString(),
+          new Jinjava(JinjavaConfig.newBuilder().withMaxStringLength(10).build())
             .newInterpreter(),
-            "O",
-            "0"
-          )
+          "O",
+          "0"
+        )
       )
       .isInstanceOf(InvalidInputException.class)
       .hasMessageContaining(

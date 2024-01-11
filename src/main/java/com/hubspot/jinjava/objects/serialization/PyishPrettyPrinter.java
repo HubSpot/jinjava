@@ -7,6 +7,7 @@ import java.io.IOException;
 
 @Beta
 public class PyishPrettyPrinter extends DefaultPrettyPrinter {
+
   public static final PyishPrettyPrinter INSTANCE = new PyishPrettyPrinter();
 
   @Override

@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
       type = "boolean",
       defaultValue = "False",
       desc = "If True, first line will be indented"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -36,10 +36,11 @@ import org.apache.commons.lang3.StringUtils;
       "    {% set var = \"string to indent\" %}\n" +
       "    {{ var|indent(2, true) }}\n" +
       "</pre>"
-    )
+    ),
   }
 )
 public class IndentFilter extends AbstractFilter {
+
   public static final String INDENT_FIRST_PARAM = "indentfirst";
   public static final String WIDTH_PARAM = "width";
 

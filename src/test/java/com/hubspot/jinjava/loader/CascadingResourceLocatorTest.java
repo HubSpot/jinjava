@@ -14,6 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings("unchecked")
 public class CascadingResourceLocatorTest {
+
   @Mock
   ResourceLocator first;
 

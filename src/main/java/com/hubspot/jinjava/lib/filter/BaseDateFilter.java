@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class BaseDateFilter implements AdvancedFilter {
+
   private static final Map<String, ChronoUnit> unitMap = Arrays
     .stream(ChronoUnit.values())
     .collect(Collectors.toMap(u -> u.toString().toLowerCase(), u -> u));

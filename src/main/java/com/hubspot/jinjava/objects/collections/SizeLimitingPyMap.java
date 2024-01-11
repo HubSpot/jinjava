@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 public class SizeLimitingPyMap extends PyMap implements PyWrapper {
+
   private int maxSize;
   private boolean hasWarned;
 

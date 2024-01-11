@@ -42,122 +42,120 @@ public class SelectAttrFilterTest extends BaseJinjavaTest {
   @Test
   public void selectAttrWithNoExp() {
     assertThat(
-        jinjava.render(
-          "{{ users|selectattr('is_active') }}",
-          new HashMap<String, Object>()
-        )
-      )
+      jinjava.render("{{ users|selectattr('is_active') }}", new HashMap<String, Object>())
+    )
       .isEqualTo("[1]");
   }
 
   @Test
   public void selectAttrWithExp() {
     assertThat(
-        jinjava.render(
-          "{{ users|selectattr('email', 'none') }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ users|selectattr('email', 'none') }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("[2]");
   }
 
   @Test
   public void selectAttrWithSymbolicExp() {
     assertThat(
-        jinjava.render(
-          "{{ users|selectattr('isActive', '==', 'true') }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ users|selectattr('isActive', '==', 'true') }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("[1]");
   }
 
   @Test
   public void selectAttrWithIsEqualToExp() {
     assertThat(
-        jinjava.render(
-          "{{ users|selectattr('email', 'equalto', 'bar@bar.com') }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ users|selectattr('email', 'equalto', 'bar@bar.com') }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("[1]");
   }
 
   @Test
   public void selectAttrWithNumericIsEqualToExp() {
     assertThat(
-        jinjava.render(
-          "{{ users|selectattr('num', 'equalto', 1) }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ users|selectattr('num', 'equalto', 1) }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("[1]");
   }
 
   @Test
   public void selectAttrWithNestedProperty() {
     assertThat(
-        jinjava.render(
-          "{{ users|selectattr('option.id', 'equalto', 1) }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ users|selectattr('option.id', 'equalto', 1) }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("[1]");
 
     assertThat(
-        jinjava.render(
-          "{{ users|selectattr('option.name', 'equalto', 'option2') }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ users|selectattr('option.name', 'equalto', 'option2') }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("[2]");
   }
 
   @Test
   public void selectAttrWithSymbolicLtExp() {
     assertThat(
-        jinjava.render(
-          "{{ numbers|selectattr('number', '<', '3')|map('number') }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ numbers|selectattr('number', '<', '3')|map('number') }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("[1, 2]");
   }
 
   @Test
   public void selectAttrWithSymbolicLeExp() {
     assertThat(
-        jinjava.render(
-          "{{ numbers|selectattr('number', '<=', '3')|map('number') }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ numbers|selectattr('number', '<=', '3')|map('number') }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("[1, 2, 3]");
   }
 
   @Test
   public void selectAttrWithSymbolicGtExp() {
     assertThat(
-        jinjava.render(
-          "{{ numbers|selectattr('number', '>', '3')|map('number') }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ numbers|selectattr('number', '>', '3')|map('number') }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("[4]");
   }
 
   @Test
   public void selectAttrWithSymbolicGeExp() {
     assertThat(
-        jinjava.render(
-          "{{ numbers|selectattr('number', '>=', '3')|map('number') }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ numbers|selectattr('number', '>=', '3')|map('number') }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("[3, 4]");
   }
 
   public static class User implements PyishSerializable {
+
     private long num;
     private boolean isActive;
     private String email;
@@ -200,6 +198,7 @@ public class SelectAttrFilterTest extends BaseJinjavaTest {
   }
 
   public static class Option implements PyishSerializable {
+
     private long id;
     private String name;
 

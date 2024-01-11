@@ -18,6 +18,7 @@ package com.hubspot.jinjava.tree.parse;
 import java.io.Serializable;
 
 public abstract class TokenScannerSymbols implements Serializable {
+
   private static final long serialVersionUID = -4810220023023256534L;
 
   private String expressionStart = null;

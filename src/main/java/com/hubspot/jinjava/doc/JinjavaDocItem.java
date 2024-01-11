@@ -3,6 +3,7 @@ package com.hubspot.jinjava.doc;
 import java.util.Map;
 
 public abstract class JinjavaDocItem {
+
   private final String name;
   private final String desc;
   private final String aliasOf;
