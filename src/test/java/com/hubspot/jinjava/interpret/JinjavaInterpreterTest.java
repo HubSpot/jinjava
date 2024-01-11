@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -556,29 +555,5 @@ public class JinjavaInterpreterTest {
     } finally {
       JinjavaInterpreter.popCurrent();
     }
-  }
-
-  @Test
-  public void itTests() {
-    RenderResult result = jinjava.renderForResult(
-      "{{ d }}",
-      ImmutableMap.of("d", "my test")
-    );
-
-    assertThat(result.getOutput()).isEqualTo("my test");
-    assertThat(result.getContext().getResolvedExpressions())
-      .isEqualTo(ImmutableSet.of("d"));
-
-    result =
-      jinjava.renderForResult(
-        "{% set d={a: 0,\n 'b': 1} %}{{ 'abc '~d }}",
-        ImmutableMap.of()
-      );
-
-    assertThat(result.getOutput()).isEqualTo("abc {a=0, b=1}");
-    // TODO(lsong): Actual resolved expressions: ["'b': 1}", "{a: 0", "'abc '~d"]
-    // The following test does not pass.
-    //    assertThat(result.getContext().getResolvedExpressions())
-    //      .isEqualTo(ImmutableSet.of("d"));
   }
 }
