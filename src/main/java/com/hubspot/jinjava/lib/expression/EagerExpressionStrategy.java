@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 
 @Beta
 public class EagerExpressionStrategy implements ExpressionStrategy {
+
   private static final long serialVersionUID = -6792345439237764193L;
 
   @Override
@@ -38,8 +39,8 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       eagerInterpreter ->
         EagerExpressionResolver.resolveExpression(master.getExpr(), interpreter),
       interpreter,
-      EagerContextWatcher
-        .EagerChildContextConfig.newBuilder()
+      EagerContextWatcher.EagerChildContextConfig
+        .newBuilder()
         .withTakeNewValue(true)
         .withPartialMacroEvaluation(
           interpreter.getConfig().isNestedInterpretationEnabled()
@@ -131,10 +132,9 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       .getErrors()
       .stream()
       .filter(Objects::nonNull)
-      .filter(
-        error ->
-          "Unclosed comment".equals(error.getMessage()) ||
-          error.getReason() == ErrorReason.DISABLED
+      .filter(error ->
+        "Unclosed comment".equals(error.getMessage()) ||
+        error.getReason() == ErrorReason.DISABLED
       )
       .count();
   }

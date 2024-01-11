@@ -3,6 +3,7 @@ package com.hubspot.jinjava.interpret;
 import com.hubspot.jinjava.tree.parse.TagToken;
 
 public class UnknownTagException extends TemplateSyntaxException {
+
   private static final long serialVersionUID = 1L;
 
   private final String tag;

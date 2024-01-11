@@ -14,7 +14,7 @@ import com.hubspot.jinjava.objects.SafeString;
       code = "{% if variable is string %}\n" +
       "      <!--code to render if a variable contains a string value-->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsStringExpTest implements ExpTest {

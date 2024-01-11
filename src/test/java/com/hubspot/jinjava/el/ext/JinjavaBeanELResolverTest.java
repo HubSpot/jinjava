@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class JinjavaBeanELResolverTest {
+
   private JinjavaBeanELResolver jinjavaBeanELResolver;
   private ELContext elContext;
 
@@ -32,24 +33,24 @@ public class JinjavaBeanELResolverTest {
   @Test
   public void itInvokesProperStringReplace() {
     assertThat(
-        jinjavaBeanELResolver.invoke(
-          elContext,
-          "abcd",
-          "replace",
-          null,
-          new Object[] { "abcd", "efgh" }
-        )
+      jinjavaBeanELResolver.invoke(
+        elContext,
+        "abcd",
+        "replace",
+        null,
+        new Object[] { "abcd", "efgh" }
       )
+    )
       .isEqualTo("efgh");
     assertThat(
-        jinjavaBeanELResolver.invoke(
-          elContext,
-          "abcd",
-          "replace",
-          null,
-          new Object[] { 'a', 'e' }
-        )
+      jinjavaBeanELResolver.invoke(
+        elContext,
+        "abcd",
+        "replace",
+        null,
+        new Object[] { 'a', 'e' }
       )
+    )
       .isEqualTo("ebcd");
   }
 
@@ -75,34 +76,28 @@ public class JinjavaBeanELResolverTest {
     }
     Temp var = new Temp();
     assertThat(
-        jinjavaBeanELResolver.invoke(
-          elContext,
-          var,
-          "getResult",
-          null,
-          new Object[] { 1 }
-        )
-      )
+      jinjavaBeanELResolver.invoke(elContext, var, "getResult", null, new Object[] { 1 })
+    )
       .isEqualTo("int");
     assertThat(
-        jinjavaBeanELResolver.invoke(
-          elContext,
-          var,
-          "getResult",
-          null,
-          new Object[] { "1" }
-        )
+      jinjavaBeanELResolver.invoke(
+        elContext,
+        var,
+        "getResult",
+        null,
+        new Object[] { "1" }
       )
+    )
       .isEqualTo("String");
     assertThat(
-        jinjavaBeanELResolver.invoke(
-          elContext,
-          var,
-          "getResult",
-          null,
-          new Object[] { new Object() }
-        )
+      jinjavaBeanELResolver.invoke(
+        elContext,
+        var,
+        "getResult",
+        null,
+        new Object[] { new Object() }
       )
+    )
       .isEqualTo("Object");
   }
 
@@ -124,34 +119,34 @@ public class JinjavaBeanELResolverTest {
     }
     Temp var = new Temp();
     assertThat(
-        jinjavaBeanELResolver.invoke(
-          elContext,
-          var,
-          "getResult",
-          null,
-          new Object[] { 1, 2 }
-        )
+      jinjavaBeanELResolver.invoke(
+        elContext,
+        var,
+        "getResult",
+        null,
+        new Object[] { 1, 2 }
       )
+    )
       .isEqualTo("int Integer");
     assertThat(
-        jinjavaBeanELResolver.invoke(
-          elContext,
-          var,
-          "getResult",
-          null,
-          new Object[] { 1, Integer.valueOf(2) }
-        )
+      jinjavaBeanELResolver.invoke(
+        elContext,
+        var,
+        "getResult",
+        null,
+        new Object[] { 1, Integer.valueOf(2) }
       )
+    )
       .isEqualTo("int Integer"); // should be "int object", but we can't figure that out
     assertThat(
-        jinjavaBeanELResolver.invoke(
-          elContext,
-          var,
-          "getResult",
-          null,
-          new Object[] { Integer.valueOf(1), 2 }
-        )
+      jinjavaBeanELResolver.invoke(
+        elContext,
+        var,
+        "getResult",
+        null,
+        new Object[] { Integer.valueOf(1), 2 }
       )
+    )
       .isEqualTo("int Integer"); // should be "Number int", but we can't figure that out
   }
 
@@ -159,9 +154,8 @@ public class JinjavaBeanELResolverTest {
   public void itThrowsExceptionWhenMethodIsRestrictedFromConfig() {
     JinjavaInterpreter.pushCurrent(interpreter);
     when(config.getRestrictedMethods()).thenReturn(ImmutableSet.of("foo"));
-    assertThatThrownBy(
-        () ->
-          jinjavaBeanELResolver.invoke(elContext, "abcd", "foo", null, new Object[] { 1 })
+    assertThatThrownBy(() ->
+        jinjavaBeanELResolver.invoke(elContext, "abcd", "foo", null, new Object[] { 1 })
       )
       .isInstanceOf(MethodNotFoundException.class)
       .hasMessageStartingWith("Cannot find method 'foo'");
@@ -172,8 +166,8 @@ public class JinjavaBeanELResolverTest {
   public void itThrowsExceptionWhenPropertyIsRestrictedFromConfig() {
     JinjavaInterpreter.pushCurrent(interpreter);
     when(config.getRestrictedProperties()).thenReturn(ImmutableSet.of("property1"));
-    assertThatThrownBy(
-        () -> jinjavaBeanELResolver.getValue(elContext, "abcd", "property1")
+    assertThatThrownBy(() ->
+        jinjavaBeanELResolver.getValue(elContext, "abcd", "property1")
       )
       .isInstanceOf(PropertyNotFoundException.class)
       .hasMessageStartingWith("Could not find property");

@@ -13,7 +13,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
       code = "{% if variable is iterable %}\n" +
       "       <!--code to render if items in a variable can be iterated through-->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsIterableExpTest implements ExpTest {

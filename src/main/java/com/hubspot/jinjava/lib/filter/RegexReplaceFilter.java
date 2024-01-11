@@ -33,13 +33,13 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
       value = "new",
       desc = "The new string that you replace the matched substring",
       required = true
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
       code = "{{ \"It costs $300\"|regex_replace(\"[^a-zA-Z]\", \"\") }}",
       output = "Itcosts"
-    )
+    ),
   }
 )
 public class RegexReplaceFilter implements Filter {

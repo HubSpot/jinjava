@@ -17,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
     @JinjavaSnippet(
       code = "{% set sentence = \"the first letter of a sentence should always be capitalized.\" %}\n" +
       "{{ sentence|capitalize }}"
-    )
+    ),
   }
 )
 public class CapitalizeFilter implements Filter {

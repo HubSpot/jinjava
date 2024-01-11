@@ -29,7 +29,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
     @JinjavaSnippet(
       code = "{% set escaped_string = \"<div>This &amp; that</div>\" %}\n" +
       "{{ escaped_string|unescape_html }}"
-    )
+    ),
   }
 )
 public class UnescapeHtmlFilter implements Filter {

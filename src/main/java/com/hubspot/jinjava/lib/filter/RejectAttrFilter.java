@@ -26,7 +26,7 @@ import java.util.Map;
       type = "name of expression test",
       defaultValue = "truthy",
       desc = "Specify which expression test to run for making the rejection"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -34,7 +34,7 @@ import java.util.Map;
       code = "{% for content in contents|rejectattr('post_list_summary_featured_image') %}\n" +
       "    <div class=\"post-item\">Post in listing markup</div>\n" +
       "{% endfor %}"
-    )
+    ),
   }
 )
 public class RejectAttrFilter extends SelectAttrFilter implements AdvancedFilter {

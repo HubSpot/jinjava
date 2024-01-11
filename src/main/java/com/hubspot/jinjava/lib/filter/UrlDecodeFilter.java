@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
     @JinjavaSnippet(
       code = "{{ \"http%3A%2F%2Ffoo.com%3Fbar%26food\"|urldecode }}",
       output = "http://foo.com?bar&food"
-    )
+    ),
   }
 )
 public class UrlDecodeFilter implements Filter {

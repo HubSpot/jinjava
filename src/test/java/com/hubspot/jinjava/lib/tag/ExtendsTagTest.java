@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ExtendsTagTest extends BaseInterpretingTest {
+
   private ExtendsTagTestResourceLocator locator;
 
   @Before
@@ -258,6 +259,7 @@ public class ExtendsTagTest extends BaseInterpretingTest {
   }
 
   private static class ExtendsTagTestResourceLocator implements ResourceLocator {
+
     private RelativePathResolver relativePathResolver = new RelativePathResolver();
 
     @Override
@@ -265,8 +267,7 @@ public class ExtendsTagTest extends BaseInterpretingTest {
       String fullName,
       Charset encoding,
       JinjavaInterpreter interpreter
-    )
-      throws IOException {
+    ) throws IOException {
       return fixture(fullName);
     }
 

@@ -6,6 +6,7 @@ import org.junit.After;
 import org.junit.Before;
 
 public abstract class BaseInterpretingTest extends BaseJinjavaTest {
+
   public JinjavaInterpreter interpreter;
   public Context context;
 

@@ -5,6 +5,7 @@ import com.hubspot.jinjava.tree.Node;
 import java.util.function.BiConsumer;
 
 public class JinjavaProcessors {
+
   private final BiConsumer<Node, JinjavaInterpreter> nodePreProcessor;
   private final BiConsumer<Node, JinjavaInterpreter> nodePostProcessor;
 
@@ -30,6 +31,7 @@ public class JinjavaProcessors {
   }
 
   public static class Builder {
+
     private BiConsumer<Node, JinjavaInterpreter> nodePreProcessor = (n, i) -> {};
     private BiConsumer<Node, JinjavaInterpreter> nodePostProcessor = (n, i) -> {};
 

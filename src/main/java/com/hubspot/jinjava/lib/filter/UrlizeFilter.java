@@ -31,7 +31,7 @@ import org.apache.commons.lang3.math.NumberUtils;
       defaultValue = "False",
       desc = "Adds nofollow to generated link tag"
     ),
-    @JinjavaParam(value = "target", desc = "Adds target attr to generated link tag")
+    @JinjavaParam(value = "target", desc = "Adds target attr to generated link tag"),
   },
   snippets = {
     @JinjavaSnippet(
@@ -41,7 +41,7 @@ import org.apache.commons.lang3.math.NumberUtils;
     @JinjavaSnippet(
       desc = "If target is specified, the target attribute will be added to the <a> tag",
       code = "{{ \"http://www.hubspot.com\"|urlize(10, true, target='_blank') }}"
-    )
+    ),
   }
 )
 public class UrlizeFilter implements Filter {

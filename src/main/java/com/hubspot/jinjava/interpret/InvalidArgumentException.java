@@ -3,6 +3,7 @@ package com.hubspot.jinjava.interpret;
 import com.hubspot.jinjava.lib.Importable;
 
 public class InvalidArgumentException extends RuntimeException {
+
   private final int lineNumber;
   private final int startPosition;
   private final String message;

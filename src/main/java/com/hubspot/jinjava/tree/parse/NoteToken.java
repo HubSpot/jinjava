@@ -16,6 +16,7 @@ limitations under the License.
 package com.hubspot.jinjava.tree.parse;
 
 public class NoteToken extends Token {
+
   private static final long serialVersionUID = -3859011447900311329L;
 
   public NoteToken(

@@ -13,7 +13,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
       code = "{% if variable is defined %}\n" +
       "<!--code to render if variable is defined-->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsDefinedExpTest implements ExpTest {

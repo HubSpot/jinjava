@@ -32,7 +32,7 @@ import java.io.IOException;
   value = "Template inheritance allows you to build a base “skeleton” template that contains all the " +
   "common elements of your site and defines blocks that child templates can override.",
   params = {
-    @JinjavaParam(value = "path", desc = "Design Manager file path to parent template")
+    @JinjavaParam(value = "path", desc = "Design Manager file path to parent template"),
   },
   snippets = {
     @JinjavaSnippet(
@@ -76,11 +76,12 @@ import java.io.IOException;
       "      Welcome to my awesome homepage.\n" +
       "    </p>\n" +
       "{% endblock %}"
-    )
+    ),
   }
 )
 @JinjavaTextMateSnippet(code = "{% extends '${1:path}' %}")
 public class ExtendsTag implements Tag {
+
   public static final String TAG_NAME = "extends";
 
   private static final long serialVersionUID = 4692863362280761393L;

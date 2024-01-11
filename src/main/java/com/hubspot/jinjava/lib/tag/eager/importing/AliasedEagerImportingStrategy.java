@@ -22,6 +22,7 @@ import java.util.StringJoiner;
 import java.util.stream.Stream;
 
 public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
+
   private static final String TEMPORARY_IMPORT_ALIAS_PREFIX = "__temp_import_alias_";
   private static final String TEMPORARY_IMPORT_ALIAS_FORMAT =
     TEMPORARY_IMPORT_ALIAS_PREFIX + "%d__";
@@ -118,12 +119,11 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
     childBindings
       .entrySet()
       .stream()
-      .filter(
-        entry ->
-          !(
-            entry.getKey().equals(Context.GLOBAL_MACROS_SCOPE_KEY) ||
-            entry.getKey().equals(Context.IMPORT_RESOURCE_ALIAS_KEY)
-          )
+      .filter(entry ->
+        !(
+          entry.getKey().equals(Context.GLOBAL_MACROS_SCOPE_KEY) ||
+          entry.getKey().equals(Context.IMPORT_RESOURCE_ALIAS_KEY)
+        )
       )
       .forEach(entry -> mapForCurrentContextAlias.put(entry.getKey(), entry.getValue()));
   }

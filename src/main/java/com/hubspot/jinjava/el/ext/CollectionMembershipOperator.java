@@ -81,7 +81,8 @@ public class CollectionMembershipOperator extends SimpleOperator {
     return TOKEN.getImage();
   }
 
-  public static final CollectionMembershipOperator OP = new CollectionMembershipOperator();
+  public static final CollectionMembershipOperator OP =
+    new CollectionMembershipOperator();
   public static final Scanner.ExtensionToken TOKEN = new Scanner.ExtensionToken("in");
 
   public static final ExtensionHandler HANDLER = getHandler(false);
@@ -89,7 +90,6 @@ public class CollectionMembershipOperator extends SimpleOperator {
 
   private static ExtensionHandler getHandler(boolean eager) {
     return new ExtensionHandler(ExtensionPoint.CMP) {
-
       @Override
       public AstNode createAstNode(AstNode... children) {
         return eager

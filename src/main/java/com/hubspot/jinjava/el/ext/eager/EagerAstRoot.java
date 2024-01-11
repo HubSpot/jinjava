@@ -8,6 +8,7 @@ import javax.el.MethodInfo;
 import javax.el.ValueReference;
 
 public class EagerAstRoot extends AstNode {
+
   private AstNode rootNode;
 
   public EagerAstRoot(AstNode rootNode) {

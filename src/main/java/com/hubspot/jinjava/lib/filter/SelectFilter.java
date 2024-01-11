@@ -29,13 +29,13 @@ import java.util.Map;
       type = "name of expression test",
       defaultValue = "truthy",
       desc = "Specify which expression test to run for making the selection"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
       code = "{% set some_numbers = [10, 12, 13, 3, 5, 17, 22] %}\n" +
       "{% some_numbers|select('even') %}"
-    )
+    ),
   }
 )
 public class SelectFilter implements AdvancedFilter {

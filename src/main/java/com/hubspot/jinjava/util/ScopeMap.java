@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 public class ScopeMap<K, V> implements Map<K, V> {
+
   private final Map<K, V> scope;
   private final ScopeMap<K, V> parent;
 
@@ -214,6 +215,7 @@ public class ScopeMap<K, V> implements Map<K, V> {
   }
 
   public static class ScopeMapEntry<K, V> implements Map.Entry<K, V> {
+
     private final Map<K, V> map;
     private final K key;
     private V value;

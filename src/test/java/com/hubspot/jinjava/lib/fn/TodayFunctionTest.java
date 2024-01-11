@@ -17,6 +17,7 @@ import java.time.ZonedDateTime;
 import org.junit.Test;
 
 public class TodayFunctionTest extends BaseInterpretingTest {
+
   private static final String ZONE_NAME = "America/New_York";
   private static final ZoneId ZONE_ID = ZoneId.of(ZONE_NAME);
 

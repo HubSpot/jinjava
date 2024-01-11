@@ -17,16 +17,16 @@ public class StringToTimeFunctionTest {
       ZonedDateTime.of(2018, 7, 14, 14, 31, 30, 0, ZoneOffset.ofHoursMinutes(5, 30))
     );
     assertThat(
-        Functions.stringToTime("2018-07-14T14:31:30+0530", "yyyy-MM-dd'T'HH:mm:ssZ")
-      )
+      Functions.stringToTime("2018-07-14T14:31:30+0530", "yyyy-MM-dd'T'HH:mm:ssZ")
+    )
       .isEqualTo(expected);
   }
 
   @Test
   public void itFailsOnInvalidFormat() {
     assertThatExceptionOfType(InterpretException.class)
-      .isThrownBy(
-        () -> Functions.stringToTime("2018-07-14T14:31:30+0530", "not a time format")
+      .isThrownBy(() ->
+        Functions.stringToTime("2018-07-14T14:31:30+0530", "not a time format")
       )
       .withMessageContaining("requires valid datetime format");
   }
@@ -34,12 +34,11 @@ public class StringToTimeFunctionTest {
   @Test
   public void itFailsOnTimeFormatMismatch() {
     assertThatExceptionOfType(InterpretException.class)
-      .isThrownBy(
-        () ->
-          Functions.stringToTime(
-            "Saturday, Jul 14, 2018 14:31:06 PM",
-            "yyyy-MM-dd'T'HH:mm:ssZ"
-          )
+      .isThrownBy(() ->
+        Functions.stringToTime(
+          "Saturday, Jul 14, 2018 14:31:06 PM",
+          "yyyy-MM-dd'T'HH:mm:ssZ"
+        )
       )
       .withMessageContaining("could not match datetime input");
   }

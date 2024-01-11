@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class OutputList {
+
   public static final String PREVENT_ACCIDENTAL_EXPRESSIONS =
     "PREVENT_ACCIDENTAL_EXPRESSIONS";
   private final List<OutputNode> nodes = new LinkedList<>();
@@ -54,15 +55,14 @@ public class OutputList {
     return JinjavaInterpreter
       .getCurrentMaybe()
       .map(JinjavaInterpreter::getConfig)
-      .filter(
-        config ->
-          config
-            .getFeatures()
-            .getActivationStrategy(PREVENT_ACCIDENTAL_EXPRESSIONS)
-            .isActive(null)
+      .filter(config ->
+        config
+          .getFeatures()
+          .getActivationStrategy(PREVENT_ACCIDENTAL_EXPRESSIONS)
+          .isActive(null)
       )
-      .map(
-        config -> joinNodesWithoutAddingExpressions(val, config.getTokenScannerSymbols())
+      .map(config ->
+        joinNodesWithoutAddingExpressions(val, config.getTokenScannerSymbols())
       )
       .orElseGet(() -> joinNodes(val));
   }

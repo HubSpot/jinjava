@@ -12,6 +12,7 @@ import javax.el.ELContext;
 import javax.el.ELException;
 
 public class EagerAstMethod extends AstMethod implements EvalResultHolder {
+
   protected Object evalResult;
   protected boolean hasEvalResult;
   // instanceof AstProperty

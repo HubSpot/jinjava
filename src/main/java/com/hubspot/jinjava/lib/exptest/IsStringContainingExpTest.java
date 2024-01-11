@@ -20,7 +20,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
       code = "{% if variable is string_containing 'foo' %}\n" +
       "      <!--code to render if variable contains 'foo' -->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsStringContainingExpTest extends IsStringExpTest {

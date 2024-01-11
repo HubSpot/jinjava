@@ -14,6 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.junit.Test;
 
 public class ShuffleFilterTest {
+
   ShuffleFilter filter = new ShuffleFilter();
 
   JinjavaInterpreter interpreter = mock(JinjavaInterpreter.class);

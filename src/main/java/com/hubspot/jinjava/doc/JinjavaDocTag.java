@@ -3,6 +3,7 @@ package com.hubspot.jinjava.doc;
 import java.util.Map;
 
 public class JinjavaDocTag extends JinjavaDocItem {
+
   private final boolean empty;
 
   public JinjavaDocTag(

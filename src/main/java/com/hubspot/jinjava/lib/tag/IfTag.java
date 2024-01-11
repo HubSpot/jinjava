@@ -38,7 +38,7 @@ import org.apache.commons.lang3.StringUtils;
       value = "condition",
       type = "conditional expression",
       desc = "An expression that evaluates to either true or false"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -56,12 +56,13 @@ import org.apache.commons.lang3.StringUtils;
       "{% else %}\n" +
       "Variable named number is greater than 6.\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 @JinjavaTextMateSnippet(code = "{% if '${1:condition}' %}\n\n{% endif %}")
 @JinjavaHasCodeBody
 public class IfTag implements Tag {
+
   public static final String TAG_NAME = "if";
 
   private static final long serialVersionUID = -3784039314941268904L;

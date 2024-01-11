@@ -35,13 +35,13 @@ import com.hubspot.jinjava.objects.date.StrftimeFormatter;
       type = "string",
       defaultValue = "us",
       desc = "The language code to use when formatting the datetime"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(code = "{% content.updated|datetimeformat('%B %e, %Y') %}"),
     @JinjavaSnippet(
       code = "{% content.updated|datetimeformat('%a %A %w %d %e %b %B %m %y %Y %H %I %k %l %p %M %S %f %z %Z %j %U %W %c %x %X %%') %}"
-    )
+    ),
   },
   deprecated = true
 )

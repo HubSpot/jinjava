@@ -12,6 +12,7 @@ import de.odysseus.el.tree.impl.Parser;
  *
  */
 public class ExtendedSyntaxBuilder extends Builder {
+
   private static final long serialVersionUID = 1L;
 
   public ExtendedSyntaxBuilder() {

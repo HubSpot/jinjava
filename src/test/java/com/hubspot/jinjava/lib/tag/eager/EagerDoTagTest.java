@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class EagerDoTagTest extends DoTagTest {
+
   private static final long MAX_OUTPUT_SIZE = 500L;
   private Tag tag;
   private ExpectedNodeInterpreter expectedNodeInterpreter;

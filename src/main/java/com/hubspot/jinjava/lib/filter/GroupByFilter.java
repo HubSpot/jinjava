@@ -28,7 +28,7 @@ import java.util.Objects;
       value = "attribute",
       desc = "The common attribute to group by",
       required = true
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -41,7 +41,7 @@ import java.util.Objects;
       "            {% endfor %}</ul></li>\n" +
       "     {% endfor %}\n" +
       "</ul>"
-    )
+    ),
   }
 )
 public class GroupByFilter implements Filter {
@@ -89,6 +89,7 @@ public class GroupByFilter implements Filter {
   }
 
   public static class Group {
+
     private final String grouper;
     private final Object grouperObject;
     private final List<Object> list;

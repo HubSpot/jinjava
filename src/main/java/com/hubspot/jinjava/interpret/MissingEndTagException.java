@@ -3,6 +3,7 @@ package com.hubspot.jinjava.interpret;
 import org.apache.commons.lang3.StringUtils;
 
 public class MissingEndTagException extends TemplateSyntaxException {
+
   private static final long serialVersionUID = 1L;
 
   private final String endTag;

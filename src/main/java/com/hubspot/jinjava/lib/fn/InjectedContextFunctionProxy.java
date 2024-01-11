@@ -13,6 +13,7 @@ import javassist.CtNewMethod;
 import javassist.bytecode.AccessFlag;
 
 public class InjectedContextFunctionProxy {
+
   private static final String GUICE_CLASS_INDICATOR = "$$EnhancerByGuice$$";
 
   public static ELFunctionDefinition defineProxy(

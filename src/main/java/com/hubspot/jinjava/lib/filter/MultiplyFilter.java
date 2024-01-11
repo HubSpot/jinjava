@@ -41,11 +41,12 @@ import java.util.Map;
       type = "number",
       desc = "The multiplier",
       required = true
-    )
+    ),
   },
   snippets = { @JinjavaSnippet(code = "{% set n = 20 %}\n" + "{{ n|multiply(3) }}") }
 )
 public class MultiplyFilter implements AdvancedFilter {
+
   private static final TruthyTypeConverter TYPE_CONVERTER = new TruthyTypeConverter();
 
   @Override

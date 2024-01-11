@@ -6,6 +6,7 @@ import java.util.Optional;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class BlockInfo {
+
   private final List<? extends Node> nodes;
 
   private final Optional<String> parentPath;

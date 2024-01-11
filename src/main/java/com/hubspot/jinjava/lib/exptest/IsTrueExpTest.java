@@ -13,7 +13,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
       code = "{% if false is true %}\n" +
       "      <!--this code will never render-->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsTrueExpTest implements ExpTest {

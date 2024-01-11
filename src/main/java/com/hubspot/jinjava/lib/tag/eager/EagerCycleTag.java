@@ -51,8 +51,8 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       eagerInterpreter ->
         EagerExpressionResolver.resolveExpression(expression, interpreter),
       interpreter,
-      EagerContextWatcher
-        .EagerChildContextConfig.newBuilder()
+      EagerContextWatcher.EagerChildContextConfig
+        .newBuilder()
         .withTakeNewValue(true)
         .build()
     );

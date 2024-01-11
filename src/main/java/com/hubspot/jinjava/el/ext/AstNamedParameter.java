@@ -7,6 +7,7 @@ import de.odysseus.el.tree.impl.ast.AstNode;
 import javax.el.ELContext;
 
 public class AstNamedParameter extends AstLiteral {
+
   private final AstIdentifier name;
   private final AstNode value;
 

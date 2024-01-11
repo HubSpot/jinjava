@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import java.nio.charset.Charset;
 
 public class RenderedOutputNode implements OutputNode {
+
   private final String output;
 
   public RenderedOutputNode(String output) {

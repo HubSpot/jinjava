@@ -18,7 +18,7 @@ import de.odysseus.el.misc.TypeConverter;
       type = "object",
       desc = "Another object to check inequality against",
       required = true
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -29,10 +29,11 @@ import de.odysseus.el.misc.TypeConverter;
     @JinjavaSnippet(
       desc = "Usage with the selectattr filter",
       code = "{{ users|selectattr(\"email\", \"ne\", \"foo@bar.invalid\") }}"
-    )
+    ),
   }
 )
 public class IsNeExpTest implements ExpTest {
+
   private static final TypeConverter TYPE_CONVERTER = new TruthyTypeConverter();
 
   @Override

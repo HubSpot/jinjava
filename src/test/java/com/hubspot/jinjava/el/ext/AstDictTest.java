@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class AstDictTest {
+
   private JinjavaInterpreter interpreter;
 
   @Before
@@ -67,6 +68,7 @@ public class AstDictTest {
   }
 
   public class TestClass {
+
     private Map<ErrorType, String> myMap;
 
     public TestClass(Map<ErrorType, String> myMap) {

@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class DeferredTest {
+
   private JinjavaInterpreter interpreter;
   private Jinjava jinjava = new Jinjava();
   Context globalContext = new Context();
@@ -251,9 +252,8 @@ public class DeferredTest {
     DeferredValue varInScopeDeferred = (DeferredValue) varInScope;
     assertThat(varInScopeDeferred.getOriginalValue()).isEqualTo("outside if statement");
 
-    HashMap<String, Object> deferredContext = DeferredValueUtils.getDeferredContextWithOriginalValues(
-      localContext
-    );
+    HashMap<String, Object> deferredContext =
+      DeferredValueUtils.getDeferredContextWithOriginalValues(localContext);
     deferredContext.forEach(localContext::put);
     String secondRender = interpreter.render(output);
     assertThat(secondRender).isEqualTo("outside if statement entered if statement");
@@ -317,9 +317,8 @@ public class DeferredTest {
     DeferredValue varSetInsideDeferred = (DeferredValue) varSetInside;
     assertThat(varSetInsideDeferred.getOriginalValue()).isEqualTo("inside first scope");
 
-    HashMap<String, Object> deferredContext = DeferredValueUtils.getDeferredContextWithOriginalValues(
-      localContext
-    );
+    HashMap<String, Object> deferredContext =
+      DeferredValueUtils.getDeferredContextWithOriginalValues(localContext);
     deferredContext.forEach(localContext::put);
     String secondRender = interpreter.render(output);
     assertThat(secondRender.trim())
@@ -359,8 +358,8 @@ public class DeferredTest {
     Object deferredValue2 = localContext.get("deferredValue2");
     localContext
       .getDeferredNodes()
-      .forEach(
-        node -> DeferredValueUtils.findAndMarkDeferredProperties(localContext, node)
+      .forEach(node ->
+        DeferredValueUtils.findAndMarkDeferredProperties(localContext, node)
       );
     assertThat(deferredValue2).isInstanceOf(DeferredValue.class);
     assertThat(output)

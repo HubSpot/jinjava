@@ -33,7 +33,7 @@ import org.apache.commons.lang3.math.NumberUtils;
       type = "number",
       defaultValue = "0",
       desc = "Limits resulting list by putting remainder of string into last list item"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -44,7 +44,7 @@ import org.apache.commons.lang3.math.NumberUtils;
       "       <li>{{ name }}</li>\n" +
       "   {% endfor %}\n" +
       "</ul>"
-    )
+    ),
   }
 )
 public class SplitFilter implements Filter {

@@ -20,8 +20,9 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
   snippets = { @JinjavaSnippet(code = "{{object|toyaml}}") }
 )
 public class ToYamlFilter implements Filter {
+
   private static final YAMLMapper OBJECT_MAPPER = new YAMLMapper()
-  .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER);
+    .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER);
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {

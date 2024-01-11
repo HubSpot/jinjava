@@ -23,6 +23,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class EagerIncludeTagTest extends IncludeTagTest {
+
   private ExpectedTemplateInterpreter expectedTemplateInterpreter;
 
   @Before
@@ -52,8 +53,7 @@ public class EagerIncludeTagTest extends IncludeTagTest {
           String fullName,
           Charset encoding,
           JinjavaInterpreter interpreter
-        )
-          throws IOException {
+        ) throws IOException {
           return Resources.toString(
             Resources.getResource(String.format("tags/eager/includetag/%s", fullName)),
             StandardCharsets.UTF_8
@@ -78,20 +78,20 @@ public class EagerIncludeTagTest extends IncludeTagTest {
     setupResourceLocator();
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent("includes-deferred");
     assertThat(
-        context
-          .getDeferredTokens()
-          .stream()
-          .flatMap(deferredToken -> deferredToken.getUsedDeferredWords().stream())
-          .collect(Collectors.toSet())
-      )
+      context
+        .getDeferredTokens()
+        .stream()
+        .flatMap(deferredToken -> deferredToken.getUsedDeferredWords().stream())
+        .collect(Collectors.toSet())
+    )
       .containsExactlyInAnyOrder("foo", "deferred");
     assertThat(
-        context
-          .getDeferredTokens()
-          .stream()
-          .flatMap(deferredToken -> deferredToken.getSetDeferredWords().stream())
-          .collect(Collectors.toSet())
-      )
+      context
+        .getDeferredTokens()
+        .stream()
+        .flatMap(deferredToken -> deferredToken.getSetDeferredWords().stream())
+        .collect(Collectors.toSet())
+    )
       .containsExactlyInAnyOrder("foo");
   }
 

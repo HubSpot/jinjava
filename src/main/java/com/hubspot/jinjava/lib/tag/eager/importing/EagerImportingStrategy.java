@@ -22,20 +22,18 @@ public interface EagerImportingStrategy {
     return childBindings
       .entrySet()
       .stream()
-      .filter(
-        entry ->
-          entry.getValue() instanceof DeferredValue &&
-          ((DeferredValue) entry.getValue()).getOriginalValue() != null
+      .filter(entry ->
+        entry.getValue() instanceof DeferredValue &&
+        ((DeferredValue) entry.getValue()).getOriginalValue() != null
       )
       .filter(entry -> !interpreter.getContext().containsKey(entry.getKey()))
       .filter(entry -> !entry.getKey().equals(currentImportAlias))
-      .map(
-        entry ->
-          EagerReconstructionUtils.buildBlockOrInlineSetTag( // don't register deferred token so that we don't defer them on higher context scopes; they only exist in the child scope
-            entry.getKey(),
-            ((DeferredValue) entry.getValue()).getOriginalValue(),
-            interpreter
-          )
+      .map(entry ->
+        EagerReconstructionUtils.buildBlockOrInlineSetTag( // don't register deferred token so that we don't defer them on higher context scopes; they only exist in the child scope
+          entry.getKey(),
+          ((DeferredValue) entry.getValue()).getOriginalValue(),
+          interpreter
+        )
       )
       .collect(Collectors.joining());
   }

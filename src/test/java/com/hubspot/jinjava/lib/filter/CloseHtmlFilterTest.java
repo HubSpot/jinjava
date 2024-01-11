@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class CloseHtmlFilterTest extends BaseInterpretingTest {
+
   CloseHtmlFilter f;
 
   @Before

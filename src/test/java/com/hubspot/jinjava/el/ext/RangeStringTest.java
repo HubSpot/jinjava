@@ -25,6 +25,7 @@ import org.junit.Test;
  * Created by anev on 11/05/16.
  */
 public class RangeStringTest {
+
   private Jinjava jinjava;
   private Map<String, Object> context;
 

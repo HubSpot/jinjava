@@ -5,6 +5,7 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import javax.annotation.Nullable;
 
 public final class WhitespaceUtils {
+
   private static final char[] QUOTE_CHARS = new char[] { '\'', '"' };
 
   public static boolean startsWith(String s, String prefix) {

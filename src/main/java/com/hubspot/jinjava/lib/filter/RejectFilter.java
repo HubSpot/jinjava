@@ -15,13 +15,13 @@ import com.hubspot.jinjava.lib.exptest.ExpTest;
       type = "name of expression test",
       desc = "Specify which expression test to run for making the selection",
       required = true
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
       code = "{% set some_numbers = [10, 12, 13, 3, 5, 17, 22] %}\n" +
       "{% some_numbers|reject('even') %}"
-    )
+    ),
   }
 )
 public class RejectFilter extends SelectFilter {

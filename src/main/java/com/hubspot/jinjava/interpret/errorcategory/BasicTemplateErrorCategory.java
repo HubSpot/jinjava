@@ -8,5 +8,5 @@ public enum BasicTemplateErrorCategory implements TemplateErrorCategory {
   UNKNOWN,
   UNKNOWN_DATE,
   UNKNOWN_LOCALE,
-  UNKNOWN_PROPERTY
+  UNKNOWN_PROPERTY,
 }

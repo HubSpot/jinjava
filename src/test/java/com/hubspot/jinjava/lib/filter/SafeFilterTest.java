@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class SafeFilterTest extends BaseInterpretingTest {
+
   private static final String HTML = "<a>Link</a>";
   private static final List<Integer> TEST_NUMBERS = ImmutableList.of(43, 1, 24);
   private static final List<String> TEST_STRINGS = ImmutableList.of(
@@ -88,8 +89,8 @@ public class SafeFilterTest extends BaseInterpretingTest {
       for (String testString : TEST_STRINGS) {
         interpreter.getContext().put("string_under_test", testString);
         assertThat(
-            interpreter.renderFlat("{{ string_under_test|safe|" + testFilter + "|safe }}")
-          )
+          interpreter.renderFlat("{{ string_under_test|safe|" + testFilter + "|safe }}")
+        )
           .as(
             "Testing behaviour of filter with and without safe filter: " +
             testFilter +
@@ -105,8 +106,8 @@ public class SafeFilterTest extends BaseInterpretingTest {
       for (Integer testInt : TEST_NUMBERS) {
         interpreter.getContext().put("string_under_test", testInt);
         assertThat(
-            interpreter.renderFlat("{{ string_under_test|safe|" + testFilter + " }}")
-          )
+          interpreter.renderFlat("{{ string_under_test|safe|" + testFilter + " }}")
+        )
           .as(
             "Testing behaviour of filter with and without safe filter: " +
             testFilter +

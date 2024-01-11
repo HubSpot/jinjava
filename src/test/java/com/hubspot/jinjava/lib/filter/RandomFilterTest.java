@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class RandomFilterTest {
+
   RandomFilter filter = new RandomFilter();
 
   JinjavaInterpreter interpreter = mock(JinjavaInterpreter.class);

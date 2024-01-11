@@ -3,6 +3,7 @@ package com.hubspot.jinjava.interpret;
 import java.util.Objects;
 
 public class DeferredValueImpl implements DeferredValue {
+
   private static final DeferredValue INSTANCE = new DeferredValueImpl();
 
   private Object originalValue;

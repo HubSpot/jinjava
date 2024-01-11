@@ -15,7 +15,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
       "{% else %}\n" +
       "   <!--code to render if variable is an even number-->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsOddExpTest implements ExpTest {

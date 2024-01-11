@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JinjavaDocFactory {
+
   private static final Logger LOG = LoggerFactory.getLogger(JinjavaDocFactory.class);
 
   private static final Class JINJAVA_DOC_CLASS =
@@ -61,9 +62,8 @@ public class JinjavaDocFactory {
       if (tag instanceof EndTag) {
         continue;
       }
-      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
-        tag.getClass()
-      );
+      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation =
+        getJinjavaDocAnnotation(tag.getClass());
 
       if (docAnnotation == null) {
         LOG.warn(
@@ -92,9 +92,8 @@ public class JinjavaDocFactory {
 
   private void addExpTests(JinjavaDoc doc) {
     for (ExpTest t : jinjava.getGlobalContextCopy().getAllExpTests()) {
-      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
-        t.getClass()
-      );
+      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation =
+        getJinjavaDocAnnotation(t.getClass());
 
       if (docAnnotation == null) {
         LOG.warn(
@@ -133,9 +132,8 @@ public class JinjavaDocFactory {
 
   private void addFilterDocs(JinjavaDoc doc) {
     for (Filter f : jinjava.getGlobalContextCopy().getAllFilters()) {
-      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
-        f.getClass()
-      );
+      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation =
+        getJinjavaDocAnnotation(f.getClass());
 
       if (docAnnotation == null) {
         LOG.warn(
@@ -190,9 +188,8 @@ public class JinjavaDocFactory {
           }
         }
 
-        com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = realMethod.getAnnotation(
-          com.hubspot.jinjava.doc.annotations.JinjavaDoc.class
-        );
+        com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation =
+          realMethod.getAnnotation(com.hubspot.jinjava.doc.annotations.JinjavaDoc.class);
 
         if (docAnnotation == null) {
           LOG.warn(
@@ -235,9 +232,8 @@ public class JinjavaDocFactory {
       if (t instanceof EndTag) {
         continue;
       }
-      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
-        t.getClass()
-      );
+      com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation =
+        getJinjavaDocAnnotation(t.getClass());
 
       if (docAnnotation == null) {
         LOG.warn(
@@ -330,9 +326,8 @@ public class JinjavaDocFactory {
     if (annotation != null) {
       return annotation.code();
     }
-    com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation = getJinjavaDocAnnotation(
-      tag.getClass()
-    );
+    com.hubspot.jinjava.doc.annotations.JinjavaDoc docAnnotation =
+      getJinjavaDocAnnotation(tag.getClass());
     StringBuilder snippet = new StringBuilder("{% ");
     snippet.append(tag.getName());
     int i = 1;

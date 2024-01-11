@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
+
   private boolean computingHashCode = false;
 
   private final Map<String, Object> map;

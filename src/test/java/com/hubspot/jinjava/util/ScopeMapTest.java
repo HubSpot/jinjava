@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ScopeMapTest {
+
   Map<String, String> a, b, c;
 
   @Before

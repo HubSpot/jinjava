@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import org.apache.commons.lang3.StringUtils;
 
 public abstract class Node implements Serializable {
+
   private static final long serialVersionUID = -6194634312533310816L;
 
   private final Token master;

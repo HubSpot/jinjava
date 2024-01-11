@@ -66,7 +66,7 @@ import org.apache.commons.lang3.tuple.Pair;
     @JinjavaParam(
       value = "items_to_iterate",
       desc = "Specifies the name of a single item in the sequence or dict."
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -87,7 +87,7 @@ import org.apache.commons.lang3.tuple.Pair;
       code = "{% for content in contents %}\n" +
       "    Post content variables\n" +
       "{% endfor %}"
-    )
+    ),
   }
 )
 @JinjavaHasCodeBody
@@ -95,6 +95,7 @@ import org.apache.commons.lang3.tuple.Pair;
   code = "{% for ${1:items} in ${2:list} %}\n" + "$0\n" + "{% endfor %}"
 )
 public class ForTag implements Tag {
+
   public static final String TAG_NAME = "for";
 
   public static final String LOOP = "loop";
@@ -164,10 +165,11 @@ public class ForTag implements Tag {
   ) {
     ForLoop loop = ObjectIterator.getLoop(collection);
 
-    Set<String> removedMetaContextVariables = EagerReconstructionUtils.removeMetaContextVariables(
-      loopVars.stream(),
-      interpreter.getContext()
-    );
+    Set<String> removedMetaContextVariables =
+      EagerReconstructionUtils.removeMetaContextVariables(
+        loopVars.stream(),
+        interpreter.getContext()
+      );
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       if (interpreter.isValidationMode() && !loop.hasNext()) {
         loop = ObjectIterator.getLoop(new DummyObject());

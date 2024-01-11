@@ -34,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 
 @Beta
 public class EagerMacroFunction extends MacroFunction {
+
   private AtomicInteger callCount = new AtomicInteger();
   private boolean reconstructing = false;
 
@@ -79,8 +80,7 @@ public class EagerMacroFunction extends MacroFunction {
         }
         return result.asTemplateString();
       } finally {
-        importFile.ifPresent(
-          path -> interpreter.getContext().getCurrentPathStack().pop()
+        importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop()
         );
       }
     }
@@ -103,10 +103,11 @@ public class EagerMacroFunction extends MacroFunction {
         interpreter.getContext().isDeferredExecutionMode()
       )
     ) {
-      PrefixToPreserveState prefixToPreserveState = EagerReconstructionUtils.resetAndDeferSpeculativeBindings(
-        interpreter,
-        eagerExecutionResult
-      );
+      PrefixToPreserveState prefixToPreserveState =
+        EagerReconstructionUtils.resetAndDeferSpeculativeBindings(
+          interpreter,
+          eagerExecutionResult
+        );
 
       String tempVarName = MacroFunctionTempVariable.getVarName(
         getName(),

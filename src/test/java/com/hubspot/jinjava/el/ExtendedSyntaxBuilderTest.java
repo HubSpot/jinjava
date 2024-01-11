@@ -20,6 +20,7 @@ import org.junit.Test;
 
 @SuppressWarnings("unchecked")
 public class ExtendedSyntaxBuilderTest {
+
   private Context context;
   private JinjavaInterpreter interpreter;
 
@@ -339,10 +340,10 @@ public class ExtendedSyntaxBuilderTest {
   @Test
   public void itReturnsCorrectSyntaxErrorPositions() {
     assertThat(
-        interpreter.render(
-          "hi {{ missing thing }}{{ missing thing }}\nI am {{ blah blabbity }} too"
-        )
+      interpreter.render(
+        "hi {{ missing thing }}{{ missing thing }}\nI am {{ blah blabbity }} too"
       )
+    )
       .isEqualTo("hi \nI am  too");
     assertThat(interpreter.getErrorsCopy().size()).isEqualTo(3);
     assertThat(interpreter.getErrorsCopy().get(0).getLineno()).isEqualTo(1);

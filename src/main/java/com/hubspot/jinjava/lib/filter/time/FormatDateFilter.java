@@ -29,17 +29,18 @@ import java.time.format.DateTimeFormatter;
       value = "locale",
       defaultValue = "Locale specified on JinjavaConfig",
       desc = "The locale to use for locale-aware formats"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(code = "{{ content.updated | format_date('long') }}"),
     @JinjavaSnippet(code = "{{ content.updated | format_date('yyyyy.MMMM.dd') }}"),
     @JinjavaSnippet(
       code = "{{ content.updated | format_date('medium', 'America/New_York', 'de-DE') }}"
-    )
+    ),
   }
 )
 public class FormatDateFilter implements Filter {
+
   private static final String NAME = "format_date";
   private static final DateTimeFormatHelper HELPER = new DateTimeFormatHelper(
     NAME,

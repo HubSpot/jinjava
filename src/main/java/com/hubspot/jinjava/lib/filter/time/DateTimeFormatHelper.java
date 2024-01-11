@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public final class DateTimeFormatHelper {
+
   public static final String FIXED_DATE_TIME_FILTER_NULL_ARG =
     "FIXED_DATE_TIME_FILTER_NULL_ARG";
   private final String name;
@@ -37,13 +38,12 @@ public final class DateTimeFormatHelper {
     ZoneId zoneId = arg(args, 1).map(this::parseZone).orElse(ZoneOffset.UTC);
     Locale locale = arg(args, 2)
       .map(this::parseLocale)
-      .orElseGet(
-        () ->
-          JinjavaInterpreter
-            .getCurrentMaybe()
-            .map(JinjavaInterpreter::getConfig)
-            .map(JinjavaConfig::getLocale)
-            .orElse(Locale.ENGLISH)
+      .orElseGet(() ->
+        JinjavaInterpreter
+          .getCurrentMaybe()
+          .map(JinjavaInterpreter::getConfig)
+          .map(JinjavaConfig::getLocale)
+          .orElse(Locale.ENGLISH)
       );
 
     return buildFormatter(format)

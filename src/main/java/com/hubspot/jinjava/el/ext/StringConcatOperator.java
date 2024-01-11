@@ -31,7 +31,6 @@ public class StringConcatOperator extends SimpleOperator {
 
   public static ExtensionHandler getHandler(boolean eager) {
     return new ExtensionHandler(ExtensionPoint.ADD) {
-
       @Override
       public AstNode createAstNode(AstNode... children) {
         return eager

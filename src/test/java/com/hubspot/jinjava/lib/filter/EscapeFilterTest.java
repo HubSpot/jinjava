@@ -14,6 +14,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class EscapeFilterTest extends BaseInterpretingTest {
+
   EscapeFilter f;
 
   @Before
@@ -33,10 +34,8 @@ public class EscapeFilterTest extends BaseInterpretingTest {
   @Test
   public void testSafeStringCanBeEscaped() {
     assertThat(
-        f
-          .filter(new SafeString("<a>Previously marked as safe<a/>"), interpreter)
-          .toString()
-      )
+      f.filter(new SafeString("<a>Previously marked as safe<a/>"), interpreter).toString()
+    )
       .isEqualTo("&lt;a&gt;Previously marked as safe&lt;a/&gt;");
     assertThat(f.filter(new SafeString("<a>Previously marked as safe<a/>"), interpreter))
       .isInstanceOf(SafeString.class);

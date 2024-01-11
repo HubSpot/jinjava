@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class UnescapeHtmlFilterTest extends BaseInterpretingTest {
+
   UnescapeHtmlFilter f;
 
   @Before

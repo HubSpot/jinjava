@@ -46,13 +46,14 @@ import java.util.LinkedHashMap;
       "       <dd>{{ user.description }}</dd>\n" +
       "  </dl>\n" +
       " {% endcall %}"
-    )
+    ),
   }
 )
 @JinjavaTextMateSnippet(
   code = "{% call ${1:macro_name}(${2:argument_names}) %}\n" + "$0\n" + "{% endcall %}"
 )
 public class CallTag implements Tag {
+
   public static final String TAG_NAME = "call";
 
   private static final long serialVersionUID = 7231253469979314727L;

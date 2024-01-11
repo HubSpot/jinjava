@@ -59,11 +59,8 @@ public class EagerContextWatcher {
         entrySet,
         metaContextVariables
       );
-      final Map<String, String> initiallyResolvedAsStrings = getInitiallyResolvedAsStrings(
-        interpreter,
-        entrySet,
-        initiallyResolvedHashes
-      );
+      final Map<String, String> initiallyResolvedAsStrings =
+        getInitiallyResolvedAsStrings(interpreter, entrySet, initiallyResolvedHashes);
       initialResult = applyFunction(function, interpreter, eagerChildContextConfig);
       speculativeBindings =
         getAllSpeculativeBindings(
@@ -129,17 +126,16 @@ public class EagerContextWatcher {
           : interpreter.getContext().getCombinedScope().entrySet()
       ).stream()
         .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
-        .filter(
-          entry -> EagerExpressionResolver.isResolvableObject(entry.getValue(), 4, 400) // TODO make this configurable
+        .filter(entry ->
+          EagerExpressionResolver.isResolvableObject(entry.getValue(), 4, 400) // TODO make this configurable
         );
-    entryStream.forEach(
-      entry ->
-        cacheRevertibleObject(
-          interpreter,
-          initiallyResolvedHashes,
-          initiallyResolvedAsStrings,
-          entry
-        )
+    entryStream.forEach(entry ->
+      cacheRevertibleObject(
+        interpreter,
+        initiallyResolvedHashes,
+        initiallyResolvedAsStrings,
+        entry
+      )
     );
     return initiallyResolvedAsStrings;
   }
@@ -152,11 +148,11 @@ public class EagerContextWatcher {
     entrySet
       .stream()
       .filter(entry -> !metaContextVariables.contains(entry.getKey()))
-      .filter(
-        entry -> !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
+      .filter(entry ->
+        !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
       )
-      .forEach(
-        entry -> mapOfHashes.put(entry.getKey(), getObjectOrHashCode(entry.getValue()))
+      .forEach(entry ->
+        mapOfHashes.put(entry.getKey(), getObjectOrHashCode(entry.getValue()))
       ); // Avoid NPE when getObjectOrHashCode(entry.getValue()) is null)
     return mapOfHashes;
   }
@@ -201,13 +197,12 @@ public class EagerContextWatcher {
             .getScope()
             .entrySet()
             .stream()
-            .filter(
-              entry ->
-                entry.getValue() instanceof OneTimeReconstructible &&
-                !(((OneTimeReconstructible) entry.getValue()).isReconstructed())
+            .filter(entry ->
+              entry.getValue() instanceof OneTimeReconstructible &&
+              !(((OneTimeReconstructible) entry.getValue()).isReconstructed())
             )
-            .peek(
-              entry -> ((OneTimeReconstructible) entry.getValue()).setReconstructed(true)
+            .peek(entry ->
+              ((OneTimeReconstructible) entry.getValue()).setReconstructed(true)
             )
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue))
         );
@@ -218,33 +213,31 @@ public class EagerContextWatcher {
       .stream()
       .filter(entry -> !ignoredKeys.contains(entry.getKey()))
       .filter(entry -> !"loop".equals(entry.getKey()))
-      .map(
-        entry -> {
-          if (
-            eagerExecutionResult.getResult().isFullyResolved() ||
-            eagerChildContextConfig.takeNewValue
-          ) {
-            return entry;
-          }
-
-          Object contextValue = interpreter.getContext().get(entry.getKey());
-          if (
-            contextValue instanceof DeferredValue &&
-            ((DeferredValue) contextValue).getOriginalValue() != null
-          ) {
-            if (
-              !eagerChildContextConfig.takeNewValue &&
-              !EagerExpressionResolver.isResolvableObject(
-                ((DeferredValue) contextValue).getOriginalValue()
-              )
-            ) {
-              throw new CannotReconstructValueException(entry.getKey());
-            }
-            return new AbstractMap.SimpleImmutableEntry<>(entry.getKey(), contextValue);
-          }
-          return null;
+      .map(entry -> {
+        if (
+          eagerExecutionResult.getResult().isFullyResolved() ||
+          eagerChildContextConfig.takeNewValue
+        ) {
+          return entry;
         }
-      )
+
+        Object contextValue = interpreter.getContext().get(entry.getKey());
+        if (
+          contextValue instanceof DeferredValue &&
+          ((DeferredValue) contextValue).getOriginalValue() != null
+        ) {
+          if (
+            !eagerChildContextConfig.takeNewValue &&
+            !EagerExpressionResolver.isResolvableObject(
+              ((DeferredValue) contextValue).getOriginalValue()
+            )
+          ) {
+            throw new CannotReconstructValueException(entry.getKey());
+          }
+          return new AbstractMap.SimpleImmutableEntry<>(entry.getKey(), contextValue);
+        }
+        return null;
+      })
       .filter(Objects::nonNull)
       .filter(entry -> entry.getValue() != null)
       .filter(entry -> !isDeferredWithOriginalValueNull(entry.getValue()))
@@ -263,29 +256,26 @@ public class EagerContextWatcher {
       .getSpeculativeBindings()
       .entrySet()
       .stream()
-      .filter(
-        entry ->
-          entry.getValue() != null &&
-          !entry.getValue().equals(interpreter.getContext().get(entry.getKey()))
+      .filter(entry ->
+        entry.getValue() != null &&
+        !entry.getValue().equals(interpreter.getContext().get(entry.getKey()))
       )
-      .filter(
-        entry -> !(interpreter.getContext().get(entry.getKey()) instanceof DeferredValue)
+      .filter(entry ->
+        !(interpreter.getContext().get(entry.getKey()) instanceof DeferredValue)
       )
       .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     speculativeBindings.putAll(
       initiallyResolvedHashes
         .keySet()
         .stream()
-        .map(
-          key ->
-            new AbstractMap.SimpleImmutableEntry<>(key, interpreter.getContext().get(key))
+        .map(key ->
+          new AbstractMap.SimpleImmutableEntry<>(key, interpreter.getContext().get(key))
         )
-        .filter(
-          entry ->
-            !Objects.equals(
-              initiallyResolvedHashes.get(entry.getKey()),
-              getObjectOrHashCode(entry.getValue())
-            )
+        .filter(entry ->
+          !Objects.equals(
+            initiallyResolvedHashes.get(entry.getKey()),
+            getObjectOrHashCode(entry.getValue())
+          )
         )
         .collect(
           Collectors.toMap(
@@ -345,8 +335,8 @@ public class EagerContextWatcher {
       }
       revertibleObject
         .getPyishString()
-        .ifPresent(
-          pyishString -> initiallyResolvedAsStrings.put(entry.getKey(), pyishString)
+        .ifPresent(pyishString ->
+          initiallyResolvedAsStrings.put(entry.getKey(), pyishString)
         );
     } catch (Exception e) {
       interpreter
@@ -408,6 +398,7 @@ public class EagerContextWatcher {
   }
 
   public static class EagerChildContextConfig {
+
     private final boolean takeNewValue;
 
     private final boolean discardSessionBindings;
@@ -435,6 +426,7 @@ public class EagerContextWatcher {
     }
 
     public static class Builder {
+
       private boolean takeNewValue;
 
       private boolean discardSessionBindings;

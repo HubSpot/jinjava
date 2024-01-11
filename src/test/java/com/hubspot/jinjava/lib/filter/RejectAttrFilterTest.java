@@ -29,56 +29,54 @@ public class RejectAttrFilterTest extends BaseJinjavaTest {
   @Test
   public void rejectAttrWithNoExp() {
     assertThat(
-        jinjava.render(
-          "{{ users|rejectattr('is_active') }}",
-          new HashMap<String, Object>()
-        )
-      )
+      jinjava.render("{{ users|rejectattr('is_active') }}", new HashMap<String, Object>())
+    )
       .isEqualTo("[0, 2]");
   }
 
   @Test
   public void rejectAttrWithExp() {
     assertThat(
-        jinjava.render(
-          "{{ users|rejectattr('email', 'none') }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ users|rejectattr('email', 'none') }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("[0, 1]");
   }
 
   @Test
   public void rejectAttrWithIsEqualToExp() {
     assertThat(
-        jinjava.render(
-          "{{ users|rejectattr('email', 'equalto', 'bar@bar.com') }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ users|rejectattr('email', 'equalto', 'bar@bar.com') }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("[0, 2]");
   }
 
   @Test
   public void rejectAttrWithNestedProperty() {
     assertThat(
-        jinjava.render(
-          "{{ users|rejectattr('option.id', 'equalto', 1) }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ users|rejectattr('option.id', 'equalto', 1) }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("[0, 2]");
 
     assertThat(
-        jinjava.render(
-          "{{ users|rejectattr('option.name', 'equalto', 'option0') }}",
-          new HashMap<String, Object>()
-        )
+      jinjava.render(
+        "{{ users|rejectattr('option.name', 'equalto', 'option0') }}",
+        new HashMap<String, Object>()
       )
+    )
       .isEqualTo("[1, 2]");
   }
 
   public static class User implements PyishSerializable {
+
     private int num;
     private boolean isActive;
     private String email;
@@ -121,6 +119,7 @@ public class RejectAttrFilterTest extends BaseJinjavaTest {
   }
 
   public static class Option {
+
     private long id;
     private String name;
 

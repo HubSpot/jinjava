@@ -41,16 +41,17 @@ import org.apache.commons.lang3.StringUtils;
     @JinjavaParam(
       value = "path",
       desc = "Design Manager path to the file that you would like to include"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(code = "{% include \"custom/page/web_page_basic/my_footer.html\" %}"),
     @JinjavaSnippet(code = "{% include \"generated_global_groups/2781996615.html\" %}"),
-    @JinjavaSnippet(code = "{% include \"hubspot/styles/patches/recommended.css\" %}")
+    @JinjavaSnippet(code = "{% include \"hubspot/styles/patches/recommended.css\" %}"),
   }
 )
 @JinjavaTextMateSnippet(code = "{% include '${1:path}' %}")
 public class IncludeTag implements Tag {
+
   public static final String TAG_NAME = "include";
 
   private static final long serialVersionUID = -8391753639874726854L;

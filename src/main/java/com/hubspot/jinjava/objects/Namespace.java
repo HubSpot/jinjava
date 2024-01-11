@@ -24,8 +24,8 @@ public class Namespace extends SizeLimitingPyMap implements PyishSerializable {
   @SuppressWarnings("unchecked")
   public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
     throws IOException {
-    return (T) PyishSerializable
-      .super.appendPyishString((T) appendable.append("namespace("))
+    return (T) PyishSerializable.super
+      .appendPyishString((T) appendable.append("namespace("))
       .append(')');
   }
 }

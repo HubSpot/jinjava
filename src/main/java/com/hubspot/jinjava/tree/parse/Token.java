@@ -22,6 +22,7 @@ import com.hubspot.jinjava.interpret.UnexpectedTokenException;
 import java.io.Serializable;
 
 public abstract class Token implements Serializable {
+
   private static final long serialVersionUID = 3359084948763661809L;
 
   protected String image;

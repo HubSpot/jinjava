@@ -17,6 +17,7 @@ import javax.el.ELContext;
 import javax.el.ELException;
 
 public class EagerAstMacroFunction extends AstMacroFunction implements EvalResultHolder {
+
   protected Object evalResult;
   protected boolean hasEvalResult;
   // instanceof AstParameters
@@ -71,8 +72,7 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
     ELContext context,
     Object base,
     Method method
-  )
-    throws InvocationTargetException, IllegalAccessException {
+  ) throws InvocationTargetException, IllegalAccessException {
     Class<?>[] types = method.getParameterTypes();
     Object[] params = null;
     if (types.length > 0) {

@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Beta
 public class MapEntrySerializer extends JsonSerializer<Entry<?, ?>> {
+
   public static final MapEntrySerializer INSTANCE = new MapEntrySerializer();
 
   private MapEntrySerializer() {}
@@ -21,8 +22,7 @@ public class MapEntrySerializer extends JsonSerializer<Entry<?, ?>> {
     Entry<?, ?> entry,
     JsonGenerator jsonGenerator,
     SerializerProvider serializerProvider
-  )
-    throws IOException {
+  ) throws IOException {
     AtomicInteger remainingLength = (AtomicInteger) serializerProvider.getAttribute(
       LengthLimitingWriter.REMAINING_LENGTH_ATTRIBUTE
     );

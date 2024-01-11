@@ -29,6 +29,7 @@ import java.util.Map;
 import org.junit.Test;
 
 public class ObjectIteratorTest {
+
   private Object items = null;
   private ForLoop loop = null;
 

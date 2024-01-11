@@ -55,11 +55,12 @@ import javax.el.PropertyNotWritableException;
  * @see ELResolver
  */
 public class BeanELResolver extends ELResolver {
-  private static PropertyNotFoundException propertyNotFoundException = new PropertyNotFoundException(
-    "Could not find property"
-  );
+
+  private static PropertyNotFoundException propertyNotFoundException =
+    new PropertyNotFoundException("Could not find property");
 
   protected static final class BeanProperties {
+
     private final Map<String, BeanProperty> map = new HashMap<String, BeanProperty>();
 
     public BeanProperties(Class<?> baseClass) {
@@ -80,6 +81,7 @@ public class BeanELResolver extends ELResolver {
   }
 
   protected static final class BeanProperty {
+
     private final PropertyDescriptor descriptor;
 
     private Method readMethod;

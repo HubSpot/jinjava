@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class ExpectedNodeInterpreter {
+
   private JinjavaInterpreter interpreter;
   private Tag tag;
   private String path;

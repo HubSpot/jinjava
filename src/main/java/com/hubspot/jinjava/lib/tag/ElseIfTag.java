@@ -13,12 +13,13 @@ import com.hubspot.jinjava.tree.TagNode;
       value = "condition",
       type = "conditional expression",
       desc = "An expression that evaluates to either true or false"
-    )
+    ),
   },
   hidden = true
 )
 @JinjavaHasCodeBody
 public class ElseIfTag implements Tag {
+
   public static final String TAG_NAME = "elif";
 
   private static final long serialVersionUID = -7988057025956316803L;

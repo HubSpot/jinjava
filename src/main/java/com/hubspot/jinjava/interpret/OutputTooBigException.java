@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.interpret;
 
 public class OutputTooBigException extends RuntimeException {
+
   private long maxSize;
   private final long size;
 

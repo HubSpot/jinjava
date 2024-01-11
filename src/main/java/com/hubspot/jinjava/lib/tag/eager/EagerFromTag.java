@@ -40,21 +40,19 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
     } catch (DeferredValueException e) {
       imports
         .values()
-        .forEach(
-          value -> {
-            MacroFunction deferredMacro = new MacroFunction(
-              null,
-              value,
-              null,
-              false,
-              null,
-              tagToken.getLineNumber(),
-              tagToken.getStartPosition()
-            );
-            deferredMacro.setDeferred(true);
-            interpreter.getContext().addGlobalMacro(deferredMacro);
-          }
-        );
+        .forEach(value -> {
+          MacroFunction deferredMacro = new MacroFunction(
+            null,
+            value,
+            null,
+            false,
+            null,
+            tagToken.getLineNumber(),
+            tagToken.getStartPosition()
+          );
+          deferredMacro.setDeferred(true);
+          interpreter.getContext().addGlobalMacro(deferredMacro);
+        });
       return (
         EagerReconstructionUtils.buildBlockOrInlineSetTag(
           RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
@@ -138,10 +136,9 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
       .entrySet()
       .stream()
       .filter(e -> !e.getKey().equals(e.getValue()))
-      .filter(
-        e ->
-          interpreter.getContext().containsKey(e.getValue()) ||
-          !interpreter.getContext().isGlobalMacro(e.getValue())
+      .filter(e ->
+        interpreter.getContext().containsKey(e.getValue()) ||
+        !interpreter.getContext().isGlobalMacro(e.getValue())
       )
       .collect(Collectors.toMap(Entry::getValue, Entry::getKey)); // flip order
   }

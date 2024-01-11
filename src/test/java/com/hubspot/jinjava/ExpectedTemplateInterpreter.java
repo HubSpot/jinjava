@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class ExpectedTemplateInterpreter {
+
   private Jinjava jinjava;
   private JinjavaInterpreter interpreter;
   private String path;

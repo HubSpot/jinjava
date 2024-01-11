@@ -13,7 +13,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
       code = "{% if true is boolean %}\n" +
       "      <!--this code will always render-->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsBooleanExpTest implements ExpTest {

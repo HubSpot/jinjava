@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class UrlEncodeFilterTest extends BaseInterpretingTest {
+
   UrlEncodeFilter filter;
 
   @Before

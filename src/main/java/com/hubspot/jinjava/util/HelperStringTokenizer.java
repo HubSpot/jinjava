@@ -26,6 +26,7 @@ import java.util.List;
  *
  */
 public class HelperStringTokenizer extends AbstractIterator<String> {
+
   private final char[] value;
   private final int length;
 

@@ -41,13 +41,14 @@ import java.util.Map;
       type = "number",
       desc = "The divisor to divide the value",
       required = true
-    )
+    ),
   },
   snippets = {
-    @JinjavaSnippet(code = "{% set numerator = 106 %}\n" + "{% numerator|divide(2) %}")
+    @JinjavaSnippet(code = "{% set numerator = 106 %}\n" + "{% numerator|divide(2) %}"),
   }
 )
 public class DivideFilter implements AdvancedFilter {
+
   private static final TruthyTypeConverter TYPE_CONVERTER = new TruthyTypeConverter();
 
   @Override

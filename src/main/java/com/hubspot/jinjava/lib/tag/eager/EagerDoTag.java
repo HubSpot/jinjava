@@ -30,18 +30,19 @@ public class EagerDoTag extends EagerStateChangingTag<DoTag> implements Flexible
     InterpretException e
   ) {
     if (hasEndTag((TagToken) tagNode.getMaster())) {
-      EagerExecutionResult eagerExecutionResult = EagerContextWatcher.executeInChildContext(
-        eagerInterpreter ->
-          EagerExpressionResult.fromSupplier(
-            () -> renderChildren(tagNode, interpreter),
-            eagerInterpreter
-          ),
-        interpreter,
-        EagerContextWatcher
-          .EagerChildContextConfig.newBuilder()
-          .withTakeNewValue(true)
-          .build()
-      );
+      EagerExecutionResult eagerExecutionResult =
+        EagerContextWatcher.executeInChildContext(
+          eagerInterpreter ->
+            EagerExpressionResult.fromSupplier(
+              () -> renderChildren(tagNode, interpreter),
+              eagerInterpreter
+            ),
+          interpreter,
+          EagerContextWatcher.EagerChildContextConfig
+            .newBuilder()
+            .withTakeNewValue(true)
+            .build()
+        );
       PrefixToPreserveState prefixToPreserveState = new PrefixToPreserveState();
       if (interpreter.getContext().isDeferredExecutionMode()) {
         prefixToPreserveState.withAll(eagerExecutionResult.getPrefixToPreserveState());

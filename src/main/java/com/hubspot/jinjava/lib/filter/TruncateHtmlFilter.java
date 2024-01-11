@@ -39,16 +39,17 @@ import org.jsoup.select.NodeVisitor;
       type = "boolean",
       defaultValue = "false",
       desc = "If set to true, text will be truncated in the middle of words"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
       code = "{{ \"<p>I want to truncate this text without breaking my HTML<p>\"|truncatehtml(28, '..', false) }}",
       output = "<p>I want to truncate this text without breaking my HTML</p>"
-    )
+    ),
   }
 )
 public class TruncateHtmlFilter implements AdvancedFilter {
+
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
   private static final String DEFAULT_END = "...";
   private static final String LENGTH_KEY = "length";
@@ -156,6 +157,7 @@ public class TruncateHtmlFilter implements AdvancedFilter {
   }
 
   private static class ContentTruncatingNodeVisitor implements NodeVisitor {
+
     private final int maxTextLen;
     private int textLen;
     private final String ending;

@@ -38,6 +38,7 @@ public class SumFilterTest extends BaseJinjavaTest {
   }
 
   public static class Item {
+
     private Number price;
 
     public Item(Number price) {

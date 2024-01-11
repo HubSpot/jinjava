@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.tree.parse;
 
 public class DefaultTokenScannerSymbols extends TokenScannerSymbols {
+
   private static final long serialVersionUID = 3825893609777542598L;
 
   char TOKEN_PREFIX_CHAR = '{';

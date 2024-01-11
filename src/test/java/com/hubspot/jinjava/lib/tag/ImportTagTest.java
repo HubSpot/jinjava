@@ -31,12 +31,11 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Before
   public void setup() {
-    jinjava.setResourceLocator(
-      (fullName, encoding, interpreter) ->
-        Resources.toString(
-          Resources.getResource(String.format("tags/macrotag/%s", fullName)),
-          StandardCharsets.UTF_8
-        )
+    jinjava.setResourceLocator((fullName, encoding, interpreter) ->
+      Resources.toString(
+        Resources.getResource(String.format("tags/macrotag/%s", fullName)),
+        StandardCharsets.UTF_8
+      )
     );
 
     context.put("padding", 42);
@@ -189,11 +188,11 @@ public class ImportTagTest extends BaseInterpretingTest {
       .map(Node::reconstructImage)
       .collect(Collectors.toSet());
     assertThat(
-        deferredImages
-          .stream()
-          .filter(image -> image.contains("{% set primary_line_height"))
-          .collect(Collectors.toSet())
-      )
+      deferredImages
+        .stream()
+        .filter(image -> image.contains("{% set primary_line_height"))
+        .collect(Collectors.toSet())
+    )
       .isNotEmpty();
   }
 
@@ -210,11 +209,11 @@ public class ImportTagTest extends BaseInterpretingTest {
       .map(Node::reconstructImage)
       .collect(Collectors.toSet());
     assertThat(
-        deferredImages
-          .stream()
-          .filter(image -> image.contains("{% set primary_line_height"))
-          .collect(Collectors.toSet())
-      )
+      deferredImages
+        .stream()
+        .filter(image -> image.contains("{% set primary_line_height"))
+        .collect(Collectors.toSet())
+    )
       .isNotEmpty();
   }
 
@@ -275,8 +274,7 @@ public class ImportTagTest extends BaseInterpretingTest {
           String fullName,
           Charset encoding,
           JinjavaInterpreter interpreter
-        )
-          throws IOException {
+        ) throws IOException {
           return Resources.toString(
             Resources.getResource(String.format("%s", fullName)),
             StandardCharsets.UTF_8
@@ -373,10 +371,10 @@ public class ImportTagTest extends BaseInterpretingTest {
   public void itCorrectlySetsNestedPaths() {
     context.put("foo", "foo");
     assertThat(
-        interpreter.render(
-          "{% import 'double-import-macro.jinja' %}{{ print_path_macro2(foo) }}"
-        )
+      interpreter.render(
+        "{% import 'double-import-macro.jinja' %}{{ print_path_macro2(foo) }}"
       )
+    )
       .isEqualTo("double-import-macro.jinja\n\nimport-macro.jinja\nfoo\n");
   }
 

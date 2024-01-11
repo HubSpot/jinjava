@@ -25,7 +25,7 @@ import org.apache.commons.lang3.ArrayUtils;
       "{% set three = 3 %}\n" +
       "{% set list_num = one|list + two|list + three|list %}\n" +
       "{{ list_num|list }}"
-    )
+    ),
   }
 )
 public class ListFilter implements Filter {

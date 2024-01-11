@@ -7,6 +7,7 @@ import com.hubspot.jinjava.lib.filter.AllowSnakeCaseFilter;
 import java.io.IOException;
 
 public class BothCasingBeanSerializer<T> extends JsonSerializer<T> {
+
   private final JsonSerializer<T> orignalSerializer;
 
   private BothCasingBeanSerializer(JsonSerializer<T> jsonSerializer) {
@@ -24,8 +25,7 @@ public class BothCasingBeanSerializer<T> extends JsonSerializer<T> {
     T value,
     JsonGenerator gen,
     SerializerProvider serializerProvider
-  )
-    throws IOException {
+  ) throws IOException {
     if (
       Boolean.TRUE.equals(
         serializerProvider.getAttribute(PyishObjectMapper.ALLOW_SNAKE_CASE_ATTRIBUTE)

@@ -16,6 +16,7 @@ limitations under the License.
 package com.hubspot.jinjava.interpret;
 
 public class InterpretException extends RuntimeException {
+
   private static final long serialVersionUID = -3471306977643126138L;
 
   private int lineNumber = -1;

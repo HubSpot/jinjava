@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ContextTest {
+
   private static final String RESOLVED_EXPRESSION = "exp";
   private static final String RESOLVED_FUNCTION = "func";
   private static final String RESOLVED_VALUE = "val";

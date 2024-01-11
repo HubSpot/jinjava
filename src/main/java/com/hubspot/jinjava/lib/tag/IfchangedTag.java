@@ -32,11 +32,12 @@ import org.apache.commons.lang3.StringUtils;
       code = "{% ifchanged var %}\n" +
       "Variable to test if changed\n" +
       "{% endifchanged %}"
-    )
+    ),
   }
 )
 @JinjavaHasCodeBody
 public class IfchangedTag implements Tag {
+
   public static final String TAG_NAME = "ifchanged";
 
   private static final long serialVersionUID = 3567908136629704724L;

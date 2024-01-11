@@ -30,7 +30,7 @@ import java.util.Objects;
     @JinjavaSnippet(
       code = "{% set escape_string = \"This string can safely be inserted into JavaScript\" %}\n" +
       "{{ escape_string|escapejs }}"
-    )
+    ),
   }
 )
 public class EscapeJsFilter implements Filter {

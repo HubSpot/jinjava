@@ -24,7 +24,7 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
       "{% else %}\n" +
       "   <!--code to render if variable cannot be divided by 5-->\n" +
       "{% endif %}"
-    )
+    ),
   }
 )
 public class IsDivisibleByExpTest implements ExpTest {

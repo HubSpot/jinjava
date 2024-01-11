@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 
 @Beta
 public class EagerExpressionResolver {
+
   public static final String JINJAVA_NULL = "null";
   public static final String JINJAVA_EMPTY_STRING = "''";
 
@@ -348,6 +349,7 @@ public class EagerExpressionResolver {
   }
 
   public static class EagerExpressionResult {
+
     private final Object resolvedObject;
     private final Set<String> deferredWords;
     private final ResolutionState resolutionState;
@@ -509,6 +511,7 @@ public class EagerExpressionResolver {
   }
 
   private static class FoundQuotedExpressionTags {
+
     Integer firstStartTagFoundLocation;
     Integer lastEndTagFoundLocation;
 

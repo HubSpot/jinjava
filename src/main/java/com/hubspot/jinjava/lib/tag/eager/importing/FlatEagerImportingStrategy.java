@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class FlatEagerImportingStrategy implements EagerImportingStrategy {
+
   private final ImportingData importingData;
 
   @VisibleForTesting
@@ -46,17 +47,15 @@ public class FlatEagerImportingStrategy implements EagerImportingStrategy {
 
     childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
     childBindings.remove(Context.IMPORT_RESOURCE_ALIAS_KEY);
-    Map<String, Object> childBindingsWithoutImportResourcePath = ImportTag.getChildBindingsWithoutImportResourcePath(
-      childBindings
-    );
+    Map<String, Object> childBindingsWithoutImportResourcePath =
+      ImportTag.getChildBindingsWithoutImportResourcePath(childBindings);
     if (parent.getContext().isDeferredExecutionMode()) {
       childBindingsWithoutImportResourcePath
         .keySet()
-        .forEach(
-          key ->
-            parent
-              .getContext()
-              .put(key, DeferredValue.instance(parent.getContext().get(key)))
+        .forEach(key ->
+          parent
+            .getContext()
+            .put(key, DeferredValue.instance(parent.getContext().get(key)))
         );
     } else {
       parent.getContext().putAll(childBindingsWithoutImportResourcePath);
@@ -81,9 +80,8 @@ public class FlatEagerImportingStrategy implements EagerImportingStrategy {
           .getSessionBindings()
           .entrySet()
           .stream()
-          .filter(
-            entry ->
-              !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
+          .filter(entry ->
+            !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
           )
           .filter(entry -> !metaContextVariables.contains(entry.getKey()))
           .collect(Collectors.toMap(Entry::getKey, entry -> "")),

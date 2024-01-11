@@ -10,6 +10,7 @@ import javax.el.ELContext;
 import javax.el.ELException;
 
 public class EagerAstChoice extends AstChoice implements EvalResultHolder {
+
   protected Object evalResult;
   protected boolean hasEvalResult;
   protected final EvalResultHolder question;

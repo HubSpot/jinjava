@@ -14,6 +14,7 @@ import java.util.Map;
  *
  */
 public abstract class AbstractCallableMethod {
+
   public static final Method EVAL_METHOD;
 
   static {

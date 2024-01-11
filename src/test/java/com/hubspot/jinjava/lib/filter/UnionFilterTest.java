@@ -19,8 +19,8 @@ public class UnionFilterTest extends BaseJinjavaTest {
     assertThat(jinjava.render("{{ [1, 2, 3, 3]|union([1, 2, 5, 6]) }}", new HashMap<>()))
       .isEqualTo("[1, 2, 3, 5, 6]");
     assertThat(
-        jinjava.render("{{ ['do', 'ray']|union(['ray', 'me']) }}", new HashMap<>())
-      )
+      jinjava.render("{{ ['do', 'ray']|union(['ray', 'me']) }}", new HashMap<>())
+    )
       .isEqualTo("['do', 'ray', 'me']");
   }
 

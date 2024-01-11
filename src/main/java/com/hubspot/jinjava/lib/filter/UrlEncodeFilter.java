@@ -21,7 +21,7 @@ import org.apache.commons.lang3.StringUtils;
     required = true
   ),
   snippets = {
-    @JinjavaSnippet(code = "{{ \"Escape & URL encode this string\"|urlencode }}")
+    @JinjavaSnippet(code = "{{ \"Escape & URL encode this string\"|urlencode }}"),
   }
 )
 public class UrlEncodeFilter implements Filter {

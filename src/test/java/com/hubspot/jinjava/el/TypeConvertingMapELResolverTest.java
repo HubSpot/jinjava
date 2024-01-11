@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TypeConvertingMapELResolverTest {
+
   private TypeConvertingMapELResolver typeConvertingMapELResolver;
 
   @Before

@@ -15,6 +15,7 @@ import org.junit.After;
 import org.junit.Test;
 
 public class UnixTimestampFunctionTest {
+
   private final ZonedDateTime d = ZonedDateTime.parse(
     "2013-11-06T14:22:12.345+00:00[UTC]"
   );

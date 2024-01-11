@@ -18,11 +18,12 @@ import org.apache.commons.lang3.StringUtils;
       "{% set foo = [] %}\n" +
       "{{ foo.append('a') }}\n" +
       "{% enddo %}"
-    )
+    ),
   }
 )
 @JinjavaTextMateSnippet(code = "{% do ${1:expr} %}")
 public class DoTag implements Tag, FlexibleTag {
+
   public static final String TAG_NAME = "do";
 
   @Override

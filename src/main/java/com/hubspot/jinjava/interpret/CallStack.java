@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.Stack;
 
 public class CallStack {
+
   private final CallStack parent;
   private final Class<? extends TagCycleException> exceptionClass;
   private final Stack<String> stack = new Stack<>();

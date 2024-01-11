@@ -23,10 +23,11 @@ import org.jsoup.safety.Safelist;
     @JinjavaSnippet(
       code = "{% set some_html = \"<div><strong>Some text</strong></div>\" %}\n" +
       "{{ some_html|striptags }}"
-    )
+    ),
   }
 )
 public class StripTagsFilter implements Filter {
+
   private static final Pattern WHITESPACE = Pattern.compile("\\s{2,}");
 
   @Override

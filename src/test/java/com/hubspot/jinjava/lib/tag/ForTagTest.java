@@ -33,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ForTagTest extends BaseInterpretingTest {
+
   public Tag tag;
 
   @Before
@@ -77,12 +78,12 @@ public class ForTagTest extends BaseInterpretingTest {
   public void forLoopNestedFor() {
     TagNode tagNode = (TagNode) fixture("nested-fors");
     assertThat(
-        Splitter
-          .on("\n")
-          .trimResults()
-          .omitEmptyStrings()
-          .split(tag.interpret(tagNode, interpreter))
-      )
+      Splitter
+        .on("\n")
+        .trimResults()
+        .omitEmptyStrings()
+        .split(tag.interpret(tagNode, interpreter))
+    )
       .contains("02", "03", "12", "13");
   }
 

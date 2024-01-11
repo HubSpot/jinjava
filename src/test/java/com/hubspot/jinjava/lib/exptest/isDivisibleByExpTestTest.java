@@ -11,6 +11,7 @@ import java.util.HashMap;
 import org.junit.Test;
 
 public class isDivisibleByExpTestTest extends BaseJinjavaTest {
+
   private static final String DIVISIBLE_BY_TEMPLATE = "{{ %s is divisibleby %s }}";
 
   @Test

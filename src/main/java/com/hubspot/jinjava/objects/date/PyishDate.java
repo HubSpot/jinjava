@@ -25,6 +25,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 public final class PyishDate
   extends Date
   implements Serializable, PyWrapper, PyishSerializable {
+
   private static final long serialVersionUID = 1L;
   public static final String PYISH_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
   public static final String FULL_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
@@ -54,14 +55,13 @@ public final class PyishDate
         Instant.ofEpochMilli(
           Optional
             .ofNullable(epochMillis)
-            .orElseGet(
-              () ->
-                JinjavaInterpreter
-                  .getCurrentMaybe()
-                  .map(JinjavaInterpreter::getConfig)
-                  .map(JinjavaConfig::getDateTimeProvider)
-                  .map(DateTimeProvider::getCurrentTimeMillis)
-                  .orElseGet(System::currentTimeMillis)
+            .orElseGet(() ->
+              JinjavaInterpreter
+                .getCurrentMaybe()
+                .map(JinjavaInterpreter::getConfig)
+                .map(JinjavaConfig::getDateTimeProvider)
+                .map(DateTimeProvider::getCurrentTimeMillis)
+                .orElseGet(System::currentTimeMillis)
             )
         ),
         ZoneOffset.UTC

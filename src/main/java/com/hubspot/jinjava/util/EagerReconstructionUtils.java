@@ -226,15 +226,13 @@ public class EagerReconstructionUtils {
       deferredWordBases =
         deferredWordBases
           .stream()
-          .filter(
-            word -> {
-              Object parentValue = finalParent.get(word);
-              return (
-                !(parentValue instanceof DeferredValue) &&
-                interpreter.getContext().get(word) != finalParent.get(word)
-              );
-            }
-          )
+          .filter(word -> {
+            Object parentValue = finalParent.get(word);
+            return (
+              !(parentValue instanceof DeferredValue) &&
+              interpreter.getContext().get(word) != finalParent.get(word)
+            );
+          })
           .collect(Collectors.toSet());
     }
     return deferredWordBases;
@@ -279,22 +277,21 @@ public class EagerReconstructionUtils {
       .stream()
       .peek(entry -> toRemove.add(entry.getKey()))
       .peek(entry -> entry.getValue().setDeferred(true))
-      .map(
-        entry ->
-          new AbstractMap.SimpleImmutableEntry<>(
-            entry.getKey(),
-            EagerContextWatcher.executeInChildContext(
-              eagerInterpreter ->
-                EagerExpressionResult.fromString(
-                  ((EagerMacroFunction) entry.getValue()).reconstructImage(entry.getKey())
-                ),
-              interpreter,
-              EagerContextWatcher
-                .EagerChildContextConfig.newBuilder()
-                .withForceDeferredExecutionMode(true)
-                .build()
-            )
+      .map(entry ->
+        new AbstractMap.SimpleImmutableEntry<>(
+          entry.getKey(),
+          EagerContextWatcher.executeInChildContext(
+            eagerInterpreter ->
+              EagerExpressionResult.fromString(
+                ((EagerMacroFunction) entry.getValue()).reconstructImage(entry.getKey())
+              ),
+            interpreter,
+            EagerContextWatcher.EagerChildContextConfig
+              .newBuilder()
+              .withForceDeferredExecutionMode(true)
+              .build()
           )
+        )
       )
       .collect(
         Collectors.toMap(Entry::getKey, entry -> entry.getValue().asTemplateString())
@@ -316,22 +313,20 @@ public class EagerReconstructionUtils {
       .stream()
       .filter(w -> !metaContextVariables.contains(w))
       .filter(w -> !prefixToPreserveState.containsKey(w))
-      .map(
-        word ->
-          new AbstractMap.SimpleImmutableEntry<>(word, interpreter.getContext().get(word))
+      .map(word ->
+        new AbstractMap.SimpleImmutableEntry<>(word, interpreter.getContext().get(word))
       )
-      .filter(
-        entry -> entry.getValue() != null && !(entry.getValue() instanceof DeferredValue)
+      .filter(entry ->
+        entry.getValue() != null && !(entry.getValue() instanceof DeferredValue)
       )
-      .forEach(
-        entry ->
-          hydrateBlockOrInlineSetTagRecursively(
-            prefixToPreserveState,
-            entry.getKey(),
-            entry.getValue(),
-            interpreter,
-            depth
-          )
+      .forEach(entry ->
+        hydrateBlockOrInlineSetTagRecursively(
+          prefixToPreserveState,
+          entry.getKey(),
+          entry.getValue(),
+          interpreter,
+          depth
+        )
       );
     return prefixToPreserveState;
   }
@@ -477,16 +472,14 @@ public class EagerReconstructionUtils {
     StringJoiner vars = new StringJoiner(",");
     StringJoiner values = new StringJoiner(",");
     StringJoiner varsRequiringSuffix = new StringJoiner(",");
-    deferredValuesToSet.forEach(
-      (key, value) -> {
-        // This ensures they are properly aligned to each other.
-        vars.add(key);
-        values.add(value);
-        if (!AliasedEagerImportingStrategy.isTemporaryImportAlias(value)) {
-          varsRequiringSuffix.add(key);
-        }
+    deferredValuesToSet.forEach((key, value) -> {
+      // This ensures they are properly aligned to each other.
+      vars.add(key);
+      values.add(value);
+      if (!AliasedEagerImportingStrategy.isTemporaryImportAlias(value)) {
+        varsRequiringSuffix.add(key);
       }
-    );
+    });
     LengthLimitingStringJoiner result = new LengthLimitingStringJoiner(
       interpreter.getConfig().getMaxOutputSize(),
       " "
@@ -825,30 +818,26 @@ public class EagerReconstructionUtils {
       .getScope()
       .entrySet()
       .stream()
-      .filter(
-        entry ->
-          entry.getValue() instanceof OneTimeReconstructible &&
-          !((OneTimeReconstructible) entry.getValue()).isReconstructed()
+      .filter(entry ->
+        entry.getValue() instanceof OneTimeReconstructible &&
+        !((OneTimeReconstructible) entry.getValue()).isReconstructed()
       )
-      .filter(
-        entry ->
-          // Always reconstruct the DeferredLazyReferenceSource, but only reconstruct DeferredLazyReferences when they are used
-          entry.getValue() instanceof DeferredLazyReferenceSource ||
-          usedDeferredWords.contains(entry.getKey())
+      .filter(entry ->
+        // Always reconstruct the DeferredLazyReferenceSource, but only reconstruct DeferredLazyReferences when they are used
+        entry.getValue() instanceof DeferredLazyReferenceSource ||
+        usedDeferredWords.contains(entry.getKey())
       )
       .peek(entry -> ((OneTimeReconstructible) entry.getValue()).setReconstructed(true))
-      .map(
-        entry ->
-          new AbstractMap.SimpleImmutableEntry<>(
-            entry.getKey(),
-            PyishObjectMapper.getAsPyishString(
-              ((DeferredValue) entry.getValue()).getOriginalValue()
-            )
+      .map(entry ->
+        new AbstractMap.SimpleImmutableEntry<>(
+          entry.getKey(),
+          PyishObjectMapper.getAsPyishString(
+            ((DeferredValue) entry.getValue()).getOriginalValue()
           )
+        )
       )
-      .sorted(
-        (a, b) ->
-          a.getValue().equals(b.getKey()) ? 1 : b.getValue().equals(a.getKey()) ? -1 : 0
+      .sorted((a, b) ->
+        a.getValue().equals(b.getKey()) ? 1 : b.getValue().equals(a.getKey()) ? -1 : 0
       )
       .collect(
         Collectors.toMap(
@@ -897,14 +886,12 @@ public class EagerReconstructionUtils {
   ) {
     result
       .getSpeculativeBindings()
-      .forEach(
-        (k, v) -> {
-          if (v instanceof DeferredValue) {
-            v = ((DeferredValue) v).getOriginalValue();
-          }
-          replace(interpreter.getContext(), k, v);
+      .forEach((k, v) -> {
+        if (v instanceof DeferredValue) {
+          v = ((DeferredValue) v).getOriginalValue();
         }
-      );
+        replace(interpreter.getContext(), k, v);
+      });
     return result.getSpeculativeBindings().keySet();
   }
 

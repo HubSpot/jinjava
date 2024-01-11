@@ -45,6 +45,7 @@ public class ObjectTruthValueTest {
   }
 
   private class TestObject implements HasObjectTruthValue {
+
     private boolean objectTruthValue = false;
 
     public TestObject setObjectTruthValue(boolean objectTruthValue) {

@@ -28,6 +28,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EagerTagDecoratorTest extends BaseInterpretingTest {
+
   private static final long MAX_OUTPUT_SIZE = 50L;
   private Tag mockTag;
   private EagerGenericTag<Tag> eagerTagDecorator;
@@ -122,9 +123,8 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     TagNode tagNode = (TagNode) (
       interpreter.parse("{% print range(0, 50) %}").getChildren().get(0)
     );
-    assertThatThrownBy(
-        () ->
-          eagerTagDecorator.getEagerTagImage((TagToken) tagNode.getMaster(), interpreter)
+    assertThatThrownBy(() ->
+        eagerTagDecorator.getEagerTagImage((TagToken) tagNode.getMaster(), interpreter)
       )
       .isInstanceOf(OutputTooBigException.class);
   }
@@ -146,8 +146,8 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
   public void itDoesntModifyContextWhenResultIsDeferred() {
     context.put("foo", new ArrayList<>());
     assertThat(
-        interpreter.render("{{ modify_context('foo', 'bar') ~ deferred }}{{ foo }}")
-      )
+      interpreter.render("{{ modify_context('foo', 'bar') ~ deferred }}{{ foo }}")
+    )
       .isEqualTo("{{ null ~ deferred }}[bar]");
   }
 

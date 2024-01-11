@@ -37,7 +37,7 @@ import java.util.Optional;
     @JinjavaParam(
       value = "macro_name",
       desc = "Name of macro or comma separated macros to import (import macro_name)"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -53,11 +53,12 @@ import java.util.Optional;
       desc = "The macro html file is accessed from a different template, but only the footer macro is imported and executed",
       code = "{% from 'custom/page/web_page_basic/my_macros.html' import footer %}\n" +
       "{{ footer('h2', 'My footer info') }}"
-    )
+    ),
   }
 )
 @JinjavaTextMateSnippet(code = "{% from '${1:path}' import ${2:macro_name} %}")
 public class FromTag implements Tag {
+
   public static final String TAG_NAME = "from";
 
   private static final long serialVersionUID = 6152691434172265022L;

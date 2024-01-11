@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 public class FileLocator implements ResourceLocator {
+
   private File baseDir;
 
   /**

@@ -10,7 +10,9 @@ import java.util.Map;
 
 @Beta
 public class PyishBeanSerializerModifier extends BeanSerializerModifier {
-  public static final PyishBeanSerializerModifier INSTANCE = new PyishBeanSerializerModifier();
+
+  public static final PyishBeanSerializerModifier INSTANCE =
+    new PyishBeanSerializerModifier();
 
   private PyishBeanSerializerModifier() {}
 

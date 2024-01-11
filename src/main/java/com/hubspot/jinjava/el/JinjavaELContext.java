@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import javax.el.ELResolver;
 
 public class JinjavaELContext extends SimpleContext {
+
   private JinjavaInterpreter interpreter;
   private MacroFunctionMapper functionMapper;
 

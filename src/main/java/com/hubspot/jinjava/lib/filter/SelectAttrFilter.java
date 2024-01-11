@@ -35,7 +35,7 @@ import java.util.Map;
       type = "name of expression test",
       defaultValue = "truthy",
       desc = "Specify which expression test to run for making the selection"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -43,7 +43,7 @@ import java.util.Map;
       code = "{% for content in contents|selectattr('post_list_summary_featured_image') %}\n" +
       "    <div class=\"post-item\">Post in listing markup</div>\n" +
       "{% endfor %}"
-    )
+    ),
   }
 )
 public class SelectAttrFilter implements AdvancedFilter {

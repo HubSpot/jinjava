@@ -22,6 +22,7 @@ import java.util.Optional;
  *
  */
 public class MacroFunction extends AbstractCallableMethod {
+
   public static final String KWARGS_KEY = "kwargs";
   public static final String VARARGS_KEY = "varargs";
   protected final List<Node> content;
@@ -85,16 +86,15 @@ public class MacroFunction extends AbstractCallableMethod {
     );
 
     // pushWithoutCycleCheck() is used to here so that macros calling macros from the same file will not throw a TagCycleException
-    importFile.ifPresent(
-      path ->
-        interpreter
-          .getContext()
-          .getCurrentPathStack()
-          .pushWithoutCycleCheck(
-            path,
-            interpreter.getLineNumber(),
-            interpreter.getPosition()
-          )
+    importFile.ifPresent(path ->
+      interpreter
+        .getContext()
+        .getCurrentPathStack()
+        .pushWithoutCycleCheck(
+          path,
+          interpreter.getLineNumber(),
+          interpreter.getPosition()
+        )
     );
     return importFile;
   }
@@ -214,17 +214,15 @@ public class MacroFunction extends AbstractCallableMethod {
       return penultimateParent
         .getDeferredTokens()
         .stream()
-        .filter(
-          deferredToken ->
-            Objects.equals(importResourcePath, deferredToken.getImportResourcePath())
+        .filter(deferredToken ->
+          Objects.equals(importResourcePath, deferredToken.getImportResourcePath())
         )
-        .anyMatch(
-          deferredToken ->
-            deferredToken.getSetDeferredWords().contains(key) ||
-            deferredToken
-              .getUsedDeferredWords()
-              .stream()
-              .anyMatch(used -> key.equals(used.split("\\.", 2)[0]))
+        .anyMatch(deferredToken ->
+          deferredToken.getSetDeferredWords().contains(key) ||
+          deferredToken
+            .getUsedDeferredWords()
+            .stream()
+            .anyMatch(used -> key.equals(used.split("\\.", 2)[0]))
         );
     }
     return false;

@@ -61,8 +61,8 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
               eagerRenderBranches(tagNode, eagerInterpreter, e)
             ),
           interpreter,
-          EagerContextWatcher
-            .EagerChildContextConfig.newBuilder()
+          EagerContextWatcher.EagerChildContextConfig
+            .newBuilder()
             .withForceDeferredExecutionMode(true)
             .build()
         )
@@ -114,8 +114,8 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
               evaluateBranch(tagNode, finalBranchStart, branchEnd, interpreter)
             ),
           interpreter,
-          EagerContextWatcher
-            .EagerChildContextConfig.newBuilder()
+          EagerContextWatcher.EagerChildContextConfig
+            .newBuilder()
             .withForceDeferredExecutionMode(true)
             .build()
         );
@@ -154,10 +154,11 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
       }
       branchStart = branchEnd + 1;
     }
-    PrefixToPreserveState prefixToPreserveState = EagerReconstructionUtils.deferWordsAndReconstructReferences(
-      interpreter,
-      bindingsToDefer
-    );
+    PrefixToPreserveState prefixToPreserveState =
+      EagerReconstructionUtils.deferWordsAndReconstructReferences(
+        interpreter,
+        bindingsToDefer
+      );
     return prefixToPreserveState + sb.toString();
   }
 

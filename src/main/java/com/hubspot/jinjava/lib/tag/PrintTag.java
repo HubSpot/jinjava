@@ -17,10 +17,11 @@ import java.util.Objects;
   snippets = {
     @JinjavaSnippet(
       code = "{% set string_to_echo = \"Print me\" %}\n" + "{% print string_to_echo %}"
-    )
+    ),
   }
 )
 public class PrintTag implements Tag {
+
   public static final String TAG_NAME = "print";
 
   private static final long serialVersionUID = -8613906103187594569L;

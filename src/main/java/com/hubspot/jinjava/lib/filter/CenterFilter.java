@@ -16,7 +16,7 @@ import org.apache.commons.lang3.math.NumberUtils;
       type = "number",
       defaultValue = "80",
       desc = "Width of field to center value in"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -25,7 +25,7 @@ import org.apache.commons.lang3.math.NumberUtils;
       "    {% set var = \"string to center\" %}\n" +
       "    {{ var|center(80) }}\n" +
       "</pre>"
-    )
+    ),
   }
 )
 public class CenterFilter implements Filter {

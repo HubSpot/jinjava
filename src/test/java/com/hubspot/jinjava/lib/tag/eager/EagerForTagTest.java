@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class EagerForTagTest extends ForTagTest {
+
   private static final long MAX_OUTPUT_SIZE = 5000L;
   private ExpectedNodeInterpreter expectedNodeInterpreter;
 
@@ -100,13 +101,13 @@ public class EagerForTagTest extends ForTagTest {
   @Test
   public void itUsesDeferredExecutionModeWhenChildrenAreLarge() {
     assertThat(
-        interpreter.render(
-          String.format(
-            "{%% for item in range(%d) %%}1234567890{%% endfor %%}",
-            MAX_OUTPUT_SIZE / 10 - 1
-          )
+      interpreter.render(
+        String.format(
+          "{%% for item in range(%d) %%}1234567890{%% endfor %%}",
+          MAX_OUTPUT_SIZE / 10 - 1
         )
       )
+    )
       .hasSize((int) MAX_OUTPUT_SIZE - 10);
     assertThat(interpreter.getContext().getDeferredTokens()).isEmpty();
     assertThat(interpreter.getContext().getDeferredNodes()).isEmpty();

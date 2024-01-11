@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class NamedParameter implements PyishSerializable {
+
   private final String name;
   private final Object value;
 

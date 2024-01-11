@@ -21,6 +21,7 @@ import com.google.common.collect.AbstractIterator;
 import com.hubspot.jinjava.JinjavaConfig;
 
 public class TokenScanner extends AbstractIterator<Token> {
+
   private final JinjavaConfig config;
 
   private final char[] is;

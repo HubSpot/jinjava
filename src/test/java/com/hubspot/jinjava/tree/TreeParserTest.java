@@ -138,7 +138,7 @@ public class TreeParserTest extends BaseInterpretingTest {
       new Jinjava(
         JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build()
       )
-      .newInterpreter();
+        .newInterpreter();
 
     assertThat(interpreter.render(parse("parse/tokenizer/whitespace-tags.jinja")))
       .isEqualTo("<div>\n" + "        yay\n" + "</div>\n");
@@ -242,7 +242,7 @@ public class TreeParserTest extends BaseInterpretingTest {
           )
           .build()
       )
-      .newInterpreter();
+        .newInterpreter();
     final Node newTree = new TreeParser(interpreter, expression).buildTree();
     assertThat(interpreter.render(newTree)).isEqualTo("AB");
   }
@@ -264,7 +264,7 @@ public class TreeParserTest extends BaseInterpretingTest {
           )
           .build()
       )
-      .newInterpreter();
+        .newInterpreter();
     final Node newTree = new TreeParser(interpreter, expression).buildTree();
     assertThat(interpreter.render(newTree)).isEqualTo("A\n");
   }
@@ -286,7 +286,7 @@ public class TreeParserTest extends BaseInterpretingTest {
           )
           .build()
       )
-      .newInterpreter();
+        .newInterpreter();
     final Node newTree = new TreeParser(interpreter, expression).buildTree();
     assertThat(interpreter.render(newTree)).isEqualTo("A\n{{ ");
   }
@@ -308,7 +308,7 @@ public class TreeParserTest extends BaseInterpretingTest {
           )
           .build()
       )
-      .newInterpreter();
+        .newInterpreter();
     final Node newTree = new TreeParser(interpreter, expression).buildTree();
     assertThat(interpreter.render(newTree)).isEqualTo("A\n{% ");
   }
@@ -337,7 +337,7 @@ public class TreeParserTest extends BaseInterpretingTest {
           )
           .build()
       )
-      .newInterpreter();
+        .newInterpreter();
     final Node newTree = new TreeParser(interpreter, expression).buildTree();
     assertThat(interpreter.render(newTree)).isEqualTo("ABC");
   }
@@ -356,7 +356,7 @@ public class TreeParserTest extends BaseInterpretingTest {
           )
           .build()
       )
-      .newInterpreter();
+        .newInterpreter();
     final Node overriddenTree = new TreeParser(interpreter, expression).buildTree();
     assertThat(interpreter.render(overriddenTree)).isEqualTo("A\nB");
   }
@@ -367,7 +367,7 @@ public class TreeParserTest extends BaseInterpretingTest {
         interpreter,
         Resources.toString(Resources.getResource(fixture), StandardCharsets.UTF_8)
       )
-      .buildTree();
+        .buildTree();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

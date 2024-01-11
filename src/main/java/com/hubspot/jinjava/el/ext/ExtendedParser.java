@@ -51,6 +51,7 @@ import java.util.Set;
 import javax.el.ELException;
 
 public class ExtendedParser extends Parser {
+
   public static final String INTERPRETER = "____int3rpr3t3r____";
   public static final String FILTER_PREFIX = "filter:";
   public static final String EXPTEST_PREFIX = "exptest:";
@@ -116,7 +117,6 @@ public class ExtendedParser extends Parser {
     putExtensionHandler(
       PIPE,
       new ExtensionHandler(ExtensionPoint.AND) {
-
         @Override
         public AstNode createAstNode(AstNode... children) {
           throw new ELException("Illegal use of '|' operator");
@@ -626,7 +626,6 @@ public class ExtendedParser extends Parser {
   }
 
   private static final ExtensionHandler NULL_EXT_HANDLER = new ExtensionHandler(null) {
-
     @Override
     public AstNode createAstNode(AstNode... children) {
       return null;

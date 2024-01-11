@@ -5,6 +5,7 @@ import com.google.common.annotations.Beta;
 @Beta
 public class DeferredLazyReference
   implements DeferredValue, Cloneable, OneTimeReconstructible {
+
   private final LazyReference lazyReference;
   private boolean reconstructed;
 

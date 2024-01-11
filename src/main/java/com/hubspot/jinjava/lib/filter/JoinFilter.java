@@ -26,7 +26,7 @@ import java.util.Objects;
     @JinjavaParam(
       value = "attr",
       desc = "Optional dict object attribute to use in joining"
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(code = "{{ [1, 2, 3]|join('|') }}", output = "1|2|3"),
@@ -34,7 +34,7 @@ import java.util.Objects;
     @JinjavaSnippet(
       desc = "It is also possible to join certain attributes of an object",
       code = "{{ users|join(', ', attribute='username') }}"
-    )
+    ),
   }
 )
 public class JoinFilter implements Filter {

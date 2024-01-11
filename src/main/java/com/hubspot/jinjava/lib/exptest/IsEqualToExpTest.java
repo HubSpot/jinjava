@@ -18,7 +18,7 @@ import de.odysseus.el.misc.TypeConverter;
       type = "object",
       desc = "Another object to check equality against",
       required = true
-    )
+    ),
   },
   snippets = {
     @JinjavaSnippet(
@@ -29,10 +29,11 @@ import de.odysseus.el.misc.TypeConverter;
     @JinjavaSnippet(
       desc = "Usage with the selectattr filter",
       code = "{{ users|selectattr(\"email\", \"equalto\", \"foo@bar.invalid\") }}"
-    )
+    ),
   }
 )
 public class IsEqualToExpTest implements ExpTest {
+
   private static final TypeConverter TYPE_CONVERTER = new TruthyTypeConverter();
 
   @Override
