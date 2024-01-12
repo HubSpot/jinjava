@@ -170,7 +170,7 @@ public class Functions {
       }
     }
 
-    ZonedDateTime dateTime = getDateTimeArg(null, zoneOffset);
+    ZonedDateTime dateTime = getDateTimeArg(System.currentTimeMillis(), zoneOffset);
     return dateTime.toLocalDate().atStartOfDay(zoneOffset);
   }
 
