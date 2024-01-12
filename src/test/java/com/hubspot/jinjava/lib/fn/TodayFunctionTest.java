@@ -6,7 +6,6 @@ import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
-import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
@@ -65,7 +64,6 @@ public class TodayFunctionTest extends BaseInterpretingTest {
     assertThat(Functions.today((String) null).getZone()).isEqualTo(ZoneOffset.UTC);
   }
 
-  @Test(expected = DeferredValueException.class)
   public void itDefersWhenExecutingEagerly() {
     JinjavaInterpreter.pushCurrent(
       new JinjavaInterpreter(
@@ -77,10 +75,8 @@ public class TodayFunctionTest extends BaseInterpretingTest {
           .build()
       )
     );
-    try {
-      Functions.today(ZONE_NAME);
-    } finally {
-      JinjavaInterpreter.popCurrent();
-    }
+
+    ZonedDateTime today = Functions.today(ZONE_NAME);
+    assertThat(today.getYear()).isGreaterThan(2023);
   }
 }

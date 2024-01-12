@@ -169,8 +169,13 @@ public class Functions {
         );
       }
     }
-
-    ZonedDateTime dateTime = getDateTimeArg(null, zoneOffset);
+    long currentMillis = JinjavaInterpreter
+      .getCurrentMaybe()
+      .map(JinjavaInterpreter::getConfig)
+      .map(JinjavaConfig::getDateTimeProvider)
+      .map(DateTimeProvider::getCurrentTimeMillis)
+      .orElse(System.currentTimeMillis());
+    ZonedDateTime dateTime = getDateTimeArg(currentMillis, zoneOffset);
     return dateTime.toLocalDate().atStartOfDay(zoneOffset);
   }
 
