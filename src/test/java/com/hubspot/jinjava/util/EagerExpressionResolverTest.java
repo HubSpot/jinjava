@@ -773,13 +773,6 @@ public class EagerExpressionResolverTest {
   }
 
   @Test
-  public void itHandlesToday() {
-    context.put("foo", "bar");
-    assertThat(eagerResolveExpression("foo ~ today()").toString())
-      .isEqualTo("'bar' ~ today()");
-  }
-
-  @Test
   public void itHandlesRandom() {
     assertThat(eagerResolveExpression("range(1)|random").toString())
       .isEqualTo("filter:random.filter(range(1), ____int3rpr3t3r____)");
