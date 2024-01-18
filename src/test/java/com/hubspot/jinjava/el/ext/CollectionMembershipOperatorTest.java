@@ -4,12 +4,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
 public class CollectionMembershipOperatorTest {
+
+  static class NoKeySetMap<K, V> extends AbstractMap<K, V> {
+
+    @Override
+    public boolean isEmpty() {
+      return false;
+    }
+
+    @Override
+    public Set<K> keySet() {
+      return Collections.emptySet();
+    }
+
+    @Override
+    public Set<Entry<K, V>> entrySet() {
+      return Collections.emptySet();
+    }
+  }
 
   private JinjavaInterpreter interpreter;
 
@@ -48,5 +69,13 @@ public class CollectionMembershipOperatorTest {
     assertThat(interpreter.resolveELExpression("'a' in map", -1)).isEqualTo(true);
     assertThat(interpreter.resolveELExpression("null in map", -1)).isEqualTo(true);
     assertThat(interpreter.resolveELExpression("'b' in map", -1)).isEqualTo(false);
+  }
+
+  @Test
+  public void itCheckEmptyKeySet() {
+    // The map is "not" empty, but keySet() is empty.
+    Map<String, Object> map = new NoKeySetMap<>();
+    interpreter.getContext().put("map", map);
+    assertThat(interpreter.resolveELExpression("'a' in map", -1)).isEqualTo(false);
   }
 }
