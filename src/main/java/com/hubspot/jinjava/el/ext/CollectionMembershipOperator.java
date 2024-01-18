@@ -48,7 +48,8 @@ public class CollectionMembershipOperator extends SimpleOperator {
 
     if (Map.class.isAssignableFrom(o2.getClass())) {
       Map map = (Map) o2;
-      if (map.isEmpty()) {
+      // An implementation of Map can override isEmpty() to false, but return empty keySet.
+      if (map.isEmpty() || map.keySet().isEmpty()) {
         return Boolean.FALSE;
       }
       Iterator iterator = map.keySet().iterator();
