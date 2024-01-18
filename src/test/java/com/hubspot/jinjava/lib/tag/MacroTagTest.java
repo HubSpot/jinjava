@@ -381,7 +381,7 @@ public class MacroTagTest extends BaseInterpretingTest {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-  }
+  } // x-request-start
 
   private TagNode fixture(String name) {
     return (TagNode) snippet(fixtureText(name));
