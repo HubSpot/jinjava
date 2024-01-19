@@ -87,16 +87,24 @@ public class ExpressionResolver {
     }
     expression = expression.trim();
     if (addToResolvedExpressions) {
+      if (WhitespaceUtils.isWrappedWith(expression, "[", "]")) {
+        String commaSeparatedExpress = expression
+          .substring(1, expression.length() - 1)
+          .trim();
+        // Over-simplified way to detect JSON format, avoid to break it for adding resolved expressions.
+        if (
+          !commaSeparatedExpress.startsWith("{") || !commaSeparatedExpress.endsWith("}")
+        ) {
+          Arrays
+            .stream(commaSeparatedExpress.split(","))
+            .forEach(substring ->
+              interpreter.getContext().addResolvedExpression(substring.trim())
+            );
+        }
+      }
       interpreter.getContext().addResolvedExpression(expression);
     }
 
-    if (WhitespaceUtils.isWrappedWith(expression, "[", "]")) {
-      Arrays
-        .stream(expression.substring(1, expression.length() - 1).split(","))
-        .forEach(substring ->
-          interpreter.getContext().addResolvedExpression(substring.trim())
-        );
-    }
     try {
       String elExpression = EXPRESSION_START_TOKEN + expression + EXPRESSION_END_TOKEN;
       ValueExpression valueExp = expressionFactory.createValueExpression(
