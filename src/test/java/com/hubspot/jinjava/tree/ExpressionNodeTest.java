@@ -133,24 +133,26 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itRenderDebugUndefined() {
-
+  public void itRenderEchoUndefined() {
     final JinjavaConfig config = JinjavaConfig
-            .newBuilder()
-            .withFeatureConfig(FeatureConfig
-                    .newBuilder()
-                    .add(ECHO_UNDEFINED, FeatureStrategies.ACTIVE).build())
-            .build();
+      .newBuilder()
+      .withFeatureConfig(
+        FeatureConfig.newBuilder().add(ECHO_UNDEFINED, FeatureStrategies.ACTIVE).build()
+      )
+      .build();
     final JinjavaInterpreter jinjavaInterpreter = new Jinjava(config).newInterpreter();
     jinjavaInterpreter.getContext().put("subject", "this");
 
-    String template = "{{ subject | capitalize() }} expression {{ testing.template('hello_world') }} " +
-            "has a {{ unknown | lower() }} " +
-            "token but {{ unknown | default(\"replaced\") }}";
+    String template =
+      "{{ subject | capitalize() }} expression {{ testing.template('hello_world') }} " +
+      "has a {{ unknown | lower() }} " +
+      "token but {{ unknown | default(\"replaced\") }} and empty {{ '' }}";
     Node node = new TreeParser(jinjavaInterpreter, template).buildTree();
     assertThat(jinjavaInterpreter.render(node))
-            .isEqualTo("This expression {{ testing.template('hello_world') }} " +
-                    "has a {{ unknown | lower() }} token but replaced");
+      .isEqualTo(
+        "This expression {{ testing.template('hello_world') }} " +
+        "has a {{ unknown | lower() }} token but replaced and empty "
+      );
   }
 
   @Test

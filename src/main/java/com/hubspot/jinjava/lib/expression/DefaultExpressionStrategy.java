@@ -22,6 +22,16 @@ public class DefaultExpressionStrategy implements ExpressionStrategy {
       master.getExpr(),
       master.getLineNumber()
     );
+
+    final FeatureActivationStrategy feat = interpreter
+      .getConfig()
+      .getFeatures()
+      .getActivationStrategy(ECHO_UNDEFINED);
+
+    if (var == null && feat.isActive(interpreter.getContext())) {
+      return new RenderedOutputNode(master.getImage());
+    }
+
     String result = interpreter.getAsString(var);
 
     if (interpreter.getConfig().isNestedInterpretationEnabled()) {
@@ -43,14 +53,6 @@ public class DefaultExpressionStrategy implements ExpressionStrategy {
     if (interpreter.getContext().isAutoEscape() && !(var instanceof SafeString)) {
       result = EscapeFilter.escapeHtmlEntities(result);
     }
-    final FeatureActivationStrategy feat = interpreter
-          .getConfig()
-          .getFeatures()
-          .getActivationStrategy(ECHO_UNDEFINED);
-
-  if (result.isEmpty() && feat.isActive(interpreter.getContext())){
-      result = master.getImage();
-  }
 
     return new RenderedOutputNode(result);
   }
