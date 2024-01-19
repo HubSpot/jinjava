@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.tree;
 
+import static com.hubspot.jinjava.lib.expression.DefaultExpressionStrategy.ECHO_UNDEFINED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -7,6 +8,8 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.features.FeatureConfig;
+import com.hubspot.jinjava.features.FeatureStrategies;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
@@ -127,6 +130,27 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
 
     ExpressionNode node = fixture("string-range");
     assertThat(node.render(interpreter).toString()).isEqualTo("345");
+  }
+
+  @Test
+  public void itRenderDebugUndefined() {
+
+    final JinjavaConfig config = JinjavaConfig
+            .newBuilder()
+            .withFeatureConfig(FeatureConfig
+                    .newBuilder()
+                    .add(ECHO_UNDEFINED, FeatureStrategies.ACTIVE).build())
+            .build();
+    final JinjavaInterpreter jinjavaInterpreter = new Jinjava(config).newInterpreter();
+    jinjavaInterpreter.getContext().put("subject", "this");
+
+    String template = "{{ subject | capitalize() }} expression {{ testing.template('hello_world') }} " +
+            "has a {{ unknown | lower() }} " +
+            "token but {{ unknown | default(\"replaced\") }}";
+    Node node = new TreeParser(jinjavaInterpreter, template).buildTree();
+    assertThat(jinjavaInterpreter.render(node))
+            .isEqualTo("This expression {{ testing.template('hello_world') }} " +
+                    "has a {{ unknown | lower() }} token but replaced");
   }
 
   @Test
