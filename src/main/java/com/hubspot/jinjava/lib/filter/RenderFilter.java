@@ -5,7 +5,10 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import java.util.Objects;
+import java.util.Stack;
 import org.apache.commons.lang3.math.NumberUtils;
 
 @JinjavaDoc(
@@ -18,6 +21,8 @@ import org.apache.commons.lang3.math.NumberUtils;
   }
 )
 public class RenderFilter implements Filter {
+  public static final boolean IGNORE_MODULE_DISABLED_EXCEPTION = true;
+
 
   @Override
   public String getName() {
@@ -26,6 +31,9 @@ public class RenderFilter implements Filter {
 
   @Override
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
+    if (IGNORE_MODULE_DISABLED_EXCEPTION) {
+      removeModuleErrors(interpreter);
+    }
     if (args.length > 0) {
       String firstArg = args[0];
       return interpreter.render(
@@ -37,5 +45,21 @@ public class RenderFilter implements Filter {
       );
     }
     return interpreter.render(Objects.toString(var));
+  }
+
+  private void removeModuleErrors(JinjavaInterpreter jinjavaInterpreter) {
+    Stack<TemplateError> validErrors = new Stack<>();
+    while (jinjavaInterpreter.getLastError().isPresent()) {
+      TemplateError te = jinjavaInterpreter.getLastError().get();
+      jinjavaInterpreter.removeLastError();
+      if (te.getReason() == ErrorReason.DISABLED && te.getMessage().contains("module")) {
+        continue;
+      }
+      validErrors.add(te);
+    }
+
+    while (!validErrors.empty()) {
+      jinjavaInterpreter.addError(validErrors.pop());
+    }
   }
 }
