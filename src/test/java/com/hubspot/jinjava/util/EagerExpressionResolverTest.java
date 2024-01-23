@@ -773,6 +773,21 @@ public class EagerExpressionResolverTest {
   }
 
   @Test
+  public void itDoesNotSplitJsonResolvedExpression() {
+    eagerResolveExpression("{'a': 1, 'b': 2}");
+    assertThat(context.getResolvedExpressions())
+      .containsExactlyInAnyOrder("{'a': 1, 'b': 2}");
+  }
+
+  @Test
+  public void itDoesNotSplitJsonInArrayResolvedExpression() {
+    // It should not add the broke JSON `{'a': 1` to resolved expressions.
+    eagerResolveExpression("[{'a': 1, 'b': 2}]");
+    assertThat(context.getResolvedExpressions())
+      .containsExactlyInAnyOrder("[{'a': 1, 'b': 2}]");
+  }
+
+  @Test
   public void itHandlesRandom() {
     assertThat(eagerResolveExpression("range(1)|random").toString())
       .isEqualTo("filter:random.filter(range(1), ____int3rpr3t3r____)");
