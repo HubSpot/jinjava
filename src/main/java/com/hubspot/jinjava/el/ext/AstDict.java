@@ -53,7 +53,7 @@ public class AstDict extends AstLiteral {
         key = entryKey.eval(bindings, context).toString();
       } else {
         throw new TemplateStateException(
-          "Dict key must be a string or identifier, was: " + entryKey
+          "Dict key must be a string, or identifier, or a  number, was: " + entryKey
         );
       }
 
