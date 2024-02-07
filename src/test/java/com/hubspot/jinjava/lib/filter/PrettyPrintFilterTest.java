@@ -52,8 +52,8 @@ public class PrettyPrintFilterTest {
 
   @Test
   public void ppMap() {
-    assertThat(f.filter(ImmutableMap.of("a", "foo", "b", "bar"), null))
-      .isEqualTo("{% raw %}(RegularImmutableMap: {a=foo, b=bar}){% endraw %}");
+    assertThat(f.filter(ImmutableMap.of("b", "foo", "a", "bar"), null))
+      .isEqualTo("{% raw %}(RegularImmutableMap: {a=bar, b=foo}){% endraw %}");
   }
 
   @Test
