@@ -10,6 +10,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 @JinjavaDoc(
   value = "Pretty print a variable. Useful for debugging.",
@@ -45,10 +46,12 @@ public class PrettyPrintFilter implements Filter {
       var instanceof String ||
       var instanceof Number ||
       var instanceof PyishDate ||
-      var instanceof Iterable ||
-      var instanceof Map
+      var instanceof Iterable
     ) {
       varStr = Objects.toString(var);
+    } else if (var instanceof Map) {
+      TreeMap map = new TreeMap((Map) var);
+      varStr = Objects.toString(map);
     } else {
       try {
         varStr =
