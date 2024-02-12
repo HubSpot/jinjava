@@ -14,6 +14,7 @@
   <description>Jinja templating engine implemented in Java</description>
 
   <properties>
+    <project.build.targetJdk>8</project.build.targetJdk>
     <dep.javassist.version>3.24.1-GA</dep.javassist.version>
     <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
     <dep.guava.version>31.1-jre</dep.guava.version>
