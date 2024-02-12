@@ -1,4 +1,18 @@
 # Jinjava Releases #
+### 2024-02-12 Version 2.7.2 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.2/jar)) ###
+* [Use interpreter's locale for strftime functions](https://github.com/HubSpot/jinjava/pull/1109)
+* [Prevent infinite hashCode recursion in PyList or PyMap](https://github.com/HubSpot/jinjava/pull/1112)
+* [Support aliasing macro function names in {% from %} tag](https://github.com/HubSpot/jinjava/pull/1117)
+* [Add whitespace trimming functionality for notes and expressions](https://github.com/HubSpot/jinjava/pull/1122)
+* [Add feature to prevent accidental expressions from being output](https://github.com/HubSpot/jinjava/pull/1123)
+* [Add length-limiting to |render filter and add |closehtml filter](https://github.com/HubSpot/jinjava/pull/1128)
+* [Add length-limiting to |tojson filter](https://github.com/HubSpot/jinjava/pull/1131)
+* [Make |pprint filter output in JSON format](https://github.com/HubSpot/jinjava/pull/1132)
+* [Allow for loop with `null` values](https://github.com/HubSpot/jinjava/pull/1140)
+* [Add length-limiting when coercing strings](https://github.com/HubSpot/jinjava/pull/1142)
+* [Add `ECHO_UNDEFINED` feature](https://github.com/HubSpot/jinjava/pull/1150)
+* Various PRs for eager execution to support two-phase rendering.
+
 ### 2023-08-11 Version 2.7.1 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.1/jar)) ###
 * [Introduce `{% do %}` blocks](https://github.com/HubSpot/jinjava/pull/1030)
 * [Add warnings for unclosed tokens](https://github.com/HubSpot/jinjava/pull/1093)
