@@ -16,6 +16,7 @@
   <properties>
     <dep.javassist.version>3.24.1-GA</dep.javassist.version>
     <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
+    <dep.plugin.javadoc.version>3.0.1</dep.plugin.javadoc.version>
     <dep.guava.version>31.1-jre</dep.guava.version>
     <dep.error-prone.version>2.19.1</dep.error-prone.version>
 
