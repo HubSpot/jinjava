@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.PartiallyDeferredValue;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.ExpressionNode;
 import com.hubspot.jinjava.tree.Node;
@@ -26,6 +27,10 @@ public class DeferredValueUtils {
 
   private static final String TEMPLATE_TAG_REGEX = "(\\w+(?:\\.\\w+)*)";
   private static final Pattern TEMPLATE_TAG_PATTERN = Pattern.compile(TEMPLATE_TAG_REGEX);
+
+  public static boolean isFullyDeferred(Object obj) {
+    return obj instanceof DeferredValue && !(obj instanceof PartiallyDeferredValue);
+  }
 
   public static HashMap<String, Object> getDeferredContextWithOriginalValues(
     Map<String, Object> context
