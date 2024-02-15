@@ -81,10 +81,5 @@ public class EagerAstDotTest extends BaseInterpretingTest {
     public Object getOriginalValue() {
       return null;
     }
-    //    @Override
-    //    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
-    //      throws IOException {
-    //      return (T) appendable.append("foo");
-    //    }
   }
 }

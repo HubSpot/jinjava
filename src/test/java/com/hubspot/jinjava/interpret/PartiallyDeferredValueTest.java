@@ -190,7 +190,7 @@ public class PartiallyDeferredValueTest extends BaseInterpretingTest {
   }
 
   public static class BadPyishSerializable
-    implements ReconstructiblePartiallyDeferredValue {
+    implements PartiallyDeferredValue, PyishSerializable {
 
     public String getDeferred() {
       throw new DeferredValueException("foo.deferred is deferred");
