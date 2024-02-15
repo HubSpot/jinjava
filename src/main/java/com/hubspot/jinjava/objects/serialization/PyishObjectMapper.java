@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.annotations.Beta;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.util.WhitespaceUtils;
@@ -69,7 +70,18 @@ public class PyishObjectMapper {
       return getAsPyishStringOrThrow(val, forOutput);
     } catch (IOException e) {
       handleLengthLimitingException(e);
+      handleDeferredValueException(e);
       return Objects.toString(val, "");
+    }
+  }
+
+  private static void handleDeferredValueException(IOException e) {
+    Throwable unwrapped = e;
+    if (e instanceof JsonMappingException) {
+      unwrapped = unwrapped.getCause();
+    }
+    if (unwrapped instanceof DeferredValueException) {
+      throw (DeferredValueException) unwrapped;
     }
   }
 

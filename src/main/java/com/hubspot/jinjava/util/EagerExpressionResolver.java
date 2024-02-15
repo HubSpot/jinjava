@@ -86,9 +86,7 @@ public class EagerExpressionResolver {
     } catch (DeferredParsingException e) {
       deferredWords.addAll(findDeferredWords(e.getDeferredEvalResult(), interpreter));
       result = e.getDeferredEvalResult().trim();
-    } catch (DeferredValueException e) {
-      deferredWords.addAll(findDeferredWords(expression, interpreter));
-      result = expression;
+      // Throw base-class DeferredValueExceptions because only DeferredParsingExceptions are expected when parsing EL expressions
     } catch (TemplateSyntaxException e) {
       result = Collections.singletonList(null);
       fullyResolved = true;

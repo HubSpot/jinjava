@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.entry;
 
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
-import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
@@ -31,22 +30,12 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Before
   public void setup() {
-    jinjava.setResourceLocator((fullName, encoding, interpreter) ->
-      Resources.toString(
-        Resources.getResource(String.format("tags/macrotag/%s", fullName)),
-        StandardCharsets.UTF_8
-      )
-    );
-
     context.put("padding", 42);
     context.registerFilter(new PrintPathFilter());
   }
 
   @Test
   public void itAvoidsSimpleImportCycle() throws IOException {
-    Jinjava jinjava = new Jinjava();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
-
     interpreter.render(
       Resources.toString(
         Resources.getResource("tags/importtag/imports-self.jinja"),
@@ -61,9 +50,6 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Test
   public void itAvoidsNestedImportCycle() throws IOException {
-    Jinjava jinjava = new Jinjava();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
-
     interpreter.render(
       Resources.toString(
         Resources.getResource("tags/importtag/a-imports-b.jinja"),
@@ -79,9 +65,6 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Test
   public void itHandlesNullImportedValues() throws IOException {
-    Jinjava jinjava = new Jinjava();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
-
     interpreter.render(
       Resources.toString(
         Resources.getResource("tags/importtag/imports-null.jinja"),
@@ -94,6 +77,12 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Test
   public void importedContextExposesVars() {
+    jinjava.setResourceLocator((fullName, encoding, interpreter) ->
+      Resources.toString(
+        Resources.getResource(String.format("tags/macrotag/%s", fullName)),
+        StandardCharsets.UTF_8
+      )
+    );
     assertThat(fixture("import"))
       .contains("wrap-padding: padding-left:42px;padding-right:42px");
   }
@@ -103,8 +92,6 @@ public class ImportTagTest extends BaseInterpretingTest {
   // subsequent uses of any variables defined in the imported template are marked as deferred
   @Test
   public void itDefersImportedVariableKey() {
-    Jinjava jinjava = new Jinjava();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
     interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
     fixture("import-property");
     assertThat(interpreter.getContext().get("pegasus")).isInstanceOf(DeferredValue.class);
@@ -119,8 +106,6 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Test
   public void itDefersGloballyImportedVariables() {
-    Jinjava jinjava = new Jinjava();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
     interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
     fixture("import-property-global");
     assertThat(interpreter.getContext().get("primary_line_height"))
@@ -129,8 +114,6 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Test
   public void itReconstructsDeferredImportTag() {
-    Jinjava jinjava = new Jinjava();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
     interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
     String renderedImport = fixture("import-property");
     assertThat(renderedImport)
@@ -140,8 +123,6 @@ public class ImportTagTest extends BaseInterpretingTest {
   @Test
   public void itDoesNotRenderTagsDependingOnDeferredImport() {
     try {
-      Jinjava jinjava = new Jinjava();
-      interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
       interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
       String renderedImport = fixture("import-property-global");
       assertThat(renderedImport)
@@ -159,8 +140,6 @@ public class ImportTagTest extends BaseInterpretingTest {
   @Test
   public void itDoesNotRenderTagsDependingOnDeferredGlobalImport() {
     try {
-      Jinjava jinjava = new Jinjava();
-      interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
       interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
       String renderedImport = fixture("import-property");
       assertThat(renderedImport)
@@ -177,8 +156,6 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Test
   public void itAddsAllDeferredNodesOfImport() {
-    Jinjava jinjava = new Jinjava();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
     interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
     fixture("import-property");
     Set<String> deferredImages = interpreter
@@ -198,8 +175,6 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Test
   public void itAddsAllDeferredNodesOfGlobalImport() {
-    Jinjava jinjava = new Jinjava();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
     interpreter.getContext().put("primary_font_size_num", DeferredValue.instance());
     fixture("import-property-global");
     Set<String> deferredImages = interpreter
@@ -219,6 +194,12 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Test
   public void importedContextExposesMacros() {
+    jinjava.setResourceLocator((fullName, encoding, interpreter) ->
+      Resources.toString(
+        Resources.getResource(String.format("tags/macrotag/%s", fullName)),
+        StandardCharsets.UTF_8
+      )
+    );
     assertThat(fixture("import")).contains("<td height=\"42\">");
     MacroFunction fn = (MacroFunction) interpreter.resolveObject(
       "pegasus.spacer",
@@ -232,12 +213,24 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Test
   public void importedContextDoesntExposePrivateMacros() {
+    jinjava.setResourceLocator((fullName, encoding, interpreter) ->
+      Resources.toString(
+        Resources.getResource(String.format("tags/macrotag/%s", fullName)),
+        StandardCharsets.UTF_8
+      )
+    );
     fixture("import");
     assertThat(context.get("_private")).isNull();
   }
 
   @Test
   public void importedContextFnsProperlyResolveScopedVars() {
+    jinjava.setResourceLocator((fullName, encoding, interpreter) ->
+      Resources.toString(
+        Resources.getResource(String.format("tags/macrotag/%s", fullName)),
+        StandardCharsets.UTF_8
+      )
+    );
     String result = fixture("imports-macro-referencing-macro");
 
     assertThat(interpreter.getErrorsCopy()).isEmpty();
@@ -249,9 +242,6 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Test
   public void itImportsMacroWithCall() throws IOException {
-    Jinjava jinjava = new Jinjava();
-    interpreter = new JinjavaInterpreter(jinjava, context, jinjava.getGlobalConfig());
-
     String renderResult = interpreter.render(
       Resources.toString(
         Resources.getResource("tags/importtag/imports-macro.jinja"),
@@ -264,7 +254,6 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Test
   public void itImportsMacroViaRelativePathWithCall() throws IOException {
-    Jinjava jinjava = new Jinjava();
     jinjava.setResourceLocator(
       new ResourceLocator() {
         private RelativePathResolver relativePathResolver = new RelativePathResolver();
@@ -303,7 +292,6 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Test
   public void itSetsErrorLineNumbersCorrectly() throws IOException {
-    Jinjava jinjava = new Jinjava();
     RenderResult result = jinjava.renderForResult(
       Resources.toString(
         Resources.getResource("tags/importtag/errors/base.jinja"),
@@ -325,7 +313,6 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Test
   public void itSetsErrorLineNumbersCorrectlyThroughIncludeTag() throws IOException {
-    Jinjava jinjava = new Jinjava();
     RenderResult result = jinjava.renderForResult(
       Resources.toString(
         Resources.getResource("tags/importtag/errors/include.jinja"),
@@ -347,7 +334,6 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Test
   public void itSetsErrorLineNumbersCorrectlyForImportedMacros() throws IOException {
-    Jinjava jinjava = new Jinjava();
     RenderResult result = jinjava.renderForResult(
       Resources.toString(
         Resources.getResource("tags/importtag/errors/import-macro.jinja"),
@@ -369,6 +355,12 @@ public class ImportTagTest extends BaseInterpretingTest {
 
   @Test
   public void itCorrectlySetsNestedPaths() {
+    jinjava.setResourceLocator((fullName, encoding, interpreter) ->
+      Resources.toString(
+        Resources.getResource(String.format("tags/macrotag/%s", fullName)),
+        StandardCharsets.UTF_8
+      )
+    );
     context.put("foo", "foo");
     assertThat(
       interpreter.render(

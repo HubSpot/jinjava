@@ -12,9 +12,7 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.PartiallyDeferredValue;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
-import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
-import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -62,13 +60,14 @@ public class EagerAstDotTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itDefersWhenNestedDeferredMapDotThrowsDeferredValueException() {
+  public void itDefersNodeWhenNestedDeferredMapDotThrowsDeferredValueException() {
     interpreter.getContext().put("foo_map", ImmutableMap.of("bar", new Foo()));
     assertThat(interpreter.render("{{ foo_map.bar.deferred }}"))
-      .isEqualTo("{{ foo.deferred }}");
+      .isEqualTo("{{ foo_map.bar.deferred }}");
+    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
   }
 
-  public static class Foo implements PartiallyDeferredValue, PyishSerializable {
+  public static class Foo implements PartiallyDeferredValue {
 
     public String getDeferred() {
       throw new DeferredValueException("foo.deferred is deferred");
@@ -82,11 +81,10 @@ public class EagerAstDotTest extends BaseInterpretingTest {
     public Object getOriginalValue() {
       return null;
     }
-
-    @Override
-    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
-      throws IOException {
-      return (T) appendable.append("foo");
-    }
+    //    @Override
+    //    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
+    //      throws IOException {
+    //      return (T) appendable.append("foo");
+    //    }
   }
 }

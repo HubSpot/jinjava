@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.common.annotations.Beta;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import java.io.IOException;
@@ -32,7 +33,7 @@ public interface PyishSerializable extends PyWrapper {
   @SuppressWarnings("unchecked")
   default <T extends Appendable & CharSequence> T appendPyishString(T appendable)
     throws IOException {
-    return (T) appendable.append(SELF_WRITER.writeValueAsString(this));
+    return (T) appendable.append(writeValueAsString(this));
   }
 
   /**
@@ -72,6 +73,9 @@ public interface PyishSerializable extends PyWrapper {
     try {
       return SELF_WRITER.writeValueAsString(value);
     } catch (JsonProcessingException e) {
+      if (e.getCause() instanceof DeferredValueException) {
+        throw (DeferredValueException) e.getCause();
+      }
       return '\'' + Objects.toString(value) + '\'';
     }
   }
