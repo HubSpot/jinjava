@@ -13,6 +13,7 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.PartiallyDeferredValue;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -233,7 +234,9 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
               return null;
             }
 
-            if (value instanceof DeferredValue) {
+            if (
+              value instanceof DeferredValue && !(value instanceof PartiallyDeferredValue)
+            ) {
               if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
                 throw new DeferredParsingException(this, propertyName);
               } else {

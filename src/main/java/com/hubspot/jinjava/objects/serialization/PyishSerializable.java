@@ -32,7 +32,7 @@ public interface PyishSerializable extends PyWrapper {
   @SuppressWarnings("unchecked")
   default <T extends Appendable & CharSequence> T appendPyishString(T appendable)
     throws IOException {
-    return (T) appendable.append(writeValueAsString(this));
+    return (T) appendable.append(SELF_WRITER.writeValueAsString(this));
   }
 
   /**

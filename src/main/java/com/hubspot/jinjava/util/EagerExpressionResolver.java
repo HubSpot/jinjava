@@ -8,6 +8,7 @@ import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
+import com.hubspot.jinjava.interpret.PartiallyDeferredValue;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
@@ -313,28 +314,34 @@ public class EagerExpressionResolver {
     if (isPrimitive(val)) {
       return true;
     }
-    if (val instanceof Collection || val instanceof Map) {
-      int size = val instanceof Collection
-        ? ((Collection<?>) val).size()
-        : ((Map<?, ?>) val).size();
-      if (size == 0) {
-        return true;
-      } else if (size > maxSize) {
-        return false;
+    try {
+      if (val instanceof Collection || val instanceof Map) {
+        int size = val instanceof Collection
+          ? ((Collection<?>) val).size()
+          : ((Map<?, ?>) val).size();
+        if (size == 0) {
+          return true;
+        } else if (size > maxSize) {
+          return false;
+        }
+        return (
+          val instanceof Collection ? (Collection<?>) val : ((Map<?, ?>) val).values()
+        ).stream()
+          .filter(Objects::nonNull)
+          .allMatch(item -> isResolvableObjectRec(item, depth + 1, maxDepth, maxSize));
+      } else if (val.getClass().isArray()) {
+        if (((Object[]) val).length == 0) {
+          return true;
+        } else if (((Object[]) val).length > maxSize) {
+          return false;
+        }
+        return (Arrays.stream((Object[]) val)).filter(Objects::nonNull)
+          .allMatch(item -> isResolvableObjectRec(item, depth + 1, maxDepth, maxSize));
       }
-      return (
-        val instanceof Collection ? (Collection<?>) val : ((Map<?, ?>) val).values()
-      ).stream()
-        .filter(Objects::nonNull)
-        .allMatch(item -> isResolvableObjectRec(item, depth + 1, maxDepth, maxSize));
-    } else if (val.getClass().isArray()) {
-      if (((Object[]) val).length == 0) {
-        return true;
-      } else if (((Object[]) val).length > maxSize) {
-        return false;
+    } catch (DeferredValueException e) {
+      if (!(val instanceof PartiallyDeferredValue)) {
+        throw e;
       }
-      return (Arrays.stream((Object[]) val)).filter(Objects::nonNull)
-        .allMatch(item -> isResolvableObjectRec(item, depth + 1, maxDepth, maxSize));
     }
     return PyishSerializable.class.isAssignableFrom(val.getClass());
   }
