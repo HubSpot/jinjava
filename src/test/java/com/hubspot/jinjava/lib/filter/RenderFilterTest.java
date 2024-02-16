@@ -59,4 +59,27 @@ public class RenderFilterTest extends BaseInterpretingTest {
     assertThat(filter.filter(stringToRender, interpreter, "17"))
       .isEqualTo("<p> Hello, world!");
   }
+
+  @Test
+  public void itDoesNotProcessExtendsRoots() {
+    String stringToRender =
+      "{% extends 'filter/render/base.jinja' %}\n" +
+      "{% set foo = '{{ 1 + 1}}'|render %}\n" +
+      "{% block body %}\n" +
+      "I am the extension body and foo is {% print foo %}\n" +
+      "{% endblock %}" +
+      "{% block footer %}\n" +
+      "I am the extension footer\n" +
+      "{% endblock %}";
+
+    assertThat(interpreter.render(stringToRender))
+      .isEqualTo(
+        "Body is: \n" +
+        "I am the extension body and foo is 2\n" +
+        "\n" +
+        "Footer is: \n" +
+        "I am the extension footer\n" +
+        "\n"
+      );
+  }
 }
