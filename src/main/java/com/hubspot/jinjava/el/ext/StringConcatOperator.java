@@ -9,14 +9,16 @@ import de.odysseus.el.tree.impl.ast.AstBinary;
 import de.odysseus.el.tree.impl.ast.AstBinary.SimpleOperator;
 import de.odysseus.el.tree.impl.ast.AstNode;
 
-public class StringConcatOperator extends SimpleOperator {
+public class StringConcatOperator
+  extends SimpleOperator
+  implements StringBuildingOperator {
 
   @Override
   protected Object apply(TypeConverter converter, Object o1, Object o2) {
     String o1s = converter.convert(o1, String.class);
     String o2s = converter.convert(o2, String.class);
 
-    return new StringBuilder(o1s).append(o2s).toString();
+    return getStringBuilder().append(o1s).append(o2s).toString();
   }
 
   @Override

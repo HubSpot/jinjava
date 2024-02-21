@@ -3,14 +3,11 @@ package com.hubspot.jinjava.el.ext;
 import de.odysseus.el.misc.NumberOperations;
 import de.odysseus.el.misc.TypeConverter;
 import de.odysseus.el.tree.impl.ast.AstBinary;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-public class AdditionOperator extends AstBinary.SimpleOperator {
+public class AdditionOperator
+  extends AstBinary.SimpleOperator
+  implements StringBuildingOperator {
 
   @SuppressWarnings("unchecked")
   @Override
@@ -33,7 +30,10 @@ public class AdditionOperator extends AstBinary.SimpleOperator {
     }
 
     if (o1 instanceof String || o2 instanceof String) {
-      return Objects.toString(o1).concat(Objects.toString(o2));
+      return getStringBuilder()
+        .append(Objects.toString(o1))
+        .append(Objects.toString(o2))
+        .toString();
     }
 
     return NumberOperations.add(converter, o1, o2);
