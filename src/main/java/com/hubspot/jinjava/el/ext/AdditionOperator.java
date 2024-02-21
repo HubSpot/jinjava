@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.el.ext;
 
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import de.odysseus.el.misc.NumberOperations;
 import de.odysseus.el.misc.TypeConverter;
 import de.odysseus.el.tree.impl.ast.AstBinary;
@@ -33,10 +35,22 @@ public class AdditionOperator extends AstBinary.SimpleOperator {
     }
 
     if (o1 instanceof String || o2 instanceof String) {
-      return Objects.toString(o1).concat(Objects.toString(o2));
+      return JinjavaInterpreter
+        .getCurrentMaybe()
+        .map(j -> concatWithLimit(j, o1, o2))
+        .orElseGet(() -> Objects.toString(o1).concat(Objects.toString(o2)));
     }
 
     return NumberOperations.add(converter, o1, o2);
+  }
+
+  private String concatWithLimit(JinjavaInterpreter interpreter, Object o1, Object o2) {
+    LengthLimitingStringBuilder buff = new LengthLimitingStringBuilder(
+      interpreter.getConfig().getMaxStringLength()
+    );
+    buff.append(Objects.toString(o1));
+    buff.append(Objects.toString(o2));
+    return buff.toString();
   }
 
   @Override

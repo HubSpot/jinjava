@@ -4,9 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.Collection;
 import java.util.Map;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,7 +19,14 @@ public class AdditionOperatorTest {
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
+    JinjavaConfig config = JinjavaConfig.newBuilder().withMaxStringLength(10).build();
+    interpreter = new Jinjava(config).newInterpreter();
+    JinjavaInterpreter.pushCurrent(interpreter);
+  }
+
+  @After
+  public void tearDown() {
+    JinjavaInterpreter.popCurrent();
   }
 
   @Test
@@ -64,5 +73,14 @@ public class AdditionOperatorTest {
       )
     )
       .containsOnly(entry("k1", "v1"), entry("k2", "v2"));
+  }
+
+  @Test
+  public void itConcatsStringsWithLimit() {
+    assertThat(interpreter.resolveELExpression("'this string' + 'is too long'", -1))
+      .isNull();
+    assertThat(interpreter.getErrors()).hasSize(1);
+    assertThat(interpreter.getErrors().get(0).getMessage())
+      .contains("OutputTooBigException");
   }
 }
