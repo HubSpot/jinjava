@@ -4,25 +4,56 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
 import java.util.Collection;
 import java.util.Map;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 @SuppressWarnings("unchecked")
 public class AdditionOperatorTest {
 
+  private static final long MAX_STRING_LENGTH = 10_000;
   private JinjavaInterpreter interpreter;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
+    interpreter =
+      new Jinjava(JinjavaConfig.newBuilder().withMaxOutputSize(MAX_STRING_LENGTH).build())
+        .newInterpreter();
+    JinjavaInterpreter.pushCurrent(interpreter);
+  }
+
+  @After
+  public void teardown() {
+    JinjavaInterpreter.popCurrent();
   }
 
   @Test
   public void itConcatsStrings() {
     assertThat(interpreter.resolveELExpression("'foo' + 'bar'", -1)).isEqualTo("foobar");
+  }
+
+  @Test
+  public void itLimitsLengthOfStrings() {
+    StringBuilder stringBuilder = new StringBuilder();
+    for (int i = 0; i < MAX_STRING_LENGTH; i++) {
+      stringBuilder.append("0");
+    }
+
+    String first = stringBuilder.toString();
+    assertThat(interpreter.resolveELExpression("'" + first + "' + ''", -1))
+      .isEqualTo(first);
+    assertThat(interpreter.getErrors()).isEmpty();
+
+    assertThat(interpreter.resolveELExpression("'" + first + "' + 'TOOBIG'", -1))
+      .isNull();
+
+    assertThat(interpreter.getErrors().get(0).getMessage())
+      .contains(OutputTooBigException.class.getSimpleName());
   }
 
   @Test

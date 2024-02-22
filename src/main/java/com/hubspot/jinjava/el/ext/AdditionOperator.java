@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class AdditionOperator extends AstBinary.SimpleOperator {
+public class AdditionOperator
+  extends AstBinary.SimpleOperator
+  implements StringBuildingOperator {
 
   @SuppressWarnings("unchecked")
   @Override
@@ -33,7 +35,10 @@ public class AdditionOperator extends AstBinary.SimpleOperator {
     }
 
     if (o1 instanceof String || o2 instanceof String) {
-      return Objects.toString(o1).concat(Objects.toString(o2));
+      return getStringBuilder()
+        .append(Objects.toString(o1))
+        .append(Objects.toString(o2))
+        .toString();
     }
 
     return NumberOperations.add(converter, o1, o2);

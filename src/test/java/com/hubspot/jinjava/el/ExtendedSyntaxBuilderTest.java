@@ -6,8 +6,10 @@ import static org.assertj.core.api.Assertions.entry;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -21,12 +23,16 @@ import org.junit.Test;
 @SuppressWarnings("unchecked")
 public class ExtendedSyntaxBuilderTest {
 
+  private static final long MAX_STRING_LENGTH = 10_000;
+
   private Context context;
   private JinjavaInterpreter interpreter;
 
   @Before
   public void setup() {
-    interpreter = new Jinjava().newInterpreter();
+    interpreter =
+      new Jinjava(JinjavaConfig.newBuilder().withMaxOutputSize(MAX_STRING_LENGTH).build())
+        .newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
 
     context = interpreter.getContext();
@@ -94,6 +100,25 @@ public class ExtendedSyntaxBuilderTest {
     context.put("foo", 123);
     assertThat(val("foo ~ 456")).isEqualTo("123456");
     assertThat(val("'foo' ~ 'bar'")).isEqualTo("foobar");
+  }
+
+  @Test
+  public void itLimitsLengthInStringConcatOperator() {
+    StringBuilder stringBuilder = new StringBuilder();
+    for (int i = 0; i < MAX_STRING_LENGTH - 1; i++) {
+      stringBuilder.append("0");
+    }
+
+    String longString = stringBuilder.toString();
+
+    context.put("longString", longString);
+    assertThat(val("longString ~ ''")).isEqualTo(longString);
+    assertThat(interpreter.getErrors()).isEmpty();
+
+    assertThat(val("longString ~ 'OVER'")).isNull();
+
+    assertThat(interpreter.getErrors().get(0).getMessage())
+      .contains(OutputTooBigException.class.getSimpleName());
   }
 
   @Test
