@@ -120,23 +120,7 @@ public interface EvalResultHolder {
       }
       try {
         return EagerExpressionResolver.getValueAsJinjavaStringSafe(evalResult);
-      } catch (DeferredValueException e) {
-        if (astNode instanceof AstIdentifier) {
-          String name = ((AstIdentifier) astNode).getName();
-          if (
-            (
-              (JinjavaInterpreter) context
-                .getELResolver()
-                .getValue(context, null, ExtendedParser.INTERPRETER)
-            ).getContext()
-              .getMetaContextVariables()
-              .contains(name)
-          ) {
-            return name;
-          }
-          throw e;
-        }
-      }
+      } catch (DeferredValueException ignored) {}
     }
     return astNode.getPartiallyResolved(
       bindings,

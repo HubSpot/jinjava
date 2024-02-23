@@ -2,7 +2,6 @@ package com.hubspot.jinjava.el.ext.eager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
@@ -51,20 +50,6 @@ public class EagerAstDotTest extends BaseInterpretingTest {
   public void itResolvedDeferredMapWithDot() {
     interpreter.getContext().put("foo", new Foo());
     assertThat(interpreter.render("{{ foo.resolved }}")).isEqualTo("resolved");
-  }
-
-  @Test
-  public void itResolvedNestedDeferredMapWithDot() {
-    interpreter.getContext().put("foo_map", ImmutableMap.of("bar", new Foo()));
-    assertThat(interpreter.render("{{ foo_map.bar.resolved }}")).isEqualTo("resolved");
-  }
-
-  @Test
-  public void itDefersNodeWhenNestedDeferredMapDotThrowsDeferredValueException() {
-    interpreter.getContext().put("foo_map", ImmutableMap.of("bar", new Foo()));
-    assertThat(interpreter.render("{{ foo_map.bar.deferred }}"))
-      .isEqualTo("{{ foo_map.bar.deferred }}");
-    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
   }
 
   public static class Foo implements PartiallyDeferredValue {

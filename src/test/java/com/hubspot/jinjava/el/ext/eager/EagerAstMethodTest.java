@@ -225,7 +225,6 @@ public class EagerAstMethodTest extends BaseInterpretingTest {
   @Test
   public void itPreservesUnresolvable() {
     interpreter.getContext().put("foo_object", new Foo());
-    interpreter.getContext().getMetaContextVariables().add("foo_object");
     try {
       interpreter.resolveELExpression("foo_object.deferred|upper", -1);
       fail("Should throw DeferredParsingException");
