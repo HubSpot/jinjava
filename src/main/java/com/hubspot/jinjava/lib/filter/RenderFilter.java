@@ -28,7 +28,7 @@ public class RenderFilter implements Filter {
   public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
     if (args.length > 0) {
       String firstArg = args[0];
-      return interpreter.render(
+      return interpreter.renderFlat(
         Objects.toString(var),
         NumberUtils.toLong(
           firstArg,
@@ -36,6 +36,6 @@ public class RenderFilter implements Filter {
         )
       );
     }
-    return interpreter.render(Objects.toString(var));
+    return interpreter.renderFlat(Objects.toString(var));
   }
 }

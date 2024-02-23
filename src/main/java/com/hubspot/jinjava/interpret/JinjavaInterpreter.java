@@ -238,6 +238,20 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return rendered result
    */
   public String renderFlat(String template) {
+    return renderFlat(template, config.getMaxOutputSize());
+  }
+
+  /**
+   * Parse the given string into a root Node, and then render it without processing any extend parents.
+   * This method should be used when the template is known to not have any extends or block tags.
+   *
+   * @param template
+   *          string to parse
+   * @param renderLimit
+   *          stop rendering once this output length is reached
+   * @return rendered result
+   */
+  public String renderFlat(String template, long renderLimit) {
     int depth = context.getRenderDepth();
 
     try {
@@ -246,7 +260,7 @@ public class JinjavaInterpreter implements PyishSerializable {
         return template;
       } else {
         context.setRenderDepth(depth + 1);
-        return render(parse(template), false);
+        return render(parse(template), false, renderLimit);
       }
     } finally {
       context.setRenderDepth(depth);
@@ -264,6 +278,15 @@ public class JinjavaInterpreter implements PyishSerializable {
     return render(template, config.getMaxOutputSize());
   }
 
+  /**
+   * Parse the given string into a root Node, and then renders it processing extend parents.
+   *
+   * @param template
+   *          string to parse
+   * @param renderLimit
+   *          stop rendering once this output length is reached
+   * @return rendered result
+   */
   public String render(String template, long renderLimit) {
     return render(parse(template), true, renderLimit);
   }
@@ -299,7 +322,7 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @param processExtendRoots
    *          if true, also render all extend parents
    * @param renderLimit
-   *          the number of characters the result may contain
+   *          stop rendering once this output length is reached
    * @return rendered result
    */
   private String render(Node root, boolean processExtendRoots, long renderLimit) {
