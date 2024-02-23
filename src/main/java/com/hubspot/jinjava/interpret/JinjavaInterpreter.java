@@ -49,6 +49,7 @@ import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
 import com.hubspot.jinjava.tree.output.OutputList;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
+import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.RenderLimitUtils;
 import com.hubspot.jinjava.util.Variable;
@@ -576,7 +577,7 @@ public class JinjavaInterpreter implements PyishSerializable {
       obj = context.getDynamicVariableResolver().apply(varName);
     }
     if (obj != null) {
-      if (obj instanceof DeferredValue && !(obj instanceof PartiallyDeferredValue)) {
+      if (DeferredValueUtils.isFullyDeferred(obj)) {
         if (config.getExecutionMode().useEagerParser()) {
           throw new DeferredParsingException(this, variable);
         } else {
