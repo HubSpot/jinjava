@@ -9,6 +9,7 @@ import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
 import com.hubspot.jinjava.el.ext.JinjavaListELResolver;
 import com.hubspot.jinjava.el.ext.NamedParameter;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -26,7 +27,6 @@ import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
-import com.hubspot.jinjava.util.DeferredValueUtils;
 import de.odysseus.el.util.SimpleResolver;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -233,7 +233,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
               return null;
             }
 
-            if (DeferredValueUtils.isFullyDeferred(value)) {
+            if (value instanceof DeferredValue) {
               if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
                 throw new DeferredParsingException(this, propertyName);
               } else {
