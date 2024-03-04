@@ -215,6 +215,17 @@ public class ForTag implements Tag {
         } else {
           for (int loopVarIndex = 0; loopVarIndex < loopVars.size(); loopVarIndex++) {
             String loopVar = loopVars.get(loopVarIndex);
+            if (val == null) {
+              if (
+                interpreter.getContext().get(loopVar) != null &&
+                interpreter.getConfig().getLegacyOverrides().isKeepNullableLoopValues()
+              ) {
+                interpreter.getContext().put(loopVar, NullValue.INSTANCE);
+              } else {
+                interpreter.getContext().put(loopVar, null);
+              }
+              continue;
+            }
             if (Entry.class.isAssignableFrom(val.getClass())) {
               Entry<String, Object> entry = (Entry<String, Object>) val;
               Object entryVal = null;
