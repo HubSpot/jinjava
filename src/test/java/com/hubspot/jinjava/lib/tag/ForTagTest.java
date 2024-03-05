@@ -391,6 +391,21 @@ public class ForTagTest extends BaseInterpretingTest {
     assertThat(result).isEqualTo(" 1  2  null  null  null ");
   }
 
+  @Test
+  public void forLoopTupleWithNullValues() {
+    context.put("number", -1);
+    context.put("the_list", Lists.newArrayList(1L, 2L, null, null, null));
+    String template = "{% for number,name in the_list %} {{ number }} {% endfor %}";
+    TagNode tagNode = (TagNode) new TreeParser(interpreter, template)
+      .buildTree()
+      .getChildren()
+      .getFirst();
+    String result = tag.interpret(tagNode, interpreter);
+    // This is quite intuitive, if the value cannot be assigned to the loop var,
+    // the outer value of number is used as in the loop, number is not assigned if val is not null.
+    assertThat(result).isEqualTo(" -1  -1  null  null  null ");
+  }
+
   public static boolean inForLoop() {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     return interpreter.getContext().isInForLoop();
