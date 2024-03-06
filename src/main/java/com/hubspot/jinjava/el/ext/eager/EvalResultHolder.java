@@ -5,6 +5,7 @@ import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.PartiallyDeferredValue;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstIdentifier;
@@ -106,7 +107,13 @@ public interface EvalResultHolder {
     }
     if (
       !preserveIdentifier.isPreserving() ||
-      (astNode.hasEvalResult() && EagerExpressionResolver.isPrimitive(evalResult))
+      (
+        astNode.hasEvalResult() &&
+        (
+          EagerExpressionResolver.isPrimitive(evalResult) ||
+          evalResult instanceof PartiallyDeferredValue
+        )
+      )
     ) {
       if (exceptionMatchesNode(exception, astNode)) {
         return exception.getDeferredEvalResult();
