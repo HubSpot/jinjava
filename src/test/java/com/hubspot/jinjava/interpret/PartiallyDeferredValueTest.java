@@ -147,6 +147,26 @@ public class PartiallyDeferredValueTest extends BaseInterpretingTest {
     assertThat(interpreter.getContext().getDeferredNodes()).isEmpty();
   }
 
+  @Test
+  public void itSerializesPartiallyDeferredValueInsteadOfPreservingOriginalIdentifier() {
+    interpreter.getContext().put("foo", new GoodPyishSerializable());
+    assertThat(
+      interpreter.render(
+        "{% set list = [] %}{% set bar = foo %}{% do list.append(bar['resolved']) %}{% print list %}"
+      )
+    )
+      .isEqualTo("['resolved']");
+    assertThat(
+      interpreter.render(
+        "{% set list = [] %}{% set bar = foo %}{% do list.append(bar['deferred']) %}{% print list %}"
+      )
+    )
+      .isEqualTo(
+        "{% set list = [] %}{% do list.append(good['deferred']) %}{% print list %}"
+      );
+    assertThat(interpreter.getContext().getDeferredNodes()).isEmpty();
+  }
+
   public static class BadSerialization implements PartiallyDeferredValue {
 
     public String getDeferred() {
