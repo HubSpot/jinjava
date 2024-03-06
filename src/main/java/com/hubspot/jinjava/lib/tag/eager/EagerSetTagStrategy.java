@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Triple;
 
 @Beta
@@ -141,11 +140,14 @@ public abstract class EagerSetTagStrategy {
     }
     EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
       prefixToPreserveState,
-      Stream
-        .concat(
-          eagerExecutionResult.getResult().getDeferredWords().stream(),
-          Arrays.stream(variables).filter(var -> var.contains("."))
-        )
+      eagerExecutionResult.getResult().getDeferredWords(),
+      interpreter
+    );
+    EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+      prefixToPreserveState,
+      Arrays
+        .stream(variables)
+        .filter(var -> var.contains("."))
         .collect(Collectors.toSet()),
       interpreter
     );
@@ -168,9 +170,27 @@ public abstract class EagerSetTagStrategy {
       !interpreter.getContext().getMetaContextVariables().contains(variables)
     ) {
       if (!interpreter.getContext().containsKey(maybeTemporaryImportAlias.get())) {
-        throw new DeferredValueException(
-          "Cannot modify temporary import alias outside of import tag"
-        );
+        //        Object aliasObject = (interpreter.getContext().get(interpreter.getContext().getImportResourceAlias().get()));
+        if (
+          interpreter.resolveELExpressionSilently(
+            String.format(
+              "%s.%s",
+              interpreter.getContext().getImportResourceAlias().get(),
+              variables
+            )
+          ) !=
+          null
+        ) {
+          //        Context importTopLevelContext = interpreter.getContext();
+          //        while (!importTopLevelContext.getScope().containsKey(IMPORT_RESOURCE_ALIAS_KEY)) {
+          //          importTopLevelContext = importTopLevelContext.getParent();
+          //        }
+          //        Object contextValue = importTopLevelContext.get(variables);
+          //        if (contextValue != null && !(contextValue instanceof DeferredValue)) {
+          throw new DeferredValueException(
+            "Cannot modify temporary import alias outside of import tag"
+          );
+        }
       }
       String updateString = getUpdateString(variables);
 

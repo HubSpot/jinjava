@@ -1,0 +1,3 @@
+{%- import "takes-param.jinja" as macros -%}
+{%- set myname = deferred + (1 + 2) -%}
+{% print macros.takes_param(my_name) %}
