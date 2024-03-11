@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.hubspot</groupId>
     <artifactId>basepom</artifactId>
-    <version>56.2</version>
+    <version>59.3-SNAPSHOT</version>
   </parent>
 
   <groupId>com.hubspot.jinjava</groupId>
@@ -14,7 +14,9 @@
   <description>Jinja templating engine implemented in Java</description>
 
   <properties>
-    <dep.javassist.version>3.24.1-GA</dep.javassist.version>
+    <project.build.targetJdk>8</project.build.targetJdk>
+    <project.build.releaseJdk>8</project.build.releaseJdk>
+
     <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
     <dep.plugin.javadoc.version>3.0.1</dep.plugin.javadoc.version>
     <dep.guava.version>31.1-jre</dep.guava.version>
