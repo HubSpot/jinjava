@@ -1,13 +1,16 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerContextWatcher;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
+import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult.ResolutionState;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.LengthLimitingStringJoiner;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
@@ -54,6 +57,41 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
         interpreter,
         eagerExecutionResult
       );
+    }
+    eagerExecutionResult =
+      unwrapRawTagsIfFullyResolved(interpreter, eagerExecutionResult);
+    return eagerExecutionResult;
+  }
+
+  private static EagerExecutionResult unwrapRawTagsIfFullyResolved(
+    JinjavaInterpreter interpreter,
+    EagerExecutionResult eagerExecutionResult
+  ) {
+    if (
+      eagerExecutionResult.getResult().isFullyResolved() &&
+      eagerExecutionResult
+        .getResult()
+        .toString(true)
+        .contains(
+          interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag() +
+          " " +
+          RawTag.TAG_NAME
+        )
+    ) {
+      try (
+        TemporaryValueClosable<Boolean> temporaryValueClosable = interpreter
+          .getContext()
+          .withUnwrapRawOverride()
+      ) {
+        eagerExecutionResult =
+          new EagerExecutionResult(
+            EagerExpressionResult.fromString(
+              interpreter.renderFlat(eagerExecutionResult.asTemplateString()),
+              ResolutionState.FULL
+            ),
+            eagerExecutionResult.getSpeculativeBindings()
+          );
+      }
     }
     return eagerExecutionResult;
   }
