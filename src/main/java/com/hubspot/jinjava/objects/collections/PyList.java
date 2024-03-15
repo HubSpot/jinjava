@@ -53,7 +53,7 @@ public class PyList extends ForwardingList<Object> implements PyWrapper {
   }
 
   public Object pop() {
-    if (list.isEmpty()) {
+    if (list.size() == 0) {
       throw createOutOfRangeException(0);
     }
     return remove(list.size() - 1);
@@ -112,7 +112,6 @@ public class PyList extends ForwardingList<Object> implements PyWrapper {
 
   /**
    * This is not thread-safe
-   *
    * @return hashCode, preventing recursion
    */
   @Override
