@@ -92,7 +92,7 @@ public class PyList extends ForwardingList<Object> implements PyWrapper {
     if (index < 0 || index >= list.size()) {
       throw createOutOfRangeException(index);
     }
-    return this.delegate().get(index);
+    return super.get(index);
   }
 
   public int index(Object o, int begin, int end) {
