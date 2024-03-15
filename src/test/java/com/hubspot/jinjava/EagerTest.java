@@ -1520,4 +1520,11 @@ public class EagerTest {
       "handles-deferred-modification-in-caller.expected"
     );
   }
+
+  @Test
+  public void itPreservesRawInsideDeferredSetBlock() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "preserves-raw-inside-deferred-set-block"
+    );
+  }
 }
