@@ -274,6 +274,18 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
+  public void outOfRange() {
+    List<?> emptyList = Lists.newArrayList();
+    context.put("emptyList", emptyList);
+    assertThat(val("emptyList.get(0)")).isNull();
+    assertThat(val("emptyList.get(-1)")).isNull();
+
+    List<?> theList = Lists.newArrayList(1, 2, 3);
+    context.put("mylist", theList);
+    assertThat(val("myList.get(3)")).isNull();
+  }
+
+  @Test
   public void listRangeSyntaxNegativeIndices() {
     List<?> theList = Lists.newArrayList(1, 2, 3, 4, 5);
     context.put("mylist", theList);
