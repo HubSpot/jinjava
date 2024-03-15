@@ -80,18 +80,24 @@ public class SliceFilter implements Filter {
         args[0]
       );
     }
-    List<List<Object>> result = new ArrayList<>();
 
-    List<Object> currentList = null;
+    List<List<Object>> result = new ArrayList<>();
+    List<Object> currentList = null; // lazy evaluation
+
     int i = 0;
     while (loop.hasNext()) {
-      Object next = loop.next();
       if (i % slices == 0) {
-        currentList = new ArrayList<>(slices);
-        result.add(currentList);
+        if (currentList != null) {
+          result.add(currentList);
+        }
+        currentList = new ArrayList<>();
       }
-      currentList.add(next);
+      currentList.add(loop.next());
       i++;
+    }
+
+    if (currentList != null && !currentList.isEmpty()) {
+      result.add(currentList);
     }
 
     if (args.length > 1 && currentList != null) {
