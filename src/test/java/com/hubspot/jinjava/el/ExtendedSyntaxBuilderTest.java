@@ -8,6 +8,7 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -277,12 +278,31 @@ public class ExtendedSyntaxBuilderTest {
   public void outOfRange() {
     List<?> emptyList = Lists.newArrayList();
     context.put("emptyList", emptyList);
-    assertThat(val("emptyList.get(0)")).isNull();
-    assertThat(val("emptyList.get(-1)")).isNull();
 
+    // empty case
+    assertThat(val("emptyList.get(0)")).isNull();
+    String errorMessage = "Index %d is out of range for list of size %d";
+    assertThat(interpreter.getErrors().get(0).getMessage())
+      .contains(String.format(errorMessage, 0, 0));
+
+    // negative case
+    assertThat(val("emptyList.get(-1)")).isNull();
+    assertThat(interpreter.getErrors().get(1).getMessage())
+      .contains(String.format(errorMessage, -1, 0));
+
+    // out of range for filled array
     List<?> theList = Lists.newArrayList(1, 2, 3);
-    context.put("mylist", theList);
-    assertThat(val("myList.get(3)")).isNull();
+    context.put("smallList", theList);
+    assertThat(val("smallList.get(3)")).isNull();
+    assertThat(interpreter.getErrors().get(2).getMessage())
+      .contains(String.format(errorMessage, 3, 3));
+
+    interpreter
+      .getErrors()
+      .forEach(e ->
+        assertThat(e.getException().getCause())
+          .isInstanceOf(IndexOutOfRangeException.class)
+      );
   }
 
   @Test
