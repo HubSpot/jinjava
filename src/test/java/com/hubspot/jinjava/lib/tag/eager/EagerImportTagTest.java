@@ -531,6 +531,18 @@ public class EagerImportTagTest extends ImportTagTest {
   }
 
   @Test
+  public void itKeepsDeferredImportAliasesInsideOwnScopeInSet() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% import 'printer-a.jinja' as printer %}{% import 'intermediate-b.jinja' as inter %}" +
+      "{% set foo = printer.print(deferred) %}{% set bar = inter.print(deferred) %}" +
+      "{{ foo }}-{{ bar }}"
+    );
+    context.put("deferred", "resolved");
+    assertThat(interpreter.render(result)).isEqualTo("A_resolved_A-B_resolved_B");
+  }
+
+  @Test
   public void itDefersWhenPathIsDeferred() {
     String input = "{% import deferred as foo %}";
     String output = interpreter.render(input);
