@@ -72,6 +72,9 @@ public class EagerMacroFunction extends MacroFunction {
           interpreter
         );
         if (!result.getResult().isFullyResolved()) {
+          interpreter
+            .getContext()
+            .removeDeferredTokens(interpreter.getContext().getDeferredTokens());
           result =
             eagerEvaluateInDeferredExecutionMode(
               () -> getEvaluationResultDirectly(argMap, kwargMap, varArgs, interpreter),

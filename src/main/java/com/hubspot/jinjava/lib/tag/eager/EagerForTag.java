@@ -143,7 +143,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       );
     }
 
-    EagerExecutionResult firstRunResult = runLoopOnce(tagNode, interpreter);
+    EagerExecutionResult firstRunResult = runLoopOnce(tagNode, interpreter, true);
     PrefixToPreserveState prefixToPreserveState = firstRunResult
       .getPrefixToPreserveState()
       .withAllInFront(
@@ -153,7 +153,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         )
       );
     // Run for loop again now that the necessary values have been deferred
-    EagerExecutionResult secondRunResult = runLoopOnce(tagNode, interpreter);
+    EagerExecutionResult secondRunResult = runLoopOnce(tagNode, interpreter, false);
     if (
       secondRunResult
         .getSpeculativeBindings()
@@ -174,7 +174,8 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
 
   private EagerExecutionResult runLoopOnce(
     TagNode tagNode,
-    JinjavaInterpreter interpreter
+    JinjavaInterpreter interpreter,
+    boolean clearDeferredWords
   ) {
     return EagerContextWatcher.executeInChildContext(
       eagerInterpreter -> {
@@ -201,6 +202,11 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
             .getContext()
             .getMetaContextVariables()
             .addAll(removedMetaContextVariables);
+          if (clearDeferredWords) {
+            interpreter
+              .getContext()
+              .removeDeferredTokens(interpreter.getContext().getDeferredTokens());
+          }
         }
       },
       interpreter,
