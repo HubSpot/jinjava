@@ -171,12 +171,13 @@ public abstract class EagerSetTagStrategy {
     ) {
       if (!interpreter.getContext().containsKey(maybeTemporaryImportAlias.get())) {
         if (
-          interpreter.resolveELExpressionSilently(
+          interpreter.retraceVariable(
             String.format(
               "%s.%s",
               interpreter.getContext().getImportResourceAlias().get(),
               variables
-            )
+            ),
+            -1
           ) !=
           null
         ) {
