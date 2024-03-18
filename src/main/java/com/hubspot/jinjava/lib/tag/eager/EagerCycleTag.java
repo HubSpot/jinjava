@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.tag.CycleTag;
@@ -184,7 +185,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
     String resolvedExpression,
     EagerExpressionResult eagerExpressionResult
   ) {
-    if (interpreter.getContext().isDeferredExecutionMode()) {
+    if (interpreter.getContext().get("loop") instanceof DeferredValue) {
       String reconstructedTag = reconstructCycleTag(resolvedExpression, tagToken);
       return (
         reconstructedTag +
