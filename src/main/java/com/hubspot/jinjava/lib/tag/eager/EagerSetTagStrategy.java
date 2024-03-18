@@ -170,7 +170,6 @@ public abstract class EagerSetTagStrategy {
       !interpreter.getContext().getMetaContextVariables().contains(variables)
     ) {
       if (!interpreter.getContext().containsKey(maybeTemporaryImportAlias.get())) {
-        //        Object aliasObject = (interpreter.getContext().get(interpreter.getContext().getImportResourceAlias().get()));
         if (
           interpreter.resolveELExpressionSilently(
             String.format(
@@ -181,12 +180,6 @@ public abstract class EagerSetTagStrategy {
           ) !=
           null
         ) {
-          //        Context importTopLevelContext = interpreter.getContext();
-          //        while (!importTopLevelContext.getScope().containsKey(IMPORT_RESOURCE_ALIAS_KEY)) {
-          //          importTopLevelContext = importTopLevelContext.getParent();
-          //        }
-          //        Object contextValue = importTopLevelContext.get(variables);
-          //        if (contextValue != null && !(contextValue instanceof DeferredValue)) {
           throw new DeferredValueException(
             "Cannot modify temporary import alias outside of import tag"
           );
