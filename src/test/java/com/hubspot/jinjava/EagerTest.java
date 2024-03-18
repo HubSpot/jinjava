@@ -1522,6 +1522,13 @@ public class EagerTest {
   }
 
   @Test
+  public void itPreservesRawInsideDeferredSetBlock() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "preserves-raw-inside-deferred-set-block"
+    );
+  }
+
+  @Test
   public void itReconstructsAliasedMacro() {
     expectedTemplateInterpreter.assertExpectedOutput("reconstructs-aliased-macro");
   }
