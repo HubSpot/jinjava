@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Triple;
 
 @Beta
@@ -141,11 +140,14 @@ public abstract class EagerSetTagStrategy {
     }
     EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
       prefixToPreserveState,
-      Stream
-        .concat(
-          eagerExecutionResult.getResult().getDeferredWords().stream(),
-          Arrays.stream(variables).filter(var -> var.contains("."))
-        )
+      eagerExecutionResult.getResult().getDeferredWords(),
+      interpreter
+    );
+    EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+      prefixToPreserveState,
+      Arrays
+        .stream(variables)
+        .filter(var -> var.contains("."))
         .collect(Collectors.toSet()),
       interpreter
     );
@@ -168,9 +170,21 @@ public abstract class EagerSetTagStrategy {
       !interpreter.getContext().getMetaContextVariables().contains(variables)
     ) {
       if (!interpreter.getContext().containsKey(maybeTemporaryImportAlias.get())) {
-        throw new DeferredValueException(
-          "Cannot modify temporary import alias outside of import tag"
-        );
+        if (
+          interpreter.retraceVariable(
+            String.format(
+              "%s.%s",
+              interpreter.getContext().getImportResourceAlias().get(),
+              variables
+            ),
+            -1
+          ) !=
+          null
+        ) {
+          throw new DeferredValueException(
+            "Cannot modify temporary import alias outside of import tag"
+          );
+        }
       }
       String updateString = getUpdateString(variables);
 

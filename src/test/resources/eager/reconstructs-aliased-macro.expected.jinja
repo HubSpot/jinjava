@@ -1,0 +1,4 @@
+{% set myname = deferred + 3 %}{% set deferred_import_resource_path = 'eager/takes-param.jinja' %}{% macro macros.takes_param(foo) %}{% set bar = 'bar' %}
+{% print foo %}
+{% endmacro %}{% set deferred_import_resource_path = null %}{% set answer = macros.takes_param(myname) %}
+{{ answer }}
