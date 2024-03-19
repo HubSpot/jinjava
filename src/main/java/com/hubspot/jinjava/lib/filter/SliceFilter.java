@@ -90,7 +90,7 @@ public class SliceFilter implements Filter {
           TemplateError.ErrorType.WARNING,
           TemplateError.ErrorReason.OVER_LIMIT,
           TemplateError.ErrorItem.FILTER,
-          "The limit input value of 'slices' parameter is too large, it's been reduced to " +
+          "The value of the 'slices' parameter is greater than " + MAX_SLICES + ". It's been reduced to " +
           MAX_SLICES,
           null,
           interpreter.getLineNumber(),
