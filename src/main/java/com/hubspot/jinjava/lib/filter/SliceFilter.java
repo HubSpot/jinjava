@@ -1,13 +1,12 @@
 package com.hubspot.jinjava.lib.filter;
 
-import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
@@ -84,8 +83,17 @@ public class SliceFilter implements Filter {
         args[0]
       );
     } else if (slices > MAX_SLICES) {
-      ENGINE_LOG.warn(
-        "The limit input value is too large, it's been reduced to " + MAX_SLICES
+      interpreter.addError(
+        new TemplateError(
+          TemplateError.ErrorType.WARNING,
+          TemplateError.ErrorReason.OVER_LIMIT,
+          TemplateError.ErrorItem.FILTER,
+          "The limit input value is too large, it's been reduced to " + MAX_SLICES,
+          null,
+          interpreter.getLineNumber(),
+          interpreter.getPosition(),
+          null
+        )
       );
       slices = MAX_SLICES;
     }
