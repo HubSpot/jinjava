@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.filter;
 
+import static com.hubspot.jinjava.lib.filter.SliceFilter.MAX_SLICES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
@@ -8,6 +9,9 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.RenderResult;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
@@ -33,6 +37,20 @@ public class SliceFilterTest extends BaseJinjavaTest {
     assertThat(dom.select(".columwrapper .column-1 li")).hasSize(3);
     assertThat(dom.select(".columwrapper .column-2 li")).hasSize(3);
     assertThat(dom.select(".columwrapper .column-3 li")).hasSize(1);
+  }
+
+  @Test
+  public void itSlicesToTheMaxLimit() throws Exception {
+    String result = jinjava.render(
+      Resources.toString(
+        Resources.getResource("filter/slice-filter-big.jinja"),
+        StandardCharsets.UTF_8
+      ),
+      ImmutableMap.of("items", Lists.newArrayList("a", "b", "c", "d", "e"))
+    );
+
+    assertThat(result).isNotEmpty();
+    assertThat(result.split("\n")).hasSize(MAX_SLICES + 2); // 1 for each slice, 1 for the newline
   }
 
   @Test

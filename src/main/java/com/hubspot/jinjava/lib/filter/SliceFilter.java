@@ -6,6 +6,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
@@ -25,7 +26,9 @@ import org.apache.commons.lang3.math.NumberUtils;
     @JinjavaParam(
       value = "slices",
       type = "number",
-      desc = "Specifies how many items will be sliced",
+      desc = "Specifies how many items will be sliced. Maximum value is " +
+      SliceFilter.MAX_SLICES +
+      ". ",
       required = true
     ),
     @JinjavaParam(
@@ -53,6 +56,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 )
 public class SliceFilter implements Filter {
 
+  public static final int MAX_SLICES = 1000;
+
   @Override
   public String getName() {
     return "slice";
@@ -79,19 +84,43 @@ public class SliceFilter implements Filter {
         0,
         args[0]
       );
+    } else if (slices > MAX_SLICES) {
+      interpreter.addError(
+        new TemplateError(
+          TemplateError.ErrorType.WARNING,
+          TemplateError.ErrorReason.OVER_LIMIT,
+          TemplateError.ErrorItem.FILTER,
+          String.format(
+            "The value of the 'slices' parameter is greater than %d. It's been reduced to %d",
+            MAX_SLICES,
+            MAX_SLICES
+          ),
+          null,
+          interpreter.getLineNumber(),
+          interpreter.getPosition(),
+          null
+        )
+      );
+      slices = MAX_SLICES;
     }
-    List<List<Object>> result = new ArrayList<>();
 
+    List<List<Object>> result = new ArrayList<>();
     List<Object> currentList = null;
+
     int i = 0;
     while (loop.hasNext()) {
-      Object next = loop.next();
       if (i % slices == 0) {
-        currentList = new ArrayList<>(slices);
-        result.add(currentList);
+        if (currentList != null) {
+          result.add(currentList);
+        }
+        currentList = new ArrayList<>();
       }
-      currentList.add(next);
+      currentList.add(loop.next());
       i++;
+    }
+
+    if (currentList != null && !currentList.isEmpty()) {
+      result.add(currentList);
     }
 
     if (args.length > 1 && currentList != null) {
