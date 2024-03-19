@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.filter;
 
+import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
+
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -53,6 +55,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 )
 public class SliceFilter implements Filter {
 
+  public static final int MAX_SLICES = 1000;
+
   @Override
   public String getName() {
     return "slice";
@@ -79,10 +83,15 @@ public class SliceFilter implements Filter {
         0,
         args[0]
       );
+    } else if (slices > MAX_SLICES) {
+      ENGINE_LOG.warn(
+        "The limit input value is too large, it's been reduced to " + MAX_SLICES
+      );
+      slices = MAX_SLICES;
     }
 
     List<List<Object>> result = new ArrayList<>();
-    List<Object> currentList = null; // lazy evaluation
+    List<Object> currentList = null;
 
     int i = 0;
     while (loop.hasNext()) {
