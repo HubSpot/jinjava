@@ -90,8 +90,11 @@ public class SliceFilter implements Filter {
           TemplateError.ErrorType.WARNING,
           TemplateError.ErrorReason.OVER_LIMIT,
           TemplateError.ErrorItem.FILTER,
-          "The value of the 'slices' parameter is greater than " + MAX_SLICES + ". It's been reduced to " +
-          MAX_SLICES,
+          String.format(
+            "The value of the 'slices' parameter is greater than %d. It's been reduced to %d",
+            MAX_SLICES,
+            MAX_SLICES
+          ),
           null,
           interpreter.getLineNumber(),
           interpreter.getPosition(),
