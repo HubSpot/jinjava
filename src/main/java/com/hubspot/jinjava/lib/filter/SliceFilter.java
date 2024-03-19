@@ -26,11 +26,9 @@ import org.apache.commons.lang3.math.NumberUtils;
     @JinjavaParam(
       value = "slices",
       type = "number",
-      desc = "Specifies how many items will be sliced." +
-      "Please note, the max limit is " +
+      desc = "Specifies how many items will be sliced. Maximum value is " +
       SliceFilter.MAX_SLICES +
-      ". " +
-      "All values above this limit will be reduced.",
+      ". ",
       required = true
     ),
     @JinjavaParam(
