@@ -26,7 +26,11 @@ import org.apache.commons.lang3.math.NumberUtils;
     @JinjavaParam(
       value = "slices",
       type = "number",
-      desc = "Specifies how many items will be sliced",
+      desc = "Specifies how many items will be sliced." +
+      "Please note, the max limit is " +
+      SliceFilter.MAX_SLICES +
+      ". " +
+      "All values above this limit will be reduced.",
       required = true
     ),
     @JinjavaParam(
@@ -88,7 +92,8 @@ public class SliceFilter implements Filter {
           TemplateError.ErrorType.WARNING,
           TemplateError.ErrorReason.OVER_LIMIT,
           TemplateError.ErrorItem.FILTER,
-          "The limit input value is too large, it's been reduced to " + MAX_SLICES,
+          "The limit input value of 'slices' parameter is too large, it's been reduced to " +
+          MAX_SLICES,
           null,
           interpreter.getLineNumber(),
           interpreter.getPosition(),
