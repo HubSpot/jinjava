@@ -31,7 +31,7 @@ public class IncludeTagTest extends BaseInterpretingTest {
       ),
       new HashMap<String, Object>()
     );
-    assertThat(result).containsSequence("hello world", "hello world");
+    assertThat(result).containsSubsequence("hello world", "hello world");
   }
 
   @Test
@@ -43,7 +43,7 @@ public class IncludeTagTest extends BaseInterpretingTest {
       ),
       new HashMap<String, Object>()
     );
-    assertThat(result).containsSequence("A", "B");
+    assertThat(result).containsSubsequence("A", "B");
   }
 
   @Test
