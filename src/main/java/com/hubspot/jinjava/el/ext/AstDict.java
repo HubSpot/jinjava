@@ -50,7 +50,7 @@ public class AstDict extends AstLiteral {
         // This is a hack to treat numeric keys as string keys in the dictionary.
         // In most cases this is adequate since the keys are typically treated as
         // strings.
-        key = entryKey.eval(bindings, context).toString();
+        key = Objects.toString(entryKey.eval(bindings, context));
       } else {
         throw new TemplateStateException(
           "Dict key must be a string, or identifier, or a  number, was: " + entryKey
