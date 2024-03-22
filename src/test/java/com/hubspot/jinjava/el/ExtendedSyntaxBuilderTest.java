@@ -214,6 +214,11 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
+  public void mapLiteralWithNumericKey() {
+    assertThat((Map<String, Object>) val("{0:'test'}")).contains(entry("0", "test"));
+  }
+
+  @Test
   public void itParsesDictWithVariableRefs() {
     List<?> theList = Lists.newArrayList(1L, 2L, 3L);
     context.put("the_list", theList);
