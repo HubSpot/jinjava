@@ -206,4 +206,16 @@ public class IncludeTagTest extends BaseInterpretingTest {
     );
     assertThat(result).isEqualTo("Extended text, will be rendered");
   }
+
+  @Test
+  public void itIgnoresMissing() throws IOException {
+    String result = jinjava.render(
+      Resources.toString(
+        Resources.getResource("tags/includetag/missing-include.jinja"),
+        StandardCharsets.UTF_8
+      ),
+      new HashMap<String, Object>()
+    );
+    assertThat(result).containsSequence("AB\nCD");
+  }
 }
