@@ -33,6 +33,12 @@ public class TruthyTypeConverter extends TypeConverterImpl {
     if (value instanceof DummyObject) {
       return BigDecimal.ZERO;
     }
+
+    if (value instanceof String) {
+      String sanitizedValue = trimDecimal(trimCommas((String) value));
+      return super.coerceToBigDecimal(sanitizedValue);
+    }
+
     return super.coerceToBigDecimal(value);
   }
 
@@ -41,6 +47,12 @@ public class TruthyTypeConverter extends TypeConverterImpl {
     if (value instanceof DummyObject) {
       return BigInteger.ZERO;
     }
+
+    if (value instanceof String) {
+      String sanitizedValue = trimDecimal(trimCommas((String) value));
+      return super.coerceToBigInteger(sanitizedValue);
+    }
+
     return super.coerceToBigInteger(value);
   }
 
@@ -49,6 +61,12 @@ public class TruthyTypeConverter extends TypeConverterImpl {
     if (value instanceof DummyObject) {
       return 0d;
     }
+
+    if (value instanceof String) {
+      String sanitizedValue = trimCommas((String) value);
+      return super.coerceToDouble(sanitizedValue);
+    }
+
     return super.coerceToDouble(value);
   }
 
@@ -57,6 +75,12 @@ public class TruthyTypeConverter extends TypeConverterImpl {
     if (value instanceof DummyObject) {
       return 0f;
     }
+
+    if (value instanceof String) {
+      String sanitizedValue = trimDecimal(trimCommas((String) value));
+      return super.coerceToFloat(sanitizedValue);
+    }
+
     return super.coerceToFloat(value);
   }
 
@@ -65,13 +89,37 @@ public class TruthyTypeConverter extends TypeConverterImpl {
     if (value instanceof DummyObject) {
       return 0L;
     }
+
+    if (value instanceof String) {
+      String sanitizedValue = trimDecimal(trimCommas((String) value));
+      return super.coerceToLong(sanitizedValue);
+    }
     return super.coerceToLong(value);
+  }
+
+  private String trimCommas(String value) {
+    if (!value.contains(",")) {
+      return value;
+    }
+    return value.replaceAll(",", "");
+  }
+
+  private String trimDecimal(String value) {
+    if (!value.contains(".")) {
+      return value;
+    }
+    return value.substring(0, value.indexOf("."));
   }
 
   @Override
   protected Integer coerceToInteger(Object value) {
     if (value instanceof DummyObject) {
       return 0;
+    }
+
+    if (value instanceof String) {
+      String sanitizedValue = trimDecimal(trimCommas((String) value));
+      return super.coerceToInteger(sanitizedValue);
     }
     return super.coerceToInteger(value);
   }
@@ -81,6 +129,11 @@ public class TruthyTypeConverter extends TypeConverterImpl {
     if (value instanceof DummyObject) {
       return 0;
     }
+
+    if (value instanceof String) {
+      String sanitizedValue = trimDecimal(trimCommas((String) value));
+      return super.coerceToShort(sanitizedValue);
+    }
     return super.coerceToShort(value);
   }
 
@@ -89,6 +142,11 @@ public class TruthyTypeConverter extends TypeConverterImpl {
     if (value instanceof DummyObject) {
       return 0;
     }
+    if (value instanceof String) {
+      String sanitizedValue = trimDecimal(trimCommas((String) value));
+      return super.coerceToByte(sanitizedValue);
+    }
+
     return super.coerceToByte(value);
   }
 

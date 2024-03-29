@@ -66,4 +66,15 @@ public class ComparisonExpTestsTest extends BaseJinjavaTest {
     assertThat(jinjava.render("{{ 4 is >= 5 }}", new HashMap<>())).isEqualTo("false");
     assertThat(jinjava.render("{{ 4 is != 5 }}", new HashMap<>())).isEqualTo("true");
   }
+
+  @Test
+  public void testFormattedStringParsing() {
+    assertThat(jinjava.render("{{ \"1,050.25\" is ge 4 }}", new HashMap<>()))
+      .isEqualTo("true");
+    assertThat(jinjava.render("{{ \"4.1\" is gt 4 }}", new HashMap<>()))
+      .isEqualTo("false");
+    assertThat(jinjava.render("{{ 4.0 is le 5.00 }}", new HashMap<>())).isEqualTo("true");
+    assertThat(jinjava.render("{{ \"4,500.75\" is le 10000.00 }}", new HashMap<>()))
+      .isEqualTo("true");
+  }
 }
