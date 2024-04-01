@@ -35,7 +35,7 @@ public class TruthyTypeConverter extends TypeConverterImpl {
     }
 
     if (value instanceof String) {
-      String sanitizedValue = trimDecimal(trimCommas((String) value));
+      String sanitizedValue = trimCommas((String) value);
       return super.coerceToBigDecimal(sanitizedValue);
     }
 
@@ -77,7 +77,7 @@ public class TruthyTypeConverter extends TypeConverterImpl {
     }
 
     if (value instanceof String) {
-      String sanitizedValue = trimDecimal(trimCommas((String) value));
+      String sanitizedValue = trimCommas((String) value);
       return super.coerceToFloat(sanitizedValue);
     }
 
@@ -95,20 +95,6 @@ public class TruthyTypeConverter extends TypeConverterImpl {
       return super.coerceToLong(sanitizedValue);
     }
     return super.coerceToLong(value);
-  }
-
-  private String trimCommas(String value) {
-    if (!value.contains(",")) {
-      return value;
-    }
-    return value.replaceAll(",", "");
-  }
-
-  private String trimDecimal(String value) {
-    if (!value.contains(".")) {
-      return value;
-    }
-    return value.substring(0, value.indexOf("."));
   }
 
   @Override
@@ -148,6 +134,20 @@ public class TruthyTypeConverter extends TypeConverterImpl {
     }
 
     return super.coerceToByte(value);
+  }
+
+  private String trimCommas(String value) {
+    if (!value.contains(",")) {
+      return value;
+    }
+    return value.replaceAll(",", "");
+  }
+
+  private String trimDecimal(String value) {
+    if (!value.contains(".")) {
+      return value;
+    }
+    return value.substring(0, value.indexOf("."));
   }
 
   @Override
