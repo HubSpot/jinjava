@@ -140,11 +140,19 @@ public class TruthyTypeConverter extends TypeConverterImpl {
     if (!value.contains(",")) {
       return value;
     }
+
+    if (value.matches(".*\\..*,.*")) {
+      return value;
+    }
     return value.replaceAll(",", "");
   }
 
   private String trimDecimal(String value) {
     if (!value.contains(".")) {
+      return value;
+    }
+
+    if (!value.matches("\\d*\\.\\d*")) {
       return value;
     }
     return value.substring(0, value.indexOf("."));
