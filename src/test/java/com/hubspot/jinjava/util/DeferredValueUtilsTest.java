@@ -246,6 +246,22 @@ public class DeferredValueUtilsTest {
     assertThat(context.containsKey("int")).isFalse();
   }
 
+  @Test
+  public void itFindsFirstValidDeferredWords() {
+    DeferredToken deferredToken = DeferredToken
+      .builderFromToken(
+        new ExpressionToken("{{ blah }}", 1, 1, new DefaultTokenScannerSymbols())
+      )
+      .addUsedDeferredWords(ImmutableSet.of("deferred", ".attribute1"))
+      .addSetDeferredWords(ImmutableSet.of("deferred", ".attribute2"))
+      .build();
+
+    assertThat(deferredToken.getUsedDeferredWords())
+      .isEqualTo(ImmutableSet.of("deferred", "attribute1"));
+    assertThat(deferredToken.getSetDeferredWords())
+      .isEqualTo(ImmutableSet.of("deferred", "attribute2"));
+  }
+
   private Context getContext(List<? extends Node> nodes) {
     return getContext(nodes, Optional.empty());
   }

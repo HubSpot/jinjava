@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Strings;
 import com.hubspot.jinjava.interpret.CallStack;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredLazyReference;
@@ -13,9 +14,11 @@ import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,7 +43,8 @@ public class DeferredToken {
         token,
         usedDeferredWords != null
           ? usedDeferredWords
-            .map(prop -> prop.split("\\.", 2)[0])
+            .map(DeferredToken::splitToken)
+            .map(DeferredToken::getFirstNonEmptyToken)
             .distinct()
             .filter(word ->
               interpreter == null ||
@@ -50,7 +54,8 @@ public class DeferredToken {
           : Collections.emptySet(),
         setDeferredWords != null
           ? setDeferredWords
-            .map(prop -> prop.split("\\.", 2)[0])
+            .map(DeferredToken::splitToken)
+            .map(DeferredToken::getFirstNonEmptyToken)
             .collect(Collectors.toSet())
           : Collections.emptySet(),
         acquireImportResourcePath(),
@@ -413,10 +418,19 @@ public class DeferredToken {
       .orElse(null);
   }
 
+  private static String getFirstNonEmptyToken(List<String> strings) {
+    return Strings.isNullOrEmpty(strings.get(0)) ? strings.get(1) : strings.get(0);
+  }
+
+  public static List<String> splitToken(String token) {
+    return Arrays.asList(token.split("\\.", 2));
+  }
+
   public static Set<String> getBases(Set<String> original) {
     return original
       .stream()
-      .map(prop -> prop.split("\\.", 2)[0])
+      .map(DeferredToken::splitToken)
+      .map(prop -> prop.get(0))
       .collect(Collectors.toSet());
   }
 }
