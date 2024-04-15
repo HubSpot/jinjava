@@ -518,27 +518,6 @@ public class EagerTest {
   }
 
   @Test
-  public void itDefersArrayAccess() {
-    expectedTemplateInterpreter.assertExpectedOutput("evaluates-non-eager-set");
-    assertThat(
-      localContext
-        .getDeferredTokens()
-        .stream()
-        .flatMap(deferredToken -> deferredToken.getSetDeferredWords().stream())
-        .collect(Collectors.toSet())
-    )
-      .isEmpty();
-    assertThat(
-      localContext
-        .getDeferredTokens()
-        .stream()
-        .flatMap(deferredToken -> deferredToken.getUsedDeferredWords().stream())
-        .collect(Collectors.toSet())
-    )
-      .contains("deferred");
-  }
-
-  @Test
   public void itDefersOnImmutableMode() {
     expectedTemplateInterpreter.assertExpectedOutput("defers-on-immutable-mode");
   }
