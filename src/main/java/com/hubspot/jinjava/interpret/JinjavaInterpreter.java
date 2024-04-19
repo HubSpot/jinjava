@@ -593,7 +593,7 @@ public class JinjavaInterpreter implements PyishSerializable {
         getConfig()
           .getFeatures()
           .getActivationStrategy(OUTPUT_UNDEFINED_VARIABLES_ERROR)
-          .isActive(getContext())
+          .isActive(context)
       ) {
         addError(
           new TemplateError(
