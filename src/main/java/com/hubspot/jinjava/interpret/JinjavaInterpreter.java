@@ -78,6 +78,9 @@ public class JinjavaInterpreter implements PyishSerializable {
 
   public static final String IGNORED_OUTPUT_FROM_EXTENDS_NOTE =
     "ignored_output_from_extends";
+
+  public static final String OUTPUT_UNDEFINED_VARIABLES_ERROR =
+    "OUTPUT_UNDEFINED_VARIABLES_ERROR";
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
   private final LinkedList<Node> extendParentRoots = new LinkedList<>();
   private final Map<String, RevertibleObject> revertibleObjects = new HashMap<>();
@@ -585,6 +588,28 @@ public class JinjavaInterpreter implements PyishSerializable {
         }
       }
       obj = var.resolve(obj);
+    } else {
+      if (
+        getConfig()
+          .getFeatures()
+          .getActivationStrategy(OUTPUT_UNDEFINED_VARIABLES_ERROR)
+          .isActive(getContext())
+      ) {
+        addError(
+          new TemplateError(
+            ErrorType.WARNING,
+            ErrorReason.UNKNOWN,
+            ErrorItem.TOKEN,
+            "Undefined variable: '" + variable + "'",
+            null,
+            lineNumber,
+            startPosition,
+            null,
+            BasicTemplateErrorCategory.UNKNOWN,
+            ImmutableMap.of("variable", variable)
+          )
+        );
+      }
     }
     return obj;
   }
