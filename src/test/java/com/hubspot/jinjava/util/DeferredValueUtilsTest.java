@@ -262,6 +262,22 @@ public class DeferredValueUtilsTest {
       .isEqualTo(ImmutableSet.of("deferred", "attribute2"));
   }
 
+  @Test
+  public void itFindsFirstValidDeferredWordsWithNestedAttributes() {
+    DeferredToken deferredToken = DeferredToken
+      .builderFromToken(
+        new ExpressionToken("{{ blah }}", 1, 1, new DefaultTokenScannerSymbols())
+      )
+      .addUsedDeferredWords(ImmutableSet.of("deferred", ".attribute1.ignore"))
+      .addSetDeferredWords(ImmutableSet.of("deferred", ".attribute2.ignoreme"))
+      .build();
+
+    assertThat(deferredToken.getUsedDeferredWords())
+      .isEqualTo(ImmutableSet.of("deferred", "attribute1"));
+    assertThat(deferredToken.getSetDeferredWords())
+      .isEqualTo(ImmutableSet.of("deferred", "attribute2"));
+  }
+
   private Context getContext(List<? extends Node> nodes) {
     return getContext(nodes, Optional.empty());
   }

@@ -423,7 +423,7 @@ public class DeferredToken {
   }
 
   public static List<String> splitToken(String token) {
-    return Arrays.asList(token.split("\\.", 2));
+    return Arrays.asList(token.split("\\."));
   }
 
   public static Set<String> getBases(Set<String> original) {
