@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.objects.PyWrapper;
@@ -19,6 +20,7 @@ public interface PyishSerializable extends PyWrapper {
   ObjectWriter SELF_WRITER = new ObjectMapper(
     new JsonFactoryBuilder().quoteChar('\'').build()
   )
+    .registerModule(new Jdk8Module())
     .writer(PyishPrettyPrinter.INSTANCE)
     .with(PyishCharacterEscapes.INSTANCE);
 
