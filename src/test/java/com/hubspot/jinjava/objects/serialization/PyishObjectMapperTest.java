@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 
@@ -166,6 +167,11 @@ public class PyishObjectMapperTest {
     } finally {
       JinjavaInterpreter.popCurrent();
     }
+  }
+
+  @Test
+  public void itSerializesOptional() {
+    assertThat(PyishObjectMapper.getAsPyishString(Optional.of("foo"))).isEqualTo("'foo'");
   }
 
   static class Foo {

@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.After;
@@ -93,6 +94,15 @@ public class EagerExpressionResolverTest {
           this.getClass().getDeclaredMethod("sleeper")
         )
       );
+    jinjava
+      .getGlobalContext()
+      .registerFunction(
+        new ELFunctionDefinition(
+          "",
+          "optionally",
+          this.getClass().getDeclaredMethod("optionally", boolean.class)
+        )
+      );
     interpreter = new JinjavaInterpreter(jinjava.newInterpreter());
     context = interpreter.getContext();
     context.put("deferred", DeferredValue.instance());
@@ -122,6 +132,14 @@ public class EagerExpressionResolverTest {
     context.put("deferred", "foo_val");
     assertThat(eagerResolveExpression(partiallyResolved).toString()).isEqualTo("true");
     assertThat(interpreter.resolveELExpression(partiallyResolved, 1)).isEqualTo(true);
+  }
+
+  @Test
+  public void itSerializesNestedOptional() {
+    assertThat(eagerResolveExpression("[optionally(true)]").toString())
+      .isEqualTo("['1']");
+    assertThat(eagerResolveExpression("[optionally(false)]").toString())
+      .isEqualTo("[null]");
   }
 
   @Test
@@ -875,6 +893,10 @@ public class EagerExpressionResolverTest {
     }
     Thread.sleep(sleepTime);
     return sleepTime;
+  }
+
+  public static Optional<String> optionally(boolean hasValue) {
+    return Optional.of(hasValue).filter(Boolean::booleanValue).map(ignored -> "1");
   }
 
   private static class Foo {
