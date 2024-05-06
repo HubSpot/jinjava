@@ -1,0 +1,5 @@
+{% extends '../../eager/reconstructs-block-path-when-deferred-nested/middle.jinja' %}
+{% block first %}
+{%- set prefix = deferred ? "current" : "current" -%}
+Child's first current path is: {{ '{{' + prefix + '_path }}' }}
+{% endblock %}

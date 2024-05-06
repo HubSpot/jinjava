@@ -1556,4 +1556,20 @@ public class EagerTest {
       "reconstructs-block-path-when-deferred/test.expected"
     );
   }
+
+  @Test
+  public void itReconstructsBlockPathWhenDeferredNested() {
+    interpreter.getContext().getCurrentPathStack().push("Child path", 0, 0);
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-block-path-when-deferred-nested/test"
+    );
+  }
+
+  @Test
+  public void itReconstructsBlockPathWhenDeferredNestedSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-block-path-when-deferred-nested/test.expected"
+    );
+  }
 }

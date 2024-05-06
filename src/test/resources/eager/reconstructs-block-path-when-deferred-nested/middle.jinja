@@ -1,0 +1,10 @@
+{% extends '../../eager/reconstructs-block-path-when-deferred-nested/base.jinja' %}
+{% block first %}
+{%- set prefix = deferred ? "current" : "current" -%}
+Middle's first current path is: {{ '{{' + prefix + '_path }}' }}
+{% endblock %}
+
+{% block second %}
+{%- set prefix = deferred ? "current" : "current" -%}
+Middle's second current path is: {{ '{{' + prefix + '_path }}' }}
+{% endblock %}
