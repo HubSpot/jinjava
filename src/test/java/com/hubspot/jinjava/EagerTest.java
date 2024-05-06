@@ -1544,7 +1544,7 @@ public class EagerTest {
   @Test
   public void itReconstructsBlockPathWhenDeferred() {
     interpreter.getContext().getCurrentPathStack().push("Child path", 0, 0);
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "reconstructs-block-path-when-deferred/test"
     );
   }
@@ -1560,7 +1560,7 @@ public class EagerTest {
   @Test
   public void itReconstructsBlockPathWhenDeferredNested() {
     interpreter.getContext().getCurrentPathStack().push("Child path", 0, 0);
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "reconstructs-block-path-when-deferred-nested/test"
     );
   }

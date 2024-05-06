@@ -8,6 +8,7 @@ import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.ExtendsTagTest;
+import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import java.io.IOException;
 import org.junit.After;
@@ -46,7 +47,9 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
 
   @Test
   public void itDefersBlockInExtendsChild() {
-    expectedTemplateInterpreter.assertExpectedOutput("defers-block-in-extends-child");
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "defers-block-in-extends-child"
+    );
   }
 
   @Test
@@ -55,6 +58,7 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
     expectedTemplateInterpreter.assertExpectedOutput(
       "defers-block-in-extends-child.expected"
     );
+    context.remove(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY);
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "defers-block-in-extends-child.expected"
     );
@@ -62,7 +66,9 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
 
   @Test
   public void itDefersSuperBlockWithDeferred() {
-    expectedTemplateInterpreter.assertExpectedOutput("defers-super-block-with-deferred");
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "defers-super-block-with-deferred"
+    );
   }
 
   @Test
@@ -71,6 +77,7 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
     expectedTemplateInterpreter.assertExpectedOutput(
       "defers-super-block-with-deferred.expected"
     );
+    context.remove(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY);
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "defers-super-block-with-deferred.expected"
     );
@@ -90,6 +97,7 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
     expectedTemplateInterpreter.assertExpectedOutput(
       "reconstructs-deferred-outside-block.expected"
     );
+    context.remove(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY);
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "reconstructs-deferred-outside-block.expected"
     );
