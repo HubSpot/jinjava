@@ -427,7 +427,6 @@ public class Context extends ScopeMap<String, Object> {
 
   @Beta
   public void removeDeferredTokens(Collection<DeferredToken> toRemove) {
-    deferredTokens.removeAll(toRemove);
     if (getParent() != null) {
       Context parent = getParent();
       //Ignore global context
@@ -435,6 +434,7 @@ public class Context extends ScopeMap<String, Object> {
         parent.removeDeferredTokens(toRemove);
       }
     }
+    deferredTokens.removeAll(toRemove);
   }
 
   @Beta

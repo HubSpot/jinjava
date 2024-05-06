@@ -557,4 +557,47 @@ public class JinjavaInterpreterTest {
       JinjavaInterpreter.popCurrent();
     }
   }
+
+  @Test
+  public void itOutputsUndefinedVariableError() {
+    String template = "{% set foo=123 %}{{ foo }}{{ bar }}";
+
+    JinjavaInterpreter normalInterpreter = new JinjavaInterpreter(
+      jinjava,
+      jinjava.getGlobalContext(),
+      JinjavaConfig.newBuilder().withExecutionMode(EagerExecutionMode.instance()).build()
+    );
+    JinjavaInterpreter outputtingErrorInterpreters = new JinjavaInterpreter(
+      jinjava,
+      jinjava.getGlobalContext(),
+      JinjavaConfig
+        .newBuilder()
+        .withFeatureConfig(
+          FeatureConfig
+            .newBuilder()
+            .add(
+              JinjavaInterpreter.OUTPUT_UNDEFINED_VARIABLES_ERROR,
+              FeatureStrategies.ACTIVE
+            )
+            .build()
+        )
+        .withExecutionMode(EagerExecutionMode.instance())
+        .build()
+    );
+
+    String normalRenderResult = normalInterpreter.render(template);
+    String outputtingErrorRenderResult = outputtingErrorInterpreters.render(template);
+    assertThat(normalRenderResult).isEqualTo("123");
+    assertThat(outputtingErrorRenderResult).isEqualTo("123");
+    assertThat(normalInterpreter.getErrors()).isEmpty();
+    assertThat(outputtingErrorInterpreters.getErrors().size()).isEqualTo(1);
+    assertThat(outputtingErrorInterpreters.getErrors().get(0).getMessage())
+      .contains("Undefined variable: 'bar'");
+    assertThat(outputtingErrorInterpreters.getErrors().get(0).getReason())
+      .isEqualTo(ErrorReason.UNKNOWN);
+    assertThat(outputtingErrorInterpreters.getErrors().get(0).getSeverity())
+      .isEqualTo(ErrorType.WARNING);
+    assertThat(outputtingErrorInterpreters.getErrors().get(0).getCategoryErrors())
+      .isEqualTo(ImmutableMap.of("variable", "bar"));
+  }
 }

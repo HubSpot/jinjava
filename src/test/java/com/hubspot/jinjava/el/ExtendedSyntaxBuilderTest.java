@@ -8,6 +8,7 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -213,6 +214,11 @@ public class ExtendedSyntaxBuilderTest {
   }
 
   @Test
+  public void mapLiteralWithNumericKey() {
+    assertThat((Map<String, Object>) val("{0:'test'}")).contains(entry("0", "test"));
+  }
+
+  @Test
   public void itParsesDictWithVariableRefs() {
     List<?> theList = Lists.newArrayList(1L, 2L, 3L);
     context.put("the_list", theList);
@@ -271,6 +277,37 @@ public class ExtendedSyntaxBuilderTest {
     assertThat(val("mylist[0:3]")).isEqualTo(Lists.newArrayList(1, 2, 3));
     assertThat(val("mylist[5:15]")).isEqualTo(Lists.newArrayList());
     assertThat(val("mylist[2]")).isEqualTo(3);
+  }
+
+  @Test
+  public void outOfRange() {
+    List<?> emptyList = Lists.newArrayList();
+    context.put("emptyList", emptyList);
+
+    // empty case
+    assertThat(val("emptyList.get(0)")).isNull();
+    String errorMessage = "Index %d is out of range for list of size %d";
+    assertThat(interpreter.getErrors().get(0).getMessage())
+      .contains(String.format(errorMessage, 0, 0));
+
+    // negative case
+    assertThat(val("emptyList.get(-1)")).isNull();
+    assertThat(interpreter.getErrors().get(1).getMessage())
+      .contains(String.format(errorMessage, -1, 0));
+
+    // out of range for filled array
+    List<?> theList = Lists.newArrayList(1, 2, 3);
+    context.put("smallList", theList);
+    assertThat(val("smallList.get(3)")).isNull();
+    assertThat(interpreter.getErrors().get(2).getMessage())
+      .contains(String.format(errorMessage, 3, 3));
+
+    interpreter
+      .getErrors()
+      .forEach(e ->
+        assertThat(e.getException().getCause())
+          .isInstanceOf(IndexOutOfRangeException.class)
+      );
   }
 
   @Test

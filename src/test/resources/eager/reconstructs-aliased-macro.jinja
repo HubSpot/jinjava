@@ -1,0 +1,4 @@
+{%- import "eager/takes-param.jinja" as macros -%}
+{%- set myname = deferred + (1 + 2) -%}
+{% set answer = macros.takes_param(myname) %}
+{{ answer }}

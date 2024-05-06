@@ -227,6 +227,24 @@ public class EagerSetTagTest extends SetTagTest {
   }
 
   @Test
+  public void itUnwrapsEmptyAdjacentRawTags() {
+    String template =
+      "{% set foo %}A{% raw %}{% endraw %}{% raw %}{% endraw %}B{% endset %}";
+    interpreter.render(template);
+    assertThat(interpreter.getContext().get("foo")).isEqualTo("AB");
+  }
+
+  @Test
+  public void itDoesNotDoExtraNestedInterpretationWhenUnwrappingRaw() {
+    String template =
+      "{% set foo %}{% print '{{ 1 + 1 }}' %}{% raw %}{% endraw %}{{ deferred }}B{% endset %}";
+    String result = interpreter.render(template);
+    interpreter.getContext().put("deferred", "resolved");
+    interpreter.render(result);
+    assertThat(interpreter.getContext().get("foo")).isEqualTo("{{ 1 + 1 }}resolvedB");
+  }
+
+  @Test
   @Override
   @Ignore
   public void itThrowsAndDefersVarWhenValContainsDeferred() {

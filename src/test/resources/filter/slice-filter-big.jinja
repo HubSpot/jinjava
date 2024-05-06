@@ -1,0 +1,6 @@
+{%- for column in items|slice(999999999, 'hello') %}
+  {{ loop.index }}
+ {%- for item in column %}
+    {{ item }}
+  {%- endfor %}
+{%- endfor %}

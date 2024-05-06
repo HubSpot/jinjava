@@ -87,6 +87,14 @@ public class PyList extends ForwardingList<Object> implements PyWrapper {
     return indexOf(o);
   }
 
+  @Override
+  public Object get(int index) {
+    if (index < 0 || index >= list.size()) {
+      throw createOutOfRangeException(index);
+    }
+    return super.get(index);
+  }
+
   public int index(Object o, int begin, int end) {
     for (int i = begin; i < end; i++) {
       if (Objects.equals(o, get(i))) {

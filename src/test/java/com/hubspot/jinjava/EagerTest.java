@@ -1520,4 +1520,24 @@ public class EagerTest {
       "handles-deferred-modification-in-caller.expected"
     );
   }
+
+  @Test
+  public void itPreservesRawInsideDeferredSetBlock() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "preserves-raw-inside-deferred-set-block"
+    );
+  }
+
+  @Test
+  public void itReconstructsAliasedMacro() {
+    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-aliased-macro");
+  }
+
+  @Test
+  public void itReconstructsAliasedMacroSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-aliased-macro.expected"
+    );
+  }
 }
