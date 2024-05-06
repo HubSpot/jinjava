@@ -36,6 +36,7 @@ import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.ExtendsTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerGenericTag;
+import com.hubspot.jinjava.lib.tag.eager.importing.EagerImportingStrategyFactory;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
@@ -46,6 +47,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
 import com.hubspot.jinjava.tree.output.BlockInfo;
 import com.hubspot.jinjava.tree.output.BlockPlaceholderOutputNode;
+import com.hubspot.jinjava.tree.output.DynamicRenderedOutputNode;
 import com.hubspot.jinjava.tree.output.OutputList;
 import com.hubspot.jinjava.tree.output.OutputNode;
 import com.hubspot.jinjava.tree.output.RenderedOutputNode;
@@ -513,7 +515,10 @@ public class JinjavaInterpreter implements PyishSerializable {
           currentBlock = block;
 
           OutputList blockValueBuilder = new OutputList(config.getMaxOutputSize());
+          DynamicRenderedOutputNode prefix = new DynamicRenderedOutputNode();
+          blockValueBuilder.addNode(prefix);
           boolean pushedParentPathOntoStack = false;
+          int numDeferredTokensBefore = context.getDeferredTokens().size();
           if (
             block.getParentPath().isPresent() &&
             !getContext().getCurrentPathStack().contains(block.getParentPath().get())
@@ -535,7 +540,19 @@ public class JinjavaInterpreter implements PyishSerializable {
             blockValueBuilder.addNode(child.render(this));
           }
           if (pushedParentPathOntoStack) {
-            getContext().getCurrentPathStack().pop();
+            if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
+              prefix.setValue(
+                EagerImportingStrategyFactory.getSetTagForCurrentPath(this)
+              );
+              getContext().getCurrentPathStack().pop();
+              blockValueBuilder.addNode(
+                new RenderedOutputNode(
+                  EagerImportingStrategyFactory.getSetTagForCurrentPath(this)
+                )
+              );
+            } else {
+              getContext().getCurrentPathStack().pop();
+            }
           }
           blockNames.push(blockPlaceholder.getBlockName());
           resolveBlockStubs(blockValueBuilder, blockNames);
