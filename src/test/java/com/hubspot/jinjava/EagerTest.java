@@ -1540,4 +1540,20 @@ public class EagerTest {
       "reconstructs-aliased-macro.expected"
     );
   }
+
+  @Test
+  public void itReconstructsBlockPathWhenDeferred() {
+    interpreter.getContext().getCurrentPathStack().push("Child path", 0, 0);
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-block-path-when-deferred/test"
+    );
+  }
+
+  @Test
+  public void itReconstructsBlockPathWhenDeferredSecondPass() {
+    interpreter.getContext().put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-block-path-when-deferred/test.expected"
+    );
+  }
 }

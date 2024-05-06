@@ -37,6 +37,7 @@ import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.ExtendsTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerGenericTag;
 import com.hubspot.jinjava.lib.tag.eager.importing.EagerImportingStrategyFactory;
+import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.random.ConstantZeroRandomNumberGenerator;
@@ -390,7 +391,9 @@ public class JinjavaInterpreter implements PyishSerializable {
         return output.getValue();
       }
     }
-
+    DynamicRenderedOutputNode pathSetter = new DynamicRenderedOutputNode();
+    output.addNode(pathSetter);
+    Optional<String> basePath = context.getCurrentPathStack().peek();
     StringBuilder ignoredOutput = new StringBuilder();
     // render all extend parents, keeping the last as the root output
     if (processExtendRoots) {
@@ -431,7 +434,7 @@ public class JinjavaInterpreter implements PyishSerializable {
         }
         numDeferredTokensBefore = context.getDeferredTokens().size();
         output = new OutputList(config.getMaxOutputSize());
-
+        output.addNode(pathSetter);
         boolean hasNestedExtends = false;
         for (Node node : parentRoot.getChildren()) {
           lineNumber = node.getLineNumber() - 1; // The line number is off by one when rendering the extend parent
@@ -447,15 +450,26 @@ public class JinjavaInterpreter implements PyishSerializable {
             return output.getValue();
           }
         }
+        output.addNode(pathSetter);
 
         Optional<String> currentExtendPath = context.getExtendPathStack().pop();
         extendPath =
           hasNestedExtends ? currentExtendPath : context.getExtendPathStack().peek();
-        context.getCurrentPathStack().pop();
+        basePath = context.getCurrentPathStack().pop();
       }
     }
 
+    int numDeferredTokensBefore = context.getDeferredTokens().size();
     resolveBlockStubs(output);
+    if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
+      pathSetter.setValue(
+        EagerReconstructionUtils.buildBlockOrInlineSetTag(
+          RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
+          basePath,
+          this
+        )
+      );
+    }
 
     if (ignoredOutput.length() > 0) {
       return (
@@ -539,20 +553,37 @@ public class JinjavaInterpreter implements PyishSerializable {
 
             blockValueBuilder.addNode(child.render(this));
           }
-          if (pushedParentPathOntoStack) {
-            if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
-              prefix.setValue(
-                EagerImportingStrategyFactory.getSetTagForCurrentPath(this)
-              );
-              getContext().getCurrentPathStack().pop();
-              blockValueBuilder.addNode(
-                new RenderedOutputNode(
-                  EagerImportingStrategyFactory.getSetTagForCurrentPath(this)
+          if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
+            String blockPathSetter =
+              EagerImportingStrategyFactory.getSetTagForCurrentPath(this);
+            String tempVarName =
+              "temp_current_path_" + Math.abs(blockPathSetter.hashCode() >> 1);
+            prefix.setValue(
+              EagerReconstructionUtils.buildSetTag(
+                ImmutableMap.of(
+                  tempVarName,
+                  RelativePathResolver.CURRENT_PATH_CONTEXT_KEY
+                ),
+                this,
+                false
+              ) +
+              EagerImportingStrategyFactory.getSetTagForCurrentPath(this)
+            );
+            blockValueBuilder.addNode(
+              new RenderedOutputNode(
+                EagerReconstructionUtils.buildSetTag(
+                  ImmutableMap.of(
+                    RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
+                    tempVarName
+                  ),
+                  this,
+                  false
                 )
-              );
-            } else {
-              getContext().getCurrentPathStack().pop();
-            }
+              )
+            );
+          }
+          if (pushedParentPathOntoStack) {
+            getContext().getCurrentPathStack().pop();
           }
           blockNames.push(blockPlaceholder.getBlockName());
           resolveBlockStubs(blockValueBuilder, blockNames);

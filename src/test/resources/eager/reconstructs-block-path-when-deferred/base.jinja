@@ -1,0 +1,7 @@
+{% set prefix = deferred ? "current" : "current" %}
+Parent's current path is: {{ '{{' + prefix + '_path }}' }}
+-----Pre-Block-----
+{% block body -%}
+{%- endblock %}
+-----Post-Block-----
+Parent's current path is: {{ '{{' + prefix + '_path }}' }}
