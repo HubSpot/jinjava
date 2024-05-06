@@ -36,7 +36,6 @@ import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.ExtendsTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerGenericTag;
-import com.hubspot.jinjava.lib.tag.eager.importing.EagerImportingStrategyFactory;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
@@ -450,8 +449,6 @@ public class JinjavaInterpreter implements PyishSerializable {
             return output.getValue();
           }
         }
-        output.addNode(pathSetter);
-
         Optional<String> currentExtendPath = context.getExtendPathStack().pop();
         extendPath =
           hasNestedExtends ? currentExtendPath : context.getExtendPathStack().peek();
@@ -554,32 +551,10 @@ public class JinjavaInterpreter implements PyishSerializable {
             blockValueBuilder.addNode(child.render(this));
           }
           if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
-            String blockPathSetter =
-              EagerImportingStrategyFactory.getSetTagForCurrentPath(this);
-            String tempVarName =
-              "temp_current_path_" + Math.abs(blockPathSetter.hashCode() >> 1);
-            prefix.setValue(
-              EagerReconstructionUtils.buildSetTag(
-                ImmutableMap.of(
-                  tempVarName,
-                  RelativePathResolver.CURRENT_PATH_CONTEXT_KEY
-                ),
-                this,
-                false
-              ) +
-              EagerImportingStrategyFactory.getSetTagForCurrentPath(this)
-            );
-            blockValueBuilder.addNode(
-              new RenderedOutputNode(
-                EagerReconstructionUtils.buildSetTag(
-                  ImmutableMap.of(
-                    RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
-                    tempVarName
-                  ),
-                  this,
-                  false
-                )
-              )
+            EagerReconstructionUtils.reconstructPathAroundBlock(
+              prefix,
+              blockValueBuilder,
+              this
             );
           }
           if (pushedParentPathOntoStack) {
