@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.mode.DefaultExecutionMode;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -66,13 +67,15 @@ public class ExpectedTemplateInterpreter {
       );
       JinjavaInterpreter.pushCurrent(preserveInterpreter);
 
-      preserveInterpreter.getContext().putAll(interpreter.getContext());
-      String template = getFixtureTemplate(name);
-      output = JinjavaInterpreter.getCurrent().render(template);
-      assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
-        .as("Ensure no deferred nodes were created")
-        .isEmpty();
-      assertThat(output.trim()).isEqualTo(expected(name).trim());
+      try (InterpreterScopeClosable ignored = preserveInterpreter.enterScope()) {
+        preserveInterpreter.getContext().putAll(interpreter.getContext());
+        String template = getFixtureTemplate(name);
+        output = JinjavaInterpreter.getCurrent().render(template);
+        assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
+          .as("Ensure no deferred nodes were created")
+          .isEmpty();
+        assertThat(output.trim()).isEqualTo(expected(name).trim());
+      }
     } finally {
       JinjavaInterpreter.popCurrent();
     }
@@ -97,11 +100,13 @@ public class ExpectedTemplateInterpreter {
 
         preserveInterpreter.getContext().putAll(interpreter.getContext());
         String template = getFixtureTemplate(originalName);
-        output = JinjavaInterpreter.getCurrent().render(template);
-        assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
-          .as("Ensure no deferred nodes were created")
-          .isEmpty();
-        assertThat(output.trim()).isEqualTo(expected(name).trim());
+        try (InterpreterScopeClosable ignored = preserveInterpreter.enterScope()) {
+          output = JinjavaInterpreter.getCurrent().render(template);
+          assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
+            .as("Ensure no deferred nodes were created")
+            .isEmpty();
+          assertThat(output.trim()).isEqualTo(expected(name).trim());
+        }
       } finally {
         JinjavaInterpreter.popCurrent();
       }

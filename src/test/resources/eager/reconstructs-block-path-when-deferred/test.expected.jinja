@@ -1,0 +1,7 @@
+{% set current_path = '../../eager/reconstructs-block-path-when-deferred/base.jinja' %}{% set prefix = deferred ? 'current' : 'current' %}
+Parent's current path is: {{ '{{' + prefix + '_path }}' }}
+-----Pre-Block-----
+{% set temp_current_path_586961858 = current_path %}{% set current_path = 'Child path' %}{% set prefix = deferred ? 'current' : 'current' %}Block's current path is: {{ '{{' + prefix + '_path }}' }}
+{% set current_path = temp_current_path_586961858 %}
+-----Post-Block-----
+Parent's current path is: {{ '{{' + prefix + '_path }}' }}

@@ -23,11 +23,16 @@ import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.lib.tag.eager.EagerSetTagStrategy;
 import com.hubspot.jinjava.lib.tag.eager.importing.AliasedEagerImportingStrategy;
+import com.hubspot.jinjava.lib.tag.eager.importing.EagerImportingStrategyFactory;
+import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.serialization.PyishBlockSetSerializable;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.tree.TagNode;
+import com.hubspot.jinjava.tree.output.DynamicRenderedOutputNode;
+import com.hubspot.jinjava.tree.output.OutputList;
+import com.hubspot.jinjava.tree.output.RenderedOutputNode;
 import com.hubspot.jinjava.tree.parse.NoteToken;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
@@ -920,5 +925,33 @@ public class EagerReconstructionUtils {
       // The original key will be a DeferredValueImpl already on its original scope
       .filter(entry -> !(entry.getValue() instanceof DeferredValueShadow))
       .forEach(entry -> interpreter.getContext().put(entry.getKey(), entry.getValue()));
+  }
+
+  public static void reconstructPathAroundBlock(
+    DynamicRenderedOutputNode prefix,
+    OutputList blockValueBuilder,
+    JinjavaInterpreter interpreter
+  ) {
+    String blockPathSetter = EagerImportingStrategyFactory.getSetTagForCurrentPath(
+      interpreter
+    );
+    String tempVarName = "temp_current_path_" + Math.abs(blockPathSetter.hashCode() >> 1);
+    prefix.setValue(
+      buildSetTag(
+        ImmutableMap.of(tempVarName, RelativePathResolver.CURRENT_PATH_CONTEXT_KEY),
+        interpreter,
+        false
+      ) +
+      EagerImportingStrategyFactory.getSetTagForCurrentPath(interpreter)
+    );
+    blockValueBuilder.addNode(
+      new RenderedOutputNode(
+        buildSetTag(
+          ImmutableMap.of(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY, tempVarName),
+          interpreter,
+          false
+        )
+      )
+    );
   }
 }
