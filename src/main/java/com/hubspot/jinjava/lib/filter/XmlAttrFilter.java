@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +38,11 @@ import org.apache.commons.lang3.StringUtils;
 )
 public class XmlAttrFilter implements Filter {
 
+  // See https://html.spec.whatwg.org/#attribute-name-state Don't allow characters that would change the attribute name/value state
+  private static final Pattern ILLEGAL_ATTRIBUTE_KEY_PATTERN = Pattern.compile(
+    "[\\s/>=]"
+  );
+
   @Override
   public String getName() {
     return "xmlattr";
@@ -53,6 +59,11 @@ public class XmlAttrFilter implements Filter {
     List<String> attrs = new ArrayList<>();
 
     for (Map.Entry<String, Object> entry : dict.entrySet()) {
+      if (ILLEGAL_ATTRIBUTE_KEY_PATTERN.matcher(entry.getKey()).find()) {
+        throw new IllegalArgumentException(
+          String.format("Invalid character in attribute name: %s", entry.getKey())
+        );
+      }
       attrs.add(
         new StringBuilder(entry.getKey())
           .append("=\"")
