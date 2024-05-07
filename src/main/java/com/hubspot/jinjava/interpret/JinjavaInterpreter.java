@@ -513,34 +513,30 @@ public class JinjavaInterpreter implements PyishSerializable {
           currentBlock = block;
 
           OutputList blockValueBuilder = new OutputList(config.getMaxOutputSize());
-
+          boolean pushedParentPathOntoStack = false;
+          if (
+            block.getParentPath().isPresent() &&
+            !getContext().getCurrentPathStack().contains(block.getParentPath().get())
+          ) {
+            getContext()
+              .getCurrentPathStack()
+              .push(
+                block.getParentPath().get(),
+                block.getParentLineNo(),
+                block.getParentPosition()
+              );
+            pushedParentPathOntoStack = true;
+            lineNumber--; // The line number is off by one when rendering the block from the parent template
+          }
           for (Node child : block.getNodes()) {
             lineNumber = child.getLineNumber();
             position = child.getStartPosition();
 
-            boolean pushedParentPathOntoStack = false;
-            if (
-              block.getParentPath().isPresent() &&
-              !getContext().getCurrentPathStack().contains(block.getParentPath().get())
-            ) {
-              getContext()
-                .getCurrentPathStack()
-                .push(
-                  block.getParentPath().get(),
-                  block.getParentLineNo(),
-                  block.getParentPosition()
-                );
-              pushedParentPathOntoStack = true;
-              lineNumber--; // The line number is off by one when rendering the block from the parent template
-            }
-
             blockValueBuilder.addNode(child.render(this));
-
-            if (pushedParentPathOntoStack) {
-              getContext().getCurrentPathStack().pop();
-            }
           }
-
+          if (pushedParentPathOntoStack) {
+            getContext().getCurrentPathStack().pop();
+          }
           blockNames.push(blockPlaceholder.getBlockName());
           resolveBlockStubs(blockValueBuilder, blockNames);
           blockNames.pop();
