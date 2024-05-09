@@ -270,6 +270,13 @@
                   <shadedPattern>jinjava.org.jsoup</shadedPattern>
                 </relocation>
               </relocations>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <X-HubSpot-Target-Jdk>${project.build.targetJdk}</X-HubSpot-Target-Jdk>
+                  </manifestEntries>
+                </transformer>
+              </transformers>
             </configuration>
           </execution>
         </executions>
