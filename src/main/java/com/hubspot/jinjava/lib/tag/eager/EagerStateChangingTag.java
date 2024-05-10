@@ -51,10 +51,8 @@ public class EagerStateChangingTag<T extends Tag> extends EagerTagDecorator<T> {
     }
     if (
       StringUtils.isNotBlank(tagNode.getEndName()) &&
-      (
-        !(getTag() instanceof FlexibleTag) ||
-        ((FlexibleTag) getTag()).hasEndTag((TagToken) tagNode.getMaster())
-      )
+      (!(getTag() instanceof FlexibleTag) ||
+        ((FlexibleTag) getTag()).hasEndTag((TagToken) tagNode.getMaster()))
     ) {
       result.append(EagerReconstructionUtils.reconstructEnd(tagNode));
     }

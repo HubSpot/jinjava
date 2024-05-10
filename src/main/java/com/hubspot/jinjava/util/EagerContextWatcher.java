@@ -120,11 +120,9 @@ public class EagerContextWatcher {
     // This creates a stringified snapshot of the context
     // so it can be disabled via the config because it may cause performance issues.
     Stream<Entry<String, Object>> entryStream =
-      (
-        interpreter.getConfig().getExecutionMode().useEagerContextReverting()
+      (interpreter.getConfig().getExecutionMode().useEagerContextReverting()
           ? entrySet
-          : interpreter.getContext().getCombinedScope().entrySet()
-      ).stream()
+          : interpreter.getContext().getCombinedScope().entrySet()).stream()
         .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
         .filter(entry ->
           EagerExpressionResolver.isResolvableObject(entry.getValue(), 4, 400) // TODO make this configurable

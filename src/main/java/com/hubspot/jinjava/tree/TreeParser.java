@@ -208,12 +208,10 @@ public class TreeParser {
     if (lastSibling instanceof TagNode) {
       return (
           ((TagNode) lastSibling).getEndName() == null ||
-          (
-            ((TagNode) lastSibling).getTag() instanceof FlexibleTag &&
+          (((TagNode) lastSibling).getTag() instanceof FlexibleTag &&
             !((FlexibleTag) ((TagNode) lastSibling).getTag()).hasEndTag(
                 (TagToken) lastSibling.getMaster()
-              )
-          )
+              ))
         )
         ? lastSibling.getMaster().isRightTrim()
         : lastSibling.getMaster().isRightTrimAfterEnd();

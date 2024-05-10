@@ -317,10 +317,8 @@ public class DeferredToken {
           .stream()
           .filter(entry ->
             entry.getValue() == wordValue ||
-            (
-              entry.getValue() instanceof DeferredValue &&
-              ((DeferredValue) entry.getValue()).getOriginalValue() == wordValue
-            )
+            (entry.getValue() instanceof DeferredValue &&
+              ((DeferredValue) entry.getValue()).getOriginalValue() == wordValue)
           )
           .forEach(entry -> {
             matchingEntries.add(entry);

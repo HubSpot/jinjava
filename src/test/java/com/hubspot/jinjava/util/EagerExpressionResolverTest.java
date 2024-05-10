@@ -339,9 +339,9 @@ public class EagerExpressionResolverTest {
       " %}"
     );
     assertThat(
-      (
-        (PyishDate) ((Map<String, Object>) interpreter.getContext().get("foo")).get("a")
-      ).toDateTime()
+      ((PyishDate) ((Map<String, Object>) interpreter.getContext().get("foo")).get(
+            "a"
+          )).toDateTime()
     )
       .isEqualTo(date.toDateTime());
   }
