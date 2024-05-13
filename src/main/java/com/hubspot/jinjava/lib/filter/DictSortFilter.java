@@ -88,6 +88,9 @@ public class DictSortFilter implements Filter {
     public int compare(Entry<String, Object> o1, Entry<String, Object> o2) {
       Object sVal1 = sortByKey ? o1.getKey() : o1.getValue();
       Object sVal2 = sortByKey ? o2.getKey() : o2.getValue();
+      if (sVal1 == null || sVal2 == null) {
+        return 0;
+      }
 
       int result = 0;
 
