@@ -78,14 +78,12 @@ public class EagerPrintTag extends EagerStateChangingTag<PrintTag> {
       // Possible macro/set tag in front of this one.
       return (
         prefixToPreserveState.toString() +
-        (
-          includeExpressionResult
+        (includeExpressionResult
             ? EagerReconstructionUtils.wrapInRawIfNeeded(
               eagerExecutionResult.getResult().toString(true),
               interpreter
             )
-            : ""
-        )
+            : "")
       );
     }
     EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(

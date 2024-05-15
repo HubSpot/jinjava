@@ -120,10 +120,8 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
       .entrySet()
       .stream()
       .filter(entry ->
-        !(
-          entry.getKey().equals(Context.GLOBAL_MACROS_SCOPE_KEY) ||
-          entry.getKey().equals(Context.IMPORT_RESOURCE_ALIAS_KEY)
-        )
+        !(entry.getKey().equals(Context.GLOBAL_MACROS_SCOPE_KEY) ||
+          entry.getKey().equals(Context.IMPORT_RESOURCE_ALIAS_KEY))
       )
       .forEach(entry -> mapForCurrentContextAlias.put(entry.getKey(), entry.getValue()));
   }
@@ -207,9 +205,7 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
       return (Map<String, Object>) parentValueForChild;
     } else if (parentValueForChild instanceof DeferredValue) {
       if (((DeferredValue) parentValueForChild).getOriginalValue() instanceof Map) {
-        return (Map<String, Object>) (
-          (DeferredValue) parentValueForChild
-        ).getOriginalValue();
+        return (Map<String, Object>) ((DeferredValue) parentValueForChild).getOriginalValue();
       }
       Map<String, Object> newMap = new PyMap(new HashMap<>());
       child

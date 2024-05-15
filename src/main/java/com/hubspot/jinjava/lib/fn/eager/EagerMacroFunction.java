@@ -100,11 +100,9 @@ public class EagerMacroFunction extends MacroFunction {
     );
     if (
       !eagerExecutionResult.getResult().isFullyResolved() &&
-      (
-        !interpreter.getContext().isPartialMacroEvaluation() ||
+      (!interpreter.getContext().isPartialMacroEvaluation() ||
         !eagerExecutionResult.getSpeculativeBindings().isEmpty() ||
-        interpreter.getContext().isDeferredExecutionMode()
-      )
+        interpreter.getContext().isDeferredExecutionMode())
     ) {
       PrefixToPreserveState prefixToPreserveState =
         EagerReconstructionUtils.resetAndDeferSpeculativeBindings(
@@ -251,10 +249,8 @@ public class EagerMacroFunction extends MacroFunction {
     }
 
     if (
-      (
-        interpreter.getContext().getMacroStack().contains(getName()) &&
-        !differentMacroWithSameNameExists(interpreter)
-      ) ||
+      (interpreter.getContext().getMacroStack().contains(getName()) &&
+        !differentMacroWithSameNameExists(interpreter)) ||
       (!isCaller() && AstMacroFunction.checkAndPushMacroStack(interpreter, fullName))
     ) {
       return "";

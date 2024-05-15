@@ -106,10 +106,8 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     if (
       method == null ||
       DEFAULT_RESTRICTED_METHODS.contains(method.toString()) ||
-      (
-        interpreter != null &&
-        interpreter.getConfig().getRestrictedMethods().contains(method.toString())
-      )
+      (interpreter != null &&
+        interpreter.getConfig().getRestrictedMethods().contains(method.toString()))
     ) {
       throw new MethodNotFoundException(
         "Cannot find method '" + method + "' in " + base.getClass()
@@ -221,10 +219,8 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
     if (
       DEFAULT_RESTRICTED_PROPERTIES.contains(propertyName) ||
-      (
-        interpreter != null &&
-        interpreter.getConfig().getRestrictedProperties().contains(propertyName)
-      )
+      (interpreter != null &&
+        interpreter.getConfig().getRestrictedProperties().contains(propertyName))
     ) {
       return null;
     }
@@ -253,10 +249,8 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     }
 
     return (
-      (
-        o.getClass().getPackage() != null &&
-        o.getClass().getPackage().getName().startsWith("java.lang.reflect")
-      ) ||
+      (o.getClass().getPackage() != null &&
+        o.getClass().getPackage().getName().startsWith("java.lang.reflect")) ||
       o instanceof Class ||
       o instanceof ClassLoader ||
       o instanceof Thread ||

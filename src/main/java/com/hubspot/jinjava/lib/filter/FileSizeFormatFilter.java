@@ -61,11 +61,11 @@ public class FileSizeFormatFilter implements Filter {
       prefix = sizes[i];
 
       if (bytes < unit) {
-        return String.format("%.1f %s", (double) (base * bytes / unit), prefix);
+        return String.format("%.1f %s", (double) ((base * bytes) / unit), prefix);
       }
     }
 
-    return String.format("%.1f %s", (double) (base * bytes / unit), prefix);
+    return String.format("%.1f %s", (double) ((base * bytes) / unit), prefix);
   }
 
   private static final String[] BINARY_SIZES = {

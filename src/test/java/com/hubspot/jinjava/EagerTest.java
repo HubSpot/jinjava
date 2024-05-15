@@ -378,7 +378,7 @@ public class EagerTest {
   public void itDefersDependantVariables() {
     String template = "";
     template +=
-      "{% set resolved_variable = 'resolved' %} {% set deferred_variable = deferred + '-' + resolved_variable %}";
+    "{% set resolved_variable = 'resolved' %} {% set deferred_variable = deferred + '-' + resolved_variable %}";
     template += "{{ deferred_variable }}";
     interpreter.render(template);
     localContext.get("resolved_variable");

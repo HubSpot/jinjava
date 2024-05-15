@@ -75,10 +75,8 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       // and all defined variables and macros should be deferred too.
       if (
         !child.getContext().getDeferredNodes().isEmpty() ||
-        (
-          interpreter.getContext().isDeferredExecutionMode() &&
-          !child.getContext().getGlobalMacros().isEmpty()
-        )
+        (interpreter.getContext().isDeferredExecutionMode() &&
+          !child.getContext().getGlobalMacros().isEmpty())
       ) {
         ImportTag.handleDeferredNodesDuringImport(
           node,

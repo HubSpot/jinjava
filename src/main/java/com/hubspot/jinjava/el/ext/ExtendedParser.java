@@ -585,9 +585,9 @@ public class ExtendedParser extends Parser {
     throws ParseException, ScanException {
     if (
       FILTER_PREFIX.substring(0, FILTER_PREFIX.length() - 1).equals(namespace) ||
-      EXPTEST_PREFIX.substring(0, EXPTEST_PREFIX.length() - 1).equals(namespace) &&
-      lookahead(1).getSymbol() == DOT &&
-      lookahead(2).getSymbol() == IDENTIFIER
+      (EXPTEST_PREFIX.substring(0, EXPTEST_PREFIX.length() - 1).equals(namespace) &&
+        lookahead(1).getSymbol() == DOT &&
+        lookahead(2).getSymbol() == IDENTIFIER)
     ) {
       Token property = lookahead(2);
       if (

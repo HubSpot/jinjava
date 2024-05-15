@@ -493,10 +493,8 @@ public class JinjavaInterpreter implements PyishSerializable {
   private boolean isExtendsTag(Node node) {
     return (
       node instanceof TagNode &&
-      (
-        ((TagNode) node).getTag() instanceof ExtendsTag ||
-        isEagerExtendsTag((TagNode) node)
-      )
+      (((TagNode) node).getTag() instanceof ExtendsTag ||
+        isEagerExtendsTag((TagNode) node))
     );
   }
 

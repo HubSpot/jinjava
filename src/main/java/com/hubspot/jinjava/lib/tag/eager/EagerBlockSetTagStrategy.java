@@ -49,8 +49,8 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
         .build()
     );
     if (
-      !eagerExecutionResult.getResult().isFullyResolved() &&
-      !eagerExecutionResult.getSpeculativeBindings().isEmpty() ||
+      (!eagerExecutionResult.getResult().isFullyResolved() &&
+        !eagerExecutionResult.getSpeculativeBindings().isEmpty()) ||
       interpreter.getContext().isDeferredExecutionMode()
     ) {
       EagerReconstructionUtils.resetAndDeferSpeculativeBindings(

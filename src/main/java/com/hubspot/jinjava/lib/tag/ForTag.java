@@ -287,11 +287,8 @@ public class ForTag implements Tag {
         }
         if (
           interpreter.getConfig().getMaxNumDeferredTokens() <
-          (
-            loop.getLength() *
-            interpreter.getContext().getDeferredTokens().size() /
-            loop.getIndex()
-          )
+          ((loop.getLength() * interpreter.getContext().getDeferredTokens().size()) /
+            loop.getIndex())
         ) {
           throw new DeferredValueException(TOO_LARGE_EXCEPTION_MESSAGE);
         }
