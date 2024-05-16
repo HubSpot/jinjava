@@ -115,6 +115,7 @@ public class Context extends ScopeMap<String, Object> {
   private boolean throwInterpreterErrors = false;
   private boolean partialMacroEvaluation = false;
   private boolean unwrapRawOverride = false;
+  private boolean preparedByExecutionMode = false;
   private DynamicVariableResolver dynamicVariableResolver = null;
   private final Set<String> metaContextVariables; // These variable names aren't tracked in eager execution
   private Node currentNode;
@@ -217,6 +218,7 @@ public class Context extends ScopeMap<String, Object> {
       this.deferredExecutionMode = parent.deferredExecutionMode;
       this.deferLargeObjects = parent.deferLargeObjects;
       this.throwInterpreterErrors = parent.throwInterpreterErrors;
+      this.preparedByExecutionMode = parent.preparedByExecutionMode;
     }
   }
 
@@ -824,5 +826,13 @@ public class Context extends ScopeMap<String, Object> {
 
   public boolean isInForLoop() {
     return get(ForTag.LOOP) != null;
+  }
+
+  boolean isPreparedByExecutionMode() {
+    return preparedByExecutionMode;
+  }
+
+  void setPreparedByExecutionMode(boolean preparedByExecutionMode) {
+    this.preparedByExecutionMode = preparedByExecutionMode;
   }
 }
