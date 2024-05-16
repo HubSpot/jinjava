@@ -954,4 +954,14 @@ public class EagerExpressionResolverTest {
     assertThat(EagerExpressionResolver.isResolvableObject(new BigDecimal("2.1E7")))
       .isTrue();
   }
+
+  @Test
+  public void itCountsOptionalAsResolvable() {
+    assertThat(
+      EagerExpressionResolver.isResolvableObject(
+        ImmutableList.of(Optional.of(123), Optional.empty())
+      )
+    )
+      .isTrue();
+  }
 }

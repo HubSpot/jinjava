@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -335,6 +336,11 @@ public class EagerExpressionResolver {
         }
         return (Arrays.stream((Object[]) val)).filter(Objects::nonNull)
           .allMatch(item -> isResolvableObjectRec(item, depth + 1, maxDepth, maxSize));
+      } else if (val instanceof Optional) {
+        return ((Optional<?>) val).map(item ->
+            isResolvableObjectRec(item, depth + 1, maxDepth, maxSize)
+          )
+          .orElse(true);
       }
     } catch (DeferredValueException e) {
       if (!(val instanceof PartiallyDeferredValue)) {
