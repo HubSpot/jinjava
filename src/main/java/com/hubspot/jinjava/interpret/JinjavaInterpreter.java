@@ -111,10 +111,7 @@ public class JinjavaInterpreter implements PyishSerializable {
     this.context = context;
     this.config = renderConfig;
     this.application = application;
-    if (!this.context.isPreparedByExecutionMode()) {
-      this.config.getExecutionMode().prepareContext(this.context);
-      this.context.setPreparedByExecutionMode(true);
-    }
+    this.config.getExecutionMode().prepareContext(this.context);
 
     switch (config.getRandomNumberGeneratorStrategy()) {
       case THREAD_LOCAL:

@@ -72,7 +72,7 @@ public class FlatEagerImportingStrategy implements EagerImportingStrategy {
       Set<String> metaContextVariables = importingData
         .getOriginalInterpreter()
         .getContext()
-        .getMetaContextVariables();
+        .getComputedMetaContextVariables();
       // defer imported variables
       EagerReconstructionUtils.buildSetTag(
         child

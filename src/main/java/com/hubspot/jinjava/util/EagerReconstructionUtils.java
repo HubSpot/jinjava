@@ -2,7 +2,6 @@ package com.hubspot.jinjava.util;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -25,7 +24,6 @@ import com.hubspot.jinjava.lib.tag.eager.EagerSetTagStrategy;
 import com.hubspot.jinjava.lib.tag.eager.importing.AliasedEagerImportingStrategy;
 import com.hubspot.jinjava.lib.tag.eager.importing.EagerImportingStrategyFactory;
 import com.hubspot.jinjava.loader.RelativePathResolver;
-import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.serialization.PyishBlockSetSerializable;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
@@ -313,7 +311,9 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter,
     int depth
   ) {
-    Set<String> metaContextVariables = interpreter.getContext().getMetaContextVariables();
+    Set<String> metaContextVariables = interpreter
+      .getContext()
+      .getComputedMetaContextVariables();
     deferredWords
       .stream()
       .filter(w -> !metaContextVariables.contains(w))
@@ -751,22 +751,6 @@ public class EagerReconstructionUtils {
         interpreter.getConfig().getTokenScannerSymbols().getExpressionEndWithTag()
       )
     );
-  }
-
-  public static Set<String> removeMetaContextVariables(
-    Stream<String> varStream,
-    Context context
-  ) {
-    Set<String> metaSetVars = Sets
-      .intersection(
-        context.getMetaContextVariables(),
-        varStream
-          .filter(var -> !EagerExecutionMode.STATIC_META_CONTEXT_VARIABLES.contains(var))
-          .collect(Collectors.toSet())
-      )
-      .immutableCopy();
-    context.getMetaContextVariables().removeAll(metaSetVars);
-    return metaSetVars;
   }
 
   public static Boolean isDeferredExecutionMode() {

@@ -378,7 +378,7 @@ public class DeferredToken {
         }
         return !(val instanceof DeferredValue);
       })
-      .filter(prop -> !context.getMetaContextVariables().contains(prop))
+      .filter(prop -> !context.getComputedMetaContextVariables().contains(prop))
       .filter(prop -> {
         DeferredValue deferredValue = convertToDeferredValue(context, prop);
         context.put(prop, deferredValue);

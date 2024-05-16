@@ -16,6 +16,7 @@ import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -225,7 +226,7 @@ public class EagerAstMethodTest extends BaseInterpretingTest {
   @Test
   public void itPreservesUnresolvable() {
     interpreter.getContext().put("foo_object", new Foo());
-    interpreter.getContext().getMetaContextVariables().add("foo_object");
+    interpreter.getContext().addMetaContextVariables(Collections.singleton("foo_object"));
     try {
       interpreter.resolveELExpression("foo_object.deferred|upper", -1);
       fail("Should throw DeferredParsingException");

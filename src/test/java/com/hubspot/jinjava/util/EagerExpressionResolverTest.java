@@ -600,7 +600,7 @@ public class EagerExpressionResolverTest {
   @Test
   public void itHandlesPyishSerializableWithProcessingException() {
     context.put("foo", new SomethingExceptionallyPyish("yes"));
-    context.getMetaContextVariables().add("foo");
+    context.addMetaContextVariables(Collections.singleton("foo"));
     assertThat(interpreter.render("{{ deferred && (1 == 2 || foo) }}"))
       .isEqualTo("{{ deferred && (false || foo) }}");
   }

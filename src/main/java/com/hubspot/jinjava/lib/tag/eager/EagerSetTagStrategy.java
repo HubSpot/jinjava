@@ -40,11 +40,11 @@ public abstract class EagerSetTagStrategy {
       variables = new String[] { var };
       expression = tagNode.getHelpers();
     }
-
-    EagerReconstructionUtils.removeMetaContextVariables(
-      Arrays.stream(variables).map(String::trim),
-      interpreter.getContext()
-    );
+    interpreter
+      .getContext()
+      .addNonMetaContextVariables(
+        Arrays.stream(variables).map(String::trim).collect(Collectors.toList())
+      );
 
     EagerExecutionResult eagerExecutionResult = getEagerExecutionResult(
       tagNode,
@@ -167,7 +167,7 @@ public abstract class EagerSetTagStrategy {
     if (
       maybeTemporaryImportAlias.isPresent() &&
       !AliasedEagerImportingStrategy.isTemporaryImportAlias(variables) &&
-      !interpreter.getContext().getMetaContextVariables().contains(variables)
+      !interpreter.getContext().getComputedMetaContextVariables().contains(variables)
     ) {
       if (!interpreter.getContext().containsKey(maybeTemporaryImportAlias.get())) {
         if (

@@ -119,7 +119,7 @@ public class DeferredValueUtils {
     props
       .stream()
       .filter(prop -> !(context.get(prop) instanceof DeferredValue))
-      .filter(prop -> !context.getMetaContextVariables().contains(prop))
+      .filter(prop -> !context.getComputedMetaContextVariables().contains(prop))
       .forEach(prop -> {
         Object value = context.get(prop);
         if (value != null) {
