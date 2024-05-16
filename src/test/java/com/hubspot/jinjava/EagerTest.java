@@ -1572,4 +1572,21 @@ public class EagerTest {
       "reconstructs-block-path-when-deferred-nested/test.expected"
     );
   }
+
+  @Test
+  public void itKeepsMetaContextVariablesThroughImport() {
+    setupWithExecutionMode(
+      new EagerExecutionMode() {
+        @Override
+        public void prepareContext(Context context) {
+          super.prepareContext(context);
+          context.getMetaContextVariables().add("meta");
+        }
+      }
+    );
+    interpreter.getContext().put("meta", new ArrayList<>());
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "keeps-meta-context-variables-through-import/test"
+    );
+  }
 }
