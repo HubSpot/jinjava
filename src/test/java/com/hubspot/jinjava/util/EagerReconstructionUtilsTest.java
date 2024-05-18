@@ -2,8 +2,7 @@ package com.hubspot.jinjava.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -34,7 +33,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -350,27 +348,33 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itDoesNotRemoveStaticMetaContextVariables() {
+  public void itRemovesOtherMetaContextVariables() {
     String variableName = "foo";
-    interpreter.getContext().getMetaContextVariables().add(variableName);
-    assertThat(interpreter.getContext().getMetaContextVariables()).contains(variableName);
-    EagerReconstructionUtils.removeMetaContextVariables(
-      Stream.of(variableName),
-      interpreter.getContext()
-    );
-    assertThat(interpreter.getContext().getMetaContextVariables())
+    interpreter.getContext().addMetaContextVariables(Collections.singleton(variableName));
+    assertThat(interpreter.getContext().getComputedMetaContextVariables())
+      .contains(variableName);
+    interpreter
+      .getContext()
+      .addNonMetaContextVariables(Collections.singleton(variableName));
+    assertThat(interpreter.getContext().getComputedMetaContextVariables())
       .doesNotContain(variableName);
+    interpreter
+      .getContext()
+      .removeNonMetaContextVariables(Collections.singleton(variableName));
+    assertThat(interpreter.getContext().getComputedMetaContextVariables())
+      .contains(variableName);
   }
 
   @Test
-  public void itRemovesOtherMetaContextVariables() {
-    assertThat(interpreter.getContext().getMetaContextVariables())
+  public void itDoesNotRemoveStaticMetaContextVariables() {
+    assertThat(interpreter.getContext().getComputedMetaContextVariables())
       .contains(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY);
-    EagerReconstructionUtils.removeMetaContextVariables(
-      Stream.of(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY),
-      interpreter.getContext()
-    );
-    assertThat(interpreter.getContext().getMetaContextVariables())
+    interpreter
+      .getContext()
+      .addNonMetaContextVariables(
+        Collections.singleton(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY)
+      );
+    assertThat(interpreter.getContext().getComputedMetaContextVariables())
       .contains(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY);
   }
 

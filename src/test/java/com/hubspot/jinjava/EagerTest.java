@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -990,7 +991,7 @@ public class EagerTest {
 
   @Test
   public void itAllowsMetaContextVarOverriding() {
-    interpreter.getContext().getMetaContextVariables().add("meta");
+    interpreter.getContext().addMetaContextVariables(Collections.singleton("meta"));
     interpreter.getContext().put("meta", "META");
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "allows-meta-context-var-overriding"
@@ -1471,7 +1472,7 @@ public class EagerTest {
 
   @Test
   public void itDefersLoopSettingMetaContextVar() {
-    interpreter.getContext().getMetaContextVariables().add("content");
+    interpreter.getContext().addMetaContextVariables(Collections.singleton("content"));
     expectedTemplateInterpreter.assertExpectedOutput(
       "defers-loop-setting-meta-context-var"
     );
@@ -1480,7 +1481,7 @@ public class EagerTest {
   @Test
   public void itDefersLoopSettingMetaContextVarSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
-    interpreter.getContext().getMetaContextVariables().add("content");
+    interpreter.getContext().addMetaContextVariables(Collections.singleton("content"));
     expectedTemplateInterpreter.assertExpectedOutput(
       "defers-loop-setting-meta-context-var.expected"
     );
@@ -1570,6 +1571,23 @@ public class EagerTest {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
       "reconstructs-block-path-when-deferred-nested/test.expected"
+    );
+  }
+
+  @Test
+  public void itKeepsMetaContextVariablesThroughImport() {
+    setupWithExecutionMode(
+      new EagerExecutionMode() {
+        @Override
+        public void prepareContext(Context context) {
+          super.prepareContext(context);
+          context.addMetaContextVariables(Collections.singleton("meta"));
+        }
+      }
+    );
+    interpreter.getContext().put("meta", new ArrayList<>());
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "keeps-meta-context-variables-through-import/test"
     );
   }
 }

@@ -20,6 +20,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.lib.expression.DefaultExpressionStrategy;
 import com.hubspot.jinjava.lib.expression.ExpressionStrategy;
@@ -34,6 +35,7 @@ import com.hubspot.jinjava.lib.tag.ForTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.TagLibrary;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
+import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.ScopeMap;
@@ -117,6 +119,7 @@ public class Context extends ScopeMap<String, Object> {
   private boolean unwrapRawOverride = false;
   private DynamicVariableResolver dynamicVariableResolver = null;
   private final Set<String> metaContextVariables; // These variable names aren't tracked in eager execution
+  private final Set<String> overriddenNonMetaContextVariables;
   private Node currentNode;
 
   public Context() {
@@ -209,6 +212,8 @@ public class Context extends ScopeMap<String, Object> {
       new FunctionLibrary(parent == null, disabled.get(Library.FUNCTION));
     this.metaContextVariables =
       parent == null ? new HashSet<>() : parent.metaContextVariables;
+    this.overriddenNonMetaContextVariables =
+      parent == null ? new HashSet<>() : parent.overriddenNonMetaContextVariables;
     if (parent != null) {
       this.expressionStrategy = parent.expressionStrategy;
       this.partialMacroEvaluation = parent.partialMacroEvaluation;
@@ -348,8 +353,35 @@ public class Context extends ScopeMap<String, Object> {
     }
   }
 
+  @Deprecated
+  @Beta
   public Set<String> getMetaContextVariables() {
     return metaContextVariables;
+  }
+
+  @Beta
+  public Set<String> getComputedMetaContextVariables() {
+    return Sets.difference(metaContextVariables, overriddenNonMetaContextVariables);
+  }
+
+  @Beta
+  public void addMetaContextVariables(Collection<String> variables) {
+    metaContextVariables.addAll(variables);
+  }
+
+  @Beta
+  public void addNonMetaContextVariables(Collection<String> variables) {
+    overriddenNonMetaContextVariables.addAll(
+      variables
+        .stream()
+        .filter(var -> !EagerExecutionMode.STATIC_META_CONTEXT_VARIABLES.contains(var))
+        .collect(Collectors.toList())
+    );
+  }
+
+  @Beta
+  public void removeNonMetaContextVariables(Collection<String> variables) {
+    overriddenNonMetaContextVariables.removeAll(variables);
   }
 
   public void handleDeferredNode(Node node) {

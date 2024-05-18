@@ -136,7 +136,7 @@ public interface EvalResultHolder {
                 .getELResolver()
                 .getValue(context, null, ExtendedParser.INTERPRETER)
             ).getContext()
-              .getMetaContextVariables()
+              .getComputedMetaContextVariables()
               .contains(name)
           ) {
             return name;

@@ -53,6 +53,6 @@ public class EagerExecutionMode implements ExecutionMode {
       .filter(Optional::isPresent)
       .forEach(maybeEagerTag -> context.registerTag(maybeEagerTag.get()));
     context.setExpressionStrategy(new EagerExpressionStrategy());
-    context.getMetaContextVariables().addAll(STATIC_META_CONTEXT_VARIABLES);
+    context.addMetaContextVariables(STATIC_META_CONTEXT_VARIABLES);
   }
 }

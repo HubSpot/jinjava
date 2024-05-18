@@ -185,11 +185,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
         List<String> loopVars = getTag()
           .getLoopVarsAndExpression((TagToken) tagNode.getMaster())
           .getLeft();
-        Set<String> removedMetaContextVariables =
-          EagerReconstructionUtils.removeMetaContextVariables(
-            loopVars.stream(),
-            interpreter.getContext()
-          );
+        interpreter.getContext().addNonMetaContextVariables(loopVars);
         loopVars.forEach(var ->
           interpreter.getContext().put(var, DeferredValue.instance())
         );
@@ -198,10 +194,7 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
             renderChildren(tagNode, eagerInterpreter)
           );
         } finally {
-          interpreter
-            .getContext()
-            .getMetaContextVariables()
-            .addAll(removedMetaContextVariables);
+          interpreter.getContext().removeNonMetaContextVariables(loopVars);
           if (clearDeferredWords) {
             interpreter
               .getContext()

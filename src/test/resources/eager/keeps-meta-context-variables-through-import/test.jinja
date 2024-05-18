@@ -1,0 +1,5 @@
+{% set meta = ['overridden'] %}
+{% set list = deferred %}
+{% import '../../eager/keeps-meta-context-variables-through-import/import-target.jinja' %}
+{% do list.append(meta) %}
+{{ list }}

@@ -50,7 +50,7 @@ public class EagerContextWatcher {
   ) {
     final Set<String> metaContextVariables = interpreter
       .getContext()
-      .getMetaContextVariables();
+      .getComputedMetaContextVariables();
     final EagerExecutionResult initialResult;
     final Map<String, Object> speculativeBindings;
     if (eagerChildContextConfig.checkForContextChanges) {
