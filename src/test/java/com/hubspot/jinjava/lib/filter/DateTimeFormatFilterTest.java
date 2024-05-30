@@ -204,4 +204,24 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
       JinjavaInterpreter.popCurrent();
     }
   }
+
+  @Test
+  public void itUsesTimezoneFromConfigToFormatString() {
+    Jinjava jinjava = new Jinjava(
+      JinjavaConfig
+        .newBuilder()
+        .withTimeZone(ZoneOffset.ofHours(+2))
+        .withLocale(new Locale("da"))
+        .build()
+    );
+    JinjavaInterpreter interpreter = jinjava.newInterpreter();
+    JinjavaInterpreter.pushCurrent(interpreter);
+    try {
+      long timestamp = 1718920800000L; // 2024-06-20 22:00:00 UTC
+      assertThat(filter.filter(timestamp, interpreter, "%b %d, %Y, at %I:%M %p"))
+        .isEqualTo("jun. 21, 2024, at 12:00 AM");
+    } finally {
+      JinjavaInterpreter.popCurrent();
+    }
+  }
 }
