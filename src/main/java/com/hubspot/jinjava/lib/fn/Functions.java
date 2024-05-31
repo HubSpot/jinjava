@@ -213,8 +213,6 @@ public class Functions {
       zoneOffset = ((ZonedDateTime) var).getZone();
     } else if (var instanceof PyishDate) {
       zoneOffset = ((PyishDate) var).toDateTime().getZone();
-    } else if (interpreter != null) {
-      zoneOffset = interpreter.getConfig().getTimeZone();
     }
 
     if (var == null) {
