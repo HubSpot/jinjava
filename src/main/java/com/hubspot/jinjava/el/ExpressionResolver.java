@@ -188,6 +188,20 @@ public class ExpressionResolver {
       interpreter.addError(TemplateError.fromInvalidInputException(e));
     } catch (InvalidArgumentException e) {
       interpreter.addError(TemplateError.fromInvalidArgumentException(e));
+    } catch (ArithmeticException e) {
+      interpreter.addError(
+        TemplateError.fromInvalidInputException(
+          new InvalidInputException(
+            interpreter,
+            ExpressionResolver.class.getName(),
+            String.format(
+              "ArithmeticException when resolving expression [%s]: " +
+              getRootCauseMessage(e),
+              expression
+            )
+          )
+        )
+      );
     } catch (Exception e) {
       interpreter.addError(
         TemplateError.fromException(
