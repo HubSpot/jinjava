@@ -664,6 +664,17 @@ public class ExpressionResolverTest {
       );
   }
 
+  @Test
+  public void itAddsInvalidInputErrorWhenArithmeticExceptionIsThrown() {
+    String render = interpreter.render("{% set n = 12/0|round %}{{n}}");
+    assertThat(interpreter.getErrors().get(0).getMessage())
+      .contains(
+        "ArithmeticException when resolving expression [[ 12/0|round ]]: ArithmeticException: / by zero"
+      );
+    assertThat(interpreter.getErrors().get(0).getReason())
+      .isEqualTo(ErrorReason.INVALID_INPUT);
+  }
+
   public String result(String value, TestClass testClass) {
     testClass.touch();
     return value;
