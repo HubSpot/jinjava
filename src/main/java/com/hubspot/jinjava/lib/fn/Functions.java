@@ -182,7 +182,7 @@ public class Functions {
   @JinjavaDoc(
     value = "formats a date to a string",
     params = {
-      @JinjavaParam(value = "var", type = "date", defaultValue = "current time"),
+      @JinjavaParam(value = "var", type = "date", required = true),
       @JinjavaParam(
         value = "format",
         defaultValue = StrftimeFormatter.DEFAULT_DATE_FORMAT
@@ -310,35 +310,10 @@ public class Functions {
 
   @JinjavaDoc(
     value = "gets the unix timestamp milliseconds value of a datetime",
-    params = {
-      @JinjavaParam(value = "var", type = "date", defaultValue = "current time"),
-    }
+    params = { @JinjavaParam(value = "var", type = "date", required = true) }
   )
   public static long unixtimestamp(Object... var) {
     Object filterVar = var == null || var.length == 0 ? null : var[0];
-
-    if (filterVar == null) {
-      JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
-
-      interpreter.addError(
-        TemplateError.fromMissingFilterArgException(
-          new InvalidArgumentException(
-            interpreter,
-            "unixtimestamp",
-            "unixtimestamp filter called with null datetime"
-          )
-        )
-      );
-
-      FeatureActivationStrategy feat = interpreter
-        .getConfig()
-        .getFeatures()
-        .getActivationStrategy(FIXED_DATE_TIME_FILTER_NULL_ARG);
-
-      if (feat.isActive(interpreter.getContext())) {
-        filterVar = ((DateTimeFeatureActivationStrategy) feat).getActivateAt();
-      }
-    }
 
     ZonedDateTime d = getDateTimeArg(filterVar, ZoneOffset.UTC);
 

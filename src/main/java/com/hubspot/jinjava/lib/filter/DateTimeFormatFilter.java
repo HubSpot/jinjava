@@ -15,7 +15,6 @@ import com.hubspot.jinjava.objects.date.StrftimeFormatter;
   value = "Formats a date object",
   input = @JinjavaParam(
     value = "value",
-    defaultValue = "current time",
     desc = "The date variable or UNIX timestamp to format",
     required = true
   ),

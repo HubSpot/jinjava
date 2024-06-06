@@ -28,13 +28,12 @@ public class UnixTimestampFunctionTest {
 
   @Test
   public void itGetsUnixTimestamps() {
-    JinjavaInterpreter.pushCurrent(
-      new JinjavaInterpreter(
-        new Jinjava(),
-        new Context(),
-        JinjavaConfig.newBuilder().build()
-      )
+    JinjavaInterpreter jinjavaInterpreter = new JinjavaInterpreter(
+      new Jinjava(),
+      new Context(),
+      JinjavaConfig.newBuilder().build()
     );
+    JinjavaInterpreter.pushCurrent(jinjavaInterpreter);
     assertThat(Functions.unixtimestamp())
       .isGreaterThan(0)
       .isLessThanOrEqualTo(System.currentTimeMillis());
@@ -42,6 +41,7 @@ public class UnixTimestampFunctionTest {
     assertThat(Functions.unixtimestamp(d)).isEqualTo(epochMilliseconds);
     assertThat(Functions.unixtimestamp((Object) null))
       .isCloseTo(System.currentTimeMillis(), Offset.offset(1000L));
+    assertThat(jinjavaInterpreter.getErrors()).isEmpty();
   }
 
   @Test
