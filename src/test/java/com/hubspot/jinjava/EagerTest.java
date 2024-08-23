@@ -1163,9 +1163,9 @@ public class EagerTest {
   }
 
   @Test
-  public void itHandlesDuplicateVariableReferenceModification2() {
+  public void itHandlesDuplicateVariableReferenceSpeculativeModification() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "handles-duplicate-variable-reference-modification-2/test"
+      "handles-duplicate-variable-reference-speculative-modification/test"
     );
   }
 
