@@ -3,10 +3,10 @@ package com.hubspot.jinjava.lib.tag.eager;
 import static com.hubspot.jinjava.util.EagerReconstructionUtils.buildSetTag;
 
 import com.google.common.annotations.Beta;
+import com.hubspot.jinjava.interpret.DeferredLazyReference;
 import com.hubspot.jinjava.interpret.DeferredLazyReferenceSource;
 import com.hubspot.jinjava.interpret.DeferredValueShadow;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.LazyReference;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.util.EagerExpressionResolver.EagerExpressionResult;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
@@ -65,7 +65,7 @@ public class EagerExecutionResult {
       .collect(Collectors.toList());
     filteredEntries
       .stream()
-      .filter(entry -> !(entry.getValue() instanceof LazyReference))
+      .filter(entry -> !(entry.getValue() instanceof DeferredLazyReference))
       .forEach(entry ->
         EagerReconstructionUtils.hydrateBlockOrInlineSetTagRecursively(
           prefixToPreserveState,
@@ -76,11 +76,13 @@ public class EagerExecutionResult {
       );
     filteredEntries
       .stream()
-      .filter(entry -> (entry.getValue() instanceof LazyReference))
+      .filter(entry -> (entry.getValue() instanceof DeferredLazyReference))
       .map(entry ->
         new AbstractMap.SimpleImmutableEntry<>(
           entry.getKey(),
-          PyishObjectMapper.getAsPyishString(entry.getValue())
+          PyishObjectMapper.getAsPyishString(
+            ((DeferredLazyReference) entry.getValue()).getOriginalValue()
+          )
         )
       )
       .sorted((a, b) ->

@@ -1,0 +1,8 @@
+{% set foo = ['a'] -%}
+{%- set bar = foo -%}
+{% do bar.append(1) %}
+{% if deferred %}
+{% do bar.append(2) %}
+{% endif %}
+{% do bar.append(3) %}
+{{ foo ~ 'and' ~ bar }}
