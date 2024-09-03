@@ -29,6 +29,7 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
@@ -83,6 +84,8 @@ public class JinjavaInterpreter implements PyishSerializable {
 
   public static final String OUTPUT_UNDEFINED_VARIABLES_ERROR =
     "OUTPUT_UNDEFINED_VARIABLES_ERROR";
+  public static final String IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS =
+    "IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS";
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
   private final LinkedList<Node> extendParentRoots = new LinkedList<>();
   private final Map<String, RevertibleObject> revertibleObjects = new HashMap<>();
@@ -259,7 +262,7 @@ public class JinjavaInterpreter implements PyishSerializable {
   public String renderFlat(String template, long renderLimit) {
     int depth = context.getRenderDepth();
 
-    try {
+    try (TemporaryValueClosable<Boolean> c = ignoreParseErrorsIfActivated()) {
       if (depth > config.getMaxRenderDepth()) {
         ENGINE_LOG.warn("Max render depth exceeded: {}", Integer.toString(depth));
         return template;
@@ -270,6 +273,17 @@ public class JinjavaInterpreter implements PyishSerializable {
     } finally {
       context.setRenderDepth(depth);
     }
+  }
+
+  private TemporaryValueClosable<Boolean> ignoreParseErrorsIfActivated() {
+    return config
+        .getFeatures()
+        .getActivationStrategy(
+          JinjavaInterpreter.IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS
+        )
+        .isActive(context)
+      ? context.withIgnoreParseErrors()
+      : TemporaryValueClosable.noOp();
   }
 
   /**

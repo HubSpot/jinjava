@@ -819,6 +819,23 @@ public class Context extends ScopeMap<String, Object> {
     return temporaryValueClosable;
   }
 
+  public boolean isIgnoreParseErrors() {
+    return contextConfiguration.isIgnoreParseErrors();
+  }
+
+  private void setIgnoreParseErrors(boolean ignoreParseErrors) {
+    contextConfiguration = contextConfiguration.withIgnoreParseErrors(ignoreParseErrors);
+  }
+
+  public TemporaryValueClosable<Boolean> withIgnoreParseErrors() {
+    TemporaryValueClosable<Boolean> temporaryValueClosable = new TemporaryValueClosable<>(
+      isIgnoreParseErrors(),
+      this::setIgnoreParseErrors
+    );
+    setIgnoreParseErrors(true);
+    return temporaryValueClosable;
+  }
+
   public static class TemporaryValueClosable<T> implements AutoCloseable {
 
     private final T previousValue;
@@ -829,9 +846,25 @@ public class Context extends ScopeMap<String, Object> {
       this.resetValueConsumer = resetValueConsumer;
     }
 
+    public static <T> TemporaryValueClosable<T> noOp() {
+      return new NoOpTemporaryValueClosable<>();
+    }
+
     @Override
     public void close() {
       resetValueConsumer.accept(previousValue);
+    }
+
+    private static class NoOpTemporaryValueClosable<T> extends TemporaryValueClosable<T> {
+
+      private NoOpTemporaryValueClosable() {
+        super(null, null);
+      }
+
+      @Override
+      public void close() {
+        // No-op
+      }
     }
   }
 

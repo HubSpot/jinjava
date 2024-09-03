@@ -81,7 +81,7 @@ public class TreeParser {
 
     do {
       if (parent != root) {
-        interpreter.addError(
+        maybeAddError(
           TemplateError.fromException(
             new MissingEndTagException(
               ((TagNode) parent).getEndName(),
@@ -113,7 +113,7 @@ public class TreeParser {
 
     if (token.getType() == symbols.getFixed()) {
       if (token instanceof UnclosedToken) {
-        interpreter.addError(
+        maybeAddError(
           new TemplateError(
             ErrorType.WARNING,
             ErrorReason.SYNTAX_ERROR,
@@ -134,7 +134,7 @@ public class TreeParser {
     } else if (token.getType() == symbols.getNote()) {
       String commentClosed = symbols.getClosingComment();
       if (!token.getImage().endsWith(commentClosed)) {
-        interpreter.addError(
+        maybeAddError(
           new TemplateError(
             ErrorType.WARNING,
             ErrorReason.SYNTAX_ERROR,
@@ -148,7 +148,7 @@ public class TreeParser {
         );
       }
     } else {
-      interpreter.addError(
+      maybeAddError(
         TemplateError.fromException(
           new UnexpectedTokenException(
             token.getImage(),
@@ -237,13 +237,11 @@ public class TreeParser {
     try {
       tag = interpreter.getContext().getTag(tagToken.getTagName());
       if (tag == null) {
-        interpreter.addError(
-          TemplateError.fromException(new UnknownTagException(tagToken))
-        );
+        maybeAddError(TemplateError.fromException(new UnknownTagException(tagToken)));
         return null;
       }
     } catch (DisabledException e) {
-      interpreter.addError(
+      maybeAddError(
         new TemplateError(
           ErrorType.FATAL,
           ErrorReason.DISABLED,
@@ -292,7 +290,7 @@ public class TreeParser {
         hasMatchingStartTag = true;
         break;
       } else {
-        interpreter.addError(
+        maybeAddError(
           TemplateError.fromException(
             new TemplateSyntaxException(
               tagToken.getImage(),
@@ -305,7 +303,7 @@ public class TreeParser {
       }
     }
     if (!hasMatchingStartTag) {
-      interpreter.addError(
+      maybeAddError(
         new TemplateError(
           ErrorType.WARNING,
           ErrorReason.SYNTAX_ERROR,
@@ -325,5 +323,12 @@ public class TreeParser {
       return true;
     }
     return jinjavaConfig.getLegacyOverrides().isUseTrimmingForNotesAndExpressions();
+  }
+
+  private void maybeAddError(TemplateError templateError) {
+    if (interpreter.getContext().isIgnoreParseErrors()) {
+      return;
+    }
+    interpreter.addError(templateError);
   }
 }

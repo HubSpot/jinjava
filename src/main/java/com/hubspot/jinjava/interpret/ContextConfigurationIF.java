@@ -47,4 +47,12 @@ public interface ContextConfigurationIF {
   default boolean isUnwrapRawOverride() {
     return false;
   }
+
+  /**
+   * When trying nested interpretation, parsing errors are likely. This flag avoids propogating to differentiate between static and dynamic parsing errors.
+   */
+  @Default
+  default boolean isIgnoreParseErrors() {
+    return false;
+  }
 }
