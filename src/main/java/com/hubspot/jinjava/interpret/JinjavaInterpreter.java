@@ -849,6 +849,7 @@ public class JinjavaInterpreter implements PyishSerializable {
           templateError.getMessage()
         );
       case ADD_ERROR:
+      default: // Checkstyle
         // fix line numbers not matching up with source template
         if (!context.getCurrentPathStack().isEmpty()) {
           if (
