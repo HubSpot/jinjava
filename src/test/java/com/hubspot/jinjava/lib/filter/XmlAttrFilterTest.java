@@ -45,11 +45,8 @@ public class XmlAttrFilterTest extends BaseJinjavaTest {
       )
         .matches(templateErrors ->
           templateErrors.size() == 1 &&
-          templateErrors
-            .get(0)
-            .getException()
-            .getCause()
-            .getCause() instanceof IllegalArgumentException
+          templateErrors.get(0).getException().getCause().getCause() instanceof
+            IllegalArgumentException
         )
     );
   }

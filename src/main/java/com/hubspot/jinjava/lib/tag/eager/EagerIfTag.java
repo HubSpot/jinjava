@@ -181,8 +181,8 @@ public class EagerIfTag extends EagerTagDecorator<IfTag> {
     for (i = startIdx; i < tagNode.getChildren().size(); i++) {
       Node childNode = tagNode.getChildren().get(i);
       if (
-        (TagNode.class.isAssignableFrom(childNode.getClass())) &&
-        childNode.getName().equals(ElseIfTag.TAG_NAME) ||
+        ((TagNode.class.isAssignableFrom(childNode.getClass())) &&
+          childNode.getName().equals(ElseIfTag.TAG_NAME)) ||
         childNode.getName().equals(ElseTag.TAG_NAME)
       ) {
         return i;

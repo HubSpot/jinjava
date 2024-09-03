@@ -78,12 +78,11 @@ public class EagerAstMacroFunction extends AstMacroFunction implements EvalResul
     if (types.length > 0) {
       // This is just the AstFunction.invoke, but surrounded with this try-with-resources
       try (
-        TemporaryValueClosable<Boolean> c = (
-          (JinjavaInterpreter) context
-            .getELResolver()
-            .getValue(context, null, ExtendedParser.INTERPRETER)
-        ).getContext()
-          .withPartialMacroEvaluation(false)
+        TemporaryValueClosable<Boolean> c =
+          ((JinjavaInterpreter) context
+              .getELResolver()
+              .getValue(context, null, ExtendedParser.INTERPRETER)).getContext()
+            .withPartialMacroEvaluation(false)
       ) {
         params = new Object[types.length];
         int varargIndex;

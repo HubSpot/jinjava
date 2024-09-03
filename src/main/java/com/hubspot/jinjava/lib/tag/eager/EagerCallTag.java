@@ -153,10 +153,8 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
     }
     if (
       StringUtils.isNotBlank(tagNode.getEndName()) &&
-      (
-        !(getTag() instanceof FlexibleTag) ||
-        ((FlexibleTag) getTag()).hasEndTag((TagToken) tagNode.getMaster())
-      )
+      (!(getTag() instanceof FlexibleTag) ||
+        ((FlexibleTag) getTag()).hasEndTag((TagToken) tagNode.getMaster()))
     ) {
       result.append(EagerReconstructionUtils.reconstructEnd(tagNode));
     } // Possible set tag in front of this one.

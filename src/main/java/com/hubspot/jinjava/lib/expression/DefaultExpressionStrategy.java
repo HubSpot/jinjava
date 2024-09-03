@@ -37,10 +37,8 @@ public class DefaultExpressionStrategy implements ExpressionStrategy {
     if (interpreter.getConfig().isNestedInterpretationEnabled()) {
       if (
         !StringUtils.equals(result, master.getImage()) &&
-        (
-          StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
-          StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag())
-        )
+        (StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
+          StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag()))
       ) {
         try {
           result = interpreter.renderFlat(result);

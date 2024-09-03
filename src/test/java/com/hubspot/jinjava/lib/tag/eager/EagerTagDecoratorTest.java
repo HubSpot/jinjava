@@ -91,12 +91,10 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     for (int i = 0; i < MAX_OUTPUT_SIZE; i++) {
       tooLong.append(i);
     }
-    TagNode tagNode = (TagNode) (
-      interpreter
+    TagNode tagNode = (TagNode) (interpreter
         .parse(String.format("{%% raw %%}%s{%% endraw %%}", tooLong.toString()))
         .getChildren()
-        .get(0)
-    );
+        .get(0));
     assertThatThrownBy(() -> eagerTagDecorator.eagerInterpret(tagNode, interpreter, null))
       .isInstanceOf(OutputTooBigException.class);
   }
@@ -108,21 +106,20 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     for (int i = 0; i < MAX_OUTPUT_SIZE; i++) {
       tooLong.append(i);
     }
-    TagNode tagNode = (TagNode) (
-      interpreter
+    TagNode tagNode = (TagNode) (interpreter
         .parse(String.format("{%% raw %%}%s{%% endraw %%}", tooLong.toString()))
         .getChildren()
-        .get(0)
-    );
+        .get(0));
     assertThatThrownBy(() -> eagerTagDecorator.interpret(tagNode, interpreter))
       .isInstanceOf(DeferredValueException.class);
   }
 
   @Test
   public void itLimitsTagLength() {
-    TagNode tagNode = (TagNode) (
-      interpreter.parse("{% print range(0, 50) %}").getChildren().get(0)
-    );
+    TagNode tagNode = (TagNode) (interpreter
+        .parse("{% print range(0, 50) %}")
+        .getChildren()
+        .get(0));
     assertThatThrownBy(() ->
         eagerTagDecorator.getEagerTagImage((TagToken) tagNode.getMaster(), interpreter)
       )

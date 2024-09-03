@@ -194,10 +194,8 @@ public class IpAddrFilter implements Filter {
     List<String> parts = PREFIX_SPLITTER.splitToList(fullAddress);
     if (
       parts.size() == 1 &&
-      (
-        parameter.equalsIgnoreCase(PUBLIC_STRING) ||
-        parameter.equalsIgnoreCase(PRIVATE_STRING)
-      )
+      (parameter.equalsIgnoreCase(PUBLIC_STRING) ||
+        parameter.equalsIgnoreCase(PRIVATE_STRING))
     ) {
       parts = new ArrayList<>(parts);
       parts.add("0");
