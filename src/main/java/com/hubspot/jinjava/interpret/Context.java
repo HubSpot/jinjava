@@ -21,6 +21,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
+import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF.TemplateErrorTypeHandlingStrategy;
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.lib.expression.ExpressionStrategy;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
@@ -769,13 +770,64 @@ public class Context extends ScopeMap<String, Object> {
     return temporaryValueClosable;
   }
 
+  @Deprecated
   public boolean getThrowInterpreterErrors() {
-    return contextConfiguration.isThrowInterpreterErrors();
+    ErrorHandlingStrategy errorHandlingStrategy = getErrorHandlingStrategy();
+    return (
+      errorHandlingStrategy.getFatalErrorStrategy() ==
+      TemplateErrorTypeHandlingStrategy.THROW_EXCEPTION
+    );
   }
 
+  @Deprecated
   public void setThrowInterpreterErrors(boolean throwInterpreterErrors) {
     contextConfiguration =
-      contextConfiguration.withThrowInterpreterErrors(throwInterpreterErrors);
+      contextConfiguration.withErrorHandlingStrategy(
+        ErrorHandlingStrategy
+          .builder()
+          .setFatalErrorStrategy(
+            throwInterpreterErrors
+              ? TemplateErrorTypeHandlingStrategy.THROW_EXCEPTION
+              : TemplateErrorTypeHandlingStrategy.ADD_ERROR
+          )
+          .setNonFatalErrorStrategy(
+            throwInterpreterErrors
+              ? TemplateErrorTypeHandlingStrategy.IGNORE // Deprecated, warnings are ignored when doing eager expression resolving
+              : TemplateErrorTypeHandlingStrategy.ADD_ERROR
+          )
+          .build()
+      );
+  }
+
+  @Deprecated
+  public TemporaryValueClosable<Boolean> withThrowInterpreterErrors() {
+    TemporaryValueClosable<Boolean> temporaryValueClosable = new TemporaryValueClosable<>(
+      getThrowInterpreterErrors(),
+      this::setThrowInterpreterErrors
+    );
+    setThrowInterpreterErrors(true);
+    return temporaryValueClosable;
+  }
+
+  public ErrorHandlingStrategy getErrorHandlingStrategy() {
+    return contextConfiguration.getErrorHandlingStrategy();
+  }
+
+  public void setErrorHandlingStrategy(ErrorHandlingStrategy errorHandlingStrategy) {
+    contextConfiguration =
+      contextConfiguration.withErrorHandlingStrategy(errorHandlingStrategy);
+  }
+
+  public TemporaryValueClosable<ErrorHandlingStrategy> withErrorHandlingStrategy(
+    ErrorHandlingStrategy errorHandlingStrategy
+  ) {
+    TemporaryValueClosable<ErrorHandlingStrategy> temporaryValueClosable =
+      new TemporaryValueClosable<>(
+        getErrorHandlingStrategy(),
+        this::setErrorHandlingStrategy
+      );
+    setErrorHandlingStrategy(errorHandlingStrategy);
+    return temporaryValueClosable;
   }
 
   public boolean isPartialMacroEvaluation() {
@@ -816,23 +868,6 @@ public class Context extends ScopeMap<String, Object> {
       this::setUnwrapRawOverride
     );
     setUnwrapRawOverride(true);
-    return temporaryValueClosable;
-  }
-
-  public boolean isIgnoreParseErrors() {
-    return contextConfiguration.isIgnoreParseErrors();
-  }
-
-  private void setIgnoreParseErrors(boolean ignoreParseErrors) {
-    contextConfiguration = contextConfiguration.withIgnoreParseErrors(ignoreParseErrors);
-  }
-
-  public TemporaryValueClosable<Boolean> withIgnoreParseErrors() {
-    TemporaryValueClosable<Boolean> temporaryValueClosable = new TemporaryValueClosable<>(
-      isIgnoreParseErrors(),
-      this::setIgnoreParseErrors
-    );
-    setIgnoreParseErrors(true);
     return temporaryValueClosable;
   }
 

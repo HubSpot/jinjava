@@ -2,8 +2,11 @@ package com.hubspot.jinjava.lib.expression;
 
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
+import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF;
+import com.hubspot.jinjava.interpret.ErrorHandlingStrategy;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
@@ -14,7 +17,6 @@ import com.hubspot.jinjava.util.EagerExpressionResolver;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.Logging;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
-import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 @Beta
@@ -103,17 +105,20 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
         StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag()))
     ) {
       if (interpreter.getConfig().isNestedInterpretationEnabled()) {
-        long errorSizeStart = getParsingErrorsCount(interpreter);
-
-        interpreter.parse(result);
-
-        if (getParsingErrorsCount(interpreter) == errorSizeStart) {
+        try {
+          try (
+            TemporaryValueClosable<ErrorHandlingStrategy> c = interpreter
+              .getContext()
+              .withErrorHandlingStrategy(ErrorHandlingStrategyIF.throwAll())
+          ) {
+            interpreter.parse(result);
+          }
           try {
             result = interpreter.renderFlat(result);
           } catch (Exception e) {
             Logging.ENGINE_LOG.warn("Error rendering variable node result", e);
           }
-        }
+        } catch (TemplateSyntaxException ignored) {}
       } else {
         result = EagerReconstructionUtils.wrapInRawIfNeeded(result, interpreter);
       }
@@ -123,18 +128,6 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
       result = EscapeFilter.escapeHtmlEntities(result);
     }
     return result;
-  }
-
-  private static long getParsingErrorsCount(JinjavaInterpreter interpreter) {
-    return interpreter
-      .getErrors()
-      .stream()
-      .filter(Objects::nonNull)
-      .filter(error ->
-        "Unclosed comment".equals(error.getMessage()) ||
-        error.getReason() == ErrorReason.DISABLED
-      )
-      .count();
   }
 
   private static String wrapInExpression(String output, JinjavaInterpreter interpreter) {

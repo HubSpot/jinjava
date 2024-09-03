@@ -8,6 +8,8 @@ import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
+import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF;
+import com.hubspot.jinjava.interpret.ErrorHandlingStrategy;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
@@ -365,7 +367,9 @@ public class TreeParserTest extends BaseInterpretingTest {
   @Test
   public void itDoesNotAddErrorWhenParseErrorsAreIgnored() {
     try (
-      TemporaryValueClosable<Boolean> c = interpreter.getContext().withIgnoreParseErrors()
+      TemporaryValueClosable<ErrorHandlingStrategy> c = interpreter
+        .getContext()
+        .withErrorHandlingStrategy(ErrorHandlingStrategyIF.ignoreAll())
     ) {
       String expression = "{% if ";
       final Node tree = new TreeParser(interpreter, expression).buildTree();
