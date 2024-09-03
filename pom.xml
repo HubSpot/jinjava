@@ -91,6 +91,16 @@
         <artifactId>jackson-datatype-jdk8</artifactId>
         <version>2.14.0</version>
       </dependency>
+      <dependency>
+        <groupId>com.hubspot.immutables</groupId>
+        <artifactId>hubspot-style</artifactId>
+        <version>${dep.hubspot-immutables.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hubspot.immutables</groupId>
+        <artifactId>immutables-exceptions</artifactId>
+        <version>${dep.hubspot-immutables.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -197,7 +207,10 @@
     <dependency>
       <groupId>com.hubspot.immutables</groupId>
       <artifactId>hubspot-style</artifactId>
-      <version>${dep.hubspot-immutables.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hubspot.immutables</groupId>
+      <artifactId>immutables-exceptions</artifactId>
     </dependency>
   </dependencies>
 
