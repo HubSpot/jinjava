@@ -69,12 +69,10 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
   public void itExecutesInChildContextAndTakesNewValue() {
     context.put("foo", new PyList(new ArrayList<>()));
     EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
-      (
-        interpreter1 -> {
+      (interpreter1 -> {
           ((List<Integer>) interpreter1.getContext().get("foo")).add(1);
           return EagerExpressionResult.fromString("function return");
-        }
-      ),
+        }),
       interpreter,
       EagerContextWatcher.EagerChildContextConfig
         .newBuilder()
@@ -97,15 +95,13 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
   public void itExecutesInChildContextAndDefersNewValue() {
     context.put("foo", new ArrayList<Integer>());
     EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
-      (
-        interpreter1 -> {
+      (interpreter1 -> {
           context.put(
             "foo",
             DeferredValue.instance(interpreter1.getContext().get("foo"))
           );
           return EagerExpressionResult.fromString("function return");
-        }
-      ),
+        }),
       interpreter,
       EagerContextWatcher.EagerChildContextConfig
         .newBuilder()

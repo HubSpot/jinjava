@@ -639,10 +639,8 @@ public class EagerReconstructionUtils {
   ) {
     if (
       interpreter.getContext().isAutoEscape() &&
-      (
-        interpreter.getContext().getParent() == null ||
-        !interpreter.getContext().getParent().isAutoEscape()
-      )
+      (interpreter.getContext().getParent() == null ||
+        !interpreter.getContext().getParent().isAutoEscape())
     ) {
       output = wrapInTag(output, AutoEscapeTag.TAG_NAME, interpreter, false);
     }

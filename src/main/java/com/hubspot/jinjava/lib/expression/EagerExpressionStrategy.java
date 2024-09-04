@@ -99,10 +99,8 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
   ) {
     if (
       !StringUtils.equals(result, master.getImage()) &&
-      (
-        StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
-        StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag())
-      )
+      (StringUtils.contains(result, master.getSymbols().getExpressionStart()) ||
+        StringUtils.contains(result, master.getSymbols().getExpressionStartWithTag()))
     ) {
       if (interpreter.getConfig().isNestedInterpretationEnabled()) {
         long errorSizeStart = getParsingErrorsCount(interpreter);

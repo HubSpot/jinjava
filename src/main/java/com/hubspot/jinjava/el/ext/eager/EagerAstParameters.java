@@ -40,12 +40,11 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
   @Override
   public Object[] eval(Bindings bindings, ELContext context) {
     try (
-      TemporaryValueClosable<Boolean> c = (
-        (JinjavaInterpreter) context
-          .getELResolver()
-          .getValue(context, null, ExtendedParser.INTERPRETER)
-      ).getContext()
-        .withPartialMacroEvaluation(false)
+      TemporaryValueClosable<Boolean> c =
+        ((JinjavaInterpreter) context
+            .getELResolver()
+            .getValue(context, null, ExtendedParser.INTERPRETER)).getContext()
+          .withPartialMacroEvaluation(false)
     ) {
       try {
         setEvalResult(super.eval(bindings, context));
