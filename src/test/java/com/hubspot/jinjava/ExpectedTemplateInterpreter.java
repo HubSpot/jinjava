@@ -15,6 +15,7 @@ public class ExpectedTemplateInterpreter {
   private Jinjava jinjava;
   private JinjavaInterpreter interpreter;
   private String path;
+  private boolean sensibleCurrentPath = false;
 
   public ExpectedTemplateInterpreter(
     Jinjava jinjava,
@@ -26,15 +27,35 @@ public class ExpectedTemplateInterpreter {
     this.path = path;
   }
 
+  public static ExpectedTemplateInterpreter withSensibleCurrentPath(
+    Jinjava jinjava,
+    JinjavaInterpreter interpreter,
+    String path
+  ) {
+    return new ExpectedTemplateInterpreter(jinjava, interpreter, path, true);
+  }
+
+  private ExpectedTemplateInterpreter(
+    Jinjava jinjava,
+    JinjavaInterpreter interpreter,
+    String path,
+    boolean sensibleCurrentPath
+  ) {
+    this.jinjava = jinjava;
+    this.interpreter = interpreter;
+    this.path = path;
+    this.sensibleCurrentPath = sensibleCurrentPath;
+  }
+
   public String assertExpectedOutput(String name) {
     String template = getFixtureTemplate(name);
     String output = JinjavaInterpreter.getCurrent().render(template);
     assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
       .as("Ensure no deferred nodes were created")
       .isEmpty();
-    assertThat(output.trim()).isEqualTo(expected(name).trim());
-    assertThat(JinjavaInterpreter.getCurrent().render(output).trim())
-      .isEqualTo(expected(name).trim());
+    assertThat(prettify(output.trim())).isEqualTo(prettify(expected(name).trim()));
+    assertThat(prettify(JinjavaInterpreter.getCurrent().render(output).trim()))
+      .isEqualTo(prettify(expected(name).trim()));
     return output;
   }
 
@@ -44,7 +65,7 @@ public class ExpectedTemplateInterpreter {
     assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
       .as("Ensure no deferred nodes were created")
       .isEmpty();
-    assertThat(output.trim()).isEqualTo(expected(name).trim());
+    assertThat(prettify(output.trim())).isEqualTo(prettify(expected(name).trim()));
     return output;
   }
 
@@ -105,7 +126,7 @@ public class ExpectedTemplateInterpreter {
           assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
             .as("Ensure no deferred nodes were created")
             .isEmpty();
-          assertThat(output.trim()).isEqualTo(expected(name).trim());
+          assertThat(prettify(output.trim())).isEqualTo(prettify(expected(name).trim()));
         }
       } finally {
         JinjavaInterpreter.popCurrent();
@@ -114,11 +135,24 @@ public class ExpectedTemplateInterpreter {
     return output;
   }
 
+  private String prettify(String string) {
+    return string.replaceAll("([}%]})([^\\s])", "$1\\\\\n$2");
+  }
+
   public String getFixtureTemplate(String name) {
     try {
-      return Resources.toString(
-        Resources.getResource(String.format("%s/%s.jinja", path, name)),
-        StandardCharsets.UTF_8
+      if (sensibleCurrentPath) {
+        JinjavaInterpreter
+          .getCurrent()
+          .getContext()
+          .getCurrentPathStack()
+          .push(String.format("%s/%s.jinja", path, name), 0, 0);
+      }
+      return simplify(
+        Resources.toString(
+          Resources.getResource(String.format("%s/%s.jinja", path, name)),
+          StandardCharsets.UTF_8
+        )
       );
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -127,13 +161,19 @@ public class ExpectedTemplateInterpreter {
 
   private String expected(String name) {
     try {
-      return Resources.toString(
-        Resources.getResource(String.format("%s/%s.expected.jinja", path, name)),
-        StandardCharsets.UTF_8
+      return simplify(
+        Resources.toString(
+          Resources.getResource(String.format("%s/%s.expected.jinja", path, name)),
+          StandardCharsets.UTF_8
+        )
       );
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private String simplify(String prettified) {
+    return prettified.replaceAll("\\\\\n\\s*", "");
   }
 
   public String getDeferredFixtureTemplate(String templateLocation) {
