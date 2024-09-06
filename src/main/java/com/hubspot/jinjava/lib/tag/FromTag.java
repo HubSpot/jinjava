@@ -95,7 +95,7 @@ public class FromTag implements Tag {
         child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
         JinjavaInterpreter.pushCurrent(child);
         try {
-          child.render(node, false);
+          child.render(node);
         } finally {
           JinjavaInterpreter.popCurrent();
         }

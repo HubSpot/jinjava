@@ -64,7 +64,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       String output;
       try {
         eagerImportingStrategy.setup(child);
-        output = child.render(node, false);
+        output = child.render(node);
       } finally {
         JinjavaInterpreter.popCurrent();
       }

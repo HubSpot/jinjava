@@ -39,7 +39,7 @@ public class FullSnippetsTest {
           JinjavaInterpreter interpreter
         ) throws IOException {
           return Resources.toString(
-            Resources.getResource(String.format("tags/macrotag/%s", fullName)),
+            Resources.getResource(relativePathResolver.resolve(fullName, interpreter)),
             StandardCharsets.UTF_8
           );
         }
@@ -66,7 +66,11 @@ public class FullSnippetsTest {
     );
     interpreter = new JinjavaInterpreter(parentInterpreter);
     expectedTemplateInterpreter =
-      new ExpectedTemplateInterpreter(jinjava, interpreter, "snippets");
+      ExpectedTemplateInterpreter.withSensibleCurrentPath(
+        jinjava,
+        interpreter,
+        "snippets"
+      );
     localContext = interpreter.getContext();
 
     JinjavaInterpreter.pushCurrent(interpreter);
@@ -99,6 +103,13 @@ public class FullSnippetsTest {
   public void itUsesLowerScopeValueInMacroEvaluation() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "uses-lower-scope-value-in-macro-evaluation"
+    );
+  }
+
+  @Test
+  public void itFromTagDoesntStealExtends() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "from-tag-doesnt-steal-extends/test"
     );
   }
 }
