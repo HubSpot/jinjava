@@ -102,7 +102,7 @@ public class ImportTag implements Tag {
       JinjavaInterpreter.pushCurrent(child);
 
       try {
-        child.render(node);
+        child.render(node, false);
       } finally {
         JinjavaInterpreter.popCurrent();
       }

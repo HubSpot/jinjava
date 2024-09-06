@@ -1597,4 +1597,11 @@ public class EagerTest {
       "keeps-meta-context-variables-through-import/test"
     );
   }
+
+  @Test
+  public void itWrapsCurrentPathAroundMacro() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "wraps-current-path-around-macro/test"
+    );
+  }
 }

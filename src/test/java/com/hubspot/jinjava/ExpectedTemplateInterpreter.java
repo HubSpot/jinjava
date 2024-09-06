@@ -127,10 +127,12 @@ public class ExpectedTemplateInterpreter {
 
   private String expected(String name) {
     try {
-      return Resources.toString(
-        Resources.getResource(String.format("%s/%s.expected.jinja", path, name)),
-        StandardCharsets.UTF_8
-      );
+      return Resources
+        .toString(
+          Resources.getResource(String.format("%s/%s.expected.jinja", path, name)),
+          StandardCharsets.UTF_8
+        )
+        .replaceAll("\\\\\n\\s*", "");
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

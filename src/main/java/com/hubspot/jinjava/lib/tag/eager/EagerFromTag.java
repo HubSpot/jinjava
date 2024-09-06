@@ -79,7 +79,7 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
         JinjavaInterpreter.pushCurrent(child);
         String output;
         try {
-          output = child.render(node);
+          output = child.render(node, false);
         } finally {
           JinjavaInterpreter.popCurrent();
         }
