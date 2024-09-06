@@ -135,7 +135,7 @@ public class ExpectedTemplateInterpreter {
     return output;
   }
 
-  private String prettify(String string) {
+  static String prettify(String string) {
     return string.replaceAll("([}%]})([^\\s])", "$1\\\\\n$2");
   }
 
@@ -172,7 +172,7 @@ public class ExpectedTemplateInterpreter {
     }
   }
 
-  private String simplify(String prettified) {
+  static String simplify(String prettified) {
     return prettified.replaceAll("\\\\\n\\s*", "");
   }
 

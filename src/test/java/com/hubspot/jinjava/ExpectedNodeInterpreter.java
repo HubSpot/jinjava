@@ -26,7 +26,8 @@ public class ExpectedNodeInterpreter {
   public String assertExpectedOutput(String name) {
     TagNode tagNode = (TagNode) fixture(name);
     String output = tag.interpret(tagNode, interpreter);
-    assertThat(output.trim()).isEqualTo(expected(name).trim());
+    assertThat(ExpectedTemplateInterpreter.prettify(output.trim()))
+      .isEqualTo(ExpectedTemplateInterpreter.prettify(expected(name).trim()));
     return output;
   }
 
@@ -34,9 +35,11 @@ public class ExpectedNodeInterpreter {
     try {
       return new TreeParser(
         interpreter,
-        Resources.toString(
-          Resources.getResource(String.format("%s/%s.jinja", path, name)),
-          StandardCharsets.UTF_8
+        ExpectedTemplateInterpreter.simplify(
+          Resources.toString(
+            Resources.getResource(String.format("%s/%s.jinja", path, name)),
+            StandardCharsets.UTF_8
+          )
         )
       )
         .buildTree()
@@ -49,9 +52,11 @@ public class ExpectedNodeInterpreter {
 
   public String expected(String name) {
     try {
-      return Resources.toString(
-        Resources.getResource(String.format("%s/%s.expected.jinja", path, name)),
-        StandardCharsets.UTF_8
+      return ExpectedTemplateInterpreter.simplify(
+        Resources.toString(
+          Resources.getResource(String.format("%s/%s.expected.jinja", path, name)),
+          StandardCharsets.UTF_8
+        )
       );
     } catch (IOException e) {
       throw new RuntimeException(e);
