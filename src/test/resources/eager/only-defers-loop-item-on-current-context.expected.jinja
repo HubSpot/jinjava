@@ -1,7 +1,9 @@
-{% set outer_val = 'start' %}{% for def in deferred %}
+{% set outer_val = 'start' %}\
+{% for def in deferred %}
 {% set outer_list = [{'a': ['b']} ] %}
 {% for __ignored__ in [0] %}
-{% set map = {'a': ['b']}  %}{% set inner_list = map.a %}
+{% set map = {'a': ['b']}  %}\
+{% set inner_list = map.a %}
 {% for x in inner_list %}
 
 {% set outer_val = outer_val ~ '-' %}

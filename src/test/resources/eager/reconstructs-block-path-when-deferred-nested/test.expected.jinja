@@ -1,11 +1,22 @@
-{% set current_path = '../../eager/reconstructs-block-path-when-deferred-nested/base.jinja' %}{% set prefix = deferred ? 'current' : 'current' %}
-Parent's current path is: {{ '{{' + prefix + '_path }}' }}
+{% set current_path = '../../eager/reconstructs-block-path-when-deferred-nested/base.jinja' %}\
+{% set prefix = deferred ? 'current' : 'current' %}
+Parent's current path is: {{ '{{' + prefix + '_path }}\
+' }}
 -----Pre-First-----
-{% set temp_current_path_586961858 = current_path %}{% set current_path = 'Child path' %}{% set prefix = deferred ? 'current' : 'current' %}Child's first current path is: {{ '{{' + prefix + '_path }}' }}
+{% set temp_current_path_586961858 = current_path %}\
+{% set current_path = 'Child path' %}\
+{% set prefix = deferred ? 'current' : 'current' %}\
+Child's first current path is: {{ '{{' + prefix + '_path }}\
+' }}
 {% set current_path = temp_current_path_586961858 %}
 -----Post-First-----
 -----Pre-Second-----
-{% set temp_current_path_435835221 = current_path %}{% set current_path = '../../eager/reconstructs-block-path-when-deferred-nested/middle.jinja' %}{% set prefix = deferred ? 'current' : 'current' %}Middle's second current path is: {{ '{{' + prefix + '_path }}' }}
+{% set temp_current_path_435835221 = current_path %}\
+{% set current_path = '../../eager/reconstructs-block-path-when-deferred-nested/middle.jinja' %}\
+{% set prefix = deferred ? 'current' : 'current' %}\
+Middle's second current path is: {{ '{{' + prefix + '_path }}\
+' }}
 {% set current_path = temp_current_path_435835221 %}
 -----Post-Second-----
-Parent's current path is: {{ '{{' + prefix + '_path }}' }}
+Parent's current path is: {{ '{{' + prefix + '_path }}\
+' }}

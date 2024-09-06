@@ -1,14 +1,17 @@
 {% for __ignored__ in [0] %}
-{% if deferred && true %}first time!
+{% if deferred && true %}\
+first time!
 {% endif %}
 1
 
-{% if deferred && false %}first time!
+{% if deferred && false %}\
+first time!
 {% endif %}
 2
 {% endfor %}
 {% for i in [0, 1] %}
-{% if deferred && loop.isLast() %}last time!
+{% if deferred && loop.isLast() %}\
+last time!
 {% endif %}
 {{ loop.index }}
 {% endfor %}

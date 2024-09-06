@@ -1,12 +1,14 @@
 {% macro repeat(val) %}
 {{ val }}
 {{ caller() }}
-{% endmacro %}{% call repeat(deferred) %}
+{% endmacro %}\
+{% call repeat(deferred) %}
 macro 1
 {% macro repeat(val) %}
 {{ val }}
 {{ caller() }}
-{% endmacro %}{% call repeat(deferred + 1) %}
+{% endmacro %}\
+{% call repeat(deferred + 1) %}
 macro2
 {% endcall %}
 {% endcall %}

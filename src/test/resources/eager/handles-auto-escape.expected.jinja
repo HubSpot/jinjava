@@ -1,4 +1,8 @@
 1. foo < bar (Only expression nodes get escaped currently)
-2. {% autoescape %}{% print deferred %}{% endautoescape %}
+2. {% autoescape %}\
+{% print deferred %}\
+{% endautoescape %}
 3. foo &lt; bar
-4. {% autoescape %}{{ deferred }}{% endautoescape %}
+4. {% autoescape %}\
+{{ deferred }}\
+{% endautoescape %}

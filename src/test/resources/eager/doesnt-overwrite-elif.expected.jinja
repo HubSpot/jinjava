@@ -1,2 +1,6 @@
-{% set foo = [0] %}{% if false %}{% elif deferred && foo.append(1) %}1{% elif deferred && foo.append(2) %}2{% endif %}
+{% set foo = [0] %}\
+{% if false %}\
+{% elif deferred && foo.append(1) %}\
+1{% elif deferred && foo.append(2) %}\
+2{% endif %}
 {{ foo }}

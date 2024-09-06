@@ -1,3 +1,10 @@
 2
-{% macro plus(foo, add) %}{{ foo + (filter:int.filter(add, ____int3rpr3t3r____)) }}{% endmacro %}{{ plus(deferred, 1.1) }}{% set deferred = deferred + 2 %}
-{% macro plus(foo, add) %}{{ foo + (filter:int.filter(add, ____int3rpr3t3r____)) }}{% endmacro %}{{ plus(deferred, 3.1) }}
+{% macro plus(foo, add) %}\
+{{ foo + (filter:int.filter(add, ____int3rpr3t3r____)) }}\
+{% endmacro %}\
+{{ plus(deferred, 1.1) }}\
+{% set deferred = deferred + 2 %}
+{% macro plus(foo, add) %}\
+{{ foo + (filter:int.filter(add, ____int3rpr3t3r____)) }}\
+{% endmacro %}\
+{{ plus(deferred, 3.1) }}

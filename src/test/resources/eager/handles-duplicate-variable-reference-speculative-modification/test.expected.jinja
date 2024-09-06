@@ -1,4 +1,6 @@
-{% set foo = ['a', 1] %}{% set bar = foo %}{% if deferred %}
+{% set foo = ['a', 1] %}\
+{% set bar = foo %}\
+{% if deferred %}
 {% do bar.append(2) %}
 {% endif %}
 {% do bar.append(3) %}

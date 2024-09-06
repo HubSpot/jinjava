@@ -1,5 +1,8 @@
-{% set myname = deferred + 7 %}{% do %}
+{% set myname = deferred + 7 %}\
+{% do %}
 {% set bar = myname + 19 %}
 Hello {{ myname }}
-{% set from_bar = bar %}{% enddo %}from_foo: Hello {{ myname }}
+{% set from_bar = bar %}\
+{% enddo %}\
+from_foo: Hello {{ myname }}
 from_bar: {{ from_bar }}

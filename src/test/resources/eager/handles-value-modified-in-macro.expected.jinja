@@ -4,7 +4,8 @@
 {{ counter(foo) }}
 {% endif %}
 {{ level }}
-{% endmacro %}{{ counter(deferred) }}
+{% endmacro %}\
+{{ counter(deferred) }}
 
 {% macro counter(foo) %}
 {% set level = level + 2 %}
@@ -12,4 +13,5 @@
 {{ counter(foo) }}
 {% endif %}
 {{ level }}
-{% endmacro %}{{ counter(2) }}
+{% endmacro %}\
+{{ counter(2) }}

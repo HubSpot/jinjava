@@ -1,4 +1,7 @@
-{% set foo = 'empty' %}{% if deferred %}
-{% set foo %}i am iron man{% endset %}{% set foo = 'I AM IRON MAN' %}
+{% set foo = 'empty' %}\
+{% if deferred %}
+{% set foo %}\
+i am iron man{% endset %}\
+{% set foo = 'I AM IRON MAN' %}
 {% endif %}
 {{ foo }}

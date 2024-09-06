@@ -1,4 +1,5 @@
 {% set list = deferred %}
 
-{% set meta = ['overridden'] %}{% do list.append(meta) %}
+{% set meta = ['overridden'] %}\
+{% do list.append(meta) %}
 {{ list }}
