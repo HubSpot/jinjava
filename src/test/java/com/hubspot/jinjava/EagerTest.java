@@ -625,7 +625,7 @@ public class EagerTest {
 
   @Test
   public void itPutsDeferredImportedMacroInOutput() {
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "puts-deferred-imported-macro-in-output"
     );
   }
@@ -643,7 +643,7 @@ public class EagerTest {
 
   @Test
   public void itPutsDeferredFromedMacroInOutput() {
-    expectedTemplateInterpreter.assertExpectedOutput(
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "puts-deferred-fromed-macro-in-output"
     );
   }
