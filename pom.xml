@@ -207,6 +207,7 @@
     <dependency>
       <groupId>com.hubspot.immutables</groupId>
       <artifactId>hubspot-style</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.hubspot.immutables</groupId>
