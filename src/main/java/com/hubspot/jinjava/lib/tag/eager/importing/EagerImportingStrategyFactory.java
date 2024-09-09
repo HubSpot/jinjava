@@ -34,12 +34,6 @@ public class EagerImportingStrategyFactory {
         .getContext()
         .getCurrentPathStack()
         .peek()
-        .map(c -> {
-          interpreter
-            .getContext()
-            .replace(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY, c);
-          return c;
-        })
         .orElseGet(() ->
           (String) interpreter
             .getContext()
