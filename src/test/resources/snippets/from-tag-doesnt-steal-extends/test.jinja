@@ -1,0 +1,7 @@
+{% extends './base.jinja' %}
+{% from './something-to-import.jinja' import foo %}
+{{ foo }}
+Don't show me!
+{% block content %}
+  <p>Test</p>
+{% endblock %}

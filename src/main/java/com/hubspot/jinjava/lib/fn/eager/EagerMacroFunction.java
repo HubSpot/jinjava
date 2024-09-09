@@ -1,5 +1,7 @@
 package com.hubspot.jinjava.lib.fn.eager;
 
+import static com.hubspot.jinjava.loader.RelativePathResolver.CURRENT_PATH_CONTEXT_KEY;
+
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.el.ext.DeferredInvocationResolutionException;
@@ -13,6 +15,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.MacroTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
+import com.hubspot.jinjava.lib.tag.eager.importing.EagerImportingStrategyFactory;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.util.EagerContextWatcher;
@@ -80,6 +83,11 @@ public class EagerMacroFunction extends MacroFunction {
               () -> getEvaluationResultDirectly(argMap, kwargMap, varArgs, interpreter),
               interpreter
             );
+          return wrapCurrentPathSetting(
+            interpreter,
+            importFile,
+            result.asTemplateString()
+          );
         }
         return result.asTemplateString();
       } finally {
@@ -121,12 +129,45 @@ public class EagerMacroFunction extends MacroFunction {
         .put(
           tempVarName,
           new MacroFunctionTempVariable(
-            prefixToPreserveState + eagerExecutionResult.asTemplateString()
+            wrapCurrentPathSetting(
+              interpreter,
+              Optional
+                .ofNullable(localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY))
+                .map(Object::toString),
+              prefixToPreserveState + eagerExecutionResult.asTemplateString()
+            )
           )
         );
       throw new DeferredInvocationResolutionException(tempVarName);
     }
-    return eagerExecutionResult.getResult().toString(true);
+    return wrapCurrentPathSetting(
+      interpreter,
+      Optional
+        .ofNullable(localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY))
+        .map(Object::toString),
+      eagerExecutionResult.getResult().toString(true)
+    );
+  }
+
+  private static String wrapCurrentPathSetting(
+    JinjavaInterpreter interpreter,
+    Optional<String> importFile,
+    String resultToWrap
+  ) {
+    if (!importFile.isPresent()) {
+      return resultToWrap;
+    }
+    final String initialPathSetter =
+      EagerImportingStrategyFactory.getSetTagForCurrentPath(interpreter);
+    final String newPathSetter = EagerReconstructionUtils.buildBlockOrInlineSetTag(
+      CURRENT_PATH_CONTEXT_KEY,
+      importFile.get(),
+      interpreter
+    );
+    if (initialPathSetter.equals(newPathSetter)) {
+      return resultToWrap;
+    }
+    return newPathSetter + resultToWrap + initialPathSetter;
   }
 
   private String getEvaluationResultDirectly(
@@ -312,6 +353,7 @@ public class EagerMacroFunction extends MacroFunction {
       return false;
     }
     MacroFunction mostRecent = context.getGlobalMacro(getName());
+    //noinspection ErrorProne
     if (this != mostRecent) {
       return true;
     }

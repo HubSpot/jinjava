@@ -35,6 +35,7 @@ import com.hubspot.jinjava.lib.filter.Filter;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.loader.ClasspathResourceLocator;
+import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
 import de.odysseus.el.ExpressionFactoryImpl;
 import de.odysseus.el.misc.TypeConverter;
@@ -244,6 +245,10 @@ public class Jinjava {
     } else {
       context = new Context(copyGlobalContext(), bindings, renderConfig.getDisabled());
     }
+    Object currentPath = context.get(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY);
+    if (currentPath != null) {
+      context.getCurrentPathStack().pushWithoutCycleCheck(currentPath.toString(), 0, 0);
+    }
 
     JinjavaInterpreter interpreter = globalConfig
       .getInterpreterFactory()
@@ -290,6 +295,9 @@ public class Jinjava {
       );
     } finally {
       globalContext.reset();
+      if (currentPath != null) {
+        context.getCurrentPathStack().pop();
+      }
       JinjavaInterpreter.popCurrent();
     }
   }
