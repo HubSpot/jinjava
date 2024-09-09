@@ -19,6 +19,8 @@
 
     <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
     <dep.plugin.javadoc.version>3.0.1</dep.plugin.javadoc.version>
+    <dep.hubspot-immutables.version>1.9</dep.hubspot-immutables.version>
+
 
     <basepom.test.add.opens>
       --add-opens=java.base/java.lang=ALL-UNNAMED
@@ -88,6 +90,16 @@
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jdk8</artifactId>
         <version>2.14.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hubspot.immutables</groupId>
+        <artifactId>hubspot-style</artifactId>
+        <version>${dep.hubspot-immutables.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hubspot.immutables</groupId>
+        <artifactId>immutables-exceptions</artifactId>
+        <version>${dep.hubspot-immutables.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -186,6 +198,20 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.immutables</groupId>
+      <artifactId>value</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.hubspot.immutables</groupId>
+      <artifactId>hubspot-style</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.hubspot.immutables</groupId>
+      <artifactId>immutables-exceptions</artifactId>
     </dependency>
   </dependencies>
 
