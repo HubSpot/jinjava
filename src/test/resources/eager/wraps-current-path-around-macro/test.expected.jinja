@@ -1,0 +1,11 @@
+{% set __macro_foo_importer_1564912668_temp_variable_0__ %}\
+  {% set current_path = '../../eager/wraps-current-path-around-macro/dir1/macro.jinja' %}\
+  {% do %}\
+    {% set current_path = '../../eager/wraps-current-path-around-macro/dir2/imported.jinja' %}\
+    {% set foo = deferred %}\
+    {% set current_path = '../../eager/wraps-current-path-around-macro/dir1/macro.jinja' %}\
+  {% enddo %}\
+  {% print foo %}\
+  {% set current_path = '' %}\
+{% endset %}\
+{% print __macro_foo_importer_1564912668_temp_variable_0__ %}

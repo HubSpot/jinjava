@@ -15,6 +15,7 @@ public class ExpectedTemplateInterpreter {
   private Jinjava jinjava;
   private JinjavaInterpreter interpreter;
   private String path;
+  private boolean sensibleCurrentPath = false;
 
   public ExpectedTemplateInterpreter(
     Jinjava jinjava,
@@ -24,6 +25,26 @@ public class ExpectedTemplateInterpreter {
     this.jinjava = jinjava;
     this.interpreter = interpreter;
     this.path = path;
+  }
+
+  public static ExpectedTemplateInterpreter withSensibleCurrentPath(
+    Jinjava jinjava,
+    JinjavaInterpreter interpreter,
+    String path
+  ) {
+    return new ExpectedTemplateInterpreter(jinjava, interpreter, path, true);
+  }
+
+  private ExpectedTemplateInterpreter(
+    Jinjava jinjava,
+    JinjavaInterpreter interpreter,
+    String path,
+    boolean sensibleCurrentPath
+  ) {
+    this.jinjava = jinjava;
+    this.interpreter = interpreter;
+    this.path = path;
+    this.sensibleCurrentPath = sensibleCurrentPath;
   }
 
   public String assertExpectedOutput(String name) {
@@ -116,6 +137,13 @@ public class ExpectedTemplateInterpreter {
 
   public String getFixtureTemplate(String name) {
     try {
+      if (sensibleCurrentPath) {
+        JinjavaInterpreter
+          .getCurrent()
+          .getContext()
+          .getCurrentPathStack()
+          .push(String.format("%s/%s.jinja", path, name), 0, 0);
+      }
       return Resources.toString(
         Resources.getResource(String.format("%s/%s.jinja", path, name)),
         StandardCharsets.UTF_8
@@ -127,10 +155,12 @@ public class ExpectedTemplateInterpreter {
 
   private String expected(String name) {
     try {
-      return Resources.toString(
-        Resources.getResource(String.format("%s/%s.expected.jinja", path, name)),
-        StandardCharsets.UTF_8
-      );
+      return Resources
+        .toString(
+          Resources.getResource(String.format("%s/%s.expected.jinja", path, name)),
+          StandardCharsets.UTF_8
+        )
+        .replaceAll("\\\\\n\\s*", "");
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
