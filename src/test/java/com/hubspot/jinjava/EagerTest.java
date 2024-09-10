@@ -625,7 +625,7 @@ public class EagerTest {
 
   @Test
   public void itPutsDeferredImportedMacroInOutput() {
-    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+    expectedTemplateInterpreter.assertExpectedOutput(
       "puts-deferred-imported-macro-in-output"
     );
   }
@@ -643,7 +643,7 @@ public class EagerTest {
 
   @Test
   public void itPutsDeferredFromedMacroInOutput() {
-    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+    expectedTemplateInterpreter.assertExpectedOutput(
       "puts-deferred-fromed-macro-in-output"
     );
   }
@@ -1595,13 +1595,6 @@ public class EagerTest {
     interpreter.getContext().put("meta", new ArrayList<>());
     expectedTemplateInterpreter.assertExpectedOutput(
       "keeps-meta-context-variables-through-import/test"
-    );
-  }
-
-  @Test
-  public void itWrapsCurrentPathAroundMacro() {
-    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "wraps-current-path-around-macro/test"
     );
   }
 }
