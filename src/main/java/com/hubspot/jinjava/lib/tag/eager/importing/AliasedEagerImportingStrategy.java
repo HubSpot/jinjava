@@ -127,14 +127,9 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
   }
 
   @Override
-  public String getFinalOutput(
-    String newPathSetter,
-    String output,
-    JinjavaInterpreter child
-  ) {
+  public String getFinalOutput(String output, JinjavaInterpreter child) {
     String temporaryImportAlias = getTemporaryImportAlias(fullImportAlias);
     return (
-      newPathSetter +
       EagerReconstructionUtils.buildBlockOrInlineSetTag(
         temporaryImportAlias,
         Collections.emptyMap(),
@@ -153,8 +148,7 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
         ImmutableMap.of(currentImportAlias, temporaryImportAlias),
         importingData.getOriginalInterpreter(),
         true
-      ) +
-      importingData.getInitialPathSetter()
+      )
     );
   }
 

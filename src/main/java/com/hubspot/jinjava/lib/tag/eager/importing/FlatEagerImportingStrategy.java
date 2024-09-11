@@ -63,11 +63,7 @@ public class FlatEagerImportingStrategy implements EagerImportingStrategy {
   }
 
   @Override
-  public String getFinalOutput(
-    String newPathSetter,
-    String output,
-    JinjavaInterpreter child
-  ) {
+  public String getFinalOutput(String output, JinjavaInterpreter child) {
     if (importingData.getOriginalInterpreter().getContext().isDeferredExecutionMode()) {
       Set<String> metaContextVariables = importingData
         .getOriginalInterpreter()
@@ -90,14 +86,12 @@ public class FlatEagerImportingStrategy implements EagerImportingStrategy {
       );
     }
     return (
-      newPathSetter +
       EagerImportingStrategy.getSetTagForDeferredChildBindings(
         importingData.getOriginalInterpreter(),
         null,
         child.getContext().getSessionBindings()
       ) +
-      output +
-      importingData.getInitialPathSetter()
+      output
     );
   }
 }

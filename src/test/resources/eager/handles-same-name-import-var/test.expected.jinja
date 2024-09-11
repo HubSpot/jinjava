@@ -1,6 +1,6 @@
 {% if deferred %}
 {% do %}\
-{% set current_path = 'eager/handles-same-name-import-var/set-var-and-deferred.jinja' %}\
+{% set temp_current_path_210763896,current_path = current_path,'eager/handles-same-name-import-var/set-var-and-deferred.jinja' %}\
 {% set __temp_import_alias_1059697132__ = {}  %}\
 {% for __ignored__ in [0] %}\
 {% if deferred %}
@@ -33,7 +33,7 @@
 {% do __temp_import_alias_1059697132__.update({'path': path,'import_resource_path': 'eager/handles-same-name-import-var/set-var-and-deferred.jinja','value': value}) %}\
 {% endfor %}\
 {% set my_var = __temp_import_alias_1059697132__ %}\
-{% set current_path = 'eager/handles-same-name-import-var/test.jinja' %}\
+{% set current_path,temp_current_path_210763896 = temp_current_path_210763896,null %}\
 {% enddo %}
 {{ filter:dictsort.filter(my_var, ____int3rpr3t3r____, false, 'key') }}
 {% endif %}

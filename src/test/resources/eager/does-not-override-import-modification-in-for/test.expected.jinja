@@ -1,7 +1,7 @@
 {% set foo = 'start' %}\
 {% for __ignored__ in [0] %}
 {% do %}\
-{% set current_path = 'eager/supplements/deferred-modification.jinja' %}\
+{% set temp_current_path_952361846,current_path = current_path,'eager/supplements/deferred-modification.jinja' %}\
 {% set __temp_import_alias_3016318__ = {}  %}\
 {% for __ignored__ in [0] %}\
 {% if deferred %}
@@ -16,11 +16,11 @@
 {% do __temp_import_alias_3016318__.update({'foo': foo,'import_resource_path': 'eager/supplements/deferred-modification.jinja'}) %}\
 {% endfor %}\
 {% set bar1 = __temp_import_alias_3016318__ %}\
-{% set current_path = 'eager/does-not-override-import-modification-in-for/test.jinja' %}\
+{% set current_path,temp_current_path_952361846 = temp_current_path_952361846,null %}\
 {% enddo %}
 {{ bar1.foo }}
 {% do %}\
-{% set current_path = 'eager/supplements/deferred-modification.jinja' %}\
+{% set temp_current_path_952361846,current_path = current_path,'eager/supplements/deferred-modification.jinja' %}\
 {% set __temp_import_alias_3016319__ = {}  %}\
 {% for __ignored__ in [0] %}\
 {% if deferred %}
@@ -35,12 +35,12 @@
 {% do __temp_import_alias_3016319__.update({'import_resource_path': 'eager/supplements/deferred-modification.jinja'}) %}\
 {% endfor %}\
 {% set bar2 = __temp_import_alias_3016319__ %}\
-{% set current_path = 'eager/does-not-override-import-modification-in-for/test.jinja' %}\
+{% set current_path,temp_current_path_952361846 = temp_current_path_952361846,null %}\
 {% enddo %}
 {{ bar2.foo }}
 
 {% do %}\
-{% set current_path = 'eager/supplements/deferred-modification.jinja' %}\
+{% set temp_current_path_952361846,current_path = current_path,'eager/supplements/deferred-modification.jinja' %}\
 {% set __temp_import_alias_3016318__ = {}  %}\
 {% for __ignored__ in [0] %}\
 {% if deferred %}
@@ -55,11 +55,11 @@
 {% do __temp_import_alias_3016318__.update({'import_resource_path': 'eager/supplements/deferred-modification.jinja'}) %}\
 {% endfor %}\
 {% set bar1 = __temp_import_alias_3016318__ %}\
-{% set current_path = 'eager/does-not-override-import-modification-in-for/test.jinja' %}\
+{% set current_path,temp_current_path_952361846 = temp_current_path_952361846,null %}\
 {% enddo %}
 {{ bar1.foo }}
 {% do %}\
-{% set current_path = 'eager/supplements/deferred-modification.jinja' %}\
+{% set temp_current_path_952361846,current_path = current_path,'eager/supplements/deferred-modification.jinja' %}\
 {% set __temp_import_alias_3016319__ = {}  %}\
 {% for __ignored__ in [0] %}\
 {% if deferred %}
@@ -74,7 +74,7 @@
 {% do __temp_import_alias_3016319__.update({'import_resource_path': 'eager/supplements/deferred-modification.jinja'}) %}\
 {% endfor %}\
 {% set bar2 = __temp_import_alias_3016319__ %}\
-{% set current_path = 'eager/does-not-override-import-modification-in-for/test.jinja' %}\
+{% set current_path,temp_current_path_952361846 = temp_current_path_952361846,null %}\
 {% enddo %}
 {{ bar2.foo }}
 {% endfor %}

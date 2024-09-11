@@ -638,9 +638,19 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(result)
       .isEqualTo(
         "a" +
-        "{% set vars = {'foo': 'a', 'import_resource_path': 'var-a.jinja'}  %}{% if deferred %}" +
-        "{% do %}{% set current_path = 'var-b.jinja' %}{% set __temp_import_alias_3612204__ = {}  %}{% for __ignored__ in [0] %}{% set foo = 'b' %}{% do __temp_import_alias_3612204__.update({'foo': foo}) %}\n" +
-        "{% do __temp_import_alias_3612204__.update({'foo': 'b','import_resource_path': 'var-b.jinja'}) %}{% endfor %}{% set vars = __temp_import_alias_3612204__ %}{% set current_path = '' %}{% enddo %}" +
+        "{% set vars = {'foo': 'a', 'import_resource_path': 'var-a.jinja'}  %}" +
+        "{% if deferred %}" +
+        "{% do %}" +
+        "{% set temp_current_path_1033239083,current_path = current_path,'var-b.jinja' %}" +
+        "{% set __temp_import_alias_3612204__ = {}  %}" +
+        "{% for __ignored__ in [0] %}" +
+        "{% set foo = 'b' %}" +
+        "{% do __temp_import_alias_3612204__.update({'foo': foo}) %}\n" +
+        "{% do __temp_import_alias_3612204__.update({'foo': 'b','import_resource_path': 'var-b.jinja'}) %}" +
+        "{% endfor %}" +
+        "{% set vars = __temp_import_alias_3612204__ %}" +
+        "{% set current_path,temp_current_path_1033239083 = temp_current_path_1033239083,null %}" +
+        "{% enddo %}" +
         "{% endif %}" +
         "{{ vars.foo }}"
       );
@@ -665,9 +675,13 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(result)
       .isEqualTo(
         "a" +
-        "{% set foo = 'a' %}{% if deferred %}" +
-        "{% do %}{% set current_path = 'var-b.jinja' %}{% set foo = 'b' %}\n" +
-        "{% set current_path = '' %}{% enddo %}" +
+        "{% set foo = 'a' %}" +
+        "{% if deferred %}" +
+        "{% do %}" +
+        "{% set temp_current_path_1033239083,current_path = current_path,'var-b.jinja' %}" +
+        "{% set foo = 'b' %}\n" +
+        "{% set current_path,temp_current_path_1033239083 = temp_current_path_1033239083,null %}" +
+        "{% enddo %}" +
         "{% endif %}" +
         "{{ foo }}"
       );
@@ -684,9 +698,13 @@ public class EagerImportTagTest extends ImportTagTest {
       .trim();
     assertThat(result)
       .isEqualTo(
-        "{% do %}{% set current_path = 'set-two-variables.jinja' %}{% set foo = deferred %}\n" +
+        "{% do %}" +
+        "{% set temp_current_path_184309715,current_path = current_path,'set-two-variables.jinja' %}" +
+        "{% set foo = deferred %}\n" +
         "\n" +
-        "{% set current_path = '' %}{% enddo %}{{ foo }} bar"
+        "{% set current_path,temp_current_path_184309715 = temp_current_path_184309715,null %}" +
+        "{% enddo %}" +
+        "{{ foo }} bar"
       );
   }
 

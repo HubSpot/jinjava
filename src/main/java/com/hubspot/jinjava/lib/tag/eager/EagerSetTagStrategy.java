@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Triple;
 
 @Beta
@@ -155,39 +156,65 @@ public abstract class EagerSetTagStrategy {
   }
 
   public static String getSuffixToPreserveState(
-    String variables,
+    List<String> varList,
     JinjavaInterpreter interpreter
   ) {
-    if (variables.isEmpty()) {
+    if (varList.isEmpty()) {
       return "";
     }
+    return getSuffixToPreserveState(varList.stream(), interpreter);
+  }
+
+  public static String getSuffixToPreserveState(
+    String[] varList,
+    JinjavaInterpreter interpreter
+  ) {
+    if (varList.length == 0) {
+      return "";
+    }
+    return getSuffixToPreserveState(Arrays.stream(varList), interpreter);
+  }
+
+  private static String getSuffixToPreserveState(
+    Stream<String> varStream,
+    JinjavaInterpreter interpreter
+  ) {
     StringBuilder suffixToPreserveState = new StringBuilder();
     Optional<String> maybeTemporaryImportAlias =
       AliasedEagerImportingStrategy.getTemporaryImportAlias(interpreter.getContext());
-    if (
-      maybeTemporaryImportAlias.isPresent() &&
-      !AliasedEagerImportingStrategy.isTemporaryImportAlias(variables) &&
-      !interpreter.getContext().getComputedMetaContextVariables().contains(variables)
-    ) {
-      if (!interpreter.getContext().containsKey(maybeTemporaryImportAlias.get())) {
-        if (
-          interpreter.retraceVariable(
-            String.format(
-              "%s.%s",
-              interpreter.getContext().getImportResourceAlias().get(),
-              variables
-            ),
-            -1
-          ) !=
-          null
-        ) {
-          throw new DeferredValueException(
-            "Cannot modify temporary import alias outside of import tag"
-          );
-        }
+    if (maybeTemporaryImportAlias.isPresent()) {
+      boolean stillInsideImportTag = interpreter
+        .getContext()
+        .containsKey(maybeTemporaryImportAlias.get());
+      List<String> filteredVars = varStream
+        .filter(var -> !AliasedEagerImportingStrategy.isTemporaryImportAlias(var))
+        .filter(var ->
+          !interpreter.getContext().getComputedMetaContextVariables().contains(var)
+        )
+        .peek(var -> {
+          if (!stillInsideImportTag) {
+            if (
+              interpreter.retraceVariable(
+                String.format(
+                  "%s.%s",
+                  interpreter.getContext().getImportResourceAlias().get(),
+                  var
+                ),
+                -1
+              ) !=
+              null
+            ) {
+              throw new DeferredValueException(
+                "Cannot modify temporary import alias outside of import tag"
+              );
+            }
+          }
+        })
+        .collect(Collectors.toList());
+      if (filteredVars.isEmpty()) {
+        return "";
       }
-      String updateString = getUpdateString(variables);
-
+      String updateString = getUpdateString(filteredVars);
       // Don't need to render because the temporary import alias's value is always deferred, and rendering will do nothing
       suffixToPreserveState.append(
         EagerReconstructionUtils.buildDoUpdateTag(
@@ -197,15 +224,10 @@ public abstract class EagerSetTagStrategy {
         )
       );
     }
-
     return suffixToPreserveState.toString();
   }
 
-  private static String getUpdateString(String variables) {
-    List<String> varList = Arrays
-      .stream(variables.split(","))
-      .map(String::trim)
-      .collect(Collectors.toList());
+  private static String getUpdateString(List<String> varList) {
     StringJoiner updateString = new StringJoiner(",");
     // Update the alias map to the value of the set variable.
     varList.forEach(var -> updateString.add(String.format("'%s': %s", var, var)));
