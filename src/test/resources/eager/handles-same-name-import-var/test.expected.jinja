@@ -1,6 +1,6 @@
 {% if deferred %}
 {% do %}\
-{% set current_path = '../settag/set-var-and-deferred.jinja' %}\
+{% set current_path = 'eager/handles-same-name-import-var/set-var-and-deferred.jinja' %}\
 {% set __temp_import_alias_1059697132__ = {}  %}\
 {% for __ignored__ in [0] %}\
 {% if deferred %}
@@ -9,7 +9,7 @@
 {% do __temp_import_alias_1059697132__.update({'path': path}) %}\
 {% set my_var = {'my_var': {'foo': 'bar'} }  %}\
 {% do __temp_import_alias_1059697132__.update({'my_var': my_var}) %}\
-{% set path = '../settag/set-var-and-deferred.jinja' %}\
+{% set path = 'eager/handles-same-name-import-var/set-var-and-deferred.jinja' %}\
 {% do __temp_import_alias_1059697132__.update({'path': path}) %}\
 {% set value = null %}\
 {% do __temp_import_alias_1059697132__.update({'value': value}) %}\
@@ -24,16 +24,16 @@
 {% set my_var = {'my_var': {'foo': 'bar'} }  %}\
 {% do __temp_import_alias_1059697132__.update({'my_var': my_var}) %}\
 {% do my_var.update({'value': value}) %}
-{% do my_var.update({'import_resource_path': '../settag/set-var-and-deferred.jinja', 'value': value}) %}\
+{% do my_var.update({'import_resource_path': 'eager/handles-same-name-import-var/set-var-and-deferred.jinja', 'value': value}) %}\
 {% set path = '' %}\
 {% do __temp_import_alias_1059697132__.update({'path': path}) %}\
 {% enddo %}
 {{ my_var }}
 {% endif %}
-{% do __temp_import_alias_1059697132__.update({'path': path,'import_resource_path': '../settag/set-var-and-deferred.jinja','value': value}) %}\
+{% do __temp_import_alias_1059697132__.update({'path': path,'import_resource_path': 'eager/handles-same-name-import-var/set-var-and-deferred.jinja','value': value}) %}\
 {% endfor %}\
 {% set my_var = __temp_import_alias_1059697132__ %}\
-{% set current_path = '' %}\
+{% set current_path = 'eager/handles-same-name-import-var/test.jinja' %}\
 {% enddo %}
 {{ filter:dictsort.filter(my_var, ____int3rpr3t3r____, false, 'key') }}
 {% endif %}

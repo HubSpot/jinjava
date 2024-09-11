@@ -5,12 +5,12 @@ Goodbye {{ myname }}
 {% endset %}\
 {% set a = filter:upper.filter(__macro_foo_97643642_temp_variable_0__, ____int3rpr3t3r____) %}
 {% do %}\
-{% set current_path = 'macro-with-filter.jinja' %}
-{% set __macro_foo_927217348_temp_variable_0__ %}\
+{% set current_path = 'eager/uses-unique-macro-names/macro-with-filter.jinja' %}
+{% set __macro_foo_1717337666_temp_variable_0__ %}\
 Hello {{ myname }}\
 {% endset %}\
-{% set b = filter:upper.filter(__macro_foo_927217348_temp_variable_0__, ____int3rpr3t3r____) %}
-{% set current_path = '' %}\
+{% set b = filter:upper.filter(__macro_foo_1717337666_temp_variable_0__, ____int3rpr3t3r____) %}
+{% set current_path = 'eager/uses-unique-macro-names/test.jinja' %}\
 {% enddo %}
 {{ a }}
 {{ b }}

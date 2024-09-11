@@ -60,7 +60,7 @@ public class EagerTest {
           JinjavaInterpreter interpreter
         ) throws IOException {
           return Resources.toString(
-            Resources.getResource(String.format("tags/macrotag/%s", fullName)),
+            Resources.getResource(fullName),
             StandardCharsets.UTF_8
           );
         }
@@ -89,7 +89,7 @@ public class EagerTest {
     );
     interpreter = new JinjavaInterpreter(parentInterpreter);
     expectedTemplateInterpreter =
-      new ExpectedTemplateInterpreter(jinjava, interpreter, "eager");
+      ExpectedTemplateInterpreter.withSensibleCurrentPath(jinjava, interpreter, "eager");
     localContext = interpreter.getContext();
 
     localContext.put("deferred", DeferredValue.instance());
@@ -1590,7 +1590,6 @@ public class EagerTest {
 
   @Test
   public void itReconstructsBlockPathWhenDeferred() {
-    interpreter.getContext().getCurrentPathStack().push("Child path", 0, 0);
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "reconstructs-block-path-when-deferred/test"
     );
@@ -1606,7 +1605,6 @@ public class EagerTest {
 
   @Test
   public void itReconstructsBlockPathWhenDeferredNested() {
-    interpreter.getContext().getCurrentPathStack().push("Child path", 0, 0);
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "reconstructs-block-path-when-deferred-nested/test"
     );

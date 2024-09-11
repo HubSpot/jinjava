@@ -1,4 +1,4 @@
 {% if deferred %}
-{% import '../settag/set-var-and-deferred.jinja' as my_var %}
+{% import './set-var-and-deferred.jinja' as my_var %}
 {{ my_var|dictsort(false, 'key') }}
 {% endif %}

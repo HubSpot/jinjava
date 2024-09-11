@@ -1,5 +1,5 @@
 {% set myname = deferred + 3 %}\
-{% set deferred_import_resource_path = 'eager/takes-param.jinja' %}\
+{% set deferred_import_resource_path = 'eager/reconstructs-aliased-macro/takes-param.jinja' %}\
 {% macro macros.takes_param(foo) %}\
 {% set bar = 'bar' %}
 {% print foo %}
