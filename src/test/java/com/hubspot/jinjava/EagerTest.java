@@ -494,12 +494,12 @@ public class EagerTest {
   @Test
   public void itEagerlyDefersSet() {
     localContext.put("bar", true);
-    expectedTemplateInterpreter.assertExpectedOutput("eagerly-defers-set");
+    expectedTemplateInterpreter.assertExpectedOutput("eagerly-defers-set/test");
   }
 
   @Test
   public void itEvaluatesNonEagerSet() {
-    expectedTemplateInterpreter.assertExpectedOutput("evaluates-non-eager-set");
+    expectedTemplateInterpreter.assertExpectedOutput("evaluates-non-eager-set/test");
     assertThat(
       localContext
         .getDeferredTokens()
@@ -520,25 +520,27 @@ public class EagerTest {
 
   @Test
   public void itDefersOnImmutableMode() {
-    expectedTemplateInterpreter.assertExpectedOutput("defers-on-immutable-mode");
+    expectedTemplateInterpreter.assertExpectedOutput("defers-on-immutable-mode/test");
   }
 
   @Test
   public void itDoesntAffectParentFromEagerIf() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "doesnt-affect-parent-from-eager-if"
+      "doesnt-affect-parent-from-eager-if/test"
     );
   }
 
   @Test
   public void itDefersEagerChildScopedVars() {
-    expectedTemplateInterpreter.assertExpectedOutput("defers-eager-child-scoped-vars");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "defers-eager-child-scoped-vars/test"
+    );
   }
 
   @Test
   public void itSetsMultipleVarsDeferredInChild() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "sets-multiple-vars-deferred-in-child"
+      "sets-multiple-vars-deferred-in-child/test"
     );
   }
 
@@ -546,29 +548,31 @@ public class EagerTest {
   public void itSetsMultipleVarsDeferredInChildSecondPass() {
     localContext.put("deferred", true);
     expectedTemplateInterpreter.assertExpectedOutput(
-      "sets-multiple-vars-deferred-in-child.expected"
+      "sets-multiple-vars-deferred-in-child/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "sets-multiple-vars-deferred-in-child.expected"
+      "sets-multiple-vars-deferred-in-child/test.expected"
     );
   }
 
   @Test
   public void itDoesntDoubleAppendInDeferredIfTag() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "doesnt-double-append-in-deferred-if-tag"
+      "doesnt-double-append-in-deferred-if-tag/test"
     );
   }
 
   @Test
   public void itPrependsSetIfStateChanges() {
-    expectedTemplateInterpreter.assertExpectedOutput("prepends-set-if-state-changes");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "prepends-set-if-state-changes/test"
+    );
   }
 
   @Test
   public void itHandlesLoopVarAgainstDeferredInLoop() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-loop-var-against-deferred-in-loop"
+      "handles-loop-var-against-deferred-in-loop/test"
     );
   }
 
@@ -576,10 +580,10 @@ public class EagerTest {
   public void itHandlesLoopVarAgainstDeferredInLoopSecondPass() {
     localContext.put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-loop-var-against-deferred-in-loop.expected"
+      "handles-loop-var-against-deferred-in-loop/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "handles-loop-var-against-deferred-in-loop.expected"
+      "handles-loop-var-against-deferred-in-loop/test.expected"
     );
   }
 
@@ -589,7 +593,7 @@ public class EagerTest {
     localContext.put("first", 10);
     localContext.put("deferred2", DeferredValue.instance());
     String deferredOutput = expectedTemplateInterpreter.assertExpectedOutput(
-      "defers-macro-for-do-and-print"
+      "defers-macro-for-do-and-print/test"
     );
     Object myList = localContext.get("my_list");
     assertThat(myList).isInstanceOf(DeferredValue.class);
@@ -614,19 +618,19 @@ public class EagerTest {
   @Test
   public void itDefersMacroInFor() {
     localContext.put("my_list", new PyList(new ArrayList<>()));
-    expectedTemplateInterpreter.assertExpectedOutput("defers-macro-in-for");
+    expectedTemplateInterpreter.assertExpectedOutput("defers-macro-in-for/test");
   }
 
   @Test
   public void itDefersMacroInIf() {
     localContext.put("my_list", new PyList(new ArrayList<>()));
-    expectedTemplateInterpreter.assertExpectedOutput("defers-macro-in-if");
+    expectedTemplateInterpreter.assertExpectedOutput("defers-macro-in-if/test");
   }
 
   @Test
   public void itPutsDeferredImportedMacroInOutput() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "puts-deferred-imported-macro-in-output"
+      "puts-deferred-imported-macro-in-output/test"
     );
   }
 
@@ -634,17 +638,17 @@ public class EagerTest {
   public void itPutsDeferredImportedMacroInOutputSecondPass() {
     localContext.put("deferred", 1);
     expectedTemplateInterpreter.assertExpectedOutput(
-      "puts-deferred-imported-macro-in-output.expected"
+      "puts-deferred-imported-macro-in-output/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "puts-deferred-imported-macro-in-output.expected"
+      "puts-deferred-imported-macro-in-output/test.expected"
     );
   }
 
   @Test
   public void itPutsDeferredFromedMacroInOutput() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "puts-deferred-fromed-macro-in-output"
+      "puts-deferred-fromed-macro-in-output/test"
     );
   }
 
@@ -652,7 +656,7 @@ public class EagerTest {
   public void itEagerlyDefersMacro() {
     localContext.put("foo", "I am foo");
     localContext.put("bar", "I am bar");
-    expectedTemplateInterpreter.assertExpectedOutput("eagerly-defers-macro");
+    expectedTemplateInterpreter.assertExpectedOutput("eagerly-defers-macro/test");
   }
 
   @Test
@@ -660,32 +664,36 @@ public class EagerTest {
     localContext.put("foo", "I am foo");
     localContext.put("bar", "I am bar");
     localContext.put("deferred", true);
-    expectedTemplateInterpreter.assertExpectedOutput("eagerly-defers-macro.expected");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "eagerly-defers-macro/test.expected"
+    );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "eagerly-defers-macro.expected"
+      "eagerly-defers-macro/test.expected"
     );
   }
 
   @Test
   public void itLoadsImportedMacroSyntax() {
-    expectedTemplateInterpreter.assertExpectedOutput("loads-imported-macro-syntax");
+    expectedTemplateInterpreter.assertExpectedOutput("loads-imported-macro-syntax/test");
   }
 
   @Test
   public void itDefersCaller() {
-    expectedTemplateInterpreter.assertExpectedOutput("defers-caller");
+    expectedTemplateInterpreter.assertExpectedOutput("defers-caller/test");
   }
 
   @Test
   public void itDefersCallerSecondPass() {
     localContext.put("deferred", "foo");
-    expectedTemplateInterpreter.assertExpectedOutput("defers-caller.expected");
-    expectedTemplateInterpreter.assertExpectedNonEagerOutput("defers-caller.expected");
+    expectedTemplateInterpreter.assertExpectedOutput("defers-caller/test.expected");
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "defers-caller/test.expected"
+    );
   }
 
   @Test
   public void itDefersMacroInExpression() {
-    expectedTemplateInterpreter.assertExpectedOutput("defers-macro-in-expression");
+    expectedTemplateInterpreter.assertExpectedOutput("defers-macro-in-expression/test");
   }
 
   @Test
@@ -693,73 +701,77 @@ public class EagerTest {
     interpreter.resolveELExpression("(range(0,1))", -1);
     localContext.put("deferred", 5);
     expectedTemplateInterpreter.assertExpectedOutput(
-      "defers-macro-in-expression.expected"
+      "defers-macro-in-expression/test.expected"
     );
     localContext.put("deferred", 5);
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "defers-macro-in-expression.expected"
+      "defers-macro-in-expression/test.expected"
     );
   }
 
   @Test
   public void itHandlesDeferredInIfchanged() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-in-ifchanged");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferred-in-ifchanged/test"
+    );
   }
 
   @Test
   public void itDefersIfchanged() {
-    expectedTemplateInterpreter.assertExpectedOutput("defers-ifchanged");
+    expectedTemplateInterpreter.assertExpectedOutput("defers-ifchanged/test");
   }
 
   @Test
   public void itHandlesCycleInDeferredFor() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-cycle-in-deferred-for");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-cycle-in-deferred-for/test"
+    );
   }
 
   @Test
   public void itHandlesCycleInDeferredForSecondPass() {
     localContext.put("deferred", new String[] { "foo", "bar", "foobar", "baz" });
     expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-cycle-in-deferred-for.expected"
+      "handles-cycle-in-deferred-for/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "handles-cycle-in-deferred-for.expected"
+      "handles-cycle-in-deferred-for/test.expected"
     );
   }
 
   @Test
   public void itHandlesDeferredInCycle() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-in-cycle");
+    expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-in-cycle/test");
   }
 
   @Test
   public void itHandlesDeferredCycleAs() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-cycle-as");
+    expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-cycle-as/test");
   }
 
   @Test
   public void itHandlesDeferredCycleAsSecondPass() {
     localContext.put("deferred", "hello");
     expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-deferred-cycle-as.expected"
+      "handles-deferred-cycle-as/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "handles-deferred-cycle-as.expected"
+      "handles-deferred-cycle-as/test.expected"
     );
   }
 
   @Test
   public void itHandlesNonDeferringCycles() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-non-deferring-cycles");
+    expectedTemplateInterpreter.assertExpectedOutput("handles-non-deferring-cycles/test");
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "handles-non-deferring-cycles"
+      "handles-non-deferring-cycles/test"
     );
   }
 
   @Test
   public void itHandlesAutoEscape() {
     localContext.put("myvar", "foo < bar");
-    expectedTemplateInterpreter.assertExpectedOutput("handles-auto-escape");
+    expectedTemplateInterpreter.assertExpectedOutput("handles-auto-escape/test");
   }
 
   @Test
@@ -782,8 +794,9 @@ public class EagerTest {
 
     JinjavaInterpreter.pushCurrent(noNestedInterpreter);
     try {
-      new ExpectedTemplateInterpreter(jinjava, noNestedInterpreter, "eager")
-        .assertExpectedOutput("wraps-certain-output-in-raw");
+      ExpectedTemplateInterpreter
+        .withSensibleCurrentPath(jinjava, noNestedInterpreter, "eager")
+        .assertExpectedOutput("wraps-certain-output-in-raw/test");
       assertThat(noNestedInterpreter.getErrors()).isEmpty();
     } finally {
       JinjavaInterpreter.popCurrent();
@@ -793,7 +806,7 @@ public class EagerTest {
   @Test
   public void itHandlesDeferredImportVars() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "handles-deferred-import-vars"
+      "handles-deferred-import-vars/test"
     );
   }
 
@@ -801,45 +814,49 @@ public class EagerTest {
   public void itHandlesDeferredImportVarsSecondPass() {
     localContext.put("deferred", 1);
     expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-deferred-import-vars.expected"
+      "handles-deferred-import-vars/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "handles-deferred-import-vars.expected"
+      "handles-deferred-import-vars/test.expected"
     );
   }
 
   @Test
   public void itHandlesNonDeferredImportVars() {
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "handles-non-deferred-import-vars"
+      "handles-non-deferred-import-vars/test"
     );
-    expectedTemplateInterpreter.assertExpectedOutput("handles-non-deferred-import-vars");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-non-deferred-import-vars/test"
+    );
   }
 
   @Test
   public void itHandlesDeferredFromImportAs() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-from-import-as");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferred-from-import-as/test"
+    );
   }
 
   @Test
   public void itHandlesDeferredFromImportAsSecondPass() {
     localContext.put("deferred", 1);
     expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-deferred-from-import-as.expected"
+      "handles-deferred-from-import-as/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "handles-deferred-from-import-as.expected"
+      "handles-deferred-from-import-as/test.expected"
     );
   }
 
   @Test
   public void itPreservesValueSetInIf() {
-    expectedTemplateInterpreter.assertExpectedOutput("preserves-value-set-in-if");
+    expectedTemplateInterpreter.assertExpectedOutput("preserves-value-set-in-if/test");
   }
 
   @Test
   public void itHandlesCycleWithQuote() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-cycle-with-quote");
+    expectedTemplateInterpreter.assertExpectedOutput("handles-cycle-with-quote/test");
   }
 
   @Test
@@ -859,16 +876,18 @@ public class EagerTest {
     );
     try {
       JinjavaInterpreter.pushCurrent(eagerInterpreter);
-      new ExpectedTemplateInterpreter(jinjava, eagerInterpreter, "eager")
-        .assertExpectedOutput("handles-unknown-function-errors");
+      ExpectedTemplateInterpreter
+        .withSensibleCurrentPath(jinjava, eagerInterpreter, "eager")
+        .assertExpectedOutput("handles-unknown-function-errors/test");
     } finally {
       JinjavaInterpreter.popCurrent();
     }
     try {
       JinjavaInterpreter.pushCurrent(defaultInterpreter);
 
-      new ExpectedTemplateInterpreter(jinjava, defaultInterpreter, "eager")
-        .assertExpectedOutput("handles-unknown-function-errors");
+      ExpectedTemplateInterpreter
+        .withSensibleCurrentPath(jinjava, defaultInterpreter, "eager")
+        .assertExpectedOutput("handles-unknown-function-errors/test");
     } finally {
       JinjavaInterpreter.popCurrent();
     }
@@ -878,86 +897,98 @@ public class EagerTest {
 
   @Test
   public void itKeepsMaxMacroRecursionDepth() {
-    expectedTemplateInterpreter.assertExpectedOutput("keeps-max-macro-recursion-depth");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "keeps-max-macro-recursion-depth/test"
+    );
   }
 
   @Test
   public void itHandlesComplexRaw() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-complex-raw");
+    expectedTemplateInterpreter.assertExpectedOutput("handles-complex-raw/test");
   }
 
   @Test
   public void itHandlesDeferredInNamespace() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-deferred-in-namespace");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferred-in-namespace/test"
+    );
   }
 
   @Test
   public void itHandlesDeferredInNamespaceSecondPass() {
     localContext.put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-deferred-in-namespace.expected"
+      "handles-deferred-in-namespace/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "handles-deferred-in-namespace.expected"
+      "handles-deferred-in-namespace/test.expected"
     );
   }
 
   @Test
   public void itHandlesClashingNameInMacro() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-clashing-name-in-macro");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-clashing-name-in-macro/test"
+    );
   }
 
   @Test
   public void itHandlesClashingNameInMacroSecondPass() {
     localContext.put("deferred", 0);
     expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-clashing-name-in-macro.expected"
+      "handles-clashing-name-in-macro/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "handles-clashing-name-in-macro.expected"
+      "handles-clashing-name-in-macro/test.expected"
     );
   }
 
   @Test
   public void itHandlesBlockSetInDeferredIf() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-block-set-in-deferred-if");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-block-set-in-deferred-if/test"
+    );
   }
 
   @Test
   public void itHandlesBlockSetInDeferredIfSecondPass() {
     localContext.put("deferred", 1);
     expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-block-set-in-deferred-if.expected"
+      "handles-block-set-in-deferred-if/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "handles-block-set-in-deferred-if.expected"
+      "handles-block-set-in-deferred-if/test.expected"
     );
   }
 
   @Test
   public void itDoesntOverwriteElif() {
-    expectedTemplateInterpreter.assertExpectedOutput("doesnt-overwrite-elif");
+    expectedTemplateInterpreter.assertExpectedOutput("doesnt-overwrite-elif/test");
   }
 
   @Test
   public void itHandlesSetAndModifiedInFor() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-set-and-modified-in-for");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-set-and-modified-in-for/test"
+    );
   }
 
   @Test
   public void itHandlesSetInFor() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-set-in-for");
+    expectedTemplateInterpreter.assertExpectedOutput("handles-set-in-for/test");
   }
 
   @Test
   public void itHandlesDeferringLoopVariable() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-deferring-loop-variable");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferring-loop-variable/test"
+    );
   }
 
   @Test
   public void itDefersChangesWithinDeferredSetBlock() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "defers-changes-within-deferred-set-block"
+      "defers-changes-within-deferred-set-block/test"
     );
   }
 
@@ -965,17 +996,17 @@ public class EagerTest {
   public void itDefersChangesWithinDeferredSetBlockSecondPass() {
     localContext.put("deferred", 1);
     expectedTemplateInterpreter.assertExpectedOutput(
-      "defers-changes-within-deferred-set-block.expected"
+      "defers-changes-within-deferred-set-block/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "defers-changes-within-deferred-set-block.expected"
+      "defers-changes-within-deferred-set-block/test.expected"
     );
   }
 
   @Test
   public void itHandlesImportWithMacrosInDeferredIf() {
     String template = expectedTemplateInterpreter.getFixtureTemplate(
-      "handles-import-with-macros-in-deferred-if"
+      "handles-import-with-macros-in-deferred-if/test"
     );
     JinjavaInterpreter.getCurrent().render(template);
     assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
@@ -985,7 +1016,7 @@ public class EagerTest {
   @Test
   public void itHandlesImportInDeferredIf() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "handles-import-in-deferred-if"
+      "handles-import-in-deferred-if/test"
     );
   }
 
@@ -994,21 +1025,21 @@ public class EagerTest {
     interpreter.getContext().addMetaContextVariables(Collections.singleton("meta"));
     interpreter.getContext().put("meta", "META");
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "allows-meta-context-var-overriding"
+      "allows-meta-context-var-overriding/test"
     );
   }
 
   @Test
   public void itHandlesValueModifiedInMacro() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "handles-value-modified-in-macro"
+      "handles-value-modified-in-macro/test"
     );
   }
 
   @Test
   public void itHandlesDoubleImportModification() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "handles-double-import-modification"
+      "handles-double-import-modification/test"
     );
   }
 
@@ -1016,17 +1047,17 @@ public class EagerTest {
   public void itHandlesDoubleImportModificationSecondPass() {
     interpreter.getContext().put("deferred", false);
     expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-double-import-modification.expected"
+      "handles-double-import-modification/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "handles-double-import-modification.expected"
+      "handles-double-import-modification/test.expected"
     );
   }
 
   @Test
   public void itHandlesSameNameImportVar() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "handles-same-name-import-var"
+      "handles-same-name-import-var/test"
     );
   }
 
@@ -1034,52 +1065,54 @@ public class EagerTest {
   public void itHandlesSameNameImportVarSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-same-name-import-var.expected"
+      "handles-same-name-import-var/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "handles-same-name-import-var.expected"
+      "handles-same-name-import-var/test.expected"
     );
   }
 
   @Test
   public void itReconstructsTypesProperly() {
-    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-types-properly");
+    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-types-properly/test");
   }
 
   @Test
   public void itRunsForLoopInsideDeferredForLoop() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "runs-for-loop-inside-deferred-for-loop"
+      "runs-for-loop-inside-deferred-for-loop/test"
     );
   }
 
   @Test
   public void itModifiesVariableInDeferredMacro() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "modifies-variable-in-deferred-macro"
+      "modifies-variable-in-deferred-macro/test"
     );
   }
 
   @Test
   public void itRevertsSimple() {
-    expectedTemplateInterpreter.assertExpectedOutput("reverts-simple");
+    expectedTemplateInterpreter.assertExpectedOutput("reverts-simple/test");
   }
 
   @Test
   public void itScopesResettingBindings() {
-    expectedTemplateInterpreter.assertExpectedOutput("scopes-resetting-bindings");
+    expectedTemplateInterpreter.assertExpectedOutput("scopes-resetting-bindings/test");
   }
 
   @Test
   public void itReconstructsWithMultipleLoops() {
-    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-with-multiple-loops");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-with-multiple-loops/test"
+    );
   }
 
   @Test
   public void itFullyDefersFilteredMacro() {
     // Macro and set tag reconstruction are flipped so not exactly idempotent, but functionally identical
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "fully-defers-filtered-macro"
+      "fully-defers-filtered-macro/test"
     );
   }
 
@@ -1087,60 +1120,62 @@ public class EagerTest {
   public void itFullyDefersFilteredMacroSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
-      "fully-defers-filtered-macro.expected"
+      "fully-defers-filtered-macro/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "fully-defers-filtered-macro.expected"
+      "fully-defers-filtered-macro/test.expected"
     );
   }
 
   @Test
   public void itDefersLargeLoop() {
-    expectedTemplateInterpreter.assertExpectedOutput("defers-large-loop");
+    expectedTemplateInterpreter.assertExpectedOutput("defers-large-loop/test");
   }
 
   @Test
   public void itHandlesSetInInnerScope() {
-    expectedTemplateInterpreter.assertExpectedOutput("handles-set-in-inner-scope");
+    expectedTemplateInterpreter.assertExpectedOutput("handles-set-in-inner-scope/test");
   }
 
   @Test
   public void itCorrectlyDefersWithMultipleLoops() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "correctly-defers-with-multiple-loops"
+      "correctly-defers-with-multiple-loops/test"
     );
   }
 
   @Test
   public void itRevertsModificationWithDeferredLoop() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "reverts-modification-with-deferred-loop"
+      "reverts-modification-with-deferred-loop/test"
     );
   }
 
   @Test
   public void itReconstructsMapNode() {
-    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-map-node");
+    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-map-node/test");
   }
 
   @Test
   public void itReconstructsMapNodeSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
-    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-map-node.expected");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-map-node/test.expected"
+    );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "reconstructs-map-node.expected"
+      "reconstructs-map-node/test.expected"
     );
   }
 
   @Test
   public void itHasProperLineStripping() {
-    expectedTemplateInterpreter.assertExpectedOutput("has-proper-line-stripping");
+    expectedTemplateInterpreter.assertExpectedOutput("has-proper-line-stripping/test");
   }
 
   @Test
   public void itDefersCallTagWithDeferredArgument() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "defers-call-tag-with-deferred-argument"
+      "defers-call-tag-with-deferred-argument/test"
     );
   }
 
@@ -1148,10 +1183,10 @@ public class EagerTest {
   public void itDefersCallTagWithDeferredArgumentSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
-      "defers-call-tag-with-deferred-argument.expected"
+      "defers-call-tag-with-deferred-argument/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "defers-call-tag-with-deferred-argument.expected"
+      "defers-call-tag-with-deferred-argument/test.expected"
     );
   }
 
@@ -1172,7 +1207,7 @@ public class EagerTest {
   @Test
   public void itHandlesHigherScopeReferenceModification() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "handles-higher-scope-reference-modification"
+      "handles-higher-scope-reference-modification/test"
     );
   }
 
@@ -1180,38 +1215,38 @@ public class EagerTest {
   public void itHandlesHigherScopeReferenceModificationSecondPass() {
     interpreter.getContext().put("deferred", "b");
     expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-higher-scope-reference-modification.expected"
+      "handles-higher-scope-reference-modification/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "handles-higher-scope-reference-modification.expected"
+      "handles-higher-scope-reference-modification/test.expected"
     );
   }
 
   @Test
   public void itHandlesReferenceModificationWhenSourceIsLost() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "handles-reference-modification-when-source-is-lost"
+      "handles-reference-modification-when-source-is-lost/test"
     );
   }
 
   @Test
   public void itDoesNotReferentialDeferForSetVars() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "does-not-referential-defer-for-set-vars"
+      "does-not-referential-defer-for-set-vars/test"
     );
   }
 
   @Test
   public void itKeepsScopeIsolationFromForLoops() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "keeps-scope-isolation-from-for-loops"
+      "keeps-scope-isolation-from-for-loops/test"
     );
   }
 
   @Test
   public void itDoesNotOverrideImportModificationInFor() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "does-not-override-import-modification-in-for"
+      "does-not-override-import-modification-in-for/test"
     );
   }
 
@@ -1219,17 +1254,17 @@ public class EagerTest {
   public void itDoesNotOverrideImportModificationInForSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
-      "does-not-override-import-modification-in-for.expected"
+      "does-not-override-import-modification-in-for/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "does-not-override-import-modification-in-for.expected"
+      "does-not-override-import-modification-in-for/test.expected"
     );
   }
 
   @Test
   public void itHandlesDeferredForLoopVarFromMacro() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "handles-deferred-for-loop-var-from-macro"
+      "handles-deferred-for-loop-var-from-macro/test"
     );
   }
 
@@ -1237,31 +1272,31 @@ public class EagerTest {
   public void itHandlesDeferredForLoopVarFromMacroSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-deferred-for-loop-var-from-macro.expected"
+      "handles-deferred-for-loop-var-from-macro/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "handles-deferred-for-loop-var-from-macro.expected"
+      "handles-deferred-for-loop-var-from-macro/test.expected"
     );
   }
 
   @Test
   public void itReconstructsBlockSetVariablesInForLoop() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "reconstructs-block-set-variables-in-for-loop"
+      "reconstructs-block-set-variables-in-for-loop/test"
     );
   }
 
   @Test
   public void itReconstructsNullVariablesInDeferredCaller() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "reconstructs-null-variables-in-deferred-caller"
+      "reconstructs-null-variables-in-deferred-caller/test"
     );
   }
 
   @Test
   public void itReconstructsNamespaceForSetTagsUsingPeriod() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "reconstructs-namespace-for-set-tags-using-period"
+      "reconstructs-namespace-for-set-tags-using-period/test"
     );
   }
 
@@ -1269,33 +1304,35 @@ public class EagerTest {
   public void itReconstructsNamespaceForSetTagsUsingPeriodSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
-      "reconstructs-namespace-for-set-tags-using-period.expected"
+      "reconstructs-namespace-for-set-tags-using-period/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "reconstructs-namespace-for-set-tags-using-period.expected"
+      "reconstructs-namespace-for-set-tags-using-period/test.expected"
     );
   }
 
   @Test
   public void itUsesUniqueMacroNames() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "uses-unique-macro-names"
+      "uses-unique-macro-names/test"
     );
   }
 
   @Test
   public void itUsesUniqueMacroNamesSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
-    expectedTemplateInterpreter.assertExpectedOutput("uses-unique-macro-names.expected");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "uses-unique-macro-names/test.expected"
+    );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "uses-unique-macro-names.expected"
+      "uses-unique-macro-names/test.expected"
     );
   }
 
   @Test
   public void itReconstructsWordsFromInsideNestedExpressions() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "reconstructs-words-from-inside-nested-expressions"
+      "reconstructs-words-from-inside-nested-expressions/test"
     );
   }
 
@@ -1303,19 +1340,21 @@ public class EagerTest {
   public void itReconstructsWordsFromInsideNestedExpressionsSecondPass() {
     interpreter.getContext().put("deferred", new PyList(new ArrayList<>()));
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "reconstructs-words-from-inside-nested-expressions.expected"
+      "reconstructs-words-from-inside-nested-expressions/test.expected"
     );
   }
 
   @Test
   public void itDoesNotReconstructExtraTimes() {
-    expectedTemplateInterpreter.assertExpectedOutput("does-not-reconstruct-extra-times");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "does-not-reconstruct-extra-times/test"
+    );
   }
 
   @Test
   public void itAllowsModificationInResolvedForLoop() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "allows-modification-in-resolved-for-loop"
+      "allows-modification-in-resolved-for-loop/test"
     );
   }
 
@@ -1323,21 +1362,21 @@ public class EagerTest {
   @Ignore // Test isn't necessary after https://github.com/HubSpot/jinjava/pull/988 got reverted
   public void itOnlyDefersLoopItemOnCurrentContext() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "only-defers-loop-item-on-current-context"
+      "only-defers-loop-item-on-current-context/test"
     );
   }
 
   @Test
   public void itRunsMacroFunctionInDeferredExecutionMode() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "runs-macro-function-in-deferred-execution-mode"
+      "runs-macro-function-in-deferred-execution-mode/test"
     );
   }
 
   @Test
   public void itKeepsMacroModificationsInScope() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "keeps-macro-modifications-in-scope"
+      "keeps-macro-modifications-in-scope/test"
     );
   }
 
@@ -1345,17 +1384,17 @@ public class EagerTest {
   public void itKeepsMacroModificationsInScopeSecondPass() {
     interpreter.getContext().put("deferred", true);
     expectedTemplateInterpreter.assertExpectedOutput(
-      "keeps-macro-modifications-in-scope.expected"
+      "keeps-macro-modifications-in-scope/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "keeps-macro-modifications-in-scope.expected"
+      "keeps-macro-modifications-in-scope/test.expected"
     );
   }
 
   @Test
   public void itDoesNotReconstructVariableInWrongScope() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "does-not-reconstruct-variable-in-wrong-scope"
+      "does-not-reconstruct-variable-in-wrong-scope/test"
     );
   }
 
@@ -1363,45 +1402,45 @@ public class EagerTest {
   public void itDoesNotReconstructVariableInWrongScopeSecondPass() {
     interpreter.getContext().put("deferred", true);
     expectedTemplateInterpreter.assertExpectedOutput(
-      "does-not-reconstruct-variable-in-wrong-scope.expected"
+      "does-not-reconstruct-variable-in-wrong-scope/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "does-not-reconstruct-variable-in-wrong-scope.expected"
+      "does-not-reconstruct-variable-in-wrong-scope/test.expected"
     );
   }
 
   @Test
   public void itReconstructsDeferredVariableEventually() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "reconstructs-deferred-variable-eventually"
+      "reconstructs-deferred-variable-eventually/test"
     );
   }
 
   @Test
   public void itDoesntDoubleAppendInDeferredSet() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "doesnt-double-append-in-deferred-set"
+      "doesnt-double-append-in-deferred-set/test"
     );
   }
 
   @Test
   public void itDoesntDoubleAppendInDeferredMacro() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "doesnt-double-append-in-deferred-macro"
+      "doesnt-double-append-in-deferred-macro/test"
     );
   }
 
   @Test
   public void itDoesNotReconstructVariableInSetInWrongScope() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "does-not-reconstruct-variable-in-set-in-wrong-scope"
+      "does-not-reconstruct-variable-in-set-in-wrong-scope/test"
     );
   }
 
   @Test
   public void itRreconstructsValueUsedInDeferredImportedMacro() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "reconstructs-value-used-in-deferred-imported-macro"
+      "reconstructs-value-used-in-deferred-imported-macro/test"
     );
   }
 
@@ -1409,17 +1448,17 @@ public class EagerTest {
   public void itRreconstructsValueUsedInDeferredImportedMacroSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
-      "reconstructs-value-used-in-deferred-imported-macro.expected"
+      "reconstructs-value-used-in-deferred-imported-macro/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "reconstructs-value-used-in-deferred-imported-macro.expected"
+      "reconstructs-value-used-in-deferred-imported-macro/test.expected"
     );
   }
 
   @Test
   public void itAllowsDeferredLazyReferenceToGetOverridden() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "allows-deferred-lazy-reference-to-get-overridden"
+      "allows-deferred-lazy-reference-to-get-overridden/test"
     );
   }
 
@@ -1427,17 +1466,17 @@ public class EagerTest {
   public void itAllowsDeferredLazyReferenceToGetOverriddenSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
-      "allows-deferred-lazy-reference-to-get-overridden.expected"
+      "allows-deferred-lazy-reference-to-get-overridden/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "allows-deferred-lazy-reference-to-get-overridden.expected"
+      "allows-deferred-lazy-reference-to-get-overridden/test.expected"
     );
   }
 
   @Test
   public void itCommitsVariablesFromDoTagWhenPartiallyResolved() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "commits-variables-from-do-tag-when-partially-resolved"
+      "commits-variables-from-do-tag-when-partially-resolved/test"
     );
   }
 
@@ -1445,24 +1484,24 @@ public class EagerTest {
   public void itCommitsVariablesFromDoTagWhenPartiallyResolvedSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "commits-variables-from-do-tag-when-partially-resolved.expected"
+      "commits-variables-from-do-tag-when-partially-resolved/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedOutput(
-      "commits-variables-from-do-tag-when-partially-resolved.expected"
+      "commits-variables-from-do-tag-when-partially-resolved/test.expected"
     );
   }
 
   @Test
   public void itFindsDeferredWordsInsideReconstructedString() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "finds-deferred-words-inside-reconstructed-string"
+      "finds-deferred-words-inside-reconstructed-string/test"
     );
   }
 
   @Test
   public void itReconstructsNestedValueInStringRepresentation() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "reconstructs-nested-value-in-string-representation"
+      "reconstructs-nested-value-in-string-representation/test"
     );
   }
 
@@ -1470,10 +1509,10 @@ public class EagerTest {
   public void itReconstructsNestedValueInStringRepresentationSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
-      "reconstructs-nested-value-in-string-representation.expected"
+      "reconstructs-nested-value-in-string-representation/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "reconstructs-nested-value-in-string-representation.expected"
+      "reconstructs-nested-value-in-string-representation/test.expected"
     );
   }
 
@@ -1481,7 +1520,7 @@ public class EagerTest {
   public void itDefersLoopSettingMetaContextVar() {
     interpreter.getContext().addMetaContextVariables(Collections.singleton("content"));
     expectedTemplateInterpreter.assertExpectedOutput(
-      "defers-loop-setting-meta-context-var"
+      "defers-loop-setting-meta-context-var/test"
     );
   }
 
@@ -1490,24 +1529,24 @@ public class EagerTest {
     interpreter.getContext().put("deferred", "resolved");
     interpreter.getContext().addMetaContextVariables(Collections.singleton("content"));
     expectedTemplateInterpreter.assertExpectedOutput(
-      "defers-loop-setting-meta-context-var.expected"
+      "defers-loop-setting-meta-context-var/test.expected"
     );
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
-      "defers-loop-setting-meta-context-var.expected"
+      "defers-loop-setting-meta-context-var/test.expected"
     );
   }
 
   @Test
   public void itAllowsVariableSharingAliasName() {
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
-      "allows-variable-sharing-alias-name"
+      "allows-variable-sharing-alias-name/test"
     );
   }
 
   @Test
   public void itFailsOnModificationInAliasedMacro() {
     String input = expectedTemplateInterpreter.getFixtureTemplate(
-      "fails-on-modification-in-aliased-macro"
+      "fails-on-modification-in-aliased-macro/test"
     );
     interpreter.render(input);
     // We don't support this
@@ -1517,7 +1556,7 @@ public class EagerTest {
   @Test
   public void itHandlesDeferredModificationInCaller() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-deferred-modification-in-caller"
+      "handles-deferred-modification-in-caller/test"
     );
   }
 
@@ -1525,27 +1564,27 @@ public class EagerTest {
   public void itHandlesDeferredModificationInCallerSecondPass() {
     interpreter.getContext().put("deferred", "c");
     expectedTemplateInterpreter.assertExpectedOutput(
-      "handles-deferred-modification-in-caller.expected"
+      "handles-deferred-modification-in-caller/test.expected"
     );
   }
 
   @Test
   public void itPreservesRawInsideDeferredSetBlock() {
     expectedTemplateInterpreter.assertExpectedOutput(
-      "preserves-raw-inside-deferred-set-block"
+      "preserves-raw-inside-deferred-set-block/test"
     );
   }
 
   @Test
   public void itReconstructsAliasedMacro() {
-    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-aliased-macro");
+    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-aliased-macro/test");
   }
 
   @Test
   public void itReconstructsAliasedMacroSecondPass() {
     interpreter.getContext().put("deferred", "resolved");
     expectedTemplateInterpreter.assertExpectedOutput(
-      "reconstructs-aliased-macro.expected"
+      "reconstructs-aliased-macro/test.expected"
     );
   }
 
