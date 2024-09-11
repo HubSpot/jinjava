@@ -10,6 +10,7 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueShadow;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.MetaContextVariables;
 import com.hubspot.jinjava.interpret.OneTimeReconstructible;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
@@ -21,7 +22,6 @@ import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.lib.tag.eager.EagerSetTagStrategy;
-import com.hubspot.jinjava.lib.tag.eager.importing.AliasedEagerImportingStrategy;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.objects.serialization.PyishBlockSetSerializable;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
@@ -312,12 +312,11 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter,
     int depth
   ) {
-    Set<String> metaContextVariables = interpreter
-      .getContext()
-      .getComputedMetaContextVariables();
     deferredWords
       .stream()
-      .filter(w -> !metaContextVariables.contains(w))
+      .filter(w ->
+        !MetaContextVariables.isMetaContextVariable(w, interpreter.getContext())
+      )
       .filter(w -> !prefixToPreserveState.containsKey(w))
       .map(word ->
         new AbstractMap.SimpleImmutableEntry<>(word, interpreter.getContext().get(word))
@@ -482,7 +481,7 @@ public class EagerReconstructionUtils {
       // This ensures they are properly aligned to each other.
       vars.add(key);
       values.add(value);
-      if (!AliasedEagerImportingStrategy.isTemporaryImportAlias(value)) {
+      if (!MetaContextVariables.isTemporaryImportAlias(value)) {
         varsRequiringSuffix.add(key);
       }
     });
@@ -919,8 +918,7 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter
   ) {
     String blockPath = RelativePathResolver.getCurrentPathFromStackOrKey(interpreter);
-    String tempVarName =
-      "temp_current_path_" + Math.abs(Objects.hash(blockPath, "temp_current_path_") >> 1);
+    String tempVarName = MetaContextVariables.getTemporaryCurrentPathVarName(blockPath);
     prefix.setValue(
       buildSetTag(
         ImmutableMap.of(
@@ -954,8 +952,7 @@ public class EagerReconstructionUtils {
     String newPath,
     JinjavaInterpreter interpreter
   ) {
-    String tempVarName =
-      "temp_current_path_" + Math.abs(Objects.hash(newPath, "temp_current_path_") >> 1);
+    String tempVarName = MetaContextVariables.getTemporaryCurrentPathVarName(newPath);
     return (
       buildSetTag(
         ImmutableMap.of(

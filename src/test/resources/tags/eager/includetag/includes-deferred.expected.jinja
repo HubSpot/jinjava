@@ -1,7 +1,7 @@
 Foo begins as: abc
-{% set temp_current_path_772637950,current_path = current_path,'sets-to-deferred.jinja' %}\
+{% set __temp_meta_current_path_38651297__,current_path = current_path,'sets-to-deferred.jinja' %}\
 {% set foo = deferred %}
 foo is now {{ deferred }}\
 .
-{% set current_path,temp_current_path_772637950 = temp_current_path_772637950,null %}
+{% set current_path,__temp_meta_current_path_38651297__ = __temp_meta_current_path_38651297__,null %}
 Foo ends as: {{ foo }}

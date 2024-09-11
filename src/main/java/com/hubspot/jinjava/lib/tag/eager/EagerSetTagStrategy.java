@@ -3,8 +3,8 @@ package com.hubspot.jinjava.lib.tag.eager;
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.MetaContextVariables;
 import com.hubspot.jinjava.lib.tag.SetTag;
-import com.hubspot.jinjava.lib.tag.eager.importing.AliasedEagerImportingStrategy;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
@@ -180,16 +180,17 @@ public abstract class EagerSetTagStrategy {
     JinjavaInterpreter interpreter
   ) {
     StringBuilder suffixToPreserveState = new StringBuilder();
-    Optional<String> maybeTemporaryImportAlias =
-      AliasedEagerImportingStrategy.getTemporaryImportAlias(interpreter.getContext());
+    Optional<String> maybeTemporaryImportAlias = interpreter
+      .getContext()
+      .getImportResourceAlias()
+      .map(MetaContextVariables::getTemporaryImportAlias);
     if (maybeTemporaryImportAlias.isPresent()) {
       boolean stillInsideImportTag = interpreter
         .getContext()
         .containsKey(maybeTemporaryImportAlias.get());
       List<String> filteredVars = varStream
-        .filter(var -> !AliasedEagerImportingStrategy.isTemporaryImportAlias(var))
         .filter(var ->
-          !interpreter.getContext().getComputedMetaContextVariables().contains(var)
+          !MetaContextVariables.isMetaContextVariable(var, interpreter.getContext())
         )
         .peek(var -> {
           if (!stillInsideImportTag) {

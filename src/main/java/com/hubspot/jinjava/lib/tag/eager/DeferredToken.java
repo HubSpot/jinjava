@@ -10,6 +10,7 @@ import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueShadow;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.MetaContextVariables;
 import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
@@ -376,7 +377,7 @@ public class DeferredToken {
         }
         return !(val instanceof DeferredValue);
       })
-      .filter(prop -> !context.getComputedMetaContextVariables().contains(prop))
+      .filter(prop -> !MetaContextVariables.isMetaContextVariable(prop, context))
       .filter(prop -> {
         DeferredValue deferredValue = convertToDeferredValue(context, prop);
         context.put(prop, deferredValue);

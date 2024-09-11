@@ -337,6 +337,9 @@ public class Context extends ScopeMap<String, Object> {
     }
   }
 
+  /**
+   * @deprecated Use {@link MetaContextVariables#isMetaContextVariable(String, Context)}
+   */
   @Deprecated
   @Beta
   public Set<String> getMetaContextVariables() {
@@ -344,13 +347,17 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   @Beta
-  public Set<String> getComputedMetaContextVariables() {
+  Set<String> getComputedMetaContextVariables() {
     return Sets.difference(metaContextVariables, overriddenNonMetaContextVariables);
   }
 
   @Beta
   public void addMetaContextVariables(Collection<String> variables) {
     metaContextVariables.addAll(variables);
+  }
+
+  Set<String> getNonMetaContextVariables() {
+    return overriddenNonMetaContextVariables;
   }
 
   @Beta

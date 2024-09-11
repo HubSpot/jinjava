@@ -6,6 +6,9 @@ import static org.assertj.core.api.Assertions.fail;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
+import com.hubspot.jinjava.loader.RelativePathResolver;
+import com.hubspot.jinjava.mode.EagerExecutionMode;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -91,6 +94,30 @@ public class ContextTest {
     } finally {
       JinjavaInterpreter.popCurrent();
     }
+  }
+
+  @Test
+  public void itRemovesOtherMetaContextVariables() {
+    String variableName = "foo";
+    EagerExecutionMode.instance().prepareContext(context);
+    context.addMetaContextVariables(Collections.singleton(variableName));
+    assertThat(context.getComputedMetaContextVariables()).contains(variableName);
+    context.addNonMetaContextVariables(Collections.singleton(variableName));
+    assertThat(context.getComputedMetaContextVariables()).doesNotContain(variableName);
+    context.removeNonMetaContextVariables(Collections.singleton(variableName));
+    assertThat(context.getComputedMetaContextVariables()).contains(variableName);
+  }
+
+  @Test
+  public void itDoesNotRemoveStaticMetaContextVariables() {
+    EagerExecutionMode.instance().prepareContext(context);
+    assertThat(context.getComputedMetaContextVariables())
+      .contains(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY);
+    context.addNonMetaContextVariables(
+      Collections.singleton(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY)
+    );
+    assertThat(context.getComputedMetaContextVariables())
+      .contains(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY);
   }
 
   public static void throwException() {

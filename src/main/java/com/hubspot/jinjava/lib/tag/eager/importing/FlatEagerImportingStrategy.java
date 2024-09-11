@@ -5,12 +5,12 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.MetaContextVariables;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.ImportTag;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class FlatEagerImportingStrategy implements EagerImportingStrategy {
@@ -65,11 +65,8 @@ public class FlatEagerImportingStrategy implements EagerImportingStrategy {
   @Override
   public String getFinalOutput(String output, JinjavaInterpreter child) {
     if (importingData.getOriginalInterpreter().getContext().isDeferredExecutionMode()) {
-      Set<String> metaContextVariables = importingData
-        .getOriginalInterpreter()
-        .getContext()
-        .getComputedMetaContextVariables();
       // defer imported variables
+      Context context = importingData.getOriginalInterpreter().getContext();
       EagerReconstructionUtils.buildSetTag(
         child
           .getContext()
@@ -79,7 +76,9 @@ public class FlatEagerImportingStrategy implements EagerImportingStrategy {
           .filter(entry ->
             !(entry.getValue() instanceof DeferredValue) && entry.getValue() != null
           )
-          .filter(entry -> !metaContextVariables.contains(entry.getKey()))
+          .filter(entry ->
+            !MetaContextVariables.isMetaContextVariable(entry.getKey(), context)
+          )
           .collect(Collectors.toMap(Entry::getKey, entry -> "")),
         importingData.getOriginalInterpreter(),
         true
