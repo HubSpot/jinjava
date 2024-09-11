@@ -562,10 +562,16 @@ public class EagerImportTagTest extends ImportTagTest {
     );
     assertThat(result.trim())
       .isEqualTo(
-        "{% set var = [] %}{% do var.append('a' ~ deferred) %}" +
-        "a\n" +
+        "{% set var = [] %}" +
+        "{% set __macro_adjust_108896029_temp_variable_0__ %}" +
+        "{% do var.append('a' ~ deferred) %}" +
+        "a" +
+        "{% endset %}" +
+        "{{ __macro_adjust_108896029_temp_variable_0__ }}\n" +
+        "{% for __ignored__ in [0] %}" +
         "{% do var.append('b' ~ deferred) %}" +
-        "b\n" +
+        "b" +
+        "{% endfor %}\n" +
         "c{{ var }}"
       );
     context.put("deferred", "resolved");
