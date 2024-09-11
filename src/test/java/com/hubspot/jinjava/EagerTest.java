@@ -1634,4 +1634,14 @@ public class EagerTest {
       "keeps-meta-context-variables-through-import/test"
     );
   }
+
+  @Test
+  public void itWrapsMacroThatWouldChangeCurrentPathInChildScope() {
+    interpreter
+      .getContext()
+      .put(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY, "starting path");
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "wraps-macro-that-would-change-current-path-in-child-scope/test"
+    );
+  }
 }
