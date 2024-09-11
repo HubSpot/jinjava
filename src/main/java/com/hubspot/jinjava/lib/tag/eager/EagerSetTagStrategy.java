@@ -5,6 +5,7 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MetaContextVariables;
 import com.hubspot.jinjava.lib.tag.SetTag;
+import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
@@ -53,9 +54,14 @@ public abstract class EagerSetTagStrategy {
       expression,
       interpreter
     );
+    boolean triedResolve = false;
     if (
       eagerExecutionResult.getResult().isFullyResolved() &&
-      !interpreter.getContext().isDeferredExecutionMode()
+      !interpreter.getContext().isDeferredExecutionMode() &&
+      (Arrays
+          .stream(variables)
+          .noneMatch(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY::equals) ||
+        interpreter.getContext().getPenultimateParent().getDeferredTokens().isEmpty()) // Prevents set tags from disappearing in nested interpretation
     ) {
       EagerReconstructionUtils.commitSpeculativeBindings(
         interpreter,
@@ -67,6 +73,7 @@ public abstract class EagerSetTagStrategy {
         eagerExecutionResult,
         interpreter
       );
+      triedResolve = true;
       if (maybeResolved.isPresent()) {
         return maybeResolved.get();
       }
@@ -77,10 +84,7 @@ public abstract class EagerSetTagStrategy {
       eagerExecutionResult,
       interpreter
     );
-    if (
-      eagerExecutionResult.getResult().isFullyResolved() &&
-      interpreter.getContext().isDeferredExecutionMode()
-    ) {
+    if (eagerExecutionResult.getResult().isFullyResolved() && !triedResolve) {
       attemptResolve(tagNode, variables, eagerExecutionResult, interpreter);
     }
     return buildImage(tagNode, variables, eagerExecutionResult, triple, interpreter);

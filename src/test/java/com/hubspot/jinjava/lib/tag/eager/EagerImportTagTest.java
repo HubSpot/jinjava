@@ -331,6 +331,7 @@ public class EagerImportTagTest extends ImportTagTest {
     removeDeferredContextKeys();
     context.put("a_val", "a");
     // There are some extras due to deferred values copying up the context stack.
+    context.getDeferredTokens().clear();
     assertThat(interpreter.render(result).trim())
       .isEqualTo(
         interpreter.render(
@@ -363,6 +364,7 @@ public class EagerImportTagTest extends ImportTagTest {
     removeDeferredContextKeys();
 
     context.put("a_val", "a");
+    context.getDeferredTokens().clear();
     assertThat(interpreter.render(result).trim()).isEqualTo("12345 cbaabaaba");
   }
 
@@ -655,6 +657,7 @@ public class EagerImportTagTest extends ImportTagTest {
         "{{ vars.foo }}"
       );
     interpreter.getContext().put("deferred", "resolved");
+    context.getDeferredTokens().clear();
     assertThat(interpreter.render(result)).isEqualTo("ab");
   }
 
@@ -687,6 +690,7 @@ public class EagerImportTagTest extends ImportTagTest {
       );
 
     interpreter.getContext().put("deferred", "resolved");
+    context.getDeferredTokens().clear();
     assertThat(interpreter.render(result)).isEqualTo("ab");
   }
 
