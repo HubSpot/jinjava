@@ -1,4 +1,13 @@
 # Jinjava Releases #
+### 2024-09-12 Version 2.7.3 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.3/jar)) ###
+* [Add support for numeric keys in map literal](https://github.com/HubSpot/jinjava/pull/1152)
+* [Add feature to consider undefined variable a TemplateError](https://github.com/HubSpot/jinjava/pull/1174)
+* [Improve Optional value serialization](https://github.com/HubSpot/jinjava/pull/1175)
+* [Fix bug where extends roots were processed inside of the RenderFilter](https://github.com/HubSpot/jinjava/pull/1159)
+* [Don't allow illegal characters in XmlAttrFilter](https://github.com/HubSpot/jinjava/pull/1179)
+* [Limit string length in `+` and `~` operators](https://github.com/HubSpot/jinjava/pull/1161)
+* Fix various RuntimeExceptions in filters and functions
+* Updates dependency versions
 ### 2024-02-12 Version 2.7.2 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.2/jar)) ###
 * [Use interpreter's locale for strftime functions](https://github.com/HubSpot/jinjava/pull/1109)
 * [Prevent infinite hashCode recursion in PyList or PyMap](https://github.com/HubSpot/jinjava/pull/1112)
