@@ -1,0 +1,40 @@
+{% do %}\
+{% set current_path = 'eager/supplements/deferred-modification.jinja' %}\
+{% set __temp_import_alias_3016318__ = {}  %}\
+{% for __ignored__ in [0] %}\
+{% if deferred %}
+
+{% set foo = 'a' %}\
+{% do __temp_import_alias_3016318__.update({'foo': foo}) %}
+
+{% endif %}
+
+{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}\
+{% do __temp_import_alias_3016318__.update({'foo': foo}) %}
+{% do __temp_import_alias_3016318__.update({'foo': foo,'import_resource_path': 'eager/supplements/deferred-modification.jinja'}) %}\
+{% endfor %}\
+{% set bar1 = __temp_import_alias_3016318__ %}\
+{% set current_path = 'eager/handles-double-import-modification/test.jinja' %}\
+{% enddo %}
+---
+{% do %}\
+{% set current_path = 'eager/supplements/deferred-modification.jinja' %}\
+{% set __temp_import_alias_3016319__ = {}  %}\
+{% for __ignored__ in [0] %}\
+{% if deferred %}
+
+{% set foo = 'a' %}\
+{% do __temp_import_alias_3016319__.update({'foo': foo}) %}
+
+{% endif %}
+
+{% set foo = filter:join.filter([foo, 'b'], ____int3rpr3t3r____, '') %}\
+{% do __temp_import_alias_3016319__.update({'foo': foo}) %}
+{% do __temp_import_alias_3016319__.update({'foo': foo,'import_resource_path': 'eager/supplements/deferred-modification.jinja'}) %}\
+{% endfor %}\
+{% set bar2 = __temp_import_alias_3016319__ %}\
+{% set current_path = 'eager/handles-double-import-modification/test.jinja' %}\
+{% enddo %}
+---
+{{ bar1.foo }}
+{{ bar2.foo }}

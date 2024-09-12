@@ -1,0 +1,8 @@
+{% set myname = deferred %}
+{% macro foo() %}
+Goodbye {{ myname }}
+{% endmacro %}
+{% set a =  foo()|upper %}
+{% import './macro-with-filter.jinja' %}
+{{ a }}
+{{ b }}

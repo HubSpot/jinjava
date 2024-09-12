@@ -1,0 +1,10 @@
+{% set primary_line_height = 100 %}
+{% set secondary_line_height = 200 %}
+{% if deferred %}
+{% import "../supplements/set-val.jinja" as simple %}
+{% else %}
+{% import "../supplements/set-val.jinja" %}
+{% endif %}
+simple.primary_line_height (deferred): {{ simple.primary_line_height }}
+primary_line_height (deferred): {{ primary_line_height }}
+secondary_line_height: {{ secondary_line_height }}

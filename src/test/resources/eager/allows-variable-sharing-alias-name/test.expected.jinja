@@ -1,0 +1,17 @@
+{% do %}\
+{% set current_path = 'eager/allows-variable-sharing-alias-name/filters.jinja' %}\
+{% set __temp_import_alias_854547461__ = {}  %}\
+{% for __ignored__ in [0] %}
+{% set bar = deferred %}\
+{% do __temp_import_alias_854547461__.update({'bar': bar}) %}
+
+{% set filters = {}  %}\
+{% do __temp_import_alias_854547461__.update({'filters': filters}) %}\
+{% do filters.update(deferred) %}
+{% do __temp_import_alias_854547461__.update({'bar': bar,'foo': 123,'import_resource_path': 'eager/allows-variable-sharing-alias-name/filters.jinja','filters': filters}) %}\
+{% endfor %}\
+{% set filters = __temp_import_alias_854547461__ %}\
+{% set current_path = 'eager/allows-variable-sharing-alias-name/test.jinja' %}\
+{% enddo %}
+
+{{ filters }}

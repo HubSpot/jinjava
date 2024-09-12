@@ -1,0 +1,28 @@
+{% set myname = deferred + 3 %}\
+{% do %}
+{% set bar = myname + 19 %}
+Hello {{ myname }}
+{% enddo %}\
+foo: Hello {{ myname }}
+bar: {{ bar }}
+---
+{% set myname = deferred + 7 %}\
+{% do %}\
+{% set current_path = 'eager/supplements/macro-and-set.jinja' %}\
+{% set __temp_import_alias_902286926__ = {}  %}\
+{% for __ignored__ in [0] %}
+{% set bar = myname + 19 %}\
+{% do __temp_import_alias_902286926__.update({'bar': bar}) %}
+Hello {{ myname }}
+{% do __temp_import_alias_902286926__.update({'import_resource_path': 'eager/supplements/macro-and-set.jinja'}) %}\
+{% endfor %}\
+{% set simple = __temp_import_alias_902286926__ %}\
+{% set current_path = 'eager/handles-deferred-import-vars/test.jinja' %}\
+{% enddo %}\
+simple.foo: {% set deferred_import_resource_path = 'eager/supplements/macro-and-set.jinja' %}\
+{% macro simple.foo() %}\
+Hello {{ myname }}\
+{% endmacro %}\
+{% set deferred_import_resource_path = null %}\
+{{ simple.foo() }}
+simple.bar: {{ simple.bar }}

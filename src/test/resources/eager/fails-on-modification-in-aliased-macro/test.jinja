@@ -1,0 +1,6 @@
+{% import './settings.jinja' as shared %}
+
+{% if deferred %}
+{{ shared.load_settings() }}
+{% endif %}
+{{ shared.settings }}
