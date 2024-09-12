@@ -1,3 +1,5 @@
-{% set foo = 'a' %}{% do deferred.append('{{ foo }}') %}
+{% set foo = 'a' %}\
+{% do deferred.append('{{ foo }}\
+') %}
 {{ deferred[0] }}
 {% print deferred[0] %}

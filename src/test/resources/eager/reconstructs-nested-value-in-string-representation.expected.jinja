@@ -1,15 +1,30 @@
-{% set i_am = 'I am' %}{% set bar = '{{ i_am }} bar' %}{% set foo = '{{ i_am }} foo' %}{% set map_with_vals = {'foo': 'Foo is {{ foo }}.'}  %}{% if deferred %}
-{% do map_with_vals.put('bar', 'Bar is {{ bar }}.') %}
+{% set i_am = 'I am' %}\
+{% set bar = '{{ i_am }} bar' %}\
+{% set foo = '{{ i_am }} foo' %}\
+{% set map_with_vals = {'foo': 'Foo is {{ foo }}\
+.'}  %}\
+{% if deferred %}
+{% do map_with_vals.put('bar', 'Bar is {{ bar }}\
+.') %}
 {% endif %}
 map.foo: {{ map_with_vals.foo }}
 map.bar: {{ map_with_vals.bar }}
 
-{% set a = 'a' %}{% set aa = '{{ a }}' %}{% if deferred %}
-{% set aaa = '{{ aa }}' %}
+{% set a = 'a' %}\
+{% set aa = '{{ a }}\
+' %}\
+{% if deferred %}
+{% set aaa = '{{ aa }}\
+' %}
 {{ aa }}
 {% endif %}
 
-{% set b = 'b' %}{% set bb = '{{ b }}' %}{% if deferred %}
-{% set bbb = {'b': '{{ bb }}'}  %}
-{'b': '{{ bb }}'}
+{% set b = 'b' %}\
+{% set bb = '{{ b }}\
+' %}\
+{% if deferred %}
+{% set bbb = {'b': '{{ bb }}\
+'}  %}
+{'b': '{{ bb }}\
+'}
 {% endif %}

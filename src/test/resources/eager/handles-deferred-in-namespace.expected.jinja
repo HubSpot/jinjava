@@ -1,5 +1,7 @@
-{% set ns2 = namespace({} ) %}{% do ns2.update({'a': deferred}) %}
-{% set ns1 = namespace({'a': false} ) %}{% if deferred %}
+{% set ns2 = namespace({} ) %}\
+{% do ns2.update({'a': deferred}) %}
+{% set ns1 = namespace({'a': false} ) %}\
+{% if deferred %}
   {% set ns1.a = true %}
 {% endif %}
 {{ ns1.a }}

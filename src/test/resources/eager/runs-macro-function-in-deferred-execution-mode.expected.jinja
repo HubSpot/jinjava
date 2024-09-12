@@ -1,7 +1,9 @@
-{% set holder = {'val': -1}  %}{% for i in range(deferred) %}
+{% set holder = {'val': -1}  %}\
+{% for i in range(deferred) %}
 {% set __macro_modify_615470226_temp_variable_1__ %}
 {% do holder.update({'val': holder.val + 1}) %}
-{% endset %}{% do __macro_modify_615470226_temp_variable_1__ %}
+{% endset %}\
+{% do __macro_modify_615470226_temp_variable_1__ %}
 {% if holder.val >= 1 %}
 {{ i }}
 {% endif %}

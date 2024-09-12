@@ -1,7 +1,20 @@
 {% for __ignored__ in [0] %}
 {% set c = [1, deferred] %}
-{% if exptest:iterable.evaluate(c, ____int3rpr3t3r____) %}{{ c[0 % filter:length.filter(c, ____int3rpr3t3r____)] }}{% else %}{{ c }}{% endif %}
+{% if exptest:iterable.evaluate(c, ____int3rpr3t3r____) %}\
+{{ c[0 % filter:length.filter(c, ____int3rpr3t3r____)] }}\
+{% else %}\
+{{ c }}\
+{% endif %}
 {% set c = [2, deferred] %}
-{% if exptest:iterable.evaluate(c, ____int3rpr3t3r____) %}{{ c[1 % filter:length.filter(c, ____int3rpr3t3r____)] }}{% else %}{{ c }}{% endif %}
+{% if exptest:iterable.evaluate(c, ____int3rpr3t3r____) %}\
+{{ c[1 % filter:length.filter(c, ____int3rpr3t3r____)] }}\
+{% else %}\
+{{ c }}\
+{% endif %}
 {% set c = [3, deferred] %}
-{% if exptest:iterable.evaluate(c, ____int3rpr3t3r____) %}{{ c[2 % filter:length.filter(c, ____int3rpr3t3r____)] }}{% else %}{{ c }}{% endif %}{% endfor %}
+{% if exptest:iterable.evaluate(c, ____int3rpr3t3r____) %}\
+{{ c[2 % filter:length.filter(c, ____int3rpr3t3r____)] }}\
+{% else %}\
+{{ c }}\
+{% endif %}\
+{% endfor %}

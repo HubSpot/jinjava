@@ -1,7 +1,11 @@
-{% set ns1 = namespace({'a': 'aa'} ) %}{% set ns1.b = 'b ' ~ deferred %}
+{% set ns1 = namespace({'a': 'aa'} ) %}\
+{% set ns1.b = 'b ' ~ deferred %}
 
 
-{% set ns2 = namespace({'c': 'cc'} ) %}{% set ns2.d %}d {{ deferred }}{% endset %}
+{% set ns2 = namespace({'c': 'cc'} ) %}\
+{% set ns2.d %}\
+d {{ deferred }}\
+{% endset %}
 
 {{ ns1 }}
 {{ ns2 }}

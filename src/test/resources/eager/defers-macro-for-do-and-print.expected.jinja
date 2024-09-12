@@ -1,5 +1,15 @@
 Is ([]),
 Macro: [10]
-Is ([10]),{% set my_list = [10] %}{% macro macro_append(num) %}{% do my_list.append(num) %}Macro: {{ my_list }}{% endmacro %}{% do macro_append(deferred) %}
-Is ({{ my_list }}),
-{% macro macro_append(num) %}{% do my_list.append(num) %}Macro: {{ my_list }}{% endmacro %}{% print macro_append(deferred2) %}
+Is ([10]),{% set my_list = [10] %}\
+{% macro macro_append(num) %}\
+{% do my_list.append(num) %}\
+Macro: {{ my_list }}\
+{% endmacro %}\
+{% do macro_append(deferred) %}
+Is ({{ my_list }}\
+),
+{% macro macro_append(num) %}\
+{% do my_list.append(num) %}\
+Macro: {{ my_list }}\
+{% endmacro %}\
+{% print macro_append(deferred2) %}

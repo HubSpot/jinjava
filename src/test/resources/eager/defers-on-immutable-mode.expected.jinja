@@ -1,10 +1,13 @@
-{% set foo = 1 %}{% if deferred %}
+{% set foo = 1 %}\
+{% if deferred %}
 {% set foo = 2 %}
 {% else %}
 {% set foo = 3 %}
 {% endif %}
 {{ foo }}
 
-{% for __ignored__ in [0] %}{% set bar = 1 + deferred %}
+{% for __ignored__ in [0] %}\
+{% set bar = 1 + deferred %}
 {% set bar = bar + deferred %}
-{% endfor %}1
+{% endfor %}\
+1

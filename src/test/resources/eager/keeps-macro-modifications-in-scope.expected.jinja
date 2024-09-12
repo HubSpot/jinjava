@@ -1,10 +1,35 @@
-{% set list = [] %}{% if deferred %}
+{% set list = [] %}\
+{% if deferred %}
 
-{% set __macro_inc_100372882_temp_variable_0__ %}{% do list.append(1) %}1{% set depth = 2 %}
-{% set __macro_inc_100372882_temp_variable_1__ %}{% do list.append(2) %}2{% set depth = 3 %}
-{% set __macro_inc_100372882_temp_variable_2__ %}{% do list.append(3) %}3{% endset %}{{ __macro_inc_100372882_temp_variable_2__ }}
-{% set __macro_inc_100372882_temp_variable_3__ %}{% do list.append(3) %}3{% endset %}{{ __macro_inc_100372882_temp_variable_3__ }}{% endset %}{{ __macro_inc_100372882_temp_variable_1__ }}
-{% set __macro_inc_100372882_temp_variable_4__ %}{% do list.append(2) %}2{% set depth = 3 %}
-{% set __macro_inc_100372882_temp_variable_5__ %}{% do list.append(3) %}3{% endset %}{{ __macro_inc_100372882_temp_variable_5__ }}
-{% set __macro_inc_100372882_temp_variable_6__ %}{% do list.append(3) %}3{% endset %}{{ __macro_inc_100372882_temp_variable_6__ }}{% endset %}{{ __macro_inc_100372882_temp_variable_4__ }}{% endset %}{{ __macro_inc_100372882_temp_variable_0__ }}
+{% set __macro_inc_100372882_temp_variable_0__ %}\
+{% do list.append(1) %}\
+1{% set depth = 2 %}
+{% set __macro_inc_100372882_temp_variable_1__ %}\
+{% do list.append(2) %}\
+2{% set depth = 3 %}
+{% set __macro_inc_100372882_temp_variable_2__ %}\
+{% do list.append(3) %}\
+3{% endset %}\
+{{ __macro_inc_100372882_temp_variable_2__ }}
+{% set __macro_inc_100372882_temp_variable_3__ %}\
+{% do list.append(3) %}\
+3{% endset %}\
+{{ __macro_inc_100372882_temp_variable_3__ }}\
+{% endset %}\
+{{ __macro_inc_100372882_temp_variable_1__ }}
+{% set __macro_inc_100372882_temp_variable_4__ %}\
+{% do list.append(2) %}\
+2{% set depth = 3 %}
+{% set __macro_inc_100372882_temp_variable_5__ %}\
+{% do list.append(3) %}\
+3{% endset %}\
+{{ __macro_inc_100372882_temp_variable_5__ }}
+{% set __macro_inc_100372882_temp_variable_6__ %}\
+{% do list.append(3) %}\
+3{% endset %}\
+{{ __macro_inc_100372882_temp_variable_6__ }}\
+{% endset %}\
+{{ __macro_inc_100372882_temp_variable_4__ }}\
+{% endset %}\
+{{ __macro_inc_100372882_temp_variable_0__ }}
 {% endif %}
