@@ -34,11 +34,6 @@ public interface ContextConfigurationIF {
   }
 
   @Default
-  default boolean isThrowInterpreterErrors() {
-    return false;
-  }
-
-  @Default
   default boolean isPartialMacroEvaluation() {
     return false;
   }
@@ -46,5 +41,44 @@ public interface ContextConfigurationIF {
   @Default
   default boolean isUnwrapRawOverride() {
     return false;
+  }
+
+  @Default
+  default ErrorHandlingStrategy getErrorHandlingStrategy() {
+    return ErrorHandlingStrategy.of();
+  }
+
+  @Immutable(singleton = true)
+  @HubSpotImmutableStyle
+  interface ErrorHandlingStrategyIF {
+    @Default
+    default TemplateErrorTypeHandlingStrategy getFatalErrorStrategy() {
+      return TemplateErrorTypeHandlingStrategy.ADD_ERROR;
+    }
+
+    @Default
+    default TemplateErrorTypeHandlingStrategy getNonFatalErrorStrategy() {
+      return TemplateErrorTypeHandlingStrategy.ADD_ERROR;
+    }
+
+    enum TemplateErrorTypeHandlingStrategy {
+      IGNORE,
+      ADD_ERROR,
+      THROW_EXCEPTION,
+    }
+
+    static ErrorHandlingStrategy throwAll() {
+      return ErrorHandlingStrategy
+        .of()
+        .withFatalErrorStrategy(TemplateErrorTypeHandlingStrategy.THROW_EXCEPTION)
+        .withNonFatalErrorStrategy(TemplateErrorTypeHandlingStrategy.THROW_EXCEPTION);
+    }
+
+    static ErrorHandlingStrategy ignoreAll() {
+      return ErrorHandlingStrategy
+        .of()
+        .withFatalErrorStrategy(TemplateErrorTypeHandlingStrategy.IGNORE)
+        .withNonFatalErrorStrategy(TemplateErrorTypeHandlingStrategy.IGNORE);
+    }
   }
 }

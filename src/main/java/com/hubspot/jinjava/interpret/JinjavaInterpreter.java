@@ -29,6 +29,9 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
+import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF;
+import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF.TemplateErrorTypeHandlingStrategy;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
@@ -83,6 +86,8 @@ public class JinjavaInterpreter implements PyishSerializable {
 
   public static final String OUTPUT_UNDEFINED_VARIABLES_ERROR =
     "OUTPUT_UNDEFINED_VARIABLES_ERROR";
+  public static final String IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS =
+    "IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS";
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
   private final LinkedList<Node> extendParentRoots = new LinkedList<>();
   private final Map<String, RevertibleObject> revertibleObjects = new HashMap<>();
@@ -265,11 +270,28 @@ public class JinjavaInterpreter implements PyishSerializable {
         return template;
       } else {
         context.setRenderDepth(depth + 1);
-        return render(parse(template), false, renderLimit);
+        Node parsedNode;
+        try (
+          TemporaryValueClosable<ErrorHandlingStrategy> c = ignoreParseErrorsIfActivated()
+        ) {
+          parsedNode = parse(template);
+        }
+        return render(parsedNode, false, renderLimit);
       }
     } finally {
       context.setRenderDepth(depth);
     }
+  }
+
+  private TemporaryValueClosable<ErrorHandlingStrategy> ignoreParseErrorsIfActivated() {
+    return config
+        .getFeatures()
+        .getActivationStrategy(
+          JinjavaInterpreter.IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS
+        )
+        .isActive(context)
+      ? context.withErrorHandlingStrategy(ErrorHandlingStrategyIF.ignoreAll())
+      : TemporaryValueClosable.noOp();
   }
 
   /**
@@ -812,46 +834,51 @@ public class JinjavaInterpreter implements PyishSerializable {
     if (templateError == null) {
       return;
     }
-
-    if (context.getThrowInterpreterErrors()) {
-      if (templateError.getSeverity() == ErrorType.FATAL) {
-        // Throw fatal errors when locating deferred words.
+    ErrorHandlingStrategy errorHandlingStrategy = context.getErrorHandlingStrategy();
+    TemplateErrorTypeHandlingStrategy errorTypeHandlingStrategy =
+      templateError.getSeverity() == ErrorType.FATAL
+        ? errorHandlingStrategy.getFatalErrorStrategy()
+        : errorHandlingStrategy.getNonFatalErrorStrategy();
+    switch (errorTypeHandlingStrategy) {
+      case IGNORE:
+        return;
+      case THROW_EXCEPTION:
         throw new TemplateSyntaxException(
           this,
           templateError.getFieldName(),
           templateError.getMessage()
         );
-      } else {
-        // Hide warning errors when locating deferred words.
-        return;
-      }
-    }
-    // fix line numbers not matching up with source template
-    if (!context.getCurrentPathStack().isEmpty()) {
-      if (
-        !templateError.getSourceTemplate().isPresent() &&
-        context.getCurrentPathStack().peek().isPresent()
-      ) {
-        templateError.setMessage(
-          getWrappedErrorMessage(
-            context.getCurrentPathStack().peek().get(),
-            templateError
-          )
-        );
-        templateError.setSourceTemplate(context.getCurrentPathStack().peek().get());
-      }
-      templateError.setStartPosition(context.getCurrentPathStack().getTopStartPosition());
-      templateError.setLineno(context.getCurrentPathStack().getTopLineNumber());
-    }
+      case ADD_ERROR:
+      default: // Checkstyle
+        // fix line numbers not matching up with source template
+        if (!context.getCurrentPathStack().isEmpty()) {
+          if (
+            !templateError.getSourceTemplate().isPresent() &&
+            context.getCurrentPathStack().peek().isPresent()
+          ) {
+            templateError.setMessage(
+              getWrappedErrorMessage(
+                context.getCurrentPathStack().peek().get(),
+                templateError
+              )
+            );
+            templateError.setSourceTemplate(context.getCurrentPathStack().peek().get());
+          }
+          templateError.setStartPosition(
+            context.getCurrentPathStack().getTopStartPosition()
+          );
+          templateError.setLineno(context.getCurrentPathStack().getTopLineNumber());
+        }
 
-    // Limit the number of errors and filter duplicates
-    if (errors.size() < MAX_ERROR_SIZE) {
-      templateError = templateError.withScopeDepth(scopeDepth);
-      int errorCode = templateError.hashCode();
-      if (!errorSet.contains(errorCode)) {
-        this.errors.add(templateError);
-        this.errorSet.add(errorCode);
-      }
+        // Limit the number of errors and filter duplicates
+        if (errors.size() < MAX_ERROR_SIZE) {
+          templateError = templateError.withScopeDepth(scopeDepth);
+          int errorCode = templateError.hashCode();
+          if (!errorSet.contains(errorCode)) {
+            this.errors.add(templateError);
+            this.errorSet.add(errorCode);
+          }
+        }
     }
   }
 

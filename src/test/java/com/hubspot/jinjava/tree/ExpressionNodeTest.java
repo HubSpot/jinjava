@@ -236,6 +236,28 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
     assertThat(val("{{ a }}")).isEqualTo("foo &lt; bar");
   }
 
+  @Test
+  public void itIgnoresParseErrorsWhenFeatureIsEnabled() {
+    final JinjavaConfig config = JinjavaConfig
+      .newBuilder()
+      .withFeatureConfig(
+        FeatureConfig
+          .newBuilder()
+          .add(JinjavaInterpreter.IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS, c -> true)
+          .build()
+      )
+      .build();
+    JinjavaInterpreter interpreter = new Jinjava(config).newInterpreter();
+    Context context = interpreter.getContext();
+    context.put("myvar", "hello {% if");
+    context.put("place", "world");
+
+    ExpressionNode node = fixture("simplevar");
+
+    assertThat(node.render(interpreter).toString()).isEqualTo("hello {% if");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
   private String val(String jinja) {
     return parse(jinja).render(interpreter).getValue();
   }

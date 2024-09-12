@@ -7,6 +7,9 @@ import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
+import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
+import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF;
+import com.hubspot.jinjava.interpret.ErrorHandlingStrategy;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
@@ -359,6 +362,22 @@ public class TreeParserTest extends BaseInterpretingTest {
         .newInterpreter();
     final Node overriddenTree = new TreeParser(interpreter, expression).buildTree();
     assertThat(interpreter.render(overriddenTree)).isEqualTo("A\nB");
+  }
+
+  @Test
+  public void itDoesNotAddErrorWhenParseErrorsAreIgnored() {
+    try (
+      TemporaryValueClosable<ErrorHandlingStrategy> c = interpreter
+        .getContext()
+        .withErrorHandlingStrategy(ErrorHandlingStrategyIF.ignoreAll())
+    ) {
+      String expression = "{% if ";
+      final Node tree = new TreeParser(interpreter, expression).buildTree();
+      assertThat(tree.getChildren()).hasSize(1);
+      assertThat(tree.getChildren().get(0).toTreeString())
+        .isEqualToIgnoringWhitespace(" {~ {% if  ~}");
+    }
+    assertThat(interpreter.getErrors()).isEmpty();
   }
 
   Node parse(String fixture) {
