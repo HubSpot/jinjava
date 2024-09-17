@@ -170,7 +170,7 @@ public class FromTag implements Tag {
       if (val != null) {
         MacroFunction toImport = (MacroFunction) val;
         if (!importMapping.getKey().equals(importMapping.getValue())) {
-          toImport = new MacroFunction(toImport, importMapping.getValue());
+          toImport = toImport.cloneWithNewName(importMapping.getValue());
         }
         interpreter.getContext().addGlobalMacro(toImport);
       } else {

@@ -1634,4 +1634,9 @@ public class EagerTest {
       "keeps-meta-context-variables-through-import/test"
     );
   }
+
+  @Test
+  public void itReconstructsFromedMacro() {
+    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-fromed-macro/test");
+  }
 }
