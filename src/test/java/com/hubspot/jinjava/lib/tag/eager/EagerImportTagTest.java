@@ -331,6 +331,7 @@ public class EagerImportTagTest extends ImportTagTest {
     removeDeferredContextKeys();
     context.put("a_val", "a");
     // There are some extras due to deferred values copying up the context stack.
+    context.getDeferredTokens().clear();
     assertThat(interpreter.render(result).trim())
       .isEqualTo(
         interpreter.render(
@@ -363,6 +364,7 @@ public class EagerImportTagTest extends ImportTagTest {
     removeDeferredContextKeys();
 
     context.put("a_val", "a");
+    context.getDeferredTokens().clear();
     assertThat(interpreter.render(result).trim()).isEqualTo("12345 cbaabaaba");
   }
 
@@ -376,11 +378,11 @@ public class EagerImportTagTest extends ImportTagTest {
     );
     assertThat(result)
       .isEqualTo(
-        "{% if deferred %}{% do %}{% set current_path = 'import-tree-b.jinja' %}{% set __temp_import_alias_98__ = {}  %}{% for __ignored__ in [0] %}{% do %}{% set current_path = 'import-tree-a.jinja' %}{% set __temp_import_alias_95701__ = {}  %}{% for __ignored__ in [0] %}{% set something = 'somn' %}{% do __temp_import_alias_95701__.update({'something': something}) %}\n" +
-        "{% set foo_a = 'a' %}{% do __temp_import_alias_95701__.update({'foo_a': foo_a}) %}\n" +
-        "{% do __temp_import_alias_95701__.update({'foo_a': 'a','import_resource_path': 'import-tree-a.jinja','something': 'somn'}) %}{% endfor %}{% set a = __temp_import_alias_95701__ %}{% set current_path = 'import-tree-b.jinja' %}{% enddo %}\n" +
-        "{% set foo_b = 'b' + a.foo_a %}{% do __temp_import_alias_98__.update({'foo_b': foo_b}) %}\n" +
-        "{% do __temp_import_alias_98__.update({'a': a,'foo_b': foo_b,'import_resource_path': 'import-tree-b.jinja'}) %}{% endfor %}{% set b = __temp_import_alias_98__ %}{% set current_path = '' %}{% enddo %}{% endif %}"
+        "{% if deferred %}{% do %}{% set __temp_meta_current_path_930119534__,current_path = current_path,'import-tree-b.jinja' %}{% set __temp_meta_import_alias_98__ = {}  %}{% for __ignored__ in [0] %}{% do %}{% set __temp_meta_current_path_58714367__,current_path = current_path,'import-tree-a.jinja' %}{% set __temp_meta_import_alias_95701__ = {}  %}{% for __ignored__ in [0] %}{% set something = 'somn' %}{% do __temp_meta_import_alias_95701__.update({'something': something}) %}\n" +
+        "{% set foo_a = 'a' %}{% do __temp_meta_import_alias_95701__.update({'foo_a': foo_a}) %}\n" +
+        "{% do __temp_meta_import_alias_95701__.update({'foo_a': 'a','import_resource_path': 'import-tree-a.jinja','something': 'somn'}) %}{% endfor %}{% set a = __temp_meta_import_alias_95701__ %}{% set current_path,__temp_meta_current_path_58714367__ = __temp_meta_current_path_58714367__,null %}{% enddo %}\n" +
+        "{% set foo_b = 'b' + a.foo_a %}{% do __temp_meta_import_alias_98__.update({'foo_b': foo_b}) %}\n" +
+        "{% do __temp_meta_import_alias_98__.update({'a': a,'foo_b': foo_b,'import_resource_path': 'import-tree-b.jinja'}) %}{% endfor %}{% set b = __temp_meta_import_alias_98__ %}{% set current_path,__temp_meta_current_path_930119534__ = __temp_meta_current_path_930119534__,null %}{% enddo %}{% endif %}"
       );
 
     removeDeferredContextKeys();
@@ -562,10 +564,16 @@ public class EagerImportTagTest extends ImportTagTest {
     );
     assertThat(result.trim())
       .isEqualTo(
-        "{% set var = [] %}{% do var.append('a' ~ deferred) %}" +
-        "a\n" +
+        "{% set var = [] %}" +
+        "{% set __macro_adjust_108896029_temp_variable_0__ %}" +
+        "{% do var.append('a' ~ deferred) %}" +
+        "a" +
+        "{% endset %}" +
+        "{{ __macro_adjust_108896029_temp_variable_0__ }}\n" +
+        "{% for __ignored__ in [0] %}" +
         "{% do var.append('b' ~ deferred) %}" +
-        "b\n" +
+        "b" +
+        "{% endfor %}\n" +
         "c{{ var }}"
       );
     context.put("deferred", "resolved");
@@ -632,13 +640,24 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(result)
       .isEqualTo(
         "a" +
-        "{% set vars = {'foo': 'a', 'import_resource_path': 'var-a.jinja'}  %}{% if deferred %}" +
-        "{% do %}{% set current_path = 'var-b.jinja' %}{% set __temp_import_alias_3612204__ = {}  %}{% for __ignored__ in [0] %}{% set foo = 'b' %}{% do __temp_import_alias_3612204__.update({'foo': foo}) %}\n" +
-        "{% do __temp_import_alias_3612204__.update({'foo': 'b','import_resource_path': 'var-b.jinja'}) %}{% endfor %}{% set vars = __temp_import_alias_3612204__ %}{% set current_path = '' %}{% enddo %}" +
+        "{% set vars = {'foo': 'a', 'import_resource_path': 'var-a.jinja'}  %}" +
+        "{% if deferred %}" +
+        "{% do %}" +
+        "{% set __temp_meta_current_path_299252430__,current_path = current_path,'var-b.jinja' %}" +
+        "{% set __temp_meta_import_alias_3612204__ = {}  %}" +
+        "{% for __ignored__ in [0] %}" +
+        "{% set foo = 'b' %}" +
+        "{% do __temp_meta_import_alias_3612204__.update({'foo': foo}) %}\n" +
+        "{% do __temp_meta_import_alias_3612204__.update({'foo': 'b','import_resource_path': 'var-b.jinja'}) %}" +
+        "{% endfor %}" +
+        "{% set vars = __temp_meta_import_alias_3612204__ %}" +
+        "{% set current_path,__temp_meta_current_path_299252430__ = __temp_meta_current_path_299252430__,null %}" +
+        "{% enddo %}" +
         "{% endif %}" +
         "{{ vars.foo }}"
       );
     interpreter.getContext().put("deferred", "resolved");
+    context.getDeferredTokens().clear();
     assertThat(interpreter.render(result)).isEqualTo("ab");
   }
 
@@ -659,14 +678,19 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(result)
       .isEqualTo(
         "a" +
-        "{% set foo = 'a' %}{% if deferred %}" +
-        "{% do %}{% set current_path = 'var-b.jinja' %}{% set foo = 'b' %}\n" +
-        "{% set current_path = '' %}{% enddo %}" +
+        "{% set foo = 'a' %}" +
+        "{% if deferred %}" +
+        "{% do %}" +
+        "{% set __temp_meta_current_path_299252430__,current_path = current_path,'var-b.jinja' %}" +
+        "{% set foo = 'b' %}\n" +
+        "{% set current_path,__temp_meta_current_path_299252430__ = __temp_meta_current_path_299252430__,null %}" +
+        "{% enddo %}" +
         "{% endif %}" +
         "{{ foo }}"
       );
 
     interpreter.getContext().put("deferred", "resolved");
+    context.getDeferredTokens().clear();
     assertThat(interpreter.render(result)).isEqualTo("ab");
   }
 
@@ -678,9 +702,13 @@ public class EagerImportTagTest extends ImportTagTest {
       .trim();
     assertThat(result)
       .isEqualTo(
-        "{% do %}{% set current_path = 'set-two-variables.jinja' %}{% set foo = deferred %}\n" +
+        "{% do %}" +
+        "{% set __temp_meta_current_path_549676938__,current_path = current_path,'set-two-variables.jinja' %}" +
+        "{% set foo = deferred %}\n" +
         "\n" +
-        "{% set current_path = '' %}{% enddo %}{{ foo }} bar"
+        "{% set current_path,__temp_meta_current_path_549676938__ = __temp_meta_current_path_549676938__,null %}" +
+        "{% enddo %}" +
+        "{{ foo }} bar"
       );
   }
 

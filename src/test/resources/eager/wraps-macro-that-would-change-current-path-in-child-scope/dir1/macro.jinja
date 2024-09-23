@@ -1,0 +1,4 @@
+{% macro foo_importer() -%}
+  {%- include "../dir2/included.jinja" -%}
+  {%- print foo -%}
+{%- endmacro %}

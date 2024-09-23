@@ -1,21 +1,21 @@
 {% set primary_line_height = 100 %}\
 {% if deferred %}
 {% do %}\
-{% set current_path = 'eager/supplements/set-val.jinja' %}\
-{% set __temp_import_alias_902286926__ = {}  %}\
+{% set __temp_meta_current_path_724462665__,current_path = current_path,'eager/supplements/set-val.jinja' %}\
+{% set __temp_meta_import_alias_902286926__ = {}  %}\
 {% for __ignored__ in [0] %}\
 {% set primary_line_height = 42 %}\
-{% do __temp_import_alias_902286926__.update({'primary_line_height': primary_line_height}) %}\
-{% do __temp_import_alias_902286926__.update({'primary_line_height': 42,'import_resource_path': 'eager/supplements/set-val.jinja'}) %}\
+{% do __temp_meta_import_alias_902286926__.update({'primary_line_height': primary_line_height}) %}\
+{% do __temp_meta_import_alias_902286926__.update({'primary_line_height': 42,'import_resource_path': 'eager/supplements/set-val.jinja'}) %}\
 {% endfor %}\
-{% set simple = __temp_import_alias_902286926__ %}\
-{% set current_path = 'eager/handles-import-in-deferred-if/test.jinja' %}\
+{% set simple = __temp_meta_import_alias_902286926__ %}\
+{% set current_path,__temp_meta_current_path_724462665__ = __temp_meta_current_path_724462665__,null %}\
 {% enddo %}
 {% else %}
 {% do %}\
-{% set current_path = 'eager/supplements/set-val.jinja' %}\
+{% set __temp_meta_current_path_724462665__,current_path = current_path,'eager/supplements/set-val.jinja' %}\
 {% set primary_line_height = 42 %}\
-{% set current_path = 'eager/handles-import-in-deferred-if/test.jinja' %}\
+{% set current_path,__temp_meta_current_path_724462665__ = __temp_meta_current_path_724462665__,null %}\
 {% enddo %}
 {% endif %}
 simple.primary_line_height (deferred): {{ simple.primary_line_height }}

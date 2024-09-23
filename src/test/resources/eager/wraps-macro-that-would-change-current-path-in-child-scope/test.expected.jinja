@@ -1,0 +1,10 @@
+Starting current_path: eager/wraps-macro-that-would-change-current-path-in-child-scope/test.jinja
+Intermediate current_path: eager/wraps-macro-that-would-change-current-path-in-child-scope/test.jinja
+{% for __ignored__ in [0] %}\
+{% set __temp_meta_current_path_629250870__,current_path = 'eager/wraps-macro-that-would-change-current-path-in-child-scope/test.jinja', 'eager/wraps-macro-that-would-change-current-path-in-child-scope/dir2/included.jinja' %}\
+{% set foo = deferred %}
+{{ foo }}\
+{% set current_path,__temp_meta_current_path_629250870__ = 'eager/wraps-macro-that-would-change-current-path-in-child-scope/test.jinja', null %}\
+{% print foo %}\
+{% endfor %}
+Ending current_path: eager/wraps-macro-that-would-change-current-path-in-child-scope/test.jinja

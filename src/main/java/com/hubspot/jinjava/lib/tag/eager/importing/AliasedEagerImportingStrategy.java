@@ -7,6 +7,7 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.MetaContextVariables;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.objects.collections.PyMap;
@@ -16,34 +17,11 @@ import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 
 public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
-
-  private static final String TEMPORARY_IMPORT_ALIAS_PREFIX = "__temp_import_alias_";
-  private static final String TEMPORARY_IMPORT_ALIAS_FORMAT =
-    TEMPORARY_IMPORT_ALIAS_PREFIX + "%d__";
-
-  public static Optional<String> getTemporaryImportAlias(Context context) {
-    return context
-      .getImportResourceAlias()
-      .map(AliasedEagerImportingStrategy::getTemporaryImportAlias);
-  }
-
-  public static boolean isTemporaryImportAlias(String varName) {
-    // This is just faster than checking a regex
-    return varName.startsWith(TEMPORARY_IMPORT_ALIAS_PREFIX);
-  }
-
-  private static String getTemporaryImportAlias(String fullAlias) {
-    return String.format(
-      TEMPORARY_IMPORT_ALIAS_FORMAT,
-      Math.abs(Objects.hashCode(fullAlias))
-    );
-  }
 
   private final ImportingData importingData;
   private final String currentImportAlias;
@@ -95,7 +73,10 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
     importingData
       .getOriginalInterpreter()
       .getContext()
-      .put(getTemporaryImportAlias(fullImportAlias), DeferredValue.instance());
+      .put(
+        MetaContextVariables.getTemporaryImportAlias(fullImportAlias),
+        DeferredValue.instance()
+      );
   }
 
   @Override
@@ -108,7 +89,9 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
     }
     Map<String, Object> childBindings = child.getContext().getSessionBindings();
     childBindings.putAll(child.getContext().getGlobalMacros());
-    String temporaryImportAlias = getTemporaryImportAlias(fullImportAlias);
+    String temporaryImportAlias = MetaContextVariables.getTemporaryImportAlias(
+      fullImportAlias
+    );
     Map<String, Object> mapForCurrentContextAlias = getMapForCurrentContextAlias(
       currentImportAlias,
       child
@@ -127,14 +110,11 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
   }
 
   @Override
-  public String getFinalOutput(
-    String newPathSetter,
-    String output,
-    JinjavaInterpreter child
-  ) {
-    String temporaryImportAlias = getTemporaryImportAlias(fullImportAlias);
+  public String getFinalOutput(String output, JinjavaInterpreter child) {
+    String temporaryImportAlias = MetaContextVariables.getTemporaryImportAlias(
+      fullImportAlias
+    );
     return (
-      newPathSetter +
       EagerReconstructionUtils.buildBlockOrInlineSetTag(
         temporaryImportAlias,
         Collections.emptyMap(),
@@ -153,8 +133,7 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
         ImmutableMap.of(currentImportAlias, temporaryImportAlias),
         importingData.getOriginalInterpreter(),
         true
-      ) +
-      importingData.getInitialPathSetter()
+      )
     );
   }
 
@@ -243,7 +222,9 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
     JinjavaInterpreter child
   ) {
     StringJoiner keyValueJoiner = new StringJoiner(",");
-    String temporaryImportAlias = getTemporaryImportAlias(fullImportAlias);
+    String temporaryImportAlias = MetaContextVariables.getTemporaryImportAlias(
+      fullImportAlias
+    );
     Map<String, Object> currentAliasMap = getMapForCurrentContextAlias(
       currentImportAlias,
       child

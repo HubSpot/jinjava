@@ -18,7 +18,6 @@ import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
-import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.mode.DefaultExecutionMode;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
@@ -341,37 +340,6 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
       )
     )
       .isEmpty();
-  }
-
-  @Test
-  public void itRemovesOtherMetaContextVariables() {
-    String variableName = "foo";
-    interpreter.getContext().addMetaContextVariables(Collections.singleton(variableName));
-    assertThat(interpreter.getContext().getComputedMetaContextVariables())
-      .contains(variableName);
-    interpreter
-      .getContext()
-      .addNonMetaContextVariables(Collections.singleton(variableName));
-    assertThat(interpreter.getContext().getComputedMetaContextVariables())
-      .doesNotContain(variableName);
-    interpreter
-      .getContext()
-      .removeNonMetaContextVariables(Collections.singleton(variableName));
-    assertThat(interpreter.getContext().getComputedMetaContextVariables())
-      .contains(variableName);
-  }
-
-  @Test
-  public void itDoesNotRemoveStaticMetaContextVariables() {
-    assertThat(interpreter.getContext().getComputedMetaContextVariables())
-      .contains(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY);
-    interpreter
-      .getContext()
-      .addNonMetaContextVariables(
-        Collections.singleton(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY)
-      );
-    assertThat(interpreter.getContext().getComputedMetaContextVariables())
-      .contains(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY);
   }
 
   @Test

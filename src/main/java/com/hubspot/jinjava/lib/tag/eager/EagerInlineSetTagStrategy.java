@@ -101,10 +101,7 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
           .build()
       )
     );
-    String suffixToPreserveState = getSuffixToPreserveState(
-      String.join(",", Arrays.asList(variables)),
-      interpreter
-    );
+    String suffixToPreserveState = getSuffixToPreserveState(variables, interpreter);
     return Triple.of(
       prefixToPreserveState.toString(),
       joiner.toString(),

@@ -38,8 +38,6 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       importingData
     );
 
-    final String newPathSetter;
-
     Optional<String> maybeTemplateFile;
     try {
       maybeTemplateFile =
@@ -53,7 +51,6 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     String templateFile = maybeTemplateFile.get();
     try {
       Node node = ImportTag.parseTemplateAsNode(interpreter, templateFile);
-      newPathSetter = EagerImportingStrategyFactory.getSetTagForCurrentPath(interpreter);
 
       JinjavaInterpreter child = interpreter
         .getConfig()
@@ -96,7 +93,11 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         return "";
       }
       return EagerReconstructionUtils.wrapInTag(
-        eagerImportingStrategy.getFinalOutput(newPathSetter, output, child),
+        EagerReconstructionUtils.wrapPathAroundText(
+          eagerImportingStrategy.getFinalOutput(output, child),
+          templateFile,
+          interpreter
+        ),
         DoTag.TAG_NAME,
         interpreter,
         true

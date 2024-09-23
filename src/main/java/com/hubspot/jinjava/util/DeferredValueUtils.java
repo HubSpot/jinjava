@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.MetaContextVariables;
 import com.hubspot.jinjava.interpret.PartiallyDeferredValue;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.tree.ExpressionNode;
@@ -119,7 +120,7 @@ public class DeferredValueUtils {
     props
       .stream()
       .filter(prop -> !(context.get(prop) instanceof DeferredValue))
-      .filter(prop -> !context.getComputedMetaContextVariables().contains(prop))
+      .filter(prop -> !MetaContextVariables.isMetaContextVariable(prop, context))
       .forEach(prop -> {
         Object value = context.get(prop);
         if (value != null) {
