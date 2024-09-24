@@ -20,6 +20,9 @@
     <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
     <dep.plugin.javadoc.version>3.0.1</dep.plugin.javadoc.version>
     <dep.hubspot-immutables.version>1.9</dep.hubspot-immutables.version>
+    <dep.jackson-databind.version>2.17.2</dep.jackson-databind.version>
+    <dep.jackson-core.version>${dep.jackson.version}</dep.jackson-core.version>
+    <dep.jackson.version>2.17.2</dep.jackson.version>
 
 
     <basepom.test.add.opens>
@@ -49,12 +52,12 @@
       <dependency>
         <groupId>com.google.re2j</groupId>
         <artifactId>re2j</artifactId>
-        <version>1.2</version>
+        <version>1.7</version>
       </dependency>
       <dependency>
         <groupId>ch.obermuhlner</groupId>
         <artifactId>big-math</artifactId>
-        <version>2.0.0</version>
+        <version>2.3.2</version>
       </dependency>
       <dependency>
         <groupId>commons-net</groupId>
@@ -65,41 +68,6 @@
         <groupId>com.googlecode.java-ipv6</groupId>
         <artifactId>java-ipv6</artifactId>
         <version>0.17</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>2.14.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>2.14.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>2.14.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-yaml</artifactId>
-        <version>2.14.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-jdk8</artifactId>
-        <version>2.14.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.hubspot.immutables</groupId>
-        <artifactId>hubspot-style</artifactId>
-        <version>${dep.hubspot-immutables.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.hubspot.immutables</groupId>
-        <artifactId>immutables-exceptions</artifactId>
-        <version>${dep.hubspot-immutables.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
