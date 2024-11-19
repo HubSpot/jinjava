@@ -21,6 +21,16 @@ public class TokenWhitespaceTest {
     assertThat(tokens.get(2).getImage()).isEqualTo("        yay\n    ");
   }
 
+  @Test
+  public void trimBlocksTrimsAfterCommentTag() {
+    List<Token> tokens = scanTokens(
+      "parse/tokenizer/whitespace-comment-tags.jinja",
+      trimBlocksConfig()
+    );
+    assertThat(tokens.get(2).getImage()).isEqualTo("        yay\n    ");
+    assertThat(tokens.get(4).getImage()).isEqualTo("        whoop\n</div>\n");
+  }
+
   private List<Token> scanTokens(String srcPath, JinjavaConfig config) {
     try {
       return Lists.newArrayList(
