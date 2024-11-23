@@ -28,6 +28,8 @@ public class ForLoop implements Iterator<Object> {
   private int length = NULL_VALUE;
   private boolean first = true;
   private boolean last;
+  private boolean continued;
+  private boolean broken;
 
   private int depth;
 
@@ -45,6 +47,8 @@ public class ForLoop implements Iterator<Object> {
       last = false;
     }
     it = ite;
+    continued = false;
+    broken = false;
   }
 
   public ForLoop(Iterator<?> ite) {
@@ -57,10 +61,16 @@ public class ForLoop implements Iterator<Object> {
       revcounter = 2;
       last = true;
     }
+    continued = false;
+    broken = false;
   }
 
   @Override
   public Object next() {
+    if (broken) {
+      return null;
+    }
+    continued = false;
     Object res;
     if (it.hasNext()) {
       index++;
@@ -129,8 +139,24 @@ public class ForLoop implements Iterator<Object> {
     return last;
   }
 
+  public boolean isContinued() {
+    return continued;
+  }
+
+  public void doContinue() {
+    continued = true;
+  }
+
+  public void doBreak() {
+    continued = true;
+    broken = true;
+  }
+
   @Override
   public boolean hasNext() {
+    if (broken) {
+      return false;
+    }
     return it.hasNext();
   }
 

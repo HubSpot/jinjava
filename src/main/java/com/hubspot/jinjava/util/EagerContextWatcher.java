@@ -11,6 +11,7 @@ import com.hubspot.jinjava.interpret.LazyExpression;
 import com.hubspot.jinjava.interpret.MetaContextVariables;
 import com.hubspot.jinjava.interpret.OneTimeReconstructible;
 import com.hubspot.jinjava.interpret.RevertibleObject;
+import com.hubspot.jinjava.lib.tag.ForTag;
 import com.hubspot.jinjava.lib.tag.eager.EagerExecutionResult;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
@@ -211,7 +212,7 @@ public class EagerContextWatcher {
         )
       )
       .filter(entry -> !ignoredKeys.contains(entry.getKey()))
-      .filter(entry -> !"loop".equals(entry.getKey()))
+      .filter(entry -> !ForTag.LOOP.equals(entry.getKey()))
       .map(entry -> {
         if (
           eagerExecutionResult.getResult().isFullyResolved() ||
