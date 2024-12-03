@@ -1,14 +1,14 @@
 package com.hubspot.jinjava.interpret;
 
-import com.hubspot.immutables.style.HubSpotImmutableStyle;
 import com.hubspot.jinjava.lib.expression.DefaultExpressionStrategy;
 import com.hubspot.jinjava.lib.expression.ExpressionStrategy;
+import com.hubspot.jinjava.style.JinjavaImmutableStyle;
 import javax.annotation.Nullable;
 import org.immutables.value.Value.Default;
 import org.immutables.value.Value.Immutable;
 
 @Immutable(singleton = true)
-@HubSpotImmutableStyle
+@JinjavaImmutableStyle
 public interface ContextConfigurationIF {
   @Default
   default ExpressionStrategy getExpressionStrategy() {
@@ -49,7 +49,7 @@ public interface ContextConfigurationIF {
   }
 
   @Immutable(singleton = true)
-  @HubSpotImmutableStyle
+  @JinjavaImmutableStyle
   interface ErrorHandlingStrategyIF {
     @Default
     default TemplateErrorTypeHandlingStrategy getFatalErrorStrategy() {
