@@ -253,13 +253,18 @@ public class TokenScanner extends AbstractIterator<Token> {
       lastStart - lastNewlinePos + 1
     );
 
-    if (t instanceof TagToken) {
-      if (config.isTrimBlocks() && currPost < length && is[currPost] == '\n') {
-        lastNewlinePos = currPost;
-        ++currPost;
-        ++tokenStart;
-      }
+    if (
+      (t instanceof TagToken || t instanceof NoteToken) &&
+      config.isTrimBlocks() &&
+      currPost < length &&
+      is[currPost] == '\n'
+    ) {
+      lastNewlinePos = currPost;
+      ++currPost;
+      ++tokenStart;
+    }
 
+    if (t instanceof TagToken) {
       TagToken tt = (TagToken) t;
       if ("raw".equals(tt.getTagName())) {
         inRaw = 1;
