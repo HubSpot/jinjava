@@ -58,6 +58,10 @@ public class EagerMacroFunction extends MacroFunction {
     );
   }
 
+  EagerMacroFunction(MacroFunction source, String name) {
+    super(source, name);
+  }
+
   public Object doEvaluate(
     Map<String, Object> argMap,
     Map<String, Object> kwargMap,
@@ -339,5 +343,10 @@ public class EagerMacroFunction extends MacroFunction {
   @Override
   public int hashCode() {
     return super.hashCode();
+  }
+
+  @Override
+  public EagerMacroFunction cloneWithNewName(String name) {
+    return new EagerMacroFunction(this, name);
   }
 }
