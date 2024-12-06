@@ -37,7 +37,7 @@ public class DateFormatFunctionsTest {
         ImmutableMap.of("d", ZonedDateTime.of(2022, 11, 28, 16, 30, 4, 0, ZoneOffset.UTC))
       )
     )
-      .isEqualTo("4:30:04 PM");
+      .isIn("4:30:04 PM", "4:30:04 PM");
   }
 
   @Test
@@ -48,6 +48,6 @@ public class DateFormatFunctionsTest {
         ImmutableMap.of("d", ZonedDateTime.of(2022, 11, 28, 16, 30, 4, 0, ZoneOffset.UTC))
       )
     )
-      .isEqualTo("Nov 28, 2022, 4:30:04 PM");
+      .isIn("Nov 28, 2022, 4:30:04 PM", "Nov 28, 2022, 4:30:04 PM");
   }
 }

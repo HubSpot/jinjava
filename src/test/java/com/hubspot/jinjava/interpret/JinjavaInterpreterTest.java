@@ -380,7 +380,7 @@ public class JinjavaInterpreterTest {
       )
     );
 
-    assertThat(result).isEqualTo("Oct 20, 2022, 5:09:43 PM");
+    assertThat(result).isIn("Oct 20, 2022, 5:09:43 PM", "Oct 20, 2022, 5:09:43 PM");
   }
 
   @Test

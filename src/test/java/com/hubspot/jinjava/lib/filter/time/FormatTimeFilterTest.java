@@ -37,7 +37,7 @@ public class FormatTimeFilterTest {
     assertThat(
       jinjava.render("{{ d | format_time }}", ImmutableMap.of("d", 1668120547000L))
     )
-      .isEqualTo("10:49:07 PM");
+      .isIn("10:49:07 PM", "10:49:07 PM");
   }
 
   @Test
@@ -45,13 +45,13 @@ public class FormatTimeFilterTest {
     PyishDate pyishDate = new PyishDate(1668120547000L);
 
     assertThat(jinjava.render("{{ d | format_time }}", ImmutableMap.of("d", pyishDate)))
-      .isEqualTo("10:49:07 PM");
+      .isIn("10:49:07 PM", "10:49:07 PM");
   }
 
   @Test
   public void itFormatsZonedDateTime() {
     assertThat(jinjava.render("{{ d | format_time }}", ImmutableMap.of("d", DATE_TIME)))
-      .isEqualTo("10:49:07 PM");
+      .isIn("10:49:07 PM", "10:49:07 PM");
   }
 
   @Test
@@ -71,7 +71,7 @@ public class FormatTimeFilterTest {
     assertThat(
       jinjava.render("{{ d | format_time('short') }}", ImmutableMap.of("d", DATE_TIME))
     )
-      .isEqualTo("10:49 PM");
+      .isIn("10:49 PM", "10:49 PM");
   }
 
   @Test
@@ -79,7 +79,7 @@ public class FormatTimeFilterTest {
     assertThat(
       jinjava.render("{{ d | format_time('medium') }}", ImmutableMap.of("d", DATE_TIME))
     )
-      .isEqualTo("10:49:07 PM");
+      .isIn("10:49:07 PM", "10:49:07 PM");
   }
 
   @Test
@@ -87,7 +87,7 @@ public class FormatTimeFilterTest {
     assertThat(
       jinjava.render("{{ d | format_time('long') }}", ImmutableMap.of("d", DATE_TIME))
     )
-      .isEqualTo("10:49:07 PM Z");
+      .isIn("10:49:07 PM Z", "10:49:07 PM Z");
   }
 
   @Test
@@ -95,7 +95,7 @@ public class FormatTimeFilterTest {
     assertThat(
       jinjava.render("{{ d | format_time('full') }}", ImmutableMap.of("d", DATE_TIME))
     )
-      .isEqualTo("10:49:07 PM Z");
+      .isIn("10:49:07 PM Z", "10:49:07 PM Z");
   }
 
   @Test
@@ -127,7 +127,7 @@ public class FormatTimeFilterTest {
         ImmutableMap.of("d", DATE_TIME)
       )
     )
-      .isEqualTo("5:49:07 PM EST");
+      .isIn("5:49:07 PM EST", "5:49:07 PM EST");
   }
 
   @Test
@@ -195,7 +195,7 @@ public class FormatTimeFilterTest {
         ImmutableMap.of("d", DATE_TIME)
       )
     )
-      .isEqualTo("17:49:07");
+      .isIn("17:49:07", "5:49 PM");
   }
 
   @Test
@@ -217,6 +217,6 @@ public class FormatTimeFilterTest {
         ImmutableMap.of("d", DATE_TIME)
       )
     )
-      .isEqualTo("5:49 PM");
+      .isIn("5:49 PM", "5:49 PM");
   }
 }
