@@ -1,0 +1,5 @@
+Starting current_path: {{ current_path }}
+{% from "./dir1/macro.jinja" import foo_importer -%}
+Intermediate current_path: {{ current_path }}
+{{ foo_importer() }}
+Ending current_path: {{ current_path }}

@@ -29,7 +29,9 @@ public class TagLibrary extends SimpleLibrary<Tag> {
     registerClasses(
       AutoEscapeTag.class,
       BlockTag.class,
+      BreakTag.class,
       CallTag.class,
+      ContinueTag.class,
       CycleTag.class,
       ElseTag.class,
       ElseIfTag.class,

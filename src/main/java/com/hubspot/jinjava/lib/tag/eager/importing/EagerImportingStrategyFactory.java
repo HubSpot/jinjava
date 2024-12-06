@@ -30,15 +30,7 @@ public class EagerImportingStrategyFactory {
   public static String getSetTagForCurrentPath(JinjavaInterpreter interpreter) {
     return EagerReconstructionUtils.buildBlockOrInlineSetTag(
       RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
-      interpreter
-        .getContext()
-        .getCurrentPathStack()
-        .peek()
-        .orElseGet(() ->
-          (String) interpreter
-            .getContext()
-            .getOrDefault(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY, "")
-        ),
+      RelativePathResolver.getCurrentPathFromStackOrKey(interpreter),
       interpreter
     );
   }

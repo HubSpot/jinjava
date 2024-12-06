@@ -6,6 +6,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
+import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.mode.DefaultExecutionMode;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -147,6 +148,12 @@ public class ExpectedTemplateInterpreter {
           .getContext()
           .getCurrentPathStack()
           .push(String.format("%s/%s.jinja", path, name), 0, 0);
+        interpreter
+          .getContext()
+          .put(
+            RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
+            String.format("%s/%s.jinja", path, name)
+          );
       }
       return simplify(
         Resources.toString(

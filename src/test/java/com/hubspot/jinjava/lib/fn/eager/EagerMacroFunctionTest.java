@@ -111,7 +111,7 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
       .isInstanceOf(DeferredValueException.class);
     try (TemporaryValueClosable<Boolean> ignored = context.withPartialMacroEvaluation()) {
       assertThat(eagerMacroFunction.evaluate("Bar"))
-        .isEqualTo("It's: Bar, {{ deferred }}");
+        .isEqualTo("{% for __ignored__ in [0] %}It's: Bar, {{ deferred }}{% endfor %}");
     }
   }
 

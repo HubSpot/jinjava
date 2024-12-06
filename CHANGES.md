@@ -1,4 +1,7 @@
 # Jinjava Releases #
+### 2024-12-06 Verision 2.7.4 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.4/jar)) ###
+* [Implement jinja2.ext.loopcontrols extensions (break and continue)](https://github.com/HubSpot/jinjava/pull/1219)
+* [Apply whitespace rules for LStrip and Trim to comment blocks](https://github.com/HubSpot/jinjava/pull/1217)
 ### 2024-09-12 Version 2.7.3 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.3/jar)) ###
 * [Add support for numeric keys in map literal](https://github.com/HubSpot/jinjava/pull/1152)
 * [Add feature to consider undefined variable a TemplateError](https://github.com/HubSpot/jinjava/pull/1174)

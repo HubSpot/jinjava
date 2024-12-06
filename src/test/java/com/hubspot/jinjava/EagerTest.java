@@ -1636,6 +1636,36 @@ public class EagerTest {
   }
 
   @Test
+  public void itWrapsMacroThatWouldChangeCurrentPathInChildScope() {
+    interpreter
+      .getContext()
+      .put(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY, "starting path");
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "wraps-macro-that-would-change-current-path-in-child-scope/test"
+    );
+  }
+
+  @Test
+  public void itHandlesDeferredBreakInForLoop() {
+    String input = expectedTemplateInterpreter.getFixtureTemplate(
+      "handles-deferred-break-in-for-loop/test"
+    );
+    interpreter.render(input);
+    // We don't support this yet
+    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
+  }
+
+  @Test
+  public void itHandlesDeferredContinueInForLoop() {
+    String input = expectedTemplateInterpreter.getFixtureTemplate(
+      "handles-deferred-continue-in-for-loop/test"
+    );
+    interpreter.render(input);
+    // We don't support this yet
+    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
+  }
+
+  @Test
   public void itReconstructsFromedMacro() {
     expectedTemplateInterpreter.assertExpectedOutput("reconstructs-fromed-macro/test");
   }

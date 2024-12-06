@@ -148,6 +148,18 @@ public class TreeParserTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void trimAndLstripCommentBlocks() {
+    interpreter =
+      new Jinjava(
+        JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build()
+      )
+        .newInterpreter();
+
+    assertThat(interpreter.render(parse("parse/tokenizer/whitespace-comment-tags.jinja")))
+      .isEqualTo("<div>\n" + "        yay\n" + "        whoop\n" + "</div>\n");
+  }
+
+  @Test
   public void itWarnsAgainstMissingStartTags() {
     String expression = "{% if true %} foo {% endif %} {% endif %}";
     final Node tree = new TreeParser(interpreter, expression).buildTree();

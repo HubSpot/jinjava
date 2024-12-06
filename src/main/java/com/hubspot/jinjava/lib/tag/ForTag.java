@@ -277,6 +277,10 @@ public class ForTag implements Tag {
               interpreter.addError(TemplateError.fromOutputTooBigException(e));
               return checkLoopVariable(interpreter, buff);
             }
+            // continue in the body of the loop; ignore the rest of the body
+            if (loop.isContinued()) {
+              break;
+            }
           }
         }
         if (
@@ -297,7 +301,7 @@ public class ForTag implements Tag {
     JinjavaInterpreter interpreter,
     LengthLimitingStringBuilder buff
   ) {
-    if (interpreter.getContext().get("loop") instanceof DeferredValue) {
+    if (interpreter.getContext().get(LOOP) instanceof DeferredValue) {
       throw new DeferredValueException(
         "loop variable deferred",
         interpreter.getLineNumber(),

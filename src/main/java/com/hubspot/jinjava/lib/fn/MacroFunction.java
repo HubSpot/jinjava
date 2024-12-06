@@ -127,6 +127,11 @@ public class MacroFunction extends AbstractCallableMethod {
             );
         } else {
           if (!alreadyDeferredInEarlierCall(scopeEntry.getKey(), interpreter)) {
+            if (
+              interpreter.getContext().get(scopeEntry.getKey()) == scopeEntry.getValue()
+            ) {
+              continue; // don't override if it's the same object
+            }
             interpreter.getContext().put(scopeEntry.getKey(), scopeEntry.getValue());
           }
         }

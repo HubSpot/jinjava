@@ -179,8 +179,8 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
   ) {
     return EagerContextWatcher.executeInChildContext(
       eagerInterpreter -> {
-        if (!(eagerInterpreter.getContext().get("loop") instanceof DeferredValue)) {
-          eagerInterpreter.getContext().put("loop", DeferredValue.instance());
+        if (!(eagerInterpreter.getContext().get(ForTag.LOOP) instanceof DeferredValue)) {
+          eagerInterpreter.getContext().put(ForTag.LOOP, DeferredValue.instance());
         }
         List<String> loopVars = getTag()
           .getLoopVarsAndExpression((TagToken) tagNode.getMaster())

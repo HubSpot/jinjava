@@ -5,6 +5,7 @@ import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.MetaContextVariables;
 import com.hubspot.jinjava.interpret.PartiallyDeferredValue;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
 import de.odysseus.el.tree.Bindings;
@@ -125,11 +126,12 @@ public interface EvalResultHolder {
         if (astNode instanceof AstIdentifier) {
           String name = ((AstIdentifier) astNode).getName();
           if (
-            ((JinjavaInterpreter) context
-                .getELResolver()
-                .getValue(context, null, ExtendedParser.INTERPRETER)).getContext()
-              .getComputedMetaContextVariables()
-              .contains(name)
+            MetaContextVariables.isMetaContextVariable(
+              name,
+              ((JinjavaInterpreter) context
+                  .getELResolver()
+                  .getValue(context, null, ExtendedParser.INTERPRETER)).getContext()
+            )
           ) {
             return name;
           }

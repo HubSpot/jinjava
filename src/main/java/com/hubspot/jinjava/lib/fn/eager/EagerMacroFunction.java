@@ -130,6 +130,12 @@ public class EagerMacroFunction extends MacroFunction {
         );
       throw new DeferredInvocationResolutionException(tempVarName);
     }
+    if (!eagerExecutionResult.getResult().isFullyResolved()) {
+      return EagerReconstructionUtils.wrapInChildScope(
+        eagerExecutionResult.getResult().toString(true),
+        interpreter
+      );
+    }
     return eagerExecutionResult.getResult().toString(true);
   }
 
