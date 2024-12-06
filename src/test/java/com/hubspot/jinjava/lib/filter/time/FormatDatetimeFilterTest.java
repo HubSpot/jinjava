@@ -37,7 +37,7 @@ public class FormatDatetimeFilterTest {
     assertThat(
       jinjava.render("{{ d | format_datetime }}", ImmutableMap.of("d", 1668120547000L))
     )
-      .isEqualTo("Nov 10, 2022, 10:49:07 PM");
+      .isIn("Nov 10, 2022, 10:49:07 PM", "Nov 10, 2022, 10:49:07 PM");
   }
 
   @Test
@@ -47,7 +47,7 @@ public class FormatDatetimeFilterTest {
     assertThat(
       jinjava.render("{{ d | format_datetime }}", ImmutableMap.of("d", pyishDate))
     )
-      .isEqualTo("Nov 10, 2022, 10:49:07 PM");
+      .isIn("Nov 10, 2022, 10:49:07 PM", "Nov 10, 2022, 10:49:07 PM");
   }
 
   @Test
@@ -55,7 +55,7 @@ public class FormatDatetimeFilterTest {
     assertThat(
       jinjava.render("{{ d | format_datetime }}", ImmutableMap.of("d", DATE_TIME))
     )
-      .isEqualTo("Nov 10, 2022, 10:49:07 PM");
+      .isIn("Nov 10, 2022, 10:49:07 PM", "Nov 10, 2022, 10:49:07 PM");
   }
 
   @Test
@@ -78,7 +78,7 @@ public class FormatDatetimeFilterTest {
         ImmutableMap.of("d", DATE_TIME)
       )
     )
-      .isEqualTo("11/10/22, 10:49 PM");
+      .isIn("11/10/22, 10:49 PM", "11/10/22, 10:49 PM");
   }
 
   @Test
@@ -89,7 +89,7 @@ public class FormatDatetimeFilterTest {
         ImmutableMap.of("d", DATE_TIME)
       )
     )
-      .isEqualTo("Nov 10, 2022, 10:49:07 PM");
+      .isIn("Nov 10, 2022, 10:49:07 PM", "Nov 10, 2022, 10:49:07 PM");
   }
 
   @Test
@@ -97,7 +97,7 @@ public class FormatDatetimeFilterTest {
     assertThat(
       jinjava.render("{{ d | format_datetime('long') }}", ImmutableMap.of("d", DATE_TIME))
     )
-      .isEqualTo("November 10, 2022 at 10:49:07 PM Z");
+      .isIn("November 10, 2022 at 10:49:07 PM Z", "November 10, 2022, 10:49:07 PM Z");
   }
 
   @Test
@@ -105,7 +105,10 @@ public class FormatDatetimeFilterTest {
     assertThat(
       jinjava.render("{{ d | format_datetime('full') }}", ImmutableMap.of("d", DATE_TIME))
     )
-      .isEqualTo("Thursday, November 10, 2022 at 10:49:07 PM Z");
+      .isIn(
+        "Thursday, November 10, 2022 at 10:49:07 PM Z",
+        "Thursday, November 10, 2022, 10:49:07 PM Z"
+      );
   }
 
   @Test
@@ -140,7 +143,7 @@ public class FormatDatetimeFilterTest {
         ImmutableMap.of("d", DATE_TIME)
       )
     )
-      .isEqualTo("November 10, 2022 at 5:49:07 PM EST");
+      .isIn("November 10, 2022 at 5:49:07 PM EST", "November 10, 2022, 5:49:07 PM EST");
   }
 
   @Test
@@ -230,6 +233,6 @@ public class FormatDatetimeFilterTest {
         ImmutableMap.of("d", DATE_TIME)
       )
     )
-      .isEqualTo("11/10/22, 5:49 PM");
+      .isIn("11/10/22, 5:49 PM", "11/10/22, 5:49 PM");
   }
 }

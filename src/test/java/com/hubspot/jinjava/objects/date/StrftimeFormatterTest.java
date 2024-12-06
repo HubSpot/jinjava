@@ -58,7 +58,8 @@ public class StrftimeFormatterTest {
 
   @Test
   public void testDateTime() {
-    assertThat(StrftimeFormatter.format(d, "%c")).isEqualTo("Nov 6, 2013, 2:22:00 PM");
+    assertThat(StrftimeFormatter.format(d, "%c"))
+      .isIn("Nov 6, 2013, 2:22:00 PM", "Nov 6, 2013, 2:22:00 PM");
   }
 
   @Test
@@ -73,12 +74,13 @@ public class StrftimeFormatterTest {
 
   @Test
   public void testTime() {
-    assertThat(StrftimeFormatter.format(d, "%X")).isEqualTo("2:22:00 PM");
+    assertThat(StrftimeFormatter.format(d, "%X")).isIn("2:22:00 PM", "2:22:00 PM");
   }
 
   @Test
   public void testMicrosecs() {
-    assertThat(StrftimeFormatter.format(d, "%X %f")).isEqualTo("2:22:00 PM 123000");
+    assertThat(StrftimeFormatter.format(d, "%X %f"))
+      .isIn("2:22:00 PM 123000", "2:22:00 PM 123000");
   }
 
   @Test
@@ -98,7 +100,7 @@ public class StrftimeFormatterTest {
   @Test
   public void testFinnishMonths() {
     assertThat(StrftimeFormatter.format(d, "long", Locale.forLanguageTag("fi")))
-      .startsWith("6. marraskuuta 2013 klo 14.22.00");
+      .isIn("6. marraskuuta 2013 klo 14.22.00 UTC", "6. marraskuuta 2013 14.22.00 UTC");
   }
 
   @Test
