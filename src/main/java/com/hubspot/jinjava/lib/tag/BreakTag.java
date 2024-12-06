@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.tag;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.NotInLoopException;
 import com.hubspot.jinjava.tree.TagNode;
@@ -31,6 +32,9 @@ public class BreakTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     Object loop = interpreter.getContext().get(ForTag.LOOP);
     if (loop instanceof ForLoop) {
+      if (interpreter.getContext().isDeferredExecutionMode()) {
+        throw new DeferredValueException("Deferred break");
+      }
       ForLoop forLoop = (ForLoop) loop;
       forLoop.doBreak();
     } else {
