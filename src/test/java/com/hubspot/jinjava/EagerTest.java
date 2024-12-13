@@ -1664,4 +1664,9 @@ public class EagerTest {
     // We don't support this yet
     assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
   }
+
+  @Test
+  public void itReconstructsFromedMacro() {
+    expectedTemplateInterpreter.assertExpectedOutput("reconstructs-fromed-macro/test");
+  }
 }

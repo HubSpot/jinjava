@@ -7,6 +7,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.lib.expression.EagerExpressionStrategy;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.CallTag;
 import com.hubspot.jinjava.lib.tag.FlexibleTag;
 import com.hubspot.jinjava.tree.TagNode;
@@ -45,7 +46,7 @@ public class EagerCallTag extends EagerStateChangingTag<CallTag> {
     LengthLimitingStringJoiner joiner;
     try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
       caller =
-        new MacroFunction(
+        new EagerMacroFunction(
           tagNode.getChildren(),
           "caller",
           new LinkedHashMap<>(),

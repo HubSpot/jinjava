@@ -207,6 +207,10 @@ public class MacroFunction extends AbstractCallableMethod {
     );
   }
 
+  public MacroFunction cloneWithNewName(String name) {
+    return new MacroFunction(this, name);
+  }
+
   private boolean alreadyDeferredInEarlierCall(
     String key,
     JinjavaInterpreter interpreter

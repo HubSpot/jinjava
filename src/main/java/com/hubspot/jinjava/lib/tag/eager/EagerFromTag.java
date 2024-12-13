@@ -6,6 +6,7 @@ import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.FromTag;
 import com.hubspot.jinjava.loader.RelativePathResolver;
@@ -41,7 +42,7 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
       imports
         .values()
         .forEach(value -> {
-          MacroFunction deferredMacro = new MacroFunction(
+          MacroFunction deferredMacro = new EagerMacroFunction(
             null,
             value,
             null,
