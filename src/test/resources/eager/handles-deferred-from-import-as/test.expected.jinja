@@ -6,5 +6,7 @@ Hello {{ myname }}\
 {% endfor %}
 {% set from_bar = bar %}\
 {% enddo %}\
-from_foo: Hello {{ myname }}
+from_foo: {% for __ignored__ in [0] %}\
+Hello {{ myname }}\
+{% endfor %}
 from_bar: {{ from_bar }}
