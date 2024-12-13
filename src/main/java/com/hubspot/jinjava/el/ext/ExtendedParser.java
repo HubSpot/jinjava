@@ -529,11 +529,9 @@ public class ExtendedParser extends Parser {
     }
   }
 
-  private AstNode parseOperators(AstNode left) throws ScanException, ParseException {
-    if ("|".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
-      AstNode v = left;
-
-      do {
+  private AstNode parseOperators(AstNode v) throws ScanException, ParseException {
+    while (true) {
+      if ("|".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
         consumeToken(); // '|'
         String filterName = consumeToken().getImage();
         List<AstNode> filterParams = Lists.newArrayList(v, interpreter());
@@ -552,25 +550,25 @@ public class ExtendedParser extends Parser {
           true
         );
         v = createAstMethod(filterProperty, createAstParameters(filterParams)); // function("filter:" + filterName, new AstParameters(filterParams));
-      } while ("|".equals(getToken().getImage()));
-
-      return v;
-    } else if (
-      "is".equals(getToken().getImage()) &&
-      "not".equals(lookahead(0).getImage()) &&
-      isPossibleExpTest(lookahead(1).getSymbol())
-    ) {
-      consumeToken(); // 'is'
-      consumeToken(); // 'not'
-      return buildAstMethodForIdentifier(left, "evaluateNegated");
-    } else if (
-      "is".equals(getToken().getImage()) && isPossibleExpTest(lookahead(0).getSymbol())
-    ) {
-      consumeToken(); // 'is'
-      return buildAstMethodForIdentifier(left, "evaluate");
+      } else if (
+        "is".equals(getToken().getImage()) &&
+        "not".equals(lookahead(0).getImage()) &&
+        isPossibleExpTest(lookahead(1).getSymbol())
+      ) {
+        consumeToken(); // 'is'
+        consumeToken(); // 'not'
+        v = buildAstMethodForIdentifier(v, "evaluateNegated");
+      } else if (
+        "is".equals(getToken().getImage()) && isPossibleExpTest(lookahead(0).getSymbol())
+      ) {
+        consumeToken(); // 'is'
+        v = buildAstMethodForIdentifier(v, "evaluate");
+      } else {
+        break;
+      }
     }
 
-    return left;
+    return v;
   }
 
   protected AstParameters createAstParameters(List<AstNode> nodes) {
