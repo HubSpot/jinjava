@@ -16,14 +16,12 @@
  */
 package com.hubspot.jinjava.el.ext;
 
+import com.hubspot.jinjava.el.android.BeanInfoUtil;
 import java.beans.FeatureDescriptor;
 import java.beans.IntrospectionException;
-import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+
+import java.lang.reflect.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -66,7 +64,7 @@ public class BeanELResolver extends ELResolver {
     public BeanProperties(Class<?> baseClass) {
       PropertyDescriptor[] descriptors;
       try {
-        descriptors = Introspector.getBeanInfo(baseClass).getPropertyDescriptors();
+        descriptors = BeanInfoUtil.getPropertyDescriptors(baseClass).toArray(new PropertyDescriptor[0]);
       } catch (IntrospectionException e) {
         throw new ELException(e);
       }
@@ -236,7 +234,7 @@ public class BeanELResolver extends ELResolver {
     if (isResolvable(base)) {
       final PropertyDescriptor[] properties;
       try {
-        properties = Introspector.getBeanInfo(base.getClass()).getPropertyDescriptors();
+        properties = BeanInfoUtil.getPropertyDescriptors(base.getClass()).toArray(new PropertyDescriptor[0]);
       } catch (IntrospectionException e) {
         return Collections.<FeatureDescriptor>emptyList().iterator();
       }
