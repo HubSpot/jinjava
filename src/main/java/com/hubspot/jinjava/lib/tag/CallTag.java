@@ -67,7 +67,7 @@ public class CallTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     String macroExpr = "{{" + tagNode.getHelpers().trim() + "}}";
 
-    try (InterpreterScopeClosable c = interpreter.enterScope()) {
+    try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
       LinkedHashMap<String, Object> args = new LinkedHashMap<>();
       MacroFunction caller = new MacroFunction(
         tagNode.getChildren(),
