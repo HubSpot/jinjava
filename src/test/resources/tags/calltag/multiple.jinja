@@ -1,0 +1,4 @@
+{% macro test1() %}1{{ caller() }}{% endmacro %}
+{% macro test2() %}2{{ caller() }}{% endmacro %}
+{% macro test3() %}3{{ caller() }}{% endmacro %}
+{% call test1() %}{% call test2() %}{% call test3() %}{% endcall %}{% endcall %}{% endcall %}
