@@ -171,15 +171,22 @@ public class TreeParser {
   private Node text(TextToken textToken) {
     if (interpreter.getConfig().isLstripBlocks()) {
       if (scanner.hasNext()) {
-        final int nextTokenType = scanner.peek().getType();
-        if (nextTokenType == symbols.getTag() || nextTokenType == symbols.getNote()) {
-          textToken =
-            new TextToken(
-              StringUtils.stripEnd(textToken.getImage(), "\t "),
-              textToken.getLineNumber(),
-              textToken.getStartPosition(),
-              symbols
-            );
+        Token nextToken = scanner.peek();
+        if (
+          nextToken.getType() == symbols.getTag() ||
+          nextToken.getType() == symbols.getNote()
+        ) {
+          String content = textToken.getImage();
+          // Only strip whitespace if we're at the start of a line
+          if (isStartOfLine(content)) {
+            textToken =
+              new TextToken(
+                stripWhitespaceBeforeTag(content),
+                textToken.getLineNumber(),
+                textToken.getStartPosition(),
+                symbols
+              );
+          }
         }
       }
     }
@@ -205,6 +212,47 @@ public class TreeParser {
     TextNode n = new TextNode(textToken);
     n.setParent(parent);
     return n;
+  }
+
+  /**
+   * Determines if the given content represents the start of a line
+   * by checking if it contains only whitespace or starts with a newline
+   */
+  private boolean isStartOfLine(String content) {
+    if (StringUtils.isBlank(content)) {
+      return true;
+    }
+    // Check if all characters before the last newline are whitespace
+    int lastNewline = content.lastIndexOf('\n');
+    if (lastNewline == -1) {
+      // No newline, check if this is the start of the template
+      return content.matches("^\\s*$");
+    }
+    // Check if everything after the last newline is whitespace
+    String afterNewline = content.substring(lastNewline + 1);
+    return afterNewline.matches("^\\s*$");
+  }
+
+  /**
+   * Strips whitespace from the end of the content, preserving any whitespace
+   * that appears after a non-whitespace character
+   */
+  private String stripWhitespaceBeforeTag(String content) {
+    int lastNewline = content.lastIndexOf('\n');
+    if (lastNewline == -1) {
+      // No newline, only strip if the entire content is whitespace
+      return content.matches("^\\s*$") ? "" : content;
+    }
+
+    // Keep content before the last newline unchanged
+    String beforeNewline = content.substring(0, lastNewline + 1);
+    String afterNewline = content.substring(lastNewline + 1);
+
+    // Only strip if everything after the newline is whitespace
+    if (afterNewline.matches("^\\s*$")) {
+      return beforeNewline;
+    }
+    return content;
   }
 
   private boolean isRightTrim(Node lastSibling) {
