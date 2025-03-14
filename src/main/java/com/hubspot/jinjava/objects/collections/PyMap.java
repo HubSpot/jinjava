@@ -21,6 +21,10 @@ public class PyMap extends ForwardingMap<String, Object> implements PyWrapper {
     return map;
   }
 
+  public Object get(String key, Object defaultValue) {
+    return getOrDefault(key, defaultValue);
+  }
+
   @Override
   public Object put(String s, Object o) {
     if (o == this) {

@@ -323,6 +323,18 @@ public class PyMapTest extends BaseJinjavaTest {
   }
 
   @Test
+  public void itSupportsGetWithOptionalDefault() {
+    assertThat(
+      jinjava.render(
+        "{% set test = {\"key1\": \"value1\"} %}" +
+        "{{ test.get(\"key2\", \"default\") }}",
+        Collections.emptyMap()
+      )
+    )
+      .isEqualTo("default");
+  }
+
+  @Test
   public void itFallsBackUnknownVariableNameToString() {
     assertThat(
       jinjava.render(
