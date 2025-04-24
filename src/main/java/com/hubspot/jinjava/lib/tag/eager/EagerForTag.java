@@ -56,16 +56,26 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       EagerExecutionResult result = EagerContextWatcher.executeInChildContext(
         eagerInterpreter -> {
           EagerExpressionResult expressionResult = EagerExpressionResult.fromSupplier(
-            () ->
-              getTag()
-                .renderForCollection(
-                  tagNode,
-                  eagerInterpreter,
-                  loopVarsAndExpression.getLeft(),
-                  !collectionResult.getResult().toList().isEmpty()
-                    ? collectionResult.getResult().toList().get(0)
-                    : Collections.emptyList()
-                ),
+            () -> {
+              try {
+                interpreter
+                  .getContext()
+                  .addNonMetaContextVariables(loopVarsAndExpression.getLeft());
+                return getTag()
+                  .renderForCollection(
+                    tagNode,
+                    eagerInterpreter,
+                    loopVarsAndExpression.getLeft(),
+                    !collectionResult.getResult().toList().isEmpty()
+                      ? collectionResult.getResult().toList().get(0)
+                      : Collections.emptyList()
+                  );
+              } finally {
+                interpreter
+                  .getContext()
+                  .removeNonMetaContextVariables(loopVarsAndExpression.getLeft());
+              }
+            },
             eagerInterpreter
           );
           addedTokens.addAll(eagerInterpreter.getContext().getDeferredTokens());
