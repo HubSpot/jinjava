@@ -9,16 +9,18 @@ import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.FromTag;
-import com.hubspot.jinjava.loader.RelativePathResolver;
+import com.hubspot.jinjava.lib.tag.eager.importing.EagerImportingStrategyFactory;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Beta
 public class EagerFromTag extends EagerStateChangingTag<FromTag> {
@@ -33,6 +35,9 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
 
   @Override
   public String getEagerTagImage(TagToken tagToken, JinjavaInterpreter interpreter) {
+    String initialPathSetter = EagerImportingStrategyFactory.getSetTagForCurrentPath(
+      interpreter
+    );
     List<String> helper = FromTag.getHelpers(tagToken);
     Map<String, String> imports = FromTag.getImportMap(helper);
     Optional<String> maybeTemplateFile;
@@ -55,10 +60,17 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
           interpreter.getContext().addGlobalMacro(deferredMacro);
         });
       return (
-        EagerReconstructionUtils.buildBlockOrInlineSetTag(
-          RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
-          interpreter.getContext().get(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY),
-          interpreter
+        initialPathSetter +
+        new PrefixToPreserveState(
+          EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+            interpreter,
+            DeferredToken
+              .builderFromToken(tagToken)
+              .addUsedDeferredWords(Stream.of(helper.get(0)))
+              .addUsedDeferredWords(imports.keySet())
+              .addSetDeferredWords(imports.values())
+              .build()
+          )
         ) +
         tagToken.getImage()
       );
