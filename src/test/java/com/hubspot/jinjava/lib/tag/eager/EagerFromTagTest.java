@@ -75,9 +75,37 @@ public class EagerFromTagTest extends FromTagTest {
   public void itDefersWhenPathIsDeferred() {
     String input = "{% from deferred import foo %}";
     String output = interpreter.render(input);
-    assertThat(output).isEqualTo("{% set current_path = null %}" + input);
+    assertThat(output).isEqualTo("{% set current_path = '' %}" + input);
     assertThat(interpreter.getContext().getGlobalMacro("foo")).isNotNull();
     assertThat(interpreter.getContext().getGlobalMacro("foo").isDeferred()).isTrue();
+    assertThat(interpreter.getContext().getDeferredTokens())
+      .isNotEmpty()
+      .anySatisfy(deferredToken -> {
+        assertThat(deferredToken.getToken().getImage())
+          .isEqualTo("{% from deferred import foo %}");
+        assertThat(deferredToken.getSetDeferredWords()).containsExactly("foo");
+        assertThat(deferredToken.getUsedDeferredWords())
+          .containsExactlyInAnyOrder("deferred", "foo");
+      });
+  }
+
+  @Test
+  public void itDefersWhenPathIsDeferredWithAlias() {
+    String input = "{% from deferred import foo as new_foo %}";
+    String output = interpreter.render(input);
+    assertThat(output).isEqualTo("{% set current_path = '' %}" + input);
+    assertThat(interpreter.getContext().getGlobalMacro("new_foo")).isNotNull();
+    assertThat(interpreter.getContext().getGlobalMacro("new_foo").isDeferred()).isTrue();
+    assertThat(interpreter.getContext().getDeferredTokens())
+      .isNotEmpty()
+      .anySatisfy(deferredToken -> {
+        assertThat(deferredToken.getToken().getImage())
+          .isEqualTo("{% from deferred import foo as new_foo %}");
+        assertThat(deferredToken.getSetDeferredWords()).containsExactly("new_foo");
+        assertThat(deferredToken.getUsedDeferredWords())
+          .containsExactlyInAnyOrder("deferred", "foo");
+      });
+    assertThat(interpreter.getContext().get("new_foo")).isInstanceOf(DeferredValue.class);
   }
 
   @Test
