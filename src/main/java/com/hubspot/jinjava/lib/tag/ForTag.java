@@ -163,7 +163,6 @@ public class ForTag implements Tag {
   ) {
     ForLoop loop = ObjectIterator.getLoop(collection);
 
-    interpreter.getContext().addNonMetaContextVariables(loopVars);
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       if (interpreter.isValidationMode() && !loop.hasNext()) {
         loop = ObjectIterator.getLoop(new DummyObject());
@@ -292,8 +291,6 @@ public class ForTag implements Tag {
         }
       }
       return checkLoopVariable(interpreter, buff);
-    } finally {
-      interpreter.getContext().removeNonMetaContextVariables(loopVars);
     }
   }
 
