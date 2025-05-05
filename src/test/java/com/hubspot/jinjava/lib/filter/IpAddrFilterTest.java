@@ -210,12 +210,18 @@ public class IpAddrFilterTest extends BaseInterpretingTest {
 
   @Test
   public void itFiltersValidIpv4Addresses() {
-    List<Object> validAddresses = Arrays.asList("255.182.100.1", "   128.0.0.1   ");
+    List<Object> validAddresses = Arrays.asList(
+      "255.182.100.1",
+      "   128.0.0.1   ",
+      "192.168.1.0/000024",
+      "0000192.0168.000000.1"
+    );
     List<Object> invalidAddresses = Arrays.asList(
       "255.182.100.abc",
       "125.512.100.1",
       "125.512.100.1.1",
       "125.512.100",
+      "192.168.1.1/33",
       104,
       "1200:0000:AB00:1234:0000:2552:7777:1313",
       "1200::AB00:1234::2552:7777:1313",
@@ -234,7 +240,10 @@ public class IpAddrFilterTest extends BaseInterpretingTest {
   public void itFiltersValidIpv6Addresses() {
     List<Object> validAddresses = Arrays.asList(
       "1200:0000:AB00:1234:0000:2552:7777:1313",
-      "2000::"
+      "2000::",
+      "2000::/99",
+      "1200:0000:AB00:1234:0000:2552:7777:1313/0000021",
+      "1200:0000:AB00:1234:0000:2552:7777:1313/128"
     );
     List<Object> invalidAddresses = Arrays.asList(
       "255.182.100.abc",
@@ -244,6 +253,7 @@ public class IpAddrFilterTest extends BaseInterpretingTest {
       104,
       "1200:0000:AB00:1234:O000:2552:7777:1313",
       "1200::AB00:1234::2552:7777:1313:1232",
+      "1200:0000:AB00:1234:0000:2552:7777:1313/132",
       "321",
       null,
       true
