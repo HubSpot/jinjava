@@ -1,4 +1,10 @@
 # Jinjava Releases #
+### 2024-05-05 Verision 2.8.0 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.0/jar)) ###
+* [Target Java 17](https://github.com/HubSpot/jinjava/pull/1238)
+* [Implement PyMap#get with optional default](https://github.com/HubSpot/jinjava/pull/1233)
+* [Fix ConcurrentModificationException when sharing Context across threads](https://github.com/HubSpot/jinjava/pull/1239)
+* [Fix max render depth tracking for {% call %} tags](https://github.com/HubSpot/jinjava/pull/1229)
+  
 ### 2024-12-06 Verision 2.7.4 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.4/jar)) ###
 * [Implement jinja2.ext.loopcontrols extensions (break and continue)](https://github.com/HubSpot/jinjava/pull/1219)
 * [Apply whitespace rules for LStrip and Trim to comment blocks](https://github.com/HubSpot/jinjava/pull/1217)
