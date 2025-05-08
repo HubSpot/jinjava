@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
@@ -141,7 +142,21 @@ public class TruncateHtmlFilter implements AdvancedFilter {
         killwords = BooleanUtils.toBoolean(args[2]);
       }
 
-      Document dom = Jsoup.parseBodyFragment((String) var);
+      int numDeferredTokensStart = interpreter.getContext().getDeferredTokens().size();
+
+      String val;
+      try (
+        JinjavaInterpreter.InterpreterScopeClosable ignored = interpreter.enterScope()
+      ) {
+        val = interpreter.renderFlat((String) var);
+        if (
+          interpreter.getContext().getDeferredTokens().size() > numDeferredTokensStart
+        ) {
+          throw new DeferredValueException("Deferred in TruncateHtmlFilter");
+        }
+      }
+
+      Document dom = Jsoup.parseBodyFragment(val);
       ContentTruncatingNodeVisitor visitor = new ContentTruncatingNodeVisitor(
         length,
         ends,
@@ -171,8 +186,7 @@ public class TruncateHtmlFilter implements AdvancedFilter {
 
     @Override
     public void head(Node node, int depth) {
-      if (node instanceof TextNode) {
-        TextNode text = (TextNode) node;
+      if (node instanceof TextNode text) {
         String textContent = text.text();
 
         if (textLen >= maxTextLen) {
@@ -193,8 +207,7 @@ public class TruncateHtmlFilter implements AdvancedFilter {
 
     @Override
     public void tail(Node node, int depth) {
-      if (node instanceof Element) {
-        Element el = (Element) node;
+      if (node instanceof Element el) {
         if (StringUtils.isBlank(el.text())) {
           el.addClass("__deleteme");
         }
