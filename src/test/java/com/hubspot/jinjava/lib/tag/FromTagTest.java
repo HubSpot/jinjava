@@ -26,7 +26,8 @@ public class FromTagTest extends BaseInterpretingTest {
   public void setup() {
     jinjava.setResourceLocator(
       new ResourceLocator() {
-        private RelativePathResolver relativePathResolver = new RelativePathResolver();
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
 
         @Override
         public String getString(

@@ -28,7 +28,8 @@ public class EagerFromTagTest extends FromTagTest {
   public void eagerSetup() {
     jinjava.setResourceLocator(
       new ResourceLocator() {
-        private RelativePathResolver relativePathResolver = new RelativePathResolver();
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
 
         @Override
         public String getString(
@@ -128,7 +129,9 @@ public class EagerFromTagTest extends FromTagTest {
   public void itResolvesNestedRelativeImportsInEagerMode() throws Exception {
     jinjava.setResourceLocator(
       new ResourceLocator() {
-        private RelativePathResolver relativePathResolver = new RelativePathResolver();
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
+
         private final java.util.Map<String, String> templates =
           new java.util.HashMap<>() {
             {
