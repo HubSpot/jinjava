@@ -17,7 +17,6 @@
 package com.hubspot.jinjava.interpret;
 
 import com.google.common.annotations.Beta;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
@@ -682,8 +681,7 @@ public class Context extends ScopeMap<String, Object> {
     return includePathStack;
   }
 
-  @VisibleForTesting
-  public CallStack getFromStack() {
+  private CallStack getFromStack() {
     return fromStack;
   }
 
