@@ -66,7 +66,7 @@ public class FromTagTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void importedCycleDected() {
+  public void importedCycleDetected() {
     fixture("from-recursion");
     assertThat(
       interpreter
@@ -78,7 +78,7 @@ public class FromTagTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void importedIndirectCycleDected() {
+  public void importedIndirectCycleDetected() {
     fixture("from-a-to-b");
     assertThat(
       interpreter
