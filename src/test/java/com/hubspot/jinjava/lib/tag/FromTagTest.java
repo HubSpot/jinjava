@@ -114,9 +114,6 @@ public class FromTagTest extends BaseInterpretingTest {
 
   @Test
   public void itResolvesNestedRelativeImports() throws Exception {
-    if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
-      return;
-    }
     jinjava.setResourceLocator(
       new ResourceLocator() {
         private final RelativePathResolver relativePathResolver =
@@ -169,9 +166,6 @@ public class FromTagTest extends BaseInterpretingTest {
 
   @Test
   public void itMaintainsPathStackIntegrity() throws Exception {
-    if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
-      return;
-    }
     jinjava.setResourceLocator(
       new ResourceLocator() {
         private final RelativePathResolver relativePathResolver =
@@ -219,9 +213,6 @@ public class FromTagTest extends BaseInterpretingTest {
 
   @Test
   public void itWorksWithIncludeAndFromTogether() throws Exception {
-    if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
-      return;
-    }
     jinjava.setResourceLocator(
       new ResourceLocator() {
         private final RelativePathResolver relativePathResolver =
@@ -275,9 +266,6 @@ public class FromTagTest extends BaseInterpretingTest {
 
   @Test
   public void itResolvesUpAndAcrossDirectoryPaths() throws Exception {
-    if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
-      return;
-    }
     jinjava.setResourceLocator(
       new ResourceLocator() {
         private final RelativePathResolver relativePathResolver =
@@ -334,9 +322,6 @@ public class FromTagTest extends BaseInterpretingTest {
 
   @Test
   public void itResolvesOriginalErrorCasePaths() throws Exception {
-    if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
-      return;
-    }
     jinjava.setResourceLocator(
       new ResourceLocator() {
         private final RelativePathResolver relativePathResolver =

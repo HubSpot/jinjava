@@ -90,10 +90,15 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
           .newInstance(interpreter);
         child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
         JinjavaInterpreter.pushCurrent(child);
+        interpreter
+          .getContext()
+          .getCurrentPathStack()
+          .push(templateFile, tagToken.getLineNumber(), tagToken.getStartPosition());
         String output;
         try {
           output = child.render(node);
         } finally {
+          interpreter.getContext().getCurrentPathStack().pop();
           JinjavaInterpreter.popCurrent();
         }
 

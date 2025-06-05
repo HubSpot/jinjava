@@ -123,4 +123,51 @@ public class EagerFromTagTest extends FromTagTest {
   @Ignore
   @Override
   public void itDefersImport() {}
+
+  @Test
+  public void itResolvesNestedRelativeImportsInEagerMode() throws Exception {
+    jinjava.setResourceLocator(
+      new ResourceLocator() {
+        private RelativePathResolver relativePathResolver = new RelativePathResolver();
+        private final java.util.Map<String, String> templates =
+          new java.util.HashMap<>() {
+            {
+              put(
+                "root.jinja",
+                "{% from 'sub/nested.jinja' import test_macro %}{{ test_macro() }}"
+              );
+              put(
+                "sub/nested.jinja",
+                "{% from '../helper.jinja' import helper %}{% macro test_macro() %}{{ helper() }}{% endmacro %}"
+              );
+              put("helper.jinja", "{% macro helper() %}HELPER{% endmacro %}");
+            }
+          };
+
+        @Override
+        public String getString(
+          String fullName,
+          Charset encoding,
+          JinjavaInterpreter interpreter
+        ) throws IOException {
+          String template = templates.get(fullName);
+          if (template == null) {
+            throw new IOException("Template not found: " + fullName);
+          }
+          return template;
+        }
+
+        @Override
+        public Optional<LocationResolver> getLocationResolver() {
+          return Optional.of(relativePathResolver);
+        }
+      }
+    );
+
+    interpreter.getContext().getCurrentPathStack().push("root.jinja", 1, 0);
+    String result = interpreter.render(interpreter.getResource("root.jinja"));
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result).contains("HELPER");
+  }
 }
