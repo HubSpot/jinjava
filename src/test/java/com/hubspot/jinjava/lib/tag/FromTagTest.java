@@ -204,12 +204,15 @@ public class FromTagTest extends BaseInterpretingTest {
     );
 
     interpreter.getContext().getCurrentPathStack().push("root.jinja", 1, 0);
-    int initialStackSize = interpreter.getContext().getCurrentPathStack().size();
+    Optional<String> initialTopPath = interpreter
+      .getContext()
+      .getCurrentPathStack()
+      .peek();
 
     interpreter.render(interpreter.getResource("root.jinja"));
 
-    assertThat(interpreter.getContext().getCurrentPathStack().size())
-      .isEqualTo(initialStackSize);
+    assertThat(interpreter.getContext().getCurrentPathStack().peek())
+      .isEqualTo(initialTopPath);
     assertThat(interpreter.getErrors()).isEmpty();
   }
 

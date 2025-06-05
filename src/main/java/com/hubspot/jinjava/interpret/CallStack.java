@@ -1,6 +1,5 @@
 package com.hubspot.jinjava.interpret;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Optional;
 import java.util.Stack;
 
@@ -110,12 +109,6 @@ public class CallStack {
 
   public boolean isEmpty() {
     return stack.empty() && (parent == null || parent.isEmpty());
-  }
-
-  @VisibleForTesting
-  public int size() {
-    int localSize = stack.size();
-    return parent == null ? localSize : localSize + parent.size();
   }
 
   private void pushToStack(String path, int lineNumber, int startPosition) {
