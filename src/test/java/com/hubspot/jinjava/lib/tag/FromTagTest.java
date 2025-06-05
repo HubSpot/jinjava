@@ -2,7 +2,6 @@ package com.hubspot.jinjava.lib.tag;
 
 import static com.hubspot.jinjava.loader.RelativePathResolver.CURRENT_PATH_CONTEXT_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
@@ -69,23 +68,25 @@ public class FromTagTest extends BaseInterpretingTest {
   @Test
   public void importedCycleDected() {
     fixture("from-recursion");
-    assertTrue(
+    assertThat(
       interpreter
         .getErrorsCopy()
         .stream()
         .anyMatch(e -> e.getCategory() == BasicTemplateErrorCategory.FROM_CYCLE_DETECTED)
-    );
+    )
+      .isTrue();
   }
 
   @Test
   public void importedIndirectCycleDected() {
     fixture("from-a-to-b");
-    assertTrue(
+    assertThat(
       interpreter
         .getErrorsCopy()
         .stream()
         .anyMatch(e -> e.getCategory() == BasicTemplateErrorCategory.FROM_CYCLE_DETECTED)
-    );
+    )
+      .isTrue();
   }
 
   @Test
