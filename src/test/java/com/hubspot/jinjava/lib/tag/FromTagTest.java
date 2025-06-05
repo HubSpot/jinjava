@@ -112,6 +112,291 @@ public class FromTagTest extends BaseInterpretingTest {
     assertThat(spacer.isDeferred()).isTrue();
   }
 
+  @Test
+  public void itResolvesNestedRelativeImports() throws Exception {
+    if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
+      return;
+    }
+    jinjava.setResourceLocator(
+      new ResourceLocator() {
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
+        private final java.util.Map<String, String> templates =
+          new java.util.HashMap<>() {
+            {
+              put(
+                "level0.jinja",
+                "{% from 'level1/nested.jinja' import macro1 %}{{ macro1() }}"
+              );
+              put(
+                "level1/nested.jinja",
+                "{% from '../level1/deeper/macro.jinja' import macro2 %}{% macro macro1() %}L1:{{ macro2() }}{% endmacro %}"
+              );
+              put(
+                "level1/deeper/macro.jinja",
+                "{% from '../../utils/helper.jinja' import helper %}{% macro macro2() %}L2:{{ helper() }}{% endmacro %}"
+              );
+              put("utils/helper.jinja", "{% macro helper() %}HELPER{% endmacro %}");
+            }
+          };
+
+        @Override
+        public String getString(
+          String fullName,
+          Charset encoding,
+          JinjavaInterpreter interpreter
+        ) throws IOException {
+          String template = templates.get(fullName);
+          if (template == null) {
+            throw new IOException("Template not found: " + fullName);
+          }
+          return template;
+        }
+
+        @Override
+        public Optional<LocationResolver> getLocationResolver() {
+          return Optional.of(relativePathResolver);
+        }
+      }
+    );
+
+    interpreter.getContext().getCurrentPathStack().push("level0.jinja", 1, 0);
+    String result = interpreter.render(interpreter.getResource("level0.jinja"));
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("L1:L2:HELPER");
+  }
+
+  @Test
+  public void itMaintainsPathStackIntegrity() throws Exception {
+    if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
+      return;
+    }
+    jinjava.setResourceLocator(
+      new ResourceLocator() {
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
+        private final java.util.Map<String, String> templates =
+          new java.util.HashMap<>() {
+            {
+              put(
+                "root.jinja",
+                "{% from 'simple/macro.jinja' import simple_macro %}{{ simple_macro() }}"
+              );
+              put("simple/macro.jinja", "{% macro simple_macro() %}SIMPLE{% endmacro %}");
+            }
+          };
+
+        @Override
+        public String getString(
+          String fullName,
+          Charset encoding,
+          JinjavaInterpreter interpreter
+        ) throws IOException {
+          String template = templates.get(fullName);
+          if (template == null) {
+            throw new IOException("Template not found: " + fullName);
+          }
+          return template;
+        }
+
+        @Override
+        public Optional<LocationResolver> getLocationResolver() {
+          return Optional.of(relativePathResolver);
+        }
+      }
+    );
+
+    interpreter.getContext().getCurrentPathStack().push("root.jinja", 1, 0);
+    int initialStackSize = interpreter.getContext().getCurrentPathStack().size();
+
+    interpreter.render(interpreter.getResource("root.jinja"));
+
+    assertThat(interpreter.getContext().getCurrentPathStack().size())
+      .isEqualTo(initialStackSize);
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itWorksWithIncludeAndFromTogether() throws Exception {
+    if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
+      return;
+    }
+    jinjava.setResourceLocator(
+      new ResourceLocator() {
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
+        private final java.util.Map<String, String> templates =
+          new java.util.HashMap<>() {
+            {
+              put(
+                "mixed-tags.jinja",
+                "{% from 'macros/test.jinja' import test_macro %}{% include 'includes/content.jinja' %}{{ test_macro() }}"
+              );
+              put(
+                "macros/test.jinja",
+                "{% from '../utils/shared.jinja' import shared %}{% macro test_macro() %}MACRO:{{ shared() }}{% endmacro %}"
+              );
+              put(
+                "includes/content.jinja",
+                "{% from '../utils/shared.jinja' import shared %}INCLUDE:{{ shared() }}"
+              );
+              put("utils/shared.jinja", "{% macro shared() %}SHARED{% endmacro %}");
+            }
+          };
+
+        @Override
+        public String getString(
+          String fullName,
+          Charset encoding,
+          JinjavaInterpreter interpreter
+        ) throws IOException {
+          String template = templates.get(fullName);
+          if (template == null) {
+            throw new IOException("Template not found: " + fullName);
+          }
+          return template;
+        }
+
+        @Override
+        public Optional<LocationResolver> getLocationResolver() {
+          return Optional.of(relativePathResolver);
+        }
+      }
+    );
+
+    interpreter.getContext().getCurrentPathStack().push("mixed-tags.jinja", 1, 0);
+    String result = interpreter.render(interpreter.getResource("mixed-tags.jinja"));
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).contains("INCLUDE:SHARED");
+    assertThat(result.trim()).contains("MACRO:SHARED");
+  }
+
+  @Test
+  public void itResolvesUpAndAcrossDirectoryPaths() throws Exception {
+    if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
+      return;
+    }
+    jinjava.setResourceLocator(
+      new ResourceLocator() {
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
+        private final java.util.Map<String, String> templates =
+          new java.util.HashMap<>() {
+            {
+              put(
+                "theme/hubl-modules/navigation.module/module.hubl.html",
+                "{% from '../../partials/atoms/link/link.hubl.html' import link_macro %}{{ link_macro() }}"
+              );
+              put(
+                "theme/partials/atoms/link/link.hubl.html",
+                "{% from '../icons/icons.hubl.html' import icon_macro %}{% macro link_macro() %}LINK:{{ icon_macro() }}{% endmacro %}"
+              );
+              put(
+                "theme/partials/atoms/icons/icons.hubl.html",
+                "{% macro icon_macro() %}ICON{% endmacro %}"
+              );
+            }
+          };
+
+        @Override
+        public String getString(
+          String fullName,
+          Charset encoding,
+          JinjavaInterpreter interpreter
+        ) throws IOException {
+          String template = templates.get(fullName);
+          if (template == null) {
+            throw new IOException("Template not found: " + fullName);
+          }
+          return template;
+        }
+
+        @Override
+        public Optional<LocationResolver> getLocationResolver() {
+          return Optional.of(relativePathResolver);
+        }
+      }
+    );
+
+    interpreter
+      .getContext()
+      .getCurrentPathStack()
+      .push("theme/hubl-modules/navigation.module/module.hubl.html", 1, 0);
+    String result = interpreter.render(
+      interpreter.getResource("theme/hubl-modules/navigation.module/module.hubl.html")
+    );
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("LINK:ICON");
+  }
+
+  @Test
+  public void itResolvesOriginalErrorCasePaths() throws Exception {
+    if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
+      return;
+    }
+    jinjava.setResourceLocator(
+      new ResourceLocator() {
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
+        private final java.util.Map<String, String> templates =
+          new java.util.HashMap<>() {
+            {
+              put(
+                "@projects/mws-theme-minimal/theme/hubl-modules/navigation.module/module.hubl.html",
+                "{% from '../../partials/atoms/link/link.hubl.html' import button %}{{ button() }}"
+              );
+              put(
+                "@projects/mws-theme-minimal/theme/partials/atoms/link/link.hubl.html",
+                "{% from '../icons/icons.hubl.html' import get_icon %}{% macro button() %}{{ get_icon() }}{% endmacro %}"
+              );
+              put(
+                "@projects/mws-theme-minimal/theme/partials/atoms/icons/icons.hubl.html",
+                "{% macro get_icon() %}ICON{% endmacro %}"
+              );
+            }
+          };
+
+        @Override
+        public String getString(
+          String fullName,
+          Charset encoding,
+          JinjavaInterpreter interpreter
+        ) throws IOException {
+          String template = templates.get(fullName);
+          if (template == null) {
+            throw new IOException("Template not found: " + fullName);
+          }
+          return template;
+        }
+
+        @Override
+        public Optional<LocationResolver> getLocationResolver() {
+          return Optional.of(relativePathResolver);
+        }
+      }
+    );
+
+    interpreter
+      .getContext()
+      .getCurrentPathStack()
+      .push(
+        "@projects/mws-theme-minimal/theme/hubl-modules/navigation.module/module.hubl.html",
+        1,
+        0
+      );
+    String result = interpreter.render(
+      interpreter.getResource(
+        "@projects/mws-theme-minimal/theme/hubl-modules/navigation.module/module.hubl.html"
+      )
+    );
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("ICON");
+  }
+
   private String fixture(String name) {
     return interpreter.renderFlat(fixtureText(name));
   }

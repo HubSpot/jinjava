@@ -94,9 +94,14 @@ public class FromTag implements Tag {
           .newInstance(interpreter);
         child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
         JinjavaInterpreter.pushCurrent(child);
+        interpreter
+          .getContext()
+          .getCurrentPathStack()
+          .push(templateFile, tagNode.getLineNumber(), tagNode.getStartPosition());
         try {
           child.render(node);
         } finally {
+          interpreter.getContext().getCurrentPathStack().pop();
           JinjavaInterpreter.popCurrent();
         }
 
