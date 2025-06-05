@@ -370,6 +370,301 @@ public class ImportTagTest extends BaseInterpretingTest {
       .isEqualTo("double-import-macro.jinja\n\nimport-macro.jinja\nfoo\n");
   }
 
+  @Test
+  public void itResolvesNestedRelativeImports() throws Exception {
+    jinjava.setResourceLocator(
+      new ResourceLocator() {
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
+        private final java.util.Map<String, String> templates =
+          new java.util.HashMap<>() {
+            {
+              put(
+                "level0.jinja",
+                "{% import './level1/level1.jinja' as l1 %}{{ l1.macro_level1() }}"
+              );
+              put(
+                "level1/level1.jinja",
+                "{% import './deeper/macro.jinja' as helper %}{% macro macro_level1() %}L1:{{ helper.helper_macro() }}{% endmacro %}"
+              );
+              put(
+                "level1/deeper/macro.jinja",
+                "{% macro helper_macro() %}L2:HELPER{% endmacro %}"
+              );
+            }
+          };
+
+        @Override
+        public String getString(
+          String fullName,
+          Charset encoding,
+          JinjavaInterpreter interpreter
+        ) throws IOException {
+          String template = templates.get(fullName);
+          if (template == null) {
+            throw new IOException("Template not found: " + fullName);
+          }
+          return template;
+        }
+
+        @Override
+        public Optional<LocationResolver> getLocationResolver() {
+          return Optional.of(relativePathResolver);
+        }
+      }
+    );
+
+    interpreter.getContext().getCurrentPathStack().push("level0.jinja", 1, 0);
+    String result = interpreter.render(interpreter.getResource("level0.jinja"));
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("L1:L2:HELPER");
+  }
+
+  @Test
+  public void itMaintainsPathStackIntegrityWithImport() throws Exception {
+    jinjava.setResourceLocator(
+      new ResourceLocator() {
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
+        private final java.util.Map<String, String> templates =
+          new java.util.HashMap<>() {
+            {
+              put(
+                "root.jinja",
+                "{% import 'simple/macro.jinja' as simple %}{{ simple.simple_macro() }}"
+              );
+              put("simple/macro.jinja", "{% macro simple_macro() %}SIMPLE{% endmacro %}");
+            }
+          };
+
+        @Override
+        public String getString(
+          String fullName,
+          Charset encoding,
+          JinjavaInterpreter interpreter
+        ) throws IOException {
+          String template = templates.get(fullName);
+          if (template == null) {
+            throw new IOException("Template not found: " + fullName);
+          }
+          return template;
+        }
+
+        @Override
+        public Optional<LocationResolver> getLocationResolver() {
+          return Optional.of(relativePathResolver);
+        }
+      }
+    );
+
+    interpreter.getContext().getCurrentPathStack().push("root.jinja", 1, 0);
+    String result = interpreter.render(interpreter.getResource("root.jinja"));
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("SIMPLE");
+  }
+
+  @Test
+  public void itWorksWithIncludeAndImportTogether() throws Exception {
+    jinjava.setResourceLocator(
+      new ResourceLocator() {
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
+        private final java.util.Map<String, String> templates =
+          new java.util.HashMap<>() {
+            {
+              put("base.jinja", "{% include './views/content.jinja' %}");
+              put(
+                "views/content.jinja",
+                "{% import '../utils/shared.jinja' as utils %}{{ utils.helper() }}"
+              );
+              put("utils/shared.jinja", "{% macro helper() %}SHARED{% endmacro %}");
+            }
+          };
+
+        @Override
+        public String getString(
+          String fullName,
+          Charset encoding,
+          JinjavaInterpreter interpreter
+        ) throws IOException {
+          String template = templates.get(fullName);
+          if (template == null) {
+            throw new IOException("Template not found: " + fullName);
+          }
+          return template;
+        }
+
+        @Override
+        public Optional<LocationResolver> getLocationResolver() {
+          return Optional.of(relativePathResolver);
+        }
+      }
+    );
+
+    interpreter.getContext().getCurrentPathStack().push("base.jinja", 1, 0);
+    String result = interpreter.render(interpreter.getResource("base.jinja"));
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("SHARED");
+  }
+
+  @Test
+  public void itResolvesUpAndAcrossDirectoryPaths() throws Exception {
+    jinjava.setResourceLocator(
+      new ResourceLocator() {
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
+        private final java.util.Map<String, String> templates =
+          new java.util.HashMap<>() {
+            {
+              put(
+                "base.jinja",
+                "{% import './theme/modules/header/header.hubl.html' as header %}{{ header.render_header() }}"
+              );
+              put(
+                "theme/modules/header/header.hubl.html",
+                "{% import '../../partials/atoms/link/link.hubl.html' as link %}{% macro render_header() %}{{ link.render_link() }}{% endmacro %}"
+              );
+              put(
+                "theme/partials/atoms/link/link.hubl.html",
+                "{% macro render_link() %}LINK{% endmacro %}"
+              );
+            }
+          };
+
+        @Override
+        public String getString(
+          String fullName,
+          Charset encoding,
+          JinjavaInterpreter interpreter
+        ) throws IOException {
+          String template = templates.get(fullName);
+          if (template == null) {
+            throw new IOException("Template not found: " + fullName);
+          }
+          return template;
+        }
+
+        @Override
+        public Optional<LocationResolver> getLocationResolver() {
+          return Optional.of(relativePathResolver);
+        }
+      }
+    );
+
+    interpreter.getContext().getCurrentPathStack().push("base.jinja", 1, 0);
+    String result = interpreter.render(interpreter.getResource("base.jinja"));
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("LINK");
+  }
+
+  @Test
+  public void itResolvesProjectsAbsolutePaths() throws Exception {
+    jinjava.setResourceLocator(
+      new ResourceLocator() {
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
+        private final java.util.Map<String, String> templates =
+          new java.util.HashMap<>() {
+            {
+              put(
+                "@projects/theme-name/modules/header.html",
+                "{% import '@projects/theme-name/utils/helpers.html' as helpers %}{{ helpers.render_header() }}"
+              );
+              put(
+                "@projects/theme-name/utils/helpers.html",
+                "{% macro render_header() %}HEADER{% endmacro %}"
+              );
+            }
+          };
+
+        @Override
+        public String getString(
+          String fullName,
+          Charset encoding,
+          JinjavaInterpreter interpreter
+        ) throws IOException {
+          String template = templates.get(fullName);
+          if (template == null) {
+            throw new IOException("Template not found: " + fullName);
+          }
+          return template;
+        }
+
+        @Override
+        public Optional<LocationResolver> getLocationResolver() {
+          return Optional.of(relativePathResolver);
+        }
+      }
+    );
+
+    interpreter
+      .getContext()
+      .getCurrentPathStack()
+      .push("@projects/theme-name/modules/header.html", 1, 0);
+    String result = interpreter.render(
+      interpreter.getResource("@projects/theme-name/modules/header.html")
+    );
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("HEADER");
+  }
+
+  @Test
+  public void itResolvesHubspotAbsolutePaths() throws Exception {
+    jinjava.setResourceLocator(
+      new ResourceLocator() {
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
+        private final java.util.Map<String, String> templates =
+          new java.util.HashMap<>() {
+            {
+              put(
+                "@hubspot/common/macros.html",
+                "{% import '@hubspot/common/utils.html' as utils %}{{ utils.common_macro() }}"
+              );
+              put(
+                "@hubspot/common/utils.html",
+                "{% macro common_macro() %}COMMON{% endmacro %}"
+              );
+            }
+          };
+
+        @Override
+        public String getString(
+          String fullName,
+          Charset encoding,
+          JinjavaInterpreter interpreter
+        ) throws IOException {
+          String template = templates.get(fullName);
+          if (template == null) {
+            throw new IOException("Template not found: " + fullName);
+          }
+          return template;
+        }
+
+        @Override
+        public Optional<LocationResolver> getLocationResolver() {
+          return Optional.of(relativePathResolver);
+        }
+      }
+    );
+
+    interpreter
+      .getContext()
+      .getCurrentPathStack()
+      .push("@hubspot/common/macros.html", 1, 0);
+    String result = interpreter.render(
+      interpreter.getResource("@hubspot/common/macros.html")
+    );
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("COMMON");
+  }
+
   private String fixture(String name) {
     try {
       return interpreter.renderFlat(

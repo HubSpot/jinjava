@@ -322,7 +322,8 @@ public class FromTagTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itResolvesOriginalErrorCasePaths() throws Exception {
+  public void itResolvesProjectsAbsolutePathsWithNestedRelativeImports()
+    throws Exception {
     jinjava.setResourceLocator(
       new ResourceLocator() {
         private final RelativePathResolver relativePathResolver =
@@ -331,15 +332,15 @@ public class FromTagTest extends BaseInterpretingTest {
           new java.util.HashMap<>() {
             {
               put(
-                "@projects/mws-theme-minimal/theme/hubl-modules/navigation.module/module.hubl.html",
-                "{% from '../../partials/atoms/link/link.hubl.html' import button %}{{ button() }}"
+                "@projects/theme-a/modules/header/header.html",
+                "{% from '../../components/button.html' import render_button %}{{ render_button('primary') }}"
               );
               put(
-                "@projects/mws-theme-minimal/theme/partials/atoms/link/link.hubl.html",
-                "{% from '../icons/icons.hubl.html' import get_icon %}{% macro button() %}{{ get_icon() }}{% endmacro %}"
+                "@projects/theme-a/components/button.html",
+                "{% from '../utils/icons.html' import get_icon %}{% macro render_button(type) %}{{ type }}-{{ get_icon() }}{% endmacro %}"
               );
               put(
-                "@projects/mws-theme-minimal/theme/partials/atoms/icons/icons.hubl.html",
+                "@projects/theme-a/utils/icons.html",
                 "{% macro get_icon() %}ICON{% endmacro %}"
               );
             }
@@ -368,19 +369,125 @@ public class FromTagTest extends BaseInterpretingTest {
     interpreter
       .getContext()
       .getCurrentPathStack()
-      .push(
-        "@projects/mws-theme-minimal/theme/hubl-modules/navigation.module/module.hubl.html",
-        1,
-        0
-      );
+      .push("@projects/theme-a/modules/header/header.html", 1, 0);
     String result = interpreter.render(
-      interpreter.getResource(
-        "@projects/mws-theme-minimal/theme/hubl-modules/navigation.module/module.hubl.html"
-      )
+      interpreter.getResource("@projects/theme-a/modules/header/header.html")
     );
 
     assertThat(interpreter.getErrors()).isEmpty();
-    assertThat(result.trim()).isEqualTo("ICON");
+    assertThat(result.trim()).isEqualTo("primary-ICON");
+  }
+
+  @Test
+  public void itResolvesHubspotAbsolutePathsWithNestedRelativeImports() throws Exception {
+    jinjava.setResourceLocator(
+      new ResourceLocator() {
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
+        private final java.util.Map<String, String> templates =
+          new java.util.HashMap<>() {
+            {
+              put(
+                "@hubspot/modules/forms/contact-form.html",
+                "{% from '../../shared/validation.html' import validate_field %}{{ validate_field('email') }}"
+              );
+              put(
+                "@hubspot/shared/validation.html",
+                "{% from '../helpers/formatters.html' import format_error %}{% macro validate_field(field) %}{{ format_error(field) }}{% endmacro %}"
+              );
+              put(
+                "@hubspot/helpers/formatters.html",
+                "{% macro format_error(field) %}ERROR:{{ field }}{% endmacro %}"
+              );
+            }
+          };
+
+        @Override
+        public String getString(
+          String fullName,
+          Charset encoding,
+          JinjavaInterpreter interpreter
+        ) throws IOException {
+          String template = templates.get(fullName);
+          if (template == null) {
+            throw new IOException("Template not found: " + fullName);
+          }
+          return template;
+        }
+
+        @Override
+        public Optional<LocationResolver> getLocationResolver() {
+          return Optional.of(relativePathResolver);
+        }
+      }
+    );
+
+    interpreter
+      .getContext()
+      .getCurrentPathStack()
+      .push("@hubspot/modules/forms/contact-form.html", 1, 0);
+    String result = interpreter.render(
+      interpreter.getResource("@hubspot/modules/forms/contact-form.html")
+    );
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("ERROR:email");
+  }
+
+  @Test
+  public void itResolvesMixedAbsoluteAndRelativeImports() throws Exception {
+    jinjava.setResourceLocator(
+      new ResourceLocator() {
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
+        private final java.util.Map<String, String> templates =
+          new java.util.HashMap<>() {
+            {
+              put(
+                "@projects/mixed/module.html",
+                "{% from '@hubspot/shared/globals.html' import global_helper %}{{ global_helper() }}"
+              );
+              put(
+                "@hubspot/shared/globals.html",
+                "{% from '../utils/common.html' import format_text %}{% macro global_helper() %}{{ format_text('MIXED') }}{% endmacro %}"
+              );
+              put(
+                "@hubspot/utils/common.html",
+                "{% macro format_text(text) %}FORMAT:{{ text }}{% endmacro %}"
+              );
+            }
+          };
+
+        @Override
+        public String getString(
+          String fullName,
+          Charset encoding,
+          JinjavaInterpreter interpreter
+        ) throws IOException {
+          String template = templates.get(fullName);
+          if (template == null) {
+            throw new IOException("Template not found: " + fullName);
+          }
+          return template;
+        }
+
+        @Override
+        public Optional<LocationResolver> getLocationResolver() {
+          return Optional.of(relativePathResolver);
+        }
+      }
+    );
+
+    interpreter
+      .getContext()
+      .getCurrentPathStack()
+      .push("@projects/mixed/module.html", 1, 0);
+    String result = interpreter.render(
+      interpreter.getResource("@projects/mixed/module.html")
+    );
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("FORMAT:MIXED");
   }
 
   private String fixture(String name) {
