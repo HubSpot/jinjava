@@ -5,6 +5,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
+import com.hubspot.jinjava.interpret.AutoCloseableWrapper;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -90,9 +91,9 @@ public class ImportTag implements Tag {
       return "";
     }
     String templateFile = maybeTemplateFile.get();
-    try {
-      Node node = parseTemplateAsNode(interpreter, templateFile);
-
+    try (
+      AutoCloseableWrapper<Node> node = parseTemplateAsNode(interpreter, templateFile);
+    ) {
       JinjavaInterpreter child = interpreter
         .getConfig()
         .getInterpreterFactory()
@@ -102,7 +103,7 @@ public class ImportTag implements Tag {
       JinjavaInterpreter.pushCurrent(child);
 
       try {
-        child.render(node);
+        child.render(node.get());
       } finally {
         JinjavaInterpreter.popCurrent();
       }
@@ -114,7 +115,7 @@ public class ImportTag implements Tag {
       // If the template depends on deferred values it should not be rendered and all defined variables and macros should be deferred too
       if (!child.getContext().getDeferredNodes().isEmpty()) {
         handleDeferredNodesDuringImport(
-          node,
+          node.get(),
           contextVar,
           childBindings,
           child,
@@ -137,7 +138,6 @@ public class ImportTag implements Tag {
         tagNode.getStartPosition()
       );
     } finally {
-      interpreter.getContext().getCurrentPathStack().pop();
       interpreter.getContext().getImportPathStack().pop();
     }
   }
@@ -210,7 +210,7 @@ public class ImportTag implements Tag {
     }
   }
 
-  public static Node parseTemplateAsNode(
+  public static AutoCloseableWrapper<Node> parseTemplateAsNode(
     JinjavaInterpreter interpreter,
     String templateFile
   ) throws IOException {
@@ -220,7 +220,10 @@ public class ImportTag implements Tag {
       .push(templateFile, interpreter.getLineNumber(), interpreter.getPosition());
 
     String template = interpreter.getResource(templateFile);
-    return interpreter.parse(template);
+    return AutoCloseableWrapper.of(
+      interpreter.parse(template),
+      n -> interpreter.getContext().getCurrentPathStack().pop()
+    );
   }
 
   public static Optional<String> getTemplateFile(

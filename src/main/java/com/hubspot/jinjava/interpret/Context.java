@@ -878,23 +878,14 @@ public class Context extends ScopeMap<String, Object> {
     return temporaryValueClosable;
   }
 
-  public static class TemporaryValueClosable<T> implements AutoCloseable {
-
-    private final T previousValue;
-    private final Consumer<T> resetValueConsumer;
+  public static class TemporaryValueClosable<T> extends AutoCloseableWrapper<T> {
 
     private TemporaryValueClosable(T previousValue, Consumer<T> resetValueConsumer) {
-      this.previousValue = previousValue;
-      this.resetValueConsumer = resetValueConsumer;
+      super(previousValue, resetValueConsumer);
     }
 
     public static <T> TemporaryValueClosable<T> noOp() {
       return new NoOpTemporaryValueClosable<>();
-    }
-
-    @Override
-    public void close() {
-      resetValueConsumer.accept(previousValue);
     }
 
     private static class NoOpTemporaryValueClosable<T> extends TemporaryValueClosable<T> {

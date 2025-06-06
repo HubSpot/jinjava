@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
+import com.hubspot.jinjava.interpret.AutoCloseableWrapper;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
@@ -49,9 +50,12 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       return "";
     }
     String templateFile = maybeTemplateFile.get();
-    try {
-      Node node = ImportTag.parseTemplateAsNode(interpreter, templateFile);
-
+    try (
+      AutoCloseableWrapper<Node> node = ImportTag.parseTemplateAsNode(
+        interpreter,
+        templateFile
+      )
+    ) {
       JinjavaInterpreter child = interpreter
         .getConfig()
         .getInterpreterFactory()
@@ -61,7 +65,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       String output;
       try {
         eagerImportingStrategy.setup(child);
-        output = child.render(node);
+        output = child.render(node.get());
       } finally {
         JinjavaInterpreter.popCurrent();
       }
@@ -76,7 +80,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
           !child.getContext().getGlobalMacros().isEmpty())
       ) {
         ImportTag.handleDeferredNodesDuringImport(
-          node,
+          node.get(),
           ImportTag.getContextVar(importingData.getHelpers()),
           childBindings,
           child,
@@ -110,7 +114,6 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         tagToken.getStartPosition()
       );
     } finally {
-      interpreter.getContext().getCurrentPathStack().pop();
       interpreter.getContext().getImportPathStack().pop();
     }
   }
