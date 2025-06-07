@@ -4,6 +4,7 @@ import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.el.ext.DeferredInvocationResolutionException;
 import com.hubspot.jinjava.el.ext.eager.MacroFunctionTempVariable;
+import com.hubspot.jinjava.interpret.AutoCloseableWrapper;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -69,8 +70,12 @@ public class EagerMacroFunction extends MacroFunction {
   ) {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     if (reconstructing) {
-      Optional<String> importFile = getImportFile(interpreter);
-      try (InterpreterScopeClosable c = interpreter.enterScope()) {
+      try (
+        InterpreterScopeClosable c = interpreter.enterScope();
+        AutoCloseableWrapper<Optional<String>> importFile = getImportFileWithWrapper(
+          interpreter
+        )
+      ) {
         EagerExecutionResult result = eagerEvaluateInDeferredExecutionMode(
           () -> getEvaluationResultDirectly(argMap, kwargMap, varArgs, interpreter),
           interpreter
@@ -86,9 +91,6 @@ public class EagerMacroFunction extends MacroFunction {
             );
         }
         return result.asTemplateString();
-      } finally {
-        importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop()
-        );
       }
     }
 

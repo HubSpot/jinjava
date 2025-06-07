@@ -7,6 +7,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
+import com.hubspot.jinjava.interpret.AutoCloseableWrapper;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -72,27 +73,28 @@ public class FromTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     List<String> helper = getHelpers((TagToken) tagNode.getMaster());
 
-    Optional<String> maybeTemplateFile = getTemplateFile(
-      helper,
-      (TagToken) tagNode.getMaster(),
-      interpreter
-    );
-    if (!maybeTemplateFile.isPresent()) {
-      return "";
-    }
-    String templateFile = maybeTemplateFile.get();
-    try {
+    try (
+      AutoCloseableWrapper<String> templateFile = getTemplateFileWithWrapper(
+        helper,
+        (TagToken) tagNode.getMaster(),
+        interpreter
+      )
+    ) {
+      if (templateFile.get() == null) {
+        return "";
+      }
+
       Map<String, String> imports = getImportMap(helper);
 
       try {
-        String template = interpreter.getResource(templateFile);
+        String template = interpreter.getResource(templateFile.get());
         Node node = interpreter.parse(template);
 
         JinjavaInterpreter child = interpreter
           .getConfig()
           .getInterpreterFactory()
           .newInstance(interpreter);
-        child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
+        child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile.get());
         JinjavaInterpreter.pushCurrent(child);
         try {
           child.render(node);
@@ -100,14 +102,14 @@ public class FromTag implements Tag {
           JinjavaInterpreter.popCurrent();
         }
 
-        interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
+        interpreter.addAllChildErrors(templateFile.get(), child.getErrorsCopy());
 
         boolean importsDeferredValue = integrateChild(imports, child, interpreter);
 
         if (importsDeferredValue) {
           handleDeferredNodesDuringImport(
             (TagToken) tagNode.getMaster(),
-            templateFile,
+            templateFile.get(),
             imports,
             child,
             interpreter
@@ -123,8 +125,6 @@ public class FromTag implements Tag {
           tagNode.getStartPosition()
         );
       }
-    } finally {
-      interpreter.getContext().popFromStack();
     }
   }
 
@@ -208,6 +208,53 @@ public class FromTag implements Tag {
     return imports;
   }
 
+  public static AutoCloseableWrapper<String> getTemplateFileWithWrapper(
+    List<String> helper,
+    TagToken tagToken,
+    JinjavaInterpreter interpreter
+  ) {
+    String templateFile = interpreter.resolveString(
+      helper.get(0),
+      tagToken.getLineNumber(),
+      tagToken.getStartPosition()
+    );
+    templateFile = interpreter.resolveResourceLocation(templateFile);
+    interpreter.getContext().addDependency("coded_files", templateFile);
+    try {
+      interpreter
+        .getContext()
+        .pushFromStack(
+          templateFile,
+          tagToken.getLineNumber(),
+          tagToken.getStartPosition()
+        );
+      return AutoCloseableWrapper.of(
+        templateFile,
+        ignored -> interpreter.getContext().popFromStack()
+      );
+    } catch (FromTagCycleException e) {
+      interpreter.addError(
+        new TemplateError(
+          ErrorType.WARNING,
+          ErrorReason.EXCEPTION,
+          ErrorItem.TAG,
+          "From cycle detected for path: '" + templateFile + "'",
+          null,
+          tagToken.getLineNumber(),
+          tagToken.getStartPosition(),
+          e,
+          BasicTemplateErrorCategory.FROM_CYCLE_DETECTED,
+          ImmutableMap.of("path", templateFile)
+        )
+      );
+      return AutoCloseableWrapper.of(
+        null,
+        ignored -> {} // no-op cleanup
+      );
+    }
+  }
+
+  @Deprecated
   public static Optional<String> getTemplateFile(
     List<String> helper,
     TagToken tagToken,

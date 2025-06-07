@@ -20,6 +20,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
+import com.hubspot.jinjava.interpret.AutoCloseableWrapper;
 import com.hubspot.jinjava.interpret.IncludeTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -99,15 +100,30 @@ public class IncludeTag implements Tag {
       return "";
     }
 
-    try {
-      String template = interpreter.getResource(templateFile);
+    final String finalTemplateFile = templateFile;
+    try (
+      AutoCloseableWrapper<Runnable> currentPathPush = AutoCloseableWrapper.of(
+        () ->
+          interpreter
+            .getContext()
+            .getCurrentPathStack()
+            .push(
+              finalTemplateFile,
+              interpreter.getLineNumber(),
+              interpreter.getPosition()
+            ),
+        ignored -> {
+          interpreter.getContext().getCurrentPathStack().pop();
+          interpreter.getContext().getIncludePathStack().pop();
+        }
+      )
+    ) {
+      currentPathPush.get().run();
+
+      String template = interpreter.getResource(finalTemplateFile);
       Node node = interpreter.parse(template);
 
-      interpreter.getContext().addDependency("coded_files", templateFile);
-      interpreter
-        .getContext()
-        .getCurrentPathStack()
-        .push(templateFile, interpreter.getLineNumber(), interpreter.getPosition());
+      interpreter.getContext().addDependency("coded_files", finalTemplateFile);
 
       return interpreter.render(node, false);
     } catch (IOException e) {
@@ -117,9 +133,6 @@ public class IncludeTag implements Tag {
         tagNode.getLineNumber(),
         tagNode.getStartPosition()
       );
-    } finally {
-      interpreter.getContext().getIncludePathStack().pop();
-      interpreter.getContext().getCurrentPathStack().pop();
     }
   }
 

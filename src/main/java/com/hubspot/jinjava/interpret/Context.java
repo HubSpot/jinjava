@@ -701,6 +701,68 @@ public class Context extends ScopeMap<String, Object> {
     fromStack.pop();
   }
 
+  public AutoCloseableWrapper<CallStack> pushCurrentPath(
+    String path,
+    int lineNumber,
+    int startPosition
+  ) {
+    currentPathStack.push(path, lineNumber, startPosition);
+    return AutoCloseableWrapper.of(currentPathStack, CallStack::pop);
+  }
+
+  public AutoCloseableWrapper<CallStack> pushImportPath(
+    String path,
+    int lineNumber,
+    int startPosition
+  ) {
+    importPathStack.push(path, lineNumber, startPosition);
+    return AutoCloseableWrapper.of(importPathStack, CallStack::pop);
+  }
+
+  public AutoCloseableWrapper<CallStack> pushIncludePath(
+    String path,
+    int lineNumber,
+    int startPosition
+  ) {
+    includePathStack.push(path, lineNumber, startPosition);
+    return AutoCloseableWrapper.of(includePathStack, CallStack::pop);
+  }
+
+  public AutoCloseableWrapper<CallStack> pushFromStackWithWrapper(
+    String path,
+    int lineNumber,
+    int startPosition
+  ) {
+    fromStack.push(path, lineNumber, startPosition);
+    return AutoCloseableWrapper.of(fromStack, CallStack::pop);
+  }
+
+  public AutoCloseableWrapper<CallStack> pushMacroStack(
+    String path,
+    int lineNumber,
+    int startPosition
+  ) {
+    macroStack.push(path, lineNumber, startPosition);
+    return AutoCloseableWrapper.of(macroStack, CallStack::pop);
+  }
+
+  public AutoCloseableWrapper<Runnable> withDualStackPush(
+    String currentPath,
+    String includePath,
+    int lineNumber,
+    int startPosition
+  ) {
+    currentPathStack.push(currentPath, lineNumber, startPosition);
+    includePathStack.push(includePath, lineNumber, startPosition);
+    return AutoCloseableWrapper.of(
+      () -> {},
+      ignored -> {
+        includePathStack.pop();
+        currentPathStack.pop();
+      }
+    );
+  }
+
   public int getRenderDepth() {
     if (renderDepth != -1) {
       return renderDepth;

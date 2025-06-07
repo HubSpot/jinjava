@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
+import com.hubspot.jinjava.interpret.AutoCloseableWrapper;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
@@ -18,7 +19,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,55 +40,27 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
     );
     List<String> helper = FromTag.getHelpers(tagToken);
     Map<String, String> imports = FromTag.getImportMap(helper);
-    Optional<String> maybeTemplateFile;
-    try {
-      maybeTemplateFile = FromTag.getTemplateFile(helper, tagToken, interpreter);
-    } catch (DeferredValueException e) {
-      imports
-        .values()
-        .forEach(value -> {
-          MacroFunction deferredMacro = new EagerMacroFunction(
-            null,
-            value,
-            null,
-            false,
-            null,
-            tagToken.getLineNumber(),
-            tagToken.getStartPosition()
-          );
-          deferredMacro.setDeferred(true);
-          interpreter.getContext().addGlobalMacro(deferredMacro);
-        });
-      return (
-        initialPathSetter +
-        new PrefixToPreserveState(
-          EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
-            interpreter,
-            DeferredToken
-              .builderFromToken(tagToken)
-              .addUsedDeferredWords(Stream.of(helper.get(0)))
-              .addUsedDeferredWords(imports.keySet())
-              .addSetDeferredWords(imports.values())
-              .build()
-          )
-        ) +
-        tagToken.getImage()
-      );
-    }
-    if (!maybeTemplateFile.isPresent()) {
-      return "";
-    }
-    String templateFile = maybeTemplateFile.get();
-    try {
+
+    try (
+      AutoCloseableWrapper<String> templateFile = FromTag.getTemplateFileWithWrapper(
+        helper,
+        tagToken,
+        interpreter
+      )
+    ) {
+      if (templateFile.get() == null) {
+        return "";
+      }
+
       try {
-        String template = interpreter.getResource(templateFile);
+        String template = interpreter.getResource(templateFile.get());
         Node node = interpreter.parse(template);
 
         JinjavaInterpreter child = interpreter
           .getConfig()
           .getInterpreterFactory()
           .newInstance(interpreter);
-        child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
+        child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile.get());
         JinjavaInterpreter.pushCurrent(child);
         String output;
         try {
@@ -97,12 +69,12 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
           JinjavaInterpreter.popCurrent();
         }
 
-        interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
+        interpreter.addAllChildErrors(templateFile.get(), child.getErrorsCopy());
 
         if (!child.getContext().getDeferredNodes().isEmpty()) {
           FromTag.handleDeferredNodesDuringImport(
             tagToken,
-            templateFile,
+            templateFile.get(),
             imports,
             child,
             interpreter
@@ -136,8 +108,37 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
           tagToken.getStartPosition()
         );
       }
-    } finally {
-      interpreter.getContext().popFromStack();
+    } catch (DeferredValueException e) {
+      imports
+        .values()
+        .forEach(value -> {
+          MacroFunction deferredMacro = new EagerMacroFunction(
+            null,
+            value,
+            null,
+            false,
+            null,
+            tagToken.getLineNumber(),
+            tagToken.getStartPosition()
+          );
+          deferredMacro.setDeferred(true);
+          interpreter.getContext().addGlobalMacro(deferredMacro);
+        });
+      return (
+        initialPathSetter +
+        new PrefixToPreserveState(
+          EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+            interpreter,
+            DeferredToken
+              .builderFromToken(tagToken)
+              .addUsedDeferredWords(Stream.of(helper.get(0)))
+              .addUsedDeferredWords(imports.keySet())
+              .addSetDeferredWords(imports.values())
+              .build()
+          )
+        ) +
+        tagToken.getImage()
+      );
     }
   }
 

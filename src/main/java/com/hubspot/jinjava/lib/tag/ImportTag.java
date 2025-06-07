@@ -82,63 +82,67 @@ public class ImportTag implements Tag {
 
     String contextVar = getContextVar(helper);
 
-    Optional<String> maybeTemplateFile = getTemplateFile(
-      helper,
-      (TagToken) tagNode.getMaster(),
-      interpreter
-    );
-    if (!maybeTemplateFile.isPresent()) {
-      return "";
-    }
-    String templateFile = maybeTemplateFile.get();
     try (
-      AutoCloseableWrapper<Node> node = parseTemplateAsNode(interpreter, templateFile);
+      AutoCloseableWrapper<String> templateFile = getTemplateFileWithWrapper(
+        helper,
+        (TagToken) tagNode.getMaster(),
+        interpreter
+      )
     ) {
-      JinjavaInterpreter child = interpreter
-        .getConfig()
-        .getInterpreterFactory()
-        .newInstance(interpreter);
-      child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
-
-      JinjavaInterpreter.pushCurrent(child);
-
-      try {
-        child.render(node.get());
-      } finally {
-        JinjavaInterpreter.popCurrent();
+      if (templateFile.get() == null) {
+        return "";
       }
 
-      interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
-
-      Map<String, Object> childBindings = child.getContext().getSessionBindings();
-
-      // If the template depends on deferred values it should not be rendered and all defined variables and macros should be deferred too
-      if (!child.getContext().getDeferredNodes().isEmpty()) {
-        handleDeferredNodesDuringImport(
-          node.get(),
-          contextVar,
-          childBindings,
-          child,
-          interpreter
+      try (
+        AutoCloseableWrapper<Node> node = parseTemplateAsNode(
+          interpreter,
+          templateFile.get()
         );
-        throw new DeferredValueException(
-          templateFile,
+      ) {
+        JinjavaInterpreter child = interpreter
+          .getConfig()
+          .getInterpreterFactory()
+          .newInstance(interpreter);
+        child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile.get());
+
+        JinjavaInterpreter.pushCurrent(child);
+
+        try {
+          child.render(node.get());
+        } finally {
+          JinjavaInterpreter.popCurrent();
+        }
+
+        interpreter.addAllChildErrors(templateFile.get(), child.getErrorsCopy());
+
+        Map<String, Object> childBindings = child.getContext().getSessionBindings();
+
+        // If the template depends on deferred values it should not be rendered and all defined variables and macros should be deferred too
+        if (!child.getContext().getDeferredNodes().isEmpty()) {
+          handleDeferredNodesDuringImport(
+            node.get(),
+            contextVar,
+            childBindings,
+            child,
+            interpreter
+          );
+          throw new DeferredValueException(
+            templateFile.get(),
+            tagNode.getLineNumber(),
+            tagNode.getStartPosition()
+          );
+        }
+
+        integrateChild(contextVar, childBindings, child, interpreter);
+        return "";
+      } catch (IOException e) {
+        throw new InterpretException(
+          e.getMessage(),
+          e,
           tagNode.getLineNumber(),
           tagNode.getStartPosition()
         );
       }
-
-      integrateChild(contextVar, childBindings, child, interpreter);
-      return "";
-    } catch (IOException e) {
-      throw new InterpretException(
-        e.getMessage(),
-        e,
-        tagNode.getLineNumber(),
-        tagNode.getStartPosition()
-      );
-    } finally {
-      interpreter.getContext().getImportPathStack().pop();
     }
   }
 
@@ -226,6 +230,51 @@ public class ImportTag implements Tag {
     );
   }
 
+  public static AutoCloseableWrapper<String> getTemplateFileWithWrapper(
+    List<String> helper,
+    TagToken tagToken,
+    JinjavaInterpreter interpreter
+  ) {
+    String path = StringUtils.trimToEmpty(helper.get(0));
+    String templateFile = interpreter.resolveString(
+      path,
+      tagToken.getLineNumber(),
+      tagToken.getStartPosition()
+    );
+    templateFile = interpreter.resolveResourceLocation(templateFile);
+    interpreter.getContext().addDependency("coded_files", templateFile);
+    try {
+      interpreter
+        .getContext()
+        .getImportPathStack()
+        .push(path, tagToken.getLineNumber(), tagToken.getStartPosition());
+      return AutoCloseableWrapper.of(
+        templateFile,
+        ignored -> interpreter.getContext().getImportPathStack().pop()
+      );
+    } catch (ImportTagCycleException e) {
+      interpreter.addError(
+        new TemplateError(
+          ErrorType.WARNING,
+          ErrorReason.EXCEPTION,
+          ErrorItem.TAG,
+          "Import cycle detected for path: '" + path + "'",
+          null,
+          tagToken.getLineNumber(),
+          tagToken.getStartPosition(),
+          e,
+          BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
+          ImmutableMap.of("path", path)
+        )
+      );
+      return AutoCloseableWrapper.of(
+        null,
+        ignored -> {} // no-op cleanup
+      );
+    }
+  }
+
+  @Deprecated
   public static Optional<String> getTemplateFile(
     List<String> helper,
     TagToken tagToken,

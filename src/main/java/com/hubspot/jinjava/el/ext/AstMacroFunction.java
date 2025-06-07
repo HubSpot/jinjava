@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.el.ext;
 
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.interpret.AutoCloseableWrapper;
 import com.hubspot.jinjava.interpret.CallStack;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -38,28 +39,48 @@ public class AstMacroFunction extends AstFunction {
         );
       }
       if (!macroFunction.isCaller()) {
-        if (checkAndPushMacroStack(interpreter, getName())) {
-          return "";
-        }
-      }
+        try (
+          AutoCloseableWrapper<Boolean> macroStackPush =
+            checkAndPushMacroStackWithWrapper(interpreter, getName())
+        ) {
+          if (macroStackPush.get()) {
+            return "";
+          }
 
-      try {
-        return invoke(
-          bindings,
-          context,
-          macroFunction,
-          AbstractCallableMethod.EVAL_METHOD
-        );
-      } catch (IllegalAccessException e) {
-        throw new ELException(LocalMessages.get("error.function.access", getName()), e);
-      } catch (InvocationTargetException e) {
-        throw new ELException(
-          LocalMessages.get("error.function.invocation", getName()),
-          e.getCause()
-        );
-      } finally {
-        if (!macroFunction.isCaller()) {
-          interpreter.getContext().getMacroStack().pop();
+          try {
+            return invoke(
+              bindings,
+              context,
+              macroFunction,
+              AbstractCallableMethod.EVAL_METHOD
+            );
+          } catch (IllegalAccessException e) {
+            throw new ELException(
+              LocalMessages.get("error.function.access", getName()),
+              e
+            );
+          } catch (InvocationTargetException e) {
+            throw new ELException(
+              LocalMessages.get("error.function.invocation", getName()),
+              e.getCause()
+            );
+          }
+        }
+      } else {
+        try {
+          return invoke(
+            bindings,
+            context,
+            macroFunction,
+            AbstractCallableMethod.EVAL_METHOD
+          );
+        } catch (IllegalAccessException e) {
+          throw new ELException(LocalMessages.get("error.function.access", getName()), e);
+        } catch (InvocationTargetException e) {
+          throw new ELException(
+            LocalMessages.get("error.function.invocation", getName()),
+            e.getCause()
+          );
         }
       }
     }
@@ -69,6 +90,66 @@ public class AstMacroFunction extends AstFunction {
       : super.eval(bindings, context);
   }
 
+  public static AutoCloseableWrapper<Boolean> checkAndPushMacroStackWithWrapper(
+    JinjavaInterpreter interpreter,
+    String name
+  ) {
+    CallStack macroStack = interpreter.getContext().getMacroStack();
+    try {
+      if (interpreter.getConfig().isEnableRecursiveMacroCalls()) {
+        if (interpreter.getConfig().getMaxMacroRecursionDepth() != 0) {
+          macroStack.pushWithMaxDepth(
+            name,
+            interpreter.getConfig().getMaxMacroRecursionDepth(),
+            interpreter.getLineNumber(),
+            interpreter.getPosition()
+          );
+        } else {
+          macroStack.pushWithoutCycleCheck(
+            name,
+            interpreter.getLineNumber(),
+            interpreter.getPosition()
+          );
+        }
+      } else {
+        macroStack.push(name, -1, -1);
+      }
+      return AutoCloseableWrapper.of(false, ignored -> macroStack.pop());
+    } catch (MacroTagCycleException e) {
+      int maxDepth = interpreter.getConfig().getMaxMacroRecursionDepth();
+      if (maxDepth != 0 && interpreter.getConfig().isValidationMode()) {
+        // validation mode is only concerned with syntax
+        return AutoCloseableWrapper.of(true, ignored -> {});
+      }
+
+      String message = maxDepth == 0
+        ? String.format("Cycle detected for macro '%s'", name)
+        : String.format(
+          "Max recursion limit of %d reached for macro '%s'",
+          maxDepth,
+          name
+        );
+
+      interpreter.addError(
+        new TemplateError(
+          TemplateError.ErrorType.WARNING,
+          TemplateError.ErrorReason.EXCEPTION,
+          TemplateError.ErrorItem.TAG,
+          message,
+          null,
+          e.getLineNumber(),
+          e.getStartPosition(),
+          e,
+          BasicTemplateErrorCategory.CYCLE_DETECTED,
+          ImmutableMap.of("name", name)
+        )
+      );
+
+      return AutoCloseableWrapper.of(true, ignored -> {});
+    }
+  }
+
+  @Deprecated
   public static boolean checkAndPushMacroStack(
     JinjavaInterpreter interpreter,
     String name

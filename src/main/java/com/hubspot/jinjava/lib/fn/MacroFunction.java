@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.fn;
 
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
+import com.hubspot.jinjava.interpret.AutoCloseableWrapper;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -72,11 +73,13 @@ public class MacroFunction extends AbstractCallableMethod {
     List<Object> varArgs
   ) {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
-    Optional<String> importFile = getImportFile(interpreter);
-    try (InterpreterScopeClosable c = interpreter.enterScope()) {
+    try (
+      InterpreterScopeClosable c = interpreter.enterScope();
+      AutoCloseableWrapper<Optional<String>> importFile = getImportFileWithWrapper(
+        interpreter
+      )
+    ) {
       return getEvaluationResult(argMap, kwargMap, varArgs, interpreter);
-    } finally {
-      importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop());
     }
   }
 
@@ -97,6 +100,31 @@ public class MacroFunction extends AbstractCallableMethod {
         )
     );
     return importFile;
+  }
+
+  public AutoCloseableWrapper<Optional<String>> getImportFileWithWrapper(
+    JinjavaInterpreter interpreter
+  ) {
+    Optional<String> importFile = Optional.ofNullable(
+      (String) localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY)
+    );
+
+    // pushWithoutCycleCheck() is used to here so that macros calling macros from the same file will not throw a TagCycleException
+    importFile.ifPresent(path ->
+      interpreter
+        .getContext()
+        .getCurrentPathStack()
+        .pushWithoutCycleCheck(
+          path,
+          interpreter.getLineNumber(),
+          interpreter.getPosition()
+        )
+    );
+
+    return AutoCloseableWrapper.of(
+      importFile,
+      file -> file.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop())
+    );
   }
 
   public String getEvaluationResult(

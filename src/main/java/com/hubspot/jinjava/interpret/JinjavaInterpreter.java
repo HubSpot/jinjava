@@ -547,37 +547,30 @@ public class JinjavaInterpreter implements PyishSerializable {
           OutputList blockValueBuilder = new OutputList(config.getMaxOutputSize());
           DynamicRenderedOutputNode prefix = new DynamicRenderedOutputNode();
           blockValueBuilder.addNode(prefix);
-          boolean pushedParentPathOntoStack = false;
           int numDeferredTokensBefore = context.getDeferredTokens().size();
-          if (
-            block.getParentPath().isPresent() &&
-            !getContext().getCurrentPathStack().contains(block.getParentPath().get())
-          ) {
-            getContext()
-              .getCurrentPathStack()
-              .push(
-                block.getParentPath().get(),
-                block.getParentLineNo(),
-                block.getParentPosition()
-              );
-            pushedParentPathOntoStack = true;
-            lineNumber--; // The line number is off by one when rendering the block from the parent template
-          }
-          for (Node child : block.getNodes()) {
-            lineNumber = child.getLineNumber();
-            position = child.getStartPosition();
 
-            blockValueBuilder.addNode(child.render(this));
-          }
-          if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
-            EagerReconstructionUtils.reconstructPathAroundBlock(
-              prefix,
-              blockValueBuilder,
-              this
-            );
-          }
-          if (pushedParentPathOntoStack) {
-            getContext().getCurrentPathStack().pop();
+          try (
+            AutoCloseableWrapper<Boolean> parentPathPush = conditionallyPushParentPath(
+              block
+            )
+          ) {
+            if (parentPathPush.get()) {
+              lineNumber--; // The line number is off by one when rendering the block from the parent template
+            }
+
+            for (Node child : block.getNodes()) {
+              lineNumber = child.getLineNumber();
+              position = child.getStartPosition();
+
+              blockValueBuilder.addNode(child.render(this));
+            }
+            if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
+              EagerReconstructionUtils.reconstructPathAroundBlock(
+                prefix,
+                blockValueBuilder,
+                this
+              );
+            }
           }
           blockNames.push(blockPlaceholder.getBlockName());
           resolveBlockStubs(blockValueBuilder, blockNames);
@@ -593,6 +586,27 @@ public class JinjavaInterpreter implements PyishSerializable {
       if (!blockPlaceholder.isResolved()) {
         blockPlaceholder.resolve("");
       }
+    }
+  }
+
+  private AutoCloseableWrapper<Boolean> conditionallyPushParentPath(BlockInfo block) {
+    if (
+      block.getParentPath().isPresent() &&
+      !getContext().getCurrentPathStack().contains(block.getParentPath().get())
+    ) {
+      getContext()
+        .getCurrentPathStack()
+        .push(
+          block.getParentPath().get(),
+          block.getParentLineNo(),
+          block.getParentPosition()
+        );
+      return AutoCloseableWrapper.of(
+        true,
+        ignored -> getContext().getCurrentPathStack().pop()
+      );
+    } else {
+      return AutoCloseableWrapper.of(false, ignored -> {});
     }
   }
 
