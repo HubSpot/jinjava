@@ -154,58 +154,13 @@ public class AstMacroFunction extends AstFunction {
     JinjavaInterpreter interpreter,
     String name
   ) {
-    CallStack macroStack = interpreter.getContext().getMacroStack();
-    try {
-      if (interpreter.getConfig().isEnableRecursiveMacroCalls()) {
-        if (interpreter.getConfig().getMaxMacroRecursionDepth() != 0) {
-          macroStack.pushWithMaxDepth(
-            name,
-            interpreter.getConfig().getMaxMacroRecursionDepth(),
-            interpreter.getLineNumber(),
-            interpreter.getPosition()
-          );
-        } else {
-          macroStack.pushWithoutCycleCheck(
-            name,
-            interpreter.getLineNumber(),
-            interpreter.getPosition()
-          );
-        }
-      } else {
-        macroStack.push(name, -1, -1);
-      }
-    } catch (MacroTagCycleException e) {
-      int maxDepth = interpreter.getConfig().getMaxMacroRecursionDepth();
-      if (maxDepth != 0 && interpreter.getConfig().isValidationMode()) {
-        // validation mode is only concerned with syntax
-        return true;
-      }
-
-      String message = maxDepth == 0
-        ? String.format("Cycle detected for macro '%s'", name)
-        : String.format(
-          "Max recursion limit of %d reached for macro '%s'",
-          maxDepth,
-          name
-        );
-
-      interpreter.addError(
-        new TemplateError(
-          TemplateError.ErrorType.WARNING,
-          TemplateError.ErrorReason.EXCEPTION,
-          TemplateError.ErrorItem.TAG,
-          message,
-          null,
-          e.getLineNumber(),
-          e.getStartPosition(),
-          e,
-          BasicTemplateErrorCategory.CYCLE_DETECTED,
-          ImmutableMap.of("name", name)
-        )
-      );
-
-      return true;
-    }
-    return false;
+    AutoCloseableWrapper<Boolean> wrapper = checkAndPushMacroStackWithWrapper(
+      interpreter,
+      name
+    );
+    boolean shouldReturn = wrapper.get();
+    // Don't auto-close the wrapper when shouldReturn is false.
+    // The caller will manually pop via getMacroStack().pop() to maintain backwards compatibility
+    return shouldReturn;
   }
 }

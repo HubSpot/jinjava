@@ -701,13 +701,22 @@ public class Context extends ScopeMap<String, Object> {
     fromStack.pop();
   }
 
+  private AutoCloseableWrapper<CallStack> pushToStackWithWrapper(
+    CallStack stack,
+    String path,
+    int lineNumber,
+    int startPosition
+  ) {
+    stack.push(path, lineNumber, startPosition);
+    return AutoCloseableWrapper.of(stack, CallStack::pop);
+  }
+
   public AutoCloseableWrapper<CallStack> pushCurrentPath(
     String path,
     int lineNumber,
     int startPosition
   ) {
-    currentPathStack.push(path, lineNumber, startPosition);
-    return AutoCloseableWrapper.of(currentPathStack, CallStack::pop);
+    return pushToStackWithWrapper(currentPathStack, path, lineNumber, startPosition);
   }
 
   public AutoCloseableWrapper<CallStack> pushImportPath(
@@ -715,8 +724,7 @@ public class Context extends ScopeMap<String, Object> {
     int lineNumber,
     int startPosition
   ) {
-    importPathStack.push(path, lineNumber, startPosition);
-    return AutoCloseableWrapper.of(importPathStack, CallStack::pop);
+    return pushToStackWithWrapper(importPathStack, path, lineNumber, startPosition);
   }
 
   public AutoCloseableWrapper<CallStack> pushIncludePath(
@@ -724,8 +732,7 @@ public class Context extends ScopeMap<String, Object> {
     int lineNumber,
     int startPosition
   ) {
-    includePathStack.push(path, lineNumber, startPosition);
-    return AutoCloseableWrapper.of(includePathStack, CallStack::pop);
+    return pushToStackWithWrapper(includePathStack, path, lineNumber, startPosition);
   }
 
   public AutoCloseableWrapper<CallStack> pushFromStackWithWrapper(
@@ -733,8 +740,7 @@ public class Context extends ScopeMap<String, Object> {
     int lineNumber,
     int startPosition
   ) {
-    fromStack.push(path, lineNumber, startPosition);
-    return AutoCloseableWrapper.of(fromStack, CallStack::pop);
+    return pushToStackWithWrapper(fromStack, path, lineNumber, startPosition);
   }
 
   public AutoCloseableWrapper<CallStack> pushMacroStack(
@@ -742,8 +748,7 @@ public class Context extends ScopeMap<String, Object> {
     int lineNumber,
     int startPosition
   ) {
-    macroStack.push(path, lineNumber, startPosition);
-    return AutoCloseableWrapper.of(macroStack, CallStack::pop);
+    return pushToStackWithWrapper(macroStack, path, lineNumber, startPosition);
   }
 
   public AutoCloseableWrapper<Runnable> withDualStackPush(

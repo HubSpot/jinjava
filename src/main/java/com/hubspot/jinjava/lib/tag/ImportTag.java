@@ -280,37 +280,15 @@ public class ImportTag implements Tag {
     TagToken tagToken,
     JinjavaInterpreter interpreter
   ) {
-    String path = StringUtils.trimToEmpty(helper.get(0));
-    String templateFile = interpreter.resolveString(
-      path,
-      tagToken.getLineNumber(),
-      tagToken.getStartPosition()
-    );
-    templateFile = interpreter.resolveResourceLocation(templateFile);
-    interpreter.getContext().addDependency("coded_files", templateFile);
-    try {
-      interpreter
-        .getContext()
-        .getImportPathStack()
-        .push(path, tagToken.getLineNumber(), tagToken.getStartPosition());
-    } catch (ImportTagCycleException e) {
-      interpreter.addError(
-        new TemplateError(
-          ErrorType.WARNING,
-          ErrorReason.EXCEPTION,
-          ErrorItem.TAG,
-          "Import cycle detected for path: '" + path + "'",
-          null,
-          tagToken.getLineNumber(),
-          tagToken.getStartPosition(),
-          e,
-          BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
-          ImmutableMap.of("path", path)
-        )
-      );
-      return Optional.empty();
+    try (
+      AutoCloseableWrapper<String> wrapper = getTemplateFileWithWrapper(
+        helper,
+        tagToken,
+        interpreter
+      )
+    ) {
+      return Optional.ofNullable(wrapper.get());
     }
-    return Optional.of(templateFile);
   }
 
   public static String getContextVar(List<String> helper) {

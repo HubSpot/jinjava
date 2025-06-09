@@ -260,39 +260,15 @@ public class FromTag implements Tag {
     TagToken tagToken,
     JinjavaInterpreter interpreter
   ) {
-    String templateFile = interpreter.resolveString(
-      helper.get(0),
-      tagToken.getLineNumber(),
-      tagToken.getStartPosition()
-    );
-    templateFile = interpreter.resolveResourceLocation(templateFile);
-    interpreter.getContext().addDependency("coded_files", templateFile);
-    try {
-      interpreter
-        .getContext()
-        .pushFromStack(
-          templateFile,
-          tagToken.getLineNumber(),
-          tagToken.getStartPosition()
-        );
-    } catch (FromTagCycleException e) {
-      interpreter.addError(
-        new TemplateError(
-          ErrorType.WARNING,
-          ErrorReason.EXCEPTION,
-          ErrorItem.TAG,
-          "From cycle detected for path: '" + templateFile + "'",
-          null,
-          tagToken.getLineNumber(),
-          tagToken.getStartPosition(),
-          e,
-          BasicTemplateErrorCategory.FROM_CYCLE_DETECTED,
-          ImmutableMap.of("path", templateFile)
-        )
-      );
-      return Optional.empty();
+    try (
+      AutoCloseableWrapper<String> wrapper = getTemplateFileWithWrapper(
+        helper,
+        tagToken,
+        interpreter
+      )
+    ) {
+      return Optional.ofNullable(wrapper.get());
     }
-    return Optional.of(templateFile);
   }
 
   public static List<String> getHelpers(TagToken tagToken) {
