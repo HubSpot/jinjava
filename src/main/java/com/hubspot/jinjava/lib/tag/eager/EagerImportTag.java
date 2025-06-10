@@ -1,7 +1,7 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
-import com.hubspot.jinjava.interpret.AutoCloseableWrapper;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
@@ -39,82 +39,81 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       importingData
     );
 
-    Optional<String> maybeTemplateFile;
-    try {
-      maybeTemplateFile =
-        ImportTag.getTemplateFile(importingData.getHelpers(), tagToken, interpreter);
-    } catch (DeferredValueException e) {
-      return eagerImportingStrategy.handleDeferredTemplateFile(e);
-    }
-    if (!maybeTemplateFile.isPresent()) {
-      return "";
-    }
-    String templateFile = maybeTemplateFile.get();
     try (
-      AutoCloseableWrapper<Node> node = ImportTag.parseTemplateAsNode(
-        interpreter,
-        templateFile
-      )
+      AutoCloseableImpl<Optional<String>> maybeTemplateFile = ImportTag
+        .getTemplateFileWithWrapper(importingData.getHelpers(), tagToken, interpreter)
+        .get()
     ) {
-      JinjavaInterpreter child = interpreter
-        .getConfig()
-        .getInterpreterFactory()
-        .newInstance(interpreter);
-      child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
-      JinjavaInterpreter.pushCurrent(child);
-      String output;
-      try {
-        eagerImportingStrategy.setup(child);
-        output = child.render(node.get());
-      } finally {
-        JinjavaInterpreter.popCurrent();
+      if (maybeTemplateFile.value().isEmpty()) {
+        return "";
       }
-      interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
-      Map<String, Object> childBindings = child.getContext().getSessionBindings();
+      String templateFile = maybeTemplateFile.value().get();
 
-      // If the template depends on deferred values it should not be rendered,
-      // and all defined variables and macros should be deferred too.
-      if (
-        !child.getContext().getDeferredNodes().isEmpty() ||
-        (interpreter.getContext().isDeferredExecutionMode() &&
-          !child.getContext().getGlobalMacros().isEmpty())
+      try (
+        AutoCloseableImpl<Node> node = ImportTag
+          .parseTemplateAsNode(interpreter, templateFile)
+          .get()
       ) {
-        ImportTag.handleDeferredNodesDuringImport(
-          node.get(),
-          ImportTag.getContextVar(importingData.getHelpers()),
-          childBindings,
-          child,
-          interpreter
+        JinjavaInterpreter child = interpreter
+          .getConfig()
+          .getInterpreterFactory()
+          .newInstance(interpreter);
+        child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
+        JinjavaInterpreter.pushCurrent(child);
+        String output;
+        try {
+          eagerImportingStrategy.setup(child);
+          output = child.render(node.value());
+        } finally {
+          JinjavaInterpreter.popCurrent();
+        }
+        interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
+        Map<String, Object> childBindings = child.getContext().getSessionBindings();
+
+        // If the template depends on deferred values it should not be rendered,
+        // and all defined variables and macros should be deferred too.
+        if (
+          !child.getContext().getDeferredNodes().isEmpty() ||
+          (interpreter.getContext().isDeferredExecutionMode() &&
+            !child.getContext().getGlobalMacros().isEmpty())
+        ) {
+          ImportTag.handleDeferredNodesDuringImport(
+            node.value(),
+            ImportTag.getContextVar(importingData.getHelpers()),
+            childBindings,
+            child,
+            interpreter
+          );
+          throw new DeferredValueException(
+            templateFile,
+            tagToken.getLineNumber(),
+            tagToken.getStartPosition()
+          );
+        }
+        eagerImportingStrategy.integrateChild(child);
+        if (child.getContext().getDeferredTokens().isEmpty() || output == null) {
+          return "";
+        }
+        return EagerReconstructionUtils.wrapInTag(
+          EagerReconstructionUtils.wrapPathAroundText(
+            eagerImportingStrategy.getFinalOutput(output, child),
+            templateFile,
+            interpreter
+          ),
+          DoTag.TAG_NAME,
+          interpreter,
+          true
         );
-        throw new DeferredValueException(
-          templateFile,
+      } catch (IOException e) {
+        throw new InterpretException(
+          e.getMessage(),
+          e,
           tagToken.getLineNumber(),
           tagToken.getStartPosition()
         );
       }
-      eagerImportingStrategy.integrateChild(child);
-      if (child.getContext().getDeferredTokens().isEmpty() || output == null) {
-        return "";
-      }
-      return EagerReconstructionUtils.wrapInTag(
-        EagerReconstructionUtils.wrapPathAroundText(
-          eagerImportingStrategy.getFinalOutput(output, child),
-          templateFile,
-          interpreter
-        ),
-        DoTag.TAG_NAME,
-        interpreter,
-        true
-      );
-    } catch (IOException e) {
-      throw new InterpretException(
-        e.getMessage(),
-        e,
-        tagToken.getLineNumber(),
-        tagToken.getStartPosition()
-      );
-    } finally {
-      interpreter.getContext().getImportPathStack().pop();
+    } catch (DeferredValueException e) {
+      return eagerImportingStrategy.handleDeferredTemplateFile(e);
     }
   }
 }

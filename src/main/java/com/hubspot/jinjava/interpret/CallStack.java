@@ -111,6 +111,34 @@ public class CallStack {
     return stack.empty() && (parent == null || parent.isEmpty());
   }
 
+  public AutoCloseableSupplier<String> closeablePush(
+    String path,
+    int lineNumber,
+    int startPosition
+  ) {
+    push(path, lineNumber, startPosition);
+    return AutoCloseableSupplier.of(path, ignored -> pop());
+  }
+
+  public AutoCloseableSupplier<String> closeablePushWithoutCycleCheck(
+    String path,
+    int lineNumber,
+    int startPosition
+  ) {
+    pushWithoutCycleCheck(path, lineNumber, startPosition);
+    return AutoCloseableSupplier.of(path, ignored -> pop());
+  }
+
+  public AutoCloseableSupplier<String> closeablePushWithMaxDepth(
+    String path,
+    int maxDepth,
+    int lineNumber,
+    int startPosition
+  ) {
+    pushWithMaxDepth(path, maxDepth, lineNumber, startPosition);
+    return AutoCloseableSupplier.of(path, ignored -> pop());
+  }
+
   private void pushToStack(String path, int lineNumber, int startPosition) {
     if (isEmpty()) {
       topLineNumber = lineNumber;

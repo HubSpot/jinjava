@@ -7,6 +7,8 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -72,16 +74,19 @@ public class FromTag implements Tag {
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     List<String> helper = getHelpers((TagToken) tagNode.getMaster());
 
-    Optional<String> maybeTemplateFile = getTemplateFile(
-      helper,
-      (TagToken) tagNode.getMaster(),
-      interpreter
-    );
-    if (!maybeTemplateFile.isPresent()) {
-      return "";
-    }
-    String templateFile = maybeTemplateFile.get();
-    try {
+    try (
+      AutoCloseableImpl<Optional<String>> maybeTemplateFile = getTemplateFileWithWrapper(
+        helper,
+        (TagToken) tagNode.getMaster(),
+        interpreter
+      )
+        .get()
+    ) {
+      if (maybeTemplateFile.value().isEmpty()) {
+        return "";
+      }
+      String templateFile = maybeTemplateFile.value().get();
+
       Map<String, String> imports = getImportMap(helper);
 
       try {
@@ -123,8 +128,6 @@ public class FromTag implements Tag {
           tagNode.getStartPosition()
         );
       }
-    } finally {
-      interpreter.getContext().popFromStack();
     }
   }
 
@@ -208,7 +211,7 @@ public class FromTag implements Tag {
     return imports;
   }
 
-  public static Optional<String> getTemplateFile(
+  public static AutoCloseableSupplier<Optional<String>> getTemplateFileWithWrapper(
     List<String> helper,
     TagToken tagToken,
     JinjavaInterpreter interpreter
@@ -221,13 +224,14 @@ public class FromTag implements Tag {
     templateFile = interpreter.resolveResourceLocation(templateFile);
     interpreter.getContext().addDependency("coded_files", templateFile);
     try {
-      interpreter
+      return interpreter
         .getContext()
-        .pushFromStack(
+        .closeablePushFromStack(
           templateFile,
           tagToken.getLineNumber(),
           tagToken.getStartPosition()
-        );
+        )
+        .map(Optional::of);
     } catch (FromTagCycleException e) {
       interpreter.addError(
         new TemplateError(
@@ -243,9 +247,20 @@ public class FromTag implements Tag {
           ImmutableMap.of("path", templateFile)
         )
       );
-      return Optional.empty();
+      return AutoCloseableSupplier.of(
+        Optional.empty() // no-op cleanup
+      );
     }
-    return Optional.of(templateFile);
+  }
+
+  @Deprecated
+  public static Optional<String> getTemplateFile(
+    List<String> helper,
+    TagToken tagToken,
+    JinjavaInterpreter interpreter
+  ) {
+    return getTemplateFileWithWrapper(helper, tagToken, interpreter)
+      .dangerouslyGetWithoutClosing();
   }
 
   public static List<String> getHelpers(TagToken tagToken) {

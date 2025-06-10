@@ -20,6 +20,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.IncludeTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -76,11 +77,33 @@ public class IncludeTag implements Tag {
     );
     templateFile = interpreter.resolveResourceLocation(templateFile);
 
-    try {
-      interpreter
+    final String finalTemplateFile = templateFile;
+    try (
+      AutoCloseableImpl<String> includeStackWrapper = interpreter
         .getContext()
         .getIncludePathStack()
-        .push(templateFile, tagNode.getLineNumber(), tagNode.getStartPosition());
+        .closeablePush(
+          finalTemplateFile,
+          tagNode.getLineNumber(),
+          tagNode.getStartPosition()
+        )
+        .get();
+      AutoCloseableImpl<String> currentPathWrapper = interpreter
+        .getContext()
+        .getCurrentPathStack()
+        .closeablePush(
+          finalTemplateFile,
+          interpreter.getLineNumber(),
+          interpreter.getPosition()
+        )
+        .get()
+    ) {
+      String template = interpreter.getResource(finalTemplateFile);
+      Node node = interpreter.parse(template);
+
+      interpreter.getContext().addDependency("coded_files", finalTemplateFile);
+
+      return interpreter.render(node, false);
     } catch (IncludeTagCycleException e) {
       interpreter.addError(
         new TemplateError(
@@ -97,19 +120,6 @@ public class IncludeTag implements Tag {
         )
       );
       return "";
-    }
-
-    try {
-      String template = interpreter.getResource(templateFile);
-      Node node = interpreter.parse(template);
-
-      interpreter.getContext().addDependency("coded_files", templateFile);
-      interpreter
-        .getContext()
-        .getCurrentPathStack()
-        .push(templateFile, interpreter.getLineNumber(), interpreter.getPosition());
-
-      return interpreter.render(node, false);
     } catch (IOException e) {
       throw new InterpretException(
         e.getMessage(),
@@ -117,9 +127,6 @@ public class IncludeTag implements Tag {
         tagNode.getLineNumber(),
         tagNode.getStartPosition()
       );
-    } finally {
-      interpreter.getContext().getIncludePathStack().pop();
-      interpreter.getContext().getCurrentPathStack().pop();
     }
   }
 

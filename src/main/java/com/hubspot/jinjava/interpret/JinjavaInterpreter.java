@@ -29,6 +29,7 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF;
 import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF.TemplateErrorTypeHandlingStrategy;
@@ -547,37 +548,29 @@ public class JinjavaInterpreter implements PyishSerializable {
           OutputList blockValueBuilder = new OutputList(config.getMaxOutputSize());
           DynamicRenderedOutputNode prefix = new DynamicRenderedOutputNode();
           blockValueBuilder.addNode(prefix);
-          boolean pushedParentPathOntoStack = false;
           int numDeferredTokensBefore = context.getDeferredTokens().size();
-          if (
-            block.getParentPath().isPresent() &&
-            !getContext().getCurrentPathStack().contains(block.getParentPath().get())
-          ) {
-            getContext()
-              .getCurrentPathStack()
-              .push(
-                block.getParentPath().get(),
-                block.getParentLineNo(),
-                block.getParentPosition()
-              );
-            pushedParentPathOntoStack = true;
-            lineNumber--; // The line number is off by one when rendering the block from the parent template
-          }
-          for (Node child : block.getNodes()) {
-            lineNumber = child.getLineNumber();
-            position = child.getStartPosition();
 
-            blockValueBuilder.addNode(child.render(this));
-          }
-          if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
-            EagerReconstructionUtils.reconstructPathAroundBlock(
-              prefix,
-              blockValueBuilder,
-              this
-            );
-          }
-          if (pushedParentPathOntoStack) {
-            getContext().getCurrentPathStack().pop();
+          try (
+            AutoCloseableImpl<Boolean> parentPathPush = conditionallyPushParentPath(block)
+              .get()
+          ) {
+            if (parentPathPush.value()) {
+              lineNumber--; // The line number is off by one when rendering the block from the parent template
+            }
+
+            for (Node child : block.getNodes()) {
+              lineNumber = child.getLineNumber();
+              position = child.getStartPosition();
+
+              blockValueBuilder.addNode(child.render(this));
+            }
+            if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
+              EagerReconstructionUtils.reconstructPathAroundBlock(
+                prefix,
+                blockValueBuilder,
+                this
+              );
+            }
           }
           blockNames.push(blockPlaceholder.getBlockName());
           resolveBlockStubs(blockValueBuilder, blockNames);
@@ -593,6 +586,24 @@ public class JinjavaInterpreter implements PyishSerializable {
       if (!blockPlaceholder.isResolved()) {
         blockPlaceholder.resolve("");
       }
+    }
+  }
+
+  private AutoCloseableSupplier<Boolean> conditionallyPushParentPath(BlockInfo block) {
+    if (
+      block.getParentPath().isPresent() &&
+      !getContext().getCurrentPathStack().contains(block.getParentPath().get())
+    ) {
+      return getContext()
+        .getCurrentPathStack()
+        .closeablePush(
+          block.getParentPath().get(),
+          block.getParentLineNo(),
+          block.getParentPosition()
+        )
+        .map(path -> true);
+    } else {
+      return AutoCloseableSupplier.of(false);
     }
   }
 

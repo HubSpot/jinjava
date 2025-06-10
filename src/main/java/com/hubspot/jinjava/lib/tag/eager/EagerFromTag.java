@@ -1,6 +1,8 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
@@ -40,9 +42,10 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
     );
     List<String> helper = FromTag.getHelpers(tagToken);
     Map<String, String> imports = FromTag.getImportMap(helper);
-    Optional<String> maybeTemplateFile;
+    AutoCloseableSupplier<Optional<String>> maybeTemplateFileSupplier;
     try {
-      maybeTemplateFile = FromTag.getTemplateFile(helper, tagToken, interpreter);
+      maybeTemplateFileSupplier =
+        FromTag.getTemplateFileWithWrapper(helper, tagToken, interpreter);
     } catch (DeferredValueException e) {
       imports
         .values()
@@ -75,11 +78,14 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
         tagToken.getImage()
       );
     }
-    if (!maybeTemplateFile.isPresent()) {
-      return "";
-    }
-    String templateFile = maybeTemplateFile.get();
-    try {
+    try (
+      AutoCloseableImpl<Optional<String>> maybeTemplateFile =
+        maybeTemplateFileSupplier.get()
+    ) {
+      if (maybeTemplateFile.value().isEmpty()) {
+        return "";
+      }
+      String templateFile = maybeTemplateFile.value().get();
       try {
         String template = interpreter.getResource(templateFile);
         Node node = interpreter.parse(template);
@@ -136,8 +142,6 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
           tagToken.getStartPosition()
         );
       }
-    } finally {
-      interpreter.getContext().popFromStack();
     }
   }
 

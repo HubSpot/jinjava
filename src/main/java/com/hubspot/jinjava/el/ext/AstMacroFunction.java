@@ -1,6 +1,8 @@
 package com.hubspot.jinjava.el.ext;
 
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.CallStack;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -37,30 +39,21 @@ public class AstMacroFunction extends AstFunction {
           interpreter.getPosition()
         );
       }
-      if (!macroFunction.isCaller()) {
-        if (checkAndPushMacroStack(interpreter, getName())) {
+      if (macroFunction.isCaller()) {
+        return wrapInvoke(bindings, context, macroFunction);
+      }
+      try (
+        AutoCloseableImpl<Boolean> macroStackPush = checkAndPushMacroStackWithWrapper(
+          interpreter,
+          getName()
+        )
+          .get()
+      ) {
+        if (macroStackPush.value()) {
           return "";
         }
-      }
 
-      try {
-        return invoke(
-          bindings,
-          context,
-          macroFunction,
-          AbstractCallableMethod.EVAL_METHOD
-        );
-      } catch (IllegalAccessException e) {
-        throw new ELException(LocalMessages.get("error.function.access", getName()), e);
-      } catch (InvocationTargetException e) {
-        throw new ELException(
-          LocalMessages.get("error.function.invocation", getName()),
-          e.getCause()
-        );
-      } finally {
-        if (!macroFunction.isCaller()) {
-          interpreter.getContext().getMacroStack().pop();
-        }
+        return wrapInvoke(bindings, context, macroFunction);
       }
     }
 
@@ -69,7 +62,24 @@ public class AstMacroFunction extends AstFunction {
       : super.eval(bindings, context);
   }
 
-  public static boolean checkAndPushMacroStack(
+  private Object wrapInvoke(
+    Bindings bindings,
+    ELContext context,
+    MacroFunction macroFunction
+  ) {
+    try {
+      return invoke(bindings, context, macroFunction, AbstractCallableMethod.EVAL_METHOD);
+    } catch (IllegalAccessException e) {
+      throw new ELException(LocalMessages.get("error.function.access", getName()), e);
+    } catch (InvocationTargetException e) {
+      throw new ELException(
+        LocalMessages.get("error.function.invocation", getName()),
+        e.getCause()
+      );
+    }
+  }
+
+  public static AutoCloseableSupplier<Boolean> checkAndPushMacroStackWithWrapper(
     JinjavaInterpreter interpreter,
     String name
   ) {
@@ -77,27 +87,30 @@ public class AstMacroFunction extends AstFunction {
     try {
       if (interpreter.getConfig().isEnableRecursiveMacroCalls()) {
         if (interpreter.getConfig().getMaxMacroRecursionDepth() != 0) {
-          macroStack.pushWithMaxDepth(
-            name,
-            interpreter.getConfig().getMaxMacroRecursionDepth(),
-            interpreter.getLineNumber(),
-            interpreter.getPosition()
-          );
+          return macroStack
+            .closeablePushWithMaxDepth(
+              name,
+              interpreter.getConfig().getMaxMacroRecursionDepth(),
+              interpreter.getLineNumber(),
+              interpreter.getPosition()
+            )
+            .map(macro -> false);
         } else {
-          macroStack.pushWithoutCycleCheck(
-            name,
-            interpreter.getLineNumber(),
-            interpreter.getPosition()
-          );
+          return macroStack
+            .closeablePushWithoutCycleCheck(
+              name,
+              interpreter.getLineNumber(),
+              interpreter.getPosition()
+            )
+            .map(macro -> false);
         }
-      } else {
-        macroStack.push(name, -1, -1);
       }
+      return macroStack.closeablePush(name, -1, -1).map(macro -> false);
     } catch (MacroTagCycleException e) {
       int maxDepth = interpreter.getConfig().getMaxMacroRecursionDepth();
       if (maxDepth != 0 && interpreter.getConfig().isValidationMode()) {
         // validation mode is only concerned with syntax
-        return true;
+        return AutoCloseableSupplier.of(true);
       }
 
       String message = maxDepth == 0
@@ -123,8 +136,16 @@ public class AstMacroFunction extends AstFunction {
         )
       );
 
-      return true;
+      return AutoCloseableSupplier.of(true);
     }
-    return false;
+  }
+
+  @Deprecated
+  public static boolean checkAndPushMacroStack(
+    JinjavaInterpreter interpreter,
+    String name
+  ) {
+    return checkAndPushMacroStackWithWrapper(interpreter, name)
+      .dangerouslyGetWithoutClosing();
   }
 }

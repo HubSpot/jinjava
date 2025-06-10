@@ -21,6 +21,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF.TemplateErrorTypeHandlingStrategy;
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.lib.expression.ExpressionStrategy;
@@ -677,6 +678,10 @@ public class Context extends ScopeMap<String, Object> {
     return importPathStack;
   }
 
+  public CallStack getFromPathStack() {
+    return fromStack;
+  }
+
   public CallStack getIncludePathStack() {
     return includePathStack;
   }
@@ -693,10 +698,12 @@ public class Context extends ScopeMap<String, Object> {
     return currentPathStack;
   }
 
+  @Deprecated
   public void pushFromStack(String path, int lineNumber, int startPosition) {
     fromStack.push(path, lineNumber, startPosition);
   }
 
+  @Deprecated
   public void popFromStack() {
     fromStack.pop();
   }
@@ -878,7 +885,7 @@ public class Context extends ScopeMap<String, Object> {
     return temporaryValueClosable;
   }
 
-  public static class TemporaryValueClosable<T> extends AutoCloseableWrapper<T> {
+  public static class TemporaryValueClosable<T> extends AutoCloseableImpl<T> {
 
     private TemporaryValueClosable(T previousValue, Consumer<T> resetValueConsumer) {
       super(previousValue, resetValueConsumer);
