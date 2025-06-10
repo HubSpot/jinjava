@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import static com.hubspot.jinjava.lib.tag.ResourceLocatorTestHelper.getTestResourceLocator;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
@@ -16,6 +17,7 @@ import com.hubspot.jinjava.mode.EagerExecutionMode;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -128,43 +130,16 @@ public class EagerFromTagTest extends FromTagTest {
   @Test
   public void itResolvesNestedRelativeImportsInEagerMode() throws Exception {
     jinjava.setResourceLocator(
-      new ResourceLocator() {
-        private final RelativePathResolver relativePathResolver =
-          new RelativePathResolver();
-
-        private final java.util.Map<String, String> templates =
-          new java.util.HashMap<>() {
-            {
-              put(
-                "root.jinja",
-                "{% from 'sub/nested.jinja' import test_macro %}{{ test_macro() }}"
-              );
-              put(
-                "sub/nested.jinja",
-                "{% from '../helper.jinja' import helper %}{% macro test_macro() %}{{ helper() }}{% endmacro %}"
-              );
-              put("helper.jinja", "{% macro helper() %}HELPER{% endmacro %}");
-            }
-          };
-
-        @Override
-        public String getString(
-          String fullName,
-          Charset encoding,
-          JinjavaInterpreter interpreter
-        ) throws IOException {
-          String template = templates.get(fullName);
-          if (template == null) {
-            throw new IOException("Template not found: " + fullName);
-          }
-          return template;
-        }
-
-        @Override
-        public Optional<LocationResolver> getLocationResolver() {
-          return Optional.of(relativePathResolver);
-        }
-      }
+      getTestResourceLocator(
+        Map.of(
+          "root.jinja",
+          "{% from 'sub/nested.jinja' import test_macro %}{{ test_macro() }}",
+          "sub/nested.jinja",
+          "{% from '../helper.jinja' import helper %}{% macro test_macro() %}{{ helper() }}{% endmacro %}",
+          "helper.jinja",
+          "{% macro helper() %}HELPER{% endmacro %}"
+        )
+      )
     );
 
     interpreter.getContext().getCurrentPathStack().push("root.jinja", 1, 0);

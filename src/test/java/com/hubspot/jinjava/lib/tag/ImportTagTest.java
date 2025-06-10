@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag;
 
+import static com.hubspot.jinjava.lib.tag.ResourceLocatorTestHelper.getTestResourceLocator;
 import static com.hubspot.jinjava.loader.RelativePathResolver.CURRENT_PATH_CONTEXT_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -373,45 +374,16 @@ public class ImportTagTest extends BaseInterpretingTest {
   @Test
   public void itResolvesNestedRelativeImports() throws Exception {
     jinjava.setResourceLocator(
-      new ResourceLocator() {
-        private final RelativePathResolver relativePathResolver =
-          new RelativePathResolver();
-        private final java.util.Map<String, String> templates =
-          new java.util.HashMap<>() {
-            {
-              put(
-                "level0.jinja",
-                "{% import './level1/level1.jinja' as l1 %}{{ l1.macro_level1() }}"
-              );
-              put(
-                "level1/level1.jinja",
-                "{% import './deeper/macro.jinja' as helper %}{% macro macro_level1() %}L1:{{ helper.helper_macro() }}{% endmacro %}"
-              );
-              put(
-                "level1/deeper/macro.jinja",
-                "{% macro helper_macro() %}L2:HELPER{% endmacro %}"
-              );
-            }
-          };
-
-        @Override
-        public String getString(
-          String fullName,
-          Charset encoding,
-          JinjavaInterpreter interpreter
-        ) throws IOException {
-          String template = templates.get(fullName);
-          if (template == null) {
-            throw new IOException("Template not found: " + fullName);
-          }
-          return template;
-        }
-
-        @Override
-        public Optional<LocationResolver> getLocationResolver() {
-          return Optional.of(relativePathResolver);
-        }
-      }
+      getTestResourceLocator(
+        Map.of(
+          "level0.jinja",
+          "{% import './level1/level1.jinja' as l1 %}{{ l1.macro_level1() }}",
+          "level1/level1.jinja",
+          "{% import './deeper/macro.jinja' as helper %}{% macro macro_level1() %}L1:{{ helper.helper_macro() }}{% endmacro %}",
+          "level1/deeper/macro.jinja",
+          "{% macro helper_macro() %}L2:HELPER{% endmacro %}"
+        )
+      )
     );
 
     interpreter.getContext().getCurrentPathStack().push("level0.jinja", 1, 0);
@@ -424,45 +396,16 @@ public class ImportTagTest extends BaseInterpretingTest {
   @Test
   public void itResolvesUpAndAcrossDirectoryPaths() throws Exception {
     jinjava.setResourceLocator(
-      new ResourceLocator() {
-        private final RelativePathResolver relativePathResolver =
-          new RelativePathResolver();
-        private final java.util.Map<String, String> templates =
-          new java.util.HashMap<>() {
-            {
-              put(
-                "base.jinja",
-                "{% import './theme/modules/header/header.hubl.html' as header %}{{ header.render_header() }}"
-              );
-              put(
-                "theme/modules/header/header.hubl.html",
-                "{% import '../../partials/atoms/link/link.hubl.html' as link %}{% macro render_header() %}{{ link.render_link() }}{% endmacro %}"
-              );
-              put(
-                "theme/partials/atoms/link/link.hubl.html",
-                "{% macro render_link() %}LINK{% endmacro %}"
-              );
-            }
-          };
-
-        @Override
-        public String getString(
-          String fullName,
-          Charset encoding,
-          JinjavaInterpreter interpreter
-        ) throws IOException {
-          String template = templates.get(fullName);
-          if (template == null) {
-            throw new IOException("Template not found: " + fullName);
-          }
-          return template;
-        }
-
-        @Override
-        public Optional<LocationResolver> getLocationResolver() {
-          return Optional.of(relativePathResolver);
-        }
-      }
+      getTestResourceLocator(
+        Map.of(
+          "base.jinja",
+          "{% import './theme/modules/header/header.hubl.html' as header %}{{ header.render_header() }}",
+          "theme/modules/header/header.hubl.html",
+          "{% import '../../partials/atoms/link/link.hubl.html' as link %}{% macro render_header() %}{{ link.render_link() }}{% endmacro %}",
+          "theme/partials/atoms/link/link.hubl.html",
+          "{% macro render_link() %}LINK{% endmacro %}"
+        )
+      )
     );
 
     interpreter.getContext().getCurrentPathStack().push("base.jinja", 1, 0);
@@ -475,41 +418,14 @@ public class ImportTagTest extends BaseInterpretingTest {
   @Test
   public void itResolvesProjectsAbsolutePaths() throws Exception {
     jinjava.setResourceLocator(
-      new ResourceLocator() {
-        private final RelativePathResolver relativePathResolver =
-          new RelativePathResolver();
-        private final java.util.Map<String, String> templates =
-          new java.util.HashMap<>() {
-            {
-              put(
-                "@projects/theme-name/modules/header.html",
-                "{% import '@projects/theme-name/utils/helpers.html' as helpers %}{{ helpers.render_header() }}"
-              );
-              put(
-                "@projects/theme-name/utils/helpers.html",
-                "{% macro render_header() %}HEADER{% endmacro %}"
-              );
-            }
-          };
-
-        @Override
-        public String getString(
-          String fullName,
-          Charset encoding,
-          JinjavaInterpreter interpreter
-        ) throws IOException {
-          String template = templates.get(fullName);
-          if (template == null) {
-            throw new IOException("Template not found: " + fullName);
-          }
-          return template;
-        }
-
-        @Override
-        public Optional<LocationResolver> getLocationResolver() {
-          return Optional.of(relativePathResolver);
-        }
-      }
+      getTestResourceLocator(
+        Map.of(
+          "@projects/theme-name/modules/header.html",
+          "{% import '@projects/theme-name/utils/helpers.html' as helpers %}{{ helpers.render_header() }}",
+          "@projects/theme-name/utils/helpers.html",
+          "{% macro render_header() %}HEADER{% endmacro %}"
+        )
+      )
     );
 
     interpreter
@@ -527,41 +443,14 @@ public class ImportTagTest extends BaseInterpretingTest {
   @Test
   public void itResolvesHubspotAbsolutePaths() throws Exception {
     jinjava.setResourceLocator(
-      new ResourceLocator() {
-        private final RelativePathResolver relativePathResolver =
-          new RelativePathResolver();
-        private final java.util.Map<String, String> templates =
-          new java.util.HashMap<>() {
-            {
-              put(
-                "@hubspot/common/macros.html",
-                "{% import '@hubspot/common/utils.html' as utils %}{{ utils.common_macro() }}"
-              );
-              put(
-                "@hubspot/common/utils.html",
-                "{% macro common_macro() %}COMMON{% endmacro %}"
-              );
-            }
-          };
-
-        @Override
-        public String getString(
-          String fullName,
-          Charset encoding,
-          JinjavaInterpreter interpreter
-        ) throws IOException {
-          String template = templates.get(fullName);
-          if (template == null) {
-            throw new IOException("Template not found: " + fullName);
-          }
-          return template;
-        }
-
-        @Override
-        public Optional<LocationResolver> getLocationResolver() {
-          return Optional.of(relativePathResolver);
-        }
-      }
+      getTestResourceLocator(
+        Map.of(
+          "@hubspot/common/macros.html",
+          "{% import '@hubspot/common/utils.html' as utils %}{{ utils.common_macro() }}",
+          "@hubspot/common/utils.html",
+          "{% macro common_macro() %}COMMON{% endmacro %}"
+        )
+      )
     );
 
     interpreter
