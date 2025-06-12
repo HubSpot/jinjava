@@ -724,10 +724,17 @@ public class Context extends ScopeMap<String, Object> {
     this.renderDepth = renderDepth;
   }
 
+  public AutoCloseableSupplier<String> closeablePushRenderStack(String template) {
+    renderStack.push(template);
+    return AutoCloseableSupplier.of(template, t -> renderStack.pop());
+  }
+
+  @Deprecated
   public void pushRenderStack(String template) {
     renderStack.push(template);
   }
 
+  @Deprecated
   public String popRenderStack() {
     return renderStack.pop();
   }
