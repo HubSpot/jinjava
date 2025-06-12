@@ -137,8 +137,8 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
         );
       }
     } finally {
+      interpreter.getContext().popFromStack();
       interpreter.getContext().getCurrentPathStack().pop();
-      interpreter.getContext().getImportPathStack().pop();
     }
   }
 

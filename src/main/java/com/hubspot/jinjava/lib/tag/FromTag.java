@@ -125,8 +125,8 @@ public class FromTag implements Tag {
         );
       }
     } finally {
+      interpreter.getContext().popFromStack();
       interpreter.getContext().getCurrentPathStack().pop();
-      interpreter.getContext().getImportPathStack().pop();
     }
   }
 
