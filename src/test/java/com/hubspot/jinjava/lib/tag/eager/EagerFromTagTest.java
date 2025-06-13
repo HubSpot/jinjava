@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag.eager;
 
+import static com.hubspot.jinjava.lib.tag.ResourceLocatorTestHelper.getTestResourceLocator;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
@@ -16,6 +17,7 @@ import com.hubspot.jinjava.mode.EagerExecutionMode;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -28,7 +30,8 @@ public class EagerFromTagTest extends FromTagTest {
   public void eagerSetup() {
     jinjava.setResourceLocator(
       new ResourceLocator() {
-        private RelativePathResolver relativePathResolver = new RelativePathResolver();
+        private final RelativePathResolver relativePathResolver =
+          new RelativePathResolver();
 
         @Override
         public String getString(
@@ -123,4 +126,26 @@ public class EagerFromTagTest extends FromTagTest {
   @Ignore
   @Override
   public void itDefersImport() {}
+
+  @Test
+  public void itResolvesNestedRelativeImportsInEagerMode() throws Exception {
+    jinjava.setResourceLocator(
+      getTestResourceLocator(
+        Map.of(
+          "root.jinja",
+          "{% from 'sub/nested.jinja' import test_macro %}{{ test_macro() }}",
+          "sub/nested.jinja",
+          "{% from '../helper.jinja' import helper %}{% macro test_macro() %}{{ helper() }}{% endmacro %}",
+          "helper.jinja",
+          "{% macro helper() %}HELPER{% endmacro %}"
+        )
+      )
+    );
+
+    interpreter.getContext().getCurrentPathStack().push("root.jinja", 1, 0);
+    String result = interpreter.render(interpreter.getResource("root.jinja"));
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result).contains("HELPER");
+  }
 }

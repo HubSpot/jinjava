@@ -85,15 +85,16 @@ public class FromTag implements Tag {
       Map<String, String> imports = getImportMap(helper);
 
       try {
-        String template = interpreter.getResource(templateFile);
-        Node node = interpreter.parse(template);
+        Node node = ImportTag.parseTemplateAsNode(interpreter, templateFile);
 
         JinjavaInterpreter child = interpreter
           .getConfig()
           .getInterpreterFactory()
           .newInstance(interpreter);
         child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
+
         JinjavaInterpreter.pushCurrent(child);
+
         try {
           child.render(node);
         } finally {
@@ -125,6 +126,7 @@ public class FromTag implements Tag {
       }
     } finally {
       interpreter.getContext().popFromStack();
+      interpreter.getContext().getCurrentPathStack().pop();
     }
   }
 

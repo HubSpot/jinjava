@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.tag;
 
+import static com.hubspot.jinjava.lib.tag.ResourceLocatorTestHelper.getTestResourceLocator;
 import static com.hubspot.jinjava.loader.RelativePathResolver.CURRENT_PATH_CONTEXT_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -368,6 +369,100 @@ public class ImportTagTest extends BaseInterpretingTest {
       )
     )
       .isEqualTo("double-import-macro.jinja\n\nimport-macro.jinja\nfoo\n");
+  }
+
+  @Test
+  public void itResolvesNestedRelativeImports() throws Exception {
+    jinjava.setResourceLocator(
+      getTestResourceLocator(
+        Map.of(
+          "level0.jinja",
+          "{% import './level1/level1.jinja' as l1 %}{{ l1.macro_level1() }}",
+          "level1/level1.jinja",
+          "{% import './deeper/macro.jinja' as helper %}{% macro macro_level1() %}L1:{{ helper.helper_macro() }}{% endmacro %}",
+          "level1/deeper/macro.jinja",
+          "{% macro helper_macro() %}L2:HELPER{% endmacro %}"
+        )
+      )
+    );
+
+    interpreter.getContext().getCurrentPathStack().push("level0.jinja", 1, 0);
+    String result = interpreter.render(interpreter.getResource("level0.jinja"));
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("L1:L2:HELPER");
+  }
+
+  @Test
+  public void itResolvesUpAndAcrossDirectoryPaths() throws Exception {
+    jinjava.setResourceLocator(
+      getTestResourceLocator(
+        Map.of(
+          "base.jinja",
+          "{% import './theme/modules/header/header.hubl.html' as header %}{{ header.render_header() }}",
+          "theme/modules/header/header.hubl.html",
+          "{% import '../../partials/atoms/link/link.hubl.html' as link %}{% macro render_header() %}{{ link.render_link() }}{% endmacro %}",
+          "theme/partials/atoms/link/link.hubl.html",
+          "{% macro render_link() %}LINK{% endmacro %}"
+        )
+      )
+    );
+
+    interpreter.getContext().getCurrentPathStack().push("base.jinja", 1, 0);
+    String result = interpreter.render(interpreter.getResource("base.jinja"));
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("LINK");
+  }
+
+  @Test
+  public void itResolvesProjectsAbsolutePaths() throws Exception {
+    jinjava.setResourceLocator(
+      getTestResourceLocator(
+        Map.of(
+          "@projects/theme-name/modules/header.html",
+          "{% import '@projects/theme-name/utils/helpers.html' as helpers %}{{ helpers.render_header() }}",
+          "@projects/theme-name/utils/helpers.html",
+          "{% macro render_header() %}HEADER{% endmacro %}"
+        )
+      )
+    );
+
+    interpreter
+      .getContext()
+      .getCurrentPathStack()
+      .push("@projects/theme-name/modules/header.html", 1, 0);
+    String result = interpreter.render(
+      interpreter.getResource("@projects/theme-name/modules/header.html")
+    );
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("HEADER");
+  }
+
+  @Test
+  public void itResolvesHubspotAbsolutePaths() throws Exception {
+    jinjava.setResourceLocator(
+      getTestResourceLocator(
+        Map.of(
+          "@hubspot/common/macros.html",
+          "{% import '@hubspot/common/utils.html' as utils %}{{ utils.common_macro() }}",
+          "@hubspot/common/utils.html",
+          "{% macro common_macro() %}COMMON{% endmacro %}"
+        )
+      )
+    );
+
+    interpreter
+      .getContext()
+      .getCurrentPathStack()
+      .push("@hubspot/common/macros.html", 1, 0);
+    String result = interpreter.render(
+      interpreter.getResource("@hubspot/common/macros.html")
+    );
+
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("COMMON");
   }
 
   private String fixture(String name) {
