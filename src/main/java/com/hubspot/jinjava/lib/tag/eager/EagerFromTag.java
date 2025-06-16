@@ -9,7 +9,6 @@ import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.FromTag;
-import com.hubspot.jinjava.lib.tag.ImportTag;
 import com.hubspot.jinjava.lib.tag.eager.importing.EagerImportingStrategyFactory;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -82,7 +81,8 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
     String templateFile = maybeTemplateFile.get();
     try {
       try {
-        Node node = ImportTag.parseTemplateAsNode(interpreter, templateFile);
+        String template = interpreter.getResource(templateFile);
+        Node node = interpreter.parse(template);
 
         JinjavaInterpreter child = interpreter
           .getConfig()
@@ -138,7 +138,6 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
       }
     } finally {
       interpreter.getContext().popFromStack();
-      interpreter.getContext().getCurrentPathStack().pop();
     }
   }
 
