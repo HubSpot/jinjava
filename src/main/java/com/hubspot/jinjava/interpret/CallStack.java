@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.interpret;
 
+import com.hubspot.algebra.Result;
 import java.util.Optional;
 import java.util.Stack;
 
@@ -111,13 +112,22 @@ public class CallStack {
     return stack.empty() && (parent == null || parent.isEmpty());
   }
 
-  public AutoCloseableSupplier<String> closeablePush(
+  public AutoCloseableSupplier<Result<String, TagCycleException>> closeablePush(
     String path,
     int lineNumber,
     int startPosition
   ) {
-    push(path, lineNumber, startPosition);
-    return AutoCloseableSupplier.of(path, ignored -> pop());
+    return AutoCloseableSupplier.of(
+      () -> {
+        try {
+          push(path, lineNumber, startPosition);
+          return Result.ok(path);
+        } catch (TagCycleException e) {
+          return Result.err(e);
+        }
+      },
+      result -> result.ifOk(ok -> pop())
+    );
   }
 
   public AutoCloseableSupplier<String> closeablePushWithoutCycleCheck(
@@ -125,18 +135,32 @@ public class CallStack {
     int lineNumber,
     int startPosition
   ) {
-    pushWithoutCycleCheck(path, lineNumber, startPosition);
-    return AutoCloseableSupplier.of(path, ignored -> pop());
+    return AutoCloseableSupplier.of(
+      () -> {
+        pushWithoutCycleCheck(path, lineNumber, startPosition);
+        return path;
+      },
+      ignored -> pop()
+    );
   }
 
-  public AutoCloseableSupplier<String> closeablePushWithMaxDepth(
+  public AutoCloseableSupplier<Result<String, TagCycleException>> closeablePushWithMaxDepth(
     String path,
     int maxDepth,
     int lineNumber,
     int startPosition
   ) {
-    pushWithMaxDepth(path, maxDepth, lineNumber, startPosition);
-    return AutoCloseableSupplier.of(path, ignored -> pop());
+    return AutoCloseableSupplier.of(
+      () -> {
+        try {
+          pushWithMaxDepth(path, maxDepth, lineNumber, startPosition);
+          return Result.ok(path);
+        } catch (TagCycleException e) {
+          return Result.err(e);
+        }
+      },
+      result -> result.ifOk(ok -> pop())
+    );
   }
 
   private void pushToStack(String path, int lineNumber, int startPosition) {

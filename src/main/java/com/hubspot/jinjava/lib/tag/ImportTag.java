@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.tag;
 
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.algebra.Result;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -10,9 +11,9 @@ import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
-import com.hubspot.jinjava.interpret.ImportTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TagCycleException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -84,65 +85,85 @@ public class ImportTag implements Tag {
     String contextVar = getContextVar(helper);
 
     try (
-      AutoCloseableImpl<Optional<String>> maybeTemplateFile = getTemplateFileWithWrapper(
-        helper,
-        (TagToken) tagNode.getMaster(),
-        interpreter
-      )
-        .get()
-    ) {
-      if (maybeTemplateFile.value().isEmpty()) {
-        return "";
-      }
-      String templateFile = maybeTemplateFile.value().get();
-      try (
-        AutoCloseableImpl<Node> node = parseTemplateAsNode(interpreter, templateFile)
+      AutoCloseableImpl<Result<String, TagCycleException>> templateFileResult =
+        getTemplateFileWithWrapper(helper, (TagToken) tagNode.getMaster(), interpreter)
           .get()
-      ) {
-        JinjavaInterpreter child = interpreter
-          .getConfig()
-          .getInterpreterFactory()
-          .newInstance(interpreter);
-        child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
+    ) {
+      return templateFileResult
+        .value()
+        .match(
+          err -> {
+            String path = StringUtils.trimToEmpty(helper.get(0));
+            interpreter.addError(
+              new TemplateError(
+                ErrorType.WARNING,
+                ErrorReason.EXCEPTION,
+                ErrorItem.TAG,
+                "Import cycle detected for path: '" + path + "'",
+                null,
+                ((TagToken) tagNode.getMaster()).getLineNumber(),
+                ((TagToken) tagNode.getMaster()).getStartPosition(),
+                err,
+                BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
+                ImmutableMap.of("path", path)
+              )
+            );
+            return "";
+          },
+          templateFile -> {
+            try (
+              AutoCloseableImpl<Node> node = parseTemplateAsNode(
+                interpreter,
+                templateFile
+              )
+                .get()
+            ) {
+              JinjavaInterpreter child = interpreter
+                .getConfig()
+                .getInterpreterFactory()
+                .newInstance(interpreter);
+              child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
 
-        try (
-          AutoCloseableImpl<JinjavaInterpreter> a = JinjavaInterpreter
-            .closeablePushCurrent(child)
-            .get()
-        ) {
-          child.render(node.value());
-        }
+              try (
+                AutoCloseableImpl<JinjavaInterpreter> a = JinjavaInterpreter
+                  .closeablePushCurrent(child)
+                  .get()
+              ) {
+                child.render(node.value());
+              }
 
-        interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
+              interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
 
-        Map<String, Object> childBindings = child.getContext().getSessionBindings();
+              Map<String, Object> childBindings = child.getContext().getSessionBindings();
 
-        // If the template depends on deferred values it should not be rendered and all defined variables and macros should be deferred too
-        if (!child.getContext().getDeferredNodes().isEmpty()) {
-          handleDeferredNodesDuringImport(
-            node.value(),
-            contextVar,
-            childBindings,
-            child,
-            interpreter
-          );
-          throw new DeferredValueException(
-            templateFile,
-            tagNode.getLineNumber(),
-            tagNode.getStartPosition()
-          );
-        }
+              // If the template depends on deferred values it should not be rendered and all defined variables and macros should be deferred too
+              if (!child.getContext().getDeferredNodes().isEmpty()) {
+                handleDeferredNodesDuringImport(
+                  node.value(),
+                  contextVar,
+                  childBindings,
+                  child,
+                  interpreter
+                );
+                throw new DeferredValueException(
+                  templateFile,
+                  tagNode.getLineNumber(),
+                  tagNode.getStartPosition()
+                );
+              }
 
-        integrateChild(contextVar, childBindings, child, interpreter);
-        return "";
-      } catch (IOException e) {
-        throw new InterpretException(
-          e.getMessage(),
-          e,
-          tagNode.getLineNumber(),
-          tagNode.getStartPosition()
+              integrateChild(contextVar, childBindings, child, interpreter);
+              return "";
+            } catch (IOException e) {
+              throw new InterpretException(
+                e.getMessage(),
+                e,
+                tagNode.getLineNumber(),
+                tagNode.getStartPosition()
+              );
+            }
+          }
         );
-      }
     }
   }
 
@@ -218,14 +239,15 @@ public class ImportTag implements Tag {
     JinjavaInterpreter interpreter,
     String templateFile
   ) throws IOException {
+    String template = interpreter.getResource(templateFile);
     return interpreter
       .getContext()
       .getCurrentPathStack()
       .closeablePush(templateFile, interpreter.getLineNumber(), interpreter.getPosition())
-      .map(currentPath -> interpreter.parse(interpreter.getResource(templateFile)));
+      .map(currentPath -> interpreter.parse(template));
   }
 
-  public static AutoCloseableSupplier<Optional<String>> getTemplateFileWithWrapper(
+  public static AutoCloseableSupplier<Result<String, TagCycleException>> getTemplateFileWithWrapper(
     List<String> helper,
     TagToken tagToken,
     JinjavaInterpreter interpreter
@@ -238,33 +260,10 @@ public class ImportTag implements Tag {
     );
     templateFile = interpreter.resolveResourceLocation(templateFile);
     interpreter.getContext().addDependency("coded_files", templateFile);
-    try {
-      return interpreter
-        .getContext()
-        .getImportPathStack()
-        .closeablePush(
-          templateFile,
-          tagToken.getLineNumber(),
-          tagToken.getStartPosition()
-        )
-        .map(Optional::of);
-    } catch (ImportTagCycleException e) {
-      interpreter.addError(
-        new TemplateError(
-          ErrorType.WARNING,
-          ErrorReason.EXCEPTION,
-          ErrorItem.TAG,
-          "Import cycle detected for path: '" + path + "'",
-          null,
-          tagToken.getLineNumber(),
-          tagToken.getStartPosition(),
-          e,
-          BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
-          ImmutableMap.of("path", path)
-        )
-      );
-      return AutoCloseableSupplier.of(Optional.empty());
-    }
+    return interpreter
+      .getContext()
+      .getImportPathStack()
+      .closeablePush(templateFile, tagToken.getLineNumber(), tagToken.getStartPosition());
   }
 
   @Deprecated
@@ -274,7 +273,28 @@ public class ImportTag implements Tag {
     JinjavaInterpreter interpreter
   ) {
     return getTemplateFileWithWrapper(helper, tagToken, interpreter)
-      .dangerouslyGetWithoutClosing();
+      .dangerouslyGetWithoutClosing()
+      .match(
+        err -> {
+          String path = StringUtils.trimToEmpty(helper.get(0));
+          interpreter.addError(
+            new TemplateError(
+              ErrorType.WARNING,
+              ErrorReason.EXCEPTION,
+              ErrorItem.TAG,
+              "Import cycle detected for path: '" + path + "'",
+              null,
+              tagToken.getLineNumber(),
+              tagToken.getStartPosition(),
+              err,
+              BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
+              ImmutableMap.of("path", path)
+            )
+          );
+          return Optional.<String>empty();
+        },
+        ok -> Optional.of(ok)
+      );
   }
 
   public static String getContextVar(List<String> helper) {

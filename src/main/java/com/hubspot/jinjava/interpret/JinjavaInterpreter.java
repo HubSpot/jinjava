@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.hubspot.algebra.Result;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
@@ -76,6 +77,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -440,15 +442,19 @@ public class JinjavaInterpreter implements PyishSerializable {
         }
         extendPaths.add(extendPath.orElse(""));
         try (
-          AutoCloseableImpl<String> closeableCurrentPath = context
-            .getCurrentPathStack()
-            .closeablePush(
-              extendPath.orElse(""),
-              context.getExtendPathStack().getTopLineNumber(),
-              context.getExtendPathStack().getTopStartPosition()
-            )
-            .get()
+          AutoCloseableImpl<Result<String, TagCycleException>> closeableCurrentPath =
+            context
+              .getCurrentPathStack()
+              .closeablePush(
+                extendPath.orElse(""),
+                context.getExtendPathStack().getTopLineNumber(),
+                context.getExtendPathStack().getTopStartPosition()
+              )
+              .get()
         ) {
+          String currentPath = closeableCurrentPath
+            .value()
+            .unwrapOrElseThrow(Function.identity());
           Node parentRoot = extendParentRoots.removeFirst();
           if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
             ignoredOutput.append(
@@ -481,7 +487,7 @@ public class JinjavaInterpreter implements PyishSerializable {
           Optional<String> currentExtendPath = context.getExtendPathStack().pop();
           extendPath =
             hasNestedExtends ? currentExtendPath : context.getExtendPathStack().peek();
-          basePath = Optional.of(closeableCurrentPath.value());
+          basePath = Optional.of(currentPath);
         }
       }
     }
@@ -981,7 +987,7 @@ public class JinjavaInterpreter implements PyishSerializable {
   ) {
     Stack<JinjavaInterpreter> stack = CURRENT_INTERPRETER.get();
     stack.push(interpreter);
-    return AutoCloseableSupplier.of(interpreter, i -> stack.pop());
+    return AutoCloseableSupplier.of(() -> interpreter, i -> stack.pop());
   }
 
   @Deprecated

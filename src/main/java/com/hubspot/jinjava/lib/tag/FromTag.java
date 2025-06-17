@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.tag;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
+import com.hubspot.algebra.Result;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
@@ -12,9 +13,9 @@ import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
-import com.hubspot.jinjava.interpret.FromTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TagCycleException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -31,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 
 @JinjavaDoc(
   value = "Alternative to the import tag that lets you import and use specific macros from one template to another",
@@ -75,60 +77,76 @@ public class FromTag implements Tag {
     List<String> helper = getHelpers((TagToken) tagNode.getMaster());
 
     try (
-      AutoCloseableImpl<Optional<String>> maybeTemplateFile = getTemplateFileWithWrapper(
-        helper,
-        (TagToken) tagNode.getMaster(),
-        interpreter
-      )
-        .get()
+      AutoCloseableImpl<Result<String, TagCycleException>> templateFileResult =
+        getTemplateFileWithWrapper(helper, (TagToken) tagNode.getMaster(), interpreter)
+          .get()
     ) {
-      if (maybeTemplateFile.value().isEmpty()) {
-        return "";
-      }
-      String templateFile = maybeTemplateFile.value().get();
+      return templateFileResult
+        .value()
+        .match(
+          err -> {
+            String path = StringUtils.trimToEmpty(helper.get(0));
+            interpreter.addError(
+              new TemplateError(
+                ErrorType.WARNING,
+                ErrorReason.EXCEPTION,
+                ErrorItem.TAG,
+                "From cycle detected for path: '" + path + "'",
+                null,
+                ((TagToken) tagNode.getMaster()).getLineNumber(),
+                ((TagToken) tagNode.getMaster()).getStartPosition(),
+                err,
+                BasicTemplateErrorCategory.FROM_CYCLE_DETECTED,
+                ImmutableMap.of("path", path)
+              )
+            );
+            return "";
+          },
+          templateFile -> {
+            Map<String, String> imports = getImportMap(helper);
 
-      Map<String, String> imports = getImportMap(helper);
+            try {
+              String template = interpreter.getResource(templateFile);
+              Node node = interpreter.parse(template);
 
-      try {
-        String template = interpreter.getResource(templateFile);
-        Node node = interpreter.parse(template);
+              JinjavaInterpreter child = interpreter
+                .getConfig()
+                .getInterpreterFactory()
+                .newInstance(interpreter);
+              child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
+              try (
+                AutoCloseableImpl<JinjavaInterpreter> a = JinjavaInterpreter
+                  .closeablePushCurrent(child)
+                  .get()
+              ) {
+                child.render(node);
+              }
 
-        JinjavaInterpreter child = interpreter
-          .getConfig()
-          .getInterpreterFactory()
-          .newInstance(interpreter);
-        child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
-        try (
-          AutoCloseableImpl<JinjavaInterpreter> a = JinjavaInterpreter
-            .closeablePushCurrent(child)
-            .get()
-        ) {
-          child.render(node);
-        }
+              interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
 
-        interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
+              boolean importsDeferredValue = integrateChild(imports, child, interpreter);
 
-        boolean importsDeferredValue = integrateChild(imports, child, interpreter);
+              if (importsDeferredValue) {
+                handleDeferredNodesDuringImport(
+                  (TagToken) tagNode.getMaster(),
+                  templateFile,
+                  imports,
+                  child,
+                  interpreter
+                );
+              }
 
-        if (importsDeferredValue) {
-          handleDeferredNodesDuringImport(
-            (TagToken) tagNode.getMaster(),
-            templateFile,
-            imports,
-            child,
-            interpreter
-          );
-        }
-
-        return "";
-      } catch (IOException e) {
-        throw new InterpretException(
-          e.getMessage(),
-          e,
-          tagNode.getLineNumber(),
-          tagNode.getStartPosition()
+              return "";
+            } catch (IOException e) {
+              throw new InterpretException(
+                e.getMessage(),
+                e,
+                tagNode.getLineNumber(),
+                tagNode.getStartPosition()
+              );
+            }
+          }
         );
-      }
     }
   }
 
@@ -212,7 +230,7 @@ public class FromTag implements Tag {
     return imports;
   }
 
-  public static AutoCloseableSupplier<Optional<String>> getTemplateFileWithWrapper(
+  public static AutoCloseableSupplier<Result<String, TagCycleException>> getTemplateFileWithWrapper(
     List<String> helper,
     TagToken tagToken,
     JinjavaInterpreter interpreter
@@ -224,35 +242,10 @@ public class FromTag implements Tag {
     );
     templateFile = interpreter.resolveResourceLocation(templateFile);
     interpreter.getContext().addDependency("coded_files", templateFile);
-    try {
-      return interpreter
-        .getContext()
-        .getFromPathStack()
-        .closeablePush(
-          templateFile,
-          tagToken.getLineNumber(),
-          tagToken.getStartPosition()
-        )
-        .map(Optional::of);
-    } catch (FromTagCycleException e) {
-      interpreter.addError(
-        new TemplateError(
-          ErrorType.WARNING,
-          ErrorReason.EXCEPTION,
-          ErrorItem.TAG,
-          "From cycle detected for path: '" + templateFile + "'",
-          null,
-          tagToken.getLineNumber(),
-          tagToken.getStartPosition(),
-          e,
-          BasicTemplateErrorCategory.FROM_CYCLE_DETECTED,
-          ImmutableMap.of("path", templateFile)
-        )
-      );
-      return AutoCloseableSupplier.of(
-        Optional.empty() // no-op cleanup
-      );
-    }
+    return interpreter
+      .getContext()
+      .getFromPathStack()
+      .closeablePush(templateFile, tagToken.getLineNumber(), tagToken.getStartPosition());
   }
 
   @Deprecated
@@ -262,7 +255,27 @@ public class FromTag implements Tag {
     JinjavaInterpreter interpreter
   ) {
     return getTemplateFileWithWrapper(helper, tagToken, interpreter)
-      .dangerouslyGetWithoutClosing();
+      .dangerouslyGetWithoutClosing()
+      .match(
+        err -> {
+          interpreter.addError(
+            new TemplateError(
+              ErrorType.WARNING,
+              ErrorReason.EXCEPTION,
+              ErrorItem.TAG,
+              "From cycle detected for path: '" + err.getPath() + "'",
+              null,
+              tagToken.getLineNumber(),
+              tagToken.getStartPosition(),
+              err,
+              BasicTemplateErrorCategory.FROM_CYCLE_DETECTED,
+              ImmutableMap.of("path", err.getPath())
+            )
+          );
+          return Optional.empty();
+        },
+        Optional::of
+      );
   }
 
   public static List<String> getHelpers(TagToken tagToken) {

@@ -319,7 +319,12 @@ public class EagerMacroFunction extends MacroFunction {
         ? AutoCloseableSupplier.of(true)
         : AstMacroFunction
           .checkAndPushMacroStackWithWrapper(interpreter, fullName)
-          .map(cycleDetected -> !cycleDetected)
+          .map(result ->
+            result.match(
+              err -> false, // cycle detected, don't do reconstruction
+              ok -> true // no cycle, proceed with reconstruction
+            )
+          )
     ).get();
   }
 

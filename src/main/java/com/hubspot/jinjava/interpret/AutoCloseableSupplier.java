@@ -1,48 +1,49 @@
 package com.hubspot.jinjava.interpret;
 
+import com.google.common.base.Suppliers;
 import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class AutoCloseableSupplier<T> implements Supplier<AutoCloseableImpl<T>> {
 
-  public interface GenericThrowingFunction<T, R, E extends Exception> {
-    R apply(T t) throws E;
+  public static <T> AutoCloseableSupplier<T> of(T tSupplier) {
+    return of(() -> tSupplier, ignored -> {});
   }
 
-  public static <T> AutoCloseableSupplier<T> of(T t) {
-    return new AutoCloseableSupplier<>(new AutoCloseableImpl<>(t, ignored -> {}));
+  public static <T> AutoCloseableSupplier<T> of(
+    Supplier<T> tSupplier,
+    Consumer<T> closeConsumer
+  ) {
+    return new AutoCloseableSupplier<>(
+      Suppliers.memoize(() -> new AutoCloseableImpl<>(tSupplier.get(), closeConsumer))
+    );
   }
 
-  public static <T> AutoCloseableSupplier<T> of(T t, Consumer<T> closeConsumer) {
-    return new AutoCloseableSupplier<>(new AutoCloseableImpl<>(t, closeConsumer));
-  }
+  private final Supplier<AutoCloseableImpl<T>> autoCloseableImplWrapper;
 
-  private final AutoCloseableImpl<T> autoCloseableImplWrapper;
-
-  private AutoCloseableSupplier(AutoCloseableImpl<T> autoCloseableImplWrapper) {
+  private AutoCloseableSupplier(Supplier<AutoCloseableImpl<T>> autoCloseableImplWrapper) {
     this.autoCloseableImplWrapper = autoCloseableImplWrapper;
   }
 
   @Override
   public AutoCloseableImpl<T> get() {
-    return autoCloseableImplWrapper;
+    return autoCloseableImplWrapper.get();
   }
 
   public T dangerouslyGetWithoutClosing() {
-    return autoCloseableImplWrapper.value();
+    return autoCloseableImplWrapper.get().value();
   }
 
-  public <R, E extends Exception> AutoCloseableSupplier<R> map(
-    GenericThrowingFunction<T, R, E> mapper
-  ) throws E {
-    T t = autoCloseableImplWrapper.value();
-    return new AutoCloseableSupplier<>(
-      new AutoCloseableImpl<>(
+  public <R> AutoCloseableSupplier<R> map(Function<T, R> mapper) {
+    return new AutoCloseableSupplier<>(() -> {
+      T t = autoCloseableImplWrapper.get().value();
+      return new AutoCloseableImpl<>(
         mapper.apply(t),
-        r -> autoCloseableImplWrapper.closeConsumer.accept(t)
-      )
-    );
+        r -> autoCloseableImplWrapper.get().closeConsumer.accept(t)
+      );
+    });
   }
 
   public static class AutoCloseableImpl<T> implements java.lang.AutoCloseable {

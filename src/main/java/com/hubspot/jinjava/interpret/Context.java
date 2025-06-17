@@ -726,7 +726,7 @@ public class Context extends ScopeMap<String, Object> {
 
   public AutoCloseableSupplier<String> closeablePushRenderStack(String template) {
     renderStack.push(template);
-    return AutoCloseableSupplier.of(template, t -> renderStack.pop());
+    return AutoCloseableSupplier.of(() -> template, t -> renderStack.pop());
   }
 
   @Deprecated

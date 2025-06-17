@@ -16,14 +16,15 @@
 package com.hubspot.jinjava.lib.tag;
 
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.algebra.Result;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
 import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
-import com.hubspot.jinjava.interpret.IncludeTagCycleException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TagCycleException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -78,55 +79,89 @@ public class IncludeTag implements Tag {
     templateFile = interpreter.resolveResourceLocation(templateFile);
 
     final String finalTemplateFile = templateFile;
+    final TagNode finalTagNode = tagNode;
     try (
-      AutoCloseableImpl<String> includeStackWrapper = interpreter
-        .getContext()
-        .getIncludePathStack()
-        .closeablePush(
-          finalTemplateFile,
-          tagNode.getLineNumber(),
-          tagNode.getStartPosition()
-        )
-        .get();
-      AutoCloseableImpl<String> currentPathWrapper = interpreter
-        .getContext()
-        .getCurrentPathStack()
-        .closeablePush(
-          finalTemplateFile,
-          interpreter.getLineNumber(),
-          interpreter.getPosition()
-        )
-        .get()
+      AutoCloseableImpl<Result<String, TagCycleException>> includeStackWrapper =
+        interpreter
+          .getContext()
+          .getIncludePathStack()
+          .closeablePush(
+            finalTemplateFile,
+            tagNode.getLineNumber(),
+            tagNode.getStartPosition()
+          )
+          .get();
+      AutoCloseableImpl<Result<String, TagCycleException>> currentPathWrapper =
+        interpreter
+          .getContext()
+          .getCurrentPathStack()
+          .closeablePush(
+            finalTemplateFile,
+            interpreter.getLineNumber(),
+            interpreter.getPosition()
+          )
+          .get()
     ) {
-      String template = interpreter.getResource(finalTemplateFile);
-      Node node = interpreter.parse(template);
-
-      interpreter.getContext().addDependency("coded_files", finalTemplateFile);
-
-      return interpreter.render(node, false);
-    } catch (IncludeTagCycleException e) {
-      interpreter.addError(
-        new TemplateError(
-          ErrorType.WARNING,
-          ErrorReason.EXCEPTION,
-          ErrorItem.TAG,
-          "Include cycle detected for path: '" + templateFile + "'",
-          null,
-          tagNode.getLineNumber(),
-          tagNode.getStartPosition(),
-          e,
-          BasicTemplateErrorCategory.INCLUDE_CYCLE_DETECTED,
-          ImmutableMap.of("path", templateFile)
-        )
-      );
-      return "";
-    } catch (IOException e) {
-      throw new InterpretException(
-        e.getMessage(),
-        e,
-        tagNode.getLineNumber(),
-        tagNode.getStartPosition()
-      );
+      return includeStackWrapper
+        .value()
+        .match(
+          err -> {
+            interpreter.addError(
+              new TemplateError(
+                ErrorType.WARNING,
+                ErrorReason.EXCEPTION,
+                ErrorItem.TAG,
+                "Include cycle detected for path: '" + finalTemplateFile + "'",
+                null,
+                finalTagNode.getLineNumber(),
+                finalTagNode.getStartPosition(),
+                err,
+                BasicTemplateErrorCategory.INCLUDE_CYCLE_DETECTED,
+                ImmutableMap.of("path", finalTemplateFile)
+              )
+            );
+            return "";
+          },
+          includeStackPath ->
+            currentPathWrapper
+              .value()
+              .match(
+                err -> {
+                  interpreter.addError(
+                    new TemplateError(
+                      ErrorType.WARNING,
+                      ErrorReason.EXCEPTION,
+                      ErrorItem.TAG,
+                      "Include cycle detected for path: '" + finalTemplateFile + "'",
+                      null,
+                      finalTagNode.getLineNumber(),
+                      finalTagNode.getStartPosition(),
+                      err,
+                      BasicTemplateErrorCategory.INCLUDE_CYCLE_DETECTED,
+                      ImmutableMap.of("path", finalTemplateFile)
+                    )
+                  );
+                  return "";
+                },
+                currentPath -> {
+                  try {
+                    String template = interpreter.getResource(finalTemplateFile);
+                    Node node = interpreter.parse(template);
+                    interpreter
+                      .getContext()
+                      .addDependency("coded_files", finalTemplateFile);
+                    return interpreter.render(node, false);
+                  } catch (IOException e) {
+                    throw new InterpretException(
+                      e.getMessage(),
+                      e,
+                      finalTagNode.getLineNumber(),
+                      finalTagNode.getStartPosition()
+                    );
+                  }
+                }
+              )
+        );
     }
   }
 
