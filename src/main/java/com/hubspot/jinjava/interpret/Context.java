@@ -21,6 +21,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF.TemplateErrorTypeHandlingStrategy;
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.lib.expression.ExpressionStrategy;
@@ -677,6 +678,10 @@ public class Context extends ScopeMap<String, Object> {
     return importPathStack;
   }
 
+  public CallStack getFromPathStack() {
+    return fromStack;
+  }
+
   public CallStack getIncludePathStack() {
     return includePathStack;
   }
@@ -693,10 +698,12 @@ public class Context extends ScopeMap<String, Object> {
     return currentPathStack;
   }
 
+  @Deprecated
   public void pushFromStack(String path, int lineNumber, int startPosition) {
     fromStack.push(path, lineNumber, startPosition);
   }
 
+  @Deprecated
   public void popFromStack() {
     fromStack.pop();
   }
@@ -717,10 +724,17 @@ public class Context extends ScopeMap<String, Object> {
     this.renderDepth = renderDepth;
   }
 
+  public AutoCloseableSupplier<String> closeablePushRenderStack(String template) {
+    renderStack.push(template);
+    return AutoCloseableSupplier.of(() -> template, t -> renderStack.pop());
+  }
+
+  @Deprecated
   public void pushRenderStack(String template) {
     renderStack.push(template);
   }
 
+  @Deprecated
   public String popRenderStack() {
     return renderStack.pop();
   }
@@ -878,23 +892,14 @@ public class Context extends ScopeMap<String, Object> {
     return temporaryValueClosable;
   }
 
-  public static class TemporaryValueClosable<T> implements AutoCloseable {
-
-    private final T previousValue;
-    private final Consumer<T> resetValueConsumer;
+  public static class TemporaryValueClosable<T> extends AutoCloseableImpl<T> {
 
     private TemporaryValueClosable(T previousValue, Consumer<T> resetValueConsumer) {
-      this.previousValue = previousValue;
-      this.resetValueConsumer = resetValueConsumer;
+      super(previousValue, resetValueConsumer);
     }
 
     public static <T> TemporaryValueClosable<T> noOp() {
       return new NoOpTemporaryValueClosable<>();
-    }
-
-    @Override
-    public void close() {
-      resetValueConsumer.accept(previousValue);
     }
 
     private static class NoOpTemporaryValueClosable<T> extends TemporaryValueClosable<T> {

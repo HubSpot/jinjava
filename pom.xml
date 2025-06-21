@@ -20,6 +20,7 @@
     <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
     <dep.plugin.javadoc.version>3.0.1</dep.plugin.javadoc.version>
     <dep.hubspot-immutables.version>1.9</dep.hubspot-immutables.version>
+    <dep.algebra.version>1.5</dep.algebra.version>
 
 
     <basepom.test.add.opens>
@@ -100,6 +101,11 @@
         <groupId>com.hubspot.immutables</groupId>
         <artifactId>immutables-exceptions</artifactId>
         <version>${dep.hubspot-immutables.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hubspot</groupId>
+        <artifactId>algebra</artifactId>
+        <version>${dep.algebra.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -212,6 +218,10 @@
     <dependency>
       <groupId>com.hubspot.immutables</groupId>
       <artifactId>immutables-exceptions</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hubspot</groupId>
+      <artifactId>algebra</artifactId>
     </dependency>
   </dependencies>
 
