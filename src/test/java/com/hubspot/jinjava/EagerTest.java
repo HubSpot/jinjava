@@ -1669,4 +1669,13 @@ public class EagerTest {
   public void itReconstructsFromedMacro() {
     expectedTemplateInterpreter.assertExpectedOutput("reconstructs-fromed-macro/test");
   }
+
+  @Test
+  public void itAllowsOverridingMetaContextVariableInChildScope() {
+    interpreter.getContext().addMetaContextVariables(Collections.singleton("meta"));
+    interpreter.getContext().put("meta", "META");
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "allows-overriding-meta-context-variable-in-child-scope/test"
+    );
+  }
 }

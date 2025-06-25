@@ -1,0 +1,11 @@
+META
+{% set meta = 'META' %}\
+{% for __ignored__ in [0] %}
+  {% if deferred %}
+    {% set meta = 'new meta' %}
+    new meta
+  {% else %}
+    No op
+  {% endif %}
+{% endfor %}
+META

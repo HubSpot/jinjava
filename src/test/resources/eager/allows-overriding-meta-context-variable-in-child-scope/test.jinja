@@ -1,0 +1,10 @@
+{{ meta }}
+{% for i in range (1) %}
+  {% if deferred %}
+    {% set meta = 'new meta' %}
+    {{ meta }}
+  {% else %}
+    No op
+  {% endif %}
+{% endfor %}
+{{ meta }}
