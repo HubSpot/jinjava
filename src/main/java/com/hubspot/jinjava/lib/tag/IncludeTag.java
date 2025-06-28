@@ -33,6 +33,7 @@ import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import java.io.IOException;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 @JinjavaDoc(
@@ -76,6 +77,9 @@ public class IncludeTag implements Tag {
     );
     templateFile = interpreter.resolveResourceLocation(templateFile);
 
+    /* check next tokens if it could be ignored if missing */
+    boolean ignoreMissing = checkIgnoreMissing(helper);
+
     try {
       interpreter
         .getContext()
@@ -111,6 +115,10 @@ public class IncludeTag implements Tag {
 
       return interpreter.render(node, false);
     } catch (IOException e) {
+      if (ignoreMissing) {
+        return "";
+      }
+
       throw new InterpretException(
         e.getMessage(),
         e,
@@ -121,6 +129,23 @@ public class IncludeTag implements Tag {
       interpreter.getContext().getIncludePathStack().pop();
       interpreter.getContext().getCurrentPathStack().pop();
     }
+  }
+
+  /**
+   * Returns true if the last two tokens match "ignore" "missing".
+   *
+   * @param helper
+   */
+  private boolean checkIgnoreMissing(HelperStringTokenizer helper) {
+    List<String> all = helper.allTokens();
+    if (
+      all.size() >= 2 &&
+      "ignore".equals(all.get(all.size() - 2)) &&
+      "missing".equals(all.get(all.size() - 1))
+    ) {
+      return true;
+    }
+    return false;
   }
 
   @Override
