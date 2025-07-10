@@ -19,7 +19,7 @@
 
     <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
     <dep.plugin.javadoc.version>3.0.1</dep.plugin.javadoc.version>
-    <dep.hubspot-immutables.version>1.9</dep.hubspot-immutables.version>
+    <dep.hubspot-immutables.version>1.11.2</dep.hubspot-immutables.version>
 
 
     <basepom.test.add.opens>
@@ -328,6 +328,13 @@
   </build>
 
   <url>https://github.com/HubSpot/jinjava</url>
+
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
 
   <developers>
     <developer>
