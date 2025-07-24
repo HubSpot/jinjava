@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -38,7 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 public class EagerMacroFunction extends MacroFunction {
 
   private AtomicInteger callCount = new AtomicInteger();
-  private boolean reconstructing = false;
+  private AtomicBoolean reconstructing = new AtomicBoolean();
 
   public EagerMacroFunction(
     List<Node> content,
@@ -70,7 +71,7 @@ public class EagerMacroFunction extends MacroFunction {
     List<Object> varArgs
   ) {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
-    if (reconstructing) {
+    if (reconstructing.get()) {
       try (
         InterpreterScopeClosable c = interpreter.enterScope();
         AutoCloseableImpl<Optional<String>> importFile = getImportFileWithWrapper(
@@ -282,7 +283,7 @@ public class EagerMacroFunction extends MacroFunction {
       }
 
       try (InterpreterScopeClosable c = interpreter.enterScope()) {
-        reconstructing = true;
+        reconstructing.set(true);
         String evaluation = (String) evaluate(
           getArguments().stream().map(arg -> DeferredMacroValueImpl.instance()).toArray()
         );
@@ -300,7 +301,7 @@ public class EagerMacroFunction extends MacroFunction {
         }
         result.append(super.reconstructImage());
       } finally {
-        reconstructing = false;
+        reconstructing.set(false);
         interpreter
           .getContext()
           .put(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY, currentDeferredImportResource);

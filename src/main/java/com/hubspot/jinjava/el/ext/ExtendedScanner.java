@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.el.ext;
 
 import de.odysseus.el.tree.impl.Scanner;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -58,6 +59,10 @@ public class ExtendedScanner extends Scanner {
     }
   }
 
+  @SuppressFBWarnings(
+    value = "HSM_HIDING_METHOD",
+    justification = "Purposefully overriding to use static method instance of this class."
+  )
   protected static void addKeyToken(Token token) {
     try {
       ADD_KEY_TOKEN_METHOD.invoke(null, token);

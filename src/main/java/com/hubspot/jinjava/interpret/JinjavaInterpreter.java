@@ -61,7 +61,6 @@ import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.RenderLimitUtils;
 import com.hubspot.jinjava.util.Variable;
 import com.hubspot.jinjava.util.WhitespaceUtils;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -541,10 +540,6 @@ public class JinjavaInterpreter implements PyishSerializable {
     );
   }
 
-  @SuppressFBWarnings(
-    justification = "Iterables#getFirst DOES allow null for default value",
-    value = "NP_NONNULL_PARAM_VIOLATION"
-  )
   private void resolveBlockStubs(OutputList output, Stack<String> blockNames) {
     for (BlockPlaceholderOutputNode blockPlaceholder : output.getBlocks()) {
       if (!blockNames.contains(blockPlaceholder.getBlockName())) {
