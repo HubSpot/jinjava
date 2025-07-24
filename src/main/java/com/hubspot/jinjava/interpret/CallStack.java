@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.interpret;
 
+import com.hubspot.algebra.Result;
 import java.util.Optional;
 import java.util.Stack;
 
@@ -109,6 +110,57 @@ public class CallStack {
 
   public boolean isEmpty() {
     return stack.empty() && (parent == null || parent.isEmpty());
+  }
+
+  public AutoCloseableSupplier<Result<String, TagCycleException>> closeablePush(
+    String path,
+    int lineNumber,
+    int startPosition
+  ) {
+    return AutoCloseableSupplier.of(
+      () -> {
+        try {
+          push(path, lineNumber, startPosition);
+          return Result.ok(path);
+        } catch (TagCycleException e) {
+          return Result.err(e);
+        }
+      },
+      result -> result.ifOk(ok -> pop())
+    );
+  }
+
+  public AutoCloseableSupplier<String> closeablePushWithoutCycleCheck(
+    String path,
+    int lineNumber,
+    int startPosition
+  ) {
+    return AutoCloseableSupplier.of(
+      () -> {
+        pushWithoutCycleCheck(path, lineNumber, startPosition);
+        return path;
+      },
+      ignored -> pop()
+    );
+  }
+
+  public AutoCloseableSupplier<Result<String, TagCycleException>> closeablePushWithMaxDepth(
+    String path,
+    int maxDepth,
+    int lineNumber,
+    int startPosition
+  ) {
+    return AutoCloseableSupplier.of(
+      () -> {
+        try {
+          pushWithMaxDepth(path, maxDepth, lineNumber, startPosition);
+          return Result.ok(path);
+        } catch (TagCycleException e) {
+          return Result.err(e);
+        }
+      },
+      result -> result.ifOk(ok -> pop())
+    );
   }
 
   private void pushToStack(String path, int lineNumber, int startPosition) {

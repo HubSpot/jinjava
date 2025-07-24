@@ -4,6 +4,8 @@ import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.el.ext.AstMacroFunction;
 import com.hubspot.jinjava.el.ext.DeferredInvocationResolutionException;
 import com.hubspot.jinjava.el.ext.eager.MacroFunctionTempVariable;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredMacroValueImpl;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -70,8 +72,13 @@ public class EagerMacroFunction extends MacroFunction {
   ) {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     if (reconstructing.get()) {
-      Optional<String> importFile = getImportFile(interpreter);
-      try (InterpreterScopeClosable c = interpreter.enterScope()) {
+      try (
+        InterpreterScopeClosable c = interpreter.enterScope();
+        AutoCloseableImpl<Optional<String>> importFile = getImportFileWithWrapper(
+          interpreter
+        )
+          .get()
+      ) {
         EagerExecutionResult result = eagerEvaluateInDeferredExecutionMode(
           () -> getEvaluationResultDirectly(argMap, kwargMap, varArgs, interpreter),
           interpreter
@@ -87,9 +94,6 @@ public class EagerMacroFunction extends MacroFunction {
             );
         }
         return result.asTemplateString();
-      } finally {
-        importFile.ifPresent(path -> interpreter.getContext().getCurrentPathStack().pop()
-        );
       }
     }
 
@@ -232,10 +236,12 @@ public class EagerMacroFunction extends MacroFunction {
     String setTagForAliasedVariables = getSetTagForAliasedVariables(fullName);
     String suffix = "";
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
-    Optional<String> importFile = getImportFile(interpreter);
+
+    Optional<String> importFile = Optional.ofNullable(
+      (String) localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY)
+    );
     Object currentDeferredImportResource = null;
     if (importFile.isPresent()) {
-      interpreter.getContext().getCurrentPathStack().pop();
       currentDeferredImportResource =
         interpreter.getContext().get(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY);
       if (currentDeferredImportResource instanceof DeferredValue) {
@@ -260,12 +266,22 @@ public class EagerMacroFunction extends MacroFunction {
     }
 
     if (
-      (interpreter.getContext().getMacroStack().contains(getName()) &&
-        !differentMacroWithSameNameExists(interpreter)) ||
-      (!isCaller() && AstMacroFunction.checkAndPushMacroStack(interpreter, fullName))
+      interpreter.getContext().getMacroStack().contains(getName()) &&
+      !differentMacroWithSameNameExists(interpreter)
     ) {
       return "";
-    } else {
+    }
+
+    try (
+      AutoCloseableImpl<Boolean> shouldReconstruct = shouldDoReconstruction(
+        fullName,
+        interpreter
+      )
+    ) {
+      if (!shouldReconstruct.value()) {
+        return "";
+      }
+
       try (InterpreterScopeClosable c = interpreter.enterScope()) {
         reconstructing.set(true);
         String evaluation = (String) evaluate(
@@ -289,12 +305,28 @@ public class EagerMacroFunction extends MacroFunction {
         interpreter
           .getContext()
           .put(Context.DEFERRED_IMPORT_RESOURCE_PATH_KEY, currentDeferredImportResource);
-        if (!isCaller()) {
-          interpreter.getContext().getMacroStack().pop();
-        }
       }
     }
+
     return prefix + result + suffix;
+  }
+
+  private AutoCloseableImpl<Boolean> shouldDoReconstruction(
+    String fullName,
+    JinjavaInterpreter interpreter
+  ) {
+    return (
+      isCaller()
+        ? AutoCloseableSupplier.of(true)
+        : AstMacroFunction
+          .checkAndPushMacroStackWithWrapper(interpreter, fullName)
+          .map(result ->
+            result.match(
+              err -> false, // cycle detected, don't do reconstruction
+              ok -> true // no cycle, proceed with reconstruction
+            )
+          )
+    ).get();
   }
 
   private String getSetTagForAliasedVariables(String fullName) {

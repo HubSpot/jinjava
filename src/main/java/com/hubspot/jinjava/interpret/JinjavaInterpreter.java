@@ -24,11 +24,13 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.hubspot.algebra.Result;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF;
 import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF.TemplateErrorTypeHandlingStrategy;
@@ -74,6 +76,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -379,14 +382,18 @@ public class JinjavaInterpreter implements PyishSerializable {
           output.addNode(new RenderedOutputNode(renderStr));
         } else {
           OutputNode out;
-          context.pushRenderStack(renderStr);
-          try {
-            out = node.render(this);
-          } catch (DeferredValueException e) {
-            context.handleDeferredNode(node);
-            out = new RenderedOutputNode(node.getMaster().getImage());
+          try (
+            AutoCloseableImpl<String> closeable = context
+              .closeablePushRenderStack(renderStr)
+              .get()
+          ) {
+            try {
+              out = node.render(this);
+            } catch (DeferredValueException e) {
+              context.handleDeferredNode(node);
+              out = new RenderedOutputNode(node.getMaster().getImage());
+            }
           }
-          context.popRenderStack();
           output.addNode(out);
         }
       } catch (OutputTooBigException e) {
@@ -433,46 +440,54 @@ public class JinjavaInterpreter implements PyishSerializable {
           break;
         }
         extendPaths.add(extendPath.orElse(""));
-        context
-          .getCurrentPathStack()
-          .push(
-            extendPath.orElse(""),
-            context.getExtendPathStack().getTopLineNumber(),
-            context.getExtendPathStack().getTopStartPosition()
-          );
-        Node parentRoot = extendParentRoots.removeFirst();
-        if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
-          ignoredOutput.append(
-            output
-              .getNodes()
-              .stream()
-              .filter(node -> node instanceof RenderedOutputNode)
-              .map(OutputNode::getValue)
-              .collect(Collectors.joining())
-          );
-        }
-        numDeferredTokensBefore = context.getDeferredTokens().size();
-        output = new OutputList(config.getMaxOutputSize());
-        output.addNode(pathSetter);
-        boolean hasNestedExtends = false;
-        for (Node node : parentRoot.getChildren()) {
-          lineNumber = node.getLineNumber() - 1; // The line number is off by one when rendering the extend parent
-          position = node.getStartPosition();
-          try {
-            OutputNode out = node.render(this);
-            output.addNode(out);
-            if (isExtendsTag(node)) {
-              hasNestedExtends = true;
-            }
-          } catch (OutputTooBigException e) {
-            addError(TemplateError.fromOutputTooBigException(e));
-            return output.getValue();
+        try (
+          AutoCloseableImpl<Result<String, TagCycleException>> closeableCurrentPath =
+            context
+              .getCurrentPathStack()
+              .closeablePush(
+                extendPath.orElse(""),
+                context.getExtendPathStack().getTopLineNumber(),
+                context.getExtendPathStack().getTopStartPosition()
+              )
+              .get()
+        ) {
+          String currentPath = closeableCurrentPath
+            .value()
+            .unwrapOrElseThrow(Function.identity());
+          Node parentRoot = extendParentRoots.removeFirst();
+          if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
+            ignoredOutput.append(
+              output
+                .getNodes()
+                .stream()
+                .filter(node -> node instanceof RenderedOutputNode)
+                .map(OutputNode::getValue)
+                .collect(Collectors.joining())
+            );
           }
+          numDeferredTokensBefore = context.getDeferredTokens().size();
+          output = new OutputList(config.getMaxOutputSize());
+          output.addNode(pathSetter);
+          boolean hasNestedExtends = false;
+          for (Node node : parentRoot.getChildren()) {
+            lineNumber = node.getLineNumber() - 1; // The line number is off by one when rendering the extend parent
+            position = node.getStartPosition();
+            try {
+              OutputNode out = node.render(this);
+              output.addNode(out);
+              if (isExtendsTag(node)) {
+                hasNestedExtends = true;
+              }
+            } catch (OutputTooBigException e) {
+              addError(TemplateError.fromOutputTooBigException(e));
+              return output.getValue();
+            }
+          }
+          Optional<String> currentExtendPath = context.getExtendPathStack().pop();
+          extendPath =
+            hasNestedExtends ? currentExtendPath : context.getExtendPathStack().peek();
+          basePath = Optional.of(currentPath);
         }
-        Optional<String> currentExtendPath = context.getExtendPathStack().pop();
-        extendPath =
-          hasNestedExtends ? currentExtendPath : context.getExtendPathStack().peek();
-        basePath = context.getCurrentPathStack().pop();
       }
     }
 
@@ -542,37 +557,29 @@ public class JinjavaInterpreter implements PyishSerializable {
           OutputList blockValueBuilder = new OutputList(config.getMaxOutputSize());
           DynamicRenderedOutputNode prefix = new DynamicRenderedOutputNode();
           blockValueBuilder.addNode(prefix);
-          boolean pushedParentPathOntoStack = false;
           int numDeferredTokensBefore = context.getDeferredTokens().size();
-          if (
-            block.getParentPath().isPresent() &&
-            !getContext().getCurrentPathStack().contains(block.getParentPath().get())
-          ) {
-            getContext()
-              .getCurrentPathStack()
-              .push(
-                block.getParentPath().get(),
-                block.getParentLineNo(),
-                block.getParentPosition()
-              );
-            pushedParentPathOntoStack = true;
-            lineNumber--; // The line number is off by one when rendering the block from the parent template
-          }
-          for (Node child : block.getNodes()) {
-            lineNumber = child.getLineNumber();
-            position = child.getStartPosition();
 
-            blockValueBuilder.addNode(child.render(this));
-          }
-          if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
-            EagerReconstructionUtils.reconstructPathAroundBlock(
-              prefix,
-              blockValueBuilder,
-              this
-            );
-          }
-          if (pushedParentPathOntoStack) {
-            getContext().getCurrentPathStack().pop();
+          try (
+            AutoCloseableImpl<Boolean> parentPathPush = conditionallyPushParentPath(block)
+              .get()
+          ) {
+            if (parentPathPush.value()) {
+              lineNumber--; // The line number is off by one when rendering the block from the parent template
+            }
+
+            for (Node child : block.getNodes()) {
+              lineNumber = child.getLineNumber();
+              position = child.getStartPosition();
+
+              blockValueBuilder.addNode(child.render(this));
+            }
+            if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
+              EagerReconstructionUtils.reconstructPathAroundBlock(
+                prefix,
+                blockValueBuilder,
+                this
+              );
+            }
           }
           blockNames.push(blockPlaceholder.getBlockName());
           resolveBlockStubs(blockValueBuilder, blockNames);
@@ -588,6 +595,24 @@ public class JinjavaInterpreter implements PyishSerializable {
       if (!blockPlaceholder.isResolved()) {
         blockPlaceholder.resolve("");
       }
+    }
+  }
+
+  private AutoCloseableSupplier<Boolean> conditionallyPushParentPath(BlockInfo block) {
+    if (
+      block.getParentPath().isPresent() &&
+      !getContext().getCurrentPathStack().contains(block.getParentPath().get())
+    ) {
+      return getContext()
+        .getCurrentPathStack()
+        .closeablePush(
+          block.getParentPath().get(),
+          block.getParentLineNo(),
+          block.getParentPosition()
+        )
+        .map(path -> true);
+    } else {
+      return AutoCloseableSupplier.of(false);
     }
   }
 
@@ -952,10 +977,20 @@ public class JinjavaInterpreter implements PyishSerializable {
     return Optional.ofNullable(getCurrent());
   }
 
+  public static AutoCloseableSupplier<JinjavaInterpreter> closeablePushCurrent(
+    JinjavaInterpreter interpreter
+  ) {
+    Stack<JinjavaInterpreter> stack = CURRENT_INTERPRETER.get();
+    stack.push(interpreter);
+    return AutoCloseableSupplier.of(() -> interpreter, i -> stack.pop());
+  }
+
+  @Deprecated
   public static void pushCurrent(JinjavaInterpreter interpreter) {
     CURRENT_INTERPRETER.get().push(interpreter);
   }
 
+  @Deprecated
   public static void popCurrent() {
     if (!CURRENT_INTERPRETER.get().isEmpty()) {
       CURRENT_INTERPRETER.get().pop();

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -30,21 +31,22 @@ public class TodayFunctionTest extends BaseInterpretingTest {
   public void itUsesFixedDateTimeProvider() {
     long ts = 1233333414223L;
 
-    JinjavaInterpreter.pushCurrent(
-      new JinjavaInterpreter(
-        new Jinjava(),
-        new Context(),
-        JinjavaConfig
-          .newBuilder()
-          .withDateTimeProvider(new FixedDateTimeProvider(ts))
-          .build()
-      )
-    );
-    try {
+    try (
+      AutoCloseableImpl<JinjavaInterpreter> a = JinjavaInterpreter
+        .closeablePushCurrent(
+          new JinjavaInterpreter(
+            new Jinjava(),
+            new Context(),
+            JinjavaConfig
+              .newBuilder()
+              .withDateTimeProvider(new FixedDateTimeProvider(ts))
+              .build()
+          )
+        )
+        .get()
+    ) {
       assertThat(Functions.today(ZONE_NAME))
         .isEqualTo(ZonedDateTime.of(2009, 1, 30, 0, 0, 0, 0, ZONE_ID));
-    } finally {
-      JinjavaInterpreter.popCurrent();
     }
   }
 
@@ -64,19 +66,24 @@ public class TodayFunctionTest extends BaseInterpretingTest {
     assertThat(Functions.today((String) null).getZone()).isEqualTo(ZoneOffset.UTC);
   }
 
+  @Test
   public void itDefersWhenExecutingEagerly() {
-    JinjavaInterpreter.pushCurrent(
-      new JinjavaInterpreter(
-        new Jinjava(),
-        new Context(),
-        JinjavaConfig
-          .newBuilder()
-          .withExecutionMode(EagerExecutionMode.instance())
-          .build()
-      )
-    );
-
-    ZonedDateTime today = Functions.today(ZONE_NAME);
-    assertThat(today.getYear()).isGreaterThan(2023);
+    try (
+      AutoCloseableImpl<JinjavaInterpreter> a = JinjavaInterpreter
+        .closeablePushCurrent(
+          new JinjavaInterpreter(
+            new Jinjava(),
+            new Context(),
+            JinjavaConfig
+              .newBuilder()
+              .withExecutionMode(EagerExecutionMode.instance())
+              .build()
+          )
+        )
+        .get()
+    ) {
+      ZonedDateTime today = Functions.today(ZONE_NAME);
+      assertThat(today.getYear()).isGreaterThan(2023);
+    }
   }
 }
