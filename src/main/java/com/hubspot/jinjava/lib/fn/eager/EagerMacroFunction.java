@@ -237,9 +237,11 @@ public class EagerMacroFunction extends MacroFunction {
     String suffix = "";
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
 
-    Optional<String> importFile = Optional.ofNullable(
-      (String) localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY)
-    );
+    Optional<String> importFile = Optional.empty();
+    Object importFileObject = localContextScope.get(Context.IMPORT_RESOURCE_PATH_KEY);
+    if (!(importFileObject instanceof DeferredValue)) {
+      importFile = Optional.ofNullable((String) importFileObject);
+    }
     Object currentDeferredImportResource = null;
     if (importFile.isPresent()) {
       currentDeferredImportResource =
