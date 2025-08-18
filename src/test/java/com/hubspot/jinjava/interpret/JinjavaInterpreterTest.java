@@ -600,4 +600,10 @@ public class JinjavaInterpreterTest {
     assertThat(outputtingErrorInterpreters.getErrors().get(0).getCategoryErrors())
       .isEqualTo(ImmutableMap.of("variable", "bar"));
   }
+
+  @Test
+  public void itGivesFiltersAndExpTestsSamePrecedence() {
+    String template = "{{ 'A' | lower is defined | string | upper }}";
+    assertThat(jinjava.render(template, new HashMap<>())).isEqualTo("TRUE");
+  }
 }
