@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.JinjavaELContext;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import javax.el.ELContext;
 import javax.el.MethodNotFoundException;
@@ -172,5 +173,17 @@ public class JinjavaBeanELResolverTest {
       .isInstanceOf(PropertyNotFoundException.class)
       .hasMessageStartingWith("Could not find property");
     JinjavaInterpreter.popCurrent();
+  }
+
+  @Test
+  public void itDoesNotAllowAccessingPropertiesOfInterpreter() {
+    try (
+      AutoCloseableSupplier.AutoCloseableImpl<JinjavaInterpreter> c = JinjavaInterpreter
+        .closeablePushCurrent(interpreter)
+        .get()
+    ) {
+      assertThat(jinjavaBeanELResolver.getValue(elContext, interpreter, "config"))
+        .isNull();
+    }
   }
 }

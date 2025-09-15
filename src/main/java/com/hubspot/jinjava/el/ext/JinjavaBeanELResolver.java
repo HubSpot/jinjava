@@ -79,6 +79,9 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
   @Override
   public Object getValue(ELContext context, Object base, Object property) {
+    if (isRestrictedClass(base)) {
+      return null;
+    }
     Object result = super.getValue(context, base, validatePropertyName(property));
     return result instanceof Class ? null : result;
   }
