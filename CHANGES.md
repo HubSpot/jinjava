@@ -1,11 +1,14 @@
 # Jinjava Releases #
-### 2024-05-05 Verision 2.8.0 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.0/jar)) ###
+### 2025-09-16 Version 2.8.1 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.1/jar)) ###
+* Disallow accessing properties on restricted classes while rendering
+* [Make stack operations use AutoCloseable for safer usage with try-with-resources](https://github.com/HubSpot/jinjava/pull/1250)
+### 2025-05-05 Version 2.8.0 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.0/jar)) ###
 * [Target Java 17](https://github.com/HubSpot/jinjava/pull/1238)
 * [Implement PyMap#get with optional default](https://github.com/HubSpot/jinjava/pull/1233)
 * [Fix ConcurrentModificationException when sharing Context across threads](https://github.com/HubSpot/jinjava/pull/1239)
 * [Fix max render depth tracking for {% call %} tags](https://github.com/HubSpot/jinjava/pull/1229)
-  
-### 2024-12-06 Verision 2.7.4 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.4/jar)) ###
+
+### 2024-12-06 Version 2.7.4 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.4/jar)) ###
 * [Implement jinja2.ext.loopcontrols extensions (break and continue)](https://github.com/HubSpot/jinjava/pull/1219)
 * [Apply whitespace rules for LStrip and Trim to comment blocks](https://github.com/HubSpot/jinjava/pull/1217)
 ### 2024-09-12 Version 2.7.3 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.3/jar)) ###
@@ -92,8 +95,8 @@
 * [Make LazyExpression memoization disable-able](https://github.com/HubSpot/jinjava/pull/673)
 * [Add new MapELResolver with type coercion to support accessing enum keys](https://github.com/HubSpot/jinjava/pull/688)
 * Add methods to [remove error from interpreter](https://github.com/HubSpot/jinjava/pull/694),
-[get the last error](https://github.com/HubSpot/jinjava/pull/695),
-and [remove the last error](https://github.com/HubSpot/jinjava/pull/696)
+  [get the last error](https://github.com/HubSpot/jinjava/pull/695),
+  and [remove the last error](https://github.com/HubSpot/jinjava/pull/696)
 * [Pass value of throwInterpreterErrors to child contexts](https://github.com/HubSpot/jinjava/pull/697)
 * [Support Assignment Blocks with Set tags](https://github.com/HubSpot/jinjava/pull/698)
 * [Handle spaces better in for loop expressions](https://github.com/HubSpot/jinjava/pull/706)
@@ -473,7 +476,7 @@ and [remove the last error](https://github.com/HubSpot/jinjava/pull/696)
 
 ### Version 2.1.1 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.1.1%22)) ###
 
-* Better error messages for invalid assignment in expression 
+* Better error messages for invalid assignment in expression
 * Allow for locale-based date formatting in StrftimeFormatter
 * Use configured locale for Functions.datetimeformat
 
@@ -496,7 +499,7 @@ and [remove the last error](https://github.com/HubSpot/jinjava/pull/696)
 ### Version 2.0.9 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.9%22)) ###
 
 * update truncate_html filter to support preserving words by default, with an additional parameter to chop words at length
-* added unique filter to remove duplicate objects from a sequence 
+* added unique filter to remove duplicate objects from a sequence
 * add support for global trim_blocks, lstrip_blocks config settings
 
 ### Version 2.0.8 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%222.0.8%22)) ###
@@ -548,8 +551,8 @@ and [remove the last error](https://github.com/HubSpot/jinjava/pull/696)
 * 2.0.x requires JDK 8, as it contains some critical fixes to date formatting for certain languages (i.e. Finnish months)
 
 * The 2.0.x release has some significant refactorings in the parsing code:
-** nests the .parse package under the existing .tree package
-** consolidating the token scanner logic, updating the node tree parser
+  ** nests the .parse package under the existing .tree package
+  ** consolidating the token scanner logic, updating the node tree parser
 
 * future updates will be able to detect more specific template syntax errors than was previously possible.
 
@@ -604,4 +607,3 @@ and [remove the last error](https://github.com/HubSpot/jinjava/pull/696)
 ### Version 1.0.0 ([Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.jinjava%22%20AND%20v%3A%221.0.0%22)) ###
 
 * Initial Public Release
-
