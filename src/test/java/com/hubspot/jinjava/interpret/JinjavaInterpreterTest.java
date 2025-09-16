@@ -600,4 +600,10 @@ public class JinjavaInterpreterTest {
     assertThat(outputtingErrorInterpreters.getErrors().get(0).getCategoryErrors())
       .isEqualTo(ImmutableMap.of("variable", "bar"));
   }
+
+  @Test
+  public void itDoesNotAllowAccessingPropertiesOfInterpreter() {
+    assertThat(jinjava.render("{{ ____int3rpr3t3r____.config }}", new HashMap<>()))
+      .isEqualTo("");
+  }
 }
