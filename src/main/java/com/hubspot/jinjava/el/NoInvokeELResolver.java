@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.el;
 
-import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import java.beans.FeatureDescriptor;
 import java.util.Iterator;
 import javax.el.ELContext;
@@ -49,7 +49,7 @@ public class NoInvokeELResolver extends ELResolver {
 
   @Override
   public void setValue(ELContext elContext, Object base, Object property, Object value) {
-    throw new DeferredParsingException("NoInvokeELResolver");
+    throw new DeferredValueException("NoInvokeELResolver");
   }
 
   @Override
@@ -60,6 +60,6 @@ public class NoInvokeELResolver extends ELResolver {
     Class<?>[] paramTypes,
     Object[] params
   ) {
-    throw new DeferredParsingException("NoInvokeELResolver");
+    throw new DeferredValueException("NoInvokeELResolver");
   }
 }
