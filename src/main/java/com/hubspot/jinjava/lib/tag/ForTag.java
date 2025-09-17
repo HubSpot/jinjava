@@ -21,7 +21,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
-import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
@@ -143,15 +142,10 @@ public class ForTag implements Tag {
     List<String> loopVars = loopVarsAndExpression.getLeft();
     String loopExpression = loopVarsAndExpression.getRight();
 
-    Object collection;
-    try {
-      collection =
-        interpreter.resolveELExpression(loopExpression, tagNode.getLineNumber());
-    } catch (DeferredParsingException e) {
-      throw new DeferredParsingException(
-        String.format("%s in %s", String.join(", ", loopVars), e.getDeferredEvalResult())
-      );
-    }
+    Object collection = interpreter.resolveELExpression(
+      loopExpression,
+      tagNode.getLineNumber()
+    );
     return renderForCollection(tagNode, interpreter, loopVars, collection);
   }
 
