@@ -36,6 +36,7 @@ public class HelperStringTokenizer extends AbstractIterator<String> {
   private boolean useComma = false;
   private char quoteChar = 0;
   private boolean inQuote = false;
+  private boolean isEscaped = false;
 
   public HelperStringTokenizer(String s) {
     value = s.toCharArray();
@@ -71,7 +72,8 @@ public class HelperStringTokenizer extends AbstractIterator<String> {
 
   private String makeToken() {
     char c = value[currPost++];
-    if (c == '"' || c == '\'') {
+
+    if ((c == '"' || c == '\'') && !isEscaped) {
       if (inQuote) {
         if (quoteChar == c) {
           inQuote = false;
@@ -81,6 +83,9 @@ public class HelperStringTokenizer extends AbstractIterator<String> {
         quoteChar = c;
       }
     }
+
+    isEscaped = (c == '\\' && !isEscaped);
+
     if ((Character.isWhitespace(c) || (useComma && c == ',')) && !inQuote) {
       return newToken();
     }
