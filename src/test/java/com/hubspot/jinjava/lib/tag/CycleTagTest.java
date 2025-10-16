@@ -32,4 +32,11 @@ public class CycleTagTest extends BaseInterpretingTest {
       "{% for item in [0,1] %}{% cycle {{foo}},{{bar}} as var %}{% cycle var %}{% endfor %}";
     assertThat(interpreter.render(template)).isEqualTo("{{foo}}{{bar}}");
   }
+
+  @Test
+  public void itHandlesEscapedQuotes() {
+    String template =
+      "{% set class = \"class='foo bar'\" %}{% for item in [0,1] %}{% cycle 'a','class=\\'foo bar\\'' %}.{% endfor %}";
+    assertThat(interpreter.render(template)).isEqualTo("a.class='foo bar'.");
+  }
 }
