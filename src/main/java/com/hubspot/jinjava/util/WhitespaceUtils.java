@@ -104,7 +104,6 @@ public final class WhitespaceUtils {
     return s.trim();
   }
 
-  // TODO see if all usages of unquote can use this method instead
   public static String unquoteAndUnescape(String s) {
     if (Strings.isNullOrEmpty(s)) {
       return "";
