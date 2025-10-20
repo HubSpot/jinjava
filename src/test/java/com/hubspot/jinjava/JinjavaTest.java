@@ -8,7 +8,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.loader.LocationResolver;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
-import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.mode.KeepUndefinedExecutionMode;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
@@ -30,7 +29,7 @@ public class JinjavaTest {
 
   @Before
   public void setup() {
-    setupWithExecutionMode(EagerExecutionMode.instance());
+    setupWithExecutionMode(KeepUndefinedExecutionMode.instance());
   }
 
   protected void setupWithExecutionMode(ExecutionMode executionMode) {
@@ -97,7 +96,6 @@ public class JinjavaTest {
 
   @Test
   public void itDefersNodeWhenModifiedInForLoop() {
-    setupWithExecutionMode(KeepUndefinedExecutionMode.instance());
     assertThat(
       interpreter.render(
         """
@@ -122,7 +120,6 @@ public class JinjavaTest {
 
   @Test
   public void itDefersNodeForDotAccess() {
-    setupWithExecutionMode(KeepUndefinedExecutionMode.instance());
     assertThat(interpreter.render("{{content.title}}")).isEqualTo("{{ content.title }}");
   }
 }
