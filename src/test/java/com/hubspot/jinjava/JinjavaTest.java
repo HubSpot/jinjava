@@ -119,4 +119,10 @@ public class JinjavaTest {
         """
       );
   }
+
+  @Test
+  public void itDefersNodeForDotAccess() {
+    setupWithExecutionMode(KeepUndefinedExecutionMode.instance());
+    assertThat(interpreter.render("{{content.title}}")).isEqualTo("{{ content.title }}");
+  }
 }
