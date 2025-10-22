@@ -17,7 +17,6 @@
 
   <properties>
     <project.build.targetJdk>17</project.build.targetJdk>
-    <project.build.releaseJdk>17</project.build.releaseJdk>
 
     <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
     <dep.plugin.javadoc.version>3.0.1</dep.plugin.javadoc.version>
