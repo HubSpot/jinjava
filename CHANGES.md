@@ -1,4 +1,6 @@
 # Jinjava Releases #
+### 2025-10-22 Version 2.8.2 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.2/jar)) ###
+* [Fix helper token escape handling and unescaping when unquoting strings](https://github.com/HubSpot/jinjava/pull/1263)
 ### 2025-09-16 Version 2.8.1 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.1/jar)) ###
 * Disallow accessing properties on restricted classes while rendering
 * [Make stack operations use AutoCloseable for safer usage with try-with-resources](https://github.com/HubSpot/jinjava/pull/1250)
