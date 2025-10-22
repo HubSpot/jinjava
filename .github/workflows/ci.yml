@@ -16,9 +16,19 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: "temurin"
-          java-version: ${{ matrix.java }}
+          # The JDK listed last will be the default and what Maven runs with
+          # https://github.com/marketplace/actions/setup-java-jdk#install-multiple-jdks
+          java-version: |
+            ${{ matrix.java }}
+            25
           cache: "maven"
       - name: "Build"
-        run: mvn --batch-mode -no-transfer-progress -V verify
+        run: |
+          mvn \
+            --batch-mode \
+            -no-transfer-progress \
+            -V \
+            -Dproject.build.jdk.version=${{ matrix.java }} \
+            verify
         env:
           JDK_JAVA_OPTIONS: --add-opens=java.base/java.lang=ALL-UNNAMED
