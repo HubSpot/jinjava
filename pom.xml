@@ -22,6 +22,7 @@
     <dep.plugin.javadoc.version>3.0.1</dep.plugin.javadoc.version>
     <dep.hubspot-immutables.version>1.9</dep.hubspot-immutables.version>
     <dep.algebra.version>1.5</dep.algebra.version>
+    <dep.mockito.version>5.20.0</dep.mockito.version>
 
 
     <basepom.test.add.opens>
@@ -180,6 +181,10 @@
       <groupId>ch.obermuhlner</groupId>
       <artifactId>big-math</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.google.errorprone</groupId>
+      <artifactId>error_prone_annotations</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -333,6 +338,18 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <argLine>@{argLine} ${basepom.test.add.opens}</argLine>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.immutables</groupId>
+              <artifactId>value</artifactId>
+            </path>
+          </annotationProcessorPaths>
         </configuration>
       </plugin>
     </plugins>
