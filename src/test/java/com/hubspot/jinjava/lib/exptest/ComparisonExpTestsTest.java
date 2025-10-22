@@ -55,6 +55,11 @@ public class ComparisonExpTestsTest extends BaseJinjavaTest {
   }
 
   @Test
+  public void itDoesntCompare() {
+    assertThat(jinjava.render("{{ '' == 0 }}", new HashMap<>())).isEqualTo("false");
+  }
+
+  @Test
   public void testAliases() {
     assertThat(jinjava.render("{{ 4 is lessthan 5 }}", new HashMap<>()))
       .isEqualTo("true");
