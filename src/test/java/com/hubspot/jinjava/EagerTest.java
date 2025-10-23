@@ -1656,9 +1656,29 @@ public class EagerTest {
   }
 
   @Test
+  public void itHandlesBreakInDeferredForLoop() {
+    String input = expectedTemplateInterpreter.getFixtureTemplate(
+      "handles-break-in-deferred-for-loop/test"
+    );
+    interpreter.render(input);
+    // We don't support this yet
+    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
+  }
+
+  @Test
   public void itHandlesDeferredContinueInForLoop() {
     String input = expectedTemplateInterpreter.getFixtureTemplate(
       "handles-deferred-continue-in-for-loop/test"
+    );
+    interpreter.render(input);
+    // We don't support this yet
+    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
+  }
+
+  @Test
+  public void itHandlesContinueInDeferredForLoop() {
+    String input = expectedTemplateInterpreter.getFixtureTemplate(
+      "handles-continue-in-deferred-for-loop/test"
     );
     interpreter.render(input);
     // We don't support this yet

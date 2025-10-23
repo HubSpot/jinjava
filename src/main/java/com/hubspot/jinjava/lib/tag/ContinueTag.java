@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.tag;
 
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
+import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.NotInLoopException;
@@ -35,6 +36,8 @@ public class ContinueTag implements Tag {
       }
       ForLoop forLoop = (ForLoop) loop;
       forLoop.doContinue();
+    } else if (loop instanceof DeferredValue) {
+      throw new DeferredValueException("Deferred continue");
     } else {
       throw new NotInLoopException(TAG_NAME);
     }
