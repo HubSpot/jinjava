@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.interpret.CallStack;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredLazyReference;
@@ -31,34 +32,18 @@ public class DeferredToken {
   public static class DeferredTokenBuilder {
 
     private final Token token;
-    private Stream<String> usedDeferredWords;
-    private Stream<String> setDeferredWords;
+    private ImmutableSet.Builder<String> usedDeferredWords;
+    private ImmutableSet.Builder<String> setDeferredWords;
 
     private DeferredTokenBuilder(Token token) {
       this.token = token;
     }
 
     public DeferredToken build() {
-      JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
       return new DeferredToken(
         token,
-        usedDeferredWords != null
-          ? usedDeferredWords
-            .map(DeferredToken::splitToken)
-            .map(DeferredToken::getFirstNonEmptyToken)
-            .distinct()
-            .filter(word ->
-              interpreter == null ||
-              !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
-            )
-            .collect(Collectors.toSet())
-          : Collections.emptySet(),
-        setDeferredWords != null
-          ? setDeferredWords
-            .map(DeferredToken::splitToken)
-            .map(DeferredToken::getFirstNonEmptyToken)
-            .collect(Collectors.toSet())
-          : Collections.emptySet(),
+        usedDeferredWords != null ? usedDeferredWords.build() : Collections.emptySet(),
+        setDeferredWords != null ? setDeferredWords.build() : Collections.emptySet(),
         acquireImportResourcePath(),
         acquireMacroStack()
       );
@@ -67,34 +52,40 @@ public class DeferredToken {
     public DeferredTokenBuilder addUsedDeferredWords(
       Collection<String> usedDeferredWordsToAdd
     ) {
-      return addUsedDeferredWords(usedDeferredWordsToAdd.stream());
+      if (usedDeferredWords == null) {
+        usedDeferredWords = ImmutableSet.builder();
+      }
+      usedDeferredWords.addAll(usedDeferredWordsToAdd);
+      return this;
     }
 
     public DeferredTokenBuilder addUsedDeferredWords(
       Stream<String> usedDeferredWordsToAdd
     ) {
       if (usedDeferredWords == null) {
-        usedDeferredWords = usedDeferredWordsToAdd;
-      } else {
-        usedDeferredWords = Stream.concat(usedDeferredWords, usedDeferredWordsToAdd);
+        usedDeferredWords = ImmutableSet.builder();
       }
+      usedDeferredWordsToAdd.forEach(usedDeferredWords::add);
       return this;
     }
 
     public DeferredTokenBuilder addSetDeferredWords(
       Collection<String> setDeferredWordsToAdd
     ) {
-      return addSetDeferredWords(setDeferredWordsToAdd.stream());
+      if (setDeferredWords == null) {
+        setDeferredWords = ImmutableSet.builder();
+      }
+      setDeferredWords.addAll(setDeferredWordsToAdd);
+      return this;
     }
 
     public DeferredTokenBuilder addSetDeferredWords(
       Stream<String> setDeferredWordsToAdd
     ) {
       if (setDeferredWords == null) {
-        setDeferredWords = setDeferredWordsToAdd;
-      } else {
-        setDeferredWords = Stream.concat(setDeferredWords, setDeferredWordsToAdd);
+        setDeferredWords = ImmutableSet.builder();
       }
+      setDeferredWordsToAdd.forEach(setDeferredWords::add);
       return this;
     }
   }
@@ -103,9 +94,10 @@ public class DeferredToken {
   // These words aren't yet DeferredValues, but are unresolved
   // so they should be replaced with DeferredValueImpls if they exist in the context
   private final Set<String> usedDeferredWords;
-
+  private final Set<String> usedDeferredBases;
   // These words are those which will be set to a value which has been deferred.
   private final Set<String> setDeferredWords;
+  private final Set<String> setDeferredBases;
 
   // Used to determine the combine scope
   private final CallStack macroStack;
@@ -211,8 +203,8 @@ public class DeferredToken {
   ) {
     this(
       token,
-      getBases(usedDeferredWords),
-      getBases(setDeferredWords),
+      usedDeferredWords,
+      setDeferredWords,
       acquireImportResourcePath(),
       acquireMacroStack()
     );
@@ -220,14 +212,36 @@ public class DeferredToken {
 
   private DeferredToken(
     Token token,
-    Set<String> usedDeferredWordBases,
-    Set<String> setDeferredWordBases,
+    Set<String> usedDeferredWords,
+    Set<String> setDeferredWords,
     String importResourcePath,
     CallStack macroStack
   ) {
+    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     this.token = token;
-    this.usedDeferredWords = usedDeferredWordBases;
-    this.setDeferredWords = setDeferredWordBases;
+    this.usedDeferredBases =
+      usedDeferredWords.isEmpty()
+        ? Collections.emptySet()
+        : usedDeferredWords
+          .stream()
+          .map(DeferredToken::splitToken)
+          .map(DeferredToken::getFirstNonEmptyToken)
+          .distinct()
+          .filter(word ->
+            interpreter == null ||
+            !(interpreter.getContext().get(word) instanceof DeferredMacroValueImpl)
+          )
+          .collect(Collectors.toSet());
+    this.usedDeferredWords = usedDeferredWords;
+    this.setDeferredBases =
+      setDeferredWords.isEmpty()
+        ? Collections.emptySet()
+        : setDeferredWords
+          .stream()
+          .map(DeferredToken::splitToken)
+          .map(DeferredToken::getFirstNonEmptyToken)
+          .collect(Collectors.toSet());
+    this.setDeferredWords = setDeferredWords;
     this.importResourcePath = importResourcePath;
     this.macroStack = macroStack;
   }
@@ -240,8 +254,16 @@ public class DeferredToken {
     return usedDeferredWords;
   }
 
+  public Set<String> getUsedDeferredBases() {
+    return usedDeferredBases;
+  }
+
   public Set<String> getSetDeferredWords() {
     return setDeferredWords;
+  }
+
+  public Set<String> getSetDeferredBases() {
+    return setDeferredBases;
   }
 
   public String getImportResourcePath() {
@@ -255,7 +277,7 @@ public class DeferredToken {
   public void addTo(Context context) {
     addTo(
       context,
-      usedDeferredWords
+      usedDeferredBases
         .stream()
         .filter(word -> {
           Object value = context.get(word);
@@ -285,7 +307,7 @@ public class DeferredToken {
   ) {
     if (isInSameScope(context)) {
       // set props are only deferred when within the scope which the variable is set in
-      markDeferredWordsAndFindSources(context, getSetDeferredWords(), true);
+      markDeferredWordsAndFindSources(context, getSetDeferredBases(), true);
     }
     wordsWithoutDeferredSource.forEach(word -> deferDuplicatePointers(context, word));
     wordsWithoutDeferredSource.removeAll(
@@ -423,13 +445,5 @@ public class DeferredToken {
 
   public static List<String> splitToken(String token) {
     return Arrays.asList(token.split("\\."));
-  }
-
-  public static Set<String> getBases(Set<String> original) {
-    return original
-      .stream()
-      .map(DeferredToken::splitToken)
-      .map(prop -> prop.get(0))
-      .collect(Collectors.toSet());
   }
 }

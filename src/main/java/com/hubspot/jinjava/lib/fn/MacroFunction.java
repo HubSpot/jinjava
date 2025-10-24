@@ -237,11 +237,8 @@ public class MacroFunction extends AbstractCallableMethod {
           Objects.equals(importResourcePath, deferredToken.getImportResourcePath())
         )
         .anyMatch(deferredToken ->
-          deferredToken.getSetDeferredWords().contains(key) ||
-          deferredToken
-            .getUsedDeferredWords()
-            .stream()
-            .anyMatch(used -> key.equals(used.split("\\.", 2)[0]))
+          deferredToken.getSetDeferredBases().contains(key) ||
+          deferredToken.getUsedDeferredBases().contains(key)
         );
     }
     return false;
