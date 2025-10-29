@@ -256,9 +256,9 @@ public class DeferredValueUtilsTest {
       .addSetDeferredWords(ImmutableSet.of("deferred", ".attribute2"))
       .build();
 
-    assertThat(deferredToken.getUsedDeferredWords())
+    assertThat(deferredToken.getUsedDeferredBases())
       .isEqualTo(ImmutableSet.of("deferred", "attribute1"));
-    assertThat(deferredToken.getSetDeferredWords())
+    assertThat(deferredToken.getSetDeferredBases())
       .isEqualTo(ImmutableSet.of("deferred", "attribute2"));
   }
 
@@ -272,9 +272,9 @@ public class DeferredValueUtilsTest {
       .addSetDeferredWords(ImmutableSet.of("deferred", ".attribute2.ignoreme"))
       .build();
 
-    assertThat(deferredToken.getUsedDeferredWords())
+    assertThat(deferredToken.getUsedDeferredBases())
       .isEqualTo(ImmutableSet.of("deferred", "attribute1"));
-    assertThat(deferredToken.getSetDeferredWords())
+    assertThat(deferredToken.getSetDeferredBases())
       .isEqualTo(ImmutableSet.of("deferred", "attribute2"));
   }
 

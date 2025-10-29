@@ -795,13 +795,13 @@ public class EagerReconstructionUtils {
     deferredToken.addTo(interpreter.getContext());
     return reconstructDeferredReferences(
       interpreter,
-      deferredToken.getUsedDeferredWords()
+      deferredToken.getUsedDeferredBases()
     );
   }
 
   public static Map<String, String> reconstructDeferredReferences(
     JinjavaInterpreter interpreter,
-    Set<String> usedDeferredWords
+    Set<String> usedDeferredBases
   ) {
     return interpreter
       .getContext()
@@ -815,7 +815,7 @@ public class EagerReconstructionUtils {
       .filter(entry ->
         // Always reconstruct the DeferredLazyReferenceSource, but only reconstruct DeferredLazyReferences when they are used
         entry.getValue() instanceof DeferredLazyReferenceSource ||
-        usedDeferredWords.contains(entry.getKey())
+        usedDeferredBases.contains(entry.getKey())
       )
       .peek(entry -> ((OneTimeReconstructible) entry.getValue()).setReconstructed(true))
       .map(entry ->
