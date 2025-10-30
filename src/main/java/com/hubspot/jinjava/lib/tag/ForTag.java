@@ -21,6 +21,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
+import com.hubspot.jinjava.el.android.BeanInfoUtil;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -41,7 +42,6 @@ import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.HelperStringTokenizer;
 import com.hubspot.jinjava.util.LengthLimitingStringBuilder;
 import com.hubspot.jinjava.util.ObjectIterator;
-import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.ConcurrentModificationException;
 import java.util.List;
@@ -240,9 +240,7 @@ public class ForTag implements Tag {
               interpreter.getContext().put(loopVar, entryVal);
             } else {
               try {
-                PropertyDescriptor[] valProps = Introspector
-                  .getBeanInfo(val.getClass())
-                  .getPropertyDescriptors();
+                PropertyDescriptor[] valProps = BeanInfoUtil.getPropertyDescriptors(val.getClass()).toArray(new PropertyDescriptor[0]);
                 for (PropertyDescriptor valProp : valProps) {
                   if (loopVar.equals(valProp.getName())) {
                     interpreter
