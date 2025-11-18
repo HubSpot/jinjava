@@ -173,9 +173,18 @@ public class TreeParser {
       if (scanner.hasNext()) {
         final int nextTokenType = scanner.peek().getType();
         if (nextTokenType == symbols.getTag() || nextTokenType == symbols.getNote()) {
+          String content = textToken.getImage();
+          int lastNewline = content.lastIndexOf('\n');
+          String afterNewline = lastNewline == -1
+            ? content
+            : content.substring(lastNewline + 1);
+
+          if (afterNewline.matches("^[ \t]*$")) {
+            content = lastNewline == -1 ? "" : content.substring(0, lastNewline + 1);
+          }
           textToken =
             new TextToken(
-              StringUtils.stripEnd(textToken.getImage(), "\t "),
+              content,
               textToken.getLineNumber(),
               textToken.getStartPosition(),
               symbols
