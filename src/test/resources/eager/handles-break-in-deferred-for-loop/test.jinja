@@ -1,8 +1,8 @@
 Start loop
-{% for i in deferred %}
-  {% if i %}
-    {% break %}
-  {% endif %}
+{% for i in deferred -%}
+  {% if i > 1 -%}
+    {% break -%}
+  {% endif -%}
   i is: {{ i }}
-{% endfor %}
+{% endfor -%}
 End loop
