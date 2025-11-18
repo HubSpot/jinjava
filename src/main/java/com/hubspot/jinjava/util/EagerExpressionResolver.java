@@ -175,7 +175,12 @@ public class EagerExpressionResolver {
           );
           prevQuotePos = curPos;
         }
-        prevChar = c;
+        if (prevChar == '\\') {
+          // Double escapes cancel out.
+          prevChar = 0;
+        } else {
+          prevChar = c;
+        }
         curPos++;
       }
       words.addAll(
