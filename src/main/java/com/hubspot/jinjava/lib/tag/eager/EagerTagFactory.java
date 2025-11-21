@@ -5,7 +5,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.lib.tag.BlockTag;
-import com.hubspot.jinjava.lib.tag.BreakTag;
 import com.hubspot.jinjava.lib.tag.CallTag;
 import com.hubspot.jinjava.lib.tag.ContinueTag;
 import com.hubspot.jinjava.lib.tag.CycleTag;
@@ -46,6 +45,7 @@ public class EagerTagFactory {
       .put(IfTag.class, EagerIfTag.class)
       .put(UnlessTag.class, EagerUnlessTag.class)
       .put(CallTag.class, EagerCallTag.class)
+      .put(ContinueTag.class, EagerContinueTag.class)
       .build();
   // These classes don't need an eager decorator.
   public static final Set<Class<? extends Tag>> TAG_CLASSES_TO_SKIP = ImmutableSet
@@ -56,8 +56,6 @@ public class EagerTagFactory {
     .add(ElseTag.class)
     .add(RawTag.class)
     .add(ExtendsTag.class) // TODO support reconstructing extends tags
-    .add(BreakTag.class) // TODO support eager break tag
-    .add(ContinueTag.class) // TODO support eager continue tag
     .build();
 
   @SuppressWarnings("unchecked")
