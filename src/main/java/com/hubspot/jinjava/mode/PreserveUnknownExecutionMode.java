@@ -42,5 +42,6 @@ public class PreserveUnknownExecutionMode implements ExecutionMode {
       .forEach(maybeEagerTag -> context.registerTag(maybeEagerTag.get()));
 
     context.setDynamicVariableResolver(varName -> DeferredValue.instance());
+    context.setDeferredExecutionMode(true);
   }
 }
