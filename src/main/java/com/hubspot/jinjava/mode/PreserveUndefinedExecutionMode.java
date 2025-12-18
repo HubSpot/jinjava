@@ -37,5 +37,6 @@ public class PreserveUndefinedExecutionMode extends EagerExecutionMode {
     super.prepareContext(context);
     context.setExpressionStrategy(new PreserveUndefinedExpressionStrategy());
     context.setDynamicVariableResolver(varName -> DeferredValue.instance());
+    context.setDeferredExecutionMode(true);
   }
 }

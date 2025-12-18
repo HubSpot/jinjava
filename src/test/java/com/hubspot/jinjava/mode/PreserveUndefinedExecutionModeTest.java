@@ -144,11 +144,11 @@ public class PreserveUndefinedExecutionModeTest {
   }
 
   @Test
-  public void itEvaluatesSetTagWithKnownRHSValue() {
+  public void itPreservesSetTagWithKnownRHSValue() {
     Map<String, Object> context = new HashMap<>();
     context.put("name", "World");
     String output = render("{% set x = name %}{{ x }}", context);
-    assertThat(output).isEqualTo("World");
+    assertThat(output).isEqualTo("{% set x = 'World' %}World");
   }
 
   @Test
