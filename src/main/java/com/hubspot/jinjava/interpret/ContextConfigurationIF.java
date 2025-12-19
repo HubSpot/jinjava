@@ -39,6 +39,11 @@ public interface ContextConfigurationIF {
   }
 
   @Default
+  default boolean isPreserveResolvedSetTags() {
+    return false;
+  }
+
+  @Default
   default boolean isUnwrapRawOverride() {
     return false;
   }

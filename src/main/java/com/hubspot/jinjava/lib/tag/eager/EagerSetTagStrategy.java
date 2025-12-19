@@ -58,6 +58,7 @@ public abstract class EagerSetTagStrategy {
     if (
       eagerExecutionResult.getResult().isFullyResolved() &&
       !interpreter.getContext().isDeferredExecutionMode() &&
+      !interpreter.getContext().isPreserveResolvedSetTags() &&
       (Arrays
           .stream(variables)
           .noneMatch(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY::equals) ||

@@ -148,6 +148,7 @@ public class PreserveUndefinedExecutionModeTest {
     Map<String, Object> context = new HashMap<>();
     context.put("name", "World");
     String output = render("{% set x = name %}{{ x }}", context);
+    // Set tag is preserved with evaluated RHS for multi-pass rendering
     assertThat(output).isEqualTo("{% set x = 'World' %}World");
   }
 
@@ -173,5 +174,51 @@ public class PreserveUndefinedExecutionModeTest {
   public void itPreservesForTagWithUnknownIterable() {
     String output = render("{% for item in items %}{{ item }}{% endfor %}");
     assertThat(output).isEqualTo("{% for item in items %}{{ item }}{% endfor %}");
+  }
+
+  @Test
+  public void itPreservesUndefinedInImportedMacro() {
+    jinjava.setResourceLocator((fullName, encoding, interpreter) -> {
+      if (fullName.equals("macros.jinja")) {
+        return "{% macro greet(name) %}Hello {{ name }}, {{ title }}!{% endmacro %}";
+      }
+      return "";
+    });
+
+    String template = "{% import 'macros.jinja' as m %}{{ m.greet('World') }}";
+    String output = render(template);
+    assertThat(output).isEqualTo("Hello World, {{ title }}!");
+  }
+
+  @Test
+  public void itEvaluatesMacroWithAllDefinedVariables() {
+    jinjava.setResourceLocator((fullName, encoding, interpreter) -> {
+      if (fullName.equals("macros.jinja")) {
+        return "{% macro greet(name) %}Hello {{ name }}, {{ title }}!{% endmacro %}";
+      }
+      return "";
+    });
+
+    Map<String, Object> context = new HashMap<>();
+    context.put("title", "Mr");
+    String template = "{% import 'macros.jinja' as m %}{{ m.greet('World') }}";
+    String output = render(template, context);
+    // When all variables are defined, macro fully evaluates
+    assertThat(output).isEqualTo("Hello World, Mr!");
+  }
+
+  @Test
+  public void itPreservesUndefinedInFromImportMacro() {
+    jinjava.setResourceLocator((fullName, encoding, interpreter) -> {
+      if (fullName.equals("macros.jinja")) {
+        return "{% macro greet() %}Hello {{ unknown }}!{% endmacro %}";
+      }
+      return "";
+    });
+
+    String template = "{% from 'macros.jinja' import greet %}{{ greet() }}";
+    String output = render(template);
+    // Macro executes, but undefined variables are preserved
+    assertThat(output).isEqualTo("Hello {{ unknown }}!");
   }
 }
