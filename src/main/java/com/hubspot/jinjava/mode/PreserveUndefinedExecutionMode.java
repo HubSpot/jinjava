@@ -42,5 +42,6 @@ public class PreserveUndefinedExecutionMode extends EagerExecutionMode {
     context.setDynamicVariableResolver(varName -> DeferredValue.instance());
     context.setPartialMacroEvaluation(true);
     context.setPreserveResolvedSetTags(true);
+    context.setPreserveComments(true);
   }
 }

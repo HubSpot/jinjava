@@ -221,4 +221,82 @@ public class PreserveUndefinedExecutionModeTest {
     // Macro executes, but undefined variables are preserved
     assertThat(output).isEqualTo("Hello {{ unknown }}!");
   }
+
+  @Test
+  public void itRendersExtendsTagWithStaticPath() {
+    jinjava.setResourceLocator((fullName, encoding, interpreter) -> {
+      if (fullName.equals("base.html")) {
+        return "Base: {% block content %}default{% endblock %}";
+      }
+      return "";
+    });
+
+    String template =
+      "{% extends 'base.html' %}{% block content %}child content{% endblock %}";
+    String output = render(template);
+    assertThat(output).isEqualTo("Base: child content");
+  }
+
+  @Test
+  public void itRendersExtendsTagWithDefinedVariablePath() {
+    jinjava.setResourceLocator((fullName, encoding, interpreter) -> {
+      if (fullName.equals("base.html")) {
+        return "Base: {% block content %}default{% endblock %}";
+      }
+      return "";
+    });
+
+    Map<String, Object> context = new HashMap<>();
+    context.put("templatePath", "base.html");
+    String template =
+      "{% extends templatePath %}{% block content %}child content{% endblock %}";
+    String output = render(template, context);
+    assertThat(output).isEqualTo("Base: child content");
+  }
+
+  @Test
+  public void itPreservesExtendsTagWithUndefinedVariablePath() {
+    String template =
+      "{% extends templatePath %}{% block content %}child content{% endblock %}";
+    String output = render(template);
+    assertThat(output)
+      .isEqualTo(
+        "{% extends templatePath %}{% block content %}child content{% endblock %}"
+      );
+  }
+
+  @Test
+  public void itPreservesUndefinedVariablesInExtendedTemplate() {
+    jinjava.setResourceLocator((fullName, encoding, interpreter) -> {
+      if (fullName.equals("base.html")) {
+        return "Title: {{ title }} - {% block content %}default{% endblock %}";
+      }
+      return "";
+    });
+
+    String template =
+      "{% extends 'base.html' %}{% block content %}{{ message }}{% endblock %}";
+    String output = render(template);
+    assertThat(output).isEqualTo("Title: {{ title }} - {{ message }}");
+  }
+
+  @Test
+  public void itPreservesComments() {
+    String output = render("{# this is a comment #}");
+    assertThat(output).isEqualTo("{# this is a comment #}");
+  }
+
+  @Test
+  public void itPreservesCommentsWithSurroundingContent() {
+    String output = render("Hello {# inline comment #} World");
+    assertThat(output).isEqualTo("Hello {# inline comment #} World");
+  }
+
+  @Test
+  public void itPreservesCommentsWithVariables() {
+    Map<String, Object> context = new HashMap<>();
+    context.put("name", "World");
+    String output = render("Hello {{ name }}{# comment #}!", context);
+    assertThat(output).isEqualTo("Hello World{# comment #}!");
+  }
 }

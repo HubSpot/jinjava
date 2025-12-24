@@ -59,6 +59,16 @@ Set tags are preserved with their evaluated RHS values, enabling the variable to
 | Set with known RHS | `{% set x = name %}{{ x }}` | `{name: "World"}` | `{% set x = 'World' %}World` |
 | Set with unknown RHS | `{% set x = unknown %}{{ x }}` | `{}` | `{% set x = unknown %}{{ x }}` |
 
+### Comments
+
+Comment tags are preserved in output for multi-pass scenarios where comments may contain instructions for later processing stages:
+
+| Feature | Input | Context | Output |
+|---------|-------|---------|--------|
+| Simple comment | `{# this is a comment #}` | `{}` | `{# this is a comment #}` |
+| Inline comment | `Hello {# comment #} World` | `{}` | `Hello {# comment #} World` |
+| Comment with variables | `Hello {{ name }}{# comment #}!` | `{name: "World"}` | `Hello World{# comment #}!` |
+
 ### Macros
 
 Macros are executed and their output is rendered, with only undefined variables within the macro output being preserved:
@@ -109,6 +119,7 @@ String secondPass = jinjava.render(firstPass, dynamicContext, defaultConfig);
 2. **DynamicVariableResolver** - Returns `DeferredValue.instance()` for undefined variables, triggering preservation
 3. **PartialMacroEvaluation** - Allows macros to execute and return partial results with undefined parts preserved
 4. **PreserveResolvedSetTags** - Preserves set tags even when RHS is fully resolved, enabling multi-pass variable binding
+5. **PreserveComments** - Outputs comment tags (`{# ... #}`) as-is instead of stripping them
 
 ### New Context Flag: `isPreserveResolvedSetTags`
 
@@ -126,11 +137,28 @@ context.setPreserveResolvedSetTags(true);
 
 This flag is checked in `EagerSetTagStrategy` to determine whether fully resolved set tags should be preserved in output or consumed during rendering.
 
+### Context Flag: `isPreserveComments`
+
+A context configuration flag to preserve comment tags in output:
+
+```java
+// In ContextConfigurationIF
+default boolean isPreserveComments() {
+    return false;
+}
+
+// Usage in Context
+context.setPreserveComments(true);
+```
+
+This flag is checked in `TreeParser` when processing note tokens. When enabled, comments are output as `TextNode` instead of being discarded.
+
 ## Files Changed
 
 - `PreserveUndefinedExecutionMode.java` - Main execution mode implementation
 - `PreserveUndefinedExpressionStrategy.java` - Expression strategy for preserving original syntax
-- `ContextConfigurationIF.java` - Added `isPreserveResolvedSetTags` flag
-- `Context.java` - Added getter/setter for new flag
-- `EagerSetTagStrategy.java` - Modified to check new flag
-- `PreserveUndefinedExecutionModeTest.java` - Comprehensive test coverage
+- `ContextConfigurationIF.java` - Added `isPreserveResolvedSetTags` and `isPreserveComments` flags
+- `Context.java` - Added getter/setter for new flags
+- `EagerSetTagStrategy.java` - Modified to check `isPreserveResolvedSetTags` flag
+- `TreeParser.java` - Modified to check `isPreserveComments` flag
+- `PreserveUndefinedExecutionModeTest.java` - Test coverage

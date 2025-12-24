@@ -892,6 +892,14 @@ public class Context extends ScopeMap<String, Object> {
     contextConfiguration = contextConfiguration.withUnwrapRawOverride(unwrapRawOverride);
   }
 
+  public boolean isPreserveComments() {
+    return contextConfiguration.isPreserveComments();
+  }
+
+  public void setPreserveComments(boolean preserveComments) {
+    contextConfiguration = contextConfiguration.withPreserveComments(preserveComments);
+  }
+
   public TemporaryValueClosable<Boolean> withUnwrapRawOverride() {
     TemporaryValueClosable<Boolean> temporaryValueClosable = new TemporaryValueClosable<>(
       isUnwrapRawOverride(),

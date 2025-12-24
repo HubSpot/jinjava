@@ -49,6 +49,11 @@ public interface ContextConfigurationIF {
   }
 
   @Default
+  default boolean isPreserveComments() {
+    return false;
+  }
+
+  @Default
   default ErrorHandlingStrategy getErrorHandlingStrategy() {
     return ErrorHandlingStrategy.of();
   }

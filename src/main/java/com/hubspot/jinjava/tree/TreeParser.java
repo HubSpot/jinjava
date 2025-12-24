@@ -147,6 +147,17 @@ public class TreeParser {
           )
         );
       }
+      if (interpreter.getContext().isPreserveComments()) {
+        TextToken commentAsText = new TextToken(
+          token.getImage(),
+          token.getLineNumber(),
+          token.getStartPosition(),
+          symbols
+        );
+        TextNode n = new TextNode(commentAsText);
+        n.setParent(parent);
+        return n;
+      }
     } else {
       interpreter.addError(
         TemplateError.fromException(
