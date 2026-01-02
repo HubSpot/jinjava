@@ -54,6 +54,11 @@ public interface ContextConfigurationIF {
   }
 
   @Default
+  default boolean isExtendsDeferred() {
+    return false;
+  }
+
+  @Default
   default ErrorHandlingStrategy getErrorHandlingStrategy() {
     return ErrorHandlingStrategy.of();
   }

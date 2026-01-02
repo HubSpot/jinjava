@@ -900,6 +900,14 @@ public class Context extends ScopeMap<String, Object> {
     contextConfiguration = contextConfiguration.withPreserveComments(preserveComments);
   }
 
+  public boolean isExtendsDeferred() {
+    return contextConfiguration.isExtendsDeferred();
+  }
+
+  public void setExtendsDeferred(boolean extendsDeferred) {
+    contextConfiguration = contextConfiguration.withExtendsDeferred(extendsDeferred);
+  }
+
   public TemporaryValueClosable<Boolean> withUnwrapRawOverride() {
     TemporaryValueClosable<Boolean> temporaryValueClosable = new TemporaryValueClosable<>(
       isUnwrapRawOverride(),
