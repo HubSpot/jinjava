@@ -281,6 +281,26 @@ public class PreserveUndefinedExecutionModeTest {
   }
 
   @Test
+  public void itPreservesNestedExtendsWhenParentPathIsUndefined() {
+    // Chained inheritance: grandchild extends child (resolved), child extends parent (undefined)
+    jinjava.setResourceLocator((fullName, encoding, interpreter) -> {
+      if (fullName.equals("child.html")) {
+        return "{% extends parentPath %}{% block content %}child: {{ childVar }}{% endblock %}";
+      }
+      return "";
+    });
+
+    String template =
+      "{% extends 'child.html' %}{% block content %}grandchild content{% endblock %}";
+    String output = render(template);
+    // The child template's extends and block should be preserved since parentPath is undefined
+    assertThat(output)
+      .isEqualTo(
+        "{% extends parentPath %}{% block content %}child: {{ childVar }}{% endblock %}"
+      );
+  }
+
+  @Test
   public void itPreservesComments() {
     String output = render("{# this is a comment #}");
     assertThat(output).isEqualTo("{# this is a comment #}");
