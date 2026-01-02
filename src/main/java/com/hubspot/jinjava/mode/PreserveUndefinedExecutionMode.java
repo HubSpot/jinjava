@@ -3,6 +3,7 @@ package com.hubspot.jinjava.mode;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.lib.expression.PreserveUndefinedExpressionStrategy;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * An execution mode that preserves unknown/undefined variables as their original template syntax
@@ -31,6 +32,10 @@ public class PreserveUndefinedExecutionMode extends EagerExecutionMode {
 
   protected PreserveUndefinedExecutionMode() {}
 
+  @SuppressFBWarnings(
+    value = "HSM_HIDING_METHOD",
+    justification = "Purposefully overriding to return static instance of this class."
+  )
   public static ExecutionMode instance() {
     return INSTANCE;
   }
