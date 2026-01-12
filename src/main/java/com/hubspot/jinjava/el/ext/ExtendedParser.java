@@ -531,30 +531,22 @@ public class ExtendedParser extends Parser {
 
   private AstNode parseOperators(AstNode left) throws ScanException, ParseException {
     if ("|".equals(getToken().getImage()) && lookahead(0).getSymbol() == IDENTIFIER) {
-      AstNode v = left;
+      List<FilterSpec> filterSpecs = new ArrayList<>();
 
       do {
         consumeToken(); // '|'
         String filterName = consumeToken().getImage();
-        List<AstNode> filterParams = Lists.newArrayList(v, interpreter());
+        AstParameters filterParams = null;
 
         // optional filter args
         if (getToken().getSymbol() == Symbol.LPAREN) {
-          AstParameters astParameters = params();
-          for (int i = 0; i < astParameters.getCardinality(); i++) {
-            filterParams.add(astParameters.getChild(i));
-          }
+          filterParams = params();
         }
 
-        AstProperty filterProperty = createAstDot(
-          identifier(FILTER_PREFIX + filterName),
-          "filter",
-          true
-        );
-        v = createAstMethod(filterProperty, createAstParameters(filterParams)); // function("filter:" + filterName, new AstParameters(filterParams));
+        filterSpecs.add(new FilterSpec(filterName, filterParams));
       } while ("|".equals(getToken().getImage()));
 
-      return v;
+      return createAstFilterChain(left, filterSpecs);
     } else if (
       "is".equals(getToken().getImage()) &&
       "not".equals(lookahead(0).getImage()) &&
@@ -575,6 +567,13 @@ public class ExtendedParser extends Parser {
 
   protected AstParameters createAstParameters(List<AstNode> nodes) {
     return new AstParameters(nodes);
+  }
+
+  protected AstFilterChain createAstFilterChain(
+    AstNode input,
+    List<FilterSpec> filterSpecs
+  ) {
+    return new AstFilterChain(input, filterSpecs);
   }
 
   private boolean isPossibleExpTest(Symbol symbol) {
