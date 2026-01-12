@@ -363,7 +363,7 @@ public class EagerExpressionResolverTest {
       "deferred|replace('\\\\', '.')"
     );
     assertThat(eagerExpressionResult.getDeferredWords())
-      .containsExactlyInAnyOrder("deferred", "replace");
+      .containsExactlyInAnyOrder("deferred", "replace.filter");
   }
 
   @Test
@@ -750,7 +750,7 @@ public class EagerExpressionResolverTest {
     assertThat(eagerResolveExpression("deferred.append(foo)").toString())
       .isEqualTo("deferred.append('foo')");
     assertThat(eagerResolveExpression("deferred[1 + 1] | length").toString())
-      .isEqualTo("deferred[2]|length");
+      .isEqualTo("filter:length.filter(deferred[2], ____int3rpr3t3r____)");
   }
 
   @Test
@@ -817,7 +817,7 @@ public class EagerExpressionResolverTest {
   @Test
   public void itHandlesRandom() {
     assertThat(eagerResolveExpression("range(1)|random").toString())
-      .isEqualTo("range(1)|random");
+      .isEqualTo("filter:random.filter(range(1), ____int3rpr3t3r____)");
   }
 
   @Test

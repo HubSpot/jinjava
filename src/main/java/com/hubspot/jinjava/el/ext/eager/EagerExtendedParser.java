@@ -6,14 +6,12 @@ import static de.odysseus.el.tree.impl.Scanner.Symbol.START_EVAL_DYNAMIC;
 
 import com.hubspot.jinjava.el.ext.AbsOperator;
 import com.hubspot.jinjava.el.ext.AstDict;
-import com.hubspot.jinjava.el.ext.AstFilterChain;
 import com.hubspot.jinjava.el.ext.AstList;
 import com.hubspot.jinjava.el.ext.AstRangeBracket;
 import com.hubspot.jinjava.el.ext.AstTuple;
 import com.hubspot.jinjava.el.ext.CollectionMembershipOperator;
 import com.hubspot.jinjava.el.ext.CollectionNonMembershipOperator;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
-import com.hubspot.jinjava.el.ext.FilterSpec;
 import com.hubspot.jinjava.el.ext.NamedParameterOperator;
 import com.hubspot.jinjava.el.ext.PowerOfOperator;
 import com.hubspot.jinjava.el.ext.StringConcatOperator;
@@ -202,10 +200,7 @@ public class EagerExtendedParser extends ExtendedParser {
   }
 
   @Override
-  protected AstFilterChain createAstFilterChain(
-    AstNode input,
-    List<FilterSpec> filterSpecs
-  ) {
-    return new EagerAstFilterChain(input, filterSpecs);
+  protected boolean shouldUseFilterChainOptimization() {
+    return false;
   }
 }

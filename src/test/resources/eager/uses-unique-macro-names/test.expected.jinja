@@ -3,13 +3,13 @@
 {% set __macro_foo_97643642_temp_variable_0__ %}
 Goodbye {{ myname }}
 {% endset %}\
-{% set a = __macro_foo_97643642_temp_variable_0__|upper %}
+{% set a = filter:upper.filter(__macro_foo_97643642_temp_variable_0__, ____int3rpr3t3r____) %}
 {% do %}\
 {% set __temp_meta_current_path_203114534__,current_path = current_path,'eager/uses-unique-macro-names/macro-with-filter.jinja' %}
 {% set __macro_foo_1717337666_temp_variable_0__ %}\
 Hello {{ myname }}\
 {% endset %}\
-{% set b = __macro_foo_1717337666_temp_variable_0__|upper %}
+{% set b = filter:upper.filter(__macro_foo_1717337666_temp_variable_0__, ____int3rpr3t3r____) %}
 {% set current_path,__temp_meta_current_path_203114534__ = __temp_meta_current_path_203114534__,null %}\
 {% enddo %}
 {{ a }}

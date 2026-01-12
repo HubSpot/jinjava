@@ -307,7 +307,8 @@ public class EagerTest {
   @Test
   public void itPreservesFilters() {
     String output = interpreter.render("{{ deferred|capitalize }}");
-    assertThat(output).isEqualTo("{{ deferred|capitalize }}");
+    assertThat(output)
+      .isEqualTo("{{ filter:capitalize.filter(deferred, ____int3rpr3t3r____) }}");
     assertThat(interpreter.getErrors()).isEmpty();
     localContext.put("deferred", "foo");
     assertThat(interpreter.render(output)).isEqualTo("Foo");
@@ -316,14 +317,18 @@ public class EagerTest {
   @Test
   public void itPreservesFunctions() {
     String output = interpreter.render("{{ deferred|datetimeformat('%B %e, %Y') }}");
-    assertThat(output).isEqualTo("{{ deferred|datetimeformat('%B %e, %Y') }}");
+    assertThat(output)
+      .isEqualTo(
+        "{{ filter:datetimeformat.filter(deferred, ____int3rpr3t3r____, '%B %e, %Y') }}"
+      );
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
   @Test
   public void itPreservesRandomness() {
     String output = interpreter.render("{{ [1, 2, 3]|shuffle }}");
-    assertThat(output).isEqualTo("{{ [1, 2, 3]|shuffle }}");
+    assertThat(output)
+      .isEqualTo("{{ filter:shuffle.filter([1, 2, 3], ____int3rpr3t3r____) }}");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 

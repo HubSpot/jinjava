@@ -1,6 +1,6 @@
 {% set deferred_import_resource_path = 'eager/reconstructs-fromed-macro/has-macro.jinja' %}\
 {% macro to_upper(param) %}
- {{ param|upper }}
+ {{ filter:upper.filter(param, ____int3rpr3t3r____) }}
 {% endmacro %}\
 {% set deferred_import_resource_path = null %}\
 {{ to_upper(deferred) }}
