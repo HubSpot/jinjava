@@ -88,7 +88,7 @@ public class AstFilterChain extends AstRightValue {
         return null;
       }
       if (filter == null) {
-        continue;
+        return null;
       }
 
       Object[] args = evaluateFilterArgs(spec, bindings, context);
