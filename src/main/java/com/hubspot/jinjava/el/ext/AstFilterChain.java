@@ -170,14 +170,7 @@ public class AstFilterChain extends AstRightValue {
       builder.append('|').append(spec.getName());
       AstParameters params = spec.getParams();
       if (params != null && params.getCardinality() > 0) {
-        builder.append('(');
-        for (int i = 0; i < params.getCardinality(); i++) {
-          if (i > 0) {
-            builder.append(", ");
-          }
-          params.getChild(i).appendStructure(builder, bindings);
-        }
-        builder.append(')');
+        params.appendStructure(builder, bindings);
       }
     }
   }
