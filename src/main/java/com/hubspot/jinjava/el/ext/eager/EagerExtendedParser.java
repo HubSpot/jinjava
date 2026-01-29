@@ -198,4 +198,9 @@ public class EagerExtendedParser extends ExtendedParser {
   protected AstParameters createAstParameters(List<AstNode> nodes) {
     return new EagerAstParameters(nodes);
   }
+
+  @Override
+  protected boolean shouldUseFilterChainOptimization() {
+    return false;
+  }
 }
