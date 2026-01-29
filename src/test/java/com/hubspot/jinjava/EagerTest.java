@@ -1722,4 +1722,11 @@ public class EagerTest {
   public void itReconstructsFromedMacro() {
     expectedTemplateInterpreter.assertExpectedOutput("reconstructs-fromed-macro/test");
   }
+
+  @Test
+  public void itHandlesDeferredValueInRenderFilter() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferred-value-in-render-filter/test"
+    );
+  }
 }
