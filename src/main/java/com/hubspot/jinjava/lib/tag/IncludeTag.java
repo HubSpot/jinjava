@@ -60,25 +60,7 @@ public class IncludeTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    HelperStringTokenizer helper = new HelperStringTokenizer(tagNode.getHelpers());
-    if (!helper.hasNext()) {
-      throw new TemplateSyntaxException(
-        tagNode.getMaster().getImage(),
-        "Tag 'include' expects template path",
-        tagNode.getLineNumber(),
-        tagNode.getStartPosition()
-      );
-    }
-
-    String path = StringUtils.trimToEmpty(helper.next());
-    String templateFile = interpreter.resolveString(
-      path,
-      tagNode.getLineNumber(),
-      tagNode.getStartPosition()
-    );
-    templateFile = interpreter.resolveResourceLocation(templateFile);
-
-    final String finalTemplateFile = templateFile;
+    final String finalTemplateFile = resolveTemplateFile(tagNode, interpreter);
     final TagNode finalTagNode = tagNode;
     try (
       AutoCloseableImpl<Result<String, TagCycleException>> includeStackWrapper =
@@ -163,6 +145,30 @@ public class IncludeTag implements Tag {
               )
         );
     }
+  }
+
+  public static String resolveTemplateFile(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter
+  ) {
+    HelperStringTokenizer helper = new HelperStringTokenizer(tagNode.getHelpers());
+    if (!helper.hasNext()) {
+      throw new TemplateSyntaxException(
+        tagNode.getMaster().getImage(),
+        "Tag 'include' expects template path",
+        tagNode.getLineNumber(),
+        tagNode.getStartPosition()
+      );
+    }
+
+    String path = StringUtils.trimToEmpty(helper.next());
+    String templateFile = interpreter.resolveString(
+      path,
+      tagNode.getLineNumber(),
+      tagNode.getStartPosition()
+    );
+    templateFile = interpreter.resolveResourceLocation(templateFile);
+    return templateFile;
   }
 
   @Override

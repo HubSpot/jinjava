@@ -1,0 +1,10 @@
+Before include
+{% set __temp_meta_current_path_1035152568__,current_path = current_path,'eager/handles-modified-include-path/a.jinja' %}\
+This is include a
+{% set include_path = './a.jinja' %}\
+{% if deferred %}\
+{% set include_path = './b.jinja' %}\
+{% endif %}
+{% include include_path %}
+{% set current_path,__temp_meta_current_path_1035152568__ = __temp_meta_current_path_1035152568__,null %}
+After include

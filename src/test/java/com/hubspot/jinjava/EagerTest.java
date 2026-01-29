@@ -1722,4 +1722,22 @@ public class EagerTest {
   public void itReconstructsFromedMacro() {
     expectedTemplateInterpreter.assertExpectedOutput("reconstructs-fromed-macro/test");
   }
+
+  @Test
+  public void itHandlesModifiedIncludePath() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-modified-include-path/test"
+    );
+  }
+
+  @Test
+  public void itHandlesModifiedIncludePathSecondPass() {
+    localContext.put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-modified-include-path/test.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-modified-include-path/test.expected"
+    );
+  }
 }

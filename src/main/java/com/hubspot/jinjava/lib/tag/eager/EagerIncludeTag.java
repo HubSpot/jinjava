@@ -5,8 +5,6 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.tag.IncludeTag;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
-import com.hubspot.jinjava.util.HelperStringTokenizer;
-import org.apache.commons.lang3.StringUtils;
 
 @Beta
 public class EagerIncludeTag extends EagerTagDecorator<IncludeTag> {
@@ -17,17 +15,10 @@ public class EagerIncludeTag extends EagerTagDecorator<IncludeTag> {
 
   @Override
   public String innerInterpret(TagNode tagNode, JinjavaInterpreter interpreter) {
+    String templateFile = IncludeTag.resolveTemplateFile(tagNode, interpreter);
     int numDeferredTokensStart = interpreter.getContext().getDeferredTokens().size();
     String output = super.innerInterpret(tagNode, interpreter);
     if (interpreter.getContext().getDeferredTokens().size() > numDeferredTokensStart) {
-      HelperStringTokenizer helper = new HelperStringTokenizer(tagNode.getHelpers());
-      String path = StringUtils.trimToEmpty(helper.next());
-      String templateFile = interpreter.resolveString(
-        path,
-        tagNode.getLineNumber(),
-        tagNode.getStartPosition()
-      );
-      templateFile = interpreter.resolveResourceLocation(templateFile);
       return EagerReconstructionUtils.wrapPathAroundText(
         output,
         templateFile,
