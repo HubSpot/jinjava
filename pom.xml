@@ -22,7 +22,7 @@
     <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
     <dep.plugin.javadoc.version>3.0.1</dep.plugin.javadoc.version>
     <dep.hubspot-immutables.version>1.9</dep.hubspot-immutables.version>
-
+    <dep.jackson.version>2.20.1</dep.jackson.version>
 
     <basepom.test.add.opens>
       --add-opens=java.base/java.lang=ALL-UNNAMED
@@ -71,27 +71,27 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
-        <version>2.14.0</version>
+        <version>2.20</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>2.14.0</version>
+        <version>${dep.jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-core</artifactId>
-        <version>2.14.0</version>
+        <version>${dep.jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.dataformat</groupId>
         <artifactId>jackson-dataformat-yaml</artifactId>
-        <version>2.14.0</version>
+        <version>${dep.jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jdk8</artifactId>
-        <version>2.14.0</version>
+        <version>${dep.jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.hubspot.immutables</groupId>
