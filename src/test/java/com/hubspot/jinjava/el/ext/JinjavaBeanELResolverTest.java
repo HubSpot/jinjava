@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.JinjavaELContext;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.util.ArrayList;
 import java.util.List;
 import javax.el.ELContext;
 import javax.el.MethodNotFoundException;
@@ -189,25 +190,21 @@ public class JinjavaBeanELResolverTest {
 
   @Test
   public void itDoesNotGettingFromObjectMapper() {
-    try (
-      AutoCloseableSupplier.AutoCloseableImpl<JinjavaInterpreter> c = JinjavaInterpreter
-        .closeablePushCurrent(interpreter)
-        .get()
-    ) {
+    JinjavaInterpreter.pushCurrent(interpreter);
+    try {
       assertThat(
         jinjavaBeanELResolver.getValue(elContext, new ObjectMapper(), "dateFormat")
       )
         .isNull();
+    } finally {
+      JinjavaInterpreter.popCurrent();
     }
   }
 
   @Test
   public void itDoesNotAllowInvokingFromObjectMapper() throws NoSuchMethodException {
-    try (
-      AutoCloseableSupplier.AutoCloseableImpl<JinjavaInterpreter> c = JinjavaInterpreter
-        .closeablePushCurrent(interpreter)
-        .get()
-    ) {
+    JinjavaInterpreter.pushCurrent(interpreter);
+    try {
       ObjectMapper objectMapper = new ObjectMapper();
       assertThatThrownBy(() ->
           jinjavaBeanELResolver.invoke(
@@ -219,17 +216,17 @@ public class JinjavaBeanELResolverTest {
           )
         )
         .isInstanceOf(MethodNotFoundException.class);
+    } finally {
+      JinjavaInterpreter.popCurrent();
     }
   }
 
   @Test
   public void itDoesNotAllowInvokingFromMethod() throws NoSuchMethodException {
-    try (
-      AutoCloseableSupplier.AutoCloseableImpl<JinjavaInterpreter> c = JinjavaInterpreter
-        .closeablePushCurrent(interpreter)
-        .get()
-    ) {
-      List<String> list = List.of("foo");
+    JinjavaInterpreter.pushCurrent(interpreter);
+    try {
+      List<String> list = new ArrayList<>();
+      list.add("foo");
       assertThatThrownBy(() ->
           jinjavaBeanELResolver.invoke(
             elContext,
@@ -240,6 +237,8 @@ public class JinjavaBeanELResolverTest {
           )
         )
         .isInstanceOf(MethodNotFoundException.class);
+    } finally {
+      JinjavaInterpreter.popCurrent();
     }
   }
 }
