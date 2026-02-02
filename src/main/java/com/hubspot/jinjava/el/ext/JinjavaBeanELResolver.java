@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.el.ext;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -36,6 +37,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     .add("notify")
     .add("notifyAll")
     .add("wait")
+    .add("readValueAs")
     .build();
 
   private static final Set<String> DEFERRED_EXECUTION_RESTRICTED_METHODS = ImmutableSet
@@ -59,6 +61,10 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     .add("set")
     .add("merge")
     .build();
+  private static final String JAVA_LANG_REFLECT_PACKAGE =
+    Method.class.getPackage().getName(); // java.lang.reflect
+  private static final String JACKSON_DATABIND_PACKAGE =
+    ObjectMapper.class.getPackage().getName(); // com.fasterxml.jackson.databind
 
   /**
    * Creates a new read/write {@link JinjavaBeanELResolver}.
@@ -251,9 +257,11 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       return false;
     }
 
+    Package oPackage = o.getClass().getPackage();
     return (
-      (o.getClass().getPackage() != null &&
-        o.getClass().getPackage().getName().startsWith("java.lang.reflect")) ||
+      (oPackage != null &&
+        (oPackage.getName().startsWith(JAVA_LANG_REFLECT_PACKAGE) ||
+          oPackage.getName().startsWith(JACKSON_DATABIND_PACKAGE))) ||
       o instanceof Class ||
       o instanceof ClassLoader ||
       o instanceof Thread ||

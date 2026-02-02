@@ -1,9 +1,23 @@
 # Jinjava Releases #
+### 2025-01-30 Version 2.8.3 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.3/jar)) ###
+* Disallow accessing properties on restricted classes while rendering through ForTag
+* Upgrade jackson to version 2.20
+* [Add performance optimization to chained filters](https://github.com/HubSpot/jinjava/pull/1274)
+
+### 2025-01-30 Version 2.7.6 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.6/jar)) ###
+* Disallow accessing properties on restricted classes while rendering through ForTag
+* Upgrade jackson to version 2.20
+
 ### 2025-10-22 Version 2.8.2 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.2/jar)) ###
 * [Fix helper token escape handling and unescaping when unquoting strings](https://github.com/HubSpot/jinjava/pull/1263)
+
+### 2025-09-30 Version 2.7.5 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.5/jar)) ###
+* Disallow accessing properties on restricted classes while rendering
+
 ### 2025-09-16 Version 2.8.1 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.1/jar)) ###
 * Disallow accessing properties on restricted classes while rendering
 * [Make stack operations use AutoCloseable for safer usage with try-with-resources](https://github.com/HubSpot/jinjava/pull/1250)
+
 ### 2025-05-05 Version 2.8.0 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.0/jar)) ###
 * [Target Java 17](https://github.com/HubSpot/jinjava/pull/1238)
 * [Implement PyMap#get with optional default](https://github.com/HubSpot/jinjava/pull/1233)
