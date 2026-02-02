@@ -1,4 +1,9 @@
 # Jinjava Releases #
+### 2025-01-30 Version 2.7.6 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.6/jar)) ###
+* Disallow accessing properties on restricted classes while rendering through ForTag
+* Upgrade jackson to version 2.20
+### 2025-09-30 Version 2.7.5 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.5/jar)) ###
+* Disallow accessing properties on restricted classes while rendering
 ### 2024-12-06 Verision 2.7.4 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.4/jar)) ###
 * [Implement jinja2.ext.loopcontrols extensions (break and continue)](https://github.com/HubSpot/jinjava/pull/1219)
 * [Apply whitespace rules for LStrip and Trim to comment blocks](https://github.com/HubSpot/jinjava/pull/1217)
