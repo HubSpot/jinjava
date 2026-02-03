@@ -1,5 +1,5 @@
 # Jinjava Releases #
-### 2025-02-02 Version 2.7.6 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.6/jar)) ###
+### 2026-02-02 Version 2.7.6 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.6/jar)) ###
 * Disallow accessing properties on restricted classes while rendering through ForTag
 * Upgrade jackson to version 2.20
 ### 2025-09-30 Version 2.7.5 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.5/jar)) ###
