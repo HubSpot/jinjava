@@ -17,6 +17,7 @@
 
   <properties>
     <project.build.targetJdk>17</project.build.targetJdk>
+    <hubspot.build.moved.after>1770136059427</hubspot.build.moved.after>
 
     <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
     <dep.plugin.javadoc.version>3.0.1</dep.plugin.javadoc.version>
