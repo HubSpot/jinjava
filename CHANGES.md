@@ -1,10 +1,10 @@
 # Jinjava Releases #
-### 2025-01-30 Version 2.8.3 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.3/jar)) ###
+### 2026-02-02 Version 2.8.3 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.3/jar)) ###
 * Disallow accessing properties on restricted classes while rendering through ForTag
 * Upgrade jackson to version 2.20
 * [Add performance optimization to chained filters](https://github.com/HubSpot/jinjava/pull/1274)
 
-### 2025-01-30 Version 2.7.6 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.6/jar)) ###
+### 2026-02-02 Version 2.7.6 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.6/jar)) ###
 * Disallow accessing properties on restricted classes while rendering through ForTag
 * Upgrade jackson to version 2.20
 
