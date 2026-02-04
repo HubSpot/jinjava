@@ -25,6 +25,20 @@ import java.util.regex.Pattern;
 )
 public class WordCountFilter implements Filter {
 
+  private static Pattern WORD_RE = Pattern.compile(
+          "\\w+", Pattern.MULTILINE
+  );
+
+  static {
+    try {
+      WORD_RE = Pattern.compile(
+              "\\w+",
+              Pattern.UNICODE_CHARACTER_CLASS | Pattern.MULTILINE
+      );
+    } catch (Throwable e) {
+    }
+  }
+
   @Override
   public String getName() {
     return "wordcount";
@@ -43,8 +57,4 @@ public class WordCountFilter implements Filter {
     return Integer.valueOf(count);
   }
 
-  private static final Pattern WORD_RE = Pattern.compile(
-    "\\w+",
-    Pattern.UNICODE_CHARACTER_CLASS | Pattern.MULTILINE
-  );
 }
