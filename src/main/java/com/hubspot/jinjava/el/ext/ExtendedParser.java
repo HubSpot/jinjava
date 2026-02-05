@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
+import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import de.odysseus.el.tree.impl.Builder;
 import de.odysseus.el.tree.impl.Builder.Feature;
@@ -581,7 +582,47 @@ public class ExtendedParser extends Parser {
       filterSpecs.add(new FilterSpec(filterName, filterParams));
     } while ("|".equals(getToken().getImage()));
 
+    if (hasUnknownFilter(filterSpecs)) {
+      return buildUnoptimizedFromSpecs(left, filterSpecs);
+    }
     return createAstFilterChain(left, filterSpecs);
+  }
+
+  private boolean hasUnknownFilter(List<FilterSpec> filterSpecs) {
+    return JinjavaInterpreter
+      .getCurrentMaybe()
+      .map(interp -> {
+        for (FilterSpec spec : filterSpecs) {
+          try {
+            if (interp.getContext().getFilter(spec.getName()) == null) {
+              return true;
+            }
+          } catch (DisabledException e) {
+            return false;
+          }
+        }
+        return false;
+      })
+      .orElse(false);
+  }
+
+  private AstNode buildUnoptimizedFromSpecs(AstNode input, List<FilterSpec> filterSpecs) {
+    AstNode v = input;
+    for (FilterSpec spec : filterSpecs) {
+      List<AstNode> filterParams = Lists.newArrayList(v, interpreter());
+      if (spec.hasParams()) {
+        for (int i = 0; i < spec.getParams().getCardinality(); i++) {
+          filterParams.add(spec.getParams().getChild(i));
+        }
+      }
+      AstProperty filterProperty = createAstDot(
+        identifier(FILTER_PREFIX + spec.getName()),
+        "filter",
+        true
+      );
+      v = createAstMethod(filterProperty, createAstParameters(filterParams));
+    }
+    return v;
   }
 
   protected AstNode parseFiltersAsNestedMethods(AstNode left)
