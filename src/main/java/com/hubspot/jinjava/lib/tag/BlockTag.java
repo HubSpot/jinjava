@@ -20,6 +20,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaHasCodeBody;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.doc.annotations.JinjavaTextMateSnippet;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.tree.TagNode;
@@ -60,6 +61,14 @@ public class BlockTag implements Tag {
 
   @Override
   public OutputNode interpretOutput(TagNode tagNode, JinjavaInterpreter interpreter) {
+    if (interpreter.getContext().isExtendsDeferred()) {
+      throw new DeferredValueException(
+        "block tag",
+        tagNode.getLineNumber(),
+        tagNode.getStartPosition()
+      );
+    }
+
     HelperStringTokenizer tagData = new HelperStringTokenizer(tagNode.getHelpers());
     if (!tagData.hasNext()) {
       throw new TemplateSyntaxException(

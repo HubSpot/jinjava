@@ -39,7 +39,22 @@ public interface ContextConfigurationIF {
   }
 
   @Default
+  default boolean isPreserveResolvedSetTags() {
+    return false;
+  }
+
+  @Default
   default boolean isUnwrapRawOverride() {
+    return false;
+  }
+
+  @Default
+  default boolean isPreserveComments() {
+    return false;
+  }
+
+  @Default
+  default boolean isExtendsDeferred() {
     return false;
   }
 

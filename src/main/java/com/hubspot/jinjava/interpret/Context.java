@@ -875,12 +875,37 @@ public class Context extends ScopeMap<String, Object> {
     return temporaryValueClosable;
   }
 
+  public boolean isPreserveResolvedSetTags() {
+    return contextConfiguration.isPreserveResolvedSetTags();
+  }
+
+  public void setPreserveResolvedSetTags(boolean preserveResolvedSetTags) {
+    contextConfiguration =
+      contextConfiguration.withPreserveResolvedSetTags(preserveResolvedSetTags);
+  }
+
   public boolean isUnwrapRawOverride() {
     return contextConfiguration.isUnwrapRawOverride();
   }
 
   public void setUnwrapRawOverride(boolean unwrapRawOverride) {
     contextConfiguration = contextConfiguration.withUnwrapRawOverride(unwrapRawOverride);
+  }
+
+  public boolean isPreserveComments() {
+    return contextConfiguration.isPreserveComments();
+  }
+
+  public void setPreserveComments(boolean preserveComments) {
+    contextConfiguration = contextConfiguration.withPreserveComments(preserveComments);
+  }
+
+  public boolean isExtendsDeferred() {
+    return contextConfiguration.isExtendsDeferred();
+  }
+
+  public void setExtendsDeferred(boolean extendsDeferred) {
+    contextConfiguration = contextConfiguration.withExtendsDeferred(extendsDeferred);
   }
 
   public TemporaryValueClosable<Boolean> withUnwrapRawOverride() {
