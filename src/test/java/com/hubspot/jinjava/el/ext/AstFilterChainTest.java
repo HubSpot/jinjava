@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.RenderResult;
+import com.hubspot.jinjava.objects.date.PyishDate;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
@@ -66,5 +69,41 @@ public class AstFilterChainTest {
   public void itHandlesFilterWithStringConversion() {
     String result = jinjava.render("{{ number|string|length }}", context);
     assertThat(result).isEqualTo("5");
+  }
+
+  @Test
+  public void itFallsBackToUnoptimizedForUnknownFilterInChain() {
+    context.put("module", new PyishDate(ZonedDateTime.parse("2024-01-15T10:30:00Z")));
+    RenderResult renderResult = jinjava.renderForResult(
+      "{% set mid = module | local_dt|unixtimestamp | pprint | md5 %}{{ mid }}",
+      context
+    );
+    assertThat(renderResult.getOutput())
+      .as("Should produce MD5 output since chain continues past unknown filter")
+      .hasSize(32);
+    assertThat(
+      renderResult
+        .getErrors()
+        .stream()
+        .noneMatch(e -> e.getMessage().contains("Unknown filter"))
+    )
+      .as("Should not report 'Unknown filter' error when falling back")
+      .isTrue();
+  }
+
+  @Test
+  public void itFallsBackToUnoptimizedForUnknownFilterParity() {
+    String template = "{{ name | unknown_filter | lower | md5 }}";
+    Jinjava jinjavaUnoptimized = new Jinjava(
+      JinjavaConfig.newBuilder().withEnableFilterChainOptimization(false).build()
+    );
+    RenderResult optimizedResult = jinjava.renderForResult(template, context);
+    RenderResult unoptimizedResult = jinjavaUnoptimized.renderForResult(
+      template,
+      context
+    );
+    assertThat(optimizedResult.getOutput())
+      .as("Optimized should match un-optimized for unknown filter in chain")
+      .isEqualTo(unoptimizedResult.getOutput());
   }
 }
