@@ -1,8 +1,10 @@
 package com.hubspot.jinjava.features;
 
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.interpret.Context;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public class FeatureConfig {
 
@@ -23,6 +25,25 @@ public class FeatureConfig {
   public static class Builder {
 
     private final Map<String, FeatureActivationStrategy> features = new HashMap<>();
+
+    @Deprecated
+    public Builder add(String name, Function<Context, Boolean> strategyFunction) {
+      features.put(
+        name,
+        new FeatureActivationStrategy() {
+          @Override
+          public boolean isActive(Context context) {
+            return strategyFunction.apply(context);
+          }
+
+          @Override
+          public boolean isActive() {
+            return false;
+          }
+        }
+      );
+      return this;
+    }
 
     public Builder add(String name, FeatureActivationStrategy strategy) {
       features.put(name, strategy);
