@@ -400,7 +400,7 @@ public class ExpressionResolverTest {
 
   @Test
   public void itBlocksDisabledTags() {
-    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(
+    ImmutableMap<Context.Library, ImmutableSet<String>> disabled = ImmutableMap.of(
       Context.Library.TAG,
       ImmutableSet.of("raw")
     );
@@ -422,7 +422,7 @@ public class ExpressionResolverTest {
   public void itBlocksDisabledTagsInIncludes() {
     final String jinja = "top {% include \"tags/includetag/raw.html\" %}";
 
-    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(
+    ImmutableMap<Context.Library, ImmutableSet<String>> disabled = ImmutableMap.of(
       Context.Library.TAG,
       ImmutableSet.of("raw")
     );
@@ -441,7 +441,7 @@ public class ExpressionResolverTest {
 
   @Test
   public void itBlocksDisabledFilters() {
-    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(
+    ImmutableMap<Context.Library, ImmutableSet<String>> disabled = ImmutableMap.of(
       Context.Library.FILTER,
       ImmutableSet.of("truncate")
     );
@@ -461,7 +461,7 @@ public class ExpressionResolverTest {
 
   @Test
   public void itBlocksDisabledFunctions() {
-    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(
+    ImmutableMap<Context.Library, ImmutableSet<String>> disabled = ImmutableMap.of(
       Library.FUNCTION,
       ImmutableSet.of(":range")
     );
@@ -486,7 +486,7 @@ public class ExpressionResolverTest {
 
   @Test
   public void itBlocksDisabledExpTests() {
-    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(
+    ImmutableMap<Context.Library, ImmutableSet<String>> disabled = ImmutableMap.of(
       Context.Library.EXP_TEST,
       ImmutableSet.of("even")
     );

@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.tree.output;
 
+import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.TemplateError;
@@ -11,7 +12,7 @@ import java.util.List;
 public class OutputList {
 
   public static final String PREVENT_ACCIDENTAL_EXPRESSIONS =
-    "PREVENT_ACCIDENTAL_EXPRESSIONS";
+    BuiltInFeatures.PREVENT_ACCIDENTAL_EXPRESSIONS;
   private final List<OutputNode> nodes = new LinkedList<>();
   private final List<BlockPlaceholderOutputNode> blocks = new LinkedList<>();
   private final long maxOutputSize;
@@ -58,7 +59,7 @@ public class OutputList {
       .filter(config ->
         config
           .getFeatures()
-          .getActivationStrategy(PREVENT_ACCIDENTAL_EXPRESSIONS)
+          .getActivationStrategy(BuiltInFeatures.PREVENT_ACCIDENTAL_EXPRESSIONS)
           .isActive(null)
       )
       .map(config ->

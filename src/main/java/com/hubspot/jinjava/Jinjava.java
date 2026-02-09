@@ -73,7 +73,7 @@ public class Jinjava {
    * Create a new Jinjava processor instance with the default global config
    */
   public Jinjava() {
-    this(new JinjavaConfig());
+    this(JinjavaConfig.newBuilder().build());
   }
 
   /**

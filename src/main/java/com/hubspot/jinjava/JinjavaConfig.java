@@ -20,14 +20,17 @@ import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.hubspot.immutable.collection.encoding.ImmutableListEncodingEnabled;
+import com.hubspot.immutable.collection.encoding.ImmutableMapEncodingEnabled;
+import com.hubspot.immutable.collection.encoding.ImmutableSetEncodingEnabled;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
 import com.hubspot.jinjava.el.JinjavaProcessors;
 import com.hubspot.jinjava.el.ObjectUnwrapper;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.features.Features;
-import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.InterpreterFactory;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -44,533 +47,218 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import javax.el.ELResolver;
+import org.immutables.value.Value;
 
-public class JinjavaConfig {
-
-  private final Charset charset;
-  private final Locale locale;
-  private final ZoneId timeZone;
-  private final int maxRenderDepth;
-  private final long maxOutputSize;
-
-  private final boolean trimBlocks;
-  private final boolean lstripBlocks;
-
-  private final boolean enableRecursiveMacroCalls;
-  private final int maxMacroRecursionDepth;
-
-  private final Map<Library, Set<String>> disabled;
-
-  private final Set<String> restrictedMethods;
-
-  private final Set<String> restrictedProperties;
-
-  private final boolean failOnUnknownTokens;
-  private final boolean nestedInterpretationEnabled;
-  private final RandomNumberGeneratorStrategy randomNumberGenerator;
-  private final boolean validationMode;
-  private final long maxStringLength;
-  private final int maxListSize;
-  private final int maxMapSize;
-  private final int rangeLimit;
-  private final int maxNumDeferredTokens;
-  private final InterpreterFactory interpreterFactory;
-  private final DateTimeProvider dateTimeProvider;
-  private TokenScannerSymbols tokenScannerSymbols;
-  private final ELResolver elResolver;
-  private final ExecutionMode executionMode;
-  private final LegacyOverrides legacyOverrides;
-  private final boolean enablePreciseDivideFilter;
-  private final boolean enableFilterChainOptimization;
-  private final ObjectMapper objectMapper;
-
-  private final Features features;
-
-  private final ObjectUnwrapper objectUnwrapper;
-  private final JinjavaProcessors processors;
-
-  public static Builder newBuilder() {
-    return new Builder();
+@Value.Immutable(singleton = true)
+@Value.Style(
+  init = "with*",
+  get = { "is*", "get*" } // Detect 'get' and 'is' prefixes in accessor methods
+)
+@ImmutableSetEncodingEnabled
+@ImmutableListEncodingEnabled
+@ImmutableMapEncodingEnabled
+public interface JinjavaConfig {
+  @Value.Default
+  default Charset getCharset() {
+    return StandardCharsets.UTF_8;
   }
 
-  public JinjavaConfig() {
-    this(newBuilder());
+  @Value.Default
+  default Locale getLocale() {
+    return Locale.ENGLISH;
   }
 
-  public JinjavaConfig(InterpreterFactory interpreterFactory) {
-    this(newBuilder().withInterperterFactory(interpreterFactory));
+  @Value.Default
+  default ZoneId getTimeZone() {
+    return ZoneOffset.UTC;
   }
 
-  public JinjavaConfig(
-    Charset charset,
-    Locale locale,
-    ZoneId timeZone,
-    int maxRenderDepth
-  ) {
-    this(
-      newBuilder()
-        .withCharset(charset)
-        .withLocale(locale)
-        .withTimeZone(timeZone)
-        .withMaxRenderDepth(maxRenderDepth)
-    );
+  @Value.Default
+  default int getMaxRenderDepth() {
+    return 10;
   }
 
-  private JinjavaConfig(Builder builder) {
-    charset = builder.charset;
-    locale = builder.locale;
-    timeZone = builder.timeZone;
-    maxRenderDepth = builder.maxRenderDepth;
-    disabled = builder.disabled;
-    restrictedMethods = builder.restrictedMethods;
-    restrictedProperties = builder.restrictedProperties;
-    trimBlocks = builder.trimBlocks;
-    lstripBlocks = builder.lstripBlocks;
-    enableRecursiveMacroCalls = builder.enableRecursiveMacroCalls;
-    maxMacroRecursionDepth = builder.maxMacroRecursionDepth;
-    failOnUnknownTokens = builder.failOnUnknownTokens;
-    maxOutputSize = builder.maxOutputSize;
-    nestedInterpretationEnabled = builder.nestedInterpretationEnabled;
-    randomNumberGenerator = builder.randomNumberGeneratorStrategy;
-    validationMode = builder.validationMode;
-    maxStringLength = builder.maxStringLength;
-    maxListSize = builder.maxListSize;
-    maxMapSize = builder.maxMapSize;
-    rangeLimit = builder.rangeLimit;
-    maxNumDeferredTokens = builder.maxNumDeferredTokens;
-    interpreterFactory = builder.interpreterFactory;
-    tokenScannerSymbols = builder.tokenScannerSymbols;
-    elResolver = builder.elResolver;
-    executionMode = builder.executionMode;
-    legacyOverrides = builder.legacyOverrides;
-    dateTimeProvider = builder.dateTimeProvider;
-    enablePreciseDivideFilter = builder.enablePreciseDivideFilter;
-    enableFilterChainOptimization = builder.enableFilterChainOptimization;
-    objectMapper = setupObjectMapper(builder.objectMapper);
-    objectUnwrapper = builder.objectUnwrapper;
-    processors = builder.processors;
-    features = new Features(builder.featureConfig);
+  @Value.Default
+  default long getMaxOutputSize() {
+    return 0;
   }
 
-  private ObjectMapper setupObjectMapper(@Nullable ObjectMapper objectMapper) {
+  @Value.Default
+  default boolean isTrimBlocks() {
+    return false;
+  }
+
+  @Value.Default
+  default boolean isLstripBlocks() {
+    return false;
+  }
+
+  @Value.Default
+  default boolean isEnableRecursiveMacroCalls() {
+    return false;
+  }
+
+  @Value.Default
+  default int getMaxMacroRecursionDepth() {
+    return 0;
+  }
+
+  ImmutableMap<Library, ImmutableSet<String>> getDisabled();
+
+  ImmutableSet<String> getRestrictedMethods();
+
+  ImmutableSet<String> getRestrictedProperties();
+
+  @Value.Default
+  default boolean isFailOnUnknownTokens() {
+    return false;
+  }
+
+  @Value.Default
+  default boolean isNestedInterpretationEnabled() {
+    return false; // Modified from version 2.X
+  }
+
+  @Value.Default
+  default RandomNumberGeneratorStrategy getRandomNumberGeneratorStrategy() {
+    return RandomNumberGeneratorStrategy.THREAD_LOCAL;
+  }
+
+  @Value.Default
+  default boolean isValidationMode() {
+    return false;
+  }
+
+  @Value.Default
+  default long getMaxStringLength() {
+    return getMaxOutputSize();
+  }
+
+  @Value.Default
+  default int getMaxListSize() {
+    return Integer.MAX_VALUE;
+  }
+
+  @Value.Default
+  default int getMaxMapSize() {
+    return Integer.MAX_VALUE;
+  }
+
+  @Value.Default
+  default int getRangeLimit() {
+    return DEFAULT_RANGE_LIMIT;
+  }
+
+  @Value.Default
+  default int getMaxNumDeferredTokens() {
+    return 1000;
+  }
+
+  @Value.Default
+  default InterpreterFactory getInterpreterFactory() {
+    return new JinjavaInterpreterFactory();
+  }
+
+  @Value.Default
+  default DateTimeProvider getDateTimeProvider() {
+    return new CurrentDateTimeProvider();
+  }
+
+  @Value.Default
+  default TokenScannerSymbols getTokenScannerSymbols() {
+    return new DefaultTokenScannerSymbols();
+  }
+
+  @Value.Default
+  default ELResolver getElResolver() {
+    return JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
+  }
+
+  @Value.Default
+  default ExecutionMode getExecutionMode() {
+    return DefaultExecutionMode.instance();
+  }
+
+  @Value.Default
+  default LegacyOverrides getLegacyOverrides() {
+    return LegacyOverrides.THREE_POINT_0; // Modified from version 2.X
+  }
+
+  @Value.Default
+  default boolean getEnablePreciseDivideFilter() {
+    return false;
+  }
+
+  @Value.Default
+  default boolean isEnableFilterChainOptimization() {
+    return false;
+  }
+
+  @Nullable
+  ObjectMapper getObjectMapperOrNull();
+
+  @Value.Derived
+  default ObjectMapper getObjectMapper() {
+    ObjectMapper objectMapper = getObjectMapperOrNull();
     if (objectMapper == null) {
       objectMapper = new ObjectMapper().registerModule(new Jdk8Module());
-      if (legacyOverrides.isUseSnakeCasePropertyNaming()) {
+      if (getLegacyOverrides().isUseSnakeCasePropertyNaming()) {
         objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
       }
     }
     return objectMapper;
   }
 
-  public Charset getCharset() {
-    return charset;
+  @Value.Default
+  default ObjectUnwrapper getObjectUnwrapper() {
+    return new JinjavaObjectUnwrapper();
   }
 
-  public Locale getLocale() {
-    return locale;
+  @Value.Derived
+  default Features getFeatures() {
+    return new Features(getFeatureConfig());
   }
 
-  public ZoneId getTimeZone() {
-    return timeZone;
+  @Value.Default
+  default FeatureConfig getFeatureConfig() {
+    return FeatureConfig.newBuilder().build();
   }
 
-  public int getMaxRenderDepth() {
-    return maxRenderDepth;
+  @Value.Default
+  default JinjavaProcessors getProcessors() {
+    return JinjavaProcessors.newBuilder().build();
   }
 
-  public long getMaxOutputSize() {
-    return maxOutputSize;
-  }
-
-  public int getMaxListSize() {
-    return maxListSize;
-  }
-
-  public int getMaxMapSize() {
-    return maxMapSize;
-  }
-
-  public int getRangeLimit() {
-    return rangeLimit;
-  }
-
-  public int getMaxNumDeferredTokens() {
-    return maxNumDeferredTokens;
-  }
-
-  public RandomNumberGeneratorStrategy getRandomNumberGeneratorStrategy() {
-    return randomNumberGenerator;
-  }
-
-  public boolean isTrimBlocks() {
-    return trimBlocks;
-  }
-
-  public boolean isLstripBlocks() {
-    return lstripBlocks;
-  }
-
-  public boolean isEnableRecursiveMacroCalls() {
-    return enableRecursiveMacroCalls;
-  }
-
-  public int getMaxMacroRecursionDepth() {
-    return maxMacroRecursionDepth;
-  }
-
-  public Map<Library, Set<String>> getDisabled() {
-    return disabled;
-  }
-
-  public Set<String> getRestrictedMethods() {
-    return restrictedMethods;
-  }
-
-  public Set<String> getRestrictedProperties() {
-    return restrictedProperties;
-  }
-
-  public boolean isFailOnUnknownTokens() {
-    return failOnUnknownTokens;
-  }
-
-  public boolean isNestedInterpretationEnabled() {
-    return nestedInterpretationEnabled;
-  }
-
-  public boolean isValidationMode() {
-    return validationMode;
-  }
-
-  public long getMaxStringLength() {
-    return maxStringLength == 0 ? getMaxOutputSize() : maxStringLength;
-  }
-
-  public InterpreterFactory getInterpreterFactory() {
-    return interpreterFactory;
-  }
-
-  public TokenScannerSymbols getTokenScannerSymbols() {
-    return tokenScannerSymbols;
-  }
-
-  public void setTokenScannerSymbols(TokenScannerSymbols tokenScannerSymbols) {
-    this.tokenScannerSymbols = tokenScannerSymbols;
-  }
-
-  public ELResolver getElResolver() {
-    return elResolver;
-  }
-
-  public ObjectMapper getObjectMapper() {
-    return objectMapper;
-  }
-
-  public ObjectUnwrapper getObjectUnwrapper() {
-    return objectUnwrapper;
-  }
-
-  /**
-   * @deprecated Use {@link #getProcessors()} and {@link JinjavaProcessors#getNodePreProcessor()}
-   */
   @Deprecated
-  public BiConsumer<Node, JinjavaInterpreter> getNodePreProcessor() {
-    return processors.getNodePreProcessor();
+  default BiConsumer<Node, JinjavaInterpreter> getNodePreProcessor() {
+    return getProcessors().getNodePreProcessor();
   }
 
-  public JinjavaProcessors getProcessors() {
-    return processors;
-  }
-
-  /**
-   * @deprecated  Replaced by {@link LegacyOverrides#isIterateOverMapKeys()}
-   */
   @Deprecated
-  public boolean isIterateOverMapKeys() {
-    return legacyOverrides.isIterateOverMapKeys();
+  default boolean isIterateOverMapKeys() {
+    return getLegacyOverrides().isIterateOverMapKeys();
   }
 
-  public ExecutionMode getExecutionMode() {
-    return executionMode;
-  }
-
-  public LegacyOverrides getLegacyOverrides() {
-    return legacyOverrides;
-  }
-
-  public boolean getEnablePreciseDivideFilter() {
-    return enablePreciseDivideFilter;
-  }
-
-  public boolean isEnableFilterChainOptimization() {
-    return enableFilterChainOptimization;
-  }
-
-  public DateTimeProvider getDateTimeProvider() {
-    return dateTimeProvider;
-  }
-
-  public Features getFeatures() {
-    return features;
-  }
-
-  public static class Builder {
-
-    private Charset charset = StandardCharsets.UTF_8;
-    private Locale locale = Locale.ENGLISH;
-    private ZoneId timeZone = ZoneOffset.UTC;
-    private int maxRenderDepth = 10;
-    private long maxOutputSize = 0; // in bytes
-    private Map<Context.Library, Set<String>> disabled = new HashMap<>();
-
-    private Set<String> restrictedMethods = ImmutableSet.of();
-    private Set<String> restrictedProperties = ImmutableSet.of();
-
-    private boolean trimBlocks;
-    private boolean lstripBlocks;
-
-    private boolean enableRecursiveMacroCalls;
-    private int maxMacroRecursionDepth;
-    private boolean failOnUnknownTokens;
-    private boolean nestedInterpretationEnabled = true;
-    private RandomNumberGeneratorStrategy randomNumberGeneratorStrategy =
-      RandomNumberGeneratorStrategy.THREAD_LOCAL;
-    private DateTimeProvider dateTimeProvider = new CurrentDateTimeProvider();
-    private boolean validationMode = false;
-    private long maxStringLength = 0;
-    private int rangeLimit = DEFAULT_RANGE_LIMIT;
-    private int maxNumDeferredTokens = 1000;
-    private InterpreterFactory interpreterFactory = new JinjavaInterpreterFactory();
-    private TokenScannerSymbols tokenScannerSymbols = new DefaultTokenScannerSymbols();
-    private ELResolver elResolver = JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
-    private int maxListSize = Integer.MAX_VALUE;
-    private int maxMapSize = Integer.MAX_VALUE;
-    private ExecutionMode executionMode = DefaultExecutionMode.instance();
-    private LegacyOverrides legacyOverrides = LegacyOverrides.NONE;
-    private boolean enablePreciseDivideFilter = false;
-    private boolean enableFilterChainOptimization = false;
-    private ObjectMapper objectMapper = null;
-
-    private ObjectUnwrapper objectUnwrapper = new JinjavaObjectUnwrapper();
-    private JinjavaProcessors processors = JinjavaProcessors.newBuilder().build();
-    private FeatureConfig featureConfig = FeatureConfig.newBuilder().build();
-
-    private Builder() {}
-
-    public Builder withCharset(Charset charset) {
-      this.charset = charset;
-      return this;
-    }
-
-    public Builder withLocale(Locale locale) {
-      this.locale = locale;
-      return this;
-    }
-
-    public Builder withTimeZone(ZoneId timeZone) {
-      this.timeZone = timeZone;
-      return this;
-    }
-
-    public Builder withDisabled(Map<Context.Library, Set<String>> disabled) {
-      this.disabled = disabled;
-      return this;
-    }
-
-    public Builder withRestrictedMethods(Set<String> restrictedMethods) {
-      this.restrictedMethods = ImmutableSet.copyOf(restrictedMethods);
-      return this;
-    }
-
-    public Builder withRestrictedProperties(Set<String> restrictedProperties) {
-      this.restrictedProperties = ImmutableSet.copyOf(restrictedProperties);
-      return this;
-    }
-
-    public Builder withMaxRenderDepth(int maxRenderDepth) {
-      this.maxRenderDepth = maxRenderDepth;
-      return this;
-    }
-
-    public Builder withRandomNumberGeneratorStrategy(
-      RandomNumberGeneratorStrategy randomNumberGeneratorStrategy
-    ) {
-      this.randomNumberGeneratorStrategy = randomNumberGeneratorStrategy;
-      return this;
-    }
-
-    public Builder withDateTimeProvider(DateTimeProvider dateTimeProvider) {
-      this.dateTimeProvider = dateTimeProvider;
-      return this;
-    }
-
-    public Builder withTrimBlocks(boolean trimBlocks) {
-      this.trimBlocks = trimBlocks;
-      return this;
-    }
-
-    public Builder withLstripBlocks(boolean lstripBlocks) {
-      this.lstripBlocks = lstripBlocks;
-      return this;
-    }
-
-    public Builder withEnableRecursiveMacroCalls(boolean enableRecursiveMacroCalls) {
-      this.enableRecursiveMacroCalls = enableRecursiveMacroCalls;
-      return this;
-    }
-
-    public Builder withMaxMacroRecursionDepth(int maxMacroRecursionDepth) {
-      this.maxMacroRecursionDepth = maxMacroRecursionDepth;
-      return this;
-    }
+  class Builder extends ImmutableJinjavaConfig.Builder {
 
     public Builder withReadOnlyResolver(boolean readOnlyResolver) {
-      this.elResolver =
+      return withElResolver(
         readOnlyResolver
           ? JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY
-          : JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_WRITE;
-      return this;
-    }
-
-    public Builder withElResolver(ELResolver elResolver) {
-      this.elResolver = elResolver;
-      return this;
-    }
-
-    public Builder withFailOnUnknownTokens(boolean failOnUnknownTokens) {
-      this.failOnUnknownTokens = failOnUnknownTokens;
-      return this;
-    }
-
-    public Builder withMaxOutputSize(long maxOutputSize) {
-      this.maxOutputSize = maxOutputSize;
-      return this;
-    }
-
-    public Builder withNestedInterpretationEnabled(boolean nestedInterpretationEnabled) {
-      this.nestedInterpretationEnabled = nestedInterpretationEnabled;
-      return this;
-    }
-
-    public Builder withValidationMode(boolean validationMode) {
-      this.validationMode = validationMode;
-      return this;
-    }
-
-    public Builder withMaxStringLength(long maxStringLength) {
-      this.maxStringLength = maxStringLength;
-      return this;
-    }
-
-    public Builder withMaxListSize(int maxListSize) {
-      this.maxListSize = maxListSize;
-      return this;
-    }
-
-    public Builder withMaxMapSize(int maxMapSize) {
-      this.maxMapSize = maxMapSize;
-      return this;
-    }
-
-    public Builder withRangeLimit(int rangeLimit) {
-      this.rangeLimit = rangeLimit;
-      return this;
-    }
-
-    public Builder withMaxNumDeferredTokens(int maxNumDeferredTokens) {
-      this.maxNumDeferredTokens = maxNumDeferredTokens;
-      return this;
-    }
-
-    public Builder withInterperterFactory(InterpreterFactory interperterFactory) {
-      this.interpreterFactory = interperterFactory;
-      return this;
-    }
-
-    public Builder withTokenScannerSymbols(TokenScannerSymbols tokenScannerSymbols) {
-      this.tokenScannerSymbols = tokenScannerSymbols;
-      return this;
-    }
-
-    /**
-     * @deprecated  Replaced by {@link LegacyOverrides.Builder#withIterateOverMapKeys(boolean)}}
-     */
-    @Deprecated
-    public Builder withIterateOverMapKeys(boolean iterateOverMapKeys) {
-      return withLegacyOverrides(
-        LegacyOverrides.Builder
-          .from(legacyOverrides)
-          .withIterateOverMapKeys(iterateOverMapKeys)
-          .build()
+          : JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_WRITE
       );
     }
+  }
 
-    public Builder withExecutionMode(ExecutionMode executionMode) {
-      this.executionMode = executionMode;
-      return this;
-    }
+  static Builder builder() {
+    return new Builder();
+  }
 
-    public Builder withLegacyOverrides(LegacyOverrides legacyOverrides) {
-      this.legacyOverrides = legacyOverrides;
-      return this;
-    }
-
-    public Builder withEnablePreciseDivideFilter(boolean enablePreciseDivideFilter) {
-      this.enablePreciseDivideFilter = enablePreciseDivideFilter;
-      return this;
-    }
-
-    public Builder withEnableFilterChainOptimization(
-      boolean enableFilterChainOptimization
-    ) {
-      this.enableFilterChainOptimization = enableFilterChainOptimization;
-      return this;
-    }
-
-    public Builder withObjectMapper(ObjectMapper objectMapper) {
-      this.objectMapper = objectMapper;
-      return this;
-    }
-
-    public Builder withObjectUnwrapper(ObjectUnwrapper objectUnwrapper) {
-      this.objectUnwrapper = objectUnwrapper;
-      return this;
-    }
-
-    @Deprecated
-    /**
-     * @deprecated use {@link #withProcessors(JinjavaProcessors)}
-     */
-    public Builder withNodePreProcessor(
-      BiConsumer<Node, JinjavaInterpreter> nodePreProcessor
-    ) {
-      this.processors =
-        JinjavaProcessors
-          .newBuilder(processors)
-          .withNodePreProcessor(nodePreProcessor)
-          .build();
-      return this;
-    }
-
-    public Builder withProcessors(JinjavaProcessors jinjavaProcessors) {
-      this.processors = jinjavaProcessors;
-      return this;
-    }
-
-    public Builder withFeatureConfig(FeatureConfig featureConfig) {
-      this.featureConfig = featureConfig;
-      return this;
-    }
-
-    public JinjavaConfig build() {
-      return new JinjavaConfig(this);
-    }
+  static Builder newBuilder() {
+    return builder();
   }
 }

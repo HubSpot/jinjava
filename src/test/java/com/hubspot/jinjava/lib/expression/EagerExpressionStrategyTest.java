@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.expression;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -14,7 +15,6 @@ import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.tree.ExpressionNodeTest;
 import java.util.ArrayList;
-import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -193,7 +193,7 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
   public void itDoesNotDoNestedInterpretationWithSyntaxErrors() {
     try (
       InterpreterScopeClosable c = interpreter.enterScope(
-        ImmutableMap.of(Library.TAG, Collections.singleton("print"))
+        ImmutableMap.of(Library.TAG, ImmutableSet.of("print"))
       )
     ) {
       interpreter.getContext().put("foo", "{% print 'bar' %}");

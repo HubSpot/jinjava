@@ -20,6 +20,11 @@ public class DateTimeFeatureActivationStrategy implements FeatureActivationStrat
     return ZonedDateTime.now().isAfter(activateAt);
   }
 
+  @Override
+  public boolean isActive() {
+    return false; // Not usable without context
+  }
+
   public ZonedDateTime getActivateAt() {
     return activateAt;
   }

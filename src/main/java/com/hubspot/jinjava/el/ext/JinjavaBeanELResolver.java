@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 import javax.el.ELContext;
 import javax.el.MethodNotFoundException;
+import org.immutables.value.Value;
 
 /**
  * {@link BeanELResolver} supporting snake case property names.
@@ -59,17 +60,33 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     .add("set")
     .add("merge")
     .build();
+  private final JinjavaBeanELResolverConfig jinjavaBeanELResolverConfig;
+
+  @Value.Immutable(singleton = true)
+  public interface JinjavaBeanELResolverConfig {
+    ImmutableSet<Method> allowListedMethods();
+
+    @Value.Default
+    default boolean readOnly() {
+      return false;
+    }
+
+    static JinjavaBeanELResolverConfig.Builder builder() {
+      return new Builder();
+    }
+
+    class Builder extends ImmutableJinjavaBeanELResolverConfig.Builder {}
+  }
+
+  public JinjavaBeanELResolver() {
+    this(JinjavaBeanELResolverConfig.builder().build());
+  }
 
   /**
    * Creates a new read/write {@link JinjavaBeanELResolver}.
    */
-  public JinjavaBeanELResolver() {}
-
-  /**
-   * Creates a new {@link JinjavaBeanELResolver} whose read-only status is determined by the given parameter.
-   */
-  public JinjavaBeanELResolver(boolean readOnly) {
-    super(readOnly);
+  public JinjavaBeanELResolver(JinjavaBeanELResolverConfig jinjavaBeanELResolverConfig) {
+    this.jinjavaBeanELResolverConfig = jinjavaBeanELResolverConfig;
   }
 
   @Override
@@ -155,37 +172,46 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     Object[] params,
     int paramCount
   ) {
+    Method method;
     if (types != null) {
-      return super.findMethod(base, name, types, params, paramCount);
-    }
-    Method varArgsMethod = null;
+      method = super.findMethod(base, name, types, params, paramCount);
+    } else {
+      Method varArgsMethod = null;
 
-    Method[] methods = base.getClass().getMethods();
-    List<Method> potentialMethods = new LinkedList<>();
+      Method[] methods = base.getClass().getMethods();
+      List<Method> potentialMethods = new LinkedList<>();
 
-    for (Method method : methods) {
-      if (method.getName().equals(name)) {
-        int formalParamCount = method.getParameterTypes().length;
-        if (method.isVarArgs() && paramCount >= formalParamCount - 1) {
-          varArgsMethod = method;
-        } else if (paramCount == formalParamCount) {
-          potentialMethods.add(findAccessibleMethod(method));
+      for (Method m : methods) {
+        if (m.getName().equals(name)) {
+          int formalParamCount = m.getParameterTypes().length;
+          if (m.isVarArgs() && paramCount >= formalParamCount - 1) {
+            varArgsMethod = m;
+          } else if (paramCount == formalParamCount) {
+            potentialMethods.add(findAccessibleMethod(m));
+          }
         }
       }
-    }
-    final Method finalVarArgsMethod = varArgsMethod;
-    return potentialMethods
-      .stream()
-      .filter(method -> checkAssignableParameterTypes(params, method))
-      .min(JinjavaBeanELResolver::pickMoreSpecificMethod)
-      .orElseGet(() ->
+      final Method finalVarArgsMethod = varArgsMethod;
+      method =
         potentialMethods
           .stream()
-          .findAny()
+          .filter(m -> checkAssignableParameterTypes(params, m))
+          .min(JinjavaBeanELResolver::pickMoreSpecificMethod)
           .orElseGet(() ->
-            finalVarArgsMethod == null ? null : findAccessibleMethod(finalVarArgsMethod)
-          )
-      );
+            potentialMethods
+              .stream()
+              .findAny()
+              .orElseGet(() ->
+                finalVarArgsMethod == null
+                  ? null
+                  : findAccessibleMethod(finalVarArgsMethod)
+              )
+          );
+    }
+    if (true || jinjavaBeanELResolverConfig.allowListedMethods().contains(method)) {
+      return method;
+    }
+    return null;
   }
 
   private static boolean checkAssignableParameterTypes(Object[] params, Method method) {

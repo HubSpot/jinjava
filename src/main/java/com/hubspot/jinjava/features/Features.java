@@ -14,6 +14,10 @@ public class Features {
     return getActivationStrategy(featureName).isActive(context);
   }
 
+  public boolean isActive(String featureName) {
+    return getActivationStrategy(featureName).isActive();
+  }
+
   public FeatureActivationStrategy getActivationStrategy(String featureName) {
     return featureConfig.getFeature(featureName);
   }

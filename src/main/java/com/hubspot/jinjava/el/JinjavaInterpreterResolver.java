@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.el.ext.ImmutableJinjavaBeanELResolverConfig;
 import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
 import com.hubspot.jinjava.el.ext.JinjavaListELResolver;
 import com.hubspot.jinjava.el.ext.NamedParameter;
@@ -56,7 +57,11 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       add(new JinjavaListELResolver(true));
       add(new TypeConvertingMapELResolver(true));
       add(new ResourceBundleELResolver());
-      add(new JinjavaBeanELResolver(true));
+      add(new JinjavaBeanELResolver(
+        new JinjavaBeanELResolver.JinjavaBeanELResolverConfig.Builder()
+          .readOnly(true)
+          .build()
+      ));
     }
   };
 
@@ -66,7 +71,11 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       add(new JinjavaListELResolver(false));
       add(new TypeConvertingMapELResolver(false));
       add(new ResourceBundleELResolver());
-      add(new JinjavaBeanELResolver(false));
+      add(new JinjavaBeanELResolver(
+        new JinjavaBeanELResolver.JinjavaBeanELResolverConfig.Builder()
+          .readOnly(false)
+          .build()
+      ));
     }
   };
 

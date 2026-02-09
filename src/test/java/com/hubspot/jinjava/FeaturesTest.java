@@ -47,7 +47,7 @@ public class FeaturesTest {
               ZonedDateTime.of(LocalDateTime.MAX, ZoneId.systemDefault())
             )
           )
-          .add(DELEGATING, d -> delegateActive)
+          .add(DELEGATING, () -> delegateActive)
           .build()
       );
   }

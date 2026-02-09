@@ -2,6 +2,7 @@ package com.hubspot.jinjava.util;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -465,7 +466,7 @@ public class EagerReconstructionUtils {
     if (deferredValuesToSet.isEmpty()) {
       return "";
     }
-    Map<Library, Set<String>> disabled = interpreter.getConfig().getDisabled();
+    ImmutableMap<Library, ImmutableSet<String>> disabled = interpreter.getConfig().getDisabled();
     if (
       disabled != null &&
       disabled.containsKey(Library.TAG) &&
@@ -537,7 +538,7 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter,
     boolean registerDeferredToken
   ) {
-    Map<Library, Set<String>> disabled = interpreter.getConfig().getDisabled();
+    ImmutableMap<Library, ImmutableSet<String>> disabled = interpreter.getConfig().getDisabled();
     if (
       disabled != null &&
       disabled.containsKey(Library.TAG) &&
@@ -592,7 +593,7 @@ public class EagerReconstructionUtils {
     String updateString,
     JinjavaInterpreter interpreter
   ) {
-    Map<Library, Set<String>> disabled = interpreter.getConfig().getDisabled();
+    ImmutableMap<Library, ImmutableSet<String>> disabled = interpreter.getConfig().getDisabled();
     if (
       disabled != null &&
       disabled.containsKey(Library.TAG) &&
@@ -666,7 +667,7 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter,
     boolean registerDeferredToken
   ) {
-    Map<Library, Set<String>> disabled = interpreter.getConfig().getDisabled();
+    ImmutableMap<Library, ImmutableSet<String>> disabled = interpreter.getConfig().getDisabled();
     if (
       disabled != null &&
       disabled.containsKey(Library.TAG) &&

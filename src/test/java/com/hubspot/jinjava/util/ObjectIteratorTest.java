@@ -99,10 +99,7 @@ public class ObjectIteratorTest {
 
   @Test
   public void testItIteratesOverKeys() throws Exception {
-    JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withIterateOverMapKeys(true)
-      .build();
+    JinjavaConfig config = JinjavaConfig.newBuilder().build();
     JinjavaInterpreter.pushCurrent(
       new JinjavaInterpreter(new Jinjava(), new Context(), config)
     );

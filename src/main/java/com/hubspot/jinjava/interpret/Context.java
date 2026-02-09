@@ -18,6 +18,7 @@ package com.hubspot.jinjava.interpret;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
@@ -63,7 +64,7 @@ public class Context extends ScopeMap<String, Object> {
   public static final String IMPORT_RESOURCE_ALIAS_KEY = "import_resource_alias";
 
   private SetMultimap<String, String> dependencies = HashMultimap.create();
-  private Map<Library, Set<String>> disabled;
+  private ImmutableMap<Library, ImmutableSet<String>> disabled;
 
   public boolean isValidationMode() {
     return contextConfiguration.isValidationMode();
@@ -129,7 +130,7 @@ public class Context extends ScopeMap<String, Object> {
   public Context(
     Context parent,
     Map<String, ?> bindings,
-    Map<Library, Set<String>> disabled
+    ImmutableMap<Library, ImmutableSet<String>> disabled
   ) {
     this(parent, bindings, disabled, true);
   }
@@ -137,7 +138,7 @@ public class Context extends ScopeMap<String, Object> {
   public Context(
     Context parent,
     Map<String, ?> bindings,
-    Map<Library, Set<String>> disabled,
+    ImmutableMap<Library, ImmutableSet<String>> disabled,
     boolean makeNewCallStacks
   ) {
     super(parent);
@@ -193,7 +194,7 @@ public class Context extends ScopeMap<String, Object> {
         : parent == null ? null : parent.getCurrentPathStack();
 
     if (disabled == null) {
-      disabled = new HashMap<>();
+      disabled = ImmutableMap.of();
     }
 
     this.expTestLibrary =
@@ -586,7 +587,7 @@ public class Context extends ScopeMap<String, Object> {
   public boolean isFunctionDisabled(String name) {
     return (
       disabled != null &&
-      disabled.getOrDefault(Library.FUNCTION, Collections.emptySet()).contains(name)
+      disabled.getOrDefault(Library.FUNCTION, ImmutableSet.of()).contains(name)
     );
   }
 
@@ -608,9 +609,9 @@ public class Context extends ScopeMap<String, Object> {
       fns.addAll(parent.getAllFunctions());
     }
 
-    final Set<String> disabledFunctions = disabled == null
-      ? new HashSet<>()
-      : disabled.getOrDefault(Library.FUNCTION, new HashSet<>());
+    final ImmutableSet<String> disabledFunctions = disabled == null
+      ? ImmutableSet.of()
+      : disabled.getOrDefault(Library.FUNCTION, ImmutableSet.of());
     return fns
       .stream()
       .filter(f -> !disabledFunctions.contains(f.getName()))

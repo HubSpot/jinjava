@@ -8,12 +8,22 @@ package com.hubspot.jinjava;
 public class LegacyOverrides {
 
   public static final LegacyOverrides NONE = new LegacyOverrides.Builder().build();
+  public static final LegacyOverrides THREE_POINT_0 = new LegacyOverrides.Builder()
+    .withEvaluateMapKeys(true)
+    .withIterateOverMapKeys(true)
+    .withUsePyishObjectMapper(true)
+    .withUseSnakeCasePropertyNaming(true)
+    .withUseNaturalOperatorPrecedence(true)
+    .withParseWhitespaceControlStrictly(true)
+    .withAllowAdjacentTextNodes(true)
+    .withUseTrimmingForNotesAndExpressions(true)
+    .withKeepNullableLoopValues(true)
+    .build();
   public static final LegacyOverrides ALL = new LegacyOverrides.Builder()
     .withEvaluateMapKeys(true)
     .withIterateOverMapKeys(true)
     .withUsePyishObjectMapper(true)
     .withUseSnakeCasePropertyNaming(true)
-    .withWhitespaceRequiredWithinTokens(true)
     .withUseNaturalOperatorPrecedence(true)
     .withParseWhitespaceControlStrictly(true)
     .withAllowAdjacentTextNodes(true)
