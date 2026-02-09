@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.el.ext;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -26,6 +27,11 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     .add("class")
     .build();
 
+  // These aren't required, but they prevent someone from misconfiguring Jinjava to allow sandbox bypass unintentionally
+  private static final String JAVA_LANG_REFLECT_PACKAGE =
+    Method.class.getPackage().getName(); // java.lang.reflect
+  private static final String JACKSON_DATABIND_PACKAGE =
+    ObjectMapper.class.getPackage().getName(); // com.fasterxml.jackson.databind
   private static final Set<String> DEFAULT_RESTRICTED_METHODS = ImmutableSet
     .<String>builder()
     .add("class")
@@ -64,11 +70,44 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
   @Value.Immutable(singleton = true)
   public interface JinjavaBeanELResolverConfig {
-    ImmutableSet<Method> allowListedMethods();
+    ImmutableSet<Method> allowMethods();
+    ImmutableSet<Class<?>> allowDeclaredMethodsFromClasses();
 
     @Value.Default
     default boolean readOnly() {
       return false;
+    }
+
+    @Value.Check
+    default void banClassesAndMethods() {
+      if (
+        allowMethods()
+          .stream()
+          .anyMatch(method ->
+            Class.class.equals(method.getDeclaringClass()) ||
+            Object.class.equals(method.getDeclaringClass()) ||
+            method.getDeclaringClass().getName().startsWith(JAVA_LANG_REFLECT_PACKAGE) ||
+            method.getDeclaringClass().getName().startsWith(JACKSON_DATABIND_PACKAGE)
+          )
+      ) {
+        throw new IllegalStateException(
+          "Methods from banned classes (Object.class, Class.class) are not allowed"
+        );
+      }
+      if (
+        allowDeclaredMethodsFromClasses()
+          .stream()
+          .anyMatch(clazz ->
+            Class.class.equals(clazz) ||
+            Object.class.equals(clazz) ||
+            clazz.getName().startsWith(JAVA_LANG_REFLECT_PACKAGE) ||
+            clazz.getName().startsWith(JACKSON_DATABIND_PACKAGE)
+          )
+      ) {
+        throw new IllegalStateException(
+          "Banned classes (Object.class, Class.class) are not allowed"
+        );
+      }
     }
 
     static JinjavaBeanELResolverConfig.Builder builder() {
@@ -182,7 +221,10 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       List<Method> potentialMethods = new LinkedList<>();
 
       for (Method m : methods) {
-        if (m.getName().equals(name)) {
+        if (
+          m.getName().equals(name) &&
+          (isDeclaringClassAllowed(m.getDeclaringClass()) || methodAllowed(m))
+        ) {
           int formalParamCount = m.getParameterTypes().length;
           if (m.isVarArgs() && paramCount >= formalParamCount - 1) {
             varArgsMethod = m;
@@ -208,10 +250,17 @@ public class JinjavaBeanELResolver extends BeanELResolver {
               )
           );
     }
-    if (true || jinjavaBeanELResolverConfig.allowListedMethods().contains(method)) {
-      return method;
-    }
-    return null;
+    return method;
+  }
+
+  private boolean methodAllowed(Method m) {
+    return jinjavaBeanELResolverConfig.allowMethods().contains(m);
+  }
+
+  private boolean isDeclaringClassAllowed(Class<?> declaringClass) {
+    return jinjavaBeanELResolverConfig
+      .allowDeclaredMethodsFromClasses()
+      .contains(declaringClass);
   }
 
   private static boolean checkAssignableParameterTypes(Object[] params, Method method) {
