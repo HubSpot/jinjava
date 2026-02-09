@@ -2,7 +2,9 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
@@ -136,7 +138,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
   public void itModifiesContextInChildContext() {
     context.put("foo", new ArrayList<>());
     assertThat(interpreter.render("{{ modify_context('foo', 'bar') }}{{ foo }}"))
-      .isEqualTo("[bar]");
+      .isEqualTo("['bar']");
   }
 
   @Test
@@ -145,7 +147,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     assertThat(
       interpreter.render("{{ modify_context('foo', 'bar') ~ deferred }}{{ foo }}")
     )
-      .isEqualTo("{{ null ~ deferred }}[bar]");
+      .isEqualTo("{{ null ~ deferred }}['bar']");
   }
 
   public static void addToContext(String key, Object value) {

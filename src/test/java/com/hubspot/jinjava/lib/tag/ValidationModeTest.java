@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.filter.Filter;
@@ -17,7 +18,6 @@ import com.hubspot.jinjava.tree.parse.TextToken;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,15 +81,12 @@ public class ValidationModeTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig.newBuilder().withValidationMode(true).build()
+        JinjavaConfig
+          .newBuilder()
+          .withLegacyOverrides(LegacyOverrides.NONE)
+          .withValidationMode(true)
+          .build()
       );
-
-    JinjavaInterpreter.pushCurrent(interpreter);
-  }
-
-  @After
-  public void tearDown() {
-    JinjavaInterpreter.popCurrent();
   }
 
   @Test
@@ -278,17 +275,19 @@ public class ValidationModeTest {
       interpreter.getContext()
     );
     interpreter.getContext().addGlobalMacro(macro);
-
     String template =
       "{{ hello() }}" + "{% if false %} " + "  {{ hello() }}" + "{% endif %}";
 
-    assertThat(interpreter.getErrors()).isEmpty();
-    assertThat(interpreter.render(template).trim()).isEqualTo("hello");
-    assertThat(macro.getInvocationCount()).isEqualTo(1);
-
-    assertThat(validatingInterpreter.render(template).trim()).isEqualTo("hello");
-    assertThat(macro.getInvocationCount()).isEqualTo(3);
-    assertThat(validatingInterpreter.getErrors()).isEmpty();
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      assertThat(interpreter.getErrors()).isEmpty();
+      assertThat(interpreter.render(template).trim()).isEqualTo("hello");
+      assertThat(macro.getInvocationCount()).isEqualTo(1);
+    }
+    try (var a = JinjavaInterpreter.closeablePushCurrent(validatingInterpreter).get()) {
+      assertThat(validatingInterpreter.render(template).trim()).isEqualTo("hello");
+      assertThat(macro.getInvocationCount()).isEqualTo(3);
+      assertThat(validatingInterpreter.getErrors()).isEmpty();
+    }
   }
 
   @Test
@@ -333,13 +332,13 @@ public class ValidationModeTest {
     assertThat(result).isEqualTo("10");
     assertThat(validationFilter.getExecutionCount()).isEqualTo(1);
 
-    JinjavaInterpreter.pushCurrent(validatingInterpreter);
-    result = validatingInterpreter.render(template).trim();
+    try (var a = JinjavaInterpreter.closeablePushCurrent(validatingInterpreter).get()) {
+      result = validatingInterpreter.render(template).trim();
 
-    assertThat(validatingInterpreter.getErrors().size()).isEqualTo(1);
-    assertThat(validatingInterpreter.getErrors().get(0).getMessage()).contains("hey(");
-    assertThat(result).isEqualTo("10");
-    assertThat(validationFilter.getExecutionCount()).isEqualTo(2);
-    JinjavaInterpreter.popCurrent();
+      assertThat(validatingInterpreter.getErrors().size()).isEqualTo(1);
+      assertThat(validatingInterpreter.getErrors().get(0).getMessage()).contains("hey(");
+      assertThat(result).isEqualTo("10");
+      assertThat(validationFilter.getExecutionCount()).isEqualTo(2);
+    }
   }
 }

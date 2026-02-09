@@ -8,18 +8,51 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.features.FeatureStrategies;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import java.nio.charset.StandardCharsets;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ExpressionNodeTest extends BaseInterpretingTest {
 
+  private JinjavaInterpreter nestedInterpreter;
+
+  @Before
+  public void setupNoNestedInterpreter() {
+    final JinjavaConfig config = JinjavaConfig
+      .newBuilder()
+      .withNestedInterpretationEnabled(true)
+      .build();
+    nestedInterpreter = new Jinjava(config).newInterpreter();
+    context = nestedInterpreter.getContext();
+  }
+
   @Test
   public void itRendersResultAsTemplateWhenContainingVarBlocks() throws Exception {
+    context.put("myvar", "hello {{ place }}");
+    context.put("place", "world");
+
+    ExpressionNode node = fixture("simplevar");
+    assertThat(node.render(nestedInterpreter).toString()).isEqualTo("hello world");
+  }
+
+  @Test
+  public void itRendersResultWithoutNestedExpressionInterpretation() throws Exception {
+    Context contextNoNestedInterpretation = nestedInterpreter.getContext();
+    contextNoNestedInterpretation.put("myvar", "hello {{ place }}");
+    contextNoNestedInterpretation.put("place", "world");
+
+    ExpressionNode node = fixture("simplevar");
+    assertThat(node.render(nestedInterpreter).toString()).isEqualTo("hello {{ place }}");
+  }
+
+  @Test
+  public void itRendersWithoutNestedExpressionInterpretationByDefault() throws Exception {
     context.put("myvar", "hello {{ place }}");
     context.put("place", "world");
 
@@ -28,36 +61,11 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
   }
 
   @Test
-  public void itRendersResultWithoutNestedExpressionInterpretation() throws Exception {
+  public void itRendersNestedTags() throws Exception {
     final JinjavaConfig config = JinjavaConfig
       .newBuilder()
-      .withNestedInterpretationEnabled(false)
+      .withNestedInterpretationEnabled(true)
       .build();
-    JinjavaInterpreter noNestedInterpreter = new Jinjava(config).newInterpreter();
-    Context contextNoNestedInterpretation = noNestedInterpreter.getContext();
-    contextNoNestedInterpretation.put("myvar", "hello {{ place }}");
-    contextNoNestedInterpretation.put("place", "world");
-
-    ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(noNestedInterpreter).toString())
-      .isEqualTo("hello {{ place }}");
-  }
-
-  @Test
-  public void itRendersWithNestedExpressionInterpretationByDefault() throws Exception {
-    final JinjavaConfig config = JinjavaConfig.newBuilder().build();
-    JinjavaInterpreter noNestedInterpreter = new Jinjava(config).newInterpreter();
-    Context contextNoNestedInterpretation = noNestedInterpreter.getContext();
-    contextNoNestedInterpretation.put("myvar", "hello {{ place }}");
-    contextNoNestedInterpretation.put("place", "world");
-
-    ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(noNestedInterpreter).toString()).isEqualTo("hello world");
-  }
-
-  @Test
-  public void itRendersNestedTags() throws Exception {
-    final JinjavaConfig config = JinjavaConfig.newBuilder().build();
     JinjavaInterpreter jinjava = new Jinjava(config).newInterpreter();
     Context context = jinjava.getContext();
     context.put("myvar", "hello {% if (true) %}nasty{% endif %}");
@@ -81,7 +89,7 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
     context.put("place", "{% if true %}Hello{% endif %}");
 
     ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(interpreter).toString()).isEqualTo("Hello");
+    assertThat(node.render(nestedInterpreter).toString()).isEqualTo("Hello");
   }
 
   @Test
@@ -90,7 +98,7 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
     context.put("place", "{% if true %}{{ myvar }}{% endif %}");
 
     ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(interpreter).toString())
+    assertThat(node.render(nestedInterpreter).toString())
       .isEqualTo("{% if true %}{{ myvar }}{% endif %}");
   }
 
@@ -100,7 +108,8 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
 
     ExpressionNode node = fixture("simplevar");
     // It renders once, and then stop further rendering after detecting recursion.
-    assertThat(node.render(interpreter).toString()).isEqualTo("hello hello {{myvar}}");
+    assertThat(node.render(nestedInterpreter).toString())
+      .isEqualTo("hello hello {{myvar}}");
   }
 
   @Test
@@ -110,7 +119,8 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
     context.put("location", "this is a place.");
 
     ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(interpreter).toString()).isEqualTo("hello this is a place.");
+    assertThat(node.render(nestedInterpreter).toString())
+      .isEqualTo("hello this is a place.");
   }
 
   @Test
@@ -120,7 +130,7 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
     context.put("location", "this is {{ place }}");
 
     ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(interpreter).toString())
+    assertThat(node.render(nestedInterpreter).toString())
       .isEqualTo("hello there, this is {{ place }}");
   }
 
@@ -243,7 +253,10 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
       .withFeatureConfig(
         FeatureConfig
           .newBuilder()
-          .add(JinjavaInterpreter.IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS, c -> true)
+          .add(
+            BuiltInFeatures.IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS,
+            FeatureStrategies.ACTIVE
+          )
           .build()
       )
       .build();

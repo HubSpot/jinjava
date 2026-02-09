@@ -570,10 +570,11 @@ public class EagerImportTagTest extends ImportTagTest {
         "a" +
         "{% endset %}" +
         "{{ __macro_adjust_108896029_temp_variable_0__ }}\n" +
-        "{% for __ignored__ in [0] %}" +
+        "{% set __macro_adjust_108896029_temp_variable_1__ %}" +
         "{% do var.append('b' ~ deferred) %}" +
         "b" +
-        "{% endfor %}\n" +
+        "{% endset %}" +
+        "{{ __macro_adjust_108896029_temp_variable_1__ }}\n" +
         "c{{ var }}"
       );
     context.put("deferred", "resolved");

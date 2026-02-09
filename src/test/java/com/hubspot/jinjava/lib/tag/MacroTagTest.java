@@ -282,38 +282,41 @@ public class MacroTagTest extends BaseInterpretingTest {
           .build()
       )
         .newInterpreter();
-    JinjavaInterpreter.pushCurrent(interpreter);
-
-    try {
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
       String template = fixtureText("ending-recursion");
       String out = interpreter.render(template);
       assertThat(interpreter.getErrorsCopy().get(0).getMessage())
         .contains("Max recursion limit of 2 reached for macro 'hello'");
       assertThat(out).contains("Hello Hello");
-    } finally {
-      JinjavaInterpreter.popCurrent();
     }
   }
 
   @Test
   public void itPreventsRecursionForMacroWithVar() {
-    String jinja =
-      "{%- macro func(var) %}" +
-      "{%- for f in var %}" +
-      "{{ f.val }}" +
-      "{%- endfor %}" +
-      "{%- endmacro %}" +
-      "{%- set var = {" +
-      "    'f' : {" +
-      "        'val': '{{ self }}'," +
-      "    }" +
-      "} %}" +
-      "{% set self='{{var}}' %}" +
-      "{{ func(var) }}" +
-      "";
-    Node node = new TreeParser(interpreter, jinja).buildTree();
-    assertThat(interpreter.render(node))
-      .isEqualTo("{'f': {'val': '{'f': {'val': '{{ self }}'} }'} }");
+    interpreter =
+      new Jinjava(
+        JinjavaConfig.newBuilder().withNestedInterpretationEnabled(true).build()
+      )
+        .newInterpreter();
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      String jinja =
+        "{%- macro func(var) %}" +
+        "{%- for f in var %}" +
+        "{{ f.val }}" +
+        "{%- endfor %}" +
+        "{%- endmacro %}" +
+        "{%- set var = {" +
+        "    'f' : {" +
+        "        'val': '{{ self }}'," +
+        "    }" +
+        "} %}" +
+        "{% set self='{{var}}' %}" +
+        "{{ func(var) }}" +
+        "";
+      Node node = new TreeParser(interpreter, jinja).buildTree();
+      assertThat(interpreter.render(node))
+        .isEqualTo("{'f': {'val': '{'f': {'val': '{{ self }}'} }'} }");
+    }
   }
 
   @Test
