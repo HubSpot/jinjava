@@ -53,7 +53,7 @@ import javax.el.ELResolver;
 import org.immutables.value.Value;
 
 @Value.Immutable(singleton = true)
-@JinjavaImmutableStyle
+@JinjavaImmutableStyle.WithStyle
 public interface JinjavaConfig {
   @Value.Default
   default Charset getCharset() {
@@ -164,7 +164,9 @@ public interface JinjavaConfig {
 
   @Value.Default
   default MethodValidator getMethodValidator() {
-    return MethodValidator.create(MethodValidatorConfig.of());
+    return MethodValidator.create(
+      MethodValidatorConfig.builder().addDefaultAllowlistGroups().build()
+    );
   }
 
   @Value.Default

@@ -6,10 +6,10 @@ import java.lang.reflect.Method;
 public final class MethodValidator {
 
   private final ImmutableSet<Method> allowedMethods;
-  private final ImmutableSet<Class<?>> allowedDeclaredMethodsFromClasses;
-  private final ImmutableSet<String> allowedDeclaredMethodsFromPackages;
-  private final ImmutableSet<Class<?>> allowedResultClasses;
-  private final ImmutableSet<String> allowedResultPackages;
+  private final ImmutableSet<String> allowedDeclaredMethodsFromCanonicalClassPrefixes;
+  private final ImmutableSet<String> allowedDeclaredMethodsFromCanonicalClassNames;
+  private final ImmutableSet<String> allowedResultCanonicalClassPrefixes;
+  private final ImmutableSet<String> allowedResultCanonicalClassNames;
 
   public static MethodValidator create(MethodValidatorConfig methodValidatorConfig) {
     return new MethodValidator(methodValidatorConfig);
@@ -17,34 +17,54 @@ public final class MethodValidator {
 
   private MethodValidator(MethodValidatorConfig methodValidatorConfig) {
     this.allowedMethods = methodValidatorConfig.allowedMethods();
-    this.allowedDeclaredMethodsFromClasses =
-      methodValidatorConfig.allowedDeclaredMethodsFromClasses();
-    this.allowedDeclaredMethodsFromPackages =
-      methodValidatorConfig.allowedDeclaredMethodsFromPackages();
-    this.allowedResultClasses = methodValidatorConfig.allowedResultClasses();
-    this.allowedResultPackages = methodValidatorConfig.allowedResultPackages();
+    this.allowedDeclaredMethodsFromCanonicalClassPrefixes =
+      methodValidatorConfig.allowedDeclaredMethodsFromCanonicalClassPrefixes();
+    this.allowedDeclaredMethodsFromCanonicalClassNames =
+      methodValidatorConfig.allowedDeclaredMethodsFromCanonicalClassNames();
+    this.allowedResultCanonicalClassPrefixes =
+      ImmutableSet
+        .<String>builder()
+        .addAll(methodValidatorConfig.allowedResultCanonicalClassPrefixes())
+        .addAll(methodValidatorConfig.allowedDeclaredMethodsFromCanonicalClassPrefixes())
+        .build();
+    this.allowedResultCanonicalClassNames =
+      ImmutableSet
+        .<String>builder()
+        .addAll(methodValidatorConfig.allowedResultCanonicalClassNames())
+        .addAll(methodValidatorConfig.allowedDeclaredMethodsFromCanonicalClassNames())
+        .build();
   }
 
   public Method validateMethod(Method m) {
+    if (m == null) {
+      return null;
+    }
+    String canonicalDeclaringClassName = m.getDeclaringClass().getCanonicalName();
     return (
-        m == null ||
         allowedMethods.contains(m) ||
-        allowedDeclaredMethodsFromClasses.contains(m.getDeclaringClass()) ||
-        allowedDeclaredMethodsFromPackages
+        allowedDeclaredMethodsFromCanonicalClassNames.contains(
+          canonicalDeclaringClassName
+        ) ||
+        allowedDeclaredMethodsFromCanonicalClassPrefixes
           .stream()
-          .anyMatch(p -> m.getDeclaringClass().getPackageName().startsWith(p))
+          .anyMatch(canonicalDeclaringClassName::startsWith)
       )
       ? m
       : null;
   }
 
   public Object validateResult(Object o) {
+    if (o == null) {
+      return null;
+    }
+    String canonicalClassName = o.getClass().getCanonicalName();
     return (
-      o == null ||
-      allowedResultClasses.contains(o.getClass()) ||
-      allowedResultPackages
-        .stream()
-        .anyMatch(p -> o.getClass().getPackageName().startsWith(p))
-    );
+        allowedResultCanonicalClassNames.contains(canonicalClassName) ||
+        allowedResultCanonicalClassPrefixes
+          .stream()
+          .anyMatch(canonicalClassName::startsWith)
+      )
+      ? o
+      : null;
   }
 }

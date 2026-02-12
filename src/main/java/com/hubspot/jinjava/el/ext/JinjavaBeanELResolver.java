@@ -45,6 +45,10 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     this(true, MethodValidator.create(MethodValidatorConfig.builder().build()));
   }
 
+  public JinjavaBeanELResolver(MethodValidator methodValidator) {
+    this(true, methodValidator);
+  }
+
   /**
    * Creates a new read/write {@link JinjavaBeanELResolver}.
    */

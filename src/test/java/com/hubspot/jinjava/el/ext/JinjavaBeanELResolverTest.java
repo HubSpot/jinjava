@@ -25,7 +25,18 @@ public class JinjavaBeanELResolverTest {
 
   @Before
   public void setUp() throws Exception {
-    jinjavaBeanELResolver = new JinjavaBeanELResolver();
+    jinjavaBeanELResolver =
+      new JinjavaBeanELResolver(
+        MethodValidator.create(
+          MethodValidatorConfig
+            .builder()
+            .addDefaultAllowlistGroups()
+            .addAllowedDeclaredMethodsFromCanonicalClassPrefixes(
+              JinjavaBeanELResolverTest.class.getCanonicalName()
+            )
+            .build()
+        )
+      );
     elContext = new JinjavaELContext();
     when(interpreter.getConfig()).thenReturn(config);
   }
@@ -56,25 +67,8 @@ public class JinjavaBeanELResolverTest {
 
   @Test
   public void itInvokesBestMethodWithSingleParam() {
-    class Temp {
-
-      public String getResult(int a) {
-        return "int";
-      }
-
-      public String getResult(String a) {
-        return "String";
-      }
-
-      public String getResult(Object a) {
-        return "Object";
-      }
-
-      public String getResult(CharSequence a) {
-        return "CharSequence";
-      }
-    }
-    Temp var = new Temp();
+    TempItInvokesBestMethodWithSingleParam var =
+      new TempItInvokesBestMethodWithSingleParam();
     assertThat(
       jinjavaBeanELResolver.invoke(elContext, var, "getResult", null, new Object[] { 1 })
     )
@@ -103,21 +97,7 @@ public class JinjavaBeanELResolverTest {
 
   @Test
   public void itPrefersPrimitives() {
-    class Temp {
-
-      public String getResult(int a, Integer b) {
-        return "int Integer";
-      }
-
-      public String getResult(int a, Object b) {
-        return "int Object";
-      }
-
-      public String getResult(Number a, int b) {
-        return "Number int";
-      }
-    }
-    Temp var = new Temp();
+    TempItPrefersPrimitives var = new TempItPrefersPrimitives();
     assertThat(
       jinjavaBeanELResolver.invoke(
         elContext,
@@ -183,6 +163,40 @@ public class JinjavaBeanELResolverTest {
     ) {
       assertThat(jinjavaBeanELResolver.getValue(elContext, interpreter, "config"))
         .isNull();
+    }
+  }
+
+  private static class TempItInvokesBestMethodWithSingleParam {
+
+    public String getResult(int a) {
+      return "int";
+    }
+
+    public String getResult(String a) {
+      return "String";
+    }
+
+    public String getResult(Object a) {
+      return "Object";
+    }
+
+    public String getResult(CharSequence a) {
+      return "CharSequence";
+    }
+  }
+
+  private static class TempItPrefersPrimitives {
+
+    public String getResult(int a, Integer b) {
+      return "int Integer";
+    }
+
+    public String getResult(int a, Object b) {
+      return "int Object";
+    }
+
+    public String getResult(Number a, int b) {
+      return "Number int";
     }
   }
 }
