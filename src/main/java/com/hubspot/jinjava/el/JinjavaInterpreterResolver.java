@@ -8,6 +8,8 @@ import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
 import com.hubspot.jinjava.el.ext.JinjavaListELResolver;
+import com.hubspot.jinjava.el.ext.MethodValidator;
+import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
 import com.hubspot.jinjava.el.ext.NamedParameter;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
@@ -50,39 +52,30 @@ import org.apache.commons.lang3.StringUtils;
 
 public class JinjavaInterpreterResolver extends SimpleResolver {
 
-  public static final ELResolver DEFAULT_RESOLVER_READ_ONLY = new CompositeELResolver() {
-    {
-      add(new ArrayELResolver(true));
-      add(new JinjavaListELResolver(true));
-      add(new TypeConvertingMapELResolver(true));
-      add(new ResourceBundleELResolver());
-      add(
-        new JinjavaBeanELResolver(
-          JinjavaBeanELResolver.JinjavaBeanELResolverConfig
-            .builder()
-            .withReadOnly(true)
-            .build()
-        )
-      );
-    }
-  };
+  public static ELResolver createDefaultResolver(
+    boolean readOnly,
+    MethodValidator methodValidator
+  ) {
+    return new CompositeELResolver() {
+      {
+        add(new ArrayELResolver(readOnly));
+        add(new JinjavaListELResolver(readOnly));
+        add(new TypeConvertingMapELResolver(readOnly));
+        add(new ResourceBundleELResolver());
+        add(new JinjavaBeanELResolver(readOnly, methodValidator));
+      }
+    };
+  }
 
-  public static final ELResolver DEFAULT_RESOLVER_READ_WRITE = new CompositeELResolver() {
-    {
-      add(new ArrayELResolver(false));
-      add(new JinjavaListELResolver(false));
-      add(new TypeConvertingMapELResolver(false));
-      add(new ResourceBundleELResolver());
-      add(
-        new JinjavaBeanELResolver(
-          JinjavaBeanELResolver.JinjavaBeanELResolverConfig
-            .builder()
-            .withReadOnly(false)
-            .build()
-        )
-      );
-    }
-  };
+  public static final ELResolver DEFAULT_RESOLVER_READ_ONLY = createDefaultResolver(
+    true,
+    MethodValidator.create(MethodValidatorConfig.of())
+  );
+
+  public static final ELResolver DEFAULT_RESOLVER_READ_WRITE = createDefaultResolver(
+    false,
+    MethodValidator.create(MethodValidatorConfig.of())
+  );
 
   private final JinjavaInterpreter interpreter;
   private final ObjectUnwrapper objectUnwrapper;

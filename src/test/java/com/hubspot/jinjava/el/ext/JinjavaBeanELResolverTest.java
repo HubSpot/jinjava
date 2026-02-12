@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.JinjavaELContext;
 import com.hubspot.jinjava.interpret.AutoCloseableSupplier;
@@ -154,7 +153,7 @@ public class JinjavaBeanELResolverTest {
   @Test
   public void itThrowsExceptionWhenMethodIsRestrictedFromConfig() {
     JinjavaInterpreter.pushCurrent(interpreter);
-    when(config.getRestrictedMethods()).thenReturn(ImmutableSet.of("foo"));
+    //    when(config.getRestrictedMethods()).thenReturn(ImmutableSet.of("foo"));
     assertThatThrownBy(() ->
         jinjavaBeanELResolver.invoke(elContext, "abcd", "foo", null, new Object[] { 1 })
       )
@@ -166,7 +165,7 @@ public class JinjavaBeanELResolverTest {
   @Test
   public void itThrowsExceptionWhenPropertyIsRestrictedFromConfig() {
     JinjavaInterpreter.pushCurrent(interpreter);
-    when(config.getRestrictedProperties()).thenReturn(ImmutableSet.of("property1"));
+    //    when(config.getRestrictedProperties()).thenReturn(ImmutableSet.of("property1"));
     assertThatThrownBy(() ->
         jinjavaBeanELResolver.getValue(elContext, "abcd", "property1")
       )

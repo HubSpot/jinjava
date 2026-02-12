@@ -26,6 +26,8 @@ import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
 import com.hubspot.jinjava.el.JinjavaProcessors;
 import com.hubspot.jinjava.el.ObjectUnwrapper;
+import com.hubspot.jinjava.el.ext.MethodValidator;
+import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.features.Features;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -100,10 +102,6 @@ public interface JinjavaConfig {
 
   ImmutableMap<Library, ImmutableSet<String>> getDisabled();
 
-  ImmutableSet<String> getRestrictedMethods();
-
-  ImmutableSet<String> getRestrictedProperties();
-
   @Value.Default
   default boolean isFailOnUnknownTokens() {
     return false;
@@ -165,8 +163,21 @@ public interface JinjavaConfig {
   }
 
   @Value.Default
+  default MethodValidator getMethodValidator() {
+    return MethodValidator.create(MethodValidatorConfig.of());
+  }
+
+  @Value.Default
   default ELResolver getElResolver() {
-    return JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY;
+    return JinjavaInterpreterResolver.createDefaultResolver(
+      isDefaultReadOnlyResolver(),
+      getMethodValidator()
+    );
+  }
+
+  @Value.Default
+  default boolean isDefaultReadOnlyResolver() {
+    return true;
   }
 
   @Value.Default

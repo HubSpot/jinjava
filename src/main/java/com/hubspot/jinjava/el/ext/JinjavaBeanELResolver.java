@@ -1,50 +1,21 @@
 package com.hubspot.jinjava.el.ext;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
-import com.hubspot.jinjava.JinjavaImmutableStyle;
 import com.hubspot.jinjava.interpret.DeferredValueException;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import javax.el.ELContext;
 import javax.el.MethodNotFoundException;
-import org.immutables.value.Value;
 
 /**
  * {@link BeanELResolver} supporting snake case property names.
  */
 public class JinjavaBeanELResolver extends BeanELResolver {
-
-  private static final Set<String> DEFAULT_RESTRICTED_PROPERTIES = ImmutableSet
-    .<String>builder()
-    .add("class")
-    .build();
-
-  // These aren't required, but they prevent someone from misconfiguring Jinjava to allow sandbox bypass unintentionally
-  private static final String JAVA_LANG_REFLECT_PACKAGE =
-    Method.class.getPackage().getName(); // java.lang.reflect
-  private static final String JACKSON_DATABIND_PACKAGE =
-    ObjectMapper.class.getPackage().getName(); // com.fasterxml.jackson.databind
-  private static final Set<String> DEFAULT_RESTRICTED_METHODS = ImmutableSet
-    .<String>builder()
-    .add("class")
-    .add("clone")
-    .add("hashCode")
-    .add("getClass")
-    .add("getDeclaringClass")
-    .add("forName")
-    .add("notify")
-    .add("notifyAll")
-    .add("wait")
-    .build();
 
   private static final Set<String> DEFERRED_EXECUTION_RESTRICTED_METHODS = ImmutableSet
     .<String>builder()
@@ -68,99 +39,40 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     .add("merge")
     .build();
 
-  @Value.Immutable(singleton = true)
-  @JinjavaImmutableStyle
-  public interface JinjavaBeanELResolverConfig {
-    ImmutableSet<Method> allowedMethods();
-    ImmutableSet<Class<?>> allowedDeclaredMethodsFromClasses();
-
-    @Value.Default
-    default boolean readOnly() {
-      return false;
-    }
-
-    @Value.Check
-    default void banClassesAndMethods() {
-      if (
-        allowedMethods()
-          .stream()
-          .anyMatch(method ->
-            Class.class.equals(method.getDeclaringClass()) ||
-            Object.class.equals(method.getDeclaringClass()) ||
-            method.getDeclaringClass().getName().startsWith(JAVA_LANG_REFLECT_PACKAGE) ||
-            method.getDeclaringClass().getName().startsWith(JACKSON_DATABIND_PACKAGE)
-          )
-      ) {
-        throw new IllegalStateException(
-          "Methods from banned classes (Object.class, Class.class) are not allowed"
-        );
-      }
-      if (
-        allowedDeclaredMethodsFromClasses()
-          .stream()
-          .anyMatch(clazz ->
-            Class.class.equals(clazz) ||
-            Object.class.equals(clazz) ||
-            clazz.getName().startsWith(JAVA_LANG_REFLECT_PACKAGE) ||
-            clazz.getName().startsWith(JACKSON_DATABIND_PACKAGE)
-          )
-      ) {
-        throw new IllegalStateException(
-          "Banned classes (Object.class, Class.class) are not allowed"
-        );
-      }
-    }
-
-    static JinjavaBeanELResolverConfig.Builder builder() {
-      return new Builder();
-    }
-
-    class Builder extends ImmutableJinjavaBeanELResolverConfig.Builder {
-
-      Builder() {}
-    }
-  }
-
   private final MethodValidator methodValidator;
 
   public JinjavaBeanELResolver() {
-    this(JinjavaBeanELResolverConfig.builder().build());
+    this(true, MethodValidator.create(MethodValidatorConfig.builder().build()));
   }
 
   /**
    * Creates a new read/write {@link JinjavaBeanELResolver}.
    */
-  public JinjavaBeanELResolver(JinjavaBeanELResolverConfig jinjavaBeanELResolverConfig) {
-    super(jinjavaBeanELResolverConfig.readOnly());
-    this.methodValidator =
-      new MethodValidator(
-        jinjavaBeanELResolverConfig.allowedMethods(),
-        jinjavaBeanELResolverConfig.allowedDeclaredMethodsFromClasses()
-      );
+  public JinjavaBeanELResolver(boolean readOnly, MethodValidator methodValidator) {
+    super(readOnly);
+    this.methodValidator = methodValidator;
   }
 
   @Override
   public Class<?> getType(ELContext context, Object base, Object property) {
-    return super.getType(context, base, validatePropertyName(property));
+    return super.getType(context, base, transformPropertyName(property));
   }
 
   @Override
   public Object getValue(ELContext context, Object base, Object property) {
-    if (isRestrictedClass(base)) {
-      return null;
-    }
-    Object result = super.getValue(context, base, validatePropertyName(property));
-    return result instanceof Class ? null : result;
+    return methodValidator.validateResult(
+      super.getValue(context, base, transformPropertyName(property))
+    );
   }
 
   @Override
   public boolean isReadOnly(ELContext context, Object base, Object property) {
-    return super.isReadOnly(context, base, validatePropertyName(property));
+    return super.isReadOnly(context, base, transformPropertyName(property));
   }
 
   @Override
   public void setValue(ELContext context, Object base, Object property, Object value) {
-    super.setValue(context, base, validatePropertyName(property), value);
+    super.setValue(context, base, transformPropertyName(property), value);
   }
 
   @Override
@@ -171,25 +83,11 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     Class<?>[] paramTypes,
     Object[] params
   ) {
-    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
-
-    if (
-      method == null ||
-      DEFAULT_RESTRICTED_METHODS.contains(method.toString()) ||
-      (interpreter != null &&
-        interpreter.getConfig().getRestrictedMethods().contains(method.toString()))
-    ) {
+    if (method == null) {
       throw new MethodNotFoundException(
         "Cannot find method '" + method + "' in " + base.getClass()
       );
     }
-
-    if (isRestrictedClass(base)) {
-      throw new MethodNotFoundException(
-        "Cannot find method '" + method + "' in " + base.getClass()
-      );
-    }
-
     if (
       DEFERRED_EXECUTION_RESTRICTED_METHODS.contains(method.toString()) &&
       EagerReconstructionUtils.isDeferredExecutionMode()
@@ -203,15 +101,9 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       );
     }
 
-    Object result = super.invoke(context, base, method, paramTypes, params);
-
-    if (isRestrictedClass(result)) {
-      throw new MethodNotFoundException(
-        "Cannot find method '" + method + "' in " + base.getClass()
-      );
-    }
-
-    return result;
+    return methodValidator.validateResult(
+      super.invoke(context, base, method, paramTypes, params)
+    );
   }
 
   @Override
@@ -263,8 +155,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
   @Override
   protected Method getReadMethod(Object base, Object property) {
-    Method method = super.getReadMethod(base, property);
-    return methodValidator.validateMethod(method);
+    return methodValidator.validateMethod(super.getReadMethod(base, property));
   }
 
   private static boolean checkAssignableParameterTypes(Object[] params, Method method) {
@@ -294,22 +185,6 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     return 1;
   }
 
-  private String validatePropertyName(Object property) {
-    String propertyName = transformPropertyName(property);
-
-    JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
-
-    if (
-      DEFAULT_RESTRICTED_PROPERTIES.contains(propertyName) ||
-      (interpreter != null &&
-        interpreter.getConfig().getRestrictedProperties().contains(propertyName))
-    ) {
-      return null;
-    }
-
-    return propertyName;
-  }
-
   /**
    * Transform snake case to property name.
    */
@@ -323,23 +198,5 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       return propertyStr;
     }
     return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, propertyStr);
-  }
-
-  protected boolean isRestrictedClass(Object o) {
-    if (o == null) {
-      return false;
-    }
-
-    return (
-      (o.getClass().getPackage() != null &&
-        o.getClass().getPackage().getName().startsWith("java.lang.reflect")) ||
-      o instanceof Class ||
-      o instanceof ClassLoader ||
-      o instanceof Thread ||
-      o instanceof Method ||
-      o instanceof Field ||
-      o instanceof Constructor ||
-      o instanceof JinjavaInterpreter
-    );
   }
 }
