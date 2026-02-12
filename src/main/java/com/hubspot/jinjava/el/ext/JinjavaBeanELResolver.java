@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el.ext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
+import com.hubspot.jinjava.JinjavaImmutableStyle;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
@@ -66,12 +67,12 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     .add("set")
     .add("merge")
     .build();
-  private final JinjavaBeanELResolverConfig jinjavaBeanELResolverConfig;
 
   @Value.Immutable(singleton = true)
+  @JinjavaImmutableStyle
   public interface JinjavaBeanELResolverConfig {
-    ImmutableSet<Method> allowMethods();
-    ImmutableSet<Class<?>> allowDeclaredMethodsFromClasses();
+    ImmutableSet<Method> allowedMethods();
+    ImmutableSet<Class<?>> allowedDeclaredMethodsFromClasses();
 
     @Value.Default
     default boolean readOnly() {
@@ -81,7 +82,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     @Value.Check
     default void banClassesAndMethods() {
       if (
-        allowMethods()
+        allowedMethods()
           .stream()
           .anyMatch(method ->
             Class.class.equals(method.getDeclaringClass()) ||
@@ -95,7 +96,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
         );
       }
       if (
-        allowDeclaredMethodsFromClasses()
+        allowedDeclaredMethodsFromClasses()
           .stream()
           .anyMatch(clazz ->
             Class.class.equals(clazz) ||
@@ -114,8 +115,13 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       return new Builder();
     }
 
-    class Builder extends ImmutableJinjavaBeanELResolverConfig.Builder {}
+    class Builder extends ImmutableJinjavaBeanELResolverConfig.Builder {
+
+      Builder() {}
+    }
   }
+
+  private final MethodValidator methodValidator;
 
   public JinjavaBeanELResolver() {
     this(JinjavaBeanELResolverConfig.builder().build());
@@ -125,7 +131,12 @@ public class JinjavaBeanELResolver extends BeanELResolver {
    * Creates a new read/write {@link JinjavaBeanELResolver}.
    */
   public JinjavaBeanELResolver(JinjavaBeanELResolverConfig jinjavaBeanELResolverConfig) {
-    this.jinjavaBeanELResolverConfig = jinjavaBeanELResolverConfig;
+    super(jinjavaBeanELResolverConfig.readOnly());
+    this.methodValidator =
+      new MethodValidator(
+        jinjavaBeanELResolverConfig.allowedMethods(),
+        jinjavaBeanELResolverConfig.allowedDeclaredMethodsFromClasses()
+      );
   }
 
   @Override
@@ -221,10 +232,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       List<Method> potentialMethods = new LinkedList<>();
 
       for (Method m : methods) {
-        if (
-          m.getName().equals(name) &&
-          (isDeclaringClassAllowed(m.getDeclaringClass()) || methodAllowed(m))
-        ) {
+        if (m.getName().equals(name)) {
           int formalParamCount = m.getParameterTypes().length;
           if (m.isVarArgs() && paramCount >= formalParamCount - 1) {
             varArgsMethod = m;
@@ -250,17 +258,13 @@ public class JinjavaBeanELResolver extends BeanELResolver {
               )
           );
     }
-    return method;
+    return methodValidator.validateMethod(method);
   }
 
-  private boolean methodAllowed(Method m) {
-    return jinjavaBeanELResolverConfig.allowMethods().contains(m);
-  }
-
-  private boolean isDeclaringClassAllowed(Class<?> declaringClass) {
-    return jinjavaBeanELResolverConfig
-      .allowDeclaredMethodsFromClasses()
-      .contains(declaringClass);
+  @Override
+  protected Method getReadMethod(Object base, Object property) {
+    Method method = super.getReadMethod(base, property);
+    return methodValidator.validateMethod(method);
   }
 
   private static boolean checkAssignableParameterTypes(Object[] params, Method method) {

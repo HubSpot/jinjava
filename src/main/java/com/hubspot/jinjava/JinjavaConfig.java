@@ -22,9 +22,6 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.hubspot.immutable.collection.encoding.ImmutableListEncodingEnabled;
-import com.hubspot.immutable.collection.encoding.ImmutableMapEncodingEnabled;
-import com.hubspot.immutable.collection.encoding.ImmutableSetEncodingEnabled;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
 import com.hubspot.jinjava.el.JinjavaProcessors;
@@ -54,13 +51,7 @@ import javax.el.ELResolver;
 import org.immutables.value.Value;
 
 @Value.Immutable(singleton = true)
-@Value.Style(
-  init = "with*",
-  get = { "is*", "get*" } // Detect 'get' and 'is' prefixes in accessor methods
-)
-@ImmutableSetEncodingEnabled
-@ImmutableListEncodingEnabled
-@ImmutableMapEncodingEnabled
+@JinjavaImmutableStyle
 public interface JinjavaConfig {
   @Value.Default
   default Charset getCharset() {
