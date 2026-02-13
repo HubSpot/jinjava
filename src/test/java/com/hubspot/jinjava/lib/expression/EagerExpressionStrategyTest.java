@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
-import com.hubspot.jinjava.el.ext.MethodValidator;
+import com.hubspot.jinjava.el.ext.AllowlistMethodValidator;
 import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -33,7 +33,7 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
         JinjavaConfig
           .newBuilder()
           .withMethodValidator(
-            MethodValidator.create(
+            AllowlistMethodValidator.create(
               MethodValidatorConfig.builder().addDefaultAllowlistGroups().build()
             )
           )

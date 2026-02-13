@@ -39,22 +39,35 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     .add("merge")
     .build();
 
-  private final MethodValidator methodValidator;
+  private final AllowlistMethodValidator allowlistMethodValidator;
+  private final AllowlistReturnTypeValidator allowlistReturnTypeValidator;
 
   public JinjavaBeanELResolver() {
-    this(true, MethodValidator.create(MethodValidatorConfig.builder().build()));
+    this(
+      true,
+      AllowlistMethodValidator.create(MethodValidatorConfig.of()),
+      AllowlistReturnTypeValidator.create(ReturnTypeValidatorConfig.of())
+    );
   }
 
-  public JinjavaBeanELResolver(MethodValidator methodValidator) {
-    this(true, methodValidator);
+  public JinjavaBeanELResolver(
+    AllowlistMethodValidator allowlistMethodValidator,
+    AllowlistReturnTypeValidator allowlistReturnTypeValidator
+  ) {
+    this(true, allowlistMethodValidator, allowlistReturnTypeValidator);
   }
 
   /**
    * Creates a new read/write {@link JinjavaBeanELResolver}.
    */
-  public JinjavaBeanELResolver(boolean readOnly, MethodValidator methodValidator) {
+  public JinjavaBeanELResolver(
+    boolean readOnly,
+    AllowlistMethodValidator allowlistMethodValidator,
+    AllowlistReturnTypeValidator allowlistReturnTypeValidator
+  ) {
     super(readOnly);
-    this.methodValidator = methodValidator;
+    this.allowlistMethodValidator = allowlistMethodValidator;
+    this.allowlistReturnTypeValidator = allowlistReturnTypeValidator;
   }
 
   @Override
@@ -64,7 +77,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
   @Override
   public Object getValue(ELContext context, Object base, Object property) {
-    return methodValidator.validateResult(
+    return allowlistReturnTypeValidator.validateReturnType(
       super.getValue(context, base, transformPropertyName(property))
     );
   }
@@ -105,7 +118,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       );
     }
 
-    return methodValidator.validateResult(
+    return allowlistReturnTypeValidator.validateReturnType(
       super.invoke(context, base, method, paramTypes, params)
     );
   }
@@ -154,12 +167,17 @@ public class JinjavaBeanELResolver extends BeanELResolver {
               )
           );
     }
-    return methodValidator.validateMethod(method);
+    return allowlistMethodValidator.validateMethod(method);
+  }
+
+  @Override
+  protected Method getWriteMethod(Object base, Object property) {
+    return allowlistMethodValidator.validateMethod(super.getWriteMethod(base, property));
   }
 
   @Override
   protected Method getReadMethod(Object base, Object property) {
-    return methodValidator.validateMethod(super.getReadMethod(base, property));
+    return allowlistMethodValidator.validateMethod(super.getReadMethod(base, property));
   }
 
   private static boolean checkAssignableParameterTypes(Object[] params, Method method) {

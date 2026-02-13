@@ -436,7 +436,7 @@ public class BeanELResolver extends ELResolver {
       if (readOnly) {
         throw new PropertyNotWritableException("resolver is read-only");
       }
-      Method method = toBeanProperty(base, property).getWriteMethod();
+      Method method = getWriteMethod(base, property);
       if (method == null) {
         throw new PropertyNotWritableException("Cannot write property: " + property);
       }
@@ -652,6 +652,10 @@ public class BeanELResolver extends ELResolver {
       }
     }
     return args;
+  }
+
+  protected Method getWriteMethod(Object base, Object property) {
+    return toBeanProperty(base, property).getWriteMethod();
   }
 
   protected Method getReadMethod(Object base, Object property) {

@@ -11,7 +11,7 @@ import org.immutables.value.Value;
 
 @Value.Immutable(singleton = true)
 @JinjavaImmutableStyle
-public abstract class MethodValidatorConfig {
+public abstract class ReturnTypeValidatorConfig {
 
   // These aren't required, but they prevent someone from misconfiguring Jinjava to allow sandbox bypass unintentionally
   private static final String JAVA_LANG_REFLECT_PACKAGE =
@@ -26,35 +26,17 @@ public abstract class MethodValidatorConfig {
     JACKSON_DATABIND_PACKAGE,
   };
 
-  public abstract ImmutableSet<Method> allowedMethods();
+  public abstract ImmutableSet<String> allowedCanonicalClassPrefixes();
 
-  public abstract ImmutableSet<String> allowedDeclaredMethodsFromCanonicalClassPrefixes();
-
-  public abstract ImmutableSet<String> allowedDeclaredMethodsFromCanonicalClassNames();
+  public abstract ImmutableSet<String> allowedCanonicalClassNames();
 
   @Value.Check
   void banClassesAndMethods() {
     if (
-      allowedMethods()
-        .stream()
-        .map(method -> method.getDeclaringClass().getCanonicalName())
-        .anyMatch(canonicalName ->
-          Arrays
-            .stream(BANNED_PREFIXES)
-            .anyMatch(banned ->
-              Arrays.stream(BANNED_PREFIXES).anyMatch(canonicalName::startsWith)
-            )
-        )
-    ) {
-      throw new IllegalStateException(
-        "Methods from banned classes or packages (Object.class, Class.class, java.lang.reflect, com.fasterxml.jackson.databind) are not allowed"
-      );
-    }
-    if (
       Stream
         .of(
-          allowedDeclaredMethodsFromCanonicalClassPrefixes().stream(),
-          allowedDeclaredMethodsFromCanonicalClassNames().stream()
+          allowedCanonicalClassPrefixes().stream(),
+          allowedCanonicalClassNames().stream()
         )
         .flatMap(Function.identity())
         .anyMatch(prefixOrName ->
@@ -71,17 +53,17 @@ public abstract class MethodValidatorConfig {
     }
   }
 
-  public static MethodValidatorConfig of() {
-    return ImmutableMethodValidatorConfig.of();
+  public static ReturnTypeValidatorConfig of() {
+    return ImmutableReturnTypeValidatorConfig.of();
   }
 
   public static Builder builder() {
     return new Builder();
   }
 
-  public static class Builder extends ImmutableMethodValidatorConfig.Builder {
+  public static class Builder extends ImmutableReturnTypeValidatorConfig.Builder {
 
-    Builder() {}/**/
+    Builder() {}
 
     public Builder addDefaultAllowlistGroups() {
       return addAllowlistGroups(AllowlistGroup.values());
@@ -89,13 +71,12 @@ public abstract class MethodValidatorConfig {
 
     public Builder addAllowlistGroups(AllowlistGroup... allowlistGroups) {
       for (AllowlistGroup allowlistGroup : allowlistGroups) {
-        this.addAllowedMethods(allowlistGroup.allowMethods())
-          .addAllowedDeclaredMethodsFromCanonicalClassPrefixes(
-            allowlistGroup.allowedDeclaredMethodsFromCanonicalClassPrefixes()
+        this.addAllowedCanonicalClassPrefixes(
+            allowlistGroup.allowedReturnTypeCanonicalClassPrefixes()
           )
-          .addAllAllowedDeclaredMethodsFromCanonicalClassNames(
+          .addAllAllowedCanonicalClassNames(
             Arrays
-              .stream(allowlistGroup.allowedDeclaredMethodsFromClasses())
+              .stream(allowlistGroup.allowedReturnTypeClasses())
               .map(Class::getCanonicalName)
               .toList()
           );

@@ -4,13 +4,15 @@ import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
+import com.hubspot.jinjava.el.ext.AllowlistMethodValidator;
+import com.hubspot.jinjava.el.ext.AllowlistReturnTypeValidator;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
 import com.hubspot.jinjava.el.ext.JinjavaListELResolver;
-import com.hubspot.jinjava.el.ext.MethodValidator;
 import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
 import com.hubspot.jinjava.el.ext.NamedParameter;
+import com.hubspot.jinjava.el.ext.ReturnTypeValidatorConfig;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -23,6 +25,7 @@ import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
+import com.hubspot.jinjava.objects.collections.SizeLimitingPySet;
 import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.PyishDate;
@@ -41,6 +44,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import javax.el.ArrayELResolver;
 import javax.el.CompositeELResolver;
 import javax.el.ELContext;
@@ -54,7 +58,8 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
   public static ELResolver createDefaultResolver(
     boolean readOnly,
-    MethodValidator methodValidator
+    AllowlistMethodValidator allowlistMethodValidator,
+    AllowlistReturnTypeValidator allowlistReturnTypeValidator
   ) {
     return new CompositeELResolver() {
       {
@@ -62,19 +67,27 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
         add(new JinjavaListELResolver(readOnly));
         add(new TypeConvertingMapELResolver(readOnly));
         add(new ResourceBundleELResolver());
-        add(new JinjavaBeanELResolver(readOnly, methodValidator));
+        add(
+          new JinjavaBeanELResolver(
+            readOnly,
+            allowlistMethodValidator,
+            allowlistReturnTypeValidator
+          )
+        );
       }
     };
   }
 
   public static final ELResolver DEFAULT_RESOLVER_READ_ONLY = createDefaultResolver(
     true,
-    MethodValidator.create(MethodValidatorConfig.of())
+    AllowlistMethodValidator.create(MethodValidatorConfig.of()),
+    AllowlistReturnTypeValidator.create(ReturnTypeValidatorConfig.of())
   );
 
   public static final ELResolver DEFAULT_RESOLVER_READ_WRITE = createDefaultResolver(
     false,
-    MethodValidator.create(MethodValidatorConfig.of())
+    AllowlistMethodValidator.create(MethodValidatorConfig.of()),
+    AllowlistReturnTypeValidator.create(ReturnTypeValidatorConfig.of())
   );
 
   private final JinjavaInterpreter interpreter;
@@ -312,6 +325,12 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     if (List.class.isAssignableFrom(value.getClass())) {
       return new SizeLimitingPyList(
         (List<Object>) value,
+        interpreter.getConfig().getMaxListSize()
+      );
+    }
+    if (Set.class.isAssignableFrom(value.getClass())) {
+      return new SizeLimitingPySet(
+        (Set<Object>) value,
         interpreter.getConfig().getMaxListSize()
       );
     }

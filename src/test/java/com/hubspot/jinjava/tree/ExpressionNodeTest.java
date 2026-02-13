@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
-import com.hubspot.jinjava.el.ext.MethodValidator;
+import com.hubspot.jinjava.el.ext.AllowlistMethodValidator;
 import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
 import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.features.FeatureConfig;
@@ -32,7 +32,7 @@ public class ExpressionNodeTest {
           .newBuilder()
           .withNestedInterpretationEnabled(true)
           .withMethodValidator(
-            MethodValidator.create(
+            AllowlistMethodValidator.create(
               MethodValidatorConfig.builder().addDefaultAllowlistGroups().build()
             )
           )
@@ -44,7 +44,7 @@ public class ExpressionNodeTest {
         JinjavaConfig
           .newBuilder()
           .withMethodValidator(
-            MethodValidator.create(
+            AllowlistMethodValidator.create(
               MethodValidatorConfig.builder().addDefaultAllowlistGroups().build()
             )
           )

@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
-import com.hubspot.jinjava.el.ext.MethodValidator;
+import com.hubspot.jinjava.el.ext.AllowlistMethodValidator;
 import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -31,7 +31,7 @@ public class EagerAstDotTest extends BaseInterpretingTest {
         LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
       )
       .withMethodValidator(
-        MethodValidator.create(
+        AllowlistMethodValidator.create(
           MethodValidatorConfig
             .builder()
             .addDefaultAllowlistGroups()

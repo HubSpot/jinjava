@@ -27,11 +27,20 @@ public class JinjavaBeanELResolverTest {
   public void setUp() throws Exception {
     jinjavaBeanELResolver =
       new JinjavaBeanELResolver(
-        MethodValidator.create(
+        AllowlistMethodValidator.create(
           MethodValidatorConfig
             .builder()
             .addDefaultAllowlistGroups()
             .addAllowedDeclaredMethodsFromCanonicalClassPrefixes(
+              JinjavaBeanELResolverTest.class.getCanonicalName()
+            )
+            .build()
+        ),
+        AllowlistReturnTypeValidator.create(
+          ReturnTypeValidatorConfig
+            .builder()
+            .addDefaultAllowlistGroups()
+            .addAllowedCanonicalClassPrefixes(
               JinjavaBeanELResolverTest.class.getCanonicalName()
             )
             .build()

@@ -26,8 +26,10 @@ import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
 import com.hubspot.jinjava.el.JinjavaProcessors;
 import com.hubspot.jinjava.el.ObjectUnwrapper;
-import com.hubspot.jinjava.el.ext.MethodValidator;
+import com.hubspot.jinjava.el.ext.AllowlistMethodValidator;
+import com.hubspot.jinjava.el.ext.AllowlistReturnTypeValidator;
 import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
+import com.hubspot.jinjava.el.ext.ReturnTypeValidatorConfig;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.features.Features;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -163,9 +165,16 @@ public interface JinjavaConfig {
   }
 
   @Value.Default
-  default MethodValidator getMethodValidator() {
-    return MethodValidator.create(
+  default AllowlistMethodValidator getMethodValidator() {
+    return AllowlistMethodValidator.create(
       MethodValidatorConfig.builder().addDefaultAllowlistGroups().build()
+    );
+  }
+
+  @Value.Default
+  default AllowlistReturnTypeValidator getReturnTypeValidator() {
+    return AllowlistReturnTypeValidator.create(
+      ReturnTypeValidatorConfig.builder().addDefaultAllowlistGroups().build()
     );
   }
 
@@ -173,7 +182,8 @@ public interface JinjavaConfig {
   default ELResolver getElResolver() {
     return JinjavaInterpreterResolver.createDefaultResolver(
       isDefaultReadOnlyResolver(),
-      getMethodValidator()
+      getMethodValidator(),
+      getReturnTypeValidator()
     );
   }
 
@@ -247,16 +257,7 @@ public interface JinjavaConfig {
     return getLegacyOverrides().isIterateOverMapKeys();
   }
 
-  class Builder extends ImmutableJinjavaConfig.Builder {
-
-    public Builder withReadOnlyResolver(boolean readOnlyResolver) {
-      return withElResolver(
-        readOnlyResolver
-          ? JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY
-          : JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_WRITE
-      );
-    }
-  }
+  class Builder extends ImmutableJinjavaConfig.Builder {}
 
   static Builder builder() {
     return new Builder();

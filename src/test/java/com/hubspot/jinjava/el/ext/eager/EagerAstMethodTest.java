@@ -6,8 +6,8 @@ import static org.junit.Assert.fail;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
+import com.hubspot.jinjava.el.ext.AllowlistMethodValidator;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.el.ext.MethodValidator;
 import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
 import com.hubspot.jinjava.el.ext.eager.EagerAstDotTest.Foo;
 import com.hubspot.jinjava.interpret.Context;
@@ -38,7 +38,7 @@ public class EagerAstMethodTest extends BaseInterpretingTest {
         LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
       )
       .withMethodValidator(
-        MethodValidator.create(
+        AllowlistMethodValidator.create(
           MethodValidatorConfig
             .builder()
             .addDefaultAllowlistGroups()
