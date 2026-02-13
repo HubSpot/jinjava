@@ -2,14 +2,24 @@ package com.hubspot.jinjava.el.ext;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValueException;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.MethodDescriptor;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.el.ELContext;
+import javax.el.ELException;
 import javax.el.MethodNotFoundException;
 
 /**
@@ -39,35 +49,18 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     .add("merge")
     .build();
 
-  private final AllowlistMethodValidator allowlistMethodValidator;
-  private final AllowlistReturnTypeValidator allowlistReturnTypeValidator;
+  private final ConcurrentHashMap<Class<?>, BeanMethods> beanMethodsCache;
 
   public JinjavaBeanELResolver() {
-    this(
-      true,
-      AllowlistMethodValidator.create(MethodValidatorConfig.of()),
-      AllowlistReturnTypeValidator.create(ReturnTypeValidatorConfig.of())
-    );
-  }
-
-  public JinjavaBeanELResolver(
-    AllowlistMethodValidator allowlistMethodValidator,
-    AllowlistReturnTypeValidator allowlistReturnTypeValidator
-  ) {
-    this(true, allowlistMethodValidator, allowlistReturnTypeValidator);
+    this(true);
   }
 
   /**
    * Creates a new read/write {@link JinjavaBeanELResolver}.
    */
-  public JinjavaBeanELResolver(
-    boolean readOnly,
-    AllowlistMethodValidator allowlistMethodValidator,
-    AllowlistReturnTypeValidator allowlistReturnTypeValidator
-  ) {
+  public JinjavaBeanELResolver(boolean readOnly) {
     super(readOnly);
-    this.allowlistMethodValidator = allowlistMethodValidator;
-    this.allowlistReturnTypeValidator = allowlistReturnTypeValidator;
+    this.beanMethodsCache = new ConcurrentHashMap<Class<?>, BeanMethods>();
   }
 
   @Override
@@ -77,9 +70,9 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
   @Override
   public Object getValue(ELContext context, Object base, Object property) {
-    return allowlistReturnTypeValidator.validateReturnType(
-      super.getValue(context, base, transformPropertyName(property))
-    );
+    return getJinjavaConfig()
+      .getReturnTypeValidator()
+      .validateReturnType(super.getValue(context, base, transformPropertyName(property)));
   }
 
   @Override
@@ -118,9 +111,9 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       );
     }
 
-    return allowlistReturnTypeValidator.validateReturnType(
-      super.invoke(context, base, method, paramTypes, params)
-    );
+    return getJinjavaConfig()
+      .getReturnTypeValidator()
+      .validateReturnType(super.invoke(context, base, method, paramTypes, params));
   }
 
   @Override
@@ -167,17 +160,30 @@ public class JinjavaBeanELResolver extends BeanELResolver {
               )
           );
     }
-    return allowlistMethodValidator.validateMethod(method);
+    return getJinjavaConfig().getMethodValidator().validateMethod(method);
   }
 
   @Override
   protected Method getWriteMethod(Object base, Object property) {
-    return allowlistMethodValidator.validateMethod(super.getWriteMethod(base, property));
+    return getJinjavaConfig()
+      .getMethodValidator()
+      .validateMethod(super.getWriteMethod(base, property));
   }
 
   @Override
   protected Method getReadMethod(Object base, Object property) {
-    return allowlistMethodValidator.validateMethod(super.getReadMethod(base, property));
+    return getJinjavaConfig()
+      .getMethodValidator()
+      .validateMethod(super.getReadMethod(base, property));
+  }
+
+  private static JinjavaConfig getJinjavaConfig() {
+    return Objects
+      .requireNonNull(
+        JinjavaInterpreter.getCurrent(),
+        "JinjavaInterpreter.closeablePushCurrent must be used if using a JinjavaInterpreter directly"
+      )
+      .getConfig();
   }
 
   private static boolean checkAssignableParameterTypes(Object[] params, Method method) {
@@ -220,5 +226,53 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       return propertyStr;
     }
     return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, propertyStr);
+  }
+
+  protected final class BeanMethods {
+
+    private final Map<String, List<BeanMethod>> map = new HashMap<>();
+
+    public BeanMethods(Class<?> baseClass) {
+      MethodDescriptor[] descriptors;
+      try {
+        descriptors = Introspector.getBeanInfo(baseClass).getMethodDescriptors();
+      } catch (IntrospectionException e) {
+        throw new ELException(e);
+      }
+      for (MethodDescriptor descriptor : descriptors) {
+        map.compute(
+          descriptor.getName(),
+          (k, v) -> {
+            if (v == null) {
+              v = new LinkedList<>();
+            }
+            v.add(new BeanMethod(descriptor));
+            return v;
+          }
+        );
+      }
+    }
+
+    public List<BeanMethod> getBeanMethods(String methodName) {
+      return map.get(methodName);
+    }
+  }
+
+  protected final class BeanMethod {
+
+    private final MethodDescriptor descriptor;
+
+    private Method method;
+
+    public BeanMethod(MethodDescriptor descriptor) {
+      this.descriptor = descriptor;
+    }
+
+    public Method getMethod() {
+      if (method == null) {
+        method = findAccessibleMethod(descriptor.getMethod());
+      }
+      return method;
+    }
   }
 }

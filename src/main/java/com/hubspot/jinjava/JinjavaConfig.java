@@ -180,11 +180,9 @@ public interface JinjavaConfig {
 
   @Value.Default
   default ELResolver getElResolver() {
-    return JinjavaInterpreterResolver.createDefaultResolver(
-      isDefaultReadOnlyResolver(),
-      getMethodValidator(),
-      getReturnTypeValidator()
-    );
+    return isDefaultReadOnlyResolver()
+      ? JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY
+      : JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_WRITE;
   }
 
   @Value.Default

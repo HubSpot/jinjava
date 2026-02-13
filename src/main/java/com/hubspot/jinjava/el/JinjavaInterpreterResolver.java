@@ -4,15 +4,11 @@ import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
-import com.hubspot.jinjava.el.ext.AllowlistMethodValidator;
-import com.hubspot.jinjava.el.ext.AllowlistReturnTypeValidator;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.JinjavaBeanELResolver;
 import com.hubspot.jinjava.el.ext.JinjavaListELResolver;
-import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
 import com.hubspot.jinjava.el.ext.NamedParameter;
-import com.hubspot.jinjava.el.ext.ReturnTypeValidatorConfig;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -56,39 +52,25 @@ import org.apache.commons.lang3.StringUtils;
 
 public class JinjavaInterpreterResolver extends SimpleResolver {
 
-  public static ELResolver createDefaultResolver(
-    boolean readOnly,
-    AllowlistMethodValidator allowlistMethodValidator,
-    AllowlistReturnTypeValidator allowlistReturnTypeValidator
-  ) {
-    return new CompositeELResolver() {
-      {
-        add(new ArrayELResolver(readOnly));
-        add(new JinjavaListELResolver(readOnly));
-        add(new TypeConvertingMapELResolver(readOnly));
-        add(new ResourceBundleELResolver());
-        add(
-          new JinjavaBeanELResolver(
-            readOnly,
-            allowlistMethodValidator,
-            allowlistReturnTypeValidator
-          )
-        );
-      }
-    };
-  }
+  public static final ELResolver DEFAULT_RESOLVER_READ_ONLY = new CompositeELResolver() {
+    {
+      add(new ArrayELResolver(true));
+      add(new JinjavaListELResolver(true));
+      add(new TypeConvertingMapELResolver(true));
+      add(new ResourceBundleELResolver());
+      add(new JinjavaBeanELResolver(true));
+    }
+  };
 
-  public static final ELResolver DEFAULT_RESOLVER_READ_ONLY = createDefaultResolver(
-    true,
-    AllowlistMethodValidator.create(MethodValidatorConfig.of()),
-    AllowlistReturnTypeValidator.create(ReturnTypeValidatorConfig.of())
-  );
-
-  public static final ELResolver DEFAULT_RESOLVER_READ_WRITE = createDefaultResolver(
-    false,
-    AllowlistMethodValidator.create(MethodValidatorConfig.of()),
-    AllowlistReturnTypeValidator.create(ReturnTypeValidatorConfig.of())
-  );
+  public static final ELResolver DEFAULT_RESOLVER_READ_WRITE = new CompositeELResolver() {
+    {
+      add(new ArrayELResolver(false));
+      add(new JinjavaListELResolver(false));
+      add(new TypeConvertingMapELResolver(false));
+      add(new ResourceBundleELResolver());
+      add(new JinjavaBeanELResolver(false));
+    }
+  };
 
   private final JinjavaInterpreter interpreter;
   private final ObjectUnwrapper objectUnwrapper;
