@@ -120,13 +120,7 @@ public class EagerFromTag extends EagerStateChangingTag<FromTag> {
                 .newInstance(interpreter);
               child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
               String output;
-              try (
-                AutoCloseableImpl<JinjavaInterpreter> a = JinjavaInterpreter
-                  .closeablePushCurrent(child)
-                  .get()
-              ) {
-                output = child.render(node);
-              }
+              output = child.render(node);
 
               interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
 

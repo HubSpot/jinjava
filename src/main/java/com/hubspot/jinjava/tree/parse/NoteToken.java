@@ -25,7 +25,17 @@ public class NoteToken extends Token {
     int startPosition,
     TokenScannerSymbols symbols
   ) {
-    super(image, lineNumber, startPosition, symbols);
+    this(image, lineNumber, startPosition, symbols, WhitespaceControlParser.LENIENT);
+  }
+
+  public NoteToken(
+    String image,
+    int lineNumber,
+    int startPosition,
+    TokenScannerSymbols symbols,
+    WhitespaceControlParser whitespaceControlParser
+  ) {
+    super(image, lineNumber, startPosition, symbols, whitespaceControlParser);
   }
 
   @Override
