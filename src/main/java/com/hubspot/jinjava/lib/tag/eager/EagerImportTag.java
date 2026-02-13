@@ -85,14 +85,9 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
                 .newInstance(interpreter);
               child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
               String output;
-              try (
-                AutoCloseableImpl<JinjavaInterpreter> a = JinjavaInterpreter
-                  .closeablePushCurrent(child)
-                  .get()
-              ) {
-                eagerImportingStrategy.setup(child);
-                output = child.render(node.value());
-              }
+              eagerImportingStrategy.setup(child);
+              output = child.render(node.value());
+
               interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
               Map<String, Object> childBindings = child.getContext().getSessionBindings();
 

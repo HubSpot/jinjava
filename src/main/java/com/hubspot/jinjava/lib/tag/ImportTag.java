@@ -123,14 +123,7 @@ public class ImportTag implements Tag {
                 .getInterpreterFactory()
                 .newInstance(interpreter);
               child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
-
-              try (
-                AutoCloseableImpl<JinjavaInterpreter> a = JinjavaInterpreter
-                  .closeablePushCurrent(child)
-                  .get()
-              ) {
-                child.render(node.value());
-              }
+              child.render(node.value());
 
               interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
 
