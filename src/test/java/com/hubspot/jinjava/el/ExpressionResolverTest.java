@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,6 +45,12 @@ public class ExpressionResolverTest {
     jinjava = new Jinjava();
     interpreter = jinjava.newInterpreter();
     context = interpreter.getContext();
+    JinjavaInterpreter.pushCurrent(interpreter);
+  }
+
+  @After
+  public void teardown() {
+    JinjavaInterpreter.popCurrent();
   }
 
   @Test
@@ -467,6 +474,7 @@ public class ExpressionResolverTest {
     );
 
     String template = "hi {% for i in range(1, 3) %}{{i}} {% endfor %}";
+    JinjavaInterpreter.popCurrent();
 
     String rendered = jinjava.render(template, context);
     assertEquals("hi 1 2 ", rendered);

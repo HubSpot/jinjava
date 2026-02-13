@@ -7,6 +7,8 @@ import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.el.ext.MethodValidator;
+import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
 import com.hubspot.jinjava.el.ext.eager.EagerAstDotTest.Foo;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -34,6 +36,17 @@ public class EagerAstMethodTest extends BaseInterpretingTest {
       .withNestedInterpretationEnabled(true)
       .withLegacyOverrides(
         LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+      )
+      .withMethodValidator(
+        MethodValidator.create(
+          MethodValidatorConfig
+            .builder()
+            .addDefaultAllowlistGroups()
+            .addAllowedDeclaredMethodsFromCanonicalClassPrefixes(
+              EagerAstDotTest.class.getCanonicalName()
+            )
+            .build()
+        )
       )
       .withMaxMacroRecursionDepth(5)
       .withEnableRecursiveMacroCalls(true)

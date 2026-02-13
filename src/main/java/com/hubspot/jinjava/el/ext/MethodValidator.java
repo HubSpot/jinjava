@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.el.ext;
 
 import com.google.common.collect.ImmutableSet;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.lang.reflect.Method;
 
 public final class MethodValidator {
@@ -39,32 +40,39 @@ public final class MethodValidator {
     if (m == null) {
       return null;
     }
-    String canonicalDeclaringClassName = m.getDeclaringClass().getCanonicalName();
-    return (
-        allowedMethods.contains(m) ||
-        allowedDeclaredMethodsFromCanonicalClassNames.contains(
-          canonicalDeclaringClassName
-        ) ||
-        allowedDeclaredMethodsFromCanonicalClassPrefixes
-          .stream()
-          .anyMatch(canonicalDeclaringClassName::startsWith)
-      )
-      ? m
-      : null;
+    Class<?> clazz = m.getDeclaringClass();
+    String canonicalClassName = clazz.getCanonicalName();
+    if (
+      allowedMethods.contains(m) ||
+      allowedDeclaredMethodsFromCanonicalClassNames.contains(canonicalClassName) ||
+      allowedDeclaredMethodsFromCanonicalClassPrefixes
+        .stream()
+        .anyMatch(canonicalClassName::startsWith)
+    ) {
+      return m;
+    }
+    return null;
   }
 
   public Object validateResult(Object o) {
-    if (o == null) {
+    Object wrapped = JinjavaInterpreter
+      .getCurrentMaybe()
+      .map(jinjavaInterpreter -> jinjavaInterpreter.wrap(o))
+      .orElse(o);
+
+    if (wrapped == null) {
       return null;
     }
-    String canonicalClassName = o.getClass().getCanonicalName();
-    return (
-        allowedResultCanonicalClassNames.contains(canonicalClassName) ||
-        allowedResultCanonicalClassPrefixes
-          .stream()
-          .anyMatch(canonicalClassName::startsWith)
-      )
-      ? o
-      : null;
+    Class<?> clazz = wrapped.getClass();
+    String canonicalClassName = clazz.getCanonicalName();
+    if (
+      allowedResultCanonicalClassNames.contains(canonicalClassName) ||
+      allowedResultCanonicalClassPrefixes
+        .stream()
+        .anyMatch(canonicalClassName::startsWith)
+    ) {
+      return wrapped;
+    }
+    return null;
   }
 }

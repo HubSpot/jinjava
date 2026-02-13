@@ -8,63 +8,105 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
 import org.junit.Test;
 
 public class AstDictTest {
 
-  private JinjavaInterpreter interpreter;
-
-  @Before
-  public void setup() {
-    interpreter = new Jinjava().newInterpreter();
-  }
-
   @Test
   public void itGetsDictValues() {
-    interpreter.getContext().put("foo", ImmutableMap.of("bar", "test"));
-    assertThat(interpreter.resolveELExpression("foo.bar", -1)).isEqualTo("test");
+    try (
+      var a = JinjavaInterpreter
+        .closeablePushCurrent(new Jinjava().newInterpreter())
+        .get()
+    ) {
+      JinjavaInterpreter interpreter = a.value();
+      interpreter.getContext().put("foo", ImmutableMap.of("bar", "test"));
+      assertThat(interpreter.resolveELExpression("foo.bar", -1)).isEqualTo("test");
+    }
   }
 
   @Test
   public void itGetsDictValuesWithEnumKeys() {
-    interpreter.getContext().put("foo", ImmutableMap.of(ErrorType.FATAL, "test"));
-    assertThat(interpreter.resolveELExpression("foo.FATAL", -1)).isEqualTo("test");
+    try (
+      var a = JinjavaInterpreter
+        .closeablePushCurrent(new Jinjava().newInterpreter())
+        .get()
+    ) {
+      JinjavaInterpreter interpreter = a.value();
+      interpreter.getContext().put("foo", ImmutableMap.of(ErrorType.FATAL, "test"));
+      assertThat(interpreter.resolveELExpression("foo.FATAL", -1)).isEqualTo("test");
+    }
   }
 
   @Test
   public void itGetsDictValuesWithEnumKeysUsingToString() {
-    interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
-    assertThat(interpreter.resolveELExpression("foo.barName", -1)).isEqualTo("test");
+    try (
+      var a = JinjavaInterpreter
+        .closeablePushCurrent(new Jinjava().newInterpreter())
+        .get()
+    ) {
+      JinjavaInterpreter interpreter = a.value();
+      interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
+      assertThat(interpreter.resolveELExpression("foo.barName", -1)).isEqualTo("test");
+    }
   }
 
   @Test
   public void itDoesItemsMethodCall() {
-    interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
-    assertThat(interpreter.resolveELExpression("foo.items()", -1))
-      .isInstanceOf(Set.class);
+    try (
+      var a = JinjavaInterpreter
+        .closeablePushCurrent(new Jinjava().newInterpreter())
+        .get()
+    ) {
+      JinjavaInterpreter interpreter = a.value();
+      interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
+      assertThat(interpreter.resolveELExpression("foo.items()", -1))
+        .isInstanceOf(Set.class);
+    }
   }
 
   @Test
   public void itDoesKeysMethodCall() {
-    interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
-    assertThat(interpreter.resolveELExpression("foo.keys()", -1)).isInstanceOf(Set.class);
+    try (
+      var a = JinjavaInterpreter
+        .closeablePushCurrent(new Jinjava().newInterpreter())
+        .get()
+    ) {
+      JinjavaInterpreter interpreter = a.value();
+      interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
+      assertThat(interpreter.resolveELExpression("foo.keys()", -1))
+        .isInstanceOf(Set.class);
+    }
   }
 
   @Test
   public void itHandlesEmptyMaps() {
-    interpreter.getContext().put("foo", ImmutableMap.of());
-    assertThat(interpreter.resolveELExpression("foo.FATAL", -1)).isNull();
-    assertThat(interpreter.getErrors()).isEmpty();
+    try (
+      var a = JinjavaInterpreter
+        .closeablePushCurrent(new Jinjava().newInterpreter())
+        .get()
+    ) {
+      JinjavaInterpreter interpreter = a.value();
+      interpreter.getContext().put("foo", ImmutableMap.of());
+      assertThat(interpreter.resolveELExpression("foo.FATAL", -1)).isNull();
+      assertThat(interpreter.getErrors()).isEmpty();
+    }
   }
 
   @Test
   public void itGetsDictValuesWithEnumKeysInObjects() {
-    interpreter
-      .getContext()
-      .put("test", new TestClass(ImmutableMap.of(ErrorType.FATAL, "test")));
-    assertThat(interpreter.resolveELExpression("test.my_map.FATAL", -1))
-      .isEqualTo("test");
+    try (
+      var a = JinjavaInterpreter
+        .closeablePushCurrent(new Jinjava().newInterpreter())
+        .get()
+    ) {
+      JinjavaInterpreter interpreter = a.value();
+      interpreter
+        .getContext()
+        .put("test", new TestClass(ImmutableMap.of(ErrorType.FATAL, "test")));
+      assertThat(interpreter.resolveELExpression("test.my_map.FATAL", -1))
+        .isEqualTo("test");
+    }
   }
 
   public class TestClass {

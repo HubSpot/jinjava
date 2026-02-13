@@ -5,9 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.io.Resources;
-import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.el.ext.MethodValidator;
+import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
 import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.features.FeatureStrategies;
@@ -18,46 +19,75 @@ import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ExpressionNodeTest extends BaseInterpretingTest {
+public class ExpressionNodeTest {
 
-  private JinjavaInterpreter nestedInterpreter;
+  protected JinjavaInterpreter nestedInterpreter;
+  protected JinjavaInterpreter interpreter;
 
   @Before
-  public void setupNoNestedInterpreter() {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withNestedInterpretationEnabled(true)
-      .build();
-    nestedInterpreter = new Jinjava(config).newInterpreter();
-    context = nestedInterpreter.getContext();
+  public void setup() {
+    nestedInterpreter =
+      new Jinjava(
+        JinjavaConfig
+          .newBuilder()
+          .withNestedInterpretationEnabled(true)
+          .withMethodValidator(
+            MethodValidator.create(
+              MethodValidatorConfig.builder().addDefaultAllowlistGroups().build()
+            )
+          )
+          .build()
+      )
+        .newInterpreter();
+    interpreter =
+      new Jinjava(
+        JinjavaConfig
+          .newBuilder()
+          .withMethodValidator(
+            MethodValidator.create(
+              MethodValidatorConfig.builder().addDefaultAllowlistGroups().build()
+            )
+          )
+          .build()
+      )
+        .newInterpreter();
   }
 
   @Test
   public void itRendersResultAsTemplateWhenContainingVarBlocks() throws Exception {
-    context.put("myvar", "hello {{ place }}");
-    context.put("place", "world");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter = a.value();
+      nestedInterpreter.getContext().put("myvar", "hello {{ place }}");
+      nestedInterpreter.getContext().put("place", "world");
 
-    ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(nestedInterpreter).toString()).isEqualTo("hello world");
+      ExpressionNode node = fixture("simplevar");
+      assertThat(node.render(nestedInterpreter).toString()).isEqualTo("hello world");
+    }
   }
 
   @Test
-  public void itRendersResultWithoutNestedExpressionInterpretation() throws Exception {
-    Context contextNoNestedInterpretation = nestedInterpreter.getContext();
-    contextNoNestedInterpretation.put("myvar", "hello {{ place }}");
-    contextNoNestedInterpretation.put("place", "world");
+  public void itRendersResultWithNestedExpressionInterpretation() throws Exception {
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter = a.value();
+      nestedInterpreter.getContext().put("myvar", "hello {{ place }}");
+      nestedInterpreter.getContext().put("place", "world");
 
-    ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(nestedInterpreter).toString()).isEqualTo("hello {{ place }}");
+      ExpressionNode node = fixture("simplevar");
+      assertThat(node.render(nestedInterpreter).toString())
+        .isEqualTo("hello {{ place }}");
+    }
   }
 
   @Test
   public void itRendersWithoutNestedExpressionInterpretationByDefault() throws Exception {
-    context.put("myvar", "hello {{ place }}");
-    context.put("place", "world");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter = a.value();
+      interpreter.getContext().put("myvar", "hello {{ place }}");
+      interpreter.getContext().put("place", "world");
 
-    ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(interpreter).toString()).isEqualTo("hello world");
+      ExpressionNode node = fixture("simplevar");
+      assertThat(node.render(interpreter).toString()).isEqualTo("hello world");
+    }
   }
 
   @Test
@@ -68,78 +98,104 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
       .build();
     JinjavaInterpreter jinjava = new Jinjava(config).newInterpreter();
     Context context = jinjava.getContext();
-    context.put("myvar", "hello {% if (true) %}nasty{% endif %}");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(jinjava).get()) {
+      jinjava = a.value();
+      nestedInterpreter
+        .getContext()
+        .put("myvar", "hello {% if (true) %}nasty{% endif %}");
 
-    ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(jinjava).toString()).isEqualTo("hello nasty");
+      ExpressionNode node = fixture("simplevar");
+      assertThat(node.render(jinjava).toString()).isEqualTo("hello nasty");
+    }
   }
 
   @Test
   public void itAvoidsInfiniteRecursionWhenVarsContainBraceBlocks() throws Exception {
-    context.put("myvar", "hello {{ place }}");
-    context.put("place", "{{ place }}");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter = a.value();
+      interpreter.getContext().put("myvar", "hello {{ place }}");
+      interpreter.getContext().put("place", "{{ place }}");
 
-    ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(interpreter).toString()).isEqualTo("hello {{ place }}");
+      ExpressionNode node = fixture("simplevar");
+      assertThat(node.render(interpreter).toString()).isEqualTo("hello {{ place }}");
+    }
   }
 
   @Test
   public void itAllowsNestedTagExpressions() throws Exception {
-    context.put("myvar", "{% if true %}{{ place }}{% endif %}");
-    context.put("place", "{% if true %}Hello{% endif %}");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter = a.value();
+      nestedInterpreter.getContext().put("myvar", "{% if true %}{{ place }}{% endif %}");
+      nestedInterpreter.getContext().put("place", "{% if true %}Hello{% endif %}");
 
-    ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(nestedInterpreter).toString()).isEqualTo("Hello");
+      ExpressionNode node = fixture("simplevar");
+      assertThat(node.render(nestedInterpreter).toString()).isEqualTo("Hello");
+    }
   }
 
   @Test
   public void itAvoidsInfiniteRecursionWhenVarsAreInIfBlocks() throws Exception {
-    context.put("myvar", "{% if true %}{{ place }}{% endif %}");
-    context.put("place", "{% if true %}{{ myvar }}{% endif %}");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter = a.value();
+      nestedInterpreter.getContext().put("myvar", "{% if true %}{{ place }}{% endif %}");
+      nestedInterpreter.getContext().put("place", "{% if true %}{{ myvar }}{% endif %}");
 
-    ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(nestedInterpreter).toString())
-      .isEqualTo("{% if true %}{{ myvar }}{% endif %}");
+      ExpressionNode node = fixture("simplevar");
+      assertThat(node.render(nestedInterpreter).toString())
+        .isEqualTo("{% if true %}{{ myvar }}{% endif %}");
+    }
   }
 
   @Test
   public void itDoesNotRescursivelyEvaluateExpressionsOfSelf() throws Exception {
-    context.put("myvar", "hello {{myvar}}");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter = a.value();
+      nestedInterpreter.getContext().put("myvar", "hello {{myvar}}");
 
-    ExpressionNode node = fixture("simplevar");
-    // It renders once, and then stop further rendering after detecting recursion.
-    assertThat(node.render(nestedInterpreter).toString())
-      .isEqualTo("hello hello {{myvar}}");
+      ExpressionNode node = fixture("simplevar");
+      // It renders once, and then stop further rendering after detecting recursion.
+      assertThat(node.render(nestedInterpreter).toString())
+        .isEqualTo("hello hello {{myvar}}");
+    }
   }
 
   @Test
   public void itDoesNotRescursivelyEvaluateExpressions() throws Exception {
-    context.put("myvar", "hello {{ place }}");
-    context.put("place", "{{location}}");
-    context.put("location", "this is a place.");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter = a.value();
+      nestedInterpreter.getContext().put("myvar", "hello {{ place }}");
+      nestedInterpreter.getContext().put("place", "{{location}}");
+      nestedInterpreter.getContext().put("location", "this is a place.");
 
-    ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(nestedInterpreter).toString())
-      .isEqualTo("hello this is a place.");
+      ExpressionNode node = fixture("simplevar");
+      assertThat(node.render(nestedInterpreter).toString())
+        .isEqualTo("hello this is a place.");
+    }
   }
 
   @Test
   public void itDoesNotRescursivelyEvaluateMoreExpressions() throws Exception {
-    context.put("myvar", "hello {{ place }}");
-    context.put("place", "there, {{ location }}");
-    context.put("location", "this is {{ place }}");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter = a.value();
+      nestedInterpreter.getContext().put("myvar", "hello {{ place }}");
+      nestedInterpreter.getContext().put("place", "there, {{ location }}");
+      nestedInterpreter.getContext().put("location", "this is {{ place }}");
 
-    ExpressionNode node = fixture("simplevar");
-    assertThat(node.render(nestedInterpreter).toString())
-      .isEqualTo("hello there, this is {{ place }}");
+      ExpressionNode node = fixture("simplevar");
+      assertThat(node.render(nestedInterpreter).toString())
+        .isEqualTo("hello there, this is {{ place }}");
+    }
   }
 
   @Test
   public void itRendersStringRange() throws Exception {
-    context.put("theString", "1234567890");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter = a.value();
+      interpreter.getContext().put("theString", "1234567890");
 
-    ExpressionNode node = fixture("string-range");
-    assertThat(node.render(interpreter).toString()).isEqualTo("345");
+      ExpressionNode node = fixture("string-range");
+      assertThat(node.render(interpreter).toString()).isEqualTo("345");
+    }
   }
 
   @Test
@@ -150,19 +206,25 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
         FeatureConfig.newBuilder().add(ECHO_UNDEFINED, FeatureStrategies.ACTIVE).build()
       )
       .build();
-    final JinjavaInterpreter jinjavaInterpreter = new Jinjava(config).newInterpreter();
-    jinjavaInterpreter.getContext().put("subject", "this");
+    try (
+      var a = JinjavaInterpreter
+        .closeablePushCurrent(new Jinjava(config).newInterpreter())
+        .get()
+    ) {
+      JinjavaInterpreter jinjavaInterpreter = a.value();
+      jinjavaInterpreter.getContext().put("subject", "this");
 
-    String template =
-      "{{ subject | capitalize() }} expression {{ testing.template('hello_world') }} " +
-      "has a {{ unknown | lower() }} " +
-      "token but {{ unknown | default(\"replaced\") }} and empty {{ '' }}";
-    Node node = new TreeParser(jinjavaInterpreter, template).buildTree();
-    assertThat(jinjavaInterpreter.render(node))
-      .isEqualTo(
-        "This expression {{ testing.template('hello_world') }} " +
-        "has a {{ unknown | lower() }} token but replaced and empty "
-      );
+      String template =
+        "{{ subject | capitalize() }} expression {{ testing.template('hello_world') }} " +
+        "has a {{ unknown | lower() }} " +
+        "token but {{ unknown | default(\"replaced\") }} and empty {{ '' }}";
+      Node node = new TreeParser(jinjavaInterpreter, template).buildTree();
+      assertThat(jinjavaInterpreter.render(node))
+        .isEqualTo(
+          "This expression {{ testing.template('hello_world') }} " +
+          "has a {{ unknown | lower() }} token but replaced and empty "
+        );
+    }
   }
 
   @Test
@@ -171,13 +233,18 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
       .newBuilder()
       .withFailOnUnknownTokens(true)
       .build();
-    JinjavaInterpreter jinjavaInterpreter = new Jinjava(config).newInterpreter();
-
-    String jinja = "{{ UnknownToken }}";
-    Node node = new TreeParser(jinjavaInterpreter, jinja).buildTree();
-    assertThatThrownBy(() -> jinjavaInterpreter.render(node))
-      .isInstanceOf(UnknownTokenException.class)
-      .hasMessage("Unknown token found: UnknownToken");
+    try (
+      var a = JinjavaInterpreter
+        .closeablePushCurrent(new Jinjava(config).newInterpreter())
+        .get()
+    ) {
+      JinjavaInterpreter jinjavaInterpreter = a.value();
+      String jinja = "{{ UnknownToken }}";
+      Node node = new TreeParser(jinjavaInterpreter, jinja).buildTree();
+      assertThatThrownBy(() -> jinjavaInterpreter.render(node))
+        .isInstanceOf(UnknownTokenException.class)
+        .hasMessage("Unknown token found: UnknownToken");
+    }
   }
 
   @Test
@@ -201,13 +268,18 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
       .newBuilder()
       .withFailOnUnknownTokens(true)
       .build();
-    JinjavaInterpreter jinjavaInterpreter = new Jinjava(config).newInterpreter();
-
-    String jinja = "{% if bad  %} BAD {% endif %}";
-    Node node = new TreeParser(jinjavaInterpreter, jinja).buildTree();
-    assertThatThrownBy(() -> jinjavaInterpreter.render(node))
-      .isInstanceOf(UnknownTokenException.class)
-      .hasMessageContaining("Unknown token found: bad");
+    try (
+      var a = JinjavaInterpreter
+        .closeablePushCurrent(new Jinjava(config).newInterpreter())
+        .get()
+    ) {
+      JinjavaInterpreter jinjavaInterpreter = a.value();
+      String jinja = "{% if bad  %} BAD {% endif %}";
+      Node node = new TreeParser(jinjavaInterpreter, jinja).buildTree();
+      assertThatThrownBy(() -> jinjavaInterpreter.render(node))
+        .isInstanceOf(UnknownTokenException.class)
+        .hasMessageContaining("Unknown token found: bad");
+    }
   }
 
   @Test
@@ -216,34 +288,45 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
       .newBuilder()
       .withFailOnUnknownTokens(true)
       .build();
-    JinjavaInterpreter jinjavaInterpreter = new Jinjava(config).newInterpreter();
-
-    String jinja = "{{ UnknownToken }}";
-    Node node = new TreeParser(jinjavaInterpreter, jinja).buildTree();
-    assertThatThrownBy(() -> jinjavaInterpreter.render(node))
-      .isInstanceOf(UnknownTokenException.class)
-      .hasMessage("Unknown token found: UnknownToken");
+    try (
+      var a = JinjavaInterpreter
+        .closeablePushCurrent(new Jinjava(config).newInterpreter())
+        .get()
+    ) {
+      JinjavaInterpreter jinjavaInterpreter = a.value();
+      String jinja = "{{ UnknownToken }}";
+      Node node = new TreeParser(jinjavaInterpreter, jinja).buildTree();
+      assertThatThrownBy(() -> jinjavaInterpreter.render(node))
+        .isInstanceOf(UnknownTokenException.class)
+        .hasMessage("Unknown token found: UnknownToken");
+    }
   }
 
   @Test
   public void valueExprWithOr() throws Exception {
-    context.put("a", "foo");
-    context.put("b", "bar");
-    context.put("c", "");
-    context.put("d", 0);
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter = a.value();
+      interpreter.getContext().put("a", "foo");
+      interpreter.getContext().put("b", "bar");
+      interpreter.getContext().put("c", "");
+      interpreter.getContext().put("d", 0);
 
-    assertThat(val("{{ a or b }}")).isEqualTo("foo");
-    assertThat(val("{{ c or a }}")).isEqualTo("foo");
-    assertThat(val("{{ d or b }}")).isEqualTo("bar");
+      assertThat(val("{{ a or b }}")).isEqualTo("foo");
+      assertThat(val("{{ c or a }}")).isEqualTo("foo");
+      assertThat(val("{{ d or b }}")).isEqualTo("bar");
+    }
   }
 
   @Test
   public void itEscapesValueWhenContextSet() throws Exception {
-    context.put("a", "foo < bar");
-    assertThat(val("{{ a }}")).isEqualTo("foo < bar");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter = a.value();
+      interpreter.getContext().put("a", "foo < bar");
+      assertThat(val("{{ a }}")).isEqualTo("foo < bar");
 
-    context.setAutoEscape(true);
-    assertThat(val("{{ a }}")).isEqualTo("foo &lt; bar");
+      interpreter.getContext().setAutoEscape(true);
+      assertThat(val("{{ a }}")).isEqualTo("foo &lt; bar");
+    }
   }
 
   @Test
@@ -260,15 +343,16 @@ public class ExpressionNodeTest extends BaseInterpretingTest {
           .build()
       )
       .build();
-    JinjavaInterpreter interpreter = new Jinjava(config).newInterpreter();
-    Context context = interpreter.getContext();
-    context.put("myvar", "hello {% if");
-    context.put("place", "world");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter = a.value();
+      interpreter.getContext().put("myvar", "hello {% if");
+      interpreter.getContext().put("place", "world");
 
-    ExpressionNode node = fixture("simplevar");
+      ExpressionNode node = fixture("simplevar");
 
-    assertThat(node.render(interpreter).toString()).isEqualTo("hello {% if");
-    assertThat(interpreter.getErrors()).isEmpty();
+      assertThat(node.render(interpreter).toString()).isEqualTo("hello {% if");
+      assertThat(interpreter.getErrors()).isEmpty();
+    }
   }
 
   private String val(String jinja) {

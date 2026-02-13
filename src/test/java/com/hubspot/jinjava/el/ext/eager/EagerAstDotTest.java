@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
+import com.hubspot.jinjava.el.ext.MethodValidator;
+import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -27,6 +29,17 @@ public class EagerAstDotTest extends BaseInterpretingTest {
       .withNestedInterpretationEnabled(true)
       .withLegacyOverrides(
         LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+      )
+      .withMethodValidator(
+        MethodValidator.create(
+          MethodValidatorConfig
+            .builder()
+            .addDefaultAllowlistGroups()
+            .addAllowedDeclaredMethodsFromCanonicalClassPrefixes(
+              EagerAstDotTest.class.getCanonicalName()
+            )
+            .build()
+        )
       )
       .withMaxMacroRecursionDepth(5)
       .withEnableRecursiveMacroCalls(true)

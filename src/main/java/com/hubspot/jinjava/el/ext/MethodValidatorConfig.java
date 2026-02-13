@@ -1,16 +1,28 @@
 package com.hubspot.jinjava.el.ext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ForwardingCollection;
+import com.google.common.collect.ForwardingList;
+import com.google.common.collect.ForwardingMap;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.JinjavaImmutableStyle;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.lib.filter.Filter;
+import com.hubspot.jinjava.objects.DummyObject;
+import com.hubspot.jinjava.objects.Namespace;
+import com.hubspot.jinjava.objects.SafeString;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
+import com.hubspot.jinjava.objects.collections.SnakeCaseAccessibleMap;
+import com.hubspot.jinjava.objects.date.FormattedDate;
+import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.util.ForLoop;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.util.AbstractCollection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -145,6 +157,7 @@ public abstract class MethodValidatorConfig {
           float.class,
           boolean.class,
           short.class,
+          BigDecimal.class,
         };
 
         @Override
@@ -160,12 +173,36 @@ public abstract class MethodValidatorConfig {
           return ARRAY;
         }
       },
+      JinjavaObjects {
+        private static final Class<?>[] ARRAY = {
+          PyList.class,
+          PyMap.class,
+          SizeLimitingPyMap.class,
+          SizeLimitingPyList.class,
+          SnakeCaseAccessibleMap.class,
+          FormattedDate.class,
+          PyishDate.class,
+          DummyObject.class,
+          Namespace.class,
+          SafeString.class,
+        };
+
+        @Override
+        Class<?>[] allowedDeclaredMethodsFromClasses() {
+          return ARRAY;
+        }
+      },
       Collections {
         private static final Class<?>[] ARRAY = {
           PyList.class,
           PyMap.class,
           SizeLimitingPyMap.class,
           SizeLimitingPyList.class,
+          ArrayList.class,
+          ForwardingList.class,
+          ForwardingMap.class,
+          ForwardingCollection.class,
+          AbstractCollection.class,
         };
 
         @Override
