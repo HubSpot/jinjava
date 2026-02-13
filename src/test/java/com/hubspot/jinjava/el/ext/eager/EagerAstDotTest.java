@@ -56,8 +56,11 @@ public class EagerAstDotTest extends BaseInterpretingTest {
 
   @Test
   public void itDefersWhenDotThrowsDeferredValueException() {
-    interpreter.getContext().put("foo", new Foo());
-    assertThat(interpreter.render("{{ foo.deferred }}")).isEqualTo("{{ foo.deferred }}");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter.getContext().put("foo", new Foo());
+      assertThat(interpreter.render("{{ foo.deferred }}"))
+        .isEqualTo("{{ foo.deferred }}");
+    }
   }
 
   @Test

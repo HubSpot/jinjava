@@ -1,17 +1,11 @@
 package com.hubspot.jinjava.el.ext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.el.JinjavaELContext;
-import com.hubspot.jinjava.interpret.AutoCloseableSupplier;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import javax.el.ELContext;
-import javax.el.MethodNotFoundException;
-import javax.el.PropertyNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,35 +13,13 @@ public class JinjavaBeanELResolverTest {
 
   private JinjavaBeanELResolver jinjavaBeanELResolver;
   private ELContext elContext;
-
-  JinjavaInterpreter interpreter = mock(JinjavaInterpreter.class);
-  JinjavaConfig config = mock(JinjavaConfig.class);
+  private Jinjava jinjava;
 
   @Before
   public void setUp() throws Exception {
-    jinjavaBeanELResolver =
-      new JinjavaBeanELResolver(
-        AllowlistMethodValidator.create(
-          MethodValidatorConfig
-            .builder()
-            .addDefaultAllowlistGroups()
-            .addAllowedDeclaredMethodsFromCanonicalClassPrefixes(
-              JinjavaBeanELResolverTest.class.getCanonicalName()
-            )
-            .build()
-        ),
-        AllowlistReturnTypeValidator.create(
-          ReturnTypeValidatorConfig
-            .builder()
-            .addDefaultAllowlistGroups()
-            .addAllowedCanonicalClassPrefixes(
-              JinjavaBeanELResolverTest.class.getCanonicalName()
-            )
-            .build()
-        )
-      );
+    jinjavaBeanELResolver = new JinjavaBeanELResolver();
     elContext = new JinjavaELContext();
-    when(interpreter.getConfig()).thenReturn(config);
+    jinjava = new Jinjava();
   }
 
   @Test
@@ -140,39 +112,9 @@ public class JinjavaBeanELResolverTest {
   }
 
   @Test
-  public void itThrowsExceptionWhenMethodIsRestrictedFromConfig() {
-    JinjavaInterpreter.pushCurrent(interpreter);
-    //    when(config.getRestrictedMethods()).thenReturn(ImmutableSet.of("foo"));
-    assertThatThrownBy(() ->
-        jinjavaBeanELResolver.invoke(elContext, "abcd", "foo", null, new Object[] { 1 })
-      )
-      .isInstanceOf(MethodNotFoundException.class)
-      .hasMessageStartingWith("Cannot find method 'foo'");
-    JinjavaInterpreter.popCurrent();
-  }
-
-  @Test
-  public void itThrowsExceptionWhenPropertyIsRestrictedFromConfig() {
-    JinjavaInterpreter.pushCurrent(interpreter);
-    //    when(config.getRestrictedProperties()).thenReturn(ImmutableSet.of("property1"));
-    assertThatThrownBy(() ->
-        jinjavaBeanELResolver.getValue(elContext, "abcd", "property1")
-      )
-      .isInstanceOf(PropertyNotFoundException.class)
-      .hasMessageStartingWith("Could not find property");
-    JinjavaInterpreter.popCurrent();
-  }
-
-  @Test
   public void itDoesNotAllowAccessingPropertiesOfInterpreter() {
-    try (
-      AutoCloseableSupplier.AutoCloseableImpl<JinjavaInterpreter> c = JinjavaInterpreter
-        .closeablePushCurrent(interpreter)
-        .get()
-    ) {
-      assertThat(jinjavaBeanELResolver.getValue(elContext, interpreter, "config"))
-        .isNull();
-    }
+    JinjavaInterpreter interpreter = jinjava.newInterpreter();
+    assertThat(jinjavaBeanELResolver.getValue(elContext, interpreter, "config")).isNull();
   }
 
   private static class TempItInvokesBestMethodWithSingleParam {

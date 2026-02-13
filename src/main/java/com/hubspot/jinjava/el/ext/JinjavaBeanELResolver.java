@@ -70,9 +70,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
   @Override
   public Object getValue(ELContext context, Object base, Object property) {
-    return getJinjavaConfig()
-      .getReturnTypeValidator()
-      .validateReturnType(super.getValue(context, base, transformPropertyName(property)));
+    return super.getValue(context, base, transformPropertyName(property));
   }
 
   @Override
@@ -111,9 +109,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       );
     }
 
-    return getJinjavaConfig()
-      .getReturnTypeValidator()
-      .validateReturnType(super.invoke(context, base, method, paramTypes, params));
+    return super.invoke(context, base, method, paramTypes, params);
   }
 
   @Override
@@ -181,7 +177,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     return Objects
       .requireNonNull(
         JinjavaInterpreter.getCurrent(),
-        "JinjavaInterpreter.closeablePushCurrent must be used if using a JinjavaInterpreter directly"
+        "JinjavaInterpreter.closeablePushCurrent must be used if using a JinjavaBeanELResolver directly"
       )
       .getConfig();
   }

@@ -273,6 +273,7 @@ public class EagerExpressionResolverTest {
 
   @Test
   public void itSupportsOrderOfOperations() {
+    eagerResolveExpression("['a','b'][1]");
     EagerExpressionResult eagerExpressionResult = eagerResolveExpression(
       "[0,1]|reverse + deferred"
     );

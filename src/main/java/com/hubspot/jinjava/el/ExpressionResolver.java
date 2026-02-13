@@ -41,7 +41,7 @@ public class ExpressionResolver {
 
   private final JinjavaInterpreter interpreter;
   private final ExpressionFactory expressionFactory;
-  private final JinjavaInterpreterResolver resolver;
+  private final ReturnTypeValidatingJinjavaInterpreterResolver resolver;
   private final JinjavaELContext elContext;
   private final ObjectUnwrapper objectUnwrapper;
 
@@ -55,7 +55,11 @@ public class ExpressionResolver {
         ? jinjava.getEagerExpressionFactory()
         : jinjava.getExpressionFactory();
 
-    this.resolver = new JinjavaInterpreterResolver(interpreter);
+    this.resolver =
+      new ReturnTypeValidatingJinjavaInterpreterResolver(
+        interpreter.getConfig().getReturnTypeValidator(),
+        new JinjavaInterpreterResolver(interpreter)
+      );
     this.elContext = new JinjavaELContext(interpreter, resolver);
     for (ELFunctionDefinition fn : jinjava.getGlobalContext().getAllFunctions()) {
       this.elContext.setFunction(fn.getNamespace(), fn.getLocalName(), fn.getMethod());
