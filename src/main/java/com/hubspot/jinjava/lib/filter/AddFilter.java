@@ -74,7 +74,7 @@ public class AddFilter implements Filter {
     }
 
     if (args[0] == null) {
-      return base;
+      return null;
     }
 
     BigDecimal addend;
