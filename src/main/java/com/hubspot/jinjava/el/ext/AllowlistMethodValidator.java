@@ -3,9 +3,11 @@ package com.hubspot.jinjava.el.ext;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.lang.reflect.Method;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class AllowlistMethodValidator {
 
+  private final ConcurrentHashMap<Method, Boolean> allowedMethodsCache;
   private final ImmutableSet<Method> allowedMethods;
   private final ImmutableSet<String> allowedDeclaredMethodsFromCanonicalClassPrefixes;
   private final ImmutableSet<String> allowedDeclaredMethodsFromCanonicalClassNames;
@@ -31,29 +33,37 @@ public final class AllowlistMethodValidator {
     this.allowedDeclaredMethodsFromCanonicalClassNames =
       methodValidatorConfig.allowedDeclaredMethodsFromCanonicalClassNames();
     this.additionalValidators = additionalValidators;
+    this.allowedMethodsCache = new ConcurrentHashMap<>();
   }
 
   public Method validateMethod(Method m) {
     if (m == null) {
       return null;
     }
-    Class<?> clazz = m.getDeclaringClass();
-    String canonicalClassName = clazz.getCanonicalName();
-    if (
-      allowedMethods.contains(m) ||
-      allowedDeclaredMethodsFromCanonicalClassNames.contains(canonicalClassName) ||
-      allowedDeclaredMethodsFromCanonicalClassPrefixes
-        .stream()
-        .anyMatch(canonicalClassName::startsWith)
-    ) {
-      for (MethodValidator v : additionalValidators) {
-        m = v.validateMethod(m);
-        if (m == null) {
-          return null;
-        }
+    boolean isAllowedMethod = allowedMethodsCache.computeIfAbsent(
+      m,
+      m1 -> {
+        Class<?> clazz = m1.getDeclaringClass();
+        String canonicalClassName = clazz.getCanonicalName();
+        return (
+          allowedMethods.contains(m1) ||
+          allowedDeclaredMethodsFromCanonicalClassNames.contains(canonicalClassName) ||
+          allowedDeclaredMethodsFromCanonicalClassPrefixes
+            .stream()
+            .anyMatch(canonicalClassName::startsWith)
+        );
       }
-      return m;
+    );
+    if (!isAllowedMethod) {
+      return null;
     }
-    return null;
+    for (MethodValidator v : additionalValidators) {
+      m = v.validateMethod(m);
+      if (m == null) {
+        return null;
+      }
+    }
+
+    return m;
   }
 }

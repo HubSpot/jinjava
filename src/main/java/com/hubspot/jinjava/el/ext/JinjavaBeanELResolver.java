@@ -51,6 +51,54 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     .add("merge")
     .build();
 
+  protected static final class BeanMethods {
+
+    private final Map<String, List<BeanMethod>> map = new HashMap<>();
+
+    public BeanMethods(Class<?> baseClass) {
+      MethodDescriptor[] descriptors;
+      try {
+        descriptors = Introspector.getBeanInfo(baseClass).getMethodDescriptors();
+      } catch (IntrospectionException e) {
+        throw new ELException(e);
+      }
+      for (MethodDescriptor descriptor : descriptors) {
+        map.compute(
+          descriptor.getName(),
+          (k, v) -> {
+            if (v == null) {
+              v = new LinkedList<>();
+            }
+            v.add(new BeanMethod(descriptor));
+            return v;
+          }
+        );
+      }
+    }
+
+    public List<BeanMethod> getBeanMethods(String methodName) {
+      return map.get(methodName);
+    }
+
+    protected static final class BeanMethod {
+
+      private final MethodDescriptor descriptor;
+
+      private Method method;
+
+      public BeanMethod(MethodDescriptor descriptor) {
+        this.descriptor = descriptor;
+      }
+
+      public Method getMethod() {
+        if (method == null) {
+          method = findAccessibleMethod(descriptor.getMethod());
+        }
+        return method;
+      }
+    }
+  }
+
   private final ConcurrentHashMap<Class<?>, BeanMethods> beanMethodsCache;
 
   public JinjavaBeanELResolver() {
@@ -143,18 +191,24 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       method = super.findMethod(base, name, types, params, paramCount);
     } else {
       Method varArgsMethod = null;
+      BeanMethods beanMethods = beanMethodsCache.get(base.getClass());
+      if (beanMethods == null) {
+        BeanMethods newBeanMethods = new BeanMethods(base.getClass());
+        beanMethods = beanMethodsCache.putIfAbsent(base.getClass(), newBeanMethods);
+        if (beanMethods == null) { // put succeeded, use new value
+          beanMethods = newBeanMethods;
+        }
+      }
 
-      Method[] methods = base.getClass().getMethods();
       List<Method> potentialMethods = new LinkedList<>();
 
-      for (Method m : methods) {
-        if (m.getName().equals(name)) {
-          int formalParamCount = m.getParameterTypes().length;
-          if (m.isVarArgs() && paramCount >= formalParamCount - 1) {
-            varArgsMethod = m;
-          } else if (paramCount == formalParamCount) {
-            potentialMethods.add(findAccessibleMethod(m));
-          }
+      for (BeanMethods.BeanMethod bm : beanMethods.getBeanMethods(name)) {
+        Method m = bm.getMethod();
+        int formalParamCount = m.getParameterTypes().length;
+        if (m.isVarArgs() && paramCount >= formalParamCount - 1) {
+          varArgsMethod = m;
+        } else if (paramCount == formalParamCount) {
+          potentialMethods.add(m);
         }
       }
       final Method finalVarArgsMethod = varArgsMethod;
@@ -163,15 +217,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
           .stream()
           .filter(m -> checkAssignableParameterTypes(params, m))
           .min(JinjavaBeanELResolver::pickMoreSpecificMethod)
-          .orElseGet(() ->
-            potentialMethods
-              .stream()
-              .findAny()
-              .orElseGet(() ->
-                finalVarArgsMethod == null
-                  ? null
-                  : findAccessibleMethod(finalVarArgsMethod)
-              )
+          .orElseGet(() -> potentialMethods.stream().findAny().orElse(finalVarArgsMethod)
           );
     }
     return getJinjavaConfig().getMethodValidator().validateMethod(method);
@@ -240,53 +286,5 @@ public class JinjavaBeanELResolver extends BeanELResolver {
       return propertyStr;
     }
     return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, propertyStr);
-  }
-
-  protected final class BeanMethods {
-
-    private final Map<String, List<BeanMethod>> map = new HashMap<>();
-
-    public BeanMethods(Class<?> baseClass) {
-      MethodDescriptor[] descriptors;
-      try {
-        descriptors = Introspector.getBeanInfo(baseClass).getMethodDescriptors();
-      } catch (IntrospectionException e) {
-        throw new ELException(e);
-      }
-      for (MethodDescriptor descriptor : descriptors) {
-        map.compute(
-          descriptor.getName(),
-          (k, v) -> {
-            if (v == null) {
-              v = new LinkedList<>();
-            }
-            v.add(new BeanMethod(descriptor));
-            return v;
-          }
-        );
-      }
-    }
-
-    public List<BeanMethod> getBeanMethods(String methodName) {
-      return map.get(methodName);
-    }
-  }
-
-  protected final class BeanMethod {
-
-    private final MethodDescriptor descriptor;
-
-    private Method method;
-
-    public BeanMethod(MethodDescriptor descriptor) {
-      this.descriptor = descriptor;
-    }
-
-    public Method getMethod() {
-      if (method == null) {
-        method = findAccessibleMethod(descriptor.getMethod());
-      }
-      return method;
-    }
   }
 }

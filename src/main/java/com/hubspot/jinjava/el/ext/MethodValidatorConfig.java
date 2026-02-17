@@ -93,11 +93,8 @@ public abstract class MethodValidatorConfig {
           .addAllowedDeclaredMethodsFromCanonicalClassPrefixes(
             allowlistGroup.allowedDeclaredMethodsFromCanonicalClassPrefixes()
           )
-          .addAllAllowedDeclaredMethodsFromCanonicalClassNames(
-            Arrays
-              .stream(allowlistGroup.allowedDeclaredMethodsFromClasses())
-              .map(Class::getCanonicalName)
-              .toList()
+          .addAllowedDeclaredMethodsFromCanonicalClassNames(
+            allowlistGroup.allowedDeclaredMethodsFromClasses()
           );
       }
       return this;

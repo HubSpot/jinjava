@@ -23,102 +23,105 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public enum AllowlistGroup {
   JavaPrimitives {
-    private static final Class<?>[] ARRAY = {
-      String.class,
-      Long.class,
-      Integer.class,
-      Double.class,
-      Byte.class,
-      Character.class,
-      Float.class,
-      Boolean.class,
-      Short.class,
-      long.class,
-      int.class,
-      double.class,
-      byte.class,
-      char.class,
-      float.class,
-      boolean.class,
-      short.class,
-      BigDecimal.class,
+    private static final String[] ARRAY = {
+      String.class.getCanonicalName(),
+      Long.class.getCanonicalName(),
+      Integer.class.getCanonicalName(),
+      Double.class.getCanonicalName(),
+      Byte.class.getCanonicalName(),
+      Character.class.getCanonicalName(),
+      Float.class.getCanonicalName(),
+      Boolean.class.getCanonicalName(),
+      Short.class.getCanonicalName(),
+      long.class.getCanonicalName(),
+      int.class.getCanonicalName(),
+      double.class.getCanonicalName(),
+      byte.class.getCanonicalName(),
+      char.class.getCanonicalName(),
+      float.class.getCanonicalName(),
+      boolean.class.getCanonicalName(),
+      short.class.getCanonicalName(),
+      BigDecimal.class.getCanonicalName(),
     };
 
     @Override
-    Class<?>[] allowedReturnTypeClasses() {
+    String[] allowedReturnTypeClasses() {
       return ARRAY;
     }
 
     @Override
-    Class<?>[] allowedDeclaredMethodsFromClasses() {
+    String[] allowedDeclaredMethodsFromClasses() {
       return ARRAY;
     }
   },
   JinjavaObjects {
-    private static final Class<?>[] ARRAY = {
-      PyList.class,
-      PyMap.class,
-      SizeLimitingPyMap.class,
-      SizeLimitingPyList.class,
-      SnakeCaseAccessibleMap.class,
-      FormattedDate.class,
-      PyishDate.class,
-      DummyObject.class,
-      Namespace.class,
-      SafeString.class,
+    private static final String[] ARRAY = {
+      PyList.class.getCanonicalName(),
+      PyMap.class.getCanonicalName(),
+      SizeLimitingPyMap.class.getCanonicalName(),
+      SizeLimitingPyList.class.getCanonicalName(),
+      SnakeCaseAccessibleMap.class.getCanonicalName(),
+      FormattedDate.class.getCanonicalName(),
+      PyishDate.class.getCanonicalName(),
+      DummyObject.class.getCanonicalName(),
+      Namespace.class.getCanonicalName(),
+      SafeString.class.getCanonicalName(),
     };
 
     @Override
-    Class<?>[] allowedReturnTypeClasses() {
+    String[] allowedReturnTypeClasses() {
       return ARRAY;
     }
 
     @Override
-    Class<?>[] allowedDeclaredMethodsFromClasses() {
+    String[] allowedDeclaredMethodsFromClasses() {
       return ARRAY;
     }
   },
   Collections {
-    private static final Class<?>[] ARRAY = {
-      Map.Entry.class,
-      PyList.class,
-      PyMap.class,
-      PySet.class,
-      SizeLimitingPyMap.class,
-      SizeLimitingPyList.class,
-      SizeLimitingPySet.class,
-      ArrayList.class,
-      ForwardingList.class,
-      ForwardingMap.class,
-      ForwardingSet.class,
-      ForwardingCollection.class,
-      AbstractCollection.class,
+    private static final String[] ARRAY = {
+      Map.Entry.class.getCanonicalName(),
+      PyList.class.getCanonicalName(),
+      PyMap.class.getCanonicalName(),
+      PySet.class.getCanonicalName(),
+      SizeLimitingPyMap.class.getCanonicalName(),
+      SizeLimitingPyList.class.getCanonicalName(),
+      SizeLimitingPySet.class.getCanonicalName(),
+      ArrayList.class.getCanonicalName(),
+      ForwardingList.class.getCanonicalName(),
+      ForwardingMap.class.getCanonicalName(),
+      ForwardingSet.class.getCanonicalName(),
+      ForwardingCollection.class.getCanonicalName(),
+      AbstractCollection.class.getCanonicalName(),
+      LinkedHashMap.class.getCanonicalName(),
+      "%s.Entry".formatted(LinkedHashMap.class.getCanonicalName()),
     };
 
     @Override
-    Class<?>[] allowedReturnTypeClasses() {
+    String[] allowedReturnTypeClasses() {
       return ARRAY;
     }
 
     @Override
-    Class<?>[] allowedDeclaredMethodsFromClasses() {
+    String[] allowedDeclaredMethodsFromClasses() {
       return ARRAY;
     }
   },
   JinjavaTagConstructs {
-    private static final Class<?>[] ARRAY = { ForLoop.class };
+    private static final String[] ARRAY = { ForLoop.class.getCanonicalName() };
 
     @Override
-    Class<?>[] allowedReturnTypeClasses() {
+    String[] allowedReturnTypeClasses() {
       return ARRAY;
     }
 
     @Override
-    Class<?>[] allowedDeclaredMethodsFromClasses() {
+    String[] allowedDeclaredMethodsFromClasses() {
       return ARRAY;
     }
   },
@@ -153,15 +156,15 @@ public enum AllowlistGroup {
     return new String[0];
   }
 
-  Class<?>[] allowedDeclaredMethodsFromClasses() {
-    return new Class[0];
+  String[] allowedDeclaredMethodsFromClasses() {
+    return new String[0];
   }
 
   String[] allowedReturnTypeCanonicalClassPrefixes() {
     return new String[0];
   }
 
-  Class<?>[] allowedReturnTypeClasses() {
-    return new Class[0];
+  String[] allowedReturnTypeClasses() {
+    return new String[0];
   }
 }

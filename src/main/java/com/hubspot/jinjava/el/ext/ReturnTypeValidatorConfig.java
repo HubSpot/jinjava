@@ -74,12 +74,7 @@ public abstract class ReturnTypeValidatorConfig {
         this.addAllowedCanonicalClassPrefixes(
             allowlistGroup.allowedReturnTypeCanonicalClassPrefixes()
           )
-          .addAllAllowedCanonicalClassNames(
-            Arrays
-              .stream(allowlistGroup.allowedReturnTypeClasses())
-              .map(Class::getCanonicalName)
-              .toList()
-          );
+          .addAllowedCanonicalClassNames(allowlistGroup.allowedReturnTypeClasses());
       }
       return this;
     }

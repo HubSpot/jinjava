@@ -2,8 +2,11 @@ package com.hubspot.jinjava.el.ext;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class AllowlistReturnTypeValidator {
+
+  private final ConcurrentHashMap<String, Boolean> allowedReturnTypesCache;
 
   private final ImmutableSet<String> allowedCanonicalClassPrefixes;
   private final ImmutableSet<String> allowedCanonicalClassNames;
@@ -28,6 +31,7 @@ public final class AllowlistReturnTypeValidator {
     this.allowedCanonicalClassNames =
       returnTypeValidatorConfig.allowedCanonicalClassNames();
     this.additionalValidators = additionalValidators;
+    this.allowedReturnTypesCache = new ConcurrentHashMap<>();
   }
 
   public Object validateReturnType(Object o) {
@@ -36,18 +40,21 @@ public final class AllowlistReturnTypeValidator {
     }
     Class<?> clazz = o.getClass();
     String canonicalClassName = clazz.getCanonicalName();
-    if (
-      allowedCanonicalClassNames.contains(canonicalClassName) ||
-      allowedCanonicalClassPrefixes.stream().anyMatch(canonicalClassName::startsWith)
-    ) {
-      for (ReturnTypeValidator v : additionalValidators) {
-        o = v.validateReturnType(o);
-        if (o == null) {
-          return null;
-        }
-      }
-      return o;
+    boolean isAllowedClassName = allowedReturnTypesCache.computeIfAbsent(
+      canonicalClassName,
+      c ->
+        allowedCanonicalClassNames.contains(canonicalClassName) ||
+        allowedCanonicalClassPrefixes.stream().anyMatch(canonicalClassName::startsWith)
+    );
+    if (!isAllowedClassName) {
+      return null;
     }
-    return null;
+    for (ReturnTypeValidator v : additionalValidators) {
+      o = v.validateReturnType(o);
+      if (o == null) {
+        return null;
+      }
+    }
+    return o;
   }
 }
