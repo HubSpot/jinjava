@@ -662,7 +662,7 @@ public class BeanELResolver extends ELResolver {
     return toBeanProperty(base, property).getReadMethod();
   }
 
-  private void coerceValue(
+  protected void coerceValue(
     Object array,
     int index,
     ExpressionFactory factory,

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.el.JinjavaELContext;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import javax.el.ELContext;
 import org.junit.Before;
@@ -113,8 +114,13 @@ public class JinjavaBeanELResolverTest {
 
   @Test
   public void itDoesNotAllowAccessingPropertiesOfInterpreter() {
-    JinjavaInterpreter interpreter = jinjava.newInterpreter();
-    assertThat(jinjavaBeanELResolver.getValue(elContext, interpreter, "config")).isNull();
+    try (
+      AutoCloseableSupplier.AutoCloseableImpl<JinjavaInterpreter> a = JinjavaInterpreter
+        .closeablePushCurrent(jinjava.newInterpreter())
+        .get()
+    ) {
+      assertThat(jinjavaBeanELResolver.getValue(elContext, a.value(), "config")).isNull();
+    }
   }
 
   private static class TempItInvokesBestMethodWithSingleParam {

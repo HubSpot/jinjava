@@ -2,7 +2,6 @@ package com.hubspot.jinjava.el.ext;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 
 public final class AllowlistReturnTypeValidator {
 
@@ -32,27 +31,22 @@ public final class AllowlistReturnTypeValidator {
   }
 
   public Object validateReturnType(Object o) {
-    Object wrapped = JinjavaInterpreter
-      .getCurrentMaybe()
-      .map(jinjavaInterpreter -> jinjavaInterpreter.wrap(o))
-      .orElse(o);
-
-    if (wrapped == null) {
+    if (o == null) {
       return null;
     }
-    Class<?> clazz = wrapped.getClass();
+    Class<?> clazz = o.getClass();
     String canonicalClassName = clazz.getCanonicalName();
     if (
       allowedCanonicalClassNames.contains(canonicalClassName) ||
       allowedCanonicalClassPrefixes.stream().anyMatch(canonicalClassName::startsWith)
     ) {
       for (ReturnTypeValidator v : additionalValidators) {
-        wrapped = v.validateReturnType(wrapped);
-        if (wrapped == null) {
+        o = v.validateReturnType(o);
+        if (o == null) {
           return null;
         }
       }
-      return wrapped;
+      return o;
     }
     return null;
   }

@@ -10,6 +10,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.MethodDescriptor;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -20,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.el.ELContext;
 import javax.el.ELException;
+import javax.el.ExpressionFactory;
 import javax.el.MethodNotFoundException;
 
 /**
@@ -110,6 +112,22 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     }
 
     return super.invoke(context, base, method, paramTypes, params);
+  }
+
+  // As opposed to supporting ____int3rpr3t3r____, coerce JinjavaInterpreter on validated methods
+  @Override
+  protected void coerceValue(
+    Object array,
+    int index,
+    ExpressionFactory factory,
+    Object value,
+    Class<?> type
+  ) {
+    if (type.equals(JinjavaInterpreter.class)) {
+      Array.set(array, index, JinjavaInterpreter.getCurrent());
+    } else {
+      super.coerceValue(array, index, factory, value, type);
+    }
   }
 
   @Override

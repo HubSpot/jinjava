@@ -1,11 +1,10 @@
 package com.hubspot.jinjava.el.ext.eager;
 
+import com.hubspot.jinjava.el.HasInterpreter;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValueException;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import de.odysseus.el.tree.Bindings;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import de.odysseus.el.tree.impl.ast.AstParameters;
@@ -41,9 +40,8 @@ public class EagerAstParameters extends AstParameters implements EvalResultHolde
   public Object[] eval(Bindings bindings, ELContext context) {
     try (
       TemporaryValueClosable<Boolean> c =
-        ((JinjavaInterpreter) context
-            .getELResolver()
-            .getValue(context, null, ExtendedParser.INTERPRETER)).getContext()
+        ((HasInterpreter) context).interpreter()
+          .getContext()
           .withPartialMacroEvaluation(false)
     ) {
       try {

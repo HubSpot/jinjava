@@ -7,7 +7,9 @@ import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.el.ext.AllowlistMethodValidator;
+import com.hubspot.jinjava.el.ext.AllowlistReturnTypeValidator;
 import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
+import com.hubspot.jinjava.el.ext.ReturnTypeValidatorConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
@@ -38,6 +40,15 @@ public class EagerAstDotTest extends BaseInterpretingTest {
             .addAllowedDeclaredMethodsFromCanonicalClassPrefixes(
               EagerAstDotTest.class.getCanonicalName()
             )
+            .build()
+        )
+      )
+      .withReturnTypeValidator(
+        AllowlistReturnTypeValidator.create(
+          ReturnTypeValidatorConfig
+            .builder()
+            .addDefaultAllowlistGroups()
+            .addAllowedCanonicalClassPrefixes(EagerAstDotTest.class.getCanonicalName())
             .build()
         )
       )

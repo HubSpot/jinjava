@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.el.ext;
 
+import com.hubspot.jinjava.el.HasInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateStateException;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
@@ -26,10 +27,7 @@ public class AstDict extends AstLiteral {
   public Object eval(Bindings bindings, ELContext context) {
     Map<String, Object> resolved = new LinkedHashMap<>();
 
-    JinjavaInterpreter interpreter = (JinjavaInterpreter) context
-      .getELResolver()
-      .getValue(context, null, ExtendedParser.INTERPRETER);
-
+    JinjavaInterpreter interpreter = ((HasInterpreter) context).interpreter();
     for (Map.Entry<AstNode, AstNode> entry : dict.entrySet()) {
       String key;
       AstNode entryKey = entry.getKey();

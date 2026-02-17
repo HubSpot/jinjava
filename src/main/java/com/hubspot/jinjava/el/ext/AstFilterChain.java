@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.el.ext;
 
+import com.hubspot.jinjava.el.HasInterpreter;
 import com.hubspot.jinjava.interpret.DisabledException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
@@ -120,9 +121,7 @@ public class AstFilterChain extends AstRightValue {
   }
 
   protected JinjavaInterpreter getInterpreter(ELContext context) {
-    return (JinjavaInterpreter) context
-      .getELResolver()
-      .getValue(context, null, ExtendedParser.INTERPRETER);
+    return ((HasInterpreter) context).interpreter();
   }
 
   protected Object[] evaluateFilterArgs(

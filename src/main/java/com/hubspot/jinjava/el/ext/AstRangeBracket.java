@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.el.ext;
 
 import com.google.common.collect.Iterables;
+import com.hubspot.jinjava.el.HasInterpreter;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
@@ -79,9 +80,7 @@ public class AstRangeBracket extends AstBracket {
     int startNum = ((Number) start).intValue();
     int endNum = ((Number) end).intValue();
 
-    JinjavaInterpreter interpreter = (JinjavaInterpreter) context
-      .getELResolver()
-      .getValue(context, null, ExtendedParser.INTERPRETER);
+    JinjavaInterpreter interpreter = ((HasInterpreter) context).interpreter();
 
     PyList result = new SizeLimitingPyList(
       new ArrayList<>(),

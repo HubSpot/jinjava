@@ -276,7 +276,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     }
 
     context.setPropertyResolved(true);
-    return wrap(value);
+    return value;
   }
 
   @SuppressWarnings("unchecked")

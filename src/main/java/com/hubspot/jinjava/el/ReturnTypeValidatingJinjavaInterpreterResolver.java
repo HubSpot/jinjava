@@ -40,7 +40,7 @@ class ReturnTypeValidatingJinjavaInterpreterResolver extends ELResolver {
   @Override
   public Object getValue(ELContext context, Object base, Object property) {
     return returnTypeValidator.validateReturnType(
-      delegate.getValue(context, base, property)
+      wrap(delegate.getValue(context, base, property))
     );
   }
 
@@ -63,7 +63,11 @@ class ReturnTypeValidatingJinjavaInterpreterResolver extends ELResolver {
     Object[] params
   ) {
     return returnTypeValidator.validateReturnType(
-      delegate.invoke(context, base, method, paramTypes, params)
+      wrap(delegate.invoke(context, base, method, paramTypes, params))
     );
+  }
+
+  Object wrap(Object object) {
+    return delegate.wrap(object);
   }
 }

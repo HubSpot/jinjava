@@ -129,6 +129,11 @@ public enum AllowlistGroup {
     String[] allowedDeclaredMethodsFromCanonicalClassPrefixes() {
       return ARRAY;
     }
+
+    @Override
+    String[] allowedReturnTypeCanonicalClassPrefixes() {
+      return ARRAY;
+    }
   },
   JinjavaFunctions,
   JinjavaExpTests {

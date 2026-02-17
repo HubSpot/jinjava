@@ -1,10 +1,10 @@
 package com.hubspot.jinjava.el.ext.eager;
 
+import com.hubspot.jinjava.el.HasInterpreter;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import com.hubspot.jinjava.interpret.DeferredValueException;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MetaContextVariables;
 import com.hubspot.jinjava.interpret.PartiallyDeferredValue;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
@@ -52,10 +52,7 @@ public interface EvalResultHolder {
     if (
       evalResult instanceof Collection &&
       ((Collection<?>) evalResult).size() > 100 && // TODO make size configurable
-      ((JinjavaInterpreter) context
-          .getELResolver()
-          .getValue(context, null, ExtendedParser.INTERPRETER)).getContext()
-        .isDeferLargeObjects()
+      ((HasInterpreter) context).interpreter().getContext().isDeferLargeObjects()
     ) {
       throw new DeferredValueException("Collection too big");
     }
@@ -128,9 +125,7 @@ public interface EvalResultHolder {
           if (
             MetaContextVariables.isMetaContextVariable(
               name,
-              ((JinjavaInterpreter) context
-                  .getELResolver()
-                  .getValue(context, null, ExtendedParser.INTERPRETER)).getContext()
+              ((HasInterpreter) context).interpreter().getContext()
             )
           ) {
             return name;
