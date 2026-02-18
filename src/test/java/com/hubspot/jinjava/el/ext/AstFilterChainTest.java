@@ -78,7 +78,7 @@ public class AstFilterChainTest {
   }
 
   @Test
-  public void itFallsBackToUnoptimizedForUnknownFilterInChain() {
+  public void itHandlesUnknownFilterInChain() {
     context.put("module", new PyishDate(ZonedDateTime.parse("2024-01-15T10:30:00Z")));
     RenderResult renderResult = jinjava.renderForResult(
       "{% set mid = module | local_dt|unixtimestamp | pprint | md5 %}{{ mid }}",
@@ -93,12 +93,12 @@ public class AstFilterChainTest {
         .stream()
         .noneMatch(e -> e.getMessage().contains("Unknown filter"))
     )
-      .as("Should not report 'Unknown filter' error when falling back")
+      .as("Should not report 'Unknown filter' error")
       .isTrue();
   }
 
   @Test
-  public void itFallsBackToUnoptimizedForUnknownFilterParity() {
+  public void itMatchesNonChainedBehaviorForUnknownFilter() {
     String template = "{{ name | unknown_filter | lower | md5 }}";
     Jinjava jinjavaUnoptimized = new Jinjava(
       JinjavaConfig.newBuilder().withEnableFilterChainOptimization(false).build()
