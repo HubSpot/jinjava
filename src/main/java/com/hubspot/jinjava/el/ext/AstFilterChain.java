@@ -89,19 +89,8 @@ public class AstFilterChain extends AstRightValue {
         continue;
       }
       if (filter == null) {
-        interpreter.addError(
-          new TemplateError(
-            ErrorType.WARNING,
-            ErrorReason.UNKNOWN,
-            ErrorItem.FILTER,
-            String.format("Unknown filter: %s", spec.getName()),
-            spec.getName(),
-            interpreter.getLineNumber(),
-            -1,
-            null
-          )
-        );
-        return null;
+        value = null;
+        continue;
       }
 
       Object[] args = evaluateFilterArgs(spec, bindings, context);
