@@ -2,13 +2,19 @@ package com.hubspot.jinjava.el.ext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.RenderResult;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -104,6 +110,62 @@ public class AstFilterChainTest {
     );
     assertThat(optimizedResult.getOutput())
       .as("Optimized should match un-optimized for unknown filter in chain")
+      .isEqualTo(unoptimizedResult.getOutput());
+  }
+
+  @Test
+  public void itSkipsDisabledFilterAndContinuesChain() {
+    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(
+      Context.Library.FILTER,
+      ImmutableSet.of("lower")
+    );
+    Jinjava jinjavaWithDisabled = new Jinjava(
+      JinjavaConfig
+        .newBuilder()
+        .withEnableFilterChainOptimization(true)
+        .withDisabled(disabled)
+        .build()
+    );
+
+    RenderResult result = jinjavaWithDisabled.renderForResult(
+      "{{ name|trim|lower|capitalize }}",
+      context
+    );
+
+    assertThat(result.getErrors()).isNotEmpty();
+    assertThat(result.getErrors().get(0).getItem()).isEqualTo(ErrorItem.FILTER);
+    assertThat(result.getErrors().get(0).getReason()).isEqualTo(ErrorReason.DISABLED);
+    assertThat(result.getErrors().get(0).getMessage()).contains("lower");
+  }
+
+  @Test
+  public void itMatchesNonChainedBehaviorForDisabledFilter() {
+    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(
+      Context.Library.FILTER,
+      ImmutableSet.of("lower")
+    );
+    String template = "{{ name|trim|lower|capitalize }}";
+
+    Jinjava optimized = new Jinjava(
+      JinjavaConfig
+        .newBuilder()
+        .withEnableFilterChainOptimization(true)
+        .withDisabled(disabled)
+        .build()
+    );
+    Jinjava unoptimized = new Jinjava(
+      JinjavaConfig
+        .newBuilder()
+        .withEnableFilterChainOptimization(false)
+        .withDisabled(disabled)
+        .build()
+    );
+
+    RenderResult optimizedResult = optimized.renderForResult(template, context);
+    RenderResult unoptimizedResult = unoptimized.renderForResult(template, context);
+
+    assertThat(optimizedResult.getOutput())
+      .as("Optimized should match un-optimized for disabled filter in chain")
       .isEqualTo(unoptimizedResult.getOutput());
   }
 }
