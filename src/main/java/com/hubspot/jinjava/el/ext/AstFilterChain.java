@@ -85,7 +85,7 @@ public class AstFilterChain extends AstRightValue {
             e
           )
         );
-        return null;
+        continue;
       }
       if (filter == null) {
         interpreter.addError(
