@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
@@ -28,6 +29,8 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
         context,
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withExecutionMode(EagerExecutionMode.instance())
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
@@ -69,7 +70,14 @@ public class RegexReplaceFilterTest extends BaseInterpretingTest {
     assertThatThrownBy(() ->
         filter.filter(
           sb.toString(),
-          new Jinjava(JinjavaConfig.newBuilder().withMaxStringLength(10).build())
+          new Jinjava(
+            JinjavaConfig
+              .newBuilder()
+              .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+              .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+              .withMaxStringLength(10)
+              .build()
+          )
             .newInterpreter(),
           "O",
           "0"

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.entry;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
@@ -33,7 +34,14 @@ public class ExtendedSyntaxBuilderTest {
   @Before
   public void setup() {
     interpreter =
-      new Jinjava(JinjavaConfig.newBuilder().withMaxOutputSize(MAX_STRING_LENGTH).build())
+      new Jinjava(
+        JinjavaConfig
+          .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+          .withMaxOutputSize(MAX_STRING_LENGTH)
+          .build()
+      )
         .newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
 
@@ -193,6 +201,8 @@ public class ExtendedSyntaxBuilderTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withMaxOutputSize(MAX_STRING_LENGTH)
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withEvaluateMapKeys(false).build()

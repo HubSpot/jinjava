@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -102,6 +103,8 @@ public class RawTagTest extends BaseInterpretingTest {
       jinjava.getGlobalContextCopy(),
       JinjavaConfig
         .newBuilder()
+        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
         .withExecutionMode(PreserveRawExecutionMode.instance())
         .build()
     );
@@ -127,6 +130,8 @@ public class RawTagTest extends BaseInterpretingTest {
       jinjava.getGlobalContextCopy(),
       JinjavaConfig
         .newBuilder()
+        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
         .withExecutionMode(PreserveRawExecutionMode.instance())
         .build()
     );
@@ -152,6 +157,8 @@ public class RawTagTest extends BaseInterpretingTest {
       jinjava.getGlobalContextCopy(),
       JinjavaConfig
         .newBuilder()
+        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
         .withExecutionMode(PreserveRawExecutionMode.instance())
         .build()
     );
@@ -168,6 +175,8 @@ public class RawTagTest extends BaseInterpretingTest {
       jinjava.getGlobalContextCopy(),
       JinjavaConfig
         .newBuilder()
+        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
         .withExecutionMode(PreserveRawExecutionMode.instance())
         .build()
     );

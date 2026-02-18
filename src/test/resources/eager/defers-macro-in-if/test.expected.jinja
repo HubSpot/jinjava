@@ -3,6 +3,6 @@
 {% do my_list.append(num) %}\
 {{ my_list }}\
 {% endmacro %}\
-{% if [] == filter:split.filter(macro_append(deferred), ____int3rpr3t3r____, ',', 2) %}
+{% if [] == filter:split.filter(macro_append(deferred), null, ',', 2) %}
 {{ my_list }}
 {% endif %}

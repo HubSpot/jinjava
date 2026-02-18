@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
@@ -22,7 +23,11 @@ public class PrettyPrintFilterTest {
 
   @Before
   public void setup() {
-    JinjavaConfig config = JinjavaConfig.newBuilder().build();
+    JinjavaConfig config = JinjavaConfig
+      .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      .build();
     Jinjava jinjava = new Jinjava(config);
     Context context = jinjava.getGlobalContext();
     i = new JinjavaInterpreter(jinjava, context, config);

@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
@@ -481,6 +482,8 @@ public class ExpressionResolverTest {
 
     final JinjavaConfig config = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withDisabled(disabled)
       .build();
 
@@ -514,7 +517,11 @@ public class ExpressionResolverTest {
   @Test
   public void itStoresResolvedFunctions() {
     context.put("datetime", 12345);
-    final JinjavaConfig config = JinjavaConfig.newBuilder().build();
+    final JinjavaConfig config = JinjavaConfig
+      .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      .build();
     String template =
       "{% for i in range(1, 5) %}{{i}} {% endfor %}\n{{ unixtimestamp(datetime) }}";
     final RenderResult renderResult = jinjava.renderForResult(template, context, config);
@@ -618,15 +625,11 @@ public class ExpressionResolverTest {
     assertThat(interpreter.render("{% if 2 is even %}yes{% endif %}")).isEqualTo("yes");
 
     assertThat(
-      interpreter.render(
-        "{% if exptest:even.evaluate(2, ____int3rpr3t3r____) %}yes{% endif %}"
-      )
+      interpreter.render("{% if exptest:even.evaluate(2, null) %}yes{% endif %}")
     )
       .isEqualTo("yes");
     assertThat(
-      interpreter.render(
-        "{% if exptest:false.evaluate(false, ____int3rpr3t3r____) %}yes{% endif %}"
-      )
+      interpreter.render("{% if exptest:false.evaluate(false, null) %}yes{% endif %}")
     )
       .isEqualTo("yes");
   }
@@ -634,15 +637,11 @@ public class ExpressionResolverTest {
   @Test
   public void itResolvesAlternateExpTestSyntaxForTrueAndFalseExpTests() {
     assertThat(
-      interpreter.render(
-        "{% if exptest:false.evaluate(false, ____int3rpr3t3r____) %}yes{% endif %}"
-      )
+      interpreter.render("{% if exptest:false.evaluate(false, null) %}yes{% endif %}")
     )
       .isEqualTo("yes");
     assertThat(
-      interpreter.render(
-        "{% if exptest:true.evaluate(true, ____int3rpr3t3r____) %}yes{% endif %}"
-      )
+      interpreter.render("{% if exptest:true.evaluate(true, null) %}yes{% endif %}")
     )
       .isEqualTo("yes");
   }
@@ -650,14 +649,12 @@ public class ExpressionResolverTest {
   @Test
   public void itResolvesAlternateExpTestSyntaxForInExpTests() {
     assertThat(
-      interpreter.render(
-        "{% if exptest:in.evaluate(1, ____int3rpr3t3r____, [1]) %}yes{% endif %}"
-      )
+      interpreter.render("{% if exptest:in.evaluate(1, null, [1]) %}yes{% endif %}")
     )
       .isEqualTo("yes");
     assertThat(
       interpreter.render(
-        "{% if exptest:in.evaluate(2, ____int3rpr3t3r____, [1]) %}yes{% else %}no{% endif %}"
+        "{% if exptest:in.evaluate(2, null, [1]) %}yes{% else %}no{% endif %}"
       )
     )
       .isEqualTo("no");

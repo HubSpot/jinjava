@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.InterpretException;
@@ -216,6 +217,8 @@ public class ForTagTest extends BaseInterpretingTest {
         context,
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withUsePyishObjectMapper(false).build()
           )

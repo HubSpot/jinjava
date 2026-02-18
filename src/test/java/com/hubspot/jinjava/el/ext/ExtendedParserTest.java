@@ -136,9 +136,7 @@ public class ExtendedParserTest {
     assertThat(regularSyntax).isInstanceOf(AstMethod.class);
     assertThat(regularSyntax.getChild(0)).isInstanceOf(AstDot.class);
     assertThat(regularSyntax.getChild(1)).isInstanceOf(AstParameters.class);
-    AstNode alternateSyntax = buildExpressionNodes(
-      "#{exptest:even.evaluate(2, ____int3rpr3t3r____)}"
-    );
+    AstNode alternateSyntax = buildExpressionNodes("#{exptest:even.evaluate(2, null)}");
 
     assertThat(alternateSyntax).isInstanceOf(AstMethod.class);
     assertThat(alternateSyntax.getChild(0)).isInstanceOf(AstDot.class);
@@ -147,16 +145,12 @@ public class ExtendedParserTest {
 
   @Test
   public void itResolvesAlternateExpTestSyntaxForTrueAndFalseExpTests() {
-    AstNode falseExpTest = buildExpressionNodes(
-      "#{exptest:false.evaluate(2, ____int3rpr3t3r____)}"
-    );
+    AstNode falseExpTest = buildExpressionNodes("#{exptest:false.evaluate(2, null)}");
     assertThat(falseExpTest).isInstanceOf(AstMethod.class);
     assertThat(falseExpTest.getChild(0)).isInstanceOf(AstDot.class);
     assertThat(falseExpTest.getChild(1)).isInstanceOf(AstParameters.class);
 
-    AstNode trueExpTest = buildExpressionNodes(
-      "#{exptest:true.evaluate(2, ____int3rpr3t3r____)}"
-    );
+    AstNode trueExpTest = buildExpressionNodes("#{exptest:true.evaluate(2, null)}");
     assertThat(trueExpTest).isInstanceOf(AstMethod.class);
     assertThat(trueExpTest.getChild(0)).isInstanceOf(AstDot.class);
     assertThat(trueExpTest.getChild(1)).isInstanceOf(AstParameters.class);
@@ -164,9 +158,7 @@ public class ExtendedParserTest {
 
   @Test
   public void itResolvesAlternateExpTestSyntaxForInExpTest() {
-    AstNode inExpTest = buildExpressionNodes(
-      "#{exptest:in.evaluate(2, ____int3rpr3t3r____, [])}"
-    );
+    AstNode inExpTest = buildExpressionNodes("#{exptest:in.evaluate(2, null, [])}");
     assertThat(inExpTest).isInstanceOf(AstMethod.class);
     assertThat(inExpTest.getChild(0)).isInstanceOf(AstDot.class);
     assertThat(inExpTest.getChild(1)).isInstanceOf(AstParameters.class);
@@ -187,8 +179,7 @@ public class ExtendedParserTest {
     assertThat(astParameters.getChild(2)).isInstanceOf(AstString.class);
 
     assertThat(astParameters.getChild(0).eval(null, null)).isEqualTo(leftExpected);
-    assertThat(((AstIdentifier) astParameters.getChild(1)).getName())
-      .isEqualTo("____int3rpr3t3r____");
+    assertThat(((AstIdentifier) astParameters.getChild(1)).getName()).isEqualTo("null");
     assertThat(astParameters.getChild(2).eval(null, null)).isEqualTo(rightExpected);
   }
 

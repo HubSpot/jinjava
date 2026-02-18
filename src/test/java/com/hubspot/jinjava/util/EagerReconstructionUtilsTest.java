@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -51,6 +52,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
         context,
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
@@ -260,6 +263,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
     String toWrap = "{{ foo }}";
     JinjavaConfig preserveRawConfig = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withExecutionMode(PreserveRawExecutionMode.instance())
       .build();
     assertThat(
@@ -276,6 +281,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
     String toWrap = "foo";
     JinjavaConfig preserveRawConfig = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withExecutionMode(PreserveRawExecutionMode.instance())
       .build();
     assertThat(
@@ -291,6 +298,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
   public void itDoesntWrapInRawTagForDefaultConfig() {
     JinjavaConfig defaultConfig = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withExecutionMode(DefaultExecutionMode.instance())
       .build();
     String toWrap = "{{ foo }}";

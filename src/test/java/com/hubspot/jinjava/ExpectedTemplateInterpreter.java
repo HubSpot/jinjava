@@ -78,6 +78,8 @@ public class ExpectedTemplateInterpreter {
         jinjava.getGlobalContextCopy(),
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withExecutionMode(DefaultExecutionMode.instance())
           .withNestedInterpretationEnabled(true)
           .withLegacyOverrides(
@@ -109,6 +111,8 @@ public class ExpectedTemplateInterpreter {
           jinjava.getGlobalContextCopy(),
           JinjavaConfig
             .newBuilder()
+            .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+            .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
             .withExecutionMode(DefaultExecutionMode.instance())
             .withNestedInterpretationEnabled(true)
             .withLegacyOverrides(

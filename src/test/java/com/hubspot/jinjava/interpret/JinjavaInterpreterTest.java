@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.features.FeatureConfig;
@@ -41,7 +42,12 @@ public class JinjavaInterpreterTest {
   public void setup() {
     jinjava =
       new Jinjava(
-        JinjavaConfig.newBuilder().withTimeZone(ZoneId.of("America/New_York")).build()
+        JinjavaConfig
+          .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+          .withTimeZone(ZoneId.of("America/New_York"))
+          .build()
       );
     interpreter = jinjava.newInterpreter();
     symbols = interpreter.getConfig().getTokenScannerSymbols();
@@ -216,6 +222,8 @@ public class JinjavaInterpreterTest {
   public void itLimitsOutputSize() {
     JinjavaConfig outputSizeLimitedConfig = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withMaxOutputSize(20)
       .build();
     String output = "123456789012345678901234567890";
@@ -234,6 +242,8 @@ public class JinjavaInterpreterTest {
   public void itLimitsOutputSizeOnTagNode() {
     JinjavaConfig outputSizeLimitedConfig = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withMaxOutputSize(10)
       .build();
     String output = "{% for i in range(20) %} {{ i }} {% endfor %}";
@@ -257,6 +267,8 @@ public class JinjavaInterpreterTest {
   public void itLimitsOutputSizeWhenSumOfNodeSizesExceedsMax() {
     JinjavaConfig outputSizeLimitedConfig = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withMaxOutputSize(19)
       .build();
     String input = "1234567890{% block testchild %}1234567890{% endblock %}";
@@ -277,6 +289,8 @@ public class JinjavaInterpreterTest {
   public void itCanPreserveRawTags() {
     JinjavaConfig preserveConfig = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withExecutionMode(PreserveRawExecutionMode.instance())
       .build();
     String input = "1{% raw %}2{% endraw %}3";
@@ -519,13 +533,20 @@ public class JinjavaInterpreterTest {
     JinjavaInterpreter normalInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContext(),
-      JinjavaConfig.newBuilder().withExecutionMode(EagerExecutionMode.instance()).build()
+      JinjavaConfig
+        .newBuilder()
+        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        .withExecutionMode(EagerExecutionMode.instance())
+        .build()
     );
     JinjavaInterpreter preventingInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContext(),
       JinjavaConfig
         .newBuilder()
+        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
         .withFeatureConfig(
           FeatureConfig
             .newBuilder()
@@ -565,13 +586,20 @@ public class JinjavaInterpreterTest {
     JinjavaInterpreter normalInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContext(),
-      JinjavaConfig.newBuilder().withExecutionMode(EagerExecutionMode.instance()).build()
+      JinjavaConfig
+        .newBuilder()
+        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        .withExecutionMode(EagerExecutionMode.instance())
+        .build()
     );
     JinjavaInterpreter outputtingErrorInterpreters = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContext(),
       JinjavaConfig
         .newBuilder()
+        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
         .withFeatureConfig(
           FeatureConfig
             .newBuilder()
@@ -603,7 +631,6 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itDoesNotAllowAccessingPropertiesOfInterpreter() {
-    assertThat(jinjava.render("{{ ____int3rpr3t3r____.config }}", new HashMap<>()))
-      .isEqualTo("");
+    assertThat(jinjava.render("{{ null.config }}", new HashMap<>())).isEqualTo("");
   }
 }

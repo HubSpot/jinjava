@@ -100,6 +100,7 @@ public enum AllowlistGroup {
       AbstractCollection.class.getCanonicalName(),
       LinkedHashMap.class.getCanonicalName(),
       "%s.Entry".formatted(LinkedHashMap.class.getCanonicalName()),
+      "%s.LinkedValues".formatted(LinkedHashMap.class.getCanonicalName()),
     };
 
     @Override
@@ -144,6 +145,11 @@ public enum AllowlistGroup {
 
     @Override
     String[] allowedDeclaredMethodsFromCanonicalClassPrefixes() {
+      return ARRAY;
+    }
+
+    @Override
+    String[] allowedReturnTypeCanonicalClassPrefixes() {
       return ARRAY;
     }
   };

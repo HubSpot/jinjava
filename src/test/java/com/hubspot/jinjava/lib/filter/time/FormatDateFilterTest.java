@@ -4,6 +4,7 @@ import static com.hubspot.jinjava.lib.filter.time.DateTimeFormatHelper.FIXED_DAT
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.features.DateTimeFeatureActivationStrategy;
@@ -252,7 +253,12 @@ public class FormatDateFilterTest {
   public void itDefaultsToCurrentDateOnMissingFilterArg() {
     jinjava =
       new Jinjava(
-        JinjavaConfig.newBuilder().withDateTimeProvider(() -> 1233333414223L).build()
+        JinjavaConfig
+          .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+          .withDateTimeProvider(() -> 1233333414223L)
+          .build()
       );
 
     assertThat(
@@ -270,6 +276,8 @@ public class FormatDateFilterTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withDateTimeProvider(() -> 1233333414223L)
           .withFeatureConfig(
             FeatureConfig

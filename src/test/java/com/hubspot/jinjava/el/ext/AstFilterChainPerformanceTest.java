@@ -2,6 +2,7 @@ package com.hubspot.jinjava.el.ext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import java.util.HashMap;
@@ -26,12 +27,22 @@ public class AstFilterChainPerformanceTest {
   public void setup() {
     jinjavaOptimized =
       new Jinjava(
-        JinjavaConfig.newBuilder().withEnableFilterChainOptimization(true).build()
+        JinjavaConfig
+          .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+          .withEnableFilterChainOptimization(true)
+          .build()
       );
 
     jinjavaUnoptimized =
       new Jinjava(
-        JinjavaConfig.newBuilder().withEnableFilterChainOptimization(false).build()
+        JinjavaConfig
+          .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+          .withEnableFilterChainOptimization(false)
+          .build()
       );
 
     context = new HashMap<>();

@@ -4,11 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
-import com.hubspot.jinjava.el.ext.AllowlistMethodValidator;
-import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -32,11 +31,8 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
-          .withMethodValidator(
-            AllowlistMethodValidator.create(
-              MethodValidatorConfig.builder().addDefaultAllowlistGroups().build()
-            )
-          )
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .build()
       );
     jinjava
@@ -54,6 +50,8 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
         new Context(),
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );
@@ -63,6 +61,8 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
         interpreter.getContext(),
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withNestedInterpretationEnabled(true)
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()

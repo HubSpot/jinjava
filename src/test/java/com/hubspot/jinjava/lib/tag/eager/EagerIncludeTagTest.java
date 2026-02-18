@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.ExpectedTemplateInterpreter;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -34,6 +35,8 @@ public class EagerIncludeTagTest extends IncludeTagTest {
         context,
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );

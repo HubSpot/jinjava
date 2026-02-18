@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -45,6 +46,11 @@ public class TokenWhitespaceTest {
   }
 
   private JinjavaConfig trimBlocksConfig() {
-    return JinjavaConfig.newBuilder().withTrimBlocks(true).build();
+    return JinjavaConfig
+      .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      .withTrimBlocks(true)
+      .build();
   }
 }

@@ -3,21 +3,19 @@ package com.hubspot.jinjava.el.ext;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 
-public class AstDictTest {
+public class AstDictTest extends BaseJinjavaTest {
 
   @Test
   public void itGetsDictValues() {
     try (
-      var a = JinjavaInterpreter
-        .closeablePushCurrent(new Jinjava().newInterpreter())
-        .get()
+      var a = JinjavaInterpreter.closeablePushCurrent(jinjava.newInterpreter()).get()
     ) {
       JinjavaInterpreter interpreter = a.value();
       interpreter.getContext().put("foo", ImmutableMap.of("bar", "test"));
@@ -28,9 +26,7 @@ public class AstDictTest {
   @Test
   public void itGetsDictValuesWithEnumKeys() {
     try (
-      var a = JinjavaInterpreter
-        .closeablePushCurrent(new Jinjava().newInterpreter())
-        .get()
+      var a = JinjavaInterpreter.closeablePushCurrent(jinjava.newInterpreter()).get()
     ) {
       JinjavaInterpreter interpreter = a.value();
       interpreter.getContext().put("foo", ImmutableMap.of(ErrorType.FATAL, "test"));
@@ -41,9 +37,7 @@ public class AstDictTest {
   @Test
   public void itGetsDictValuesWithEnumKeysUsingToString() {
     try (
-      var a = JinjavaInterpreter
-        .closeablePushCurrent(new Jinjava().newInterpreter())
-        .get()
+      var a = JinjavaInterpreter.closeablePushCurrent(jinjava.newInterpreter()).get()
     ) {
       JinjavaInterpreter interpreter = a.value();
       interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
@@ -54,9 +48,7 @@ public class AstDictTest {
   @Test
   public void itDoesItemsMethodCall() {
     try (
-      var a = JinjavaInterpreter
-        .closeablePushCurrent(new Jinjava().newInterpreter())
-        .get()
+      var a = JinjavaInterpreter.closeablePushCurrent(jinjava.newInterpreter()).get()
     ) {
       JinjavaInterpreter interpreter = a.value();
       interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
@@ -68,9 +60,7 @@ public class AstDictTest {
   @Test
   public void itDoesKeysMethodCall() {
     try (
-      var a = JinjavaInterpreter
-        .closeablePushCurrent(new Jinjava().newInterpreter())
-        .get()
+      var a = JinjavaInterpreter.closeablePushCurrent(jinjava.newInterpreter()).get()
     ) {
       JinjavaInterpreter interpreter = a.value();
       interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
@@ -82,9 +72,7 @@ public class AstDictTest {
   @Test
   public void itHandlesEmptyMaps() {
     try (
-      var a = JinjavaInterpreter
-        .closeablePushCurrent(new Jinjava().newInterpreter())
-        .get()
+      var a = JinjavaInterpreter.closeablePushCurrent(jinjava.newInterpreter()).get()
     ) {
       JinjavaInterpreter interpreter = a.value();
       interpreter.getContext().put("foo", ImmutableMap.of());
@@ -96,9 +84,7 @@ public class AstDictTest {
   @Test
   public void itGetsDictValuesWithEnumKeysInObjects() {
     try (
-      var a = JinjavaInterpreter
-        .closeablePushCurrent(new Jinjava().newInterpreter())
-        .get()
+      var a = JinjavaInterpreter.closeablePushCurrent(jinjava.newInterpreter()).get()
     ) {
       JinjavaInterpreter interpreter = a.value();
       interpreter

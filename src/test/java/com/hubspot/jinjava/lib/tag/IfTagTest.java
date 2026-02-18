@@ -5,10 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.testobjects.IfTagTestObject;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
-import com.hubspot.jinjava.util.HasObjectTruthValue;
-import com.hubspot.jinjava.util.ObjectTruthValueTest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.Before;
@@ -39,11 +38,11 @@ public class IfTagTest extends BaseInterpretingTest {
 
   @Test
   public void itChecksObjectTruthValue() {
-    context.put("foo", new TestObject().setObjectTruthValue(true));
+    context.put("foo", new IfTagTestObject().setObjectTruthValue(true));
     TagNode n = fixture("if-object");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("ifblock");
 
-    context.put("foo", new TestObject().setObjectTruthValue(false));
+    context.put("foo", new IfTagTestObject().setObjectTruthValue(false));
     n = fixture("if-object");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("");
   }
@@ -129,21 +128,6 @@ public class IfTagTest extends BaseInterpretingTest {
         .getFirst();
     } catch (IOException e) {
       throw new RuntimeException(e);
-    }
-  }
-
-  private class TestObject implements HasObjectTruthValue {
-
-    private boolean objectTruthValue = false;
-
-    public TestObject setObjectTruthValue(boolean objectTruthValue) {
-      this.objectTruthValue = objectTruthValue;
-      return this;
-    }
-
-    @Override
-    public boolean getObjectTruthValue() {
-      return objectTruthValue;
     }
   }
 }

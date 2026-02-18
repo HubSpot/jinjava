@@ -39,6 +39,9 @@ public final class AllowlistReturnTypeValidator {
       return null;
     }
     Class<?> clazz = o.getClass();
+    while (clazz.isArray()) {
+      clazz = clazz.getComponentType();
+    }
     String canonicalClassName = clazz.getCanonicalName();
     boolean isAllowedClassName = allowedReturnTypesCache.computeIfAbsent(
       canonicalClassName,

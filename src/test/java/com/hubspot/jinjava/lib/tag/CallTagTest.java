@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -29,6 +30,8 @@ public class CallTagTest extends BaseInterpretingTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withEnableRecursiveMacroCalls(true)
           .withMaxMacroRecursionDepth(6) // There are 3 call tags, but a total of 6 "macro" calls happening in this file as each call to `caller()` counts too
           .build()

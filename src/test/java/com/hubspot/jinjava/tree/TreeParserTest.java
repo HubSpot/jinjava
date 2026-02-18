@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
@@ -139,7 +140,13 @@ public class TreeParserTest extends BaseInterpretingTest {
   public void trimAndLstripBlocks() {
     interpreter =
       new Jinjava(
-        JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build()
+        JinjavaConfig
+          .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+          .withLstripBlocks(true)
+          .withTrimBlocks(true)
+          .build()
       )
         .newInterpreter();
 
@@ -151,7 +158,13 @@ public class TreeParserTest extends BaseInterpretingTest {
   public void trimAndLstripCommentBlocks() {
     interpreter =
       new Jinjava(
-        JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build()
+        JinjavaConfig
+          .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+          .withLstripBlocks(true)
+          .withTrimBlocks(true)
+          .build()
       )
         .newInterpreter();
 
@@ -249,6 +262,8 @@ public class TreeParserTest extends BaseInterpretingTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -271,6 +286,8 @@ public class TreeParserTest extends BaseInterpretingTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -293,6 +310,8 @@ public class TreeParserTest extends BaseInterpretingTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -315,6 +334,8 @@ public class TreeParserTest extends BaseInterpretingTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -344,6 +365,8 @@ public class TreeParserTest extends BaseInterpretingTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -366,6 +389,8 @@ public class TreeParserTest extends BaseInterpretingTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withAllowAdjacentTextNodes(true).build()
           )

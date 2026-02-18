@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.features.FeatureConfig;
@@ -27,7 +28,12 @@ public class TokenScannerTest {
 
   @Before
   public void setup() {
-    config = JinjavaConfig.newBuilder().build();
+    config =
+      JinjavaConfig
+        .newBuilder()
+        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        .build();
     symbols = config.getTokenScannerSymbols();
   }
 
@@ -270,6 +276,8 @@ public class TokenScannerTest {
 
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withFeatureConfig(
         FeatureConfig
           .newBuilder()
@@ -306,7 +314,13 @@ public class TokenScannerTest {
   @Test
   public void testLstripBlocks() {
     config =
-      JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build();
+      JinjavaConfig
+        .newBuilder()
+        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        .withLstripBlocks(true)
+        .withTrimBlocks(true)
+        .build();
 
     List<Token> tokens = tokens("tag-with-trim-chars");
     assertThat(tokens).isNotEmpty();

@@ -4,6 +4,7 @@ import static com.hubspot.jinjava.interpret.JinjavaInterpreter.pushCurrent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
@@ -20,7 +21,12 @@ public class RangeFunctionTest {
 
   @Before
   public void beforeEach() {
-    config = JinjavaConfig.newBuilder().build();
+    config =
+      JinjavaConfig
+        .newBuilder()
+        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        .build();
     Jinjava jinjava = new Jinjava(config);
     pushCurrent(new JinjavaInterpreter(jinjava.newInterpreter()));
   }
@@ -91,6 +97,8 @@ public class RangeFunctionTest {
     int customRangeLimit = 10;
     JinjavaConfig customConfig = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withRangeLimit(customRangeLimit)
       .build();
     pushCurrent(new JinjavaInterpreter(new Jinjava(customConfig).newInterpreter()));

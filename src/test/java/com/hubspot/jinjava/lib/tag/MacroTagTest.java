@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -209,7 +210,14 @@ public class MacroTagTest extends BaseInterpretingTest {
   public void itAllowsMacroRecursionWhenEnabledInConfiguration() throws IOException {
     // I need a different configuration here therefore
     interpreter =
-      new Jinjava(JinjavaConfig.newBuilder().withEnableRecursiveMacroCalls(true).build())
+      new Jinjava(
+        JinjavaConfig
+          .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+          .withEnableRecursiveMacroCalls(true)
+          .build()
+      )
         .newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
 
@@ -230,6 +238,8 @@ public class MacroTagTest extends BaseInterpretingTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withEnableRecursiveMacroCalls(true)
           .withMaxMacroRecursionDepth(10)
           .build()
@@ -253,6 +263,8 @@ public class MacroTagTest extends BaseInterpretingTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withEnableRecursiveMacroCalls(true)
           .withMaxMacroRecursionDepth(10)
           .withValidationMode(true)
@@ -277,6 +289,8 @@ public class MacroTagTest extends BaseInterpretingTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withEnableRecursiveMacroCalls(true)
           .withMaxMacroRecursionDepth(2)
           .build()
@@ -295,7 +309,12 @@ public class MacroTagTest extends BaseInterpretingTest {
   public void itPreventsRecursionForMacroWithVar() {
     interpreter =
       new Jinjava(
-        JinjavaConfig.newBuilder().withNestedInterpretationEnabled(true).build()
+        JinjavaConfig
+          .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+          .withNestedInterpretationEnabled(true)
+          .build()
       )
         .newInterpreter();
     try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
@@ -351,6 +370,8 @@ public class MacroTagTest extends BaseInterpretingTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withEnableRecursiveMacroCalls(true)
           .withMaxMacroRecursionDepth(2)
           .build()

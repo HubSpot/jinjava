@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.ExpectedNodeInterpreter;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -30,6 +31,8 @@ public class EagerSetTagTest extends SetTagTest {
         context,
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
@@ -142,9 +145,7 @@ public class EagerSetTagTest extends SetTagTest {
     final String result = interpreter.render(template);
 
     assertThat(result)
-      .isEqualTo(
-        "{% set foo = filter:add.filter(2, ____int3rpr3t3r____, deferred) %}{{ foo }}"
-      );
+      .isEqualTo("{% set foo = filter:add.filter(2, null, deferred) %}{{ foo }}");
     assertThat(
       context
         .getDeferredTokens()
@@ -179,7 +180,7 @@ public class EagerSetTagTest extends SetTagTest {
 
     assertThat(result)
       .isEqualTo(
-        "{% set foo %}{{ 1 + deferred }}{% endset %}{% set foo = filter:add.filter(foo, ____int3rpr3t3r____, filter:int.filter(deferred, ____int3rpr3t3r____)) %}{{ foo }}"
+        "{% set foo %}{{ 1 + deferred }}{% endset %}{% set foo = filter:add.filter(foo, null, filter:int.filter(deferred, null)) %}{{ foo }}"
       );
     context.remove("foo");
     context.put("deferred", 2);
@@ -203,7 +204,7 @@ public class EagerSetTagTest extends SetTagTest {
 
     assertThat(result)
       .isEqualTo(
-        "{% set foo %}1{% endset %}{% set foo = filter:add.filter(1, ____int3rpr3t3r____, deferred) %}{{ foo }}"
+        "{% set foo %}1{% endset %}{% set foo = filter:add.filter(1, null, deferred) %}{{ foo }}"
       );
     assertThat(
       context

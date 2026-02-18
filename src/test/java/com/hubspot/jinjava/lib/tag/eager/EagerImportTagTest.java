@@ -56,6 +56,8 @@ public class EagerImportTagTest extends ImportTagTest {
         JinjavaConfig
           .newBuilder()
           .withExecutionMode(EagerExecutionMode.instance())
+          .withMethodValidator(METHOD_VALIDATOR)
+          .withReturnTypeValidator(RETURN_TYPE_VALIDATOR)
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
           )
@@ -423,7 +425,7 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(firstPassResult)
       .isEqualTo(
         "{% set deferred_import_resource_path = 'import-macro.jinja' %}{% macro m.print_path_macro(var) %}\n" +
-        "{{ filter:print_path.filter(var, ____int3rpr3t3r____) }}\n" +
+        "{{ filter:print_path.filter(var, null) }}\n" +
         "{{ var }}\n" +
         "{% endmacro %}{% set deferred_import_resource_path = null %}{{ m.print_path_macro(foo) }}"
       );
@@ -442,7 +444,7 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(firstPassResult)
       .isEqualTo(
         "{% set deferred_import_resource_path = 'import-macro.jinja' %}{% macro print_path_macro(var) %}\n" +
-        "{{ filter:print_path.filter(var, ____int3rpr3t3r____) }}\n" +
+        "{{ filter:print_path.filter(var, null) }}\n" +
         "{{ var }}\n" +
         "{% endmacro %}{% set deferred_import_resource_path = null %}{{ print_path_macro(foo) }}"
       );
@@ -460,9 +462,9 @@ public class EagerImportTagTest extends ImportTagTest {
     );
     assertThat(firstPassResult)
       .isEqualTo(
-        "{% set deferred_import_resource_path = 'double-import-macro.jinja' %}{% macro print_path_macro2(var) %}{{ filter:print_path.filter(var, ____int3rpr3t3r____) }}\n" +
+        "{% set deferred_import_resource_path = 'double-import-macro.jinja' %}{% macro print_path_macro2(var) %}{{ filter:print_path.filter(var, null) }}\n" +
         "{% set deferred_import_resource_path = 'import-macro.jinja' %}{% macro print_path_macro(var) %}\n" +
-        "{{ filter:print_path.filter(var, ____int3rpr3t3r____) }}\n" +
+        "{{ filter:print_path.filter(var, null) }}\n" +
         "{{ var }}\n" +
         "{% endmacro %}{% set deferred_import_resource_path = 'double-import-macro.jinja' %}{{ print_path_macro(var) }}{% endmacro %}{% set deferred_import_resource_path = null %}{{ print_path_macro2(foo) }}"
       );

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
@@ -31,7 +32,11 @@ public class StripTagsFilterTest {
 
   @Before
   public void setup() {
-    JinjavaConfig config = JinjavaConfig.newBuilder().build();
+    JinjavaConfig config = JinjavaConfig
+      .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      .build();
     Jinjava jinjava = new Jinjava(config);
     this.interpreter = new JinjavaInterpreter(jinjava.newInterpreter());
     JinjavaInterpreter.pushCurrent(interpreter);

@@ -18,6 +18,7 @@ package com.hubspot.jinjava.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
@@ -99,7 +100,11 @@ public class ObjectIteratorTest {
 
   @Test
   public void testItIteratesOverKeys() throws Exception {
-    JinjavaConfig config = JinjavaConfig.newBuilder().build();
+    JinjavaConfig config = JinjavaConfig
+      .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      .build();
     JinjavaInterpreter.pushCurrent(
       new JinjavaInterpreter(new Jinjava(), new Context(), config)
     );

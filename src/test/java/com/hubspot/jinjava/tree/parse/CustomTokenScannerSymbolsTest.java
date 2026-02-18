@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.lib.filter.JoinFilterTest.User;
@@ -19,7 +20,12 @@ public class CustomTokenScannerSymbolsTest {
   @Before
   public void setup() {
     config =
-      JinjavaConfig.newBuilder().withTokenScannerSymbols(new CustomTokens()).build();
+      JinjavaConfig
+        .newBuilder()
+        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        .withTokenScannerSymbols(new CustomTokens())
+        .build();
     jinjava = new Jinjava(config);
     jinjava.getGlobalContext().put("numbers", Lists.newArrayList(1L, 2L, 3L, 4L, 5L));
   }

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ext.AllowlistMethodValidator;
@@ -30,6 +31,8 @@ public class ExpressionNodeTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withNestedInterpretationEnabled(true)
           .withMethodValidator(
             AllowlistMethodValidator.create(
@@ -43,6 +46,8 @@ public class ExpressionNodeTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withMethodValidator(
             AllowlistMethodValidator.create(
               MethodValidatorConfig.builder().addDefaultAllowlistGroups().build()
@@ -94,6 +99,8 @@ public class ExpressionNodeTest {
   public void itRendersNestedTags() throws Exception {
     final JinjavaConfig config = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withNestedInterpretationEnabled(true)
       .build();
     JinjavaInterpreter jinjava = new Jinjava(config).newInterpreter();
@@ -202,6 +209,8 @@ public class ExpressionNodeTest {
   public void itRenderEchoUndefined() {
     final JinjavaConfig config = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withFeatureConfig(
         FeatureConfig.newBuilder().add(ECHO_UNDEFINED, FeatureStrategies.ACTIVE).build()
       )
@@ -231,6 +240,8 @@ public class ExpressionNodeTest {
   public void itFailsOnUnknownTokensVariables() throws Exception {
     final JinjavaConfig config = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withFailOnUnknownTokens(true)
       .build();
     try (
@@ -251,6 +262,8 @@ public class ExpressionNodeTest {
   public void itFailsOnUnknownTokensOfLoops() throws Exception {
     final JinjavaConfig config = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withFailOnUnknownTokens(true)
       .build();
     JinjavaInterpreter jinjavaInterpreter = new Jinjava(config).newInterpreter();
@@ -266,6 +279,8 @@ public class ExpressionNodeTest {
   public void itFailsOnUnknownTokensOfIf() throws Exception {
     final JinjavaConfig config = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withFailOnUnknownTokens(true)
       .build();
     try (
@@ -286,6 +301,8 @@ public class ExpressionNodeTest {
   public void itFailsOnUnknownTokensWithFilter() throws Exception {
     final JinjavaConfig config = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withFailOnUnknownTokens(true)
       .build();
     try (
@@ -333,6 +350,8 @@ public class ExpressionNodeTest {
   public void itIgnoresParseErrorsWhenFeatureIsEnabled() {
     final JinjavaConfig config = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withFeatureConfig(
         FeatureConfig
           .newBuilder()

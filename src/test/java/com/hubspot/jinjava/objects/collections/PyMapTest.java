@@ -292,6 +292,8 @@ public class PyMapTest extends BaseJinjavaTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withEvaluateMapKeys(true).build()
           )
@@ -365,6 +367,8 @@ public class PyMapTest extends BaseJinjavaTest {
       new Jinjava(
         JinjavaConfig
           .newBuilder()
+          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withEvaluateMapKeys(true).build()
           )

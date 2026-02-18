@@ -74,6 +74,8 @@ public class EagerTest {
     );
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
       .withExecutionMode(executionMode)
       .withNestedInterpretationEnabled(true)
@@ -216,7 +218,7 @@ public class EagerTest {
 
     assertThat(output)
       .isEqualTo(
-        "{% if false || exptest:equalto.evaluate('a', ____int3rpr3t3r____, deferred) %}preserved{% endif %}"
+        "{% if false || exptest:equalto.evaluate('a', null, deferred) %}preserved{% endif %}"
       );
     assertThat(interpreter.getErrors()).isEmpty();
     localContext.put("deferred", "a");
@@ -307,8 +309,7 @@ public class EagerTest {
   @Test
   public void itPreservesFilters() {
     String output = interpreter.render("{{ deferred|capitalize }}");
-    assertThat(output)
-      .isEqualTo("{{ filter:capitalize.filter(deferred, ____int3rpr3t3r____) }}");
+    assertThat(output).isEqualTo("{{ filter:capitalize.filter(deferred, null) }}");
     assertThat(interpreter.getErrors()).isEmpty();
     localContext.put("deferred", "foo");
     assertThat(interpreter.render(output)).isEqualTo("Foo");
@@ -318,17 +319,14 @@ public class EagerTest {
   public void itPreservesFunctions() {
     String output = interpreter.render("{{ deferred|datetimeformat('%B %e, %Y') }}");
     assertThat(output)
-      .isEqualTo(
-        "{{ filter:datetimeformat.filter(deferred, ____int3rpr3t3r____, '%B %e, %Y') }}"
-      );
+      .isEqualTo("{{ filter:datetimeformat.filter(deferred, null, '%B %e, %Y') }}");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
   @Test
   public void itPreservesRandomness() {
     String output = interpreter.render("{{ [1, 2, 3]|shuffle }}");
-    assertThat(output)
-      .isEqualTo("{{ filter:shuffle.filter([1, 2, 3], ____int3rpr3t3r____) }}");
+    assertThat(output).isEqualTo("{{ filter:shuffle.filter([1, 2, 3], null) }}");
     assertThat(interpreter.getErrors()).isEmpty();
   }
 
@@ -779,6 +777,8 @@ public class EagerTest {
   public void itWrapsCertainOutputInRaw() {
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
       .withExecutionMode(EagerExecutionMode.instance())
       .withNestedInterpretationEnabled(false)
@@ -865,13 +865,20 @@ public class EagerTest {
     JinjavaInterpreter eagerInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContextCopy(),
-      JinjavaConfig.newBuilder().withExecutionMode(EagerExecutionMode.instance()).build()
+      JinjavaConfig
+        .newBuilder()
+        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        .withExecutionMode(EagerExecutionMode.instance())
+        .build()
     );
     JinjavaInterpreter defaultInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContextCopy(),
       JinjavaConfig
         .newBuilder()
+        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
         .withExecutionMode(DefaultExecutionMode.instance())
         .build()
     );

@@ -52,6 +52,8 @@ public class DivideFilterTest extends BaseJinjavaTest {
     Jinjava customJinjava = new Jinjava(
       JinjavaConfig
         .newBuilder()
+        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
         .withLegacyOverrides(
           LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
         )
