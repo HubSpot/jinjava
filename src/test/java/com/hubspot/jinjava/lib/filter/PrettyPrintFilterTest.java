@@ -23,11 +23,7 @@ public class PrettyPrintFilterTest {
 
   @Before
   public void setup() {
-    JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-      .build();
+    JinjavaConfig config = BaseJinjavaTest.newConfigBuilder().build();
     Jinjava jinjava = new Jinjava(config);
     Context context = jinjava.getGlobalContext();
     i = new JinjavaInterpreter(jinjava, context, config);

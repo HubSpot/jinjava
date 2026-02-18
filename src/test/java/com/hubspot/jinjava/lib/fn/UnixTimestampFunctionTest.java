@@ -53,10 +53,8 @@ public class UnixTimestampFunctionTest {
       new JinjavaInterpreter(
         new Jinjava(),
         new Context(),
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withDateTimeProvider(new FixedDateTimeProvider(ts))
           .build()
       )

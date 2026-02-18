@@ -60,10 +60,8 @@ public class EagerExpressionResolverTest {
 
   private JinjavaInterpreter getInterpreter(boolean evaluateMapKeys) throws Exception {
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
-        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withExecutionMode(EagerExecutionMode.instance())
         .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
         .withLegacyOverrides(

@@ -33,10 +33,8 @@ public class EagerIncludeTagTest extends IncludeTagTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );

@@ -101,10 +101,8 @@ public class RawTagTest extends BaseInterpretingTest {
     JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContextCopy(),
-      JinjavaConfig
-        .newBuilder()
-        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withExecutionMode(PreserveRawExecutionMode.instance())
         .build()
     );
@@ -128,10 +126,8 @@ public class RawTagTest extends BaseInterpretingTest {
     JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContextCopy(),
-      JinjavaConfig
-        .newBuilder()
-        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withExecutionMode(PreserveRawExecutionMode.instance())
         .build()
     );
@@ -155,10 +151,8 @@ public class RawTagTest extends BaseInterpretingTest {
     JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContextCopy(),
-      JinjavaConfig
-        .newBuilder()
-        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withExecutionMode(PreserveRawExecutionMode.instance())
         .build()
     );
@@ -173,10 +167,8 @@ public class RawTagTest extends BaseInterpretingTest {
     JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContextCopy(),
-      JinjavaConfig
-        .newBuilder()
-        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withExecutionMode(PreserveRawExecutionMode.instance())
         .build()
     );

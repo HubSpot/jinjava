@@ -290,10 +290,8 @@ public class PyMapTest extends BaseJinjavaTest {
   public void itSetsKeysWithVariableName() {
     jinjava =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withEvaluateMapKeys(true).build()
           )
@@ -365,10 +363,8 @@ public class PyMapTest extends BaseJinjavaTest {
   public void itUpdatesKeysWithVariableName() {
     jinjava =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withEvaluateMapKeys(true).build()
           )

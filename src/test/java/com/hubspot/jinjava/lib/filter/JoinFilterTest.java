@@ -37,14 +37,7 @@ public class JoinFilterTest extends BaseJinjavaTest {
   @Test
   public void itTruncatesStringToConfigLimit() {
     jinjava =
-      new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-          .withMaxStringLength(5)
-          .build()
-      );
+      new Jinjava(BaseJinjavaTest.newConfigBuilder().withMaxStringLength(5).build());
 
     RenderResult result = jinjava.renderForResult(
       "{{ [1, 2, 3, 4, 5]|join('|') }}",

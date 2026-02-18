@@ -183,10 +183,8 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
     ZonedDateTime now = ZonedDateTime.now();
 
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
-        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withFeatureConfig(
           FeatureConfig
             .newBuilder()

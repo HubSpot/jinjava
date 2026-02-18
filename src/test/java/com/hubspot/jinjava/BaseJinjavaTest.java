@@ -30,13 +30,13 @@ public abstract class BaseJinjavaTest {
 
   @Before
   public void baseSetup() {
-    jinjava =
-      new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(METHOD_VALIDATOR)
-          .withReturnTypeValidator(RETURN_TYPE_VALIDATOR)
-          .build()
-      );
+    jinjava = new Jinjava(BaseJinjavaTest.newConfigBuilder().build());
+  }
+
+  public static JinjavaConfig.Builder newConfigBuilder() {
+    return JinjavaConfig
+      .newBuilder()
+      .withMethodValidator(METHOD_VALIDATOR)
+      .withReturnTypeValidator(RETURN_TYPE_VALIDATOR);
   }
 }

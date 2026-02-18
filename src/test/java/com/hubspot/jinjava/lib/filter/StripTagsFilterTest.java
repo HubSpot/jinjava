@@ -32,11 +32,7 @@ public class StripTagsFilterTest {
 
   @Before
   public void setup() {
-    JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-      .build();
+    JinjavaConfig config = BaseJinjavaTest.newConfigBuilder().build();
     Jinjava jinjava = new Jinjava(config);
     this.interpreter = new JinjavaInterpreter(jinjava.newInterpreter());
     JinjavaInterpreter.pushCurrent(interpreter);

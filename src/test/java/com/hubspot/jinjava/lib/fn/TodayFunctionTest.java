@@ -38,10 +38,8 @@ public class TodayFunctionTest extends BaseInterpretingTest {
           new JinjavaInterpreter(
             new Jinjava(),
             new Context(),
-            JinjavaConfig
-              .newBuilder()
-              .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-              .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+            BaseJinjavaTest
+              .newConfigBuilder()
               .withDateTimeProvider(new FixedDateTimeProvider(ts))
               .build()
           )
@@ -77,10 +75,8 @@ public class TodayFunctionTest extends BaseInterpretingTest {
           new JinjavaInterpreter(
             new Jinjava(),
             new Context(),
-            JinjavaConfig
-              .newBuilder()
-              .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-              .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+            BaseJinjavaTest
+              .newConfigBuilder()
               .withExecutionMode(EagerExecutionMode.instance())
               .build()
           )

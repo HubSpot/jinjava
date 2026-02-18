@@ -41,10 +41,8 @@ public class UnixTimestampFilterTest extends BaseInterpretingTest {
   @Test
   public void itDefaultsToCurrentDate() {
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
-        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withDateTimeProvider(() -> d.toEpochSecond() * 1000)
         .withFeatureConfig(
           FeatureConfig
@@ -68,10 +66,8 @@ public class UnixTimestampFilterTest extends BaseInterpretingTest {
   @Test
   public void itDefaultsToDeprecationDate() {
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
-        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withDateTimeProvider(() -> d.toEpochSecond() * 1000)
         .withFeatureConfig(
           FeatureConfig

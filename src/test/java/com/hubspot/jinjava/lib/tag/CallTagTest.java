@@ -28,10 +28,8 @@ public class CallTagTest extends BaseInterpretingTest {
   public void itDoesNotDoubleCountCallTagTowardsDepth() throws IOException {
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withEnableRecursiveMacroCalls(true)
           .withMaxMacroRecursionDepth(6) // There are 3 call tags, but a total of 6 "macro" calls happening in this file as each call to `caller()` counts too
           .build()

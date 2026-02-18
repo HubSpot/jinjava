@@ -68,14 +68,7 @@ public class ReplaceFilterTest extends BaseInterpretingTest {
     assertThatThrownBy(() ->
         filter.filter(
           sb.toString(),
-          new Jinjava(
-            JinjavaConfig
-              .newBuilder()
-              .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-              .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-              .withMaxStringLength(10)
-              .build()
-          )
+          new Jinjava(BaseJinjavaTest.newConfigBuilder().withMaxStringLength(10).build())
             .newInterpreter(),
           "O",
           "0"

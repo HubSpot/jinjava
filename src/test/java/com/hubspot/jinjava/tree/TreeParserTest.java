@@ -140,10 +140,8 @@ public class TreeParserTest extends BaseInterpretingTest {
   public void trimAndLstripBlocks() {
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLstripBlocks(true)
           .withTrimBlocks(true)
           .build()
@@ -158,10 +156,8 @@ public class TreeParserTest extends BaseInterpretingTest {
   public void trimAndLstripCommentBlocks() {
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLstripBlocks(true)
           .withTrimBlocks(true)
           .build()
@@ -260,10 +256,8 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.render(tree)).isEqualTo("A\n\nB");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -284,10 +278,8 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.render(tree)).isEqualTo("A\n");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -308,10 +300,8 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.render(tree)).isEqualTo("A\n{{ ");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -332,10 +322,8 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.render(tree)).isEqualTo("A\n{% ");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -363,10 +351,8 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.render(tree)).isEqualTo("A\nB\nC");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -387,10 +373,8 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.render(tree)).isEqualTo("AB");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withAllowAdjacentTextNodes(true).build()
           )

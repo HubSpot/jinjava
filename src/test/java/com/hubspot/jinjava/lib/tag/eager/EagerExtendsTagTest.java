@@ -32,10 +32,8 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withNestedInterpretationEnabled(nestedInterpretation)
           .withExecutionMode(EagerExecutionMode.instance())
           .withLegacyOverrides(

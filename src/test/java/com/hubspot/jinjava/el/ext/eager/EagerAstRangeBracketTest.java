@@ -18,10 +18,8 @@ public class EagerAstRangeBracketTest extends BaseInterpretingTest {
 
   @Before
   public void setup() {
-    JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
       .withExecutionMode(EagerExecutionMode.instance())
       .withNestedInterpretationEnabled(true)

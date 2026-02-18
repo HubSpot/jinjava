@@ -29,10 +29,8 @@ public class ExpressionNodeTest {
   public void setup() {
     nestedInterpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withNestedInterpretationEnabled(true)
           .withMethodValidator(
             AllowlistMethodValidator.create(
@@ -44,10 +42,8 @@ public class ExpressionNodeTest {
         .newInterpreter();
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withMethodValidator(
             AllowlistMethodValidator.create(
               MethodValidatorConfig.builder().addDefaultAllowlistGroups().build()
@@ -97,10 +93,8 @@ public class ExpressionNodeTest {
 
   @Test
   public void itRendersNestedTags() throws Exception {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withNestedInterpretationEnabled(true)
       .build();
     JinjavaInterpreter jinjava = new Jinjava(config).newInterpreter();
@@ -207,10 +201,8 @@ public class ExpressionNodeTest {
 
   @Test
   public void itRenderEchoUndefined() {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withFeatureConfig(
         FeatureConfig.newBuilder().add(ECHO_UNDEFINED, FeatureStrategies.ACTIVE).build()
       )
@@ -238,10 +230,8 @@ public class ExpressionNodeTest {
 
   @Test
   public void itFailsOnUnknownTokensVariables() throws Exception {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withFailOnUnknownTokens(true)
       .build();
     try (
@@ -260,10 +250,8 @@ public class ExpressionNodeTest {
 
   @Test
   public void itFailsOnUnknownTokensOfLoops() throws Exception {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withFailOnUnknownTokens(true)
       .build();
     JinjavaInterpreter jinjavaInterpreter = new Jinjava(config).newInterpreter();
@@ -277,10 +265,8 @@ public class ExpressionNodeTest {
 
   @Test
   public void itFailsOnUnknownTokensOfIf() throws Exception {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withFailOnUnknownTokens(true)
       .build();
     try (
@@ -299,10 +285,8 @@ public class ExpressionNodeTest {
 
   @Test
   public void itFailsOnUnknownTokensWithFilter() throws Exception {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withFailOnUnknownTokens(true)
       .build();
     try (
@@ -348,10 +332,8 @@ public class ExpressionNodeTest {
 
   @Test
   public void itIgnoresParseErrorsWhenFeatureIsEnabled() {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withFeatureConfig(
         FeatureConfig
           .newBuilder()

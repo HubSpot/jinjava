@@ -46,11 +46,6 @@ public class TokenWhitespaceTest {
   }
 
   private JinjavaConfig trimBlocksConfig() {
-    return JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-      .withTrimBlocks(true)
-      .build();
+    return BaseJinjavaTest.newConfigBuilder().withTrimBlocks(true).build();
   }
 }

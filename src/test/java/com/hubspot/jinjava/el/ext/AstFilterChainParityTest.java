@@ -33,10 +33,8 @@ public class AstFilterChainParityTest {
 
     jinjavaOptimized =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withEnableFilterChainOptimization(true)
           .withLegacyOverrides(legacyOverrides)
           .build()
@@ -44,10 +42,8 @@ public class AstFilterChainParityTest {
 
     jinjavaUnoptimized =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withEnableFilterChainOptimization(false)
           .withLegacyOverrides(legacyOverrides)
           .build()

@@ -27,20 +27,13 @@ public class AstFilterChainPerformanceTest {
   public void setup() {
     jinjavaOptimized =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-          .withEnableFilterChainOptimization(true)
-          .build()
+        BaseJinjavaTest.newConfigBuilder().withEnableFilterChainOptimization(true).build()
       );
 
     jinjavaUnoptimized =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withEnableFilterChainOptimization(false)
           .build()
       );

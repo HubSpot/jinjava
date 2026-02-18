@@ -21,12 +21,7 @@ public class RangeFunctionTest {
 
   @Before
   public void beforeEach() {
-    config =
-      JinjavaConfig
-        .newBuilder()
-        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-        .build();
+    config = BaseJinjavaTest.newConfigBuilder().build();
     Jinjava jinjava = new Jinjava(config);
     pushCurrent(new JinjavaInterpreter(jinjava.newInterpreter()));
   }
@@ -95,10 +90,8 @@ public class RangeFunctionTest {
   public void itTruncatesRangeToCustomRangeLimit() {
     JinjavaInterpreter.popCurrent();
     int customRangeLimit = 10;
-    JinjavaConfig customConfig = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    JinjavaConfig customConfig = BaseJinjavaTest
+      .newConfigBuilder()
       .withRangeLimit(customRangeLimit)
       .build();
     pushCurrent(new JinjavaInterpreter(new Jinjava(customConfig).newInterpreter()));

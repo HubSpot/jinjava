@@ -19,12 +19,7 @@ public class AstFilterChainTest {
   public void setup() {
     jinjava =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-          .withEnableFilterChainOptimization(true)
-          .build()
+        BaseJinjavaTest.newConfigBuilder().withEnableFilterChainOptimization(true).build()
       );
 
     context = new HashMap<>();

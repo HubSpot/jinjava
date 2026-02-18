@@ -253,10 +253,8 @@ public class FormatDateFilterTest {
   public void itDefaultsToCurrentDateOnMissingFilterArg() {
     jinjava =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withDateTimeProvider(() -> 1233333414223L)
           .build()
       );
@@ -274,10 +272,8 @@ public class FormatDateFilterTest {
   public void itDefaultsToDeprecationDateOnMissingFilterArg() {
     jinjava =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withDateTimeProvider(() -> 1233333414223L)
           .withFeatureConfig(
             FeatureConfig

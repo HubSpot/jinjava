@@ -28,12 +28,7 @@ public class TokenScannerTest {
 
   @Before
   public void setup() {
-    config =
-      JinjavaConfig
-        .newBuilder()
-        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-        .build();
+    config = BaseJinjavaTest.newConfigBuilder().build();
     symbols = config.getTokenScannerSymbols();
   }
 
@@ -274,10 +269,8 @@ public class TokenScannerTest {
     List<Token> tokens = tokens("comment-without-whitespace");
     assertThat(tokens.get(0).content.trim()).isEqualTo("$");
 
-    JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withFeatureConfig(
         FeatureConfig
           .newBuilder()
@@ -314,10 +307,8 @@ public class TokenScannerTest {
   @Test
   public void testLstripBlocks() {
     config =
-      JinjavaConfig
-        .newBuilder()
-        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withLstripBlocks(true)
         .withTrimBlocks(true)
         .build();

@@ -50,10 +50,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
@@ -261,10 +259,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
   @Test
   public void itWrapsInRawTag() {
     String toWrap = "{{ foo }}";
-    JinjavaConfig preserveRawConfig = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    JinjavaConfig preserveRawConfig = BaseJinjavaTest
+      .newConfigBuilder()
       .withExecutionMode(PreserveRawExecutionMode.instance())
       .build();
     assertThat(
@@ -279,10 +275,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
   @Test
   public void itDoesntWrapInRawTagUnnecessarily() {
     String toWrap = "foo";
-    JinjavaConfig preserveRawConfig = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    JinjavaConfig preserveRawConfig = BaseJinjavaTest
+      .newConfigBuilder()
       .withExecutionMode(PreserveRawExecutionMode.instance())
       .build();
     assertThat(
@@ -296,10 +290,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
 
   @Test
   public void itDoesntWrapInRawTagForDefaultConfig() {
-    JinjavaConfig defaultConfig = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    JinjavaConfig defaultConfig = BaseJinjavaTest
+      .newConfigBuilder()
       .withExecutionMode(DefaultExecutionMode.instance())
       .build();
     String toWrap = "{{ foo }}";

@@ -49,12 +49,7 @@ public class PyishObjectMapperTest {
     map.put("bar", ImmutableMap.of("foobar", new ArrayList<>()));
 
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
-        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-        .withMaxOutputSize(10000)
-        .build()
+      BaseJinjavaTest.newConfigBuilder().withMaxOutputSize(10000).build()
     );
     try {
       JinjavaInterpreter.pushCurrent(jinjava.newInterpreter());
@@ -89,12 +84,7 @@ public class PyishObjectMapperTest {
     list.add(original);
     try {
       Jinjava jinjava = new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-          .withMaxOutputSize(10000)
-          .build()
+        BaseJinjavaTest.newConfigBuilder().withMaxOutputSize(10000).build()
       );
       JinjavaInterpreter.pushCurrent(jinjava.newInterpreter());
       assertThatThrownBy(() -> PyishObjectMapper.getAsPyishStringOrThrow(original))
@@ -114,12 +104,7 @@ public class PyishObjectMapperTest {
     String input = RandomStringUtils.random(10002);
     try {
       Jinjava jinjava = new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-          .withMaxOutputSize(10000)
-          .build()
+        BaseJinjavaTest.newConfigBuilder().withMaxOutputSize(10000).build()
       );
       JinjavaInterpreter.pushCurrent(jinjava.newInterpreter());
       assertThatThrownBy(() -> PyishObjectMapper.getAsPyishString(input))
@@ -149,10 +134,8 @@ public class PyishObjectMapperTest {
   @Test
   public void itDoesNotConvertToSnakeCaseMapWhenResultIsForOutput() {
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
-        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withLegacyOverrides(
           LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
         )
@@ -166,10 +149,8 @@ public class PyishObjectMapperTest {
   @Test
   public void itSerializesToSnakeCaseWhenLegacyOverrideIsSet() {
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
-        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withLegacyOverrides(
           LegacyOverrides
             .newBuilder()

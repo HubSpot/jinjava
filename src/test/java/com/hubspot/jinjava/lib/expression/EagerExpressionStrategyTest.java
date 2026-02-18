@@ -27,14 +27,7 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
 
   @Before
   public void eagerSetup() throws Exception {
-    jinjava =
-      new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-          .build()
-      );
+    jinjava = new Jinjava(BaseJinjavaTest.newConfigBuilder().build());
     jinjava
       .getGlobalContext()
       .registerFunction(
@@ -48,10 +41,8 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
       new JinjavaInterpreter(
         jinjava,
         new Context(),
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );
@@ -59,10 +50,8 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
       new JinjavaInterpreter(
         jinjava,
         interpreter.getContext(),
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withNestedInterpretationEnabled(true)
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()

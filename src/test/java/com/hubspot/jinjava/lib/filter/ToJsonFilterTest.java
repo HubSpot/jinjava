@@ -45,14 +45,7 @@ public class ToJsonFilterTest extends BaseInterpretingTest {
       temp = nested;
     }
     interpreter =
-      new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-          .withMaxOutputSize(500)
-          .build()
-      )
+      new Jinjava(BaseJinjavaTest.newConfigBuilder().withMaxOutputSize(500).build())
         .newInterpreter();
     assertThat(filter.filter(original, interpreter)).asString().contains("[[]]]]");
     for (int i = 0; i < 400; i++) {

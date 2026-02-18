@@ -24,12 +24,7 @@ public class AdditionOperatorTest {
   public void setup() {
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-          .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-          .withMaxOutputSize(MAX_STRING_LENGTH)
-          .build()
+        BaseJinjavaTest.newConfigBuilder().withMaxOutputSize(MAX_STRING_LENGTH).build()
       )
         .newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);

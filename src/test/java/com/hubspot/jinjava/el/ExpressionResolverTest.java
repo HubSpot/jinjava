@@ -480,10 +480,8 @@ public class ExpressionResolverTest {
     String rendered = jinjava.render(template, context);
     assertEquals("hi 1 2 ", rendered);
 
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withDisabled(disabled)
       .build();
 
@@ -517,11 +515,7 @@ public class ExpressionResolverTest {
   @Test
   public void itStoresResolvedFunctions() {
     context.put("datetime", 12345);
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-      .build();
+    final JinjavaConfig config = BaseJinjavaTest.newConfigBuilder().build();
     String template =
       "{% for i in range(1, 5) %}{{i}} {% endfor %}\n{{ unixtimestamp(datetime) }}";
     final RenderResult renderResult = jinjava.renderForResult(template, context, config);

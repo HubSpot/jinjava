@@ -100,11 +100,7 @@ public class ObjectIteratorTest {
 
   @Test
   public void testItIteratesOverKeys() throws Exception {
-    JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-      .build();
+    JinjavaConfig config = BaseJinjavaTest.newConfigBuilder().build();
     JinjavaInterpreter.pushCurrent(
       new JinjavaInterpreter(new Jinjava(), new Context(), config)
     );

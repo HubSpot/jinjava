@@ -20,10 +20,8 @@ public class CustomTokenScannerSymbolsTest {
   @Before
   public void setup() {
     config =
-      JinjavaConfig
-        .newBuilder()
-        .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-        .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withTokenScannerSymbols(new CustomTokens())
         .build();
     jinjava = new Jinjava(config);

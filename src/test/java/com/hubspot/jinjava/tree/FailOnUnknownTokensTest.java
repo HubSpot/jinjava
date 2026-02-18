@@ -19,10 +19,7 @@ public class FailOnUnknownTokensTest {
 
   @Before
   public void setUp() {
-    JinjavaConfig.Builder builder = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR);
+    JinjavaConfig.Builder builder = BaseJinjavaTest.newConfigBuilder();
     builder.withFailOnUnknownTokens(true);
     JinjavaConfig config = builder.build();
     jinjava = new Jinjava(config);
@@ -52,10 +49,8 @@ public class FailOnUnknownTokensTest {
 
   @Test
   public void itReplacesTokensInContextButThrowsExceptionForOthers() {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withFailOnUnknownTokens(true)
       .build();
     JinjavaInterpreter jinjavaInterpreter = new Jinjava(config).newInterpreter();

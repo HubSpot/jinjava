@@ -26,10 +26,8 @@ public class DeferredTest {
 
   @Before
   public void setup() {
-    JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
+    JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
       .build();
     JinjavaInterpreter parentInterpreter = new JinjavaInterpreter(

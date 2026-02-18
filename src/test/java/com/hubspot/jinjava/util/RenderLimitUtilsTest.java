@@ -42,11 +42,6 @@ public class RenderLimitUtilsTest {
   }
 
   private JinjavaConfig configWithOutputSize(long size) {
-    return JinjavaConfig
-      .newBuilder()
-      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
-      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
-      .withMaxOutputSize(size)
-      .build();
+    return BaseJinjavaTest.newConfigBuilder().withMaxOutputSize(size).build();
   }
 }
