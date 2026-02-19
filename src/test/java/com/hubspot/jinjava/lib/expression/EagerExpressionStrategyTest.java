@@ -72,6 +72,15 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
 
   @Test
   public void itPreservesRawTags() {
+    interpreter =
+      new JinjavaInterpreter(
+        jinjava,
+        new Context(),
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withExecutionMode(EagerExecutionMode.instance())
+          .build()
+      );
     assertExpectedOutput(
       interpreter,
       "{{ '{{ foo }}' }} {{ '{% something %}' }} {{ 'not needed' }}",

@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.features.DateTimeFeatureActivationStrategy;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.interpret.RenderResult;
@@ -34,7 +33,7 @@ public class FormatDateFilterTest {
 
   @Before
   public void setUp() throws Exception {
-    jinjava = new Jinjava();
+    jinjava = new Jinjava(BaseJinjavaTest.newConfigBuilder().build());
     jinjava.getGlobalContext().registerClasses(FormatDateFilter.class);
   }
 

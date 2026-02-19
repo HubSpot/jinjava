@@ -24,7 +24,6 @@ import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.util.ForLoop;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -101,7 +100,6 @@ public enum AllowlistGroup {
       ForwardingMap.class.getCanonicalName(),
       ForwardingSet.class.getCanonicalName(),
       ForwardingCollection.class.getCanonicalName(),
-      AbstractCollection.class.getCanonicalName(),
       LinkedHashMap.class.getCanonicalName(),
       "%s.Entry".formatted(LinkedHashMap.class.getCanonicalName()),
       "%s.LinkedValues".formatted(LinkedHashMap.class.getCanonicalName()),

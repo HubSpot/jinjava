@@ -7,6 +7,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class AllowlistMethodValidator {
 
+  public static final AllowlistMethodValidator DEFAULT = AllowlistMethodValidator.create(
+    MethodValidatorConfig.builder().addDefaultAllowlistGroups().build()
+  );
   private final ConcurrentHashMap<Method, Boolean> allowedMethodsCache;
   private final ImmutableSet<Method> allowedMethods;
   private final ImmutableSet<String> allowedDeclaredMethodsFromCanonicalClassPrefixes;

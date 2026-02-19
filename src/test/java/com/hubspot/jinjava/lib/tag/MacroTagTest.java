@@ -9,7 +9,6 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -304,7 +303,7 @@ public class MacroTagTest extends BaseInterpretingTest {
     try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
       String jinja =
         "{%- macro func(var) %}" +
-        "{%- for f in var %}" +
+        "{%- for k,f in var.items() %}" +
         "{{ f.val }}" +
         "{%- endfor %}" +
         "{%- endmacro %}" +

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.ExpectedTemplateInterpreter;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -73,6 +72,7 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
 
   @Test
   public void itDefersSuperBlockWithDeferred() {
+    eagerSetup(true);
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "defers-super-block-with-deferred"
     );
@@ -80,6 +80,7 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
 
   @Test
   public void itDefersSuperBlockWithDeferredSecondPass() {
+    eagerSetup(true);
     context.put("deferred", "Resolved now");
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "defers-super-block-with-deferred.expected"

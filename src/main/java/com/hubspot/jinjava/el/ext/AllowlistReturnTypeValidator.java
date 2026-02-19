@@ -6,6 +6,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class AllowlistReturnTypeValidator {
 
+  public static final AllowlistReturnTypeValidator DEFAULT =
+    AllowlistReturnTypeValidator.create(
+      ReturnTypeValidatorConfig.builder().addDefaultAllowlistGroups().build()
+    );
   private final ConcurrentHashMap<String, Boolean> allowedReturnTypesCache;
 
   private final ImmutableSet<String> allowedCanonicalClassPrefixes;
@@ -68,11 +72,20 @@ public final class AllowlistReturnTypeValidator {
       return true;
     }
     String canonicalClassName = clazz.getCanonicalName();
-    return allowedReturnTypesCache.computeIfAbsent(
+    boolean isAllowedReturnType = allowedReturnTypesCache.computeIfAbsent(
       canonicalClassName,
       c ->
         allowedCanonicalClassNames.contains(canonicalClassName) ||
         allowedCanonicalClassPrefixes.stream().anyMatch(canonicalClassName::startsWith)
     );
+    if (!isAllowedReturnType) {
+      return false;
+    }
+    for (ReturnTypeValidator v : additionalValidators) {
+      if (!v.allowReturnTypeClass(clazz)) {
+        return false;
+      }
+    }
+    return true;
   }
 }

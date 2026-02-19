@@ -28,8 +28,6 @@ import com.hubspot.jinjava.el.JinjavaProcessors;
 import com.hubspot.jinjava.el.ObjectUnwrapper;
 import com.hubspot.jinjava.el.ext.AllowlistMethodValidator;
 import com.hubspot.jinjava.el.ext.AllowlistReturnTypeValidator;
-import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
-import com.hubspot.jinjava.el.ext.ReturnTypeValidatorConfig;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.features.Features;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -166,16 +164,12 @@ public interface JinjavaConfig {
 
   @Value.Default
   default AllowlistMethodValidator getMethodValidator() {
-    return AllowlistMethodValidator.create(
-      MethodValidatorConfig.builder().addDefaultAllowlistGroups().build()
-    );
+    return AllowlistMethodValidator.DEFAULT;
   }
 
   @Value.Default
   default AllowlistReturnTypeValidator getReturnTypeValidator() {
-    return AllowlistReturnTypeValidator.create(
-      ReturnTypeValidatorConfig.builder().addDefaultAllowlistGroups().build()
-    );
+    return AllowlistReturnTypeValidator.DEFAULT;
   }
 
   @Value.Default
