@@ -257,7 +257,7 @@ public class ExpressionResolverTest {
     interpreter.resolveELExpression("foo", 23);
     assertThat(interpreter.getErrorsCopy()).isEmpty();
 
-    context.put("foo", new Object());
+    context.put("foo", "");
     interpreter.resolveELExpression("foo.bar", 23);
 
     assertThat(interpreter.getErrorsCopy()).hasSize(1);
@@ -314,7 +314,10 @@ public class ExpressionResolverTest {
 
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
     TemplateError e = interpreter.getErrorsCopy().get(0);
-    assertThat(e.getMessage()).contains("Cannot find method 'wait'");
+    assertThat(e.getMessage())
+      .contains(
+        "Cannot find method wait with 0 parameters in class com.hubspot.jinjava.testobjects.ExpressionResolverTestObjects$MyClass"
+      );
   }
 
   @Test
@@ -324,7 +327,10 @@ public class ExpressionResolverTest {
 
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
     TemplateError e = interpreter.getErrorsCopy().get(0);
-    assertThat(e.getMessage()).contains("Cannot find method 'getClass'");
+    assertThat(e.getMessage())
+      .contains(
+        "Cannot find method getClass with 0 parameters in class com.hubspot.jinjava.testobjects.ExpressionResolverTestObjects$MyClass"
+      );
   }
 
   @Test

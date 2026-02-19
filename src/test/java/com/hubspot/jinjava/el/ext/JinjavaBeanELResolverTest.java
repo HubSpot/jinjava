@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.el.ext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
@@ -9,6 +10,7 @@ import com.hubspot.jinjava.interpret.AutoCloseableSupplier;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.testobjects.JinjavaBeanELResolverTestObjects;
 import javax.el.ELContext;
+import javax.el.PropertyNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -140,7 +142,10 @@ public class JinjavaBeanELResolverTest {
         .closeablePushCurrent(jinjava.newInterpreter())
         .get()
     ) {
-      assertThat(jinjavaBeanELResolver.getValue(elContext, a.value(), "config")).isNull();
+      assertThatThrownBy(() ->
+          jinjavaBeanELResolver.getValue(elContext, a.value(), "config")
+        )
+        .isInstanceOf(PropertyNotFoundException.class);
     }
   }
 }
