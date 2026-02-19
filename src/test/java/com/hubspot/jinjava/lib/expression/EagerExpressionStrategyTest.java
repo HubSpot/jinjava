@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -24,6 +23,14 @@ import org.junit.Test;
 public class EagerExpressionStrategyTest extends ExpressionNodeTest {
 
   private Jinjava jinjava;
+
+  class EagerExecutionModeNoRaw extends EagerExecutionMode {
+
+    @Override
+    public boolean isPreserveRawTags() {
+      return false; // So that we can run all the ExpressionNodeTest tests without having the extra `{% raw %}` tags inserted
+    }
+  }
 
   @Before
   public void eagerSetup() throws Exception {
@@ -43,7 +50,7 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
         new Context(),
         BaseJinjavaTest
           .newConfigBuilder()
-          .withExecutionMode(EagerExecutionMode.instance())
+          .withExecutionMode(new EagerExecutionModeNoRaw())
           .build()
       );
     nestedInterpreter =
@@ -156,7 +163,7 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
   @Test
   public void itDoesNotNestedInterpretIfThereAreFakeNotes() {
     assertExpectedOutput(
-      interpreter,
+      nestedInterpreter,
       "{{ '{#something_to_{{keep}}' }}",
       "{#something_to_{{keep}}"
     );
@@ -206,13 +213,13 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
   @Test
   public void itDoesNotDoNestedInterpretationWithSyntaxErrors() {
     try (
-      InterpreterScopeClosable c = interpreter.enterScope(
+      InterpreterScopeClosable c = nestedInterpreter.enterScope(
         ImmutableMap.of(Library.TAG, ImmutableSet.of("print"))
       )
     ) {
-      interpreter.getContext().put("foo", "{% print 'bar' %}");
+      nestedInterpreter.getContext().put("foo", "{% print 'bar' %}");
       // Rather than rendering this to an empty string
-      assertExpectedOutput(interpreter, "{{ foo }}", "{% print 'bar' %}");
+      assertExpectedOutput(nestedInterpreter, "{{ foo }}", "{% print 'bar' %}");
     }
   }
 

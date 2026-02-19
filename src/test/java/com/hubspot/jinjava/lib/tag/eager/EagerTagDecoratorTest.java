@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.BaseJinjavaTest;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -16,11 +15,9 @@ import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
-import com.hubspot.jinjava.objects.collections.PyList;
-import com.hubspot.jinjava.objects.serialization.PyishSerializable;
+import com.hubspot.jinjava.testobjects.EagerTagDecoratorTestObjects;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.After;
@@ -159,22 +156,11 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     ((List<Object>) JinjavaInterpreter.getCurrent().getContext().get(key)).add(value);
   }
 
-  static class TooBig extends PyList implements PyishSerializable {
-
-    public TooBig(List<Object> list) {
-      super(list);
-    }
-
-    @Override
-    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
-      throws IOException {
-      throw new OutputTooBigException(1, 1);
-    }
-  }
-
   @Test
   public void itDefersNodeWhenOutputTooBigIsThrownWithinInnerInterpret() {
-    TooBig tooBig = new TooBig(new ArrayList<>());
+    EagerTagDecoratorTestObjects.TooBig tooBig = new EagerTagDecoratorTestObjects.TooBig(
+      new ArrayList<>()
+    );
     interpreter =
       new JinjavaInterpreter(
         jinjava,

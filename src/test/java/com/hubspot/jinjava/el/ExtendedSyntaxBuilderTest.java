@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
@@ -197,14 +196,12 @@ public class ExtendedSyntaxBuilderTest {
         BaseJinjavaTest
           .newConfigBuilder()
           .withMaxOutputSize(MAX_STRING_LENGTH)
-          .withLegacyOverrides(
-            LegacyOverrides.newBuilder().withEvaluateMapKeys(false).build()
-          )
+          .withLegacyOverrides(LegacyOverrides.THREE_POINT_0.withEvaluateMapKeys(false))
           .build()
       )
         .newInterpreter();
     try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
-      context.put("foo", "bar");
+      interpreter.getContext().put("foo", "bar");
       assertThat((Map<String, Object>) val("{}")).isEmpty();
       Map<String, Object> map = (Map<String, Object>) val(
         "{foo: foo, \"foo2\": foo, foo3: 123, foo4: 'string', foo5: {}, foo6: [1, 2]}"

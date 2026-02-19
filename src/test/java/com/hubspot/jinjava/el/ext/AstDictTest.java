@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
-import java.util.Map;
+import com.hubspot.jinjava.testobjects.AstDictTestObjects;
 import java.util.Set;
 import org.junit.Test;
 
@@ -40,7 +40,9 @@ public class AstDictTest extends BaseJinjavaTest {
       var a = JinjavaInterpreter.closeablePushCurrent(jinjava.newInterpreter()).get()
     ) {
       JinjavaInterpreter interpreter = a.value();
-      interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
+      interpreter
+        .getContext()
+        .put("foo", ImmutableMap.of(AstDictTestObjects.TestEnum.BAR, "test"));
       assertThat(interpreter.resolveELExpression("foo.barName", -1)).isEqualTo("test");
     }
   }
@@ -51,7 +53,9 @@ public class AstDictTest extends BaseJinjavaTest {
       var a = JinjavaInterpreter.closeablePushCurrent(jinjava.newInterpreter()).get()
     ) {
       JinjavaInterpreter interpreter = a.value();
-      interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
+      interpreter
+        .getContext()
+        .put("foo", ImmutableMap.of(AstDictTestObjects.TestEnum.BAR, "test"));
       assertThat(interpreter.resolveELExpression("foo.items()", -1))
         .isInstanceOf(Set.class);
     }
@@ -63,7 +67,9 @@ public class AstDictTest extends BaseJinjavaTest {
       var a = JinjavaInterpreter.closeablePushCurrent(jinjava.newInterpreter()).get()
     ) {
       JinjavaInterpreter interpreter = a.value();
-      interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
+      interpreter
+        .getContext()
+        .put("foo", ImmutableMap.of(AstDictTestObjects.TestEnum.BAR, "test"));
       assertThat(interpreter.resolveELExpression("foo.keys()", -1))
         .isInstanceOf(Set.class);
     }
@@ -89,38 +95,12 @@ public class AstDictTest extends BaseJinjavaTest {
       JinjavaInterpreter interpreter = a.value();
       interpreter
         .getContext()
-        .put("test", new TestClass(ImmutableMap.of(ErrorType.FATAL, "test")));
+        .put(
+          "test",
+          new AstDictTestObjects.TestClass(ImmutableMap.of(ErrorType.FATAL, "test"))
+        );
       assertThat(interpreter.resolveELExpression("test.my_map.FATAL", -1))
         .isEqualTo("test");
-    }
-  }
-
-  public class TestClass {
-
-    private Map<ErrorType, String> myMap;
-
-    public TestClass(Map<ErrorType, String> myMap) {
-      this.myMap = myMap;
-    }
-
-    public Map<ErrorType, String> getMyMap() {
-      return myMap;
-    }
-  }
-
-  public enum TestEnum {
-    FOO("fooName"),
-    BAR("barName");
-
-    private String name;
-
-    TestEnum(String name) {
-      this.name = name;
-    }
-
-    @Override
-    public String toString() {
-      return name;
     }
   }
 }

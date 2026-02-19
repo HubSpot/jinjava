@@ -134,79 +134,97 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void singleWordProperty() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "bar")).isEqualTo("a");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      assertThat(interpreter.resolveProperty(new Foo("a"), "bar")).isEqualTo("a");
+    }
   }
 
   @Test
   public void multiWordCamelCase() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "barFoo")).isEqualTo("a");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      assertThat(interpreter.resolveProperty(new Foo("a"), "barFoo")).isEqualTo("a");
+    }
   }
 
   @Test
   public void multiWordSnakeCase() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "bar_foo")).isEqualTo("a");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      assertThat(interpreter.resolveProperty(new Foo("a"), "bar_foo")).isEqualTo("a");
+    }
   }
 
   @Test
   public void multiWordNumberSnakeCase() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "bar_foo_1")).isEqualTo("a");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      assertThat(interpreter.resolveProperty(new Foo("a"), "bar_foo_1")).isEqualTo("a");
+    }
   }
 
   @Test
   public void jsonIgnore() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "barHidden")).isEqualTo("a");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      assertThat(interpreter.resolveProperty(new Foo("a"), "barHidden")).isEqualTo("a");
+    }
   }
 
   @Test
   public void triesBeanMethodFirst() {
-    assertThat(
-      interpreter
-        .resolveProperty(ZonedDateTime.parse("2013-09-19T12:12:12+00:00"), "year")
-        .toString()
-    )
-      .isEqualTo("2013");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      assertThat(
+        interpreter
+          .resolveProperty(ZonedDateTime.parse("2013-09-19T12:12:12+00:00"), "year")
+          .toString()
+      )
+        .isEqualTo("2013");
+    }
   }
 
   @Test
   public void enterScopeTryFinally() {
-    interpreter.getContext().put("foo", "parent");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter.getContext().put("foo", "parent");
 
-    interpreter.enterScope();
-    try {
-      interpreter.getContext().put("foo", "child");
-      assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("child");
-    } finally {
-      interpreter.leaveScope();
+      interpreter.enterScope();
+      try {
+        interpreter.getContext().put("foo", "child");
+        assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("child");
+      } finally {
+        interpreter.leaveScope();
+      }
+
+      assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("parent");
     }
-
-    assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("parent");
   }
 
   @Test
   public void enterScopeTryWithResources() {
-    interpreter.getContext().put("foo", "parent");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter.getContext().put("foo", "parent");
 
-    try (InterpreterScopeClosable c = interpreter.enterScope()) {
-      interpreter.getContext().put("foo", "child");
-      assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("child");
+      try (InterpreterScopeClosable c = interpreter.enterScope()) {
+        interpreter.getContext().put("foo", "child");
+        assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("child");
+      }
+
+      assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("parent");
     }
-
-    assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("parent");
   }
 
   @Test
   public void bubbleUpDependenciesFromLowerScope() {
-    String dependencyType = "foo";
-    String dependencyIdentifier = "123";
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      String dependencyType = "foo";
+      String dependencyIdentifier = "123";
 
-    interpreter.enterScope();
-    interpreter.getContext().addDependency(dependencyType, dependencyIdentifier);
-    assertThat(interpreter.getContext().getDependencies().get(dependencyType))
-      .contains(dependencyIdentifier);
-    interpreter.leaveScope();
+      interpreter.enterScope();
+      interpreter.getContext().addDependency(dependencyType, dependencyIdentifier);
+      assertThat(interpreter.getContext().getDependencies().get(dependencyType))
+        .contains(dependencyIdentifier);
+      interpreter.leaveScope();
 
-    assertThat(interpreter.getContext().getDependencies().get(dependencyType))
-      .contains(dependencyIdentifier);
+      assertThat(interpreter.getContext().getDependencies().get(dependencyType))
+        .contains(dependencyIdentifier);
+    }
   }
 
   @Test

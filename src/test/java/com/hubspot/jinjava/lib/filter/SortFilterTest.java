@@ -5,8 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
-import com.hubspot.jinjava.objects.serialization.PyishSerializable;
-import java.io.IOException;
+import com.hubspot.jinjava.testobjects.SortFilterTestObjects;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,9 +34,11 @@ public class SortFilterTest extends BaseJinjavaTest {
     assertThat(
       render(
         "(reverse=false, case_sensitive=false, attribute='foo.date')",
-        new MyBar(new MyFoo(new Date(250L))),
-        new MyBar(new MyFoo(new Date(0L))),
-        new MyBar(new MyFoo(new Date(100000000L)))
+        new SortFilterTestObjects.MyBar(new SortFilterTestObjects.MyFoo(new Date(250L))),
+        new SortFilterTestObjects.MyBar(new SortFilterTestObjects.MyFoo(new Date(0L))),
+        new SortFilterTestObjects.MyBar(
+          new SortFilterTestObjects.MyFoo(new Date(100000000L))
+        )
       )
     )
       .isEqualTo("0250100000000");
@@ -53,9 +54,9 @@ public class SortFilterTest extends BaseJinjavaTest {
     assertThat(
       render(
         "(false, false, 'date')",
-        new MyFoo(new Date(250L)),
-        new MyFoo(new Date(0L)),
-        new MyFoo(new Date(100000000L))
+        new SortFilterTestObjects.MyFoo(new Date(250L)),
+        new SortFilterTestObjects.MyFoo(new Date(0L)),
+        new SortFilterTestObjects.MyFoo(new Date(100000000L))
       )
     )
       .isEqualTo("0250100000000");
@@ -66,9 +67,11 @@ public class SortFilterTest extends BaseJinjavaTest {
     assertThat(
       render(
         "(false, false, 'foo.date')",
-        new MyBar(new MyFoo(new Date(250L))),
-        new MyBar(new MyFoo(new Date(0L))),
-        new MyBar(new MyFoo(new Date(100000000L)))
+        new SortFilterTestObjects.MyBar(new SortFilterTestObjects.MyFoo(new Date(250L))),
+        new SortFilterTestObjects.MyBar(new SortFilterTestObjects.MyFoo(new Date(0L))),
+        new SortFilterTestObjects.MyBar(
+          new SortFilterTestObjects.MyFoo(new Date(100000000L))
+        )
       )
     )
       .isEqualTo("0250100000000");
@@ -78,9 +81,9 @@ public class SortFilterTest extends BaseJinjavaTest {
   public void itThrowsInvalidArgumentExceptionOnNullAttribute() {
     RenderResult result = renderForResult(
       "(false, false, null)",
-      new MyFoo(new Date(250L)),
-      new MyFoo(new Date(0L)),
-      new MyFoo(new Date(100000000L))
+      new SortFilterTestObjects.MyFoo(new Date(250L)),
+      new SortFilterTestObjects.MyFoo(new Date(0L)),
+      new SortFilterTestObjects.MyFoo(new Date(100000000L))
     );
     assertThat(result.getOutput()).isEmpty();
     assertThat(result.getErrors()).hasSize(1);
@@ -92,9 +95,9 @@ public class SortFilterTest extends BaseJinjavaTest {
   public void itThrowsInvalidArgumentWhenObjectAttributeIsNull() {
     RenderResult result = renderForResult(
       "(false, false, 'doesNotResolve')",
-      new MyFoo(new Date(250L)),
-      new MyFoo(new Date(0L)),
-      new MyFoo(new Date(100000000L))
+      new SortFilterTestObjects.MyFoo(new Date(250L)),
+      new SortFilterTestObjects.MyFoo(new Date(0L)),
+      new SortFilterTestObjects.MyFoo(new Date(100000000L))
     );
     assertThat(result.getOutput()).isEmpty();
     assertThat(result.getErrors()).hasSize(2);
@@ -107,10 +110,10 @@ public class SortFilterTest extends BaseJinjavaTest {
   public void itThrowsInvalidInputWhenListContainsNull() {
     RenderResult result = renderForResult(
       "(false, false)",
-      new MyFoo(new Date(250L)),
-      new MyFoo(new Date(0L)),
+      new SortFilterTestObjects.MyFoo(new Date(250L)),
+      new SortFilterTestObjects.MyFoo(new Date(0L)),
       null,
-      new MyFoo(new Date(100000000L))
+      new SortFilterTestObjects.MyFoo(new Date(100000000L))
     );
     assertThat(result.getOutput()).isEmpty();
     assertThat(result.getErrors()).hasSize(1);
@@ -135,55 +138,5 @@ public class SortFilterTest extends BaseJinjavaTest {
       "{% for item in iterable|sort" + sortExtra + " %}{{ item }}{% endfor %}",
       context
     );
-  }
-
-  public static class MyFoo implements PyishSerializable {
-
-    private Date date;
-
-    MyFoo(Date date) {
-      this.date = date;
-    }
-
-    public Date getDate() {
-      return date;
-    }
-
-    @Override
-    public String toString() {
-      return "" + date.getTime();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
-      throws IOException {
-      return (T) appendable.append(toString());
-    }
-  }
-
-  public static class MyBar implements PyishSerializable {
-
-    private MyFoo foo;
-
-    MyBar(MyFoo foo) {
-      this.foo = foo;
-    }
-
-    public MyFoo getFoo() {
-      return foo;
-    }
-
-    @Override
-    public String toString() {
-      return foo.toString();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
-      throws IOException {
-      return (T) appendable.append(toString());
-    }
   }
 }

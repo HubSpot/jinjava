@@ -179,7 +179,8 @@ public class ExtendedParserTest {
     assertThat(astParameters.getChild(2)).isInstanceOf(AstString.class);
 
     assertThat(astParameters.getChild(0).eval(null, null)).isEqualTo(leftExpected);
-    assertThat(((AstIdentifier) astParameters.getChild(1)).getName()).isEqualTo("null");
+    assertThat(((AstIdentifier) astParameters.getChild(1)).getName())
+      .isEqualTo(ExtendedParser.INTERPRETER);
     assertThat(astParameters.getChild(2).eval(null, null)).isEqualTo(rightExpected);
   }
 

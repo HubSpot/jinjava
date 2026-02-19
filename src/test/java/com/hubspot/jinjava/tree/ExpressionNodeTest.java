@@ -13,7 +13,6 @@ import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
 import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.features.FeatureStrategies;
-import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import java.nio.charset.StandardCharsets;
@@ -74,8 +73,7 @@ public class ExpressionNodeTest {
       nestedInterpreter.getContext().put("place", "world");
 
       ExpressionNode node = fixture("simplevar");
-      assertThat(node.render(nestedInterpreter).toString())
-        .isEqualTo("hello {{ place }}");
+      assertThat(node.render(nestedInterpreter).toString()).isEqualTo("hello world");
     }
   }
 
@@ -87,7 +85,7 @@ public class ExpressionNodeTest {
       interpreter.getContext().put("place", "world");
 
       ExpressionNode node = fixture("simplevar");
-      assertThat(node.render(interpreter).toString()).isEqualTo("hello world");
+      assertThat(node.render(interpreter).toString()).isEqualTo("hello {{ place }}");
     }
   }
 
@@ -97,16 +95,13 @@ public class ExpressionNodeTest {
       .newConfigBuilder()
       .withNestedInterpretationEnabled(true)
       .build();
-    JinjavaInterpreter jinjava = new Jinjava(config).newInterpreter();
-    Context context = jinjava.getContext();
-    try (var a = JinjavaInterpreter.closeablePushCurrent(jinjava).get()) {
-      jinjava = a.value();
+    try (var a = JinjavaInterpreter.closeablePushCurrent(nestedInterpreter).get()) {
       nestedInterpreter
         .getContext()
         .put("myvar", "hello {% if (true) %}nasty{% endif %}");
 
       ExpressionNode node = fixture("simplevar");
-      assertThat(node.render(jinjava).toString()).isEqualTo("hello nasty");
+      assertThat(node.render(nestedInterpreter).toString()).isEqualTo("hello nasty");
     }
   }
 
@@ -345,14 +340,14 @@ public class ExpressionNodeTest {
       )
       .build();
     try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
-      interpreter = a.value();
-      interpreter.getContext().put("myvar", "hello {% if");
-      interpreter.getContext().put("place", "world");
+      nestedInterpreter = a.value();
+      nestedInterpreter.getContext().put("myvar", "hello {% if");
+      nestedInterpreter.getContext().put("place", "world");
 
       ExpressionNode node = fixture("simplevar");
 
-      assertThat(node.render(interpreter).toString()).isEqualTo("hello {% if");
-      assertThat(interpreter.getErrors()).isEmpty();
+      assertThat(node.render(nestedInterpreter).toString()).isEqualTo("hello {% if");
+      assertThat(nestedInterpreter.getErrors()).isEmpty();
     }
   }
 

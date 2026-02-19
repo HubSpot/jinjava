@@ -19,6 +19,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.collections.ArrayBacked;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -75,7 +76,7 @@ public class ReverseFilter implements Filter {
     return "reverse";
   }
 
-  static class ReverseArrayIterator<T> implements Iterator<T> {
+  static class ReverseArrayIterator<T> implements Iterator<T>, ArrayBacked<T> {
 
     private final T[] array;
     private int index;
@@ -100,6 +101,11 @@ public class ReverseFilter implements Filter {
     @Override
     public boolean hasNext() {
       return index >= 0;
+    }
+
+    @Override
+    public T[] backingArray() {
+      return array;
     }
   }
 }

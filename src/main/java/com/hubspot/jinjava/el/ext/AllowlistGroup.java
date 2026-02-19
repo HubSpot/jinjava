@@ -4,8 +4,11 @@ import com.google.common.collect.ForwardingCollection;
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.ForwardingMap;
 import com.google.common.collect.ForwardingSet;
+import com.hubspot.jinjava.interpret.NullValue;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
 import com.hubspot.jinjava.lib.filter.Filter;
+import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.objects.DummyObject;
 import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.objects.SafeString;
@@ -71,6 +74,7 @@ public enum AllowlistGroup {
       DummyObject.class.getCanonicalName(),
       Namespace.class.getCanonicalName(),
       SafeString.class.getCanonicalName(),
+      NullValue.class.getCanonicalName(),
     };
 
     @Override
@@ -112,9 +116,18 @@ public enum AllowlistGroup {
     String[] allowedDeclaredMethodsFromClasses() {
       return ARRAY;
     }
+
+    @Override
+    boolean enableArrays() {
+      return true;
+    }
   },
   JinjavaTagConstructs {
-    private static final String[] ARRAY = { ForLoop.class.getCanonicalName() };
+    private static final String[] ARRAY = {
+      ForLoop.class.getCanonicalName(),
+      MacroFunction.class.getCanonicalName(),
+      EagerMacroFunction.class.getCanonicalName(),
+    };
 
     @Override
     String[] allowedReturnTypeClasses() {
@@ -172,5 +185,9 @@ public enum AllowlistGroup {
 
   String[] allowedReturnTypeClasses() {
     return new String[0];
+  }
+
+  boolean enableArrays() {
+    return false;
   }
 }

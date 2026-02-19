@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
@@ -20,9 +19,7 @@ import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
-import com.hubspot.jinjava.testobjects.EagerExpressionResolverTestFoo;
-import com.hubspot.jinjava.testobjects.EagerExpressionResolverTestSomethingExceptionallyPyish;
-import com.hubspot.jinjava.testobjects.EagerExpressionResolverTestSomethingPyish;
+import com.hubspot.jinjava.testobjects.EagerExpressionResolverTestObjects;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
@@ -453,15 +450,17 @@ public class EagerExpressionResolverTest {
   public void itDoesntResolveNonPyishSerializable() {
     PyMap dict = new PyMap(new HashMap<>());
     context.put("dict", dict);
-    context.put("foo", new EagerExpressionResolverTestFoo("bar"));
+    context.put("foo", new EagerExpressionResolverTestObjects.Foo("bar"));
     context.put("mark", "!");
     EagerExpressionResult eagerExpressionResult = eagerResolveExpression(
       "dict.update({'foo': foo})"
     );
     assertThat(WhitespaceUtils.unquoteAndUnescape(eagerExpressionResult.toString()))
       .isEqualTo("");
-    assertThat(dict.get("foo")).isInstanceOf(EagerExpressionResolverTestFoo.class);
-    assertThat(((EagerExpressionResolverTestFoo) dict.get("foo")).bar()).isEqualTo("bar");
+    assertThat(dict.get("foo"))
+      .isInstanceOf(EagerExpressionResolverTestObjects.Foo.class);
+    assertThat(((EagerExpressionResolverTestObjects.Foo) dict.get("foo")).bar())
+      .isEqualTo("bar");
   }
 
   @Test
@@ -601,7 +600,7 @@ public class EagerExpressionResolverTest {
 
   @Test
   public void itHandlesPyishSerializable() {
-    context.put("foo", new EagerExpressionResolverTestSomethingPyish("yes"));
+    context.put("foo", new EagerExpressionResolverTestObjects.SomethingPyish("yes"));
     assertThat(
       interpreter.render(
         String.format("{{ %s.name }}", eagerResolveExpression("foo").toString())
@@ -612,7 +611,10 @@ public class EagerExpressionResolverTest {
 
   @Test
   public void itHandlesPyishSerializableWithProcessingException() {
-    context.put("foo", new EagerExpressionResolverTestSomethingExceptionallyPyish("yes"));
+    context.put(
+      "foo",
+      new EagerExpressionResolverTestObjects.SomethingExceptionallyPyish("yes")
+    );
     context.addMetaContextVariables(Collections.singleton("foo"));
     assertThat(interpreter.render("{{ deferred && (1 == 2 || foo) }}"))
       .isEqualTo("{{ deferred && (false || foo) }}");

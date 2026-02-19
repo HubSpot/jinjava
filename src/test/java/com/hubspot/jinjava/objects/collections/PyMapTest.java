@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
 import com.hubspot.jinjava.interpret.RenderResult;
@@ -274,7 +273,16 @@ public class PyMapTest extends BaseJinjavaTest {
   }
 
   @Test
-  public void itDoesntSetKeysWithVariableNameByDefault() {
+  public void itDoesntSetKeysWithVariableNameWhenLegacy() {
+    jinjava =
+      new Jinjava(
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withEvaluateMapKeys(false).build()
+          )
+          .build()
+      );
     assertThat(
       jinjava.render(
         "{% set keyName = \"key1\" %}" +
@@ -288,16 +296,6 @@ public class PyMapTest extends BaseJinjavaTest {
 
   @Test
   public void itSetsKeysWithVariableName() {
-    jinjava =
-      new Jinjava(
-        BaseJinjavaTest
-          .newConfigBuilder()
-          .withLegacyOverrides(
-            LegacyOverrides.newBuilder().withEvaluateMapKeys(true).build()
-          )
-          .build()
-      );
-
     assertThat(
       jinjava.render(
         "{% set keyName = \"key1\" %}" +
@@ -346,7 +344,14 @@ public class PyMapTest extends BaseJinjavaTest {
   }
 
   @Test
-  public void itDoesntUpdateKeysWithVariableNameByDefault() {
+  public void itDoesntUpdateKeysWithVariableNameWhenLegacy() {
+    jinjava =
+      new Jinjava(
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withLegacyOverrides(LegacyOverrides.THREE_POINT_0.withEvaluateMapKeys(false))
+          .build()
+      );
     assertThat(
       jinjava.render(
         "{% set test = {\"key1\": \"value1\"} %}" +
@@ -365,9 +370,7 @@ public class PyMapTest extends BaseJinjavaTest {
       new Jinjava(
         BaseJinjavaTest
           .newConfigBuilder()
-          .withLegacyOverrides(
-            LegacyOverrides.newBuilder().withEvaluateMapKeys(true).build()
-          )
+          .withLegacyOverrides(LegacyOverrides.THREE_POINT_0.withEvaluateMapKeys(true))
           .build()
       );
     assertThat(

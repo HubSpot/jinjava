@@ -10,7 +10,7 @@ import org.immutables.value.Value;
 @ImmutableSetEncodingEnabled
 @ImmutableListEncodingEnabled
 @ImmutableMapEncodingEnabled
-public interface LegacyOverrides {
+public interface LegacyOverrides extends WithLegacyOverrides {
   LegacyOverrides NONE = new Builder().build();
   LegacyOverrides THREE_POINT_0 = new Builder()
     .withEvaluateMapKeys(true)

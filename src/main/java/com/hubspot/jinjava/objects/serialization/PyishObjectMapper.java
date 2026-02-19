@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.annotations.Beta;
@@ -53,6 +55,25 @@ public class PyishObjectMapper {
           .addSerializer(PyishSerializable.class, PyishSerializer.INSTANCE)
       );
     mapper.getSerializerProvider().setNullKeySerializer(new NullKeySerializer());
+    mapper.setAnnotationIntrospector(
+      new JacksonAnnotationIntrospector() {
+        @Override
+        protected boolean _isIgnorable(Annotated a) {
+          return (
+            super._isIgnorable(a) ||
+            !JinjavaInterpreter
+              .getCurrentMaybe()
+              .map(interpreter ->
+                interpreter
+                  .getConfig()
+                  .getReturnTypeValidator()
+                  .allowReturnTypeClass(a.getRawType())
+              )
+              .orElse(false)
+          );
+        }
+      }
+    );
     return mapper;
   }
 

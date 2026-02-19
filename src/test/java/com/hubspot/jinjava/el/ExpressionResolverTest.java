@@ -3,7 +3,6 @@ package com.hubspot.jinjava.el;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.ForwardingList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -19,16 +18,13 @@ import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
-import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.date.PyishDate;
+import com.hubspot.jinjava.testobjects.ExpressionResolverTestObjects;
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import java.util.function.Supplier;
 import org.junit.After;
 import org.junit.Before;
@@ -43,7 +39,7 @@ public class ExpressionResolverTest {
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
+    jinjava = new Jinjava(BaseJinjavaTest.newConfigBuilder().build());
     interpreter = jinjava.newInterpreter();
     context = interpreter.getContext();
     JinjavaInterpreter.pushCurrent(interpreter);
@@ -171,7 +167,8 @@ public class ExpressionResolverTest {
 
   @Test
   public void itResolvesMapValOnCustomObject() {
-    MyCustomMap dict = new MyCustomMap();
+    ExpressionResolverTestObjects.MyCustomMap dict =
+      new ExpressionResolverTestObjects.MyCustomMap();
     context.put("thedict", dict);
 
     Object val = interpreter.resolveELExpression("thedict['foo']", -1);
@@ -185,7 +182,8 @@ public class ExpressionResolverTest {
 
   @Test
   public void itResolvesOtherMethodsOnCustomMapObject() {
-    MyCustomMap dict = new MyCustomMap();
+    ExpressionResolverTestObjects.MyCustomMap dict =
+      new ExpressionResolverTestObjects.MyCustomMap();
     context.put("thedict", dict);
 
     Object val = interpreter.resolveELExpression("thedict.size", -1);
@@ -196,67 +194,6 @@ public class ExpressionResolverTest {
 
     Object val2 = interpreter.resolveELExpression("thedict.items()", -1);
     assertThat(val2.toString()).isEqualTo("[foo=bar, two=2, size=777]");
-  }
-
-  public static final class MyCustomMap implements Map<String, String> {
-
-    Map<String, String> data = ImmutableMap.of("foo", "bar", "two", "2", "size", "777");
-
-    @Override
-    public int size() {
-      return data.size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-      return data.isEmpty();
-    }
-
-    @Override
-    public boolean containsKey(Object key) {
-      return data.containsKey(key);
-    }
-
-    @Override
-    public boolean containsValue(Object value) {
-      return data.containsValue(value);
-    }
-
-    @Override
-    public String get(Object key) {
-      return data.get(key);
-    }
-
-    @Override
-    public String put(String key, String value) {
-      return null;
-    }
-
-    @Override
-    public String remove(Object key) {
-      return null;
-    }
-
-    @Override
-    public void putAll(Map<? extends String, ? extends String> m) {}
-
-    @Override
-    public void clear() {}
-
-    @Override
-    public Set<String> keySet() {
-      return data.keySet();
-    }
-
-    @Override
-    public Collection<String> values() {
-      return data.values();
-    }
-
-    @Override
-    public Set<Entry<String, String>> entrySet() {
-      return data.entrySet();
-    }
   }
 
   @Test
@@ -282,24 +219,6 @@ public class ExpressionResolverTest {
     assertThat(val).isEqualTo("val");
   }
 
-  public static class MyCustomList<T> extends ForwardingList<T> implements PyWrapper {
-
-    private final List<T> list;
-
-    public MyCustomList(List<T> list) {
-      this.list = list;
-    }
-
-    @Override
-    protected List<T> delegate() {
-      return list;
-    }
-
-    public int getTotalCount() {
-      return list.size();
-    }
-  }
-
   @Test
   public void itRecordsFilterNames() {
     Object val = interpreter.resolveELExpression("2.3 | round", -1);
@@ -309,7 +228,9 @@ public class ExpressionResolverTest {
 
   @Test
   public void callCustomListProperty() {
-    List<Integer> myList = new MyCustomList<>(Lists.newArrayList(1, 2, 3, 4));
+    List<Integer> myList = new ExpressionResolverTestObjects.MyCustomList<>(
+      Lists.newArrayList(1, 2, 3, 4)
+    );
 
     context.put("mylist", myList);
     Object val = interpreter.resolveELExpression("mylist.total_count", -1);
@@ -361,7 +282,7 @@ public class ExpressionResolverTest {
 
   @Test
   public void itWrapsDates() {
-    context.put("myobj", new MyClass(new Date(0)));
+    context.put("myobj", new ExpressionResolverTestObjects.MyClass(new Date(0)));
     Object result = interpreter.resolveELExpression("myobj.date", -1);
     assertThat(result).isInstanceOf(PyishDate.class);
     assertThat(result.toString()).isEqualTo("1970-01-01 00:00:00");
@@ -369,7 +290,7 @@ public class ExpressionResolverTest {
 
   @Test
   public void blackListedProperties() {
-    context.put("myobj", new MyClass(new Date(0)));
+    context.put("myobj", new ExpressionResolverTestObjects.MyClass(new Date(0)));
     interpreter.resolveELExpression("myobj.class.methods[0]", -1);
 
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
@@ -381,14 +302,14 @@ public class ExpressionResolverTest {
 
   @Test
   public void itWillNotReturnClassObjectProperties() {
-    context.put("myobj", new MyClass(new Date(0)));
+    context.put("myobj", new ExpressionResolverTestObjects.MyClass(new Date(0)));
     Object clazz = interpreter.resolveELExpression("myobj.clazz", -1);
     assertThat(clazz).isNull();
   }
 
   @Test
   public void blackListedMethods() {
-    context.put("myobj", new MyClass(new Date(0)));
+    context.put("myobj", new ExpressionResolverTestObjects.MyClass(new Date(0)));
     interpreter.resolveELExpression("myobj.wait()", -1);
 
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
@@ -398,7 +319,7 @@ public class ExpressionResolverTest {
 
   @Test
   public void itWillNotReturnClassObjects() {
-    context.put("myobj", new MyClass(new Date(0)));
+    context.put("myobj", new ExpressionResolverTestObjects.MyClass(new Date(0)));
     interpreter.resolveELExpression("myobj.getClass()", -1);
 
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
@@ -526,21 +447,27 @@ public class ExpressionResolverTest {
 
   @Test
   public void presentOptionalProperty() {
-    context.put("myobj", new OptionalProperty(null, "foo"));
+    context.put("myobj", new ExpressionResolverTestObjects.OptionalProperty(null, "foo"));
     assertThat(interpreter.resolveELExpression("myobj.val", -1)).isEqualTo("foo");
     assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
   @Test
   public void emptyOptionalProperty() {
-    context.put("myobj", new OptionalProperty(null, null));
+    context.put("myobj", new ExpressionResolverTestObjects.OptionalProperty(null, null));
     assertThat(interpreter.resolveELExpression("myobj.val", -1)).isNull();
     assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
 
   @Test
   public void presentNestedOptionalProperty() {
-    context.put("myobj", new OptionalProperty(new MyClass(new Date(0)), "foo"));
+    context.put(
+      "myobj",
+      new ExpressionResolverTestObjects.OptionalProperty(
+        new ExpressionResolverTestObjects.MyClass(new Date(0)),
+        "foo"
+      )
+    );
     assertThat(Objects.toString(interpreter.resolveELExpression("myobj.nested.date", -1)))
       .isEqualTo("1970-01-01 00:00:00");
     assertThat(interpreter.getErrorsCopy()).isEmpty();
@@ -548,7 +475,7 @@ public class ExpressionResolverTest {
 
   @Test
   public void emptyNestedOptionalProperty() {
-    context.put("myobj", new OptionalProperty(null, null));
+    context.put("myobj", new ExpressionResolverTestObjects.OptionalProperty(null, null));
     assertThat(interpreter.resolveELExpression("myobj.nested.date", -1)).isNull();
     assertThat(interpreter.getErrorsCopy()).isEmpty();
   }
@@ -557,7 +484,12 @@ public class ExpressionResolverTest {
   public void presentNestedNestedOptionalProperty() {
     context.put(
       "myobj",
-      new NestedOptionalProperty(new OptionalProperty(new MyClass(new Date(0)), "foo"))
+      new ExpressionResolverTestObjects.NestedOptionalProperty(
+        new ExpressionResolverTestObjects.OptionalProperty(
+          new ExpressionResolverTestObjects.MyClass(new Date(0)),
+          "foo"
+        )
+      )
     );
     assertThat(
       Objects.toString(interpreter.resolveELExpression("myobj.nested.nested.date", -1))
@@ -568,7 +500,8 @@ public class ExpressionResolverTest {
 
   @Test
   public void itResolvesLazyExpressionsToTheirUnderlyingValue() {
-    TestClass testClass = new TestClass();
+    ExpressionResolverTestObjects.TestClass testClass =
+      new ExpressionResolverTestObjects.TestClass();
     Supplier<String> lazyString = () -> result("hallelujah", testClass);
 
     context.put("myobj", ImmutableMap.of("test", LazyExpression.of(lazyString, "")));
@@ -589,7 +522,8 @@ public class ExpressionResolverTest {
 
   @Test
   public void itResolvesSuppliersOnlyIfResolved() {
-    TestClass testClass = new TestClass();
+    ExpressionResolverTestObjects.TestClass testClass =
+      new ExpressionResolverTestObjects.TestClass();
     Supplier<String> lazyString = () -> result("hallelujah", testClass);
 
     context.put(
@@ -605,7 +539,8 @@ public class ExpressionResolverTest {
 
   @Test
   public void itResolvesLazyExpressionsInNested() {
-    Supplier<TestClass> lazyObject = TestClass::new;
+    Supplier<ExpressionResolverTestObjects.TestClass> lazyObject =
+      ExpressionResolverTestObjects.TestClass::new;
 
     context.put("myobj", ImmutableMap.of("test", LazyExpression.of(lazyObject, "")));
 
@@ -674,75 +609,8 @@ public class ExpressionResolverTest {
       .isEqualTo(ErrorReason.INVALID_INPUT);
   }
 
-  public String result(String value, TestClass testClass) {
+  public String result(String value, ExpressionResolverTestObjects.TestClass testClass) {
     testClass.touch();
     return value;
-  }
-
-  public static class TestClass {
-
-    private boolean touched = false;
-    private String name = "Amazing test class";
-
-    public boolean isTouched() {
-      return touched;
-    }
-
-    public void touch() {
-      this.touched = true;
-    }
-
-    public String getName() {
-      return name;
-    }
-  }
-
-  public static final class MyClass {
-
-    private Date date;
-
-    MyClass(Date date) {
-      this.date = date;
-    }
-
-    public Class getClazz() {
-      return this.getClass();
-    }
-
-    public Date getDate() {
-      return date;
-    }
-  }
-
-  public static final class OptionalProperty {
-
-    private MyClass nested;
-    private String val;
-
-    OptionalProperty(MyClass nested, String val) {
-      this.nested = nested;
-      this.val = val;
-    }
-
-    public Optional<MyClass> getNested() {
-      return Optional.ofNullable(nested);
-    }
-
-    public Optional<String> getVal() {
-      return Optional.ofNullable(val);
-    }
-  }
-
-  public static final class NestedOptionalProperty {
-
-    private OptionalProperty nested;
-
-    public NestedOptionalProperty(OptionalProperty nested) {
-      this.nested = nested;
-    }
-
-    public Optional<OptionalProperty> getNested() {
-      return Optional.ofNullable(nested);
-    }
   }
 }

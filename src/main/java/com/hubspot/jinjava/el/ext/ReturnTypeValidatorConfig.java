@@ -30,6 +30,11 @@ public abstract class ReturnTypeValidatorConfig {
 
   public abstract ImmutableSet<String> allowedCanonicalClassNames();
 
+  @Value.Default
+  public boolean allowArrays() {
+    return false;
+  }
+
   @Value.Check
   void banClassesAndMethods() {
     if (
@@ -75,6 +80,9 @@ public abstract class ReturnTypeValidatorConfig {
             allowlistGroup.allowedReturnTypeCanonicalClassPrefixes()
           )
           .addAllowedCanonicalClassNames(allowlistGroup.allowedReturnTypeClasses());
+        if (allowlistGroup.enableArrays()) {
+          this.setAllowArrays(true);
+        }
       }
       return this;
     }

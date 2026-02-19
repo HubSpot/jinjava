@@ -10,6 +10,7 @@ public final class AllowlistReturnTypeValidator {
 
   private final ImmutableSet<String> allowedCanonicalClassPrefixes;
   private final ImmutableSet<String> allowedCanonicalClassNames;
+  private final boolean allowArrays;
   private final ImmutableList<ReturnTypeValidator> additionalValidators;
 
   public static AllowlistReturnTypeValidator create(
@@ -30,6 +31,7 @@ public final class AllowlistReturnTypeValidator {
       returnTypeValidatorConfig.allowedCanonicalClassPrefixes();
     this.allowedCanonicalClassNames =
       returnTypeValidatorConfig.allowedCanonicalClassNames();
+    this.allowArrays = returnTypeValidatorConfig.allowArrays();
     this.additionalValidators = additionalValidators;
     this.allowedReturnTypesCache = new ConcurrentHashMap<>();
   }
@@ -39,8 +41,8 @@ public final class AllowlistReturnTypeValidator {
       return null;
     }
     Class<?> clazz = o.getClass();
-    while (clazz.isArray()) {
-      clazz = clazz.getComponentType();
+    if (clazz.isArray() && allowArrays) {
+      return o;
     }
     String canonicalClassName = clazz.getCanonicalName();
     boolean isAllowedClassName = allowedReturnTypesCache.computeIfAbsent(
@@ -59,5 +61,18 @@ public final class AllowlistReturnTypeValidator {
       }
     }
     return o;
+  }
+
+  public boolean allowReturnTypeClass(Class<?> clazz) {
+    if (clazz.isArray() && allowArrays) {
+      return true;
+    }
+    String canonicalClassName = clazz.getCanonicalName();
+    return allowedReturnTypesCache.computeIfAbsent(
+      canonicalClassName,
+      c ->
+        allowedCanonicalClassNames.contains(canonicalClassName) ||
+        allowedCanonicalClassPrefixes.stream().anyMatch(canonicalClassName::startsWith)
+    );
   }
 }

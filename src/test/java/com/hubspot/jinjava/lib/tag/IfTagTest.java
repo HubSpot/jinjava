@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
-import com.hubspot.jinjava.testobjects.IfTagTestObject;
+import com.hubspot.jinjava.testobjects.IfTagTestObjects;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
 import java.io.IOException;
@@ -38,11 +38,11 @@ public class IfTagTest extends BaseInterpretingTest {
 
   @Test
   public void itChecksObjectTruthValue() {
-    context.put("foo", new IfTagTestObject().setObjectTruthValue(true));
+    context.put("foo", new IfTagTestObjects.Foo().setObjectTruthValue(true));
     TagNode n = fixture("if-object");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("ifblock");
 
-    context.put("foo", new IfTagTestObject().setObjectTruthValue(false));
+    context.put("foo", new IfTagTestObjects.Foo().setObjectTruthValue(false));
     n = fixture("if-object");
     assertThat(tag.interpret(n, interpreter).trim()).isEqualTo("");
   }

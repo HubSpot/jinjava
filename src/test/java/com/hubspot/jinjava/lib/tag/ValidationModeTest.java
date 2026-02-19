@@ -5,13 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.lib.filter.Filter;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.testobjects.ValidationModeTestObjects;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
@@ -33,27 +32,7 @@ public class ValidationModeTest {
   Jinjava jinjava;
   private Context context;
 
-  ValidationFilter validationFilter;
-
-  class ValidationFilter implements Filter {
-
-    private int executionCount = 0;
-
-    @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-      executionCount++;
-      return var;
-    }
-
-    public int getExecutionCount() {
-      return executionCount;
-    }
-
-    @Override
-    public String getName() {
-      return "validation_filter";
-    }
-  }
+  ValidationModeTestObjects.ValidationFilter validationFilter;
 
   private static int functionExecutionCount = 0;
 
@@ -63,7 +42,7 @@ public class ValidationModeTest {
 
   @Before
   public void setup() {
-    validationFilter = new ValidationFilter();
+    validationFilter = new ValidationModeTestObjects.ValidationFilter();
 
     ELFunctionDefinition validationFunction = new ELFunctionDefinition(
       "",
@@ -72,7 +51,7 @@ public class ValidationModeTest {
       "validationTestFunction"
     );
 
-    jinjava = new Jinjava();
+    jinjava = new Jinjava(BaseJinjavaTest.newConfigBuilder().build());
     jinjava.getGlobalContext().registerFilter(validationFilter);
     jinjava.getGlobalContext().registerFunction(validationFunction);
     interpreter = jinjava.newInterpreter();
