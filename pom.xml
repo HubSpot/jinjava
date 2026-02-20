@@ -105,6 +105,11 @@
         <version>${dep.hubspot-immutables.version}</version>
       </dependency>
       <dependency>
+        <groupId>com.hubspot.immutables</groupId>
+        <artifactId>immutable-collection-encodings</artifactId>
+        <version>${dep.hubspot-immutables.version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.hubspot</groupId>
         <artifactId>algebra</artifactId>
         <version>${dep.algebra.version}</version>
@@ -217,18 +222,15 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.hubspot.immutables</groupId>
-      <artifactId>hubspot-style</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.hubspot.immutables</groupId>
-      <artifactId>immutables-exceptions</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.hubspot</groupId>
       <artifactId>algebra</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.hubspot.immutables</groupId>
+      <artifactId>immutable-collection-encodings</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
   </dependencies>
 
   <build>

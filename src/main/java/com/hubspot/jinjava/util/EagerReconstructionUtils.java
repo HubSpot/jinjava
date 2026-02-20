@@ -466,13 +466,14 @@ public class EagerReconstructionUtils {
     if (deferredValuesToSet.isEmpty()) {
       return "";
     }
-    ImmutableMap<Library, ImmutableSet<String>> disabled = interpreter.getConfig().getDisabled();
-    if (
-      disabled != null &&
-      disabled.containsKey(Library.TAG) &&
-      disabled.get(Library.TAG).contains(SetTag.TAG_NAME)
-    ) {
-      throw new DisabledException("set tag disabled");
+    ImmutableMap<Library, ImmutableSet<String>> disabled = interpreter
+      .getConfig()
+      .getDisabled();
+    if (disabled != null) {
+      ImmutableSet<String> disabledTags = disabled.get(Library.TAG);
+      if (disabledTags != null && disabledTags.contains(SetTag.TAG_NAME)) {
+        throw new DisabledException("set tag disabled");
+      }
     }
 
     StringJoiner vars = new StringJoiner(",");
@@ -538,13 +539,14 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter,
     boolean registerDeferredToken
   ) {
-    ImmutableMap<Library, ImmutableSet<String>> disabled = interpreter.getConfig().getDisabled();
-    if (
-      disabled != null &&
-      disabled.containsKey(Library.TAG) &&
-      disabled.get(Library.TAG).contains(SetTag.TAG_NAME)
-    ) {
-      throw new DisabledException("set tag disabled");
+    ImmutableMap<Library, ImmutableSet<String>> disabled = interpreter
+      .getConfig()
+      .getDisabled();
+    if (disabled != null) {
+      ImmutableSet<String> disabledTags = disabled.get(Library.TAG);
+      if (disabledTags != null && disabledTags.contains(SetTag.TAG_NAME)) {
+        throw new DisabledException("set tag disabled");
+      }
     }
 
     LengthLimitingStringJoiner blockSetTokenBuilder = new LengthLimitingStringJoiner(
@@ -593,13 +595,14 @@ public class EagerReconstructionUtils {
     String updateString,
     JinjavaInterpreter interpreter
   ) {
-    ImmutableMap<Library, ImmutableSet<String>> disabled = interpreter.getConfig().getDisabled();
-    if (
-      disabled != null &&
-      disabled.containsKey(Library.TAG) &&
-      disabled.get(Library.TAG).contains(DoTag.TAG_NAME)
-    ) {
-      throw new DisabledException("do tag disabled");
+    ImmutableMap<Library, ImmutableSet<String>> disabled = interpreter
+      .getConfig()
+      .getDisabled();
+    if (disabled != null) {
+      ImmutableSet<String> disabledTags = disabled.get(Library.TAG);
+      if (disabledTags != null && disabledTags.contains(DoTag.TAG_NAME)) {
+        throw new DisabledException("do tag disabled");
+      }
     }
     return new LengthLimitingStringJoiner(interpreter.getConfig().getMaxOutputSize(), " ")
       .add(interpreter.getConfig().getTokenScannerSymbols().getExpressionStartWithTag())
@@ -667,13 +670,14 @@ public class EagerReconstructionUtils {
     JinjavaInterpreter interpreter,
     boolean registerDeferredToken
   ) {
-    ImmutableMap<Library, ImmutableSet<String>> disabled = interpreter.getConfig().getDisabled();
-    if (
-      disabled != null &&
-      disabled.containsKey(Library.TAG) &&
-      disabled.get(Library.TAG).contains(tagNameToWrap)
-    ) {
-      throw new DisabledException(String.format("%s tag disabled", tagNameToWrap));
+    ImmutableMap<Library, ImmutableSet<String>> disabled = interpreter
+      .getConfig()
+      .getDisabled();
+    if (disabled != null) {
+      ImmutableSet<String> disabledTags = disabled.get(Library.TAG);
+      if (disabledTags != null && disabledTags.contains(tagNameToWrap)) {
+        throw new DisabledException(String.format("%s tag disabled", tagNameToWrap));
+      }
     }
     StringJoiner startTokenBuilder = new StringJoiner(" ");
     StringJoiner endTokenBuilder = new StringJoiner(" ");

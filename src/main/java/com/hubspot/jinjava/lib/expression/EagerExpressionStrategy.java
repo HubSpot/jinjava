@@ -3,7 +3,6 @@ package com.hubspot.jinjava.lib.expression;
 import com.google.common.annotations.Beta;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
-import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF;
 import com.hubspot.jinjava.interpret.ErrorHandlingStrategy;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -109,7 +108,7 @@ public class EagerExpressionStrategy implements ExpressionStrategy {
           try (
             TemporaryValueClosable<ErrorHandlingStrategy> c = interpreter
               .getContext()
-              .withErrorHandlingStrategy(ErrorHandlingStrategyIF.throwAll())
+              .withErrorHandlingStrategy(ErrorHandlingStrategy.throwAll())
           ) {
             interpreter.parse(result);
           }

@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
-import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF.TemplateErrorTypeHandlingStrategy;
+import com.hubspot.jinjava.interpret.ErrorHandlingStrategy.TemplateErrorTypeHandlingStrategy;
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.lib.expression.ExpressionStrategy;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
@@ -43,7 +43,6 @@ import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.ScopeMap;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -585,10 +584,11 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public boolean isFunctionDisabled(String name) {
-    return (
-      disabled != null &&
-      disabled.getOrDefault(Library.FUNCTION, ImmutableSet.of()).contains(name)
-    );
+    if (disabled == null) {
+      return false;
+    }
+    ImmutableSet<String> disabledFunctions = disabled.get(Library.FUNCTION);
+    return disabledFunctions != null && disabledFunctions.contains(name);
   }
 
   public ELFunctionDefinition getFunction(String name) {
@@ -608,10 +608,13 @@ public class Context extends ScopeMap<String, Object> {
     if (parent != null) {
       fns.addAll(parent.getAllFunctions());
     }
-
-    final ImmutableSet<String> disabledFunctions = disabled == null
-      ? ImmutableSet.of()
-      : disabled.getOrDefault(Library.FUNCTION, ImmutableSet.of());
+    if (disabled == null) {
+      return fns;
+    }
+    ImmutableSet<String> disabledFunctions = disabled.get(Library.FUNCTION);
+    if (disabledFunctions == null) {
+      return fns;
+    }
     return fns
       .stream()
       .filter(f -> !disabledFunctions.contains(f.getName()))

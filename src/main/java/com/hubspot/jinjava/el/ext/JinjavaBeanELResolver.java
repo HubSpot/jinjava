@@ -142,9 +142,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     Object[] params
   ) {
     if (method == null) {
-      throw new MethodNotFoundException(
-        "Cannot find method '" + method + "' in " + base.getClass()
-      );
+      throw new MethodNotFoundException("Cannot find method null in " + base.getClass());
     }
     if (
       DEFERRED_EXECUTION_RESTRICTED_METHODS.contains(method.toString()) &&
