@@ -27,7 +27,17 @@ public class TextToken extends Token {
     int startPosition,
     TokenScannerSymbols symbols
   ) {
-    super(image, lineNumber, startPosition, symbols);
+    this(image, lineNumber, startPosition, symbols, WhitespaceControlParser.LENIENT);
+  }
+
+  public TextToken(
+    String image,
+    int lineNumber,
+    int startPosition,
+    TokenScannerSymbols symbols,
+    WhitespaceControlParser whitespaceControlParser
+  ) {
+    super(image, lineNumber, startPosition, symbols, whitespaceControlParser);
   }
 
   public void mergeImageAndContent(TextToken otherToken) {

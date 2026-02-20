@@ -38,6 +38,7 @@ import com.hubspot.jinjava.tree.parse.Token;
 import com.hubspot.jinjava.tree.parse.TokenScanner;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.UnclosedToken;
+import com.hubspot.jinjava.tree.parse.WhitespaceControlParser;
 import org.apache.commons.lang3.StringUtils;
 
 public class TreeParser {
@@ -45,6 +46,7 @@ public class TreeParser {
   private final PeekingIterator<Token> scanner;
   private final JinjavaInterpreter interpreter;
   private final TokenScannerSymbols symbols;
+  private final WhitespaceControlParser whitespaceControlParser;
 
   private Node parent;
 
@@ -53,6 +55,10 @@ public class TreeParser {
       Iterators.peekingIterator(new TokenScanner(input, interpreter.getConfig()));
     this.interpreter = interpreter;
     this.symbols = interpreter.getConfig().getTokenScannerSymbols();
+    this.whitespaceControlParser =
+      interpreter.getConfig().getLegacyOverrides().isParseWhitespaceControlStrictly()
+        ? WhitespaceControlParser.STRICT
+        : WhitespaceControlParser.LENIENT;
   }
 
   public Node buildTree() {
@@ -178,7 +184,8 @@ public class TreeParser {
               StringUtils.stripEnd(textToken.getImage(), "\t "),
               textToken.getLineNumber(),
               textToken.getStartPosition(),
-              symbols
+              symbols,
+              whitespaceControlParser
             );
         }
       }
