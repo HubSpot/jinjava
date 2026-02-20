@@ -2,10 +2,19 @@ package com.hubspot.jinjava.el.ext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.Context;
+import com.hubspot.jinjava.interpret.RenderResult;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.objects.date.PyishDate;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -66,5 +75,97 @@ public class AstFilterChainTest {
   public void itHandlesFilterWithStringConversion() {
     String result = jinjava.render("{{ number|string|length }}", context);
     assertThat(result).isEqualTo("5");
+  }
+
+  @Test
+  public void itHandlesUnknownFilterInChain() {
+    context.put("module", new PyishDate(ZonedDateTime.parse("2024-01-15T10:30:00Z")));
+    RenderResult renderResult = jinjava.renderForResult(
+      "{% set mid = module | local_dt|unixtimestamp | pprint | md5 %}{{ mid }}",
+      context
+    );
+    assertThat(renderResult.getOutput())
+      .as("Should produce MD5 output since chain continues past unknown filter")
+      .hasSize(32);
+    assertThat(
+      renderResult
+        .getErrors()
+        .stream()
+        .noneMatch(e -> e.getMessage().contains("Unknown filter"))
+    )
+      .as("Should not report 'Unknown filter' error")
+      .isTrue();
+  }
+
+  @Test
+  public void itMatchesNonChainedBehaviorForUnknownFilter() {
+    String template = "{{ name | unknown_filter | lower | md5 }}";
+    Jinjava jinjavaUnoptimized = new Jinjava(
+      JinjavaConfig.newBuilder().withEnableFilterChainOptimization(false).build()
+    );
+    RenderResult optimizedResult = jinjava.renderForResult(template, context);
+    RenderResult unoptimizedResult = jinjavaUnoptimized.renderForResult(
+      template,
+      context
+    );
+    assertThat(optimizedResult.getOutput())
+      .as("Optimized should match un-optimized for unknown filter in chain")
+      .isEqualTo(unoptimizedResult.getOutput());
+  }
+
+  @Test
+  public void itSkipsDisabledFilterAndContinuesChain() {
+    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(
+      Context.Library.FILTER,
+      ImmutableSet.of("lower")
+    );
+    Jinjava jinjavaWithDisabled = new Jinjava(
+      JinjavaConfig
+        .newBuilder()
+        .withEnableFilterChainOptimization(true)
+        .withDisabled(disabled)
+        .build()
+    );
+
+    RenderResult result = jinjavaWithDisabled.renderForResult(
+      "{{ name|trim|lower|capitalize }}",
+      context
+    );
+
+    assertThat(result.getErrors()).isNotEmpty();
+    assertThat(result.getErrors().get(0).getItem()).isEqualTo(ErrorItem.FILTER);
+    assertThat(result.getErrors().get(0).getReason()).isEqualTo(ErrorReason.DISABLED);
+    assertThat(result.getErrors().get(0).getMessage()).contains("lower");
+  }
+
+  @Test
+  public void itMatchesNonChainedBehaviorForDisabledFilter() {
+    Map<Context.Library, Set<String>> disabled = ImmutableMap.of(
+      Context.Library.FILTER,
+      ImmutableSet.of("lower")
+    );
+    String template = "{{ name|trim|lower|capitalize }}";
+
+    Jinjava optimized = new Jinjava(
+      JinjavaConfig
+        .newBuilder()
+        .withEnableFilterChainOptimization(true)
+        .withDisabled(disabled)
+        .build()
+    );
+    Jinjava unoptimized = new Jinjava(
+      JinjavaConfig
+        .newBuilder()
+        .withEnableFilterChainOptimization(false)
+        .withDisabled(disabled)
+        .build()
+    );
+
+    RenderResult optimizedResult = optimized.renderForResult(template, context);
+    RenderResult unoptimizedResult = unoptimized.renderForResult(template, context);
+
+    assertThat(optimizedResult.getOutput())
+      .as("Optimized should match un-optimized for disabled filter in chain")
+      .isEqualTo(unoptimizedResult.getOutput());
   }
 }

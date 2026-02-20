@@ -85,10 +85,12 @@ public class AstFilterChain extends AstRightValue {
             e
           )
         );
-        return null;
+        value = null;
+        continue;
       }
       if (filter == null) {
-        return null;
+        value = null;
+        continue;
       }
 
       Object[] args = evaluateFilterArgs(spec, bindings, context);
