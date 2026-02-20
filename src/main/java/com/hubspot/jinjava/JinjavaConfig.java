@@ -48,7 +48,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Locale;
 import java.util.function.BiConsumer;
-import javax.annotation.Nullable;
 import javax.el.ELResolver;
 import org.immutables.value.Value;
 
@@ -204,17 +203,11 @@ public interface JinjavaConfig {
     return false;
   }
 
-  @Nullable
-  ObjectMapper getObjectMapperOrNull();
-
-  @Value.Derived
+  @Value.Default
   default ObjectMapper getObjectMapper() {
-    ObjectMapper objectMapper = getObjectMapperOrNull();
-    if (objectMapper == null) {
-      objectMapper = new ObjectMapper().registerModule(new Jdk8Module());
-      if (getLegacyOverrides().isUseSnakeCasePropertyNaming()) {
-        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
-      }
+    ObjectMapper objectMapper = new ObjectMapper().registerModule(new Jdk8Module());
+    if (getLegacyOverrides().isUseSnakeCasePropertyNaming()) {
+      objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     }
     return objectMapper;
   }

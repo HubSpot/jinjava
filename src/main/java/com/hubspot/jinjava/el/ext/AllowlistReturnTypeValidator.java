@@ -3,6 +3,7 @@ package com.hubspot.jinjava.el.ext;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public final class AllowlistReturnTypeValidator {
 
@@ -15,6 +16,7 @@ public final class AllowlistReturnTypeValidator {
   private final ImmutableSet<String> allowedCanonicalClassPrefixes;
   private final ImmutableSet<String> allowedCanonicalClassNames;
   private final boolean allowArrays;
+  private final Consumer<Class<?>> onRejectedClass;
   private final ImmutableList<ReturnTypeValidator> additionalValidators;
 
   public static AllowlistReturnTypeValidator create(
@@ -36,6 +38,7 @@ public final class AllowlistReturnTypeValidator {
     this.allowedCanonicalClassNames =
       returnTypeValidatorConfig.allowedCanonicalClassNames();
     this.allowArrays = returnTypeValidatorConfig.allowArrays();
+    this.onRejectedClass = returnTypeValidatorConfig.onRejectedClass();
     this.additionalValidators = additionalValidators;
     this.allowedReturnTypesCache = new ConcurrentHashMap<>();
   }
@@ -56,11 +59,12 @@ public final class AllowlistReturnTypeValidator {
         allowedCanonicalClassPrefixes.stream().anyMatch(canonicalClassName::startsWith)
     );
     if (!isAllowedClassName) {
+      onRejectedClass.accept(clazz);
       return null;
     }
     for (ReturnTypeValidator v : additionalValidators) {
-      o = v.validateReturnType(o);
-      if (o == null) {
+      if (v.validateReturnType(o) == null) {
+        onRejectedClass.accept(clazz);
         return null;
       }
     }
@@ -79,10 +83,12 @@ public final class AllowlistReturnTypeValidator {
         allowedCanonicalClassPrefixes.stream().anyMatch(canonicalClassName::startsWith)
     );
     if (!isAllowedReturnType) {
+      onRejectedClass.accept(clazz);
       return false;
     }
     for (ReturnTypeValidator v : additionalValidators) {
       if (!v.allowReturnTypeClass(clazz)) {
+        onRejectedClass.accept(clazz);
         return false;
       }
     }

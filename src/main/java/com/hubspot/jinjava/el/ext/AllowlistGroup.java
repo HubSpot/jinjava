@@ -24,6 +24,7 @@ import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.util.ForLoop;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -150,7 +151,19 @@ public enum AllowlistGroup {
       return ARRAY;
     }
   },
-  JinjavaFunctions,
+  JinjavaFunctions {
+    private static final String[] ARRAY = { ZonedDateTime.class.getCanonicalName() };
+
+    @Override
+    String[] allowedDeclaredMethodsFromClasses() {
+      return ARRAY;
+    }
+
+    @Override
+    String[] allowedReturnTypeClasses() {
+      return ARRAY;
+    }
+  },
   JinjavaExpTests {
     private static final String[] ARRAY = { ExpTest.class.getPackageName() };
 

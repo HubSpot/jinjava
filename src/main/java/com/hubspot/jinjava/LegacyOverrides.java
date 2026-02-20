@@ -1,15 +1,9 @@
 package com.hubspot.jinjava;
 
-import com.hubspot.immutable.collection.encoding.ImmutableListEncodingEnabled;
-import com.hubspot.immutable.collection.encoding.ImmutableMapEncodingEnabled;
-import com.hubspot.immutable.collection.encoding.ImmutableSetEncodingEnabled;
 import org.immutables.value.Value;
 
 @Value.Immutable(singleton = true)
-@Value.Style(init = "with*", get = { "is*", "get*" })
-@ImmutableSetEncodingEnabled
-@ImmutableListEncodingEnabled
-@ImmutableMapEncodingEnabled
+@JinjavaImmutableStyle.WithStyle
 public interface LegacyOverrides extends WithLegacyOverrides {
   LegacyOverrides NONE = new Builder().build();
   LegacyOverrides THREE_POINT_0 = new Builder()

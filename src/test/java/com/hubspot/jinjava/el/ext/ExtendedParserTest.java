@@ -11,6 +11,7 @@ import de.odysseus.el.tree.impl.ast.AstIdentifier;
 import de.odysseus.el.tree.impl.ast.AstMethod;
 import de.odysseus.el.tree.impl.ast.AstNested;
 import de.odysseus.el.tree.impl.ast.AstNode;
+import de.odysseus.el.tree.impl.ast.AstNull;
 import de.odysseus.el.tree.impl.ast.AstParameters;
 import de.odysseus.el.tree.impl.ast.AstString;
 import org.assertj.core.api.Assertions;
@@ -175,12 +176,10 @@ public class ExtendedParserTest {
 
     AstParameters astParameters = (AstParameters) astNode.getChild(1);
     assertThat(astParameters.getChild(0)).isInstanceOf(AstString.class);
-    assertThat(astParameters.getChild(1)).isInstanceOf(AstIdentifier.class);
+    assertThat(astParameters.getChild(1)).isInstanceOf(AstNull.class);
     assertThat(astParameters.getChild(2)).isInstanceOf(AstString.class);
 
     assertThat(astParameters.getChild(0).eval(null, null)).isEqualTo(leftExpected);
-    assertThat(((AstIdentifier) astParameters.getChild(1)).getName())
-      .isEqualTo(ExtendedParser.INTERPRETER);
     assertThat(astParameters.getChild(2).eval(null, null)).isEqualTo(rightExpected);
   }
 

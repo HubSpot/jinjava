@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public final class AllowlistMethodValidator {
 
@@ -14,6 +15,7 @@ public final class AllowlistMethodValidator {
   private final ImmutableSet<Method> allowedMethods;
   private final ImmutableSet<String> allowedDeclaredMethodsFromCanonicalClassPrefixes;
   private final ImmutableSet<String> allowedDeclaredMethodsFromCanonicalClassNames;
+  private final Consumer<Method> onRejectedMethod;
   private final ImmutableList<MethodValidator> additionalValidators;
 
   public static AllowlistMethodValidator create(
@@ -35,6 +37,7 @@ public final class AllowlistMethodValidator {
       methodValidatorConfig.allowedDeclaredMethodsFromCanonicalClassPrefixes();
     this.allowedDeclaredMethodsFromCanonicalClassNames =
       methodValidatorConfig.allowedDeclaredMethodsFromCanonicalClassNames();
+    this.onRejectedMethod = methodValidatorConfig.onRejectedMethod();
     this.additionalValidators = additionalValidators;
     this.allowedMethodsCache = new ConcurrentHashMap<>();
   }
@@ -58,11 +61,12 @@ public final class AllowlistMethodValidator {
       }
     );
     if (!isAllowedMethod) {
+      onRejectedMethod.accept(m);
       return null;
     }
     for (MethodValidator v : additionalValidators) {
-      m = v.validateMethod(m);
-      if (m == null) {
+      if (v.validateMethod(m) == null) {
+        onRejectedMethod.accept(m);
         return null;
       }
     }

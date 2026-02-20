@@ -8,8 +8,6 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
-import com.hubspot.jinjava.el.ext.AllowlistMethodValidator;
-import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
 import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.features.FeatureStrategies;
@@ -28,29 +26,11 @@ public class ExpressionNodeTest {
   public void setup() {
     nestedInterpreter =
       new Jinjava(
-        BaseJinjavaTest
-          .newConfigBuilder()
-          .withNestedInterpretationEnabled(true)
-          .withMethodValidator(
-            AllowlistMethodValidator.create(
-              MethodValidatorConfig.builder().addDefaultAllowlistGroups().build()
-            )
-          )
-          .build()
+        BaseJinjavaTest.newConfigBuilder().withNestedInterpretationEnabled(true).build()
       )
         .newInterpreter();
     interpreter =
-      new Jinjava(
-        BaseJinjavaTest
-          .newConfigBuilder()
-          .withMethodValidator(
-            AllowlistMethodValidator.create(
-              MethodValidatorConfig.builder().addDefaultAllowlistGroups().build()
-            )
-          )
-          .build()
-      )
-        .newInterpreter();
+      new Jinjava(BaseJinjavaTest.newConfigBuilder().build()).newInterpreter();
   }
 
   @Test
