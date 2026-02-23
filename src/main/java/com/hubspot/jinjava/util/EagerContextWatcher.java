@@ -123,8 +123,7 @@ public class EagerContextWatcher {
           ? entrySet
           : interpreter.getContext().getCombinedScope().entrySet()).stream()
         .filter(entry -> initiallyResolvedHashes.containsKey(entry.getKey()))
-        .filter(entry ->
-          EagerExpressionResolver.isResolvableObject(entry.getValue(), 4, 400) // TODO make this configurable
+        .filter(entry -> isResolvableForContextReverting(entry.getValue()) // TODO make this configurable
         );
     entryStream.forEach(entry ->
       cacheRevertibleObject(
@@ -392,13 +391,17 @@ public class EagerContextWatcher {
       o = ((LazyExpression) o).get();
     }
 
-    if (o instanceof PyList && !((PyList) o).toList().contains(o)) {
+    if (o instanceof PyList && isResolvableForContextReverting(o)) {
       return o.hashCode();
     }
-    if (o instanceof PyMap && !((PyMap) o).toMap().containsValue(o)) {
+    if (o instanceof PyMap && isResolvableForContextReverting(o)) {
       return o.hashCode() + ((PyMap) o).keySet().hashCode();
     }
     return o;
+  }
+
+  private static boolean isResolvableForContextReverting(Object o) {
+    return EagerExpressionResolver.isResolvableObject(o, 4, 400);
   }
 
   public static class EagerChildContextConfig {

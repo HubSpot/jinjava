@@ -1740,4 +1740,11 @@ public class EagerTest {
       "handles-modified-include-path/test.expected"
     );
   }
+
+  @Test
+  public void itDoesNotStackOverflowTryingToBuildHashcode() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "does-not-stack-overflow-trying-to-build-hashcode/test"
+    );
+  }
 }
