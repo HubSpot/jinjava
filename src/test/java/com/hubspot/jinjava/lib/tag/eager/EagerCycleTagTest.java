@@ -10,6 +10,7 @@ import com.hubspot.jinjava.lib.tag.CycleTagTest;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import java.util.List;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -65,9 +66,22 @@ public class EagerCycleTagTest extends CycleTagTest {
 
   @Test
   public void itHandlesDeferredCycle() {
-    interpreter.getContext().put("deferred", DeferredValue.instance());
     String template =
       "{% set l = [] %}{% for item in deferred %}{% cycle l.append(deferred),5 %}{% endfor %}{{ l }}";
     assertThat(interpreter.render(template)).isEqualTo(template);
+  }
+
+  @Test
+  public void iitHandlesEscapedQuotesInVariable() {
+    String template =
+      "{% set class = \"class='foo bar'\" %}{% for item in deferred %}{% cycle 'item-1',class %}.{% endfor %}";
+    String firstPass = interpreter.render(template);
+    assertThat(firstPass)
+      .isEqualTo(
+        "{% for item in deferred %}{% cycle 'item-1','class=\\'foo bar\\'' %}.{% endfor %}"
+      );
+    interpreter.getContext().put("deferred", List.of(0, 1));
+    String secondPass = interpreter.render(firstPass);
+    assertThat(secondPass).isEqualTo("item-1.class='foo bar'.");
   }
 }

@@ -112,4 +112,30 @@ public class HelperStringTokenizerTest {
       .containsExactly("product", "in", "collections.frontpage.products")
       .doesNotContainNull();
   }
+
+  @Test
+  public void itHandlesEscapedQuotesWithinQuotedStrings() {
+    assertThat(
+      new HelperStringTokenizer("'hi','y\\'all don\\'t'").splitComma(true).allTokens()
+    )
+      .containsExactly("'hi'", "'y\\'all don\\'t'");
+  }
+
+  @Test
+  public void itHandlesEscapedDoubleQuotesWithinQuotedStrings() {
+    assertThat(
+      new HelperStringTokenizer("\"hi\",\"say \\\"hello\\\"\"")
+        .splitComma(true)
+        .allTokens()
+    )
+      .containsExactly("\"hi\"", "\"say \\\"hello\\\"\"");
+  }
+
+  @Test
+  public void itHandlesEscapedBackslashes() {
+    assertThat(
+      new HelperStringTokenizer("'path\\\\to\\file'").splitComma(true).allTokens()
+    )
+      .containsExactly("'path\\\\to\\file'");
+  }
 }

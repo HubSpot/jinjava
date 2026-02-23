@@ -406,6 +406,15 @@ public class ForTagTest extends BaseInterpretingTest {
     assertThat(result).isEqualTo(" -1  -1  null  null  null ");
   }
 
+  @Test
+  public void itUsesJinjavaRestrictedResolverOnReadingLoopVars() {
+    String template =
+      """
+      {% for _, config, class in ____int3rpr3t3r____ %}{{ class }}{% endfor %}""";
+    String result = interpreter.render(template);
+    assertThat(result).isEqualTo("");
+  }
+
   public static boolean inForLoop() {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     return interpreter.getContext().isInForLoop();

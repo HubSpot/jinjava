@@ -358,6 +358,15 @@ public class EagerExpressionResolverTest {
   }
 
   @Test
+  public void itHandlesEscapedSlashBeforeQuoteProperly() {
+    EagerExpressionResult eagerExpressionResult = eagerResolveExpression(
+      "deferred|replace('\\\\', '.')"
+    );
+    assertThat(eagerExpressionResult.getDeferredWords())
+      .containsExactlyInAnyOrder("deferred", "replace.filter");
+  }
+
+  @Test
   public void itHandlesNewlines() {
     context.put("foo", "\n");
     context.put("bar", "\\" + "n"); // Jinja doesn't see this as a newline.

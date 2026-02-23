@@ -1,0 +1,8 @@
+Start loop
+{% for i in deferred %}\
+  {% if i % 2 == 0 %}\
+    {% continue '' %}\
+  {% endif %}\
+  i is: {{ i }}
+{% endfor %}\
+End loop

@@ -692,7 +692,7 @@ public class JinjavaInterpreter implements PyishSerializable {
       return "";
     }
     if (WhitespaceUtils.isQuoted(variable)) {
-      return WhitespaceUtils.unquote(variable);
+      return WhitespaceUtils.unquoteAndUnescape(variable);
     } else {
       Object val = retraceVariable(variable, lineNumber, startPosition);
       if (val == null) {

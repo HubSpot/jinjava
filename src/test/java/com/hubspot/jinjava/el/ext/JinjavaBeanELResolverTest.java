@@ -5,11 +5,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.JinjavaELContext;
 import com.hubspot.jinjava.interpret.AutoCloseableSupplier;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import java.util.List;
 import javax.el.ELContext;
 import javax.el.MethodNotFoundException;
 import javax.el.PropertyNotFoundException;
@@ -184,6 +186,62 @@ public class JinjavaBeanELResolverTest {
     ) {
       assertThat(jinjavaBeanELResolver.getValue(elContext, interpreter, "config"))
         .isNull();
+    }
+  }
+
+  @Test
+  public void itDoesNotGettingFromObjectMapper() {
+    try (
+      AutoCloseableSupplier.AutoCloseableImpl<JinjavaInterpreter> c = JinjavaInterpreter
+        .closeablePushCurrent(interpreter)
+        .get()
+    ) {
+      assertThat(
+        jinjavaBeanELResolver.getValue(elContext, new ObjectMapper(), "dateFormat")
+      )
+        .isNull();
+    }
+  }
+
+  @Test
+  public void itDoesNotAllowInvokingFromObjectMapper() throws NoSuchMethodException {
+    try (
+      AutoCloseableSupplier.AutoCloseableImpl<JinjavaInterpreter> c = JinjavaInterpreter
+        .closeablePushCurrent(interpreter)
+        .get()
+    ) {
+      ObjectMapper objectMapper = new ObjectMapper();
+      assertThatThrownBy(() ->
+          jinjavaBeanELResolver.invoke(
+            elContext,
+            objectMapper,
+            "getDateFormat",
+            new Class[] {},
+            new Object[] {}
+          )
+        )
+        .isInstanceOf(MethodNotFoundException.class);
+    }
+  }
+
+  @Test
+  public void itDoesNotAllowInvokingFromMethod() throws NoSuchMethodException {
+    try (
+      AutoCloseableSupplier.AutoCloseableImpl<JinjavaInterpreter> c = JinjavaInterpreter
+        .closeablePushCurrent(interpreter)
+        .get()
+    ) {
+      List<String> list = List.of("foo");
+      assertThatThrownBy(() ->
+          jinjavaBeanELResolver.invoke(
+            elContext,
+            list.getClass().getMethod("get", int.class),
+            "invoke",
+            new Class[] { Object.class, Object[].class },
+            new Object[] { list, 0 }
+          )
+        )
+        .isInstanceOf(MethodNotFoundException.class);
     }
   }
 }

@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -1647,27 +1648,97 @@ public class EagerTest {
 
   @Test
   public void itHandlesDeferredBreakInForLoop() {
-    String input = expectedTemplateInterpreter.getFixtureTemplate(
+    expectedTemplateInterpreter.assertExpectedOutput(
       "handles-deferred-break-in-for-loop/test"
     );
-    interpreter.render(input);
-    // We don't support this yet
-    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
+  }
+
+  @Test
+  public void itHandlesDeferredBreakInForLoopSecondPass() {
+    localContext.put("deferred", 1);
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferred-break-in-for-loop/test.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-deferred-break-in-for-loop/test.expected"
+    );
+  }
+
+  @Test
+  public void itHandlesBreakInDeferredForLoop() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-break-in-deferred-for-loop/test"
+    );
+  }
+
+  @Test
+  public void itHandlesBreakInDeferredForLoopSecondPass() {
+    localContext.put("deferred", List.of(0, 1, 2, 3, 4, 5));
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-break-in-deferred-for-loop/test.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-break-in-deferred-for-loop/test.expected"
+    );
   }
 
   @Test
   public void itHandlesDeferredContinueInForLoop() {
-    String input = expectedTemplateInterpreter.getFixtureTemplate(
+    expectedTemplateInterpreter.assertExpectedOutput(
       "handles-deferred-continue-in-for-loop/test"
     );
-    interpreter.render(input);
-    // We don't support this yet
-    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
+  }
+
+  @Test
+  public void itHandlesDeferredContinueInForLoopSecondPass() {
+    localContext.put("deferred", 2);
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferred-continue-in-for-loop/test.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-deferred-continue-in-for-loop/test.expected"
+    );
+  }
+
+  @Test
+  public void itHandlesContinueInDeferredForLoop() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-continue-in-deferred-for-loop/test"
+    );
+  }
+
+  @Test
+  public void itHandlesContinueInDeferredForLoopSecondPass() {
+    localContext.put("deferred", List.of(0, 1, 2, 3, 4, 5));
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-continue-in-deferred-for-loop/test.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-continue-in-deferred-for-loop/test.expected"
+    );
   }
 
   @Test
   public void itReconstructsFromedMacro() {
     expectedTemplateInterpreter.assertExpectedOutput("reconstructs-fromed-macro/test");
+  }
+
+  @Test
+  public void itHandlesModifiedIncludePath() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-modified-include-path/test"
+    );
+  }
+
+  @Test
+  public void itHandlesModifiedIncludePathSecondPass() {
+    localContext.put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-modified-include-path/test.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-modified-include-path/test.expected"
+    );
   }
 
   @Test

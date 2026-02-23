@@ -70,7 +70,7 @@ public class BlockTag implements Tag {
       );
     }
 
-    String blockName = WhitespaceUtils.unquote(tagData.next());
+    String blockName = WhitespaceUtils.unquoteAndUnescape(tagData.next());
 
     interpreter.addBlock(
       blockName,

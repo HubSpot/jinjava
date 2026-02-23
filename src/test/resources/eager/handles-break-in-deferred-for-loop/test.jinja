@@ -1,6 +1,6 @@
 Start loop
-{% for i in range(5) -%}
-  {% if i > deferred -%}
+{% for i in deferred -%}
+  {% if i > 1 -%}
     {% break -%}
   {% endif -%}
   i is: {{ i }}

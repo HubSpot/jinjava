@@ -88,6 +88,7 @@ public class JinjavaConfig {
   private final ExecutionMode executionMode;
   private final LegacyOverrides legacyOverrides;
   private final boolean enablePreciseDivideFilter;
+  private final boolean enableFilterChainOptimization;
   private final ObjectMapper objectMapper;
 
   private final Features features;
@@ -151,6 +152,7 @@ public class JinjavaConfig {
     legacyOverrides = builder.legacyOverrides;
     dateTimeProvider = builder.dateTimeProvider;
     enablePreciseDivideFilter = builder.enablePreciseDivideFilter;
+    enableFilterChainOptimization = builder.enableFilterChainOptimization;
     objectMapper = setupObjectMapper(builder.objectMapper);
     objectUnwrapper = builder.objectUnwrapper;
     processors = builder.processors;
@@ -307,6 +309,10 @@ public class JinjavaConfig {
     return enablePreciseDivideFilter;
   }
 
+  public boolean isEnableFilterChainOptimization() {
+    return enableFilterChainOptimization;
+  }
+
   public DateTimeProvider getDateTimeProvider() {
     return dateTimeProvider;
   }
@@ -349,6 +355,7 @@ public class JinjavaConfig {
     private ExecutionMode executionMode = DefaultExecutionMode.instance();
     private LegacyOverrides legacyOverrides = LegacyOverrides.NONE;
     private boolean enablePreciseDivideFilter = false;
+    private boolean enableFilterChainOptimization = false;
     private ObjectMapper objectMapper = null;
 
     private ObjectUnwrapper objectUnwrapper = new JinjavaObjectUnwrapper();
@@ -517,6 +524,13 @@ public class JinjavaConfig {
 
     public Builder withEnablePreciseDivideFilter(boolean enablePreciseDivideFilter) {
       this.enablePreciseDivideFilter = enablePreciseDivideFilter;
+      return this;
+    }
+
+    public Builder withEnableFilterChainOptimization(
+      boolean enableFilterChainOptimization
+    ) {
+      this.enableFilterChainOptimization = enableFilterChainOptimization;
       return this;
     }
 
