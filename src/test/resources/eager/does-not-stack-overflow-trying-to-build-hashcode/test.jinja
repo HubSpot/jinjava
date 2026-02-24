@@ -1,0 +1,12 @@
+{% set l1000_1 = [] %}
+{% set l1000_2 = [] %}
+{% set l1000_3 = [] %}
+
+{% do l1000_1.append(l1000_2) %}
+{% do l1000_2.append(l1000_3) %}
+{% do l1000_3.append(l1000_1) %}
+
+
+{% for i in deferred %}
+{{ 'hey' }}
+{% endfor %}

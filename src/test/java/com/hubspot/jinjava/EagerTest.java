@@ -1742,6 +1742,13 @@ public class EagerTest {
   }
 
   @Test
+  public void itDoesNotStackOverflowTryingToBuildHashcode() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "does-not-stack-overflow-trying-to-build-hashcode/test"
+    );
+  }
+
+  @Test
   public void itHandlesDeferredValueInRenderFilter() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "handles-deferred-value-in-render-filter/test"
