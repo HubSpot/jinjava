@@ -1740,4 +1740,11 @@ public class EagerTest {
       "handles-modified-include-path/test.expected"
     );
   }
+
+  @Test
+  public void itHandlesDeferredValueInRenderFilter() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferred-value-in-render-filter/test"
+    );
+  }
 }

@@ -1,6 +1,6 @@
 package com.hubspot.jinjava.random;
 
-import com.hubspot.jinjava.el.ext.DeferredParsingException;
+import com.hubspot.jinjava.interpret.DeferredValueException;
 import java.util.Random;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -15,42 +15,42 @@ public class DeferredRandomNumberGenerator extends Random {
 
   @Override
   protected int next(int bits) {
-    throw new DeferredParsingException(EXCEPTION_MESSAGE);
+    throw new DeferredValueException(EXCEPTION_MESSAGE);
   }
 
   @Override
   public int nextInt() {
-    throw new DeferredParsingException(EXCEPTION_MESSAGE);
+    throw new DeferredValueException(EXCEPTION_MESSAGE);
   }
 
   @Override
   public int nextInt(int bound) {
-    throw new DeferredParsingException(EXCEPTION_MESSAGE);
+    throw new DeferredValueException(EXCEPTION_MESSAGE);
   }
 
   @Override
   public long nextLong() {
-    throw new DeferredParsingException(EXCEPTION_MESSAGE);
+    throw new DeferredValueException(EXCEPTION_MESSAGE);
   }
 
   @Override
   public boolean nextBoolean() {
-    throw new DeferredParsingException(EXCEPTION_MESSAGE);
+    throw new DeferredValueException(EXCEPTION_MESSAGE);
   }
 
   @Override
   public float nextFloat() {
-    throw new DeferredParsingException(EXCEPTION_MESSAGE);
+    throw new DeferredValueException(EXCEPTION_MESSAGE);
   }
 
   @Override
   public double nextDouble() {
-    throw new DeferredParsingException(EXCEPTION_MESSAGE);
+    throw new DeferredValueException(EXCEPTION_MESSAGE);
   }
 
   @Override
   public synchronized double nextGaussian() {
-    throw new DeferredParsingException(EXCEPTION_MESSAGE);
+    throw new DeferredValueException(EXCEPTION_MESSAGE);
   }
 
   @Override
