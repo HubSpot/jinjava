@@ -8,13 +8,6 @@ public class DeferredParsingException extends DeferredValueException {
   private final Object sourceNode;
   private final IdentifierPreservationStrategy identifierPreservationStrategy;
 
-  public DeferredParsingException(String message) {
-    super(message);
-    this.deferredEvalResult = message;
-    this.sourceNode = null;
-    this.identifierPreservationStrategy = IdentifierPreservationStrategy.RESOLVING;
-  }
-
   public DeferredParsingException(Object sourceNode, String deferredEvalResult) {
     super(
       String.format(

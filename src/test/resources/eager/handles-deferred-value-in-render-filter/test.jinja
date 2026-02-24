@@ -1,0 +1,4 @@
+{% set foo = "Hi {{ deferred|escape }}" %}
+{{ foo|render|escape_jinjava }}
+
+{{ foo|render }}
