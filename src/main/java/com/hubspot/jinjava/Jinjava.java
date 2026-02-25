@@ -20,7 +20,6 @@ import com.hubspot.jinjava.doc.JinjavaDocFactory;
 import com.hubspot.jinjava.el.ExtendedSyntaxBuilder;
 import com.hubspot.jinjava.el.TruthyTypeConverter;
 import com.hubspot.jinjava.el.ext.eager.EagerExtendedSyntaxBuilder;
-import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
 import com.hubspot.jinjava.interpret.InterpretException;
@@ -246,14 +245,10 @@ public class Jinjava {
       context = new Context(copyGlobalContext(), bindings, renderConfig.getDisabled());
     }
 
-    try (
-      AutoCloseableImpl<JinjavaInterpreter> interpreterAutoCloseable = JinjavaInterpreter
-        .closeablePushCurrent(
-          globalConfig.getInterpreterFactory().newInstance(this, context, renderConfig)
-        )
-        .get()
-    ) {
-      JinjavaInterpreter interpreter = interpreterAutoCloseable.value();
+    try {
+      JinjavaInterpreter interpreter = globalConfig
+        .getInterpreterFactory()
+        .newInstance(this, context, renderConfig);
       try {
         String result = interpreter.render(template);
         return new RenderResult(

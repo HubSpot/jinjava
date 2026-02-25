@@ -15,9 +15,6 @@ limitations under the License.
  **********************************************************************/
 package com.hubspot.jinjava.tree.parse;
 
-import com.hubspot.jinjava.JinjavaConfig;
-import com.hubspot.jinjava.LegacyOverrides;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.UnexpectedTokenException;
 import java.io.Serializable;
 
@@ -32,6 +29,7 @@ public abstract class Token implements Serializable {
   protected final int lineNumber;
   protected final int startPosition;
   private final TokenScannerSymbols symbols;
+  private final WhitespaceControlParser whitespaceControlParser;
 
   private boolean leftTrim;
   private boolean rightTrim;
@@ -41,12 +39,14 @@ public abstract class Token implements Serializable {
     String image,
     int lineNumber,
     int startPosition,
-    TokenScannerSymbols symbols
+    TokenScannerSymbols symbols,
+    WhitespaceControlParser whitespaceControlParser
   ) {
     this.image = image;
     this.lineNumber = lineNumber;
     this.startPosition = startPosition;
     this.symbols = symbols;
+    this.whitespaceControlParser = whitespaceControlParser;
     parse();
   }
 
@@ -89,25 +89,14 @@ public abstract class Token implements Serializable {
    * @return the content stripped of any whitespace control characters.
    */
   protected final String handleTrim(String unwrapped) {
-    boolean parseWhitespaceControlStrictly = JinjavaInterpreter
-      .getCurrentMaybe()
-      .map(JinjavaInterpreter::getConfig)
-      .map(JinjavaConfig::getLegacyOverrides)
-      .map(LegacyOverrides::isParseWhitespaceControlStrictly)
-      .orElse(false);
-
-    WhitespaceControlParser parser = parseWhitespaceControlStrictly
-      ? WhitespaceControlParser.STRICT
-      : WhitespaceControlParser.LENIENT;
-
     String result = unwrapped;
-    if (parser.hasLeftTrim(result)) {
+    if (whitespaceControlParser.hasLeftTrim(result)) {
       setLeftTrim(true);
-      result = parser.stripLeft(result);
+      result = whitespaceControlParser.stripLeft(result);
     }
-    if (parser.hasRightTrim(result)) {
+    if (whitespaceControlParser.hasRightTrim(result)) {
       setRightTrim(true);
-      result = parser.stripRight(result);
+      result = whitespaceControlParser.stripRight(result);
     }
     return result;
   }
@@ -132,18 +121,43 @@ public abstract class Token implements Serializable {
   static Token newToken(
     int tokenKind,
     TokenScannerSymbols symbols,
+    WhitespaceControlParser whitespaceControlParser,
     String image,
     int lineNumber,
     int startPosition
   ) {
     if (tokenKind == symbols.getFixed()) {
-      return new TextToken(image, lineNumber, startPosition, symbols);
+      return new TextToken(
+        image,
+        lineNumber,
+        startPosition,
+        symbols,
+        whitespaceControlParser
+      );
     } else if (tokenKind == symbols.getNote()) {
-      return new NoteToken(image, lineNumber, startPosition, symbols);
+      return new NoteToken(
+        image,
+        lineNumber,
+        startPosition,
+        symbols,
+        whitespaceControlParser
+      );
     } else if (tokenKind == symbols.getExprStart()) {
-      return new ExpressionToken(image, lineNumber, startPosition, symbols);
+      return new ExpressionToken(
+        image,
+        lineNumber,
+        startPosition,
+        symbols,
+        whitespaceControlParser
+      );
     } else if (tokenKind == symbols.getTag()) {
-      return new TagToken(image, lineNumber, startPosition, symbols);
+      return new TagToken(
+        image,
+        lineNumber,
+        startPosition,
+        symbols,
+        whitespaceControlParser
+      );
     } else {
       throw new UnexpectedTokenException(
         String.valueOf((char) tokenKind),
