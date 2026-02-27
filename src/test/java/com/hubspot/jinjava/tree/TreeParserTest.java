@@ -144,7 +144,7 @@ public class TreeParserTest extends BaseInterpretingTest {
         .newInterpreter();
 
     assertThat(interpreter.render(parse("parse/tokenizer/whitespace-tags.jinja")))
-      .isEqualTo("<div>\n" + "        yay\n" + "</div>\n");
+      .isEqualTo("<div>\n" + "        yay whoop\n" + "</div>\n");
   }
 
   @Test
