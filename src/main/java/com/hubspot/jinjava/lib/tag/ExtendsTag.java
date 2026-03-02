@@ -89,6 +89,7 @@ public class ExtendsTag implements Tag {
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
     if (interpreter.getContext().isDeferredExecutionMode()) {
+      interpreter.getContext().setExtendsDeferred(true);
       throw new DeferredValueException("extends tag");
     }
     HelperStringTokenizer tokenizer = new HelperStringTokenizer(tagNode.getHelpers());
@@ -101,11 +102,18 @@ public class ExtendsTag implements Tag {
       );
     }
 
-    String path = interpreter.resolveString(
-      tokenizer.next(),
-      tagNode.getLineNumber(),
-      tagNode.getStartPosition()
-    );
+    String path;
+    try {
+      path =
+        interpreter.resolveString(
+          tokenizer.next(),
+          tagNode.getLineNumber(),
+          tagNode.getStartPosition()
+        );
+    } catch (DeferredValueException e) {
+      interpreter.getContext().setExtendsDeferred(true);
+      throw e;
+    }
     path = interpreter.resolveResourceLocation(path);
     interpreter
       .getContext()
