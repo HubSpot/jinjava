@@ -23,7 +23,7 @@
     <dep.hubspot-immutables.version>1.9</dep.hubspot-immutables.version>
     <dep.algebra.version>1.5</dep.algebra.version>
     <dep.mockito.version>5.20.0</dep.mockito.version>
-    <dep.jackson.version>2.20.1</dep.jackson.version>
+    <dep.jackson.version>2.21.1</dep.jackson.version>
 
     <basepom.test.add.opens>
       --add-opens=java.base/java.lang=ALL-UNNAMED
