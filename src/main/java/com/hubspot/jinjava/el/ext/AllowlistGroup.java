@@ -24,6 +24,7 @@ import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.util.ForLoop;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -50,6 +51,7 @@ public enum AllowlistGroup {
       boolean.class.getCanonicalName(),
       short.class.getCanonicalName(),
       BigDecimal.class.getCanonicalName(),
+      BigInteger.class.getCanonicalName(),
     };
 
     @Override
