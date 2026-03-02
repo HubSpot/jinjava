@@ -70,28 +70,4 @@ public final class AllowlistReturnTypeValidator {
     }
     return o;
   }
-
-  public boolean allowReturnTypeClass(Class<?> clazz) {
-    if (clazz.isArray() && allowArrays) {
-      return true;
-    }
-    String canonicalClassName = clazz.getCanonicalName();
-    boolean isAllowedReturnType = allowedReturnTypesCache.computeIfAbsent(
-      canonicalClassName,
-      c ->
-        allowedCanonicalClassNames.contains(canonicalClassName) ||
-        allowedCanonicalClassPrefixes.stream().anyMatch(canonicalClassName::startsWith)
-    );
-    if (!isAllowedReturnType) {
-      onRejectedClass.accept(clazz);
-      return false;
-    }
-    for (ReturnTypeValidator v : additionalValidators) {
-      if (!v.allowReturnTypeClass(clazz)) {
-        onRejectedClass.accept(clazz);
-        return false;
-      }
-    }
-    return true;
-  }
 }
