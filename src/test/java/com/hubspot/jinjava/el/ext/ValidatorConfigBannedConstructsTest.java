@@ -14,9 +14,9 @@ public class ValidatorConfigBannedConstructsTest {
   @Test
   public void itRejectsObjectMethodInAllowedMethods() throws NoSuchMethodException {
     Method toStringMethod = Object.class.getMethod("toString");
-    assertThatThrownBy(
-      () -> MethodValidatorConfig.builder().addAllowedMethods(toStringMethod).build()
-    )
+    assertThatThrownBy(() ->
+        MethodValidatorConfig.builder().addAllowedMethods(toStringMethod).build()
+      )
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Banned classes or prefixes");
   }
@@ -24,9 +24,9 @@ public class ValidatorConfigBannedConstructsTest {
   @Test
   public void itRejectsClassMethodInAllowedMethods() throws NoSuchMethodException {
     Method getNameMethod = Class.class.getMethod("getName");
-    assertThatThrownBy(
-      () -> MethodValidatorConfig.builder().addAllowedMethods(getNameMethod).build()
-    )
+    assertThatThrownBy(() ->
+        MethodValidatorConfig.builder().addAllowedMethods(getNameMethod).build()
+      )
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Banned classes or prefixes");
   }
@@ -35,60 +35,56 @@ public class ValidatorConfigBannedConstructsTest {
 
   @Test
   public void itRejectsObjectClassInAllowedDeclaredMethodClassNames() {
-    assertThatThrownBy(
-      () ->
+    assertThatThrownBy(() ->
         MethodValidatorConfig
           .builder()
           .addAllowedDeclaredMethodsFromCanonicalClassNames(
             Object.class.getCanonicalName()
           )
           .build()
-    )
+      )
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Banned classes or prefixes");
   }
 
   @Test
   public void itRejectsClassClassInAllowedDeclaredMethodClassNames() {
-    assertThatThrownBy(
-      () ->
+    assertThatThrownBy(() ->
         MethodValidatorConfig
           .builder()
           .addAllowedDeclaredMethodsFromCanonicalClassNames(
             Class.class.getCanonicalName()
           )
           .build()
-    )
+      )
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Banned classes or prefixes");
   }
 
   @Test
   public void itRejectsObjectMapperInAllowedDeclaredMethodClassNames() {
-    assertThatThrownBy(
-      () ->
+    assertThatThrownBy(() ->
         MethodValidatorConfig
           .builder()
           .addAllowedDeclaredMethodsFromCanonicalClassNames(
             ObjectMapper.class.getCanonicalName()
           )
           .build()
-    )
+      )
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Banned classes or prefixes");
   }
 
   @Test
   public void itRejectsJinjavaInterpreterInAllowedDeclaredMethodClassNames() {
-    assertThatThrownBy(
-      () ->
+    assertThatThrownBy(() ->
         MethodValidatorConfig
           .builder()
           .addAllowedDeclaredMethodsFromCanonicalClassNames(
             JinjavaInterpreter.class.getCanonicalName()
           )
           .build()
-    )
+      )
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Banned classes or prefixes");
   }
@@ -97,30 +93,28 @@ public class ValidatorConfigBannedConstructsTest {
 
   @Test
   public void itRejectsReflectPackageInAllowedDeclaredMethodPrefixes() {
-    assertThatThrownBy(
-      () ->
+    assertThatThrownBy(() ->
         MethodValidatorConfig
           .builder()
           .addAllowedDeclaredMethodsFromCanonicalClassPrefixes(
             Method.class.getPackageName()
           )
           .build()
-    )
+      )
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Banned classes or prefixes");
   }
 
   @Test
   public void itRejectsJacksonDatabindPackageInAllowedDeclaredMethodPrefixes() {
-    assertThatThrownBy(
-      () ->
+    assertThatThrownBy(() ->
         MethodValidatorConfig
           .builder()
           .addAllowedDeclaredMethodsFromCanonicalClassPrefixes(
             ObjectMapper.class.getPackageName()
           )
           .build()
-    )
+      )
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Banned classes or prefixes");
   }
@@ -129,52 +123,48 @@ public class ValidatorConfigBannedConstructsTest {
 
   @Test
   public void itRejectsObjectClassInAllowedReturnTypeClassNames() {
-    assertThatThrownBy(
-      () ->
+    assertThatThrownBy(() ->
         ReturnTypeValidatorConfig
           .builder()
           .addAllowedCanonicalClassNames(Object.class.getCanonicalName())
           .build()
-    )
+      )
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Banned classes or prefixes");
   }
 
   @Test
   public void itRejectsClassClassInAllowedReturnTypeClassNames() {
-    assertThatThrownBy(
-      () ->
+    assertThatThrownBy(() ->
         ReturnTypeValidatorConfig
           .builder()
           .addAllowedCanonicalClassNames(Class.class.getCanonicalName())
           .build()
-    )
+      )
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Banned classes or prefixes");
   }
 
   @Test
   public void itRejectsObjectMapperInAllowedReturnTypeClassNames() {
-    assertThatThrownBy(
-      () ->
+    assertThatThrownBy(() ->
         ReturnTypeValidatorConfig
           .builder()
           .addAllowedCanonicalClassNames(ObjectMapper.class.getCanonicalName())
           .build()
-    )
+      )
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Banned classes or prefixes");
   }
 
   @Test
   public void itRejectsJinjavaInterpreterInAllowedReturnTypeClassNames() {
-    assertThatThrownBy(
-      () ->
+    assertThatThrownBy(() ->
         ReturnTypeValidatorConfig
           .builder()
           .addAllowedCanonicalClassNames(JinjavaInterpreter.class.getCanonicalName())
           .build()
-    )
+      )
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Banned classes or prefixes");
   }
@@ -183,26 +173,24 @@ public class ValidatorConfigBannedConstructsTest {
 
   @Test
   public void itRejectsReflectPackageInAllowedReturnTypePrefixes() {
-    assertThatThrownBy(
-      () ->
+    assertThatThrownBy(() ->
         ReturnTypeValidatorConfig
           .builder()
           .addAllowedCanonicalClassPrefixes(Method.class.getPackageName())
           .build()
-    )
+      )
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Banned classes or prefixes");
   }
 
   @Test
   public void itRejectsJacksonDatabindPackageInAllowedReturnTypePrefixes() {
-    assertThatThrownBy(
-      () ->
+    assertThatThrownBy(() ->
         ReturnTypeValidatorConfig
           .builder()
           .addAllowedCanonicalClassPrefixes(ObjectMapper.class.getPackageName())
           .build()
-    )
+      )
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Banned classes or prefixes");
   }
