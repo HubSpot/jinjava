@@ -112,12 +112,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
   ) {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
 
-    if (
-      method == null ||
-      DEFAULT_RESTRICTED_METHODS.contains(method.toString()) ||
-      (interpreter != null &&
-        interpreter.getConfig().getRestrictedMethods().contains(method.toString()))
-    ) {
+    if (method == null || DEFAULT_RESTRICTED_METHODS.contains(method.toString())) {
       throw new MethodNotFoundException(
         "Cannot find method '" + method + "' in " + base.getClass()
       );
@@ -226,11 +221,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
 
-    if (
-      DEFAULT_RESTRICTED_PROPERTIES.contains(propertyName) ||
-      (interpreter != null &&
-        interpreter.getConfig().getRestrictedProperties().contains(propertyName))
-    ) {
+    if (DEFAULT_RESTRICTED_PROPERTIES.contains(propertyName)) {
       return null;
     }
 

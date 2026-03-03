@@ -159,10 +159,6 @@ public interface JinjavaConfig {
     return new DefaultTokenScannerSymbols();
   }
 
-  ImmutableSet<String> getRestrictedMethods();
-
-  ImmutableSet<String> getRestrictedProperties();
-
   @Value.Default
   default ELResolver getElResolver() {
     return isDefaultReadOnlyResolver()
