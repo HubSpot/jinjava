@@ -247,7 +247,7 @@ public class ForTag implements Tag {
                   if (loopVar.equals(valProp.getName())) {
                     interpreter
                       .getContext()
-                      .put(loopVar, interpreter.resolveProperty(val, valProp.getName()));
+                      .put(loopVar, valProp.getReadMethod().invoke(val));
                     break;
                   }
                 }

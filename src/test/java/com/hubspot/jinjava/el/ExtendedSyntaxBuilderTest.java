@@ -5,8 +5,9 @@ import static org.assertj.core.api.Assertions.entry;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.IndexOutOfRangeException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -32,7 +33,9 @@ public class ExtendedSyntaxBuilderTest {
   @Before
   public void setup() {
     interpreter =
-      new Jinjava(JinjavaConfig.newBuilder().withMaxOutputSize(MAX_STRING_LENGTH).build())
+      new Jinjava(
+        BaseJinjavaTest.newConfigBuilder().withMaxOutputSize(MAX_STRING_LENGTH).build()
+      )
         .newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
 
@@ -188,22 +191,35 @@ public class ExtendedSyntaxBuilderTest {
 
   @Test
   public void mapLiteral() {
-    context.put("foo", "bar");
-    assertThat((Map<String, Object>) val("{}")).isEmpty();
-    Map<String, Object> map = (Map<String, Object>) val(
-      "{foo: foo, \"foo2\": foo, foo3: 123, foo4: 'string', foo5: {}, foo6: [1, 2]}"
-    );
-    assertThat(map)
-      .contains(
-        entry("foo", "bar"),
-        entry("foo2", "bar"),
-        entry("foo3", 123L),
-        entry("foo4", "string"),
-        entry("foo6", Arrays.asList(1L, 2L))
+    interpreter =
+      new Jinjava(
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withMaxOutputSize(MAX_STRING_LENGTH)
+          .withLegacyOverrides(LegacyOverrides.THREE_POINT_0.withEvaluateMapKeys(false))
+          .build()
+      )
+        .newInterpreter();
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter.getContext().put("foo", "bar");
+      assertThat((Map<String, Object>) val("{}")).isEmpty();
+      Map<String, Object> map = (Map<String, Object>) val(
+        "{foo: foo, \"foo2\": foo, foo3: 123, foo4: 'string', foo5: {}, foo6: [1, 2]}"
       );
+      assertThat(map)
+        .contains(
+          entry("foo", "bar"),
+          entry("foo2", "bar"),
+          entry("foo3", 123L),
+          entry("foo4", "string"),
+          entry("foo6", Arrays.asList(1L, 2L))
+        );
 
-    assertThat((Map<String, Object>) val("{\"address\":\"123 Main - Boston, MA 02111\"}"))
-      .contains(entry("address", "123 Main - Boston, MA 02111"));
+      assertThat(
+        (Map<String, Object>) val("{\"address\":\"123 Main - Boston, MA 02111\"}")
+      )
+        .contains(entry("address", "123 Main - Boston, MA 02111"));
+    }
   }
 
   @Test

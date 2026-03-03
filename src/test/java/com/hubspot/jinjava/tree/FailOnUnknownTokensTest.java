@@ -3,6 +3,7 @@ package com.hubspot.jinjava.tree;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -18,7 +19,7 @@ public class FailOnUnknownTokensTest {
 
   @Before
   public void setUp() {
-    JinjavaConfig.Builder builder = JinjavaConfig.newBuilder();
+    JinjavaConfig.Builder builder = BaseJinjavaTest.newConfigBuilder();
     builder.withFailOnUnknownTokens(true);
     JinjavaConfig config = builder.build();
     jinjava = new Jinjava(config);
@@ -48,8 +49,8 @@ public class FailOnUnknownTokensTest {
 
   @Test
   public void itReplacesTokensInContextButThrowsExceptionForOthers() {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withFailOnUnknownTokens(true)
       .build();
     JinjavaInterpreter jinjavaInterpreter = new Jinjava(config).newInterpreter();

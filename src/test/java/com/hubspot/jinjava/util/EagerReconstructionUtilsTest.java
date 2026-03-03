@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
@@ -49,8 +50,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
@@ -258,8 +259,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
   @Test
   public void itWrapsInRawTag() {
     String toWrap = "{{ foo }}";
-    JinjavaConfig preserveRawConfig = JinjavaConfig
-      .newBuilder()
+    JinjavaConfig preserveRawConfig = BaseJinjavaTest
+      .newConfigBuilder()
       .withExecutionMode(PreserveRawExecutionMode.instance())
       .build();
     assertThat(
@@ -274,8 +275,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
   @Test
   public void itDoesntWrapInRawTagUnnecessarily() {
     String toWrap = "foo";
-    JinjavaConfig preserveRawConfig = JinjavaConfig
-      .newBuilder()
+    JinjavaConfig preserveRawConfig = BaseJinjavaTest
+      .newConfigBuilder()
       .withExecutionMode(PreserveRawExecutionMode.instance())
       .build();
     assertThat(
@@ -289,8 +290,8 @@ public class EagerReconstructionUtilsTest extends BaseInterpretingTest {
 
   @Test
   public void itDoesntWrapInRawTagForDefaultConfig() {
-    JinjavaConfig defaultConfig = JinjavaConfig
-      .newBuilder()
+    JinjavaConfig defaultConfig = BaseJinjavaTest
+      .newConfigBuilder()
       .withExecutionMode(DefaultExecutionMode.instance())
       .build();
     String toWrap = "{{ foo }}";

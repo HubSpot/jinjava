@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.features.DateTimeFeatureActivationStrategy;
@@ -182,8 +183,8 @@ public class DateTimeFormatFilterTest extends BaseInterpretingTest {
     ZonedDateTime now = ZonedDateTime.now();
 
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withFeatureConfig(
           FeatureConfig
             .newBuilder()

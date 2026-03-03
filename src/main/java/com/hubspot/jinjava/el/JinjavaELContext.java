@@ -5,11 +5,12 @@ import de.odysseus.el.util.SimpleContext;
 import java.lang.reflect.Method;
 import javax.el.ELResolver;
 
-public class JinjavaELContext extends SimpleContext {
+public class JinjavaELContext extends SimpleContext implements HasInterpreter {
 
   private JinjavaInterpreter interpreter;
   private MacroFunctionMapper functionMapper;
 
+  @Deprecated
   public JinjavaELContext() {
     super();
   }
@@ -17,6 +18,11 @@ public class JinjavaELContext extends SimpleContext {
   public JinjavaELContext(JinjavaInterpreter interpreter, ELResolver resolver) {
     super(resolver);
     this.interpreter = interpreter;
+  }
+
+  @Override
+  public JinjavaInterpreter interpreter() {
+    return interpreter;
   }
 
   @Override

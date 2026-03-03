@@ -7,8 +7,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -209,7 +209,9 @@ public class MacroTagTest extends BaseInterpretingTest {
   public void itAllowsMacroRecursionWhenEnabledInConfiguration() throws IOException {
     // I need a different configuration here therefore
     interpreter =
-      new Jinjava(JinjavaConfig.newBuilder().withEnableRecursiveMacroCalls(true).build())
+      new Jinjava(
+        BaseJinjavaTest.newConfigBuilder().withEnableRecursiveMacroCalls(true).build()
+      )
         .newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
 
@@ -228,8 +230,8 @@ public class MacroTagTest extends BaseInterpretingTest {
   public void itAllowsMacroRecursionWithMaxDepth() throws IOException {
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withEnableRecursiveMacroCalls(true)
           .withMaxMacroRecursionDepth(10)
           .build()
@@ -251,8 +253,8 @@ public class MacroTagTest extends BaseInterpretingTest {
   public void itAllowsMacroRecursionWithMaxDepthInValidationMode() throws IOException {
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withEnableRecursiveMacroCalls(true)
           .withMaxMacroRecursionDepth(10)
           .withValidationMode(true)
@@ -275,45 +277,48 @@ public class MacroTagTest extends BaseInterpretingTest {
   public void itEnforcesMacroRecursionWithMaxDepth() throws IOException {
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withEnableRecursiveMacroCalls(true)
           .withMaxMacroRecursionDepth(2)
           .build()
       )
         .newInterpreter();
-    JinjavaInterpreter.pushCurrent(interpreter);
-
-    try {
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
       String template = fixtureText("ending-recursion");
       String out = interpreter.render(template);
       assertThat(interpreter.getErrorsCopy().get(0).getMessage())
         .contains("Max recursion limit of 2 reached for macro 'hello'");
       assertThat(out).contains("Hello Hello");
-    } finally {
-      JinjavaInterpreter.popCurrent();
     }
   }
 
   @Test
   public void itPreventsRecursionForMacroWithVar() {
-    String jinja =
-      "{%- macro func(var) %}" +
-      "{%- for f in var %}" +
-      "{{ f.val }}" +
-      "{%- endfor %}" +
-      "{%- endmacro %}" +
-      "{%- set var = {" +
-      "    'f' : {" +
-      "        'val': '{{ self }}'," +
-      "    }" +
-      "} %}" +
-      "{% set self='{{var}}' %}" +
-      "{{ func(var) }}" +
-      "";
-    Node node = new TreeParser(interpreter, jinja).buildTree();
-    assertThat(interpreter.render(node))
-      .isEqualTo("{'f': {'val': '{'f': {'val': '{{ self }}'} }'} }");
+    interpreter =
+      new Jinjava(
+        BaseJinjavaTest.newConfigBuilder().withNestedInterpretationEnabled(true).build()
+      )
+        .newInterpreter();
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      String jinja =
+        "{%- macro func(var) %}" +
+        "{%- for k,f in var.items() %}" +
+        "{{ f.val }}" +
+        "{%- endfor %}" +
+        "{%- endmacro %}" +
+        "{%- set var = {" +
+        "    'f' : {" +
+        "        'val': '{{ self }}'," +
+        "    }" +
+        "} %}" +
+        "{% set self='{{var}}' %}" +
+        "{{ func(var) }}" +
+        "";
+      Node node = new TreeParser(interpreter, jinja).buildTree();
+      assertThat(interpreter.render(node))
+        .isEqualTo("{'f': {'val': '{'f': {'val': '{{ self }}'} }'} }");
+    }
   }
 
   @Test
@@ -346,8 +351,8 @@ public class MacroTagTest extends BaseInterpretingTest {
   public void itCorrectlyScopesNestedMacroTags() {
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withEnableRecursiveMacroCalls(true)
           .withMaxMacroRecursionDepth(2)
           .build()

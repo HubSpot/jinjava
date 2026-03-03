@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
@@ -22,7 +23,7 @@ public class PrettyPrintFilterTest {
 
   @Before
   public void setup() {
-    JinjavaConfig config = JinjavaConfig.newBuilder().build();
+    JinjavaConfig config = BaseJinjavaTest.newConfigBuilder().build();
     Jinjava jinjava = new Jinjava(config);
     Context context = jinjava.getGlobalContext();
     i = new JinjavaInterpreter(jinjava, context, config);
@@ -71,9 +72,9 @@ public class PrettyPrintFilterTest {
           "{%% raw %%}(MyClass: {\n" +
           "  &quot;foo&quot; : &quot;%s&quot;,\n" +
           "  &quot;bar&quot; : %d,\n" +
-          "  &quot;nestedClass&quot; : {\n" +
-          "    &quot;fooField&quot; : &quot;%s&quot;,\n" +
-          "    &quot;barField&quot; : %d\n" +
+          "  &quot;nested_class&quot; : {\n" +
+          "    &quot;foo_field&quot; : &quot;%s&quot;,\n" +
+          "    &quot;bar_field&quot; : %d\n" +
           "  }\n" +
           "}){%% endraw %%}",
           myClass.getFoo(),

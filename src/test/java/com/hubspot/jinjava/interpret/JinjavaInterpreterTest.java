@@ -3,11 +3,12 @@ package com.hubspot.jinjava.interpret;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.features.FeatureStrategies;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
@@ -18,6 +19,7 @@ import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
 import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
+import com.hubspot.jinjava.testobjects.JinjavaInterpreterTestObjects;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.output.BlockInfo;
 import com.hubspot.jinjava.tree.output.OutputList;
@@ -41,7 +43,10 @@ public class JinjavaInterpreterTest {
   public void setup() {
     jinjava =
       new Jinjava(
-        JinjavaConfig.newBuilder().withTimeZone(ZoneId.of("America/New_York")).build()
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withTimeZone(ZoneId.of("America/New_York"))
+          .build()
       );
     interpreter = jinjava.newInterpreter();
     symbols = interpreter.getConfig().getTokenScannerSymbols();
@@ -102,107 +107,120 @@ public class JinjavaInterpreterTest {
 
   // Ex VariableChain stuff
 
-  static class Foo {
-
-    private String bar;
-
-    public Foo(String bar) {
-      this.bar = bar;
-    }
-
-    public String getBar() {
-      return bar;
-    }
-
-    public String getBarFoo() {
-      return bar;
-    }
-
-    public String getBarFoo1() {
-      return bar;
-    }
-
-    @JsonIgnore
-    public String getBarHidden() {
-      return bar;
-    }
-  }
-
   @Test
   public void singleWordProperty() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "bar")).isEqualTo("a");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      assertThat(
+        interpreter.resolveProperty(new JinjavaInterpreterTestObjects.Foo("a"), "bar")
+      )
+        .isEqualTo("a");
+    }
   }
 
   @Test
   public void multiWordCamelCase() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "barFoo")).isEqualTo("a");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      assertThat(
+        interpreter.resolveProperty(new JinjavaInterpreterTestObjects.Foo("a"), "barFoo")
+      )
+        .isEqualTo("a");
+    }
   }
 
   @Test
   public void multiWordSnakeCase() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "bar_foo")).isEqualTo("a");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      assertThat(
+        interpreter.resolveProperty(new JinjavaInterpreterTestObjects.Foo("a"), "bar_foo")
+      )
+        .isEqualTo("a");
+    }
   }
 
   @Test
   public void multiWordNumberSnakeCase() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "bar_foo_1")).isEqualTo("a");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      assertThat(
+        interpreter.resolveProperty(
+          new JinjavaInterpreterTestObjects.Foo("a"),
+          "bar_foo_1"
+        )
+      )
+        .isEqualTo("a");
+    }
   }
 
   @Test
   public void jsonIgnore() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "barHidden")).isEqualTo("a");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      assertThat(
+        interpreter.resolveProperty(
+          new JinjavaInterpreterTestObjects.Foo("a"),
+          "barHidden"
+        )
+      )
+        .isEqualTo("a");
+    }
   }
 
   @Test
   public void triesBeanMethodFirst() {
-    assertThat(
-      interpreter
-        .resolveProperty(ZonedDateTime.parse("2013-09-19T12:12:12+00:00"), "year")
-        .toString()
-    )
-      .isEqualTo("2013");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      assertThat(
+        interpreter
+          .resolveProperty(ZonedDateTime.parse("2013-09-19T12:12:12+00:00"), "year")
+          .toString()
+      )
+        .isEqualTo("2013");
+    }
   }
 
   @Test
   public void enterScopeTryFinally() {
-    interpreter.getContext().put("foo", "parent");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter.getContext().put("foo", "parent");
 
-    interpreter.enterScope();
-    try {
-      interpreter.getContext().put("foo", "child");
-      assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("child");
-    } finally {
-      interpreter.leaveScope();
+      interpreter.enterScope();
+      try {
+        interpreter.getContext().put("foo", "child");
+        assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("child");
+      } finally {
+        interpreter.leaveScope();
+      }
+
+      assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("parent");
     }
-
-    assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("parent");
   }
 
   @Test
   public void enterScopeTryWithResources() {
-    interpreter.getContext().put("foo", "parent");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter.getContext().put("foo", "parent");
 
-    try (InterpreterScopeClosable c = interpreter.enterScope()) {
-      interpreter.getContext().put("foo", "child");
-      assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("child");
+      try (InterpreterScopeClosable c = interpreter.enterScope()) {
+        interpreter.getContext().put("foo", "child");
+        assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("child");
+      }
+
+      assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("parent");
     }
-
-    assertThat(interpreter.resolveELExpression("foo", 1)).isEqualTo("parent");
   }
 
   @Test
   public void bubbleUpDependenciesFromLowerScope() {
-    String dependencyType = "foo";
-    String dependencyIdentifier = "123";
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      String dependencyType = "foo";
+      String dependencyIdentifier = "123";
 
-    interpreter.enterScope();
-    interpreter.getContext().addDependency(dependencyType, dependencyIdentifier);
-    assertThat(interpreter.getContext().getDependencies().get(dependencyType))
-      .contains(dependencyIdentifier);
-    interpreter.leaveScope();
+      interpreter.enterScope();
+      interpreter.getContext().addDependency(dependencyType, dependencyIdentifier);
+      assertThat(interpreter.getContext().getDependencies().get(dependencyType))
+        .contains(dependencyIdentifier);
+      interpreter.leaveScope();
 
-    assertThat(interpreter.getContext().getDependencies().get(dependencyType))
-      .contains(dependencyIdentifier);
+      assertThat(interpreter.getContext().getDependencies().get(dependencyType))
+        .contains(dependencyIdentifier);
+    }
   }
 
   @Test
@@ -214,8 +232,8 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itLimitsOutputSize() {
-    JinjavaConfig outputSizeLimitedConfig = JinjavaConfig
-      .newBuilder()
+    JinjavaConfig outputSizeLimitedConfig = BaseJinjavaTest
+      .newConfigBuilder()
       .withMaxOutputSize(20)
       .build();
     String output = "123456789012345678901234567890";
@@ -232,8 +250,8 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itLimitsOutputSizeOnTagNode() {
-    JinjavaConfig outputSizeLimitedConfig = JinjavaConfig
-      .newBuilder()
+    JinjavaConfig outputSizeLimitedConfig = BaseJinjavaTest
+      .newConfigBuilder()
       .withMaxOutputSize(10)
       .build();
     String output = "{% for i in range(20) %} {{ i }} {% endfor %}";
@@ -255,8 +273,8 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itLimitsOutputSizeWhenSumOfNodeSizesExceedsMax() {
-    JinjavaConfig outputSizeLimitedConfig = JinjavaConfig
-      .newBuilder()
+    JinjavaConfig outputSizeLimitedConfig = BaseJinjavaTest
+      .newConfigBuilder()
       .withMaxOutputSize(19)
       .build();
     String input = "1234567890{% block testchild %}1234567890{% endblock %}";
@@ -275,8 +293,8 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itCanPreserveRawTags() {
-    JinjavaConfig preserveConfig = JinjavaConfig
-      .newBuilder()
+    JinjavaConfig preserveConfig = BaseJinjavaTest
+      .newConfigBuilder()
       .withExecutionMode(PreserveRawExecutionMode.instance())
       .build();
     String input = "1{% raw %}2{% endraw %}3";
@@ -363,6 +381,17 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itInterpretsEmptyExpressions() {
+    jinjava =
+      new Jinjava(
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withTimeZone(ZoneId.of("America/New_York"))
+          .withLegacyOverrides(
+            LegacyOverrides.THREE_POINT_0.withParseWhitespaceControlStrictly(false)
+          )
+          .build()
+      );
+    interpreter = jinjava.newInterpreter();
     assertThat(interpreter.render("{{}}")).isEqualTo("");
   }
 
@@ -519,13 +548,16 @@ public class JinjavaInterpreterTest {
     JinjavaInterpreter normalInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContext(),
-      JinjavaConfig.newBuilder().withExecutionMode(EagerExecutionMode.instance()).build()
+      BaseJinjavaTest
+        .newConfigBuilder()
+        .withExecutionMode(EagerExecutionMode.instance())
+        .build()
     );
     JinjavaInterpreter preventingInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContext(),
-      JinjavaConfig
-        .newBuilder()
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withFeatureConfig(
           FeatureConfig
             .newBuilder()
@@ -565,13 +597,16 @@ public class JinjavaInterpreterTest {
     JinjavaInterpreter normalInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContext(),
-      JinjavaConfig.newBuilder().withExecutionMode(EagerExecutionMode.instance()).build()
+      BaseJinjavaTest
+        .newConfigBuilder()
+        .withExecutionMode(EagerExecutionMode.instance())
+        .build()
     );
     JinjavaInterpreter outputtingErrorInterpreters = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContext(),
-      JinjavaConfig
-        .newBuilder()
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withFeatureConfig(
           FeatureConfig
             .newBuilder()
@@ -603,7 +638,6 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itDoesNotAllowAccessingPropertiesOfInterpreter() {
-    assertThat(jinjava.render("{{ ____int3rpr3t3r____.config }}", new HashMap<>()))
-      .isEqualTo("");
+    assertThat(jinjava.render("{{ null.config }}", new HashMap<>())).isEqualTo("");
   }
 }

@@ -15,12 +15,13 @@ import org.junit.Test;
 public class IntFilterTest extends BaseInterpretingTest {
 
   private static final Locale FRENCH_LOCALE = new Locale("fr", "FR");
-  private static final JinjavaConfig FRENCH_LOCALE_CONFIG = new JinjavaConfig(
-    StandardCharsets.UTF_8,
-    FRENCH_LOCALE,
-    ZoneOffset.UTC,
-    10
-  );
+  private static final JinjavaConfig FRENCH_LOCALE_CONFIG = JinjavaConfig
+    .builder()
+    .withCharset(StandardCharsets.UTF_8)
+    .withLocale(FRENCH_LOCALE)
+    .withTimeZone(ZoneOffset.UTC)
+    .withMaxRenderDepth(10)
+    .build();
 
   IntFilter filter;
 

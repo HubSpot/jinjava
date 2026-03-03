@@ -8,18 +8,10 @@ public abstract class BaseJinjavaTest {
 
   @Before
   public void baseSetup() {
-    jinjava =
-      new Jinjava(
-        JinjavaConfig
-          .newBuilder()
-          .withLegacyOverrides(
-            LegacyOverrides
-              .newBuilder()
-              .withUsePyishObjectMapper(true)
-              .withKeepNullableLoopValues(true)
-              .build()
-          )
-          .build()
-      );
+    jinjava = new Jinjava(newConfigBuilder().build());
+  }
+
+  public static JinjavaConfig.Builder newConfigBuilder() {
+    return JinjavaConfig.newBuilder();
   }
 }

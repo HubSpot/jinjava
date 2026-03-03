@@ -2,10 +2,12 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
-import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -13,11 +15,9 @@ import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
-import com.hubspot.jinjava.objects.collections.PyList;
-import com.hubspot.jinjava.objects.serialization.PyishSerializable;
+import com.hubspot.jinjava.testobjects.EagerTagDecoratorTestObjects;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.After;
@@ -57,8 +57,8 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
@@ -136,7 +136,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
   public void itModifiesContextInChildContext() {
     context.put("foo", new ArrayList<>());
     assertThat(interpreter.render("{{ modify_context('foo', 'bar') }}{{ foo }}"))
-      .isEqualTo("[bar]");
+      .isEqualTo("['bar']");
   }
 
   @Test
@@ -145,7 +145,7 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     assertThat(
       interpreter.render("{{ modify_context('foo', 'bar') ~ deferred }}{{ foo }}")
     )
-      .isEqualTo("{{ null ~ deferred }}[bar]");
+      .isEqualTo("{{ null ~ deferred }}['bar']");
   }
 
   public static void addToContext(String key, Object value) {
@@ -156,28 +156,17 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
     ((List<Object>) JinjavaInterpreter.getCurrent().getContext().get(key)).add(value);
   }
 
-  static class TooBig extends PyList implements PyishSerializable {
-
-    public TooBig(List<Object> list) {
-      super(list);
-    }
-
-    @Override
-    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
-      throws IOException {
-      throw new OutputTooBigException(1, 1);
-    }
-  }
-
   @Test
   public void itDefersNodeWhenOutputTooBigIsThrownWithinInnerInterpret() {
-    TooBig tooBig = new TooBig(new ArrayList<>());
+    EagerTagDecoratorTestObjects.TooBig tooBig = new EagerTagDecoratorTestObjects.TooBig(
+      new ArrayList<>()
+    );
     interpreter =
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );

@@ -76,8 +76,8 @@ public class ExpectedTemplateInterpreter {
       JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
         jinjava,
         jinjava.getGlobalContextCopy(),
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withExecutionMode(DefaultExecutionMode.instance())
           .withNestedInterpretationEnabled(true)
           .withLegacyOverrides(
@@ -107,8 +107,8 @@ public class ExpectedTemplateInterpreter {
         JinjavaInterpreter preserveInterpreter = new JinjavaInterpreter(
           jinjava,
           jinjava.getGlobalContextCopy(),
-          JinjavaConfig
-            .newBuilder()
+          BaseJinjavaTest
+            .newConfigBuilder()
             .withExecutionMode(DefaultExecutionMode.instance())
             .withNestedInterpretationEnabled(true)
             .withLegacyOverrides(

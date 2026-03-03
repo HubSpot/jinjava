@@ -105,6 +105,11 @@
         <version>${dep.hubspot-immutables.version}</version>
       </dependency>
       <dependency>
+        <groupId>com.hubspot.immutables</groupId>
+        <artifactId>immutable-collection-encodings</artifactId>
+        <version>${dep.hubspot-immutables.version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.hubspot</groupId>
         <artifactId>algebra</artifactId>
         <version>${dep.algebra.version}</version>
@@ -184,6 +189,7 @@
     <dependency>
       <groupId>com.google.errorprone</groupId>
       <artifactId>error_prone_annotations</artifactId>
+      <scope>runtime</scope>
     </dependency>
 
     <dependency>
@@ -217,18 +223,15 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.hubspot.immutables</groupId>
-      <artifactId>hubspot-style</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.hubspot.immutables</groupId>
-      <artifactId>immutables-exceptions</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.hubspot</groupId>
       <artifactId>algebra</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.hubspot.immutables</groupId>
+      <artifactId>immutable-collection-encodings</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -266,6 +269,12 @@
               <encoding>UTF-8</encoding>
               <consoleOutput>true</consoleOutput>
               <failsOnError>true</failsOnError>
+              <sourceDirectories>
+                <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+              </sourceDirectories>
+              <testSourceDirectories>
+                <testSourceDirectory>${project.build.testSourceDirectory}</testSourceDirectory>
+              </testSourceDirectories>
             </configuration>
           </execution>
         </executions>

@@ -4,11 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
-import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF;
 import com.hubspot.jinjava.interpret.ErrorHandlingStrategy;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import java.nio.charset.StandardCharsets;
@@ -139,7 +138,11 @@ public class TreeParserTest extends BaseInterpretingTest {
   public void trimAndLstripBlocks() {
     interpreter =
       new Jinjava(
-        JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build()
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withLstripBlocks(true)
+          .withTrimBlocks(true)
+          .build()
       )
         .newInterpreter();
 
@@ -151,7 +154,11 @@ public class TreeParserTest extends BaseInterpretingTest {
   public void trimAndLstripCommentBlocks() {
     interpreter =
       new Jinjava(
-        JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build()
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withLstripBlocks(true)
+          .withTrimBlocks(true)
+          .build()
       )
         .newInterpreter();
 
@@ -244,22 +251,19 @@ public class TreeParserTest extends BaseInterpretingTest {
   public void itTrimsNotes() {
     String expression = "A\n{#- note -#}\nB";
     final Node tree = new TreeParser(interpreter, expression).buildTree();
-    assertThat(interpreter.render(tree)).isEqualTo("A\n\nB");
+    assertThat(interpreter.render(tree)).isEqualTo("AB");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
-            LegacyOverrides
-              .newBuilder()
-              .withUseTrimmingForNotesAndExpressions(true)
-              .build()
+            LegacyOverrides.THREE_POINT_0.withUseTrimmingForNotesAndExpressions(false)
           )
           .build()
       )
         .newInterpreter();
     final Node newTree = new TreeParser(interpreter, expression).buildTree();
-    assertThat(interpreter.render(newTree)).isEqualTo("AB");
+    assertThat(interpreter.render(newTree)).isEqualTo("A\n\nB");
   }
 
   @Test
@@ -269,8 +273,8 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.render(tree)).isEqualTo("A\n");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -291,8 +295,8 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.render(tree)).isEqualTo("A\n{{ ");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -313,8 +317,8 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.render(tree)).isEqualTo("A\n{% ");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -339,41 +343,38 @@ public class TreeParserTest extends BaseInterpretingTest {
   public void itTrimsExpressions() {
     String expression = "A\n{{- 'B' -}}\nC";
     final Node tree = new TreeParser(interpreter, expression).buildTree();
-    assertThat(interpreter.render(tree)).isEqualTo("A\nB\nC");
+    assertThat(interpreter.render(tree)).isEqualTo("ABC");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
-            LegacyOverrides
-              .newBuilder()
-              .withUseTrimmingForNotesAndExpressions(true)
-              .build()
+            LegacyOverrides.THREE_POINT_0.withUseTrimmingForNotesAndExpressions(false)
           )
           .build()
       )
         .newInterpreter();
     final Node newTree = new TreeParser(interpreter, expression).buildTree();
-    assertThat(interpreter.render(newTree)).isEqualTo("ABC");
+    assertThat(interpreter.render(newTree)).isEqualTo("A\nB\nC");
   }
 
   @Test
   public void itDoesNotMergeAdjacentTextNodesWhenLegacyOverrideIsApplied() {
     String expression = "A\n{%- if true -%}\n{# comment #}\nB{% endif %}";
     final Node tree = new TreeParser(interpreter, expression).buildTree();
-    assertThat(interpreter.render(tree)).isEqualTo("AB");
+    assertThat(interpreter.render(tree)).isEqualTo("A\nB");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
-            LegacyOverrides.newBuilder().withAllowAdjacentTextNodes(true).build()
+            LegacyOverrides.THREE_POINT_0.withAllowAdjacentTextNodes(false)
           )
           .build()
       )
         .newInterpreter();
     final Node overriddenTree = new TreeParser(interpreter, expression).buildTree();
-    assertThat(interpreter.render(overriddenTree)).isEqualTo("A\nB");
+    assertThat(interpreter.render(overriddenTree)).isEqualTo("AB");
   }
 
   @Test
@@ -381,7 +382,7 @@ public class TreeParserTest extends BaseInterpretingTest {
     try (
       TemporaryValueClosable<ErrorHandlingStrategy> c = interpreter
         .getContext()
-        .withErrorHandlingStrategy(ErrorHandlingStrategyIF.ignoreAll())
+        .withErrorHandlingStrategy(ErrorHandlingStrategy.ignoreAll())
     ) {
       String expression = "{% if ";
       final Node tree = new TreeParser(interpreter, expression).buildTree();

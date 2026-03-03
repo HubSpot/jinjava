@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
@@ -18,8 +18,8 @@ import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
-import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
+import com.hubspot.jinjava.testobjects.EagerExpressionResolverTestObjects;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
@@ -57,8 +57,8 @@ public class EagerExpressionResolverTest {
 
   private JinjavaInterpreter getInterpreter(boolean evaluateMapKeys) throws Exception {
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withExecutionMode(EagerExecutionMode.instance())
         .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
         .withLegacyOverrides(
@@ -273,6 +273,7 @@ public class EagerExpressionResolverTest {
 
   @Test
   public void itSupportsOrderOfOperations() {
+    eagerResolveExpression("['a','b'][1]");
     EagerExpressionResult eagerExpressionResult = eagerResolveExpression(
       "[0,1]|reverse + deferred"
     );
@@ -449,15 +450,17 @@ public class EagerExpressionResolverTest {
   public void itDoesntResolveNonPyishSerializable() {
     PyMap dict = new PyMap(new HashMap<>());
     context.put("dict", dict);
-    context.put("foo", new Foo("bar"));
+    context.put("foo", new EagerExpressionResolverTestObjects.Foo("bar"));
     context.put("mark", "!");
     EagerExpressionResult eagerExpressionResult = eagerResolveExpression(
       "dict.update({'foo': foo})"
     );
     assertThat(WhitespaceUtils.unquoteAndUnescape(eagerExpressionResult.toString()))
       .isEqualTo("");
-    assertThat(dict.get("foo")).isInstanceOf(Foo.class);
-    assertThat(((Foo) dict.get("foo")).bar()).isEqualTo("bar");
+    assertThat(dict.get("foo"))
+      .isInstanceOf(EagerExpressionResolverTestObjects.Foo.class);
+    assertThat(((EagerExpressionResolverTestObjects.Foo) dict.get("foo")).bar())
+      .isEqualTo("bar");
   }
 
   @Test
@@ -597,7 +600,7 @@ public class EagerExpressionResolverTest {
 
   @Test
   public void itHandlesPyishSerializable() {
-    context.put("foo", new SomethingPyish("yes"));
+    context.put("foo", new EagerExpressionResolverTestObjects.SomethingPyish("yes"));
     assertThat(
       interpreter.render(
         String.format("{{ %s.name }}", eagerResolveExpression("foo").toString())
@@ -608,7 +611,10 @@ public class EagerExpressionResolverTest {
 
   @Test
   public void itHandlesPyishSerializableWithProcessingException() {
-    context.put("foo", new SomethingExceptionallyPyish("yes"));
+    context.put(
+      "foo",
+      new EagerExpressionResolverTestObjects.SomethingExceptionallyPyish("yes")
+    );
     context.addMetaContextVariables(Collections.singleton("foo"));
     assertThat(interpreter.render("{{ deferred && (1 == 2 || foo) }}"))
       .isEqualTo("{{ deferred && (false || foo) }}");
@@ -635,7 +641,7 @@ public class EagerExpressionResolverTest {
     interpreter.getContext().setThrowInterpreterErrors(true);
     String partiallyResolved = eagerExpressionResult.toString();
     assertThat(partiallyResolved)
-      .isEqualTo("exptest:equalto.evaluateNegated(4, ____int3rpr3t3r____, deferred)");
+      .isEqualTo("exptest:equalto.evaluateNegated(4, null, deferred)");
     assertThat(eagerExpressionResult.getDeferredWords())
       .containsExactlyInAnyOrder("deferred", "equalto.evaluateNegated");
     context.put("deferred", 4);
@@ -750,7 +756,7 @@ public class EagerExpressionResolverTest {
     assertThat(eagerResolveExpression("deferred.append(foo)").toString())
       .isEqualTo("deferred.append('foo')");
     assertThat(eagerResolveExpression("deferred[1 + 1] | length").toString())
-      .isEqualTo("filter:length.filter(deferred[2], ____int3rpr3t3r____)");
+      .isEqualTo("filter:length.filter(deferred[2], null)");
   }
 
   @Test
@@ -817,7 +823,7 @@ public class EagerExpressionResolverTest {
   @Test
   public void itHandlesRandom() {
     assertThat(eagerResolveExpression("range(1)|random").toString())
-      .isEqualTo("filter:random.filter(range(1), ____int3rpr3t3r____)");
+      .isEqualTo("filter:random.filter(range(1), null)");
   }
 
   @Test
@@ -906,56 +912,6 @@ public class EagerExpressionResolverTest {
 
   public static Optional<String> optionally(boolean hasValue) {
     return Optional.of(hasValue).filter(Boolean::booleanValue).map(ignored -> "1");
-  }
-
-  private static class Foo {
-
-    private final String bar;
-
-    Foo(String bar) {
-      this.bar = bar;
-    }
-
-    String bar() {
-      return bar;
-    }
-
-    String echo(String toEcho) {
-      return toEcho;
-    }
-  }
-
-  public class SomethingPyish implements PyishSerializable {
-
-    private String name;
-
-    public SomethingPyish(String name) {
-      this.name = name;
-    }
-
-    public String getName() {
-      return name;
-    }
-  }
-
-  public class SomethingExceptionallyPyish implements PyishSerializable {
-
-    private String name;
-
-    public SomethingExceptionallyPyish(String name) {
-      this.name = name;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
-      throws IOException {
-      throw new DeferredValueException("Can't serialize");
-    }
   }
 
   @Test

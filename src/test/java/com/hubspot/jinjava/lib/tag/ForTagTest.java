@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.InterpretException;
@@ -214,8 +215,8 @@ public class ForTagTest extends BaseInterpretingTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withUsePyishObjectMapper(false).build()
           )
@@ -404,15 +405,6 @@ public class ForTagTest extends BaseInterpretingTest {
     // This is quite intuitive, if the value cannot be assigned to the loop var,
     // the outer value of number is used as in the loop, number is not assigned if val is not null.
     assertThat(result).isEqualTo(" -1  -1  null  null  null ");
-  }
-
-  @Test
-  public void itUsesJinjavaRestrictedResolverOnReadingLoopVars() {
-    String template =
-      """
-      {% for _, config, class in ____int3rpr3t3r____ %}{{ class }}{% endfor %}""";
-    String result = interpreter.render(template);
-    assertThat(result).isEqualTo("");
   }
 
   public static boolean inForLoop() {

@@ -3,8 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.BaseJinjavaTest;
-import com.hubspot.jinjava.objects.serialization.PyishSerializable;
-import java.io.IOException;
+import com.hubspot.jinjava.testobjects.UniqueFilterTestObjects;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -27,10 +26,10 @@ public class UniqueFilterTest extends BaseJinjavaTest {
     assertThat(
       render(
         "name",
-        new MyClass("a"),
-        new MyClass("b"),
-        new MyClass("a"),
-        new MyClass("c")
+        new UniqueFilterTestObjects.MyClass("a"),
+        new UniqueFilterTestObjects.MyClass("b"),
+        new UniqueFilterTestObjects.MyClass("a"),
+        new UniqueFilterTestObjects.MyClass("c")
       )
     )
       .isEqualTo("[Name:a][Name:b][Name:c]");
@@ -53,30 +52,5 @@ public class UniqueFilterTest extends BaseJinjavaTest {
       "{% for item in iterable|unique" + attrExtra + " %}{{ item }}{% endfor %}",
       context
     );
-  }
-
-  public static class MyClass implements PyishSerializable {
-
-    private final String name;
-
-    public MyClass(String name) {
-      this.name = name;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public String toString() {
-      return "[Name:" + name + "]";
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
-      throws IOException {
-      return (T) appendable.append(toString());
-    }
   }
 }

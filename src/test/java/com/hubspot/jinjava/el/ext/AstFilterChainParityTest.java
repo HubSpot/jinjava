@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,8 +33,8 @@ public class AstFilterChainParityTest {
 
     jinjavaOptimized =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withEnableFilterChainOptimization(true)
           .withLegacyOverrides(legacyOverrides)
           .build()
@@ -42,8 +42,8 @@ public class AstFilterChainParityTest {
 
     jinjavaUnoptimized =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withEnableFilterChainOptimization(false)
           .withLegacyOverrides(legacyOverrides)
           .build()

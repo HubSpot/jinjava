@@ -2,6 +2,7 @@ package com.hubspot.jinjava.lib.fn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
@@ -52,8 +53,8 @@ public class UnixTimestampFunctionTest {
       new JinjavaInterpreter(
         new Jinjava(),
         new Context(),
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withDateTimeProvider(new FixedDateTimeProvider(ts))
           .build()
       )

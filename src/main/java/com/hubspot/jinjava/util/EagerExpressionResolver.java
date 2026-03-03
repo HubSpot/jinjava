@@ -6,14 +6,15 @@ import com.google.common.primitives.Primitives;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
-import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF.TemplateErrorTypeHandlingStrategy;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.ErrorHandlingStrategy;
+import com.hubspot.jinjava.interpret.ErrorHandlingStrategy.TemplateErrorTypeHandlingStrategy;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.interpret.PartiallyDeferredValue;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
+import com.hubspot.jinjava.objects.collections.ArrayBacked;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.tree.ExpressionNode;
@@ -324,6 +325,9 @@ public class EagerExpressionResolver {
     }
     if (isPrimitive(val)) {
       return true;
+    }
+    if (val instanceof ArrayBacked<?> arrayBacked) {
+      val = arrayBacked.backingArray();
     }
     try {
       if (val instanceof Collection || val instanceof Map) {

@@ -21,6 +21,7 @@ import static com.hubspot.jinjava.util.Logging.ENGINE_LOG;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -30,10 +31,10 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
-import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF;
-import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF.TemplateErrorTypeHandlingStrategy;
+import com.hubspot.jinjava.interpret.ErrorHandlingStrategy.TemplateErrorTypeHandlingStrategy;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
@@ -87,9 +88,9 @@ public class JinjavaInterpreter implements PyishSerializable {
     "ignored_output_from_extends";
 
   public static final String OUTPUT_UNDEFINED_VARIABLES_ERROR =
-    "OUTPUT_UNDEFINED_VARIABLES_ERROR";
+    BuiltInFeatures.OUTPUT_UNDEFINED_VARIABLES_ERROR;
   public static final String IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS =
-    "IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS";
+    BuiltInFeatures.IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS;
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
   private final LinkedList<Node> extendParentRoots = new LinkedList<>();
   private final Map<String, RevertibleObject> revertibleObjects = new HashMap<>();
@@ -196,7 +197,9 @@ public class JinjavaInterpreter implements PyishSerializable {
     return enterScope(null);
   }
 
-  public InterpreterScopeClosable enterScope(Map<Context.Library, Set<String>> disabled) {
+  public InterpreterScopeClosable enterScope(
+    ImmutableMap<Context.Library, ImmutableSet<String>> disabled
+  ) {
     context = new Context(context, null, disabled);
     scopeDepth++;
     return new InterpreterScopeClosable();
@@ -288,11 +291,9 @@ public class JinjavaInterpreter implements PyishSerializable {
   private TemporaryValueClosable<ErrorHandlingStrategy> ignoreParseErrorsIfActivated() {
     return config
         .getFeatures()
-        .getActivationStrategy(
-          JinjavaInterpreter.IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS
-        )
+        .getActivationStrategy(BuiltInFeatures.IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS)
         .isActive(context)
-      ? context.withErrorHandlingStrategy(ErrorHandlingStrategyIF.ignoreAll())
+      ? context.withErrorHandlingStrategy(ErrorHandlingStrategy.ignoreAll())
       : TemporaryValueClosable.noOp();
   }
 
@@ -355,170 +356,184 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return rendered result
    */
   private String render(Node root, boolean processExtendRoots, long renderLimit) {
-    OutputList output = new OutputList(
-      RenderLimitUtils.clampProvidedRenderLimitToConfig(renderLimit, config)
-    );
-    for (Node node : root.getChildren()) {
-      lineNumber = node.getLineNumber();
-      position = node.getStartPosition();
-      String renderStr = node.getMaster().getImage();
-      try {
-        if (node instanceof ExpressionNode && context.doesRenderStackContain(renderStr)) {
-          // This is a circular rendering. Stop rendering it here.
+    boolean pushed = false;
+    //noinspection ErrorProne
+    if (JinjavaInterpreter.getCurrent() != this) {
+      JinjavaInterpreter.pushCurrent(this);
+      pushed = true;
+    }
+    try {
+      OutputList output = new OutputList(
+        RenderLimitUtils.clampProvidedRenderLimitToConfig(renderLimit, config)
+      );
+      for (Node node : root.getChildren()) {
+        lineNumber = node.getLineNumber();
+        position = node.getStartPosition();
+        String renderStr = node.getMaster().getImage();
+        try {
+          if (
+            node instanceof ExpressionNode && context.doesRenderStackContain(renderStr)
+          ) {
+            // This is a circular rendering. Stop rendering it here.
+            addError(
+              new TemplateError(
+                ErrorType.WARNING,
+                ErrorReason.EXCEPTION,
+                ErrorItem.TAG,
+                "Rendering cycle detected: '" + renderStr + "'",
+                null,
+                getLineNumber(),
+                node.getStartPosition(),
+                null,
+                BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
+                ImmutableMap.of("string", renderStr)
+              )
+            );
+            output.addNode(new RenderedOutputNode(renderStr));
+          } else {
+            OutputNode out;
+            try (
+              AutoCloseableImpl<String> closeable = context
+                .closeablePushRenderStack(renderStr)
+                .get()
+            ) {
+              try {
+                out = node.render(this);
+              } catch (DeferredValueException e) {
+                context.handleDeferredNode(node);
+                out = new RenderedOutputNode(node.getMaster().getImage());
+              }
+            }
+            output.addNode(out);
+          }
+        } catch (OutputTooBigException e) {
+          addError(TemplateError.fromOutputTooBigException(e));
+          return output.getValue();
+        } catch (CollectionTooBigException e) {
           addError(
             new TemplateError(
-              ErrorType.WARNING,
-              ErrorReason.EXCEPTION,
-              ErrorItem.TAG,
-              "Rendering cycle detected: '" + renderStr + "'",
+              ErrorType.FATAL,
+              ErrorReason.COLLECTION_TOO_BIG,
+              ErrorItem.OTHER,
+              ExceptionUtils.getMessage(e),
               null,
-              getLineNumber(),
-              node.getStartPosition(),
-              null,
-              BasicTemplateErrorCategory.IMPORT_CYCLE_DETECTED,
-              ImmutableMap.of("string", renderStr)
+              -1,
+              -1,
+              e,
+              BasicTemplateErrorCategory.UNKNOWN,
+              ImmutableMap.of()
             )
           );
-          output.addNode(new RenderedOutputNode(renderStr));
-        } else {
-          OutputNode out;
-          try (
-            AutoCloseableImpl<String> closeable = context
-              .closeablePushRenderStack(renderStr)
-              .get()
-          ) {
-            try {
-              out = node.render(this);
-            } catch (DeferredValueException e) {
-              context.handleDeferredNode(node);
-              out = new RenderedOutputNode(node.getMaster().getImage());
-            }
-          }
-          output.addNode(out);
+          return output.getValue();
         }
-      } catch (OutputTooBigException e) {
-        addError(TemplateError.fromOutputTooBigException(e));
-        return output.getValue();
-      } catch (CollectionTooBigException e) {
-        addError(
-          new TemplateError(
-            ErrorType.FATAL,
-            ErrorReason.COLLECTION_TOO_BIG,
-            ErrorItem.OTHER,
-            ExceptionUtils.getMessage(e),
-            null,
-            -1,
-            -1,
-            e,
-            BasicTemplateErrorCategory.UNKNOWN,
-            ImmutableMap.of()
+      }
+      DynamicRenderedOutputNode pathSetter = new DynamicRenderedOutputNode();
+      output.addNode(pathSetter);
+      Optional<String> basePath = context.getCurrentPathStack().peek();
+      StringBuilder ignoredOutput = new StringBuilder();
+      // render all extend parents, keeping the last as the root output
+      if (processExtendRoots) {
+        Set<String> extendPaths = new HashSet<>();
+        Optional<String> extendPath = context.getExtendPathStack().peek();
+        int numDeferredTokensBefore = 0;
+        while (!extendParentRoots.isEmpty()) {
+          if (extendPaths.contains(extendPath.orElse(""))) {
+            addError(
+              TemplateError.fromException(
+                new ExtendsTagCycleException(
+                  extendPath.orElse(""),
+                  context.getExtendPathStack().getTopLineNumber(),
+                  context.getExtendPathStack().getTopStartPosition()
+                )
+              )
+            );
+            break;
+          }
+          extendPaths.add(extendPath.orElse(""));
+          try (
+            AutoCloseableImpl<Result<String, TagCycleException>> closeableCurrentPath =
+              context
+                .getCurrentPathStack()
+                .closeablePush(
+                  extendPath.orElse(""),
+                  context.getExtendPathStack().getTopLineNumber(),
+                  context.getExtendPathStack().getTopStartPosition()
+                )
+                .get()
+          ) {
+            String currentPath = closeableCurrentPath
+              .value()
+              .unwrapOrElseThrow(Function.identity());
+            Node parentRoot = extendParentRoots.removeFirst();
+            if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
+              ignoredOutput.append(
+                output
+                  .getNodes()
+                  .stream()
+                  .filter(node -> node instanceof RenderedOutputNode)
+                  .map(OutputNode::getValue)
+                  .collect(Collectors.joining())
+              );
+            }
+            numDeferredTokensBefore = context.getDeferredTokens().size();
+            output = new OutputList(config.getMaxOutputSize());
+            output.addNode(pathSetter);
+            boolean hasNestedExtends = false;
+            for (Node node : parentRoot.getChildren()) {
+              lineNumber = node.getLineNumber() - 1; // The line number is off by one when rendering the extend parent
+              position = node.getStartPosition();
+              try {
+                OutputNode out = node.render(this);
+                output.addNode(out);
+                if (isExtendsTag(node)) {
+                  hasNestedExtends = true;
+                }
+              } catch (OutputTooBigException e) {
+                addError(TemplateError.fromOutputTooBigException(e));
+                return output.getValue();
+              }
+            }
+            Optional<String> currentExtendPath = context.getExtendPathStack().pop();
+            extendPath =
+              hasNestedExtends ? currentExtendPath : context.getExtendPathStack().peek();
+            basePath = Optional.of(currentPath);
+          }
+        }
+      }
+
+      int numDeferredTokensBefore = context.getDeferredTokens().size();
+      resolveBlockStubs(output);
+      if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
+        pathSetter.setValue(
+          EagerReconstructionUtils.buildBlockOrInlineSetTag(
+            RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
+            basePath,
+            this
           )
         );
-        return output.getValue();
+      }
+
+      if (ignoredOutput.length() > 0) {
+        return (
+          EagerReconstructionUtils.labelWithNotes(
+            EagerReconstructionUtils.wrapInTag(
+              ignoredOutput.toString(),
+              DoTag.TAG_NAME,
+              this,
+              false
+            ),
+            IGNORED_OUTPUT_FROM_EXTENDS_NOTE,
+            this
+          ) +
+          output.getValue()
+        );
+      }
+      return output.getValue();
+    } finally {
+      if (pushed) {
+        JinjavaInterpreter.popCurrent();
       }
     }
-    DynamicRenderedOutputNode pathSetter = new DynamicRenderedOutputNode();
-    output.addNode(pathSetter);
-    Optional<String> basePath = context.getCurrentPathStack().peek();
-    StringBuilder ignoredOutput = new StringBuilder();
-    // render all extend parents, keeping the last as the root output
-    if (processExtendRoots) {
-      Set<String> extendPaths = new HashSet<>();
-      Optional<String> extendPath = context.getExtendPathStack().peek();
-      int numDeferredTokensBefore = 0;
-      while (!extendParentRoots.isEmpty()) {
-        if (extendPaths.contains(extendPath.orElse(""))) {
-          addError(
-            TemplateError.fromException(
-              new ExtendsTagCycleException(
-                extendPath.orElse(""),
-                context.getExtendPathStack().getTopLineNumber(),
-                context.getExtendPathStack().getTopStartPosition()
-              )
-            )
-          );
-          break;
-        }
-        extendPaths.add(extendPath.orElse(""));
-        try (
-          AutoCloseableImpl<Result<String, TagCycleException>> closeableCurrentPath =
-            context
-              .getCurrentPathStack()
-              .closeablePush(
-                extendPath.orElse(""),
-                context.getExtendPathStack().getTopLineNumber(),
-                context.getExtendPathStack().getTopStartPosition()
-              )
-              .get()
-        ) {
-          String currentPath = closeableCurrentPath
-            .value()
-            .unwrapOrElseThrow(Function.identity());
-          Node parentRoot = extendParentRoots.removeFirst();
-          if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
-            ignoredOutput.append(
-              output
-                .getNodes()
-                .stream()
-                .filter(node -> node instanceof RenderedOutputNode)
-                .map(OutputNode::getValue)
-                .collect(Collectors.joining())
-            );
-          }
-          numDeferredTokensBefore = context.getDeferredTokens().size();
-          output = new OutputList(config.getMaxOutputSize());
-          output.addNode(pathSetter);
-          boolean hasNestedExtends = false;
-          for (Node node : parentRoot.getChildren()) {
-            lineNumber = node.getLineNumber() - 1; // The line number is off by one when rendering the extend parent
-            position = node.getStartPosition();
-            try {
-              OutputNode out = node.render(this);
-              output.addNode(out);
-              if (isExtendsTag(node)) {
-                hasNestedExtends = true;
-              }
-            } catch (OutputTooBigException e) {
-              addError(TemplateError.fromOutputTooBigException(e));
-              return output.getValue();
-            }
-          }
-          Optional<String> currentExtendPath = context.getExtendPathStack().pop();
-          extendPath =
-            hasNestedExtends ? currentExtendPath : context.getExtendPathStack().peek();
-          basePath = Optional.of(currentPath);
-        }
-      }
-    }
-
-    int numDeferredTokensBefore = context.getDeferredTokens().size();
-    resolveBlockStubs(output);
-    if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
-      pathSetter.setValue(
-        EagerReconstructionUtils.buildBlockOrInlineSetTag(
-          RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
-          basePath,
-          this
-        )
-      );
-    }
-
-    if (ignoredOutput.length() > 0) {
-      return (
-        EagerReconstructionUtils.labelWithNotes(
-          EagerReconstructionUtils.wrapInTag(
-            ignoredOutput.toString(),
-            DoTag.TAG_NAME,
-            this,
-            false
-          ),
-          IGNORED_OUTPUT_FROM_EXTENDS_NOTE,
-          this
-        ) +
-        output.getValue()
-      );
-    }
-    return output.getValue();
   }
 
   private void resolveBlockStubs(OutputList output) {
@@ -650,7 +665,7 @@ public class JinjavaInterpreter implements PyishSerializable {
       if (
         getConfig()
           .getFeatures()
-          .getActivationStrategy(OUTPUT_UNDEFINED_VARIABLES_ERROR)
+          .getActivationStrategy(BuiltInFeatures.OUTPUT_UNDEFINED_VARIABLES_ERROR)
           .isActive(context)
       ) {
         addError(
