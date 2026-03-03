@@ -106,7 +106,7 @@ public interface JinjavaConfig {
 
   @Value.Default
   default boolean isNestedInterpretationEnabled() {
-    return true;
+    return false; // Modified from version 2.X
   }
 
   @Value.Default
