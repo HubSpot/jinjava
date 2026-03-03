@@ -178,7 +178,7 @@ public interface JinjavaConfig {
 
   @Value.Default
   default LegacyOverrides getLegacyOverrides() {
-    return LegacyOverrides.NONE;
+    return LegacyOverrides.THREE_POINT_0;
   }
 
   @Value.Default
