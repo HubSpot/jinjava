@@ -22,7 +22,6 @@ public interface LegacyOverrides extends WithLegacyOverrides {
     .withIterateOverMapKeys(true)
     .withUsePyishObjectMapper(true)
     .withUseSnakeCasePropertyNaming(true)
-    .withWhitespaceRequiredWithinTokens(true)
     .withUseNaturalOperatorPrecedence(true)
     .withParseWhitespaceControlStrictly(true)
     .withAllowAdjacentTextNodes(true)
@@ -47,11 +46,6 @@ public interface LegacyOverrides extends WithLegacyOverrides {
 
   @Value.Default
   default boolean isUseSnakeCasePropertyNaming() {
-    return false;
-  }
-
-  @Value.Default
-  default boolean isWhitespaceRequiredWithinTokens() {
     return false;
   }
 

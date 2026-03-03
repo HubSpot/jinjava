@@ -8,6 +8,16 @@ public class UnclosedToken extends TextToken {
     int startPosition,
     TokenScannerSymbols symbols
   ) {
-    super(image, lineNumber, startPosition, symbols);
+    this(image, lineNumber, startPosition, symbols, WhitespaceControlParser.LENIENT);
+  }
+
+  public UnclosedToken(
+    String image,
+    int lineNumber,
+    int startPosition,
+    TokenScannerSymbols symbols,
+    WhitespaceControlParser whitespaceControlParser
+  ) {
+    super(image, lineNumber, startPosition, symbols, whitespaceControlParser);
   }
 }

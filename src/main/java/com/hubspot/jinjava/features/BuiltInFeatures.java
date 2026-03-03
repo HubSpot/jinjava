@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.features;
 
 public interface BuiltInFeatures {
+  String WHITESPACE_REQUIRED_WITHIN_TOKENS = "whitespace_required_within_tokens";
   String FIXED_DATE_TIME_FILTER_NULL_ARG = "FIXED_DATE_TIME_FILTER_NULL_ARG";
   String ECHO_UNDEFINED = "echoUndefined";
   String PREVENT_ACCIDENTAL_EXPRESSIONS = "PREVENT_ACCIDENTAL_EXPRESSIONS";
