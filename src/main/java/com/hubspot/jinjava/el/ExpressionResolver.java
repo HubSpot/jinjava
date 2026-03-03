@@ -22,10 +22,12 @@ import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
+import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import de.odysseus.el.tree.TreeBuilderException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import javax.el.ELException;
 import javax.el.ExpressionFactory;
 import javax.el.PropertyNotFoundException;
@@ -39,7 +41,7 @@ public class ExpressionResolver {
 
   private final JinjavaInterpreter interpreter;
   private final ExpressionFactory expressionFactory;
-  private final JinjavaInterpreterResolver resolver;
+  private final ReturnTypeValidatingJinjavaInterpreterResolver resolver;
   private final JinjavaELContext elContext;
   private final ObjectUnwrapper objectUnwrapper;
 
@@ -53,7 +55,11 @@ public class ExpressionResolver {
         ? jinjava.getEagerExpressionFactory()
         : jinjava.getExpressionFactory();
 
-    this.resolver = new JinjavaInterpreterResolver(interpreter);
+    this.resolver =
+      new ReturnTypeValidatingJinjavaInterpreterResolver(
+        interpreter.getConfig().getReturnTypeValidator(),
+        new JinjavaInterpreterResolver(interpreter)
+      );
     this.elContext = new JinjavaELContext(interpreter, resolver);
     for (ELFunctionDefinition fn : jinjava.getGlobalContext().getAllFunctions()) {
       this.elContext.setFunction(fn.getNamespace(), fn.getLocalName(), fn.getMethod());
@@ -342,5 +348,13 @@ public class ExpressionResolver {
    */
   public Object wrap(Object object) {
     return resolver.wrap(object);
+  }
+
+  public String getAsString(Object object) {
+    if (interpreter.getConfig().getLegacyOverrides().isUsePyishObjectMapper()) {
+      //      resolver.
+      return PyishObjectMapper.getAsUnquotedPyishString(object);
+    }
+    return Objects.toString(object, "");
   }
 }

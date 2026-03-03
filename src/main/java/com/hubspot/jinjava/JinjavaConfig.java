@@ -26,6 +26,8 @@ import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
 import com.hubspot.jinjava.el.JinjavaProcessors;
 import com.hubspot.jinjava.el.ObjectUnwrapper;
+import com.hubspot.jinjava.el.ext.AllowlistMethodValidator;
+import com.hubspot.jinjava.el.ext.AllowlistReturnTypeValidator;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.features.Features;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -160,6 +162,16 @@ public interface JinjavaConfig {
   }
 
   @Value.Default
+  default AllowlistMethodValidator getMethodValidator() {
+    return AllowlistMethodValidator.DEFAULT;
+  }
+
+  @Value.Default
+  default AllowlistReturnTypeValidator getReturnTypeValidator() {
+    return AllowlistReturnTypeValidator.DEFAULT;
+  }
+
+  @Value.Default
   default ELResolver getElResolver() {
     return isDefaultReadOnlyResolver()
       ? JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY
@@ -178,7 +190,7 @@ public interface JinjavaConfig {
 
   @Value.Default
   default LegacyOverrides getLegacyOverrides() {
-    return LegacyOverrides.THREE_POINT_0;
+    return LegacyOverrides.THREE_POINT_0; // Modified from version 2.X
   }
 
   @Value.Default

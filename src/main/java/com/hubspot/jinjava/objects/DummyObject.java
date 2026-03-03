@@ -1,11 +1,12 @@
 package com.hubspot.jinjava.objects;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-public class DummyObject implements Map<String, Object>, PyWrapper {
+public class DummyObject implements Map<Object, Object>, PyWrapper {
 
   @Override
   public int size() {
@@ -33,7 +34,7 @@ public class DummyObject implements Map<String, Object>, PyWrapper {
   }
 
   @Override
-  public Object put(String key, Object value) {
+  public Object put(Object key, Object value) {
     return new DummyObject();
   }
 
@@ -43,14 +44,14 @@ public class DummyObject implements Map<String, Object>, PyWrapper {
   }
 
   @Override
-  public void putAll(Map<? extends String, ?> m) {}
+  public void putAll(Map<? extends Object, ?> m) {}
 
   @Override
   public void clear() {}
 
   @Override
-  public Set<String> keySet() {
-    return null;
+  public Set<Object> keySet() {
+    return ImmutableSet.of(new DummyObject());
   }
 
   @Override
@@ -59,7 +60,7 @@ public class DummyObject implements Map<String, Object>, PyWrapper {
   }
 
   @Override
-  public Set<Entry<String, Object>> entrySet() {
-    return null;
+  public Set<Entry<Object, Object>> entrySet() {
+    return ImmutableSet.of(Map.entry(new DummyObject(), new DummyObject()));
   }
 }

@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.el.ext.eager.EagerAstDotTest.Foo;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -15,6 +15,7 @@ import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
+import com.hubspot.jinjava.testobjects.EagerAstDotTestObjects;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,6 +36,8 @@ public class EagerAstMethodTest extends BaseInterpretingTest {
       .withLegacyOverrides(
         LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
       )
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withMaxMacroRecursionDepth(5)
       .withEnableRecursiveMacroCalls(true)
       .build();
@@ -225,14 +228,14 @@ public class EagerAstMethodTest extends BaseInterpretingTest {
 
   @Test
   public void itPreservesUnresolvable() {
-    interpreter.getContext().put("foo_object", new Foo());
+    interpreter.getContext().put("foo_object", new EagerAstDotTestObjects.Foo());
     interpreter.getContext().addMetaContextVariables(Collections.singleton("foo_object"));
     try {
       interpreter.resolveELExpression("foo_object.deferred|upper", -1);
       fail("Should throw DeferredParsingException");
     } catch (DeferredParsingException e) {
       assertThat(e.getDeferredEvalResult())
-        .isEqualTo("filter:upper.filter(foo_object.deferred, ____int3rpr3t3r____)");
+        .isEqualTo("filter:upper.filter(foo_object.deferred, null)");
     }
   }
 }
