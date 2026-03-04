@@ -18,8 +18,8 @@ import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.objects.collections.PyMap;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
-import com.hubspot.jinjava.objects.serialization.PyishSerializable;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
+import com.hubspot.jinjava.testobjects.EagerExpressionResolverTestObjects;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
@@ -449,15 +449,17 @@ public class EagerExpressionResolverTest {
   public void itDoesntResolveNonPyishSerializable() {
     PyMap dict = new PyMap(new HashMap<>());
     context.put("dict", dict);
-    context.put("foo", new Foo("bar"));
+    context.put("foo", new EagerExpressionResolverTestObjects.Foo("bar"));
     context.put("mark", "!");
     EagerExpressionResult eagerExpressionResult = eagerResolveExpression(
       "dict.update({'foo': foo})"
     );
     assertThat(WhitespaceUtils.unquoteAndUnescape(eagerExpressionResult.toString()))
       .isEqualTo("");
-    assertThat(dict.get("foo")).isInstanceOf(Foo.class);
-    assertThat(((Foo) dict.get("foo")).bar()).isEqualTo("bar");
+    assertThat(dict.get("foo"))
+      .isInstanceOf(EagerExpressionResolverTestObjects.Foo.class);
+    assertThat(((EagerExpressionResolverTestObjects.Foo) dict.get("foo")).bar())
+      .isEqualTo("bar");
   }
 
   @Test
@@ -597,7 +599,7 @@ public class EagerExpressionResolverTest {
 
   @Test
   public void itHandlesPyishSerializable() {
-    context.put("foo", new SomethingPyish("yes"));
+    context.put("foo", new EagerExpressionResolverTestObjects.SomethingPyish("yes"));
     assertThat(
       interpreter.render(
         String.format("{{ %s.name }}", eagerResolveExpression("foo").toString())
@@ -608,7 +610,10 @@ public class EagerExpressionResolverTest {
 
   @Test
   public void itHandlesPyishSerializableWithProcessingException() {
-    context.put("foo", new SomethingExceptionallyPyish("yes"));
+    context.put(
+      "foo",
+      new EagerExpressionResolverTestObjects.SomethingExceptionallyPyish("yes")
+    );
     context.addMetaContextVariables(Collections.singleton("foo"));
     assertThat(interpreter.render("{{ deferred && (1 == 2 || foo) }}"))
       .isEqualTo("{{ deferred && (false || foo) }}");
@@ -906,56 +911,6 @@ public class EagerExpressionResolverTest {
 
   public static Optional<String> optionally(boolean hasValue) {
     return Optional.of(hasValue).filter(Boolean::booleanValue).map(ignored -> "1");
-  }
-
-  private static class Foo {
-
-    private final String bar;
-
-    Foo(String bar) {
-      this.bar = bar;
-    }
-
-    String bar() {
-      return bar;
-    }
-
-    String echo(String toEcho) {
-      return toEcho;
-    }
-  }
-
-  public class SomethingPyish implements PyishSerializable {
-
-    private String name;
-
-    public SomethingPyish(String name) {
-      this.name = name;
-    }
-
-    public String getName() {
-      return name;
-    }
-  }
-
-  public class SomethingExceptionallyPyish implements PyishSerializable {
-
-    private String name;
-
-    public SomethingExceptionallyPyish(String name) {
-      this.name = name;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends Appendable & CharSequence> T appendPyishString(T appendable)
-      throws IOException {
-      throw new DeferredValueException("Can't serialize");
-    }
   }
 
   @Test
