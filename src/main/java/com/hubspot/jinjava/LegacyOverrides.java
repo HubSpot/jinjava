@@ -82,7 +82,7 @@ public interface LegacyOverrides extends WithLegacyOverrides {
   class Builder extends ImmutableLegacyOverrides.Builder {}
 
   static Builder newBuilder() {
-    return new Builder();
+    return builder();
   }
 
   static Builder builder() {
