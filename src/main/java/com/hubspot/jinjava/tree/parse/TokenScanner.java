@@ -97,8 +97,7 @@ public class TokenScanner extends AbstractIterator<Token> {
           if (
             config
               .getFeatures()
-              .isActive(BuiltInFeatures.WHITESPACE_REQUIRED_WITHIN_TOKENS) ||
-            config.getLegacyOverrides().isWhitespaceRequiredWithinTokens()
+              .isActive(BuiltInFeatures.WHITESPACE_REQUIRED_WITHIN_TOKENS)
           ) {
             boolean hasNextChar = (currPost + 1) < length;
             boolean nextCharIsWhitespace = hasNextChar && (' ' == is[currPost + 1]);

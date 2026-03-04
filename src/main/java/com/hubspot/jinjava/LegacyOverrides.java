@@ -11,12 +11,22 @@ import org.immutables.value.Value;
 @JinjavaImmutableStyle.WithStyle
 public interface LegacyOverrides extends WithLegacyOverrides {
   LegacyOverrides NONE = new Builder().build();
+  LegacyOverrides THREE_POINT_0 = new Builder()
+    .withEvaluateMapKeys(true)
+    .withIterateOverMapKeys(true)
+    .withUsePyishObjectMapper(true)
+    .withUseSnakeCasePropertyNaming(true)
+    .withUseNaturalOperatorPrecedence(true)
+    .withParseWhitespaceControlStrictly(true)
+    .withAllowAdjacentTextNodes(true)
+    .withUseTrimmingForNotesAndExpressions(true)
+    .withKeepNullableLoopValues(true)
+    .build();
   LegacyOverrides ALL = new Builder()
     .withEvaluateMapKeys(true)
     .withIterateOverMapKeys(true)
     .withUsePyishObjectMapper(true)
     .withUseSnakeCasePropertyNaming(true)
-    .withWhitespaceRequiredWithinTokens(true)
     .withUseNaturalOperatorPrecedence(true)
     .withParseWhitespaceControlStrictly(true)
     .withAllowAdjacentTextNodes(true)
@@ -41,11 +51,6 @@ public interface LegacyOverrides extends WithLegacyOverrides {
 
   @Value.Default
   default boolean isUseSnakeCasePropertyNaming() {
-    return false;
-  }
-
-  @Value.Default
-  default boolean isWhitespaceRequiredWithinTokens() {
     return false;
   }
 
@@ -77,7 +82,7 @@ public interface LegacyOverrides extends WithLegacyOverrides {
   class Builder extends ImmutableLegacyOverrides.Builder {}
 
   static Builder newBuilder() {
-    return builder();
+    return new Builder();
   }
 
   static Builder builder() {
