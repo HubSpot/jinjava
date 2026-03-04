@@ -71,9 +71,9 @@ public class PrettyPrintFilterTest {
           "{%% raw %%}(MyClass: {\n" +
           "  &quot;foo&quot; : &quot;%s&quot;,\n" +
           "  &quot;bar&quot; : %d,\n" +
-          "  &quot;nestedClass&quot; : {\n" +
-          "    &quot;fooField&quot; : &quot;%s&quot;,\n" +
-          "    &quot;barField&quot; : %d\n" +
+          "  &quot;nested_class&quot; : {\n" +
+          "    &quot;foo_field&quot; : &quot;%s&quot;,\n" +
+          "    &quot;bar_field&quot; : %d\n" +
           "  }\n" +
           "}){%% endraw %%}",
           myClass.getFoo(),
