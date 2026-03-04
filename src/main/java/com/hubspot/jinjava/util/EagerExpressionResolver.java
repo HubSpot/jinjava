@@ -6,7 +6,6 @@ import com.google.common.primitives.Primitives;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
-import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF.TemplateErrorTypeHandlingStrategy;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.ErrorHandlingStrategy;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -132,8 +131,12 @@ public class EagerExpressionResolver {
         .withErrorHandlingStrategy(
           ErrorHandlingStrategy
             .builder()
-            .setFatalErrorStrategy(TemplateErrorTypeHandlingStrategy.THROW_EXCEPTION)
-            .setNonFatalErrorStrategy(TemplateErrorTypeHandlingStrategy.IGNORE)
+            .setFatalErrorStrategy(
+              ErrorHandlingStrategy.TemplateErrorTypeHandlingStrategy.THROW_EXCEPTION
+            )
+            .setNonFatalErrorStrategy(
+              ErrorHandlingStrategy.TemplateErrorTypeHandlingStrategy.IGNORE
+            )
             .build()
         )
     ) {
