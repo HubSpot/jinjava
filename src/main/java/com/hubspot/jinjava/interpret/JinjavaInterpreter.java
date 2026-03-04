@@ -33,8 +33,6 @@ import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
-import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF;
-import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF.TemplateErrorTypeHandlingStrategy;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
@@ -291,7 +289,7 @@ public class JinjavaInterpreter implements PyishSerializable {
         .getFeatures()
         .getActivationStrategy(BuiltInFeatures.IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS)
         .isActive(context)
-      ? context.withErrorHandlingStrategy(ErrorHandlingStrategyIF.ignoreAll())
+      ? context.withErrorHandlingStrategy(ErrorHandlingStrategy.ignoreAll())
       : TemporaryValueClosable.noOp();
   }
 
@@ -868,7 +866,7 @@ public class JinjavaInterpreter implements PyishSerializable {
       return;
     }
     ErrorHandlingStrategy errorHandlingStrategy = context.getErrorHandlingStrategy();
-    TemplateErrorTypeHandlingStrategy errorTypeHandlingStrategy =
+    ErrorHandlingStrategy.TemplateErrorTypeHandlingStrategy errorTypeHandlingStrategy =
       templateError.getSeverity() == ErrorType.FATAL
         ? errorHandlingStrategy.getFatalErrorStrategy()
         : errorHandlingStrategy.getNonFatalErrorStrategy();
