@@ -1,10 +1,9 @@
 package com.hubspot.jinjava.lib.filter;
 
-import static com.hubspot.jinjava.lib.filter.time.DateTimeFormatHelper.FIXED_DATE_TIME_FILTER_NULL_ARG;
-
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.features.DateTimeFeatureActivationStrategy;
 import com.hubspot.jinjava.features.FeatureActivationStrategy;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
@@ -91,7 +90,7 @@ public class BetweenTimesFilter extends BaseDateFilter {
         FeatureActivationStrategy feat = interpreter
           .getConfig()
           .getFeatures()
-          .getActivationStrategy(FIXED_DATE_TIME_FILTER_NULL_ARG);
+          .getActivationStrategy(BuiltInFeatures.FIXED_DATE_TIME_FILTER_NULL_ARG);
 
         if (feat.isActive(interpreter.getContext())) {
           var = ((DateTimeFeatureActivationStrategy) feat).getActivateAt();

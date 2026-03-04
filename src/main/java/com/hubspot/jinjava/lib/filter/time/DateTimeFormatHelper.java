@@ -1,6 +1,7 @@
 package com.hubspot.jinjava.lib.filter.time;
 
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.features.DateTimeFeatureActivationStrategy;
 import com.hubspot.jinjava.features.FeatureActivationStrategy;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
@@ -21,7 +22,7 @@ import java.util.function.Function;
 public final class DateTimeFormatHelper {
 
   public static final String FIXED_DATE_TIME_FILTER_NULL_ARG =
-    "FIXED_DATE_TIME_FILTER_NULL_ARG";
+    BuiltInFeatures.FIXED_DATE_TIME_FILTER_NULL_ARG;
   private final String name;
   private final Function<FormatStyle, DateTimeFormatter> cannedFormatterFunction;
 
@@ -118,7 +119,7 @@ public final class DateTimeFormatHelper {
     FeatureActivationStrategy feat = interpreter
       .getConfig()
       .getFeatures()
-      .getActivationStrategy(FIXED_DATE_TIME_FILTER_NULL_ARG);
+      .getActivationStrategy(BuiltInFeatures.FIXED_DATE_TIME_FILTER_NULL_ARG);
 
     return feat.isActive(interpreter.getContext())
       ? ((DateTimeFeatureActivationStrategy) feat).getActivateAt()
