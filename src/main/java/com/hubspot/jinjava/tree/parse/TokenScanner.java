@@ -38,7 +38,8 @@ public class TokenScanner extends AbstractIterator<Token> {
   private char inQuote = 0;
   private int currLine = 1;
   private int lastNewlinePos = 0;
-  private TokenScannerSymbols symbols;
+  private final TokenScannerSymbols symbols;
+  private final WhitespaceControlParser whitespaceControlParser;
 
   public TokenScanner(String input, JinjavaConfig config) {
     this.config = config;
@@ -58,6 +59,10 @@ public class TokenScanner extends AbstractIterator<Token> {
     lastNewlinePos = 0;
 
     symbols = config.getTokenScannerSymbols();
+    whitespaceControlParser =
+      config.getLegacyOverrides().isParseWhitespaceControlStrictly()
+        ? WhitespaceControlParser.STRICT
+        : WhitespaceControlParser.LENIENT;
   }
 
   private Token getNextToken() {
@@ -232,12 +237,14 @@ public class TokenScanner extends AbstractIterator<Token> {
         String.valueOf(is, tokenStart, tokenLength),
         currLine,
         tokenStart - lastNewlinePos + 1,
-        symbols
+        symbols,
+        whitespaceControlParser
       );
     }
     return Token.newToken(
       type,
       symbols,
+      whitespaceControlParser,
       String.valueOf(is, tokenStart, tokenLength),
       currLine,
       tokenStart - lastNewlinePos + 1
@@ -248,6 +255,7 @@ public class TokenScanner extends AbstractIterator<Token> {
     Token t = Token.newToken(
       kind,
       symbols,
+      whitespaceControlParser,
       String.valueOf(is, lastStart, tokenLength),
       currLine,
       lastStart - lastNewlinePos + 1
@@ -276,7 +284,14 @@ public class TokenScanner extends AbstractIterator<Token> {
     }
 
     if (inRaw > 0 && t.getType() != symbols.getFixed()) {
-      return Token.newToken(symbols.getFixed(), symbols, t.image, currLine, tokenStart);
+      return Token.newToken(
+        symbols.getFixed(),
+        symbols,
+        whitespaceControlParser,
+        t.image,
+        currLine,
+        tokenStart
+      );
     }
 
     return t;

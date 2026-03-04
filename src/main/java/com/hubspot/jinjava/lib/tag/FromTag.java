@@ -114,13 +114,7 @@ public class FromTag implements Tag {
                 .getInterpreterFactory()
                 .newInstance(interpreter);
               child.getContext().put(Context.IMPORT_RESOURCE_PATH_KEY, templateFile);
-              try (
-                AutoCloseableImpl<JinjavaInterpreter> a = JinjavaInterpreter
-                  .closeablePushCurrent(child)
-                  .get()
-              ) {
-                child.render(node);
-              }
+              child.render(node);
 
               interpreter.addAllChildErrors(templateFile, child.getErrorsCopy());
 
