@@ -2,6 +2,7 @@ package com.hubspot.jinjava.el.ext;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.algebra.Result;
+import com.hubspot.jinjava.el.HasInterpreter;
 import com.hubspot.jinjava.interpret.AutoCloseableSupplier;
 import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.CallStack;
@@ -31,9 +32,7 @@ public class AstMacroFunction extends AstFunction {
 
   @Override
   public Object eval(Bindings bindings, ELContext context) {
-    JinjavaInterpreter interpreter = (JinjavaInterpreter) context
-      .getELResolver()
-      .getValue(context, null, ExtendedParser.INTERPRETER);
+    JinjavaInterpreter interpreter = ((HasInterpreter) context).interpreter();
 
     MacroFunction macroFunction = interpreter.getContext().getGlobalMacro(getName());
     if (macroFunction != null) {

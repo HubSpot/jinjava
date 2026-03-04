@@ -10,7 +10,7 @@ public class FilterOverrideTest {
 
   @Test
   public void itAllowsUsersToOverrideBuiltInFilters() {
-    Jinjava jinjava = new Jinjava();
+    Jinjava jinjava = new Jinjava(BaseJinjavaTest.newConfigBuilder().build());
     String template = "{{ 5 | add(6) }}";
 
     assertThat(jinjava.render(template, new HashMap<>())).isEqualTo("11");

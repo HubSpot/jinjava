@@ -18,6 +18,7 @@ package com.hubspot.jinjava.interpret;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
@@ -41,7 +42,6 @@ import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.ScopeMap;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -192,7 +192,7 @@ public class Context extends ScopeMap<String, Object> {
         : parent == null ? null : parent.getCurrentPathStack();
 
     if (disabled == null) {
-      disabled = new HashMap<>();
+      disabled = ImmutableMap.of();
     }
 
     this.expTestLibrary =
@@ -583,10 +583,11 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public boolean isFunctionDisabled(String name) {
-    return (
-      disabled != null &&
-      disabled.getOrDefault(Library.FUNCTION, Collections.emptySet()).contains(name)
-    );
+    if (disabled == null) {
+      return false;
+    }
+    Set<String> disabledFunctions = disabled.get(Library.FUNCTION);
+    return disabledFunctions != null && disabledFunctions.contains(name);
   }
 
   public ELFunctionDefinition getFunction(String name) {
@@ -606,10 +607,13 @@ public class Context extends ScopeMap<String, Object> {
     if (parent != null) {
       fns.addAll(parent.getAllFunctions());
     }
-
-    final Set<String> disabledFunctions = disabled == null
-      ? new HashSet<>()
-      : disabled.getOrDefault(Library.FUNCTION, new HashSet<>());
+    if (disabled == null) {
+      return fns;
+    }
+    Set<String> disabledFunctions = disabled.get(Library.FUNCTION);
+    if (disabledFunctions == null) {
+      return fns;
+    }
     return fns
       .stream()
       .filter(f -> !disabledFunctions.contains(f.getName()))

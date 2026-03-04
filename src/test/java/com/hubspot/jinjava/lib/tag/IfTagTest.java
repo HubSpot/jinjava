@@ -8,7 +8,6 @@ import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.testobjects.IfTagTestObjects;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
-import com.hubspot.jinjava.util.ObjectTruthValueTest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.Before;

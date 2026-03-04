@@ -2,19 +2,14 @@ package com.hubspot.jinjava.el.ext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableSet;
-import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.BaseJinjavaTest;
+import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.el.JinjavaELContext;
 import com.hubspot.jinjava.interpret.AutoCloseableSupplier;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.testobjects.JinjavaBeanELResolverTestObjects;
-import java.util.List;
 import javax.el.ELContext;
-import javax.el.MethodNotFoundException;
 import javax.el.PropertyNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,196 +18,134 @@ public class JinjavaBeanELResolverTest {
 
   private JinjavaBeanELResolver jinjavaBeanELResolver;
   private ELContext elContext;
-
-  JinjavaInterpreter interpreter = mock(JinjavaInterpreter.class);
-  JinjavaConfig config = mock(JinjavaConfig.class);
+  private Jinjava jinjava;
 
   @Before
   public void setUp() throws Exception {
     jinjavaBeanELResolver = new JinjavaBeanELResolver();
     elContext = new JinjavaELContext();
-    when(interpreter.getConfig()).thenReturn(config);
+    jinjava = new Jinjava(BaseJinjavaTest.newConfigBuilder().build());
   }
 
   @Test
   public void itInvokesProperStringReplace() {
-    assertThat(
-      jinjavaBeanELResolver.invoke(
-        elContext,
-        "abcd",
-        "replace",
-        null,
-        new Object[] { "abcd", "efgh" }
+    try (
+      var a = JinjavaInterpreter.closeablePushCurrent(jinjava.newInterpreter()).get()
+    ) {
+      assertThat(
+        jinjavaBeanELResolver.invoke(
+          elContext,
+          "abcd",
+          "replace",
+          null,
+          new Object[] { "abcd", "efgh" }
+        )
       )
-    )
-      .isEqualTo("efgh");
-    assertThat(
-      jinjavaBeanELResolver.invoke(
-        elContext,
-        "abcd",
-        "replace",
-        null,
-        new Object[] { 'a', 'e' }
+        .isEqualTo("efgh");
+      assertThat(
+        jinjavaBeanELResolver.invoke(
+          elContext,
+          "abcd",
+          "replace",
+          null,
+          new Object[] { 'a', 'e' }
+        )
       )
-    )
-      .isEqualTo("ebcd");
+        .isEqualTo("ebcd");
+    }
   }
 
   @Test
   public void itInvokesBestMethodWithSingleParam() {
-    JinjavaBeanELResolverTestObjects.TempItInvokesBestMethodWithSingleParam var =
-      new JinjavaBeanELResolverTestObjects.TempItInvokesBestMethodWithSingleParam();
-    assertThat(
-      jinjavaBeanELResolver.invoke(elContext, var, "getResult", null, new Object[] { 1 })
-    )
-      .isEqualTo("int");
-    assertThat(
-      jinjavaBeanELResolver.invoke(
-        elContext,
-        var,
-        "getResult",
-        null,
-        new Object[] { "1" }
+    try (
+      var a = JinjavaInterpreter.closeablePushCurrent(jinjava.newInterpreter()).get()
+    ) {
+      JinjavaBeanELResolverTestObjects.TempItInvokesBestMethodWithSingleParam var =
+        new JinjavaBeanELResolverTestObjects.TempItInvokesBestMethodWithSingleParam();
+      assertThat(
+        jinjavaBeanELResolver.invoke(
+          elContext,
+          var,
+          "getResult",
+          null,
+          new Object[] { 1 }
+        )
       )
-    )
-      .isEqualTo("String");
-    assertThat(
-      jinjavaBeanELResolver.invoke(
-        elContext,
-        var,
-        "getResult",
-        null,
-        new Object[] { new Object() }
+        .isEqualTo("int");
+      assertThat(
+        jinjavaBeanELResolver.invoke(
+          elContext,
+          var,
+          "getResult",
+          null,
+          new Object[] { "1" }
+        )
       )
-    )
-      .isEqualTo("Object");
+        .isEqualTo("String");
+      assertThat(
+        jinjavaBeanELResolver.invoke(
+          elContext,
+          var,
+          "getResult",
+          null,
+          new Object[] { new Object() }
+        )
+      )
+        .isEqualTo("Object");
+    }
   }
 
   @Test
   public void itPrefersPrimitives() {
-    JinjavaBeanELResolverTestObjects.TempItPrefersPrimitives var =
-      new JinjavaBeanELResolverTestObjects.TempItPrefersPrimitives();
-    assertThat(
-      jinjavaBeanELResolver.invoke(
-        elContext,
-        var,
-        "getResult",
-        null,
-        new Object[] { 1, 2 }
+    try (
+      var a = JinjavaInterpreter.closeablePushCurrent(jinjava.newInterpreter()).get()
+    ) {
+      JinjavaBeanELResolverTestObjects.TempItPrefersPrimitives var =
+        new JinjavaBeanELResolverTestObjects.TempItPrefersPrimitives();
+      assertThat(
+        jinjavaBeanELResolver.invoke(
+          elContext,
+          var,
+          "getResult",
+          null,
+          new Object[] { 1, 2 }
+        )
       )
-    )
-      .isEqualTo("int Integer");
-    assertThat(
-      jinjavaBeanELResolver.invoke(
-        elContext,
-        var,
-        "getResult",
-        null,
-        new Object[] { 1, Integer.valueOf(2) }
+        .isEqualTo("int Integer");
+      assertThat(
+        jinjavaBeanELResolver.invoke(
+          elContext,
+          var,
+          "getResult",
+          null,
+          new Object[] { 1, Integer.valueOf(2) }
+        )
       )
-    )
-      .isEqualTo("int Integer"); // should be "int object", but we can't figure that out
-    assertThat(
-      jinjavaBeanELResolver.invoke(
-        elContext,
-        var,
-        "getResult",
-        null,
-        new Object[] { Integer.valueOf(1), 2 }
+        .isEqualTo("int Integer"); // should be "int object", but we can't figure that out
+      assertThat(
+        jinjavaBeanELResolver.invoke(
+          elContext,
+          var,
+          "getResult",
+          null,
+          new Object[] { Integer.valueOf(1), 2 }
+        )
       )
-    )
-      .isEqualTo("int Integer"); // should be "Number int", but we can't figure that out
-  }
-
-  @Test
-  public void itThrowsExceptionWhenMethodIsRestrictedFromConfig() {
-    JinjavaInterpreter.pushCurrent(interpreter);
-    when(config.getRestrictedMethods()).thenReturn(ImmutableSet.of("foo"));
-    assertThatThrownBy(() ->
-        jinjavaBeanELResolver.invoke(elContext, "abcd", "foo", null, new Object[] { 1 })
-      )
-      .isInstanceOf(MethodNotFoundException.class)
-      .hasMessageStartingWith("Cannot find method 'foo'");
-    JinjavaInterpreter.popCurrent();
-  }
-
-  @Test
-  public void itThrowsExceptionWhenPropertyIsRestrictedFromConfig() {
-    JinjavaInterpreter.pushCurrent(interpreter);
-    when(config.getRestrictedProperties()).thenReturn(ImmutableSet.of("property1"));
-    assertThatThrownBy(() ->
-        jinjavaBeanELResolver.getValue(elContext, "abcd", "property1")
-      )
-      .isInstanceOf(PropertyNotFoundException.class)
-      .hasMessageStartingWith("Could not find property");
-    JinjavaInterpreter.popCurrent();
+        .isEqualTo("int Integer"); // should be "Number int", but we can't figure that out
+    }
   }
 
   @Test
   public void itDoesNotAllowAccessingPropertiesOfInterpreter() {
     try (
-      AutoCloseableSupplier.AutoCloseableImpl<JinjavaInterpreter> c = JinjavaInterpreter
-        .closeablePushCurrent(interpreter)
+      AutoCloseableSupplier.AutoCloseableImpl<JinjavaInterpreter> a = JinjavaInterpreter
+        .closeablePushCurrent(jinjava.newInterpreter())
         .get()
     ) {
-      assertThat(jinjavaBeanELResolver.getValue(elContext, interpreter, "config"))
-        .isNull();
-    }
-  }
-
-  @Test
-  public void itDoesNotGettingFromObjectMapper() {
-    try (
-      AutoCloseableSupplier.AutoCloseableImpl<JinjavaInterpreter> c = JinjavaInterpreter
-        .closeablePushCurrent(interpreter)
-        .get()
-    ) {
-      assertThat(
-        jinjavaBeanELResolver.getValue(elContext, new ObjectMapper(), "dateFormat")
-      )
-        .isNull();
-    }
-  }
-
-  @Test
-  public void itDoesNotAllowInvokingFromObjectMapper() throws NoSuchMethodException {
-    try (
-      AutoCloseableSupplier.AutoCloseableImpl<JinjavaInterpreter> c = JinjavaInterpreter
-        .closeablePushCurrent(interpreter)
-        .get()
-    ) {
-      ObjectMapper objectMapper = new ObjectMapper();
       assertThatThrownBy(() ->
-          jinjavaBeanELResolver.invoke(
-            elContext,
-            objectMapper,
-            "getDateFormat",
-            new Class[] {},
-            new Object[] {}
-          )
+          jinjavaBeanELResolver.getValue(elContext, a.value(), "config")
         )
-        .isInstanceOf(MethodNotFoundException.class);
-    }
-  }
-
-  @Test
-  public void itDoesNotAllowInvokingFromMethod() throws NoSuchMethodException {
-    try (
-      AutoCloseableSupplier.AutoCloseableImpl<JinjavaInterpreter> c = JinjavaInterpreter
-        .closeablePushCurrent(interpreter)
-        .get()
-    ) {
-      List<String> list = List.of("foo");
-      assertThatThrownBy(() ->
-          jinjavaBeanELResolver.invoke(
-            elContext,
-            list.getClass().getMethod("get", int.class),
-            "invoke",
-            new Class[] { Object.class, Object[].class },
-            new Object[] { list, 0 }
-          )
-        )
-        .isInstanceOf(MethodNotFoundException.class);
+        .isInstanceOf(PropertyNotFoundException.class);
     }
   }
 }

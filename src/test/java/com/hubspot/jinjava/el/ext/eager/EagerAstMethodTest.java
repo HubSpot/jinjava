@@ -36,6 +36,8 @@ public class EagerAstMethodTest extends BaseInterpretingTest {
       .withLegacyOverrides(
         LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
       )
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withMaxMacroRecursionDepth(5)
       .withEnableRecursiveMacroCalls(true)
       .build();
@@ -233,7 +235,7 @@ public class EagerAstMethodTest extends BaseInterpretingTest {
       fail("Should throw DeferredParsingException");
     } catch (DeferredParsingException e) {
       assertThat(e.getDeferredEvalResult())
-        .isEqualTo("filter:upper.filter(foo_object.deferred, ____int3rpr3t3r____)");
+        .isEqualTo("filter:upper.filter(foo_object.deferred, null)");
     }
   }
 }
