@@ -11,6 +11,7 @@ import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
+import com.hubspot.jinjava.testobjects.PyishObjectMapperTestObjects;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -116,7 +117,9 @@ public class PyishObjectMapperTest {
 
   @Test
   public void itSerializesToSnakeCaseAccessibleMap() {
-    assertThat(PyishObjectMapper.getAsPyishString(new Foo("bar")))
+    assertThat(
+      PyishObjectMapper.getAsPyishString(new PyishObjectMapperTestObjects.Foo("bar"))
+    )
       .isEqualTo("{'fooBar': 'bar'} |allow_snake_case");
   }
 
@@ -124,7 +127,10 @@ public class PyishObjectMapperTest {
   public void itSerializesToSnakeCaseAccessibleMapWhenInMapEntry() {
     assertThat(
       PyishObjectMapper.getAsPyishString(
-        new AbstractMap.SimpleImmutableEntry<>("foo", new Foo("bar"))
+        new AbstractMap.SimpleImmutableEntry<>(
+          "foo",
+          new PyishObjectMapperTestObjects.Foo("bar")
+        )
       )
     )
       .isEqualTo("fn:map_entry('foo', {'fooBar': 'bar'} |allow_snake_case)");
@@ -141,7 +147,7 @@ public class PyishObjectMapperTest {
         .build()
     );
     JinjavaInterpreter interpreter = jinjava.newInterpreter();
-    interpreter.getContext().put("foo", new Foo("bar"));
+    interpreter.getContext().put("foo", new PyishObjectMapperTestObjects.Foo("bar"));
     assertThat(interpreter.render("{{ foo }}")).isEqualTo("{'fooBar': 'bar'}");
   }
 
@@ -162,7 +168,7 @@ public class PyishObjectMapperTest {
     JinjavaInterpreter interpreter = jinjava.newInterpreter();
     try {
       JinjavaInterpreter.pushCurrent(interpreter);
-      interpreter.getContext().put("foo", new Foo("bar"));
+      interpreter.getContext().put("foo", new PyishObjectMapperTestObjects.Foo("bar"));
       assertThat(interpreter.render("{{ foo }}")).isEqualTo("{'foo_bar': 'bar'}");
     } finally {
       JinjavaInterpreter.popCurrent();
@@ -172,18 +178,5 @@ public class PyishObjectMapperTest {
   @Test
   public void itSerializesOptional() {
     assertThat(PyishObjectMapper.getAsPyishString(Optional.of("foo"))).isEqualTo("'foo'");
-  }
-
-  static class Foo {
-
-    private final String bar;
-
-    public Foo(String bar) {
-      this.bar = bar;
-    }
-
-    public String getFooBar() {
-      return bar;
-    }
   }
 }

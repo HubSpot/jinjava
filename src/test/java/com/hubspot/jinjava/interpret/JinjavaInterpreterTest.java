@@ -3,7 +3,6 @@ package com.hubspot.jinjava.interpret;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
@@ -19,6 +18,7 @@ import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.mode.PreserveRawExecutionMode;
 import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.objects.date.StrftimeFormatter;
+import com.hubspot.jinjava.testobjects.JinjavaInterpreterTestObjects;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.output.BlockInfo;
 import com.hubspot.jinjava.tree.output.OutputList;
@@ -103,55 +103,44 @@ public class JinjavaInterpreterTest {
 
   // Ex VariableChain stuff
 
-  static class Foo {
-
-    private String bar;
-
-    public Foo(String bar) {
-      this.bar = bar;
-    }
-
-    public String getBar() {
-      return bar;
-    }
-
-    public String getBarFoo() {
-      return bar;
-    }
-
-    public String getBarFoo1() {
-      return bar;
-    }
-
-    @JsonIgnore
-    public String getBarHidden() {
-      return bar;
-    }
-  }
-
   @Test
   public void singleWordProperty() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "bar")).isEqualTo("a");
+    assertThat(
+      interpreter.resolveProperty(new JinjavaInterpreterTestObjects.Foo("a"), "bar")
+    )
+      .isEqualTo("a");
   }
 
   @Test
   public void multiWordCamelCase() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "barFoo")).isEqualTo("a");
+    assertThat(
+      interpreter.resolveProperty(new JinjavaInterpreterTestObjects.Foo("a"), "barFoo")
+    )
+      .isEqualTo("a");
   }
 
   @Test
   public void multiWordSnakeCase() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "bar_foo")).isEqualTo("a");
+    assertThat(
+      interpreter.resolveProperty(new JinjavaInterpreterTestObjects.Foo("a"), "bar_foo")
+    )
+      .isEqualTo("a");
   }
 
   @Test
   public void multiWordNumberSnakeCase() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "bar_foo_1")).isEqualTo("a");
+    assertThat(
+      interpreter.resolveProperty(new JinjavaInterpreterTestObjects.Foo("a"), "bar_foo_1")
+    )
+      .isEqualTo("a");
   }
 
   @Test
   public void jsonIgnore() {
-    assertThat(interpreter.resolveProperty(new Foo("a"), "barHidden")).isEqualTo("a");
+    assertThat(
+      interpreter.resolveProperty(new JinjavaInterpreterTestObjects.Foo("a"), "barHidden")
+    )
+      .isEqualTo("a");
   }
 
   @Test

@@ -10,7 +10,6 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
-import com.hubspot.jinjava.lib.filter.Filter;
 import com.hubspot.jinjava.lib.tag.ImportTag;
 import com.hubspot.jinjava.lib.tag.ImportTagTest;
 import com.hubspot.jinjava.lib.tag.Tag;
@@ -23,6 +22,7 @@ import com.hubspot.jinjava.loader.LocationResolver;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
+import com.hubspot.jinjava.testobjects.EagerImportTagTestObjects;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class EagerImportTagTest extends ImportTagTest {
   @Before
   public void eagerSetup() throws Exception {
     context.put("padding", 42);
-    context.registerFilter(new PrintPathFilter());
+    context.registerFilter(new EagerImportTagTestObjects.PrintPathFilter());
     interpreter =
       new JinjavaInterpreter(
         jinjava,
@@ -765,19 +765,6 @@ public class EagerImportTagTest extends ImportTagTest {
         }
       }
     );
-  }
-
-  public static class PrintPathFilter implements Filter {
-
-    @Override
-    public Object filter(Object var, JinjavaInterpreter interpreter, String... args) {
-      return interpreter.getContext().getCurrentPathStack().peek().orElse("/");
-    }
-
-    @Override
-    public String getName() {
-      return "print_path";
-    }
   }
 
   @Test

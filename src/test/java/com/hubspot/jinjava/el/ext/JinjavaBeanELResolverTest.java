@@ -11,6 +11,7 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.JinjavaELContext;
 import com.hubspot.jinjava.interpret.AutoCloseableSupplier;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.testobjects.JinjavaBeanELResolverTestObjects;
 import java.util.List;
 import javax.el.ELContext;
 import javax.el.MethodNotFoundException;
@@ -59,25 +60,8 @@ public class JinjavaBeanELResolverTest {
 
   @Test
   public void itInvokesBestMethodWithSingleParam() {
-    class Temp {
-
-      public String getResult(int a) {
-        return "int";
-      }
-
-      public String getResult(String a) {
-        return "String";
-      }
-
-      public String getResult(Object a) {
-        return "Object";
-      }
-
-      public String getResult(CharSequence a) {
-        return "CharSequence";
-      }
-    }
-    Temp var = new Temp();
+    JinjavaBeanELResolverTestObjects.TempItInvokesBestMethodWithSingleParam var =
+      new JinjavaBeanELResolverTestObjects.TempItInvokesBestMethodWithSingleParam();
     assertThat(
       jinjavaBeanELResolver.invoke(elContext, var, "getResult", null, new Object[] { 1 })
     )
@@ -106,21 +90,8 @@ public class JinjavaBeanELResolverTest {
 
   @Test
   public void itPrefersPrimitives() {
-    class Temp {
-
-      public String getResult(int a, Integer b) {
-        return "int Integer";
-      }
-
-      public String getResult(int a, Object b) {
-        return "int Object";
-      }
-
-      public String getResult(Number a, int b) {
-        return "Number int";
-      }
-    }
-    Temp var = new Temp();
+    JinjavaBeanELResolverTestObjects.TempItPrefersPrimitives var =
+      new JinjavaBeanELResolverTestObjects.TempItPrefersPrimitives();
     assertThat(
       jinjavaBeanELResolver.invoke(
         elContext,
