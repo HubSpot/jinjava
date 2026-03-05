@@ -50,9 +50,11 @@ public class SizeLimitingPySet extends PySet implements PyWrapper {
       throw new CollectionTooBigException(newSize, maxSize);
     } else if (!hasWarned && newSize >= maxSize * 0.9) {
       hasWarned = true;
-      JinjavaInterpreter
-        .getCurrent()
-        .addError(
+      JinjavaInterpreter current = JinjavaInterpreter.getCurrent();
+      if (current == null) {
+        return;
+      }
+      current.addError(
           new TemplateError(
             ErrorType.WARNING,
             ErrorReason.COLLECTION_TOO_BIG,

@@ -35,6 +35,9 @@ public class NoInvokeELContext extends ELContext implements HasInterpreter {
 
   @Override
   public JinjavaInterpreter interpreter() {
-    return ((HasInterpreter) delegate).interpreter();
+    if (delegate instanceof HasInterpreter hasInterpreter) {
+      return hasInterpreter.interpreter();
+    }
+    return JinjavaInterpreter.getCurrent();
   }
 }
