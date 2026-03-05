@@ -55,16 +55,16 @@ public class SizeLimitingPySet extends PySet implements PyWrapper {
         return;
       }
       current.addError(
-          new TemplateError(
-            ErrorType.WARNING,
-            ErrorReason.COLLECTION_TOO_BIG,
-            String.format("Set is at 90%% of max size (%d of %d)", newSize, maxSize),
-            null,
-            -1,
-            -1,
-            new CollectionTooBigException(newSize, maxSize)
-          )
-        );
+        new TemplateError(
+          ErrorType.WARNING,
+          ErrorReason.COLLECTION_TOO_BIG,
+          String.format("Set is at 90%% of max size (%d of %d)", newSize, maxSize),
+          null,
+          -1,
+          -1,
+          new CollectionTooBigException(newSize, maxSize)
+        )
+      );
     }
   }
 }
