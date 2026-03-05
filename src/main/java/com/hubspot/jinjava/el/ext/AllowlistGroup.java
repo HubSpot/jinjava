@@ -68,8 +68,10 @@ public enum AllowlistGroup {
     private static final String[] ARRAY = {
       PyList.class.getCanonicalName(),
       PyMap.class.getCanonicalName(),
+      PySet.class.getCanonicalName(),
       SizeLimitingPyMap.class.getCanonicalName(),
       SizeLimitingPyList.class.getCanonicalName(),
+      SizeLimitingPySet.class.getCanonicalName(),
       SnakeCaseAccessibleMap.class.getCanonicalName(),
       FormattedDate.class.getCanonicalName(),
       PyishDate.class.getCanonicalName(),

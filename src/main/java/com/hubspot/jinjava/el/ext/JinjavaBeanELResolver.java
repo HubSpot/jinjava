@@ -2,7 +2,6 @@ package com.hubspot.jinjava.el.ext;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
@@ -16,7 +15,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.el.ELContext;
@@ -222,30 +220,26 @@ public class JinjavaBeanELResolver extends BeanELResolver {
           .orElseGet(() -> potentialMethods.stream().findAny().orElse(finalVarArgsMethod)
           );
     }
-    return getJinjavaConfig().getMethodValidator().validateMethod(method);
+    return getAllowlistMethodValidator().validateMethod(method);
   }
 
   @Override
   protected Method getWriteMethod(Object base, Object property) {
-    return getJinjavaConfig()
-      .getMethodValidator()
+    return getAllowlistMethodValidator()
       .validateMethod(super.getWriteMethod(base, property));
   }
 
   @Override
   protected Method getReadMethod(Object base, Object property) {
-    return getJinjavaConfig()
-      .getMethodValidator()
+    return getAllowlistMethodValidator()
       .validateMethod(super.getReadMethod(base, property));
   }
 
-  private static JinjavaConfig getJinjavaConfig() {
-    return Objects
-      .requireNonNull(
-        JinjavaInterpreter.getCurrent(),
-        "JinjavaInterpreter.closeablePushCurrent must be used if using a JinjavaBeanELResolver directly"
-      )
-      .getConfig();
+  private static AllowlistMethodValidator getAllowlistMethodValidator() {
+    return JinjavaInterpreter
+      .getCurrentMaybe()
+      .map(interpreter -> interpreter.getConfig().getMethodValidator())
+      .orElse(AllowlistMethodValidator.DEFAULT);
   }
 
   private static boolean checkAssignableParameterTypes(Object[] params, Method method) {
