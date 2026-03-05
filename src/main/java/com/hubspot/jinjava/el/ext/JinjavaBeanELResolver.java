@@ -84,7 +84,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
       private final MethodDescriptor descriptor;
 
-      private Method method;
+      private volatile Method method;
 
       public BeanMethod(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
@@ -200,7 +200,11 @@ public class JinjavaBeanELResolver extends BeanELResolver {
 
       List<Method> potentialMethods = new LinkedList<>();
 
-      for (BeanMethods.BeanMethod bm : beanMethods.getBeanMethods(name)) {
+      List<BeanMethods.BeanMethod> methodsForName = beanMethods.getBeanMethods(name);
+      if (methodsForName == null) {
+        methodsForName = List.of();
+      }
+      for (BeanMethods.BeanMethod bm : methodsForName) {
         Method m = bm.getMethod();
         int formalParamCount = m.getParameterTypes().length;
         if (m.isVarArgs() && paramCount >= formalParamCount - 1) {

@@ -7,8 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.immutables.value.Value;
-
 public class BannedAllowlistOptions {
 
   // These aren't required, but they prevent someone from misconfiguring Jinjava to allow sandbox bypass unintentionally
@@ -42,7 +40,6 @@ public class BannedAllowlistOptions {
     )
     .collect(ImmutableSet.toImmutableSet());
 
-  @Value.Check
   public static List<String> findBannedPrefixes(Stream<String> prefixes) {
     return prefixes
       .filter(prefixOrName ->

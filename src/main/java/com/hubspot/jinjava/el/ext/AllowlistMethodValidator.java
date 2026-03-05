@@ -51,6 +51,9 @@ public final class AllowlistMethodValidator {
       m1 -> {
         Class<?> clazz = m1.getDeclaringClass();
         String canonicalClassName = clazz.getCanonicalName();
+        if (canonicalClassName == null) {
+          return false;
+        }
         return (
           allowedMethods.contains(m1) ||
           allowedDeclaredMethodsFromCanonicalClassNames.contains(canonicalClassName) ||

@@ -352,7 +352,6 @@ public class ExpressionResolver {
 
   public String getAsString(Object object) {
     if (interpreter.getConfig().getLegacyOverrides().isUsePyishObjectMapper()) {
-      //      resolver.
       return PyishObjectMapper.getAsUnquotedPyishString(object);
     }
     return Objects.toString(object, "");

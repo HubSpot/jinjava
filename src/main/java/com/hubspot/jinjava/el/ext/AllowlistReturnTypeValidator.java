@@ -52,6 +52,10 @@ public final class AllowlistReturnTypeValidator {
       return o;
     }
     String canonicalClassName = clazz.getCanonicalName();
+    if (canonicalClassName == null) {
+      onRejectedClass.accept(clazz);
+      return null;
+    }
     boolean isAllowedClassName = allowedReturnTypesCache.computeIfAbsent(
       canonicalClassName,
       c ->
