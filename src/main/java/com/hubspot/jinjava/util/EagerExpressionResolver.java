@@ -329,7 +329,7 @@ public class EagerExpressionResolver {
     if (isPrimitive(val)) {
       return true;
     }
-    if (val instanceof ArrayBacked<?> arrayBacked) {
+    if (val instanceof ArrayBacked arrayBacked) {
       val = arrayBacked.backingArray();
     }
     try {

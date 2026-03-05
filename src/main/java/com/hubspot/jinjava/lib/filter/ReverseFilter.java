@@ -20,6 +20,7 @@ import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.collections.ArrayBacked;
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -54,7 +55,7 @@ public class ReverseFilter implements Filter {
     }
     // array
     if (object.getClass().isArray()) {
-      return ReverseArrayIterator.create((Object[]) object);
+      return ReverseArrayIterator.create(object);
     }
     // string
     if (object instanceof String) {
@@ -76,26 +77,26 @@ public class ReverseFilter implements Filter {
     return "reverse";
   }
 
-  static class ReverseArrayIterator<T> implements Iterator<T>, ArrayBacked<T> {
+  static class ReverseArrayIterator implements Iterator<Object>, ArrayBacked {
 
-    private final T[] array;
+    private final Object array;
     private int index;
 
-    static <T> ReverseArrayIterator<T> create(T[] array) {
-      return new ReverseArrayIterator<>(array);
+    static ReverseArrayIterator create(Object array) {
+      return new ReverseArrayIterator(array);
     }
 
-    private ReverseArrayIterator(T[] array) {
+    private ReverseArrayIterator(Object array) {
       this.array = array;
-      index = array.length - 1;
+      index = Array.getLength(array) - 1;
     }
 
     @Override
-    public T next() {
+    public Object next() {
       if (index < 0) {
         throw new NoSuchElementException();
       }
-      return array[index--];
+      return Array.get(array, index--);
     }
 
     @Override
@@ -104,7 +105,7 @@ public class ReverseFilter implements Filter {
     }
 
     @Override
-    public T[] backingArray() {
+    public Object backingArray() {
       return array;
     }
   }
