@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
@@ -24,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.junit.Before;
@@ -394,8 +394,8 @@ public class ExpressionResolverTest {
     String rendered = jinjava.render(template, context);
     assertEquals("hi 1 2 ", rendered);
 
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withDisabled(disabled)
       .build();
 
@@ -429,7 +429,7 @@ public class ExpressionResolverTest {
   @Test
   public void itStoresResolvedFunctions() {
     context.put("datetime", 12345);
-    final JinjavaConfig config = JinjavaConfig.newBuilder().build();
+    final JinjavaConfig config = BaseJinjavaTest.newConfigBuilder().build();
     String template =
       "{% for i in range(1, 5) %}{{i}} {% endfor %}\n{{ unixtimestamp(datetime) }}";
     final RenderResult renderResult = jinjava.renderForResult(template, context, config);

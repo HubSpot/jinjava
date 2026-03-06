@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import java.nio.charset.StandardCharsets;
@@ -15,8 +16,8 @@ import org.junit.Test;
 public class IntFilterTest extends BaseInterpretingTest {
 
   private static final Locale FRENCH_LOCALE = new Locale("fr", "FR");
-  private static final JinjavaConfig FRENCH_LOCALE_CONFIG = JinjavaConfig
-    .builder()
+  private static final JinjavaConfig FRENCH_LOCALE_CONFIG = BaseJinjavaTest
+    .newConfigBuilder()
     .withCharset(StandardCharsets.UTF_8)
     .withLocale(FRENCH_LOCALE)
     .withTimeZone(ZoneOffset.UTC)

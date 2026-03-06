@@ -2,8 +2,8 @@ package com.hubspot.jinjava.lib.tag.eager;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.ExpectedTemplateInterpreter;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -31,8 +31,8 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withNestedInterpretationEnabled(nestedInterpretation)
           .withExecutionMode(EagerExecutionMode.instance())
           .withLegacyOverrides(

@@ -18,6 +18,7 @@ package com.hubspot.jinjava.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
@@ -100,8 +101,8 @@ public class ObjectIteratorTest {
 
   @Test
   public void testItIteratesOverKeys() throws Exception {
-    JinjavaConfig config = JinjavaConfig
-      .newBuilder()
+    JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withLegacyOverrides(LegacyOverrides.builder().withIterateOverMapKeys(true).build())
       .build();
     JinjavaInterpreter.pushCurrent(

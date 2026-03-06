@@ -2,8 +2,8 @@ package com.hubspot.jinjava.lib.fn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -31,7 +31,7 @@ public class UnixTimestampFunctionTest {
     JinjavaInterpreter jinjavaInterpreter = new JinjavaInterpreter(
       new Jinjava(),
       new Context(),
-      JinjavaConfig.newBuilder().build()
+      BaseJinjavaTest.newConfigBuilder().build()
     );
     JinjavaInterpreter.pushCurrent(jinjavaInterpreter);
     assertThat(Functions.unixtimestamp())
@@ -52,8 +52,8 @@ public class UnixTimestampFunctionTest {
       new JinjavaInterpreter(
         new Jinjava(),
         new Context(),
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withDateTimeProvider(new FixedDateTimeProvider(ts))
           .build()
       )
@@ -67,8 +67,8 @@ public class UnixTimestampFunctionTest {
       new JinjavaInterpreter(
         new Jinjava(),
         new Context(),
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
       )

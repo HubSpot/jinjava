@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
@@ -49,7 +49,7 @@ public class PyishObjectMapperTest {
     map.put("bar", ImmutableMap.of("foobar", new ArrayList<>()));
 
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig.newBuilder().withMaxOutputSize(10000).build()
+      BaseJinjavaTest.newConfigBuilder().withMaxOutputSize(10000).build()
     );
     try {
       JinjavaInterpreter.pushCurrent(jinjava.newInterpreter());
@@ -84,7 +84,7 @@ public class PyishObjectMapperTest {
     list.add(original);
     try {
       Jinjava jinjava = new Jinjava(
-        JinjavaConfig.newBuilder().withMaxOutputSize(10000).build()
+        BaseJinjavaTest.newConfigBuilder().withMaxOutputSize(10000).build()
       );
       JinjavaInterpreter.pushCurrent(jinjava.newInterpreter());
       assertThatThrownBy(() -> PyishObjectMapper.getAsPyishStringOrThrow(original))
@@ -104,7 +104,7 @@ public class PyishObjectMapperTest {
     String input = RandomStringUtils.random(10002);
     try {
       Jinjava jinjava = new Jinjava(
-        JinjavaConfig.newBuilder().withMaxOutputSize(10000).build()
+        BaseJinjavaTest.newConfigBuilder().withMaxOutputSize(10000).build()
       );
       JinjavaInterpreter.pushCurrent(jinjava.newInterpreter());
       assertThatThrownBy(() -> PyishObjectMapper.getAsPyishString(input))
@@ -139,8 +139,8 @@ public class PyishObjectMapperTest {
   @Test
   public void itDoesNotConvertToSnakeCaseMapWhenResultIsForOutput() {
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withLegacyOverrides(
           LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
         )
@@ -154,8 +154,8 @@ public class PyishObjectMapperTest {
   @Test
   public void itSerializesToSnakeCaseWhenLegacyOverrideIsSet() {
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withLegacyOverrides(
           LegacyOverrides
             .newBuilder()

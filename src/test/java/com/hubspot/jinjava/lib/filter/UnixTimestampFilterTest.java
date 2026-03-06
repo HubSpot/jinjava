@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.features.DateTimeFeatureActivationStrategy;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -40,8 +40,8 @@ public class UnixTimestampFilterTest extends BaseInterpretingTest {
   @Test
   public void itDefaultsToCurrentDate() {
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withDateTimeProvider(() -> d.toEpochSecond() * 1000)
         .withFeatureConfig(
           FeatureConfig
@@ -65,8 +65,8 @@ public class UnixTimestampFilterTest extends BaseInterpretingTest {
   @Test
   public void itDefaultsToDeprecationDate() {
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withDateTimeProvider(() -> d.toEpochSecond() * 1000)
         .withFeatureConfig(
           FeatureConfig
