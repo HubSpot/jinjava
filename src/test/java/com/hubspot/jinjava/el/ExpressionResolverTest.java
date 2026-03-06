@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,9 +40,15 @@ public class ExpressionResolverTest {
 
   @Before
   public void setup() {
-    jinjava = new Jinjava();
+    jinjava = new Jinjava(BaseJinjavaTest.newConfigBuilder().build());
     interpreter = jinjava.newInterpreter();
     context = interpreter.getContext();
+    JinjavaInterpreter.pushCurrent(interpreter);
+  }
+
+  @After
+  public void teardown() {
+    JinjavaInterpreter.popCurrent();
   }
 
   @Test
@@ -251,7 +258,7 @@ public class ExpressionResolverTest {
     interpreter.resolveELExpression("foo", 23);
     assertThat(interpreter.getErrorsCopy()).isEmpty();
 
-    context.put("foo", new Object());
+    context.put("foo", "");
     interpreter.resolveELExpression("foo.bar", 23);
 
     assertThat(interpreter.getErrorsCopy()).hasSize(1);
@@ -308,7 +315,10 @@ public class ExpressionResolverTest {
 
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
     TemplateError e = interpreter.getErrorsCopy().get(0);
-    assertThat(e.getMessage()).contains("Cannot find method 'wait'");
+    assertThat(e.getMessage())
+      .contains(
+        "Cannot find method wait with 0 parameters in class com.hubspot.jinjava.testobjects.ExpressionResolverTestObjects$MyClass"
+      );
   }
 
   @Test
@@ -318,7 +328,10 @@ public class ExpressionResolverTest {
 
     assertThat(interpreter.getErrorsCopy()).isNotEmpty();
     TemplateError e = interpreter.getErrorsCopy().get(0);
-    assertThat(e.getMessage()).contains("Cannot find method 'getClass'");
+    assertThat(e.getMessage())
+      .contains(
+        "Cannot find method getClass with 0 parameters in class com.hubspot.jinjava.testobjects.ExpressionResolverTestObjects$MyClass"
+      );
   }
 
   @Test
@@ -390,6 +403,7 @@ public class ExpressionResolverTest {
     );
 
     String template = "hi {% for i in range(1, 3) %}{{i}} {% endfor %}";
+    JinjavaInterpreter.popCurrent();
 
     String rendered = jinjava.render(template, context);
     assertEquals("hi 1 2 ", rendered);
@@ -547,15 +561,11 @@ public class ExpressionResolverTest {
     assertThat(interpreter.render("{% if 2 is even %}yes{% endif %}")).isEqualTo("yes");
 
     assertThat(
-      interpreter.render(
-        "{% if exptest:even.evaluate(2, ____int3rpr3t3r____) %}yes{% endif %}"
-      )
+      interpreter.render("{% if exptest:even.evaluate(2, null) %}yes{% endif %}")
     )
       .isEqualTo("yes");
     assertThat(
-      interpreter.render(
-        "{% if exptest:false.evaluate(false, ____int3rpr3t3r____) %}yes{% endif %}"
-      )
+      interpreter.render("{% if exptest:false.evaluate(false, null) %}yes{% endif %}")
     )
       .isEqualTo("yes");
   }
@@ -563,15 +573,11 @@ public class ExpressionResolverTest {
   @Test
   public void itResolvesAlternateExpTestSyntaxForTrueAndFalseExpTests() {
     assertThat(
-      interpreter.render(
-        "{% if exptest:false.evaluate(false, ____int3rpr3t3r____) %}yes{% endif %}"
-      )
+      interpreter.render("{% if exptest:false.evaluate(false, null) %}yes{% endif %}")
     )
       .isEqualTo("yes");
     assertThat(
-      interpreter.render(
-        "{% if exptest:true.evaluate(true, ____int3rpr3t3r____) %}yes{% endif %}"
-      )
+      interpreter.render("{% if exptest:true.evaluate(true, null) %}yes{% endif %}")
     )
       .isEqualTo("yes");
   }
@@ -579,14 +585,12 @@ public class ExpressionResolverTest {
   @Test
   public void itResolvesAlternateExpTestSyntaxForInExpTests() {
     assertThat(
-      interpreter.render(
-        "{% if exptest:in.evaluate(1, ____int3rpr3t3r____, [1]) %}yes{% endif %}"
-      )
+      interpreter.render("{% if exptest:in.evaluate(1, null, [1]) %}yes{% endif %}")
     )
       .isEqualTo("yes");
     assertThat(
       interpreter.render(
-        "{% if exptest:in.evaluate(2, ____int3rpr3t3r____, [1]) %}yes{% else %}no{% endif %}"
+        "{% if exptest:in.evaluate(2, null, [1]) %}yes{% else %}no{% endif %}"
       )
     )
       .isEqualTo("no");

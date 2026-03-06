@@ -11,6 +11,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
 import com.hubspot.jinjava.testobjects.ValidationModeTestObjects;
+import com.hubspot.jinjava.testobjects.ValidationModeTestObjects;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TextNode;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
@@ -51,7 +52,7 @@ public class ValidationModeTest {
       "validationTestFunction"
     );
 
-    jinjava = new Jinjava();
+    jinjava = new Jinjava(BaseJinjavaTest.newConfigBuilder().build());
     jinjava.getGlobalContext().registerFilter(validationFilter);
     jinjava.getGlobalContext().registerFunction(validationFunction);
     interpreter = jinjava.newInterpreter();

@@ -21,6 +21,7 @@ import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyList;
 import com.hubspot.jinjava.objects.collections.SizeLimitingPyMap;
+import com.hubspot.jinjava.objects.collections.SizeLimitingPySet;
 import com.hubspot.jinjava.objects.date.FormattedDate;
 import com.hubspot.jinjava.objects.date.InvalidDateFormatException;
 import com.hubspot.jinjava.objects.date.PyishDate;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import javax.el.ArrayELResolver;
 import javax.el.CompositeELResolver;
 import javax.el.ELContext;
@@ -274,7 +276,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     }
 
     context.setPropertyResolved(true);
-    return wrap(value);
+    return value;
   }
 
   @SuppressWarnings("unchecked")
@@ -305,6 +307,12 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     if (List.class.isAssignableFrom(value.getClass())) {
       return new SizeLimitingPyList(
         (List<Object>) value,
+        interpreter.getConfig().getMaxListSize()
+      );
+    }
+    if (Set.class.isAssignableFrom(value.getClass())) {
+      return new SizeLimitingPySet(
+        (Set<Object>) value,
         interpreter.getConfig().getMaxListSize()
       );
     }
