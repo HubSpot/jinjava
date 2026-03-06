@@ -7,6 +7,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.objects.PyWrapper;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
@@ -16,10 +17,7 @@ public class SizeLimitingPySet extends PySet implements PyWrapper {
   private boolean hasWarned;
 
   public SizeLimitingPySet(Set<Object> set, int maxSize) {
-    super(set);
-    if (set == null) {
-      throw new IllegalArgumentException("set is null");
-    }
+    super(Objects.requireNonNull(set, "set is null"));
     if (maxSize <= 0) {
       throw new IllegalArgumentException("maxSize must be >= 1");
     }

@@ -168,7 +168,7 @@ public class JinjavaBeanELResolver extends BeanELResolver {
     Class<?> type
   ) {
     if (type.equals(JinjavaInterpreter.class)) {
-      Array.set(array, index, JinjavaInterpreter.getCurrent());
+      Array.set(array, index, JinjavaInterpreter.getCurrent()); // Could be null if there's no current interpreter
     } else {
       super.coerceValue(array, index, factory, value, type);
     }
