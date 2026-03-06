@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.el.ext.AbstractCallableMethod;
 import com.hubspot.jinjava.interpret.Context;
@@ -57,8 +57,8 @@ public class EagerExpressionResolverTest {
 
   private JinjavaInterpreter getInterpreter(boolean evaluateMapKeys) throws Exception {
     Jinjava jinjava = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withExecutionMode(EagerExecutionMode.instance())
         .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
         .withLegacyOverrides(

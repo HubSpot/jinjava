@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
@@ -27,8 +28,8 @@ public class EagerAstMethodTest extends BaseInterpretingTest {
 
   @Before
   public void setup() {
-    JinjavaConfig config = JinjavaConfig
-      .newBuilder()
+    JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withRandomNumberGeneratorStrategy(RandomNumberGeneratorStrategy.DEFERRED)
       .withExecutionMode(EagerExecutionMode.instance())
       .withNestedInterpretationEnabled(true)

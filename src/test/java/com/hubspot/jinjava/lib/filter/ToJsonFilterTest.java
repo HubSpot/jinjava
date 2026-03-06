@@ -3,8 +3,8 @@ package com.hubspot.jinjava.lib.filter;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -44,7 +44,7 @@ public class ToJsonFilterTest extends BaseInterpretingTest {
       temp = nested;
     }
     interpreter =
-      new Jinjava(JinjavaConfig.newBuilder().withMaxOutputSize(500).build())
+      new Jinjava(BaseJinjavaTest.newConfigBuilder().withMaxOutputSize(500).build())
         .newInterpreter();
     assertThat(filter.filter(original, interpreter)).asString().contains("[[]]]]");
     for (int i = 0; i < 400; i++) {

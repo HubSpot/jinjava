@@ -10,8 +10,8 @@ public abstract class BaseJinjavaTest {
   public void baseSetup() {
     jinjava =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -21,5 +21,9 @@ public abstract class BaseJinjavaTest {
           )
           .build()
       );
+  }
+
+  public static JinjavaConfig.Builder newConfigBuilder() {
+    return JinjavaConfig.builder();
   }
 }

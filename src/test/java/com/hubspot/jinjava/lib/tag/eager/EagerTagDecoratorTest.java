@@ -7,7 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
-import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -57,8 +57,8 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
@@ -165,8 +165,8 @@ public class EagerTagDecoratorTest extends BaseInterpretingTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );

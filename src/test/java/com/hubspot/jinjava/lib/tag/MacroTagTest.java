@@ -7,8 +7,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
@@ -209,7 +209,9 @@ public class MacroTagTest extends BaseInterpretingTest {
   public void itAllowsMacroRecursionWhenEnabledInConfiguration() throws IOException {
     // I need a different configuration here therefore
     interpreter =
-      new Jinjava(JinjavaConfig.newBuilder().withEnableRecursiveMacroCalls(true).build())
+      new Jinjava(
+        BaseJinjavaTest.newConfigBuilder().withEnableRecursiveMacroCalls(true).build()
+      )
         .newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
 
@@ -228,8 +230,8 @@ public class MacroTagTest extends BaseInterpretingTest {
   public void itAllowsMacroRecursionWithMaxDepth() throws IOException {
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withEnableRecursiveMacroCalls(true)
           .withMaxMacroRecursionDepth(10)
           .build()
@@ -251,8 +253,8 @@ public class MacroTagTest extends BaseInterpretingTest {
   public void itAllowsMacroRecursionWithMaxDepthInValidationMode() throws IOException {
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withEnableRecursiveMacroCalls(true)
           .withMaxMacroRecursionDepth(10)
           .withValidationMode(true)
@@ -275,8 +277,8 @@ public class MacroTagTest extends BaseInterpretingTest {
   public void itEnforcesMacroRecursionWithMaxDepth() throws IOException {
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withEnableRecursiveMacroCalls(true)
           .withMaxMacroRecursionDepth(2)
           .build()
@@ -295,7 +297,7 @@ public class MacroTagTest extends BaseInterpretingTest {
   public void itPreventsRecursionForMacroWithVar() {
     interpreter =
       new Jinjava(
-        JinjavaConfig.newBuilder().withNestedInterpretationEnabled(true).build()
+        BaseJinjavaTest.newConfigBuilder().withNestedInterpretationEnabled(true).build()
       )
         .newInterpreter();
     try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
@@ -349,8 +351,8 @@ public class MacroTagTest extends BaseInterpretingTest {
   public void itCorrectlyScopesNestedMacroTags() {
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withEnableRecursiveMacroCalls(true)
           .withMaxMacroRecursionDepth(2)
           .build()
