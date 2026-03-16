@@ -24,6 +24,7 @@
     <dep.algebra.version>1.5</dep.algebra.version>
     <dep.mockito.version>5.20.0</dep.mockito.version>
     <dep.jackson.version>2.20.1</dep.jackson.version>
+    <dep.jmh.version>1.37</dep.jmh.version>
 
     <basepom.test.add.opens>
       --add-opens=java.base/java.lang=ALL-UNNAMED
@@ -212,6 +213,16 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.openjdk.jmh</groupId>
+      <artifactId>jmh-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.openjdk.jmh</groupId>
+      <artifactId>jmh-generator-annprocess</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.immutables</groupId>
       <artifactId>value</artifactId>
       <scope>provided</scope>
@@ -348,6 +359,11 @@
             <path>
               <groupId>org.immutables</groupId>
               <artifactId>value</artifactId>
+            </path>
+            <path>
+              <groupId>org.openjdk.jmh</groupId>
+              <artifactId>jmh-generator-annprocess</artifactId>
+              <version>${dep.jmh.version}</version>
             </path>
           </annotationProcessorPaths>
         </configuration>

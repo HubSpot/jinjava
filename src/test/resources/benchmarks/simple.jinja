@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <title>{{ page_title }}</title>
+  </head>
+  <body>
+    <div class="header">
+      <h1>{{ page_title }}</h1>
+    </div>
+    <ul class="navigation">
+    {% for item in navigation %}
+      <li><a href="{{ item.href }}">{{ item.caption }}</a></li>
+    {% endfor %}
+    </ul>
+    <div class="table">
+      <table>
+      {% for row in table %}
+        <tr>
+        {% for cell in row %}
+          <td>{{ cell }}</td>
+        {% endfor %}
+        </tr>
+      {% endfor %}
+      </table>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+  <head>
+    <title>{{ page_title }}</title>
+  </head>
+  <body>
+    <div class="header">
+      <h1>{{ page_title }}</h1>
+    </div>
+    <ul class="navigation">
+    {% for item in navigation %}
+      <li><a href="{{ item.href }}">{{ item.caption }}</a></li>
+    {% endfor %}
+    </ul>
+    <div class="content">
+      {% for article in articles %}
+      <div class="article">
+        <h2><a href="{{ article.href }}">{{ article.title }}</a></h2>
+        <p class="meta">by <a href="{{ article.user.href }}">{{ article.user.username }}</a> on {{ article.pub_date }}</p>
+        <div class="body">{{ article.body }}</div>
+        {% if article.tags %}
+        <ul class="tags">
+          {% for tag in article.tags %}
+          <li><a href="/tag/{{ tag }}">{{ tag }}</a></li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="sidebar">
+      <h3>Users</h3>
+      <ul>
+      {% for user in users %}
+        <li><a href="{{ user.href }}">{{ user.username }}</a></li>
+      {% endfor %}
+      </ul>
+    </div>
+  </body>
+</html>
