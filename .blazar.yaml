@@ -1,2 +1,5 @@
 buildResources:
   memoryMb: 10240
+
+env:
+  SKIP_VERSION_OVERRIDE_ON_BRANCH: master-2.7.x
