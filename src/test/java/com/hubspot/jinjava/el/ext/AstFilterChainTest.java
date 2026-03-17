@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
@@ -27,7 +27,7 @@ public class AstFilterChainTest {
   public void setup() {
     jinjava =
       new Jinjava(
-        JinjavaConfig.newBuilder().withEnableFilterChainOptimization(true).build()
+        BaseJinjavaTest.newConfigBuilder().withEnableFilterChainOptimization(true).build()
       );
 
     context = new HashMap<>();
@@ -101,7 +101,7 @@ public class AstFilterChainTest {
   public void itMatchesNonChainedBehaviorForUnknownFilter() {
     String template = "{{ name | unknown_filter | lower | md5 }}";
     Jinjava jinjavaUnoptimized = new Jinjava(
-      JinjavaConfig.newBuilder().withEnableFilterChainOptimization(false).build()
+      BaseJinjavaTest.newConfigBuilder().withEnableFilterChainOptimization(false).build()
     );
     RenderResult optimizedResult = jinjava.renderForResult(template, context);
     RenderResult unoptimizedResult = jinjavaUnoptimized.renderForResult(
@@ -120,8 +120,8 @@ public class AstFilterChainTest {
       ImmutableSet.of("lower")
     );
     Jinjava jinjavaWithDisabled = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withEnableFilterChainOptimization(true)
         .withDisabled(disabled)
         .build()
@@ -147,15 +147,15 @@ public class AstFilterChainTest {
     String template = "{{ name|trim|lower|capitalize }}";
 
     Jinjava optimized = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withEnableFilterChainOptimization(true)
         .withDisabled(disabled)
         .build()
     );
     Jinjava unoptimized = new Jinjava(
-      JinjavaConfig
-        .newBuilder()
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withEnableFilterChainOptimization(false)
         .withDisabled(disabled)
         .build()

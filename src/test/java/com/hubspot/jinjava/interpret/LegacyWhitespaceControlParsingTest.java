@@ -3,8 +3,8 @@ package com.hubspot.jinjava.interpret;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import java.util.HashMap;
 import org.junit.Before;
@@ -19,12 +19,15 @@ public class LegacyWhitespaceControlParsingTest {
   public void setUp() throws Exception {
     legacy =
       new Jinjava(
-        JinjavaConfig.newBuilder().withLegacyOverrides(LegacyOverrides.NONE).build()
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withLegacyOverrides(LegacyOverrides.NONE)
+          .build()
       );
     modern =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withParseWhitespaceControlStrictly(true).build()
           )

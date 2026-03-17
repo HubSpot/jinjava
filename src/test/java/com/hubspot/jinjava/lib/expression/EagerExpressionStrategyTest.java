@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -34,7 +34,7 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
 
   @Before
   public void eagerSetup() throws Exception {
-    jinjava = new Jinjava(JinjavaConfig.newBuilder().build());
+    jinjava = new Jinjava(BaseJinjavaTest.newConfigBuilder().build());
     jinjava
       .getGlobalContext()
       .registerFunction(
@@ -48,8 +48,8 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
       new JinjavaInterpreter(
         jinjava,
         new Context(),
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withExecutionMode(new EagerExecutionModeNoRaw())
           .build()
       );
@@ -57,8 +57,8 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
       new JinjavaInterpreter(
         jinjava,
         interpreter.getContext(),
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withNestedInterpretationEnabled(true)
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
@@ -76,8 +76,8 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
       new JinjavaInterpreter(
         jinjava,
         new Context(),
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );

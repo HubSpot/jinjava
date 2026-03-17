@@ -3,8 +3,8 @@ package com.hubspot.jinjava.lib.tag;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -61,8 +61,8 @@ public class ValidationModeTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(LegacyOverrides.NONE)
           .withValidationMode(true)
           .build()

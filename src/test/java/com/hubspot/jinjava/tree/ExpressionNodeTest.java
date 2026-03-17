@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.io.Resources;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.features.BuiltInFeatures;
@@ -25,10 +26,11 @@ public class ExpressionNodeTest {
   public void setup() {
     nestedInterpreter =
       new Jinjava(
-        JinjavaConfig.newBuilder().withNestedInterpretationEnabled(true).build()
+        BaseJinjavaTest.newConfigBuilder().withNestedInterpretationEnabled(true).build()
       )
         .newInterpreter();
-    interpreter = new Jinjava(JinjavaConfig.newBuilder().build()).newInterpreter();
+    interpreter =
+      new Jinjava(BaseJinjavaTest.newConfigBuilder().build()).newInterpreter();
   }
 
   @Test
@@ -69,8 +71,8 @@ public class ExpressionNodeTest {
 
   @Test
   public void itRendersNestedTags() throws Exception {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withNestedInterpretationEnabled(true)
       .build();
     try (var a = JinjavaInterpreter.closeablePushCurrent(nestedInterpreter).get()) {
@@ -174,8 +176,8 @@ public class ExpressionNodeTest {
 
   @Test
   public void itRenderEchoUndefined() {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withFeatureConfig(
         FeatureConfig.newBuilder().add(ECHO_UNDEFINED, FeatureStrategies.ACTIVE).build()
       )
@@ -203,8 +205,8 @@ public class ExpressionNodeTest {
 
   @Test
   public void itFailsOnUnknownTokensVariables() throws Exception {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withFailOnUnknownTokens(true)
       .build();
     try (
@@ -223,8 +225,8 @@ public class ExpressionNodeTest {
 
   @Test
   public void itFailsOnUnknownTokensOfLoops() throws Exception {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withFailOnUnknownTokens(true)
       .build();
     JinjavaInterpreter jinjavaInterpreter = new Jinjava(config).newInterpreter();
@@ -238,8 +240,8 @@ public class ExpressionNodeTest {
 
   @Test
   public void itFailsOnUnknownTokensOfIf() throws Exception {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withFailOnUnknownTokens(true)
       .build();
     try (
@@ -258,8 +260,8 @@ public class ExpressionNodeTest {
 
   @Test
   public void itFailsOnUnknownTokensWithFilter() throws Exception {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withFailOnUnknownTokens(true)
       .build();
     try (
@@ -305,8 +307,8 @@ public class ExpressionNodeTest {
 
   @Test
   public void itIgnoresParseErrorsWhenFeatureIsEnabled() {
-    final JinjavaConfig config = JinjavaConfig
-      .newBuilder()
+    final JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withFeatureConfig(
         FeatureConfig
           .newBuilder()

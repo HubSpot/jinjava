@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.ErrorHandlingStrategy;
@@ -138,7 +138,11 @@ public class TreeParserTest extends BaseInterpretingTest {
   public void trimAndLstripBlocks() {
     interpreter =
       new Jinjava(
-        JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build()
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withLstripBlocks(true)
+          .withTrimBlocks(true)
+          .build()
       )
         .newInterpreter();
 
@@ -150,7 +154,11 @@ public class TreeParserTest extends BaseInterpretingTest {
   public void trimAndLstripCommentBlocks() {
     interpreter =
       new Jinjava(
-        JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build()
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withLstripBlocks(true)
+          .withTrimBlocks(true)
+          .build()
       )
         .newInterpreter();
 
@@ -246,8 +254,8 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.render(tree)).isEqualTo("A\n\nB");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -268,8 +276,8 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.render(tree)).isEqualTo("A\n");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -290,8 +298,8 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.render(tree)).isEqualTo("A\n{{ ");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -312,8 +320,8 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.render(tree)).isEqualTo("A\n{% ");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -341,8 +349,8 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.render(tree)).isEqualTo("A\nB\nC");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides
               .newBuilder()
@@ -363,8 +371,8 @@ public class TreeParserTest extends BaseInterpretingTest {
     assertThat(interpreter.render(tree)).isEqualTo("AB");
     interpreter =
       new Jinjava(
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withAllowAdjacentTextNodes(true).build()
           )

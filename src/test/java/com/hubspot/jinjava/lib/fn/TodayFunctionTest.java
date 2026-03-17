@@ -3,8 +3,8 @@ package com.hubspot.jinjava.lib.fn;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
@@ -37,8 +37,8 @@ public class TodayFunctionTest extends BaseInterpretingTest {
           new JinjavaInterpreter(
             new Jinjava(),
             new Context(),
-            JinjavaConfig
-              .newBuilder()
+            BaseJinjavaTest
+              .newConfigBuilder()
               .withDateTimeProvider(new FixedDateTimeProvider(ts))
               .build()
           )
@@ -74,8 +74,8 @@ public class TodayFunctionTest extends BaseInterpretingTest {
           new JinjavaInterpreter(
             new Jinjava(),
             new Context(),
-            JinjavaConfig
-              .newBuilder()
+            BaseJinjavaTest
+              .newConfigBuilder()
               .withExecutionMode(EagerExecutionMode.instance())
               .build()
           )

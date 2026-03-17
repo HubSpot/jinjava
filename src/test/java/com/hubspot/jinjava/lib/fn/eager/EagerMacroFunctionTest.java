@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
-import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
@@ -26,8 +26,8 @@ public class EagerMacroFunctionTest extends BaseInterpretingTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withExecutionMode(EagerExecutionMode.instance())
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()

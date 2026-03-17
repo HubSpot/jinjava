@@ -50,8 +50,8 @@ public class FullSnippetsTest {
         }
       }
     );
-    JinjavaConfig config = JinjavaConfig
-      .newBuilder()
+    JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
       .withNestedInterpretationEnabled(true)
       .withLegacyOverrides(
         LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()

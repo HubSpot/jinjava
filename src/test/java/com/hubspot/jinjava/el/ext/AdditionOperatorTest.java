@@ -3,8 +3,8 @@ package com.hubspot.jinjava.el.ext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
 import java.util.Collection;
@@ -22,7 +22,9 @@ public class AdditionOperatorTest {
   @Before
   public void setup() {
     interpreter =
-      new Jinjava(JinjavaConfig.newBuilder().withMaxOutputSize(MAX_STRING_LENGTH).build())
+      new Jinjava(
+        BaseJinjavaTest.newConfigBuilder().withMaxOutputSize(MAX_STRING_LENGTH).build()
+      )
         .newInterpreter();
     JinjavaInterpreter.pushCurrent(interpreter);
   }

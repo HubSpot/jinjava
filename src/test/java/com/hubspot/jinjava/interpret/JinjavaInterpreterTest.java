@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
@@ -42,7 +43,10 @@ public class JinjavaInterpreterTest {
   public void setup() {
     jinjava =
       new Jinjava(
-        JinjavaConfig.newBuilder().withTimeZone(ZoneId.of("America/New_York")).build()
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withTimeZone(ZoneId.of("America/New_York"))
+          .build()
       );
     interpreter = jinjava.newInterpreter();
     symbols = interpreter.getConfig().getTokenScannerSymbols();
@@ -204,8 +208,8 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itLimitsOutputSize() {
-    JinjavaConfig outputSizeLimitedConfig = JinjavaConfig
-      .newBuilder()
+    JinjavaConfig outputSizeLimitedConfig = BaseJinjavaTest
+      .newConfigBuilder()
       .withMaxOutputSize(20)
       .build();
     String output = "123456789012345678901234567890";
@@ -222,8 +226,8 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itLimitsOutputSizeOnTagNode() {
-    JinjavaConfig outputSizeLimitedConfig = JinjavaConfig
-      .newBuilder()
+    JinjavaConfig outputSizeLimitedConfig = BaseJinjavaTest
+      .newConfigBuilder()
       .withMaxOutputSize(10)
       .build();
     String output = "{% for i in range(20) %} {{ i }} {% endfor %}";
@@ -245,8 +249,8 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itLimitsOutputSizeWhenSumOfNodeSizesExceedsMax() {
-    JinjavaConfig outputSizeLimitedConfig = JinjavaConfig
-      .newBuilder()
+    JinjavaConfig outputSizeLimitedConfig = BaseJinjavaTest
+      .newConfigBuilder()
       .withMaxOutputSize(19)
       .build();
     String input = "1234567890{% block testchild %}1234567890{% endblock %}";
@@ -265,8 +269,8 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itCanPreserveRawTags() {
-    JinjavaConfig preserveConfig = JinjavaConfig
-      .newBuilder()
+    JinjavaConfig preserveConfig = BaseJinjavaTest
+      .newConfigBuilder()
       .withExecutionMode(PreserveRawExecutionMode.instance())
       .build();
     String input = "1{% raw %}2{% endraw %}3";
@@ -355,8 +359,8 @@ public class JinjavaInterpreterTest {
   public void itInterpretsEmptyExpressions() {
     jinjava =
       new Jinjava(
-        JinjavaConfig
-          .builder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withTimeZone(ZoneId.of("America/New_York"))
           .withLegacyOverrides(
             LegacyOverrides.THREE_POINT_0.withParseWhitespaceControlStrictly(false)
@@ -520,13 +524,16 @@ public class JinjavaInterpreterTest {
     JinjavaInterpreter normalInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContext(),
-      JinjavaConfig.newBuilder().withExecutionMode(EagerExecutionMode.instance()).build()
+      BaseJinjavaTest
+        .newConfigBuilder()
+        .withExecutionMode(EagerExecutionMode.instance())
+        .build()
     );
     JinjavaInterpreter preventingInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContext(),
-      JinjavaConfig
-        .newBuilder()
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withFeatureConfig(
           FeatureConfig
             .newBuilder()
@@ -566,13 +573,16 @@ public class JinjavaInterpreterTest {
     JinjavaInterpreter normalInterpreter = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContext(),
-      JinjavaConfig.newBuilder().withExecutionMode(EagerExecutionMode.instance()).build()
+      BaseJinjavaTest
+        .newConfigBuilder()
+        .withExecutionMode(EagerExecutionMode.instance())
+        .build()
     );
     JinjavaInterpreter outputtingErrorInterpreters = new JinjavaInterpreter(
       jinjava,
       jinjava.getGlobalContext(),
-      JinjavaConfig
-        .newBuilder()
+      BaseJinjavaTest
+        .newConfigBuilder()
         .withFeatureConfig(
           FeatureConfig
             .newBuilder()

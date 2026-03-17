@@ -3,8 +3,8 @@ package com.hubspot.jinjava.lib.tag.eager;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.ExpectedNodeInterpreter;
-import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -28,8 +28,8 @@ public class EagerForTagTest extends ForTagTest {
       new JinjavaInterpreter(
         jinjava,
         context,
-        JinjavaConfig
-          .newBuilder()
+        BaseJinjavaTest
+          .newConfigBuilder()
           .withMaxOutputSize(MAX_OUTPUT_SIZE)
           .withExecutionMode(EagerExecutionMode.instance())
           .withLegacyOverrides(
