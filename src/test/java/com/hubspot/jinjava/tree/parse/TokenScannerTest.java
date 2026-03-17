@@ -7,7 +7,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.JinjavaConfig;
-import com.hubspot.jinjava.LegacyOverrides;
+import com.hubspot.jinjava.features.BuiltInFeatures;
+import com.hubspot.jinjava.features.FeatureConfig;
+import com.hubspot.jinjava.features.FeatureStrategies;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +27,7 @@ public class TokenScannerTest {
 
   @Before
   public void setup() {
-    config = JinjavaConfig.newBuilder().build();
+    config = JinjavaConfig.builder().build();
     symbols = config.getTokenScannerSymbols();
   }
 
@@ -266,13 +268,17 @@ public class TokenScannerTest {
     List<Token> tokens = tokens("comment-without-whitespace");
     assertThat(tokens.get(0).content.trim()).isEqualTo("$");
 
-    LegacyOverrides legacyOverrides = LegacyOverrides
-      .newBuilder()
-      .withWhitespaceRequiredWithinTokens(true)
-      .build();
     JinjavaConfig config = JinjavaConfig
-      .newBuilder()
-      .withLegacyOverrides(legacyOverrides)
+      .builder()
+      .withFeatureConfig(
+        FeatureConfig
+          .newBuilder()
+          .add(
+            BuiltInFeatures.WHITESPACE_REQUIRED_WITHIN_TOKENS,
+            FeatureStrategies.ACTIVE
+          )
+          .build()
+      )
       .build();
     TokenScanner scanner = fixture("comment-without-whitespace", config);
     tokens = Lists.newArrayList(scanner);
@@ -299,8 +305,7 @@ public class TokenScannerTest {
 
   @Test
   public void testLstripBlocks() {
-    config =
-      JinjavaConfig.newBuilder().withLstripBlocks(true).withTrimBlocks(true).build();
+    config = JinjavaConfig.builder().withLstripBlocks(true).withTrimBlocks(true).build();
 
     List<Token> tokens = tokens("tag-with-trim-chars");
     assertThat(tokens).isNotEmpty();
