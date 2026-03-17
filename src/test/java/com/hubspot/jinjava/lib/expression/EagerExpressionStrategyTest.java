@@ -3,8 +3,11 @@ package com.hubspot.jinjava.lib.expression;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
+import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -14,15 +17,24 @@ import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.collections.PyList;
 import com.hubspot.jinjava.tree.ExpressionNodeTest;
 import java.util.ArrayList;
-import java.util.Collections;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class EagerExpressionStrategyTest extends ExpressionNodeTest {
 
+  private Jinjava jinjava;
+
+  class EagerExecutionModeNoRaw extends EagerExecutionMode {
+
+    @Override
+    public boolean isPreserveRawTags() {
+      return false; // So that we can run all the ExpressionNodeTest tests without having the extra `{% raw %}` tags inserted
+    }
+  }
+
   @Before
   public void eagerSetup() throws Exception {
+    jinjava = new Jinjava(JinjavaConfig.newBuilder().build());
     jinjava
       .getGlobalContext()
       .registerFunction(
@@ -35,19 +47,27 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
     interpreter =
       new JinjavaInterpreter(
         jinjava,
-        context,
+        new Context(),
         JinjavaConfig
           .newBuilder()
+          .withExecutionMode(new EagerExecutionModeNoRaw())
+          .build()
+      );
+    nestedInterpreter =
+      new JinjavaInterpreter(
+        jinjava,
+        interpreter.getContext(),
+        JinjavaConfig
+          .newBuilder()
+          .withNestedInterpretationEnabled(true)
+          .withLegacyOverrides(
+            LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+          )
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );
-    JinjavaInterpreter.pushCurrent(interpreter);
-    context.put("deferred", DeferredValue.instance());
-  }
-
-  @After
-  public void teardown() {
-    JinjavaInterpreter.popCurrent();
+    interpreter.getContext().put("deferred", DeferredValue.instance());
+    nestedInterpreter.getContext().put("deferred", DeferredValue.instance());
   }
 
   @Test
@@ -55,31 +75,24 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
     interpreter =
       new JinjavaInterpreter(
         jinjava,
-        context,
+        new Context(),
         JinjavaConfig
           .newBuilder()
-          .withNestedInterpretationEnabled(false)
-          .withLegacyOverrides(
-            LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
-          )
           .withExecutionMode(EagerExecutionMode.instance())
           .build()
       );
-    JinjavaInterpreter.pushCurrent(interpreter);
-    try {
-      assertExpectedOutput(
-        "{{ '{{ foo }}' }} {{ '{% something %}' }} {{ 'not needed' }}",
-        "{% raw %}{{ foo }}{% endraw %} {% raw %}{% something %}{% endraw %} not needed"
-      );
-    } finally {
-      JinjavaInterpreter.popCurrent();
-    }
+    assertExpectedOutput(
+      interpreter,
+      "{{ '{{ foo }}' }} {{ '{% something %}' }} {{ 'not needed' }}",
+      "{% raw %}{{ foo }}{% endraw %} {% raw %}{% something %}{% endraw %} not needed"
+    );
   }
 
   @Test
   public void itPreservesRawTagsNestedInterpretation() {
-    context.put("bar", "bar");
+    nestedInterpreter.getContext().put("bar", "bar");
     assertExpectedOutput(
+      nestedInterpreter,
       "{{ '{{ 12345 }}' }} {{ '{% print bar %}' }} {{ 'not needed' }}",
       "12345 bar not needed"
     );
@@ -88,6 +101,7 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
   @Test
   public void itPrependsMacro() {
     assertExpectedOutput(
+      interpreter,
       "{% macro foo(bar) %} {{ bar }} {% endmacro %}{{ foo(deferred) }}",
       "{% macro foo(bar) %} {{ bar }} {% endmacro %}{{ foo(deferred) }}"
     );
@@ -95,8 +109,9 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
 
   @Test
   public void itPrependsSet() {
-    context.put("foo", new PyList(new ArrayList<>()));
+    interpreter.getContext().put("foo", new PyList(new ArrayList<>()));
     assertExpectedOutput(
+      interpreter,
       "{{ foo.append(deferred) }}",
       "{% set foo = [] %}{{ foo.append(deferred) }}"
     );
@@ -104,8 +119,9 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
 
   @Test
   public void itDoesConcatenation() {
-    context.put("foo", "y'all");
+    interpreter.getContext().put("foo", "y'all");
     assertExpectedOutput(
+      interpreter,
       "{{ 'oh, ' ~ foo ~ foo ~ ' toaster' }}",
       "oh, y'ally'all toaster"
     );
@@ -116,6 +132,7 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
     // {{ 'a|\'|\\\'|\\\\\'|"|\"|\\"|\\\\"|a ' ~ " b|\"|\\\"|\\\\\"|'|\'|\\'|\\\\'|b" }}
     // --> a|'|\'|\\'|"|"|\"|\\"|a  b|"|\"|\\"|'|'|\'|\\'|b
     assertExpectedOutput(
+      interpreter,
       "{{ 'a|\\'|\\\\\\'|\\\\\\\\\\'|\"|\\\"|\\\\\"|\\\\\\\\\"|a ' " +
       "~ \" b|\\\"|\\\\\\\"|\\\\\\\\\\\"|'|\\'|\\\\'|\\\\\\\\'|b\" }}",
       "a|'|\\'|\\\\'|\"|\"|\\\"|\\\\\"|a  b|\"|\\\"|\\\\\"|'|'|\\'|\\\\'|b"
@@ -125,6 +142,7 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
   @Test
   public void itGoesIntoDeferredExecutionMode() {
     assertExpectedOutput(
+      interpreter,
       "{{ is_deferred_execution_mode() }}" +
       "{% if deferred %}{{ is_deferred_execution_mode() }}{% endif %}" +
       "{{ is_deferred_execution_mode() }}",
@@ -135,6 +153,7 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
   @Test
   public void itGoesIntoDeferredExecutionModeWithMacro() {
     assertExpectedOutput(
+      interpreter,
       "{% macro def() %}{{ is_deferred_execution_mode() }}{% endmacro %}" +
       "{{ def() }}" +
       "{% if deferred %}{{ def() }}{% endif %}" +
@@ -145,20 +164,28 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
 
   @Test
   public void itDoesNotGoIntoDeferredExecutionModeUnnecessarily() {
-    assertExpectedOutput("{{ is_deferred_execution_mode() }}", "false");
+    assertExpectedOutput(interpreter, "{{ is_deferred_execution_mode() }}", "false");
     interpreter.getContext().setDeferredExecutionMode(true);
-    assertExpectedOutput("{{ is_deferred_execution_mode() }}", "true");
+    assertExpectedOutput(interpreter, "{{ is_deferred_execution_mode() }}", "true");
   }
 
   @Test
   public void itDoesNotNestedInterpretIfThereAreFakeNotes() {
-    assertExpectedOutput("{{ '{#something_to_{{keep}}' }}", "{#something_to_{{keep}}");
+    assertExpectedOutput(
+      nestedInterpreter,
+      "{{ '{#something_to_{{keep}}' }}",
+      "{#something_to_{{keep}}"
+    );
   }
 
   @Test
   public void itDoesNotReconstructWithDoubleCurlyBraces() {
     interpreter.getContext().put("foo", ImmutableMap.of("foo", ImmutableMap.of()));
-    assertExpectedOutput("{{ deferred ~ foo }}", "{{ deferred ~ {'foo': {} } }}");
+    assertExpectedOutput(
+      interpreter,
+      "{{ deferred ~ foo }}",
+      "{{ deferred ~ {'foo': {} } }}"
+    );
   }
 
   @Test
@@ -167,6 +194,7 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
       .getContext()
       .put("foo", ImmutableMap.of("foo", ImmutableMap.of("bar", ImmutableMap.of())));
     assertExpectedOutput(
+      interpreter,
       "{{ deferred ~ foo }}",
       "{{ deferred ~ {'foo': {'bar': {} } } }}"
     );
@@ -175,6 +203,7 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
   @Test
   public void itDoesNotReconstructDirectlyWrittenWithDoubleCurlyBraces() {
     assertExpectedOutput(
+      interpreter,
       "{{ deferred ~ {\n'foo': {\n'bar': deferred\n}\n}\n }}",
       "{{ deferred ~ {'foo': {'bar': deferred} } }}"
     );
@@ -184,6 +213,7 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
   public void itReconstructsWithNestedInterpretation() {
     interpreter.getContext().put("foo", "{{ print 'bar' }}");
     assertExpectedOutput(
+      interpreter,
       "{{ deferred ~ foo }}",
       "{{ deferred ~ '{{ print \\'bar\\' }}' }}"
     );
@@ -192,18 +222,24 @@ public class EagerExpressionStrategyTest extends ExpressionNodeTest {
   @Test
   public void itDoesNotDoNestedInterpretationWithSyntaxErrors() {
     try (
-      InterpreterScopeClosable c = interpreter.enterScope(
-        ImmutableMap.of(Library.TAG, Collections.singleton("print"))
+      InterpreterScopeClosable c = nestedInterpreter.enterScope(
+        ImmutableMap.of(Library.TAG, ImmutableSet.of("print"))
       )
     ) {
-      interpreter.getContext().put("foo", "{% print 'bar' %}");
+      nestedInterpreter.getContext().put("foo", "{% print 'bar' %}");
       // Rather than rendering this to an empty string
-      assertThat(interpreter.render("{{ foo }}")).isEqualTo("{% print 'bar' %}");
+      assertExpectedOutput(nestedInterpreter, "{{ foo }}", "{% print 'bar' %}");
     }
   }
 
-  private void assertExpectedOutput(String inputTemplate, String expectedOutput) {
-    assertThat(interpreter.render(inputTemplate)).isEqualTo(expectedOutput);
+  private void assertExpectedOutput(
+    JinjavaInterpreter interpreter,
+    String inputTemplate,
+    String expectedOutput
+  ) {
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      assertThat(a.value().render(inputTemplate)).isEqualTo(expectedOutput);
+    }
   }
 
   public static boolean isDeferredExecutionMode() {

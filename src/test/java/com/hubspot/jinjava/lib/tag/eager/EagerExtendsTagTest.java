@@ -22,12 +22,18 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
 
   @Before
   public void eagerSetup() {
+    eagerSetup(false);
+  }
+
+  void eagerSetup(boolean nestedInterpretation) {
+    JinjavaInterpreter.popCurrent();
     interpreter =
       new JinjavaInterpreter(
         jinjava,
         context,
         JinjavaConfig
           .newBuilder()
+          .withNestedInterpretationEnabled(nestedInterpretation)
           .withExecutionMode(EagerExecutionMode.instance())
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
@@ -66,6 +72,7 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
 
   @Test
   public void itDefersSuperBlockWithDeferred() {
+    eagerSetup(true);
     expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
       "defers-super-block-with-deferred"
     );
@@ -73,13 +80,27 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
 
   @Test
   public void itDefersSuperBlockWithDeferredSecondPass() {
+    eagerSetup(true);
     context.put("deferred", "Resolved now");
-    expectedTemplateInterpreter.assertExpectedOutput(
-      "defers-super-block-with-deferred.expected"
-    );
-    context.remove(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY);
     expectedTemplateInterpreter.assertExpectedNonEagerOutput(
       "defers-super-block-with-deferred.expected"
+    );
+  }
+
+  @Test
+  public void itDefersSuperBlockWithDeferredNestedInterp() {
+    eagerSetup(true);
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "defers-super-block-with-deferred-nested-interp"
+    );
+  }
+
+  @Test
+  public void itDefersSuperBlockWithDeferredNestedInterpSecondPass() {
+    eagerSetup(true);
+    context.put("deferred", "Resolved now");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "defers-super-block-with-deferred-nested-interp.expected"
     );
   }
 
