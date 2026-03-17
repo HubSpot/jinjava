@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.expression;
 
+import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.features.FeatureActivationStrategy;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.filter.EscapeFilter;
@@ -12,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 public class DefaultExpressionStrategy implements ExpressionStrategy {
 
   private static final long serialVersionUID = 436239440273704843L;
-  public static final String ECHO_UNDEFINED = "echoUndefined";
+  public static final String ECHO_UNDEFINED = BuiltInFeatures.ECHO_UNDEFINED;
 
   public RenderedOutputNode interpretOutput(
     ExpressionToken master,
@@ -26,7 +27,7 @@ public class DefaultExpressionStrategy implements ExpressionStrategy {
     final FeatureActivationStrategy feat = interpreter
       .getConfig()
       .getFeatures()
-      .getActivationStrategy(ECHO_UNDEFINED);
+      .getActivationStrategy(BuiltInFeatures.ECHO_UNDEFINED);
 
     if (var == null && feat.isActive(interpreter.getContext())) {
       return new RenderedOutputNode(master.getImage());

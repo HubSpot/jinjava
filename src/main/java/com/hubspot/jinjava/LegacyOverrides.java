@@ -146,6 +146,10 @@ public class LegacyOverrides {
       return this;
     }
 
+    /**
+     * Use {@link com.hubspot.jinjava.features.BuiltInFeatures#WHITESPACE_REQUIRED_WITHIN_TOKENS} instead
+     */
+    @Deprecated
     public Builder withWhitespaceRequiredWithinTokens(
       boolean whitespaceRequiredWithinTokens
     ) {

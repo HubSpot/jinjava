@@ -30,6 +30,7 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.el.ExpressionResolver;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
 import com.hubspot.jinjava.el.ext.ExtendedParser;
+import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context.TemporaryValueClosable;
 import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF;
@@ -87,9 +88,9 @@ public class JinjavaInterpreter implements PyishSerializable {
     "ignored_output_from_extends";
 
   public static final String OUTPUT_UNDEFINED_VARIABLES_ERROR =
-    "OUTPUT_UNDEFINED_VARIABLES_ERROR";
+    BuiltInFeatures.OUTPUT_UNDEFINED_VARIABLES_ERROR;
   public static final String IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS =
-    "IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS";
+    BuiltInFeatures.IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS;
   private final Multimap<String, BlockInfo> blocks = ArrayListMultimap.create();
   private final LinkedList<Node> extendParentRoots = new LinkedList<>();
   private final Map<String, RevertibleObject> revertibleObjects = new HashMap<>();
@@ -288,9 +289,7 @@ public class JinjavaInterpreter implements PyishSerializable {
   private TemporaryValueClosable<ErrorHandlingStrategy> ignoreParseErrorsIfActivated() {
     return config
         .getFeatures()
-        .getActivationStrategy(
-          JinjavaInterpreter.IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS
-        )
+        .getActivationStrategy(BuiltInFeatures.IGNORE_NESTED_INTERPRETATION_PARSE_ERRORS)
         .isActive(context)
       ? context.withErrorHandlingStrategy(ErrorHandlingStrategyIF.ignoreAll())
       : TemporaryValueClosable.noOp();
@@ -664,7 +663,7 @@ public class JinjavaInterpreter implements PyishSerializable {
       if (
         getConfig()
           .getFeatures()
-          .getActivationStrategy(OUTPUT_UNDEFINED_VARIABLES_ERROR)
+          .getActivationStrategy(BuiltInFeatures.OUTPUT_UNDEFINED_VARIABLES_ERROR)
           .isActive(context)
       ) {
         addError(
