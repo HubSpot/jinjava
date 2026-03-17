@@ -10,10 +10,10 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.lib.fn.MacroFunction;
-import com.hubspot.jinjava.lib.tag.eager.EagerImportTagTest.PrintPathFilter;
 import com.hubspot.jinjava.loader.LocationResolver;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
+import com.hubspot.jinjava.testobjects.EagerImportTagTestObjects;
 import com.hubspot.jinjava.tree.Node;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -31,7 +31,7 @@ public class ImportTagTest extends BaseInterpretingTest {
   @Before
   public void setup() {
     context.put("padding", 42);
-    context.registerFilter(new PrintPathFilter());
+    context.registerFilter(new EagerImportTagTestObjects.PrintPathFilter());
   }
 
   @Test

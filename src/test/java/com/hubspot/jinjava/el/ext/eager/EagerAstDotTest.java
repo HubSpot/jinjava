@@ -8,11 +8,10 @@ import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
-import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.PartiallyDeferredValue;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
+import com.hubspot.jinjava.testobjects.EagerAstDotTestObjects.Foo;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -65,21 +64,5 @@ public class EagerAstDotTest extends BaseInterpretingTest {
     assertThat(interpreter.render("{{ foo_map.bar.deferred }}"))
       .isEqualTo("{{ foo_map.bar.deferred }}");
     assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
-  }
-
-  public static class Foo implements PartiallyDeferredValue {
-
-    public String getDeferred() {
-      throw new DeferredValueException("foo.deferred is deferred");
-    }
-
-    public String getResolved() {
-      return "resolved";
-    }
-
-    @Override
-    public Object getOriginalValue() {
-      return null;
-    }
   }
 }

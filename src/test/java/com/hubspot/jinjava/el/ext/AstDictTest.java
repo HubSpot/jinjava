@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
-import java.util.Map;
+import com.hubspot.jinjava.testobjects.AstDictTestObjects;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,20 +34,26 @@ public class AstDictTest {
 
   @Test
   public void itGetsDictValuesWithEnumKeysUsingToString() {
-    interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
+    interpreter
+      .getContext()
+      .put("foo", ImmutableMap.of(AstDictTestObjects.TestEnum.BAR, "test"));
     assertThat(interpreter.resolveELExpression("foo.barName", -1)).isEqualTo("test");
   }
 
   @Test
   public void itDoesItemsMethodCall() {
-    interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
+    interpreter
+      .getContext()
+      .put("foo", ImmutableMap.of(AstDictTestObjects.TestEnum.BAR, "test"));
     assertThat(interpreter.resolveELExpression("foo.items()", -1))
       .isInstanceOf(Set.class);
   }
 
   @Test
   public void itDoesKeysMethodCall() {
-    interpreter.getContext().put("foo", ImmutableMap.of(TestEnum.BAR, "test"));
+    interpreter
+      .getContext()
+      .put("foo", ImmutableMap.of(AstDictTestObjects.TestEnum.BAR, "test"));
     assertThat(interpreter.resolveELExpression("foo.keys()", -1)).isInstanceOf(Set.class);
   }
 
@@ -62,37 +68,11 @@ public class AstDictTest {
   public void itGetsDictValuesWithEnumKeysInObjects() {
     interpreter
       .getContext()
-      .put("test", new TestClass(ImmutableMap.of(ErrorType.FATAL, "test")));
+      .put(
+        "test",
+        new AstDictTestObjects.TestClass(ImmutableMap.of(ErrorType.FATAL, "test"))
+      );
     assertThat(interpreter.resolveELExpression("test.my_map.FATAL", -1))
       .isEqualTo("test");
-  }
-
-  public class TestClass {
-
-    private Map<ErrorType, String> myMap;
-
-    public TestClass(Map<ErrorType, String> myMap) {
-      this.myMap = myMap;
-    }
-
-    public Map<ErrorType, String> getMyMap() {
-      return myMap;
-    }
-  }
-
-  public enum TestEnum {
-    FOO("fooName"),
-    BAR("barName");
-
-    private String name;
-
-    TestEnum(String name) {
-      this.name = name;
-    }
-
-    @Override
-    public String toString() {
-      return name;
-    }
   }
 }
