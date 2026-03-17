@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.features.FeatureStrategies;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
@@ -363,6 +364,17 @@ public class JinjavaInterpreterTest {
 
   @Test
   public void itInterpretsEmptyExpressions() {
+    jinjava =
+      new Jinjava(
+        JinjavaConfig
+          .builder()
+          .withTimeZone(ZoneId.of("America/New_York"))
+          .withLegacyOverrides(
+            LegacyOverrides.THREE_POINT_0.withParseWhitespaceControlStrictly(false)
+          )
+          .build()
+      );
+    interpreter = jinjava.newInterpreter();
     assertThat(interpreter.render("{{}}")).isEqualTo("");
   }
 
