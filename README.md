@@ -78,7 +78,7 @@ You will likely want to provide your own implementation of
 `ResourceLoader` to hook into your application's template repository, and then tell jinjava about it:
 
 ```java
-JinjavaConfig config = new JinjavaConfig();
+JinjavaConfig config = JinjavaConfig.builder().build();
 
 Jinjava jinjava = new Jinjava(config);
 jinjava.setResourceLocator(new MyCustomResourceLocator());
@@ -87,7 +87,7 @@ jinjava.setResourceLocator(new MyCustomResourceLocator());
 To use more than one `ResourceLocator`, use a `CascadingResourceLocator`. 
 
 ```java
-JinjavaConfig config = new JinjavaConfig();
+JinjavaConfig config = JinjavaConfig.builder().build();
 
 Jinjava jinjava = new Jinjava(config);
 jinjava.setResourceLocator(new MyCustomResourceLocator(), new FileResourceLocator());

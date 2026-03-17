@@ -184,6 +184,7 @@
     <dependency>
       <groupId>com.google.errorprone</groupId>
       <artifactId>error_prone_annotations</artifactId>
+      <scope>runtime</scope>
     </dependency>
 
     <dependency>
@@ -217,18 +218,10 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.hubspot.immutables</groupId>
-      <artifactId>hubspot-style</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.hubspot.immutables</groupId>
-      <artifactId>immutables-exceptions</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.hubspot</groupId>
       <artifactId>algebra</artifactId>
     </dependency>
+
   </dependencies>
 
   <build>

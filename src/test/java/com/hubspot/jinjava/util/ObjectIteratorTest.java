@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.ArrayList;
@@ -101,7 +102,7 @@ public class ObjectIteratorTest {
   public void testItIteratesOverKeys() throws Exception {
     JinjavaConfig config = JinjavaConfig
       .newBuilder()
-      .withIterateOverMapKeys(true)
+      .withLegacyOverrides(LegacyOverrides.builder().withIterateOverMapKeys(true).build())
       .build();
     JinjavaInterpreter.pushCurrent(
       new JinjavaInterpreter(new Jinjava(), new Context(), config)

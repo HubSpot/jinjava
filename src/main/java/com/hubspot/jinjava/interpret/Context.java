@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
-import com.hubspot.jinjava.interpret.ContextConfigurationIF.ErrorHandlingStrategyIF.TemplateErrorTypeHandlingStrategy;
 import com.hubspot.jinjava.lib.Importable;
 import com.hubspot.jinjava.lib.expression.ExpressionStrategy;
 import com.hubspot.jinjava.lib.exptest.ExpTest;
@@ -796,7 +795,7 @@ public class Context extends ScopeMap<String, Object> {
     ErrorHandlingStrategy errorHandlingStrategy = getErrorHandlingStrategy();
     return (
       errorHandlingStrategy.getFatalErrorStrategy() ==
-      TemplateErrorTypeHandlingStrategy.THROW_EXCEPTION
+      ErrorHandlingStrategy.TemplateErrorTypeHandlingStrategy.THROW_EXCEPTION
     );
   }
 
@@ -808,13 +807,13 @@ public class Context extends ScopeMap<String, Object> {
           .builder()
           .setFatalErrorStrategy(
             throwInterpreterErrors
-              ? TemplateErrorTypeHandlingStrategy.THROW_EXCEPTION
-              : TemplateErrorTypeHandlingStrategy.ADD_ERROR
+              ? ErrorHandlingStrategy.TemplateErrorTypeHandlingStrategy.THROW_EXCEPTION
+              : ErrorHandlingStrategy.TemplateErrorTypeHandlingStrategy.ADD_ERROR
           )
           .setNonFatalErrorStrategy(
             throwInterpreterErrors
-              ? TemplateErrorTypeHandlingStrategy.IGNORE // Deprecated, warnings are ignored when doing eager expression resolving
-              : TemplateErrorTypeHandlingStrategy.ADD_ERROR
+              ? ErrorHandlingStrategy.TemplateErrorTypeHandlingStrategy.IGNORE // Deprecated, warnings are ignored when doing eager expression resolving
+              : ErrorHandlingStrategy.TemplateErrorTypeHandlingStrategy.ADD_ERROR
           )
           .build()
       );
