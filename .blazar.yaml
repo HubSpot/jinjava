@@ -1,2 +1,5 @@
 buildResources:
   memoryMb: 10240
+
+env:
+  SKIP_VERSION_OVERRIDE: true

@@ -30,6 +30,8 @@
     </basepom.test.add.opens>
 
     <argLine />
+
+    <hubspot.build.moved.after>1773782489663</hubspot.build.moved.after>
   </properties>
 
   <dependencyManagement>
