@@ -65,20 +65,40 @@ public class CallTag implements Tag {
 
   @Override
   public String interpret(TagNode tagNode, JinjavaInterpreter interpreter) {
-    String macroExpr = "{{" + tagNode.getHelpers().trim() + "}}";
+    String macroCallExpr = tagNode.getHelpers().trim();
+
+    LinkedHashMap<String, Object> argNamesWithDefaults = new LinkedHashMap<>();
+
+    if (macroCallExpr.startsWith("(")) {
+      int closeIdx = macroCallExpr.indexOf(')');
+      if (closeIdx != -1) {
+        String params = macroCallExpr.substring(1, closeIdx).trim();
+        if (!params.isEmpty()) {
+          MacroTag.populateArgNames(
+            tagNode.getLineNumber(),
+            interpreter,
+            params,
+            argNamesWithDefaults
+          );
+        }
+        macroCallExpr = macroCallExpr.substring(closeIdx + 1).trim();
+      }
+    }
+
+    String macroExpr = "{{" + macroCallExpr + "}}";
 
     try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
-      LinkedHashMap<String, Object> args = new LinkedHashMap<>();
       MacroFunction caller = new MacroFunction(
         tagNode.getChildren(),
         "caller",
-        args,
+        argNamesWithDefaults,
         true,
         interpreter.getContext(),
         interpreter.getLineNumber(),
         interpreter.getPosition()
       );
       interpreter.getContext().addGlobalMacro(caller);
+      interpreter.getContext().put(caller.getName(), caller);
 
       return interpreter.render(macroExpr);
     }
