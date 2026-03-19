@@ -33,7 +33,7 @@ public class FormatDateFilterTest {
 
   @Before
   public void setUp() throws Exception {
-    jinjava = new Jinjava();
+    jinjava = new Jinjava(BaseJinjavaTest.newConfigBuilder().build());
     jinjava.getGlobalContext().registerClasses(FormatDateFilter.class);
   }
 

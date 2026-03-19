@@ -1,13 +1,14 @@
 package com.hubspot.jinjava.el;
 
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.el.FunctionMapper;
 import javax.el.VariableMapper;
 
-public class NoInvokeELContext extends ELContext {
+public class NoInvokeELContext extends ELContext implements HasInterpreter {
 
-  private ELContext delegate;
+  private final ELContext delegate;
   private NoInvokeELResolver elResolver;
 
   public NoInvokeELContext(ELContext delegate) {
@@ -30,5 +31,13 @@ public class NoInvokeELContext extends ELContext {
   @Override
   public VariableMapper getVariableMapper() {
     return delegate.getVariableMapper();
+  }
+
+  @Override
+  public JinjavaInterpreter interpreter() {
+    if (delegate instanceof HasInterpreter hasInterpreter) {
+      return hasInterpreter.interpreter();
+    }
+    return JinjavaInterpreter.getCurrent();
   }
 }

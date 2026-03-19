@@ -1,8 +1,8 @@
 package com.hubspot.jinjava.el.ext.eager;
 
+import com.hubspot.jinjava.el.HasInterpreter;
 import com.hubspot.jinjava.el.ext.AstDict;
 import com.hubspot.jinjava.el.ext.DeferredParsingException;
-import com.hubspot.jinjava.el.ext.ExtendedParser;
 import com.hubspot.jinjava.el.ext.IdentifierPreservationStrategy;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.EagerExpressionResolver;
@@ -38,9 +38,7 @@ public class EagerAstDict extends AstDict implements EvalResultHolder {
     DeferredParsingException deferredParsingException,
     IdentifierPreservationStrategy identifierPreservationStrategy
   ) {
-    JinjavaInterpreter interpreter = (JinjavaInterpreter) context
-      .getELResolver()
-      .getValue(context, null, ExtendedParser.INTERPRETER);
+    JinjavaInterpreter interpreter = ((HasInterpreter) context).interpreter();
     StringJoiner joiner = new StringJoiner(", ");
     dict.forEach((key, value) -> {
       StringJoiner kvJoiner = new StringJoiner(": ");

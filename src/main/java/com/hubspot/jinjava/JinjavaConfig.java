@@ -24,6 +24,8 @@ import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
 import com.hubspot.jinjava.el.JinjavaProcessors;
 import com.hubspot.jinjava.el.ObjectUnwrapper;
+import com.hubspot.jinjava.el.ext.AllowlistMethodValidator;
+import com.hubspot.jinjava.el.ext.AllowlistReturnTypeValidator;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.features.Features;
 import com.hubspot.jinjava.interpret.Context.Library;
@@ -98,8 +100,6 @@ public interface JinjavaConfig {
   }
 
   Map<Library, Set<String>> getDisabled();
-  Set<String> getRestrictedMethods();
-  Set<String> getRestrictedProperties();
 
   @Value.Default
   default boolean isFailOnUnknownTokens() {
@@ -159,6 +159,16 @@ public interface JinjavaConfig {
   @Value.Default
   default TokenScannerSymbols getTokenScannerSymbols() {
     return new DefaultTokenScannerSymbols();
+  }
+
+  @Value.Default
+  default AllowlistMethodValidator getMethodValidator() {
+    return AllowlistMethodValidator.DEFAULT;
+  }
+
+  @Value.Default
+  default AllowlistReturnTypeValidator getReturnTypeValidator() {
+    return AllowlistReturnTypeValidator.DEFAULT;
   }
 
   @Value.Default

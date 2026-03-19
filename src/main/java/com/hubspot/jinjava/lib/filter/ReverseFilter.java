@@ -19,8 +19,11 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.objects.collections.ArrayBacked;
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 @JinjavaDoc(
   value = "Reverse the object or return an iterator the iterates over it the other way round.",
@@ -48,24 +51,11 @@ public class ReverseFilter implements Filter {
     }
     // collection
     if (object instanceof Collection) {
-      Object[] origin = ((Collection<?>) object).toArray();
-      int length = origin.length;
-      Object[] res = new Object[length];
-      length--;
-      for (int i = 0; i <= length; i++) {
-        res[i] = origin[length - i];
-      }
-      return res;
+      return ReverseArrayIterator.create(((Collection<?>) object).toArray());
     }
     // array
     if (object.getClass().isArray()) {
-      int length = Array.getLength(object);
-      Object[] res = new Object[length];
-      length--;
-      for (int i = 0; i <= length; i++) {
-        res[i] = Array.get(object, length - i);
-      }
-      return res;
+      return ReverseArrayIterator.create(object);
     }
     // string
     if (object instanceof String) {
@@ -85,5 +75,38 @@ public class ReverseFilter implements Filter {
   @Override
   public String getName() {
     return "reverse";
+  }
+
+  static class ReverseArrayIterator implements Iterator<Object>, ArrayBacked {
+
+    private final Object array;
+    private int index;
+
+    static ReverseArrayIterator create(Object array) {
+      return new ReverseArrayIterator(array);
+    }
+
+    private ReverseArrayIterator(Object array) {
+      this.array = array;
+      index = Array.getLength(array) - 1;
+    }
+
+    @Override
+    public Object next() {
+      if (index < 0) {
+        throw new NoSuchElementException();
+      }
+      return Array.get(array, index--);
+    }
+
+    @Override
+    public boolean hasNext() {
+      return index >= 0;
+    }
+
+    @Override
+    public Object backingArray() {
+      return array;
+    }
   }
 }

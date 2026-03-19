@@ -12,7 +12,7 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
-import com.hubspot.jinjava.testobjects.EagerAstDotTestObjects.Foo;
+import com.hubspot.jinjava.testobjects.EagerAstDotTestObjects;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,6 +28,8 @@ public class EagerAstDotTest extends BaseInterpretingTest {
       .withLegacyOverrides(
         LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
       )
+      .withMethodValidator(BaseJinjavaTest.METHOD_VALIDATOR)
+      .withReturnTypeValidator(BaseJinjavaTest.RETURN_TYPE_VALIDATOR)
       .withMaxMacroRecursionDepth(5)
       .withEnableRecursiveMacroCalls(true)
       .build();
@@ -43,25 +45,32 @@ public class EagerAstDotTest extends BaseInterpretingTest {
 
   @Test
   public void itDefersWhenDotThrowsDeferredValueException() {
-    interpreter.getContext().put("foo", new Foo());
-    assertThat(interpreter.render("{{ foo.deferred }}")).isEqualTo("{{ foo.deferred }}");
+    try (var a = JinjavaInterpreter.closeablePushCurrent(interpreter).get()) {
+      interpreter.getContext().put("foo", new EagerAstDotTestObjects.Foo());
+      assertThat(interpreter.render("{{ foo.deferred }}"))
+        .isEqualTo("{{ foo.deferred }}");
+    }
   }
 
   @Test
   public void itResolvedDeferredMapWithDot() {
-    interpreter.getContext().put("foo", new Foo());
+    interpreter.getContext().put("foo", new EagerAstDotTestObjects.Foo());
     assertThat(interpreter.render("{{ foo.resolved }}")).isEqualTo("resolved");
   }
 
   @Test
   public void itResolvedNestedDeferredMapWithDot() {
-    interpreter.getContext().put("foo_map", ImmutableMap.of("bar", new Foo()));
+    interpreter
+      .getContext()
+      .put("foo_map", ImmutableMap.of("bar", new EagerAstDotTestObjects.Foo()));
     assertThat(interpreter.render("{{ foo_map.bar.resolved }}")).isEqualTo("resolved");
   }
 
   @Test
   public void itDefersNodeWhenNestedDeferredMapDotThrowsDeferredValueException() {
-    interpreter.getContext().put("foo_map", ImmutableMap.of("bar", new Foo()));
+    interpreter
+      .getContext()
+      .put("foo_map", ImmutableMap.of("bar", new EagerAstDotTestObjects.Foo()));
     assertThat(interpreter.render("{{ foo_map.bar.deferred }}"))
       .isEqualTo("{{ foo_map.bar.deferred }}");
     assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
