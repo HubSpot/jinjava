@@ -284,6 +284,9 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     if (value == null) {
       return null;
     }
+    if (value instanceof String || value instanceof Number || value instanceof Boolean) {
+      return value;
+    }
     if (value instanceof PyishSerializable) {
       return value;
     }

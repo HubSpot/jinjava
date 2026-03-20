@@ -977,11 +977,11 @@ public class JinjavaInterpreter implements PyishSerializable {
     ThreadLocal.withInitial(Stack::new);
 
   public static JinjavaInterpreter getCurrent() {
-    if (CURRENT_INTERPRETER.get().isEmpty()) {
+    Stack<JinjavaInterpreter> stack = CURRENT_INTERPRETER.get();
+    if (stack.isEmpty()) {
       return null;
     }
-
-    return CURRENT_INTERPRETER.get().peek();
+    return stack.peek();
   }
 
   public static Optional<JinjavaInterpreter> getCurrentMaybe() {

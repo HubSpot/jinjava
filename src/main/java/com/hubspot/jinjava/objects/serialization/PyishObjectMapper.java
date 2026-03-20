@@ -57,10 +57,13 @@ public class PyishObjectMapper {
   }
 
   public static String getAsUnquotedPyishString(Object val) {
-    if (val != null) {
-      return WhitespaceUtils.unquoteAndUnescape(getAsPyishString(val, true));
+    if (val == null) {
+      return "";
     }
-    return "";
+    if (val instanceof String || val instanceof Number || val instanceof Boolean) {
+      return val.toString();
+    }
+    return WhitespaceUtils.unquoteAndUnescape(getAsPyishString(val, true));
   }
 
   public static String getAsPyishString(Object val) {

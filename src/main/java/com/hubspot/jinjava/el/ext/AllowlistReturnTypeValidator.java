@@ -11,7 +11,7 @@ public final class AllowlistReturnTypeValidator {
     AllowlistReturnTypeValidator.create(
       ReturnTypeValidatorConfig.builder().addDefaultAllowlistGroups().build()
     );
-  private final ConcurrentHashMap<String, Boolean> allowedReturnTypesCache;
+  private final ConcurrentHashMap<Class<?>, Boolean> allowedReturnTypesCache;
 
   private final ImmutableSet<String> allowedCanonicalClassPrefixes;
   private final ImmutableSet<String> allowedCanonicalClassNames;
@@ -47,20 +47,25 @@ public final class AllowlistReturnTypeValidator {
     if (o == null) {
       return null;
     }
+    if (o instanceof String || o instanceof Number || o instanceof Boolean) {
+      return o;
+    }
     Class<?> clazz = o.getClass();
     if (clazz.isArray() && allowArrays) {
       return o;
     }
-    String canonicalClassName = clazz.getCanonicalName();
-    if (canonicalClassName == null) {
-      onRejectedClass.accept(clazz);
-      return null;
-    }
     boolean isAllowedClassName = allowedReturnTypesCache.computeIfAbsent(
-      canonicalClassName,
-      c ->
-        allowedCanonicalClassNames.contains(canonicalClassName) ||
-        allowedCanonicalClassPrefixes.stream().anyMatch(canonicalClassName::startsWith)
+      clazz,
+      c -> {
+        String canonicalClassName = c.getCanonicalName();
+        if (canonicalClassName == null) {
+          return false;
+        }
+        return (
+          allowedCanonicalClassNames.contains(canonicalClassName) ||
+          allowedCanonicalClassPrefixes.stream().anyMatch(canonicalClassName::startsWith)
+        );
+      }
     );
     if (!isAllowedClassName) {
       onRejectedClass.accept(clazz);
