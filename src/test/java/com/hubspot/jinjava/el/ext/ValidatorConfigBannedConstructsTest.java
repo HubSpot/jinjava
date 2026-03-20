@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.exptest.ExpTest;
+import com.hubspot.jinjava.lib.filter.Filter;
 import java.lang.reflect.Method;
 import org.junit.Test;
 
@@ -112,6 +114,34 @@ public class ValidatorConfigBannedConstructsTest {
           .builder()
           .addAllowedDeclaredMethodsFromCanonicalClassPrefixes(
             ObjectMapper.class.getPackageName()
+          )
+          .build()
+      )
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Banned classes or prefixes");
+  }
+
+  @Test
+  public void itRejectsEvilJinjavaFilterPathInAllowedDeclaredMethodPrefixes() {
+    assertThatThrownBy(() ->
+        MethodValidatorConfig
+          .builder()
+          .addAllowedDeclaredMethodsFromCanonicalClassPrefixes(
+            Filter.class.getPackageName() + "_evil"
+          )
+          .build()
+      )
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Banned classes or prefixes");
+  }
+
+  @Test
+  public void itRejectsEvilJinjavaExptestPathInAllowedDeclaredMethodPrefixes() {
+    assertThatThrownBy(() ->
+        MethodValidatorConfig
+          .builder()
+          .addAllowedDeclaredMethodsFromCanonicalClassPrefixes(
+            ExpTest.class.getPackageName() + "_evil"
           )
           .build()
       )

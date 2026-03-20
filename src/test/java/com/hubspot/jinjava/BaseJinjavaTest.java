@@ -14,7 +14,7 @@ public abstract class BaseJinjavaTest {
         .builder()
         .addDefaultAllowlistGroups()
         .addAllowedDeclaredMethodsFromCanonicalClassPrefixes(
-          "com.hubspot.jinjava.testobjects"
+          "com.hubspot.jinjava.testobjects."
         )
         .build()
     );
@@ -23,7 +23,7 @@ public abstract class BaseJinjavaTest {
       ReturnTypeValidatorConfig
         .builder()
         .addDefaultAllowlistGroups()
-        .addAllowedCanonicalClassPrefixes("com.hubspot.jinjava.testobjects")
+        .addAllowedCanonicalClassPrefixes("com.hubspot.jinjava.testobjects.")
         .build()
     );
   public Jinjava jinjava;
