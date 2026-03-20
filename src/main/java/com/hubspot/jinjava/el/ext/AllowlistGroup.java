@@ -143,7 +143,7 @@ public enum AllowlistGroup {
     }
   },
   JinjavaFilters {
-    private static final String[] ARRAY = { Filter.class.getPackageName() };
+    private static final String[] ARRAY = { Filter.class.getPackageName() + '.' };
 
     @Override
     String[] allowedDeclaredMethodsFromCanonicalClassPrefixes() {
@@ -169,7 +169,7 @@ public enum AllowlistGroup {
     }
   },
   JinjavaExpTests {
-    private static final String[] ARRAY = { ExpTest.class.getPackageName() };
+    private static final String[] ARRAY = { ExpTest.class.getPackageName() + '.' };
 
     @Override
     String[] allowedDeclaredMethodsFromCanonicalClassPrefixes() {

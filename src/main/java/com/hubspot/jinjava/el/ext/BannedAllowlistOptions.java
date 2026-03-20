@@ -25,7 +25,7 @@ public class BannedAllowlistOptions {
 
   private static final Set<String> ALLOWED_JINJAVA_PREFIXES = Stream
     .concat(
-      Stream.of("com.hubspot.jinjava.testobjects"),
+      Stream.of("com.hubspot.jinjava.testobjects."),
       Arrays
         .stream(AllowlistGroup.values())
         .flatMap(g ->
