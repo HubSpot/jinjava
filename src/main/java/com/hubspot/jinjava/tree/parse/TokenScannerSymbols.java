@@ -190,4 +190,29 @@ public abstract class TokenScannerSymbols implements Serializable {
   public int getCommentEndLength() {
     return getClosingComment().length();
   }
+
+  /**
+   * Optional line statement prefix (e.g. {@code "%%"}). When non-null, any line
+   * that begins with this prefix (after optional horizontal whitespace) is treated
+   * as a block tag statement, equivalent to wrapping its content in the block
+   * delimiters. Returns {@code null} by default (feature disabled).
+   *
+   * <p>Only used by {@link StringTokenScannerSymbols}; has no effect in the
+   * char-based path.
+   */
+  public String getLineStatementPrefix() {
+    return null;
+  }
+
+  /**
+   * Optional line comment prefix (e.g. {@code "%#"}). When non-null, any line
+   * that begins with this prefix (after optional horizontal whitespace) is stripped
+   * entirely from the output. Returns {@code null} by default (feature disabled).
+   *
+   * <p>Only used by {@link StringTokenScannerSymbols}; has no effect in the
+   * char-based path.
+   */
+  public String getLineCommentPrefix() {
+    return null;
+  }
 }

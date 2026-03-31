@@ -72,6 +72,9 @@ public class StringTokenScannerSymbols extends TokenScannerSymbols {
   private final String blockEndString;
   private final String commentStartString;
   private final String commentEndString;
+  // Optional; null means disabled.
+  private final String lineStatementPrefix;
+  private final String lineCommentPrefix;
 
   private StringTokenScannerSymbols(Builder builder) {
     this.variableStartString = builder.variableStartString;
@@ -80,6 +83,8 @@ public class StringTokenScannerSymbols extends TokenScannerSymbols {
     this.blockEndString = builder.blockEndString;
     this.commentStartString = builder.commentStartString;
     this.commentEndString = builder.commentEndString;
+    this.lineStatementPrefix = builder.lineStatementPrefix;
+    this.lineCommentPrefix = builder.lineCommentPrefix;
   }
 
   // ── Abstract char contract — returns sentinels only ───────────────────────
@@ -164,6 +169,16 @@ public class StringTokenScannerSymbols extends TokenScannerSymbols {
     return commentEndString;
   }
 
+  @Override
+  public String getLineStatementPrefix() {
+    return lineStatementPrefix;
+  }
+
+  @Override
+  public String getLineCommentPrefix() {
+    return lineCommentPrefix;
+  }
+
   // ── isStringBased flag ────────────────────────────────────────────────────
 
   @Override
@@ -187,6 +202,8 @@ public class StringTokenScannerSymbols extends TokenScannerSymbols {
     private String blockEndString = "%}";
     private String commentStartString = "{#";
     private String commentEndString = "#}";
+    private String lineStatementPrefix = null; // disabled by default
+    private String lineCommentPrefix = null; // disabled by default
 
     public Builder withVariableStartString(String s) {
       this.variableStartString = requireNonEmpty(s, "variableStartString");
@@ -215,6 +232,26 @@ public class StringTokenScannerSymbols extends TokenScannerSymbols {
 
     public Builder withCommentEndString(String s) {
       this.commentEndString = requireNonEmpty(s, "commentEndString");
+      return this;
+    }
+
+    /**
+     * Sets the line statement prefix (e.g. {@code "%%"}). A line beginning with
+     * this prefix is treated as a block tag, equivalent to wrapping its content
+     * in the configured block delimiters. Pass {@code null} to disable (default).
+     */
+    public Builder withLineStatementPrefix(String s) {
+      this.lineStatementPrefix = s;
+      return this;
+    }
+
+    /**
+     * Sets the line comment prefix (e.g. {@code "%#"}). A line beginning with
+     * this prefix is stripped entirely from the output. Pass {@code null} to
+     * disable (default).
+     */
+    public Builder withLineCommentPrefix(String s) {
+      this.lineCommentPrefix = s;
       return this;
     }
 
