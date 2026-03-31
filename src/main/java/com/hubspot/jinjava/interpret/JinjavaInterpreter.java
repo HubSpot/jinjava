@@ -508,11 +508,12 @@ public class JinjavaInterpreter implements PyishSerializable {
       if (preserveBlocks) {
         for (BlockPlaceholderOutputNode blockPlaceholder : output.getBlocks()) {
           blockPlaceholder.resolve(
-            "{%% block %s %%}%s{%% endblock %s %%}".formatted(
-                blockPlaceholder.getBlockName(),
-                blockPlaceholder.getValue(),
-                blockPlaceholder.getBlockName()
-              )
+            EagerReconstructionUtils.wrapInTag(
+              blockPlaceholder.getValue(),
+              "block %s".formatted(blockPlaceholder.getBlockName()),
+              this,
+              false
+            )
           );
         }
       }
