@@ -1,0 +1,13 @@
+{% extends '../../eager/does-not-defer-block-when-only-middle-defers/base.jinja' %}
+{% set tracker_middle = '2_middle' %}
+{% block first %}
+I WON'T SHOW UP
+{% endblock %}
+
+{% block second %}
+tracker_base is: {{ tracker_base }}? {{ tracker_base == '1_base' }}
+tracker_middle is: {{ tracker_middle }}? {{ tracker_middle == 'resolved' }}
+tracker_test is: {{ tracker_test }}? {{ tracker_test == 'resolved' }}
+{% endblock %}
+Deferring tracker middle.{# This message will not show up in final output #}
+{% set tracker_middle = deferred %}

@@ -1771,4 +1771,22 @@ public class EagerTest {
       "handles-deferred-used-in-multiple-block-levels/test.expected"
     );
   }
+
+  @Test
+  public void itDoesNotDeferBlockWhenOnlyMiddleDefers() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "does-not-defer-block-when-only-middle-defers/test"
+    );
+  }
+
+  @Test
+  public void itDoesNotDeferBlockWhenOnlyMiddleDefersSecondPass() {
+    localContext.put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "does-not-defer-block-when-only-middle-defers/test.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "does-not-defer-block-when-only-middle-defers/test.expected"
+    );
+  }
 }
