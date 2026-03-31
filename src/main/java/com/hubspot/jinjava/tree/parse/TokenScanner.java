@@ -51,8 +51,13 @@ public class TokenScanner extends AbstractIterator<Token> {
   private final char[] cmtStart;
   private final char[] cmtEnd;
 
-  // Remembers the position where the current opening delimiter began so that the
-  // emitted block/comment token image starts from the opener, not the content.
+  // Optional line-oriented prefixes; null when not configured.
+  private final char[] lineStmtPrefix;
+  private final char[] lineCommentPrefix;
+
+  // Remembers where the current opening delimiter began so the emitted block/comment
+  // token image starts from the opener (not the content), letting parse() strip the
+  // correct number of delimiter characters from both ends.
   private int blockOpenerStart = 0;
 
   public TokenScanner(String input, JinjavaConfig config) {
@@ -87,8 +92,16 @@ public class TokenScanner extends AbstractIterator<Token> {
       blkEnd = symbols.getExpressionEndWithTag().toCharArray();
       cmtStart = symbols.getOpeningComment().toCharArray();
       cmtEnd = symbols.getClosingComment().toCharArray();
+
+      String lsp = symbols.getLineStatementPrefix();
+      lineStmtPrefix = (lsp != null && !lsp.isEmpty()) ? lsp.toCharArray() : null;
+
+      String lcp = symbols.getLineCommentPrefix();
+      lineCommentPrefix = (lcp != null && !lcp.isEmpty()) ? lcp.toCharArray() : null;
     } else {
       varStart = varEnd = blkStart = blkEnd = cmtStart = cmtEnd = null;
+      lineStmtPrefix = null;
+      lineCommentPrefix = null;
     }
   }
 
@@ -100,173 +113,365 @@ public class TokenScanner extends AbstractIterator<Token> {
 
   // ── String-based scanning path ─────────────────────────────────────────────
   //
-  // Design:
-  //
-  //   tokenStart      — start of the next text region to buffer (updated after
-  //                     each emitted token to point just past the emitted content).
-  //   blockOpenerStart — position of the opening delimiter character; the emitted
-  //                     block/comment token image begins here so that the token's
-  //                     parse() method can strip the correct number of delimiter
-  //                     characters from both ends.
-  //   lastStart/tokenLength — the slice passed to Token.newToken().
+  // tokenStart       — start of the next text region to buffer.
+  // blockOpenerStart — position of the current opening delimiter; the emitted
+  //                    block/comment token image begins here.
+  // lastStart / tokenLength — the slice passed to Token.newToken().
   //
   // Two-phase emission:
-  //   1. Opener detected → flush any buffered plain text as a TEXT token (using
-  //      is[tokenStart..openerPos)). Record blockOpenerStart = openerPos. Advance
-  //      tokenStart and currPost past the opener into the block content.
-  //   2. Closer detected → emit the full delimited image (is[blockOpenerStart..
-  //      closerEnd)) as the appropriate token type. Advance tokenStart = currPost
-  //      = closerEnd so the next iteration starts after the closer.
+  //   1. Opener detected → flush buffered plain text as TEXT, record
+  //      blockOpenerStart, advance tokenStart/currPost past the opener into
+  //      the block content, set inBlock/inComment.
+  //   2. Closer detected → emit is[blockOpenerStart .. closerEnd) as the
+  //      appropriate token type; advance tokenStart = currPost = closerEnd.
+
+  // Sentinel returned by scan helpers to mean "a delimiter was matched and
+  // scanner state was updated — loop again without advancing currPost".
+  // Any non-null return from a helper that is NOT this sentinel is a real token.
+  private static final Token DELIMITER_MATCHED = new TextToken(
+    "",
+    0,
+    0,
+    new DefaultTokenScannerSymbols()
+  );
 
   private Token getNextTokenStringBased() {
     while (currPost < length) {
       char c = is[currPost];
 
-      // Track newlines for accurate line/column numbers.
       if (c == '\n') {
         currLine++;
         lastNewlinePos = currPost + 1;
       }
 
-      // ── State: inside a comment ────────────────────────────────────────────
       if (inComment > 0) {
-        if (regionMatches(currPost, cmtEnd)) {
-          // Emit from the opener start to the end of the closer.
-          lastStart = blockOpenerStart;
-          tokenLength = currPost + cmtEnd.length - blockOpenerStart;
-          tokenStart = currPost + cmtEnd.length;
-          currPost = tokenStart;
-          inComment = 0;
-          int kind = tokenKind;
-          tokenKind = symbols.getFixed();
-          return emitStringToken(kind);
+        Token t = scanInsideComment();
+        if (t != null) {
+          return t;
         }
-        currPost++;
-        continue;
+        continue; // scanInsideComment advanced currPost
       }
 
-      // ── State: inside a block (variable expression or tag) ────────────────
       if (inBlock > 0) {
-        // Bounds-safe backslash skip outside quoted strings.
-        if (c == '\\') {
-          currPost += (currPost + 1 < length) ? 2 : 1;
-          continue;
+        Token t = scanInsideBlock(c);
+        if (t == DELIMITER_MATCHED) {
+          continue; // closer not yet found, currPost already advanced
         }
-        // Inside a quoted string: handle escape sequences so a delimiter
-        // character that appears as \" or \' does not prematurely close the block.
-        if (inQuote != 0) {
-          if (c == inQuote) {
-            inQuote = 0;
-          }
-          currPost++;
-          continue;
+        if (t != null) {
+          return t;
         }
-        if (c == '\'' || c == '"') {
-          inQuote = c;
-          currPost++;
-          continue;
-        }
-
-        // Check for the closing delimiter matching the current block type.
-        char[] closeDelim = closingDelimFor(tokenKind);
-        if (closeDelim != null && regionMatches(currPost, closeDelim)) {
-          // Emit from the opener start to the end of the closer.
-          lastStart = blockOpenerStart;
-          tokenLength = currPost + closeDelim.length - blockOpenerStart;
-          tokenStart = currPost + closeDelim.length;
-          currPost = tokenStart;
-          inBlock = 0;
-          int kind = tokenKind;
-          tokenKind = symbols.getFixed();
-          return emitStringToken(kind);
-        }
-        currPost++;
         continue;
       }
 
-      // ── State: plain text — look for any opening delimiter ────────────────
       if (inRaw == 0) {
-        // Variable opener e.g. "{{" or "\VAR{"
-        if (regionMatches(currPost, varStart)) {
-          Token pending = flushTextBefore(currPost);
-          blockOpenerStart = currPost;
-          tokenStart = currPost + varStart.length;
-          currPost = tokenStart;
-          tokenKind = symbols.getExprStart();
-          inBlock = 1;
-          if (pending != null) {
-            return pending;
-          }
-          continue;
+        Token t = scanPlainText(c);
+        if (t == DELIMITER_MATCHED) {
+          continue; // opener matched, state updated, no pending text
         }
-        // Block opener e.g. "{%" or "\BLOCK{"
-        if (regionMatches(currPost, blkStart)) {
-          Token pending = flushTextBefore(currPost);
-          blockOpenerStart = currPost;
-          tokenStart = currPost + blkStart.length;
-          currPost = tokenStart;
-          tokenKind = symbols.getTag();
-          inBlock = 1;
-          if (pending != null) {
-            return pending;
-          }
-          continue;
+        if (t != null) {
+          return t; // pending text flushed, or line-statement token
         }
-        // Comment opener e.g. "{#" or "\#{"
-        if (regionMatches(currPost, cmtStart)) {
-          Token pending = flushTextBefore(currPost);
-          blockOpenerStart = currPost;
-          tokenStart = currPost + cmtStart.length;
-          currPost = tokenStart;
-          tokenKind = symbols.getNote();
-          inComment = 1;
-          if (pending != null) {
-            return pending;
-          }
-          continue;
-        }
+        // null means nothing matched — fall through to advance
       } else {
-        // In raw mode: only exit on a block opener immediately followed
-        // (after optional whitespace) by "endraw".
-        if (regionMatches(currPost, blkStart)) {
-          int contentStart = currPost + blkStart.length;
-          int pos = contentStart;
-          while (pos < length && Character.isWhitespace(is[pos])) {
-            pos++;
-          }
-          if (charArrayRegionMatches(is, pos, "endraw")) {
-            Token pending = flushTextBefore(currPost);
-            blockOpenerStart = currPost;
-            tokenStart = contentStart;
-            currPost = tokenStart;
-            tokenKind = symbols.getTag();
-            inBlock = 1;
-            if (pending != null) {
-              return pending;
-            }
-            continue;
-          }
+        Token t = scanRawMode();
+        if (t == DELIMITER_MATCHED) {
+          continue;
+        }
+        if (t != null) {
+          return t;
         }
       }
 
       currPost++;
     }
 
-    // End of input: flush any remaining buffered content.
     if (currPost > tokenStart) {
       return getEndTokenStringBased();
     }
     return null;
   }
 
+  /** Scans one character while inside a comment block; advances {@code currPost}. */
+  private Token scanInsideComment() {
+    if (regionMatches(currPost, cmtEnd)) {
+      lastStart = blockOpenerStart;
+      tokenLength = currPost + cmtEnd.length - blockOpenerStart;
+      tokenStart = currPost + cmtEnd.length;
+      currPost = tokenStart;
+      inComment = 0;
+      int kind = tokenKind;
+      tokenKind = symbols.getFixed();
+      return emitStringToken(kind);
+    }
+    currPost++;
+    return null;
+  }
+
+  /**
+   * Scans one character while inside a variable or tag block; advances
+   * {@code currPost}. Returns a real token when the closer is found, or
+   * {@link #DELIMITER_MATCHED} (meaning "keep looping") otherwise.
+   */
+  private Token scanInsideBlock(char c) {
+    if (inQuote != 0) {
+      // Inside a quoted string: a backslash escapes the next character so a
+      // delimiter or quote character following it does not prematurely close
+      // the block or the string.
+      if (c == '\\') {
+        currPost += (currPost + 1 < length) ? 2 : 1;
+        return DELIMITER_MATCHED;
+      }
+      if (c == inQuote) {
+        inQuote = 0;
+      }
+      currPost++;
+      return DELIMITER_MATCHED;
+    }
+    // Outside a quoted string: a backslash escapes the next character.
+    if (c == '\\') {
+      currPost += (currPost + 1 < length) ? 2 : 1;
+      return DELIMITER_MATCHED;
+    }
+    if (c == '\'' || c == '"') {
+      inQuote = c;
+      currPost++;
+      return DELIMITER_MATCHED;
+    }
+    // Check for the closing delimiter matching the current block type.
+    char[] closeDelim = closingDelimFor(tokenKind);
+    if (closeDelim != null && regionMatches(currPost, closeDelim)) {
+      lastStart = blockOpenerStart;
+      tokenLength = currPost + closeDelim.length - blockOpenerStart;
+      tokenStart = currPost + closeDelim.length;
+      currPost = tokenStart;
+      inBlock = 0;
+      int kind = tokenKind;
+      tokenKind = symbols.getFixed();
+      return emitStringToken(kind);
+    }
+    currPost++;
+    return DELIMITER_MATCHED;
+  }
+
+  /**
+   * Scans for openers while in normal (non-raw) plain-text mode.
+   * Returns a real token when one is ready to emit, {@link #DELIMITER_MATCHED}
+   * when an opener was matched with no pending text, or {@code null} when
+   * nothing matched (caller should advance {@code currPost}).
+   */
+  private Token scanPlainText(char c) {
+    // ── Line statement prefix (e.g. "%% if foo") ──────────────────────────
+    if (
+      lineStmtPrefix != null &&
+      isStartOfLine(currPost) &&
+      regionMatches(currPost, lineStmtPrefix)
+    ) {
+      return handleLineStatement();
+    }
+    // ── Line comment prefix (e.g. "%# this is ignored") ───────────────────
+    if (
+      lineCommentPrefix != null &&
+      isStartOfLine(currPost) &&
+      regionMatches(currPost, lineCommentPrefix)
+    ) {
+      return handleLineComment();
+    }
+    // ── Variable opener e.g. "{{" or "\VAR{" ──────────────────────────────
+    if (regionMatches(currPost, varStart)) {
+      return openBlock(varStart, symbols.getExprStart(), false);
+    }
+    // ── Block opener e.g. "{%" or "\BLOCK{" ───────────────────────────────
+    if (regionMatches(currPost, blkStart)) {
+      return openBlock(blkStart, symbols.getTag(), false);
+    }
+    // ── Comment opener e.g. "{#" or "\#{" ─────────────────────────────────
+    if (regionMatches(currPost, cmtStart)) {
+      return openBlock(cmtStart, symbols.getNote(), true);
+    }
+    return null; // nothing matched
+  }
+
+  /**
+   * Scans for the endraw block opener while in raw mode.
+   * Returns a real token, {@link #DELIMITER_MATCHED}, or {@code null}.
+   */
+  private Token scanRawMode() {
+    if (regionMatches(currPost, blkStart)) {
+      int contentStart = currPost + blkStart.length;
+      int pos = contentStart;
+      while (pos < length && Character.isWhitespace(is[pos])) {
+        pos++;
+      }
+      if (charArrayRegionMatches(is, pos, "endraw")) {
+        Token pending = flushTextBefore(currPost);
+        blockOpenerStart = currPost;
+        tokenStart = contentStart;
+        currPost = tokenStart;
+        tokenKind = symbols.getTag();
+        inBlock = 1;
+        if (pending != null) {
+          return pending;
+        }
+        return DELIMITER_MATCHED;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Opens a variable or tag block (sets {@code inBlock}) or a comment block
+   * (sets {@code inComment}). Flushes any pending text first.
+   * Returns the pending text token if one exists, {@link #DELIMITER_MATCHED} otherwise.
+   */
+  private Token openBlock(char[] opener, int kind, boolean isComment) {
+    Token pending = flushTextBefore(currPost);
+    blockOpenerStart = currPost;
+    tokenStart = currPost + opener.length;
+    currPost = tokenStart;
+    tokenKind = kind;
+    if (isComment) {
+      inComment = 1;
+    } else {
+      inBlock = 1;
+    }
+    return (pending != null) ? pending : DELIMITER_MATCHED;
+  }
+
+  /**
+   * Handles a line statement prefix: consumes the line, builds a synthetic block
+   * tag token, and returns appropriately (stashing the tag if text was pending).
+   */
+  private Token handleLineStatement() {
+    Token pending = flushTextBefore(lineIndentStart(currPost));
+
+    int contentStart = currPost + lineStmtPrefix.length;
+    while (contentStart < length && is[contentStart] == ' ') {
+      contentStart++;
+    }
+    int contentEnd = contentStart;
+    while (contentEnd < length && is[contentEnd] != '\n') {
+      contentEnd++;
+    }
+    String inner = String.valueOf(is, contentStart, contentEnd - contentStart).trim();
+    String syntheticImage =
+      symbols.getExpressionStartWithTag() +
+      " " +
+      inner +
+      " " +
+      symbols.getExpressionEndWithTag();
+
+    int next = contentEnd;
+    if (next < length && is[next] == '\n') {
+      next++;
+      currLine++;
+      lastNewlinePos = next;
+    }
+    tokenStart = next;
+    currPost = next;
+
+    Token stmtToken = Token.newToken(
+      symbols.getTag(),
+      symbols,
+      whitespaceControlParser,
+      syntheticImage,
+      currLine,
+      1
+    );
+    if (pending != null) {
+      pendingToken = stmtToken;
+      return pending;
+    }
+    return stmtToken;
+  }
+
+  /**
+   * Handles a line comment prefix: consumes the entire line (including newline)
+   * and returns any pending text token, or {@link #DELIMITER_MATCHED} if none.
+   */
+  private Token handleLineComment() {
+    Token pending = flushTextBefore(lineIndentStart(currPost));
+
+    int end = currPost + lineCommentPrefix.length;
+    while (end < length && is[end] != '\n') {
+      end++;
+    }
+    int next = end;
+    if (next < length && is[next] == '\n') {
+      next++;
+      currLine++;
+      lastNewlinePos = next;
+    }
+    tokenStart = next;
+    currPost = next;
+
+    // The comment itself produces no token. Return pending text if any,
+    // otherwise DELIMITER_MATCHED so the caller loops without advancing currPost.
+    return (pending != null) ? pending : DELIMITER_MATCHED;
+  }
+
+  /**
+   * Returns the position of the first character of the indentation on the line
+   * containing {@code pos} — i.e. the position just after the preceding newline
+   * (or 0 if at the start of input). This is used to exclude leading horizontal
+   * whitespace from the text token flushed before a line prefix match, so that
+   * indented line statements and line comments don't leave whitespace in the output.
+   */
+  private int lineIndentStart(int pos) {
+    // Walk back past the horizontal whitespace that isStartOfLine already accepted.
+    int p = pos - 1;
+    while (p >= 0 && (is[p] == ' ' || is[p] == '\t')) {
+      p--;
+    }
+    // p is now at the newline before the indentation, or at -1.
+    return p + 1;
+  }
+
+  // ── One-slot stash for the synthetic tag after a line-statement ─────────
+  // When a line-statement prefix is found and there is pending text to flush
+  // first, we return the text token immediately and stash the synthetic tag
+  // here so computeNext() picks it up on the very next call.
+  private Token pendingToken = null;
+
+  @Override
+  protected Token computeNext() {
+    // Drain any stashed token first.
+    if (pendingToken != null) {
+      Token t = pendingToken;
+      pendingToken = null;
+      return t;
+    }
+
+    Token t = getNextToken();
+    if (t == null) {
+      return endOfData();
+    }
+    return t;
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  /**
+   * Returns true when {@code pos} is at the start of a line — i.e. it is either
+   * the very first character of the input, or the character immediately after a
+   * newline (accounting for any leading whitespace that lstripBlocks may allow).
+   */
+  private boolean isStartOfLine(int pos) {
+    if (pos == 0) {
+      return true;
+    }
+    // Walk backwards past any horizontal whitespace (spaces/tabs).
+    int p = pos - 1;
+    while (p >= 0 && (is[p] == ' ' || is[p] == '\t')) {
+      p--;
+    }
+    // True if we hit the beginning of the input or a newline.
+    return p < 0 || is[p] == '\n';
+  }
+
   /**
    * If {@code is[tokenStart..upTo)} contains un-emitted plain text, captures it
    * as a TEXT token and returns it. Returns {@code null} for zero-length regions.
-   *
-   * <p>The caller MUST set {@code tokenStart} (and other state) after calling this,
-   * regardless of whether a token was returned. This method does NOT update
-   * {@code tokenStart} — that would produce the wrong value since the caller needs
-   * to set it to just past the opening delimiter.
+   * Does NOT update {@code tokenStart} — the caller sets it after returning.
    */
   private Token flushTextBefore(int upTo) {
     int textLen = upTo - tokenStart;
@@ -344,15 +549,12 @@ public class TokenScanner extends AbstractIterator<Token> {
 
   /**
    * Emits whatever remains at end-of-input.
-   *
-   * <p>FIX (infinite loop): advances {@code tokenStart = currPost} so that the
-   * next call to {@code getNextTokenStringBased()} finds {@code currPost == tokenStart}
-   * and returns {@code null} (end of data) instead of re-emitting the same slice.
+   * Advances {@code tokenStart = currPost} so subsequent calls return null.
    */
   private Token getEndTokenStringBased() {
     tokenLength = currPost - tokenStart;
     lastStart = tokenStart;
-    tokenStart = currPost; // ← prevents re-emission on subsequent calls
+    tokenStart = currPost;
     int type = symbols.getFixed();
     if (inComment > 0) {
       type = symbols.getNote();
@@ -634,16 +836,5 @@ public class TokenScanner extends AbstractIterator<Token> {
     } else {
       return kind == tokenKind;
     }
-  }
-
-  @Override
-  protected Token computeNext() {
-    Token t = getNextToken();
-
-    if (t == null) {
-      return endOfData();
-    }
-
-    return t;
   }
 }

@@ -255,4 +255,92 @@ public class StringTokenScannerSymbolsTest {
       )
       .isInstanceOf(IllegalArgumentException.class);
   }
+
+  // ── Line statement prefix ──────────────────────────────────────────────────
+
+  @Test
+  public void itRendersLineStatementPrefix() {
+    Jinjava j = jinjavaWith(
+      StringTokenScannerSymbols.builder().withLineStatementPrefix("%%").build()
+    );
+    // "%% if show" is equivalent to "{% if show %}"
+    String template = "%% if show\nhello\n%% endif";
+    assertThat(j.render(template, ImmutableMap.of("show", true))).isEqualTo("hello\n");
+    assertThat(j.render(template, ImmutableMap.of("show", false))).isEqualTo("");
+  }
+
+  @Test
+  public void itRendersLineStatementPrefixWithLeadingWhitespace() {
+    Jinjava j = jinjavaWith(
+      StringTokenScannerSymbols.builder().withLineStatementPrefix("%%").build()
+    );
+    // Leading spaces before the prefix are allowed
+    String template = "  %% if show\nhello\n  %% endif";
+    assertThat(j.render(template, ImmutableMap.of("show", true))).isEqualTo("hello\n");
+  }
+
+  @Test
+  public void itRendersLineStatementMixedWithBlockDelimiters() {
+    Jinjava j = jinjavaWith(
+      StringTokenScannerSymbols
+        .builder()
+        .withVariableStartString("<<")
+        .withVariableEndString(">>")
+        .withBlockStartString("<%")
+        .withBlockEndString("%>")
+        .withCommentStartString("<#")
+        .withCommentEndString("#>")
+        .withLineStatementPrefix("%%")
+        .build()
+    );
+    String template = "%% set x = 42\n<< x >>";
+    assertThat(j.render(template, new HashMap<>())).isEqualTo("42");
+  }
+
+  // ── Line comment prefix ────────────────────────────────────────────────────
+
+  @Test
+  public void itStripsLineCommentPrefix() {
+    Jinjava j = jinjavaWith(
+      StringTokenScannerSymbols.builder().withLineCommentPrefix("%#").build()
+    );
+    String template = "before\n%# this whole line is a comment\nafter";
+    assertThat(j.render(template, new HashMap<>())).isEqualTo("before\nafter");
+  }
+
+  @Test
+  public void itStripsLineCommentWithLeadingWhitespace() {
+    Jinjava j = jinjavaWith(
+      StringTokenScannerSymbols.builder().withLineCommentPrefix("%#").build()
+    );
+    String template = "before\n  %# indented comment\nafter";
+    assertThat(j.render(template, new HashMap<>())).isEqualTo("before\nafter");
+  }
+
+  @Test
+  public void itHandlesBothLinePrefixesTogether() {
+    Jinjava j = jinjavaWith(
+      StringTokenScannerSymbols
+        .builder()
+        .withVariableStartString("<<")
+        .withVariableEndString(">>")
+        .withBlockStartString("<%")
+        .withBlockEndString("%>")
+        .withCommentStartString("<#")
+        .withCommentEndString("#>")
+        .withLineStatementPrefix("%%")
+        .withLineCommentPrefix("%#")
+        .build()
+    );
+    String template = "%# this is stripped\n%% set x = 7\n<< x >>";
+    assertThat(j.render(template, new HashMap<>())).isEqualTo("7");
+  }
+
+  // ── Helper ────────────────────────────────────────────────────────────────
+
+  private Jinjava jinjavaWith(StringTokenScannerSymbols symbols) {
+    return new Jinjava(
+      BaseJinjavaTest.newConfigBuilder().withTokenScannerSymbols(symbols).build()
+    );
+  }
 }
