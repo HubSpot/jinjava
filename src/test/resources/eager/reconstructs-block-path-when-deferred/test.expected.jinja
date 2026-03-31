@@ -3,11 +3,13 @@
 Parent's current path is: {{ '{{' + prefix + '_path }}\
 ' }}
 -----Pre-Block-----
+{% block body %}\
 {% set __temp_meta_current_path_329664044__,current_path = current_path,'eager/reconstructs-block-path-when-deferred/test.jinja' %}\
 {% set prefix = deferred ? 'current' : 'current' %}\
 Block's current path is: {{ '{{' + prefix + '_path }}\
 ' }}
-{% set current_path,__temp_meta_current_path_329664044__ = __temp_meta_current_path_329664044__,null %}
+{% set current_path,__temp_meta_current_path_329664044__ = __temp_meta_current_path_329664044__,null %}\
+{% endblock body %}
 -----Post-Block-----
 Parent's current path is: {{ '{{' + prefix + '_path }}\
 ' }}
