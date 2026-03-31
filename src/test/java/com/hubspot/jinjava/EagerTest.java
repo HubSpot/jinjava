@@ -1753,4 +1753,22 @@ public class EagerTest {
       "handles-deferred-value-in-render-filter/test"
     );
   }
+
+  @Test
+  public void itHandlesDeferredUsedInMultipleBlockLevels() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-deferred-used-in-multiple-block-levels/test"
+    );
+  }
+
+  @Test
+  public void itHandlesDeferredUsedInMultipleBlockLevelsSecondPass() {
+    localContext.put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferred-used-in-multiple-block-levels/test.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-deferred-used-in-multiple-block-levels/test.expected"
+    );
+  }
 }
