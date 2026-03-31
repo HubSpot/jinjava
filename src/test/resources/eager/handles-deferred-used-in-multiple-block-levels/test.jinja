@@ -2,9 +2,9 @@
 
 {% set tracker_test = '3_test' %}
 {% block first %}
-tracker_base is: {{ tracker_base }}? {{ tracker_base == 'resolved' }}
-tracker_middle is: {{ tracker_middle }}? {{ tracker_middle == 'resolved' }}
-tracker_test is: {{ tracker_test }}? {{ tracker_test == 'resolved' }}
+tracker_base is 'resolved': {{ tracker_base }}? {{ tracker_base == 'resolved' }}
+tracker_middle is 'resolved': {{ tracker_middle }}? {{ tracker_middle == 'resolved' }}
+tracker_test is 'resolved': {{ tracker_test }}? {{ tracker_test == 'resolved' }}
 {% endblock %}
 Deferring tracker test.{# This message will not show up in final output #}
 {% set tracker_test = deferred %}

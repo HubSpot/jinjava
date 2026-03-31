@@ -17,19 +17,19 @@ Deferring tracker middle.
 
 -----Pre-First-----
 {% set __temp_meta_current_path_1008935144__,current_path = current_path,'eager/does-not-defer-block-when-only-middle-defers/test.jinja' %}
-tracker_base is: 1_base? true
-tracker_middle is: {{ tracker_middle }}\
+tracker_base is '1_base': 1_base? true
+tracker_middle is 'resolved': {{ tracker_middle }}\
 ? {{ tracker_middle == 'resolved' }}
-tracker_test is: {{ tracker_test }}\
+tracker_test is 'resolved': {{ tracker_test }}\
 ? {{ tracker_test == 'resolved' }}
 {% set current_path,__temp_meta_current_path_1008935144__ = __temp_meta_current_path_1008935144__,null %}
 -----Post-First-----
 -----Pre-Second-----
 {% set __temp_meta_current_path_245328778__,current_path = current_path,'eager/does-not-defer-block-when-only-middle-defers/middle.jinja' %}
-tracker_base is: 1_base? true
-tracker_middle is: {{ tracker_middle }}\
+tracker_base is '1_base': 1_base? true
+tracker_middle is 'resolved': {{ tracker_middle }}\
 ? {{ tracker_middle == 'resolved' }}
-tracker_test is: {{ tracker_test }}\
+tracker_test is 'resolved': {{ tracker_test }}\
 ? {{ tracker_test == 'resolved' }}
 {% set current_path,__temp_meta_current_path_245328778__ = __temp_meta_current_path_245328778__,null %}
 -----Post-Second-----
