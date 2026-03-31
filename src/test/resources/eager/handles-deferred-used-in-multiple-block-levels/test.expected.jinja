@@ -20,6 +20,7 @@ tracker_middle is: {{ tracker_middle }}\
 tracker_test is: {{ tracker_test }}\
 ? {{ tracker_test == 'resolved' }}
 -----Pre-First-----
+{% block first %}\
 {% set __temp_meta_current_path_1057627035__,current_path = current_path,'eager/handles-deferred-used-in-multiple-block-levels/test.jinja' %}
 tracker_base is: {{ tracker_base }}\
 ? {{ tracker_base == 'resolved' }}
@@ -27,7 +28,8 @@ tracker_middle is: {{ tracker_middle }}\
 ? {{ tracker_middle == 'resolved' }}
 tracker_test is: {{ tracker_test }}\
 ? {{ tracker_test == 'resolved' }}
-{% set current_path,__temp_meta_current_path_1057627035__ = __temp_meta_current_path_1057627035__,null %}
+{% set current_path,__temp_meta_current_path_1057627035__ = __temp_meta_current_path_1057627035__,null %}\
+{% endblock first %}
 -----Post-First-----
 tracker_base is: 1_base? true
 tracker_middle is: {{ tracker_middle }}\
@@ -35,6 +37,7 @@ tracker_middle is: {{ tracker_middle }}\
 tracker_test is: {{ tracker_test }}\
 ? {{ tracker_test == 'resolved' }}
 -----Pre-Second-----
+{% block second %}\
 {% set __temp_meta_current_path_697061783__,current_path = current_path,'eager/handles-deferred-used-in-multiple-block-levels/middle.jinja' %}
 tracker_base is: {{ tracker_base }}\
 ? {{ tracker_base == 'resolved' }}
@@ -42,7 +45,8 @@ tracker_middle is: {{ tracker_middle }}\
 ? {{ tracker_middle == 'resolved' }}
 tracker_test is: {{ tracker_test }}\
 ? {{ tracker_test == 'resolved' }}
-{% set current_path,__temp_meta_current_path_697061783__ = __temp_meta_current_path_697061783__,null %}
+{% set current_path,__temp_meta_current_path_697061783__ = __temp_meta_current_path_697061783__,null %}\
+{% endblock second %}
 -----Post-Second-----
 Deferring tracker base.
 {% set tracker_base = deferred %}
