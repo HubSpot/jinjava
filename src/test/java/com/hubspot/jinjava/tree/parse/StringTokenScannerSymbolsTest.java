@@ -2,16 +2,15 @@ package com.hubspot.jinjava.tree.parse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
+import java.util.HashMap;
+import org.junit.Before;
+import org.junit.Test;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.lib.filter.JoinFilterTest.User;
-import java.util.HashMap;
-import org.junit.Before;
-import org.junit.Test;
 
 public class StringTokenScannerSymbolsTest {
 
@@ -238,7 +237,86 @@ public class StringTokenScannerSymbolsTest {
       .isEqualTo(defaultJinjava.render(template, ctx));
   }
 
-  // ── Builder validation ─────────────────────────────────────────────────────
+  // ── trimBlocks and lstripBlocks ────────────────────────────────────────────
+  //
+  // trimBlocks is handled in TokenScanner.emitStringToken(): when a TagToken or
+  // NoteToken is emitted and trimBlocks=true, the immediately following newline
+  // is consumed. This is equally true in the string-based path.
+  //
+  // lstripBlocks is handled in TreeParser, which operates on the token stream
+  // produced by TokenScanner. It strips leading horizontal whitespace from any
+  // TextNode that immediately precedes a TagNode. Since TreeParser is path-agnostic,
+  // lstripBlocks works identically for both char-based and string-based scanning.
+
+  @Test
+  public void itRespectsTrimBlocksWithAngleSymbols() {
+    Jinjava j = new Jinjava(
+      BaseJinjavaTest
+        .newConfigBuilder()
+        .withTokenScannerSymbols(ANGLE_SYMBOLS)
+        .withTrimBlocks(true)
+        .build()
+    );
+    // Without trimBlocks the newline after <% if show %> would appear in output.
+    // With trimBlocks=true it is consumed by the scanner, so output is "hello".
+    String result = j.render(
+      "<% if show %>\nhello\n<% endif %>",
+      ImmutableMap.of("show", true)
+    );
+    assertThat(result).isEqualTo("hello\n");
+  }
+
+  @Test
+  public void itRespectsTrimBlocksWithLatexSymbols() {
+    Jinjava j = new Jinjava(
+      BaseJinjavaTest
+        .newConfigBuilder()
+        .withTokenScannerSymbols(LATEX_SYMBOLS)
+        .withTrimBlocks(true)
+        .build()
+    );
+    String result = j.render(
+      "\\BLOCK{ if show }\nhello\n\\BLOCK{ endif }",
+      ImmutableMap.of("show", true)
+    );
+    assertThat(result).isEqualTo("hello\n");
+  }
+
+  @Test
+  public void itRespectsLstripBlocksWithAngleSymbols() {
+    Jinjava j = new Jinjava(
+      BaseJinjavaTest
+        .newConfigBuilder()
+        .withTokenScannerSymbols(ANGLE_SYMBOLS)
+        .withLstripBlocks(true)
+        .withTrimBlocks(true)
+        .build()
+    );
+    // Leading spaces before the tag are stripped by lstripBlocks (TreeParser).
+    // The newline after the tag is consumed by trimBlocks (TokenScanner).
+    String result = j.render(
+      "    <% if show %>\nhello\n    <% endif %>",
+      ImmutableMap.of("show", true)
+    );
+    assertThat(result).isEqualTo("hello\n");
+  }
+
+  @Test
+  public void itRespectsLstripBlocksWithLatexSymbols() {
+    Jinjava j = new Jinjava(
+      BaseJinjavaTest
+        .newConfigBuilder()
+        .withTokenScannerSymbols(LATEX_SYMBOLS)
+        .withLstripBlocks(true)
+        .withTrimBlocks(true)
+        .build()
+    );
+    String result = j.render(
+      "    \\BLOCK{ if show }\nhello\n    \\BLOCK{ endif }",
+      ImmutableMap.of("show", true)
+    );
+    assertThat(result).isEqualTo("hello\n");
+  }
 
   @Test
   public void builderRejectsEmptyDelimiter() {
@@ -270,6 +348,27 @@ public class StringTokenScannerSymbolsTest {
   }
 
   @Test
+  public void itRendersLineStatementPrefixWithWhitespaceControl() {
+    Jinjava j = new Jinjava(
+      BaseJinjavaTest
+        .newConfigBuilder()
+        .withTokenScannerSymbols(
+          StringTokenScannerSymbols.builder().withLineStatementPrefix("%%").build()
+        )
+        .withTrimBlocks(true)
+        .withLstripBlocks(true)
+        .build()
+    );
+    // "%%- for" strips the newline before the line (leftTrim).
+    // trimBlocks consumes the newline after each tag line.
+    // Expected: the \n after {| is stripped, c| repeated col_num times, each
+    // followed by \n (from the body line), with the \n after c| stripped by
+    // the leftTrim on %%- endfor.
+    String template = "before|\n%%- for _ in range(3)\nc|\n%%- endfor\nafter";
+    assertThat(j.render(template, ImmutableMap.of())).isEqualTo("before|c|c|c|after");
+  }
+
+  @Test
   public void itRendersLineStatementPrefixWithLeadingWhitespace() {
     Jinjava j = jinjavaWith(
       StringTokenScannerSymbols.builder().withLineStatementPrefix("%%").build()
@@ -298,14 +397,20 @@ public class StringTokenScannerSymbolsTest {
   }
 
   // ── Line comment prefix ────────────────────────────────────────────────────
+  //
+  // Semantics:
+  //   %#  (plain): comment content stripped, trailing \n KEPT  → blank line where comment was
+  //   %#- (trim):  comment content AND trailing \n stripped     → no blank line
+  //   Neither form affects the newline that ended the preceding line.
 
   @Test
-  public void itStripsLineCommentPrefix() {
+  public void itStripsLineCommentPrefixLeavingBlankLine() {
     Jinjava j = jinjavaWith(
       StringTokenScannerSymbols.builder().withLineCommentPrefix("%#").build()
     );
+    // %# keeps its trailing \n → "before\n" + "\n" + "after" = "before\n\nafter"
     String template = "before\n%# this whole line is a comment\nafter";
-    assertThat(j.render(template, new HashMap<>())).isEqualTo("before\nafter");
+    assertThat(j.render(template, new HashMap<>())).isEqualTo("before\n\nafter");
   }
 
   @Test
@@ -313,8 +418,45 @@ public class StringTokenScannerSymbolsTest {
     Jinjava j = jinjavaWith(
       StringTokenScannerSymbols.builder().withLineCommentPrefix("%#").build()
     );
+    // Indentation before %# is stripped, trailing \n is kept → still a blank line
     String template = "before\n  %# indented comment\nafter";
-    assertThat(j.render(template, new HashMap<>())).isEqualTo("before\nafter");
+    assertThat(j.render(template, new HashMap<>())).isEqualTo("before\n\nafter");
+  }
+
+  @Test
+  public void itStripsLineCommentWithTrimModifier() {
+    Jinjava j = jinjavaWith(
+      StringTokenScannerSymbols.builder().withLineCommentPrefix("%#").build()
+    );
+    // %#  keeps trailing \n  → blank line:  "before\n\nafter"
+    assertThat(j.render("before\n%# comment\nafter", new HashMap<>()))
+      .isEqualTo("before\n\nafter");
+    // %#- strips trailing \n → no blank line: "before\nafter"
+    assertThat(j.render("before\n%#- comment\nafter", new HashMap<>()))
+      .isEqualTo("before\nafter");
+  }
+
+  @Test
+  public void itStripsLineCommentWithoutLeavingBlankLine() {
+    // %#- strips both content and trailing \n → no blank line.
+    // "\\begin{document}\n" (preceding \n kept) + "\\section*{...}" (directly)
+    Jinjava j = new Jinjava(
+      BaseJinjavaTest
+        .newConfigBuilder()
+        .withTokenScannerSymbols(
+          StringTokenScannerSymbols
+            .builder()
+            .withVariableStartString("\\VAR{")
+            .withVariableEndString("}")
+            .withLineCommentPrefix("%#")
+            .build()
+        )
+        .build()
+    );
+    String template =
+      "\\begin{document}\n%#-\\VAR{reportHeader}\n\\section*{\\VAR{title}}";
+    String result = j.render(template, ImmutableMap.of("title", "My Report"));
+    assertThat(result).isEqualTo("\\begin{document}\n\\section*{My Report}");
   }
 
   @Test
@@ -333,7 +475,9 @@ public class StringTokenScannerSymbolsTest {
         .build()
     );
     String template = "%# this is stripped\n%% set x = 7\n<< x >>";
-    assertThat(j.render(template, new HashMap<>())).isEqualTo("7");
+    // %# keeps its trailing \n → blank line, then %% set produces nothing,
+    // then << x >> renders as 7. Result: "\n7"
+    assertThat(j.render(template, new HashMap<>())).isEqualTo("\n7");
   }
 
   // ── Helper ────────────────────────────────────────────────────────────────
