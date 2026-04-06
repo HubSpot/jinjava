@@ -352,13 +352,17 @@ public class TokenScanner extends AbstractIterator<Token> {
     while (contentEnd < length && is[contentEnd] != '\n') {
       contentEnd++;
     }
-    String inner = String.valueOf(is, contentStart, contentEnd - contentStart).trim();
-    String syntheticImage =
-      symbols.getExpressionStartWithTag() +
-      " " +
-      inner +
-      " " +
-      symbols.getExpressionEndWithTag();
+    // Do NOT trim inner here — TagToken.parse() calls handleTrim() which detects
+    // a leading '-' for left-trim whitespace control and a trailing '-' for
+    // right-trim. Trimming here would strip those control characters before
+    // TagToken ever sees them.
+    // Also do not insert a space before the content when it starts with the
+    // trim char '-', as that space would prevent handleTrim from detecting it.
+    String inner = String.valueOf(is, contentStart, contentEnd - contentStart);
+    String prefix = (inner.length() > 0 && inner.charAt(0) == symbols.getTrimChar())
+      ? symbols.getExpressionStartWithTag()
+      : symbols.getExpressionStartWithTag() + " ";
+    String syntheticImage = prefix + inner + " " + symbols.getExpressionEndWithTag();
 
     int next = contentEnd;
     if (next < length && is[next] == '\n') {
@@ -385,39 +389,60 @@ public class TokenScanner extends AbstractIterator<Token> {
   }
 
   /**
-   * Handles a line comment prefix: consumes the entire line (including newline)
-   * and returns any pending text token, or {@link #DELIMITER_MATCHED} if none.
+   * Handles a line comment prefix.
+   *
+   * <p>Matches Python Jinja2 semantics exactly:
+   * <ul>
+   *   <li><b>Plain {@code %#}</b>: the comment content is stripped but the line's
+   *       trailing {@code \n} is <em>kept</em>. The comment line is effectively
+   *       replaced by a blank line in the output.</li>
+   *   <li><b>{@code %#-} (trim modifier)</b>: the comment content AND its trailing
+   *       {@code \n} are both stripped, leaving no blank line.</li>
+   * </ul>
+   *
+   * <p>Neither form affects the newline that ended the <em>preceding</em> line.
    */
   private Token handleLineComment() {
+    int afterPrefix = currPost + lineCommentPrefix.length;
+    boolean hasTrimModifier =
+      afterPrefix < length && is[afterPrefix] == symbols.getTrimChar();
+
+    // Flush buffered text up to (but not including) the current line's indentation.
+    // The preceding newline is always preserved regardless of the trim modifier.
     Token pending = flushTextBefore(lineIndentStart(currPost));
 
-    int end = currPost + lineCommentPrefix.length;
+    // Advance past the comment content to the end of the line.
+    int end = afterPrefix;
     while (end < length && is[end] != '\n') {
       end++;
     }
-    int next = end;
-    if (next < length && is[next] == '\n') {
-      next++;
-      currLine++;
-      lastNewlinePos = next;
-    }
-    tokenStart = next;
-    currPost = next;
 
-    // The comment itself produces no token. Return pending text if any,
-    // otherwise DELIMITER_MATCHED so the caller loops without advancing currPost.
+    if (hasTrimModifier) {
+      // %#- : strip trailing \n too, leaving no blank line.
+      int next = end;
+      if (next < length && is[next] == '\n') {
+        next++;
+        currLine++;
+        lastNewlinePos = next;
+      }
+      tokenStart = next;
+      currPost = next;
+    } else {
+      // %# : leave the trailing \n in place so it renders as a blank line.
+      tokenStart = end;
+      currPost = end;
+    }
+
     return (pending != null) ? pending : DELIMITER_MATCHED;
   }
 
   /**
    * Returns the position of the first character of the indentation on the line
    * containing {@code pos} — i.e. the position just after the preceding newline
-   * (or 0 if at the start of input). This is used to exclude leading horizontal
-   * whitespace from the text token flushed before a line prefix match, so that
-   * indented line statements and line comments don't leave whitespace in the output.
+   * (or 0 if at the start of input). Used to exclude leading horizontal whitespace
+   * from the text token flushed before a line prefix match.
    */
   private int lineIndentStart(int pos) {
-    // Walk back past the horizontal whitespace that isStartOfLine already accepted.
     int p = pos - 1;
     while (p >= 0 && (is[p] == ' ' || is[p] == '\t')) {
       p--;
