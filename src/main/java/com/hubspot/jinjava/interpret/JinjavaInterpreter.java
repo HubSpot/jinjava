@@ -39,6 +39,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
 import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.ExtendsTag;
+import com.hubspot.jinjava.lib.tag.eager.DeferredToken;
 import com.hubspot.jinjava.lib.tag.eager.EagerGenericTag;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
@@ -569,6 +570,9 @@ public class JinjavaInterpreter implements PyishSerializable {
           DynamicRenderedOutputNode prefix = new DynamicRenderedOutputNode();
           blockValueBuilder.addNode(prefix);
           int numDeferredTokensBefore = context.getDeferredTokens().size();
+          Set<DeferredToken> deferredTokensBefore = new HashSet<>(
+            context.getDeferredTokens()
+          );
 
           try (
             AutoCloseableImpl<Boolean> parentPathPush = conditionallyPushParentPath(block)
@@ -590,6 +594,7 @@ public class JinjavaInterpreter implements PyishSerializable {
                 blockValueBuilder,
                 this
               );
+              reconstructDeferredVariablesBeforeBlock(prefix, deferredTokensBefore);
             }
           }
           blockNames.push(blockPlaceholder.getBlockName());
@@ -606,6 +611,47 @@ public class JinjavaInterpreter implements PyishSerializable {
       if (!blockPlaceholder.isResolved()) {
         blockPlaceholder.resolve("");
       }
+    }
+  }
+
+  private void reconstructDeferredVariablesBeforeBlock(
+    DynamicRenderedOutputNode prefix,
+    Set<DeferredToken> deferredTokensBefore
+  ) {
+    Set<DeferredToken> newTokens = context
+      .getDeferredTokens()
+      .stream()
+      .filter(dt -> !deferredTokensBefore.contains(dt))
+      .collect(Collectors.toSet());
+    Set<String> wordsSetInBlock = newTokens
+      .stream()
+      .flatMap(dt -> dt.getSetDeferredWords().stream())
+      .collect(Collectors.toSet());
+    Set<String> deferredWordsUsedInBlock = newTokens
+      .stream()
+      .flatMap(dt -> dt.getUsedDeferredWords().stream())
+      .map(w -> w.split("\\.", 2)[0])
+      .filter(w -> context.get(w) instanceof DeferredValue)
+      .filter(w -> !wordsSetInBlock.contains(w))
+      .collect(Collectors.toSet());
+    if (deferredWordsUsedInBlock.isEmpty()) {
+      return;
+    }
+    StringBuilder setPrefix = new StringBuilder();
+    for (DeferredToken priorToken : deferredTokensBefore) {
+      if (priorToken.getUsedDeferredWords().isEmpty()) {
+        continue;
+      }
+      for (String setWord : priorToken.getSetDeferredWords()) {
+        if (deferredWordsUsedInBlock.contains(setWord)) {
+          setPrefix.append(priorToken.getToken().getImage());
+          break;
+        }
+      }
+    }
+    if (setPrefix.length() > 0) {
+      String existingPrefix = prefix.getValue() != null ? prefix.getValue() : "";
+      prefix.setValue(setPrefix.toString() + existingPrefix);
     }
   }
 

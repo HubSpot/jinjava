@@ -1,0 +1,13 @@
+<html>
+<body>
+<div class="content">
+{% block content %}
+<p>default content</p>
+{% endblock %}
+</div>
+<div class="footer">
+{% set first_name = deferred %}
+<p>Am I {{ first_name }}?</p>
+</div>
+</body>
+</html>

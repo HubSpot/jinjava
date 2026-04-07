@@ -1,0 +1,11 @@
+{% set current_path = '../eager/extendstag/base-with-deferred-after-block.html' %}<html>
+<body>
+<div class="content">
+{% set first_name = deferred %}{% set __temp_meta_current_path_704376120__,current_path = current_path,'' %}<h1>I am {{ first_name }}</h1>{% set current_path,__temp_meta_current_path_704376120__ = __temp_meta_current_path_704376120__,null %}
+</div>
+<div class="footer">
+{% set first_name = deferred %}
+<p>Am I {{ first_name }}?</p>
+</div>
+</body>
+</html>

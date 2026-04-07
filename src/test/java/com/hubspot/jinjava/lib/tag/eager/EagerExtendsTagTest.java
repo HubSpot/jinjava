@@ -125,6 +125,29 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
   }
 
   @Test
+  public void itReconstructsDeferredSetAfterBlock() {
+    String result = expectedTemplateInterpreter.getFixtureTemplate(
+      "reconstructs-deferred-set-after-block"
+    );
+    String output = interpreter.render(result);
+    context.put("deferred", "Jack");
+    String secondPass = jinjava.render(output, context);
+    assertThat(secondPass).contains("I am Jack");
+  }
+
+  @Test
+  public void itReconstructsDeferredSetAfterBlockSecondPass() {
+    context.put("deferred", "Jack");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-deferred-set-after-block.expected"
+    );
+    context.remove(RelativePathResolver.CURRENT_PATH_CONTEXT_KEY);
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "reconstructs-deferred-set-after-block.expected"
+    );
+  }
+
+  @Test
   public void itThrowsWhenDeferredExtendsTag() {
     interpreter.render(
       expectedTemplateInterpreter.getFixtureTemplate("throws-when-deferred-extends-tag")
