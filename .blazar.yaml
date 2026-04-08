@@ -2,4 +2,4 @@ buildResources:
   memoryMb: 10240
 
 env:
-  SKIP_VERSION_OVERRIDE: true
+  SKIP_VERSION_OVERRIDE_ON_BRANCH: master-2.8.x
