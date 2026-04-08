@@ -1,0 +1,7 @@
+{% extends '../../eager/preserves-blocks-for-reconstruction-order/base.jinja' %}
+
+{% block first %}
+{% do deferred_list.append('In child block') %}
+Deferred list inside of block is: {{ deferred_list }}
+Deferred list inside of block should be: ['Before block', 'After block', 'In child block']
+{% endblock %}

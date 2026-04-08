@@ -1,0 +1,19 @@
+{% set current_path = 'eager/preserves-blocks-for-reconstruction-order/base.jinja' %}\
+{% if deferred %}
+{% set deferred_list = [] %}
+{% endif %}
+{% do deferred_list.append('Before block') %}
+Deferred list after block is: {{ deferred_list }}
+Deferred list after block should be: ['Before block']
+-----Pre-First-----
+{% block first %}\
+{% set __temp_meta_current_path_1012932725__,current_path = current_path,'eager/preserves-blocks-for-reconstruction-order/test.jinja' %}
+{% do deferred_list.append('In child block') %}
+Deferred list inside of block is: {{ deferred_list }}
+Deferred list inside of block should be: ['Before block', 'After block', 'In child block']
+{% set current_path,__temp_meta_current_path_1012932725__ = __temp_meta_current_path_1012932725__,null %}\
+{% endblock first %}
+-----Post-First-----
+{% do deferred_list.append('After block') %}
+Deferred list after block is: {{ deferred_list }}
+Deferred list after block should be: ['Before block', 'After block']

@@ -1789,4 +1789,29 @@ public class EagerTest {
       "does-not-defer-block-when-only-middle-defers/test.expected"
     );
   }
+
+  @Test
+  public void itPreservesBlocksForReconstructionOrder() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "preserves-blocks-for-reconstruction-order/test"
+    );
+  }
+
+  @Test
+  public void itPreservesBlocksForReconstructionOrderSecondPhase() {
+    localContext.put("deferred", "resolved");
+    String twoPhaseOutput = expectedTemplateInterpreter.assertExpectedOutput(
+      "preserves-blocks-for-reconstruction-order/test.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "preserves-blocks-for-reconstruction-order/test.expected"
+    );
+    // Sanity check
+    assertThat(twoPhaseOutput)
+      .isEqualToIgnoringWhitespace(
+        expectedTemplateInterpreter.renderTemplate(
+          "preserves-blocks-for-reconstruction-order/test"
+        )
+      );
+  }
 }
