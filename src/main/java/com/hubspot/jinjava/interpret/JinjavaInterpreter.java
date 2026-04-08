@@ -496,9 +496,7 @@ public class JinjavaInterpreter implements PyishSerializable {
             basePath = Optional.of(currentPath);
           }
         }
-        if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
-          preserveBlocks = true;
-        }
+        preserveBlocks = (context.getDeferredTokens().size() > numDeferredTokensBefore);
       }
 
       int numDeferredTokensBefore = context.getDeferredTokens().size();
