@@ -373,6 +373,32 @@ public class MacroTagTest extends BaseInterpretingTest {
     }
   }
 
+  @Test
+  public void itCallsMacroInTernaryWithVariableCondition() {
+    String template =
+      "{% macro greet(name) %}Hello {{ name }}{% endmacro %}" +
+      "{{ greet('world') if myVar else greet('nobody') }}";
+
+    context.put("myVar", true);
+    assertThat(jinjava.render(template, context).trim()).isEqualTo("Hello world");
+
+    context.put("myVar", false);
+    assertThat(jinjava.render(template, context).trim()).isEqualTo("Hello nobody");
+  }
+
+  @Test
+  public void itCallsMacroInStandardTernaryWithVariableCondition() {
+    String template =
+      "{% macro greet(name) %}Hello {{ name }}{% endmacro %}" +
+      "{{ myVar ? greet('world') : greet('nobody') }}";
+
+    context.put("myVar", true);
+    assertThat(jinjava.render(template, context).trim()).isEqualTo("Hello world");
+
+    context.put("myVar", false);
+    assertThat(jinjava.render(template, context).trim()).isEqualTo("Hello nobody");
+  }
+
   private Node snippet(String jinja) {
     return new TreeParser(interpreter, jinja).buildTree().getChildren().getFirst();
   }
