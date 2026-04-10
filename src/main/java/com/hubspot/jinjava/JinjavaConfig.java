@@ -54,6 +54,12 @@ import org.immutables.value.Value;
 
 @Value.Immutable(singleton = true)
 @JinjavaImmutableStyle.WithStyle
+@Value.Style(
+  init = "with*",
+  get = { "is*", "get*" }, // Detect 'get' and 'is' prefixes in accessor methods
+  build = "buildImpl", // This is an alias for keeping binary compatibility on the "build" method.
+  visibility = Value.Style.ImplementationVisibility.PACKAGE
+)
 public class JinjavaConfig {
 
   public JinjavaConfig() {}
@@ -249,7 +255,12 @@ public class JinjavaConfig {
     return getLegacyOverrides().isIterateOverMapKeys();
   }
 
-  public static class Builder extends ImmutableJinjavaConfig.Builder {}
+  public static class Builder extends ImmutableJinjavaConfig.Builder {
+
+    public JinjavaConfig build() {
+      return super.buildImpl();
+    }
+  }
 
   public static Builder builder() {
     return new Builder();
