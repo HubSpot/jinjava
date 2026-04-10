@@ -281,7 +281,7 @@ public class ExtendedParser extends Parser {
     switch (getToken().getSymbol()) {
       case IDENTIFIER:
         String name = consumeToken().getImage();
-        if (getToken().getSymbol() == COLON) {
+        if (getToken().getSymbol() == COLON && getToken().getImage().equals(":")) {
           Symbol lookahead = lookahead(0).getSymbol();
           if (
             isPossibleExpTest(lookahead) &&
