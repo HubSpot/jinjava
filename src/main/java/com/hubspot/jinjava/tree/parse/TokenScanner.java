@@ -269,11 +269,8 @@ public class TokenScanner extends AbstractIterator<Token> {
       return handleLineStatement();
     }
     // ── Line comment prefix (e.g. "%# this is ignored") ───────────────────
-    if (
-      lineCommentPrefix != null &&
-      isStartOfLine(currPost) &&
-      regionMatches(currPost, lineCommentPrefix)
-    ) {
+    // Line comments match anywhere on a line, not just at the start.
+    if (lineCommentPrefix != null && regionMatches(currPost, lineCommentPrefix)) {
       return handleLineComment();
     }
     // ── Variable opener e.g. "{{" or "\VAR{" ──────────────────────────────
@@ -370,6 +367,34 @@ public class TokenScanner extends AbstractIterator<Token> {
       currLine++;
       lastNewlinePos = next;
     }
+
+    // When lstrip_blocks is active, Python Jinja2 also consumes any blank lines
+    // that follow a line statement (lines containing only horizontal whitespace).
+    // This prevents blank lines between consecutive line statements from
+    // appearing in the output.
+    if (config.isLstripBlocks()) {
+      while (next < length) {
+        // Scan forward past any horizontal whitespace on this line.
+        int lineEnd = next;
+        while (
+          lineEnd < length &&
+          is[lineEnd] != '\n' &&
+          (is[lineEnd] == ' ' || is[lineEnd] == '\t')
+        ) {
+          lineEnd++;
+        }
+        // If we hit a newline (blank or whitespace-only line), consume it.
+        if (lineEnd < length && is[lineEnd] == '\n') {
+          next = lineEnd + 1;
+          currLine++;
+          lastNewlinePos = next;
+        } else {
+          // Hit real content or end of input — stop consuming.
+          break;
+        }
+      }
+    }
+
     tokenStart = next;
     currPost = next;
 
@@ -391,25 +416,46 @@ public class TokenScanner extends AbstractIterator<Token> {
   /**
    * Handles a line comment prefix.
    *
-   * <p>Matches Python Jinja2 semantics exactly:
-   * <ul>
-   *   <li><b>Plain {@code %#}</b>: the comment content is stripped but the line's
-   *       trailing {@code \n} is <em>kept</em>. The comment line is effectively
-   *       replaced by a blank line in the output.</li>
-   *   <li><b>{@code %#-} (trim modifier)</b>: the comment content AND its trailing
-   *       {@code \n} are both stripped, leaving no blank line.</li>
-   * </ul>
+   * <p>Line comments match anywhere on a line (not just at the start).
+   * For mid-line comments, everything from the prefix to end of line is
+   * stripped; the text before the prefix on the same line is kept.
    *
-   * <p>Neither form affects the newline that ended the <em>preceding</em> line.
+   * <p>Confirmed Python Jinja2 semantics:
+   * <ul>
+   *   <li><b>Plain {@code %#}</b>: comment content stripped, own trailing
+   *       {@code \n} kept. Replaces the comment (and anything after it on
+   *       the line) with a blank line / line ending.</li>
+   *   <li><b>{@code %#-} at start of line</b>: also strips preceding blank
+   *       lines and the {@code \n} ending the last real-content line.</li>
+   *   <li><b>{@code %#-} mid-line</b>: behaves like plain {@code %#} — the
+   *       {@code -} has nothing to left-trim when real content precedes it.</li>
+   * </ul>
    */
   private Token handleLineComment() {
+    boolean startOfLine = isStartOfLine(currPost);
     int afterPrefix = currPost + lineCommentPrefix.length;
     boolean hasTrimModifier =
       afterPrefix < length && is[afterPrefix] == symbols.getTrimChar();
 
-    // Flush buffered text up to (but not including) the current line's indentation.
-    // The preceding newline is always preserved regardless of the trim modifier.
-    Token pending = flushTextBefore(lineIndentStart(currPost));
+    int flushUpTo;
+    if (!startOfLine) {
+      // Mid-line comment: flush up to the %# prefix, stripping trailing
+      // horizontal whitespace before it (Python strips spaces/tabs before
+      // mid-line comments, e.g. "hello %# comment" → "hello").
+      int p = currPost - 1;
+      while (p >= tokenStart && (is[p] == ' ' || is[p] == '\t')) {
+        p--;
+      }
+      flushUpTo = p + 1;
+    } else if (hasTrimModifier) {
+      // Start-of-line %#-: strip preceding blank lines and the real-content \n.
+      flushUpTo = lineIndentStartSkippingBlanks(currPost);
+    } else {
+      // Start-of-line %#: strip only the current line's indentation.
+      flushUpTo = lineIndentStart(currPost);
+    }
+
+    Token pending = flushTextBefore(flushUpTo);
 
     // Advance past the comment content to the end of the line.
     int end = afterPrefix;
@@ -417,21 +463,9 @@ public class TokenScanner extends AbstractIterator<Token> {
       end++;
     }
 
-    if (hasTrimModifier) {
-      // %#- : strip trailing \n too, leaving no blank line.
-      int next = end;
-      if (next < length && is[next] == '\n') {
-        next++;
-        currLine++;
-        lastNewlinePos = next;
-      }
-      tokenStart = next;
-      currPost = next;
-    } else {
-      // %# : leave the trailing \n in place so it renders as a blank line.
-      tokenStart = end;
-      currPost = end;
-    }
+    // Both %# and %#- keep the trailing \n — it appears in the output.
+    tokenStart = end;
+    currPost = end;
 
     return (pending != null) ? pending : DELIMITER_MATCHED;
   }
@@ -449,6 +483,46 @@ public class TokenScanner extends AbstractIterator<Token> {
     }
     // p is now at the newline before the indentation, or at -1.
     return p + 1;
+  }
+
+  /**
+   * Returns the flush boundary for a {@code %#-} line comment.
+   *
+   * <p>Python Jinja2 semantics for {@code %#-}: strip back through any preceding
+   * blank lines AND the {@code \n} that ends the last real-content line, so that
+   * the comment's own kept {@code \n} becomes the sole separator. Stops at
+   * {@code tokenStart} so that {@code \n}s produced by preceding line statements
+   * or plain {@code %#} comments are not consumed.
+   *
+   * <p>Examples (| marks the flush boundary):
+   * <pre>
+   *   "A\n\n%#-"   →  flush "A|"      → output "A" + comment's \n
+   *   "%% set\n%#-" → flush nothing    → output comment's \n  (tokenStart guard)
+   * </pre>
+   */
+  private int lineIndentStartSkippingBlanks(int pos) {
+    int p = pos - 1;
+    while (p >= tokenStart) {
+      // Skip trailing horizontal whitespace on this line (going backwards).
+      while (p >= tokenStart && (is[p] == ' ' || is[p] == '\t')) {
+        p--;
+      }
+      if (p < tokenStart) {
+        break;
+      }
+      if (is[p] == '\n') {
+        // Blank line — consume this \n and keep scanning backwards.
+        p--;
+      } else {
+        // Real content at position p. The \n ending this line is at p+1.
+        // Return p+1 so flushTextBefore(p+1) flushes up to but NOT including
+        // that \n, stripping it from the output.
+        return p + 1;
+      }
+    }
+    // Reached tokenStart without finding real content — all blank lines were
+    // preceded by a line statement or plain comment. Preserve them.
+    return tokenStart;
   }
 
   // ── One-slot stash for the synthetic tag after a line-statement ─────────
