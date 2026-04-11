@@ -2,15 +2,16 @@ package com.hubspot.jinjava.tree.parse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import java.util.HashMap;
-import org.junit.Before;
-import org.junit.Test;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.lib.filter.JoinFilterTest.User;
+import java.util.HashMap;
+import org.junit.Before;
+import org.junit.Test;
 
 public class StringTokenScannerSymbolsTest {
 
@@ -398,6 +399,20 @@ public class StringTokenScannerSymbolsTest {
 
   // ── Line comment prefix ────────────────────────────────────────────────────
   //
+  // Ground truth confirmed by running both Python Jinja2 and Jinjava against:
+  //   [START]
+  //   %% set x = 1
+  //   [A]
+  //   %# plain comment
+  //   [B]
+  //   %#- trim comment
+  //   [C]
+  //   %% set y = 2
+  //   [D]
+  //   [END]
+  //
+  // Python output: [START]\n[A]\n\n[B]\n[C]\n[D]\n[END]
+  //
   // Semantics:
   //   %#  (plain): comment content stripped, trailing \n KEPT  → blank line where comment was
   //   %#- (trim):  comment content AND trailing \n stripped     → no blank line
@@ -408,7 +423,7 @@ public class StringTokenScannerSymbolsTest {
     Jinjava j = jinjavaWith(
       StringTokenScannerSymbols.builder().withLineCommentPrefix("%#").build()
     );
-    // %# keeps its trailing \n → "before\n" + "\n" + "after" = "before\n\nafter"
+    // %# keeps its trailing \n → "before\n" + "\n" (comment's own \n) + "after"
     String template = "before\n%# this whole line is a comment\nafter";
     assertThat(j.render(template, new HashMap<>())).isEqualTo("before\n\nafter");
   }
@@ -418,7 +433,7 @@ public class StringTokenScannerSymbolsTest {
     Jinjava j = jinjavaWith(
       StringTokenScannerSymbols.builder().withLineCommentPrefix("%#").build()
     );
-    // Indentation before %# is stripped, trailing \n is kept → still a blank line
+    // Indentation before %# is stripped, trailing \n is kept → blank line
     String template = "before\n  %# indented comment\nafter";
     assertThat(j.render(template, new HashMap<>())).isEqualTo("before\n\nafter");
   }
@@ -428,18 +443,22 @@ public class StringTokenScannerSymbolsTest {
     Jinjava j = jinjavaWith(
       StringTokenScannerSymbols.builder().withLineCommentPrefix("%#").build()
     );
-    // %#  keeps trailing \n  → blank line:  "before\n\nafter"
+    // %#  keeps trailing \n (blank line left in output)
     assertThat(j.render("before\n%# comment\nafter", new HashMap<>()))
       .isEqualTo("before\n\nafter");
-    // %#- strips trailing \n → no blank line: "before\nafter"
+    // %#- also keeps trailing \n — the '-' is LEFT-trim only (strips preceding blanks)
+    // With no preceding blank lines, result is identical to plain %#
     assertThat(j.render("before\n%#- comment\nafter", new HashMap<>()))
+      .isEqualTo("before\nafter");
+    // %#- with a preceding blank line: strips the blank, keeps own trailing \n
+    assertThat(j.render("before\n\n%#- comment\nafter", new HashMap<>()))
       .isEqualTo("before\nafter");
   }
 
   @Test
   public void itStripsLineCommentWithoutLeavingBlankLine() {
-    // %#- strips both content and trailing \n → no blank line.
-    // "\\begin{document}\n" (preceding \n kept) + "\\section*{...}" (directly)
+    // %#- with real content before (no blank): strips the preceding \n,
+    // keeps comment's own \n. "\\begin{document}" + "\n" (comment's \n) + "\\section*{...}"
     Jinjava j = new Jinjava(
       BaseJinjavaTest
         .newConfigBuilder()
