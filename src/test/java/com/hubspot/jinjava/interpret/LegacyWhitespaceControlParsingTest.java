@@ -21,6 +21,7 @@ public class LegacyWhitespaceControlParsingTest {
       new Jinjava(
         BaseJinjavaTest
           .newConfigBuilder()
+          .withKeepTrailingNewline(true)
           .withLegacyOverrides(LegacyOverrides.NONE)
           .build()
       );
@@ -28,6 +29,7 @@ public class LegacyWhitespaceControlParsingTest {
       new Jinjava(
         BaseJinjavaTest
           .newConfigBuilder()
+          .withKeepTrailingNewline(true)
           .withLegacyOverrides(
             LegacyOverrides.newBuilder().withParseWhitespaceControlStrictly(true).build()
           )

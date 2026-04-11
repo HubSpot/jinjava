@@ -27,7 +27,11 @@ public class AstFilterChainTest {
   public void setup() {
     jinjava =
       new Jinjava(
-        BaseJinjavaTest.newConfigBuilder().withEnableFilterChainOptimization(true).build()
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withEnableFilterChainOptimization(true)
+          .withKeepTrailingNewline(true)
+          .build()
       );
 
     context = new HashMap<>();
@@ -123,6 +127,7 @@ public class AstFilterChainTest {
       BaseJinjavaTest
         .newConfigBuilder()
         .withEnableFilterChainOptimization(true)
+        .withKeepTrailingNewline(true)
         .withDisabled(disabled)
         .build()
     );
