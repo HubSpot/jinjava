@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseJinjavaTest;
+import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.interpret.RenderResult;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -14,9 +15,18 @@ import java.util.List;
 import java.util.Random;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.junit.Before;
 import org.junit.Test;
 
 public class SliceFilterTest extends BaseJinjavaTest {
+
+  @Before
+  public void setup() {
+    jinjava =
+      new Jinjava(
+        BaseJinjavaTest.newConfigBuilder().withKeepTrailingNewline(true).build()
+      );
+  }
 
   @Test
   public void itSlicesLists() throws Exception {

@@ -256,6 +256,7 @@ public class StringTokenScannerSymbolsTest {
         .newConfigBuilder()
         .withTokenScannerSymbols(ANGLE_SYMBOLS)
         .withTrimBlocks(true)
+        .withKeepTrailingNewline(true)
         .build()
     );
     // Without trimBlocks the newline after <% if show %> would appear in output.
@@ -274,6 +275,7 @@ public class StringTokenScannerSymbolsTest {
         .newConfigBuilder()
         .withTokenScannerSymbols(LATEX_SYMBOLS)
         .withTrimBlocks(true)
+        .withKeepTrailingNewline(true)
         .build()
     );
     String result = j.render(
@@ -291,6 +293,7 @@ public class StringTokenScannerSymbolsTest {
         .withTokenScannerSymbols(ANGLE_SYMBOLS)
         .withLstripBlocks(true)
         .withTrimBlocks(true)
+        .withKeepTrailingNewline(true)
         .build()
     );
     // Leading spaces before the tag are stripped by lstripBlocks (TreeParser).
@@ -310,6 +313,7 @@ public class StringTokenScannerSymbolsTest {
         .withTokenScannerSymbols(LATEX_SYMBOLS)
         .withLstripBlocks(true)
         .withTrimBlocks(true)
+        .withKeepTrailingNewline(true)
         .build()
     );
     String result = j.render(
@@ -503,7 +507,11 @@ public class StringTokenScannerSymbolsTest {
 
   private Jinjava jinjavaWith(StringTokenScannerSymbols symbols) {
     return new Jinjava(
-      BaseJinjavaTest.newConfigBuilder().withTokenScannerSymbols(symbols).build()
+      BaseJinjavaTest
+        .newConfigBuilder()
+        .withKeepTrailingNewline(true)
+        .withTokenScannerSymbols(symbols)
+        .build()
     );
   }
 }
