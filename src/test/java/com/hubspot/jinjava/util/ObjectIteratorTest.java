@@ -103,7 +103,9 @@ public class ObjectIteratorTest {
   public void testItIteratesOverKeys() throws Exception {
     JinjavaConfig config = BaseJinjavaTest
       .newConfigBuilder()
-      .withLegacyOverrides(LegacyOverrides.builder().withIterateOverMapKeys(true).build())
+      .withLegacyOverrides(
+        LegacyOverrides.newBuilder().withIterateOverMapKeys(true).build()
+      )
       .build();
     JinjavaInterpreter.pushCurrent(
       new JinjavaInterpreter(new Jinjava(), new Context(), config)

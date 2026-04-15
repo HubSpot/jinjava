@@ -387,7 +387,10 @@ public class JinjavaInterpreterTest {
           .newConfigBuilder()
           .withTimeZone(ZoneId.of("America/New_York"))
           .withLegacyOverrides(
-            LegacyOverrides.THREE_POINT_0.withParseWhitespaceControlStrictly(false)
+            LegacyOverrides.Builder
+              .from(LegacyOverrides.THREE_POINT_0)
+              .withParseWhitespaceControlStrictly(false)
+              .build()
           )
           .build()
       );

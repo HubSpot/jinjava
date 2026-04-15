@@ -257,7 +257,10 @@ public class TreeParserTest extends BaseInterpretingTest {
         BaseJinjavaTest
           .newConfigBuilder()
           .withLegacyOverrides(
-            LegacyOverrides.THREE_POINT_0.withUseTrimmingForNotesAndExpressions(false)
+            LegacyOverrides.Builder
+              .from(LegacyOverrides.THREE_POINT_0)
+              .withUseTrimmingForNotesAndExpressions(false)
+              .build()
           )
           .build()
       )
@@ -349,7 +352,10 @@ public class TreeParserTest extends BaseInterpretingTest {
         BaseJinjavaTest
           .newConfigBuilder()
           .withLegacyOverrides(
-            LegacyOverrides.THREE_POINT_0.withUseTrimmingForNotesAndExpressions(false)
+            LegacyOverrides.Builder
+              .from(LegacyOverrides.THREE_POINT_0)
+              .withUseTrimmingForNotesAndExpressions(false)
+              .build()
           )
           .build()
       )
@@ -368,7 +374,10 @@ public class TreeParserTest extends BaseInterpretingTest {
         BaseJinjavaTest
           .newConfigBuilder()
           .withLegacyOverrides(
-            LegacyOverrides.THREE_POINT_0.withAllowAdjacentTextNodes(false)
+            LegacyOverrides.Builder
+              .from(LegacyOverrides.THREE_POINT_0)
+              .withAllowAdjacentTextNodes(false)
+              .build()
           )
           .build()
       )

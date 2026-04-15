@@ -359,7 +359,12 @@ public class PyMapTest extends BaseJinjavaTest {
       new Jinjava(
         BaseJinjavaTest
           .newConfigBuilder()
-          .withLegacyOverrides(LegacyOverrides.THREE_POINT_0.withEvaluateMapKeys(false))
+          .withLegacyOverrides(
+            LegacyOverrides.Builder
+              .from(LegacyOverrides.THREE_POINT_0)
+              .withEvaluateMapKeys(false)
+              .build()
+          )
           .build()
       );
     assertThat(
