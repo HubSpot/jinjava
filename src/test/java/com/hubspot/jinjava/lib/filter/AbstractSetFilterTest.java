@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.features.FeatureStrategies;
@@ -102,8 +104,15 @@ public class AbstractSetFilterTest extends BaseJinjavaTest {
   @Test
   public void itConvertsIntegerToLongWhenFeatureActive() {
     Jinjava jinjavaWithFeature = new Jinjava(
-      BaseJinjavaTest
-        .newConfigBuilder()
+      JinjavaConfig
+        .newBuilder()
+        .withLegacyOverrides(
+          LegacyOverrides
+            .newBuilder()
+            .withUsePyishObjectMapper(true)
+            .withKeepNullableLoopValues(true)
+            .build()
+        )
         .withFeatureConfig(
           FeatureConfig
             .newBuilder()

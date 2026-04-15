@@ -129,8 +129,8 @@ public abstract class AbstractSetFilter implements AdvancedFilter {
   private Set<Object> convertIntegersToLongs(Set<Object> set) {
     Set<Object> result = new LinkedHashSet<>();
     for (Object element : set) {
-      if (element instanceof Integer integer) {
-        result.add(integer.longValue());
+      if (element instanceof Integer) {
+        result.add(Long.valueOf(element.toString()));
       } else {
         result.add(element);
       }
