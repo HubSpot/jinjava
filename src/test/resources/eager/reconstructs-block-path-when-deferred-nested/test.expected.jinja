@@ -3,18 +3,22 @@
 Parent's current path is: {{ '{{' + prefix + '_path }}\
 ' }}
 -----Pre-First-----
+{% block first %}\
 {% set __temp_meta_current_path_389897147__,current_path = current_path,'eager/reconstructs-block-path-when-deferred-nested/test.jinja' %}\
 {% set prefix = deferred ? 'current' : 'current' %}\
 Child's first current path is: {{ '{{' + prefix + '_path }}\
 ' }}
-{% set current_path,__temp_meta_current_path_389897147__ = __temp_meta_current_path_389897147__,null %}
+{% set current_path,__temp_meta_current_path_389897147__ = __temp_meta_current_path_389897147__,null %}\
+{% endblock first %}
 -----Post-First-----
 -----Pre-Second-----
+{% block second %}\
 {% set __temp_meta_current_path_198396781__,current_path = current_path,'eager/reconstructs-block-path-when-deferred-nested/middle.jinja' %}\
 {% set prefix = deferred ? 'current' : 'current' %}\
 Middle's second current path is: {{ '{{' + prefix + '_path }}\
 ' }}
-{% set current_path,__temp_meta_current_path_198396781__ = __temp_meta_current_path_198396781__,null %}
+{% set current_path,__temp_meta_current_path_198396781__ = __temp_meta_current_path_198396781__,null %}\
+{% endblock second %}
 -----Post-Second-----
 Parent's current path is: {{ '{{' + prefix + '_path }}\
 ' }}
