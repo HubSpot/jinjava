@@ -884,11 +884,15 @@ public class Context extends ScopeMap<String, Object> {
   }
 
   public TemporaryValueClosable<Boolean> withUnwrapRawOverride() {
+    return withUnwrapRawOverride(true);
+  }
+
+  public TemporaryValueClosable<Boolean> withUnwrapRawOverride(boolean value) {
     TemporaryValueClosable<Boolean> temporaryValueClosable = new TemporaryValueClosable<>(
       isUnwrapRawOverride(),
       this::setUnwrapRawOverride
     );
-    setUnwrapRawOverride(true);
+    setUnwrapRawOverride(value);
     return temporaryValueClosable;
   }
 
