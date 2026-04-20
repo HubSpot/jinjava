@@ -1,0 +1,17 @@
+start
+{% macro test(arg1, arg2) -%}
+before
+{%- if caller is undefined %}
+    caller is undefined => #{{ arg1 }} {{ arg2 }}#
+{%- else %}
+    {{ caller(arg1, arg2) }}
+{%- endif %}
+after
+{%- endmacro -%}
+
+{% call(arg1, arg2, arg3 = "c") test({"a_key": "a"}, "b") -%}
+#{{ arg1.a_key }} {{ arg2 }} {{ arg3 }}#
+{%- endcall %}
+
+{{ test("a", "b") }}
+stop
