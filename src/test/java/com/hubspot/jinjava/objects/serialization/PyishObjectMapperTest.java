@@ -15,6 +15,7 @@ import com.hubspot.jinjava.testobjects.PyishObjectMapperTestObjects;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,26 +26,26 @@ public class PyishObjectMapperTest {
 
   @Test
   public void itSerializesMapWithNullKeysAsEmptyString() {
-    Map<String, Object> map = new SizeLimitingPyMap(new HashMap<>(), 10);
+    Map<String, Object> map = new SizeLimitingPyMap(new LinkedHashMap<>(), 10);
     map.put("foo", "bar");
     map.put(null, "null");
     assertThat(PyishObjectMapper.getAsPyishString(map))
-      .isEqualTo("{'': 'null', 'foo': 'bar'} ");
+      .isEqualTo("{'foo': 'bar', '': 'null'} ");
   }
 
   @Test
   public void itSerializesMapEntrySet() {
-    SizeLimitingPyMap map = new SizeLimitingPyMap(new HashMap<>(), 10);
+    SizeLimitingPyMap map = new SizeLimitingPyMap(new LinkedHashMap<>(), 10);
     map.put("foo", "bar");
     map.put("bar", ImmutableMap.of("foobar", new ArrayList<>()));
     String result = PyishObjectMapper.getAsPyishString(map.items());
     assertThat(result)
-      .isEqualTo("[fn:map_entry('bar', {'foobar': []} ), fn:map_entry('foo', 'bar')]");
+      .isEqualTo("[fn:map_entry('foo', 'bar'), fn:map_entry('bar', {'foobar': []} )]");
   }
 
   @Test
   public void itSerializesMapEntrySetWithLimit() {
-    SizeLimitingPyMap map = new SizeLimitingPyMap(new HashMap<>(), 10);
+    SizeLimitingPyMap map = new SizeLimitingPyMap(new LinkedHashMap<>(), 10);
     map.put("foo", "bar");
     map.put("bar", ImmutableMap.of("foobar", new ArrayList<>()));
 
@@ -55,7 +56,7 @@ public class PyishObjectMapperTest {
       JinjavaInterpreter.pushCurrent(jinjava.newInterpreter());
       String result = PyishObjectMapper.getAsPyishString(map.items());
       assertThat(result)
-        .isEqualTo("[fn:map_entry('bar', {'foobar': []} ), fn:map_entry('foo', 'bar')]");
+        .isEqualTo("[fn:map_entry('foo', 'bar'), fn:map_entry('bar', {'foobar': []} )]");
     } finally {
       JinjavaInterpreter.popCurrent();
     }
@@ -63,11 +64,11 @@ public class PyishObjectMapperTest {
 
   @Test
   public void itSerializesMapWithNullValues() {
-    Map<String, Object> map = new SizeLimitingPyMap(new HashMap<>(), 10);
+    Map<String, Object> map = new SizeLimitingPyMap(new LinkedHashMap<>(), 10);
     map.put("foo", "bar");
     map.put("foobar", null);
     assertThat(PyishObjectMapper.getAsPyishString(map))
-      .isEqualTo("{'foobar': null, 'foo': 'bar'} ");
+      .isEqualTo("{'foo': 'bar', 'foobar': null} ");
   }
 
   @Test
