@@ -1,0 +1,12 @@
+{% set tracker_base = '1_base' %}
+
+
+-----Pre-First-----
+{% block first -%}
+{%- endblock %}
+-----Post-First-----
+-----Pre-Second-----
+{% block second -%}
+{%- endblock %}
+-----Post-Second-----
+We aren't deferring tracker base.{# This message WILL show up in final output #}

@@ -49,8 +49,7 @@ public class ExpectedTemplateInterpreter {
   }
 
   public String assertExpectedOutput(String name) {
-    String template = getFixtureTemplate(name);
-    String output = JinjavaInterpreter.getCurrent().render(template);
+    String output = renderTemplate(name);
     assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
       .as("Ensure no deferred nodes were created")
       .isEmpty();
@@ -60,9 +59,13 @@ public class ExpectedTemplateInterpreter {
     return output;
   }
 
-  public String assertExpectedOutputNonIdempotent(String name) {
+  public String renderTemplate(String name) {
     String template = getFixtureTemplate(name);
-    String output = JinjavaInterpreter.getCurrent().render(template);
+    return JinjavaInterpreter.getCurrent().render(template);
+  }
+
+  public String assertExpectedOutputNonIdempotent(String name) {
+    String output = renderTemplate(name);
     assertThat(JinjavaInterpreter.getCurrent().getContext().getDeferredNodes())
       .as("Ensure no deferred nodes were created")
       .isEmpty();

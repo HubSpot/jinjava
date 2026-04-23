@@ -1,0 +1,13 @@
+{% extends '../../eager/handles-deferred-used-in-multiple-block-levels/base.jinja' %}
+{% set tracker_middle = '2_middle' %}
+{% block first %}
+I WON'T SHOW UP
+{% endblock %}
+
+{% block second %}
+tracker_base is 'resolved': {{ tracker_base }}? {{ tracker_base == 'resolved' }}
+tracker_middle is 'resolved': {{ tracker_middle }}? {{ tracker_middle == 'resolved' }}
+tracker_test is 'resolved': {{ tracker_test }}? {{ tracker_test == 'resolved' }}
+{% endblock %}
+Deferring tracker middle.{# This message will not show up in final output #}
+{% set tracker_middle = deferred %}

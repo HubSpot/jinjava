@@ -1,0 +1,13 @@
+{% if deferred %}
+{% set deferred_list = [] %}
+{% endif %}
+{% do deferred_list.append('Before block') %}
+Deferred list after block is: {{ deferred_list }}
+Deferred list after block should be: ['Before block']
+-----Pre-First-----
+{% block first -%}
+{%- endblock %}
+-----Post-First-----
+{% do deferred_list.append('After block') %}
+Deferred list after block is: {{ deferred_list }}
+Deferred list after block should be: ['Before block', 'After block']

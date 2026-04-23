@@ -1754,4 +1754,65 @@ public class EagerTest {
       "handles-deferred-value-in-render-filter/test"
     );
   }
+
+  @Test
+  public void itHandlesDeferredUsedInMultipleBlockLevels() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "handles-deferred-used-in-multiple-block-levels/test"
+    );
+  }
+
+  @Test
+  public void itHandlesDeferredUsedInMultipleBlockLevelsSecondPass() {
+    localContext.put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "handles-deferred-used-in-multiple-block-levels/test.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "handles-deferred-used-in-multiple-block-levels/test.expected"
+    );
+  }
+
+  @Test
+  public void itDoesNotDeferBlockWhenOnlyMiddleDefers() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "does-not-defer-block-when-only-middle-defers/test"
+    );
+  }
+
+  @Test
+  public void itDoesNotDeferBlockWhenOnlyMiddleDefersSecondPass() {
+    localContext.put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "does-not-defer-block-when-only-middle-defers/test.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "does-not-defer-block-when-only-middle-defers/test.expected"
+    );
+  }
+
+  @Test
+  public void itPreservesBlocksForReconstructionOrder() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "preserves-blocks-for-reconstruction-order/test"
+    );
+  }
+
+  @Test
+  public void itPreservesBlocksForReconstructionOrderSecondPhase() {
+    localContext.put("deferred", "resolved");
+    String twoPhaseOutput = expectedTemplateInterpreter.assertExpectedOutput(
+      "preserves-blocks-for-reconstruction-order/test.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "preserves-blocks-for-reconstruction-order/test.expected"
+    );
+    // Sanity check
+    assertThat(twoPhaseOutput)
+      .isEqualToIgnoringWhitespace(
+        expectedTemplateInterpreter.renderTemplate(
+          "preserves-blocks-for-reconstruction-order/test"
+        )
+      );
+  }
 }

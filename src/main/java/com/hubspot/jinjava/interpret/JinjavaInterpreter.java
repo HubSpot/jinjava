@@ -429,6 +429,7 @@ public class JinjavaInterpreter implements PyishSerializable {
       output.addNode(pathSetter);
       Optional<String> basePath = context.getCurrentPathStack().peek();
       StringBuilder ignoredOutput = new StringBuilder();
+      boolean preserveBlocks = false;
       // render all extend parents, keeping the last as the root output
       if (processExtendRoots) {
         Set<String> extendPaths = new HashSet<>();
@@ -497,10 +498,23 @@ public class JinjavaInterpreter implements PyishSerializable {
             basePath = Optional.of(currentPath);
           }
         }
+        preserveBlocks = (context.getDeferredTokens().size() > numDeferredTokensBefore);
       }
 
       int numDeferredTokensBefore = context.getDeferredTokens().size();
       resolveBlockStubs(output);
+      if (preserveBlocks) {
+        for (BlockPlaceholderOutputNode blockPlaceholder : output.getBlocks()) {
+          blockPlaceholder.resolve(
+            EagerReconstructionUtils.wrapInTag(
+              blockPlaceholder.getValue(),
+              "block %s".formatted(blockPlaceholder.getBlockName()),
+              this,
+              false
+            )
+          );
+        }
+      }
       if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
         pathSetter.setValue(
           EagerReconstructionUtils.buildBlockOrInlineSetTag(
