@@ -1,5 +1,6 @@
 package com.hubspot.jinjava.lib.filter;
 
+import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -43,7 +44,27 @@ public abstract class AbstractSetFilter implements AdvancedFilter {
     Set<Object> varSet = objectToSet(var);
     Set<Object> argSet = objectToSet(parseArgs(interpreter, args));
 
-    attachMismatchedTypesWarning(interpreter, varSet, argSet);
+    if (!varSet.isEmpty() && !argSet.isEmpty()) {
+      Object oneVar = varSet.iterator().next();
+      Object oneArg = argSet.iterator().next();
+
+      boolean featureActive = interpreter
+        .getConfig()
+        .getFeatures()
+        .isActive(
+          BuiltInFeatures.INTEGER_SET_TO_LONG_CONVERSION,
+          interpreter.getContext()
+        );
+      if (featureActive) {
+        if (oneVar instanceof Integer && oneArg instanceof Long) {
+          varSet = convertIntegersToLongs(varSet);
+        } else if (oneArg instanceof Integer && oneVar instanceof Long) {
+          argSet = convertIntegersToLongs(argSet);
+        }
+      }
+
+      attachMismatchedTypesWarning(interpreter, varSet, argSet, oneVar, oneArg);
+    }
 
     return filter(varSet, argSet);
   }
@@ -55,17 +76,31 @@ public abstract class AbstractSetFilter implements AdvancedFilter {
     Set<Object> varSet,
     Set<Object> argSet
   ) {
-    boolean hasAtLeastOneSetEmpty = varSet.isEmpty() || argSet.isEmpty();
-    if (hasAtLeastOneSetEmpty) {
+    if (varSet.isEmpty() || argSet.isEmpty()) {
       return;
     }
+    attachMismatchedTypesWarning(
+      interpreter,
+      varSet,
+      argSet,
+      varSet.iterator().next(),
+      argSet.iterator().next()
+    );
+  }
 
-    boolean areMatchedElementTypes = getTypeOfSetElements(varSet)
-      .equals(getTypeOfSetElements(argSet));
-    if (areMatchedElementTypes) {
+  private void attachMismatchedTypesWarning(
+    JinjavaInterpreter interpreter,
+    Set<Object> varSet,
+    Set<Object> argSet,
+    Object oneVarObj,
+    Object oneArgObj
+  ) {
+    if (getTypeOfSetElements(varSet).equals(getTypeOfSetElements(argSet))) {
       return;
     }
-
+    if (potentiallyConvertibleNumbers(oneVarObj, oneArgObj)) {
+      return;
+    }
     interpreter.addError(
       new TemplateError(
         TemplateError.ErrorType.WARNING,
@@ -82,6 +117,25 @@ public abstract class AbstractSetFilter implements AdvancedFilter {
         null
       )
     );
+  }
+
+  private boolean potentiallyConvertibleNumbers(Object oneVarObj, Object oneArgObj) {
+    return (
+      (oneArgObj instanceof Integer && oneVarObj instanceof Long) ||
+      (oneVarObj instanceof Integer && oneArgObj instanceof Long)
+    );
+  }
+
+  private Set<Object> convertIntegersToLongs(Set<Object> set) {
+    Set<Object> result = new LinkedHashSet<>();
+    for (Object element : set) {
+      if (element instanceof Integer) {
+        result.add(Long.valueOf(element.toString()));
+      } else {
+        result.add(element);
+      }
+    }
+    return result;
   }
 
   private String getTypeOfSetElements(Set<Object> set) {
