@@ -68,6 +68,11 @@ public class StringTokenScanner extends AbstractIterator<Token> {
   private final char[] lineStmtPrefix;
   private final char[] lineCommentPrefix;
 
+  // When true, backslash is treated as an escape character only inside quoted
+  // string literals, matching Jinja2 behaviour. When false (legacy default),
+  // the scanner consumes backslash + next char unconditionally.
+  private final boolean backslashInQuotesOnly;
+
   // Remembers where the current opening delimiter began so the emitted block/comment
   // token image starts from the opener (not the content), letting parse() strip the
   // correct number of delimiter characters from both ends.
@@ -97,6 +102,8 @@ public class StringTokenScanner extends AbstractIterator<Token> {
 
     String lcp = symbols.getLineCommentPrefix();
     lineCommentPrefix = (lcp != null && !lcp.isEmpty()) ? lcp.toCharArray() : null;
+
+    backslashInQuotesOnly = config.getLegacyOverrides().isHandleBackslashInQuotesOnly();
   }
 
   // ── Core scanning loop ────────────────────────────────────────────────────
@@ -202,9 +209,7 @@ public class StringTokenScanner extends AbstractIterator<Token> {
    */
   private Token scanInsideBlock(char c) {
     if (inQuote != 0) {
-      // Inside a quoted string: a backslash escapes the next character so a
-      // delimiter or quote character following it does not prematurely close
-      // the block or the string.
+      // Inside a quoted string: a backslash always escapes the next character.
       if (c == '\\') {
         currPost += (currPost + 1 < length) ? 2 : 1;
         return DELIMITER_MATCHED;
@@ -215,8 +220,9 @@ public class StringTokenScanner extends AbstractIterator<Token> {
       currPost++;
       return DELIMITER_MATCHED;
     }
-    // Outside a quoted string: a backslash escapes the next character.
-    if (c == '\\') {
+    // Outside a quoted string: only consume the backslash if the legacy
+    // flag is enabled; otherwise leave it for the expression parser.
+    if (c == '\\' && !backslashInQuotesOnly) {
       currPost += (currPost + 1 < length) ? 2 : 1;
       return DELIMITER_MATCHED;
     }
