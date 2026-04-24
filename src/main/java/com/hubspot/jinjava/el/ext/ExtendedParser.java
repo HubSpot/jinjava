@@ -129,7 +129,7 @@ public class ExtendedParser extends Parser {
   }
 
   protected AstNode interpreter() {
-    return new AstNull();
+    return identifier(INTERPRETER);
   }
 
   @Override

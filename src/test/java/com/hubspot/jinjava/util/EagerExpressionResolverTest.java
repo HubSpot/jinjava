@@ -641,7 +641,7 @@ public class EagerExpressionResolverTest {
     interpreter.getContext().setThrowInterpreterErrors(true);
     String partiallyResolved = eagerExpressionResult.toString();
     assertThat(partiallyResolved)
-      .isEqualTo("exptest:equalto.evaluateNegated(4, null, deferred)");
+      .isEqualTo("exptest:equalto.evaluateNegated(4, ____int3rpr3t3r____, deferred)");
     assertThat(eagerExpressionResult.getDeferredWords())
       .containsExactlyInAnyOrder("deferred", "equalto.evaluateNegated");
     context.put("deferred", 4);
@@ -756,7 +756,7 @@ public class EagerExpressionResolverTest {
     assertThat(eagerResolveExpression("deferred.append(foo)").toString())
       .isEqualTo("deferred.append('foo')");
     assertThat(eagerResolveExpression("deferred[1 + 1] | length").toString())
-      .isEqualTo("filter:length.filter(deferred[2], null)");
+      .isEqualTo("filter:length.filter(deferred[2], ____int3rpr3t3r____)");
   }
 
   @Test
@@ -823,7 +823,7 @@ public class EagerExpressionResolverTest {
   @Test
   public void itHandlesRandom() {
     assertThat(eagerResolveExpression("range(1)|random").toString())
-      .isEqualTo("filter:random.filter(range(1), null)");
+      .isEqualTo("filter:random.filter(range(1), ____int3rpr3t3r____)");
   }
 
   @Test

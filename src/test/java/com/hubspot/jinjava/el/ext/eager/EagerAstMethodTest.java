@@ -235,7 +235,7 @@ public class EagerAstMethodTest extends BaseInterpretingTest {
       fail("Should throw DeferredParsingException");
     } catch (DeferredParsingException e) {
       assertThat(e.getDeferredEvalResult())
-        .isEqualTo("filter:upper.filter(foo_object.deferred, null)");
+        .isEqualTo("filter:upper.filter(foo_object.deferred, ____int3rpr3t3r____)");
     }
   }
 }
