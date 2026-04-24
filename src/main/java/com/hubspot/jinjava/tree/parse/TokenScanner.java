@@ -49,6 +49,11 @@ public class TokenScanner extends AbstractIterator<Token> {
   private final TokenScannerSymbols symbols;
   private final WhitespaceControlParser whitespaceControlParser;
 
+  // When true, backslash is treated as an escape character only inside quoted
+  // string literals, matching Jinja2 behaviour. When false (legacy default),
+  // the scanner consumes backslash + next char unconditionally.
+  private final boolean backslashInQuotesOnly;
+
   public TokenScanner(String input, JinjavaConfig config) {
     this.config = config;
 
@@ -71,6 +76,7 @@ public class TokenScanner extends AbstractIterator<Token> {
       config.getLegacyOverrides().isParseWhitespaceControlStrictly()
         ? WhitespaceControlParser.STRICT
         : WhitespaceControlParser.LENIENT;
+    backslashInQuotesOnly = config.getLegacyOverrides().isHandleBackslashInQuotesOnly();
   }
 
   private Token getNextToken() {
@@ -82,10 +88,14 @@ public class TokenScanner extends AbstractIterator<Token> {
       }
 
       if (inBlock > 0) {
-        if (c == '\\') {
+        if (c == '\\' && !backslashInQuotesOnly) {
           ++currPost;
           continue;
         } else if (inQuote != 0) {
+          if (c == '\\') {
+            ++currPost;
+            continue;
+          }
           if (inQuote == c) {
             inQuote = 0;
           }
