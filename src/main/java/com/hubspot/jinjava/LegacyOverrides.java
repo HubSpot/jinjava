@@ -18,6 +18,7 @@ public class LegacyOverrides {
     .withAllowAdjacentTextNodes(true)
     .withUseTrimmingForNotesAndExpressions(true)
     .withKeepNullableLoopValues(true)
+    .withIteratorOnlyReverseFilter(true)
     .build();
   public static final LegacyOverrides ALL = new LegacyOverrides.Builder()
     .withEvaluateMapKeys(true)
@@ -29,6 +30,7 @@ public class LegacyOverrides {
     .withAllowAdjacentTextNodes(true)
     .withUseTrimmingForNotesAndExpressions(true)
     .withKeepNullableLoopValues(true)
+    .withIteratorOnlyReverseFilter(true)
     .build();
   private final boolean evaluateMapKeys;
   private final boolean iterateOverMapKeys;
@@ -39,6 +41,7 @@ public class LegacyOverrides {
   private final boolean allowAdjacentTextNodes;
   private final boolean useTrimmingForNotesAndExpressions;
   private final boolean keepNullableLoopValues;
+  private final boolean iteratorOnlyReverseFilter;
 
   private LegacyOverrides(Builder builder) {
     evaluateMapKeys = builder.evaluateMapKeys;
@@ -50,6 +53,7 @@ public class LegacyOverrides {
     allowAdjacentTextNodes = builder.allowAdjacentTextNodes;
     useTrimmingForNotesAndExpressions = builder.useTrimmingForNotesAndExpressions;
     keepNullableLoopValues = builder.keepNullableLoopValues;
+    iteratorOnlyReverseFilter = builder.iteratorOnlyReverseFilter;
   }
 
   public static Builder newBuilder() {
@@ -92,6 +96,10 @@ public class LegacyOverrides {
     return keepNullableLoopValues;
   }
 
+  public boolean isIteratorOnlyReverseFilter() {
+    return iteratorOnlyReverseFilter;
+  }
+
   public static class Builder {
 
     private boolean evaluateMapKeys = false;
@@ -103,6 +111,7 @@ public class LegacyOverrides {
     private boolean allowAdjacentTextNodes = false;
     private boolean useTrimmingForNotesAndExpressions = false;
     private boolean keepNullableLoopValues = false;
+    private boolean iteratorOnlyReverseFilter = false;
 
     private Builder() {}
 
@@ -123,7 +132,9 @@ public class LegacyOverrides {
         .withAllowAdjacentTextNodes(legacyOverrides.allowAdjacentTextNodes)
         .withUseTrimmingForNotesAndExpressions(
           legacyOverrides.useTrimmingForNotesAndExpressions
-        );
+        )
+        .withKeepNullableLoopValues(legacyOverrides.keepNullableLoopValues)
+        .withIteratorOnlyReverseFilter(legacyOverrides.iteratorOnlyReverseFilter);
     }
 
     public Builder withEvaluateMapKeys(boolean evaluateMapKeys) {
@@ -174,6 +185,11 @@ public class LegacyOverrides {
 
     public Builder withKeepNullableLoopValues(boolean keepNullableLoopValues) {
       this.keepNullableLoopValues = keepNullableLoopValues;
+      return this;
+    }
+
+    public Builder withIteratorOnlyReverseFilter(boolean iteratorOnlyReverseFilter) {
+      this.iteratorOnlyReverseFilter = iteratorOnlyReverseFilter;
       return this;
     }
   }
