@@ -32,6 +32,7 @@ import com.hubspot.jinjava.lib.tag.EndTag;
 import com.hubspot.jinjava.lib.tag.FlexibleTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.parse.ExpressionToken;
+import com.hubspot.jinjava.tree.parse.StringTokenScanner;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.tree.parse.TextToken;
 import com.hubspot.jinjava.tree.parse.Token;
@@ -39,6 +40,7 @@ import com.hubspot.jinjava.tree.parse.TokenScanner;
 import com.hubspot.jinjava.tree.parse.TokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.UnclosedToken;
 import com.hubspot.jinjava.tree.parse.WhitespaceControlParser;
+import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
 
 public class TreeParser {
@@ -52,7 +54,7 @@ public class TreeParser {
 
   public TreeParser(JinjavaInterpreter interpreter, String input) {
     this.scanner =
-      Iterators.peekingIterator(new TokenScanner(input, interpreter.getConfig()));
+      Iterators.peekingIterator(createScanner(input, interpreter.getConfig()));
     this.interpreter = interpreter;
     this.symbols = interpreter.getConfig().getTokenScannerSymbols();
     this.whitespaceControlParser =
@@ -102,6 +104,13 @@ public class TreeParser {
     } while (parent.getParent() != null);
 
     return root;
+  }
+
+  private static Iterator<Token> createScanner(String input, JinjavaConfig config) {
+    if (config.getTokenScannerSymbols().isStringBased()) {
+      return new StringTokenScanner(input, config);
+    }
+    return new TokenScanner(input, config);
   }
 
   /**

@@ -21,6 +21,7 @@ public interface LegacyOverrides extends WithLegacyOverrides {
     .withAllowAdjacentTextNodes(true)
     .withUseTrimmingForNotesAndExpressions(true)
     .withKeepNullableLoopValues(true)
+    .withHandleBackslashInQuotesOnly(true)
     .build();
   LegacyOverrides ALL = new Builder()
     .withEvaluateMapKeys(true)
@@ -32,6 +33,7 @@ public interface LegacyOverrides extends WithLegacyOverrides {
     .withAllowAdjacentTextNodes(true)
     .withUseTrimmingForNotesAndExpressions(true)
     .withKeepNullableLoopValues(true)
+    .withHandleBackslashInQuotesOnly(true)
     .build();
 
   @Value.Default
@@ -76,6 +78,23 @@ public interface LegacyOverrides extends WithLegacyOverrides {
 
   @Value.Default
   default boolean isKeepNullableLoopValues() {
+    return false;
+  }
+
+  /**
+   * When {@code true}, the token scanner treats backslash as an escape character
+   * only inside quoted string literals, leaving bare backslashes outside quotes
+   * untouched for the expression parser (JUEL) to handle. This matches the
+   * behaviour of Python's Jinja2, where the template scanner is not responsible
+   * for backslash interpretation at all.
+   *
+   * <p>When {@code false} (the default), the scanner consumes a backslash and
+   * the following character unconditionally, regardless of quote context. This
+   * is the legacy Jinjava behaviour, which prevents closing delimiters from
+   * being recognized after a backslash but diverges from Jinja2.
+   */
+  @Value.Default
+  default boolean isHandleBackslashInQuotesOnly() {
     return false;
   }
 
