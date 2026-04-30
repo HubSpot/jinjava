@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.features.FeatureConfig;
 import com.hubspot.jinjava.features.FeatureStrategies;
@@ -319,6 +320,13 @@ public class TokenScannerTest {
 
   @Test
   public void itTreatsEscapedQuotesSameWhenNotInQuotes() {
+    config =
+      BaseJinjavaTest
+        .newConfigBuilder()
+        .withLegacyOverrides(
+          LegacyOverrides.newBuilder().withHandleBackslashInQuotesOnly(false).build()
+        )
+        .build();
     List<Token> tokens = tokens("tag-with-all-escaped-quotes");
     assertThat(tokens).hasSize(8);
     assertThat(tokens.stream().map(Token::getType).collect(Collectors.toList()))

@@ -11,6 +11,8 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
 import com.hubspot.jinjava.BaseJinjavaTest;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -40,6 +42,11 @@ public class ForTagTest extends BaseInterpretingTest {
   @Override
   public void baseSetup() {
     super.baseSetup();
+
+    jinjava =
+      new Jinjava(
+        BaseJinjavaTest.newConfigBuilder().withKeepTrailingNewline(true).build()
+      );
     tag = new ForTag();
 
     try {
