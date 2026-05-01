@@ -21,8 +21,10 @@ import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.objects.collections.ArrayBacked;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @JinjavaDoc(
@@ -51,11 +53,14 @@ public class ReverseFilter implements Filter {
     }
     // collection
     if (object instanceof Collection) {
-      return ReverseArrayIterator.create(((Collection<?>) object).toArray());
+      return maybeCollectToList(
+        ReverseArrayIterator.create(((Collection<?>) object).toArray()),
+        interpreter
+      );
     }
     // array
     if (object.getClass().isArray()) {
-      return ReverseArrayIterator.create(object);
+      return maybeCollectToList(ReverseArrayIterator.create(object), interpreter);
     }
     // string
     if (object instanceof String) {
@@ -70,6 +75,20 @@ public class ReverseFilter implements Filter {
     }
 
     return object;
+  }
+
+  private Object maybeCollectToList(
+    ReverseArrayIterator iterator,
+    JinjavaInterpreter interpreter
+  ) {
+    if (interpreter.getConfig().getLegacyOverrides().isIteratorOnlyReverseFilter()) {
+      return iterator;
+    }
+    List<Object> result = new ArrayList<>();
+    while (iterator.hasNext()) {
+      result.add(iterator.next());
+    }
+    return result;
   }
 
   @Override

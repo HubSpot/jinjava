@@ -20,6 +20,7 @@ import static com.hubspot.jinjava.lib.fn.Functions.DEFAULT_RANGE_LIMIT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.el.JinjavaInterpreterResolver;
 import com.hubspot.jinjava.el.JinjavaObjectUnwrapper;
 import com.hubspot.jinjava.el.JinjavaProcessors;
@@ -53,158 +54,170 @@ import org.immutables.value.Value;
 
 @Value.Immutable(singleton = true)
 @JinjavaImmutableStyle.WithStyle
-public interface JinjavaConfig {
+@Value.Style(
+  init = "with*",
+  get = { "is*", "get*" }, // Detect 'get' and 'is' prefixes in accessor methods
+  build = "buildImpl", // This is an alias for keeping binary compatibility on the "build" method.
+  visibility = Value.Style.ImplementationVisibility.PACKAGE
+)
+public class JinjavaConfig {
+
+  public JinjavaConfig() {}
+
   @Value.Default
-  default Charset getCharset() {
+  public Charset getCharset() {
     return StandardCharsets.UTF_8;
   }
 
   @Value.Default
-  default Locale getLocale() {
+  public Locale getLocale() {
     return Locale.ENGLISH;
   }
 
   @Value.Default
-  default ZoneId getTimeZone() {
+  public ZoneId getTimeZone() {
     return ZoneOffset.UTC;
   }
 
   @Value.Default
-  default int getMaxRenderDepth() {
+  public int getMaxRenderDepth() {
     return 10;
   }
 
   @Value.Default
-  default long getMaxOutputSize() {
+  public long getMaxOutputSize() {
     return 0;
   }
 
   @Value.Default
-  default boolean isTrimBlocks() {
+  public boolean isTrimBlocks() {
     return false;
   }
 
   @Value.Default
-  default boolean isLstripBlocks() {
+  public boolean isLstripBlocks() {
     return false;
   }
 
   @Value.Default
-  default boolean isEnableRecursiveMacroCalls() {
+  public boolean isEnableRecursiveMacroCalls() {
     return false;
   }
 
   @Value.Default
-  default int getMaxMacroRecursionDepth() {
+  public int getMaxMacroRecursionDepth() {
     return 0;
   }
 
-  Map<Library, Set<String>> getDisabled();
+  @Value.Default
+  public Map<Library, Set<String>> getDisabled() {
+    return ImmutableMap.of();
+  }
 
   @Value.Default
-  default boolean isFailOnUnknownTokens() {
+  public boolean isFailOnUnknownTokens() {
     return false;
   }
 
   @Value.Default
-  default boolean isNestedInterpretationEnabled() {
+  public boolean isNestedInterpretationEnabled() {
     return false; // Default changed to false in 3.0
   }
 
   @Value.Default
-  default RandomNumberGeneratorStrategy getRandomNumberGeneratorStrategy() {
+  public RandomNumberGeneratorStrategy getRandomNumberGeneratorStrategy() {
     return RandomNumberGeneratorStrategy.THREAD_LOCAL;
   }
 
   @Value.Default
-  default boolean isValidationMode() {
+  public boolean isValidationMode() {
     return false;
   }
 
   @Value.Default
-  default long getMaxStringLength() {
+  public long getMaxStringLength() {
     return getMaxOutputSize();
   }
 
   @Value.Default
-  default int getMaxListSize() {
+  public int getMaxListSize() {
     return Integer.MAX_VALUE;
   }
 
   @Value.Default
-  default int getMaxMapSize() {
+  public int getMaxMapSize() {
     return Integer.MAX_VALUE;
   }
 
   @Value.Default
-  default int getRangeLimit() {
+  public int getRangeLimit() {
     return DEFAULT_RANGE_LIMIT;
   }
 
   @Value.Default
-  default int getMaxNumDeferredTokens() {
+  public int getMaxNumDeferredTokens() {
     return 1000;
   }
 
   @Value.Default
-  default InterpreterFactory getInterpreterFactory() {
+  public InterpreterFactory getInterpreterFactory() {
     return new JinjavaInterpreterFactory();
   }
 
   @Value.Default
-  default DateTimeProvider getDateTimeProvider() {
+  public DateTimeProvider getDateTimeProvider() {
     return new CurrentDateTimeProvider();
   }
 
   @Value.Default
-  default TokenScannerSymbols getTokenScannerSymbols() {
+  public TokenScannerSymbols getTokenScannerSymbols() {
     return new DefaultTokenScannerSymbols();
   }
 
   @Value.Default
-  default AllowlistMethodValidator getMethodValidator() {
+  public AllowlistMethodValidator getMethodValidator() {
     return AllowlistMethodValidator.DEFAULT;
   }
 
   @Value.Default
-  default AllowlistReturnTypeValidator getReturnTypeValidator() {
+  public AllowlistReturnTypeValidator getReturnTypeValidator() {
     return AllowlistReturnTypeValidator.DEFAULT;
   }
 
   @Value.Default
-  default ELResolver getElResolver() {
+  public ELResolver getElResolver() {
     return isDefaultReadOnlyResolver()
       ? JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_ONLY
       : JinjavaInterpreterResolver.DEFAULT_RESOLVER_READ_WRITE;
   }
 
   @Value.Default
-  default boolean isDefaultReadOnlyResolver() {
+  public boolean isDefaultReadOnlyResolver() {
     return true;
   }
 
   @Value.Default
-  default ExecutionMode getExecutionMode() {
+  public ExecutionMode getExecutionMode() {
     return DefaultExecutionMode.instance();
   }
 
   @Value.Default
-  default LegacyOverrides getLegacyOverrides() {
+  public LegacyOverrides getLegacyOverrides() {
     return LegacyOverrides.THREE_POINT_0;
   }
 
   @Value.Default
-  default boolean getEnablePreciseDivideFilter() {
+  public boolean getEnablePreciseDivideFilter() {
     return false;
   }
 
   @Value.Default
-  default boolean isEnableFilterChainOptimization() {
+  public boolean isEnableFilterChainOptimization() {
     return false;
   }
 
   @Value.Default
-  default ObjectMapper getObjectMapper() {
+  public ObjectMapper getObjectMapper() {
     ObjectMapper objectMapper = new ObjectMapper().registerModule(new Jdk8Module());
     if (getLegacyOverrides().isUseSnakeCasePropertyNaming()) {
       objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
@@ -213,42 +226,47 @@ public interface JinjavaConfig {
   }
 
   @Value.Default
-  default ObjectUnwrapper getObjectUnwrapper() {
+  public ObjectUnwrapper getObjectUnwrapper() {
     return new JinjavaObjectUnwrapper();
   }
 
   @Value.Derived
-  default Features getFeatures() {
+  public Features getFeatures() {
     return new Features(getFeatureConfig());
   }
 
   @Value.Default
-  default FeatureConfig getFeatureConfig() {
+  public FeatureConfig getFeatureConfig() {
     return FeatureConfig.newBuilder().build();
   }
 
   @Value.Default
-  default JinjavaProcessors getProcessors() {
+  public JinjavaProcessors getProcessors() {
     return JinjavaProcessors.newBuilder().build();
   }
 
   @Deprecated
-  default BiConsumer<Node, JinjavaInterpreter> getNodePreProcessor() {
+  public BiConsumer<Node, JinjavaInterpreter> getNodePreProcessor() {
     return getProcessors().getNodePreProcessor();
   }
 
   @Deprecated
-  default boolean isIterateOverMapKeys() {
+  public boolean isIterateOverMapKeys() {
     return getLegacyOverrides().isIterateOverMapKeys();
   }
 
-  class Builder extends ImmutableJinjavaConfig.Builder {}
+  public static class Builder extends ImmutableJinjavaConfig.Builder {
 
-  static Builder builder() {
+    public JinjavaConfig build() {
+      return super.buildImpl();
+    }
+  }
+
+  public static Builder builder() {
     return new Builder();
   }
 
-  static Builder newBuilder() {
+  public static Builder newBuilder() {
     return builder();
   }
 }

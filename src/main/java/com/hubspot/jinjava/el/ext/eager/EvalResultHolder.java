@@ -76,12 +76,14 @@ public interface EvalResultHolder {
     if (astNode == null) {
       return "";
     }
+    if (
+      astNode instanceof AstIdentifier &&
+      ExtendedParser.INTERPRETER.equals(((AstIdentifier) astNode).getName())
+    ) {
+      return ExtendedParser.INTERPRETER;
+    }
     preserveIdentifier =
-      IdentifierPreservationStrategy.preserving(
-        preserveIdentifier.isPreserving() ||
-        (astNode instanceof AstIdentifier &&
-          ExtendedParser.INTERPRETER.equals(((AstIdentifier) astNode).getName()))
-      );
+      IdentifierPreservationStrategy.preserving(preserveIdentifier.isPreserving());
     if (
       preserveIdentifier.isPreserving() &&
       !astNode.hasEvalResult() &&

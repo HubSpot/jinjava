@@ -245,7 +245,7 @@ public class EagerCycleTag extends EagerStateChangingTag<CycleTag> {
       ) +
       // modulo indexing
       String.format(
-        "{{ %s[%d %% filter:length.filter(%s, null)] }}",
+        "{{ %s[%d %% filter:length.filter(%s, ____int3rpr3t3r____)] }}",
         var,
         forIndex,
         var

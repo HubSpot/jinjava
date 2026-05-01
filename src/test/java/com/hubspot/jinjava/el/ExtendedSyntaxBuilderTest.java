@@ -196,7 +196,12 @@ public class ExtendedSyntaxBuilderTest {
         BaseJinjavaTest
           .newConfigBuilder()
           .withMaxOutputSize(MAX_STRING_LENGTH)
-          .withLegacyOverrides(LegacyOverrides.THREE_POINT_0.withEvaluateMapKeys(false))
+          .withLegacyOverrides(
+            LegacyOverrides.Builder
+              .from(LegacyOverrides.THREE_POINT_0)
+              .withEvaluateMapKeys(false)
+              .build()
+          )
           .build()
       )
         .newInterpreter();
