@@ -54,7 +54,14 @@ public class ExpressionToken extends Token {
 
   @Override
   protected void parse() {
-    this.expr = WhitespaceUtils.unwrap(image, "{{", "}}");
+    // Use the symbols-derived delimiter strings instead of the hardcoded "{{" / "}}"
+    // so that custom delimiters (e.g. "\VAR{" / "}") are stripped correctly.
+    this.expr =
+      WhitespaceUtils.unwrap(
+        image,
+        getSymbols().getExpressionStart(),
+        getSymbols().getExpressionEnd()
+      );
     this.expr = handleTrim(expr);
     this.expr = StringUtils.trimToEmpty(this.expr);
   }

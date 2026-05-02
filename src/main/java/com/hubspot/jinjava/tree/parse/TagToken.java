@@ -54,7 +54,10 @@ public class TagToken extends Token {
    */
   @Override
   protected void parse() {
-    if (image.length() < 4) {
+    int startLen = getSymbols().getTagStartLength();
+    int endLen = getSymbols().getTagEndLength();
+
+    if (image.length() < startLen + endLen) {
       throw new TemplateSyntaxException(
         image,
         "Malformed tag token",
@@ -63,7 +66,7 @@ public class TagToken extends Token {
       );
     }
 
-    content = image.substring(2, image.length() - 2);
+    content = image.substring(startLen, image.length() - endLen);
     content = handleTrim(content);
 
     int nameStart = -1, pos = 0, len = content.length();
