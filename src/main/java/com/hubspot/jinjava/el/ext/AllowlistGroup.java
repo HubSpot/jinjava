@@ -156,7 +156,10 @@ public enum AllowlistGroup {
     }
   },
   JinjavaFunctions {
-    private static final String[] ARRAY = { ZonedDateTime.class.getCanonicalName() };
+    private static final String[] ARRAY = {
+      ZonedDateTime.class.getCanonicalName(),
+      NamedParameter.class.getCanonicalName(),
+    };
 
     @Override
     String[] allowedDeclaredMethodsFromClasses() {
