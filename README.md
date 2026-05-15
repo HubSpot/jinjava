@@ -26,13 +26,22 @@ Get it:
 
 where LATEST_VERSION is the [latest version from CHANGES](CHANGES.md).
 
+or if you're stuck on java 11:
+```xml
+  <dependency>
+    <groupId>com.hubspot.jinjava</groupId>
+    <artifactId>jinjava</artifactId>
+    <version>2.7.3</version>
+  </dependency>
+```
+
 or if you're stuck on java 7:
 ```xml
   <dependency>
     <groupId>com.hubspot.jinjava</groupId>
     <artifactId>jinjava</artifactId>
     <version>2.0.11-java7</version>
-</dependency>
+  </dependency>
 ```
 
 
