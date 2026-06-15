@@ -19,6 +19,7 @@ public class LegacyOverrides {
     .withUseTrimmingForNotesAndExpressions(true)
     .withKeepNullableLoopValues(true)
     .withIteratorOnlyReverseFilter(true)
+    .withHandleBackslashInQuotesOnly(true)
     .build();
   public static final LegacyOverrides ALL = new LegacyOverrides.Builder()
     .withEvaluateMapKeys(true)
@@ -31,6 +32,7 @@ public class LegacyOverrides {
     .withUseTrimmingForNotesAndExpressions(true)
     .withKeepNullableLoopValues(true)
     .withIteratorOnlyReverseFilter(true)
+    .withHandleBackslashInQuotesOnly(true)
     .build();
   private final boolean evaluateMapKeys;
   private final boolean iterateOverMapKeys;
@@ -42,6 +44,7 @@ public class LegacyOverrides {
   private final boolean useTrimmingForNotesAndExpressions;
   private final boolean keepNullableLoopValues;
   private final boolean iteratorOnlyReverseFilter;
+  private final boolean handleBackslashInQuotesOnly;
 
   private LegacyOverrides(Builder builder) {
     evaluateMapKeys = builder.evaluateMapKeys;
@@ -54,6 +57,7 @@ public class LegacyOverrides {
     useTrimmingForNotesAndExpressions = builder.useTrimmingForNotesAndExpressions;
     keepNullableLoopValues = builder.keepNullableLoopValues;
     iteratorOnlyReverseFilter = builder.iteratorOnlyReverseFilter;
+    handleBackslashInQuotesOnly = builder.handleBackslashInQuotesOnly;
   }
 
   public static Builder newBuilder() {
@@ -100,6 +104,10 @@ public class LegacyOverrides {
     return iteratorOnlyReverseFilter;
   }
 
+  public boolean isHandleBackslashInQuotesOnly() {
+    return handleBackslashInQuotesOnly;
+  }
+
   public static class Builder {
 
     private boolean evaluateMapKeys = false;
@@ -112,6 +120,7 @@ public class LegacyOverrides {
     private boolean useTrimmingForNotesAndExpressions = false;
     private boolean keepNullableLoopValues = false;
     private boolean iteratorOnlyReverseFilter = false;
+    private boolean handleBackslashInQuotesOnly = false;
 
     private Builder() {}
 
@@ -134,7 +143,8 @@ public class LegacyOverrides {
           legacyOverrides.useTrimmingForNotesAndExpressions
         )
         .withKeepNullableLoopValues(legacyOverrides.keepNullableLoopValues)
-        .withIteratorOnlyReverseFilter(legacyOverrides.iteratorOnlyReverseFilter);
+        .withIteratorOnlyReverseFilter(legacyOverrides.iteratorOnlyReverseFilter)
+        .withHandleBackslashInQuotesOnly(legacyOverrides.handleBackslashInQuotesOnly);
     }
 
     public Builder withEvaluateMapKeys(boolean evaluateMapKeys) {
@@ -190,6 +200,11 @@ public class LegacyOverrides {
 
     public Builder withIteratorOnlyReverseFilter(boolean iteratorOnlyReverseFilter) {
       this.iteratorOnlyReverseFilter = iteratorOnlyReverseFilter;
+      return this;
+    }
+
+    public Builder withHandleBackslashInQuotesOnly(boolean handleBackslashInQuotesOnly) {
+      this.handleBackslashInQuotesOnly = handleBackslashInQuotesOnly;
       return this;
     }
   }
