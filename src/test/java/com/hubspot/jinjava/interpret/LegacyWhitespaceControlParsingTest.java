@@ -82,7 +82,7 @@ public class LegacyWhitespaceControlParsingTest {
       .isThrownBy(() -> modern.render(template, new HashMap<>()))
       .withMessageContaining("syntax error at position 9");
   }
-  
+
   @Test
   public void itHandlesEmptyExpressionToken() {
     String template = "{{}}";
