@@ -21,6 +21,13 @@ import com.google.common.collect.AbstractIterator;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.features.BuiltInFeatures;
 
+/**
+ * Character-based token scanner for the standard single-character-prefix delimiter
+ * scheme (e.g. {@code {{}, {@code {%}, {@code {#}).
+ *
+ * <p>When {@link TokenScannerSymbols#isStringBased()} is {@code true},
+ * {@link TreeParser} uses {@link StringTokenScanner} instead.
+ */
 public class TokenScanner extends AbstractIterator<Token> {
 
   private final JinjavaConfig config;
