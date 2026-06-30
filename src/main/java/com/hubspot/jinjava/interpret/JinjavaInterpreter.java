@@ -432,6 +432,7 @@ public class JinjavaInterpreter implements PyishSerializable {
       if (processExtendRoots) {
         Set<String> extendPaths = new HashSet<>();
         Optional<String> extendPath = context.getExtendPathStack().peek();
+        boolean processedExtendRoots = false;
         int numDeferredTokensBefore = 0;
         while (!extendParentRoots.isEmpty()) {
           if (extendPaths.contains(extendPath.orElse(""))) {
@@ -494,9 +495,12 @@ public class JinjavaInterpreter implements PyishSerializable {
             extendPath =
               hasNestedExtends ? currentExtendPath : context.getExtendPathStack().peek();
             basePath = Optional.of(currentPath);
+            processedExtendRoots = true;
           }
         }
-        preserveBlocks = (context.getDeferredTokens().size() > numDeferredTokensBefore);
+        preserveBlocks =
+          processedExtendRoots &&
+          (context.getDeferredTokens().size() > numDeferredTokensBefore);
       }
 
       int numDeferredTokensBefore = context.getDeferredTokens().size();
