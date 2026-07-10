@@ -1,0 +1,13 @@
+{% set ns = namespace({'found': false} ) %}\
+{% for __ignored__ in [0] %}\
+{% if 1 == deferred %}\
+{% set ns.found = true %}\
+{% endif %}\
+{% if 2 == deferred %}\
+{% set ns.found = true %}\
+{% endif %}\
+{% if 3 == deferred %}\
+{% set ns.found = true %}\
+{% endif %}\
+{% endfor %}
+{{ ns.found }}

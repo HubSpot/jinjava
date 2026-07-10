@@ -1,0 +1,4 @@
+{%- set ns = namespace(enabled=false) %}
+{%- macro setit() %}{% set ns.enabled = deferred %}{% endmacro %}
+{{- setit() -}}
+{{ ns.enabled }}

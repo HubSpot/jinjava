@@ -97,6 +97,7 @@ public class EagerInlineSetTagStrategy extends EagerSetTagStrategy {
         DeferredToken
           .builderFromImage(joiner.toString(), tagNode.getMaster())
           .addUsedDeferredWords(eagerExecutionResult.getResult().getDeferredWords())
+          .addUsedDeferredWords(getNamespaceRootsForDottedSet(variables, interpreter))
           .addSetDeferredWords(Arrays.stream(variables).map(String::trim))
           .build()
       )
