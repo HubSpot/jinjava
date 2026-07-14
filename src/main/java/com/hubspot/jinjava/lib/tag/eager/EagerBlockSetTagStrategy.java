@@ -166,6 +166,7 @@ public class EagerBlockSetTagStrategy extends EagerSetTagStrategy {
           interpreter,
           DeferredToken
             .builderFromImage(joiner.toString(), tagNode.getMaster())
+            .addUsedDeferredWords(getNamespaceRootsForDottedSet(variables, interpreter))
             .addSetDeferredWords(Stream.of(variables))
             .build()
         )

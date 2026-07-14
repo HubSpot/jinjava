@@ -1,0 +1,5 @@
+{%- set ns = namespace(found=false) %}
+{%- for item in [1, 2, 3] %}
+{%- if item == deferred %}{% set ns.found = true %}{% endif %}
+{%- endfor %}
+{{ ns.found }}
