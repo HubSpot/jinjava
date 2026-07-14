@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.hubspot</groupId>
     <artifactId>basepom</artifactId>
-    <version>65.1</version>
+    <version>69.3</version>
   </parent>
 
   <groupId>com.hubspot.jinjava</groupId>
@@ -20,8 +20,8 @@
 
     <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
     <dep.plugin.javadoc.version>3.0.1</dep.plugin.javadoc.version>
-    <dep.hubspot-immutables.version>1.9</dep.hubspot-immutables.version>
-    <dep.algebra.version>1.5</dep.algebra.version>
+    <dep.hubspot-immutables.version>1.11.4</dep.hubspot-immutables.version>
+    <dep.algebra.version>1.7.2</dep.algebra.version>
     <dep.mockito.version>5.20.0</dep.mockito.version>
     <dep.jackson.version>2.20.1</dep.jackson.version>
 
