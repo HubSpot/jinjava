@@ -50,7 +50,7 @@ public final class AllowlistReturnTypeValidator {
     if (o instanceof String || o instanceof Number || o instanceof Boolean) {
       return o;
     }
-    Class<?> clazz = o.getClass();
+    Class<?> clazz = o instanceof Enum ? ((Enum<?>) o).getDeclaringClass() : o.getClass();
     if (clazz.isArray() && allowArrays) {
       return o;
     }

@@ -930,6 +930,42 @@ public class EagerTest {
   }
 
   @Test
+  public void itReconstructsNamespaceForSetTagsAcrossScope() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-namespace-for-set-tags-across-scope/test"
+    );
+  }
+
+  @Test
+  public void itReconstructsNamespaceForSetTagsAcrossScopeSecondPass() {
+    localContext.put("deferred", "resolved");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-namespace-for-set-tags-across-scope/test.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "reconstructs-namespace-for-set-tags-across-scope/test.expected"
+    );
+  }
+
+  @Test
+  public void itReconstructsNamespaceForSetTagsInForLoop() {
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-namespace-for-set-tags-in-for-loop/test"
+    );
+  }
+
+  @Test
+  public void itReconstructsNamespaceForSetTagsInForLoopSecondPass() {
+    localContext.put("deferred", 2);
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "reconstructs-namespace-for-set-tags-in-for-loop/test.expected"
+    );
+    expectedTemplateInterpreter.assertExpectedNonEagerOutput(
+      "reconstructs-namespace-for-set-tags-in-for-loop/test.expected"
+    );
+  }
+
+  @Test
   public void itHandlesClashingNameInMacro() {
     expectedTemplateInterpreter.assertExpectedOutput(
       "handles-clashing-name-in-macro/test"

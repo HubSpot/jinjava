@@ -6,6 +6,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.MetaContextVariables;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.loader.RelativePathResolver;
+import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
@@ -24,6 +25,19 @@ public abstract class EagerSetTagStrategy {
 
   protected EagerSetTagStrategy(SetTag setTag) {
     this.setTag = setTag;
+  }
+
+  protected static Stream<String> getNamespaceRootsForDottedSet(
+    String[] variables,
+    JinjavaInterpreter interpreter
+  ) {
+    return Arrays
+      .stream(variables)
+      .map(String::trim)
+      .filter(variable -> variable.contains("."))
+      .map(variable -> variable.substring(0, variable.indexOf('.')))
+      .distinct()
+      .filter(root -> interpreter.getContext().get(root) instanceof Namespace);
   }
 
   public String run(TagNode tagNode, JinjavaInterpreter interpreter) {

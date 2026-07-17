@@ -52,6 +52,12 @@ public final class AllowlistMethodValidator {
         Class<?> clazz = m1.getDeclaringClass();
         String canonicalClassName = clazz.getCanonicalName();
         if (canonicalClassName == null) {
+          Class<?> superclass = clazz.getSuperclass();
+          if (superclass != null && superclass.isEnum()) {
+            canonicalClassName = superclass.getCanonicalName();
+          }
+        }
+        if (canonicalClassName == null) {
           return false;
         }
         return (

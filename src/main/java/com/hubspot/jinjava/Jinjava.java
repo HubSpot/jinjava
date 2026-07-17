@@ -250,7 +250,7 @@ public class Jinjava {
         .getInterpreterFactory()
         .newInstance(this, context, renderConfig);
       try {
-        String result = interpreter.render(template);
+        String result = stripTrailingNewlineIfNeeded(interpreter.render(template));
         return new RenderResult(
           result,
           interpreter.getContext(),
@@ -291,6 +291,18 @@ public class Jinjava {
     } finally {
       globalContext.reset();
     }
+  }
+
+  /**
+   * Strips a single trailing newline from the rendered output when
+   * {@code keepTrailingNewline} is {@code false} in {@link Config},
+   * matching Python Jinja2's default behaviour.
+   */
+  private String stripTrailingNewlineIfNeeded(String output) {
+    if (!globalConfig.isKeepTrailingNewline() && output.endsWith("\n")) {
+      return output.substring(0, output.length() - 1);
+    }
+    return output;
   }
 
   /**

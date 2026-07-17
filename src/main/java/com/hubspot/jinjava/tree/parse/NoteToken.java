@@ -48,8 +48,11 @@ public class NoteToken extends Token {
    */
   @Override
   protected void parse() {
-    if (image.length() > 4) { // {# #}
-      handleTrim(image.substring(2, image.length() - 2));
+    int startLen = getSymbols().getCommentStartLength();
+    int endLen = getSymbols().getCommentEndLength();
+
+    if (image.length() > startLen + endLen) {
+      handleTrim(image.substring(startLen, image.length() - endLen));
     }
     content = "";
   }

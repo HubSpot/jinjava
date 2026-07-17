@@ -129,4 +129,90 @@ public abstract class TokenScannerSymbols implements Serializable {
       c == symbols.getNote() || c == symbols.getTag() || c == symbols.getExprStartChar()
     );
   }
+
+  // ── New API ────────────────────────────────────────────────────────────────
+
+  /**
+   * Returns {@code true} if this instance uses arbitrary string delimiters that
+   * require the string-matching scan path in {@link TokenScanner}.
+   *
+   * <p>The default returns {@code false}, so all existing subclasses are unaffected.
+   * {@link StringTokenScannerSymbols} overrides this to return {@code true}.
+   */
+  public boolean isStringBased() {
+    return false;
+  }
+
+  /**
+   * Length of the variable/expression opening delimiter (e.g. 2 for {@code "{{"}),
+   * used by {@link ExpressionToken#parse()} instead of the hardcoded constant 2.
+   */
+  public int getExpressionStartLength() {
+    return getExpressionStart().length();
+  }
+
+  /**
+   * Length of the variable/expression closing delimiter (e.g. 2 for {@code "}}"}),
+   * used by {@link ExpressionToken#parse()} instead of the hardcoded constant 2.
+   */
+  public int getExpressionEndLength() {
+    return getExpressionEnd().length();
+  }
+
+  /**
+   * Length of the block/tag opening delimiter (e.g. 2 for {@code "{%"}),
+   * used by {@link TagToken#parse()} instead of the hardcoded constant 2.
+   */
+  public int getTagStartLength() {
+    return getExpressionStartWithTag().length();
+  }
+
+  /**
+   * Length of the block/tag closing delimiter (e.g. 2 for {@code "%}"}),
+   * used by {@link TagToken#parse()} instead of the hardcoded constant 2.
+   */
+  public int getTagEndLength() {
+    return getExpressionEndWithTag().length();
+  }
+
+  /**
+   * Length of the comment opening delimiter (e.g. 2 for {@code "{#"}),
+   * used by {@link NoteToken#parse()} instead of the hardcoded constant 2.
+   */
+  public int getCommentStartLength() {
+    return getOpeningComment().length();
+  }
+
+  /**
+   * Length of the comment closing delimiter (e.g. 2 for {@code "#}"}),
+   * used by {@link NoteToken#parse()} instead of the hardcoded constant 2.
+   */
+  public int getCommentEndLength() {
+    return getClosingComment().length();
+  }
+
+  /**
+   * Optional line statement prefix (e.g. {@code "%%"}). When non-null, any line
+   * that begins with this prefix (after optional horizontal whitespace) is treated
+   * as a block tag statement, equivalent to wrapping its content in the block
+   * delimiters. Returns {@code null} by default (feature disabled).
+   *
+   * <p>Only used by {@link StringTokenScannerSymbols}; has no effect in the
+   * char-based path.
+   */
+  public String getLineStatementPrefix() {
+    return null;
+  }
+
+  /**
+   * Optional line comment prefix (e.g. {@code "%#"}). When non-null, any line
+   * that begins with this prefix (after optional horizontal whitespace) is stripped
+   * entirely from the output. Returns {@code null} by default (feature disabled).
+   *
+   * <p>Only used by {@link StringTokenScannerSymbols}; has no effect in the
+   * char-based path.
+   */
+  public String getLineCommentPrefix() {
+    return null;
+  }
 }

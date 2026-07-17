@@ -19,6 +19,8 @@ public class LegacyOverrides {
     .withUseTrimmingForNotesAndExpressions(true)
     .withKeepNullableLoopValues(true)
     .withIteratorOnlyReverseFilter(true)
+    .withHandleBackslashInQuotesOnly(true)
+    .withDefaultKeepTrailingNewlineBehavior(false)
     .build();
   public static final LegacyOverrides ALL = new LegacyOverrides.Builder()
     .withEvaluateMapKeys(true)
@@ -31,6 +33,8 @@ public class LegacyOverrides {
     .withUseTrimmingForNotesAndExpressions(true)
     .withKeepNullableLoopValues(true)
     .withIteratorOnlyReverseFilter(true)
+    .withHandleBackslashInQuotesOnly(true)
+    .withDefaultKeepTrailingNewlineBehavior(false)
     .build();
   private final boolean evaluateMapKeys;
   private final boolean iterateOverMapKeys;
@@ -42,6 +46,8 @@ public class LegacyOverrides {
   private final boolean useTrimmingForNotesAndExpressions;
   private final boolean keepNullableLoopValues;
   private final boolean iteratorOnlyReverseFilter;
+  private final boolean handleBackslashInQuotesOnly;
+  private final boolean defaultKeepTrailingNewlineBehavior;
 
   private LegacyOverrides(Builder builder) {
     evaluateMapKeys = builder.evaluateMapKeys;
@@ -54,6 +60,8 @@ public class LegacyOverrides {
     useTrimmingForNotesAndExpressions = builder.useTrimmingForNotesAndExpressions;
     keepNullableLoopValues = builder.keepNullableLoopValues;
     iteratorOnlyReverseFilter = builder.iteratorOnlyReverseFilter;
+    handleBackslashInQuotesOnly = builder.handleBackslashInQuotesOnly;
+    defaultKeepTrailingNewlineBehavior = builder.defaultKeepTrailingNewlineBehavior;
   }
 
   public static Builder newBuilder() {
@@ -100,6 +108,19 @@ public class LegacyOverrides {
     return iteratorOnlyReverseFilter;
   }
 
+  public boolean isHandleBackslashInQuotesOnly() {
+    return handleBackslashInQuotesOnly;
+  }
+
+  /**
+   * The default value of {@link com.hubspot.jinjava.JinjavaConfig#isKeepTrailingNewline()}.
+   * {@code true} preserves Jinjava's historical behaviour of keeping the trailing newline;
+   * {@code false} matches Python Jinja2's default of stripping it.
+   */
+  public boolean getDefaultKeepTrailingNewlineBehavior() {
+    return defaultKeepTrailingNewlineBehavior;
+  }
+
   public static class Builder {
 
     private boolean evaluateMapKeys = false;
@@ -112,6 +133,8 @@ public class LegacyOverrides {
     private boolean useTrimmingForNotesAndExpressions = false;
     private boolean keepNullableLoopValues = false;
     private boolean iteratorOnlyReverseFilter = false;
+    private boolean handleBackslashInQuotesOnly = false;
+    private boolean defaultKeepTrailingNewlineBehavior = true;
 
     private Builder() {}
 
@@ -134,7 +157,11 @@ public class LegacyOverrides {
           legacyOverrides.useTrimmingForNotesAndExpressions
         )
         .withKeepNullableLoopValues(legacyOverrides.keepNullableLoopValues)
-        .withIteratorOnlyReverseFilter(legacyOverrides.iteratorOnlyReverseFilter);
+        .withIteratorOnlyReverseFilter(legacyOverrides.iteratorOnlyReverseFilter)
+        .withHandleBackslashInQuotesOnly(legacyOverrides.handleBackslashInQuotesOnly)
+        .withDefaultKeepTrailingNewlineBehavior(
+          legacyOverrides.defaultKeepTrailingNewlineBehavior
+        );
     }
 
     public Builder withEvaluateMapKeys(boolean evaluateMapKeys) {
@@ -190,6 +217,18 @@ public class LegacyOverrides {
 
     public Builder withIteratorOnlyReverseFilter(boolean iteratorOnlyReverseFilter) {
       this.iteratorOnlyReverseFilter = iteratorOnlyReverseFilter;
+      return this;
+    }
+
+    public Builder withHandleBackslashInQuotesOnly(boolean handleBackslashInQuotesOnly) {
+      this.handleBackslashInQuotesOnly = handleBackslashInQuotesOnly;
+      return this;
+    }
+
+    public Builder withDefaultKeepTrailingNewlineBehavior(
+      boolean defaultKeepTrailingNewlineBehavior
+    ) {
+      this.defaultKeepTrailingNewlineBehavior = defaultKeepTrailingNewlineBehavior;
       return this;
     }
   }

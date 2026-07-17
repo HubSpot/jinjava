@@ -9,7 +9,9 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.lib.tag.SetTagTest;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
+import com.hubspot.jinjava.objects.Namespace;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.junit.After;
@@ -96,6 +98,63 @@ public class EagerSetTagTest extends SetTagTest {
       .containsExactlyInAnyOrder("foo", "foobar");
     assertThat(maybeDeferredToken.get().getUsedDeferredWords())
       .containsExactlyInAnyOrder("deferred", "range");
+  }
+
+  @Test
+  public void itDefersNamespaceRootAsUsedWordForDottedSet() {
+    context.put("ns", new Namespace());
+    context.setDeferredExecutionMode(true);
+    interpreter.render("{% set ns.enabled = deferred %}");
+    Optional<DeferredToken> maybeDeferredToken = context
+      .getDeferredTokens()
+      .stream()
+      .filter(e -> ((TagToken) e.getToken()).getTagName().equals(tag.getName()))
+      .findAny();
+    assertThat(maybeDeferredToken).isPresent();
+    assertThat(maybeDeferredToken.get().getSetDeferredWords())
+      .containsExactly("ns.enabled");
+    assertThat(maybeDeferredToken.get().getUsedDeferredWords()).contains("ns");
+  }
+
+  @Test
+  public void itDefersNamespaceRootAsUsedWordForDottedBlockSet() {
+    context.put("ns", new Namespace());
+    context.setDeferredExecutionMode(true);
+    interpreter.render("{% set ns.enabled %}{{ deferred }}{% endset %}");
+    Optional<DeferredToken> maybeDeferredToken = context
+      .getDeferredTokens()
+      .stream()
+      .filter(e -> e.getToken() instanceof TagToken)
+      .filter(e -> ((TagToken) e.getToken()).getTagName().equals(tag.getName()))
+      .findAny();
+    assertThat(maybeDeferredToken).isPresent();
+    assertThat(maybeDeferredToken.get().getSetDeferredWords())
+      .containsExactly("ns.enabled");
+    assertThat(maybeDeferredToken.get().getUsedDeferredWords()).contains("ns");
+  }
+
+  @Test
+  public void itDoesNotDeferNonNamespaceRootAsUsedWordForDottedSet() {
+    context.put("someMap", new HashMap<String, Object>());
+    context.setDeferredExecutionMode(true);
+    interpreter.render("{% set someMap.field = deferred %}");
+    Optional<DeferredToken> maybeDeferredToken = context
+      .getDeferredTokens()
+      .stream()
+      .filter(e -> ((TagToken) e.getToken()).getTagName().equals(tag.getName()))
+      .findAny();
+    assertThat(maybeDeferredToken).isPresent();
+    assertThat(maybeDeferredToken.get().getUsedDeferredWords()).doesNotContain("someMap");
+  }
+
+  @Test
+  public void itDoesNotThrowWhenNamespaceHoldsUnserializableValue() {
+    Namespace ns = new Namespace();
+    ns.put("obj", new Object());
+    context.put("ns", ns);
+    context.setDeferredExecutionMode(true);
+    interpreter.render("{% set ns.enabled = deferred %}");
+    assertThat(interpreter.getErrors()).isEmpty();
   }
 
   @Test

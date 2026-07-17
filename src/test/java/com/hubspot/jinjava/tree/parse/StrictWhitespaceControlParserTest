@@ -1,0 +1,48 @@
+package com.hubspot.jinjava.tree.parse;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.Before;
+import org.junit.Test;
+
+public class StrictWhitespaceControlParserTest {
+
+  StrictWhitespaceControlParser parser;
+
+  @Before
+  public void setUp() {
+    parser = new StrictWhitespaceControlParser();
+  }
+
+  @Test
+  public void itDoesNotTrimEmptyTokenOnLeft() {
+    assertThat(parser.hasLeftTrim("")).isFalse();
+  }
+
+  @Test
+  public void itDoesNotTrimEmptyTokenOnRight() {
+    assertThat(parser.hasRightTrim("")).isFalse();
+  }
+
+  @Test
+  public void itStripsLeftOfEmptyTokenWithoutThrowing() {
+    assertThat(parser.stripLeft("")).isEqualTo("");
+  }
+
+  @Test
+  public void itStripsRightOfEmptyTokenWithoutThrowing() {
+    assertThat(parser.stripRight("")).isEqualTo("");
+  }
+
+  @Test
+  public void itDetectsLeftTrim() {
+    assertThat(parser.hasLeftTrim("-foo")).isTrue();
+    assertThat(parser.stripLeft("-foo")).isEqualTo("foo");
+  }
+
+  @Test
+  public void itDetectsRightTrim() {
+    assertThat(parser.hasRightTrim("foo-")).isTrue();
+    assertThat(parser.stripRight("foo-")).isEqualTo("foo");
+  }
+}
