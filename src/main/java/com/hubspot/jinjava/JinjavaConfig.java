@@ -216,6 +216,18 @@ public class JinjavaConfig {
     return false;
   }
 
+  /**
+   * When {@code false}, a single trailing newline is stripped from the rendered output,
+   * matching Python Jinja2's default.
+   * When {@code true}, the trailing newline of the rendered output is preserved —
+   * matching Jinjava's historical behaviour.
+   * Defaults to {@link LegacyOverrides#getDefaultKeepTrailingNewlineBehavior()}.
+   */
+  @Value.Default
+  public boolean isKeepTrailingNewline() {
+    return getLegacyOverrides().getDefaultKeepTrailingNewlineBehavior();
+  }
+
   @Value.Default
   public ObjectMapper getObjectMapper() {
     ObjectMapper objectMapper = new ObjectMapper().registerModule(new Jdk8Module());
