@@ -4,7 +4,7 @@ Jinjava 3.0 is a major release that changes defaults to align more closely with 
 
 Three things to know up front:
 
-1. **Python-aligned defaults are on.** Jinjava 3.0 ships with `LegacyOverrides.THREE_POINT_0` (all 10 behavior flags enabled). If your templates depend on 2.x quirks, set `LegacyOverrides.NONE` to restore the old behavior.
+1. **Python-aligned defaults are on.** Jinjava 3.0 ships with `LegacyOverrides.THREE_POINT_0`, which selects Python-aligned behavior across all 12 settings. If your templates depend on 2.x quirks, set `LegacyOverrides.NONE` to restore the old behavior.
 2. **Nested interpretation is off.** `isNestedInterpretationEnabled()` changed from `true` to `false`. If your templates rely on evaluating expressions inside already-rendered content, opt back in explicitly.
 3. **Method and return-type allowlists are enforced.** Jinjava's built-in types (primitives, collections, filters, dates) are allowed by default. Your domain classes are not — you must add them to the allowlist or method calls will silently return `null`.
 
@@ -54,7 +54,7 @@ Jinjava 3.0 requires Java 17+. The groupId and artifactId are unchanged.
 
 ### Python-Semantic Alignment
 
-Jinjava 3.0 defaults to behavior that matches Python/Jinja2 more closely: natural operator precedence, snake_case property naming, map iteration over keys, strict whitespace control parsing, and more. Each of these is individually controllable via `LegacyOverrides` (see below).
+Jinjava 3.0 defaults to behavior that matches Python/Jinja2 more closely: natural operator precedence, snake_case property naming, map iteration over keys, strict whitespace control parsing, backslash-as-escape only inside quoted strings, stripping the trailing newline from rendered output, and more. Each of these is individually controllable via `LegacyOverrides` (see below).
 
 ### Immutable Configuration
 
@@ -68,6 +68,13 @@ Method calls and return types from template expressions are validated against an
 
 `PyishDate` now delegates all public `ZonedDateTime` instance methods, so templates can call date methods like `withYear()`, `toLocalDate()`, `getZone()`, etc. without workarounds.
 
+### New Template-Authoring Capabilities
+
+3.0 also adds template features that are additive (no migration needed to keep working, available when you want them):
+
+- **Single-line logic.** Blocks and comments can be written on a single line using a line prefix, with support for the trim modifier.
+- **Arbitrary multi-character delimiter strings.** The token scanner supports custom multi-character delimiters.
+
 ### Performance
 
 Allowlist validators use `ConcurrentHashMap`-based caching for method and class lookups. Primitives (`String`, `Number`, `Boolean`) short-circuit the return-type validator entirely.
@@ -78,7 +85,7 @@ Allowlist validators use `ConcurrentHashMap`-based caching for method and class 
 
 ### Default Behavior Changes
 
-All 10 `LegacyOverrides` flags default to `true` in 3.0 (vs. `false` in 2.x). See the [full reference table](#reference-legacyoverrides-flags) for what each flag controls. The most impactful:
+The `THREE_POINT_0` preset selects the Python-aligned value for all 12 `LegacyOverrides` settings (vs. the 2.x values in `NONE`). See the [full reference table](#reference-legacyoverrides-flags) for what each controls. The most impactful:
 
 | Change | Impact |
 |---|---|
@@ -86,8 +93,11 @@ All 10 `LegacyOverrides` flags default to `true` in 3.0 (vs. `false` in 2.x). Se
 | `useSnakeCasePropertyNaming` = `true` | `{{ obj.myField }}` must be written as `{{ obj.my_field }}` |
 | `useNaturalOperatorPrecedence` = `true` | `2 + 3 * 4` evaluates to `14` (not `20`) |
 | `usePyishObjectMapper` = `true` | JSON serialization uses snake_case naming strategy |
+| `defaultKeepTrailingNewlineBehavior` = `false` | Trailing newline is stripped from rendered output (matches Python Jinja2) |
 
 Additionally, `isNestedInterpretationEnabled()` flipped from `true` to `false`.
+
+Note that `defaultKeepTrailingNewlineBehavior` is the one setting whose 3.0 value is `false` rather than `true` — the flag is named for the behavior it produces, not for "enable 3.0". It sets the default of `JinjavaConfig.isKeepTrailingNewline()`: `false` strips the trailing newline (Python default), `true` keeps it (historical Jinjava behavior).
 
 ### Removed/Replaced API
 
@@ -107,14 +117,14 @@ Additionally, `isNestedInterpretationEnabled()` flipped from `true` to `false`.
 
 ## LegacyOverrides: The Compatibility Knob
 
-`LegacyOverrides` is the primary mechanism for controlling migration pace. Each flag opts into a 3.0 behavior when set to `true`, or preserves 2.x behavior when `false`.
+`LegacyOverrides` is the primary mechanism for controlling migration pace. Each setting selects a 3.0 behavior or preserves the 2.x behavior. For all but one setting the 3.0 value is `true`; the exception is `defaultKeepTrailingNewlineBehavior`, whose 3.0 value is `false` (see [Breaking Changes](#breaking-changes)).
 
 Three preset constants are provided:
 
 | Constant | Meaning |
 |---|---|
-| `LegacyOverrides.NONE` | All flags `false` — full 2.x behavior |
-| `LegacyOverrides.THREE_POINT_0` | All flags `true` — full 3.0 behavior (the default) |
+| `LegacyOverrides.NONE` | Full 2.x behavior |
+| `LegacyOverrides.THREE_POINT_0` | Full 3.0 behavior (the default) |
 | `LegacyOverrides.ALL` | Same as `THREE_POINT_0` |
 
 ### Using a Preset
@@ -182,7 +192,7 @@ Attempting to add any of these to an allowlist throws `IllegalStateException` at
 | `Collections` | `Map.Entry`, `ArrayList`, `LinkedHashMap`, Guava `ForwardingList/Map/Set/Collection`; also enables arrays |
 | `JinjavaTagConstructs` | `ForLoop`, `MacroFunction`, `EagerMacroFunction` |
 | `JinjavaFilters` | All classes under `com.hubspot.jinjava.lib.filter.*` (prefix match) |
-| `JinjavaFunctions` | `ZonedDateTime` |
+| `JinjavaFunctions` | `ZonedDateTime`, `NamedParameter` |
 | `JinjavaExpTests` | All classes under `com.hubspot.jinjava.lib.exptest.*` (prefix match) |
 
 If your templates only use Jinjava's built-in types and your own primitive/string-valued context variables, **the defaults will work with no configuration**. If you pass custom domain objects into template context, you need a custom allowlist.
@@ -242,6 +252,8 @@ MethodValidatorConfig.builder()
     .addAllowedDeclaredMethodsFromCanonicalClassPrefixes("com.example.domain.")
     .build();
 ```
+
+**Enums:** allowlisting an enum type (by canonical name or prefix) covers its values and their methods — including enum constants that declare constant-specific class bodies. At runtime those constants are anonymous subclasses whose `getCanonicalName()` is `null`; the validators resolve them back to the base enum type before matching, so a single entry for `com.example.domain.MyEnum` (or a prefix covering it) is sufficient.
 
 ### Debugging "My Method Returns Null Now"
 
@@ -351,7 +363,7 @@ overrides = LegacyOverrides.newBuilder()
     .withIterateOverMapKeys(true)
     .build();
 
-// ... continue until all flags are true
+// ... continue until you reach LegacyOverrides.THREE_POINT_0
 ```
 
 What to audit for each flag:
@@ -368,6 +380,8 @@ What to audit for each flag:
 | `keepNullableLoopValues` | `{% for item in list %}` when list contains nulls — nulls are preserved |
 | `evaluateMapKeys` | `{% for key in {foo: 1} %}` — `foo` is evaluated as an expression, not a string |
 | `iteratorOnlyReverseFilter` | `| reverse` only works on iterables, not arrays/lists directly |
+| `handleBackslashInQuotesOnly` | Templates with literal backslashes outside quoted strings — escaping now only applies inside quotes |
+| `defaultKeepTrailingNewlineBehavior` | Output consumers sensitive to a trailing newline — 3.0 strips it by default |
 
 ### Recipe 3: Greenfield 3.0
 
@@ -407,9 +421,9 @@ Jinjava jinjava = new Jinjava(
 
 ## Reference: LegacyOverrides Flags
 
-All flags default to `false` when using `LegacyOverrides.NONE`, and `true` when using `LegacyOverrides.THREE_POINT_0` (the default in 3.0).
+`LegacyOverrides.NONE` uses the 2.x value for every setting; `LegacyOverrides.THREE_POINT_0` (the default in 3.0) uses the 3.0 value. The 3.0 value is `true` for every setting except `defaultKeepTrailingNewlineBehavior`, whose 3.0 value is `false`.
 
-| Flag | When `true` (3.0 behavior) | When `false` (2.x behavior) |
+| Flag | 3.0 behavior | 2.x behavior |
 |---|---|---|
 | `evaluateMapKeys` | Map literal keys (`{key: val}`) are evaluated as expressions | Map literal keys are treated as string literals |
 | `iterateOverMapKeys` | `{% for x in dict %}` iterates over keys | Iterates over values |
@@ -421,6 +435,8 @@ All flags default to `false` when using `LegacyOverrides.NONE`, and `true` when 
 | `useTrimmingForNotesAndExpressions` | Trims whitespace around `{# #}` and `{{ }}` | No automatic trimming |
 | `keepNullableLoopValues` | Preserves null values in loop iterations | Skips null values |
 | `iteratorOnlyReverseFilter` | `\| reverse` works on iterables only | `\| reverse` works on arrays, lists, and iterables |
+| `handleBackslashInQuotesOnly` | Backslash is an escape character only inside quoted strings | Legacy backslash handling applies outside quotes too |
+| `defaultKeepTrailingNewlineBehavior` | `false` — trailing newline stripped from output (Python default); sets the default of `isKeepTrailingNewline()` | `true` — trailing newline kept (historical Jinjava) |
 
 ---
 
@@ -434,6 +450,7 @@ All flags default to `false` when using `LegacyOverrides.NONE`, and `true` when 
 | `returnTypeValidator` | `AllowlistReturnTypeValidator` | `DEFAULT` (all groups) | Controls which return types are allowed |
 | `featureConfig` | `FeatureConfig` | empty | Fine-grained feature flags |
 | `processors` | `JinjavaProcessors` | empty | Custom pre/post-processors for AST nodes |
+| `keepTrailingNewline` | `boolean` | delegates to `LegacyOverrides.getDefaultKeepTrailingNewlineBehavior()` | Whether the trailing newline is kept in rendered output |
 
 ### Default Changes
 
@@ -441,6 +458,7 @@ All flags default to `false` when using `LegacyOverrides.NONE`, and `true` when 
 |---|---|---|
 | `nestedInterpretationEnabled` | `true` | `false` |
 | `legacyOverrides` | `LegacyOverrides.NONE` | `LegacyOverrides.THREE_POINT_0` |
+| `keepTrailingNewline` | `true` (kept) | `false` (stripped) |
 
 ### Architectural Change
 
@@ -460,6 +478,7 @@ For a full diff, see the [GitHub comparison view](https://github.com/HubSpot/jin
 - [#1294](https://github.com/HubSpot/jinjava/pull/1294) — Defaulted LegacyOverrides to `THREE_POINT_0`
 - [#1295](https://github.com/HubSpot/jinjava/pull/1295) — Disabled nested interpretation by default
 - [#1316](https://github.com/HubSpot/jinjava/pull/1316) — Reduced binary incompatibility in `JinjavaConfig`; added `PyishDate` `ZonedDateTime` delegation and `iteratorOnlyReverseFilter`
+- [#1311](https://github.com/HubSpot/jinjava/pull/1311) — Added `keepTrailingNewline` config option (delegates to `LegacyOverrides`); 3.0 strips the trailing newline by default
 
 ### Sandbox / Allowlists
 
@@ -467,6 +486,15 @@ For a full diff, see the [GitHub comparison view](https://github.com/HubSpot/jin
 - [#1297](https://github.com/HubSpot/jinjava/pull/1297) — Introduced method and return-type validators
 - [#1298](https://github.com/HubSpot/jinjava/pull/1298) — Added `BaseJinjavaTest` with canonical allowlist setup
 - [#1301](https://github.com/HubSpot/jinjava/pull/1301) — Required prefix packages to end with `.` for explicit matching
+- [#1317](https://github.com/HubSpot/jinjava/pull/1317) — Added `NamedParameter` to the `JinjavaFunctions` allowlist group
+- [#1323](https://github.com/HubSpot/jinjava/pull/1323) — Allowlisted enum method invocation and return types, including constant-specific class bodies
+
+### Parsing and Template Syntax
+
+- [#1305](https://github.com/HubSpot/jinjava/pull/1305) — Single-line logic for blocks/comments, arbitrary multi-character delimiters, `StringTokenScanner` refactor
+- [#1306](https://github.com/HubSpot/jinjava/pull/1306) — Treat backslash as an escape character inside quoted strings only (`handleBackslashInQuotesOnly`)
+- [#1319](https://github.com/HubSpot/jinjava/pull/1319) — Correctly parse empty strings in `StrictWhitespaceControlParser`
+- [#1322](https://github.com/HubSpot/jinjava/pull/1322) — Reconstruct namespace root of dotted `{% set ns.attr %}` across scopes
 
 ### Bug Fixes
 
