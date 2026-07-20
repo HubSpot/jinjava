@@ -19,6 +19,7 @@ public class LegacyOverrides {
     .withAllowAdjacentTextNodes(true)
     .withUseTrimmingForNotesAndExpressions(true)
     .withKeepNullableLoopValues(true)
+    .withHandleBackslashInQuotesOnly(true)
     .build();
   private final boolean evaluateMapKeys;
   private final boolean iterateOverMapKeys;
@@ -30,6 +31,7 @@ public class LegacyOverrides {
   private final boolean allowAdjacentTextNodes;
   private final boolean useTrimmingForNotesAndExpressions;
   private final boolean keepNullableLoopValues;
+  private final boolean handleBackslashInQuotesOnly;
 
   private LegacyOverrides(Builder builder) {
     evaluateMapKeys = builder.evaluateMapKeys;
@@ -42,6 +44,7 @@ public class LegacyOverrides {
     allowAdjacentTextNodes = builder.allowAdjacentTextNodes;
     useTrimmingForNotesAndExpressions = builder.useTrimmingForNotesAndExpressions;
     keepNullableLoopValues = builder.keepNullableLoopValues;
+    handleBackslashInQuotesOnly = builder.handleBackslashInQuotesOnly;
   }
 
   public static Builder newBuilder() {
@@ -88,6 +91,10 @@ public class LegacyOverrides {
     return keepNullableLoopValues;
   }
 
+  public boolean isHandleBackslashInQuotesOnly() {
+    return handleBackslashInQuotesOnly;
+  }
+
   public static class Builder {
 
     private boolean evaluateMapKeys = false;
@@ -100,6 +107,7 @@ public class LegacyOverrides {
     private boolean allowAdjacentTextNodes = false;
     private boolean useTrimmingForNotesAndExpressions = false;
     private boolean keepNullableLoopValues = false;
+    private boolean handleBackslashInQuotesOnly = false;
 
     private Builder() {}
 
@@ -123,7 +131,8 @@ public class LegacyOverrides {
         .withAllowAdjacentTextNodes(legacyOverrides.allowAdjacentTextNodes)
         .withUseTrimmingForNotesAndExpressions(
           legacyOverrides.useTrimmingForNotesAndExpressions
-        );
+        )
+        .withHandleBackslashInQuotesOnly(legacyOverrides.handleBackslashInQuotesOnly);
     }
 
     public Builder withEvaluateMapKeys(boolean evaluateMapKeys) {
@@ -185,6 +194,11 @@ public class LegacyOverrides {
 
     public Builder withKeepNullableLoopValues(boolean keepNullableLoopValues) {
       this.keepNullableLoopValues = keepNullableLoopValues;
+      return this;
+    }
+
+    public Builder withHandleBackslashInQuotesOnly(boolean handleBackslashInQuotesOnly) {
+      this.handleBackslashInQuotesOnly = handleBackslashInQuotesOnly;
       return this;
     }
   }
