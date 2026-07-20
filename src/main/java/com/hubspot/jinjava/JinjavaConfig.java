@@ -89,6 +89,7 @@ public class JinjavaConfig {
   private final LegacyOverrides legacyOverrides;
   private final boolean enablePreciseDivideFilter;
   private final boolean enableFilterChainOptimization;
+  private final boolean keepTrailingNewline;
   private final ObjectMapper objectMapper;
 
   private final Features features;
@@ -153,6 +154,10 @@ public class JinjavaConfig {
     dateTimeProvider = builder.dateTimeProvider;
     enablePreciseDivideFilter = builder.enablePreciseDivideFilter;
     enableFilterChainOptimization = builder.enableFilterChainOptimization;
+    keepTrailingNewline =
+      builder.keepTrailingNewline != null
+        ? builder.keepTrailingNewline
+        : legacyOverrides.getDefaultKeepTrailingNewlineBehavior();
     objectMapper = setupObjectMapper(builder.objectMapper);
     objectUnwrapper = builder.objectUnwrapper;
     processors = builder.processors;
@@ -313,6 +318,17 @@ public class JinjavaConfig {
     return enableFilterChainOptimization;
   }
 
+  /**
+   * When {@code false}, a single trailing newline is stripped from the rendered output,
+   * matching Python Jinja2's default.
+   * When {@code true}, the trailing newline of the rendered output is preserved —
+   * matching Jinjava's historical behaviour.
+   * Defaults to {@link LegacyOverrides#getDefaultKeepTrailingNewlineBehavior()}.
+   */
+  public boolean isKeepTrailingNewline() {
+    return keepTrailingNewline;
+  }
+
   public DateTimeProvider getDateTimeProvider() {
     return dateTimeProvider;
   }
@@ -356,6 +372,7 @@ public class JinjavaConfig {
     private LegacyOverrides legacyOverrides = LegacyOverrides.NONE;
     private boolean enablePreciseDivideFilter = false;
     private boolean enableFilterChainOptimization = false;
+    private Boolean keepTrailingNewline = null;
     private ObjectMapper objectMapper = null;
 
     private ObjectUnwrapper objectUnwrapper = new JinjavaObjectUnwrapper();
@@ -531,6 +548,11 @@ public class JinjavaConfig {
       boolean enableFilterChainOptimization
     ) {
       this.enableFilterChainOptimization = enableFilterChainOptimization;
+      return this;
+    }
+
+    public Builder withKeepTrailingNewline(boolean keepTrailingNewline) {
+      this.keepTrailingNewline = keepTrailingNewline;
       return this;
     }
 

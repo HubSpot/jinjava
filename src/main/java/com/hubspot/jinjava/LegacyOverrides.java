@@ -20,6 +20,7 @@ public class LegacyOverrides {
     .withUseTrimmingForNotesAndExpressions(true)
     .withKeepNullableLoopValues(true)
     .withHandleBackslashInQuotesOnly(true)
+    .withDefaultKeepTrailingNewlineBehavior(false)
     .build();
   private final boolean evaluateMapKeys;
   private final boolean iterateOverMapKeys;
@@ -32,6 +33,7 @@ public class LegacyOverrides {
   private final boolean useTrimmingForNotesAndExpressions;
   private final boolean keepNullableLoopValues;
   private final boolean handleBackslashInQuotesOnly;
+  private final boolean defaultKeepTrailingNewlineBehavior;
 
   private LegacyOverrides(Builder builder) {
     evaluateMapKeys = builder.evaluateMapKeys;
@@ -45,6 +47,7 @@ public class LegacyOverrides {
     useTrimmingForNotesAndExpressions = builder.useTrimmingForNotesAndExpressions;
     keepNullableLoopValues = builder.keepNullableLoopValues;
     handleBackslashInQuotesOnly = builder.handleBackslashInQuotesOnly;
+    defaultKeepTrailingNewlineBehavior = builder.defaultKeepTrailingNewlineBehavior;
   }
 
   public static Builder newBuilder() {
@@ -95,6 +98,15 @@ public class LegacyOverrides {
     return handleBackslashInQuotesOnly;
   }
 
+  /**
+   * The default value of {@link JinjavaConfig#isKeepTrailingNewline()}.
+   * {@code true} preserves Jinjava's historical behaviour of keeping the trailing newline;
+   * {@code false} matches Python Jinja2's default of stripping it.
+   */
+  public boolean getDefaultKeepTrailingNewlineBehavior() {
+    return defaultKeepTrailingNewlineBehavior;
+  }
+
   public static class Builder {
 
     private boolean evaluateMapKeys = false;
@@ -108,6 +120,7 @@ public class LegacyOverrides {
     private boolean useTrimmingForNotesAndExpressions = false;
     private boolean keepNullableLoopValues = false;
     private boolean handleBackslashInQuotesOnly = false;
+    private boolean defaultKeepTrailingNewlineBehavior = true;
 
     private Builder() {}
 
@@ -132,7 +145,10 @@ public class LegacyOverrides {
         .withUseTrimmingForNotesAndExpressions(
           legacyOverrides.useTrimmingForNotesAndExpressions
         )
-        .withHandleBackslashInQuotesOnly(legacyOverrides.handleBackslashInQuotesOnly);
+        .withHandleBackslashInQuotesOnly(legacyOverrides.handleBackslashInQuotesOnly)
+        .withDefaultKeepTrailingNewlineBehavior(
+          legacyOverrides.defaultKeepTrailingNewlineBehavior
+        );
     }
 
     public Builder withEvaluateMapKeys(boolean evaluateMapKeys) {
@@ -199,6 +215,13 @@ public class LegacyOverrides {
 
     public Builder withHandleBackslashInQuotesOnly(boolean handleBackslashInQuotesOnly) {
       this.handleBackslashInQuotesOnly = handleBackslashInQuotesOnly;
+      return this;
+    }
+
+    public Builder withDefaultKeepTrailingNewlineBehavior(
+      boolean defaultKeepTrailingNewlineBehavior
+    ) {
+      this.defaultKeepTrailingNewlineBehavior = defaultKeepTrailingNewlineBehavior;
       return this;
     }
   }
