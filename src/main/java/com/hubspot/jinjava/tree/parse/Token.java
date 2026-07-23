@@ -45,7 +45,7 @@ public abstract class Token implements Serializable {
     this.image = image;
     this.lineNumber = lineNumber;
     this.startPosition = startPosition;
-    this.symbols = symbols;
+    this.symbols = symbols != null ? symbols : new DefaultTokenScannerSymbols();
     this.whitespaceControlParser = whitespaceControlParser;
     parse();
   }

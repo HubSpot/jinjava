@@ -31,6 +31,13 @@ public class TagTokenTest {
   }
 
   @Test
+  public void itDefaultsNullSymbolsToDefaultTokenScannerSymbols() {
+    TagToken t = new TagToken("{% foo %}", 1, 2, null);
+    assertThat(t.getSymbols()).isInstanceOf(DefaultTokenScannerSymbols.class);
+    assertThat(t.getTagName()).isEqualTo("foo");
+  }
+
+  @Test
   public void itThrowsParseErrorWhenMalformed() {
     try {
       new TagToken("{% ", 1, 2, SYMBOLS);
