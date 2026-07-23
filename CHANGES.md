@@ -1,4 +1,16 @@
 # Jinjava Releases #
+### 2026-07-23 Version 2.8.4 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.4/jar)) ###
+* [Add support for configurable multi-character delimiters](https://github.com/HubSpot/jinjava/pull/1305)
+* [Treat backslash as an escape character only inside quoted strings, matching Jinja2](https://github.com/HubSpot/jinjava/pull/1306)
+* [Add `keepTrailingNewline` option to match Python Jinja2's default of stripping a single trailing newline](https://github.com/HubSpot/jinjava/pull/1311)
+* [Auto-convert `Integer` to `Long` in set filters when the feature is enabled](https://github.com/HubSpot/jinjava/pull/1308)
+* [Add a boolean parameter to `withUnwrapRawOverride`](https://github.com/HubSpot/jinjava/pull/1313)
+* [Introduce `BuiltinFeatures`](https://github.com/HubSpot/jinjava/pull/1289)
+* [Preserve block tags to maintain reconstruction and execution order](https://github.com/HubSpot/jinjava/pull/1312)
+* [Fix `RenderFilter`'s handling of deferred values](https://github.com/HubSpot/jinjava/pull/1258)
+* [Use `isResolvableObject` before building a hashcode in eager execution](https://github.com/HubSpot/jinjava/pull/1286)
+* [Don't require explicitly pushing the `JinjavaInterpreter` when using it directly](https://github.com/HubSpot/jinjava/pull/1285)
+
 ### 2026-02-02 Version 2.8.3 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.3/jar)) ###
 * Disallow accessing properties on restricted classes while rendering through ForTag
 * Upgrade jackson to version 2.20
