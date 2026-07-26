@@ -75,7 +75,7 @@ file system, you can add a `FileResourceLocator`. Be aware the security risks of
 from adding code such as `{% include '/etc/password' %}`.
  
 You will likely want to provide your own implementation of 
-`ResourceLoader` to hook into your application's template repository, and then tell jinjava about it:
+`ResourceLocator` to hook into your application's template repository, and then tell jinjava about it:
 
 ```java
 JinjavaConfig config = JinjavaConfig.builder().build();
