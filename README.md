@@ -105,7 +105,7 @@ jinjava.getGlobalContext().registerTag(new MyCustomTag());
 jinjava.getGlobalContext().registerFilter(new MyAwesomeFilter());
 // define a custom public static function (this one will bind to myfn:my_func('foo', 42))
 jinjava.getGlobalContext().registerFunction(new ELFunctionDefinition("myfn", "my_func", 
-    MyFuncsClass.class, "myFunc", String.class, Integer.class);
+    MyFuncsClass.class, "myFunc", String.class, Integer.class));
 
 // define any number of classes which extend Importable
 jinjava.getGlobalContext().registerClasses(Class<? extends Importable>... classes);
