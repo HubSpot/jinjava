@@ -71,7 +71,7 @@ Jinjava needs to know how to interpret template paths, so it can properly handle
 ```
 
 By default, it will load only a `ClasspathResourceLocator` which will allow loading from ANY file in the classpath inclusing class files. If you want to allow Jinjava to load any file from the 
-file system, you can add a `FileResourceLocator`. Be aware the security risks of allowing user input to prevent a user
+file system, you can add a `FileLocator`. Be aware the security risks of allowing user input to prevent a user
 from adding code such as `{% include '/etc/password' %}`.
  
 You will likely want to provide your own implementation of 
