@@ -90,7 +90,8 @@ To use more than one `ResourceLocator`, use a `CascadingResourceLocator`.
 JinjavaConfig config = JinjavaConfig.builder().build();
 
 Jinjava jinjava = new Jinjava(config);
-jinjava.setResourceLocator(new MyCustomResourceLocator(), new FileResourceLocator());
+jinjava.setResourceLocator(
+    new CascadingResourceLocator(new MyCustomResourceLocator(), new FileLocator()));
 ```
 
 ### Custom tags, filters and functions
