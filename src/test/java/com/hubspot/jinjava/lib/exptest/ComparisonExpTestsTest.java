@@ -1,13 +1,17 @@
 package com.hubspot.jinjava.lib.exptest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.BaseJinjavaTest;
+import com.hubspot.jinjava.interpret.FatalTemplateErrorsException;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import javax.el.ELException;
+import javax.el.MethodNotFoundException;
 import org.junit.Test;
 
 public class ComparisonExpTestsTest extends BaseJinjavaTest {
@@ -65,5 +69,28 @@ public class ComparisonExpTestsTest extends BaseJinjavaTest {
     assertThat(jinjava.render("{{ 4 is <= 5 }}", new HashMap<>())).isEqualTo("true");
     assertThat(jinjava.render("{{ 4 is >= 5 }}", new HashMap<>())).isEqualTo("false");
     assertThat(jinjava.render("{{ 4 is != 5 }}", new HashMap<>())).isEqualTo("true");
+  }
+
+  @Test
+  public void itParsesFormattedNumbers() {
+    assertThat(jinjava.render("{{ \"1,050.25\" is ge 4 }}", new HashMap<>()))
+      .isEqualTo("true");
+    assertThat(jinjava.render("{{ \"4.1\" is gt 4 }}", new HashMap<>()))
+      .isEqualTo("false");
+    assertThat(jinjava.render("{{ 4.0 is le 5.00 }}", new HashMap<>())).isEqualTo("true");
+    assertThat(jinjava.render("{{ \"4,500.75\" is le 10000.00 }}", new HashMap<>()))
+      .isEqualTo("true");
+  }
+
+  @Test
+  public void itDoesNotAllowCommasAfterDecimalPointInNumbers() {
+    assertThat(
+      jinjava.renderForResult("{{ \"150.25,0\" is ge 4 }}", new HashMap<>()).getErrors()
+    )
+      .isNotEmpty();
+    assertThat(
+      jinjava.renderForResult("{{ \"150.25,0\" is ge 4.0 }}", new HashMap<>()).getErrors()
+    )
+      .isNotEmpty();
   }
 }
