@@ -74,6 +74,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
 
   private final JinjavaInterpreter interpreter;
   private final ObjectUnwrapper objectUnwrapper;
+  private boolean methodInvoked;
 
   public JinjavaInterpreterResolver(JinjavaInterpreter interpreter) {
     super(interpreter.getConfig().getElResolver());
@@ -89,6 +90,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     Class<?>[] paramTypes,
     Object[] params
   ) {
+    methodInvoked = false;
     try {
       Object methodProperty = getValue(context, base, method, false);
       if (methodProperty instanceof AbstractCallableMethod) {
@@ -96,6 +98,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
           ? ""
           : ((AbstractCallableMethod) methodProperty).evaluate(params);
         context.setPropertyResolved(true);
+        methodInvoked = true;
         return result;
       }
     } catch (IllegalArgumentException e) {
@@ -103,7 +106,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
     }
 
     try {
-      return interpreter.getContext().isValidationMode()
+      Object result = interpreter.getContext().isValidationMode()
         ? ""
         : super.invoke(
           context,
@@ -112,9 +115,19 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
           paramTypes,
           generateMethodParams(method, params)
         );
+      methodInvoked = true;
+      return result;
     } catch (IllegalArgumentException e) {
       return null;
     }
+  }
+
+  void resetMethodInvoked() {
+    methodInvoked = false;
+  }
+
+  boolean wasMethodInvoked() {
+    return methodInvoked;
   }
 
   /**
@@ -124,6 +137,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
    */
   @Override
   public Object getValue(ELContext context, Object base, Object property) {
+    methodInvoked = false;
     return getValue(context, base, property, true);
   }
 
