@@ -211,9 +211,19 @@ public class ImportTag implements Tag {
         interpreter.getContext().addGlobalMacro(macro);
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
-      childBindings
-        .keySet()
-        .forEach(key -> interpreter.getContext().put(key, DeferredValue.instance()));
+      childBindings.forEach((key, value) -> {
+        Object originalValue = value instanceof DeferredValue
+          ? ((DeferredValue) value).getOriginalValue()
+          : null;
+        interpreter
+          .getContext()
+          .put(
+            key,
+            originalValue != null
+              ? DeferredValue.instance(originalValue)
+              : DeferredValue.instance()
+          );
+      });
     } else {
       for (Map.Entry<String, MacroFunction> macroEntry : child
         .getContext()
