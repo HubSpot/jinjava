@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 
 public class FileLocator implements ResourceLocator {
 
@@ -42,14 +43,15 @@ public class FileLocator implements ResourceLocator {
     this.baseDir = baseDir;
   }
 
-  private File resolveFileName(String name) {
-    File f = new File(name);
+  private File resolveFileName(String name) throws IOException {
+    Path root = baseDir.getCanonicalFile().toPath();
+    File resolved = root.resolve(name).normalize().toFile().getCanonicalFile();
 
-    if (f.isAbsolute()) {
-      return f;
+    if (!resolved.toPath().startsWith(root)) {
+      throw new ResourceNotFoundException("Path escapes template root: " + name);
     }
 
-    return new File(baseDir, name);
+    return resolved;
   }
 
   @Override

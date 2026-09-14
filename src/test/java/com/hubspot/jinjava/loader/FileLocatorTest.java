@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.io.Files;
 import com.hubspot.jinjava.BaseInterpretingTest;
-import com.hubspot.jinjava.Jinjava;
-import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
@@ -16,17 +14,19 @@ public class FileLocatorTest extends BaseInterpretingTest {
 
   FileLocator locatorWorkingDir;
   FileLocator locatorTmpDir;
+  FileLocator locatorConfined;
 
   File first;
   File second;
+  File inside;
+  File secretOutside;
 
   @Before
   public void setUp() throws Exception {
     locatorWorkingDir = new FileLocator();
 
-    File tmpDir = java.nio.file.Files
-      .createTempDirectory(getClass().getSimpleName())
-      .toFile();
+    File tmpDir = new File("target/FileLocatorTest/" + System.nanoTime());
+    tmpDir.mkdirs();
     locatorTmpDir = new FileLocator(tmpDir);
 
     first = new File(tmpDir, "foo/first.jinja");
@@ -37,6 +37,17 @@ public class FileLocatorTest extends BaseInterpretingTest {
 
     Files.write("first", first, StandardCharsets.UTF_8);
     Files.write("second", second, StandardCharsets.UTF_8);
+
+    File parent = new File("target/FileLocatorTest-confined/" + System.nanoTime());
+    File confinedDir = new File(parent, "base");
+    confinedDir.mkdirs();
+    locatorConfined = new FileLocator(confinedDir);
+
+    inside = new File(confinedDir, "inside.jinja");
+    Files.write("inside", inside, StandardCharsets.UTF_8);
+
+    secretOutside = new File(parent, "secret.txt");
+    Files.write("TOP_SECRET_FROM_OUTSIDE_DIR", secretOutside, StandardCharsets.UTF_8);
   }
 
   @Test
@@ -101,5 +112,39 @@ public class FileLocatorTest extends BaseInterpretingTest {
   @Test(expected = ResourceNotFoundException.class)
   public void testNotFoundAbs() throws Exception {
     locatorWorkingDir.getString("/blargh", StandardCharsets.UTF_8, interpreter);
+  }
+
+  @Test
+  public void itAllowsInRootRelativePath() throws Exception {
+    assertThat(
+      locatorConfined.getString("inside.jinja", StandardCharsets.UTF_8, interpreter)
+    )
+      .isEqualTo("inside");
+  }
+
+  @Test
+  public void itAllowsInRootAbsolutePath() throws Exception {
+    assertThat(
+      locatorConfined.getString(
+        inside.getAbsolutePath(),
+        StandardCharsets.UTF_8,
+        interpreter
+      )
+    )
+      .isEqualTo("inside");
+  }
+
+  @Test(expected = ResourceNotFoundException.class)
+  public void itBlocksDotDotTraversalOutsideRoot() throws Exception {
+    locatorConfined.getString("../secret.txt", StandardCharsets.UTF_8, interpreter);
+  }
+
+  @Test(expected = ResourceNotFoundException.class)
+  public void itBlocksAbsolutePathOutsideRoot() throws Exception {
+    locatorConfined.getString(
+      secretOutside.getAbsolutePath(),
+      StandardCharsets.UTF_8,
+      interpreter
+    );
   }
 }
