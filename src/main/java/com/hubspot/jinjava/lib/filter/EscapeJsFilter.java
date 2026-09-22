@@ -93,6 +93,18 @@ public class EscapeJsFilter implements Filter {
           case '\\':
             builder.append("\\\\");
             break;
+          case '\'':
+            builder.append("\\u0027");
+            break;
+          case '<':
+            builder.append("\\u003C");
+            break;
+          case '>':
+            builder.append("\\u003E");
+            break;
+          case '&':
+            builder.append("\\u0026");
+            break;
           default:
             builder.append(ch);
             break;
